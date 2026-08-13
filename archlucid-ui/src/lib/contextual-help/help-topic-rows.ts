@@ -314,18 +314,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/audit-trail",
-    entry: {
-      whatIsThisPage:
-        "Audit trail help — how immutable audit events, correlation identifiers, and export posture support governed review.",
-      whatToDoNext:
-        "Open Audit for live activity, Findings when a concern needs triage, or Assurance status for assurance surfaces.",
-      whyEmpty: "This guide is always available; live audit rows appear after workspace actions are recorded.",
-      whereToConfigurePrerequisite:
-        "Audit visibility follows workspace roles; confirm the header workspace before exporting trails.",
-    },
-  },
-  {
     prefix: "/help/evidence-trail",
     entry: {
       whatIsThisPage:

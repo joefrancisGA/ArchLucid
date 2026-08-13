@@ -29,6 +29,7 @@ import { SERVICENOW_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-he
 import { SPONSOR_DASHBOARD_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/sponsor-dashboard-rows";
 import { FINDINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/findings-rows";
 import { GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-approval-rows";
+import { GOVERNANCE_AUDIT_POLICY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-audit-policy-rows";
 import { GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-rows";
 import { GOVERNANCE_SETUP_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-setup-rows";
 import { ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-scorecard-rows";
@@ -86,6 +87,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...EVIDENCE_GRAPH_CONTEXTUAL_HELP_ROWS,
   ...FINDINGS_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_CONTEXTUAL_HELP_ROWS,
+  ...GOVERNANCE_AUDIT_POLICY_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_SETUP_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS,

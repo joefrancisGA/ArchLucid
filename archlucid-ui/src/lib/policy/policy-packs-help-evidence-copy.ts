@@ -10,6 +10,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const POLICY_PACKS_HELP_CANONICAL_PATH = POLICY_PACKS_HELP_PATH;
 
+export const POLICY_PACKS_HELP_TOPIC_LABEL = "How policy packs work" as const;
+
 export const POLICY_PACKS_HELP_PRIMARY_ACTION = {
   label: "Open Policy packs",
   href: GOVERNANCE_POLICY_PACKS_PATH,

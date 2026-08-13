@@ -138,6 +138,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/prior-manifest-retrieval",
       "/help/roi-summary",
       "/help/pilot-outcomes",
+      "/help/policy-packs",
       "/help/architecture-intelligence",
       "/help/architecture-drafts",
       "/help/architecture-scorecard",

@@ -6,18 +6,6 @@ import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 
 export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
-    prefix: "/governance/policy-packs",
-    entry: {
-      whatIsThisPage:
-        "Review policy pack rules, versions, and how packs apply to architecture reviews in this workspace.",
-      whatToDoNext:
-        "Open a pack to inspect rules, return to the library to compare packs, or apply a pack when starting a review.",
-      whyEmpty: "Packs appear after the library is populated for this workspace.",
-      whereToConfigurePrerequisite:
-        "Policy packs respect the workspace and project selected in the header switcher.",
-    },
-  },
-  {
     prefix: "/governance/decision-register",
     entry: {
       whatIsThisPage:
@@ -31,18 +19,6 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         label: "Open architecture reviews",
         href: REVIEWS_LIST_PATH,
       },
-    },
-  },
-  {
-    prefix: "/governance/audit",
-    entry: {
-      whatIsThisPage:
-        "Search and export workspace audit events for reviews, governance actions, and integrity checks in this workspace.",
-      whatToDoNext:
-        "Filter by review or action, refresh the trail, then export or open the related architecture review when needed.",
-      whyEmpty: "Events appear after architects take actions that the audit coverage matrix records.",
-      whereToConfigurePrerequisite:
-        "Audit retention and export privileges follow workspace role and enterprise controls.",
     },
   },
   {
