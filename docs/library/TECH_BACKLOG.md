@@ -1726,7 +1726,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1442 | ~~`/alert-routing` ? promote next.config redirect to permanent~~ **Done** 2026-07-30 ? permanent true + inventory; Vitest | Trustworthiness P1 ? **V1**; with **TB-1441** | XS |
 | TB-1443 | Owner traffic workbook ? mark AL2 redirect-only (inherit alert-rules Routing tab); see ## TB-1443 below | Adoption friction P2 ? **V1**; with **TB-1441**; pairs **TB-1406**/**TB-748** | XS |
 | TB-1444 | **Done** (2026-08-11) ? CI drift ? `/alert-routing` must stay redirect-only (no product UI reintro); see ## TB-1444 below | Testability P2 ? **V1**; after **TB-1441**; pairs **TB-1407** | S |
-| TB-1482 | Shared empty form+rail whitespace contract + Vitest inventory; see ## TB-1482 below | Testability P2 ? **V1**; after **TB-1477**?**TB-1481**; orchestrates **TB-1133**/**TB-1177**/**TB-1194** | S |
+| TB-1482 | **Done** (2026-08-12) ? `operator-empty-form-rail-whitespace-contract.test.ts` + inventory/patterns for migrated **TB-1477**–**TB-1481** surfaces; see ## TB-1482 below | Testability P2 ? **V1**; after **TB-1477**?**TB-1481**; orchestrates **TB-1133**/**TB-1177**/**TB-1194** | S |
 | TB-1484 | ~~Compliance journey ? ISR `revalidate=300` + surface test id~~ **Done** 2026-08-09 ? `revalidate = 300` + `data-testid="compliance-journey-page"`; Vitest ISR inventory; see ## TB-1484 below | Performance / testability P0 ? **V1** (promoted P0 2026-08-09 with perf wave 6; was P2); with **TB-1483**; pairs **TB-567**/**TB-1517** | XS |
 | TB-1492 | ~~`/digest-subscriptions` ? single redirect shim (drop dual config+page / dead layout)~~ **Done** 2026-08-11; see ## TB-1492 below | Maintainability P2 **V1**; traffic **IXX** retired | S |
 | TB-1493 | ~~Owner traffic workbook ? mark IXX redirect-only (inherit Digests Subscriptions tab)~~ **Done** 2026-08-11; see ## TB-1493 below | Adoption friction P2 **V1**; IXX row removed | XS |
@@ -1737,9 +1737,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1528 | CI ? forbid `/executive/dashboard` page + permanent next.config redirect coexistence; see ## TB-1528 below | Testability P2 ? **V1**; after **TB-1525**; pairs **TB-1494** | S |
 | TB-1534 | ~~Executive scorecard ? hours-saved honesty (no silent 3h?reviews fallback)~~ **Done** 2026-07-30 ? em dash when weighted hours zero (buyer-polished); labeled Est. fallback in operator shell; Vitest | Trustworthiness P0 ? **V1**; with **TB-1532**; pairs BDA-080 | S |
 | TB-1553 | **Done** (2026-07-30) ? Reviews hub empty ? `EnterpriseCompactEmptyState` + sample outline only (no second Start); see `## TB-1553` below | Adoption friction P3 ? **V1**; with **TB-1541** / **TB-1552** | S |
-| TB-1556 | Vitest ? Compact empty on allowlist + ban empty-theater stacks (coordinate TB-1482); see ## TB-1556 below | Testability P2 ? **V1**; after **TB-1553**?**TB-1555**; pairs **TB-1552** / **TB-1482** | S |
+| TB-1556 | **Done** (2026-08-12) ? `operator-empty-state-contract.test.ts` + compact preset kind map / migrated inventory guard; see ## TB-1556 below | Testability P2 ? **V1**; after **TB-1553**?**TB-1555**; pairs **TB-1552** / **TB-1482** | S |
 | TB-1560 | Anti-CI-guarantees-compat / anti-Sunset-always-on / anti-v2-shipped honesty CI; see `## TB-1560` below | Testability P1 ? **V1**; after **TB-1559**; pairs **M-288** | S |
-| TB-1576 | Vitest ? side-rail kind allowlist + ban teaching/static two-col on empty; see ## TB-1576 below | Testability P2 ? **V1**; after **TB-1573**?**TB-1575**; pairs **TB-1572** / **TB-1482** / **TB-1556** | S |
+| TB-1576 | **Done** (2026-08-12) ? `operator-side-rail-contract.test.ts` + patterns/surface modules; see ## TB-1576 below | Testability P2 ? **V1**; after **TB-1573**?**TB-1575**; pairs **TB-1572** / **TB-1482** / **TB-1556** | S |
 | TB-1596 | **Done** (2026-08-13) ? Vitest `alerts-inbox-tab-deep-link-guard` bans retired `?tab=inbox` product hrefs; see ## TB-1596 below | Adoption friction P2 ? **V1**; with **TB-1594** | S |
 | TB-1603 | **Done** (2026-08-12) ? Help catch-all ? specialty dispatch inventory CI (if-ladder ? registry); Vitest; see ## TB-1603 below | Testability P2 ? **V1**; with **TB-1599**; pairs **TB-1415** | S |
 | TB-1606 | ~~Accelerator chooser help ? contributor leak purge (.md / templates / TB)~~ **Done** 2026-07-30 ? strips policy-pack/canonical sections + templates-tree/TB leakage; Vitest | Trustworthiness P0 ? **V1**; with **TB-1604** | S |
@@ -37820,7 +37820,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** **Done** (2026-08-12) ? `operator-empty-form-rail-whitespace-contract.test.ts` + inventory/patterns for migrated **TB-1477**?**TB-1481** surfaces; **TB-1479** remains open in inventory.
+**Status:** **Done** (2026-08-12) ? `operator-empty-form-rail-whitespace-contract.test.ts` + inventory/patterns for migrated **TB-1477**–**TB-1481** surfaces (including **TB-1479** alert-rules Rules tab).
 
 **Priority:** P0.
 
@@ -39698,7 +39698,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-12) ? `operator-empty-state-contract.test.ts` with centered/`OperatorEmptyState` baselines, migrated-inventory `EnterpriseCompactEmptyState` guard, and full compact preset kind map.
 
 **Priority:** P0.
 
