@@ -17,7 +17,7 @@ import {
 } from "@/lib/core-pilot-checklist-storage";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
-import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
+import { SHOW_ALL_DESTINATIONS } from "@/lib/nav-disclosure-copy";
 
 type Suggestion = {
   title: string;
@@ -31,13 +31,13 @@ const suggestions: Suggestion[] = [
     title: "Compare two reviews",
     href: "/insights/compare-two-reviews",
     description: "Structured architecture snapshot diff between a baseline review and a target review when you need to know what changed.",
-    sidebarNote: `Requires “${NAV_DISCLOSURE.extended.show}” in the sidebar (extended analysis links).`,
+    sidebarNote: `Use “${SHOW_ALL_DESTINATIONS.show}” in the sidebar if a group is collapsed.`,
   },
   {
     title: "Explore the architecture graph",
     href: "/insights/evidence-graph",
     description: "Provenance or architecture graph for a review ID when a list view is not enough.",
-    sidebarNote: `Requires “${NAV_DISCLOSURE.extended.show}” in the sidebar.`,
+    sidebarNote: `Use “${SHOW_ALL_DESTINATIONS.show}” in the sidebar if Insights is collapsed.`,
   },
   {
     title: "Set up governance alerts",
@@ -50,7 +50,7 @@ const suggestions: Suggestion[] = [
     title: "Review policy packs",
     href: GOVERNANCE_POLICY_PACKS_PATH,
     description: "Versions, effective content, and how governance rules attach to your scope.",
-    sidebarNote: `Use “${NAV_DISCLOSURE.extended.show}” and, for the full Enterprise slice, “${NAV_DISCLOSURE.advanced.show}”.`,
+    sidebarNote: `Expand Governance in the sidebar, or use “${SHOW_ALL_DESTINATIONS.show}” if groups are hidden.`,
   },
 ];
 

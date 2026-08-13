@@ -7,7 +7,7 @@ This document replaces the historical mega-comment on `nav-config.ts`. **API aut
 ## API vs UI
 
 - **`tier`** and **`requiredAuthority`** describe how the shell **should** present routes.
-- **Computed visibility** is **`filterNavLinksForOperatorShell`** in **`nav-shell-visibility.ts`** (**authority only**, plus demo/buyer packaging omissions; empty groups dropped). **`tier` does not hide rows** (owner 2026-08-03) — it is presentation and telemetry metadata; the `showExtended` / `showAdvanced` arguments are ignored.
+- **Computed visibility** is **`filterNavLinksForOperatorShell`** in **`nav-shell-visibility.ts`** (**authority** + committed-review lifecycle gate, plus demo/buyer packaging omissions; empty groups dropped). **`tier` does not hide rows** (owner 2026-08-03) — it is presentation and telemetry metadata only.
 - **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is **authoritative** (`401`/`403`); nav omission or soft-disabled controls never imply a safe POST or deep link.
 
 ## Two shaping surfaces
@@ -28,7 +28,9 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 | Workflow-mode toolbar + sidebar preset radios | No | No | No | No | **Sidebar link visibility only** — `localStorage` filter by href prefix; API `[Authorize]` unchanged |
 | **Operator \| Sponsor** (retained) | No | Yes (shell destination) | No | No | Switches between operator workspace (`/`) and sponsor dashboard (`/architecture/sponsor-dashboard`) |
 
-**Retained shaping:** authority rank from `GET /api/auth/me`, plus demo/buyer packaging omissions. Progressive disclosure tiers (`essential` / `extended` / `advanced`), collapsed-pilot **Show all features**, and per-group **N more** counts were **retired as visibility mechanisms** (owner 2026-08-03); tier survives only as metadata, and the `N more` counters now always resolve to zero.
+**Retained shaping:** authority rank from `GET /api/auth/me`, committed-review lifecycle gate, plus demo/buyer packaging omissions. Progressive disclosure tiers (`essential` / `extended` / `advanced`), collapsed-pilot **Show all features**, per-group **N more** counts, and **`useNavProgressiveDisclosure`** were **retired** (owner 2026-08-03; plumbing removed 2026-08-13 **TB-2242**). **`tier`** survives only as metadata.
+
+**Sidebar link density (TB-2139 / TB-2242):** **`RoleNavDensityExpandControl`** is the **only** sidebar escape hatch — same component on desktop **`SidebarNav`** and mobile **`MobileNavDrawer`**. Copy uses **`SHOW_ALL_DESTINATIONS`** (`Show all sidebar links` / `Fewer sidebar links`). Role-shaped density may hide non-primary nav groups; authority and lifecycle gates still apply underneath.
 
 **Commit-state presentation (TB-524):** `nav-committed-architecture-review-promotion.ts` never adds or removes a row. Once `hasCommittedArchitectureReview` is true it moves **First review guide** to the end of the Architecture group and re-tags it `extended`, and re-tags Compare / Evidence graph / pilot outcomes `essential`.
 
@@ -94,7 +96,8 @@ Shell and page-local **breadcrumb trails are removed** (**TB-2090**). Primary wa
 - **`OperateCapabilityHints.authority.test.tsx`** — rank-gated Operate sidebar/page cues share the same **`ExecuteAuthority`** numeric floor as **`useOperateCapability`** (governance resolution, audit log, **Alerts inbox**, **governance dashboard** reader cue, alert tooling).
 - **`authority-execute-floor-regression.test.ts`** — same **boolean** for a synthetic **`ExecuteAuthority`** row vs **`operateCapabilityFromRank`**.
 - **`authority-shaped-ui-regression.test.ts`** — every catalog **`ExecuteAuthority`** link hidden at Read / visible at Execute (new rows cannot drift untested); **`operate-governance`** monotonicity Reader→Admin.
-- **`nav-shell-visibility.test.ts`** — Analysis extended **Execute** links (e.g. **`/internal/replay`**) gate on rank alone, with no **Show more** step; empty groups are dropped after authority filtering.
+- **`nav-shell-visibility.test.ts`** — Analysis extended **Execute** links (e.g. **`/internal/replay`**) gate on rank alone; empty groups are dropped after authority filtering.
+- **`workspace-navigation-help-alignment.test.ts`** — desktop **`SidebarNav`** and mobile **`MobileNavDrawer`** both mount **`RoleNavDensityExpandControl`** (density parity guard).
 - **`current-principal.test.ts`** — **`maxAuthority`** vs **`requiredAuthorityFromRank`** and **`hasEnterpriseOperatorSurfaces`** vs mutation capability.
 - **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Pilot** essentials omit **`requiredAuthority`**; **Operate** **`ExecuteAuthority`** links must not use **`essential`** tier (progressive disclosure + rank story).
 - **`nav-route-namespace.test.ts`** — every nav **`href`** matches its group canonical prefix or **`NAV_ROUTE_NAMESPACE_EXCEPTIONS`** (TB-404).

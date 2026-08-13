@@ -9,7 +9,7 @@ ArchLucid keeps the sidebar focused on the first-review path until you finalize 
 - **Sidebar** — each nav group shows a short caption (what that group is for).
 - **Home** — a first-review checklist and recommended next action after each step.
 - **Review work** — Home, Onboarding, New architecture review, and Reviews stay available by default.
-- **Analysis tools** — Compare, Replay, and Evidence graph appear when you choose **Show analysis & investigation tools** (after a finalized package is most useful).
+- **Analysis tools** — Compare, Replay, and Evidence graph appear in the sidebar when your role allows and you expand the relevant groups (or choose **Show all sidebar links** when role-shaped density hides them).
 - **Governance and admin** — policy packs, audit, and advanced controls appear when you expand those groups and your role allows them.
 
 The **architect workspace** and **sponsor** reading surfaces are separate shells. Cross-shell links (for example **Open Sponsor Summary** on review detail) move you between them — there is no single Architect | Sponsor toggle in the top bar.
