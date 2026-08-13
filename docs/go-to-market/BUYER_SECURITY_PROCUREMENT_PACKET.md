@@ -2157,7 +2157,7 @@ Do not sell agent free text / unvalidated `ProposedChanges` as the signed archit
 
 ### Residuals (honest)
 
-- **TB-1196** **Done** — [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](../library/AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md); **TB-1197** honesty CI (open).
+- **TB-1196** **Done** — [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](../library/AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md); **TB-1197** **Done** — `scripts/ci/check_unvalidated_proposal_overlay_honesty.py` (wired in `run_buyer_surface_strict_guards.py`).
 - Cite `AgentTopologyProposalGraphMerge`, `RuleBasedDecisionEngine`, `DecisionMergeInputGate`, quality Enforce/Block.
 - Complements **M-154**, **M-158**/**M-159**, **M-166**/**M-167**, **M-247**/**M-248**; pairs claim-honesty **M-203**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.

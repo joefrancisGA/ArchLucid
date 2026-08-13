@@ -352,6 +352,12 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_B.md` 
 | --- | --- |
 | Unexplained mass SHA rewrite = regression proof; cohort re-lock heals production `ManifestHash` / export verify; Real-mode captured as Simulator baseline. | Intentional re-lock with rationale + never-re-lockable invariants per [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md) (**TB-1172**). CI: `check_golden_cohort_relock_rubber_stamp_honesty.py` (**TB-1173** Done). |
 
+#### M-203 — Agent→decisioning Real-variance isolation
+
+| Do not promise | Do promise |
+| --- | --- |
+| Agent free text / unvalidated `ProposedChanges` = signed package; PilotStrict green = Real overlays corruption-proof; prose into governance without typed gates. | Typed findings + sealed graph decide; proposals advisory until validate-before-overlay per [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md) (**TB-1196**). CI: `check_unvalidated_proposal_overlay_honesty.py` (**TB-1197** Done). |
+
 #### M-186 — Competitive deal loss
 
 | Do not promise | Do promise |

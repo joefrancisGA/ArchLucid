@@ -127,6 +127,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "unvalidated-proposal-overlay honesty",
+        ("python", "scripts/ci/check_unvalidated_proposal_overlay_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "polly run-completeness honesty",
         ("python", "scripts/ci/check_polly_run_completeness_honesty.py"),
         None,
