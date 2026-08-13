@@ -52,6 +52,17 @@ public sealed class RequestCostConstraintMaterializerTests
         nodes[0].Properties.Should().NotContainKey("maxMonthlyCost");
     }
 
+    [Theory]
+    [InlineData("USDA export controls")]
+    [InlineData("accost recovery SLA")]
+    public void MaterializeFromConstraintsMetadata_skips_false_positive_cost_keyword_substrings(string constraint)
+    {
+        RequestCostConstraintMaterializer
+            .MaterializeFromConstraintsMetadata(constraint, Guid.NewGuid())
+            .Should()
+            .BeEmpty();
+    }
+
     [Fact]
     public void MaterializeFromConstraintsMetadata_emits_cost_constraint_nodes_for_cost_related_chips()
     {

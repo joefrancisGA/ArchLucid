@@ -11,18 +11,6 @@ namespace ArchLucid.KnowledgeGraph.Materialization;
 /// </summary>
 public static partial class RequestCostConstraintMaterializer
 {
-    private static readonly string[] CostKeywords =
-    [
-        "budget",
-        "cost",
-        "spend",
-        "finops",
-        "usd",
-        "$",
-        "monthly cap",
-        "price ceiling"
-    ];
-
     public static IReadOnlyList<GraphNode> MaterializeFromConstraintsMetadata(
         string? constraintsPipeSeparated,
         Guid snapshotId)
@@ -72,8 +60,16 @@ public static partial class RequestCostConstraintMaterializer
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(constraintText);
 
-        return CostKeywords.Any(keyword =>
-            constraintText.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+        if (constraintText.Contains('$', StringComparison.Ordinal))
+            return true;
+
+        if (constraintText.Contains("monthly cap", StringComparison.OrdinalIgnoreCase)
+            || constraintText.Contains("price ceiling", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return CostConstraintWordRegex().IsMatch(constraintText);
     }
 
     internal static decimal? TryParseMonthlyBudgetUsd(string constraintText)
@@ -113,4 +109,9 @@ public static partial class RequestCostConstraintMaterializer
         @"(?:\$\s*|usd\s*)(?<amount>\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<suffix>k)?|(?<amount>\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<suffix>k)?\s*usd",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex BudgetAmountRegex();
+
+    [GeneratedRegex(
+        @"\b(budget|cost|spend|finops|usd)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex CostConstraintWordRegex();
 }
