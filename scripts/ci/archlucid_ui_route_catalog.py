@@ -25,6 +25,14 @@ PREFERRED_NEW_ROW_IDS: dict[str, str] = {
     "/onboard": "OXX",
     "/onboarding/start": "OSX",
     "/operate/architecture-graph": "OAX",
+    "/governance/advisory-scans?tab=scans": "ADT",
+}
+
+# When workbook path migrations collide, keep the canonical tab/hub row id (ADV hub retired → ADT).
+WORKBOOK_COLLISION_PREFERRED_ROW_IDS: dict[str, str] = {
+    "/governance/advisory-scans?tab=scans": "ADT",
+    "/administration/workspace-settings": "ATE",
+    "/administration/workspace-settings/recycle-bin": "STR",
 }
 
 # Routes outside `/internal` excluded from buyer UX scoring (/al-ui-lowest) and buyer traffic rollup.
@@ -108,9 +116,13 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/quick-start": "/get-started",
     "/login": "/auth/signin",
     "/operate/architecture-graph": "/insights/evidence-graph",
+    "/administration/tenant": "/administration/workspace-settings",
+    "/administration/tenant/recycle-bin": "/administration/workspace-settings/recycle-bin",
     "/governance/alerts?tab=inbox": "/governance/alerts",
     # TB-1124: Advisory scans hub under Governance (next.config permanent redirects only).
-    "/advisory": "/governance/advisory-scans",
+    # ADV workbook row retired — fold hub Hit% into default Scans tab (ADT).
+    "/advisory": "/governance/advisory-scans?tab=scans",
+    "/governance/advisory-scans": "/governance/advisory-scans?tab=scans",
     "/advisory?tab=scans": "/governance/advisory-scans?tab=scans",
     "/advisory?tab=schedules": "/governance/advisory-scans?tab=schedules",
     "/advisory-scheduling": "/governance/advisory-scans?tab=schedules",
@@ -177,6 +189,14 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/product-learning": "/internal/product-learning",
 }
 
+# Hub paths that stay live in the app but are not scored in the owner workbook (tab rows carry Hit%).
+# /governance/advisory-scans hub retired (ADV removed); default Scans tab ADT is canonical.
+TRAFFIC_EXCLUDED_APP_ROUTER_PATHS: frozenset[str] = frozenset(
+    {
+        "/governance/advisory-scans",
+    }
+)
+
 # Paths that must not appear as scored App Router catalog entries (pages gone / never traffic-scored).
 # RER run-scoped artifact Preview App Router shim removed — old bookmarks 404; Preview hrefs are GAR only.
 REDIRECT_ONLY_APP_PATHS = frozenset(
@@ -184,6 +204,8 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
         "/advisory",
         "/advisory-scheduling",
         "/alert-routing",
+        "/administration/tenant",
+        "/administration/tenant/recycle-bin",
         "/architecture/reviews/[runId]/artifacts/[artifactId]",
         "/demo",
     }
@@ -430,6 +452,9 @@ def build_catalog() -> dict[str, CatalogEntry]:
 
     for path in discover_app_router_paths():
         if path in REDIRECT_ONLY_APP_PATHS:
+            continue
+
+        if path in TRAFFIC_EXCLUDED_APP_ROUTER_PATHS:
             continue
 
         catalog[path] = CatalogEntry(path=path, section=infer_section(path, help_alias_paths=help_alias_paths), source="app_router")

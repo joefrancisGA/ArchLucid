@@ -1,4 +1,3 @@
-import { ADVISORY_SCANS_HREF } from "@/lib/advisory-scans-route";
 import { CONFIGURATION_REFERENCE_HELP_PATH } from "@/lib/configuration-reference-help-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import {
@@ -51,14 +50,6 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     note: "Auth callback (Auth) - CallbackClient with AuthFlowShell loading/failure panels, PKCE token exchange. Not an operator PageContextualHelp surface. Sibling ASI = signin; AUB = bootstrap. Score 58/100 (2026-08-08) - OAuth callback ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
-  },
-  /** Traffic workbook row ID for Advisory scans hub (default Scans tab). Owner backlog shorthand: ADV. */
-  {
-    rowId: "ADV",
-    path: ADVISORY_SCANS_HREF,
-    section: "Advisory",
-    note: "Advisory scans hub (Governance) - AdvisoryHubClient with PageContextualHelpButton (Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), Scans/Schedules tabs, recommendation generate + schedules. Follow-up recommendations - not a signed-record Sources trail. Sibling AD = Schedules tab deep link; ADT = Scans tab deep link. Score 68/100 (2026-08-08) - recommendation-launcher at GFN Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
-    noteMustContain: ["AdvisoryHubClient", "Sources", "cannot improve further toward 80"],
   },
   {
     rowId: "ARD",

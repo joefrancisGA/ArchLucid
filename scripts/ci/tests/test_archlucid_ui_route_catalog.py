@@ -103,10 +103,39 @@ def test_build_catalog_excludes_redirect_only_legacy_paths() -> None:
     assert "/help/cloud-connections-aws" not in catalog
     assert "/advisory" not in catalog
     assert "/advisory-scheduling" not in catalog
-    assert "/governance/advisory-scans" in catalog
+    assert "/governance/advisory-scans" not in catalog
+    assert "/governance/advisory-scans?tab=scans" in catalog
     assert "/alert-routing" not in catalog
     assert "/governance/alert-rules?tab=notifications" in catalog
     assert "/governance/alert-rules?tab=routing" not in catalog
+
+
+def test_migrate_workbook_path_maps_legacy_advisory_bookmarks() -> None:
+    assert migrate_workbook_path("/advisory") == "/governance/advisory-scans?tab=scans"
+    assert migrate_workbook_path("/governance/advisory-scans") == "/governance/advisory-scans?tab=scans"
+    assert migrate_workbook_path("/advisory?tab=scans") == "/governance/advisory-scans?tab=scans"
+    assert migrate_workbook_path("/advisory?tab=schedules") == "/governance/advisory-scans?tab=schedules"
+    assert migrate_workbook_path("/advisory-scheduling") == "/governance/advisory-scans?tab=schedules"
+
+
+def test_build_catalog_does_not_track_retired_advisory_scans_hub() -> None:
+    catalog = build_catalog()
+    assert "/governance/advisory-scans" not in catalog
+
+
+def test_migrate_workbook_path_maps_legacy_tenant_settings_bookmarks() -> None:
+    assert migrate_workbook_path("/administration/tenant") == "/administration/workspace-settings"
+    assert (
+        migrate_workbook_path("/administration/tenant/recycle-bin")
+        == "/administration/workspace-settings/recycle-bin"
+    )
+
+
+def test_build_catalog_does_not_track_legacy_tenant_settings_redirects() -> None:
+    catalog = build_catalog()
+    assert "/administration/tenant" not in catalog
+    assert "/administration/tenant/recycle-bin" not in catalog
+    assert "/administration/workspace-settings" in catalog
 
 
 def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> None:
@@ -187,13 +216,6 @@ def test_migrate_workbook_path_maps_legacy_settings_hub() -> None:
 def test_migrate_workbook_path_maps_legacy_governance_resolution() -> None:
     assert migrate_workbook_path("/governance-resolution") == "/governance/standards-and-rules"
     assert migrate_workbook_path("/governance/resolution") == "/governance/standards-and-rules"
-
-
-def test_migrate_workbook_path_maps_legacy_advisory_routes() -> None:
-    assert migrate_workbook_path("/advisory") == "/governance/advisory-scans"
-    assert migrate_workbook_path("/advisory?tab=scans") == "/governance/advisory-scans?tab=scans"
-    assert migrate_workbook_path("/advisory?tab=schedules") == "/governance/advisory-scans?tab=schedules"
-    assert migrate_workbook_path("/advisory-scheduling") == "/governance/advisory-scans?tab=schedules"
 
 
 def test_migrate_workbook_path_maps_legacy_alert_routing() -> None:

@@ -58,6 +58,7 @@ export const UI_ROUTE_TRAFFIC_STANDALONE_MODULES: readonly string[] = [
   "ui-route-traffic-planning-plan-detail",
   "ui-route-traffic-policy-packs-help",
   "ui-route-traffic-recommendation-learning",
+  "ui-route-traffic-retired-advisory-scans-hub",
   "ui-route-traffic-retired-help-topic-aliases",
   "ui-route-traffic-retired-settings-exec-digest",
   "ui-route-traffic-review-workspace",
