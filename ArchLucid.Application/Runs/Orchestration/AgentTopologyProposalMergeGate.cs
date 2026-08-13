@@ -7,7 +7,7 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
-///     Validates topology and cost agent proposals against inventoried graph nodes before commit overlay.
+///     Validates agent proposals against inventoried graph nodes before commit overlay (TB-2221).
 /// </summary>
 public static class AgentTopologyProposalMergeGate
 {
@@ -45,7 +45,7 @@ public static class AgentTopologyProposalMergeGate
     }
 
     private static bool RequiresInventoryOverlayValidation(AgentType agentType) =>
-        agentType is AgentType.Topology or AgentType.Cost;
+        agentType is AgentType.Topology or AgentType.Cost or AgentType.Compliance or AgentType.Critic;
 
     private static HashSet<string> ResolveInventoriedLabels(GraphSnapshot graph) =>
         graph.Nodes
@@ -92,7 +92,8 @@ public static class AgentTopologyProposalMergeGate
     private static bool ProposalIsEmpty(AgentTopologyProposal proposal) =>
         (proposal.AddedServices?.Count ?? 0) == 0
         && (proposal.AddedDatastores?.Count ?? 0) == 0
-        && (proposal.AddedRelationships?.Count ?? 0) == 0;
+        && (proposal.AddedRelationships?.Count ?? 0) == 0
+        && (proposal.RequiredControls?.Count ?? 0) == 0;
 
     private static AgentResult CloneWithProposal(AgentResult source, AgentTopologyProposal proposal)
     {

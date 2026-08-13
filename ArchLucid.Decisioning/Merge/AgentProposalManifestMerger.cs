@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Decisions;
@@ -322,6 +323,8 @@ public sealed class AgentProposalManifestMerger
     {
         foreach (ArchitectureFinding finding in result.Findings)
         {
+            if (!AgentArchitectureFindingEmissionGate.HasTypedEmission(finding))
+                continue;
 
             if (string.Equals(finding.Category, "Compliance", StringComparison.OrdinalIgnoreCase) &&
                 !string.IsNullOrWhiteSpace(finding.Message))

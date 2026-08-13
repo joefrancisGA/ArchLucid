@@ -254,6 +254,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDecisionEngineV2NodeMaterializer, DecisionEngineV2NodeMaterializer>();
         services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
         services.AddScoped<ICommitPipelineManifestReuseService, CommitPipelineManifestReuseService>();
+        services.AddScoped<ICommitOutputIntegrityService, CommitOutputIntegrityService>();
         services.AddScoped<ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler, ArchLucid.Application.Runs.Orchestration.Events.ReviewCompletedEventHandler>();
         services.AddScoped<ISampleRunPurgeService, SampleRunPurgeService>();
         services.AddSingleton<IFindingTrustLabelMapper, FindingTrustLabelMapper>();
