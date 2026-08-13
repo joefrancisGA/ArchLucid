@@ -86,6 +86,17 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
   });
 
+  it("renders TB-1379 specialty companion root with primary Start CTA in first viewport", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    expect(screen.getByTestId("help-core-pilot-guide")).toBeInTheDocument();
+    expect(screen.getByTestId("core-pilot-primary-start-cta")).toHaveAttribute("href", "/architecture/reviews/new");
+  });
+
   it("renders the guided first-review path near the top", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
