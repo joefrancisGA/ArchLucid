@@ -9,10 +9,17 @@ import {
   type TenantTrialStatusClientPayload,
 } from "@/lib/tenant-trial-status-client";
 
-export function useTenantTrialStatusQuery() {
+type UseTenantTrialStatusQueryOptions = {
+  readonly enabled?: boolean;
+};
+
+export function useTenantTrialStatusQuery(options?: UseTenantTrialStatusQueryOptions) {
+  const authEnabled = !shouldSkipTenantTrialStatusFetch();
+  const queryEnabled = options?.enabled ?? true;
+
   return useQuery<TenantTrialStatusClientPayload | null>({
     queryKey: operatorQueryKeys.tenantTrialStatus,
     queryFn: fetchTenantTrialStatus,
-    enabled: !shouldSkipTenantTrialStatusFetch(),
+    enabled: authEnabled && queryEnabled,
   });
 }

@@ -26,6 +26,11 @@ vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-deferred-operator-shell-status-queries-enabled", () => ({
+  useDeferredOperatorShellStatusQueriesEnabled: () => true,
+  resetDeferredOperatorShellStatusQueriesForTests: () => {},
+}));
+
 vi.mock("next/navigation", async (importOriginal) =>
   extendNextNavigationVitestMock(importOriginal),
 );

@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useDeferredOperatorShellStatusQueriesEnabled } from "@/hooks/use-deferred-operator-shell-status-queries-enabled";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -93,7 +94,8 @@ function isExpiredTrial(payload: TrialUpgradeNudgeStatusPayload): boolean {
  * run usage, seat usage, or expiry crosses documented thresholds.
  */
 export function TrialUsageUpgradeNudge() {
-  const { data: payload, isFetched } = useTenantTrialStatusQuery();
+  const deferredReady = useDeferredOperatorShellStatusQueriesEnabled();
+  const { data: payload, isFetched } = useTenantTrialStatusQuery({ enabled: deferredReady });
   const [activeTrigger, setActiveTrigger] = useState<TrialUpgradeNudgeTrigger | null>(null);
   const [visible, setVisible] = useState(false);
   const [dismissedLocally, setDismissedLocally] = useState(false);

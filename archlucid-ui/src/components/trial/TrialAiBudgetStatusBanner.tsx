@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { useDeferredOperatorShellStatusQueriesEnabled } from "@/hooks/use-deferred-operator-shell-status-queries-enabled";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import { useDocumentHidden } from "@/lib/document-visibility";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
@@ -16,8 +17,9 @@ import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 /** Demo workspace banner — sample data with limited AI actions. */
 export function PublicDemoAiUsageBanner() {
   const demoMode = isNextPublicDemoMode();
+  const deferredReady = useDeferredOperatorShellStatusQueriesEnabled();
   const { data: status } = useLlmMonthlyBudgetStatusQuery({
-    enabled: !demoMode && isOperatorExperienceFullShellEnv(),
+    enabled: deferredReady && !demoMode && isOperatorExperienceFullShellEnv(),
     refetchIntervalMs: false,
   });
   const isPublicDemo = demoMode || status?.workspaceKind === "PublicDemo";
@@ -45,7 +47,8 @@ export function PublicDemoAiUsageBanner() {
 /** Trial workspace AI budget remaining and exhaustion messaging. */
 export function TrialAiBudgetStatusBanner() {
   const documentHidden = useDocumentHidden();
-  const queryEnabled = isOperatorExperienceFullShellEnv() && !isNextPublicDemoMode();
+  const deferredReady = useDeferredOperatorShellStatusQueriesEnabled();
+  const queryEnabled = deferredReady && isOperatorExperienceFullShellEnv() && !isNextPublicDemoMode();
   const { data: status } = useLlmMonthlyBudgetStatusQuery({
     enabled: queryEnabled,
     documentHidden,

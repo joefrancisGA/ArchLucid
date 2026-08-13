@@ -18,6 +18,12 @@ vi.mock("@/lib/fetch-tenant-catalog-migration-status", () => ({
   fetchTenantCatalogMigrationStatus: vi.fn(),
 }));
 
+const deferredShellStatusQueriesEnabledMock = vi.hoisted(() => vi.fn(() => true));
+
+vi.mock("@/hooks/use-deferred-operator-shell-status-queries-enabled", () => ({
+  useDeferredOperatorShellStatusQueriesEnabled: () => deferredShellStatusQueriesEnabledMock(),
+}));
+
 import { TenantMigrationMaintenanceBanner } from "./TenantMigrationMaintenanceBanner";
 
 vi.mock("@/lib/demo-ui-env", () => ({
@@ -40,6 +46,7 @@ describe("TenantMigrationMaintenanceBanner", () => {
     sessionStorage.clear();
     resetOperatorQueryClientForTests();
     buyerPolishedShellVitestOverride.value = false;
+    deferredShellStatusQueriesEnabledMock.mockReturnValue(true);
     fetchStatusMock.mockReset();
   });
 
@@ -109,6 +116,14 @@ describe("TenantMigrationMaintenanceBanner", () => {
     });
 
     expect(fetchStatusMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not fetch migration status until deferred shell queries are enabled", async () => {
+    deferredShellStatusQueriesEnabledMock.mockReturnValue(false);
+
+    renderWithOperatorQuery(<TenantMigrationMaintenanceBanner />);
+
+    expect(fetchStatusMock).not.toHaveBeenCalled();
   });
 
   it("polls migration status and clears the banner when migration completes", async () => {

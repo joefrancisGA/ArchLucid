@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
+import { useDeferredOperatorShellStatusQueriesEnabled } from "@/hooks/use-deferred-operator-shell-status-queries-enabled";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -75,7 +76,8 @@ function TrialExportOnlyBanner({ daysRemaining }: TrialExportOnlyBannerProps) {
 /** Sticky trial callout in the operator shell; dismiss hides non–export-only states for 24h. */
 export function TrialBanner() {
   const pathname = usePathname();
-  const { data: payload, isFetched } = useTenantTrialStatusQuery();
+  const deferredReady = useDeferredOperatorShellStatusQueriesEnabled();
+  const { data: payload, isFetched } = useTenantTrialStatusQuery({ enabled: deferredReady });
   const [dismissed, setDismissed] = useState(false);
 
   const showHomeStrip = useMemo(() => {
