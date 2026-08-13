@@ -22,6 +22,7 @@ export function CloudConnectionsProviderHeader(props: CloudConnectionsProviderHe
 
   return (
     <OperatorPageHeader
+      navHref={CLOUD_CONNECTIONS_PATH}
       title={providerLabel}
       titleTestId={`cloud-connection-${providerLabel.toLowerCase()}-page-title`}
       subtitle={overview}

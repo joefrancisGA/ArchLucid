@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -111,6 +112,7 @@ export function RoiSummaryPageView(props: Props) {
       <BaselineRoiVocabularyRail currentSurfaceId="roi-summary" />
       <DocumentLayout>
         <OperatorPageHeader
+          navHref={SPONSOR_REPORT_ROI_SUMMARY_PATH}
           title="ROI summary"
           headingLevel="h1"
           subtitle={buyerPolishedShell ? ROI_SUMMARY_PAGE_SUBTITLE : null}

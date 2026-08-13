@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
+import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
@@ -474,6 +475,7 @@ export function AskPageContent() {
   return (
     <div className="max-w-5xl">
       <OperatorPageHeader
+        navHref={ASK_REVIEW_QUESTIONS_PATH}
         title={buyerPolishedShell ? BUYER_ASK_PAGE_TITLE : "Ask review questions"}
         helpKey="ask-archlucid"
         subtitle={buyerPolishedShell ? BUYER_ASK_PAGE_HERO : ASK_PAGE_SUBTITLE}

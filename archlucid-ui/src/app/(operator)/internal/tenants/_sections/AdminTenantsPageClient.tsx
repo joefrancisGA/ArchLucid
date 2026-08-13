@@ -19,6 +19,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { INTERNAL_TENANTS_PATH } from "@/lib/internal-ops-route-paths";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -223,6 +224,7 @@ export function AdminTenantsPageClient() {
   return (
     <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-tenants-page">
       <OperatorPageHeader
+        navHref={INTERNAL_TENANTS_PATH}
         title="Tenants"
         headingLevel="h1"
         subtitle="Provision a net-new tenant (seeds bundled policy packs) or shut off an existing tenant without deleting data. Erasure quarantine remains a separate platform deletion path."

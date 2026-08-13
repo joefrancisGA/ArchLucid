@@ -17,7 +17,9 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
   buildProductLearningReportFileUrl,
   buildProductLearningReportJsonUrl,
@@ -55,19 +57,20 @@ export function ProductLearningPageView(props: Props) {
 
   return (
     <div className="max-w-5xl">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 space-y-2">
-          <h2 className="mt-0">{BUYER_TERMINOLOGY.evaluationFeedback}</h2>
-          <p className={cn("max-w-3xl leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
+      <OperatorPageHeader
+        navHref={PRODUCT_LEARNING_PATH}
+        title={BUYER_TERMINOLOGY.evaluationFeedback}
+        subtitle={
+          <>
             {PILOT_FEEDBACK_VOCABULARY.pageLead} This view is separate from{" "}
             <Link href="/internal/recommendation-learning" className={OPERATOR_LINK.inline}>
               AI recommendation learning
             </Link>{" "}
             (advisory acceptance weights).
-          </p>
-        </div>
-        <PageContextualHelpButton />
-      </div>
+          </>
+        }
+        actions={<PageContextualHelpButton />}
+      />
 
       <div className="mt-4 mb-5">
         <PilotFeedbackRecommendationLearningVocabularyRail currentSurfaceId="pilot-feedback" />

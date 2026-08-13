@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ConnectorOperationsDashboard } from "@/components/integrations/ConnectorOperationsDashboard";
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -12,6 +13,7 @@ export default function AdministrationConnectionStatusPage() {
   return (
     <div className="w-full max-w-[1120px] space-y-4 px-1 py-4 sm:px-0">
       <OperatorPageHeader
+        navHref={INTEGRATIONS_READINESS_PATH}
         title={OPERATOR_NAV_LINK_LABELS.integrationReadiness}
         subtitle="See which integrations are ready, recommended, or optional for this workspace — and what to configure first."
         actions={

@@ -20,6 +20,7 @@ describe("Start review page", () => {
     render(ui);
 
     expect(screen.getByTestId("reviews-new-page-title")).toHaveTextContent(START_REVIEW_LABEL);
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-lead")).toHaveTextContent(REVIEWS_NEW_PAGE_LEAD);
     expect(screen.getByTestId("reviews-new-optional-cloud-hint")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "How cloud connections work" })).toHaveAttribute(

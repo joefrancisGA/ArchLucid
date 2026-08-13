@@ -43,6 +43,7 @@ import { ApiKeysUsersVocabularyRail } from "@/components/ApiKeysUsersVocabularyR
 import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
 import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocabularyRail";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -255,6 +256,7 @@ export function ApiKeysSettingsPageClient() {
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="api-keys-settings-page">
       <OperatorPageHeader
+        navHref={SETTINGS_ROOT_PATH}
         title={API_KEYS_PAGE_TITLE}
         headingLevel="h1"
         subtitle={

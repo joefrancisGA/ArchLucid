@@ -28,6 +28,7 @@ import {
   operatorSemanticSurface,
 } from "@/lib/design-tokens";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import { INTERNAL_PRICING_QUOTE_AGING_PATH } from "@/lib/internal-ops-route-paths";
 import {
   PRICING_QUOTE_SLA_BREACH_HOURS,
   PRICING_QUOTE_SLA_WARN_HOURS,
@@ -228,6 +229,7 @@ export function PricingQuoteAgingPageView(props: Props) {
   return (
     <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="pricing-quote-aging-page">
       <OperatorPageHeader
+        navHref={INTERNAL_PRICING_QUOTE_AGING_PATH}
         title="Pricing quote follow-up"
         titleTestId="pricing-quote-follow-up-title"
         subtitle="Track open pricing requests, SLA age, owner, and follow-up status."

@@ -35,6 +35,7 @@ import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   buildStandardsRuleRows,
@@ -221,6 +222,7 @@ export function GovernanceResolutionPageView(props: Props) {
       <div className="w-full max-w-[1440px]">
         <StandardsRulesGovernanceStatusBanner className="mb-3" />
         <OperatorPageHeader
+          navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
           title={STANDARDS_RULES_PAGE_TITLE}
           subtitle={STANDARDS_RULES_PAGE_SUBTITLE}
           actions={<PageContextualHelpButton />}
@@ -265,6 +267,7 @@ export function GovernanceResolutionPageView(props: Props) {
       <LayerHeader pageKey="governance-resolution" density="compact"
 />
       <OperatorPageHeader
+        navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
         title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
         subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
         actions={<PageContextualHelpButton />}

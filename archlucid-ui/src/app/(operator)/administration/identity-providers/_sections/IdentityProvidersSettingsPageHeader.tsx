@@ -77,6 +77,7 @@ export function IdentityProvidersSettingsPageHeader(
 
   return (
     <OperatorPageHeader
+      navHref="/administration/identity-providers"
       title={pageTitle}
       titleTestId="identity-providers-page-title"
       subtitle={props.subtitle}

@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 
+import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
@@ -26,6 +27,7 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
       data-testid="governance-setup-guide-page"
     >
       <OperatorPageHeader
+        navHref={GOVERNANCE_SETUP_HREF}
         title="Governance setup"
         titleTestId="governance-setup-page-title"
         subtitle={GOVERNANCE_SETUP_PAGE_SUBTITLE}

@@ -20,6 +20,7 @@ import { TenantCatalogMigrationDiagnosticsSection } from "@/components/tenancy/T
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { INTERNAL_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isDataArchivalHealthDegraded } from "@/lib/health-dashboard-types";
 import { presentConfigLintFindings } from "@/lib/health-config-lint-presentation";
@@ -74,6 +75,7 @@ export function AdminHealthPageView(props: Props) {
     <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, OPERATOR_LAYOUT.sectionStack)} data-testid="admin-health-page">
       <header className="space-y-4">
         <OperatorPageHeader
+          navHref={INTERNAL_HEALTH_PATH}
           title="Diagnostics dashboard"
           subtitle="Workspace health, required services, and configuration advisories for this deployment."
           actions={<PageContextualHelpButton />}

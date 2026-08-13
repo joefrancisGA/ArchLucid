@@ -16,6 +16,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 
+import { SETTINGS_WORKSPACE_SETTINGS_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
@@ -185,6 +186,7 @@ export function TenantSettingsPageView(props: Props) {
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="tenant-settings-page">
 
       <OperatorPageHeader
+        navHref={SETTINGS_WORKSPACE_SETTINGS_PATH}
 
         title={OPERATOR_NAV_LINK_LABELS.workspaceSettings}
 

@@ -10,6 +10,7 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -104,6 +105,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
       <ValueReportOutcomesNav />
 <DocumentLayout>
         <OperatorPageHeader
+          navHref={SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH}
           title={BUYER_VALUE_REPORT_PAGE_TITLE}
           headingLevel="h1"
           subtitle={

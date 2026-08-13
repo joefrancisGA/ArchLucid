@@ -23,6 +23,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT } from "@/lib/buyer/buyer-polish-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { INTERNAL_TRIAL_FUNNEL_PATH } from "@/lib/internal-ops-route-paths";
 import {
   TRIAL_FUNNEL_CONVERSION_NOTE,
   TRIAL_FUNNEL_PAGE_SUBTITLE,
@@ -284,6 +285,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
   return (
     <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="trial-funnel-ops-page">
       <OperatorPageHeader
+        navHref={INTERNAL_TRIAL_FUNNEL_PATH}
         title="Trial funnel"
         subtitle={TRIAL_FUNNEL_PAGE_SUBTITLE}
         titleTestId="trial-funnel-page-title"

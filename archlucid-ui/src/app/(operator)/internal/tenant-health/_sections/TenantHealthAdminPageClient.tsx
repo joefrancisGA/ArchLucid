@@ -20,6 +20,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
+import { INTERNAL_TENANT_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -91,6 +92,7 @@ export function TenantHealthAdminPageClient() {
   return (
     <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="tenant-health-admin-page">
       <OperatorPageHeader
+        navHref={INTERNAL_TENANT_HEALTH_PATH}
         headingLevel="h1"
         title="Tenant health"
         subtitle="Internal customer-success view of engagement, governance, and pilot funnel stage per tenant scope."

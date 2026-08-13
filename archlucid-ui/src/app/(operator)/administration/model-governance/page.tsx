@@ -1,5 +1,6 @@
 import { ModelGovernanceAiUsageVocabularyRail } from "@/components/ModelGovernanceAiUsageVocabularyRail";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { ShieldCheck } from "lucide-react";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,8 @@ export default function ModelGovernanceSettingsPage() {
   return (
     <OperatorPageContainer variant="settings" className={cn(OPERATOR_LAYOUT.sectionStack, "p-6")} data-testid="model-governance-settings-page">
       <OperatorPageHeader
+        navHref="/administration/model-governance"
+        icon={ShieldCheck}
         headingLevel="h1"
         title="AI and model governance"
         subtitle="Manage the workspace default execution profile and review governed model aliases used on reviews."

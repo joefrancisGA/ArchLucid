@@ -1,5 +1,6 @@
 "use client";
 
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { HealthFreshnessLabel } from "@/components/health-dashboard/HealthDashboardSections";
@@ -20,6 +21,7 @@ export function SystemHealthPageHeader(props: SystemHealthPageHeaderProps): Reac
 
   return (
     <OperatorPageHeader
+      navHref={ADMINISTRATION_SYSTEM_HEALTH_PATH}
       title={SYSTEM_HEALTH_PAGE_TITLE}
       titleTestId="system-health-page-title"
       subtitle={props.subtitle}

@@ -17,6 +17,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { SPONSOR_REPORT_PILOT_OUTCOMES_PATH } from "@/lib/sponsor-report-navigation";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -96,6 +97,7 @@ export function PilotValueReportPageView(props: Props) {
       <ValueReportOutcomesNav />
       <DocumentLayout>
         <OperatorPageHeader
+          navHref={SPONSOR_REPORT_PILOT_OUTCOMES_PATH}
           title={PILOT_OUTCOMES_PAGE_TITLE}
           headingLevel="h1"
           subtitle={buyerPolishedShell ? PILOT_OUTCOMES_PAGE_SUBTITLE : null}

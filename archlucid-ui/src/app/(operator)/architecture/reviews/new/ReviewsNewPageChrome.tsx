@@ -7,6 +7,7 @@ import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -23,6 +24,7 @@ export function ReviewsNewPageChrome(): React.JSX.Element {
   return (
     <>
       <OperatorPageHeader
+        navHref={REVIEWS_NEW_PATH}
         title={START_REVIEW_LABEL}
         titleTestId="reviews-new-page-title"
         subtitle={

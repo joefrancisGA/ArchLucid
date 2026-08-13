@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -33,6 +34,7 @@ export function AuditPageHeader(props: AuditPageHeaderProps): React.JSX.Element 
 
   return (
     <OperatorPageHeader
+      navHref={GOVERNANCE_AUDIT_PATH}
       title={props.title}
       titleTestId="audit-page-title"
       subtitle={props.subtitle}

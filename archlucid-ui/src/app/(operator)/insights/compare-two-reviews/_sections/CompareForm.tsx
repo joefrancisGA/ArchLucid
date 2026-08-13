@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { LayerHeader } from "@/components/LayerHeader";
+import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -438,6 +439,7 @@ export function CompareForm() {
   return (
     <div data-testid="compare-page-ready">
       <OperatorPageHeader
+        navHref={COMPARE_TWO_REVIEWS_PATH}
         title={buyerPolished ? BUYER_COMPARE_PAGE_TITLE : "Compare two reviews"}
         titleTestId="compare-page-heading"
         subtitle={COMPARE_PAGE_SUBTITLE}

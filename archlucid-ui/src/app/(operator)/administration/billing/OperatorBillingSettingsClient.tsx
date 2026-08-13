@@ -77,6 +77,7 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
   return (
     <div className="w-full max-w-[1440px] space-y-4 p-4" data-testid="operator-billing-plans-page">
       <OperatorPageHeader
+        navHref="/administration/billing"
         title="Billing & plans"
         headingLevel="h1"
         subtitle={OPERATOR_BILLING_PAGE_LEAD}

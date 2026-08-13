@@ -7,6 +7,7 @@ import { useMemo } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -159,6 +160,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
       <ValueReportOutcomesNav />
       <ScorecardRoiVocabularyRail currentSurfaceId="scorecard" />
       <OperatorPageHeader
+        navHref={ARCHITECTURE_SCORECARD_PATH}
         title={REVIEW_SCORECARD_PAGE_TITLE}
         headingLevel="h1"
         subtitle={REVIEW_SCORECARD_PAGE_SUBTITLE}

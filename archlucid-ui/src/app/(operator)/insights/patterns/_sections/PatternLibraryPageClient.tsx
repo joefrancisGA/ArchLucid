@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PatternLibraryPolicyPacksVocabularyRail } from "@/components/PatternLibraryPolicyPacksVocabularyRail";
 import { Badge } from "@/components/ui/badge";
@@ -58,6 +59,7 @@ export function PatternLibraryPageClient(): React.JSX.Element {
   return (
     <div className={cn("w-full max-w-6xl", OPERATOR_LAYOUT.majorSectionGap)} data-testid="pattern-library-page">
       <OperatorPageHeader
+        navHref={PATTERN_LIBRARY_PATH}
         title={PATTERN_LIBRARY_PAGE_TITLE}
         subtitle={PATTERN_LIBRARY_PAGE_SUBTITLE}
         titleTestId="pattern-library-page-title"

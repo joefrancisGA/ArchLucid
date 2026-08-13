@@ -40,6 +40,7 @@ import {
   isArchitectureIntelligenceReviewTier,
   type ArchitectureIntelligenceReviewTier,
 } from "@/lib/architecture/architecture-intelligence-review-tier";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -366,6 +367,7 @@ export function ArchitectureIntelligencePageClient() {
       data-testid="architecture-intelligence-page"
     >
       <OperatorPageHeader
+        navHref={ARCHITECTURE_INTELLIGENCE_PATH}
         title="Architecture intelligence"
         subtitle="Run closed-loop architecture reasoning or the golden regression harness against a free-form description."
         titleTestId="architecture-intelligence-page-title"

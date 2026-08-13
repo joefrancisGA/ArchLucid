@@ -4,6 +4,7 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { DigestsHubClient } from "@/components/digests/DigestsHubClient";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { DIGESTS_PAGE_TITLE } from "@/lib/digests-browse-copy";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 
@@ -21,6 +22,7 @@ export default function DigestsPage() {
     <Suspense
       fallback={
         <OperatorPageHeader
+          navHref={DIGESTS_HUB_PATH}
           title={DIGESTS_PAGE_TITLE}
           titleTestId="digests-page-title"
           headingLevel="h1"

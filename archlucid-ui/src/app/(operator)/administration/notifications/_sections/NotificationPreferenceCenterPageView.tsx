@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ export function NotificationPreferenceCenterPageView() {
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="notification-preference-center-page">
       <OperatorPageHeader
+        navHref={SETTINGS_NOTIFICATIONS_PATH}
         title={NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE}
         subtitle={NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE}
         titleTestId="notification-preference-center-page-title"

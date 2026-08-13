@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import {
   OperatorEvidenceLimitsFooter,
@@ -239,6 +240,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       ) : null}
 
       <OperatorPageHeader
+        navHref={SIGNED_RECORDS_LIST_PATH}
         title={
           showcaseBuyerManifestHeadline === true
             ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — ${BUYER_MANIFEST_HEADLINE_SUFFIX}`

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { INTERNAL_EVIDENCE_PROPOSALS_PATH } from "@/lib/internal-ops-route-paths";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type EvidenceProposalRow = {
@@ -76,6 +77,7 @@ export function AdminEvidenceProposalsPageClient() {
   return (
     <div className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-evidence-proposals-page">
       <OperatorPageHeader
+        navHref={INTERNAL_EVIDENCE_PROPOSALS_PATH}
         title="Evidence proposals"
         headingLevel="h1"
         subtitle="Review agent-suggested catalog entries from recent reviews and promote approved items into the tenant curated evidence catalog."

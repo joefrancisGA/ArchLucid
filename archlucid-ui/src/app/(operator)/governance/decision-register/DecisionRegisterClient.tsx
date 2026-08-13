@@ -8,6 +8,7 @@ import { DecisionRegisterEmptyTeaching } from "@/components/DecisionRegisterEmpt
 import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
+import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -179,6 +180,7 @@ export default function DecisionRegisterClient() {
   return (
     <div className="space-y-4 p-4" data-testid="decision-register-page">
       <OperatorPageHeader
+        navHref={GOVERNANCE_DECISION_REGISTER_PATH}
         title={BUYER_GOVERNANCE_DECISION_REGISTER_TITLE}
         subtitle={DECISION_REGISTER_PAGE_SUBTITLE}
         actions={

@@ -8,6 +8,7 @@ import {
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
@@ -74,6 +75,7 @@ export function FindingInspectView({
       return (
         <div className="w-full max-w-[1440px] space-y-4 p-6">
           <OperatorPageHeader
+            navHref={GOVERNANCE_FINDINGS_PATH}
             title="Evidence trace"
             headingLevel="h1"
             actions={<PageContextualHelpButton />}
@@ -91,7 +93,7 @@ export function FindingInspectView({
 
     return (
       <div className="w-full max-w-[1440px] space-y-4 p-6">
-        <OperatorPageHeader title="Technical inspection" headingLevel="h1" />
+        <OperatorPageHeader navHref={GOVERNANCE_FINDINGS_PATH} title="Technical inspection" headingLevel="h1" />
         <FindingOptionalArtifactUnavailable
           heading="Evidence trace unavailable"
           body={failure?.message ?? "Finding inspector unavailable."}
@@ -174,6 +176,7 @@ export function FindingInspectView({
           }
         >
           <OperatorPageHeader
+            navHref={GOVERNANCE_FINDINGS_PATH}
             title={inspectHeroTitle}
             headingLevel="h1"
             breadcrumb={

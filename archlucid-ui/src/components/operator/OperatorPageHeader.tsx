@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { PageHeading } from "@/components/PageHeading";
@@ -12,6 +13,8 @@ export type OperatorPageHeaderProps = {
   subtitleClassName?: string;
   /** Canonical nav href — when set, renders the same icon as primary navigation. */
   navHref?: string;
+  /** Rare override when nav-config has no icon for {@link navHref}. */
+  icon?: LucideIcon;
   /** Stable Playwright anchor for the primary page title. */
   titleTestId?: string;
   /** Stable Playwright anchor for the subtitle / page lead. */
@@ -52,6 +55,7 @@ export function OperatorPageHeader({
   subtitle,
   subtitleClassName,
   navHref,
+  icon,
   titleTestId,
   subtitleTestId,
   metadata,
@@ -67,6 +71,7 @@ export function OperatorPageHeader({
         {breadcrumb != null ? <div className="mb-2">{breadcrumb}</div> : null}
         <PageHeading
           navHref={navHref}
+          icon={icon}
           title={title}
           description={subtitle}
           metadata={metadata}
@@ -75,6 +80,7 @@ export function OperatorPageHeader({
           headingLevel={headingLevel}
           bordered
           titleTestId={titleTestId}
+          descriptionTestId={subtitleTestId}
         >
           {children}
         </PageHeading>

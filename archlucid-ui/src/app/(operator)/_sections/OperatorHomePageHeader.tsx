@@ -38,6 +38,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
 
   return (
     <OperatorPageHeader
+      navHref="/"
       title={OPERATOR_HOME_PAGE_TITLE}
       titleTestId="operator-home-page-title"
       subtitle={operatorHomeSubtitleContent(props.subtitle)}

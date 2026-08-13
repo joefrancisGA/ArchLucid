@@ -8,6 +8,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import {
   DIGESTS_LAST_UPDATED_PREFIX,
   DIGESTS_PAGE_TITLE,
@@ -62,6 +63,7 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
 
   return (
     <OperatorPageHeader
+      navHref={DIGESTS_HUB_PATH}
       title={DIGESTS_PAGE_TITLE}
       titleTestId="digests-page-title"
       subtitle={props.subtitle}

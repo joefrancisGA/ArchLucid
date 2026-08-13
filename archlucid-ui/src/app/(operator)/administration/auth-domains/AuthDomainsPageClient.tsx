@@ -9,6 +9,8 @@ import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-o
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import { Fingerprint } from "lucide-react";
+import { SETTINGS_AUTH_DOMAINS_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
@@ -555,6 +557,8 @@ export function AuthDomainsPageClient() {
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="auth-domains-page">
       <OperatorPageHeader
+        navHref={SETTINGS_AUTH_DOMAINS_PATH}
+        icon={Fingerprint}
         title={AUTH_DOMAINS_PAGE_TITLE}
         subtitle={AUTH_DOMAINS_PAGE_SUBTITLE}
         titleTestId="auth-domains-page-title"

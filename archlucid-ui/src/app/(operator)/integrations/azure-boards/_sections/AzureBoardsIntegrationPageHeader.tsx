@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
+import { INTEGRATIONS_AZURE_BOARDS_PATH } from "@/lib/integrations-nav-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -35,6 +36,7 @@ export function AzureBoardsIntegrationPageHeader(
 
   return (
     <OperatorPageHeader
+      navHref={INTEGRATIONS_AZURE_BOARDS_PATH}
       title={AZURE_BOARDS_PAGE_TITLE}
       titleTestId="azure-boards-page-title"
       subtitle={AZURE_BOARDS_PAGE_SUBTITLE}

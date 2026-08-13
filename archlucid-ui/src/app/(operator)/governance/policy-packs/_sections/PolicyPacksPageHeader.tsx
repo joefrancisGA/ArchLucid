@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -33,6 +34,7 @@ export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.
 
   return (
     <OperatorPageHeader
+      navHref={GOVERNANCE_POLICY_PACKS_PATH}
       title={POLICY_PACKS_PAGE_TITLE}
       titleTestId="policy-packs-page-title"
       subtitle={props.subtitle}

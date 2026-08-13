@@ -30,6 +30,7 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { INTERNAL_INTEGRATION_EVENTS_DLQ_PATH } from "@/lib/internal-ops-route-paths";
 import type { components } from "@/lib/api-types.generated";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -332,6 +333,7 @@ export function IntegrationEventsDlqPageClient() {
       data-testid="integration-events-dlq-page"
     >
       <OperatorPageHeader
+        navHref={INTERNAL_INTEGRATION_EVENTS_DLQ_PATH}
         title={INTEGRATION_EVENTS_DLQ_PAGE_TITLE}
         titleTestId="integration-events-dlq-page-title"
         headingLevel="h1"

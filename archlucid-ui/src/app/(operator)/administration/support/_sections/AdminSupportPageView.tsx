@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ReportProblemSupportWorkspaceVocabularyRail } from "@/components/ReportProblemSupportWorkspaceVocabularyRail";
 import { Badge } from "@/components/ui/badge";
@@ -82,6 +83,7 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
   return (
     <div className={cn("w-full max-w-[1280px]", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-support-page">
       <OperatorPageHeader
+        navHref={SETTINGS_SUPPORT_PATH}
         title="Support"
         titleTestId="admin-support-title"
         subtitle="Contact ArchLucid support, gather redacted diagnostics, and follow guided troubleshooting paths."

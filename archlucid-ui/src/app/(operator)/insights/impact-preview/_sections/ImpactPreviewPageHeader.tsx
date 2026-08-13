@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
+import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -29,6 +30,7 @@ export function ImpactPreviewPageHeader(props: ImpactPreviewPageHeaderProps): Re
 
   return (
     <OperatorPageHeader
+      navHref={IMPACT_PREVIEW_PATH}
       title={IMPACT_PREVIEW_PAGE_TITLE}
       titleTestId="impact-preview-page-title"
       subtitle={props.subtitle}

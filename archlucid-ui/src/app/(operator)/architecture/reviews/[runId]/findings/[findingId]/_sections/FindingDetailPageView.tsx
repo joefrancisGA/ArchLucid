@@ -18,6 +18,7 @@ import { FindingExplainabilityTracePanel } from "@/components/findings/FindingEx
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -177,6 +178,7 @@ export function FindingDetailPageView(props: Props) {
           <section className={cn("overflow-hidden rounded-lg border p-5", DESIGN_TOKENS.surface.card)}>
             <div className="max-w-3xl space-y-3">
               <OperatorPageHeader
+                navHref={GOVERNANCE_FINDINGS_PATH}
                 title={pageTitle}
                 headingLevel="h1"
                 breadcrumb={
@@ -409,6 +411,7 @@ export function FindingDetailPageView(props: Props) {
         </div>
       ) : !buyerPolishedShell ? (
         <OperatorPageHeader
+          navHref={GOVERNANCE_FINDINGS_PATH}
           title={pageTitle}
           headingLevel="h1"
           breadcrumb={

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useId, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { ADVISORY_SCANS_HREF } from "@/lib/advisory-scans-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -83,6 +84,7 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
   return (
     <div className="px-0" data-testid="advisory-hub">
       <OperatorPageHeader
+        navHref={ADVISORY_SCANS_HREF}
         title={OPERATOR_NAV_LINK_LABELS.architectureAdvisory}
         actions={<PageContextualHelpButton />}
         titleTestId="advisory-scans-page-title"

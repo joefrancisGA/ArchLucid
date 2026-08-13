@@ -14,6 +14,7 @@ import {
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
+import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
 import {
   EXECUTIVE_DASHBOARD_ACTION_REFRESHING,
   EXECUTIVE_DASHBOARD_LAST_REFRESHED_PREFIX,
@@ -40,6 +41,7 @@ export function ExecutiveDashboardPageHero({
       data-dashboard-empty={dashboardEmpty ? "true" : "false"}
     >
       <OperatorPageHeader
+        navHref={EXECUTIVE_DASHBOARD_HREF}
         title={EXECUTIVE_DASHBOARD_PAGE_TITLE}
         titleTestId="executive-summary-heading"
         subtitle={executiveDashboardPageSubtitle()}

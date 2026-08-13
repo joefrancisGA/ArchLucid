@@ -410,6 +410,7 @@ export function ScimProvisioningSettingsPageClient() {
       data-testid="scim-provisioning-settings-page"
     >
       <OperatorPageHeader
+        navHref="/administration/scim-provisioning"
         title={SCIM_PROVISIONING_PAGE_TITLE}
         subtitle={SCIM_PROVISIONING_PAGE_SUBTITLE}
         titleTestId="scim-provisioning-page-title"

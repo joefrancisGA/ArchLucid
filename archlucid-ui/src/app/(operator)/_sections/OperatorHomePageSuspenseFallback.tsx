@@ -23,7 +23,7 @@ export function OperatorHomePageSuspenseFallback(): React.JSX.Element {
       aria-label="Loading overview"
       role="status"
     >
-      <OperatorPageHeader title={OPERATOR_HOME_PAGE_TITLE} headingLevel="h1">
+      <OperatorPageHeader navHref="/" title={OPERATOR_HOME_PAGE_TITLE} headingLevel="h1">
         <Skeleton className="h-4 w-full max-w-xl" />
       </OperatorPageHeader>
 

@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
+import { PLANNING_PATH } from "@/lib/planning-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -28,6 +29,7 @@ export function PlanningPageHeader(props: PlanningPageHeaderProps): React.JSX.El
 
   return (
     <OperatorPageHeader
+      navHref={PLANNING_PATH}
       title={IMPROVEMENT_PLANNING_PAGE_TITLE}
       titleTestId="planning-page-title"
       subtitle={props.subtitle}
