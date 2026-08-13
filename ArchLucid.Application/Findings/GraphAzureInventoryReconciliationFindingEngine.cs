@@ -57,10 +57,13 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
         AzureExtractorPackageDownloadRecord? download =
             await _packageRepository.TryGetLatestDownloadInScopeAsync(scope, ct).ConfigureAwait(false);
 
-        if (download is null || download.PackageBytes.Length == 0)
+        if (download is null)
             return [];
 
-        string? resourcesJson = AzureInventoryZipResourcesJsonReader.TryReadResourcesJson(download.PackageBytes);
+        // Empty package bytes are treated like a missing resources.json (same as corrupt ZIP).
+        string? resourcesJson = download.PackageBytes.Length == 0
+            ? null
+            : AzureInventoryZipResourcesJsonReader.TryReadResourcesJson(download.PackageBytes);
         InventoryReconciliationResult reconciliation =
             GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graphSnapshot);
 
