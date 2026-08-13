@@ -3,6 +3,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const DEPLOYMENT_STATUS_CANONICAL_PATH = "/internal/deployment-status" as const;
 
+export const DEPLOYMENT_STATUS_HELP_TOPIC_LABEL = "How deployment status works" as const;
+
 /** Primary page lead — teaches release identity without BUILD_ID jargon in the first viewport (TB-1426). */
 export const ADMIN_DEPLOYMENT_STATUS_PAGE_TITLE = "Deployment status" as const;
 

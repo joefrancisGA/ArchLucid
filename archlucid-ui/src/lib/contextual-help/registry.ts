@@ -47,6 +47,7 @@ import { SEARCH_REVIEW_EVIDENCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-he
 import { SLACK_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/slack-integration-rows";
 import { STANDARDS_RULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/standards-rules-rows";
 import { TEAMS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/teams-integration-rows";
+import { WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/workspace-administration-rows";
 import { WEBHOOKS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/webhooks-integration-rows";
 import { SYSTEM_HEALTH_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/system-health-rows";
 import { WORKSPACE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/workspace-settings-rows";
@@ -107,6 +108,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...TEAMS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...WEBHOOKS_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...WORKSPACE_SETTINGS_CONTEXTUAL_HELP_ROWS,
+  ...WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS,
   ...HELP_TOPIC_CONTEXTUAL_HELP_ROWS,
   ...IDENTITY_ADMINISTRATION_CONTEXTUAL_HELP_ROWS,
   ...INSIGHTS_CONTEXTUAL_HELP_ROWS,

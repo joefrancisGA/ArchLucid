@@ -5,6 +5,8 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const SETTINGS_SECURITY_TRUST_CANONICAL_PATH = SETTINGS_SECURITY_TRUST_PATH;
 
+export const SETTINGS_SECURITY_TRUST_HELP_TOPIC_LABEL = "How security and trust settings work" as const;
+
 export const SETTINGS_SECURITY_TRUST_CLAIM_DISCIPLINE =
   "This settings page lists procurement-oriented security and trust materials for the workspace — it is architect orientation, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status, Trust Center, or Audit when you need live assurance surfaces or governed trails.";
 

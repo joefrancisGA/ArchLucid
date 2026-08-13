@@ -266,30 +266,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/billing-and-plans",
-    entry: {
-      whatIsThisPage:
-        "Billing and plans — how evaluation and paid plans, usage, and invoices show up for architects.",
-      whatToDoNext:
-        "Open Billing settings for this workspace, or Pricing when you need public packaging before changing plans.",
-      whyEmpty: "This guide is always available; live plan and usage cards appear after billing data loads.",
-      whereToConfigurePrerequisite:
-        "Changing plans or payment methods needs a role that can manage workspace billing.",
-    },
-  },
-  {
-    prefix: "/help/security-trust",
-    entry: {
-      whatIsThisPage:
-        "Security and trust help — assurance ladder, data handling, subprocessors, and diligence materials for architects and buyers.",
-      whatToDoNext:
-        "Open Assurance status or Trust Center for live assurance surfaces, or Audit when you need governed trails.",
-      whyEmpty: "This guide is always available; downloadable diligence packs appear on Trust Center when published.",
-      whereToConfigurePrerequisite:
-        "No configuration is required — this page is assurance orientation vocabulary only.",
-    },
-  },
-  {
     prefix: "/help/procurement",
     entry: {
       whatIsThisPage:
@@ -383,18 +359,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "Glossary terms are always listed; search filters the catalog without needing a live review.",
       whereToConfigurePrerequisite:
         "No configuration is required — this page is orientation vocabulary only.",
-    },
-  },
-  {
-    prefix: "/help/users-and-roles",
-    entry: {
-      whatIsThisPage:
-        "Users and roles — ArchLucid app roles, capabilities, and how architects invite teammates for this workspace.",
-      whatToDoNext:
-        "Open Users settings to invite or assign roles, or Assurance status when you need assurance orientation.",
-      whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
-      whereToConfigurePrerequisite:
-        "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
     },
   },
 ];

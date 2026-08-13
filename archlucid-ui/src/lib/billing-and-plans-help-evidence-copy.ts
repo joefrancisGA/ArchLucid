@@ -4,6 +4,8 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const BILLING_AND_PLANS_HELP_CANONICAL_PATH = "/help/billing-and-plans" as const;
 
+export const BILLING_AND_PLANS_HELP_TOPIC_LABEL = "How billing and plans work" as const;
+
 export const BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE =
   "This billing guide orients architects on plans, usage, and invoices — it is not a signed-review diligence Sources package. Open Billing settings, Pricing, or Audit when you need live subscription controls or governed trails.";
 

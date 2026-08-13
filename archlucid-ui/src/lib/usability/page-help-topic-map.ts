@@ -7,6 +7,7 @@ import {
   ALERTS_CONFIGURATION_PAGE_TITLE,
   ALERTS_HOW_ALERTS_WORK_LABEL,
 } from "@/lib/alerts-page-copy";
+import { ADMIN_HEALTH_HELP_TOPIC_LABEL } from "@/lib/admin-health-evidence-copy";
 import { ACCOUNT_SECURITY_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/account-security-settings-evidence-copy";
 import { AI_USAGE_HELP_TOPIC_LABEL } from "@/lib/ai-usage-settings-evidence-copy";
 import { ADMIN_TENANTS_HELP_TOPIC_LABEL } from "@/lib/admin-tenants-evidence-copy";
@@ -38,6 +39,19 @@ import { JIRA_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/jira-integration-eviden
 import { MODEL_GOVERNANCE_HELP_TOPIC_LABEL } from "@/lib/model-governance-settings-evidence-copy";
 import { SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/servicenow-integration-evidence-copy";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { BILLING_AND_PLANS_HELP_TOPIC_LABEL } from "@/lib/billing-and-plans-help-evidence-copy";
+import { DEMO_READINESS_HELP_TOPIC_LABEL } from "@/lib/demo-readiness-evidence-copy";
+import { DEPLOYMENT_STATUS_HELP_TOPIC_LABEL } from "@/lib/deployment-status-evidence-copy";
+import { EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/extract-upload-settings-evidence-copy";
+import { INVITE_REVIEWER_HELP_TOPIC_LABEL } from "@/lib/invite-reviewer-evidence-copy";
+import { OPERATOR_BILLING_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/operator/operator-billing-settings-evidence-copy";
+import { PRODUCT_LEARNING_HELP_TOPIC_LABEL } from "@/lib/product-learning-evidence-copy";
+import { SECURITY_TRUST_HELP_TOPIC_LABEL } from "@/lib/security-trust-help-evidence-copy";
+import { SETTINGS_SECURITY_TRUST_HELP_TOPIC_LABEL } from "@/lib/settings-security-trust-evidence-copy";
+import { SETTINGS_USERS_HELP_TOPIC_LABEL } from "@/lib/settings-users-evidence-copy";
+import { TENANT_HEALTH_HELP_TOPIC_LABEL } from "@/lib/tenant-health-evidence-copy";
+import { TRIAL_FUNNEL_HELP_TOPIC_LABEL } from "@/lib/trial-funnel-evidence-copy";
+import { USERS_AND_ROLES_HELP_TOPIC_LABEL } from "@/lib/users-and-roles-help-evidence-copy";
 import { BUYER_ONBOARDING_PAGE_TITLE, BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_SETUP_HREF, GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
@@ -196,7 +210,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/help/users-and-roles",
-    topic: { slug: "users-and-roles", label: "Users and roles" },
+    topic: { slug: "users-and-roles", label: USERS_AND_ROLES_HELP_TOPIC_LABEL },
   },
   { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } },
   { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: "Create architecture" } },
@@ -406,11 +420,11 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/internal/product-learning",
-    topic: { slug: "pilot-feedback", label: "Pilot feedback" },
+    topic: { slug: "pilot-feedback", label: PRODUCT_LEARNING_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/internal/health",
-    topic: { slug: "admin-diagnostics", label: "Diagnostics dashboard" },
+    topic: { slug: "admin-diagnostics", label: ADMIN_HEALTH_HELP_TOPIC_LABEL },
   },
   {
     // Learning / product-orientation allowlist — retired how-it-works slug redirects to this anchor.
@@ -425,7 +439,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/demo/explain",
     topic: { slug: "evidence-trail", label: "Demo explain" },
   },
-  { prefix: "/administration/billing", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
+  { prefix: "/administration/billing", topic: { slug: "billing-and-plans", label: OPERATOR_BILLING_SETTINGS_HELP_TOPIC_LABEL } },
   {
     prefix: "/administration/ai-usage",
     topic: { slug: "ai-usage", label: AI_USAGE_HELP_TOPIC_LABEL },
@@ -434,10 +448,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/administration/settings/ai-usage",
     topic: { slug: "ai-usage", label: AI_USAGE_HELP_TOPIC_LABEL },
   },
-  { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: "Billing and plans" } },
+  { prefix: "/help/billing-and-plans", topic: { slug: "billing-and-plans", label: BILLING_AND_PLANS_HELP_TOPIC_LABEL } },
   {
     prefix: "/help/security-trust",
-    topic: { slug: "security-trust", label: "Security and trust" },
+    topic: { slug: "security-trust", label: SECURITY_TRUST_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/procurement",
@@ -572,19 +586,19 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/internal/integrations/itsm", topic: { slug: "integration-readiness", label: ITSM_CONNECTORS_HELP_TOPIC_LABEL } },
   {
     prefix: "/admin/tenant-health",
-    topic: { slug: "troubleshooting", label: "Tenant health" },
+    topic: { slug: "troubleshooting", label: TENANT_HEALTH_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/admin/trial-funnel",
-    topic: { slug: "billing-and-plans", label: "Trial funnel" },
+    topic: { slug: "billing-and-plans", label: TRIAL_FUNNEL_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/admin/demo-readiness",
-    topic: { slug: "choose-your-next-step", label: "Demo readiness" },
+    topic: { slug: "choose-your-next-step", label: DEMO_READINESS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/admin/deployment-status",
-    topic: { slug: "troubleshooting", label: "Deployment status" },
+    topic: { slug: "troubleshooting", label: DEPLOYMENT_STATUS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/identity-providers/role-mapping",
@@ -640,7 +654,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/extract-upload",
-    topic: { slug: "evidence-intake", label: "Extract and Upload" },
+    topic: { slug: "evidence-intake", label: EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/model-governance",
@@ -648,28 +662,28 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/users/invite-reviewer",
-    topic: { slug: "users-and-roles", label: "Invite a reviewer" },
+    topic: { slug: "users-and-roles", label: INVITE_REVIEWER_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/users",
-    topic: { slug: "users-and-roles", label: `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help` },
+    topic: { slug: "users-and-roles", label: SETTINGS_USERS_HELP_TOPIC_LABEL },
   },
   {
     // Legacy settings segment — permanent redirect destination still resolves help before navigation settles.
     prefix: "/administration/settings/users",
-    topic: { slug: "users-and-roles", label: `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help` },
+    topic: { slug: "users-and-roles", label: SETTINGS_USERS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/settings/roles",
-    topic: { slug: "users-and-roles", label: `${OPERATOR_NAV_LINK_LABELS.usersAndRoles} help` },
+    topic: { slug: "users-and-roles", label: SETTINGS_USERS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/security-trust",
-    topic: { slug: "security-trust", label: `${OPERATOR_NAV_LINK_LABELS.securityTrust} help` },
+    topic: { slug: "security-trust", label: SETTINGS_SECURITY_TRUST_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/settings/security-trust",
-    topic: { slug: "security-trust", label: `${OPERATOR_NAV_LINK_LABELS.securityTrust} help` },
+    topic: { slug: "security-trust", label: SETTINGS_SECURITY_TRUST_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/workspace-settings",

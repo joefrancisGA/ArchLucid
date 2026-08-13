@@ -3,6 +3,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH = "/administration/extract-upload" as const;
 
+export const EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL = "How extract and upload works" as const;
+
 export const EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE =
   "This Extract and Upload page collects a read-only Azure inventory ZIP for architecture reviews - it is not a signed-review diligence Sources package. Open Evidence intake help, Start a review, or Cloud connections when you need intake guidance or live connectors.";
 

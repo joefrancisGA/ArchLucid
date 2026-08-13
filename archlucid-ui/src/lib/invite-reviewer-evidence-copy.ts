@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const INVITE_REVIEWER_CANONICAL_PATH = `${SETTINGS_USERS_PATH}/invite-reviewer` as const;
 
+export const INVITE_REVIEWER_HELP_TOPIC_LABEL = "How to invite a reviewer" as const;
+
 export const INVITE_REVIEWER_CLAIM_DISCIPLINE =
   "Inviting a reviewer grants Reader or Auditor access for architecture review sign-off — it is not a signed-review diligence Sources package. Open Users and roles or Users and roles help when you need the full directory and role matrix.";
 

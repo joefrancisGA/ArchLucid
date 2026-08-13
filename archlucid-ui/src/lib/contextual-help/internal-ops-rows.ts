@@ -4,6 +4,7 @@ import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import {
   INTERNAL_DEMO_READINESS_PATH,
   INTERNAL_DEPLOYMENT_STATUS_PATH,
+  INTERNAL_HEALTH_PATH,
   INTERNAL_RECOMMENDATION_LEARNING_PATH,
   INTERNAL_TENANT_HEALTH_PATH,
   INTERNAL_TENANTS_PATH,
@@ -25,6 +26,22 @@ export const INTERNAL_OPS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whatToDoNextAction: {
         label: "Open Improvement planning",
         href: PLANNING_PATH,
+      },
+    },
+  },
+  {
+    prefix: INTERNAL_HEALTH_PATH,
+    entry: {
+      whatIsThisPage:
+        "Diagnostics dashboard — workspace health, readiness, configuration advisories, and assistant diagnostics for architects.",
+      whatToDoNext:
+        "Review failing probes, open System health for buyer-safe posture, or Troubleshooting when symptoms need runbooks.",
+      whyEmpty: "Health panels appear after diagnostics APIs respond for this deployment.",
+      whereToConfigurePrerequisite:
+        "This Internal Operations surface typically needs System Admin authority.",
+      whatToDoNextAction: {
+        label: "Open System health",
+        href: "/administration/system-health",
       },
     },
   },

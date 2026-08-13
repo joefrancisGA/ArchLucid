@@ -6,6 +6,8 @@ import { USERS_AND_ROLES_CONTRACT_VERSION } from "@/lib/users-and-roles-help-man
 /** Canon specialty path for users-and-roles help. */
 export const USERS_AND_ROLES_HELP_CANONICAL_PATH = "/help/users-and-roles" as const;
 
+export const USERS_AND_ROLES_HELP_TOPIC_LABEL = "How users and roles work" as const;
+
 export const USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE =
   "This capability matrix describes built-in workspace roles for the current ArchLucid release — it is role orientation, not a tenant access attestation or audit trail of your workspace membership.";
 

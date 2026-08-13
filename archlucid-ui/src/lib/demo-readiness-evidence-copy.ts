@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const DEMO_READINESS_CANONICAL_PATH = "/internal/demo-readiness" as const;
 
+export const DEMO_READINESS_HELP_TOPIC_LABEL = "How demo readiness works" as const;
+
 /** Page H1 on the admin diagnostics surface — distinct from sidebar nav label (TB-1409). */
 export const INTERNAL_DEMO_READINESS_PAGE_TITLE = "Internal demo readiness" as const;
 

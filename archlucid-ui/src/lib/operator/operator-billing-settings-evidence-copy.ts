@@ -4,6 +4,8 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const OPERATOR_BILLING_SETTINGS_CANONICAL_PATH = "/administration/billing" as const;
 
+export const OPERATOR_BILLING_SETTINGS_HELP_TOPIC_LABEL = "How billing and plans work" as const;
+
 export const OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE =
   "This Billing & plans page shows workspace subscription, usage, and wallet controls - it is not a signed-review diligence Sources package, financial reporting. Open Pricing, Billing help, or Audit when you need public packaging, methodology, or governed trails.";
 

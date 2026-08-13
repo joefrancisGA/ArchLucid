@@ -4,6 +4,8 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const TRIAL_FUNNEL_CANONICAL_PATH = "/internal/trial-funnel" as const;
 
+export const TRIAL_FUNNEL_HELP_TOPIC_LABEL = "How the trial funnel works" as const;
+
 export const TRIAL_FUNNEL_CLAIM_DISCIPLINE =
   "Trial funnel metrics summarize trial-stage conversion for internal administrators — they are operational KPI signals, not a signed-review diligence Sources package. Open Tenant health, Billing settings, or Audit when you need engagement, plan, or governed trails.";
 

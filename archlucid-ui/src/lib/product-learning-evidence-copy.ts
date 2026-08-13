@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PRODUCT_LEARNING_CANONICAL_PATH = PRODUCT_LEARNING_PATH;
 
+export const PRODUCT_LEARNING_HELP_TOPIC_LABEL = "How pilot feedback works" as const;
+
 export const PRODUCT_LEARNING_CLAIM_DISCIPLINE =
   "Pilot feedback aggregates review signals for product improvement — ranked opportunities are candidates for human triage, not auto-filed work items, a signed-review diligence Sources package. Open Improvement planning or Architecture reviews when you need live workflow trails.";
 

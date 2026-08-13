@@ -9,6 +9,7 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   INTERNAL_DEMO_READINESS_PATH,
   INTERNAL_DEPLOYMENT_STATUS_PATH,
+  INTERNAL_HEALTH_PATH,
   INTERNAL_RECOMMENDATION_LEARNING_PATH,
   INTERNAL_REPLAY_PATH,
   INTERNAL_TENANT_HEALTH_PATH,
@@ -93,6 +94,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/insights/improvement-planning",
       "/insights/impact-preview",
       "/internal/integrations/itsm",
+      INTERNAL_HEALTH_PATH,
       "/internal/product-learning",
       "/why-archlucid",
       "/demo/explain",
