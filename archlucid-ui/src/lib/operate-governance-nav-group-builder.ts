@@ -3,6 +3,7 @@ import {
   Bell,
   CalendarCheck,
   CalendarClock,
+  ClipboardList,
   FileText,
   Gavel,
   GitBranch,
@@ -18,6 +19,7 @@ import {
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
@@ -56,6 +58,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           title: this.shortcutTitle("Track owned architecture risks", "alt+f"),
           keyShortcut: "alt+f",
           icon: AlertTriangle,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH as typeof GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
+          title: "Open findings assigned to you for remediation",
+          icon: ClipboardList,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

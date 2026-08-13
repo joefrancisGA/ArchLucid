@@ -21,6 +21,9 @@ export const GOVERNANCE_AUDIT_PATH = "/governance/audit";
 /** Cross-review risk-register queue (left-nav Findings). */
 export const GOVERNANCE_FINDINGS_PATH = "/governance/findings" as const;
 
+/** Personal assigned-to-me open findings queue (TB-2195). */
+export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH = "/governance/findings/assigned-to-me" as const;
+
 /** Cross-review decision register (left-nav). */
 export const GOVERNANCE_DECISION_REGISTER_PATH = "/governance/decision-register" as const;
 
@@ -97,6 +100,10 @@ export function pathMatchesGovernanceExceptions(pathname: string): boolean {
 /** Exact approval-queue page — not the whole `/governance/*` tree. */
 export function pathMatchesGovernanceApprovalQueue(pathname: string): boolean {
   return pathname === GOVERNANCE_APPROVAL_QUEUE_PATH;
+}
+
+export function pathMatchesGovernanceAssignedToMeFindings(pathname: string): boolean {
+  return pathMatchesRoutePrefix(pathname, GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH);
 }
 
 /** Approval queue href, optionally scoped to a review via `runId`. */

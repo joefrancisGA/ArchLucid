@@ -324,6 +324,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(RecurrenceCompletionNotificationOptions.SectionName));
         services.AddScoped<IRecurrenceCompletionRecipientResolver, RecurrenceCompletionRecipientResolver>();
         services.AddScoped<IRecurrenceCompletionEmailDispatcher, RecurrenceCompletionEmailDispatcher>();
+        services.AddScoped<IFindingRemediationAssignmentEmailDispatcher, FindingRemediationAssignmentEmailDispatcher>();
         services.AddScoped<IRecurrenceCompletionNotificationService, RecurrenceCompletionNotificationService>();
         services.Configure<WaiverExpiryNotificationOptions>(
             configuration.GetSection(WaiverExpiryNotificationOptions.SectionName));

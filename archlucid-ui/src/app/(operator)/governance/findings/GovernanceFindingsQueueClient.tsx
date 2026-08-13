@@ -21,6 +21,7 @@ import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPage
 import { Button } from "@/components/ui/button";
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
+import { useAssignedToMeFindingsQuery } from "@/components/governance/findings/use-assigned-to-me-findings-query";
 import {
   ARCHITECTURE_RISK_REGISTER_EMPTY_BODY,
   ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE,
@@ -43,6 +44,10 @@ import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT, GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { COMPARE_FINDING_LIFECYCLE_ANCHOR } from "@/lib/compare-finding-lifecycle";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
@@ -65,10 +70,18 @@ import {
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
+export type GovernanceFindingsQueueMode = "tenant" | "assigned-to-me";
+
+export type GovernanceFindingsQueueClientProps = {
+  readonly mode?: GovernanceFindingsQueueMode;
+};
+
 /**
  * Findings hub: cross-run queue from explainability aggregates, plus a deterministic PHI sample row in public demo mode.
  */
-export default function GovernanceFindingsQueueClient() {
+export default function GovernanceFindingsQueueClient({
+  mode = "tenant",
+}: GovernanceFindingsQueueClientProps) {
   const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(new Set());
   const [jobView, setJobViewState] = useState<FindingJobView>(
     () => readGovernanceFindingsQueueFacets().jobView,
@@ -76,7 +89,9 @@ export default function GovernanceFindingsQueueClient() {
   const [nlFacets, setNlFacetsState] = useState<FindingsNaturalLanguageFacets>(
     () => readGovernanceFindingsQueueFacets().nlFacets,
   );
-  const { rows, loading, loadFailed, refresh } = useGovernanceFindingsQuery();
+  const tenantQuery = useGovernanceFindingsQuery();
+  const assignedToMeQuery = useAssignedToMeFindingsQuery();
+  const { rows, loading, loadFailed, refresh } = mode === "assigned-to-me" ? assignedToMeQuery : tenantQuery;
   const {
     registerFilter,
     setRegisterFilter,
@@ -129,10 +144,19 @@ export default function GovernanceFindingsQueueClient() {
     [displayedRows],
   );
   usePrefetchItsmFindingCorrelations(findingIds);
-  const pageTitle = buyerPolishedShell ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE : ARCHITECTURE_RISK_REGISTER_PAGE_TITLE;
-  const pageSubtitle = buyerPolishedShell
-    ? BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD
-    : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
+  const pageTitle =
+    mode === "assigned-to-me"
+      ? "Assigned to me"
+      : buyerPolishedShell
+        ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE
+        : ARCHITECTURE_RISK_REGISTER_PAGE_TITLE;
+  const pageSubtitle =
+    mode === "assigned-to-me"
+      ? "Open findings assigned to you for remediation across reviews in this workspace."
+      : buyerPolishedShell
+        ? BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD
+        : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
+  const navHref = mode === "assigned-to-me" ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH;
   const secondaryViewPresentation =
     displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
   const sponsorSynopsisPackageTitle =
@@ -156,12 +180,12 @@ export default function GovernanceFindingsQueueClient() {
       )}
 
       <OperatorPageHeader
-        navHref={GOVERNANCE_FINDINGS_PATH}
+        navHref={navHref}
         title={pageTitle}
         subtitle={pageSubtitle}
         titleTestId="architecture-risk-register-page-title"
         metadata={
-          !buyerPolishedShell && !loading ? (
+          !buyerPolishedShell && !loading && mode !== "assigned-to-me" ? (
             <>
               <SelfDescribingMetricCount
                 variant="inline"

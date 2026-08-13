@@ -57,7 +57,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRepository.GetPendingAsync(50, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
-            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, cancellationToken);
+            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, options: null, cancellationToken);
         Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
             _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
         Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
@@ -220,7 +220,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRepository.GetPendingAsync(50, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
-            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, cancellationToken);
+            _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, options: null, cancellationToken);
         Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
             _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
         Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =

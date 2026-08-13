@@ -15,7 +15,8 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
         Guid tenantId,
         Guid? projectId,
         int maxRows,
-        CancellationToken cancellationToken)
+        ArchitectureRiskRegisterListOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
@@ -24,6 +25,8 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
         string projectFilter = projectId.HasValue ? " AND fr.ProjectId = @ProjectId" : string.Empty;
+        string assigneeFilter = BuildAssigneeFilter(options);
+        string openFindingsFilter = BuildOpenFindingsFilter(options);
 
         string sql = $"""
                       ;WITH latestDisposition AS (
@@ -75,7 +78,7 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                           FROM dbo.ItsmFindingCorrelations AS itsm
                           WHERE itsm.TenantId = fr.TenantId AND itsm.FindingId = fr.FindingId
                       ) AS itsmAgg
-                      WHERE fr.TenantId = @TenantId{projectFilter}
+                      WHERE fr.TenantId = @TenantId{projectFilter}{assigneeFilter}{openFindingsFilter}
                       ORDER BY fs.CreatedUtc DESC;
                       """;
 
@@ -84,7 +87,13 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
         IEnumerable<RiskRegisterRow> rows = await conn.QueryAsync<RiskRegisterRow>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, ProjectId = projectId, MaxRows = maxRows },
+                new
+                {
+                    TenantId = tenantId,
+                    ProjectId = projectId,
+                    MaxRows = maxRows,
+                    AssignedToUserIdsLower = ResolveAssignedToUserIdsLower(options),
+                },
                 cancellationToken: cancellationToken));
 
         DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
@@ -147,6 +156,41 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
         }
 
         return result;
+    }
+
+    private static string BuildAssigneeFilter(ArchitectureRiskRegisterListOptions? options)
+    {
+        if (options?.AssignedToUserIds is not { Count: > 0 })
+            return string.Empty;
+
+        return """
+               
+                         AND fr.AssignedToUserId IS NOT NULL
+                         AND LOWER(LTRIM(RTRIM(fr.AssignedToUserId))) IN @AssignedToUserIdsLower
+               """;
+    }
+
+    private static string BuildOpenFindingsFilter(ArchitectureRiskRegisterListOptions? options)
+    {
+        if (options?.OpenFindingsOnly != true)
+            return string.Empty;
+
+        return """
+               
+                         AND (ld.Disposition IS NULL OR ld.Disposition NOT IN (N'Remediated', N'RejectedAsNotApplicable'))
+               """;
+    }
+
+    private static IReadOnlyList<string> ResolveAssignedToUserIdsLower(ArchitectureRiskRegisterListOptions? options)
+    {
+        if (options?.AssignedToUserIds is not { Count: > 0 } identities)
+            return [];
+
+        return identities
+            .Where(static identity => !string.IsNullOrWhiteSpace(identity))
+            .Select(static identity => identity.Trim().ToLowerInvariant())
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
     }
 
     private static FindingDisposition? ParseDisposition(string? raw)

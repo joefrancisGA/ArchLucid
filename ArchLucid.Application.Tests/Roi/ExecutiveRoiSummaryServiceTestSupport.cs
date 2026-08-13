@@ -72,7 +72,7 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
 
         Mock<IArchitectureRiskRegisterService> architectureRiskRegister = new();
         architectureRiskRegister
-            .Setup(service => service.GetRegisterAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(service => service.GetRegisterAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<int>(), It.IsAny<ArchitectureRiskRegisterListOptions?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRiskRegisterResponse());
 
         Mock<ITenantSettingsRepository> tenantSettings = new();

@@ -9,6 +9,7 @@ public sealed class NoOpArchitectureRiskRegisterQuery : IArchitectureRiskRegiste
         Guid tenantId,
         Guid? projectId,
         int maxRows,
-        CancellationToken cancellationToken) =>
+        ArchitectureRiskRegisterListOptions? options = null,
+        CancellationToken cancellationToken = default) =>
         Task.FromResult<IReadOnlyList<ArchitectureRiskRegisterEntry>>([]);
 }

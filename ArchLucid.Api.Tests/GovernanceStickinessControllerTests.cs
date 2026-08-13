@@ -61,6 +61,7 @@ public sealed class GovernanceStickinessControllerTests
                     Scope.TenantId,
                     Scope.ProjectId,
                     It.IsAny<int>(),
+                    It.IsAny<ArchitectureRiskRegisterListOptions?>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new ArchitectureRiskRegisterResponse());
         }
@@ -140,6 +141,7 @@ public sealed class GovernanceStickinessControllerTests
                 Scope.TenantId,
                 Scope.ProjectId,
                 200,
+                It.IsAny<ArchitectureRiskRegisterListOptions?>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
@@ -149,6 +151,106 @@ public sealed class GovernanceStickinessControllerTests
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().BeSameAs(expected);
+    }
+
+    [Fact]
+    public async Task GetRiskRegister_when_assigned_to_me_passes_open_assignee_filter()
+    {
+        ArchitectureRiskRegisterListOptions? capturedOptions = null;
+        Mock<IArchitectureRiskRegisterService> riskRegister = new();
+        riskRegister
+            .Setup(r => r.GetRegisterAsync(
+                Scope.TenantId,
+                Scope.ProjectId,
+                200,
+                It.IsAny<ArchitectureRiskRegisterListOptions?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<Guid, Guid?, int, ArchitectureRiskRegisterListOptions?, CancellationToken>(
+                (_, _, _, options, _) => capturedOptions = options)
+            .ReturnsAsync(new ArchitectureRiskRegisterResponse());
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(context => context.TryGetSubmitterMailbox()).Returns("assignee@example.com");
+        actor.Setup(context => context.GetActor()).Returns("assignee@example.com");
+        actor.Setup(context => context.GetActorId()).Returns("assignee-guid");
+
+        GovernanceStickinessController sut = new(
+            scopeProvider.Object,
+            actor.Object,
+            Mock.Of<IFindingDispositionService>(),
+            Mock.Of<IRiskExceptionService>(),
+            riskRegister.Object,
+            Mock.Of<IArchitectureDecisionRegisterService>(),
+            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
+            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
+            Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
+            Mock.Of<IReviewsAwaitingActionQueryService>(),
+            Mock.Of<IAuditService>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult action = await sut.GetRiskRegister(
+            projectId: null,
+            maxRows: 200,
+            assignedToMe: true,
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        capturedOptions.Should().NotBeNull();
+        capturedOptions!.OpenFindingsOnly.Should().BeTrue();
+        capturedOptions.AssignedToUserIds.Should().Contain("assignee@example.com");
+    }
+
+    [Fact]
+    public async Task GetRiskRegister_when_assigned_to_me_and_no_identities_returns_empty_without_service_call()
+    {
+        Mock<IArchitectureRiskRegisterService> riskRegister = new();
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(context => context.TryGetSubmitterMailbox()).Returns((string?)null);
+        actor.Setup(context => context.GetActor()).Returns(string.Empty);
+        actor.Setup(context => context.GetActorId()).Returns(string.Empty);
+
+        GovernanceStickinessController sut = new(
+            scopeProvider.Object,
+            actor.Object,
+            Mock.Of<IFindingDispositionService>(),
+            Mock.Of<IRiskExceptionService>(),
+            riskRegister.Object,
+            Mock.Of<IArchitectureDecisionRegisterService>(),
+            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>(),
+            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
+            Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
+            Mock.Of<IReviewsAwaitingActionQueryService>(),
+            Mock.Of<IAuditService>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult action = await sut.GetRiskRegister(
+            projectId: null,
+            maxRows: 200,
+            assignedToMe: true,
+            CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ArchitectureRiskRegisterResponse body = ok.Value.Should().BeAssignableTo<ArchitectureRiskRegisterResponse>().Subject;
+        body.Entries.Should().BeEmpty();
+        riskRegister.Verify(
+            service => service.GetRegisterAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<int>(),
+                It.IsAny<ArchitectureRiskRegisterListOptions?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private static void SetIdempotencyKey(GovernanceStickinessController controller, string key = "test-idempotency-key")

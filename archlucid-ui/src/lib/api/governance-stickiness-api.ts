@@ -144,9 +144,29 @@ export type ArchitectureDecisionRegisterFilters = {
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
-export async function getArchitectureRiskRegister(projectId?: string): Promise<ArchitectureRiskRegisterResponse> {
+export type ArchitectureRiskRegisterQueryOptions = {
+  projectId?: string;
+  assignedToMe?: boolean;
+  maxRows?: number;
+};
+
+export async function getArchitectureRiskRegister(
+  options?: ArchitectureRiskRegisterQueryOptions,
+): Promise<ArchitectureRiskRegisterResponse> {
   const query = new URLSearchParams();
-  if (projectId) query.set("projectId", projectId);
+
+  if (options?.projectId) {
+    query.set("projectId", options.projectId);
+  }
+
+  if (options?.assignedToMe) {
+    query.set("assignedToMe", "true");
+  }
+
+  if (typeof options?.maxRows === "number") {
+    query.set("maxRows", String(options.maxRows));
+  }
+
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
   return apiGet<ArchitectureRiskRegisterResponse>(`${governanceBase()}/risk-register${suffix}`);
 }

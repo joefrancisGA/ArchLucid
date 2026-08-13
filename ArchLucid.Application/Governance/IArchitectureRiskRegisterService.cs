@@ -8,5 +8,6 @@ public interface IArchitectureRiskRegisterService
         Guid tenantId,
         Guid? projectId,
         int maxRows,
+        ArchitectureRiskRegisterListOptions? options = null,
         CancellationToken cancellationToken = default);
 }
