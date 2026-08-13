@@ -129,7 +129,7 @@ describe("resolveOpenAlertsSummaryDisplay", () => {
     expect(display.value).toBe("3 open · 2 blocking");
     expect(display.valueAriaLabel).toContain("3 open alerts");
     expect(display.valueAriaLabel).toContain("2 blocking of open");
-    expect(display.tileTitle).toBe(ALERTS_SUMMARY_OPEN_BLOCKING_RELATIONSHIP_TITLE);
+    expect(display.labelHint).toBe(ALERTS_SUMMARY_OPEN_BLOCKING_RELATIONSHIP_TITLE);
   });
 });
 
@@ -218,7 +218,8 @@ describe("AlertsInboxSummaryRow", () => {
     );
 
     const row = screen.getByTestId("alerts-inbox-summary-row");
-    const openTile = within(row).getByText(ALERTS_SUMMARY_OPEN_LABEL).parentElement;
+    const openLabel = within(row).getByText(ALERTS_SUMMARY_OPEN_LABEL);
+    const openTile = openLabel.closest("div.rounded-md");
 
     expect(openTile).not.toBeNull();
     expect(within(openTile as HTMLElement).getByText("3 open · 2 blocking")).toHaveAttribute(
@@ -230,6 +231,9 @@ describe("AlertsInboxSummaryRow", () => {
       expect.stringContaining("2 blocking of open"),
     );
     expect(within(row).queryByText(ALERTS_SUMMARY_BLOCKING_LABEL)).toBeNull();
+    expect(
+      screen.getByRole("button", { name: /help: open alerts/i }),
+    ).toBeInTheDocument();
     expect(within(row).getByText("1")).toBeInTheDocument();
     expect(within(row).getByText("0")).toBeInTheDocument();
   });

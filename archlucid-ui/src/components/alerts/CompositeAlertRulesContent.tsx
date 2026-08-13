@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -12,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MetadataStatusLabel } from "@/components/ui/metadata-status-label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useCompositeAlertRulesListQuery } from "@/components/alerts/use-alert-rules-hub-queries";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
@@ -53,11 +55,11 @@ import {
   compositeRulesPageLeadOperator,
   compositeRulesPageLeadOperatorEmpty,
   compositeRulesPageLeadReader,
-  enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { COMPOSITE_RULES_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 const SEVERITIES = ["Info", "Warning", "High", "Critical"];
@@ -79,6 +81,9 @@ function CompositeAlertRulesListLoadingSkeleton(): React.JSX.Element {
   );
 }
 
+const COMPOSITE_ALERT_RULE_STATE_CHIP_HINT =
+  "Read-only state — composite rules cannot be disabled from this workspace.";
+
 function CompositeAlertRuleStateChip(props: {
   readonly isEnabled: boolean;
   readonly ruleId: string;
@@ -87,14 +92,16 @@ function CompositeAlertRuleStateChip(props: {
   const label = compositeAlertRuleStatusLabel(props.isEnabled);
 
   return (
-    <MetadataStatusLabel
-      className={enterpriseStatusTagClass(kind)}
-      data-testid={`composite-alert-rule-state-${props.ruleId}`}
-      aria-readonly="true"
-      title="Read-only state — composite rules cannot be disabled from this workspace."
-    >
-      {label}
-    </MetadataStatusLabel>
+    <span className="inline-flex items-center gap-1">
+      <MetadataStatusLabel
+        className={enterpriseStatusTagClass(kind)}
+        data-testid={`composite-alert-rule-state-${props.ruleId}`}
+        aria-readonly="true"
+      >
+        {label}
+      </MetadataStatusLabel>
+      <FieldHelpTooltip label="Rule state" hint={COMPOSITE_ALERT_RULE_STATE_CHIP_HINT} />
+    </span>
   );
 }
 
@@ -223,6 +230,8 @@ export function CompositeAlertRulesContent() {
   const showCreateForm = !canMutateComposite || showCreatePanel || !isEmpty;
   const sectionGap = emptyIntroMode ? "gap-4" : "gap-8";
   const conditionsTabHref = governanceAlertRulesTabHref("rules");
+  const mutationDisabledReason = canMutateComposite ? null : whyDisabledEnterpriseMutationControl();
+  const mutationDisabledHintId = "composite-rules-mutate-disabled-hint";
 
   return (
     <div>
@@ -370,9 +379,13 @@ export function CompositeAlertRulesContent() {
           <p className={cn("mb-2.5 mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {alertToolingConfigureSectionSubline}
           </p>
+          <WhyDisabledCtaHint
+            id={mutationDisabledHintId}
+            reason={mutationDisabledReason}
+            testId="composite-rules-mutate-disabled-hint"
+          />
       <fieldset
         disabled={!canMutateComposite}
-        title={canMutateComposite ? undefined : enterpriseMutationControlDisabledTitle}
         aria-label="New composite rule form"
         className="m-0 border-none p-0"
       >
@@ -612,7 +625,7 @@ export function CompositeAlertRulesContent() {
           data-testid="composite-rules-create-button"
           onClick={onRequestCreate}
           disabled={loading || !canMutateComposite || !formValid}
-          title={canMutateComposite ? undefined : enterpriseMutationControlDisabledTitle}
+          aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
         >
           {canMutateComposite ? compositeRulesCreateButtonLabelOperator : compositeRulesCreateButtonLabelReaderRank}
         </Button>
