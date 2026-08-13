@@ -22,7 +22,7 @@ import {
   isPilotFeedbackContributorLeakageLine
 } from "./internal";
 import { stripProductOverviewContributorLeakage } from "./policy-and-misc";
-export function stripSponsorSummaryPilotRoiMeasurementLeakage(markdown: string): string {
+export function stripSponsorReportPilotRoiMeasurementLeakage(markdown: string): string {
   let inFence = false;
 
   const withoutSensitiveRows = markdown
@@ -163,9 +163,9 @@ function wrapPilotRoiMeasurementDenseSectionsInDetails(markdown: string): string
   return result;
 }
 export function stripPilotRoiModelContributorLeakage(markdown: string): string {
-  return stripSponsorSummaryPilotRoiMeasurementLeakage(markdown);
+  return stripSponsorReportPilotRoiMeasurementLeakage(markdown);
 }
-export function stripSponsorSummaryContributorLeakage(markdown: string): string {
+export function stripSponsorReportContributorLeakage(markdown: string): string {
   let result = markdown
     .replace(
       /\*\*How do I try it locally\?\*\*[\s\S]*?(?=\n\n\*\*|\n## |\n---\n|$)/i,
@@ -349,7 +349,7 @@ export function stripPilotFeedbackContributorLeakage(markdown: string): string {
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd();
 }
-export function stripSponsorSummarySponsorBriefLeakage(markdown: string): string {
+export function stripSponsorReportSponsorBriefLeakage(markdown: string): string {
   return stripProductOverviewContributorLeakage(markdown)
     .replace(/^(##+)\s+\d+\.\s+/gm, "$1 ")
     .replace(/`?API_CONTRACTS\.md`?/gi, "[API contracts](/help/api-contracts)")
