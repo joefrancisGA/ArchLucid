@@ -177,6 +177,31 @@ public sealed class SqlRunRepository(
                 cancellationToken: ct)).ConfigureAwait(false);
     }
 
+    /// <inheritdoc />
+    public async Task<Guid?> GetPriorCommittedRunIdBeforeCurrentAsync(
+        ScopeContext scope,
+        string projectId,
+        Guid currentRunId,
+        DateTime currentCreatedUtc,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(projectId);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await connection.QuerySingleOrDefaultAsync<Guid?>(
+            new CommandDefinition(
+                RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent,
+                RunListQueryParameters.ForPriorCommittedRunBeforeCurrent(
+                    scope,
+                    projectId,
+                    currentRunId,
+                    currentCreatedUtc),
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,

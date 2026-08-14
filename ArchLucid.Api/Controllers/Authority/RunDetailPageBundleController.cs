@@ -183,6 +183,19 @@ public sealed class RunDetailPageBundleController(
             .ConfigureAwait(false);
 
         RunSummaryDto? priorCommittedRun = FindPriorCommittedRun(runId, projectRuns);
+
+        if (priorCommittedRun is null)
+        {
+            priorCommittedRun = await _queryService
+                .GetPriorCommittedRunSummaryBeforeCurrentAsync(
+                    scope,
+                    runId,
+                    currentRun.ProjectId,
+                    currentRun.CreatedUtc,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         RunComparisonResponse? priorComparison = null;
 
         if (priorCommittedRun is not null)

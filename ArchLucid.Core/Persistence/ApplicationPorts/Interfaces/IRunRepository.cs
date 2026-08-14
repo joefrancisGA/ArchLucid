@@ -71,6 +71,18 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Most recent non-archived committed run for <paramref name="projectId" /> strictly before
+    ///     <paramref name="currentRunId" /> in <see cref="RunRecord.CreatedUtc" /> / run-id order (matches dashboard list
+    ///     ordering).
+    /// </summary>
+    Task<Guid?> GetPriorCommittedRunIdBeforeCurrentAsync(
+        ScopeContext scope,
+        string projectId,
+        Guid currentRunId,
+        DateTime currentCreatedUtc,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Returns up to <paramref name="take" /> runs for <paramref name="projectId" /> within
     ///     <paramref name="scope" />, ordered by <c>CreatedUtc</c> descending (newest first).
     /// </summary>

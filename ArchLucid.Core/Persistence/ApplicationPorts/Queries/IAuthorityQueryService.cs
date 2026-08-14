@@ -67,6 +67,18 @@ public interface IAuthorityQueryService
         string projectId,
         CancellationToken ct);
 
+    /// <summary>
+    ///     Most recent committed run for <paramref name="projectId" /> strictly before
+    ///     <paramref name="currentRunId" /> in dashboard list order (<c>CreatedUtc</c> descending, then run id).
+    /// </summary>
+    /// <returns>The prior committed summary, or <see langword="null" /> when none exists before the current run.</returns>
+    Task<RunSummaryDto?> GetPriorCommittedRunSummaryBeforeCurrentAsync(
+        ScopeContext scope,
+        Guid currentRunId,
+        string projectId,
+        DateTime currentCreatedUtc,
+        CancellationToken ct);
+
     /// <summary>Loads a single run’s summary by id within <paramref name="scope" />.</summary>
     /// <returns>The summary, or <see langword="null" /> when the run is missing or out of scope.</returns>
     Task<RunSummaryDto?> GetRunSummaryAsync(

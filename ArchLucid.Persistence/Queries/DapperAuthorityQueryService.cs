@@ -104,6 +104,27 @@ public sealed class DapperAuthorityQueryService(
         => runRepository.GetLatestCommittedRunIdByManifestCreatedUtcAsync(scope, projectId, ct);
 
     /// <inheritdoc />
+    public async Task<RunSummaryDto?> GetPriorCommittedRunSummaryBeforeCurrentAsync(
+        ScopeContext scope,
+        Guid currentRunId,
+        string projectId,
+        DateTime currentCreatedUtc,
+        CancellationToken ct)
+    {
+        Guid? priorRunId = await runRepository.GetPriorCommittedRunIdBeforeCurrentAsync(
+            scope,
+            projectId,
+            currentRunId,
+            currentCreatedUtc,
+            ct);
+
+        if (priorRunId is null)
+            return null;
+
+        return await GetRunSummaryAsync(scope, priorRunId.Value, ct);
+    }
+
+    /// <inheritdoc />
     public async Task<RunSummaryDto?> GetRunSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
