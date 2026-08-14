@@ -67,12 +67,15 @@ describe("filterStandardsRuleRows", () => {
 });
 
 describe("buildStandardsRulesSummary", () => {
-  it("counts unique standards and linked findings", () => {
+  it("counts unique standards, linked findings, and evidence coverage", () => {
     const rows = buildStandardsRuleRows(emptyData, { useShowcaseFallback: true });
     const summary = buildStandardsRulesSummary(rows);
 
     expect(summary.rulesEnforced).toBe(rows.length);
     expect(summary.standardsInScope).toBeGreaterThan(0);
-    expect(summary.findingsLinked).toBeGreaterThan(0);
+    expect(summary.rulesWithLinkedFindings).toBeGreaterThan(0);
+    expect(summary.evidencedRules).toBeGreaterThan(0);
+    expect(summary.evidencedRules).toBeLessThan(rows.length);
+    expect(summary.evidenceCoverageLabel).toMatch(/%$/);
   });
 });

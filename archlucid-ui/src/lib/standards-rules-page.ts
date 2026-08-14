@@ -32,3 +32,17 @@ export const STANDARDS_RULES_VIEW_EXPLANATION_NEXT_ACTION =
 export const STANDARDS_RULES_RESET_FILTERS = "Reset filters";
 
 export const STANDARDS_RULES_REFRESH = "Refresh";
+
+export const STANDARDS_RULES_EXPORT_RULES_LABEL = "Export rules (CSV)";
+
+export const STANDARDS_RULES_SUMMARY_LINKED_FINDINGS_LABEL = "Rules with linked findings";
+
+export const STANDARDS_RULES_SUMMARY_EVIDENCE_COVERAGE_LABEL = "Evidence coverage";
+
+export const STANDARDS_RULES_EVIDENCE_EVIDENCED_LABEL = "Evidenced";
+
+export const STANDARDS_RULES_EVIDENCE_NOT_EVIDENCED_LABEL = "Not evidenced";
+
+export const STANDARDS_RULES_FILTER_COUNT_TEMPLATE = "Showing {visible} of {total} rules";
+
+export const STANDARDS_RULES_RESOLUTION_DISCLOSURE_SUMMARY = "How rules were resolved";

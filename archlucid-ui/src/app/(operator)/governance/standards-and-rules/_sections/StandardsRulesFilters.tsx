@@ -1,5 +1,6 @@
 import type { StandardsRulesFilterState } from "@/lib/standards-rules-rows";
 import {
+  STANDARDS_RULES_FILTER_COUNT_TEMPLATE,
   STANDARDS_RULES_REFRESH,
   STANDARDS_RULES_RESET_FILTERS,
 } from "@/lib/standards-rules-page";
@@ -11,6 +12,8 @@ import { cn } from "@/lib/utils";
 
 export type StandardsRulesFiltersProps = {
   readonly filters: StandardsRulesFilterState;
+  readonly visibleCount: number;
+  readonly totalCount: number;
   readonly options: {
     readonly standards: readonly string[];
     readonly severities: readonly string[];
@@ -51,11 +54,23 @@ function FilterSelect(props: {
 }
 
 export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
-  const { filters, options, onChange, onReset, onRefresh, refreshing } = props;
+  const { filters, visibleCount, totalCount, options, onChange, onReset, onRefresh, refreshing } = props;
   const filtersActive = standardsRulesFiltersAreActive(filters);
+  const filterCountLabel = STANDARDS_RULES_FILTER_COUNT_TEMPLATE.replace("{visible}", String(visibleCount)).replace(
+    "{total}",
+    String(totalCount),
+  );
 
   return (
     <div className="mb-4 flex flex-col gap-3" data-testid="standards-rules-filters">
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        aria-live="polite"
+        aria-atomic="true"
+        data-testid="standards-rules-filter-count"
+      >
+        {filterCountLabel}
+      </p>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <label className={cn("flex min-w-0 flex-1 flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
           <span className="text-al-text-secondary">Search rules</span>
@@ -137,6 +152,24 @@ export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
             <option value="all">All</option>
             <option value="linked">Linked</option>
             <option value="unlinked">Unlinked</option>
+          </select>
+        </label>
+        <label className={cn("flex min-w-[10rem] flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
+          <span className="text-al-text-secondary">Evidence coverage</span>
+          <select
+            className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900"
+            value={filters.evidenceCoverage}
+            onChange={(event) => {
+              const value = event.target.value;
+
+              if (value === "evidenced" || value === "unevidenced" || value === "all") {
+                onChange({ ...filters, evidenceCoverage: value });
+              }
+            }}
+          >
+            <option value="all">All</option>
+            <option value="evidenced">Evidenced</option>
+            <option value="unevidenced">Not evidenced</option>
           </select>
         </label>
       </div>

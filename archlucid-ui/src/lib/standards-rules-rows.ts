@@ -21,6 +21,10 @@ export type StandardsRuleRow = {
   readonly evidenceHref: string | null;
 };
 
+export function standardsRuleHasEvidence(row: StandardsRuleRow): boolean {
+  return row.evidenceHref !== null;
+}
+
 type KnownRulePresentation = Omit<StandardsRuleRow, "ruleKey">;
 
 const primaryPackLabel = sampleScenarioPolicyPackLabel(getActiveSampleScenario());
@@ -169,19 +173,26 @@ export function buildStandardsRuleRows(
 export type StandardsRulesSummary = {
   readonly standardsInScope: number;
   readonly rulesEnforced: number;
-  readonly findingsLinked: number;
+  readonly rulesWithLinkedFindings: number;
+  readonly evidencedRules: number;
+  readonly evidenceCoverageLabel: string;
   readonly primaryPolicyPack: string;
 };
 
 export function buildStandardsRulesSummary(rows: readonly StandardsRuleRow[]): StandardsRulesSummary {
   const standards = new Set(rows.map((row) => row.standardFramework));
-  const findingsLinked = rows.filter((row) => row.linkedFindingsHref !== null).length;
+  const rulesWithLinkedFindings = rows.filter((row) => row.linkedFindingsHref !== null).length;
+  const evidencedRules = rows.filter((row) => standardsRuleHasEvidence(row)).length;
   const primaryPolicyPack = rows[0]?.sourcePolicyPack ?? primaryPackLabel;
+  const evidenceCoverageLabel =
+    rows.length === 0 ? "0%" : `${Math.round((evidencedRules / rows.length) * 100)}%`;
 
   return {
     standardsInScope: standards.size,
     rulesEnforced: rows.length,
-    findingsLinked,
+    rulesWithLinkedFindings,
+    evidencedRules,
+    evidenceCoverageLabel,
     primaryPolicyPack,
   };
 }
@@ -193,6 +204,7 @@ export type StandardsRulesFilterState = {
   readonly enforcementMode: string;
   readonly sourcePolicyPack: string;
   readonly linkedFindings: "all" | "linked" | "unlinked";
+  readonly evidenceCoverage: "all" | "evidenced" | "unevidenced";
 };
 
 export const EMPTY_STANDARDS_RULES_FILTER_STATE: StandardsRulesFilterState = {
@@ -202,6 +214,7 @@ export const EMPTY_STANDARDS_RULES_FILTER_STATE: StandardsRulesFilterState = {
   enforcementMode: "all",
   sourcePolicyPack: "all",
   linkedFindings: "all",
+  evidenceCoverage: "all",
 };
 
 export function filterStandardsRuleRows(
@@ -249,6 +262,14 @@ export function filterStandardsRuleRows(
     }
 
     if (filters.linkedFindings === "unlinked" && row.linkedFindingsHref !== null) {
+      return false;
+    }
+
+    if (filters.evidenceCoverage === "evidenced" && !standardsRuleHasEvidence(row)) {
+      return false;
+    }
+
+    if (filters.evidenceCoverage === "unevidenced" && standardsRuleHasEvidence(row)) {
       return false;
     }
 
