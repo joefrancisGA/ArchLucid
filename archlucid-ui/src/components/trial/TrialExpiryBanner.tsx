@@ -71,7 +71,7 @@ export function TrialExpiryBanner() {
           Upgrade or talk to us before access changes.
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
-          <Button asChild type="button" size="sm" className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700">
+          <Button asChild type="button" variant="primary" size="sm">
             <Link href="/pricing#pricing-quote-request">Talk to us</Link>
           </Button>
         </div>

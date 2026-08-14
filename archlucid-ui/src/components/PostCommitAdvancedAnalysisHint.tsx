@@ -75,13 +75,8 @@ export function PostCommitAdvancedAnalysisHint({
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button
             asChild
-            variant={buyerPolishedShell ? "outline" : "default"}
+            variant={buyerPolishedShell ? "outline" : "primary"}
             size="sm"
-            className={
-              buyerPolishedShell
-                ? undefined
-                : "bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600"
-            }
           >
             <Link href={compareHrefForLinks} data-testid="post-commit-compare-prior-cta">
               {showcaseCompareHref !== null && compareWithPriorHref === null

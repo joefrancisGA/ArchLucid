@@ -201,13 +201,11 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <Button 
-            type="button" 
-            className={cn(
-              CTA_WIDTH.content,
-              "bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-700 dark:text-white dark:hover:bg-teal-600",
-            )} 
-            onClick={startScratch} 
+          <Button
+            type="button"
+            variant="primary"
+            className={CTA_WIDTH.content}
+            onClick={startScratch}
             data-testid="wizard-start-blank"
           >
             Start from scratch

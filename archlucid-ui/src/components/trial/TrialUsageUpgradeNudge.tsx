@@ -177,8 +177,8 @@ export function TrialUsageUpgradeNudge() {
             {activeTrigger === "expiry" ? (
               <Button
                 type="button"
+                variant="primary"
                 size="sm"
-                className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700"
                 data-testid="trial-upgrade-nudge-cta"
                 onClick={() => {
                   recordTrialUpgradeNudgeClicked(activeTrigger);
@@ -188,7 +188,7 @@ export function TrialUsageUpgradeNudge() {
                 {copy.ctaLabel}
               </Button>
             ) : (
-              <Button asChild type="button" size="sm" className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700">
+              <Button asChild type="button" variant="primary" size="sm">
                 <Link
                   href={pricingHref}
                   data-testid="trial-upgrade-nudge-cta"
