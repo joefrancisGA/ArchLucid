@@ -4,6 +4,7 @@ import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-revie
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { coerceRunComparison } from "@/lib/operator/operator-response-guards";
+import { resolveArchitectureGraphTemporalMinUtc } from "@/lib/resolve-architecture-graph-temporal-min-utc";
 import { resolveRunDetailSavingsSummary } from "@/lib/runs/run-detail-savings-summary-resolve";
 import type { ArtifactDescriptor, RunDetail } from "@/types/authority";
 
@@ -142,21 +143,10 @@ async function loadProjectRunContext(
       canShowCompareReviewButton = false;
     }
 
-    let minUtc: string | null = null;
-
-    for (const run of projectRuns) {
-      if (run.hasGraphSnapshot !== true) {
-        continue;
-      }
-
-      if (minUtc === null || run.createdUtc < minUtc) {
-        minUtc = run.createdUtc;
-      }
-    }
-
-    if (minUtc !== null) {
-      architectureGraphTemporalMinUtc = minUtc;
-    }
+    architectureGraphTemporalMinUtc = resolveArchitectureGraphTemporalMinUtc(
+      context.resolvedDetail.run.createdUtc,
+      projectRuns,
+    );
   } catch {
     canShowCompareReviewButton = false;
   }
