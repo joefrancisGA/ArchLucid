@@ -80,6 +80,18 @@ function syncStandaloneRuntimeAssets(projectRoot: string): string {
     fs.copyFileSync(trustSrc, path.join(gtmDest, "trust-center.md"));
   }
 
+  /**
+   * In-app `/help/*` loads markdown from `docs/library/**` via `load-product-documentation.ts`
+   * when `process.cwd()` is `.next/standalone` (see `resolveMonorepoRootFromUiCwd`).
+   */
+  const docsLibrarySrc = path.join(monorepoDocs, "library");
+  const docsLibraryDest = path.join(standaloneRoot, "docs", "library");
+
+  if (fs.existsSync(docsLibrarySrc)) {
+    fs.mkdirSync(path.dirname(docsLibraryDest), { recursive: true });
+    fs.cpSync(docsLibrarySrc, docsLibraryDest, { recursive: true });
+  }
+
   return standaloneRoot;
 }
 

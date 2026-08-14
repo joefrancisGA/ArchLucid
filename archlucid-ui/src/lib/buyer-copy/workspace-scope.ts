@@ -4,10 +4,20 @@
  * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
-export const BUYER_WORKSPACE_DISPLAY_NAME = "Claims Intake Workspace";
+import {
+  CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
+  CUSTOMER_INTAKE_SAMPLE_DEFINITION,
+} from "@/lib/samples/customer-intake-modernization/definition";
+
+const customerIntakeWorkspaceLabel = CUSTOMER_INTAKE_SAMPLE_DEFINITION.workspaceLabel;
+const customerIntakePackageTitle = CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE;
+
+export const BUYER_WORKSPACE_SHORT_NAME = customerIntakePackageTitle.replace(/\s+Modernization$/i, "");
+
+export const BUYER_WORKSPACE_DISPLAY_NAME = `${BUYER_WORKSPACE_SHORT_NAME} Workspace`;
 
 export const BUYER_EXAMPLE_WORKSPACE_TOOLTIP =
-  "Claims Intake workspace — demonstration data for architecture review walkthroughs.";
+  `${BUYER_WORKSPACE_SHORT_NAME} workspace — demonstration data for architecture review walkthroughs.`;
 
 export const BUYER_SEED_EXAMPLE_REVIEW_CTA = "Load the example review";
 
@@ -25,13 +35,11 @@ export const BUYER_VIEWING_AS_DEMO_ROLE = "Role: Architecture reviewer";
 
 export const BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL = "Sample workspace";
 
-export const BUYER_WORKSPACE_SHORT_NAME = "Claims Intake";
-
 /** Compact top-bar label for the dev/sample workspace selector button. */
-export const BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL = "Claims Intake Demo";
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL = customerIntakeWorkspaceLabel;
 
 /** Full sample workspace name shown in the scope dropdown and accessible labels. */
-export const BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME = "Claims Intake Modernization";
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME = customerIntakePackageTitle;
 
 export const BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT = "Demo data only. Your workspace is unchanged.";
 
@@ -66,7 +74,7 @@ export const BUYER_SCOPE_SWITCHER_LOAD_ERROR =
 
 /** Legacy intro — prefer {@link BUYER_SCOPE_SAMPLE_WORKSPACE_BODY} in sample popovers. */
 export const BUYER_SCOPE_SWITCHER_INTRO =
-  "This walkthrough uses the Claims Intake sample workspace. Switching live tenant scope is not required.";
+  `This walkthrough uses the ${customerIntakePackageTitle} sample workspace. Switching live tenant scope is not required.`;
 
 /** Legacy list-unavailable copy — keep for technical disclosures only. */
 export const BUYER_SCOPE_LIST_UNAVAILABLE =
@@ -80,7 +88,7 @@ export const BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE =
 
 export const BUYER_DEMO_EVALUATION_WORKSPACE_BADGE = "Evaluation workspace";
 
-export const BUYER_DEMO_EVALUATION_WORKSPACE_STATUS = "Claims Intake Demo · Buyer evaluation workspace";
+export const BUYER_DEMO_EVALUATION_WORKSPACE_STATUS = `${customerIntakeWorkspaceLabel} · Buyer evaluation workspace`;
 
 export const BUYER_SEED_SAMPLE_WORKSPACE_CTA = "Load sample workspace";
 
@@ -92,7 +100,7 @@ export const BUYER_TRY_SAMPLE_REVIEW_CTA = "Try sample review";
 export const BUYER_SEE_COMPLETED_OUTPUT_CTA = "See completed output";
 
 export const BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE =
-  "This capability is not enabled in the Claims Intake Demo workspace.";
+  `This capability is not enabled in the ${customerIntakeWorkspaceLabel} workspace.`;
 
 export const BUYER_DEMO_CAPABILITY_UNAVAILABLE_BODY =
   "In a connected tenant, administrators configure users, support routing, digest subscriptions, and system health here.";
