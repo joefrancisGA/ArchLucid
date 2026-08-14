@@ -28,7 +28,6 @@ import {
   type CustomerGlossaryCategoryId,
   type CustomerGlossaryTerm,
 } from "@/lib/customer-glossary-manifest";
-import { GOLDEN_PATH_GLOSSARY_NOUN_IDS } from "@/lib/golden-path-glossary-nouns";
 import { LOAD_BEARING_GLOSSARY_NOUN_IDS } from "@/lib/load-bearing-glossary-nouns";
 import { OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
@@ -38,7 +37,7 @@ import { cn } from "@/lib/utils";
 const CUSTOMER_TERMS = listCustomerFacingGlossaryTerms();
 const TERM_LABEL_INDEX = buildGlossaryTermLabelIndex(CUSTOMER_TERMS);
 
-const GLOSSARY_FEATURED_TERM_IDS = ["finding", ...GOLDEN_PATH_GLOSSARY_NOUN_IDS] as const;
+const GLOSSARY_FEATURED_TERM_IDS = LOAD_BEARING_GLOSSARY_NOUN_IDS;
 
 const FILTER_CHIP_CLASS = "min-h-8 px-3";
 

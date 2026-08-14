@@ -1,5 +1,5 @@
 /**
- * Central dictionary for operator-facing domain terms and reusable UI labels.
+ * Central dictionary for architect-workspace domain terms and reusable UI labels.
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";

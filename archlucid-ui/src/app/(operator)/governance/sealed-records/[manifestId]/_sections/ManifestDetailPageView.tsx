@@ -2,6 +2,7 @@ import { DELIVERABLES_BUNDLE_LABEL } from "@/lib/usability/canonical-product-ter
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
@@ -257,15 +258,19 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
                 BUYER_MANIFEST_AUTHORITY_SUMMARY
               ) : (
                 <>
-                  This is the sealed review record for the architecture review — decisions, findings, and the files you
+                  This is the <InlineGlossaryChip nounId="signed-review-record" pulseOnFirstEncounter={false}>sealed review record</InlineGlossaryChip> for the architecture review —{" "}
+                  <InlineGlossaryChip nounId="decision" pulseOnFirstEncounter={false}>decisions</InlineGlossaryChip>,{" "}
+                  <InlineGlossaryChip nounId="finding" pulseOnFirstEncounter={false}>findings</InlineGlossaryChip>, and the files you
                   can open or download.
                 </>
               )}
             </>
           ) : (
             <>
-              A sealed review record is the immutable authority for this review. It captures decisions, findings, and
-              the downloadable {DELIVERABLES_BUNDLE_LABEL.toLowerCase()} linked from review detail.
+              A <InlineGlossaryChip nounId="signed-review-record" pulseOnFirstEncounter={false}>sealed review record</InlineGlossaryChip> is the immutable authority for this review. It captures{" "}
+              <InlineGlossaryChip nounId="decision" pulseOnFirstEncounter={false}>decisions</InlineGlossaryChip>,{" "}
+              <InlineGlossaryChip nounId="finding" pulseOnFirstEncounter={false}>findings</InlineGlossaryChip>, and
+              the downloadable <InlineGlossaryChip nounId="deliverable" pulseOnFirstEncounter={false}>{DELIVERABLES_BUNDLE_LABEL.toLowerCase()}</InlineGlossaryChip> linked from review detail.
             </>
           )
         }

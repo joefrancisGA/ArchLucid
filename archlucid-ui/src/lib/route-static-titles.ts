@@ -34,7 +34,7 @@ import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 
 /**
- * Static pathname → announcement title mappings for canonical operator routes only.
+ * Static pathname → announcement title mappings for canonical architect workspace routes only.
  * Legacy bookmark paths resolve via next.config redirects — do not register them here.
  */
 export const ROUTE_TITLES: Record<string, string> = {
