@@ -1,7 +1,6 @@
 import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
 import {
-  getArchitectureDecisionRegister,
-  getArchitectureRiskRegister,
+  fetchGovernanceFindingsRegistersBundle,
 } from "@/lib/api/governance-stickiness-api";
 import type { RunSummary } from "@/types/authority";
 
@@ -61,10 +60,9 @@ export async function fetchGovernanceFindingQueueRows(
   const attemptedAtUtc = new Date().toISOString();
 
   try {
-    const [riskRegister, decisionRegister] = await Promise.all([
-      getArchitectureRiskRegister(),
-      getArchitectureDecisionRegister(),
-    ]);
+    const bundle = await fetchGovernanceFindingsRegistersBundle();
+    const riskRegister = bundle.riskRegister;
+    const decisionRegister = bundle.decisionRegister;
     const registerRows = dedupeGovernanceFindingRows([
       ...riskRegisterRows(riskRegister.entries ?? []),
       ...decisionRegisterRows(decisionRegister.decisions ?? []),

@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Contracts.Roi;
 
@@ -57,5 +57,44 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
         body.Should().NotBeNull();
         body!.Connection.Should().NotBeNull();
         body.TriggerCatalog.Should().NotBeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetFindingsRegistersBundle_ReturnsOk_WithRegisters()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/governance/findings-registers-bundle");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        GovernanceFindingsRegistersBundleResponse? body =
+            await response.Content.ReadFromJsonAsync<GovernanceFindingsRegistersBundleResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.RiskRegister.Should().NotBeNull();
+        body.DecisionRegister.Should().NotBeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetJiraPageBundle_ReturnsOk_WithSlices()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/integrations/itsm/jira/page-bundle");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        ItsmProviderIntegrationPageBundleResponse? body =
+            await response.Content.ReadFromJsonAsync<ItsmProviderIntegrationPageBundleResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.Health.Should().NotBeNull();
+        body.Settings.Should().NotBeNull();
+        body.Connection.Should().NotBeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetItsmHealth_ReturnsOk_WithoutLiveProbe()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/integrations/itsm/health");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }

@@ -13,9 +13,8 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
-  fetchItsmIntegrationHealth,
-  fetchTenantItsmConnectorConnection,
-  fetchTenantItsmOutboundSettings,
+  fetchItsmProviderPageBundle,
+  probeItsmIntegrationHealth,
   upsertTenantItsmOutboundSettings,
   type ItsmIntegrationHealthResponse,
   type TenantItsmConnectorConnectionResponse,
@@ -65,7 +64,6 @@ import {
   resolveServiceNowSetupSteps,
   sanitizeCustomerFacingProbeSummary,
 } from "@/lib/servicenow-integration-present";
-import { buildServiceNowPageLoadResult } from "@/lib/servicenow-page-load";
 import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
@@ -106,36 +104,24 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     setIsLoading(true);
     setLoadError(null);
 
-    // Isolate slice failures so one 500 cannot wipe successful connection/settings (TB-1162).
-    const [healthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
-      fetchItsmIntegrationHealth(),
-      fetchTenantItsmOutboundSettings(),
-      fetchTenantItsmConnectorConnection("servicenow"),
-    ]);
+    try {
+      const bundle = await fetchItsmProviderPageBundle("servicenow");
 
-    const loaded = buildServiceNowPageLoadResult({
-      health: healthOutcome,
-      settings: settingsOutcome,
-      connection: connectionOutcome,
-    });
-
-    setHealthLoadFailed(loaded.health.failed);
-    setSettingsLoadFailed(loaded.settings.failed);
-    setConnectionLoadFailed(loaded.connection.failed);
-
-    if (!loaded.health.failed) {
-      setHealth(loaded.health.value);
+      setHealthLoadFailed(false);
+      setSettingsLoadFailed(false);
+      setConnectionLoadFailed(false);
+      setHealth(bundle.health);
+      applySettings(bundle.settings);
+      setConnection(bundle.connection);
+      setLoadError(null);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Could not load ServiceNow integration data.";
+      setHealthLoadFailed(true);
+      setSettingsLoadFailed(true);
+      setConnectionLoadFailed(true);
+      setLoadError(message);
     }
 
-    if (!loaded.settings.failed) {
-      applySettings(loaded.settings.value);
-    }
-
-    if (!loaded.connection.failed) {
-      setConnection(loaded.connection.value);
-    }
-
-    setLoadError(loaded.loadError);
     setLastCheckedAt(new Date());
     setIsLoading(false);
   }, [applySettings]);
@@ -208,7 +194,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     setTestError(null);
 
     try {
-      const probeResult = await fetchItsmIntegrationHealth();
+      const probeResult = await probeItsmIntegrationHealth();
       setHealth(probeResult);
       const snowProbe = probeResult.serviceNow;
       const summary = sanitizeCustomerFacingProbeSummary(snowProbe?.summary);

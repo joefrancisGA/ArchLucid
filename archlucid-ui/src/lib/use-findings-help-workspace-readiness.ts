@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
-import { getArchitectureDecisionRegister, getArchitectureRiskRegister } from "@/lib/api/governance-stickiness-api";
+import { fetchGovernanceFindingsRegistersBundle } from "@/lib/api/governance-stickiness-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import {
   decisionRegisterRows,
@@ -164,10 +164,9 @@ export function useFindingsHelpWorkspaceReadiness(): FindingsHelpWorkspaceReadin
     }));
 
     try {
-      const [riskRegister, decisionRegister] = await Promise.all([
-        getArchitectureRiskRegister(),
-        getArchitectureDecisionRegister(),
-      ]);
+      const bundle = await fetchGovernanceFindingsRegistersBundle();
+      const riskRegister = bundle.riskRegister;
+      const decisionRegister = bundle.decisionRegister;
       const rows = dedupeGovernanceFindingRows([
         ...riskRegisterRows(riskRegister.entries ?? []),
         ...decisionRegisterRows(decisionRegister.decisions ?? []),

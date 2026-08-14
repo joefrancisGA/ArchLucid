@@ -68,6 +68,60 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
     }
 
     [Fact]
+    public async Task GetStoredHealthAsync_when_jira_locally_ready_returns_not_tested_without_http()
+    {
+        IntegrationsItsmOutboundOptions options = new()
+        {
+            Jira =
+            {
+                CloudBaseUrl = "https://mock-jira.health.test",
+                ServiceAccountEmail = "bot@example.com",
+                ApiToken = "token",
+                DefaultProjectKey = "DP",
+            },
+        };
+
+        Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> monitor = new();
+        monitor.Setup(static m => m.CurrentValue).Returns(options);
+
+        Mock<ITenantItsmOutboundSettingsRepository> tenantRepo = new();
+        tenantRepo
+            .Setup(t => t.TryGetAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantItsmOutboundSettings?)null);
+
+        using HttpClient innerHttp = new(new StubHandler(static (_, _) => new HttpResponseMessage(HttpStatusCode.OK)));
+        Mock<IHttpClientFactory> factory = new();
+        factory
+            .Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.HttpClientName))
+            .Returns(innerHttp);
+
+        ItsmOutboundIntegrationHealthService sut = new(
+            factory.Object,
+            monitor.Object,
+            tenantRepo.Object,
+            CredentialResolver(options),
+            HttpAuthenticator(),
+            NullLogger<ItsmOutboundIntegrationHealthService>.Instance);
+
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+        };
+
+        ItsmOutboundIntegrationHealthReport report =
+            await sut.GetStoredHealthAsync(scope, CancellationToken.None);
+
+        report.Status.Should().Be("not_tested");
+        report.Return503.Should().BeFalse();
+        report.Jira.LocallyConfigured.Should().BeTrue();
+        report.Jira.Reachable.Should().BeNull();
+
+        factory.Verify(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.HttpClientName), Times.Never);
+    }
+
+    [Fact]
     public async Task GetHealthAsync_when_jira_configured_and_myself_ok_marks_reachable()
     {
         IntegrationsItsmOutboundOptions options = new()

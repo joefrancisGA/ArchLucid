@@ -171,6 +171,29 @@ export async function getArchitectureRiskRegister(
   return apiGet<ArchitectureRiskRegisterResponse>(`${governanceBase()}/risk-register${suffix}`);
 }
 
+/** Risk and decision registers for the governance findings queue. */
+export async function fetchGovernanceFindingsRegistersBundle(options?: {
+  projectId?: string;
+  maxRows?: number;
+}): Promise<{
+  riskRegister: ArchitectureRiskRegisterResponse;
+  decisionRegister: ArchitectureDecisionRegisterResponse;
+}> {
+  const query = new URLSearchParams();
+
+  if (options?.projectId) {
+    query.set("projectId", options.projectId);
+  }
+
+  if (typeof options?.maxRows === "number") {
+    query.set("maxRows", String(options.maxRows));
+  }
+
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+
+  return apiGet(`${governanceBase()}/findings-registers-bundle${suffix}`);
+}
+
 export async function getArchitectureDecisionRegister(
   projectId?: string,
   filters?: ArchitectureDecisionRegisterFilters,

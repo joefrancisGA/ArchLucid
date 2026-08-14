@@ -14,9 +14,8 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
-  fetchItsmIntegrationHealth,
-  fetchTenantItsmConnectorConnection,
-  fetchTenantItsmOutboundSettings,
+  fetchItsmProviderPageBundle,
+  probeItsmIntegrationHealth,
   upsertTenantItsmOutboundSettings,
   type ItsmIntegrationHealthResponse,
   type TenantItsmConnectorConnectionResponse,
@@ -74,7 +73,6 @@ import {
   resolveJiraSetupSteps,
   sanitizeCustomerFacingJiraProbeSummary,
 } from "@/lib/jira-integration-present";
-import { buildJiraPageLoadResult } from "@/lib/jira-page-load";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
@@ -123,35 +121,24 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     setIsLoading(true);
     setLoadError(null);
 
-    const [healthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
-      fetchItsmIntegrationHealth(),
-      fetchTenantItsmOutboundSettings(),
-      fetchTenantItsmConnectorConnection("jira"),
-    ]);
+    try {
+      const bundle = await fetchItsmProviderPageBundle("jira");
 
-    const loaded = buildJiraPageLoadResult({
-      health: healthOutcome,
-      settings: settingsOutcome,
-      connection: connectionOutcome,
-    });
-
-    setHealthLoadFailed(loaded.health.failed);
-    setSettingsLoadFailed(loaded.settings.failed);
-    setConnectionLoadFailed(loaded.connection.failed);
-
-    if (!loaded.health.failed) {
-      setHealth(loaded.health.value);
+      setHealthLoadFailed(false);
+      setSettingsLoadFailed(false);
+      setConnectionLoadFailed(false);
+      setHealth(bundle.health);
+      applySettings(bundle.settings);
+      setConnection(bundle.connection);
+      setLoadError(null);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Could not load Jira integration data.";
+      setHealthLoadFailed(true);
+      setSettingsLoadFailed(true);
+      setConnectionLoadFailed(true);
+      setLoadError(message);
     }
 
-    if (!loaded.settings.failed) {
-      applySettings(loaded.settings.value);
-    }
-
-    if (!loaded.connection.failed) {
-      setConnection(loaded.connection.value);
-    }
-
-    setLoadError(loaded.loadError);
     setLastCheckedAt(new Date());
     setIsLoading(false);
   }, [applySettings]);
@@ -239,7 +226,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     setTestError(null);
 
     try {
-      const probeResult = await fetchItsmIntegrationHealth();
+      const probeResult = await probeItsmIntegrationHealth();
       setHealth(probeResult);
       const jiraProbe = probeResult.jira;
       const summary = sanitizeCustomerFacingJiraProbeSummary(jiraProbe?.summary);

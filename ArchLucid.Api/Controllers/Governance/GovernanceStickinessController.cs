@@ -123,6 +123,43 @@ public sealed class GovernanceStickinessController(
         return this.OkWithConditionalEtag(response, etag);
     }
 
+    /// <summary>Risk and decision registers for the governance findings queue (default list filters).</summary>
+    [HttpGet("findings-registers-bundle")]
+    [ProducesResponseType(typeof(GovernanceFindingsRegistersBundleResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetFindingsRegistersBundle(
+        [FromQuery] Guid? projectId,
+        [FromQuery] int maxRows = 200,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        int take = Math.Clamp(maxRows, 1, 500);
+        Guid resolvedProjectId = projectId ?? scope.ProjectId;
+
+        Task<ArchitectureRiskRegisterResponse> riskTask = riskRegisterService.GetRegisterAsync(
+            scope.TenantId,
+            resolvedProjectId,
+            take,
+            options: null,
+            cancellationToken);
+
+        Task<ArchitectureDecisionRegisterResponse> decisionTask = decisionRegisterService.GetRegisterAsync(
+            scope.TenantId,
+            resolvedProjectId,
+            take,
+            filters: new ArchitectureDecisionRegisterQueryOptions(),
+            cancellationToken);
+
+        await Task.WhenAll(riskTask, decisionTask).ConfigureAwait(false);
+
+        GovernanceFindingsRegistersBundleResponse body = new()
+        {
+            RiskRegister = await riskTask.ConfigureAwait(false),
+            DecisionRegister = await decisionTask.ConfigureAwait(false)
+        };
+
+        return Ok(body);
+    }
+
     [HttpGet("decision-register")]
     [ProducesResponseType(typeof(ArchitectureDecisionRegisterResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDecisionRegister(

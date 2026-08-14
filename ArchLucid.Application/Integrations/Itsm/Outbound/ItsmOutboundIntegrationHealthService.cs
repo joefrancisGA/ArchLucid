@@ -27,6 +27,7 @@ public sealed class ItsmOutboundIntegrationHealthService(
 {
     private const string HealthyStatus = "healthy";
     private const string NotConfiguredStatus = "not_configured";
+    private const string NotTestedStatus = "not_tested";
     private const string UnhealthyStatus = "unhealthy";
 
     private readonly IHttpClientFactory _httpClientFactory =
@@ -52,20 +53,13 @@ public sealed class ItsmOutboundIntegrationHealthService(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
+        (TenantItsmOutboundSettings? tenantRow,
+            IntegrationsItsmOutboundOptions outbound,
+            ResolvedItsmOutboundCredentials? jiraCredentials,
+            ResolvedItsmOutboundCredentials? snowCredentials) =
+            await LoadScopeCredentialsAsync(scope, cancellationToken).ConfigureAwait(false);
+
         HttpClient http = _httpClientFactory.CreateClient(ItsmOutboundIntegrationHealthLimits.HttpClientName);
-
-        TenantItsmOutboundSettings? tenantRow =
-            await _tenantItsmOutboundSettings.TryGetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        IntegrationsItsmOutboundOptions outbound = _outboundOptions.CurrentValue;
-
-        ResolvedItsmOutboundCredentials? jiraCredentials = await _credentialResolver
-            .TryResolveOutboundAsync(scope.TenantId, TenantItsmConnectorProvider.Jira, cancellationToken)
-            .ConfigureAwait(false);
-
-        ResolvedItsmOutboundCredentials? snowCredentials = await _credentialResolver
-            .TryResolveOutboundAsync(scope.TenantId, TenantItsmConnectorProvider.ServiceNow, cancellationToken)
-            .ConfigureAwait(false);
 
         ItsmOutboundLocalReadiness jiraLocal =
             ItsmOutboundLocalConfigurationEvaluator.EvaluateJiraFromResolvedCredentials(jiraCredentials, outbound, tenantRow);
@@ -79,6 +73,70 @@ public sealed class ItsmOutboundIntegrationHealthService(
         ItsmOutboundIntegrationProviderProbe snowProbe =
             await BuildServiceNowProbeAsync(http, scope.TenantId, snowCredentials, snowLocal, cancellationToken).ConfigureAwait(false);
 
+        return BuildLiveReport(jiraProbe, snowProbe);
+    }
+
+    /// <inheritdoc />
+    public async Task<ItsmOutboundIntegrationHealthReport> GetStoredHealthAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        (TenantItsmOutboundSettings? tenantRow,
+            IntegrationsItsmOutboundOptions outbound,
+            ResolvedItsmOutboundCredentials? jiraCredentials,
+            ResolvedItsmOutboundCredentials? snowCredentials) =
+            await LoadScopeCredentialsAsync(scope, cancellationToken).ConfigureAwait(false);
+
+        ItsmOutboundLocalReadiness jiraLocal =
+            ItsmOutboundLocalConfigurationEvaluator.EvaluateJiraFromResolvedCredentials(jiraCredentials, outbound, tenantRow);
+
+        ItsmOutboundLocalReadiness snowLocal =
+            ItsmOutboundLocalConfigurationEvaluator.EvaluateServiceNowFromResolvedCredentials(snowCredentials, outbound);
+
+        ItsmOutboundIntegrationProviderProbe jiraProbe = BuildStoredProbe(jiraLocal);
+        ItsmOutboundIntegrationProviderProbe snowProbe = BuildStoredProbe(snowLocal);
+
+        return BuildStoredReport(jiraProbe, snowProbe);
+    }
+
+    private async Task<(
+        TenantItsmOutboundSettings? TenantRow,
+        IntegrationsItsmOutboundOptions Outbound,
+        ResolvedItsmOutboundCredentials? JiraCredentials,
+        ResolvedItsmOutboundCredentials? SnowCredentials)> LoadScopeCredentialsAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        TenantItsmOutboundSettings? tenantRow =
+            await _tenantItsmOutboundSettings.TryGetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        IntegrationsItsmOutboundOptions outbound = _outboundOptions.CurrentValue;
+
+        ResolvedItsmOutboundCredentials? jiraCredentials = await _credentialResolver
+            .TryResolveOutboundAsync(scope.TenantId, TenantItsmConnectorProvider.Jira, cancellationToken)
+            .ConfigureAwait(false);
+
+        ResolvedItsmOutboundCredentials? snowCredentials = await _credentialResolver
+            .TryResolveOutboundAsync(scope.TenantId, TenantItsmConnectorProvider.ServiceNow, cancellationToken)
+            .ConfigureAwait(false);
+
+        return (tenantRow, outbound, jiraCredentials, snowCredentials);
+    }
+
+    private static ItsmOutboundIntegrationProviderProbe BuildStoredProbe(ItsmOutboundLocalReadiness local)
+    {
+        if (!local.IsReady)
+            return new ItsmOutboundIntegrationProviderProbe(false, null, local.Summary);
+
+        return new ItsmOutboundIntegrationProviderProbe(true, null, local.Summary);
+    }
+
+    private static ItsmOutboundIntegrationHealthReport BuildLiveReport(
+        ItsmOutboundIntegrationProviderProbe jiraProbe,
+        ItsmOutboundIntegrationProviderProbe snowProbe)
+    {
         bool anyConfigured = jiraProbe.LocallyConfigured || snowProbe.LocallyConfigured;
 
         bool upstreamFailure = (jiraProbe.LocallyConfigured && jiraProbe.Reachable is false) ||
@@ -95,6 +153,17 @@ public sealed class ItsmOutboundIntegrationHealthService(
 
         return new ItsmOutboundIntegrationHealthReport(status, jiraProbe, snowProbe,
             Return503: anyConfigured && upstreamFailure);
+    }
+
+    private static ItsmOutboundIntegrationHealthReport BuildStoredReport(
+        ItsmOutboundIntegrationProviderProbe jiraProbe,
+        ItsmOutboundIntegrationProviderProbe snowProbe)
+    {
+        bool anyConfigured = jiraProbe.LocallyConfigured || snowProbe.LocallyConfigured;
+
+        string status = anyConfigured ? NotTestedStatus : NotConfiguredStatus;
+
+        return new ItsmOutboundIntegrationHealthReport(status, jiraProbe, snowProbe, Return503: false);
     }
 
     private async Task<ItsmOutboundIntegrationProviderProbe> BuildJiraProbeAsync(

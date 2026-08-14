@@ -6,4 +6,7 @@ namespace ArchLucid.Application.Integrations.Itsm.Outbound;
 public interface IItsmOutboundIntegrationHealthService
 {
     Task<ItsmOutboundIntegrationHealthReport> GetHealthAsync(ScopeContext scope, CancellationToken cancellationToken);
+
+    /// <summary>Local configuration readiness only — no outbound vendor REST probes.</summary>
+    Task<ItsmOutboundIntegrationHealthReport> GetStoredHealthAsync(ScopeContext scope, CancellationToken cancellationToken);
 }
