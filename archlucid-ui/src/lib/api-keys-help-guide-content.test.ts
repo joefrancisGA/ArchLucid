@@ -30,15 +30,15 @@ describe("api-keys-help-guide-content", () => {
   it("lists four on-page headings so the TOC rail can render", () => {
     expect(API_KEYS_HELP_GUIDE_HEADINGS).toHaveLength(4);
     expect(API_KEYS_HELP_GUIDE_HEADINGS.map((heading) => heading.id)).toEqual([
-      "where-to-go-in-this-release",
+      "not-in-this-release-what-to-use-instead",
       "what-api-keys-are-for",
       "what-to-do-instead",
       "where-to-go-next",
     ]);
   });
 
-  it("lists five live Sources without the retired settings route", () => {
-    expect(API_KEYS_HELP_SOURCES).toHaveLength(5);
+  it("lists help-specific Sources without action-panel duplicates or the retired settings route", () => {
+    expect(API_KEYS_HELP_SOURCES).toHaveLength(2);
     expect(API_KEYS_HELP_SOURCES.some((link) => link.href === API_KEYS_SETTINGS_RETIRED_ROUTE_PATH)).toBe(false);
   });
 });

@@ -22,7 +22,6 @@ import {
   API_KEYS_HELP_PRIMARY_ACTIONS,
   API_KEYS_HELP_RELEASE_AVAILABILITY_NOTE,
   API_KEYS_HELP_RELEASE_STATUS_LABEL,
-  API_KEYS_HELP_STEP_FOLLOW_UP_LINKS,
   type ApiKeysHelpPrimaryAction,
 } from "@/lib/api-keys-help-guide-content";
 import { API_KEYS_HELP_CANONICAL_PATH } from "@/lib/api-keys-help-evidence-copy";
@@ -30,7 +29,6 @@ import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -66,6 +64,7 @@ function HelpApiKeysPrimaryActionButton(props: { readonly action: ApiKeysHelpPri
 /** Operator API keys orientation for `/help/api-keys`. */
 export function HelpApiKeysGuideView(_props: HelpApiKeysGuideViewProps): React.ReactElement {
   const contentGridClass = resolveHelpPageContentGridClass(API_KEYS_HELP_GUIDE_HEADINGS.length);
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")} data-testid="help-api-keys-guide">
@@ -77,14 +76,12 @@ export function HelpApiKeysGuideView(_props: HelpApiKeysGuideViewProps): React.R
         subtitle={API_KEYS_HELP_PAGE_SUBTITLE}
         navHref={API_KEYS_HELP_CANONICAL_PATH}
         headingLevel="h1"
+        statusBadge={<StatusTag kind="neutral" label={API_KEYS_HELP_RELEASE_STATUS_LABEL} />}
       />
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p
-            className={cn("m-0 max-w-3xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="help-api-keys-overview"
-          >
+          <p className={readingBodyClass} data-testid="help-api-keys-overview">
             {API_KEYS_HELP_OVERVIEW}
           </p>
 
@@ -101,14 +98,14 @@ export function HelpApiKeysGuideView(_props: HelpApiKeysGuideViewProps): React.R
               <h2 className={cn("m-0 text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 {API_KEYS_HELP_ACTION_PANEL_TITLE}
               </h2>
-              <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <p className={cn("m-0 max-w-3xl text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>
                 {API_KEYS_HELP_ACTION_PANEL_INTRO}
               </p>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-3")}>
               <div className="space-y-2">
                 <StatusTag kind="neutral" label={API_KEYS_HELP_RELEASE_STATUS_LABEL} />
-                <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.body)} data-testid="help-api-keys-availability-note">
+                <p className={cn("m-0 max-w-3xl", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-api-keys-availability-note">
                   {API_KEYS_HELP_RELEASE_AVAILABILITY_NOTE}
                 </p>
               </div>
@@ -126,7 +123,7 @@ export function HelpApiKeysGuideView(_props: HelpApiKeysGuideViewProps): React.R
           >
             <HelpSectionHeading id="what-api-keys-are-for">What API keys are for</HelpSectionHeading>
             <dl
-              className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-api-keys-feature-items"
             >
               {API_KEYS_HELP_FEATURE_ITEMS.map((item) => (
@@ -146,26 +143,13 @@ export function HelpApiKeysGuideView(_props: HelpApiKeysGuideViewProps): React.R
               {API_KEYS_HELP_INSTEAD_SECTION_TITLE}
             </HelpSectionHeading>
             <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-api-keys-how-stepper"
             >
               {API_KEYS_HELP_HOW_TO_READ_STEPS.map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>
-            <ul
-              className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="help-api-keys-step-follow-ups"
-            >
-              {API_KEYS_HELP_STEP_FOLLOW_UP_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link className={OPERATOR_LINK.inline} href={link.href}>
-                    {link.label}
-                    <span aria-hidden> →</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </section>
 
           <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">

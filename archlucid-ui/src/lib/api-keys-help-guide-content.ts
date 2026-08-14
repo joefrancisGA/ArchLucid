@@ -8,12 +8,12 @@ export const API_KEYS_HELP_PAGE_SUBTITLE =
   "Where workspace automation credentials live in this release, and how people access is governed instead.";
 
 export const API_KEYS_HELP_OVERVIEW =
-  "API keys are workspace automation credentials for approved enterprise configurations. Use them for scripted access — not as a substitute for people sign-in, governed audit trails, or procurement diligence packages.";
+  "API key management is not available in this release. API keys are workspace automation credentials for approved enterprise configurations — host automation uses deployment-held secrets, and people access is governed under Users and roles, not through keys created in this product.";
 
 export const API_KEYS_HELP_RELEASE_STATUS_LABEL = "Not in this release";
 
 export const API_KEYS_HELP_RELEASE_AVAILABILITY_NOTE =
-  "API key management is not available in this release. People access is governed under Users and roles. Host automation credentials are held in deployment configuration (Key Vault or app settings).";
+  "People access is governed under Users and roles. Host automation credentials are held in deployment configuration (Key Vault or app settings).";
 
 export type ApiKeysHelpPrimaryAction = {
   readonly label: string;
@@ -39,9 +39,9 @@ export const API_KEYS_HELP_PRIMARY_ACTIONS = {
   },
 } as const satisfies Record<string, ApiKeysHelpPrimaryAction>;
 
-export const API_KEYS_HELP_ACTION_PANEL_ID = "where-to-go-in-this-release";
+export const API_KEYS_HELP_ACTION_PANEL_ID = "not-in-this-release-what-to-use-instead";
 
-export const API_KEYS_HELP_ACTION_PANEL_TITLE = "Where to go in this release";
+export const API_KEYS_HELP_ACTION_PANEL_TITLE = "Not in this release — what to use instead";
 
 export const API_KEYS_HELP_ACTION_PANEL_INTRO =
   "Use these live follow-ups when automation credential questions need membership controls, scripting guidance, or governed audit trails.";
@@ -55,21 +55,22 @@ export const API_KEYS_HELP_FEATURE_ITEMS: readonly ApiKeysHelpItem[] = [
   {
     label: "CI packaging and inventory export",
     detail:
-      "Pipeline steps that call ArchLucid packaging scripts or upload inventory bundles without interactive sign-in.",
+      "In enterprise configurations, pipeline steps call ArchLucid packaging scripts or upload inventory bundles using credentials held in deployment configuration — not through an in-product key manager.",
   },
   {
     label: "Scheduled evidence collection",
-    detail: "Host services that poll connectors or export review evidence on a recurrence schedule.",
+    detail:
+      "Host services that poll connectors or export review evidence on a schedule rely on deployment-held secrets when no in-product API key surface is available.",
   },
   {
     label: "Governed people access",
     detail:
-      "Interactive operators use Users and roles for membership, SSO, and role assignment — API keys do not replace those controls.",
+      "Interactive operators sign in through Users and roles for membership, SSO, and role assignment — not API keys created in this product.",
   },
   {
     label: "Host-held credentials",
     detail:
-      "Deployment configuration (Key Vault or app settings) stores automation secrets when no in-product key manager is available.",
+      "Key Vault or app settings store automation secrets for approved configurations until an in-product key manager ships.",
   },
 ] as const;
 
@@ -78,19 +79,9 @@ export const API_KEYS_HELP_INSTEAD_SECTION_ID = "what-to-do-instead";
 export const API_KEYS_HELP_INSTEAD_SECTION_TITLE = "What to do instead in this release";
 
 export const API_KEYS_HELP_HOW_TO_READ_STEPS = [
-  "Open Users and roles to review who can administer workspace membership and automation access policies.",
-  "Read CLI usage help for how host automation authenticates when keys are held outside the product UI.",
-  "Open Audit when credential changes need a governed trail or assurance follow-up.",
-] as const;
-
-export type ApiKeysHelpStepFollowUpLink = {
-  readonly label: string;
-  readonly href: string;
-};
-
-/** Supplemental step links — CLI and users help already appear in the action panel and Sources band. */
-export const API_KEYS_HELP_STEP_FOLLOW_UP_LINKS: readonly ApiKeysHelpStepFollowUpLink[] = [
-  { label: "Assurance status", href: "/security-trust" },
+  "Confirm who may administer workspace membership and automation access policies before changing deployment credentials.",
+  "Review how host automation authenticates when keys are held outside the product UI.",
+  "Record credential or access changes in Audit when assurance follow-up is required.",
 ] as const;
 
 export const API_KEYS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
