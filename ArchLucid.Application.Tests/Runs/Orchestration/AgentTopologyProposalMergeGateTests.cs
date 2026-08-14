@@ -6846,8 +6846,6 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
-<<<<<<< Updated upstream
-=======
 
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_extended_location_custom_node_has_data_category_but_synthetic_service_id_used()
@@ -6954,5 +6952,4 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
->>>>>>> Stashed changes
 }
