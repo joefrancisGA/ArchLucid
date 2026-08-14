@@ -102,6 +102,30 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-13 · insights impact preview orientation");
   });
 
+  it("formats improvement planning help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "improvement-planning",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "insights improvement planning orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · insights improvement planning orientation");
+  });
+
+  it("formats jira integration help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "jira-integration",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "integrations jira orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · integrations jira orientation");
+  });
+
   it("formats ai usage help review provenance", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(

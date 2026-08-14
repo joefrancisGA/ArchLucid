@@ -2,21 +2,25 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { JiraIntegrationHelpEvidenceOrientationStrip } from "@/components/help/JiraIntegrationHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import {
+  JIRA_INTEGRATION_HELP_BEFORE_YOU_START_BODY,
+  JIRA_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
+  JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION,
+  JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION_TAG,
   JIRA_INTEGRATION_HELP_FEATURE_ITEMS,
   JIRA_INTEGRATION_HELP_GUIDE_HEADINGS,
   JIRA_INTEGRATION_HELP_HOW_TO_READ_STEPS,
@@ -24,8 +28,7 @@ import {
   JIRA_INTEGRATION_HELP_PAGE_SUBTITLE,
   JIRA_INTEGRATION_HELP_PAGE_TITLE,
   JIRA_INTEGRATION_HELP_PRIMARY_ACTION,
-  JIRA_INTEGRATION_HELP_READINESS_HREF,
-  JIRA_INTEGRATION_HELP_SERVICENOW_HREF,
+  JIRA_INTEGRATION_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/jira-integration-help-guide-content";
 import { JIRA_INTEGRATION_HELP_CANONICAL_PATH } from "@/lib/jira-integration-help-evidence-copy";
 import { JIRA_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/jira-integration-evidence-copy";
@@ -51,6 +54,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideViewProps): React.ReactElement {
   const { entry } = props;
   const contentGridClass = resolveHelpPageContentGridClass(JIRA_INTEGRATION_HELP_GUIDE_HEADINGS.length);
+  const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
@@ -59,7 +63,8 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
     >
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
+      <HelpTopicGuidePageHeader
+        topicTitle={JIRA_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE}
         title={JIRA_INTEGRATION_HELP_PAGE_TITLE}
         titleTestId="help-jira-integration-page-title"
         subtitle={JIRA_INTEGRATION_HELP_PAGE_SUBTITLE}
@@ -71,23 +76,35 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p
-            className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="help-jira-integration-overview"
-          >
+          <p className={readingBodyClass} data-testid="help-jira-integration-overview">
             {JIRA_INTEGRATION_HELP_OVERVIEW}
           </p>
 
           <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-jira-integration-action-panel">
             <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Open Jira integration</CardTitle>
+              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                {JIRA_INTEGRATION_HELP_START_HERE_CARD_TITLE}
+              </CardTitle>
             </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={JIRA_INTEGRATION_HELP_PRIMARY_ACTION.href}>
-                  {JIRA_INTEGRATION_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
+            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button asChild size="sm" variant="primary">
+                  <Link href={JIRA_INTEGRATION_HELP_PRIMARY_ACTION.href}>
+                    {JIRA_INTEGRATION_HELP_PRIMARY_ACTION.label}
+                  </Link>
+                </Button>
+                <StatusTag
+                  kind="neutral"
+                  label={JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION_TAG}
+                  data-testid="help-jira-integration-connection-precondition-tag"
+                />
+              </div>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-jira-integration-connection-precondition"
+              >
+                {JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION}
+              </p>
             </CardContent>
           </Card>
 
@@ -97,7 +114,7 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
           >
             <HelpSectionHeading id="what-jira-integration-does">What Jira integration does</HelpSectionHeading>
             <dl
-              className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-jira-integration-feature-items"
             >
               {JIRA_INTEGRATION_HELP_FEATURE_ITEMS.map((item) => (
@@ -115,26 +132,26 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
           >
             <HelpSectionHeading id="how-jira-integration-works">{JIRA_INTEGRATION_HELP_TOPIC_LABEL}</HelpSectionHeading>
             <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-jira-integration-how-stepper"
             >
               {JIRA_INTEGRATION_HELP_HOW_TO_READ_STEPS.map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={JIRA_INTEGRATION_HELP_READINESS_HREF}>
-                Read integration readiness help →
-              </Link>
-            </p>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={JIRA_INTEGRATION_HELP_SERVICENOW_HREF}>
-                Open ServiceNow integration →
-              </Link>
+          </section>
+
+          <section
+            aria-labelledby="before-you-start"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id="before-you-start">Before you start</HelpSectionHeading>
+            <p className={readingBodyClass} data-testid="help-jira-integration-before-you-start">
+              {JIRA_INTEGRATION_HELP_BEFORE_YOU_START_BODY}
             </p>
           </section>
 
-          <JiraIntegrationHelpEvidenceOrientationStrip />
+          <JiraIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
         </div>
 
         <HelpTopicTableOfContents headings={JIRA_INTEGRATION_HELP_GUIDE_HEADINGS} />

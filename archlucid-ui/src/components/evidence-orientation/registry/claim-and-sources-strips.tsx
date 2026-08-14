@@ -163,6 +163,7 @@ import {
 } from "@/lib/decision-register-help-evidence-copy";
 import {
   IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE,
+  IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING,
   IMPROVEMENT_PLANNING_HELP_FOLLOW_UPS_TITLE,
   IMPROVEMENT_PLANNING_HELP_SOURCES,
   IMPROVEMENT_PLANNING_HELP_SOURCES_INTRO,
@@ -821,7 +822,13 @@ export function ModelGovernanceHelpEvidenceOrientationStrip(): React.JSX.Element
   );
 }
 
-export function JiraIntegrationHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type JiraIntegrationHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function JiraIntegrationHelpEvidenceOrientationStrip(
+  props: JiraIntegrationHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-jira-integration"
@@ -833,6 +840,8 @@ export function JiraIntegrationHelpEvidenceOrientationStrip(): React.JSX.Element
       sources={JIRA_INTEGRATION_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
@@ -888,11 +897,18 @@ export function DecisionRegisterHelpEvidenceOrientationStrip(
   );
 }
 
-export function ImprovementPlanningHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type ImprovementPlanningHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function ImprovementPlanningHelpEvidenceOrientationStrip(
+  props: ImprovementPlanningHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-improvement-planning"
       claim={IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE}
+      claimHeading={IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={IMPROVEMENT_PLANNING_HELP_FOLLOW_UPS_TITLE}
@@ -900,6 +916,8 @@ export function ImprovementPlanningHelpEvidenceOrientationStrip(): React.JSX.Ele
       sources={IMPROVEMENT_PLANNING_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
