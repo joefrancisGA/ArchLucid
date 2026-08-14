@@ -58,6 +58,49 @@ public sealed class AgentProposalStructuralPostProcessorTests
     }
 
     [Fact]
+    public void ApplyToProposal_keeps_relationships_keyed_by_service_and_datastore_ids()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-1",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    DatastoreName = "sql",
+                    DatastoreId = "ds-1",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer,
+                },
+            ],
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-1",
+                    TargetId = "ds-1",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedRelationships.Should().ContainSingle();
+        proposal.AddedRelationships[0].TargetId.Should().Be("ds-1");
+    }
+
+    [Fact]
     public void ApplyToProposal_dedupes_required_controls_for_compliance()
     {
         AgentTopologyProposal proposal = new()

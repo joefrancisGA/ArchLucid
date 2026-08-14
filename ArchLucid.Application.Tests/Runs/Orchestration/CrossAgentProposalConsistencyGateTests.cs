@@ -88,4 +88,51 @@ public sealed class CrossAgentProposalConsistencyGateTests
 
         critic.ProposedChanges!.RequiredControls.Should().BeEquivalentTo(["Diagnostic Logging"]);
     }
+
+    [Fact]
+    public void ApplyToResults_keeps_relationships_keyed_by_service_and_datastore_ids()
+    {
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-1",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-1",
+                        TargetId = "ds-1",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology]);
+
+        topology.ProposedChanges!.AddedRelationships.Should().ContainSingle();
+        topology.ProposedChanges.AddedRelationships[0].SourceId.Should().Be("svc-1");
+    }
 }

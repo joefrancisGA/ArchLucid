@@ -29,7 +29,7 @@ public static class AgentProposalStructuralPostProcessor
         proposal.SourceAgent = agentType;
         proposal.AddedServices = DedupeServices(proposal.AddedServices);
         proposal.AddedDatastores = DedupeDatastores(proposal.AddedDatastores);
-        proposal.AddedRelationships = SanitizeRelationships(
+        proposal.AddedRelationships = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
             proposal.AddedServices,
             proposal.AddedDatastores,
             proposal.AddedRelationships);
@@ -80,42 +80,6 @@ public static class AgentProposalStructuralPostProcessor
         }
 
         return deduped;
-    }
-
-    private static List<ManifestRelationship> SanitizeRelationships(
-        IReadOnlyList<ManifestService> services,
-        IReadOnlyList<ManifestDatastore> datastores,
-        IReadOnlyList<ManifestRelationship>? relationships)
-    {
-        if (relationships is null || relationships.Count == 0)
-            return [];
-
-        HashSet<string> knownLabels = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (ManifestService service in services)
-        {
-            if (!string.IsNullOrWhiteSpace(service.ServiceName))
-                knownLabels.Add(service.ServiceName);
-        }
-
-        foreach (ManifestDatastore datastore in datastores)
-        {
-            if (!string.IsNullOrWhiteSpace(datastore.DatastoreName))
-                knownLabels.Add(datastore.DatastoreName);
-        }
-
-        List<ManifestRelationship> sanitized = [];
-
-        foreach (ManifestRelationship relationship in relationships)
-        {
-            bool sourceKnown = knownLabels.Contains(relationship.SourceId);
-            bool targetKnown = knownLabels.Contains(relationship.TargetId);
-
-            if (sourceKnown && targetKnown)
-                sanitized.Add(relationship);
-        }
-
-        return sanitized;
     }
 
     private static List<string> DedupeRequiredControls(IReadOnlyList<string>? requiredControls)
