@@ -66,6 +66,18 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-13 · Administration · AI usage orientation");
   });
 
+  it("formats architecture drafts help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "architecture-drafts",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "architecture drafts orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · architecture drafts orientation");
+  });
+
   it("returns null when report-a-problem registry metadata is absent", () => {
     expect(formatHelpTopicApplicabilityMetadata(sampleEntry({ slug: "report-a-problem" }))).toBeNull();
   });

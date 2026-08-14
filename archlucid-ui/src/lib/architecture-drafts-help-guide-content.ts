@@ -7,8 +7,9 @@ import {
   ARCHITECTURE_DRAFTS_LIST_LABEL,
   CREATE_ARCHITECTURE_LABEL,
 } from "@/lib/architecture/architecture-workflow-labels";
+import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
-export const ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
+export const ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE = "Architecture drafts guide";
 
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE =
   "Browse, resume, and refine saved architecture drafts before filing evidence for a governance review.";
@@ -17,6 +18,11 @@ export const ARCHITECTURE_DRAFTS_HELP_OVERVIEW =
   "Architecture drafts are saved system briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for governance analysis.";
 
 export const ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION = {
+  label: "Start a review",
+  href: REVIEWS_NEW_PATH,
+} as const;
+
+export const ARCHITECTURE_DRAFTS_HELP_SECONDARY_ACTION = {
   label: `Open ${ARCHITECTURE_DRAFTS_LIST_LABEL.toLowerCase()}`,
   href: ARCHITECTURE_DRAFTS_CANONICAL_PATH,
 } as const;
@@ -41,7 +47,7 @@ export const ARCHITECTURE_DRAFTS_HELP_FEATURE_ITEMS: readonly ArchitectureDrafts
   },
   {
     label: "Review intake",
-    detail: "Starting a review is a separate step — use Start a review when the draft is ready.",
+    detail: "Review intake collects evidence once the brief is ready — use Start a review to begin.",
   },
 ] as const;
 

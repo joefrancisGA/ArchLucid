@@ -3,6 +3,7 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 const HELP_TOPIC_REGISTRY_PROVENANCE_SLUGS = new Set(["report-a-problem"]);
 
 const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
+  "architecture-drafts",
   "architecture-scorecard",
   "advisory-scans",
   "ai-usage",

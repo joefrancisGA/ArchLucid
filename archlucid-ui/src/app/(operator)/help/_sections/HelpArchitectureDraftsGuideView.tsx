@@ -2,12 +2,10 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ArchitectureDraftsHelpEvidenceOrientationStrip } from "@/components/help/ArchitectureDraftsHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } from "@/lib/architecture-drafts-evidence-copy";
 import {
   ARCHITECTURE_DRAFTS_HELP_CREATE_HREF,
@@ -19,10 +17,10 @@ import {
   ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE,
   ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE,
   ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION,
+  ARCHITECTURE_DRAFTS_HELP_SECONDARY_ACTION,
 } from "@/lib/architecture-drafts-help-guide-content";
 import { ARCHITECTURE_DRAFTS_HELP_CANONICAL_PATH } from "@/lib/architecture-drafts-help-evidence-copy";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -51,6 +49,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGuideViewProps): React.ReactElement {
   const { entry } = props;
   const contentGridClass = resolveHelpPageContentGridClass(ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS.length);
+  const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
@@ -59,40 +58,37 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
     >
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
+      <HelpTopicGuidePageHeader
+        topicTitle={ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE}
         title={ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE}
         titleTestId="help-architecture-drafts-page-title"
         subtitle={ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE}
         navHref={ARCHITECTURE_DRAFTS_HELP_CANONICAL_PATH}
         headingLevel="h1"
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
       />
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p
-            className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="help-architecture-drafts-overview"
-          >
+          <p className={readingBodyClass} data-testid="help-architecture-drafts-overview">
             {ARCHITECTURE_DRAFTS_HELP_OVERVIEW}
           </p>
 
-          <Card
-            className="border-neutral-200 dark:border-neutral-800"
+          <div
+            className="flex flex-wrap items-center gap-2"
             data-testid="help-architecture-drafts-action-panel"
           >
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Open architecture drafts</CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION.href}>
-                  {ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+            <Button asChild size="sm" variant="primary">
+              <Link href={ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION.href}>
+                {ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION.label}
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link href={ARCHITECTURE_DRAFTS_HELP_SECONDARY_ACTION.href}>
+                {ARCHITECTURE_DRAFTS_HELP_SECONDARY_ACTION.label}
+              </Link>
+            </Button>
+          </div>
 
           <section
             aria-labelledby="what-architecture-drafts-do"
@@ -100,7 +96,7 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
           >
             <HelpSectionHeading id="what-architecture-drafts-do">What architecture drafts do</HelpSectionHeading>
             <dl
-              className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-architecture-drafts-feature-items"
             >
               {ARCHITECTURE_DRAFTS_HELP_FEATURE_ITEMS.map((item) => (
@@ -118,21 +114,21 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
           >
             <HelpSectionHeading id="how-architecture-drafts-work">{ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL}</HelpSectionHeading>
             <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-architecture-drafts-how-stepper"
             >
               {ARCHITECTURE_DRAFTS_HELP_HOW_TO_READ_STEPS.map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>
               <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_DRAFTS_HELP_FIRST_REVIEW_HREF}>
-                Read your first architecture review help →
+                Read your first architecture review help
               </Link>
             </p>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>
               <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_DRAFTS_HELP_CREATE_HREF}>
-                Create architecture →
+                Create architecture
               </Link>
             </p>
           </section>

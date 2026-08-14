@@ -88,6 +88,7 @@ import {
 } from "@/lib/notifications-help-evidence-copy";
 import {
   ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE,
+  ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING,
   ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE,
   ARCHITECTURE_DRAFTS_HELP_SOURCES,
   ARCHITECTURE_DRAFTS_HELP_SOURCES_INTRO,
@@ -773,6 +774,7 @@ export function ArchitectureDraftsHelpEvidenceOrientationStrip(): React.JSX.Elem
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-architecture-drafts"
       claim={ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE}
