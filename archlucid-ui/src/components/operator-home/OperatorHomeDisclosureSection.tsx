@@ -35,6 +35,8 @@ type OperatorHomeDisclosureSectionProps = {
   sectionDataAttributes?: Record<string, string>;
   /** When true and `titleId` is set, matching `location.hash` expands the section after hydration. */
   autoExpandOnHashMatch?: boolean;
+  /** Optional hash matcher; defaults to `location.hash` id equals `titleId`. */
+  deepLinkHashMatches?: (hash: string) => boolean;
   children: ReactNode;
 };
 
@@ -56,6 +58,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     bodyClassName,
     sectionDataAttributes,
     autoExpandOnHashMatch = false,
+    deepLinkHashMatches,
     children,
   } = props;
 
@@ -66,6 +69,17 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
   const titleId = titleIdProp ?? generatedTitleId;
   const [hydrated, setHydrated] = useState(false);
   const [expanded, setExpanded] = useState(defaultExpanded);
+
+  const matchesDeepLinkHash = useCallback(
+    (hash: string): boolean => {
+      if (deepLinkHashMatches !== undefined) {
+        return deepLinkHashMatches(hash);
+      }
+
+      return hash.replace(/^#/, "").trim() === titleIdProp;
+    },
+    [deepLinkHashMatches, titleIdProp],
+  );
 
   const scrollToDeepLinkTarget = useCallback(() => {
     if (!autoExpandOnHashMatch || titleIdProp === undefined || titleIdProp.trim() === "") {
@@ -80,10 +94,9 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     let shouldScrollToHashTarget = false;
 
     if (autoExpandOnHashMatch && titleIdProp !== undefined && titleIdProp.trim() !== "") {
-      const hashId =
-        typeof window !== "undefined" ? window.location.hash.replace(/^#/, "").trim() : "";
+      const hash = typeof window !== "undefined" ? window.location.hash : "";
 
-      if (hashId === titleIdProp) {
+      if (matchesDeepLinkHash(hash)) {
         nextExpanded = true;
         writeOperatorHomeDisclosureExpanded(storageKey, true);
         shouldScrollToHashTarget = true;
@@ -96,7 +109,15 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     if (shouldScrollToHashTarget) {
       scrollToDeepLinkTarget();
     }
-  }, [autoExpandOnHashMatch, defaultExpanded, legacyStorageKeys, scrollToDeepLinkTarget, storageKey, titleIdProp]);
+  }, [
+    autoExpandOnHashMatch,
+    defaultExpanded,
+    legacyStorageKeys,
+    matchesDeepLinkHash,
+    scrollToDeepLinkTarget,
+    storageKey,
+    titleIdProp,
+  ]);
 
   const persistExpanded = useCallback(
     (nextExpanded: boolean) => {
@@ -112,9 +133,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     }
 
     const onHashChange = () => {
-      const hashId = window.location.hash.replace(/^#/, "").trim();
-
-      if (hashId === titleIdProp) {
+      if (matchesDeepLinkHash(window.location.hash)) {
         persistExpanded(true);
         scrollToDeepLinkTarget();
       }
@@ -125,7 +144,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     return () => {
       window.removeEventListener("hashchange", onHashChange);
     };
-  }, [autoExpandOnHashMatch, persistExpanded, scrollToDeepLinkTarget, titleIdProp]);
+  }, [autoExpandOnHashMatch, matchesDeepLinkHash, persistExpanded, scrollToDeepLinkTarget, titleIdProp]);
 
   const toggleExpanded = useCallback(() => {
     persistExpanded(!expanded);

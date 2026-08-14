@@ -81,6 +81,27 @@ describe("OperatorHomeDisclosureSection", () => {
     expect(screen.getByText("Expanded body")).toBeInTheDocument();
   });
 
+  it("auto-expands when deepLinkHashMatches recognizes a legacy alias hash", () => {
+    window.location.hash = "#finish-setup";
+
+    render(
+      <OperatorHomeDisclosureSection
+        title={OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE}
+        titleId="onboarding-optional-setup-heading"
+        sectionTestId="disclosure-legacy-hash-expand-test"
+        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance}
+        defaultExpanded={false}
+        autoExpandOnHashMatch
+        deepLinkHashMatches={(hash) => hash.replace(/^#/, "").trim() === "finish-setup"}
+        collapsedSummary="Collapsed summary"
+      >
+        <p>Expanded body</p>
+      </OperatorHomeDisclosureSection>,
+    );
+
+    expect(screen.getByText("Expanded body")).toBeInTheDocument();
+  });
+
   it("scrolls the hash target into view when autoExpandOnHashMatch is enabled", () => {
     const scheduleScroll = vi.spyOn(scrollDeepLink, "scheduleScrollDeepLinkTargetIntoView");
     window.location.hash = "#operator-home-advanced-guidance-heading";

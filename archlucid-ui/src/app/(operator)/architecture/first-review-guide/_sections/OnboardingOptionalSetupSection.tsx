@@ -146,6 +146,7 @@ export function OnboardingOptionalSetupSection() {
       storageKey={ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY}
       defaultExpanded={false}
       autoExpandOnHashMatch
+      deepLinkHashMatches={isOnboardingOptionalSetupDeepLinkHash}
       collapsedSummary={ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY}
     >
       <div className="space-y-4">
