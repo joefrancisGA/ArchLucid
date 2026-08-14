@@ -2,6 +2,8 @@ import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-sco
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import {
   EXECUTIVE_SUMMARY_PAGE_TITLE,
+  PILOT_OUTCOMES_PAGE_TITLE,
+  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
@@ -83,6 +85,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [EXECUTIVE_DASHBOARD_HREF]: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   [DIGESTS_HUB_PATH]: OPERATOR_NAV_LINK_LABELS.digests,
   "/insights/executive-summary": EXECUTIVE_SUMMARY_PAGE_TITLE,
+  [SPONSOR_REPORT_PILOT_OUTCOMES_PATH]: PILOT_OUTCOMES_PAGE_TITLE,
   [SPONSOR_REPORT_ROI_SUMMARY_PATH]: OPERATOR_NAV_LINK_LABELS.roiReport,
   [ARCHITECTURE_SCORECARD_PATH]: OPERATOR_NAV_LINK_LABELS.scorecard,
   "/internal/demo-readiness": INTERNAL_DEMO_READINESS_PAGE_TITLE,

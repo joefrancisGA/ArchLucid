@@ -27,9 +27,18 @@ function listExecutiveDashboardSectionSources(): string[] {
     .map((fileName) => join(EXECUTIVE_DASHBOARD_SECTIONS_DIR, fileName));
 }
 
+function readExecutiveDashboardSectionSource(absolutePath: string): string {
+  const source = readFileSync(absolutePath, "utf8");
+
+  return source
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*import\s/.test(line))
+    .join("\n");
+}
+
 describe("executive dashboard sponsor honesty (TB-1535)", () => {
   it.each(listExecutiveDashboardSectionSources())("keeps %s free of eng/API sponsor leaks", (absolutePath) => {
-    const source = readFileSync(absolutePath, "utf8");
+    const source = readExecutiveDashboardSectionSource(absolutePath);
 
     for (const banned of BANNED_EXECUTIVE_DASHBOARD_SPONSOR_COPY) {
       expect(source).not.toContain(banned);

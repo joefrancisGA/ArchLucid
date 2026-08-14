@@ -3,110 +3,36 @@
 exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side provenance + explanation layout for the demo tenant 1`] = `
 <div
   aria-busy="false"
-  class="w-full max-w-[1440px] space-y-6 p-4 pb-28 md:pb-24"
+  class="w-full max-w-[1440px] p-4 pb-28 md:pb-24 space-y-4"
   data-testid="demo-explain-page"
 >
   <header
-    class="space-y-2"
+    class="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800"
   >
     <div
-      class="flex flex-wrap items-start justify-between gap-2"
+      class="flex flex-wrap items-center gap-2"
     >
-      <div
-        class="min-w-0 space-y-2"
+      <h1
+        class="m-0 dark:text-neutral-50 text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
+        data-testid="demo-explain-page-title"
       >
-        <h1
-          class="text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
-          data-testid="demo-explain-page-title"
-        >
-          Sample review — evidence and explanation
-        </h1>
-        <p
-          class="text-[13px] font-normal leading-5 text-al-text-primary"
-          data-testid="demo-explain-page-lead"
-        >
-          Walkthrough of how findings link to evidence and citations for the seeded example architecture review.
-        </p>
-      </div>
-      <button
-        aria-expanded="false"
-        aria-haspopup="dialog"
-        aria-label="Help: Demo explain"
-        class="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-sm px-2 text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
-        data-state="closed"
-        data-testid="page-contextual-help-button"
-        type="button"
-      >
-        <svg
-          aria-hidden="true"
-          class="lucide lucide-circle-question-mark h-4 w-4"
-          fill="none"
-          height="24"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-          />
-          <path
-            d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
-          />
-          <path
-            d="M12 17h.01"
-          />
-        </svg>
-        <span
-          class="text-xs font-normal leading-[18px] text-al-text-secondary"
-        >
-          Demo explain
-        </span>
-      </button>
-    </div>
-    <div
-      class="space-y-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900 text-xs font-normal leading-[18px] text-al-text-secondary"
-      data-testid="demo-explain-status-banner"
-    >
+        Sample review — evidence and explanation
+      </h1>
       <div
-        class="flex flex-wrap items-center gap-2"
-        data-testid="demo-explain-status-banner-summary"
-        role="status"
-      >
-        <span
-          aria-label="Status: demo tenant — replace before publishing"
-          class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none text-[11px] font-medium leading-tight border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70 border-l-neutral-500 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-400 dark:bg-neutral-800/80"
-        >
-          demo tenant — replace before publishing
-        </span>
-        <span
-          class="text-neutral-700 dark:text-neutral-300"
-        >
-          Generated 4/20/2026, 12:00:00 PM UTC
-        </span>
-      </div>
-      <div
-        class="rounded-lg border border-neutral-200 bg-neutral-50/70 dark:border-neutral-700 dark:bg-neutral-900/40"
-        data-state="closed"
+        class="ml-auto flex flex-wrap items-center gap-2"
       >
         <button
-          aria-controls="_r_1_"
           aria-expanded="false"
-          class="inline-flex items-center whitespace-nowrap rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 h-auto w-full justify-between gap-2 px-4 py-3 text-left hover:bg-neutral-100/80 dark:hover:bg-neutral-800/60 text-[15px] font-semibold leading-[22px] text-al-text-secondary"
+          aria-haspopup="dialog"
+          aria-label="Help: Demo explain"
+          class="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-sm px-2 text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
           data-state="closed"
+          data-testid="page-contextual-help-button"
           type="button"
         >
-          <span>
-            Technical details
-          </span>
           <svg
             aria-hidden="true"
-            class="lucide lucide-chevron-down h-4 w-4 shrink-0 text-neutral-600 transition-transform dark:text-neutral-400"
+            class="lucide lucide-circle-question-mark h-4 w-4"
             fill="none"
             height="24"
             stroke="currentColor"
@@ -117,17 +43,99 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
             width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+            />
             <path
-              d="m6 9 6 6 6-6"
+              d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
+            />
+            <path
+              d="M12 17h.01"
             />
           </svg>
+          <span
+            class="text-xs font-normal leading-[18px] text-al-text-secondary"
+          >
+            Demo explain
+          </span>
         </button>
+      </div>
+    </div>
+    <div
+      class="m-0 mt-2 dark:text-neutral-400 text-[13px] font-normal leading-5 text-al-text-primary"
+    >
+      <p
+        class="m-0"
+        data-testid="demo-explain-page-lead"
+      >
+        Walkthrough of how findings link to evidence and citations for the seeded example architecture review.
+      </p>
+    </div>
+    <div
+      class="mt-4"
+    >
+      <div
+        class="space-y-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900 text-xs font-normal leading-[18px] text-al-text-secondary"
+        data-testid="demo-explain-status-banner"
+      >
         <div
+          class="flex flex-wrap items-center gap-2"
+          data-testid="demo-explain-status-banner-summary"
+          role="status"
+        >
+          <span
+            aria-label="Status: demo tenant — replace before publishing"
+            class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none text-[11px] font-medium leading-tight border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70 border-l-neutral-500 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-400 dark:bg-neutral-800/80"
+          >
+            demo tenant — replace before publishing
+          </span>
+          <span
+            class="text-neutral-700 dark:text-neutral-300"
+          >
+            Generated 4/20/2026, 12:00:00 PM UTC
+          </span>
+        </div>
+        <div
+          class="rounded-lg border border-neutral-200 bg-neutral-50/70 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-state="closed"
-          hidden=""
-          id="radix-_r_2_"
-          style=""
-        />
+        >
+          <button
+            aria-controls="_r_1_"
+            aria-expanded="false"
+            class="inline-flex items-center whitespace-nowrap rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 h-auto w-full justify-between gap-2 px-4 py-3 text-left hover:bg-neutral-100/80 dark:hover:bg-neutral-800/60 text-[15px] font-semibold leading-[22px] text-al-text-secondary"
+            data-state="closed"
+            type="button"
+          >
+            <span>
+              Technical details
+            </span>
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-chevron-down h-4 w-4 shrink-0 text-neutral-600 transition-transform dark:text-neutral-400"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m6 9 6 6 6-6"
+              />
+            </svg>
+          </button>
+          <div
+            data-state="closed"
+            hidden=""
+            id="radix-_r_2_"
+            style=""
+          />
+        </div>
       </div>
     </div>
   </header>

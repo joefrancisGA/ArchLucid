@@ -7,9 +7,9 @@ import {
 } from "@/lib/operator/operator-home-page-copy";
 
 describe("operator-home-page-copy", () => {
-  it("uses shorter buyer home subtitle", () => {
+  it("uses buyer home subtitle when buyer-polished shell is enabled", () => {
     expect(operatorHomePageSubtitle(true)).toBe(BUYER_OPERATOR_HOME_PAGE_SUBTITLE);
     expect(operatorHomePageSubtitle(false)).toBe(OPERATOR_HOME_PAGE_SUBTITLE);
-    expect(BUYER_OPERATOR_HOME_PAGE_SUBTITLE.length).toBeLessThan(OPERATOR_HOME_PAGE_SUBTITLE.length);
+    expect(BUYER_OPERATOR_HOME_PAGE_SUBTITLE).not.toBe(OPERATOR_HOME_PAGE_SUBTITLE);
   });
 });

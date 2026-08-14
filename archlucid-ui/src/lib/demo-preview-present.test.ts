@@ -14,7 +14,7 @@ describe("demo-preview-present", () => {
     expect(metrics.monitoredRisks).toBe("1");
     expect(metrics.unresolvedIssues).toBe("0");
     expect(metrics.deliverablesProduced).toBe("4");
-    expect(metrics.overallAssessment).toContain("Proceed with claims intake modernization");
+    expect(metrics.overallAssessment).toContain("Proceed with customer intake modernization");
   });
 
   it("computes review duration from timeline bounds", () => {

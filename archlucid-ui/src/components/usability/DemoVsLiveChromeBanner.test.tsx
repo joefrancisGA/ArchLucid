@@ -22,6 +22,6 @@ describe("DemoVsLiveChromeBanner (TB-2218)", () => {
     render(<DemoVsLiveChromeBanner isSimulator />);
 
     expect(screen.getByTestId("demo-vs-live-chrome-simulator")).toBeInTheDocument();
-    expect(screen.getByTestId("demo-vs-live-chrome-banner")).toHaveTextContent("SIMULATOR");
+    expect(screen.getByTestId("demo-vs-live-chrome-banner")).toHaveTextContent("RULE-BASED");
   });
 });

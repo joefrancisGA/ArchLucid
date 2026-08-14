@@ -248,8 +248,6 @@ describe("operator client pages — render gate", () => {
   it("Advisory hub Scans tab content renders primary heading", () => {
     renderWithOperatorQuery(<AdvisoryScansContent />);
 
-    fireEvent.click(screen.getByTestId("advisory-choose-review-cta"));
-
     expect(screen.getByRole("heading", { level: 3, name: ADVISORY_SCANS_FORM_SECTION_TITLE })).toBeInTheDocument();
   });
 

@@ -269,9 +269,9 @@ describe("SocraticIntakeWizard", () => {
     expect(document.querySelector(".border-sky-300")).toBeNull();
   });
 
-  it("prefills guided intake from template=claims-intake-modernization without auto-submitting", () => {
+  it("prefills guided intake from template=customer-intake-modernization without auto-submitting", () => {
     searchParamsGet.mockImplementation((key: string) =>
-      key === "template" ? "claims-intake-modernization" : null,
+      key === "template" ? "customer-intake-modernization" : null,
     );
 
     render(<SocraticIntakeWizard />);

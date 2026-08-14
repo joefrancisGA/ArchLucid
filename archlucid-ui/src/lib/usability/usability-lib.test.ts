@@ -68,7 +68,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.slug).toBe("architecture-scorecard");
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.hashFragment).toBeUndefined();
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.label).toBe("How architecture scorecards work");
-    expect(pageHelpTopicForPathname("/insights/executive-summary")?.label).toBe("How the sponsor report works");
+    expect(pageHelpTopicForPathname("/insights/executive-summary")?.label).toBe("How value reports work");
     expect(pageHelpTopicForPathname("/insights/ask-review-questions")?.slug).toBe("prior-manifest-retrieval");
     expect(pageHelpTopicForPathname("/insights/patterns")?.slug).toBe("repeat-review-loop");
     expect(pageHelpTopicForPathname("/insights/patterns/private-endpoints-paas")?.slug).toBe("repeat-review-loop");

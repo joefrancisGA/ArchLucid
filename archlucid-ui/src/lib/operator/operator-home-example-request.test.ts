@@ -28,9 +28,9 @@ describe("operator-home-example-request", () => {
     }
   });
 
-  it("keeps home card copy aligned with the claims intake template registry entry", () => {
-    expect(OPERATOR_HOME_EXAMPLE_DESCRIPTION).toContain("healthcare claims intake modernization");
-    expect(OPERATOR_HOME_EXAMPLE_SYSTEM_NAME).toBe("Claims Intake Modernization");
+  it("keeps home card copy aligned with the customer intake template registry entry", () => {
+    expect(OPERATOR_HOME_EXAMPLE_DESCRIPTION).toContain("enterprise customer intake modernization");
+    expect(OPERATOR_HOME_EXAMPLE_SYSTEM_NAME).toBe("Enterprise Customer Intake Modernization");
     expect(reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID)).toBe(
       "/architecture/reviews/new?template=customer-intake-modernization",
     );
@@ -39,7 +39,7 @@ describe("operator-home-example-request", () => {
   it("resolves template and legacy example query params", () => {
     expect(
       resolveReviewIntakeExampleTemplate({ templateParam: "customer-intake-modernization" })?.title,
-    ).toBe("Claims Intake Modernization");
+    ).toBe("Enterprise customer intake");
     expect(resolveReviewIntakeExampleTemplate({ templateParam: "saas-readiness" })?.title).toBe("SaaS readiness");
     expect(resolveReviewIntakeExampleTemplate({ templateParam: "ai-governance" })?.title).toBe("AI governance");
     expect(resolveReviewIntakeExampleTemplate({ exampleParam: "healthcare-claims-intake" })?.id).toBe(

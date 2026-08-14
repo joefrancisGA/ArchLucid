@@ -32,34 +32,34 @@ export const REVIEW_INTAKE_EXAMPLE_TEMPLATES: readonly ReviewIntakeExampleTempla
     quickReviewSampleBriefId: "ai",
   },
   {
-    id: "claims-intake-modernization",
+    id: "customer-intake-modernization",
     legacyExampleQueryValue: "healthcare-claims-intake",
-    title: "Claims Intake Modernization",
+    title: "Enterprise customer intake",
     briefText:
-      "Review the architecture for a healthcare claims intake modernization — REST ingestion tier, FHIR-aligned validation pipeline, and HIPAA-boundary data residency.",
+      "Review the architecture for an enterprise customer intake modernization — governed REST ingestion, validation pipeline, and privacy-boundary data handling for regulated customer work.",
     businessOutcome:
-      "Modernize claims intake with compliant REST ingestion, FHIR-aligned validation, and HIPAA-boundary data residency controls.",
-    systemName: "Claims Intake Modernization",
+      "Modernize customer intake with compliant ingestion, validation controls, and privacy-boundary data minimization for enterprise stakeholders.",
+    systemName: "Enterprise Customer Intake Modernization",
     quickReviewSampleBriefId: "healthcare",
   },
 ] as const;
 
-const CLAIMS_INTAKE_MODERNIZATION_TEMPLATE =
-  REVIEW_INTAKE_EXAMPLE_TEMPLATES.find((row) => row.id === "claims-intake-modernization") ??
+const CUSTOMER_INTAKE_MODERNIZATION_TEMPLATE =
+  REVIEW_INTAKE_EXAMPLE_TEMPLATES.find((row) => row.id === "customer-intake-modernization") ??
   REVIEW_INTAKE_EXAMPLE_TEMPLATES[REVIEW_INTAKE_EXAMPLE_TEMPLATES.length - 1]!;
 
 /** Primary template id for the operator home Example request panel. */
-export const OPERATOR_HOME_EXAMPLE_TEMPLATE_ID = CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.id;
+export const OPERATOR_HOME_EXAMPLE_TEMPLATE_ID = CUSTOMER_INTAKE_MODERNIZATION_TEMPLATE.id;
 
 /** @deprecated Prefer `OPERATOR_HOME_EXAMPLE_TEMPLATE_ID` with `?template=`. Legacy `?example=` alias. */
 export const OPERATOR_HOME_EXAMPLE_QUERY_VALUE =
-  CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.legacyExampleQueryValue ?? CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.id;
+  CUSTOMER_INTAKE_MODERNIZATION_TEMPLATE.legacyExampleQueryValue ?? CUSTOMER_INTAKE_MODERNIZATION_TEMPLATE.id;
 
 /** Long-form brief shown on home and prefilled into review intake when the template matches. */
-export const OPERATOR_HOME_EXAMPLE_DESCRIPTION = CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.briefText;
+export const OPERATOR_HOME_EXAMPLE_DESCRIPTION = CUSTOMER_INTAKE_MODERNIZATION_TEMPLATE.briefText;
 
 /** Title / system name prefilled on review intake when the template matches. */
-export const OPERATOR_HOME_EXAMPLE_SYSTEM_NAME = CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.systemName;
+export const OPERATOR_HOME_EXAMPLE_SYSTEM_NAME = CUSTOMER_INTAKE_MODERNIZATION_TEMPLATE.systemName;
 
 /** Home card CTA — promise matches prefill behavior on `/architecture/reviews/new`. */
 export const OPERATOR_HOME_EXAMPLE_START_CTA = "Start from this example";
@@ -68,7 +68,7 @@ export const OPERATOR_HOME_EXAMPLE_START_CTA = "Start from this example";
  * Matched case-insensitively on run descriptions (with the static demo run id) so the home ribbon can find the
  * showcase story when the reviews API returns real rows instead of the static fallback.
  */
-export const OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN = "claims intake";
+export const OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN = "customer intake";
 
 export function reviewIntakeExampleTemplateHref(templateId: string): string {
   return `/architecture/reviews/new?template=${encodeURIComponent(templateId)}`;

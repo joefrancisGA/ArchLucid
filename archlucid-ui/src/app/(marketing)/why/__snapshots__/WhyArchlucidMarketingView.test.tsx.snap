@@ -885,7 +885,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       <a
         class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
         data-testid="why-proof-ladder-sample-cta"
-        href="/showcase/claims-intake-modernization"
+        href="/showcase/customer-intake-modernization"
       >
         Healthcare Claims sample review
       </a>
@@ -996,9 +996,9 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               >
                 <a
                   class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/showcase/claims-intake-modernization"
+                  href="/showcase/customer-intake-modernization"
                 >
-                  Claims sample architecture review
+                  Enterprise customer intake sample review
                 </a>
               </div>
             </td>
@@ -1237,7 +1237,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   href="/showcase/claims-intake-modernization"
                 >
-                  Claims evidence trail
+                  Claims regulated-depth evidence trail
                 </a>
               </div>
             </td>
