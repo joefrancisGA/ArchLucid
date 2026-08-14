@@ -2,6 +2,8 @@
 
 Use this page when you need help and are not already on an in-product error surface with **Report problem**.
 
+The in-app guide covers start-here actions, a path chooser table, email templates, and related help topics. This markdown file remains the registry source for title and summary metadata.
+
 ## Choose the right path
 
 | Situation | What to do |
@@ -9,16 +11,14 @@ Use this page when you need help and are not already on an in-product error surf
 | A page shows **Report problem** (review failure, API problem, connectivity error) | Use **Report problem** on that page — it sends structured diagnostics and returns a report reference. See [Report a problem](/help/report-a-problem). |
 | Something is broken but no Report problem control | Try [Troubleshooting](/help/troubleshooting), then email **support@archlucid.net** with workspace name, route, and time of issue. |
 | General product question (not a failure) | Email **support@archlucid.net** or ask your workspace administrator. |
-| Support asked for diagnostics | Download a redacted **support bundle** below and attach it to your message. Workspace administrators can also use [Administration → Support](/administration/support). |
+| Support asked for diagnostics | Download a redacted **support bundle** from the guide action row, or use [Administration → Support](/administration/support) (administrators). |
 
 ## Email support
 
-**[support@archlucid.net](mailto:support@archlucid.net)** — include workspace name, affected review or page, what you expected, and what happened. When you have one, add a **report reference** from Report problem or a **correlation id** from an error panel.
-
-Structured in-product reports receive a **next-business-day response commitment** (see [Report a problem](/help/report-a-problem) and [Security and trust](/help/security-trust)). Email is a manual path and does not automatically mint a system report reference.
+**[support@archlucid.net](mailto:support@archlucid.net)** — the guide includes a templated mailto with checklist fields prefilled.
 
 ## Related topics
 
 - [Report a problem](/help/report-a-problem) — structured intake on error surfaces
 - [Troubleshooting](/help/troubleshooting) — common fixes before you escalate
-- [Administration → Support](/administration/support) — support bundle and templates (administrators)
+- [Security and trust](/help/security-trust) — response commitments and assurance context

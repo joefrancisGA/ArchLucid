@@ -114,6 +114,18 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-12 · administration connection status orientation");
   });
 
+  it("formats contact support help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "contact-support",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "in-product support discovery and escalation paths",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · in-product support discovery and escalation paths");
+  });
+
   it("returns null when report-a-problem registry metadata is absent", () => {
     expect(formatHelpTopicApplicabilityMetadata(sampleEntry({ slug: "report-a-problem" }))).toBeNull();
   });

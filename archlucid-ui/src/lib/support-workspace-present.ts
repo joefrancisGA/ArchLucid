@@ -1,7 +1,11 @@
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 
 export const ARCHLUCID_SUPPORT_EMAIL = "support@archlucid.net";
 
+/** Shared support SLA copy for troubleshooting and contact-support help surfaces. */
+export const TROUBLESHOOTING_SUPPORT_EXPECTATIONS =
+  "Email support covers business days (Monday–Friday). Target first response is next business day. Prefer Report a problem on error surfaces for structured intake with the same response commitment.";
 export const SUPPORT_PAGE_GUIDANCE =
   "When a page shows Report problem, use it first — it sends structured diagnostics and a report reference. For general questions or when you are not on an error surface, use Administration → Support (administrators only) or email below.";
 
@@ -115,6 +119,8 @@ export function resolveSupportBundleStatusLabel(
   }
 }
 
+export const SUPPORT_REQUEST_MAILTO_SUBJECT = "ArchLucid support request";
+
 export function buildSupportRequestTemplate(workspaceLabel: string | null): string {
   const workspaceLine =
     workspaceLabel !== null && workspaceLabel.trim().length > 0
@@ -122,8 +128,6 @@ export function buildSupportRequestTemplate(workspaceLabel: string | null): stri
       : "[Workspace name]";
 
   return [
-    "Subject: ArchLucid support request",
-    "",
     `Workspace: ${workspaceLine}`,
     "Affected review or page:",
     "What I expected:",
@@ -135,6 +139,38 @@ export function buildSupportRequestTemplate(workspaceLabel: string | null): stri
   ].join("\n");
 }
 
+export function buildSupportRequestMailtoHref(workspaceLabel: string | null): string {
+  const subject = encodeURIComponent(SUPPORT_REQUEST_MAILTO_SUBJECT);
+  const body = encodeURIComponent(buildSupportRequestTemplate(workspaceLabel));
+
+  return `mailto:${ARCHLUCID_SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+}
+
+export type SupportBundleStatusTag = {
+  readonly kind: EnterpriseStatusKind;
+  readonly label: string;
+};
+
+export function resolveSupportBundleStatusTag(
+  status: SupportBundleStatus,
+  lastGeneratedAt: Date | null,
+): SupportBundleStatusTag {
+  switch (status) {
+    case "generating":
+      return { kind: "in-progress", label: resolveSupportBundleStatusLabel(status, lastGeneratedAt) };
+    case "ready":
+      return { kind: "ready", label: resolveSupportBundleStatusLabel(status, lastGeneratedAt) };
+    case "failed":
+      return { kind: "blocked", label: resolveSupportBundleStatusLabel(status, lastGeneratedAt) };
+    case "permission_required":
+      return {
+        kind: "needs-attention",
+        label: resolveSupportBundleStatusLabel(status, lastGeneratedAt),
+      };
+    default:
+      return { kind: "neutral", label: resolveSupportBundleStatusLabel(status, lastGeneratedAt) };
+  }
+}
 export function classifySupportBundleDownloadError(status: number, bodyText: string): SupportBundleStatus {
   if (status === 401 || status === 403) {
     return "permission_required";

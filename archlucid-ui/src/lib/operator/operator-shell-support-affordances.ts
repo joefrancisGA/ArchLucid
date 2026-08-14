@@ -2,6 +2,7 @@ import {
   CONTACT_SUPPORT_HELP_PATH,
   CONTACT_SUPPORT_PRIMARY_ACTIONS,
 } from "@/lib/contact-support-help-guide-content";
+import { REPORT_PROBLEM_ACTION_LABEL } from "@/lib/report-problem-copy";
 import {
   ARCHLUCID_SUPPORT_EMAIL,
   SUPPORT_REPORT_PROBLEM_HELP_HREF,
@@ -21,7 +22,7 @@ export const OPERATOR_SHELL_SUPPORT_QUICK_LINKS = {
     href: CONTACT_SUPPORT_HELP_PATH,
   },
   reportProblem: {
-    label: CONTACT_SUPPORT_PRIMARY_ACTIONS.reportProblem.label,
+    label: REPORT_PROBLEM_ACTION_LABEL,
     href: SUPPORT_REPORT_PROBLEM_HELP_HREF,
   },
   emailSupport: {

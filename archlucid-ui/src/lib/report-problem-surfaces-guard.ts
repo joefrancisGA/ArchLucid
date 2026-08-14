@@ -60,6 +60,10 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     surfaceId: "operator-role-gate-session-break",
     requiredMarkers: ["operator-role-gate-session-break", "FatalPageReportProblemSupportRow"],
   },
+  {
+    surfaceId: "contact-support-help-orientation",
+    requiredMarkers: ["OperatorReportProblemAction", "contact-support-help-orientation"],
+  },
 ] as const;
 
 const REPORT_PROBLEM_AFFORDANCE_MARKERS = [

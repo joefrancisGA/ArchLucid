@@ -11,7 +11,8 @@ export type ReportProblemSurfaceKind =
   | "review-commit-export-fatal"
   | "api-problem-high-stakes"
   | "connectivity-error"
-  | "auth-session-break";
+  | "auth-session-break"
+  | "contact-support-help";
 
 export type ReportProblemSurfaceEntry = {
   /** Stable id for tests and telemetry. */
@@ -88,6 +89,13 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     routePattern: "*",
     componentPath: "components/operator/OperatorAccessDeniedPageClient.tsx",
     description: "User-visible auth or session break on /403 (OperatorRoleGate redirects here).",
+  },
+  {
+    id: "contact-support-help-orientation",
+    kind: "contact-support-help",
+    routePattern: "/help/contact-support",
+    componentPath: "components/help/ContactSupportHelpOrientationStack.tsx",
+    description: "Contact support help — Report problem intake from the orientation action row.",
   },
 ] as const;
 

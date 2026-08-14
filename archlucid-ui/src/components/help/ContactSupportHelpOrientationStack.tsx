@@ -1,54 +1,78 @@
+"use client";
+
 import Link from "next/link";
 
-import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
+import {
+  SupportBundleDownloadButton,
+  SupportBundleDownloadButtonMeta,
+  useSupportBundleDownloadModel,
+} from "@/components/SupportBundleDownloadButton";
+import { OperatorReportProblemAction } from "@/components/support/OperatorReportProblemAction";
 import { Button } from "@/components/ui/button";
-import { CONTACT_SUPPORT_PRIMARY_ACTIONS } from "@/lib/contact-support-help-guide-content";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
-import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
+import {
+  CONTACT_SUPPORT_PRIMARY_ACTIONS,
+  CONTACT_SUPPORT_REPORT_PROBLEM_ARTICLE,
+} from "@/lib/contact-support-help-guide-content";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { isReportProblemEnabledForSurface } from "@/lib/report-problem-surfaces";
+import { TROUBLESHOOTING_SUPPORT_EXPECTATIONS } from "@/lib/support-workspace-present";
 import { cn } from "@/lib/utils";
+
+/** Registry surface id: contact-support-help-orientation */
+const CONTACT_SUPPORT_HELP_ORIENTATION_SURFACE_ID = "contact-support-help-orientation";
 
 /** Primary support actions for `/help/contact-support`. */
 export function ContactSupportHelpOrientationStack(): React.JSX.Element {
+  const bundleModel = useSupportBundleDownloadModel();
+  const reportProblemEnabled = isReportProblemEnabledForSurface(CONTACT_SUPPORT_HELP_ORIENTATION_SURFACE_ID);
+
   return (
-    <div className="space-y-4" data-testid="contact-support-help-orientation-stack">
-      <div className="flex flex-wrap gap-2">
-        <Button asChild size="sm" variant="primary">
-          <Link href={CONTACT_SUPPORT_PRIMARY_ACTIONS.reportProblem.href}>
-            {CONTACT_SUPPORT_PRIMARY_ACTIONS.reportProblem.label}
-          </Link>
-        </Button>
-        <Button asChild size="sm" variant="outline">
+    <div className="space-y-3" data-testid="contact-support-help-orientation-stack">
+      <p
+        className={cn("m-0 max-w-3xl text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+        data-testid="contact-support-help-support-expectations"
+      >
+        {TROUBLESHOOTING_SUPPORT_EXPECTATIONS}
+      </p>
+
+      <div
+        className="flex flex-wrap items-center gap-2"
+        data-testid="contact-support-help-orientation-actions"
+      >
+        <OperatorReportProblemAction
+          enabled={reportProblemEnabled}
+          routePath="/help/contact-support"
+          triggerVariant="primary"
+        />
+        <SupportBundleDownloadButton
+          buttonOnly
+          model={bundleModel}
+          size="sm"
+          variant="outline"
+        />
+        <Button asChild size="sm" variant="outline" data-testid={CONTACT_SUPPORT_PRIMARY_ACTIONS.emailSupport.testId}>
           <a href={CONTACT_SUPPORT_PRIMARY_ACTIONS.emailSupport.href}>
             {CONTACT_SUPPORT_PRIMARY_ACTIONS.emailSupport.label}
           </a>
         </Button>
-        <Button asChild size="sm" variant="outline">
+        <Button asChild size="sm" variant="outline" data-testid={CONTACT_SUPPORT_PRIMARY_ACTIONS.troubleshooting.testId}>
           <Link href={CONTACT_SUPPORT_PRIMARY_ACTIONS.troubleshooting.href}>
             {CONTACT_SUPPORT_PRIMARY_ACTIONS.troubleshooting.label}
           </Link>
         </Button>
+        <Button
+          asChild
+          size="sm"
+          variant="outline"
+          data-testid={CONTACT_SUPPORT_REPORT_PROBLEM_ARTICLE.testId}
+        >
+          <Link href={CONTACT_SUPPORT_REPORT_PROBLEM_ARTICLE.href}>
+            {CONTACT_SUPPORT_REPORT_PROBLEM_ARTICLE.label}
+          </Link>
+        </Button>
       </div>
 
-      <SupportBundleDownloadButton showContentsDisclosure showDiagnosticsLink />
-
-      <p
-        className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-        data-testid="contact-support-help-support-email"
-      >
-        Support email:{" "}
-        <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={`mailto:${ARCHLUCID_SUPPORT_EMAIL}`}>
-          {ARCHLUCID_SUPPORT_EMAIL}
-        </Link>
-      </p>
-
-      <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Workspace administrators can open{" "}
-        <Link className={OPERATOR_LINK.nav} href={SETTINGS_SUPPORT_PATH}>
-          Administration → Support
-        </Link>{" "}
-        for bundle templates and guided troubleshooting shortcuts.
-      </p>
+      <SupportBundleDownloadButtonMeta model={bundleModel} showContentsDisclosure />
     </div>
   );
 }

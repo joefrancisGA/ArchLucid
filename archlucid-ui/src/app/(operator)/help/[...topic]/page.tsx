@@ -7,7 +7,6 @@ import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentSc
 import { ScopeHelpEvidenceOrientationStrip } from "@/components/help/ScopeHelpEvidenceOrientationStrip";
 import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
 import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
-import { ContactSupportHelpOrientationStack } from "@/components/help/ContactSupportHelpOrientationStack";
 import { HelpSubprocessorsHeaderMetadata } from "@/app/(operator)/help/_sections/HelpSubprocessorsHeaderMetadata";
 import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
@@ -93,6 +92,9 @@ const HelpStandardsRulesGuideView = dynamic(() =>
 );
 const HelpBaselineSettingsGuideView = dynamic(() =>
   import("../_sections/HelpBaselineSettingsGuideView").then((module) => module.HelpBaselineSettingsGuideView),
+);
+const HelpContactSupportGuideView = dynamic(() =>
+  import("../_sections/HelpContactSupportGuideView").then((module) => module.HelpContactSupportGuideView),
 );
 const HelpSlackIntegrationGuideView = dynamic(() =>
   import("../_sections/HelpSlackIntegrationGuideView").then((module) => module.HelpSlackIntegrationGuideView),
@@ -637,14 +639,7 @@ function renderHelpTopicView(
   }
 
   if (loaded.entry.slug === "contact-support") {
-    return (
-      <HelpTopicMarkdownView
-        entry={loaded.entry}
-        markdown={loaded.markdown}
-        showContextualHelp
-        evidenceOrientation={<ContactSupportHelpOrientationStack />}
-      />
-    );
+    return <HelpContactSupportGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "subprocessors") {

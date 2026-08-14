@@ -4,7 +4,10 @@ import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { ReportProblemDialog } from "@/components/support/ReportProblemDialog";
-import { ReportProblemTriggerButton } from "@/components/support/ReportProblemTriggerButton";
+import {
+  ReportProblemTriggerButton,
+  type ReportProblemTriggerButtonProps,
+} from "@/components/support/ReportProblemTriggerButton";
 import { submitReportProblemIntake } from "@/lib/api/report-problem-intake-api";
 import {
   buildReportProblemContext,
@@ -13,13 +16,14 @@ import {
 
 export type OperatorReportProblemActionProps = BuildReportProblemContextInput & {
   readonly enabled: boolean;
+  readonly triggerVariant?: ReportProblemTriggerButtonProps["variant"];
 };
 
 /** Report problem trigger + dialog prefilled from operator error context (TB-785). */
 export function OperatorReportProblemAction(
   props: OperatorReportProblemActionProps,
 ): React.JSX.Element | null {
-  const { enabled, routePath, reviewId, scope, productVersion, correlationId, clientRequestId, problem, errorCode, errorTitle, httpStatus, submittedAtUtc } =
+  const { enabled, routePath, reviewId, scope, productVersion, correlationId, clientRequestId, problem, errorCode, errorTitle, httpStatus, submittedAtUtc, triggerVariant } =
     props;
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -62,6 +66,7 @@ export function OperatorReportProblemAction(
   return (
     <>
       <ReportProblemTriggerButton
+        variant={triggerVariant}
         onClick={() => {
           setOpen(true);
         }}

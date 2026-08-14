@@ -27,8 +27,7 @@ export const TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE =
 export const TROUBLESHOOTING_HELP_SOURCES_INTRO =
   "Use these follow-ups when a symptom needs live health checks, audit context, or product orientation.";
 
-export const TROUBLESHOOTING_SUPPORT_EXPECTATIONS =
-  "Email support covers business days (Monday–Friday). Target first response is next business day. Prefer Report a problem on error surfaces for structured intake with the same response commitment.";
+export { TROUBLESHOOTING_SUPPORT_EXPECTATIONS } from "@/lib/support-workspace-present";
 
 export const TROUBLESHOOTING_SUPPORT_BUNDLE_DISCLOSURE =
   `${SUPPORT_BUNDLE_SAFETY_SUMMARY} Includes: ${SUPPORT_BUNDLE_INCLUDED_ITEMS.join(", ")}. Excludes: ${SUPPORT_BUNDLE_EXCLUDED_ITEMS.join(", ")}. The ZIP stays on your device until you attach or email it.`;

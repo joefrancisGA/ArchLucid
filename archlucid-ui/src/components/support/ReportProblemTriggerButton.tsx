@@ -8,6 +8,7 @@ export type ReportProblemTriggerButtonProps = {
   readonly onClick: () => void;
   readonly disabled?: boolean;
   readonly className?: string;
+  readonly variant?: "default" | "primary" | "outline" | "secondary" | "ghost" | "link" | "destructive";
 };
 
 /** Opens `ReportProblemDialog` from error shells and fatal page failures (TB-784). */
@@ -15,11 +16,12 @@ export function ReportProblemTriggerButton({
   onClick,
   disabled = false,
   className,
+  variant = "outline",
 }: ReportProblemTriggerButtonProps): React.JSX.Element {
   return (
     <Button
       type="button"
-      variant="outline"
+      variant={variant}
       size="sm"
       disabled={disabled}
       className={cn(className)}
