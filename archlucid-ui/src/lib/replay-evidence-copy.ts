@@ -4,6 +4,10 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const REPLAY_CANONICAL_PATH = "/internal/validate-route" as const;
 
+export const REPLAY_HELP_TOPIC_LABEL = "How validate review works" as const;
+
+export const REPLAY_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const REPLAY_CLAIM_DISCIPLINE =
   "Validate review re-checks a finalized package (reconstruct, rebuild manifest, or full regeneration) — it is not a sealed-review diligence Sources package by itself. Open the review record, Evidence trail, or Audit when you need governed trails.";
 

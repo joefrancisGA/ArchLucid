@@ -523,6 +523,11 @@ import {
   RECOMMENDATION_LEARNING_SOURCES_INTRO,
 } from "@/lib/recommendation-learning-evidence-copy";
 import {
+  REPLAY_FOLLOW_UPS_TITLE,
+  REPLAY_SOURCES,
+  REPLAY_SOURCES_INTRO,
+} from "@/lib/replay-evidence-copy";
+import {
   IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE,
   IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE_HEADING,
   IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_HEADING_ID,
@@ -1129,6 +1134,21 @@ export function RecommendationLearningEvidenceOrientationStrip(): React.JSX.Elem
       sourcesTitle={RECOMMENDATION_LEARNING_FOLLOW_UPS_TITLE}
       sourcesIntro={RECOMMENDATION_LEARNING_SOURCES_INTRO}
       sources={RECOMMENDATION_LEARNING_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function ReplayEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="validate-route"
+      claimElement="div"
+      sourcesTitle={REPLAY_FOLLOW_UPS_TITLE}
+      sourcesIntro={REPLAY_SOURCES_INTRO}
+      sources={REPLAY_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"

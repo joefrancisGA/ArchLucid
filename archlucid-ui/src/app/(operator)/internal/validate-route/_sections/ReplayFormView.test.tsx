@@ -41,6 +41,8 @@ describe("ReplayFormView", () => {
     render(<ReplayFormView model={buildModel()} />);
 
     expect(screen.getByText(REPLAY_PAGE_INTRO)).toBeInTheDocument();
+    expect(screen.getByTestId("validate-route-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("validate-route-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("validate-compare-vocabulary")).toBeInTheDocument();
     expect(screen.getByTestId("validate-compare-vocabulary-peer-link")).toHaveAttribute(
       "href",
