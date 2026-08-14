@@ -7,7 +7,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   DESIGN_TOKENS,
@@ -30,8 +29,6 @@ import {
   BASELINE_SETTINGS_HELP_PAGE_SUBTITLE,
   BASELINE_SETTINGS_HELP_PAGE_TITLE,
   BASELINE_SETTINGS_HELP_PRIMARY_ACTION,
-  BASELINE_SETTINGS_HELP_ROLE_PRECONDITION,
-  BASELINE_SETTINGS_HELP_ROLE_PRECONDITION_TAG,
   BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE,
   BASELINE_SETTINGS_HELP_USED_IN_SURFACES,
 } from "@/lib/baseline-settings-help-guide-content";
@@ -98,24 +95,11 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
               >
                 <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER}</p>
               </aside>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={BASELINE_SETTINGS_HELP_PRIMARY_ACTION.href}>
-                    {BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label}
-                  </Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={BASELINE_SETTINGS_HELP_ROLE_PRECONDITION_TAG}
-                  data-testid="help-baseline-settings-role-precondition-tag"
-                />
-              </div>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-baseline-settings-role-precondition"
-              >
-                {BASELINE_SETTINGS_HELP_ROLE_PRECONDITION}
-              </p>
+              <Button asChild size="sm" variant="primary">
+                <Link href={BASELINE_SETTINGS_HELP_PRIMARY_ACTION.href}>
+                  {BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
             </CardContent>
           </Card>
 

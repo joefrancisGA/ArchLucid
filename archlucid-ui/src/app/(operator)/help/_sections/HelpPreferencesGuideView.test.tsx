@@ -18,9 +18,8 @@ import {
   PREFERENCES_HELP_HOW_SECTION_TITLE,
   PREFERENCES_HELP_NEGATION_DRIFT_MARKERS,
   PREFERENCES_HELP_PRIMARY_ACTION,
-  PREFERENCES_HELP_ROLE_PRECONDITION,
-  PREFERENCES_HELP_ROLE_PRECONDITION_TAG,
   PREFERENCES_HELP_START_HERE_CARD_TITLE,
+  PREFERENCES_HELP_START_HERE_SCOPE_NOTE,
   PREFERENCES_HELP_TILE_ITEMS,
 } from "@/lib/preferences-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -42,12 +41,10 @@ describe("HelpPreferencesGuideView", () => {
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · Scope: personal account settings · Audience: all signed-in users",
     );
-    expect(screen.getByTestId("help-preferences-role-precondition")).toHaveTextContent(
-      PREFERENCES_HELP_ROLE_PRECONDITION,
+    expect(screen.getByTestId("help-preferences-start-here-scope-note")).toHaveTextContent(
+      PREFERENCES_HELP_START_HERE_SCOPE_NOTE,
     );
-    expect(screen.getByTestId("help-preferences-role-precondition-tag")).toHaveTextContent(
-      PREFERENCES_HELP_ROLE_PRECONDITION_TAG,
-    );
+    expect(screen.queryByTestId("help-preferences-role-precondition-tag")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-preferences-claim-discipline").textContent).toContain(
       PREFERENCES_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );

@@ -21,11 +21,6 @@ export const NOTIFICATIONS_HELP_OVERVIEW =
 
 export const NOTIFICATIONS_HELP_START_HERE_CARD_TITLE = "Start here";
 
-export const NOTIFICATIONS_HELP_ROLE_PRECONDITION_TAG = "Read";
-
-export const NOTIFICATIONS_HELP_ROLE_PRECONDITION =
-  "Browse the notifications hub with workspace read access; changing subscriptions, rules, or integrations requires access on each destination page.";
-
 export const NOTIFICATIONS_HELP_START_HERE_HELPER =
   "Digests, alert rules, Teams, and Slack each save settings on their own pages — the notifications hub routes you to those destinations.";
 

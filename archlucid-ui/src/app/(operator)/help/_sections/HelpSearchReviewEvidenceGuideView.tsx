@@ -7,7 +7,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
@@ -29,9 +28,8 @@ import {
   SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE,
   SEARCH_REVIEW_EVIDENCE_HELP_PAGE_TITLE,
   SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION,
-  SEARCH_REVIEW_EVIDENCE_HELP_ROLE_PRECONDITION,
-  SEARCH_REVIEW_EVIDENCE_HELP_ROLE_PRECONDITION_TAG,
   SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE,
+  SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_SCOPE_NOTE,
 } from "@/lib/search-review-evidence-help-guide-content";
 import { cn } from "@/lib/utils";
 
@@ -88,23 +86,16 @@ export function HelpSearchReviewEvidenceGuideView(
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.href}>
-                    {SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label}
-                  </Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={SEARCH_REVIEW_EVIDENCE_HELP_ROLE_PRECONDITION_TAG}
-                  data-testid="help-search-review-evidence-role-precondition-tag"
-                />
-              </div>
+              <Button asChild size="sm" variant="primary">
+                <Link href={SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.href}>
+                  {SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-search-review-evidence-role-precondition"
+                data-testid="help-search-review-evidence-start-here-scope-note"
               >
-                {SEARCH_REVIEW_EVIDENCE_HELP_ROLE_PRECONDITION}
+                {SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_SCOPE_NOTE}
               </p>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

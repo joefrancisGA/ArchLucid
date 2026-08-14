@@ -11,11 +11,8 @@ export const PREFERENCES_HELP_OVERVIEW =
 
 export const PREFERENCES_HELP_START_HERE_CARD_TITLE = "Start here";
 
-export const PREFERENCES_HELP_ROLE_PRECONDITION =
-  "No Admin role is required — preferences write only your own account record.";
-
-/** Compact role tag beside the Start here primary action. */
-export const PREFERENCES_HELP_ROLE_PRECONDITION_TAG = "No admin role needed";
+export const PREFERENCES_HELP_START_HERE_SCOPE_NOTE =
+  "Preferences write only your own account record.";
 
 export const PREFERENCES_HELP_PRIMARY_ACTION = {
   label: "Open preferences",

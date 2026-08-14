@@ -7,7 +7,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
@@ -25,8 +24,6 @@ import {
   NOTIFICATIONS_HELP_PAGE_SUBTITLE,
   NOTIFICATIONS_HELP_PAGE_TITLE,
   NOTIFICATIONS_HELP_PRIMARY_ACTION,
-  NOTIFICATIONS_HELP_ROLE_PRECONDITION,
-  NOTIFICATIONS_HELP_ROLE_PRECONDITION_TAG,
   NOTIFICATIONS_HELP_START_HERE_CARD_TITLE,
   NOTIFICATIONS_HELP_START_HERE_HELPER,
   NOTIFICATIONS_HELP_TILE_ITEMS,
@@ -91,24 +88,11 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={NOTIFICATIONS_HELP_PRIMARY_ACTION.href}>
-                    {NOTIFICATIONS_HELP_PRIMARY_ACTION.label}
-                  </Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={NOTIFICATIONS_HELP_ROLE_PRECONDITION_TAG}
-                  data-testid="help-notifications-role-precondition-tag"
-                />
-              </div>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-notifications-role-precondition"
-              >
-                {NOTIFICATIONS_HELP_ROLE_PRECONDITION}
-              </p>
+              <Button asChild size="sm" variant="primary">
+                <Link href={NOTIFICATIONS_HELP_PRIMARY_ACTION.href}>
+                  {NOTIFICATIONS_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="help-notifications-start-here-helper"

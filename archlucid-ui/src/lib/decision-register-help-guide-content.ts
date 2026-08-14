@@ -30,11 +30,6 @@ export const DECISION_REGISTER_HELP_PRIMARY_ACTION = {
 
 export const DECISION_REGISTER_HELP_START_HERE_CARD_TITLE = "Start here";
 
-export const DECISION_REGISTER_HELP_ROLE_PRECONDITION_TAG = "Read";
-
-export const DECISION_REGISTER_HELP_ROLE_PRECONDITION =
-  "Browse architecture decisions with workspace read access after a review is finalized and its sealed review record is locked.";
-
 export const DECISION_REGISTER_HELP_START_HERE_PRECONDITION = DECISION_REGISTER_EMPTY_TEACHING_BODY;
 
 export const DECISION_REGISTER_HELP_START_HERE_HELPER = DECISION_REGISTER_EMPTY_TEACHING_HONESTY;

@@ -11,7 +11,7 @@ import {
   PREFERENCES_HELP_OVERVIEW,
   PREFERENCES_HELP_PAGE_SUBTITLE,
   PREFERENCES_HELP_PRIMARY_ACTION,
-  PREFERENCES_HELP_ROLE_PRECONDITION,
+  PREFERENCES_HELP_START_HERE_SCOPE_NOTE,
   PREFERENCES_HELP_TILE_ITEMS,
 } from "@/lib/preferences-help-guide-content";
 
@@ -109,7 +109,7 @@ describe("preferences help negation drift guard", () => {
   it("avoids API vocabulary in how-to steps and keeps role precondition in Start here copy", () => {
     const guideCopy = [
       PREFERENCES_HELP_OVERVIEW,
-      PREFERENCES_HELP_ROLE_PRECONDITION,
+      PREFERENCES_HELP_START_HERE_SCOPE_NOTE,
       PREFERENCES_HELP_HOW_TO_READ_STEPS.join(" "),
       PREFERENCES_HELP_CHANGES_ITEMS.map((item) => `${item.label} ${item.detail}`).join(" "),
     ].join(" ");

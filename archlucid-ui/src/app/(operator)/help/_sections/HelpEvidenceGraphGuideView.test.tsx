@@ -14,8 +14,6 @@ import {
 import {
   EVIDENCE_GRAPH_HELP_CLAIM_HEADING_ID,
   EVIDENCE_GRAPH_HELP_PRIMARY_ACTION,
-  EVIDENCE_GRAPH_HELP_ROLE_PRECONDITION,
-  EVIDENCE_GRAPH_HELP_ROLE_PRECONDITION_TAG,
   EVIDENCE_GRAPH_HELP_SAMPLE_GRAPH_NOTE,
   EVIDENCE_GRAPH_HELP_TILE_ITEMS,
 } from "@/lib/evidence-graph-help-guide-content";
@@ -38,12 +36,8 @@ describe("HelpEvidenceGraphGuideView", () => {
 expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · insights evidence graph orientation",
     );
-    expect(screen.getByTestId("help-evidence-graph-role-precondition")).toHaveTextContent(
-      EVIDENCE_GRAPH_HELP_ROLE_PRECONDITION,
-    );
-    expect(screen.getByTestId("help-evidence-graph-role-precondition-tag")).toHaveTextContent(
-      EVIDENCE_GRAPH_HELP_ROLE_PRECONDITION_TAG,
-    );
+    expect(screen.queryByTestId("help-evidence-graph-role-precondition-tag")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-evidence-graph-role-precondition")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-evidence-graph-sample-graph-note")).toHaveTextContent(
       EVIDENCE_GRAPH_HELP_SAMPLE_GRAPH_NOTE,
     );

@@ -29,11 +29,6 @@ export const BASELINE_SETTINGS_HELP_PRIMARY_ACTION = {
 
 export const BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE = "Start here";
 
-export const BASELINE_SETTINGS_HELP_ROLE_PRECONDITION =
-  "Saving baseline anchors needs Execute authority in this workspace.";
-
-export const BASELINE_SETTINGS_HELP_ROLE_PRECONDITION_TAG = "Execute";
-
 export type BaselineSettingsHelpItem = {
   readonly label: string;
   readonly detail: string;

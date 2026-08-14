@@ -16,9 +16,8 @@ import {
   SYSTEM_HEALTH_HELP_GUIDE_HEADINGS,
   SYSTEM_HEALTH_HELP_NEGATION_DRIFT_MARKERS,
   SYSTEM_HEALTH_HELP_PRIMARY_ACTION,
-  SYSTEM_HEALTH_HELP_ROLE_PRECONDITION,
-  SYSTEM_HEALTH_HELP_ROLE_PRECONDITION_TAG,
   SYSTEM_HEALTH_HELP_START_HERE_CARD_TITLE,
+  SYSTEM_HEALTH_HELP_START_HERE_SCOPE_NOTE,
   SYSTEM_HEALTH_HELP_TILE_ITEMS,
 } from "@/lib/system-health-help-guide-content";
 import { SYSTEM_HEALTH_HELP_TOPIC_LABEL } from "@/lib/system-health-evidence-copy";
@@ -40,12 +39,10 @@ describe("HelpSystemHealthGuideView", () => {
 expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · administration system health orientation",
     );
-    expect(screen.getByTestId("help-system-health-role-precondition")).toHaveTextContent(
-      SYSTEM_HEALTH_HELP_ROLE_PRECONDITION,
+    expect(screen.getByTestId("help-system-health-start-here-scope-note")).toHaveTextContent(
+      SYSTEM_HEALTH_HELP_START_HERE_SCOPE_NOTE,
     );
-    expect(screen.getByTestId("help-system-health-role-precondition-tag")).toHaveTextContent(
-      SYSTEM_HEALTH_HELP_ROLE_PRECONDITION_TAG,
-    );
+    expect(screen.queryByTestId("help-system-health-role-precondition-tag")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-system-health-claim-discipline").textContent).toContain(
       SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );

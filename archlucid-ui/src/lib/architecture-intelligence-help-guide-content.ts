@@ -19,12 +19,9 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_PAGE_SUBTITLE =
 export const ARCHITECTURE_INTELLIGENCE_HELP_OVERVIEW =
   "Closed-loop reasoning produces structured findings and framing questions you can review before publishing anything to the workspace findings trail. Publishing is a governed follow-up — open Findings or start a review when output needs triage or an evidence-backed package.";
 
-/** Help Start here card — role-neutral access guidance for the reasoning surface. */
-export const ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION =
-  "View architecture intelligence with workspace read access; submitting descriptions, running closed-loop reasoning, and publishing findings requires execute access.";
-
-/** Compact access tag beside the Start here primary action. */
-export const ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION_TAG = "Read + execute";
+/** Help Start here card — governed follow-up guidance beside the primary action. */
+export const ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE =
+  "Submitting descriptions, running closed-loop reasoning, and publishing findings are governed follow-ups.";
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE = "Start here";
 

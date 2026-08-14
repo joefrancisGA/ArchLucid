@@ -7,7 +7,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
@@ -27,9 +26,8 @@ import {
   SYSTEM_HEALTH_HELP_PAGE_SUBTITLE,
   SYSTEM_HEALTH_HELP_PAGE_TITLE,
   SYSTEM_HEALTH_HELP_PRIMARY_ACTION,
-  SYSTEM_HEALTH_HELP_ROLE_PRECONDITION,
-  SYSTEM_HEALTH_HELP_ROLE_PRECONDITION_TAG,
   SYSTEM_HEALTH_HELP_START_HERE_CARD_TITLE,
+  SYSTEM_HEALTH_HELP_START_HERE_SCOPE_NOTE,
   SYSTEM_HEALTH_HELP_TILE_ITEMS,
 } from "@/lib/system-health-help-guide-content";
 import { cn } from "@/lib/utils";
@@ -82,21 +80,14 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={SYSTEM_HEALTH_HELP_PRIMARY_ACTION.href}>{SYSTEM_HEALTH_HELP_PRIMARY_ACTION.label}</Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={SYSTEM_HEALTH_HELP_ROLE_PRECONDITION_TAG}
-                  data-testid="help-system-health-role-precondition-tag"
-                />
-              </div>
+              <Button asChild size="sm" variant="primary">
+                <Link href={SYSTEM_HEALTH_HELP_PRIMARY_ACTION.href}>{SYSTEM_HEALTH_HELP_PRIMARY_ACTION.label}</Link>
+              </Button>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-system-health-role-precondition"
+                data-testid="help-system-health-start-here-scope-note"
               >
-                {SYSTEM_HEALTH_HELP_ROLE_PRECONDITION}
+                {SYSTEM_HEALTH_HELP_START_HERE_SCOPE_NOTE}
               </p>
             </CardContent>
           </Card>

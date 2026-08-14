@@ -18,9 +18,8 @@ import {
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
   ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS,
   ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION,
-  ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION,
-  ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION_TAG,
   ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE,
+  ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE,
 } from "@/lib/architecture-intelligence-help-guide-content";
 import { ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-intelligence-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -44,12 +43,10 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · architecture intelligence orientation",
     );
-    expect(screen.getByTestId("help-architecture-intelligence-role-precondition")).toHaveTextContent(
-      ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION,
+    expect(screen.getByTestId("help-architecture-intelligence-start-here-scope-note")).toHaveTextContent(
+      ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE,
     );
-    expect(screen.getByTestId("help-architecture-intelligence-role-precondition-tag")).toHaveTextContent(
-      ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION_TAG,
-    );
+    expect(screen.queryByTestId("help-architecture-intelligence-role-precondition-tag")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-architecture-intelligence-data-handling")).toHaveTextContent(
       ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE,
     );

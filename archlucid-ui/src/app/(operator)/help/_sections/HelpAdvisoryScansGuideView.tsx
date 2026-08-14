@@ -7,7 +7,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   ADVISORY_SCANS_HELP_GUIDE_HEADINGS,
@@ -16,9 +15,8 @@ import {
   ADVISORY_SCANS_HELP_PAGE_SUBTITLE,
   ADVISORY_SCANS_HELP_PAGE_TITLE,
   ADVISORY_SCANS_HELP_PRIMARY_ACTION,
-  ADVISORY_SCANS_HELP_ROLE_PRECONDITION,
-  ADVISORY_SCANS_HELP_ROLE_PRECONDITION_TAG,
   ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE,
+  ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE,
   ADVISORY_SCANS_HELP_TILE_ITEMS,
 } from "@/lib/advisory-scans-help-guide-content";
 import { ADVISORY_SCANS_HELP_CANONICAL_PATH } from "@/lib/advisory-scans-help-evidence-copy";
@@ -84,21 +82,14 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={ADVISORY_SCANS_HELP_PRIMARY_ACTION.href}>{ADVISORY_SCANS_HELP_PRIMARY_ACTION.label}</Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={ADVISORY_SCANS_HELP_ROLE_PRECONDITION_TAG}
-                  data-testid="help-advisory-scans-role-precondition-tag"
-                />
-              </div>
+              <Button asChild size="sm" variant="primary">
+                <Link href={ADVISORY_SCANS_HELP_PRIMARY_ACTION.href}>{ADVISORY_SCANS_HELP_PRIMARY_ACTION.label}</Link>
+              </Button>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-advisory-scans-role-precondition"
+                data-testid="help-advisory-scans-start-here-scope-note"
               >
-                {ADVISORY_SCANS_HELP_ROLE_PRECONDITION}
+                {ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE}
               </p>
             </CardContent>
           </Card>

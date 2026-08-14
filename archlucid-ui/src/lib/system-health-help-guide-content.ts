@@ -14,12 +14,9 @@ export const SYSTEM_HEALTH_HELP_PAGE_SUBTITLE =
 export const SYSTEM_HEALTH_HELP_OVERVIEW =
   "System health reports workspace operational readiness — live and ready checks plus deployment identity. Use it to confirm dependencies before reviews depend on them.";
 
-/** Help Start here card — role-neutral access guidance for the system health surface. */
-export const SYSTEM_HEALTH_HELP_ROLE_PRECONDITION =
-  "View system health with workspace read access; readiness loads once per visit and on demand.";
-
-/** Compact access tag beside the Start here primary action. */
-export const SYSTEM_HEALTH_HELP_ROLE_PRECONDITION_TAG = "Read";
+/** Help Start here card — readiness refresh guidance beside the primary action. */
+export const SYSTEM_HEALTH_HELP_START_HERE_SCOPE_NOTE =
+  "Readiness loads once per visit and on demand.";
 
 export const SYSTEM_HEALTH_HELP_START_HERE_CARD_TITLE = "Start here";
 

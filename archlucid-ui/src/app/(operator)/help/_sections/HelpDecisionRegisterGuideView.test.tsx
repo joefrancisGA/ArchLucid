@@ -14,8 +14,6 @@ import {
   DECISION_REGISTER_HELP_FIELD_EXAMPLES,
   DECISION_REGISTER_HELP_GUIDE_HEADINGS,
   DECISION_REGISTER_HELP_PRIMARY_ACTION,
-  DECISION_REGISTER_HELP_ROLE_PRECONDITION,
-  DECISION_REGISTER_HELP_ROLE_PRECONDITION_TAG,
   DECISION_REGISTER_HELP_START_HERE_CARD_TITLE,
   DECISION_REGISTER_HELP_START_HERE_HELPER,
   DECISION_REGISTER_HELP_START_HERE_PRECONDITION,
@@ -54,12 +52,8 @@ describe("HelpDecisionRegisterGuideView", () => {
     expect(screen.getByTestId("help-decision-register-start-here-helper")).toHaveTextContent(
       DECISION_REGISTER_HELP_START_HERE_HELPER,
     );
-    expect(screen.getByTestId("help-decision-register-role-precondition")).toHaveTextContent(
-      DECISION_REGISTER_HELP_ROLE_PRECONDITION,
-    );
-    expect(screen.getByTestId("help-decision-register-role-precondition-tag")).toHaveTextContent(
-      DECISION_REGISTER_HELP_ROLE_PRECONDITION_TAG,
-    );
+    expect(screen.queryByTestId("help-decision-register-role-precondition-tag")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-decision-register-role-precondition")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-decision-register-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-decision-register-overview").textContent?.toLowerCase()).not.toContain(
       "sources package",

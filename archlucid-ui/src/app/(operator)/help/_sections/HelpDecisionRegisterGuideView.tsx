@@ -7,7 +7,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   DECISION_REGISTER_HELP_BREADCRUMB_TOPIC_TITLE,
@@ -17,8 +16,6 @@ import {
   DECISION_REGISTER_HELP_PAGE_SUBTITLE,
   DECISION_REGISTER_HELP_PAGE_TITLE,
   DECISION_REGISTER_HELP_PRIMARY_ACTION,
-  DECISION_REGISTER_HELP_ROLE_PRECONDITION,
-  DECISION_REGISTER_HELP_ROLE_PRECONDITION_TAG,
   DECISION_REGISTER_HELP_START_HERE_CARD_TITLE,
   DECISION_REGISTER_HELP_START_HERE_HELPER,
   DECISION_REGISTER_HELP_START_HERE_PRECONDITION,
@@ -94,24 +91,11 @@ export function HelpDecisionRegisterGuideView(props: HelpDecisionRegisterGuideVi
               >
                 <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{DECISION_REGISTER_HELP_START_HERE_PRECONDITION}</p>
               </aside>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={DECISION_REGISTER_HELP_PRIMARY_ACTION.href}>
-                    {DECISION_REGISTER_HELP_PRIMARY_ACTION.label}
-                  </Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={DECISION_REGISTER_HELP_ROLE_PRECONDITION_TAG}
-                  data-testid="help-decision-register-role-precondition-tag"
-                />
-              </div>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-decision-register-role-precondition"
-              >
-                {DECISION_REGISTER_HELP_ROLE_PRECONDITION}
-              </p>
+              <Button asChild size="sm" variant="primary">
+                <Link href={DECISION_REGISTER_HELP_PRIMARY_ACTION.href}>
+                  {DECISION_REGISTER_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="help-decision-register-start-here-helper"

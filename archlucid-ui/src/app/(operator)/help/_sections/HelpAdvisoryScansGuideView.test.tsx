@@ -14,8 +14,7 @@ import {
 import {
   ADVISORY_SCANS_HELP_CLAIM_HEADING_ID,
   ADVISORY_SCANS_HELP_PRIMARY_ACTION,
-  ADVISORY_SCANS_HELP_ROLE_PRECONDITION,
-  ADVISORY_SCANS_HELP_ROLE_PRECONDITION_TAG,
+  ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE,
   ADVISORY_SCANS_HELP_TILE_ITEMS,
 } from "@/lib/advisory-scans-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -37,14 +36,12 @@ describe("HelpAdvisoryScansGuideView", () => {
 expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · governance advisory scans orientation",
     );
-    expect(screen.getByTestId("help-advisory-scans-role-precondition")).toHaveTextContent(
-      ADVISORY_SCANS_HELP_ROLE_PRECONDITION,
+    expect(screen.getByTestId("help-advisory-scans-start-here-scope-note")).toHaveTextContent(
+      ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE,
     );
-    expect(screen.getByTestId("help-advisory-scans-role-precondition-tag")).toHaveTextContent(
-      ADVISORY_SCANS_HELP_ROLE_PRECONDITION_TAG,
-    );
-    expect(screen.getByTestId("help-advisory-scans-role-precondition").textContent?.toLowerCase()).not.toContain("now");
-    expect(screen.getByTestId("help-advisory-scans-role-precondition").textContent?.toLowerCase()).not.toContain(
+    expect(screen.queryByTestId("help-advisory-scans-role-precondition-tag")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-advisory-scans-start-here-scope-note").textContent?.toLowerCase()).not.toContain("now");
+    expect(screen.getByTestId("help-advisory-scans-start-here-scope-note").textContent?.toLowerCase()).not.toContain(
       "executions",
     );
     expect(screen.getByRole("heading", { name: ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(

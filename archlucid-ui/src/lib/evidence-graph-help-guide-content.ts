@@ -16,13 +16,6 @@ export const EVIDENCE_GRAPH_HELP_PAGE_SUBTITLE =
 export const EVIDENCE_GRAPH_HELP_OVERVIEW =
   "The evidence graph shows how evidence connects to findings, decisions, approvals, and audit records for a selected finalized review. Use it to explore relationships before briefing sponsors or opening search and compare.";
 
-/** Help Start here card — role-neutral access guidance for the graph surface. */
-export const EVIDENCE_GRAPH_HELP_ROLE_PRECONDITION =
-  "View the evidence graph with workspace read access; graphs load after you finalize a review.";
-
-/** Compact access tag beside the Start here primary action. */
-export const EVIDENCE_GRAPH_HELP_ROLE_PRECONDITION_TAG = "Read";
-
 export const EVIDENCE_GRAPH_HELP_START_HERE_CARD_TITLE = "Start here";
 
 /** Sample graph honesty — Azure reference qualifier aligned with contextual-help empty guidance. */

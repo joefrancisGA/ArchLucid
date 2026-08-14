@@ -18,12 +18,9 @@ export const ADVISORY_SCANS_HELP_OVERVIEW =
 export const ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION =
   "View schedules and prior scan results; creating schedules and generating scans requires execute access or a management role.";
 
-/** Help Start here card — role-neutral; not the hub tab screen-reader constant. */
-export const ADVISORY_SCANS_HELP_ROLE_PRECONDITION =
-  "View schedules and prior scan results with workspace read access; creating schedules and generating scans requires execute access or a management role.";
-
-/** Compact access tag beside the Start here primary action. */
-export const ADVISORY_SCANS_HELP_ROLE_PRECONDITION_TAG = "Read + execute";
+/** Help Start here card — schedule mutation honesty; not the hub tab screen-reader constant. */
+export const ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE =
+  "View schedules and prior scan results here; creating schedules and generating scans requires execute access or a management role.";
 
 export const ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE = "Start here";
 

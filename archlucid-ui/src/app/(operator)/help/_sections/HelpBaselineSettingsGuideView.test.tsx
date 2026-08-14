@@ -15,8 +15,6 @@ import {
   BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID,
   BASELINE_SETTINGS_HELP_GUIDE_HEADINGS,
   BASELINE_SETTINGS_HELP_PRIMARY_ACTION,
-  BASELINE_SETTINGS_HELP_ROLE_PRECONDITION,
-  BASELINE_SETTINGS_HELP_ROLE_PRECONDITION_TAG,
   BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/baseline-settings-help-guide-content";
 import { BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER } from "@/lib/baseline-settings-present";
@@ -41,12 +39,8 @@ describe("HelpBaselineSettingsGuideView", () => {
     expect(screen.getByTestId("help-baseline-settings-saved-baseline-warn")).toHaveTextContent(
       BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER,
     );
-    expect(screen.getByTestId("help-baseline-settings-role-precondition")).toHaveTextContent(
-      BASELINE_SETTINGS_HELP_ROLE_PRECONDITION,
-    );
-    expect(screen.getByTestId("help-baseline-settings-role-precondition-tag")).toHaveTextContent(
-      BASELINE_SETTINGS_HELP_ROLE_PRECONDITION_TAG,
-    );
+    expect(screen.queryByTestId("help-baseline-settings-role-precondition-tag")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-baseline-settings-role-precondition")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-baseline-settings-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-baseline-settings-overview").textContent?.toLowerCase()).not.toContain(
       "skip this now",

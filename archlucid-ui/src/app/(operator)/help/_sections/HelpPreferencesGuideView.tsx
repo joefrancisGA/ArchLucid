@@ -7,7 +7,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
@@ -24,9 +23,8 @@ import {
   PREFERENCES_HELP_PAGE_SUBTITLE,
   PREFERENCES_HELP_PAGE_TITLE,
   PREFERENCES_HELP_PRIMARY_ACTION,
-  PREFERENCES_HELP_ROLE_PRECONDITION,
-  PREFERENCES_HELP_ROLE_PRECONDITION_TAG,
   PREFERENCES_HELP_START_HERE_CARD_TITLE,
+  PREFERENCES_HELP_START_HERE_SCOPE_NOTE,
   PREFERENCES_HELP_TILE_ITEMS,
 } from "@/lib/preferences-help-guide-content";
 import { PREFERENCES_HELP_CANONICAL_PATH } from "@/lib/preferences-help-evidence-copy";
@@ -97,21 +95,14 @@ export function HelpPreferencesGuideView(props: HelpPreferencesGuideViewProps): 
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={PREFERENCES_HELP_PRIMARY_ACTION.href}>{PREFERENCES_HELP_PRIMARY_ACTION.label}</Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={PREFERENCES_HELP_ROLE_PRECONDITION_TAG}
-                  data-testid="help-preferences-role-precondition-tag"
-                />
-              </div>
+              <Button asChild size="sm" variant="primary">
+                <Link href={PREFERENCES_HELP_PRIMARY_ACTION.href}>{PREFERENCES_HELP_PRIMARY_ACTION.label}</Link>
+              </Button>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-preferences-role-precondition"
+                data-testid="help-preferences-start-here-scope-note"
               >
-                {PREFERENCES_HELP_ROLE_PRECONDITION}
+                {PREFERENCES_HELP_START_HERE_SCOPE_NOTE}
               </p>
             </CardContent>
           </Card>

@@ -15,12 +15,9 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE =
 export const SEARCH_REVIEW_EVIDENCE_HELP_OVERVIEW =
   "Search review evidence retrieves snippets across findings, decisions, and sealed records in this workspace. Use it to discover review context before opening cited packages, the evidence graph, or governance queues.";
 
-/** Help Start here card — role-neutral access guidance for the search surface. */
-export const SEARCH_REVIEW_EVIDENCE_HELP_ROLE_PRECONDITION =
-  "Search review evidence with workspace read access; the index covers finalized packages unless you scope to one review.";
-
-/** Compact access tag beside the Start here primary action. */
-export const SEARCH_REVIEW_EVIDENCE_HELP_ROLE_PRECONDITION_TAG = "Read";
+/** Help Start here card — index scope guidance beside the primary action. */
+export const SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_SCOPE_NOTE =
+  "The index covers finalized packages unless you scope to one review.";
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE = "Start here";
 

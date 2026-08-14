@@ -10,8 +10,6 @@ import {
   NOTIFICATIONS_HELP_GUIDE_HEADINGS,
   NOTIFICATIONS_HELP_HOW_TO_READ_STEPS,
   NOTIFICATIONS_HELP_PRIMARY_ACTION,
-  NOTIFICATIONS_HELP_ROLE_PRECONDITION,
-  NOTIFICATIONS_HELP_ROLE_PRECONDITION_TAG,
   NOTIFICATIONS_HELP_START_HERE_CARD_TITLE,
   NOTIFICATIONS_HELP_START_HERE_HELPER,
   NOTIFICATIONS_HELP_TILE_ITEMS,
@@ -51,12 +49,8 @@ describe("HelpNotificationsGuideView", () => {
     expect(screen.getByTestId("help-notifications-overview").textContent?.toLowerCase()).not.toContain(
       "delivery status",
     );
-    expect(screen.getByTestId("help-notifications-role-precondition")).toHaveTextContent(
-      NOTIFICATIONS_HELP_ROLE_PRECONDITION,
-    );
-    expect(screen.getByTestId("help-notifications-role-precondition-tag")).toHaveTextContent(
-      NOTIFICATIONS_HELP_ROLE_PRECONDITION_TAG,
-    );
+    expect(screen.queryByTestId("help-notifications-role-precondition-tag")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-notifications-role-precondition")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-notifications-start-here-helper")).toHaveTextContent(
       NOTIFICATIONS_HELP_START_HERE_HELPER,
     );

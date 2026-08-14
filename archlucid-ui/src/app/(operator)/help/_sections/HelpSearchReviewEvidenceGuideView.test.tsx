@@ -16,9 +16,8 @@ import {
   SEARCH_REVIEW_EVIDENCE_HELP_GUIDE_HEADINGS,
   SEARCH_REVIEW_EVIDENCE_HELP_NEGATION_DRIFT_MARKERS,
   SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION,
-  SEARCH_REVIEW_EVIDENCE_HELP_ROLE_PRECONDITION,
-  SEARCH_REVIEW_EVIDENCE_HELP_ROLE_PRECONDITION_TAG,
   SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE,
+  SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_SCOPE_NOTE,
   SEARCH_REVIEW_EVIDENCE_HELP_FEATURE_ITEMS,
 } from "@/lib/search-review-evidence-help-guide-content";
 import { SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL } from "@/lib/search-review-evidence-evidence-copy";
@@ -40,12 +39,10 @@ describe("HelpSearchReviewEvidenceGuideView", () => {
 expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · insights search review evidence orientation",
     );
-    expect(screen.getByTestId("help-search-review-evidence-role-precondition")).toHaveTextContent(
-      SEARCH_REVIEW_EVIDENCE_HELP_ROLE_PRECONDITION,
+    expect(screen.getByTestId("help-search-review-evidence-start-here-scope-note")).toHaveTextContent(
+      SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_SCOPE_NOTE,
     );
-    expect(screen.getByTestId("help-search-review-evidence-role-precondition-tag")).toHaveTextContent(
-      SEARCH_REVIEW_EVIDENCE_HELP_ROLE_PRECONDITION_TAG,
-    );
+    expect(screen.queryByTestId("help-search-review-evidence-role-precondition-tag")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-search-review-evidence-claim-discipline").textContent).toContain(
       SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
