@@ -6,6 +6,11 @@ import {
 } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 const REDIRECT_ONLY_PATHS = [
+  "/admin/ai-usage-cost",
+  "/alert-routing",
+  "/dashboard",
+  "/portfolio",
+  "/sponsor/dashboard",
   "/alerts",
   "/audit",
   "/settings/cloud-connections",

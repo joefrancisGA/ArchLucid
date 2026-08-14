@@ -22,7 +22,7 @@ possible (Hit% Ã— 100 per row).
 Master table sort key: rows with UX score 0 (unscored) appear before scored rows; within each group, sort by Deficit (descending); ties A→Z by path. Weight column is Hit% × UX score. Deficit column is Hit% × (100 − UX score). OVERALL WEIGHT SCORE is the sum of row Weight values expressed as a percentage of the maximum possible (Hit% × 100 per row). ID column: unique shorthand of at most three capital letters per row.
 
 Not included: API route handlers (/api/*), legacy redirects/rewrites (see
-ui_routes.md; e.g. `/alert-routing` → `/governance/alert-rules?tab=notifications`, traffic **ALE** / **TB-1443**), or off-site marketing traffic.
+ui_routes.md; e.g. `/admin/ai-usage-cost` → `/administration/ai-usage` traffic **ADI** / **TB-1406**; `/alert-routing` → `/governance/alert-rules?tab=notifications` traffic **ALE** / **TB-1443**; `/sponsor/dashboard` → `/architecture/sponsor-dashboard` traffic **ARE** / **TB-1527**), or off-site marketing traffic.
 
 **TB-2241 hidden-route policy:** Contextual-only operator paths (`nav-contextual-only-operator-paths.ts`) stay out of pilot nav but remain scoreable when reached via deep links. Internal platform catalog paths (`/internal/agent-model-catalog`, `/internal/platform-bundled-policy-packs`) and other `INTERNAL_UX_RANKING_EXCLUDED_PATHS` rows are excluded from OVERALL WEIGHT/EVIDENCE rollups. Ghost `page.tsx` retirements stay on redirect-hygiene peers (**TB-1404** / **TB-748**).
 

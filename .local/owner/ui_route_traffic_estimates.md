@@ -17,7 +17,7 @@ provenance, sponsor-safe citations). Position 2 is UX quality, scored against
 docs/library/UI_UX_SCORING_RUBRIC.md. Default 0 until the owner assigns a value.
 
 Not included: API route handlers (/api/*), legacy redirects/rewrites (see
-ui_routes.md), or off-site marketing traffic.
+ui_routes.md; e.g. `/admin/ai-usage-cost` → `/administration/ai-usage` traffic **ADI** / **TB-1406**; `/alert-routing` → `/governance/alert-rules?tab=notifications` traffic **ALE** / **TB-1443**; `/sponsor/dashboard` → `/architecture/sponsor-dashboard` traffic **ARE** / **TB-1527**), or off-site marketing traffic.
 
 ## Core Web Vitals field telemetry (TB-692)
 

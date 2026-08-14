@@ -17,7 +17,7 @@ import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-o
 
 export type RouteReadinessTier = "demo-ready" | "advanced-only" | "admin-only" | "hidden";
 
-const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
+export const OPERATOR_ROUTE_READINESS_LIVE_PATHS: Readonly<Record<string, RouteReadinessTier>> = {
   "/": "demo-ready",
   "/architecture/first-review-guide": "demo-ready",
   "/architecture/reviews/new": "demo-ready",
@@ -91,7 +91,7 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
   const [path, query] = href.split("?", 2);
 
   if (path === "/architecture/reviews" && query !== undefined && query.includes("projectId=")) {
-    const fromTable = READINESS_BY_PATH["/architecture/reviews"];
+    const fromTable = OPERATOR_ROUTE_READINESS_LIVE_PATHS["/architecture/reviews"];
 
     return fromTable ?? "demo-ready";
   }
@@ -103,7 +103,7 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
     return "admin-only";
   }
 
-  const exact = READINESS_BY_PATH[href] ?? READINESS_BY_PATH[trimmedPath];
+  const exact = OPERATOR_ROUTE_READINESS_LIVE_PATHS[href] ?? OPERATOR_ROUTE_READINESS_LIVE_PATHS[trimmedPath];
 
   if (exact !== undefined) {
     return exact;

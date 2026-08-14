@@ -5,6 +5,7 @@ import {
   findTrafficRowById,
   readUiRouteTrafficEstimatesTemplateMarkdown,
 } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
+import { REMOVED_REDIRECT_SHIM_TRAFFIC_ROW_IDS } from "@/lib/ui-route-traffic-retired-redirect-shims";
 
 import {
   AI_USAGE_SETTINGS_TRAFFIC_NOTE,
@@ -24,5 +25,14 @@ describe("ui-route-traffic-ai-usage-settings (ADI)", () => {
     expect(row?.notes).toBe(AI_USAGE_SETTINGS_TRAFFIC_NOTE);
     expect(row?.notes).toContain("CostReportingSettingsPageView");
     expect(row?.notes).toContain("cannot improve further toward 80");
+  });
+
+  it("does not track retired AAX workbook row independently (TB-1406 / TB-1404)", () => {
+    expect(REMOVED_REDIRECT_SHIM_TRAFFIC_ROW_IDS).toContain("AAX");
+
+    const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
+
+    expect(rows.find((row) => row.id === "AAX")).toBeUndefined();
+    expect(rows.find((row) => row.path === "/admin/ai-usage-cost")).toBeUndefined();
   });
 });

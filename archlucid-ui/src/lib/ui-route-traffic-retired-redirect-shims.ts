@@ -2,6 +2,9 @@ import { LEGACY_QUICK_START_PATH } from "@/lib/legacy-quick-start-route";
 
 /** Retired traffic workbook row IDs for legacy redirect-only bookmarks (IA batch 4). */
 export const REMOVED_REDIRECT_SHIM_TRAFFIC_ROW_IDS = [
+  "AAX",
+  "AL2",
+  "EDA",
   "LOG",
   "OXX",
   "OSX",

@@ -4,6 +4,11 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { ALERT_ROUTING_TAB_PATH } from "@/lib/alert-routing-evidence-copy";
+import {
+  extractMasterTableRows,
+  readUiRouteTrafficEstimatesTemplateMarkdown,
+} from "@/lib/testing/ui-route-traffic-workbook-test-utils";
+import { REMOVED_REDIRECT_SHIM_TRAFFIC_ROW_IDS } from "@/lib/ui-route-traffic-retired-redirect-shims";
 
 const LEGACY_ALERT_ROUTING_PATH_PATTERN = /\/alert-routing(?!-subscriptions)/g;
 const LEGACY_PATH_ALLOWED_ON_LINE = /redirect|retired|legacy|unreachable|remove|bookmark|fold|migration|→/i;
@@ -53,5 +58,13 @@ describe("legacy-alert-routing-route-doc-guard (TB-1445)", () => {
     const catalogSource = readFileSync(CATALOG_PATH, "utf8");
 
     expect(catalogSource).toContain('"/alert-routing": "/governance/alert-rules?tab=notifications"');
+  });
+
+  it("does not track retired AL2 workbook row independently (TB-1443)", () => {
+    expect(REMOVED_REDIRECT_SHIM_TRAFFIC_ROW_IDS).toContain("AL2");
+
+    const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
+
+    expect(rows.find((row) => row.id === "AL2")).toBeUndefined();
   });
 });
