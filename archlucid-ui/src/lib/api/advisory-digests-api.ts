@@ -95,6 +95,18 @@ export async function saveExecDigestPreferences(
   return apiPostJson<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`, body);
 }
 
+/** Sponsor digest schedule tab — same tenant exec-digest preferences route. */
+export async function getSponsorDigestPreferences(): Promise<ExecDigestPreferencesResponse> {
+  return getExecDigestPreferences();
+}
+
+/** Sponsor digest schedule tab — same tenant exec-digest preferences route. */
+export async function saveSponsorDigestPreferences(
+  body: ExecDigestPreferencesUpsertRequest,
+): Promise<ExecDigestPreferencesResponse> {
+  return saveExecDigestPreferences(body);
+}
+
 /** Loads Teams incoming-webhook connection and trigger catalog in one GET. */
 export async function fetchTeamsIncomingWebhookPageBundle(): Promise<{
   connection: TeamsIncomingWebhookConnectionResponse;

@@ -258,7 +258,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
                 BUYER_MANIFEST_AUTHORITY_SUMMARY
               ) : (
                 <>
-                  This is the <InlineGlossaryChip nounId="signed-review-record" pulseOnFirstEncounter={false}>sealed review record</InlineGlossaryChip> for the architecture review —{" "}
+                  This is the <InlineGlossaryChip nounId="sealed-review-record" pulseOnFirstEncounter={false}>sealed review record</InlineGlossaryChip> for the architecture review —{" "}
                   <InlineGlossaryChip nounId="decision" pulseOnFirstEncounter={false}>decisions</InlineGlossaryChip>,{" "}
                   <InlineGlossaryChip nounId="finding" pulseOnFirstEncounter={false}>findings</InlineGlossaryChip>, and the files you
                   can open or download.
@@ -267,7 +267,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             </>
           ) : (
             <>
-              A <InlineGlossaryChip nounId="signed-review-record" pulseOnFirstEncounter={false}>sealed review record</InlineGlossaryChip> is the immutable authority for this review. It captures{" "}
+              A <InlineGlossaryChip nounId="sealed-review-record" pulseOnFirstEncounter={false}>sealed review record</InlineGlossaryChip> is the immutable authority for this review. It captures{" "}
               <InlineGlossaryChip nounId="decision" pulseOnFirstEncounter={false}>decisions</InlineGlossaryChip>,{" "}
               <InlineGlossaryChip nounId="finding" pulseOnFirstEncounter={false}>findings</InlineGlossaryChip>, and
               the downloadable <InlineGlossaryChip nounId="deliverable" pulseOnFirstEncounter={false}>{DELIVERABLES_BUNDLE_LABEL.toLowerCase()}</InlineGlossaryChip> linked from review detail.
