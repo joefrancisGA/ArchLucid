@@ -30,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { WebhooksIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -354,6 +355,7 @@ export function WebhooksSettingsClient() {
       <WebhooksApiKeysVocabularyRail currentSurfaceId="webhooks" />
       <WebhooksVsDlqVocabularyRail currentSurfaceId="webhooks" />
       <ConnectionStatusWebhooksVocabularyRail currentSurfaceId="webhooks" />
+      <WebhooksIntegrationEvidenceOrientationStrip />
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem

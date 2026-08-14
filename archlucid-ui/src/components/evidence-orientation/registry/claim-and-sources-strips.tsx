@@ -383,6 +383,14 @@ import {
 } from "@/lib/webhooks-integration-help-evidence-copy";
 import { WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/webhooks-integration-help-guide-content";
 import {
+  WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE,
+  WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
+  WEBHOOKS_INTEGRATION_CLAIM_HEADING_ID,
+  WEBHOOKS_INTEGRATION_FOLLOW_UPS_TITLE,
+  WEBHOOKS_INTEGRATION_SOURCES,
+  WEBHOOKS_INTEGRATION_SOURCES_INTRO,
+} from "@/lib/webhooks-integration-evidence-copy";
+import {
   ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE,
   ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING,
   ITSM_OAUTH_CALLBACK_CLAIM_HEADING_ID,
@@ -898,6 +906,25 @@ export function WebhooksIntegrationHelpEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function WebhooksIntegrationEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="webhooks-integration"
+      claim={WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE}
+      claimHeading={WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={WEBHOOKS_INTEGRATION_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={WEBHOOKS_INTEGRATION_FOLLOW_UPS_TITLE}
+      sourcesIntro={WEBHOOKS_INTEGRATION_SOURCES_INTRO}
+      sources={WEBHOOKS_INTEGRATION_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
