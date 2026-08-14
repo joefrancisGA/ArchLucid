@@ -59,10 +59,14 @@ public static class CrossAgentProposalConsistencyGate
 
         foreach (ManifestService service in services)
         {
-            if (!TopologyProposalRelationshipEndpointIndex.TryClaimService(service, claimedServiceEndpointKeys))
+            if (TopologyProposalRelationshipEndpointIndex.TryClaimService(service, claimedServiceEndpointKeys))
+            {
+                accepted.Add(service);
                 continue;
+            }
 
-            accepted.Add(service);
+            if (TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(service, accepted))
+                accepted.Add(service);
         }
 
         return accepted;
@@ -79,10 +83,14 @@ public static class CrossAgentProposalConsistencyGate
 
         foreach (ManifestDatastore datastore in datastores)
         {
-            if (!TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(datastore, claimedDatastoreEndpointKeys))
+            if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(datastore, claimedDatastoreEndpointKeys))
+            {
+                accepted.Add(datastore);
                 continue;
+            }
 
-            accepted.Add(datastore);
+            if (TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(datastore, accepted))
+                accepted.Add(datastore);
         }
 
         return accepted;

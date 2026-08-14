@@ -1754,4 +1754,94 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.ToNodeId == "ds-sql" &&
             e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
+
+    [SkippableFact]
+    public void WithMergedTopologyProposals_adds_edges_after_structural_post_processor_and_cross_agent_gate_preserve_renamed_datastore_aliases()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Nodes = [],
+            Edges = [],
+            Warnings = []
+        };
+
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = "svc-api",
+                    ServiceName = "api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService
+                }
+            ],
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    DatastoreId = "ds-sql",
+                    DatastoreName = "sql",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer
+                },
+                new ManifestDatastore
+                {
+                    DatastoreId = "ds-sql",
+                    DatastoreName = "renamed-sql",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer
+                }
+            ],
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "api",
+                    TargetId = "renamed-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+        CrossAgentProposalConsistencyGate.ApplyToResults(
+        [
+            new AgentResult
+            {
+                ResultId = "r1",
+                TaskId = "t1",
+                RunId = "run-1",
+                AgentType = AgentType.Topology,
+                ProposedChanges = proposal,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
+            }
+        ]);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(
+            graph,
+            [
+                new AgentResult
+                {
+                    ResultId = "r1",
+                    TaskId = "t1",
+                    RunId = "run-1",
+                    AgentType = AgentType.Topology,
+                    ProposedChanges = proposal,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-api" &&
+            e.ToNodeId == "ds-sql" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
 }
