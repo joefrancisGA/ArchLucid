@@ -8,4 +8,8 @@ public sealed class NullPlatformBundledPolicyPackAvailability : IPlatformBundled
     public static readonly NullPlatformBundledPolicyPackAvailability Instance = new();
 
     public ValueTask<bool> IsGloballyActiveAsync(PolicyPack pack, CancellationToken ct) => ValueTask.FromResult(true);
+
+    public void InvalidateCache()
+    {
+    }
 }

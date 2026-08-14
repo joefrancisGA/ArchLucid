@@ -6,4 +6,6 @@ namespace ArchLucid.Core.Governance.PolicyPacks;
 public interface IPlatformBundledPolicyPackAvailability
 {
     ValueTask<bool> IsGloballyActiveAsync(PolicyPack pack, CancellationToken ct);
+
+    void InvalidateCache();
 }

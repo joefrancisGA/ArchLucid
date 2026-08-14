@@ -2,6 +2,7 @@ using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
 
 using Asp.Versioning;
@@ -21,7 +22,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 public sealed class AdminPlatformBundledPolicyPacksController(
     IPlatformBundledPolicyPackRegistryRepository registryRepository,
     PlatformBundledPolicyPackRegistryBootstrapper registryBootstrapper,
-    PlatformBundledPolicyPackAvailability platformAvailability,
+    IPlatformBundledPolicyPackAvailability platformAvailability,
     IAuditService auditService) : ControllerBase
 {
     private readonly IPlatformBundledPolicyPackRegistryRepository _registryRepository =
@@ -30,7 +31,7 @@ public sealed class AdminPlatformBundledPolicyPacksController(
     private readonly PlatformBundledPolicyPackRegistryBootstrapper _registryBootstrapper =
         registryBootstrapper ?? throw new ArgumentNullException(nameof(registryBootstrapper));
 
-    private readonly PlatformBundledPolicyPackAvailability _platformAvailability =
+    private readonly IPlatformBundledPolicyPackAvailability _platformAvailability =
         platformAvailability ?? throw new ArgumentNullException(nameof(platformAvailability));
 
     private readonly IAuditService _auditService =
