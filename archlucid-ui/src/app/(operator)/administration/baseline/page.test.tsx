@@ -73,6 +73,8 @@ describe("BaselineSettingsPage", () => {
 
     expect(await screen.findByTestId("baseline-settings-page-title")).toHaveTextContent(BASELINE_SETTINGS_PAGE_TITLE);
     expect(screen.queryByTestId("baseline-settings-page-breadcrumb")).toBeNull();
+    expect(screen.getByTestId("baseline-settings-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });

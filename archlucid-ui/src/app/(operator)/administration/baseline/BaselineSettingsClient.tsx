@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { BaselineSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -386,6 +387,7 @@ export function BaselineSettingsClient() {
         titleTestId="baseline-settings-page-title"
         actions={<PageContextualHelpButton />}
       />
+      <BaselineSettingsEvidenceOrientationStrip />
       <BaselineRoiVocabularyRail currentSurfaceId="baseline" />
 {demoMode ? (
         <DemoUnavailableNotice

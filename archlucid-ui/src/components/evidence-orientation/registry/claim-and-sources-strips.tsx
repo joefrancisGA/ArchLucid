@@ -102,6 +102,14 @@ import {
 } from "@/lib/baseline-settings-help-evidence-copy";
 import { BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID } from "@/lib/baseline-settings-help-guide-content";
 import {
+  BASELINE_SETTINGS_CLAIM_DISCIPLINE,
+  BASELINE_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  BASELINE_SETTINGS_CLAIM_HEADING_ID,
+  BASELINE_SETTINGS_FOLLOW_UPS_TITLE,
+  BASELINE_SETTINGS_SOURCES,
+  BASELINE_SETTINGS_SOURCES_INTRO,
+} from "@/lib/baseline-settings-evidence-copy";
+import {
   API_KEYS_HELP_CLAIM_DISCIPLINE,
   API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING,
   API_KEYS_HELP_FOLLOW_UPS_TITLE,
@@ -967,6 +975,25 @@ export function StandardsRulesHelpEvidenceOrientationStrip(
 export type BaselineSettingsHelpEvidenceOrientationStripProps = {
   readonly readingBodyClassName?: string;
 };
+
+export function BaselineSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="baseline-settings"
+      claim={BASELINE_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={BASELINE_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={BASELINE_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={BASELINE_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={BASELINE_SETTINGS_SOURCES_INTRO}
+      sources={BASELINE_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
 
 export function BaselineSettingsHelpEvidenceOrientationStrip(
   props: BaselineSettingsHelpEvidenceOrientationStripProps = {},

@@ -5,6 +5,12 @@ export const BASELINE_SETTINGS_CANONICAL_PATH = "/administration/baseline" as co
 
 export const BASELINE_SETTINGS_HELP_TOPIC_LABEL = "How baseline settings work";
 
+export const BASELINE_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const BASELINE_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const BASELINE_SETTINGS_CLAIM_HEADING_ID = "baseline-settings-claim-discipline-heading" as const;
+
 export const BASELINE_SETTINGS_CLAIM_DISCIPLINE =
   "This Baseline settings page captures workspace ROI measurement anchors - it is not a sealed-review diligence Sources package, financial reporting. Open Pilot ROI model help, Architecture scorecard, or Audit when you need methodology or live packages.";
 
