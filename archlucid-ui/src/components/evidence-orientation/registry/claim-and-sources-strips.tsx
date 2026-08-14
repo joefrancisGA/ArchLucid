@@ -337,6 +337,11 @@ import {
   ADMIN_HEALTH_SOURCES_INTRO,
 } from "@/lib/admin-health-evidence-copy";
 import {
+  ADMIN_ITSM_CONNECTORS_FOLLOW_UPS_TITLE,
+  ADMIN_ITSM_CONNECTORS_SOURCES,
+  ADMIN_ITSM_CONNECTORS_SOURCES_INTRO,
+} from "@/lib/admin-itsm-connectors-evidence-copy";
+import {
   DEMO_READINESS_CLAIM_DISCIPLINE,
   DEMO_READINESS_CLAIM_DISCIPLINE_HEADING,
   DEMO_READINESS_CLAIM_HEADING_ID,
@@ -990,6 +995,21 @@ export function IntegrationEventsDlqEvidenceOrientationStrip(): React.JSX.Elemen
       sourcesTitle={INTEGRATION_EVENTS_DLQ_FOLLOW_UPS_TITLE}
       sourcesIntro={INTEGRATION_EVENTS_DLQ_SOURCES_INTRO}
       sources={INTEGRATION_EVENTS_DLQ_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function AdminItsmConnectorsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="admin-itsm-connectors"
+      claimElement="div"
+      sourcesTitle={ADMIN_ITSM_CONNECTORS_FOLLOW_UPS_TITLE}
+      sourcesIntro={ADMIN_ITSM_CONNECTORS_SOURCES_INTRO}
+      sources={ADMIN_ITSM_CONNECTORS_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"

@@ -10,6 +10,7 @@ import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/it
 import { ItsmConnectorsFindingTicketVocabularyRail } from "@/components/itsm/ItsmConnectorsFindingTicketVocabularyRail";
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { AdminItsmConnectorsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -114,6 +115,8 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
         }
         data-testid="admin-itsm-connectors-page-heading"
       />
+
+      <AdminItsmConnectorsEvidenceOrientationStrip />
 
       <ItsmConnectorsBuyerJiraServicenowVocabularyRail currentSurfaceId="itsm-connectors" />
 
