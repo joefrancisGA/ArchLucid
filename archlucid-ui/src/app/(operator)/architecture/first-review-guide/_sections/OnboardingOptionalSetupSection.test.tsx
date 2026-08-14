@@ -133,7 +133,7 @@ describe("OnboardingOptionalSetupSection", () => {
     render(<OnboardingOptionalSetupSection />);
 
     expect(screen.getByTestId("onboarding-optional-setup-deep-link-loading")).toBeInTheDocument();
-    expect(screen.getByTestId("onboarding-optional-setup-deep-link-loading")).toHaveAttribute(
+    expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE })).toHaveAttribute(
       "id",
       ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
     );
@@ -152,5 +152,14 @@ describe("OnboardingOptionalSetupSection", () => {
     render(<OnboardingOptionalSetupSection />);
 
     expect(screen.queryByTestId("onboarding-optional-setup-deep-link-loading")).not.toBeInTheDocument();
+  });
+
+  it("respects dismissed optional setup on the first paint when the finish-setup hash is inactive", () => {
+    window.localStorage.setItem("archlucid.finishSetupWizard.completed.v1", "1");
+
+    render(<OnboardingOptionalSetupSection />);
+
+    expect(screen.queryByTestId("onboarding-optional-setup")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("onboarding-optional-setup-delegation")).not.toBeInTheDocument();
   });
 });

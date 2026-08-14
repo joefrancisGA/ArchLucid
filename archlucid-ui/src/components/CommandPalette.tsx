@@ -29,7 +29,7 @@ import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";
 import { scopeOperatorShellHrefSet, scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
 import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
-import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
+import { COMMAND_PALETTE_CURATED_TASKS, commandPaletteNavVisibilityHref } from "@/lib/command-palette-curated-tasks";
 import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isSponsorDashboardPath } from "@/lib/sponsor-dashboard-route";
@@ -98,13 +98,7 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
 }
 
 function curatedPaletteVisibilityHref(href: string): string {
-  const i = href.indexOf("?");
-
-  if (i === -1) {
-    return href;
-  }
-
-  return href.slice(0, i);
+  return commandPaletteNavVisibilityHref(href);
 }
 
 function CommandPaletteDocumentationSearch({

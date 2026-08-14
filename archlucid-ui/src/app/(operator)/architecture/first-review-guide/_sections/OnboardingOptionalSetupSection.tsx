@@ -50,17 +50,14 @@ function readOptionalSetupDeepLinkActive(): boolean {
 /** Collapsed-by-default optional workspace setup — secondary to the first-review walkthrough. */
 export function OnboardingOptionalSetupSection() {
   const { phase, context } = useFinishSetupReadinessContext();
-  const [dismissed, setDismissed] = useState(false);
-  const [deepLinkActive, setDeepLinkActive] = useState(false);
+  const [dismissed, setDismissed] = useState(readOptionalSetupDismissed);
+  const [deepLinkActive, setDeepLinkActive] = useState(readOptionalSetupDeepLinkActive);
 
   useEffect(() => {
-    setDismissed(readOptionalSetupDismissed());
-
     const syncDeepLink = () => {
       setDeepLinkActive(readOptionalSetupDeepLinkActive());
     };
 
-    syncDeepLink();
     window.addEventListener("hashchange", syncDeepLink);
 
     return () => {
@@ -91,13 +88,14 @@ export function OnboardingOptionalSetupSection() {
 
     return (
       <section
-        id={ONBOARDING_OPTIONAL_SETUP_HEADING_ID}
         aria-labelledby={ONBOARDING_OPTIONAL_SETUP_HEADING_ID}
         aria-busy="true"
         className="scroll-mt-24 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800"
         data-testid="onboarding-optional-setup-deep-link-loading"
       >
-        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE}</h2>
+        <h2 id={ONBOARDING_OPTIONAL_SETUP_HEADING_ID} className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE}
+        </h2>
         <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>Loading workspace setup…</p>
       </section>
     );
