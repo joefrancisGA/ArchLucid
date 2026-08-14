@@ -32,6 +32,8 @@ export type EvidenceOrientationClaimCalloutProps = {
   readonly heading?: EvidenceOrientationCalloutHeading;
   /** Optional body scale override — help strips pass {@link HELP_PAGE_LAYOUT.readingBody} for strip parity. */
   readonly bodyClassName?: string;
+  /** Optional heading scale — help specialty guides pass sectionTitle so TOC h2s match page sections. */
+  readonly headingClassName?: string;
   /** Additional content below the body inside the callout, such as a "not this" bullet list. */
   readonly children?: ReactNode;
 };
@@ -44,6 +46,7 @@ export function EvidenceOrientationClaimCallout({
   element = "aside",
   heading,
   bodyClassName,
+  headingClassName,
   children,
 }: EvidenceOrientationClaimCalloutProps): React.JSX.Element {
   const CalloutElement = element;
@@ -54,7 +57,11 @@ export function EvidenceOrientationClaimCallout({
       {heading === undefined ? null : (
         <h2
           id={heading.id}
-          className={heading.visuallyHidden === true ? "sr-only" : EVIDENCE_ORIENTATION_HEADING_CLASS}
+          className={
+            heading.visuallyHidden === true
+              ? "sr-only"
+              : (headingClassName ?? EVIDENCE_ORIENTATION_HEADING_CLASS)
+          }
         >
           {heading.text}
         </h2>

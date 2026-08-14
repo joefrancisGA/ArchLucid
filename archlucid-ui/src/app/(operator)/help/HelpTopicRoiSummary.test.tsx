@@ -15,9 +15,17 @@ import {
   ROI_SUMMARY_HELP_SOURCES,
 } from "@/lib/roi-summary-help-evidence-copy";
 import {
-  ROI_SUMMARY_HELP_BREADCRUMB_TOPIC_TITLE,
+  HOURS_PER_CRITICAL,
+  HOURS_PER_HIGH,
+  HOURS_PER_MEDIUM,
+  HOURS_PER_PRECOMMIT_BLOCK,
+  ROI_HOURS_COEFFICIENTS_PROVENANCE,
+} from "@/lib/roi-assumptions";
+import {
+  ROI_SUMMARY_HELP_DATA_NEEDS_ITEMS,
   ROI_SUMMARY_HELP_GUIDE_HEADINGS,
-  ROI_SUMMARY_HELP_METHODOLOGY_UNITS,
+  ROI_SUMMARY_HELP_HOW_TO_READ_STEPS,
+  ROI_SUMMARY_HELP_METHODOLOGY_COEFFICIENT_ROWS,
   ROI_SUMMARY_HELP_NEARBY_SURFACES_SECTION_TITLE,
   ROI_SUMMARY_HELP_OVERVIEW,
   ROI_SUMMARY_HELP_PAGE_SUBTITLE,
@@ -30,7 +38,9 @@ import {
 } from "@/lib/roi-summary-help-guide-content";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
+import { formatHelpTopicApplicabilityMetadata } from "@/lib/help/help-topic-applicability-metadata";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { roiSummaryMethodologyFormula } from "@/lib/roi-summary-sponsor-presentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpRoiSummaryGuideView", () => {
@@ -55,6 +65,9 @@ describe("HelpRoiSummaryGuideView", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: ROI_SUMMARY_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(ROI_SUMMARY_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
+      formatHelpTopicApplicabilityMetadata(entry)!,
+    );
 
     const overview = screen.getByTestId("help-roi-summary-overview");
     const followUpsHeading = screen.getByRole("heading", { name: ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE });
@@ -78,22 +91,23 @@ describe("HelpRoiSummaryGuideView", () => {
 
     const methodology = screen.getByTestId("help-roi-summary-methodology");
     const formula = screen.getByTestId("help-roi-summary-methodology-formula");
-    const units = screen.getByTestId("help-roi-summary-methodology-units");
+    const coefficients = screen.getByTestId("help-roi-summary-methodology-coefficients");
 
     expect(methodology).toBeInTheDocument();
-    expect(formula).toHaveTextContent(/\d+×Critical/);
-    expect(units).toHaveTextContent(ROI_SUMMARY_HELP_METHODOLOGY_UNITS);
-    expect(formula.compareDocumentPosition(units) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(formula).toHaveTextContent(roiSummaryMethodologyFormula());
+    expect(coefficients).toBeInTheDocument();
+    expect(formula.compareDocumentPosition(coefficients) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(formula.className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(formula.className).not.toContain("font-mono");
+    expect(coefficients.className).toContain(HELP_PAGE_LAYOUT.table);
 
     expect(screen.getByRole("link", { name: "Review pilot ROI measurement methodology" })).toHaveAttribute(
       "href",
       SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF,
     );
     expect(screen.getByRole("heading", { name: ROI_SUMMARY_HELP_NEARBY_SURFACES_SECTION_TITLE })).toBeInTheDocument();
-    expect(screen.getByTestId("scorecard-roi-vocabulary")).toBeInTheDocument();
-    expect(screen.getByTestId("baseline-roi-vocabulary")).toBeInTheDocument();
+    expect(screen.getByTestId("scorecard-roi-vocabulary")).toHaveAttribute("data-variant", "full");
+    expect(screen.getByTestId("baseline-roi-vocabulary")).toHaveAttribute("data-variant", "full");
 
     const siblingReports = screen.getByTestId("help-roi-summary-sibling-reports");
     for (const report of ROI_SUMMARY_HELP_SIBLING_REPORTS) {
@@ -120,8 +134,11 @@ describe("HelpRoiSummaryGuideView", () => {
       "id",
       ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
     );
+    expect(screen.getByRole("heading", { name: ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING }).className).toContain(
+      OPERATOR_TYPOGRAPHY.sectionTitle,
+    );
     expect(screen.getByRole("heading", { name: ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
-    expect(claimDiscipline.compareDocumentPosition(siblingReports) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(siblingReports.compareDocumentPosition(claimDiscipline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const followUps = screen.getByTestId("help-roi-summary-sources");
     for (const source of ROI_SUMMARY_HELP_SOURCES) {
@@ -150,20 +167,20 @@ describe("HelpRoiSummaryGuideView", () => {
     expect(screen.getByTestId("help-roi-summary-start-here-helper")).toHaveTextContent(
       ROI_SUMMARY_HELP_START_HERE_HELPER,
     );
+    expect(
+      screen.getByTestId("help-roi-summary-start-here-helper").compareDocumentPosition(
+        within(actionPanel).getByRole("link", { name: ROI_SUMMARY_HELP_PRIMARY_ACTION.label }),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
-  it("renders breadcrumb, readingBody, how-to-read steps, and TOC rail", () => {
+  it("renders readingBody, how-to-read steps, and TOC rail", () => {
     if (entry === undefined) {
       throw new Error("Expected ROI summary documentation entry.");
     }
 
     render(<HelpRoiSummaryGuideView entry={entry} />);
 
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
-      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-    );
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(ROI_SUMMARY_HELP_BREADCRUMB_TOPIC_TITLE);
     expect(screen.getByTestId("help-roi-summary-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-roi-summary-report-items").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-roi-summary-data-needs").className).toContain(HELP_PAGE_LAYOUT.readingBody);
@@ -173,6 +190,111 @@ describe("HelpRoiSummaryGuideView", () => {
 
     for (const heading of ROI_SUMMARY_HELP_GUIDE_HEADINGS) {
       expect(screen.getByRole("heading", { name: heading.title })).toHaveAttribute("id", heading.id);
+    }
+
+    const orderedHeadings = ROI_SUMMARY_HELP_GUIDE_HEADINGS.map((heading) =>
+      screen.getByRole("heading", { name: heading.title }),
+    );
+
+    for (let index = 0; index < orderedHeadings.length - 1; index += 1) {
+      expect(
+        orderedHeadings[index].compareDocumentPosition(orderedHeadings[index + 1]) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    }
+  });
+
+  it("points loaded hourly cost to the ROI summary page and discloses local-only storage", () => {
+    if (entry === undefined) {
+      throw new Error("Expected ROI summary documentation entry.");
+    }
+
+    render(<HelpRoiSummaryGuideView entry={entry} />);
+
+    expect(ROI_SUMMARY_HELP_HOW_TO_READ_STEPS[2]).toMatch(/ROI summary page/i);
+    expect(ROI_SUMMARY_HELP_HOW_TO_READ_STEPS[2]).not.toMatch(/baseline settings/i);
+
+    const stepper = screen.getByTestId("help-roi-summary-how-stepper");
+    expect(within(stepper).getByText(ROI_SUMMARY_HELP_HOW_TO_READ_STEPS[2])).toBeInTheDocument();
+
+    const dataNeeds = screen.getByTestId("help-roi-summary-data-needs");
+    for (const item of ROI_SUMMARY_HELP_DATA_NEEDS_ITEMS) {
+      expect(within(dataNeeds).getByText(item)).toBeInTheDocument();
+    }
+
+    expect(dataNeeds).toHaveTextContent(/browser only/i);
+    expect(dataNeeds.textContent).not.toMatch(/baseline settings.*loaded hourly cost/i);
+  });
+
+  it("renders basis-of-estimate values from roi-assumptions constants", () => {
+    if (entry === undefined) {
+      throw new Error("Expected ROI summary documentation entry.");
+    }
+
+    render(<HelpRoiSummaryGuideView entry={entry} />);
+
+    const methodology = screen.getByTestId("help-roi-summary-methodology");
+    expect(methodology).toHaveTextContent(ROI_HOURS_COEFFICIENTS_PROVENANCE);
+    const coefficients = screen.getByTestId("help-roi-summary-methodology-coefficients");
+    expect(within(coefficients).getByText(String(HOURS_PER_CRITICAL))).toBeInTheDocument();
+    expect(within(coefficients).getByText(String(HOURS_PER_HIGH))).toBeInTheDocument();
+    expect(within(coefficients).getByText(String(HOURS_PER_MEDIUM))).toBeInTheDocument();
+    expect(within(coefficients).getByText(String(HOURS_PER_PRECOMMIT_BLOCK))).toBeInTheDocument();
+    for (const row of ROI_SUMMARY_HELP_METHODOLOGY_COEFFICIENT_ROWS) {
+      expect(within(coefficients).getByText(String(row.hours))).toBeInTheDocument();
+    }
+  });
+
+  it("does not duplicate destination hrefs or accessible names on the guide", () => {
+    if (entry === undefined) {
+      throw new Error("Expected ROI summary documentation entry.");
+    }
+
+    render(<HelpRoiSummaryGuideView entry={entry} />);
+
+    const guide = screen.getByTestId("help-roi-summary-guide");
+    const links = within(guide).getAllByRole("link");
+    const hrefCounts = new Map<string, number>();
+    const nameToHref = new Map<string, string>();
+
+    for (const link of links) {
+      const href = link.getAttribute("href");
+
+      if (href !== null && href.length > 0 && !href.startsWith("#")) {
+        hrefCounts.set(href, (hrefCounts.get(href) ?? 0) + 1);
+      }
+
+      const name = link.textContent?.trim() ?? "";
+
+      if (name.length === 0) {
+        continue;
+      }
+
+      const priorHref = nameToHref.get(name);
+
+      if (priorHref !== undefined) {
+        expect(priorHref).toBe(href);
+      } else {
+        nameToHref.set(name, href ?? "");
+      }
+    }
+
+    for (const [href, count] of hrefCounts.entries()) {
+      expect(count, `duplicate href ${href}`).toBe(1);
+    }
+  });
+
+  it("does not use w-full on sibling report buttons", () => {
+    if (entry === undefined) {
+      throw new Error("Expected ROI summary documentation entry.");
+    }
+
+    render(<HelpRoiSummaryGuideView entry={entry} />);
+
+    const siblingReports = screen.getByTestId("help-roi-summary-sibling-reports");
+
+    for (const link of within(siblingReports).getAllByRole("link")) {
+      expect(link.className.split(/\s+/)).not.toContain("w-full");
     }
   });
 });

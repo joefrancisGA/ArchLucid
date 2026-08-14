@@ -32,6 +32,8 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
   readonly sourcesLayout?: EvidenceOrientationSourcesLayout;
   /** Optional body scale for claim + sources list — help specialty guides pass readingBody. */
   readonly readingBodyClassName?: string;
+  /** Optional heading scale for claim + sources h2 bands — help specialty guides pass sectionTitle. */
+  readonly headingClassName?: string;
   readonly stripTestId?: string;
 };
 
@@ -56,6 +58,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   sourcesTestId,
   sourcesLayout,
   readingBodyClassName,
+  headingClassName,
   stripTestId,
 }: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element {
   return (
@@ -66,6 +69,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         style={claimStyle}
         element={claimElement}
         bodyClassName={readingBodyClassName}
+        headingClassName={headingClassName}
         heading={
           claimHeading === undefined
             ? undefined
@@ -85,6 +89,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         style={sourcesStyle}
         layout={sourcesLayout}
         listClassName={readingBodyClassName}
+        headingClassName={headingClassName}
       />
     </EvidenceOrientationStripShell>
   );

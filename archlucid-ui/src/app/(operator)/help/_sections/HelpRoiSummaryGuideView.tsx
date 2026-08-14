@@ -9,8 +9,10 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  CTA_WIDTH,
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
@@ -28,9 +30,9 @@ import {
   ROI_SUMMARY_HELP_GUIDE_HEADINGS,
   ROI_SUMMARY_HELP_HOW_TO_READ_STEPS,
   ROI_SUMMARY_HELP_METHODOLOGY_BODY,
+  ROI_SUMMARY_HELP_METHODOLOGY_COEFFICIENT_ROWS,
   ROI_SUMMARY_HELP_METHODOLOGY_FORMULA,
   ROI_SUMMARY_HELP_METHODOLOGY_SECTION_TITLE,
-  ROI_SUMMARY_HELP_METHODOLOGY_UNITS,
   ROI_SUMMARY_HELP_NEARBY_SURFACES_SECTION_TITLE,
   ROI_SUMMARY_HELP_OVERVIEW,
   ROI_SUMMARY_HELP_PAGE_SUBTITLE,
@@ -96,7 +98,6 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={ROI_SUMMARY_HELP_BREADCRUMB_TOPIC_TITLE}
         title={ROI_SUMMARY_HELP_PAGE_TITLE}
         titleTestId="help-roi-summary-page-title"
         subtitle={ROI_SUMMARY_HELP_PAGE_SUBTITLE}
@@ -119,15 +120,15 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={ROI_SUMMARY_HELP_PRIMARY_ACTION.href}>{ROI_SUMMARY_HELP_PRIMARY_ACTION.label}</Link>
-              </Button>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="help-roi-summary-start-here-helper"
               >
                 {ROI_SUMMARY_HELP_START_HERE_HELPER}
               </p>
+              <Button asChild size="sm" variant="primary">
+                <Link href={ROI_SUMMARY_HELP_PRIMARY_ACTION.href}>{ROI_SUMMARY_HELP_PRIMARY_ACTION.label}</Link>
+              </Button>
             </CardContent>
           </Card>
 
@@ -190,12 +191,36 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
               >
                 {ROI_SUMMARY_HELP_METHODOLOGY_FORMULA}
               </p>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-roi-summary-methodology-units"
+              <table
+                className={HELP_PAGE_LAYOUT.table}
+                data-testid="help-roi-summary-methodology-coefficients"
               >
-                {ROI_SUMMARY_HELP_METHODOLOGY_UNITS}
-              </p>
+                <caption className="sr-only">Hours per finding severity and governance block</caption>
+                <thead>
+                  <tr>
+                    <th scope="col" className="text-left font-medium text-al-text-primary">
+                      Unit
+                    </th>
+                    <th scope="col" className="text-left font-medium text-al-text-primary">
+                      Hours
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ROI_SUMMARY_HELP_METHODOLOGY_COEFFICIENT_ROWS.map((row) => (
+                    <tr key={row.id}>
+                      <td className="text-al-text-primary">
+                        {row.severity === undefined ? (
+                          row.label
+                        ) : (
+                          <SeverityTag severity={row.severity} />
+                        )}
+                      </td>
+                      <td className="text-al-text-primary">{row.hours}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {ROI_SUMMARY_HELP_DIRECTIONAL_DISCLAIMER}
               </p>
@@ -205,10 +230,6 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
             </div>
           </section>
 
-          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-            <RoiSummaryHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-          </div>
-
           <section
             aria-labelledby="how-roi-summary-relates-to-nearby-surfaces"
             className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
@@ -216,8 +237,8 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
             <HelpSectionHeading id="how-roi-summary-relates-to-nearby-surfaces">
               {ROI_SUMMARY_HELP_NEARBY_SURFACES_SECTION_TITLE}
             </HelpSectionHeading>
-            <ScorecardRoiVocabularyRail currentSurfaceId="roi-summary" variant="compact" />
-            <BaselineRoiVocabularyRail currentSurfaceId="roi-summary" variant="compact" />
+            <ScorecardRoiVocabularyRail currentSurfaceId="roi-summary" variant="full" />
+            <BaselineRoiVocabularyRail currentSurfaceId="roi-summary" variant="full" />
           </section>
 
           <section
@@ -235,7 +256,7 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
                     <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{report.description}</p>
                   </CardHeader>
                   <CardContent className={OPERATOR_CARD.content}>
-                    <Button asChild className="w-full" size="sm" variant="outline">
+                    <Button asChild className={CTA_WIDTH.content} size="sm" variant="outline">
                       <Link href={report.href}>{report.actionLabel}</Link>
                     </Button>
                   </CardContent>
@@ -243,6 +264,10 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
               ))}
             </div>
           </section>
+
+          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+            <RoiSummaryHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          </div>
         </div>
 
         <HelpTopicTableOfContents headings={ROI_SUMMARY_HELP_GUIDE_HEADINGS} enableScrollSpy />
