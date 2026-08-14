@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   RETIRED_PILOT_OUTCOMES_PATH,
+  RETIRED_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
   SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_SECTION_LABEL,
+  SPONSOR_REPORT_SPONSOR_SUMMARY_PATH,
   isSponsorReportOutcomesSurface,
 } from "@/lib/sponsor-report-navigation";
 
@@ -34,6 +36,13 @@ describe("sponsor-report-navigation", () => {
   it("treats the merged-away pilot outcomes route as retired, not a live outcomes surface", () => {
     expect(RETIRED_PILOT_OUTCOMES_PATH).toBe("/insights/pilot-outcomes");
     expect(isSponsorReportOutcomesSurface(RETIRED_PILOT_OUTCOMES_PATH)).toBe(false);
+  });
+
+  it("keeps retired sponsor-summary and value-report ROI bookmarks distinct from live surfaces", () => {
+    expect(SPONSOR_REPORT_SPONSOR_SUMMARY_PATH).toBe("/insights/sponsor-summary");
+    expect(RETIRED_ROI_SUMMARY_PATH).toBe("/value-report/roi");
+    expect(isSponsorReportOutcomesSurface(SPONSOR_REPORT_SPONSOR_SUMMARY_PATH)).toBe(false);
+    expect(isSponsorReportOutcomesSurface(RETIRED_ROI_SUMMARY_PATH)).toBe(false);
   });
 
   it("keeps the page title distinct from the nav section label", () => {

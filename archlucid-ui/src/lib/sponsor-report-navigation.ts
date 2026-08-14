@@ -34,6 +34,15 @@ export const LEGACY_SPONSOR_REPORT_ROOT_PATH = "/sponsor-report";
 /** @deprecated Legacy path before sponsor-report canonicalization. */
 export const SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH = "/insights/executive-summary";
 
+/** @deprecated Legacy bookmark before sponsor-report canonicalization — use {@link SPONSOR_REPORT_PATH}. */
+export const SPONSOR_REPORT_SPONSOR_SUMMARY_PATH = "/insights/sponsor-summary";
+
+/**
+ * Hard-retired route. Former `/value-report/roi` bookmark (IA batch 4) — canonicalizes to
+ * {@link SPONSOR_REPORT_ROI_SUMMARY_PATH} for help and orientation lookups. Never link to it.
+ */
+export const RETIRED_ROI_SUMMARY_PATH = "/value-report/roi";
+
 /** Architecture scorecard lives under Insights; kept for Outcomes tab strip consumers. */
 export const SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH = ARCHITECTURE_SCORECARD_PATH;
 
