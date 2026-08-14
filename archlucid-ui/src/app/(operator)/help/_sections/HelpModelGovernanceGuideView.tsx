@@ -125,7 +125,15 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
             >
               {MODEL_GOVERNANCE_HELP_FEATURE_ITEMS.map((item) => (
                 <div key={item.label}>
-                  <dt className="font-medium text-al-text-primary">{item.label}</dt>
+                  <dt className="font-medium text-al-text-primary">
+                    {item.href === undefined ? (
+                      item.label
+                    ) : (
+                      <Link className={OPERATOR_LINK.nav} href={item.href}>
+                        {item.label}
+                      </Link>
+                    )}
+                  </dt>
                   <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
                 </div>
               ))}

@@ -88,16 +88,21 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "caiq-sig-response",
   "choose-your-next-step",
   "comparison-replay",
+  "contact-support",
   "procurement",
   "evidence-trail",
 ] as const;
 
-const HELP_MARKDOWN_WITH_LAYOUT_TOPIC_SLUGS = new Set<string>([
+/** Buyer topics rendered through `HelpTopicMarkdownView` with evidence/layout strips. */
+export const HELP_MARKDOWN_WITH_LAYOUT_TOPIC_SLUGS = [
   "security-trust",
-  "contact-support",
   "subprocessors",
   "scope",
-]);
+] as const;
+
+const HELP_MARKDOWN_WITH_LAYOUT_TOPIC_SLUG_SET = new Set<string>(
+  HELP_MARKDOWN_WITH_LAYOUT_TOPIC_SLUGS,
+);
 
 const HELP_APP_GUIDED_TOPIC_SLUG_SET = new Set<string>(HELP_APP_GUIDED_TOPIC_SLUGS);
 
@@ -116,7 +121,7 @@ export function resolveHelpTopicContentKind(
     return "app-guided";
   }
 
-  if (HELP_MARKDOWN_WITH_LAYOUT_TOPIC_SLUGS.has(entry.slug)) {
+  if (HELP_MARKDOWN_WITH_LAYOUT_TOPIC_SLUG_SET.has(entry.slug)) {
     return "markdown-with-layout";
   }
 

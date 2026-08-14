@@ -122,10 +122,12 @@ import {
 } from "@/lib/jira-integration-help-evidence-copy";
 import {
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE,
+  MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING,
   MODEL_GOVERNANCE_HELP_FOLLOW_UPS_TITLE,
   MODEL_GOVERNANCE_HELP_SOURCES,
   MODEL_GOVERNANCE_HELP_SOURCES_INTRO,
 } from "@/lib/model-governance-help-evidence-copy";
+import { MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID } from "@/lib/model-governance-help-guide-content";
 import {
   SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   SERVICENOW_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
@@ -818,6 +820,8 @@ export function ModelGovernanceHelpEvidenceOrientationStrip(
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-model-governance"
       claim={MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE}
+      claimHeading={MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={MODEL_GOVERNANCE_HELP_FOLLOW_UPS_TITLE}

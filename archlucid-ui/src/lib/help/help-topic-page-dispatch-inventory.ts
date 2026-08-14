@@ -9,21 +9,21 @@ export type HelpTopicPageDispatchInventoryDiff = {
   readonly missingFromInventory: readonly string[];
 };
 
-/** Slugs wired in `renderHelpTopicView` before `assertHelpTopicCatchAllFallthroughAllowed` (TB-1603). */
-export function parseHelpTopicPageDispatchSlugs(pageSource: string): ReadonlySet<string> {
-  const renderStart = pageSource.indexOf("function renderHelpTopicView");
+/** Slugs wired in `resolveHelpTopicView` before `assertHelpTopicCatchAllFallthroughAllowed` (TB-2238). */
+export function parseHelpTopicViewResolverSlugs(resolverSource: string): ReadonlySet<string> {
+  const renderStart = resolverSource.indexOf("export function resolveHelpTopicView");
 
   if (renderStart < 0) {
-    throw new Error("help/[...topic]/page.tsx is missing renderHelpTopicView");
+    throw new Error("help-topic-view-resolver.tsx is missing resolveHelpTopicView");
   }
 
-  const assertIndex = pageSource.indexOf("assertHelpTopicCatchAllFallthroughAllowed", renderStart);
+  const assertIndex = resolverSource.indexOf("assertHelpTopicCatchAllFallthroughAllowed", renderStart);
 
   if (assertIndex < 0) {
-    throw new Error("help/[...topic]/page.tsx is missing assertHelpTopicCatchAllFallthroughAllowed guard");
+    throw new Error("help-topic-view-resolver.tsx is missing assertHelpTopicCatchAllFallthroughAllowed guard");
   }
 
-  const dispatchBody = pageSource.slice(renderStart, assertIndex);
+  const dispatchBody = resolverSource.slice(renderStart, assertIndex);
   const slugs = new Set<string>();
   const slugPattern = /loaded\.entry\.slug === "([^"]+)"/g;
 

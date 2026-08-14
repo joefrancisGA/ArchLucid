@@ -1,4 +1,6 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { AI_USAGE_HELP_CANONICAL_PATH } from "@/lib/ai-usage-help-evidence-copy";
+import { MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/model-governance-help-evidence-copy";
 import {
   MODEL_GOVERNANCE_HELP_TOPIC_LABEL,
   MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH,
@@ -34,7 +36,10 @@ export const MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_EMBEDDINGS =
 export type ModelGovernanceHelpItem = {
   readonly label: string;
   readonly detail: string;
+  readonly href?: string;
 };
+
+export const MODEL_GOVERNANCE_HELP_AI_USAGE_HREF = AI_USAGE_HELP_CANONICAL_PATH;
 
 export const MODEL_GOVERNANCE_HELP_FEATURE_ITEMS: readonly ModelGovernanceHelpItem[] = [
   {
@@ -52,6 +57,7 @@ export const MODEL_GOVERNANCE_HELP_FEATURE_ITEMS: readonly ModelGovernanceHelpIt
   {
     label: "Spend signals",
     detail: "Open AI usage when profile changes need cost monitoring or budget follow-up.",
+    href: MODEL_GOVERNANCE_HELP_AI_USAGE_HREF,
   },
 ] as const;
 
@@ -61,10 +67,17 @@ export const MODEL_GOVERNANCE_HELP_HOW_TO_READ_STEPS = [
   "Open AI usage or billing help when spend signals need attention after profile changes.",
 ] as const;
 
+export const MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID = "help-model-governance-claim-discipline-heading" as const;
+
 export const MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "data-boundary", title: "Data boundary" },
   { level: 2, id: "what-model-governance-controls", title: "What model governance controls" },
   { level: 2, id: "how-model-governance-works", title: MODEL_GOVERNANCE_HELP_TOPIC_LABEL },
+  {
+    level: 2,
+    id: MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID,
+    title: MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 

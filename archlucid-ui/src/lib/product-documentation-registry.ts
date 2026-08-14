@@ -711,7 +711,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "notifications",
     title: "Notifications",
-    summary: "Channel launcher for digests, alerts, alert rules, Teams, and Slack delivery status.",
+    summary: "Channel launcher for digests, alerts, alert rules, Teams, and Slack — routes to where each destination configures.",
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",

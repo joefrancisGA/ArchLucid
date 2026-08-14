@@ -10,6 +10,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const MODEL_GOVERNANCE_HELP_CANONICAL_PATH = "/help/model-governance" as const;
 
+export const MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING = "What model governance is not";
+
 export const MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE =
   "This guide explains workspace execution profiles and governed model aliases — it is not a sealed-review diligence Sources package.";
 

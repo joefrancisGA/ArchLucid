@@ -90,9 +90,12 @@ describe("model-governance help negation drift guard", () => {
     expect(MODEL_GOVERNANCE_HELP_START_HERE_CARD_TITLE).not.toBe(MODEL_GOVERNANCE_HELP_PRIMARY_ACTION.label);
   });
 
-  it("lists four guide headings so the topic rail renders at xl", () => {
-    expect(MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS).toHaveLength(4);
+  it("lists five guide headings so the topic rail renders at xl", () => {
+    expect(MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS).toHaveLength(5);
     expect(MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS[0]?.id).toBe("data-boundary");
+    expect(MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS.some((heading) => heading.id === "help-model-governance-claim-discipline-heading")).toBe(
+      true,
+    );
   });
 
   it("lists model-governance help sources with unique hrefs and distinct labels", () => {
