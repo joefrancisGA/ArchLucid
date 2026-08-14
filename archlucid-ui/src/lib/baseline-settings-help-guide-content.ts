@@ -1,4 +1,5 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/baseline-settings-help-evidence-copy";
 import { BASELINE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/baseline-settings-evidence-copy";
 import {
   BASELINE_SETTINGS_CONSERVATIVE_DEFAULTS_NOTE,
@@ -73,9 +74,21 @@ export const BASELINE_SETTINGS_HELP_METHODOLOGY_HREF = "/help/sponsor-report#pil
 
 export const BASELINE_SETTINGS_HELP_METHODOLOGY_LABEL = "Read pilot ROI measurement methodology";
 
+export const BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID = "help-baseline-settings-claim-discipline-heading" as const;
+
 export const BASELINE_SETTINGS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-baseline-settings-captures", title: "What baseline settings capture" },
   { level: 2, id: "how-baseline-settings-work", title: BASELINE_SETTINGS_HELP_TOPIC_LABEL },
   { level: 2, id: "baseline-vs-roi-summary", title: BASELINE_SETTINGS_HELP_BASELINE_VS_ROI_TITLE },
+  {
+    level: 2,
+    id: BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID,
+    title: BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
+
+/** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
+export const BASELINE_SETTINGS_HELP_NEGATION_DRIFT_MARKERS = {
+  claimMustNotContain: ["sources package", "sealed-review diligence", "audited financial statement"],
+} as const;

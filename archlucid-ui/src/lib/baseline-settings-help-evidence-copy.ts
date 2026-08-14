@@ -7,8 +7,10 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const BASELINE_SETTINGS_HELP_CANONICAL_PATH = "/help/baseline-settings" as const;
 
+export const BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide is not";
+
 export const BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how baseline anchors feed ROI measurement — it is not a sealed review record or audited financial statement.";
+  "This guide explains how baseline anchors feed architecture scorecard and sponsor-report value estimates — open Pilot ROI measurement or ROI summary help when sponsors need methodology beyond measurement inputs.";
 
 export const BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

@@ -4,7 +4,10 @@ import {
   DECISION_REGISTER_EMPTY_TEACHING_BODY,
   DECISION_REGISTER_EMPTY_TEACHING_HONESTY,
 } from "@/lib/decision-register-empty-teaching";
-import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help-evidence-copy";
+import {
+  DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING,
+  DECISION_REGISTER_HELP_TOPIC_LABEL,
+} from "@/lib/decision-register-help-evidence-copy";
 import {
   DECISION_REGISTER_CATEGORY_LABEL,
   DECISION_REGISTER_CONFIDENCE_BASIS_LABEL,
@@ -100,8 +103,20 @@ export const DECISION_REGISTER_HELP_HOW_TO_READ_STEPS = [
   "Follow findings or audit trail when the decision needs live triage or assurance cites.",
 ] as const;
 
+export const DECISION_REGISTER_HELP_CLAIM_HEADING_ID = "help-decision-register-claim-discipline-heading" as const;
+
 export const DECISION_REGISTER_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-decision-register-shows", title: "What the decision register shows" },
   { level: 2, id: "how-decision-register-works", title: DECISION_REGISTER_HELP_TOPIC_LABEL },
+  {
+    level: 2,
+    id: DECISION_REGISTER_HELP_CLAIM_HEADING_ID,
+    title: DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
+
+/** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
+export const DECISION_REGISTER_HELP_NEGATION_DRIFT_MARKERS = {
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;

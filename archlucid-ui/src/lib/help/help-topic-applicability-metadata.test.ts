@@ -138,16 +138,16 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-13 · integrations slack notifications orientation");
   });
 
-  it("formats teams integration help review provenance", () => {
+  it("formats standards and rules help review provenance", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
         sampleEntry({
-          slug: "teams-integration",
+          slug: "standards-and-rules",
           lastReviewed: "2026-08-13",
-          releaseApplicability: "integrations teams notifications orientation",
+          releaseApplicability: "governance standards and rules orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13 · integrations teams notifications orientation");
+    ).toBe("Last reviewed 2026-08-13 · governance standards and rules orientation");
   });
 
   it("formats model governance help review provenance", () => {

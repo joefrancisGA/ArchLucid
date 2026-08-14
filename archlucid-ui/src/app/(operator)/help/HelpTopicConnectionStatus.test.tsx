@@ -2,12 +2,23 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { HelpConnectionStatusGuideView } from "@/app/(operator)/help/_sections/HelpConnectionStatusGuideView";
-import { CONNECTION_STATUS_HELP_PRIMARY_ACTION } from "@/lib/connection-status-help-guide-content";
+import {
+  CONNECTION_STATUS_HELP_CLAIM_HEADING_ID,
+  CONNECTION_STATUS_HELP_GUIDE_HEADINGS,
+  CONNECTION_STATUS_HELP_PRIMARY_ACTION,
+} from "@/lib/connection-status-help-guide-content";
+import {
+  CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE,
+  CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE_HEADING,
+  CONNECTION_STATUS_HELP_SOURCES,
+} from "@/lib/connection-status-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 vi.mock("@/app/(operator)/help/_sections/HelpConnectionStatusWorkspaceReadinessStrip", () => ({
   HelpConnectionStatusWorkspaceReadinessStrip: () => (
-    <div data-testid="help-connection-status-workspace-readiness-stub" />
+    <section id="help-connection-status-workspace-readiness">
+      <h2 id="help-connection-status-workspace-readiness-heading">This workspace</h2>
+    </section>
   ),
 }));
 
@@ -40,8 +51,23 @@ describe("HelpConnectionStatusGuideView (HCO)", () => {
       "Last reviewed 2026-08-12 · administration connection status orientation",
     );
     expect(screen.queryByText(/Sources package/i)).toBeNull();
+    expect(screen.getByTestId("help-connection-status-claim-discipline").textContent).toContain(
+      CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.getByRole("heading", { name: CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      CONNECTION_STATUS_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.queryByRole("link", { name: CONNECTION_STATUS_HELP_PRIMARY_ACTION.label })).toBe(
       screen.getByTestId("help-connection-status-primary-cta"),
     );
+
+    for (const source of CONNECTION_STATUS_HELP_SOURCES) {
+      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+    }
+
+    for (const heading of CONNECTION_STATUS_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
   });
 });

@@ -52,10 +52,12 @@ import {
 } from "@/lib/roi-summary-help-evidence-copy";
 import {
   BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE,
+  BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING,
   BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE,
   BASELINE_SETTINGS_HELP_SOURCES,
   BASELINE_SETTINGS_HELP_SOURCES_INTRO,
 } from "@/lib/baseline-settings-help-evidence-copy";
+import { BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID } from "@/lib/baseline-settings-help-guide-content";
 import {
   API_KEYS_HELP_CLAIM_DISCIPLINE,
   API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -175,16 +177,20 @@ import {
 } from "@/lib/architecture-scorecard-help-evidence-copy";
 import {
   CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE,
+  CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE_HEADING,
   CONNECTION_STATUS_HELP_FOLLOW_UPS_TITLE,
   CONNECTION_STATUS_HELP_SOURCES,
   CONNECTION_STATUS_HELP_SOURCES_INTRO,
 } from "@/lib/connection-status-help-evidence-copy";
+import { CONNECTION_STATUS_HELP_CLAIM_HEADING_ID } from "@/lib/connection-status-help-guide-content";
 import {
   DECISION_REGISTER_HELP_CLAIM_DISCIPLINE,
+  DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING,
   DECISION_REGISTER_HELP_FOLLOW_UPS_TITLE,
   DECISION_REGISTER_HELP_SOURCES,
   DECISION_REGISTER_HELP_SOURCES_INTRO,
 } from "@/lib/decision-register-help-evidence-copy";
+import { DECISION_REGISTER_HELP_CLAIM_HEADING_ID } from "@/lib/decision-register-help-guide-content";
 import {
   IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE,
   IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -433,11 +439,19 @@ export function ArchitectureScorecardHelpEvidenceOrientationStrip(): React.JSX.E
   );
 }
 
-export function ConnectionStatusHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type ConnectionStatusHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function ConnectionStatusHelpEvidenceOrientationStrip(
+  props: ConnectionStatusHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-connection-status"
       claim={CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={CONNECTION_STATUS_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={CONNECTION_STATUS_HELP_FOLLOW_UPS_TITLE}
@@ -445,6 +459,8 @@ export function ConnectionStatusHelpEvidenceOrientationStrip(): React.JSX.Elemen
       sources={CONNECTION_STATUS_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
@@ -486,6 +502,8 @@ export function BaselineSettingsHelpEvidenceOrientationStrip(
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-baseline-settings"
       claim={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE}
@@ -1034,6 +1052,8 @@ export function DecisionRegisterHelpEvidenceOrientationStrip(
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-decision-register"
       claim={DECISION_REGISTER_HELP_CLAIM_DISCIPLINE}
+      claimHeading={DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={DECISION_REGISTER_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={DECISION_REGISTER_HELP_FOLLOW_UPS_TITLE}

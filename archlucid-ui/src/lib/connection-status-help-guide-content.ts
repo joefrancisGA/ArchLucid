@@ -1,4 +1,5 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/connection-status-help-evidence-copy";
 import { CONNECTION_STATUS_HELP_TOPIC_LABEL } from "@/lib/connection-status-evidence-copy";
 import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
 import { CONNECTOR_PURPOSE_GROUPS } from "@/lib/connector-operations-present";
@@ -13,7 +14,7 @@ export const CONNECTION_STATUS_HELP_PAGE_SUBTITLE =
   "See which workspace integrations are ready, recommended, or optional before reviews depend on them.";
 
 export const CONNECTION_STATUS_HELP_OVERVIEW =
-  "Connection status is the operator readiness dashboard for connectors, webhooks, and cloud links. The live page opens with a summary strip of aggregate counts, then a connector inventory table grouped by purpose — not as a sealed-review diligence package.";
+  "Connection status is the operator readiness dashboard for connectors, webhooks, and cloud links. The live page opens with a summary strip of aggregate counts, then a connector inventory table grouped by purpose.";
 
 export const CONNECTION_STATUS_HELP_PRIMARY_ACTION = {
   label: "Open connection status",
@@ -57,10 +58,23 @@ export const CONNECTION_STATUS_HELP_METHODOLOGY_HREF = inAppHelpHref("integratio
 
 export const CONNECTION_STATUS_HELP_METHODOLOGY_LABEL = "Read integration readiness help";
 
+export const CONNECTION_STATUS_HELP_CLAIM_HEADING_ID = "help-connection-status-claim-discipline-heading" as const;
+
 export const CONNECTION_STATUS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "help-connection-status-workspace-readiness", title: CONNECTION_STATUS_HELP_READINESS_SECTION_TITLE },
   { level: 2, id: "what-connection-status-shows", title: "What connection status shows" },
   { level: 2, id: "connection-status-status-tags", title: CONNECTION_STATUS_HELP_STATUS_LEGEND_HEADING },
   { level: 2, id: "how-to-read-connection-status", title: "How connection status works" },
+  {
+    level: 2,
+    id: CONNECTION_STATUS_HELP_CLAIM_HEADING_ID,
+    title: CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
+
+/** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
+export const CONNECTION_STATUS_HELP_NEGATION_DRIFT_MARKERS = {
+  overviewMustNotContain: ["not a sealed-review diligence package", "not a diligence package"],
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;

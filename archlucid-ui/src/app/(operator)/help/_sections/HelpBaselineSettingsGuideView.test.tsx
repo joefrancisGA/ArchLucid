@@ -8,10 +8,13 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 import { HelpBaselineSettingsGuideView } from "@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView";
 import {
   BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE,
+  BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING,
   BASELINE_SETTINGS_HELP_SOURCES,
 } from "@/lib/baseline-settings-help-evidence-copy";
 import {
   BASELINE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
+  BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID,
+  BASELINE_SETTINGS_HELP_GUIDE_HEADINGS,
   BASELINE_SETTINGS_HELP_PRIMARY_ACTION,
   BASELINE_SETTINGS_HELP_ROLE_PRECONDITION,
   BASELINE_SETTINGS_HELP_ROLE_PRECONDITION_TAG,
@@ -57,6 +60,10 @@ describe("HelpBaselineSettingsGuideView", () => {
     expect(screen.getByTestId("help-baseline-settings-claim-discipline").textContent).toContain(
       BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.getByRole("heading", { name: BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByRole("link", { name: BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
       "href",
       BASELINE_SETTINGS_HELP_PRIMARY_ACTION.href,
@@ -73,5 +80,9 @@ describe("HelpBaselineSettingsGuideView", () => {
 
     expect(screen.queryByRole("link", { name: "Assurance status" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Baseline settings" })).not.toBeInTheDocument();
+
+    for (const heading of BASELINE_SETTINGS_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
   });
 });

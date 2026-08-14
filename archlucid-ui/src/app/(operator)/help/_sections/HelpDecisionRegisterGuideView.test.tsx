@@ -9,9 +9,11 @@ import { HelpDecisionRegisterGuideView } from "@/app/(operator)/help/_sections/H
 import {
   DECISION_REGISTER_HELP_BREADCRUMB_TOPIC_TITLE,
   DECISION_REGISTER_HELP_CATEGORY_EXAMPLE,
+  DECISION_REGISTER_HELP_CLAIM_HEADING_ID,
   DECISION_REGISTER_HELP_CONFIDENCE_BASIS_EXAMPLE,
   DECISION_REGISTER_HELP_CONFIDENCE_EXAMPLE,
   DECISION_REGISTER_HELP_FIELD_EXAMPLES,
+  DECISION_REGISTER_HELP_GUIDE_HEADINGS,
   DECISION_REGISTER_HELP_PRIMARY_ACTION,
   DECISION_REGISTER_HELP_ROLE_PRECONDITION,
   DECISION_REGISTER_HELP_ROLE_PRECONDITION_TAG,
@@ -20,8 +22,11 @@ import {
   DECISION_REGISTER_HELP_START_HERE_PRECONDITION,
   DECISION_REGISTER_HELP_TILE_ITEMS,
 } from "@/lib/decision-register-help-guide-content";
-import { DECISION_REGISTER_HELP_CLAIM_DISCIPLINE } from "@/lib/decision-register-help-evidence-copy";
-import { DECISION_REGISTER_HELP_SOURCES } from "@/lib/decision-register-help-evidence-copy";
+import {
+  DECISION_REGISTER_HELP_CLAIM_DISCIPLINE,
+  DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING,
+  DECISION_REGISTER_HELP_SOURCES,
+} from "@/lib/decision-register-help-evidence-copy";
 import {
   DECISION_REGISTER_CATEGORY_LABEL,
   DECISION_REGISTER_CONFIDENCE_BASIS_LABEL,
@@ -68,6 +73,10 @@ describe("HelpDecisionRegisterGuideView", () => {
     expect(screen.getByTestId("help-decision-register-claim-discipline").textContent).toContain(
       DECISION_REGISTER_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.getByRole("heading", { name: DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      DECISION_REGISTER_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByRole("link", { name: DECISION_REGISTER_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
       "href",
       DECISION_REGISTER_HELP_PRIMARY_ACTION.href,
@@ -107,5 +116,9 @@ describe("HelpDecisionRegisterGuideView", () => {
 
     expect(screen.getByRole("link", { name: "Sealed review records" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Governance approval help" })).toBeInTheDocument();
+
+    for (const heading of DECISION_REGISTER_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
   });
 });
