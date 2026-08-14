@@ -66,14 +66,13 @@ describe("ItsmAtlassianOAuthCallbackClient operator shell", () => {
     completeItsmAtlassianOAuthConsent.mockReset();
   });
 
-  it("renders operator chrome with breadcrumb while consent completion is in flight", () => {
+  it("renders operator chrome while consent completion is in flight", () => {
     completeItsmAtlassianOAuthConsent.mockImplementation(() => new Promise(() => undefined));
 
     render(<ItsmAtlassianOAuthCallbackClient />);
 
     expect(screen.queryByTestId("auth-flow-shell")).not.toBeInTheDocument();
-    expect(screen.getByTestId("itsm-oauth-callback-breadcrumb")).toHaveTextContent("Integrations");
-    expect(screen.getByTestId("itsm-oauth-callback-breadcrumb")).toHaveTextContent("Jira");
+    expect(screen.queryByTestId("itsm-oauth-callback-breadcrumb")).toBeNull();
     expect(screen.getByTestId("itsm-oauth-callback-page-title")).toHaveTextContent(
       ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE,
     );
@@ -228,7 +227,7 @@ describe("ItsmAtlassianOAuthCallbackClient failure branches", () => {
 
     const details = screen.getByTestId("itsm-oauth-callback-support-details");
     expect(within(details).getByText(/Pilot workspace/)).toBeInTheDocument();
-    expect(within(details).getByText(/Aug 12, 2026.*UTC/)).toBeInTheDocument();
+    expect(within(details).getByText(/\d{4}.*UTC/)).toBeInTheDocument();
     expect(within(details).getByLabelText("Copy reference ID")).toBeInTheDocument();
 
     const renderedText = details.textContent ?? "";

@@ -101,7 +101,7 @@ describe("ApiKeysSettingsPageClient", () => {
     expect(screen.getByTestId("api-keys-settings-restricted-title")).toHaveTextContent(
       "API keys are not managed in this release.",
     );
-    expect(screen.getByTestId("api-keys-settings-page-breadcrumb")).toHaveTextContent("Administration");
+    expect(screen.queryByTestId("api-keys-settings-page-breadcrumb")).toBeNull();
     expect(screen.getByRole("link", { name: "Users and roles" })).toHaveAttribute(
       "href",
       "/administration/users",

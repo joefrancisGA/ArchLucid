@@ -39,7 +39,7 @@ describe("ExtractUploadSettingsPageClient", () => {
     vi.clearAllMocks();
   });
 
-  it("renders header breadcrumb, short help trigger, and workflow layout", async () => {
+  it("renders header short help trigger and workflow layout", async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
 
@@ -58,8 +58,7 @@ describe("ExtractUploadSettingsPageClient", () => {
 
     render(<ExtractUploadSettingsPageClient />);
 
-    expect(screen.getByTestId("extract-upload-page-breadcrumb")).toHaveTextContent("Administration");
-    expect(screen.getByTestId("extract-upload-page-breadcrumb")).toHaveTextContent("Extract & Upload");
+    expect(screen.queryByTestId("extract-upload-page-breadcrumb")).toBeNull();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
     expect(screen.getByTestId("extract-upload-page-layout")).toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-page-aside")).toBeInTheDocument();

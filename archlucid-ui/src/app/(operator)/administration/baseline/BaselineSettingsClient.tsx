@@ -9,7 +9,6 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +46,6 @@ import {
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
 
 function parseNumberOrNull(raw: string): number | null {
@@ -386,16 +384,6 @@ export function BaselineSettingsClient() {
         title={BASELINE_SETTINGS_PAGE_TITLE}
         subtitle={BASELINE_SETTINGS_PAGE_SUBTITLE}
         titleTestId="baseline-settings-page-title"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="baseline-settings-page-breadcrumb"
-            items={[
-              { label: "Administration", href: SETTINGS_ROOT_PATH },
-              { label: "Settings", href: SETTINGS_ROOT_PATH },
-              { label: BASELINE_SETTINGS_PAGE_TITLE },
-            ]}
-          />
-        }
         actions={<PageContextualHelpButton />}
       />
       <BaselineRoiVocabularyRail currentSurfaceId="baseline" />

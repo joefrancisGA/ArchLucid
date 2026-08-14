@@ -22,7 +22,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 import { showError, showSuccess } from "@/lib/toast";
 import { BASELINE_SETTINGS_PAGE_TITLE } from "@/lib/baseline-settings-present";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { BaselineSettingsClient } from "./BaselineSettingsClient";
 
 const emptyBaseline = {
@@ -68,16 +67,12 @@ describe("BaselineSettingsPage", () => {
     vi.mocked(showError).mockClear();
   });
 
-  it("renders operator header chrome with breadcrumb back to Settings", async () => {
+  it("renders operator header chrome without breadcrumb trail", async () => {
     vi.stubGlobal("fetch", createFetchMock());
     render(<BaselineSettingsClient />);
 
     expect(await screen.findByTestId("baseline-settings-page-title")).toHaveTextContent(BASELINE_SETTINGS_PAGE_TITLE);
-    const breadcrumb = screen.getByTestId("baseline-settings-page-breadcrumb");
-    expect(breadcrumb).toHaveTextContent("Administration");
-    expect(breadcrumb).toHaveTextContent("Settings");
-    expect(breadcrumb).toHaveTextContent(BASELINE_SETTINGS_PAGE_TITLE);
-    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("href", SETTINGS_ROOT_PATH);
+    expect(screen.queryByTestId("baseline-settings-page-breadcrumb")).toBeNull();
 
     vi.unstubAllGlobals();
   });

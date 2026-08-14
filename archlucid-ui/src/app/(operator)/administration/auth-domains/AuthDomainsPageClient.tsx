@@ -8,7 +8,6 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { Fingerprint } from "lucide-react";
 import { SETTINGS_AUTH_DOMAINS_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -89,7 +88,6 @@ import {
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { cn } from "@/lib/utils";
 
 type RefreshOptions = {
@@ -562,15 +560,6 @@ export function AuthDomainsPageClient() {
         title={AUTH_DOMAINS_PAGE_TITLE}
         subtitle={AUTH_DOMAINS_PAGE_SUBTITLE}
         titleTestId="auth-domains-page-title"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="auth-domains-page-breadcrumb"
-            items={[
-              { label: "Administration", href: SETTINGS_ROOT_PATH },
-              { label: AUTH_DOMAINS_PAGE_TITLE },
-            ]}
-          />
-        }
         metadata={
           <>
             <span data-testid="auth-domains-tenant-scope">{tenantScopeLine}</span>
