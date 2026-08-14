@@ -2,25 +2,29 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AdvisoryScansHelpEvidenceOrientationStrip } from "@/components/help/AdvisoryScansHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  ADVISORY_SCANS_HELP_FINALIZE_REVIEW_LINK,
   ADVISORY_SCANS_HELP_GUIDE_HEADINGS,
   ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS,
   ADVISORY_SCANS_HELP_OVERVIEW,
   ADVISORY_SCANS_HELP_PAGE_SUBTITLE,
   ADVISORY_SCANS_HELP_PAGE_TITLE,
   ADVISORY_SCANS_HELP_PRIMARY_ACTION,
+  ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE,
   ADVISORY_SCANS_HELP_TILE_ITEMS,
+  ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION,
 } from "@/lib/advisory-scans-help-guide-content";
 import { ADVISORY_SCANS_HELP_CANONICAL_PATH } from "@/lib/advisory-scans-help-evidence-copy";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -55,7 +59,8 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
     >
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
+      <HelpTopicGuidePageHeader
+        topicTitle={ADVISORY_SCANS_HELP_PAGE_TITLE}
         title={ADVISORY_SCANS_HELP_PAGE_TITLE}
         titleTestId="help-advisory-scans-page-title"
         subtitle={ADVISORY_SCANS_HELP_PAGE_SUBTITLE}
@@ -73,14 +78,22 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
 
           <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-advisory-scans-action-panel">
             <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {ADVISORY_SCANS_HELP_PRIMARY_ACTION.label}
+              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                {ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE}
               </CardTitle>
             </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={ADVISORY_SCANS_HELP_PRIMARY_ACTION.href}>{ADVISORY_SCANS_HELP_PRIMARY_ACTION.label}</Link>
-              </Button>
+            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-advisory-scans-role-precondition"
+              >
+                {ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button asChild size="sm" variant="primary">
+                  <Link href={ADVISORY_SCANS_HELP_PRIMARY_ACTION.href}>{ADVISORY_SCANS_HELP_PRIMARY_ACTION.label}</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
@@ -95,7 +108,11 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
             >
               {ADVISORY_SCANS_HELP_TILE_ITEMS.map((item) => (
                 <div key={item.label}>
-                  <dt className="font-medium text-al-text-primary">{item.label}</dt>
+                  <dt className="font-medium text-al-text-primary">
+                    <Link className={OPERATOR_LINK.nav} href={item.href}>
+                      {item.label}
+                    </Link>
+                  </dt>
                   <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
                 </div>
               ))}
@@ -111,7 +128,13 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
               className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
               data-testid="help-advisory-scans-how-stepper"
             >
-              {ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS.map((step) => (
+              <li>
+                <Link className={OPERATOR_LINK.inline} href={ADVISORY_SCANS_HELP_FINALIZE_REVIEW_LINK.href}>
+                  {ADVISORY_SCANS_HELP_FINALIZE_REVIEW_LINK.label}
+                </Link>
+                {" that should drive follow-up recommendations."}
+              </li>
+              {ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS.slice(1).map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>

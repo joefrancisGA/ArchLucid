@@ -27,8 +27,7 @@ const TAB_LABEL: Record<AdvisoryHubTabId, string> = {
   schedules: "Schedules",
 };
 
-const SCHEDULES_TAB_READER_DESCRIPTION =
-  "View schedules and executions; creating schedules and running scans now requires a management role.";
+import { ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION } from "@/lib/advisory-scans-help-guide-content";
 
 export type AdvisoryHubClientProps = {
   readonly initialTab: AdvisoryHubTabId;
@@ -110,7 +109,7 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
 
         {!canMutate ? (
           <span id={schedulesTabReaderHintId} className="sr-only">
-            {SCHEDULES_TAB_READER_DESCRIPTION}
+            {ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION}
           </span>
         ) : null}
 

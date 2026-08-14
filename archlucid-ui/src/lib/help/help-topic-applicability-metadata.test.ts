@@ -42,6 +42,18 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-12 · sponsor architecture scorecard orientation");
   });
 
+  it("formats advisory scans help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "advisory-scans",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "governance advisory scans orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · governance advisory scans orientation");
+  });
+
   it("returns null when report-a-problem registry metadata is absent", () => {
     expect(formatHelpTopicApplicabilityMetadata(sampleEntry({ slug: "report-a-problem" }))).toBeNull();
   });

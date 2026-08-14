@@ -6,6 +6,9 @@ export const HELP_HUB_CANONICAL_PATH = "/help" as const;
 
 export const HELP_HUB_HELP_TOPIC_LABEL = "Help" as const;
 
+/** Breadcrumb ancestor label for `/help/*` topic pages. */
+export const HELP_TOPIC_BREADCRUMB_HUB_LABEL = "Help & support" as const;
+
 export const HELP_HUB_CLAIM_DISCIPLINE =
  "Help Center is an orientation launcher for guides and documentation — it is not a signed-review diligence Sources package. Open a specialty guide, Audit, or Assurance status when you need live or evaluation trails.";
 

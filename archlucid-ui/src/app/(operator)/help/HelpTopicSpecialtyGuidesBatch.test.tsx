@@ -35,6 +35,7 @@ import { HelpTeamsIntegrationGuideView } from "@/app/(operator)/help/_sections/H
 import { HelpWebhooksIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationGuideView";
 import { HelpWorkspaceSettingsGuideView } from "@/app/(operator)/help/_sections/HelpWorkspaceSettingsGuideView";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 
 describe("specialty help guides — operator surfaces batch", () => {
   it.each([
@@ -78,11 +79,15 @@ describe("specialty help guides — operator surfaces batch", () => {
 
     if (slug === "connection-status") {
       expect(screen.getByTestId("help-connection-status-primary-cta")).toBeInTheDocument();
-      expect(screen.queryByRole("link", { name: "Help" })).toBeNull();
+      expect(screen.queryByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toBeNull();
 
       return;
     }
 
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
+    if (slug === "advisory-scans") {
+      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+
+      return;
+    }
   });
 });

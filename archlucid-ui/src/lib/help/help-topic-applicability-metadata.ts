@@ -2,7 +2,7 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 
 const HELP_TOPIC_REGISTRY_PROVENANCE_SLUGS = new Set(["report-a-problem"]);
 
-const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set(["architecture-scorecard"]);
+const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set(["architecture-scorecard", "advisory-scans"]);
 
 function formatGuideReviewProvenance(entry: ProductDocumentationEntry): string | null {
   const lastReviewed = entry.lastReviewed?.trim() ?? "";
