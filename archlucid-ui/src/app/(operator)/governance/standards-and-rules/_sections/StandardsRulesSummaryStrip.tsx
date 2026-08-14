@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { StandardsRulesFilterState, StandardsRulesSummary } from "@/lib/standards-rules-rows";
 import {
   STANDARDS_RULES_SUMMARY_EVIDENCE_COVERAGE_LABEL,
+  STANDARDS_RULES_SUMMARY_FRAMEWORKS_LABEL,
   STANDARDS_RULES_SUMMARY_LINKED_FINDINGS_LABEL,
 } from "@/lib/standards-rules-page";
 import { OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -38,13 +39,13 @@ function SummaryMetricCard(props: {
             aria-pressed={props.pressed === true}
             onClick={props.onClick}
           >
-            <p className={cn("m-0 tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.kpiValue)}>{props.value}</p>
-            <p className={cn("m-0 mt-1", OPERATOR_KPI_CARD_TITLE)}>{props.label}</p>
+            <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>{props.label}</p>
+            <p className={cn("m-0 mt-1 tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.kpiValue)}>{props.value}</p>
           </button>
         ) : (
           <>
-            <p className={cn("m-0 tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.kpiValue)}>{props.value}</p>
-            <p className={cn("m-0 mt-1", OPERATOR_KPI_CARD_TITLE)}>{props.label}</p>
+            <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>{props.label}</p>
+            <p className={cn("m-0 mt-1 tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.kpiValue)}>{props.value}</p>
           </>
         )}
       </CardContent>
@@ -60,7 +61,7 @@ export function StandardsRulesSummaryStrip(props: StandardsRulesSummaryStripProp
       <SummaryMetricCard
         testId="standards-rules-summary-standards"
         value={String(summary.standardsInScope)}
-        label="Standards in scope"
+        label={STANDARDS_RULES_SUMMARY_FRAMEWORKS_LABEL}
         onClick={() => {
           onApplyFilter({
             standardFramework: "all",

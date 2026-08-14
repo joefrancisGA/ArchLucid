@@ -31,7 +31,7 @@ describe("FleetLlmCogsAdminPageClient", () => {
     render(<FleetLlmCogsAdminPageClient />);
 
     expect(await screen.findByTestId("fleet-llm-cogs-page")).toBeInTheDocument();
-    expect(screen.getByTestId("fleet-llm-cogs-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("fleet-llm-cogs-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 });

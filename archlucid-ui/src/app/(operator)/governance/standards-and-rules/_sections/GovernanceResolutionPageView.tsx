@@ -33,7 +33,8 @@ import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH, governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
+import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   buildStandardsRuleRows,
@@ -41,6 +42,7 @@ import {
   collectStandardsRulesFilterOptions,
   EMPTY_STANDARDS_RULES_FILTER_STATE,
   filterStandardsRuleRows,
+  resolveStandardsRulesPolicyPackProvenanceLabel,
 } from "@/lib/standards-rules-rows";
 import {
   STANDARDS_RULES_PAGE_SUBTITLE,
@@ -50,6 +52,7 @@ import type { GovernanceResolutionPageViewModel } from "./governance-resolution-
 import { GovernanceResolutionExportControls } from "./GovernanceResolutionExportControls";
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
 import { StandardsRulesFilters } from "./StandardsRulesFilters";
+import { StandardsRulesPolicyPackReference } from "./StandardsRulesPolicyPackReference";
 import { StandardsRulesReviewContextRow } from "./StandardsRulesReviewContextRow";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
 import { StandardsRulesTable } from "./StandardsRulesTable";
@@ -142,7 +145,26 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
                 <strong>{d.itemType}</strong> <code>{d.itemKey}</code>
               </div>
               <div className={cn("mt-1.5", OPERATOR_TYPOGRAPHY.body)}>
-                Winner: <strong>{d.winningPolicyPackName}</strong> ({d.winningVersion}) — scope <code>{d.winningScopeLevel}</code>
+                <div className="flex flex-wrap items-center gap-x-1 gap-y-1">
+                  <span>Winner:</span>
+                  <StandardsRulesPolicyPackReference
+                    label={d.winningPolicyPackName}
+                    href={
+                      d.winningPolicyPackId.trim().length > 0
+                        ? policyPackBuyerGovernanceDetailHref(d.winningPolicyPackId) ??
+                          governancePolicyPackDetailPath(d.winningPolicyPackId)
+                        : null
+                    }
+                    provenanceLabel={resolveStandardsRulesPolicyPackProvenanceLabel({
+                      ruleKey: d.itemKey,
+                      policyPackId: d.winningPolicyPackId,
+                      data: m.data,
+                    })}
+                  />
+                  <span>
+                    ({d.winningVersion}) — scope <code>{d.winningScopeLevel}</code>
+                  </span>
+                </div>
               </div>
               <div className={cn("mt-1.5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{d.resolutionReason}</div>
               <details className={cn("mt-2", OPERATOR_TYPOGRAPHY.micro)}>
@@ -188,11 +210,11 @@ export function GovernanceResolutionPageView(props: Props) {
       m.failure === null
         ? buildStandardsRulesReviewContextModel({
             data: m.data,
-            primaryPolicyPack: summary.primaryPolicyPack,
+            contributingPolicyPacks: summary.contributingPolicyPacks,
             useShowcaseFallback,
           })
         : null,
-    [m.data, m.failure, summary.primaryPolicyPack, useShowcaseFallback],
+    [m.data, m.failure, summary.contributingPolicyPacks, useShowcaseFallback],
   );
 
   if (m.buyerPolishedShell) {

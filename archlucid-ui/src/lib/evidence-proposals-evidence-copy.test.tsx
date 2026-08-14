@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { EvidenceProposalsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   EVIDENCE_PROPOSALS_CANONICAL_PATH,
-  EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE,
-  EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE_HEADING,
-  EVIDENCE_PROPOSALS_CLAIM_HEADING_ID,
   EVIDENCE_PROPOSALS_FOLLOW_UPS_TITLE,
   EVIDENCE_PROPOSALS_SOURCES,
   EVIDENCE_PROPOSALS_SOURCES_INTRO,
@@ -31,9 +28,7 @@ describe("evidence-proposals-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<EvidenceProposalsEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("evidence-proposals-claim-discipline")).toHaveTextContent(
-      EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("evidence-proposals-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(EVIDENCE_PROPOSALS_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("evidence-proposals-sources");
@@ -49,10 +44,6 @@ describe("evidence-proposals-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<EvidenceProposalsEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("evidence-proposals-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", EVIDENCE_PROPOSALS_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: EVIDENCE_PROPOSALS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });

@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { RagHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   RAG_HEALTH_CANONICAL_PATH,
-  RAG_HEALTH_CLAIM_DISCIPLINE,
-  RAG_HEALTH_CLAIM_DISCIPLINE_HEADING,
-  RAG_HEALTH_CLAIM_HEADING_ID,
   RAG_HEALTH_FOLLOW_UPS_TITLE,
   RAG_HEALTH_SOURCES,
   RAG_HEALTH_SOURCES_INTRO,
@@ -31,7 +28,7 @@ describe("rag-health-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<RagHealthEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("rag-health-claim-discipline")).toHaveTextContent(RAG_HEALTH_CLAIM_DISCIPLINE);
+    expect(screen.queryByTestId("rag-health-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(RAG_HEALTH_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("rag-health-sources");
@@ -47,10 +44,6 @@ describe("rag-health-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<RagHealthEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("rag-health-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", RAG_HEALTH_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: RAG_HEALTH_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: RAG_HEALTH_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });

@@ -23,7 +23,7 @@ describe("TenantHealthAdminPageClient", () => {
     render(<TenantHealthAdminPageClient />);
 
     expect(await screen.findByTestId("tenant-health-admin-page")).toBeInTheDocument();
-    expect(screen.getByTestId("tenant-health-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-health-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 });

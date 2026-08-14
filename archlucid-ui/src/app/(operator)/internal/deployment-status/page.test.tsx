@@ -68,7 +68,7 @@ describe("AdminDeploymentStatusPage", () => {
     expect(screen.getByTestId("admin-deployment-status-page-heading")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: ADMIN_DEPLOYMENT_STATUS_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("deployment-status-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("deployment-status-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("admin-deployment-status-ops-eyebrow")).toHaveTextContent(
       INTERNAL_OPERATIONS_NAV_EYEBROW,
     );

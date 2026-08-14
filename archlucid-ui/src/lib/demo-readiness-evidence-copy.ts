@@ -6,11 +6,7 @@ export const DEMO_READINESS_CANONICAL_PATH = "/internal/demo-readiness" as const
 
 export const DEMO_READINESS_HELP_TOPIC_LABEL = "How demo readiness works" as const;
 
-export const DEMO_READINESS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
-
 export const DEMO_READINESS_FOLLOW_UPS_TITLE = "Where to go next";
-
-export const DEMO_READINESS_CLAIM_HEADING_ID = "demo-readiness-claim-discipline-heading" as const;
 
 /** Page H1 on the admin diagnostics surface — distinct from sidebar nav label (TB-1409). */
 export const INTERNAL_DEMO_READINESS_PAGE_TITLE = "Internal demo readiness" as const;
@@ -31,12 +27,8 @@ export const INTERNAL_DEMO_READINESS_TOOLING_DISABLED_DIAGNOSTICS_CTA = "Open di
 
 export const INTERNAL_DEMO_READINESS_TOOLING_DISABLED_SYSTEM_HEALTH_CTA = "Open System health" as const;
 
-export const DEMO_READINESS_CLAIM_DISCIPLINE =
-  "This Demo readiness page is an internal employee diagnostic for buyer CTO demo checks - it is not a sealed-review diligence Sources package. Open System health, Trial funnel, or Audit when you need live dependency, conversion, or governed trails.";
-
 export const DEMO_READINESS_SOURCES_INTRO =
   "Use these follow-ups when demo checks turn into platform health, trial conversion, or public demo surfaces.";
-
 
 /** Operator Sources - no self-href to `/internal/demo-readiness`. */
 export const DEMO_READINESS_SOURCES: readonly EvidenceSourceLink[] = [

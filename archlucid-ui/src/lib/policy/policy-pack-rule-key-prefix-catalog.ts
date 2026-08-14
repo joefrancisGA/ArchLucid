@@ -29,6 +29,10 @@ export const POLICY_PACK_RULE_KEY_PREFIX_CATALOG: readonly PolicyPackRuleKeyPref
   { prefix: "otel", packDisplayName: "Observability & OpenTelemetry Baseline" },
   { prefix: "az-data", packDisplayName: "Azure SQL / Cosmos DB Data-Layer Security" },
   { prefix: "arc-ampe", packDisplayName: "ARC-AMPE Architecture Themes" },
+  { prefix: "rel-base", packDisplayName: "Reliability and Resilience" },
+  { prefix: "perf-base", packDisplayName: "Performance and Scalability" },
+  { prefix: "ops-base", packDisplayName: "Operational Excellence" },
+  { prefix: "sust-base", packDisplayName: "Sustainability and Resource Efficiency" },
   { prefix: "saas-ctrl", packDisplayName: "SaaS Security Controls" },
 ] as const;
 

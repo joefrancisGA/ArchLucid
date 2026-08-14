@@ -1,10 +1,7 @@
 import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import {
-  WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE,
-  WEBHOOKS_INTEGRATION_SOURCES_INTRO,
-} from "@/lib/webhooks-integration-evidence-copy";
+import { WEBHOOKS_INTEGRATION_SOURCES_INTRO } from "@/lib/webhooks-integration-evidence-copy";
 
 export const WEBHOOKS_INTEGRATION_HELP_CANONICAL_PATH = "/help/webhooks-integration" as const;
 
@@ -45,5 +42,3 @@ export const WEBHOOKS_INTEGRATION_HELP_SOURCES: readonly EvidenceSourceLinkWithW
     when: "Read procurement-oriented setup guidance when multiple connectors need attention",
   },
 ] as const;
-
-export const WEBHOOKS_INTEGRATION_HELP_OPERATOR_CLAIM = WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE;

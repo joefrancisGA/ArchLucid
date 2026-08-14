@@ -12,6 +12,7 @@ import {
   type GovernanceApprovalProvenance,
 } from "@/lib/governance/governance-approval-provenance";
 import type { StandardsRulesGovernanceBannerHrefs } from "@/lib/governance/governance-resolution-page-presentation";
+import { STANDARDS_RULES_INLINE_LINK_CLASS } from "@/lib/standards-rules-table-presentation";
 import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +23,7 @@ export type StandardsRulesGovernanceStatusBannerProps = {
   readonly hrefs: StandardsRulesGovernanceBannerHrefs;
 };
 
-/** Compact governance context for Standards & rules — shared accent, calm chip links. */
+/** Compact governance context for Standards & rules — banner actions share table link typography. */
 export function StandardsRulesGovernanceStatusBanner(props: StandardsRulesGovernanceStatusBannerProps) {
   const { className, subjectLabel, provenance, hrefs } = props;
   const approverLabel = provenance.approverLabel.trim();
@@ -62,14 +63,14 @@ export function StandardsRulesGovernanceStatusBanner(props: StandardsRulesGovern
             </p>
           </details>
         </div>
-        <div className="flex flex-wrap gap-2 sm:max-w-md sm:justify-end">
-          <Link className={DESIGN_TOKENS.interactive.chip} href={hrefs.sealedRecordHref}>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 sm:max-w-md sm:justify-end">
+          <Link className={STANDARDS_RULES_INLINE_LINK_CLASS} href={hrefs.sealedRecordHref}>
             {STANDARDS_RULES_VIEW_SIGNED_RECORD}
           </Link>
-          <Link className={DESIGN_TOKENS.interactive.chip} href={hrefs.evidenceTrailHref}>
+          <Link className={STANDARDS_RULES_INLINE_LINK_CLASS} href={hrefs.evidenceTrailHref}>
             {STANDARDS_RULES_VIEW_EVIDENCE_TRAIL}
           </Link>
-          <Link className={DESIGN_TOKENS.interactive.chip} href={hrefs.auditTrailHref}>
+          <Link className={STANDARDS_RULES_INLINE_LINK_CLASS} href={hrefs.auditTrailHref}>
             {STANDARDS_RULES_VIEW_AUDIT_TRAIL}
           </Link>
         </div>

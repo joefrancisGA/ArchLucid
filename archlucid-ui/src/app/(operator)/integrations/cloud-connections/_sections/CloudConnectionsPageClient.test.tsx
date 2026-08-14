@@ -96,7 +96,7 @@ describe("CloudConnectionsPageClient", () => {
       expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }
 
-    expect(screen.getByTestId("cloud-connections-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("cloud-connections-claim-discipline")).not.toBeInTheDocument();
   });
 
   it("suppresses zero-theater rows on unconfigured provider cards (TB-1143)", async () => {

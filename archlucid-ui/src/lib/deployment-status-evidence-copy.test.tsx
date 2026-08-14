@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { DeploymentStatusEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   DEPLOYMENT_STATUS_CANONICAL_PATH,
-  DEPLOYMENT_STATUS_CLAIM_DISCIPLINE,
-  DEPLOYMENT_STATUS_CLAIM_DISCIPLINE_HEADING,
-  DEPLOYMENT_STATUS_CLAIM_HEADING_ID,
   DEPLOYMENT_STATUS_FOLLOW_UPS_TITLE,
   DEPLOYMENT_STATUS_SOURCES,
   DEPLOYMENT_STATUS_SOURCES_INTRO,
@@ -31,9 +28,7 @@ describe("deployment-status-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<DeploymentStatusEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("deployment-status-claim-discipline")).toHaveTextContent(
-      DEPLOYMENT_STATUS_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("deployment-status-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(DEPLOYMENT_STATUS_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("deployment-status-sources");
@@ -49,10 +44,6 @@ describe("deployment-status-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<DeploymentStatusEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("deployment-status-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", DEPLOYMENT_STATUS_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: DEPLOYMENT_STATUS_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: DEPLOYMENT_STATUS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });

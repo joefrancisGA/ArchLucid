@@ -18,6 +18,11 @@ export const STANDARDS_RULES_VIEW_AUDIT_TRAIL = "View audit trail";
 
 export const STANDARDS_RULES_TABLE_TITLE = "Enforced rules";
 
+export const STANDARDS_RULES_TABLE_INTRO =
+  "Each rule is enforced from a policy pack and mapped to a standard or framework for audit grouping.";
+
+export const STANDARDS_RULES_SUMMARY_FRAMEWORKS_LABEL = "Frameworks referenced";
+
 export const STANDARDS_RULES_EMPTY_HEADING = "No rules applied to this review";
 
 export const STANDARDS_RULES_EMPTY_BODY =

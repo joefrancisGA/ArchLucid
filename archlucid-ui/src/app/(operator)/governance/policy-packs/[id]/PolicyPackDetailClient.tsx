@@ -9,10 +9,7 @@ import type { PolicyPack, PolicyPackContentDocument, PolicyPackWorkspaceSelectio
 import { HealthcareClaimsPolicyPackDetail } from "./HealthcareClaimsPolicyPackDetail";
 import { PolicyPackDetailEvidenceChrome } from "./PolicyPackDetailEvidenceChrome";
 import { PolicyPackGenericDetail } from "./PolicyPackGenericDetail";
-import {
-  isSampleResponsibleAiPolicyPack,
-  resolvePolicyPackDetailKind,
-} from "@/lib/policy/policy-pack-detail-resolver";
+import { resolvePolicyPackDetailKind } from "@/lib/policy/policy-pack-detail-resolver";
 import { PolicyPackDetailNotFound } from "./PolicyPackDetailNotFound";
 import { ResponsibleAiPolicyPackDetail } from "./ResponsibleAiPolicyPackDetail";
 
@@ -129,7 +126,6 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         policyPackId={policyPackId}
         packRecord={packRecord}
         packContent={packContent}
-        isSample={isSampleResponsibleAiPolicyPack(policyPackId, packRecord)}
         isEnabled={isEnabled}
         isGloballyActive={isGloballyActive}
       />,

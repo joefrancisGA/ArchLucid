@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { WebhooksIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   WEBHOOKS_INTEGRATION_CANONICAL_PATH,
-  WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE,
-  WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
-  WEBHOOKS_INTEGRATION_CLAIM_HEADING_ID,
   WEBHOOKS_INTEGRATION_FOLLOW_UPS_TITLE,
   WEBHOOKS_INTEGRATION_SOURCES,
   WEBHOOKS_INTEGRATION_SOURCES_INTRO,
@@ -31,9 +28,7 @@ describe("webhooks-integration-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<WebhooksIntegrationEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("webhooks-integration-claim-discipline")).toHaveTextContent(
-      WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("webhooks-integration-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(WEBHOOKS_INTEGRATION_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("webhooks-integration-sources");
@@ -49,10 +44,6 @@ describe("webhooks-integration-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<WebhooksIntegrationEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("webhooks-integration-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", WEBHOOKS_INTEGRATION_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: WEBHOOKS_INTEGRATION_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByText(/Sources package/i)).toBeNull();
   });

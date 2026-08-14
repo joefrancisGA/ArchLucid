@@ -6,19 +6,10 @@ export const IDENTITY_PROVIDERS_SETTINGS_CANONICAL_PATH =
 
 export const IDENTITY_PROVIDERS_SETTINGS_HELP_TOPIC_LABEL = "How SSO and identity work" as const;
 
-export const IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
-
 export const IDENTITY_PROVIDERS_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
-
-export const IDENTITY_PROVIDERS_SETTINGS_CLAIM_HEADING_ID =
-  "identity-providers-settings-claim-discipline-heading" as const;
-
-export const IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE =
-  "This SSO and identity hub configures federation and sign-in for the workspace - it is not a sealed-review diligence Sources package. Open Enterprise onboarding help, Users and roles, or Assurance status when you need onboarding, membership, or trust cites.";
 
 export const IDENTITY_PROVIDERS_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when SSO setup turns into domain enforcement, role mapping, membership, or assurance cites.";
-
 
 /** Operator Sources - no self-href to the identity-providers hub. */
 export const IDENTITY_PROVIDERS_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [

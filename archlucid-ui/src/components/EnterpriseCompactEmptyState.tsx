@@ -18,6 +18,9 @@ export type EnterpriseCompactEmptyStateProps = {
   readonly actions?: readonly EnterpriseCompactEmptyStateAction[];
   /** Optional client actions (e.g. demo seed button) rendered after link actions. */
   readonly footer?: ReactNode;
+  /** Stronger dashed border for blocking empty states on dense operator surfaces. */
+  readonly prominentBoundary?: boolean;
+  readonly role?: "status" | "alert";
   readonly testId?: string;
 };
 
@@ -26,19 +29,22 @@ export type EnterpriseCompactEmptyStateProps = {
  * Prefer over centered {@link EmptyState} cards on dense operator surfaces.
  */
 export function EnterpriseCompactEmptyState(props: EnterpriseCompactEmptyStateProps): ReactElement {
-  const { title, description, actions, footer, testId } = props;
+  const { title, description, actions, footer, prominentBoundary = false, role = "status", testId } = props;
   const actionList = actions ?? [];
   const titleId = useId();
   const descriptionId = useId();
 
   return (
     <div
-      role="status"
+      role={role}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
       data-testid={testId}
       className={cn(
-        "rounded-md border border-dashed border-neutral-200 px-3 py-3 dark:border-neutral-700",
+        "rounded-md border border-dashed px-3 py-3",
+        prominentBoundary
+          ? "border-neutral-500 dark:border-neutral-400"
+          : "border-neutral-200 dark:border-neutral-700",
         OPERATOR_LAYOUT.sectionStack,
       )}
     >

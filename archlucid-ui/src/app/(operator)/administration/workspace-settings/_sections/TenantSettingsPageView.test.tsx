@@ -110,7 +110,7 @@ describe("TenantSettingsPageView", () => {
       "Workspace settings",
     );
     expect(screen.getByRole("button", { name: WORKSPACE_SETTINGS_HELP_TOPIC_LABEL })).toBeInTheDocument();
-    expect(screen.getByTestId("tenant-settings-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-claim-discipline")).not.toBeInTheDocument();
   });
 
   it("uses semantic heading order with section h2 and card h3 titles (P0-4, P0-8)", () => {

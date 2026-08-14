@@ -20,7 +20,7 @@ describe("AdminEvidenceProposalsPageClient", () => {
     render(<AdminEvidenceProposalsPageClient />);
 
     expect(await screen.findByTestId("admin-evidence-proposals-page")).toBeInTheDocument();
-    expect(screen.getByTestId("evidence-proposals-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("evidence-proposals-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 });

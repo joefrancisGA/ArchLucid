@@ -17,14 +17,16 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import type { StandardsRuleRow } from "@/lib/standards-rules-rows";
 import { standardsRuleHasEvidence } from "@/lib/standards-rules-rows";
-import { STANDARDS_RULES_TABLE_TITLE } from "@/lib/standards-rules-page";
+import { STANDARDS_RULES_TABLE_INTRO, STANDARDS_RULES_TABLE_TITLE } from "@/lib/standards-rules-page";
 import {
   standardsRuleEnforcementStatusKind,
   standardsRuleEvidenceStatusKind,
   standardsRuleEvidenceStatusLabel,
+  STANDARDS_RULES_INLINE_LINK_CLASS,
 } from "@/lib/standards-rules-table-presentation";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { StandardsRulesPolicyPackReference } from "@/app/(operator)/governance/standards-and-rules/_sections/StandardsRulesPolicyPackReference";
 
 export type StandardsRulesTableProps = {
   readonly rows: readonly StandardsRuleRow[];
@@ -90,9 +92,14 @@ export function StandardsRulesTable(props: StandardsRulesTableProps) {
 
   return (
     <section className="space-y-3" aria-labelledby="standards-rules-table-heading" data-testid="standards-rules-table">
-      <h3 id="standards-rules-table-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-        {STANDARDS_RULES_TABLE_TITLE}
-      </h3>
+      <div className="space-y-1">
+        <h3 id="standards-rules-table-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          {STANDARDS_RULES_TABLE_TITLE}
+        </h3>
+        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="standards-rules-table-intro">
+          {STANDARDS_RULES_TABLE_INTRO}
+        </p>
+      </div>
       <EnterpriseTable ariaLabel={STANDARDS_RULES_TABLE_TITLE}>
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
@@ -103,7 +110,7 @@ export function StandardsRulesTable(props: StandardsRulesTableProps) {
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell sortDirection={sortDirectionFor("standardFramework", sortKey, sortAsc)}>
               <button type="button" className="font-inherit" onClick={() => onSort("standardFramework")}>
-                Standard / framework
+                Standard / Framework
               </button>
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Category</EnterpriseTableHeaderCell>
@@ -143,7 +150,7 @@ export function StandardsRulesTable(props: StandardsRulesTableProps) {
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>
                   {hasEvidence ? (
-                    <FindingEvidenceLinkChip href={row.evidenceHref!} />
+                    <FindingEvidenceLinkChip href={row.evidenceHref!} labelScope="column" />
                   ) : (
                     <StatusTag
                       kind={standardsRuleEvidenceStatusKind(row)}
@@ -151,10 +158,16 @@ export function StandardsRulesTable(props: StandardsRulesTableProps) {
                     />
                   )}
                 </EnterpriseTableCell>
-                <EnterpriseTableCell>{row.sourcePolicyPack}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <StandardsRulesPolicyPackReference
+                    label={row.sourcePolicyPack}
+                    href={row.sourcePolicyPackHref}
+                    provenanceLabel={row.sourcePolicyPackProvenanceLabel}
+                  />
+                </EnterpriseTableCell>
                 <EnterpriseTableCell>
                   {hasLinkedFindings ? (
-                    <Link className={cn(OPERATOR_LINK.inline, "font-semibold")} href={row.linkedFindingsHref}>
+                    <Link className={STANDARDS_RULES_INLINE_LINK_CLASS} href={row.linkedFindingsHref}>
                       {row.linkedFindingsLabel}
                     </Link>
                   ) : (

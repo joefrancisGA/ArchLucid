@@ -1,10 +1,15 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import type { StandardsRuleRow } from "@/lib/standards-rules-rows";
 import { standardsRuleHasEvidence } from "@/lib/standards-rules-rows";
 import {
   STANDARDS_RULES_EVIDENCE_EVIDENCED_LABEL,
   STANDARDS_RULES_EVIDENCE_NOT_EVIDENCED_LABEL,
 } from "@/lib/standards-rules-page";
+import { cn } from "@/lib/utils";
+
+/** Fixed body-scale inline links for GRS table, context row, and banner actions. */
+export const STANDARDS_RULES_INLINE_LINK_CLASS = cn(OPERATOR_TYPE_SCALE.body, OPERATOR_LINK.inline);
 
 function normalizeEnforcementMode(enforcementMode: string): string {
   return enforcementMode.trim().toLowerCase();

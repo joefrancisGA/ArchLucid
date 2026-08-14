@@ -1,6 +1,4 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { TENANT_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/tenant-settings-evidence-copy";
-
 export const WORKSPACE_SETTINGS_HELP_CANONICAL_PATH = "/help/workspace-settings" as const;
 
 export const WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide is not";
@@ -19,5 +17,3 @@ export const WORKSPACE_SETTINGS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Digests schedule", href: "/architecture/digests?tab=schedule" },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;
-
-export const WORKSPACE_SETTINGS_HELP_OPERATOR_CLAIM = TENANT_SETTINGS_CLAIM_DISCIPLINE;

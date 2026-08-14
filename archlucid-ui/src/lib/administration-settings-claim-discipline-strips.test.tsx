@@ -14,7 +14,12 @@ import {
   SsoWizardSettingsEvidenceOrientationStrip,
 } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 
-const ADMIN_SETTINGS_CLAIM_DISCIPLINE_STRIPS: ReadonlyArray<{
+/**
+ * The boilerplate "What this page does not cover" band was removed from administration settings:
+ * every clause restated the page header, the shared diligence-package negation, or the follow-up
+ * list rendered directly below it. These strips are sources-only now.
+ */
+const ADMIN_SETTINGS_SOURCES_ONLY_STRIPS: ReadonlyArray<{
   readonly testId: string;
   readonly Strip: () => React.JSX.Element;
 }> = [
@@ -39,14 +44,14 @@ const ADMIN_SETTINGS_CLAIM_DISCIPLINE_STRIPS: ReadonlyArray<{
   { testId: "sso-wizard-settings-claim-discipline", Strip: SsoWizardSettingsEvidenceOrientationStrip },
 ];
 
-describe("administration settings claim-discipline strips", () => {
-  it.each(ADMIN_SETTINGS_CLAIM_DISCIPLINE_STRIPS)(
-    "renders $testId with claim discipline and follow-ups",
+describe("administration settings evidence strips", () => {
+  it.each(ADMIN_SETTINGS_SOURCES_ONLY_STRIPS)(
+    "renders $testId as follow-ups only, with no boilerplate negation band",
     ({ testId, Strip }) => {
       render(<Strip />);
 
-      expect(screen.getByTestId(testId)).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "What this page does not cover" })).toBeInTheDocument();
+      expect(screen.queryByTestId(testId)).not.toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "What this page does not cover" })).not.toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Where to go next" })).toBeInTheDocument();
     },
   );

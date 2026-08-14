@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { ApiKeysSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   API_KEYS_OPERATOR_CANONICAL_PATH,
-  API_KEYS_SETTINGS_CLAIM_DISCIPLINE,
-  API_KEYS_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  API_KEYS_SETTINGS_CLAIM_HEADING_ID,
   API_KEYS_SETTINGS_FOLLOW_UPS_TITLE,
   API_KEYS_SETTINGS_SOURCES,
   API_KEYS_SETTINGS_SOURCES_INTRO,
@@ -31,9 +28,7 @@ describe("api-keys-settings-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<ApiKeysSettingsEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("api-keys-settings-claim-discipline")).toHaveTextContent(
-      API_KEYS_SETTINGS_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("api-keys-settings-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(API_KEYS_SETTINGS_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("api-keys-settings-sources");
@@ -49,10 +44,6 @@ describe("api-keys-settings-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<ApiKeysSettingsEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("api-keys-settings-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", API_KEYS_SETTINGS_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: API_KEYS_SETTINGS_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: API_KEYS_SETTINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });

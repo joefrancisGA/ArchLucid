@@ -21,8 +21,6 @@ import {
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-page-copy";
 import {
   ITSM_OAUTH_CALLBACK_CANONICAL_PATH,
-  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING,
-  ITSM_OAUTH_CALLBACK_CLAIM_HEADING_ID,
   ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE,
   ITSM_OAUTH_CALLBACK_SOURCES,
 } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
@@ -268,17 +266,14 @@ describe("ItsmAtlassianOAuthCallbackClient sources strip", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("labels claim discipline and follow-ups for accessibility parity", async () => {
+  it("labels follow-ups for accessibility parity without a claim band", async () => {
     render(<ItsmAtlassianOAuthCallbackClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("itsm-oauth-callback-claim-discipline")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     });
 
-    const claim = screen.getByTestId("itsm-oauth-callback-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", ITSM_OAUTH_CALLBACK_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.queryByTestId("itsm-oauth-callback-claim-discipline")).not.toBeInTheDocument();
     expect(screen.queryByText(/Sources package/i)).toBeNull();
   });
 });

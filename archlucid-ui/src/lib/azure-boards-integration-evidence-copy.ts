@@ -7,18 +7,10 @@ export const AZURE_BOARDS_INTEGRATION_CANONICAL_PATH = "/integrations/azure-boar
 
 export const AZURE_BOARDS_INTEGRATION_HELP_TOPIC_LABEL = "How Azure Boards integration works";
 
-export const AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
-
-export const AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE =
-  "This page explains how Azure Boards outbound settings configure work-item creation from findings and reviews — open Integration readiness, Jira, ServiceNow, or Audit when you need connection health, readiness checks, or governed trails.";
-
 export const AZURE_BOARDS_INTEGRATION_FOLLOW_UPS_TITLE = "Where to go next";
-
-export const AZURE_BOARDS_INTEGRATION_CLAIM_HEADING_ID = "azure-boards-integration-claim-discipline-heading" as const;
 
 export const AZURE_BOARDS_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when connection health, readiness checks, or related work-item integrations need attention.";
-
 
 /** Operator Sources — no self-href to `/integrations/azure-boards`. */
 export const AZURE_BOARDS_INTEGRATION_SOURCES: readonly EvidenceSourceLink[] = [

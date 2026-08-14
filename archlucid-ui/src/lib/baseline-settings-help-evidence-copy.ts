@@ -1,8 +1,5 @@
 import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
-import {
-  BASELINE_SETTINGS_CLAIM_DISCIPLINE,
-  BASELINE_SETTINGS_SOURCES_INTRO,
-} from "@/lib/baseline-settings-evidence-copy";
+import { BASELINE_SETTINGS_SOURCES_INTRO } from "@/lib/baseline-settings-evidence-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const BASELINE_SETTINGS_HELP_CANONICAL_PATH = "/help/baseline-settings" as const;
@@ -39,5 +36,3 @@ export const BASELINE_SETTINGS_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen
     when: "Open value report when baseline anchors feed sponsor-facing outcomes",
   },
 ] as const;
-
-export const BASELINE_SETTINGS_HELP_OPERATOR_CLAIM = BASELINE_SETTINGS_CLAIM_DISCIPLINE;

@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { PricingQuoteAgingEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   PRICING_QUOTE_AGING_CANONICAL_PATH,
-  PRICING_QUOTE_AGING_CLAIM_DISCIPLINE,
-  PRICING_QUOTE_AGING_CLAIM_DISCIPLINE_HEADING,
-  PRICING_QUOTE_AGING_CLAIM_HEADING_ID,
   PRICING_QUOTE_AGING_FOLLOW_UPS_TITLE,
   PRICING_QUOTE_AGING_SOURCES,
   PRICING_QUOTE_AGING_SOURCES_INTRO,
@@ -31,9 +28,7 @@ describe("pricing-quote-aging-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<PricingQuoteAgingEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("pricing-quote-aging-claim-discipline")).toHaveTextContent(
-      PRICING_QUOTE_AGING_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("pricing-quote-aging-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(PRICING_QUOTE_AGING_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("pricing-quote-aging-sources");
@@ -49,10 +44,6 @@ describe("pricing-quote-aging-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<PricingQuoteAgingEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("pricing-quote-aging-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", PRICING_QUOTE_AGING_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: PRICING_QUOTE_AGING_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: PRICING_QUOTE_AGING_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });

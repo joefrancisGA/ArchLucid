@@ -74,7 +74,7 @@ describe("TrialFunnelOpsPageClient", () => {
     render(<TrialFunnelOpsPageClient />);
 
     expect(await screen.findByText(TRIAL_FUNNEL_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("trial-funnel-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("trial-funnel-claim-discipline")).not.toBeInTheDocument();
     expect(screen.queryByText(/no live stripe claims/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/sales-led checkout remains deferred/i)).not.toBeInTheDocument();
   });

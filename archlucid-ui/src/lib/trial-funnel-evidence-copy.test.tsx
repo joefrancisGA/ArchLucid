@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { TrialFunnelEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   TRIAL_FUNNEL_CANONICAL_PATH,
-  TRIAL_FUNNEL_CLAIM_DISCIPLINE,
-  TRIAL_FUNNEL_CLAIM_DISCIPLINE_HEADING,
-  TRIAL_FUNNEL_CLAIM_HEADING_ID,
   TRIAL_FUNNEL_FOLLOW_UPS_TITLE,
   TRIAL_FUNNEL_SOURCES,
   TRIAL_FUNNEL_SOURCES_INTRO,
@@ -31,7 +28,7 @@ describe("trial-funnel-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<TrialFunnelEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("trial-funnel-claim-discipline")).toHaveTextContent(TRIAL_FUNNEL_CLAIM_DISCIPLINE);
+    expect(screen.queryByTestId("trial-funnel-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(TRIAL_FUNNEL_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("trial-funnel-sources");
@@ -47,10 +44,6 @@ describe("trial-funnel-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<TrialFunnelEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("trial-funnel-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", TRIAL_FUNNEL_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: TRIAL_FUNNEL_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: TRIAL_FUNNEL_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });

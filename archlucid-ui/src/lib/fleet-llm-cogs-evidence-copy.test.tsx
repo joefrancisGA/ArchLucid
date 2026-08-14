@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { FleetLlmCogsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   FLEET_LLM_COGS_CANONICAL_PATH,
-  FLEET_LLM_COGS_CLAIM_DISCIPLINE,
-  FLEET_LLM_COGS_CLAIM_DISCIPLINE_HEADING,
-  FLEET_LLM_COGS_CLAIM_HEADING_ID,
   FLEET_LLM_COGS_FOLLOW_UPS_TITLE,
   FLEET_LLM_COGS_SOURCES,
   FLEET_LLM_COGS_SOURCES_INTRO,
@@ -31,7 +28,7 @@ describe("fleet-llm-cogs-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<FleetLlmCogsEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("fleet-llm-cogs-claim-discipline")).toHaveTextContent(FLEET_LLM_COGS_CLAIM_DISCIPLINE);
+    expect(screen.queryByTestId("fleet-llm-cogs-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(FLEET_LLM_COGS_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("fleet-llm-cogs-sources");
@@ -47,10 +44,6 @@ describe("fleet-llm-cogs-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<FleetLlmCogsEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("fleet-llm-cogs-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", FLEET_LLM_COGS_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: FLEET_LLM_COGS_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: FLEET_LLM_COGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });

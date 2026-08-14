@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { RoleMappingSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   ROLE_MAPPING_SETTINGS_CANONICAL_PATH,
-  ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE,
-  ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  ROLE_MAPPING_SETTINGS_CLAIM_HEADING_ID,
   ROLE_MAPPING_SETTINGS_FOLLOW_UPS_TITLE,
   ROLE_MAPPING_SETTINGS_SOURCES,
   ROLE_MAPPING_SETTINGS_SOURCES_INTRO,
@@ -31,9 +28,7 @@ describe("role-mapping-settings-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<RoleMappingSettingsEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("role-mapping-settings-claim-discipline")).toHaveTextContent(
-      ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("role-mapping-settings-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(ROLE_MAPPING_SETTINGS_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("role-mapping-settings-sources");
@@ -49,10 +44,6 @@ describe("role-mapping-settings-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<RoleMappingSettingsEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("role-mapping-settings-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", ROLE_MAPPING_SETTINGS_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: ROLE_MAPPING_SETTINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });

@@ -13,7 +13,7 @@ function escapeCsvCell(value: string): string {
 export function buildStandardsRulesCsv(rows: readonly StandardsRuleRow[]): string {
   const header = [
     "Rule",
-    "Standard / framework",
+    "Standard / Framework",
     "Category",
     "Severity",
     "Enforcement mode",

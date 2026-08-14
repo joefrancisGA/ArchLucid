@@ -12,13 +12,12 @@ vi.mock("next/link", () => ({
 }));
 
 describe("ResponsibleAiPolicyPackDetail", () => {
-  it("renders assign primary action, breadcrumb, and template baseline qualifier for sample packs", () => {
+  it("shows bundled default provenance (not Sample) when pack record is not yet loaded", () => {
     render(
       <ResponsibleAiPolicyPackDetail
         policyPackId="1"
         packRecord={null}
         packContent={null}
-        isSample
         isEnabled={false}
         isGloballyActive={false}
       />,
@@ -37,7 +36,9 @@ describe("ResponsibleAiPolicyPackDetail", () => {
       "href",
       "/governance/policy-packs",
     );
-    expect(screen.getByTestId("policy-pack-sample-tag")).toHaveTextContent("Sample policy pack");
+    expect(screen.getByTestId("policy-pack-provenance-tag")).toHaveTextContent("Bundled default (platform)");
+    expect(screen.queryByTestId("policy-pack-sample-tag")).not.toBeInTheDocument();
+    expect(screen.queryByText("Sample policy pack")).not.toBeInTheDocument();
     expect(screen.getByTestId("policy-pack-status-badge")).toHaveTextContent("Unavailable");
     expect(screen.getByTestId("policy-pack-rules-source-qualifier")).toHaveTextContent("Platform template baseline");
     expect(screen.getByTestId("policy-pack-rules-intro")).toHaveTextContent(
@@ -59,7 +60,7 @@ describe("ResponsibleAiPolicyPackDetail", () => {
           projectId: "p",
           name: "Responsible AI",
           description: "",
-          packType: "BuiltIn",
+          packType: "PlatformDefault",
           distributionScope: "Platform",
           status: "Active",
           createdUtc: "2026-06-01T00:00:00.000Z",
@@ -73,13 +74,13 @@ describe("ResponsibleAiPolicyPackDetail", () => {
           advisoryDefaults: {},
           metadata: {},
         }}
-        isSample={false}
         isEnabled
         isGloballyActive
       />,
     );
 
     expect(screen.getByTestId("policy-pack-status-badge")).toHaveTextContent("Active");
+    expect(screen.getByTestId("policy-pack-provenance-tag")).toHaveTextContent("Bundled default (platform)");
     expect(screen.getByText("Enabled")).toBeInTheDocument();
     expect(screen.getByText("Workspace")).toBeInTheDocument();
     expect(screen.getByText("Ai Gov 001")).toBeInTheDocument();

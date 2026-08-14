@@ -36,10 +36,10 @@ function templateRowsToTableRows(rows: readonly ResponsibleAiPolicyRuleRow[]): R
   }));
 }
 
-/** Resolves rule rows from published pack content, or template baseline for sample packs. */
+/** Resolves rule rows from published pack content, or platform template baseline when content is not loaded. */
 export function resolveResponsibleAiPolicyRuleRows(
   packContent: PolicyPackContentDocument | null,
-  options: { readonly isSample: boolean; readonly hasPackRecord: boolean },
+  options: { readonly hasPackRecord: boolean },
 ): ResponsibleAiRulesResolution {
   if (packContent != null) {
     const keys = packContent.complianceRuleKeys?.filter((key) => (key ?? "").trim().length > 0) ?? [];
@@ -78,7 +78,7 @@ export function resolveResponsibleAiPolicyRuleRows(
     }
   }
 
-  if (options.isSample || !options.hasPackRecord) {
+  if (!options.hasPackRecord) {
     return {
       rows: templateRowsToTableRows(RESPONSIBLE_AI_POLICY_RULE_ROWS),
       rulesSourceQualifier: "Platform template baseline",

@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { AzureBoardsIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   AZURE_BOARDS_INTEGRATION_CANONICAL_PATH,
-  AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE,
-  AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
-  AZURE_BOARDS_INTEGRATION_CLAIM_HEADING_ID,
   AZURE_BOARDS_INTEGRATION_FOLLOW_UPS_TITLE,
   AZURE_BOARDS_INTEGRATION_SOURCES,
   AZURE_BOARDS_INTEGRATION_SOURCES_INTRO,
@@ -31,9 +28,7 @@ describe("azure-boards-integration-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<AzureBoardsIntegrationEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("azure-boards-integration-claim-discipline")).toHaveTextContent(
-      AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("azure-boards-integration-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(AZURE_BOARDS_INTEGRATION_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("azure-boards-integration-sources");
@@ -49,10 +44,6 @@ describe("azure-boards-integration-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<AzureBoardsIntegrationEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("azure-boards-integration-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", AZURE_BOARDS_INTEGRATION_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: AZURE_BOARDS_INTEGRATION_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByText(/Sources package/i)).toBeNull();
   });

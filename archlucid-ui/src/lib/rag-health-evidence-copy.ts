@@ -7,14 +7,7 @@ export const RAG_HEALTH_CANONICAL_PATH = INTERNAL_RAG_HEALTH_PATH;
 
 export const RAG_HEALTH_HELP_TOPIC_LABEL = "How RAG corpus health works" as const;
 
-export const RAG_HEALTH_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
-
 export const RAG_HEALTH_FOLLOW_UPS_TITLE = "Where to go next";
-
-export const RAG_HEALTH_CLAIM_HEADING_ID = "rag-health-claim-discipline-heading" as const;
-
-export const RAG_HEALTH_CLAIM_DISCIPLINE =
-  "RAG corpus health reports chunk counts and last-indexed timestamps for this API host — it is not a sealed-review diligence Sources package. Open Diagnostics, System health, or Audit when you need readiness or governed trails.";
 
 export const RAG_HEALTH_SOURCES_INTRO =
   "Use these follow-ups when corpus freshness needs operational readiness checks or troubleshooting.";

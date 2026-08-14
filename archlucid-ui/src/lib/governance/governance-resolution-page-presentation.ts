@@ -8,6 +8,7 @@ import { getActiveSampleScenario } from "@/lib/samples/registry";
 import { tryStaticDemoGovernanceApprovalRequests } from "@/lib/operator/operator-static-demo";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import type { StandardsRulesContributingPolicyPack } from "@/lib/standards-rules-rows";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 
 export type StandardsRulesGovernanceBannerHrefs = {
@@ -26,7 +27,7 @@ export type StandardsRulesReviewContextModel = {
   readonly reviewName: string;
   readonly scopeLabel: string;
   readonly resolvedAtLabel: string;
-  readonly primaryPolicyPack: string;
+  readonly contributingPolicyPacks: readonly StandardsRulesContributingPolicyPack[];
   readonly resolutionSummary: string;
 };
 
@@ -118,7 +119,7 @@ function buildResolutionSummary(data: EffectiveGovernanceResolutionResult | null
 
 export function buildStandardsRulesReviewContextModel(input: {
   readonly data: EffectiveGovernanceResolutionResult | null;
-  readonly primaryPolicyPack: string;
+  readonly contributingPolicyPacks: readonly StandardsRulesContributingPolicyPack[];
   readonly useShowcaseFallback: boolean;
 }): StandardsRulesReviewContextModel {
   const scenario = getActiveSampleScenario();
@@ -129,7 +130,7 @@ export function buildStandardsRulesReviewContextModel(input: {
     reviewName: scenario.buyerReviewTitle,
     scopeLabel: buildScopeLabel(input.data),
     resolvedAtLabel: formatInstantForBuyerGovernance(resolvedAtUtc),
-    primaryPolicyPack: input.primaryPolicyPack,
+    contributingPolicyPacks: input.contributingPolicyPacks,
     resolutionSummary: buildResolutionSummary(input.data),
   };
 }

@@ -5,8 +5,8 @@ import { resolveResponsibleAiPolicyRuleRows } from "@/lib/policy/responsible-ai-
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
 
 describe("resolveResponsibleAiPolicyRuleRows", () => {
-  it("returns template baseline rows for sample packs without pack record", () => {
-    const result = resolveResponsibleAiPolicyRuleRows(null, { isSample: true, hasPackRecord: false });
+  it("returns template baseline rows when pack record is not loaded yet", () => {
+    const result = resolveResponsibleAiPolicyRuleRows(null, { hasPackRecord: false });
 
     expect(result.rows.length).toBeGreaterThan(0);
     expect(result.rulesSourceQualifier).toBe("Platform template baseline");
@@ -22,7 +22,7 @@ describe("resolveResponsibleAiPolicyRuleRows", () => {
       metadata: {},
     };
 
-    const result = resolveResponsibleAiPolicyRuleRows(content, { isSample: false, hasPackRecord: true });
+    const result = resolveResponsibleAiPolicyRuleRows(content, { hasPackRecord: true });
 
     expect(result.rows).toHaveLength(2);
     expect(result.rows[0]?.ruleKey).toBe("ai-gov-001");
@@ -64,7 +64,7 @@ describe("resolveResponsibleAiPolicyRuleRows", () => {
       metadata: { [POLICY_PACK_CURATED_RULES_METADATA_V1]: curatedJson },
     };
 
-    const result = resolveResponsibleAiPolicyRuleRows(content, { isSample: false, hasPackRecord: true });
+    const result = resolveResponsibleAiPolicyRuleRows(content, { hasPackRecord: true });
 
     expect(result.rows).toHaveLength(1);
     expect(result.rows[0]?.ruleName).toBe("AI model registry documented");
@@ -72,7 +72,7 @@ describe("resolveResponsibleAiPolicyRuleRows", () => {
   });
 
   it("falls back to template baseline when pack record exists without published content", () => {
-    const result = resolveResponsibleAiPolicyRuleRows(null, { isSample: false, hasPackRecord: true });
+    const result = resolveResponsibleAiPolicyRuleRows(null, { hasPackRecord: true });
 
     expect(result.rows.length).toBeGreaterThan(0);
     expect(result.rulesSourceQualifier).toBe("Published pack content unavailable — platform template baseline");

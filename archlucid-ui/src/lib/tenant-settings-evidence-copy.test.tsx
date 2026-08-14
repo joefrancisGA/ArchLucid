@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { TenantSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   TENANT_SETTINGS_CANONICAL_PATH,
-  TENANT_SETTINGS_CLAIM_DISCIPLINE,
-  TENANT_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  TENANT_SETTINGS_CLAIM_HEADING_ID,
   TENANT_SETTINGS_FOLLOW_UPS_TITLE,
   TENANT_SETTINGS_SOURCES,
   TENANT_SETTINGS_SOURCES_INTRO,
@@ -31,7 +28,7 @@ describe("tenant-settings-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<TenantSettingsEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("tenant-settings-claim-discipline")).toHaveTextContent(TENANT_SETTINGS_CLAIM_DISCIPLINE);
+    expect(screen.queryByTestId("tenant-settings-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(TENANT_SETTINGS_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("tenant-settings-sources");
@@ -47,10 +44,6 @@ describe("tenant-settings-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<TenantSettingsEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("tenant-settings-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", TENANT_SETTINGS_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: TENANT_SETTINGS_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: TENANT_SETTINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });

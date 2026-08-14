@@ -31,6 +31,13 @@ import {
   reviewsNewWithPackHref,
 } from "@/lib/policy/policy-packs-deep-link";
 import { resolveResponsibleAiPolicyRuleRows } from "@/lib/policy/responsible-ai-policy-pack-rules";
+import {
+  isBundledResponsibleAiPlatformPack,
+} from "@/lib/policy/policy-pack-detail-resolver";
+import {
+  POLICY_PACK_TYPE_PLATFORM_DEFAULT,
+  policyPackTypeDisplayLabel,
+} from "@/lib/policy/policy-pack-type-label";
 import type { PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
 import {
@@ -58,7 +65,6 @@ type ResponsibleAiPolicyPackDetailProps = {
   readonly policyPackId: string;
   readonly packRecord: PolicyPack | null;
   readonly packContent: PolicyPackContentDocument | null;
-  readonly isSample: boolean;
   readonly isEnabled: boolean;
   readonly isGloballyActive: boolean;
 };
@@ -173,15 +179,31 @@ function SummaryMetric(props: {
   );
 }
 
+function resolvePackProvenanceLabel(packRecord: PolicyPack | null, policyPackId: string): string | null {
+  if (packRecord !== null) {
+    const packType = packRecord.packType?.trim() ?? "";
+
+    if (packType.length > 0) {
+      return policyPackTypeDisplayLabel(packType);
+    }
+  }
+
+  if (isBundledResponsibleAiPlatformPack(policyPackId, packRecord)) {
+    return policyPackTypeDisplayLabel(POLICY_PACK_TYPE_PLATFORM_DEFAULT);
+  }
+
+  return null;
+}
+
 export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDetailProps): React.JSX.Element {
-  const { policyPackId, packRecord, packContent, isSample, isEnabled, isGloballyActive } = props;
+  const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
   const versionMetric = resolveVersionMetric(packRecord);
   const lastUpdatedMetric = resolveLastUpdatedMetric(packRecord);
   const rulesResolution = resolveResponsibleAiPolicyRuleRows(packContent, {
-    isSample,
     hasPackRecord: packRecord !== null,
   });
   const ruleCount = rulesResolution.rows.length;
+  const provenanceLabel = resolvePackProvenanceLabel(packRecord, policyPackId);
   const technicalVersion =
     packRecord?.currentVersion?.trim() || RESPONSIBLE_AI_POLICY_PACK_BASELINE_VERSION;
   const lifecycleStatusLabel = resolveLifecycleStatusLabel(packRecord);
@@ -217,8 +239,8 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
               label={lifecycleStatusLabel}
               data-testid="policy-pack-status-badge"
             />
-            {isSample ? (
-              <StatusTag kind="neutral" label="Sample policy pack" data-testid="policy-pack-sample-tag" />
+            {provenanceLabel !== null ? (
+              <StatusTag kind="neutral" label={provenanceLabel} data-testid="policy-pack-provenance-tag" />
             ) : null}
           </div>
         }

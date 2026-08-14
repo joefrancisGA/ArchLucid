@@ -105,7 +105,7 @@ export function StandardsRulesFilters(props: StandardsRulesFiltersProps) {
       </div>
       <div className="flex flex-wrap gap-3">
         <FilterSelect
-          label="Standard / framework"
+          label="Standard / Framework"
           value={filters.standardFramework}
           options={options.standards}
           onChange={(value) => {

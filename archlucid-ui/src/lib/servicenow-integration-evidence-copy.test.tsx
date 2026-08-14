@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { ServiceNowIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   SERVICENOW_INTEGRATION_CANONICAL_PATH,
-  SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE,
-  SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
-  SERVICENOW_INTEGRATION_CLAIM_HEADING_ID,
   SERVICENOW_INTEGRATION_FOLLOW_UPS_TITLE,
   SERVICENOW_INTEGRATION_SOURCES,
   SERVICENOW_INTEGRATION_SOURCES_INTRO,
@@ -31,9 +28,7 @@ describe("servicenow-integration-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<ServiceNowIntegrationEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("servicenow-integration-claim-discipline")).toHaveTextContent(
-      SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("servicenow-integration-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(SERVICENOW_INTEGRATION_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("servicenow-integration-sources");
@@ -49,10 +44,6 @@ describe("servicenow-integration-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<ServiceNowIntegrationEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("servicenow-integration-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", SERVICENOW_INTEGRATION_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: SERVICENOW_INTEGRATION_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByText(/Sources package/i)).toBeNull();
   });

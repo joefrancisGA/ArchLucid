@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { OperatorBillingSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   OPERATOR_BILLING_SETTINGS_CANONICAL_PATH,
-  OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE,
-  OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  OPERATOR_BILLING_SETTINGS_CLAIM_HEADING_ID,
   OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE,
   OPERATOR_BILLING_SETTINGS_SOURCES,
   OPERATOR_BILLING_SETTINGS_SOURCES_INTRO,
@@ -31,9 +28,7 @@ describe("operator-billing-settings-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<OperatorBillingSettingsEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("operator-billing-settings-claim-discipline")).toHaveTextContent(
-      OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("operator-billing-settings-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(OPERATOR_BILLING_SETTINGS_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("operator-billing-settings-sources");
@@ -49,10 +44,6 @@ describe("operator-billing-settings-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<OperatorBillingSettingsEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("operator-billing-settings-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", OPERATOR_BILLING_SETTINGS_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });

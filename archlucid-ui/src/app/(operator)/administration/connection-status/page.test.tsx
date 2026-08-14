@@ -32,7 +32,7 @@ describe("AdministrationConnectionStatusPage (ADC)", () => {
     expect(screen.queryByTestId("connection-status-webhooks-vocabulary")).toBeNull();
     expect(screen.queryByRole("link", { name: "How integration readiness works" })).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("connection-status-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("connection-status-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("connection-status-sources")).toBeInTheDocument();
     expect(screen.queryByText("About integration readiness")).not.toBeInTheDocument();
     expect(screen.getByTestId("connector-operations-dashboard")).toBeInTheDocument();

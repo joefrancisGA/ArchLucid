@@ -25,7 +25,7 @@ describe("PricingQuoteAgingPageView", () => {
     render(<PricingQuoteAgingPageView model={adminModel()} />);
 
     expect(screen.getByTestId("pricing-quote-follow-up-title")).toHaveTextContent("Pricing quote follow-up");
-    expect(screen.getByTestId("pricing-quote-aging-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("pricing-quote-aging-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText("Internal sales operations")).toBeInTheDocument();
     expect(screen.getByTestId("pricing-quote-follow-up-headline")).toHaveTextContent(
       "No open pricing quote requests",

@@ -32,7 +32,7 @@ describe("RagHealthAdminPageClient — evidence orientation", () => {
     render(<RagHealthAdminPageClient />);
 
     expect(await screen.findByTestId("rag-health-admin-page")).toBeInTheDocument();
-    expect(screen.getByTestId("rag-health-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("rag-health-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 });

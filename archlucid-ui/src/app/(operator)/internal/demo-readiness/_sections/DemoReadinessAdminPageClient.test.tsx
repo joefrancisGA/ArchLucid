@@ -66,7 +66,7 @@ describe("DemoReadinessAdminPageClient", () => {
     expect(screen.getByRole("heading", { level: 1, name: INTERNAL_DEMO_READINESS_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("demo-readiness-admin-ops-eyebrow")).toHaveTextContent(INTERNAL_OPERATIONS_NAV_EYEBROW);
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("demo-readiness-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("demo-readiness-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("buyer-cto-demo-readiness-panel")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 2, name: BUYER_CTO_DEMO_READINESS_HEADING })).toBeNull();
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);

@@ -1,5 +1,7 @@
 "use client";
 
+import { useLayoutEffect } from "react";
+
 import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
@@ -8,14 +10,16 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   IMPACT_PREVIEW_ORIENTATION,
   IMPACT_PREVIEW_PAGE_TITLE,
   IMPACT_PREVIEW_PLANNING_HREF,
-  IMPACT_PREVIEW_TRUST_NOTICE,
   impactPreviewPageSubtitle,
 } from "@/lib/impact-preview-page-copy";
+import { setImpactPreviewShellPageState } from "@/lib/impact-preview-route-shell-state";
+import type { ImpactPreviewPageState } from "@/lib/impact-preview-page-types";
 import { resolveImpactPreviewPageState } from "@/lib/resolve-impact-preview-page-state";
 import { resolveImpactPreviewRecommendation } from "@/lib/resolve-impact-preview-recommendation";
 import { resolveImpactPreviewSummaryMetrics } from "@/lib/resolve-impact-preview-summary-metrics";
@@ -32,9 +36,26 @@ import { ImpactPreviewSimulationResultsSection } from "./ImpactPreviewSimulation
 import { ImpactPreviewSummaryRow } from "./ImpactPreviewSummaryRow";
 import { useImpactPreviewBaselineAvailability } from "./use-impact-preview-baseline-availability";
 import { useIsOperatorNavHrefReachable } from "./use-is-operator-nav-href-reachable";
+
 type Props = {
   readonly model: EvolutionReviewPageViewModel;
 };
+
+function impactPreviewHeaderStatus(pageState: ImpactPreviewPageState): EnterpriseStatusKind | null {
+  switch (pageState) {
+    case "no_baseline":
+    case "no_candidates":
+      return "needs-attention";
+    case "permission_denied":
+      return "blocked";
+    default:
+      return null;
+  }
+}
+
+function shouldShowBlockedOutputPreview(pageState: ImpactPreviewPageState): boolean {
+  return pageState === "no_baseline" || pageState === "no_candidates";
+}
 
 /**
  * Impact preview: compare proposed architecture changes against a baseline review.
@@ -62,6 +83,15 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
     baselineLoading: baselineAvailability.loading,
     finalizedBaselineCount: baselineAvailability.finalizedCount,
   });
+  const pageReady = pageState === "ready";
+
+  useLayoutEffect(() => {
+    setImpactPreviewShellPageState(pageState);
+
+    return () => {
+      setImpactPreviewShellPageState("unknown");
+    };
+  }, [pageState]);
 
   const selectedRun =
     m.detail !== null
@@ -80,23 +110,25 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
         subtitle={impactPreviewPageSubtitle(buyerPolishedShell)}
         listLoading={m.listLoading}
         lastRefreshedAt={m.lastRefreshedAt}
+        statusKind={impactPreviewHeaderStatus(pageState)}
         onRefresh={() => {
           void m.loadList();
         }}
       />
 
-      <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" />
-      <PageCapabilityBoundaryStrip surfaceId="impactPreview" />
+      {pageReady ? (
+        <>
+          <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" />
+          <PageCapabilityBoundaryStrip surfaceId="impactPreview" />
 
-      <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        {IMPACT_PREVIEW_ORIENTATION}
-      </p>
-      <p className={cn("m-0 mt-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {IMPACT_PREVIEW_TRUST_NOTICE}
-      </p>
-      {!buyerPolishedShell ? <ImpactPreviewHowItWorksSection /> : null}
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {IMPACT_PREVIEW_ORIENTATION}
+          </p>
+          {!buyerPolishedShell ? <ImpactPreviewHowItWorksSection /> : null}
+        </>
+      ) : null}
 
-      {m.listLoading && m.candidates.length === 0 && pageState === "ready" ? (
+      {m.listLoading && m.candidates.length === 0 && pageReady ? (
         <OperatorLoadingNotice>
           <strong>Loading proposed changes.</strong>
           <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Fetching proposed architecture changes…</p>
@@ -125,7 +157,11 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
 
       <ImpactPreviewEmptyState pageState={pageState} planningReachable={planningReachable} />
 
-      {pageState === "ready" ? (
+      {shouldShowBlockedOutputPreview(pageState) ? <ImpactPreviewOutputPreviewPanel /> : null}
+
+      {!pageReady ? <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" /> : null}
+
+      {pageReady ? (
         <>
           <ImpactPreviewSetupCard
             candidates={m.candidates}

@@ -21,6 +21,7 @@ import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes"
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { DIGESTS_HUB_PATH, digestsHubTabFromLocation } from "@/lib/digests-route-paths";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ImpactPreviewPageState } from "@/lib/impact-preview-page-types";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 
 const IDENTITY_PROVIDERS_TAB_DISMISS_KEY =
@@ -205,6 +206,7 @@ export function routeViewExplanationForPathname(
   pathname: string,
   options?: {
     readonly isAiUsageQuietEmptyPeriod?: boolean;
+    readonly impactPreviewPageState?: ImpactPreviewPageState | "unknown";
     readonly search?: string | null;
   },
 ): RouteViewExplanation | null {
@@ -247,6 +249,14 @@ export function routeViewExplanationForPathname(
           nextAction:
             "Confirm your monthly AI budget cap below, then open billing when you need plan or invoice details.",
         };
+      }
+
+      if (row.prefix === IMPACT_PREVIEW_PATH) {
+        const impactPreviewPageState = options?.impactPreviewPageState ?? "unknown";
+
+        if (impactPreviewPageState !== "ready" && impactPreviewPageState !== "unknown") {
+          return null;
+        }
       }
 
       return row.explanation;

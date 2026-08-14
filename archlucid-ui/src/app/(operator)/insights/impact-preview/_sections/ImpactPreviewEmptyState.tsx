@@ -36,6 +36,8 @@ export function ImpactPreviewEmptyState(props: ImpactPreviewEmptyStateProps): Re
         testId="impact-preview-permission-empty-state"
         title={IMPACT_PREVIEW_EMPTY_PERMISSION_TITLE}
         description={IMPACT_PREVIEW_EMPTY_PERMISSION_BODY}
+        prominentBoundary
+        role="alert"
         actions={[
           { label: IMPACT_PREVIEW_ACTION_REQUEST_ACCESS, href: IMPACT_PREVIEW_SETTINGS_ROLES_HREF, variant: "primary" },
         ]}
@@ -49,6 +51,7 @@ export function ImpactPreviewEmptyState(props: ImpactPreviewEmptyStateProps): Re
         testId="impact-preview-no-baseline-empty-state"
         title={IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE}
         description={IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY}
+        prominentBoundary
         actions={[
           { label: IMPACT_PREVIEW_ACTION_START_REVIEW, href: IMPACT_PREVIEW_CREATE_REVIEW_HREF, variant: "primary" },
           { label: IMPACT_PREVIEW_ACTION_OPEN_REVIEW_PACKAGES, href: IMPACT_PREVIEW_REVIEWS_HREF, variant: "outline" },
@@ -70,6 +73,7 @@ export function ImpactPreviewEmptyState(props: ImpactPreviewEmptyStateProps): Re
       testId="impact-preview-no-candidates-empty-state"
       title={IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_TITLE}
       description={IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_BODY}
+      prominentBoundary
       actions={[
         { label: IMPACT_PREVIEW_ACTION_CREATE_PROPOSED_CHANGE, href: createHref, variant: "primary" },
         ...secondaryActions,

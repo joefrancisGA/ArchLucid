@@ -1849,11 +1849,11 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1781 | **Done** (2026-07-31) ? IIO traffic workbook notes: OAuth callback reachable after TB-1776 carve; Vitest; see `## TB-1781` below | Correctness P0 ? **V1**; owner review ~10/100 2026-07-27; traffic **IIO**; depends **TB-1776** | S |
 | TB-1785 | Atlassian OAuth callback ? Vitest success/fail/cancel states; see ## TB-1785 below | Testability P2 ? **V1**; after **TB-1776**/**TB-1783** | S |
 | TB-1787 | ~~Recommendation-learning ops ? single surface (retire orphan polished UI)~~ **Done** 2026-08-11 ? orphan deleted; anti-reintro Vitest | Maintainability P2 ? **V1**; with **TB-1786** | M |
-| TB-1790 | Recommendation-learning ops ? Vitest preview/rebuild/rollback + Execute gate; see ## TB-1790 below | Testability P2 ? **V1**; with **TB-1786**; after Done **TB-633** | S |
-| TB-1791 | `/login` Vitest redirect matrix (signin + idle-timeout); see ## TB-1791 below | Testability P2 ? **V1**; owner review ~12/100 2026-07-27; traffic **LOX** | S |
+| TB-1790 | ~~Recommendation-learning ops ? Vitest preview/rebuild/rollback + Execute gate~~ **Done** 2026-08-14 ? `RecommendationLearningOpsPageClient.test.tsx` TB-1790 block; see ## TB-1790 below | Testability P2 ? **V1**; with **TB-1786**; after Done **TB-633** | S |
+| TB-1791 | ~~`/login` Vitest redirect matrix (signin + idle-timeout)~~ **Done** 2026-08-14 ? `legacy-login-redirect.test.ts` + `legacy-login-route.test.ts`; see ## TB-1791 below | Testability P2 ? **V1**; owner review ~12/100 2026-07-27; traffic **LOX** | S |
 | TB-1792 | **Done** (2026-07-31) ? `/login` multi-value searchParams fidelity via `buildLoginRedirectPath`; Vitest; see `## TB-1792` below | Correctness P0 ? **V1**; with **TB-1791** | S |
-| TB-1796 | `/onboard` Vitest multi-value searchParams (parity ONS); see ## TB-1796 below | Testability P2 ? **V1**; owner review ~12/100 2026-07-27; traffic **ON** | S |
-| TB-1805 | `/onboarding/start` ? Vitest anti-reintro (redirect-only, no UI); see ## TB-1805 below | Testability P2 ? **V1**; with **TB-1801** | S |
+| TB-1796 | ~~`/onboard` Vitest multi-value searchParams (parity ONS)~~ **Done** 2026-08-14 ? `legacy-onboarding-redirect.test.ts` + `legacy-onboard-route.test.ts`; see ## TB-1796 below | Testability P2 ? **V1**; owner review ~12/100 2026-07-27; traffic **ON** | S |
+| TB-1805 | ~~`/onboarding/start` ? Vitest anti-reintro (redirect-only, no UI)~~ **Done** 2026-08-14 ? `legacy-onboarding-start-route.test.ts`; see ## TB-1805 below | Testability P2 ? **V1**; with **TB-1801** | S |
 | TB-1810 | `/operate/architecture-graph` ? Vitest anti-reintro (redirect-only + query); see ## TB-1810 below | Testability P2 ? **V1**; with **TB-1806** | S |
 | TB-1815 | `/patterns/[patternKey]` ? CTA hierarchy + Vitest anti-regress; see ## TB-1815 below | Adoption friction P2 ? **V1**; with **TB-1811** | S |
 | TB-1817 | Retire orphan `(marketing)/quick-start` page module (keep 301); see ## TB-1817 below | Maintainability P2 ? **V1**; with **TB-1816**; do not reopen **TB-736** | M |
@@ -43244,11 +43244,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1790 ? Recommendation-learning ops ? Vitest preview/rebuild/rollback + Execute gate (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14) ? `RecommendationLearningOpsPageClient.test.tsx` covers preview validation, rebuild refresh, rollback reason, ExecuteAuthority read-only gate, and insufficient-data disabled mutations. **Priority:** P0.
 
 **Problem:** Ops client coverage thin vs Done **TB-633** gating intent ? preview/rebuild/rollback/insufficient states under-tested.
 
 **Approach:** Vitest fixtures for preview delta, rebuild reason, rollback, Execute-disabled. Do not reopen **TB-633**.
+
+**Shipped:** TB-1790 Vitest block mocks preview/rebuild/rollback executors and toggles `useOperateCapability` for Execute gate assertions.
 
 **Acceptance:** Ops mutations gated and covered. **Size estimate:** S.
 
@@ -43256,13 +43258,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1791 ? `/login` Vitest redirect matrix (signin + idle-timeout) (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14) ? `buildLoginRedirectPath` + Vitest redirect matrix (`legacy-login-redirect.test.ts`) and anti-reintro guard (`legacy-login-route.test.ts`) after retired bookmark removal. **Priority:** P0.
 
 **Source:** Owner LOX ~12/100 2026-07-27.
 
 **Problem:** No CI lock for default ? `/auth/signin` vs idle-timeout ? session-expired.
 
 **Approach:** Vitest/route test: both branches + sample query preserve. Do not build a login UI here.
+
+**Shipped:** Pure redirect contract helper uses `auth-operator-route-paths`; tests lock signin vs session-expired branches and forbid App Router pages under `/login`.
 
 **Acceptance:** Shim regressions fail CI. **Size estimate:** S.
 
@@ -43324,13 +43328,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1796 ? `/onboard` Vitest multi-value searchParams (parity ONS) (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14) ? `buildOnboardingRedirectPath` multi-value Vitest (`legacy-onboarding-redirect.test.ts`) + `/onboard` bookmark guard (`legacy-onboard-route.test.ts`). **Priority:** P0.
 
 **Source:** Owner ON ~12/100 2026-07-27.
 
 **Problem:** Basic redirect covered; multi-value query edge cases may diverge from ONS / LOX fidelity work.
 
 **Approach:** Extend Vitest matrix for array query keys on `/onboard` and shared helper. Pairs ONS when scored.
+
+**Shipped:** Shared helper preserves repeated query keys toward `/architecture/first-review-guide`; route test forbids App Router pages under `/onboard`.
 
 **Acceptance:** Query shapes survive 308. **Size estimate:** S.
 
@@ -43452,11 +43458,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1805 ? `/onboarding/start` ? Vitest anti-reintro (redirect-only, no UI) (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14) ? `legacy-onboarding-start-route.test.ts` forbids App Router pages and client onboarding UI under `/onboarding/start`. **Priority:** P0.
 
 **Problem:** Future agents may reintroduce a start wizard at this path and bypass the redirect.
 
 **Approach:** Vitest: page module remains redirect-only (no client onboarding UI mount). Keep existing query tests.
+
+**Shipped:** Anti-reintro scans candidate app dirs for `page.tsx`/`layout.tsx` and blocks onboarding wizard client mounts on the retired bookmark path.
 
 **Acceptance:** Cannot silently reintroduce a second onboarding start UI. **Size estimate:** S.
 

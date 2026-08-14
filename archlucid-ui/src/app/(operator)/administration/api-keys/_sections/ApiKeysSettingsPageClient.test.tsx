@@ -49,7 +49,7 @@ describe("ApiKeysSettingsPageClient", () => {
       expect(screen.getByTestId("api-keys-settings-page")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("api-keys-settings-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("api-keys-settings-claim-discipline")).not.toBeInTheDocument();
   });
 
   it("loads masked fingerprints without internal config names and requires admin rotate confirmation", async () => {

@@ -30,10 +30,7 @@ import {
   authDomainsJourneyStepAriaLabel,
 } from "@/lib/auth-domains-page-copy";
 import { AUTH_DOMAINS_ZERO_DOMAIN_ENFORCEMENT_CALLOUT } from "@/lib/auth-domains-confirm-copy";
-import {
-  AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
-  AUTH_DOMAINS_SETTINGS_SOURCES,
-} from "@/lib/auth-domains-settings-evidence-copy";
+import { AUTH_DOMAINS_SETTINGS_SOURCES } from "@/lib/auth-domains-settings-evidence-copy";
 import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -134,9 +131,7 @@ describe("AuthDomainsPageClient", () => {
       "href",
       inAppHelpHref("authentication-sign-in"),
     );
-    expect(screen.getByTestId("auth-domains-settings-claim-discipline")).toHaveTextContent(
-      AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("auth-domains-settings-claim-discipline")).not.toBeInTheDocument();
 
     for (const source of AUTH_DOMAINS_SETTINGS_SOURCES) {
       expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);

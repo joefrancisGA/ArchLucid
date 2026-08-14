@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { TeamsIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   TEAMS_INTEGRATION_CANONICAL_PATH,
-  TEAMS_INTEGRATION_CLAIM_DISCIPLINE,
-  TEAMS_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
-  TEAMS_INTEGRATION_CLAIM_HEADING_ID,
   TEAMS_INTEGRATION_FOLLOW_UPS_TITLE,
   TEAMS_INTEGRATION_SOURCES,
   TEAMS_INTEGRATION_SOURCES_INTRO,
@@ -31,9 +28,7 @@ describe("teams-integration-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<TeamsIntegrationEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("teams-integration-claim-discipline")).toHaveTextContent(
-      TEAMS_INTEGRATION_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("teams-integration-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(TEAMS_INTEGRATION_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("teams-integration-sources");
@@ -49,10 +44,6 @@ describe("teams-integration-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<TeamsIntegrationEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("teams-integration-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", TEAMS_INTEGRATION_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: TEAMS_INTEGRATION_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: TEAMS_INTEGRATION_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByText(/Sources package/i)).toBeNull();
   });

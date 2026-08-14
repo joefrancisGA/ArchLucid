@@ -7,9 +7,6 @@ import { describe, expect, it } from "vitest";
 import { DemoReadinessEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
   DEMO_READINESS_CANONICAL_PATH,
-  DEMO_READINESS_CLAIM_DISCIPLINE,
-  DEMO_READINESS_CLAIM_DISCIPLINE_HEADING,
-  DEMO_READINESS_CLAIM_HEADING_ID,
   DEMO_READINESS_FOLLOW_UPS_TITLE,
   DEMO_READINESS_SOURCES,
   DEMO_READINESS_SOURCES_INTRO,
@@ -31,7 +28,7 @@ describe("demo-readiness-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<DemoReadinessEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("demo-readiness-claim-discipline")).toHaveTextContent(DEMO_READINESS_CLAIM_DISCIPLINE);
+    expect(screen.queryByTestId("demo-readiness-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(DEMO_READINESS_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("demo-readiness-sources");
@@ -47,10 +44,6 @@ describe("demo-readiness-evidence-copy", () => {
 
   it("labels claim discipline and follow-ups for accessibility parity", () => {
     render(<DemoReadinessEvidenceOrientationStrip />);
-
-    const claim = screen.getByTestId("demo-readiness-claim-discipline");
-    expect(claim).toHaveAttribute("aria-labelledby", DEMO_READINESS_CLAIM_HEADING_ID);
-    expect(screen.getByRole("heading", { name: DEMO_READINESS_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: DEMO_READINESS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });

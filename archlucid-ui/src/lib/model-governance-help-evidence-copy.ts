@@ -1,10 +1,7 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { AI_USAGE_HELP_CANONICAL_PATH } from "@/lib/ai-usage-help-evidence-copy";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_CANONICAL_PATH } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
-import {
-  MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE,
-  MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO,
-} from "@/lib/model-governance-settings-evidence-copy";
+import { MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO } from "@/lib/model-governance-settings-evidence-copy";
 import { SUBPROCESSORS_HELP_CANONICAL_PATH } from "@/lib/subprocessors-help-evidence-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -30,5 +27,3 @@ export const MODEL_GOVERNANCE_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;
-
-export const MODEL_GOVERNANCE_HELP_OPERATOR_CLAIM = MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE;
