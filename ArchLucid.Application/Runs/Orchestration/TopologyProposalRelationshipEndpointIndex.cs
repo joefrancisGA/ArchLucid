@@ -493,7 +493,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("databricks", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("kusto_cluster", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("app_configuration", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("netapp", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("netapp", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("recovery_services", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -525,7 +526,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("traffic_manager", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("azurerm_lb", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cdn_frontdoor", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("azurerm_firewall", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("azurerm_firewall", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("container_group", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
