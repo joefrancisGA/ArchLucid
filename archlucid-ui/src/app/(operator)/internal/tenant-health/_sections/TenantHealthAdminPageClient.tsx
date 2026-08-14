@@ -17,6 +17,7 @@ import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-sk
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { TenantHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TenantSystemWorkspaceHealthVocabularyRail } from "@/components/TenantSystemWorkspaceHealthVocabularyRail";
@@ -103,6 +104,7 @@ export function TenantHealthAdminPageClient() {
           </>
         }
       />
+      <TenantHealthEvidenceOrientationStrip />
       <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="tenant-health" />
       {error ? (
         <OperatorSectionLoadFailure

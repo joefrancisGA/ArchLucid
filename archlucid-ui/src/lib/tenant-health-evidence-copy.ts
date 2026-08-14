@@ -6,6 +6,12 @@ export const TENANT_HEALTH_CANONICAL_PATH = "/internal/tenant-health" as const;
 
 export const TENANT_HEALTH_HELP_TOPIC_LABEL = "How tenant health works" as const;
 
+export const TENANT_HEALTH_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const TENANT_HEALTH_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const TENANT_HEALTH_CLAIM_HEADING_ID = "tenant-health-claim-discipline-heading" as const;
+
 export const TENANT_HEALTH_CLAIM_DISCIPLINE =
   "Tenant health scores summarize engagement, governance activity, and pilot funnel stage for customer-success teams — they are not a sealed-review diligence Sources package. Open System health or Audit when you need operational or governed trails.";
 

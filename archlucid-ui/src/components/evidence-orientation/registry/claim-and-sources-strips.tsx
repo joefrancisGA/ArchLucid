@@ -447,6 +447,14 @@ import {
   TRIAL_FUNNEL_SOURCES_INTRO,
 } from "@/lib/trial-funnel-evidence-copy";
 import {
+  TENANT_HEALTH_CLAIM_DISCIPLINE,
+  TENANT_HEALTH_CLAIM_DISCIPLINE_HEADING,
+  TENANT_HEALTH_CLAIM_HEADING_ID,
+  TENANT_HEALTH_FOLLOW_UPS_TITLE,
+  TENANT_HEALTH_SOURCES,
+  TENANT_HEALTH_SOURCES_INTRO,
+} from "@/lib/tenant-health-evidence-copy";
+import {
   WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
@@ -787,6 +795,25 @@ export function TrialFunnelEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={TRIAL_FUNNEL_FOLLOW_UPS_TITLE}
       sourcesIntro={TRIAL_FUNNEL_SOURCES_INTRO}
       sources={TRIAL_FUNNEL_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function TenantHealthEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="tenant-health"
+      claim={TENANT_HEALTH_CLAIM_DISCIPLINE}
+      claimHeading={TENANT_HEALTH_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={TENANT_HEALTH_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={TENANT_HEALTH_FOLLOW_UPS_TITLE}
+      sourcesIntro={TENANT_HEALTH_SOURCES_INTRO}
+      sources={TENANT_HEALTH_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
