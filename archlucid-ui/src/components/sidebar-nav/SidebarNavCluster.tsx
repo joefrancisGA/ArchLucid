@@ -87,6 +87,9 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     props.isCollapsible && "hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
   );
 
+  const headingHelpTooltip =
+    group.caption ? <FieldHelpTooltip label={groupHeadingLabel} hint={group.caption} /> : null;
+
   const headingInner = (
     <>
       {props.isCollapsible ? (
@@ -99,7 +102,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
         <span className="inline-flex items-center gap-1">
           <span>{groupHeadingLabel}</span>
-          {group.caption ? <FieldHelpTooltip label={groupHeadingLabel} hint={group.caption} /> : null}
+          {!props.isCollapsible ? headingHelpTooltip : null}
         </span>
       </span>
     </>
@@ -131,19 +134,22 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   return (
     <div key={group.id} data-testid={`sidebar-group-${group.id}`} className="mt-1 first:mt-0">
       {props.isCollapsible ? (
-        <button
-          type="button"
-          className={cn(headingClassName, "sidebar-disclosure-trigger")}
-          id={headingId}
-          data-testid={`sidebar-group-toggle-${group.id}`}
-          aria-expanded={props.isExpanded}
-          aria-controls={contentId}
-          onClick={() => {
-            props.onToggleExpanded?.();
-          }}
-        >
-          {headingInner}
-        </button>
+        <div className="flex min-w-0 items-start gap-1">
+          <button
+            type="button"
+            className={cn(headingClassName, "sidebar-disclosure-trigger flex-1")}
+            id={headingId}
+            data-testid={`sidebar-group-toggle-${group.id}`}
+            aria-expanded={props.isExpanded}
+            aria-controls={contentId}
+            onClick={() => {
+              props.onToggleExpanded?.();
+            }}
+          >
+            {headingInner}
+          </button>
+          {headingHelpTooltip}
+        </div>
       ) : (
         <div
           className={headingClassName}
