@@ -182,19 +182,14 @@ public sealed class RunDetailPageBundleController(
             .ListRunsByProjectAsync(scope, currentRun.ProjectId, DeferredProjectRunTake, cancellationToken)
             .ConfigureAwait(false);
 
-        RunSummaryDto? priorCommittedRun = FindPriorCommittedRun(runId, projectRuns);
-
-        if (priorCommittedRun is null)
-        {
-            priorCommittedRun = await _queryService
-                .GetPriorCommittedRunSummaryBeforeCurrentAsync(
-                    scope,
-                    runId,
-                    currentRun.ProjectId,
-                    currentRun.CreatedUtc,
-                    cancellationToken)
-                .ConfigureAwait(false);
-        }
+        RunSummaryDto? priorCommittedRun = await _queryService
+            .GetPriorCommittedRunSummaryBeforeCurrentAsync(
+                scope,
+                runId,
+                currentRun.ProjectId,
+                currentRun.CreatedUtc,
+                cancellationToken)
+            .ConfigureAwait(false);
 
         RunComparisonResponse? priorComparison = null;
 
@@ -230,37 +225,6 @@ public sealed class RunDetailPageBundleController(
         };
 
         return Ok(body);
-    }
-
-    private static RunSummaryDto? FindPriorCommittedRun(Guid currentRunId, IReadOnlyList<RunSummaryDto> runs)
-    {
-        int currentIndex = -1;
-
-        for (int i = 0; i < runs.Count; i++)
-        {
-            if (runs[i].RunId == currentRunId)
-            {
-                currentIndex = i;
-                break;
-            }
-        }
-
-        if (currentIndex < 0)
-        {
-            return null;
-        }
-
-        for (int i = currentIndex + 1; i < runs.Count; i++)
-        {
-            RunSummaryDto candidate = runs[i];
-
-            if (candidate.HasGoldenManifest)
-            {
-                return candidate;
-            }
-        }
-
-        return null;
     }
 
     private static RunComparisonResponse MapRunComparison(RunComparisonResult result)

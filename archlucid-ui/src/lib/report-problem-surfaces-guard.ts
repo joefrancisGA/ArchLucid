@@ -42,6 +42,7 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
   {
     surfaceId: "governance-findings-queue-hard-failure",
     requiredMarkers: ["governance-findings-queue-hard-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["components/EnterpriseInlineErrorNotification.tsx"],
   },
   {
     surfaceId: "review-commit-export-page-failure",
