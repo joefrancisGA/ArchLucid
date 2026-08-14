@@ -13,7 +13,7 @@ export const SYSTEM_HEALTH_CLAIM_DISCIPLINE =
   "This page reports workspace operational readiness (live/ready checks and build identity). It is not a sealed-review diligence Sources trail.";
 
 export const SYSTEM_HEALTH_SOURCES_INTRO =
-  "When a dependency needs follow-up, open connection status or troubleshooting. Digests and audit are separate operator jobs.";
+  "When a dependency needs follow-up, open connection status or troubleshooting. Digests and audit are separate operator surfaces.";
 
 
 /** Operator Sources — no self-href to system-health. */

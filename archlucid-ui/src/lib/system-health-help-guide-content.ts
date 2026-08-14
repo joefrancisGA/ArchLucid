@@ -8,17 +8,16 @@ import { SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/system-health
 
 export const SYSTEM_HEALTH_HELP_PAGE_TITLE = "System health";
 
+export const SYSTEM_HEALTH_HELP_BREADCRUMB_TOPIC_TITLE = "System health guide";
+
 export const SYSTEM_HEALTH_HELP_PAGE_SUBTITLE =
   "How to read readiness probes, deployment identity, and dependency follow-ups for this workspace.";
 
 export const SYSTEM_HEALTH_HELP_OVERVIEW =
   "System health reports workspace operational readiness — live and ready checks plus deployment identity. Use it to confirm dependencies before reviews depend on them.";
 
-/** Help Start here card — readiness refresh guidance beside the primary action. */
-export const SYSTEM_HEALTH_HELP_START_HERE_SCOPE_NOTE =
-  "Readiness loads once per visit and on demand.";
-
-export const SYSTEM_HEALTH_HELP_START_HERE_CARD_TITLE = "Start here";
+/** Readiness refresh guidance — shown under overview; primary CTA lives in the page header. */
+export const SYSTEM_HEALTH_HELP_READINESS_HELPER = "Readiness loads once per visit and on demand.";
 
 export const SYSTEM_HEALTH_HELP_PRIMARY_ACTION = {
   label: "Open system health",
@@ -33,7 +32,7 @@ export const SYSTEM_HEALTH_HELP_CONNECTION_STATUS_HREF = "/administration/connec
 export type SystemHealthHelpTileItem = {
   readonly label: string;
   readonly detail: string;
-  readonly href: string;
+  readonly href?: string;
 };
 
 export const SYSTEM_HEALTH_HELP_TILE_ITEMS: readonly SystemHealthHelpTileItem[] = [
@@ -45,12 +44,10 @@ export const SYSTEM_HEALTH_HELP_TILE_ITEMS: readonly SystemHealthHelpTileItem[] 
   {
     label: "Deployment identity",
     detail: "Build and version stamps help operators confirm which release is serving the workspace.",
-    href: SYSTEM_HEALTH_CANONICAL_PATH,
   },
   {
     label: "Manual refresh",
     detail: "Health loads once per visit and on demand — it does not stream continuously.",
-    href: SYSTEM_HEALTH_CANONICAL_PATH,
   },
   {
     label: "Follow-up surfaces",
@@ -80,6 +77,6 @@ export const SYSTEM_HEALTH_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] =
 
 /** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
 export const SYSTEM_HEALTH_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed-review diligence Sources package", "not a diligence Sources package"],
-  claimMustContain: "not a sealed-review diligence Sources package",
+  overviewMustNotContain: ["not a sealed-review diligence Sources trail", "not a diligence Sources trail"],
+  claimMustContain: "not a sealed-review diligence Sources trail",
 } as const;

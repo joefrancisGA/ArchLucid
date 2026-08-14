@@ -1,15 +1,13 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpSystemHealthHeaderActions } from "@/app/(operator)/help/_sections/HelpSystemHealthHeaderActions";
 import { SystemHealthHelpEvidenceOrientationStrip } from "@/components/help/SystemHealthHelpEvidenceOrientationStrip";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -20,14 +18,13 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 import { SYSTEM_HEALTH_HELP_TOPIC_LABEL } from "@/lib/system-health-evidence-copy";
 import { SYSTEM_HEALTH_HELP_CANONICAL_PATH } from "@/lib/system-health-help-evidence-copy";
 import {
+  SYSTEM_HEALTH_HELP_BREADCRUMB_TOPIC_TITLE,
   SYSTEM_HEALTH_HELP_GUIDE_HEADINGS,
   SYSTEM_HEALTH_HELP_HOW_TO_READ_STEPS,
   SYSTEM_HEALTH_HELP_OVERVIEW,
   SYSTEM_HEALTH_HELP_PAGE_SUBTITLE,
   SYSTEM_HEALTH_HELP_PAGE_TITLE,
-  SYSTEM_HEALTH_HELP_PRIMARY_ACTION,
-  SYSTEM_HEALTH_HELP_START_HERE_CARD_TITLE,
-  SYSTEM_HEALTH_HELP_START_HERE_SCOPE_NOTE,
+  SYSTEM_HEALTH_HELP_READINESS_HELPER,
   SYSTEM_HEALTH_HELP_TILE_ITEMS,
 } from "@/lib/system-health-help-guide-content";
 import { cn } from "@/lib/utils";
@@ -63,8 +60,9 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
         subtitle={SYSTEM_HEALTH_HELP_PAGE_SUBTITLE}
         navHref={SYSTEM_HEALTH_HELP_CANONICAL_PATH}
         headingLevel="h1"
+        breadcrumb={<HelpTopicBreadcrumb topicTitle={SYSTEM_HEALTH_HELP_BREADCRUMB_TOPIC_TITLE} />}
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
+        actions={<HelpSystemHealthHeaderActions />}
       />
 
       <div className={contentGridClass}>
@@ -72,25 +70,12 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
           <p className={readingBodyClass} data-testid="help-system-health-overview">
             {SYSTEM_HEALTH_HELP_OVERVIEW}
           </p>
-
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-system-health-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {SYSTEM_HEALTH_HELP_START_HERE_CARD_TITLE}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={SYSTEM_HEALTH_HELP_PRIMARY_ACTION.href}>{SYSTEM_HEALTH_HELP_PRIMARY_ACTION.label}</Link>
-              </Button>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-system-health-start-here-scope-note"
-              >
-                {SYSTEM_HEALTH_HELP_START_HERE_SCOPE_NOTE}
-              </p>
-            </CardContent>
-          </Card>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="help-system-health-readiness-helper"
+          >
+            {SYSTEM_HEALTH_HELP_READINESS_HELPER}
+          </p>
 
           <section
             aria-labelledby="what-system-health-shows"
@@ -104,9 +89,13 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
               {SYSTEM_HEALTH_HELP_TILE_ITEMS.map((item) => (
                 <div key={item.label}>
                   <dt className="font-medium text-al-text-primary">
-                    <Link className={OPERATOR_LINK.nav} href={item.href}>
-                      {item.label}
-                    </Link>
+                    {item.href === undefined ? (
+                      item.label
+                    ) : (
+                      <Link className={OPERATOR_LINK.nav} href={item.href}>
+                        {item.label}
+                      </Link>
+                    )}
                   </dt>
                   <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
                 </div>
