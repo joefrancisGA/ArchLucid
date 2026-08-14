@@ -2,6 +2,7 @@ import {
   SPONSOR_BRIEFING_EXPORT_LABEL,
   SPONSOR_BRIEFING_EXPORT_LABEL_LOWER,
 } from "@/lib/usability/canonical-product-terms";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 

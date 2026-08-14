@@ -4,13 +4,12 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
-import { pickPriorForSameRequest } from "@/components/BeforeAfterDelta/pick-prior-for-same-request";
-import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { Button } from "@/components/ui/button";
 import { getShowcaseCompareHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { SHOW_ALL_DESTINATIONS } from "@/lib/nav-disclosure-copy";
 
@@ -31,14 +30,7 @@ export function PostCommitAdvancedAnalysisHint({
   runId,
   embeddedInCollapsible = false,
 }: PostCommitAdvancedAnalysisHintProps) {
-  const { status, data } = useDeltaQuery({ count: LOOKBACK });
-  const current =
-    status === "ready" && data !== null ? data.items.find((row) => row.runId === runId) : undefined;
-  const prior =
-    current !== undefined && data !== null ? pickPriorForSameRequest(current, data.items) : null;
-
-  const compareWithPriorHref =
-    prior !== null ? comparePageHrefAdaptive(prior.runId, runId) : null;
+  const { compareWithPriorHref } = usePriorSameRequestCompareHref(runId, LOOKBACK);
 
   const encoded = encodeURIComponent(runId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();

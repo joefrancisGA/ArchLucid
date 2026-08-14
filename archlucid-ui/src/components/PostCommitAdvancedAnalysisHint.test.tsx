@@ -6,8 +6,11 @@ import { getShowcaseCompareHref } from "@/lib/buyer/buyer-safe-review-navigation
 
 const BACKUP_ENV = process.env;
 
-vi.mock("@/components/BeforeAfterDelta/useDeltaQuery", () => ({
-  useDeltaQuery: () => ({ status: "ready", data: { items: [] } }),
+vi.mock("@/hooks/use-prior-same-request-compare-href", () => ({
+  usePriorSameRequestCompareHref: () => ({
+    compareWithPriorHref: null,
+    hasSameRequestPrior: false,
+  }),
 }));
 
 describe("PostCommitAdvancedAnalysisHint", () => {
