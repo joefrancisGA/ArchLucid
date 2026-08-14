@@ -51,17 +51,15 @@ public sealed class AzureBoardsIntegrationsController(
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        AzureBoardsConnectionTestResult result =
-            await _integrationService.TestConnectionAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        string status = result.Ok ? "healthy" : result.StatusCode is null ? "not_configured" : "unhealthy";
+        AzureBoardsStoredHealth stored =
+            await _integrationService.GetStoredHealthAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
         return Ok(new AzureBoardsIntegrationHealthResponse
         {
-            Status = status,
-            Reachable = result.Ok,
-            Summary = result.Summary,
-            StatusCode = result.StatusCode
+            Status = stored.Status,
+            Reachable = stored.Reachable,
+            Summary = stored.Summary,
+            StatusCode = stored.StatusCode
         });
     }
 

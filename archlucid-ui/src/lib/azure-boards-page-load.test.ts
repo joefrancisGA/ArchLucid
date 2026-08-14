@@ -27,10 +27,6 @@ describe("azure-boards-page-load", () => {
 
   it("builds a partial load where settings fail without clearing connection (TB-1152)", () => {
     const result = buildAzureBoardsPageLoadResult({
-      health: {
-        status: "fulfilled",
-        value: { status: "ok", reachable: true, summary: "healthy" },
-      },
       itsmHealth: { status: "fulfilled", value: { nativeEnabled: true } },
       settings: { status: "rejected", reason: new Error("Database Query Failed") },
       connection: {
@@ -49,5 +45,24 @@ describe("azure-boards-page-load", () => {
     expect(result.settings.failed).toBe(true);
     expect(result.failedSliceLabels).toEqual(["Azure Boards settings"]);
     expect(result.loadError).toBe("Database Query Failed");
+  });
+
+  it("uses a slice fallback when the rejection is not a named Error", () => {
+    const settled = settleAzureBoardsPageLoadSlice({ status: "rejected", reason: "nope" }, "itsmHealth");
+
+    expect(settled.failed).toBe(true);
+    expect(settled.errorMessage).toBe("Could not load work management health.");
+  });
+
+  it("joins multiple slice failures into one load error", () => {
+    const result = buildAzureBoardsPageLoadResult({
+      itsmHealth: { status: "rejected", reason: new Error("a") },
+      settings: { status: "rejected", reason: new Error("b") },
+      connection: { status: "fulfilled", value: { provider: "AzureBoards" } },
+    });
+
+    expect(result.loadError).toBe(
+      "Some Azure Boards data could not be loaded (work management health, Azure Boards settings).",
+    );
   });
 });

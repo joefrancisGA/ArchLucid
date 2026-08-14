@@ -1,13 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mockFetchAzureHealth = vi.fn();
 const mockFetchAzureSettings = vi.fn();
 const mockFetchItsmHealth = vi.fn();
 const mockFetchConnection = vi.fn();
 
 vi.mock("@/lib/api/azure-boards-api", () => ({
-  fetchAzureBoardsHealth: (...args: unknown[]) => mockFetchAzureHealth(...args),
   fetchAzureBoardsSettings: (...args: unknown[]) => mockFetchAzureSettings(...args),
 }));
 
@@ -18,15 +16,6 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 
 import { HelpAzureBoardsConnectionContext } from "@/app/(operator)/help/_sections/HelpAzureBoardsConnectionContext";
 import { AZURE_BOARDS_LOAD_FAILURE_STATUS_EXPLANATION } from "@/lib/azure-boards-integration-present";
-
-function baseHealth(overrides: Record<string, unknown> = {}) {
-  return {
-    status: "not_configured",
-    reachable: false,
-    summary: "Azure Boards credentials are not configured.",
-    ...overrides,
-  };
-}
 
 function baseSettings(overrides: Record<string, unknown> = {}) {
   return {
@@ -49,14 +38,12 @@ function baseConnection(overrides: Record<string, unknown> = {}) {
 
 describe("HelpAzureBoardsConnectionContext", () => {
   beforeEach(() => {
-    mockFetchAzureHealth.mockReset();
     mockFetchAzureSettings.mockReset();
     mockFetchItsmHealth.mockReset();
     mockFetchConnection.mockReset();
   });
 
   it("shows sanitized connection status and next step when configuration loads", async () => {
-    mockFetchAzureHealth.mockResolvedValue(baseHealth());
     mockFetchItsmHealth.mockResolvedValue({ nativeEnabled: true });
     mockFetchAzureSettings.mockResolvedValue(baseSettings());
     mockFetchConnection.mockResolvedValue(baseConnection());
@@ -73,11 +60,16 @@ describe("HelpAzureBoardsConnectionContext", () => {
     expect(screen.queryByText(/database query failed/i)).not.toBeInTheDocument();
   });
 
-  it("shows connected status when health probe succeeds", async () => {
-    mockFetchAzureHealth.mockResolvedValue(baseHealth({ reachable: true, status: "ok" }));
+  it("shows connected status when last stored connection test succeeded", async () => {
     mockFetchItsmHealth.mockResolvedValue({ nativeEnabled: true });
     mockFetchAzureSettings.mockResolvedValue(
-      baseSettings({ projectName: "Contoso", defaultWorkItemType: "Bug", isConfigured: true }),
+      baseSettings({
+        projectName: "Contoso",
+        defaultWorkItemType: "Bug",
+        isConfigured: true,
+        lastConnectionTestUtc: "2026-08-13T12:00:00.000Z",
+        lastConnectionTestSummary: "Azure Boards reachable (1 project(s) discovered).",
+      }),
     );
     mockFetchConnection.mockResolvedValue(
       baseConnection({
@@ -95,7 +87,6 @@ describe("HelpAzureBoardsConnectionContext", () => {
   });
 
   it("never surfaces raw API failure text to buyers", async () => {
-    mockFetchAzureHealth.mockRejectedValue(new Error("database query failed: syntax error"));
     mockFetchItsmHealth.mockRejectedValue(new Error("500 Internal Server Error"));
     mockFetchAzureSettings.mockRejectedValue(new Error("programming error"));
     mockFetchConnection.mockRejectedValue(new Error("the database rejected the query"));
@@ -114,8 +105,7 @@ describe("HelpAzureBoardsConnectionContext", () => {
   });
 
   it("sanitizes load errors that still return partial slices", async () => {
-    mockFetchAzureHealth.mockRejectedValue(new Error("database query failed"));
-    mockFetchItsmHealth.mockResolvedValue({ nativeEnabled: true });
+    mockFetchItsmHealth.mockRejectedValue(new Error("database query failed"));
     mockFetchAzureSettings.mockResolvedValue(baseSettings());
     mockFetchConnection.mockResolvedValue(baseConnection());
 

@@ -1,8 +1,10 @@
 namespace ArchLucid.Application.Integrations.AzureBoards;
 
-/// <summary>Azure Boards discovery, health probes, and settings helpers.</summary>
+/// <summary>Azure Boards discovery, stored health, live probes, and settings helpers.</summary>
 public interface IAzureBoardsIntegrationService
 {
+    Task<AzureBoardsStoredHealth> GetStoredHealthAsync(Guid tenantId, CancellationToken cancellationToken);
+
     Task<AzureBoardsConnectionTestResult> TestConnectionAsync(Guid tenantId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<string>> ListProjectsAsync(Guid tenantId, CancellationToken cancellationToken);

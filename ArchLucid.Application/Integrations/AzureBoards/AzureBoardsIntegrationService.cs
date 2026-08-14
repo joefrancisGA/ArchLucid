@@ -11,6 +11,7 @@ namespace ArchLucid.Application.Integrations.AzureBoards;
 public sealed class AzureBoardsIntegrationService(
     IItsmTenantConnectorCredentialResolver credentialResolver,
     ITenantAzureBoardsOutboundSettingsRepository settingsRepository,
+    ITenantItsmConnectorConnectionRepository connectionRepository,
     AzureBoardsOutboundIssueClient azureBoardsClient,
     IItsmOutboundHttpAuthenticator httpAuthenticator) : IAzureBoardsIntegrationService
 {
@@ -20,11 +21,28 @@ public sealed class AzureBoardsIntegrationService(
     private readonly ITenantAzureBoardsOutboundSettingsRepository _settingsRepository =
         settingsRepository ?? throw new ArgumentNullException(nameof(settingsRepository));
 
+    private readonly ITenantItsmConnectorConnectionRepository _connectionRepository =
+        connectionRepository ?? throw new ArgumentNullException(nameof(connectionRepository));
+
     private readonly AzureBoardsOutboundIssueClient _azureBoardsClient =
         azureBoardsClient ?? throw new ArgumentNullException(nameof(azureBoardsClient));
 
     private readonly IItsmOutboundHttpAuthenticator _httpAuthenticator =
         httpAuthenticator ?? throw new ArgumentNullException(nameof(httpAuthenticator));
+
+    public async Task<AzureBoardsStoredHealth> GetStoredHealthAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        TenantItsmConnectorConnectionRecord? connection = await _connectionRepository
+            .GetAsync(tenantId, TenantItsmConnectorProvider.AzureBoards, cancellationToken)
+            .ConfigureAwait(false);
+
+        TenantAzureBoardsOutboundSettings? settings =
+            await _settingsRepository.TryGetAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        return AzureBoardsStoredHealthMapper.Map(
+            AzureBoardsStoredHealthMapper.AreCredentialsConfigured(connection),
+            settings);
+    }
 
     public async Task<AzureBoardsConnectionTestResult> TestConnectionAsync(Guid tenantId, CancellationToken cancellationToken)
     {

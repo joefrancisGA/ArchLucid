@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 
+using ArchLucid.Api.Models.Integrations;
 using ArchLucid.Api.Routing;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Authorization;
@@ -20,6 +21,35 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
     {
         PropertyNameCaseInsensitive = true,
     };
+
+    [SkippableFact]
+    public async Task Get_health_with_reader_jwt_returns_stored_not_configured_status()
+    {
+        JwtLocalSigningIntegrationTestTenant.Scope testScope =
+            await JwtLocalSigningIntegrationTestTenant.SeedStandardTierScopeAsync(factory);
+
+        string token = JwtLocalSigningIntegrationTestTenant.MintBearerJwtForScope(
+            factory,
+            testScope,
+            "ReaderUser",
+            [ArchLucidRoles.Reader]);
+
+        HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        HttpResponseMessage response = await client.GetAsync(
+            new Uri($"/{ApiV1Routes.AzureBoardsIntegrations}/health", UriKind.Relative));
+
+        string responseBody = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.OK, "response body: {0}", responseBody);
+
+        AzureBoardsIntegrationHealthResponse? body =
+            await response.Content.ReadFromJsonAsync<AzureBoardsIntegrationHealthResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.Status.Should().Be("not_configured");
+        body.Reachable.Should().BeFalse();
+    }
 
     [SkippableFact]
     public async Task Get_settings_with_reader_jwt_succeeds()

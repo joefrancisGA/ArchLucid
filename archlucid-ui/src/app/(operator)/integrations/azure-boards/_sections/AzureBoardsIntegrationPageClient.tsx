@@ -18,7 +18,6 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
-  fetchAzureBoardsHealth,
   fetchAzureBoardsSettings,
   listAzureBoardsProjects,
   listAzureBoardsWorkItemTypes,
@@ -34,6 +33,10 @@ import {
   type TenantItsmConnectorConnectionResponse,
 } from "@/lib/api/itsm-outbound-api";
 import { buildAzureBoardsPageLoadResult } from "@/lib/azure-boards-page-load";
+import {
+  mapAzureBoardsHealthFromConnectionTest,
+  mapAzureBoardsHealthFromSettings,
+} from "@/lib/azure-boards-stored-health";
 import {
   formatAzureBoardsOrganizationUrl,
   isAzureBoardsConnectionSaveSuccessful,
@@ -180,23 +183,18 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
     setLoadError(null);
 
     // Isolate slice failures so one 500 cannot wipe successful connection/settings (TB-1152).
-    const [healthOutcome, itsmHealthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
-      fetchAzureBoardsHealth(),
+    // Health is derived from settings last-test + connection — GET /health is not a live probe.
+    const [itsmHealthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
       fetchItsmIntegrationHealth(),
       fetchAzureBoardsSettings(),
       fetchTenantItsmConnectorConnection("azureboards"),
     ]);
 
     const loaded = buildAzureBoardsPageLoadResult({
-      health: healthOutcome,
       itsmHealth: itsmHealthOutcome,
       settings: settingsOutcome,
       connection: connectionOutcome,
     });
-
-    if (!loaded.health.failed) {
-      setHealth(loaded.health.value);
-    }
 
     if (!loaded.itsmHealth.failed) {
       setItsmHealth(loaded.itsmHealth.value);
@@ -204,6 +202,12 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
 
     if (!loaded.settings.failed) {
       applySettings(loaded.settings.value);
+      setHealth(
+        mapAzureBoardsHealthFromSettings(
+          !loaded.connection.failed && isAzureBoardsCredentialsReady(loaded.connection.value, null),
+          loaded.settings.value,
+        ),
+      );
     }
 
     if (!loaded.connection.failed) {
@@ -358,8 +362,14 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
       if (isAzureBoardsConnectionSaveSuccessful(saved)) {
         setConnectionSaveSuccess(AZURE_BOARDS_CONNECTION_SAVE_SUCCESS);
       }
-      const healthResponse = await fetchAzureBoardsHealth();
-      setHealth(healthResponse);
+
+      // New credentials are unvalidated until the operator runs Test connection.
+      setHealth(
+        mapAzureBoardsHealthFromSettings(isAzureBoardsConnectionSaveSuccessful(saved), {
+          lastConnectionTestUtc: null,
+          lastConnectionTestSummary: null,
+        }),
+      );
       await loadDiscovery();
     } catch (error: unknown) {
       setConnectionSaveError(error instanceof Error ? error.message : "Could not save connection.");
@@ -417,8 +427,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
             : "Connection check failed. Verify the organization URL and token permissions.",
       );
       setLastTestSuccess(success);
-      const healthResponse = await fetchAzureBoardsHealth();
-      setHealth(healthResponse);
+      setHealth(mapAzureBoardsHealthFromConnectionTest(result));
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Connection test failed.";
       setTestError(message);

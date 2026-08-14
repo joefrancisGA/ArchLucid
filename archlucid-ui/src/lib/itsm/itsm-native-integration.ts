@@ -1,6 +1,5 @@
 import { fetchItsmIntegrationHealth, type ItsmIntegrationHealthResponse } from "@/lib/api/itsm-outbound-api";
 import {
-  fetchAzureBoardsHealth,
   fetchAzureBoardsSettings,
   isAzureBoardsNativeCreateReady,
 } from "@/lib/api/azure-boards-api";
@@ -31,11 +30,8 @@ async function loadItsmNativeCreateReadiness(): Promise<ItsmNativeCreateReadines
 
     if (deploymentEnabled) {
       try {
-        const [azureHealth, azureSettings] = await Promise.all([
-          fetchAzureBoardsHealth(),
-          fetchAzureBoardsSettings(),
-        ]);
-        azureBoardsReady = isAzureBoardsNativeCreateReady(azureHealth, azureSettings);
+        const azureSettings = await fetchAzureBoardsSettings();
+        azureBoardsReady = isAzureBoardsNativeCreateReady(azureSettings);
       } catch {
         azureBoardsReady = false;
       }
