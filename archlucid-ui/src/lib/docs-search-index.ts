@@ -29,7 +29,7 @@ export type DocumentationSearchItem = {
 
 /**
  * Curated operator-facing docs for Ctrl+K search. Paths match the repository layout on `main`.
- * TB-1385 / TB-1247: Admin-only internal-runbook topics are omitted from {@link DOCUMENTATION_SEARCH_ITEMS}.
+ * TB-1385 / TB-1247 / TB-2237: Admin-only internal-runbook topics are omitted from {@link DOCUMENTATION_SEARCH_ITEMS}.
  */
 const CURATED_DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   {
@@ -47,8 +47,8 @@ const CURATED_DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   {
     category: "Pilot",
     title: "Troubleshooting",
-    description: "Common API, SQL, auth, and UI failures.",
-    relativeDocsPath: "docs/runbooks/TROUBLESHOOTING.md",
+    description: "Find common issues, try the first fix, and collect support details when needed.",
+    relativeDocsPath: "docs/library/customer-facing/operator_troubleshooting.md",
   },
   {
     category: "Operations",

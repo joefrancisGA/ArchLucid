@@ -8,7 +8,6 @@ import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help
 import {
   DECISION_REGISTER_CATEGORY_LABEL,
   DECISION_REGISTER_CONFIDENCE_BASIS_LABEL,
-  DECISION_REGISTER_SUMMARY_HIGH_CONFIDENCE_LABEL,
 } from "@/app/(operator)/governance/decision-register/decision-register-copy";
 
 export const DECISION_REGISTER_HELP_BREADCRUMB_TOPIC_TITLE = "Decision register";
@@ -60,7 +59,7 @@ export const DECISION_REGISTER_HELP_TILE_ITEMS: readonly DecisionRegisterHelpTil
     detail: "Architecture domain labels such as Security or Cost appear on each decision card and filter panel.",
   },
   {
-    label: DECISION_REGISTER_SUMMARY_HIGH_CONFIDENCE_LABEL,
+    label: "Confidence",
     detail: "Numeric confidence scores and basis labels show how strongly each recorded decision is supported.",
   },
 ] as const;

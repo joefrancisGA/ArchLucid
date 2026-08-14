@@ -904,7 +904,13 @@ export function ImprovementPlanningHelpEvidenceOrientationStrip(): React.JSX.Ele
   );
 }
 
-export function ImpactPreviewHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type ImpactPreviewHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function ImpactPreviewHelpEvidenceOrientationStrip(
+  props: ImpactPreviewHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-impact-preview"
@@ -916,6 +922,8 @@ export function ImpactPreviewHelpEvidenceOrientationStrip(): React.JSX.Element {
       sources={IMPACT_PREVIEW_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
