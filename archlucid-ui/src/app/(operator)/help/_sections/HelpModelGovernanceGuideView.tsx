@@ -65,7 +65,6 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={MODEL_GOVERNANCE_HELP_BREADCRUMB_TOPIC_TITLE}
         title={MODEL_GOVERNANCE_HELP_PAGE_TITLE}
         titleTestId="help-model-governance-page-title"
         subtitle={MODEL_GOVERNANCE_HELP_PAGE_SUBTITLE}

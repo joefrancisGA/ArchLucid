@@ -17,13 +17,12 @@ import {
   AI_USAGE_HELP_CLAIM_DISCIPLINE,
   AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING,
 } from "@/lib/ai-usage-help-evidence-copy";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpAiUsageGuideView", () => {
   const entry = getProductDocumentationEntry("ai-usage");
 
-  it("renders breadcrumb, provenance, access precondition, and claim discipline heading", () => {
+  it("renders provenance, access precondition, and claim discipline heading", () => {
     if (entry === undefined) {
       throw new Error("Expected ai-usage documentation entry.");
     }
@@ -31,8 +30,7 @@ describe("HelpAiUsageGuideView", () => {
     render(<HelpAiUsageGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-ai-usage-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · Administration · AI usage orientation",
     );

@@ -63,7 +63,6 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE}
         title={WORKSPACE_SETTINGS_HELP_PAGE_TITLE}
         titleTestId="help-workspace-settings-page-title"
         subtitle={WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE}

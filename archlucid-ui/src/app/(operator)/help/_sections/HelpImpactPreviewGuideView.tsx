@@ -86,7 +86,6 @@ export function HelpImpactPreviewGuideView(props: HelpImpactPreviewGuideViewProp
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={IMPACT_PREVIEW_HELP_PAGE_TITLE}
         title={IMPACT_PREVIEW_HELP_PAGE_TITLE}
         titleTestId="help-impact-preview-page-title"
         subtitle={IMPACT_PREVIEW_HELP_PAGE_SUBTITLE}

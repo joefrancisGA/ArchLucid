@@ -7,7 +7,6 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpServiceNowIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpServiceNowIntegrationGuideView";
 import {
-  SERVICENOW_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
   SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID,
   SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION,
   SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION_TAG,
@@ -24,13 +23,12 @@ import {
 } from "@/lib/servicenow-integration-help-evidence-copy";
 import { SERVICENOW_INTEGRATION_PAGE_TITLE } from "@/lib/servicenow-integration-page-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpServiceNowIntegrationGuideView", () => {
   const entry = getProductDocumentationEntry("servicenow-integration");
 
-  it("renders breadcrumb, provenance, start-here card, readingBody, TOC, and deduped follow-ups", () => {
+  it("renders provenance, start-here card, readingBody, TOC, and deduped follow-ups", () => {
     if (entry === undefined) {
       throw new Error("Expected servicenow-integration documentation entry.");
     }
@@ -38,11 +36,7 @@ describe("HelpServiceNowIntegrationGuideView", () => {
     render(<HelpServiceNowIntegrationGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-servicenow-integration-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
-      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-    );
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · integrations servicenow orientation",
     );
@@ -80,9 +74,7 @@ describe("HelpServiceNowIntegrationGuideView", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: SERVICENOW_INTEGRATION_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      SERVICENOW_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Before you connect" })).toBeInTheDocument();
     expect(screen.getByTestId("help-servicenow-integration-before-you-connect")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();

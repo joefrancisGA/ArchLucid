@@ -82,7 +82,6 @@ export function HelpImprovementPlanningGuideView(props: HelpImprovementPlanningG
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={IMPROVEMENT_PLANNING_HELP_PAGE_TITLE}
         title={IMPROVEMENT_PLANNING_HELP_PAGE_TITLE}
         titleTestId="help-improvement-planning-page-title"
         subtitle={IMPROVEMENT_PLANNING_HELP_PAGE_SUBTITLE}

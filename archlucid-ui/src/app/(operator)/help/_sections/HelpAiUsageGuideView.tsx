@@ -58,7 +58,6 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={AI_USAGE_HELP_PAGE_TITLE}
         title={AI_USAGE_HELP_PAGE_TITLE}
         titleTestId="help-ai-usage-page-title"
         subtitle={AI_USAGE_HELP_PAGE_SUBTITLE}

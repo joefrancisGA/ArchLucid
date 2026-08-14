@@ -76,7 +76,6 @@ export function HelpPreferencesGuideView(props: HelpPreferencesGuideViewProps): 
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={PREFERENCES_HELP_PAGE_TITLE}
         title={PREFERENCES_HELP_PAGE_TITLE}
         titleTestId="help-preferences-page-title"
         subtitle={PREFERENCES_HELP_PAGE_SUBTITLE}
@@ -155,7 +154,7 @@ export function HelpPreferencesGuideView(props: HelpPreferencesGuideViewProps): 
           </div>
         </div>
 
-        <HelpTopicTableOfContents headings={PREFERENCES_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={PREFERENCES_HELP_GUIDE_HEADINGS} enableScrollSpy />
       </div>
     </article>
   );

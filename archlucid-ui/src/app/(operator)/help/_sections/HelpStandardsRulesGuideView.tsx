@@ -60,7 +60,6 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={STANDARDS_RULES_HELP_BREADCRUMB_TOPIC_TITLE}
         title={STANDARDS_RULES_HELP_PAGE_TITLE}
         titleTestId="help-standards-rules-page-title"
         subtitle={STANDARDS_RULES_HELP_PAGE_SUBTITLE}

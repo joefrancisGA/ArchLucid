@@ -35,7 +35,6 @@ import { HelpTeamsIntegrationGuideView } from "@/app/(operator)/help/_sections/H
 import { HelpWebhooksIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationGuideView";
 import { HelpWorkspaceSettingsGuideView } from "@/app/(operator)/help/_sections/HelpWorkspaceSettingsGuideView";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 
 describe("specialty help guides — operator surfaces batch", () => {
   it.each([
@@ -76,56 +75,21 @@ describe("specialty help guides — operator surfaces batch", () => {
     render(<View entry={entry} />);
 
     expect(screen.getByTestId(testId)).toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
 
     if (slug === "connection-status") {
       expect(screen.getByTestId("help-connection-status-primary-cta")).toBeInTheDocument();
-      expect(screen.queryByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toBeNull();
 
       return;
     }
 
-    if (slug === "advisory-scans") {
-      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
-
-      return;
-    }
-
-    if (slug === "ai-usage") {
-      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
-
-      return;
-    }
-
-    if (slug === "search-review-evidence") {
-      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
-      expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();
-
-      return;
-    }
-
-    if (slug === "system-health") {
-      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
-      expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();
-
-      return;
-    }
-
-    if (slug === "teams-integration") {
-      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
-      expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();
-
-      return;
-    }
-
-    if (slug === "architecture-drafts") {
-      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    if (slug === "search-review-evidence" || slug === "system-health" || slug === "teams-integration") {
       expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();
 
       return;
     }
 
     if (slug === "model-governance") {
-      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
       expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
         "Last reviewed 2026-08-13 · administration model governance orientation",
       );
@@ -134,7 +98,6 @@ describe("specialty help guides — operator surfaces batch", () => {
     }
 
     if (slug === "workspace-settings") {
-      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
       expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
         "Last reviewed 2026-08-13 · administration workspace settings orientation",
       );

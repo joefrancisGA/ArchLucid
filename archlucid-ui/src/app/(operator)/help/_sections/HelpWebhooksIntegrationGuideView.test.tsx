@@ -6,9 +6,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpWebhooksIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationGuideView";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import {
-  WEBHOOKS_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
   WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID,
   WEBHOOKS_INTEGRATION_HELP_DELIVERY_SECTION_ID,
   WEBHOOKS_INTEGRATION_HELP_GUIDE_HEADINGS,
@@ -36,7 +34,7 @@ import {
 describe("HelpWebhooksIntegrationGuideView", () => {
   const entry = getProductDocumentationEntry("webhooks-integration");
 
-  it("renders breadcrumb, provenance, header action, delivery contract, TOC sections, and stacked sources", () => {
+  it("renders provenance, header action, delivery contract, TOC sections, and stacked sources", () => {
     if (entry === undefined) {
       throw new Error("Expected webhooks-integration documentation entry.");
     }
@@ -44,14 +42,7 @@ describe("HelpWebhooksIntegrationGuideView", () => {
     render(<HelpWebhooksIntegrationGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-webhooks-integration-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
-      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-    );
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      WEBHOOKS_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · integrations webhooks orientation",
     );

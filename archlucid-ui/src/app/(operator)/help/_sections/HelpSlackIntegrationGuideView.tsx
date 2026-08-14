@@ -64,7 +64,6 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={SLACK_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE}
         title={SLACK_INTEGRATION_HELP_PAGE_TITLE}
         titleTestId="help-slack-integration-page-title"
         subtitle={SLACK_INTEGRATION_HELP_PAGE_SUBTITLE}

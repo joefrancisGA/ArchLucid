@@ -59,7 +59,6 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={CONTACT_SUPPORT_HELP_BREADCRUMB_TOPIC_TITLE}
         title={CONTACT_SUPPORT_HELP_PAGE_TITLE}
         titleTestId="help-contact-support-page-title"
         subtitle={CONTACT_SUPPORT_HELP_SUBTITLE}

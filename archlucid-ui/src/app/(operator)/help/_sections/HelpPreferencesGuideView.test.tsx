@@ -24,14 +24,13 @@ import {
   PREFERENCES_HELP_TILE_ITEMS,
 } from "@/lib/preferences-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpPreferencesGuideView", () => {
   const entry = getProductDocumentationEntry("preferences");
 
-  it("renders breadcrumb, provenance, role precondition, readingBody, claim discipline, and stacked sources", () => {
+  it("renders provenance, role precondition, readingBody, claim discipline, and stacked sources", () => {
     if (entry === undefined) {
       throw new Error("Expected preferences documentation entry.");
     }
@@ -39,12 +38,9 @@ describe("HelpPreferencesGuideView", () => {
     render(<HelpPreferencesGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-preferences-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb).toHaveTextContent(HELP_TOPIC_BREADCRUMB_HUB_LABEL);
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · Administration · preferences orientation",
+      "Last reviewed 2026-08-13 · Scope: personal account settings · Audience: all signed-in users",
     );
     expect(screen.getByTestId("help-preferences-role-precondition")).toHaveTextContent(
       PREFERENCES_HELP_ROLE_PRECONDITION,
@@ -80,6 +76,13 @@ describe("HelpPreferencesGuideView", () => {
     expect(screen.getByRole("heading", { name: PREFERENCES_HELP_CHANGES_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: PREFERENCES_HELP_HOW_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-preferences-how-stepper").textContent?.toLowerCase()).not.toContain("api");
+    expect(screen.getByTestId("help-preferences-how-stepper").textContent?.toLowerCase()).not.toContain("stacked");
+
+    expect(screen.queryByRole("link", { name: "Users and roles" })).not.toBeInTheDocument();
+
+    expect(screen.getByRole("heading", { name: PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING }).className).toContain(
+      OPERATOR_TYPOGRAPHY.sectionTitle.split(" ")[0],
+    );
 
     for (const item of PREFERENCES_HELP_TILE_ITEMS) {
       expect(within(screen.getByTestId("help-preferences-tile-items")).getByText(item.label)).toBeInTheDocument();

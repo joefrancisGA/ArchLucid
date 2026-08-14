@@ -1,22 +1,11 @@
-import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import {
   OperatorPageHeader,
   type OperatorPageHeaderProps,
 } from "@/components/operator/OperatorPageHeader";
 
-export type HelpTopicGuidePageHeaderProps = OperatorPageHeaderProps & {
-  /** Visible topic title for the breadcrumb current page segment. */
-  readonly topicTitle: string;
-};
+export type HelpTopicGuidePageHeaderProps = OperatorPageHeaderProps;
 
-/** OperatorPageHeader with the shared Help & Support → topic breadcrumb trail. */
+/** OperatorPageHeader preset for in-app help topic guides. */
 export function HelpTopicGuidePageHeader(props: HelpTopicGuidePageHeaderProps): React.JSX.Element {
-  const { topicTitle, ...headerProps } = props;
-
-  return (
-    <OperatorPageHeader
-      {...headerProps}
-      breadcrumb={<HelpTopicBreadcrumb topicTitle={topicTitle} />}
-    />
-  );
+  return <OperatorPageHeader {...props} />;
 }

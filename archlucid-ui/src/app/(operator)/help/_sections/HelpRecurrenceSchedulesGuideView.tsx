@@ -165,7 +165,6 @@ export function HelpRecurrenceSchedulesGuideView(
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={RECURRENCE_SCHEDULES_HELP_BREADCRUMB_TOPIC_TITLE}
         title={RECURRENCE_SCHEDULES_HELP_PAGE_TITLE}
         titleTestId="help-recurrence-schedules-page-title"
         subtitle={RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE}

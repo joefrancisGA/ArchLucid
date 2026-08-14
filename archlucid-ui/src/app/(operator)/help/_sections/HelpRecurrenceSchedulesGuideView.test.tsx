@@ -6,10 +6,8 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpRecurrenceSchedulesGuideView } from "@/app/(operator)/help/_sections/HelpRecurrenceSchedulesGuideView";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
-  RECURRENCE_SCHEDULES_HELP_BREADCRUMB_TOPIC_TITLE,
   RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
   RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION,
   RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION_TAG,
@@ -27,7 +25,7 @@ import { RECURRENCE_SCHEDULES_PAGE_SUBTITLE } from "@/lib/recurrence-schedules-c
 describe("HelpRecurrenceSchedulesGuideView", () => {
   const entry = getProductDocumentationEntry("recurrence-schedules");
 
-  it("renders breadcrumb, header action, compact examples without visible cron, and stacked sources", () => {
+  it("renders header action, compact examples without visible cron, and stacked sources", () => {
     if (entry === undefined) {
       throw new Error("Expected recurrence-schedules documentation entry.");
     }
@@ -35,14 +33,7 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
     render(<HelpRecurrenceSchedulesGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-recurrence-schedules-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
-      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-    );
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      RECURRENCE_SCHEDULES_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-recurrence-schedules-page-title")).toHaveTextContent("Recurrence schedules");
     expect(RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE).not.toBe(RECURRENCE_SCHEDULES_PAGE_SUBTITLE);
     expect(screen.getByTestId("help-recurrence-schedules-finalized-review-precondition-tag")).toHaveTextContent(

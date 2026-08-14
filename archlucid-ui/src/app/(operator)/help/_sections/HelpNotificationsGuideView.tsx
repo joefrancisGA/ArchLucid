@@ -69,7 +69,6 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={NOTIFICATIONS_HELP_BREADCRUMB_TOPIC_TITLE}
         title={NOTIFICATIONS_HELP_PAGE_TITLE}
         titleTestId="help-notifications-page-title"
         subtitle={NOTIFICATIONS_HELP_PAGE_SUBTITLE}

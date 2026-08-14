@@ -7,7 +7,6 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpJiraIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpJiraIntegrationGuideView";
 import {
-  JIRA_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
   JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID,
   JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION,
   JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION_TAG,
@@ -22,13 +21,12 @@ import {
   JIRA_INTEGRATION_HELP_SOURCES,
 } from "@/lib/jira-integration-help-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpJiraIntegrationGuideView", () => {
   const entry = getProductDocumentationEntry("jira-integration");
 
-  it("renders breadcrumb, provenance, start-here card, readingBody, and deduped follow-ups", () => {
+  it("renders provenance, start-here card, readingBody, and deduped follow-ups", () => {
     if (entry === undefined) {
       throw new Error("Expected jira-integration documentation entry.");
     }
@@ -36,11 +34,7 @@ describe("HelpJiraIntegrationGuideView", () => {
     render(<HelpJiraIntegrationGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-jira-integration-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
-      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-    );
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · integrations jira orientation",
     );
@@ -70,9 +64,7 @@ describe("HelpJiraIntegrationGuideView", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: JIRA_INTEGRATION_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      JIRA_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Before you start" })).toBeInTheDocument();
     expect(screen.getByTestId("help-jira-integration-before-you-start")).toBeInTheDocument();
 

@@ -64,7 +64,6 @@ export function HelpEvidenceGraphGuideView(props: HelpEvidenceGraphGuideViewProp
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={EVIDENCE_GRAPH_HELP_PAGE_TITLE}
         title={EVIDENCE_GRAPH_HELP_PAGE_TITLE}
         titleTestId="help-evidence-graph-page-title"
         subtitle={EVIDENCE_GRAPH_HELP_PAGE_SUBTITLE}

@@ -12,7 +12,6 @@ import {
   BASELINE_SETTINGS_HELP_SOURCES,
 } from "@/lib/baseline-settings-help-evidence-copy";
 import {
-  BASELINE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
   BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID,
   BASELINE_SETTINGS_HELP_GUIDE_HEADINGS,
   BASELINE_SETTINGS_HELP_PRIMARY_ACTION,
@@ -22,13 +21,12 @@ import {
 } from "@/lib/baseline-settings-help-guide-content";
 import { BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER } from "@/lib/baseline-settings-present";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpBaselineSettingsGuideView", () => {
   const entry = getProductDocumentationEntry("baseline-settings");
 
-  it("renders breadcrumb, provenance, saved-baseline warn, role precondition, and readingBody", () => {
+  it("renders provenance, saved-baseline warn, role precondition, and readingBody", () => {
     if (entry === undefined) {
       throw new Error("Expected baseline-settings documentation entry.");
     }
@@ -36,11 +34,7 @@ describe("HelpBaselineSettingsGuideView", () => {
     render(<HelpBaselineSettingsGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-baseline-settings-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
-      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-    );
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · administration baseline settings orientation",
     );
@@ -70,9 +64,7 @@ describe("HelpBaselineSettingsGuideView", () => {
     );
     expect(screen.getAllByRole("link", { name: BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
     expect(screen.getByRole("heading", { level: 2, name: BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE })).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      BASELINE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
 
     for (const source of BASELINE_SETTINGS_HELP_SOURCES) {
       expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);

@@ -60,7 +60,6 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={SYSTEM_HEALTH_HELP_PAGE_TITLE}
         title={SYSTEM_HEALTH_HELP_PAGE_TITLE}
         titleTestId="help-system-health-page-title"
         subtitle={SYSTEM_HEALTH_HELP_PAGE_SUBTITLE}

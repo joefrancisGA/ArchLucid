@@ -66,7 +66,6 @@ export function HelpSearchReviewEvidenceGuideView(
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={SEARCH_REVIEW_EVIDENCE_HELP_PAGE_TITLE}
         title={SEARCH_REVIEW_EVIDENCE_HELP_PAGE_TITLE}
         titleTestId="help-search-review-evidence-page-title"
         subtitle={SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE}

@@ -23,13 +23,12 @@ import {
 } from "@/lib/system-health-help-guide-content";
 import { SYSTEM_HEALTH_HELP_TOPIC_LABEL } from "@/lib/system-health-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpSystemHealthGuideView", () => {
   const entry = getProductDocumentationEntry("system-health");
 
-  it("renders breadcrumb, provenance, role precondition, readingBody, claim discipline, and stacked sources", () => {
+  it("renders provenance, role precondition, readingBody, claim discipline, and stacked sources", () => {
     if (entry === undefined) {
       throw new Error("Expected system-health documentation entry.");
     }
@@ -37,11 +36,8 @@ describe("HelpSystemHealthGuideView", () => {
     render(<HelpSystemHealthGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-system-health-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb).toHaveTextContent(HELP_TOPIC_BREADCRUMB_HUB_LABEL);
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
+expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · administration system health orientation",
     );
     expect(screen.getByTestId("help-system-health-role-precondition")).toHaveTextContent(

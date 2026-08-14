@@ -68,7 +68,6 @@ export function HelpServiceNowIntegrationGuideView(
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={SERVICENOW_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE}
         title={SERVICENOW_INTEGRATION_HELP_PAGE_TITLE}
         titleTestId="help-servicenow-integration-page-title"
         subtitle={SERVICENOW_INTEGRATION_HELP_PAGE_SUBTITLE}

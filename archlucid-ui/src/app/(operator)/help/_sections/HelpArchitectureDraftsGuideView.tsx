@@ -59,7 +59,6 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE}
         title={ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE}
         titleTestId="help-architecture-drafts-page-title"
         subtitle={ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE}

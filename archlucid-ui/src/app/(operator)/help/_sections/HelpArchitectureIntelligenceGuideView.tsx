@@ -69,7 +69,6 @@ export function HelpArchitectureIntelligenceGuideView(
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={ARCHITECTURE_INTELLIGENCE_HELP_PAGE_TITLE}
         title={ARCHITECTURE_INTELLIGENCE_HELP_PAGE_TITLE}
         titleTestId="help-architecture-intelligence-page-title"
         subtitle={ARCHITECTURE_INTELLIGENCE_HELP_PAGE_SUBTITLE}

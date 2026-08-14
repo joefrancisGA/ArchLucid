@@ -7,7 +7,6 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpDecisionRegisterGuideView } from "@/app/(operator)/help/_sections/HelpDecisionRegisterGuideView";
 import {
-  DECISION_REGISTER_HELP_BREADCRUMB_TOPIC_TITLE,
   DECISION_REGISTER_HELP_CATEGORY_EXAMPLE,
   DECISION_REGISTER_HELP_CLAIM_HEADING_ID,
   DECISION_REGISTER_HELP_CONFIDENCE_BASIS_EXAMPLE,
@@ -32,13 +31,12 @@ import {
   DECISION_REGISTER_CONFIDENCE_BASIS_LABEL,
 } from "@/app/(operator)/governance/decision-register/decision-register-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpDecisionRegisterGuideView", () => {
   const entry = getProductDocumentationEntry("decision-register");
 
-  it("renders breadcrumb, provenance, start-here card, tag vocabulary, and readingBody", () => {
+  it("renders provenance, start-here card, tag vocabulary, and readingBody", () => {
     if (entry === undefined) {
       throw new Error("Expected decision-register documentation entry.");
     }
@@ -46,11 +44,7 @@ describe("HelpDecisionRegisterGuideView", () => {
     render(<HelpDecisionRegisterGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-decision-register-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
-      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-    );
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · governance decision register orientation",
     );
@@ -85,9 +79,7 @@ describe("HelpDecisionRegisterGuideView", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: DECISION_REGISTER_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      DECISION_REGISTER_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
 
     const tileItems = screen.getByTestId("help-decision-register-tile-items");
 

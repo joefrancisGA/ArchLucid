@@ -7,9 +7,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpSlackIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpSlackIntegrationGuideView";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import {
-  SLACK_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
   SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID,
   SLACK_INTEGRATION_HELP_GUIDE_HEADINGS,
   SLACK_INTEGRATION_HELP_PRIMARY_ACTION,
@@ -27,7 +25,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 describe("HelpSlackIntegrationGuideView", () => {
   const entry = getProductDocumentationEntry("slack-integration");
 
-  it("renders breadcrumb, provenance, start-here card, readingBody, TOC sections, and stacked sources", () => {
+  it("renders provenance, start-here card, readingBody, TOC sections, and stacked sources", () => {
     if (entry === undefined) {
       throw new Error("Expected slack-integration documentation entry.");
     }
@@ -35,11 +33,7 @@ describe("HelpSlackIntegrationGuideView", () => {
     render(<HelpSlackIntegrationGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-slack-integration-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
-      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-    );
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · integrations slack notifications orientation",
     );
@@ -68,9 +62,7 @@ describe("HelpSlackIntegrationGuideView", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      SLACK_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Set up Slack notifications" })).toBeInTheDocument();
     expect(screen.getByTestId("help-slack-integration-setup-stepper")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open alert rules" })).not.toBeInTheDocument();

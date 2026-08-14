@@ -23,13 +23,12 @@ import {
   ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/architecture-intelligence-help-guide-content";
 import { ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-intelligence-evidence-copy";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpArchitectureIntelligenceGuideView", () => {
   const entry = getProductDocumentationEntry("architecture-intelligence");
 
-  it("renders breadcrumb, provenance, linked capability tiles, and claim discipline heading", () => {
+  it("renders provenance, linked capability tiles, and claim discipline heading", () => {
     if (entry === undefined) {
       throw new Error("Expected architecture-intelligence documentation entry.");
     }
@@ -41,8 +40,7 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
     render(<HelpArchitectureIntelligenceGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-architecture-intelligence-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · architecture intelligence orientation",
     );

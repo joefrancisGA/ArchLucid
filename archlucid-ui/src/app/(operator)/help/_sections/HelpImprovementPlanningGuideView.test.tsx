@@ -21,14 +21,13 @@ import {
   IMPROVEMENT_PLANNING_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/improvement-planning-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpImprovementPlanningGuideView", () => {
   const entry = getProductDocumentationEntry("improvement-planning");
 
-  it("renders breadcrumb, provenance, feedback precondition, readingBody, and claim discipline", () => {
+  it("renders provenance, feedback precondition, readingBody, and claim discipline", () => {
     if (entry === undefined) {
       throw new Error("Expected improvement-planning documentation entry.");
     }
@@ -36,11 +35,8 @@ describe("HelpImprovementPlanningGuideView", () => {
     render(<HelpImprovementPlanningGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-improvement-planning-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb).toHaveTextContent(HELP_TOPIC_BREADCRUMB_HUB_LABEL);
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
+expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · insights improvement planning orientation",
     );
     expect(screen.getByTestId("help-improvement-planning-feedback-precondition")).toHaveTextContent(

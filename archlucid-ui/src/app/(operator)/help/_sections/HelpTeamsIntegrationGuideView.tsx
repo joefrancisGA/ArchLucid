@@ -64,7 +64,6 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={TEAMS_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE}
         title={TEAMS_INTEGRATION_HELP_PAGE_TITLE}
         titleTestId="help-teams-integration-page-title"
         subtitle={TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE}

@@ -66,7 +66,6 @@ export function HelpDecisionRegisterGuideView(props: HelpDecisionRegisterGuideVi
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={DECISION_REGISTER_HELP_BREADCRUMB_TOPIC_TITLE}
         title={DECISION_REGISTER_HELP_PAGE_TITLE}
         titleTestId="help-decision-register-page-title"
         subtitle={DECISION_REGISTER_HELP_PAGE_SUBTITLE}

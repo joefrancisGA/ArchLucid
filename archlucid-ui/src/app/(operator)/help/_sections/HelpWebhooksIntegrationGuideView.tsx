@@ -71,7 +71,6 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={WEBHOOKS_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE}
         title={WEBHOOKS_INTEGRATION_HELP_PAGE_TITLE}
         titleTestId="help-webhooks-integration-page-title"
         subtitle={WEBHOOKS_INTEGRATION_HELP_PAGE_SUBTITLE}

@@ -9,7 +9,6 @@ import { HelpWorkspaceSettingsGuideView } from "@/app/(operator)/help/_sections/
 import {
   WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION,
   WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_TAG,
-  WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
   WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID,
   WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS,
   WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE,
@@ -23,13 +22,12 @@ import {
 } from "@/lib/workspace-settings-help-evidence-copy";
 import { TENANT_SETTINGS_PAGE_SUBTITLE } from "@/lib/tenant-settings-page-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpWorkspaceSettingsGuideView", () => {
   const entry = getProductDocumentationEntry("workspace-settings");
 
-  it("renders breadcrumb, provenance, start-here card, readingBody, and deduped follow-ups", () => {
+  it("renders provenance, start-here card, readingBody, and deduped follow-ups", () => {
     if (entry === undefined) {
       throw new Error("Expected workspace-settings documentation entry.");
     }
@@ -37,11 +35,7 @@ describe("HelpWorkspaceSettingsGuideView", () => {
     render(<HelpWorkspaceSettingsGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-workspace-settings-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
-      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-    );
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · administration workspace settings orientation",
     );
@@ -72,9 +66,7 @@ describe("HelpWorkspaceSettingsGuideView", () => {
       screen.getByRole("heading", { level: 2, name: WORKSPACE_SETTINGS_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
     expect(WORKSPACE_SETTINGS_HELP_START_HERE_CARD_TITLE).not.toBe(WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.label);
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.queryByText(/assurance cites/i)).not.toBeInTheDocument();
 
     for (const source of WORKSPACE_SETTINGS_HELP_SOURCES) {

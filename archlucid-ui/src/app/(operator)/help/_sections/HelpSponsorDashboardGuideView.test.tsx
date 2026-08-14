@@ -7,7 +7,6 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpSponsorDashboardGuideView } from "@/app/(operator)/help/_sections/HelpSponsorDashboardGuideView";
 import {
-  SPONSOR_DASHBOARD_HELP_BREADCRUMB_TOPIC_TITLE,
   SPONSOR_DASHBOARD_HELP_CLAIM_HEADING_ID,
   SPONSOR_DASHBOARD_HELP_GUIDE_HEADINGS,
   SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION,
@@ -22,13 +21,12 @@ import {
   SPONSOR_DASHBOARD_HELP_SOURCES,
 } from "@/lib/sponsor-dashboard-help-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpSponsorDashboardGuideView", () => {
   const entry = getProductDocumentationEntry("sponsor-dashboard");
 
-  it("renders breadcrumb, provenance, start-here card, readingBody, and deduped follow-ups", () => {
+  it("renders provenance, start-here card, readingBody, and deduped follow-ups", () => {
     if (entry === undefined) {
       throw new Error("Expected sponsor-dashboard documentation entry.");
     }
@@ -36,11 +34,7 @@ describe("HelpSponsorDashboardGuideView", () => {
     render(<HelpSponsorDashboardGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-sponsor-dashboard-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
-      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-    );
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · architecture sponsor dashboard orientation",
     );
@@ -72,9 +66,7 @@ describe("HelpSponsorDashboardGuideView", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: SPONSOR_DASHBOARD_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      SPONSOR_DASHBOARD_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Before you start" })).toBeInTheDocument();
     expect(screen.getByTestId("help-sponsor-dashboard-before-you-start")).toBeInTheDocument();
 

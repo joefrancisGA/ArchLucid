@@ -7,7 +7,6 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpNotificationsGuideView } from "@/app/(operator)/help/_sections/HelpNotificationsGuideView";
 import {
-  NOTIFICATIONS_HELP_BREADCRUMB_TOPIC_TITLE,
   NOTIFICATIONS_HELP_GUIDE_HEADINGS,
   NOTIFICATIONS_HELP_HOW_TO_READ_STEPS,
   NOTIFICATIONS_HELP_PRIMARY_ACTION,
@@ -25,14 +24,13 @@ import {
   NOTIFICATIONS_HELP_TOPIC_LABEL,
 } from "@/lib/notifications-help-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE } from "@/lib/notification-preference-center";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpNotificationsGuideView", () => {
   const entry = getProductDocumentationEntry("notifications");
 
-  it("renders breadcrumb, provenance, start-here card, channel tiles, worked examples, and readingBody", () => {
+  it("renders provenance, start-here card, channel tiles, worked examples, and readingBody", () => {
     if (entry === undefined) {
       throw new Error("Expected notifications documentation entry.");
     }
@@ -40,11 +38,7 @@ describe("HelpNotificationsGuideView", () => {
     render(<HelpNotificationsGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-notifications-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
-      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
-    );
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · administration notifications orientation",
     );
@@ -52,9 +46,7 @@ describe("HelpNotificationsGuideView", () => {
     expect(screen.getByTestId("help-notifications-page-title").textContent).not.toBe(
       NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE,
     );
-    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
-      NOTIFICATIONS_HELP_BREADCRUMB_TOPIC_TITLE,
-    );
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-notifications-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-notifications-overview").textContent?.toLowerCase()).not.toContain(
       "delivery status",

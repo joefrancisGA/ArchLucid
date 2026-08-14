@@ -70,7 +70,6 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={BASELINE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE}
         title={BASELINE_SETTINGS_HELP_PAGE_TITLE}
         titleTestId="help-baseline-settings-page-title"
         subtitle={BASELINE_SETTINGS_HELP_PAGE_SUBTITLE}

@@ -65,7 +65,6 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={JIRA_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE}
         title={JIRA_INTEGRATION_HELP_PAGE_TITLE}
         titleTestId="help-jira-integration-page-title"
         subtitle={JIRA_INTEGRATION_HELP_PAGE_SUBTITLE}

@@ -19,14 +19,13 @@ import {
   ADVISORY_SCANS_HELP_TILE_ITEMS,
 } from "@/lib/advisory-scans-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpAdvisoryScansGuideView", () => {
   const entry = getProductDocumentationEntry("advisory-scans");
 
-  it("renders breadcrumb, provenance, role precondition, readingBody, and claim discipline heading", () => {
+  it("renders provenance, role precondition, readingBody, and claim discipline heading", () => {
     if (entry === undefined) {
       throw new Error("Expected advisory-scans documentation entry.");
     }
@@ -34,11 +33,8 @@ describe("HelpAdvisoryScansGuideView", () => {
     render(<HelpAdvisoryScansGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-advisory-scans-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
-    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb).toHaveTextContent(HELP_TOPIC_BREADCRUMB_HUB_LABEL);
-    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
+    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
+expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · governance advisory scans orientation",
     );
     expect(screen.getByTestId("help-advisory-scans-role-precondition")).toHaveTextContent(

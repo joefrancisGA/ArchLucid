@@ -65,7 +65,6 @@ export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideVi
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={SPONSOR_DASHBOARD_HELP_BREADCRUMB_TOPIC_TITLE}
         title={SPONSOR_DASHBOARD_HELP_PAGE_TITLE}
         titleTestId="help-sponsor-dashboard-page-title"
         subtitle={SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE}

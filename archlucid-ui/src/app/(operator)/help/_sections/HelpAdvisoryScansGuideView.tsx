@@ -62,7 +62,6 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        topicTitle={ADVISORY_SCANS_HELP_PAGE_TITLE}
         title={ADVISORY_SCANS_HELP_PAGE_TITLE}
         titleTestId="help-advisory-scans-page-title"
         subtitle={ADVISORY_SCANS_HELP_PAGE_SUBTITLE}
