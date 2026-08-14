@@ -125,4 +125,29 @@ describe("OperatorHomeWorkspaceMetricsSummary", () => {
       OPERATOR_HOME_SETUP_READINESS_HREF,
     );
   });
+
+  it("does not link setup readiness while counts are still loading", () => {
+    const run: RunSummary = {
+      runId: "run-001",
+      projectId: "default",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+      findingCount: 2,
+    };
+
+    render(
+      <OperatorHomeWorkspaceMetricsSummary
+        runsDashboard={buildModel([run])}
+        setupReadyCount={0}
+        setupTotalCount={0}
+        setupReadinessLoading={true}
+        variant="hero-inline"
+      />,
+    );
+
+    expect(screen.getByTestId("operator-home-hero-kpi-strip")).toHaveTextContent("…");
+    expect(screen.queryByRole("link", { name: "…" })).not.toBeInTheDocument();
+  });
 });

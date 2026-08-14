@@ -28,6 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { IntegrationEventsDlqEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { INTERNAL_INTEGRATION_EVENTS_DLQ_PATH } from "@/lib/internal-ops-route-paths";
@@ -350,6 +351,8 @@ export function IntegrationEventsDlqPageClient() {
           </p>
         ) : null}
       </OperatorPageHeader>
+
+      <IntegrationEventsDlqEvidenceOrientationStrip />
 
       <div
         className={cn(DESIGN_TOKENS.callout.warn, "px-4 py-3")}

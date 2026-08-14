@@ -7,9 +7,12 @@ import type { LearningProfile } from "@/types/recommendation-learning";
 
 const reloadBundle = vi.fn();
 const reloadPersistedOnly = vi.fn();
+const operateCapabilityMocks = vi.hoisted(() => ({
+  canMutate: true,
+}));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
-  useOperateCapability: () => true,
+  useOperateCapability: () => operateCapabilityMocks.canMutate,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -23,12 +26,16 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/internal/recommendation-learning",
 }));
 
+const executePreview = vi.fn();
+const executeRebuild = vi.fn();
+const executeRollback = vi.fn();
+
 vi.mock("./load-recommendation-learning-ops-page-data", () => ({
   reloadRecommendationLearningOpsBundle: (...args: unknown[]) => reloadBundle(...args),
   reloadPersistedRecommendationLearningProfileOnly: (...args: unknown[]) => reloadPersistedOnly(...args),
-  executeRecommendationLearningPreview: vi.fn(),
-  executeRecommendationLearningRebuild: vi.fn(),
-  executeRecommendationLearningRollback: vi.fn(),
+  executeRecommendationLearningPreview: (...args: unknown[]) => executePreview(...args),
+  executeRecommendationLearningRebuild: (...args: unknown[]) => executeRebuild(...args),
+  executeRecommendationLearningRollback: (...args: unknown[]) => executeRollback(...args),
 }));
 
 const baseStatus: RecommendationLearningOperationalStatus = {
@@ -90,6 +97,8 @@ describe("RecommendationLearningOpsPageClient TB-1788 toolbar honesty", () => {
 
     expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Load persisted profile" })).toBeInTheDocument();
+    expect(screen.getByTestId("recommendation-learning-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("recommendation-learning-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(/reload eligibility counts, profile metadata, and version history/i)).toBeInTheDocument();
     expect(screen.getByText(/fetch the latest stored weighting profile only/i)).toBeInTheDocument();
   });
@@ -185,5 +194,177 @@ describe("RecommendationLearningOpsPageClient TB-1789 enterprise chrome", () => 
     );
 
     expect(container.innerHTML).not.toMatch(/text-rose-800|text-amber-800|StatusPill/);
+  });
+});
+
+describe("RecommendationLearningOpsPageClient TB-1790 preview/rebuild/rollback + Execute gate", () => {
+  beforeEach(() => {
+    operateCapabilityMocks.canMutate = true;
+    reloadBundle.mockReset();
+    reloadPersistedOnly.mockReset();
+    executePreview.mockReset();
+    executeRebuild.mockReset();
+    executeRollback.mockReset();
+    reloadBundle.mockResolvedValue({
+      status: baseStatus,
+      profile: baseProfile,
+      history: [
+        {
+          profileId: "profile-v1",
+          generatedUtc: "2026-08-12T10:00:00Z",
+          outcomeCount: 8,
+          isActive: false,
+        },
+        {
+          profileId: "profile-v2",
+          generatedUtc: "2026-08-12T11:00:00Z",
+          outcomeCount: 10,
+          isActive: true,
+        },
+      ],
+    });
+    executePreview.mockResolvedValue({
+      proposedProfile: baseProfile,
+      weightDeltas: [
+        {
+          featureGroup: "Category",
+          feature: "Security",
+          currentWeight: 1,
+          proposedWeight: 1.2,
+          absoluteDelta: 0.2,
+          percentageDelta: 20,
+          observationCount: 4,
+          confidence: 0.9,
+          fallbackUsed: false,
+        },
+      ],
+      validationChecks: [{ name: "Minimum outcomes", result: "Pass", detail: "Eligible count meets threshold." }],
+      sourceRecordCount: 12,
+      eligibleRecordCount: 12,
+      correlationId: "corr-preview-1",
+      buildDurationMs: 42,
+    });
+    executeRebuild.mockResolvedValue(baseProfile);
+    executeRollback.mockResolvedValue(baseProfile);
+  });
+
+  it("runs preview rebuild and surfaces validation checks", async () => {
+    render(
+      <RecommendationLearningOpsPageClient
+        initialStatus={baseStatus}
+        initialProfile={baseProfile}
+        initialHistory={[]}
+        initialFailure={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Preview rebuild" }));
+
+    await vi.waitFor(() => {
+      expect(executePreview).toHaveBeenCalledTimes(1);
+      expect(screen.getByText("Minimum outcomes")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Pass")).toBeInTheDocument();
+    expect(screen.getByText(/corr-preview-1/)).toBeInTheDocument();
+  });
+
+  it("runs rebuild from historical outcomes and refreshes the ops bundle", async () => {
+    render(
+      <RecommendationLearningOpsPageClient
+        initialStatus={baseStatus}
+        initialProfile={baseProfile}
+        initialHistory={[]}
+        initialFailure={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Rebuild from historical outcomes" }));
+
+    await vi.waitFor(() => {
+      expect(executeRebuild).toHaveBeenCalledTimes(1);
+      expect(reloadBundle).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("requires ExecuteAuthority before preview, rebuild, and rollback actions", () => {
+    operateCapabilityMocks.canMutate = false;
+
+    render(
+      <RecommendationLearningOpsPageClient
+        initialStatus={baseStatus}
+        initialProfile={baseProfile}
+        initialHistory={[
+          {
+            profileId: "profile-v1",
+            generatedUtc: "2026-08-12T10:00:00Z",
+            outcomeCount: 8,
+            isActive: false,
+          },
+        ]}
+        initialFailure={null}
+      />,
+    );
+
+    expect(screen.getByTestId("recommendation-learning-read-only-hint")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Preview rebuild" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Rebuild from historical outcomes" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Roll back to this version" })).toBeDisabled();
+  });
+
+  it("disables preview and rebuild when eligible outcomes are below the minimum", () => {
+    const insufficientStatus: RecommendationLearningOperationalStatus = {
+      ...baseStatus,
+      profileState: "InsufficientData",
+      eligibleOutcomeCount: 2,
+      minimumRequiredOutcomes: 5,
+    };
+
+    render(
+      <RecommendationLearningOpsPageClient
+        initialStatus={insufficientStatus}
+        initialProfile={null}
+        initialHistory={[]}
+        initialFailure={null}
+      />,
+    );
+
+    expect(screen.getByTestId("rl-profile-state")).toHaveTextContent("Insufficient data");
+    expect(screen.getByRole("button", { name: "Preview rebuild" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Rebuild from historical outcomes" })).toBeDisabled();
+  });
+
+  it("rolls back to a historical profile after an operational reason is supplied", async () => {
+    render(
+      <RecommendationLearningOpsPageClient
+        initialStatus={baseStatus}
+        initialProfile={baseProfile}
+        initialHistory={[
+          {
+            profileId: "profile-v1",
+            generatedUtc: "2026-08-12T10:00:00Z",
+            outcomeCount: 8,
+            isActive: false,
+          },
+          {
+            profileId: "profile-v2",
+            generatedUtc: "2026-08-12T11:00:00Z",
+            outcomeCount: 10,
+            isActive: true,
+          },
+        ]}
+        initialFailure={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Roll back to this version" }));
+    fireEvent.change(screen.getByPlaceholderText("Operational reason (required)"), {
+      target: { value: "Rollback after bad activation" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm rollback" }));
+
+    await vi.waitFor(() => {
+      expect(executeRollback).toHaveBeenCalledWith("profile-v1", "Rollback after bad activation");
+      expect(reloadBundle).toHaveBeenCalledTimes(1);
+    });
   });
 });

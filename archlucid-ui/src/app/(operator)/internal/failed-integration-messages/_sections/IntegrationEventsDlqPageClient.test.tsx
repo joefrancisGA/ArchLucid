@@ -73,6 +73,8 @@ describe("IntegrationEventsDlqPageClient", () => {
     expect(await screen.findByTestId("integration-events-dlq-page-title")).toHaveTextContent(
       OPERATOR_NAV_LINK_LABELS.failedIntegrationMessages,
     );
+    expect(screen.getByTestId("integration-events-dlq-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("integration-events-dlq-claim-discipline")).not.toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });

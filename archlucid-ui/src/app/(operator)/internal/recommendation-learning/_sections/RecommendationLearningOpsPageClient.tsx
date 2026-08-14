@@ -23,6 +23,7 @@ import {
 import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { RecommendationLearningEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -315,6 +316,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
           subtitle="Inspect and rebuild the recommendation-ranking profile derived from historical accepted, deferred, rejected, and implemented outcomes."
           actions={<PageContextualHelpButton />}
         />
+        <RecommendationLearningEvidenceOrientationStrip />
         <OperatorSectionLoadFailure
           message={failure.message}
           retryLabel="Refresh operational data"
@@ -401,6 +403,8 @@ export function RecommendationLearningOpsPageClient(props: Props) {
           Feature schema: {status.activeProfile?.featureSchemaVersion ?? "outcome-stats-v1"}
         </p>
       </OperatorPageHeader>
+
+      <RecommendationLearningEvidenceOrientationStrip />
 
       <PilotFeedbackRecommendationLearningVocabularyRail currentSurfaceId="recommendation-learning" />
 

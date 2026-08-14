@@ -8,6 +8,8 @@ export { RECOMMENDATION_LEARNING_CANONICAL_PATH };
 
 export const RECOMMENDATION_LEARNING_HELP_TOPIC_LABEL = "How recommendation learning works" as const;
 
+export const RECOMMENDATION_LEARNING_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const RECOMMENDATION_LEARNING_CLAIM_DISCIPLINE =
   "Recommendation learning rebuilds ranking weights from historical advisory outcomes for architects — preview and rebuild are operational profile controls, not a sealed-review diligence Sources package. Open Advisory scans or Pilot feedback when you need live recommendation or feedback trails.";
 

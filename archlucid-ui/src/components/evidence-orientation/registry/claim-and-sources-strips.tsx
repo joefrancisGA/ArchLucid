@@ -460,6 +460,11 @@ import {
   INTEGRATION_READINESS_HELP_SOURCES_INTRO,
 } from "@/lib/integration-readiness-help-evidence-copy";
 import {
+  INTEGRATION_EVENTS_DLQ_FOLLOW_UPS_TITLE,
+  INTEGRATION_EVENTS_DLQ_SOURCES,
+  INTEGRATION_EVENTS_DLQ_SOURCES_INTRO,
+} from "@/lib/integration-events-dlq-evidence-copy";
+import {
   PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE,
   PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE_HEADING,
   PILOT_FEEDBACK_HELP_CLAIM_HEADING_ID,
@@ -492,6 +497,11 @@ import {
   PRICING_QUOTE_AGING_SOURCES_INTRO,
 } from "@/lib/pricing-quote-aging-evidence-copy";
 import {
+  PRODUCT_LEARNING_FOLLOW_UPS_TITLE,
+  PRODUCT_LEARNING_SOURCES,
+  PRODUCT_LEARNING_SOURCES_INTRO,
+} from "@/lib/product-learning-evidence-copy";
+import {
   OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE,
   OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE_HEADING,
   OPERATOR_BILLING_SETTINGS_CLAIM_HEADING_ID,
@@ -507,6 +517,11 @@ import {
   RAG_HEALTH_SOURCES,
   RAG_HEALTH_SOURCES_INTRO,
 } from "@/lib/rag-health-evidence-copy";
+import {
+  RECOMMENDATION_LEARNING_FOLLOW_UPS_TITLE,
+  RECOMMENDATION_LEARNING_SOURCES,
+  RECOMMENDATION_LEARNING_SOURCES_INTRO,
+} from "@/lib/recommendation-learning-evidence-copy";
 import {
   IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE,
   IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE_HEADING,
@@ -962,6 +977,21 @@ export function AdminHealthEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
+export function IntegrationEventsDlqEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="integration-events-dlq"
+      claimElement="div"
+      sourcesTitle={INTEGRATION_EVENTS_DLQ_FOLLOW_UPS_TITLE}
+      sourcesIntro={INTEGRATION_EVENTS_DLQ_SOURCES_INTRO}
+      sources={INTEGRATION_EVENTS_DLQ_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
 export function DemoReadinessEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
@@ -1057,6 +1087,21 @@ export function PricingQuoteAgingEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
+export function ProductLearningEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="product-learning"
+      claimElement="div"
+      sourcesTitle={PRODUCT_LEARNING_FOLLOW_UPS_TITLE}
+      sourcesIntro={PRODUCT_LEARNING_SOURCES_INTRO}
+      sources={PRODUCT_LEARNING_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
 export function RagHealthEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
@@ -1069,6 +1114,21 @@ export function RagHealthEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={RAG_HEALTH_FOLLOW_UPS_TITLE}
       sourcesIntro={RAG_HEALTH_SOURCES_INTRO}
       sources={RAG_HEALTH_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function RecommendationLearningEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="recommendation-learning"
+      claimElement="div"
+      sourcesTitle={RECOMMENDATION_LEARNING_FOLLOW_UPS_TITLE}
+      sourcesIntro={RECOMMENDATION_LEARNING_SOURCES_INTRO}
+      sources={RECOMMENDATION_LEARNING_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"

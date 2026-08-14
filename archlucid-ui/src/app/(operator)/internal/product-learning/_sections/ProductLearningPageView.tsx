@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { ProductLearningEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import {
   buildProductLearningReportFileUrl,
@@ -71,6 +72,8 @@ export function ProductLearningPageView(props: Props) {
         }
         actions={<PageContextualHelpButton />}
       />
+
+      <ProductLearningEvidenceOrientationStrip />
 
       <div className="mt-4 mb-5">
         <PilotFeedbackRecommendationLearningVocabularyRail currentSurfaceId="pilot-feedback" />

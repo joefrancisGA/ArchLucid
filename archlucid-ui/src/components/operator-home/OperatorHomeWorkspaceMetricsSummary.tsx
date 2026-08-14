@@ -70,6 +70,7 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
   const setupReadinessValue = props.setupReadinessLoading
     ? "…"
     : formatSetupReadinessLabel(props.setupReadyCount, props.setupTotalCount);
+  const setupReadinessHref = props.setupReadinessLoading ? undefined : OPERATOR_HOME_SETUP_READINESS_HREF;
 
   // TB-1037: no zero KPI theater before the first review — one helper line only.
   if (!metrics.hasReviews) {
@@ -80,7 +81,7 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
             <MetricItem
               label="Setup readiness"
               value={setupReadinessValue}
-              href={OPERATOR_HOME_SETUP_READINESS_HREF}
+              href={setupReadinessHref}
             />
           </dl>
         </div>
@@ -126,7 +127,7 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
           <MetricItem
             label="Setup readiness"
             value={setupReadinessValue}
-            href={OPERATOR_HOME_SETUP_READINESS_HREF}
+            href={setupReadinessHref}
           />
         </dl>
       </div>
@@ -169,7 +170,7 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
         <MetricItem
           label="Setup readiness"
           value={setupReadinessValue}
-          href={OPERATOR_HOME_SETUP_READINESS_HREF}
+          href={setupReadinessHref}
         />
       </dl>
     </div>
