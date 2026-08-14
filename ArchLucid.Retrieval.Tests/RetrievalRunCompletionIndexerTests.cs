@@ -7,6 +7,8 @@ using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
 using ArchLucid.Contracts.Persistence.Artifacts;
 
+using ArchLucid.Retrieval.Graph;
+
 using FluentAssertions;
 
 using Microsoft.Extensions.Options;
@@ -100,7 +102,8 @@ public sealed class RetrievalRunCompletionIndexerTests
             documentBuilder.Object,
             indexingService.Object,
             goldenManifestRepository.Object,
-            options);
+            options,
+            CreateEmptyCommunitySummarizationService());
 
         await sut.IndexAuthorityRunAsync(
             tenantId,
@@ -117,6 +120,21 @@ public sealed class RetrievalRunCompletionIndexerTests
             d.CorpusKind == CorpusKind.PriorManifest
             && d.SourceType == "PriorManifestDecision"
             && d.Content.Contains("prior decision about managed identity", StringComparison.Ordinal));
+    }
+
+    private static IGraphCommunitySummarizationService CreateEmptyCommunitySummarizationService()
+    {
+        Mock<IGraphCommunitySummarizationService> service = new();
+        service
+            .Setup(s => s.BuildCommunityDocumentsAsync(
+                It.IsAny<ArchLucid.Contracts.Persistence.Graph.GraphSnapshot>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return service.Object;
     }
 
     private sealed class MockOptionsMonitor<T>(T value) : IOptionsMonitor<T> where T : class

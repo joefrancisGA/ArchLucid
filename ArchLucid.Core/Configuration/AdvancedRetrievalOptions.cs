@@ -33,6 +33,16 @@ public sealed class AdvancedRetrievalOptions
         set;
     } = true;
 
+    /// <summary>
+    ///     When true, detects graph communities at index time, summarizes each with LLM, and indexes community corpus chunks.
+    ///     Default off (TB-877); requires <see cref="EnableGraphRag" /> for retrieval posture honesty.
+    /// </summary>
+    public bool EnableCommunitySummarization
+    {
+        get;
+        set;
+    }
+
     /// <summary>Maximum graph hops traversed from each seed hit (cycle-safe breadth-first expansion).</summary>
     public int MaxGraphTraversalHops
     {

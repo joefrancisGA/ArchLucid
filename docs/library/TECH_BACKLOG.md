@@ -1669,7 +1669,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-941 | **Done** (2026-08-11) — Bounded spend per logical agent step — hard cap attempts + Polly retries + remediation per `(RunId, TaskId)`; distinct `failureClass`; see `## TB-941` below | Cost-effectiveness P2 ? **V1**; extends **TB-043** (Done); owner discussion 2026-07-22 | S |
 | TB-942 | Downstream consistency gate after partial/re-execute ? stale Critic/merge blocks commit; re-queue dependents; see `## TB-942` below | AI/Agent readiness P2 ? **V1**; after **TB-937**/**TB-938**; owner discussion 2026-07-22 | M |
 | TB-943 | Zombie / interrupted execute reconciliation ? lease/heartbeat; resume or mark partial; never leave `TasksGenerated` with orphan results; see `## TB-943` below | Reliability P2 ? **V1**; multi-step LLM resilience; owner discussion 2026-07-22 | M |
-| TB-944 | Semantic-failure classification (non-transport) ? empty/schema/content-filter/4xx never retry, never trip breaker, never enter completion cache; triage catalog; see `## TB-944` below | AI/Agent readiness P2 ? **V1**; pairs **TB-940**; owner discussion 2026-07-22 | S |
+| TB-944 | **Done** (2026-08-14) — `LlmCompletionFailureClassifier`; semantic-terminal skips Polly retry and breaker tick; `LLM_RETRY_AND_CIRCUIT_BREAKER.md` matrix | AI/Agent readiness P2 ? **V1**; pairs **TB-940**; owner discussion 2026-07-22 | S |
 | TB-945 | Chaos/integration suite for multi-agent failure modes ? kill agent 2/4, mid-run budget deny, poisoned cache hit; assert status/no commit/no double-bill; see `## TB-945` below | Testability P2 ? **V1**; locks **TB-937**?**TB-944**; owner discussion 2026-07-22 | M |
 | TB-874 | **Done** (2026-07-21) ? Terraform AWS/GCP ? CanonicalObject classification + illustrative cost/service labels ? `ConnectorIntakeParserService` CloudProvider inference for aws/google; GCP parser + simple-terraform tests; AWS/GCP golden corpus cases 06?07; parse?enrich integration test; `InfrastructureCostSummaryNotesTests`; see `## TB-874` below | Correctness P1 ? **V1**; V1_SCOPE ?2.19 remainder; complements **TB-603** (live pricing Done); found during promoted multi-cloud analysis backlogization 2026-07-19 | L |
 | TB-875 | **Done** (2026-07-22) ? Cloud-aware agent context for Aws/Gcp target reviews ? `CloudProviderAgentPromptComposer` system/user addenda, `AgentUserPromptStaticPrefix`, golden cohort fixtures, `AgentUserPromptCloudTargetTests`; see `## TB-875` below | AI/Agent readiness P1 ? **V1**; V1_SCOPE ?2.19 remainder; depends on **TB-874** (Done); found during promoted multi-cloud analysis backlogization 2026-07-19 | M |
@@ -25500,7 +25500,7 @@ Private-beta deploy P0 (**TB-928**): surface beta-blocking auth/email config in 
 
 **Window:** V1 ? AI/Agent readiness.
 
-**Status:** Not started.
+**Status:** Done (2026-08-14) — `LlmCompletionFailureClassifier` (transport-retryable vs semantic-terminal vs cancel); `LlmCallResilienceDefaults` + `CircuitBreakingAgentCompletionClient` honor classifier; matrix in `LLM_RETRY_AND_CIRCUIT_BREAKER.md`; tests `LlmCompletionFailureClassifierTests`, `CircuitBreakingAgentCompletionClientTests.Semantic_terminal_failure_does_not_trip_circuit`. Completion-cache admission for semantic failures remains **TB-940** deferred-write path.
 
 **Why:** Empty assistant, schema-invalid JSON, content-filter, and non-429 4xx are not fixed by Polly/CB. Mis-classifying them wastes tokens, can poison cache, or incorrectly tick the breaker.
 
@@ -51202,6 +51202,8 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 ## TB-2253 — AgentUserPromptStaticPrefix — AWS/GCP Important guidance blocks (P2)
 
 **Window:** V1.
+
+**Status:** **Done** (2026-08-14) — Aws/Gcp `Important guidance` blocks in `AgentUserPromptStaticPrefix` (mirrors Azure/None); composer delegates for Aws/Gcp-only callers; `AgentUserPromptCloudTargetTests.StaticPrefix_aws_gcp_contains_provider_specific_important_guidance`.
 
 **Why:** Done **TB-875** adds cloud override addenda in `CloudProviderAgentPromptComposer`, but `AgentUserPromptStaticPrefix` only appends detailed Important guidance for Azure and cloud-neutral — not Aws/Gcp. Critic/compliance/cost agents get thinner instructions for non-Azure targets.
 
