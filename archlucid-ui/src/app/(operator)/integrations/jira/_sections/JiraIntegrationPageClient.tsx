@@ -15,7 +15,9 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
-  fetchItsmProviderPageBundle,
+  fetchItsmIntegrationHealth,
+  fetchTenantItsmConnectorConnection,
+  fetchTenantItsmOutboundSettings,
   probeItsmIntegrationHealth,
   upsertTenantItsmOutboundSettings,
   type ItsmIntegrationHealthResponse,
@@ -32,6 +34,7 @@ import {
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { launchJiraAtlassianOAuthConnect } from "@/lib/jira-atlassian-oauth-connect";
+import { buildJiraPageLoadResult } from "@/lib/jira-page-load";
 import { ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED } from "@/lib/itsm/itsm-product-integration-page-copy";
 import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
 import {
@@ -122,24 +125,36 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     setIsLoading(true);
     setLoadError(null);
 
-    try {
-      const bundle = await fetchItsmProviderPageBundle("jira");
+    // Isolate slice failures so one 500 cannot wipe successful connection/settings (TB-1162).
+    const [healthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
+      fetchItsmIntegrationHealth(),
+      fetchTenantItsmOutboundSettings(),
+      fetchTenantItsmConnectorConnection("jira"),
+    ]);
 
-      setHealthLoadFailed(false);
-      setSettingsLoadFailed(false);
-      setConnectionLoadFailed(false);
-      setHealth(bundle.health);
-      applySettings(bundle.settings);
-      setConnection(bundle.connection);
-      setLoadError(null);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Could not load Jira integration data.";
-      setHealthLoadFailed(true);
-      setSettingsLoadFailed(true);
-      setConnectionLoadFailed(true);
-      setLoadError(message);
+    const loaded = buildJiraPageLoadResult({
+      health: healthOutcome,
+      settings: settingsOutcome,
+      connection: connectionOutcome,
+    });
+
+    setHealthLoadFailed(loaded.health.failed);
+    setSettingsLoadFailed(loaded.settings.failed);
+    setConnectionLoadFailed(loaded.connection.failed);
+
+    if (!loaded.health.failed) {
+      setHealth(loaded.health.value);
     }
 
+    if (!loaded.settings.failed) {
+      applySettings(loaded.settings.value);
+    }
+
+    if (!loaded.connection.failed) {
+      setConnection(loaded.connection.value);
+    }
+
+    setLoadError(loaded.loadError);
     setLastCheckedAt(new Date());
     setIsLoading(false);
   }, [applySettings]);
