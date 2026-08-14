@@ -410,6 +410,14 @@ public static class TopologyProposalRelationshipEndpointIndex
             return;
         }
 
+        if (string.IsNullOrWhiteSpace(category))
+        {
+            // Inventoried nodes may omit category; accept both synthetic service and datastore aliases.
+            AddSyntheticServiceEndpointKey(endpointKeys, label);
+            AddSyntheticDatastoreEndpointKey(endpointKeys, label);
+            return;
+        }
+
         AddSyntheticServiceEndpointKey(endpointKeys, label);
     }
 
@@ -424,6 +432,13 @@ public static class TopologyProposalRelationshipEndpointIndex
 
         if (IsDatastoreCategory(category))
         {
+            AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(label), nodeId);
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(category))
+        {
+            AddResolutionAlias(aliasToNodeId, BuildSyntheticServiceNodeId(label), nodeId);
             AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(label), nodeId);
             return;
         }
