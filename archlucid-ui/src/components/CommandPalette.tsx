@@ -44,6 +44,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
+import { mergeContextualOnlyOperatorNavHrefsIntoVisibleSet } from "@/lib/nav-contextual-only-operator-paths";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import {
   filterNavGroupsByRoleDensity,
@@ -492,9 +493,12 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     );
 
     return applyPatternLibraryHrefSetGate(
-      scopeOperatorShellHrefSet(
-        visibleOperatorShellHrefSetFromNavRows(densityFilteredRows),
-        auditRunId,
+      mergeContextualOnlyOperatorNavHrefsIntoVisibleSet(
+        scopeOperatorShellHrefSet(
+          visibleOperatorShellHrefSetFromNavRows(densityFilteredRows),
+          auditRunId,
+        ),
+        callerAuthorityRank,
       ),
       patternLibraryNavVisible,
     );
