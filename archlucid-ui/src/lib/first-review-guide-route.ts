@@ -10,6 +10,12 @@ export const ONBOARDING_OPTIONAL_SETUP_HEADING_ID = "onboarding-optional-setup-h
 /** Walkthrough / checklist progress block on the first-review-guide surface. */
 export const FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID = "first-review-guide-progress-heading" as const;
 
+/** Legacy FinishSetupWizardPanel section anchor — maps to optional workspace setup. */
+export const LEGACY_FINISH_SETUP_SECTION_ID = "finish-setup" as const;
+
+/** Legacy FinishSetupWizardPanel title anchor — maps to optional workspace setup. */
+export const LEGACY_FINISH_SETUP_HEADING_ID = "finish-setup-heading" as const;
+
 /** Non-admin delegation variant on the same first-review-guide surface. */
 export const ONBOARDING_OPTIONAL_SETUP_DELEGATION_HEADING_ID =
   "onboarding-optional-setup-delegation-heading" as const;
@@ -24,5 +30,16 @@ export function normalizeLocationHashId(hash: string): string {
 
 /** True when the URL targets optional workspace setup (Cmd+K finish-setup, shared CTAs). */
 export function isOnboardingOptionalSetupDeepLinkHash(hash: string): boolean {
-  return normalizeLocationHashId(hash) === ONBOARDING_OPTIONAL_SETUP_HEADING_ID;
+  const hashId = normalizeLocationHashId(hash);
+
+  return (
+    hashId === ONBOARDING_OPTIONAL_SETUP_HEADING_ID ||
+    hashId === LEGACY_FINISH_SETUP_SECTION_ID ||
+    hashId === LEGACY_FINISH_SETUP_HEADING_ID
+  );
+}
+
+/** True when the URL targets the first-review walkthrough progress checklist. */
+export function isFirstReviewGuideProgressDeepLinkHash(hash: string): boolean {
+  return normalizeLocationHashId(hash) === FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID;
 }

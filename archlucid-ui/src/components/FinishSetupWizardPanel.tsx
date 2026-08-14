@@ -38,6 +38,7 @@ function readSetupDismissed(): boolean {
 }
 
 /** Guided post-deploy checklist: health, identity, and admin role. */
+/** @deprecated Unmounted — optional setup lives in {@link OnboardingOptionalSetupSection}; legacy `#finish-setup` hashes alias there. */
 export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps = {}): React.JSX.Element | null {
   const panelVariant = variant ?? "default";
   const { phase, context } = useFinishSetupReadinessContext();

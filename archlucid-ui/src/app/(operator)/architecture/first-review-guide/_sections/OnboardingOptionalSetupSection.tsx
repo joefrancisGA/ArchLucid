@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
+import { useDeepLinkHashScroll } from "@/hooks/use-deep-link-hash-scroll";
 import {
   ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
   ONBOARDING_OPTIONAL_SETUP_DISMISS_DETAIL,
@@ -66,8 +67,14 @@ export function OnboardingOptionalSetupSection() {
     };
   }, []);
 
+  useDeepLinkHashScroll(ONBOARDING_OPTIONAL_SETUP_HEADING_ID, isOnboardingOptionalSetupDeepLinkHash);
+
   useEffect(() => {
     if (!deepLinkActive) {
+      return;
+    }
+
+    if (!isOnboardingOptionalSetupDeepLinkHash(window.location.hash)) {
       return;
     }
 

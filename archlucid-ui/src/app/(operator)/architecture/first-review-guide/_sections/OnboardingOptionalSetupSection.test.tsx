@@ -175,4 +175,15 @@ describe("OnboardingOptionalSetupSection", () => {
     expect(screen.queryByTestId("onboarding-optional-setup")).not.toBeInTheDocument();
     expect(screen.queryByTestId("onboarding-optional-setup-delegation")).not.toBeInTheDocument();
   });
+
+  it("treats legacy #finish-setup as an optional-setup deep link", () => {
+    window.location.hash = "#finish-setup";
+
+    render(<OnboardingOptionalSetupSection />);
+
+    expect(screen.getByTestId("onboarding-optional-setup")).toBeInTheDocument();
+    expect(scrollDeepLink.scheduleScrollDeepLinkTargetIntoView).toHaveBeenCalledWith(
+      ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+    );
+  });
 });

@@ -9,7 +9,9 @@ import {
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
+import { FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID } from "@/lib/first-review-guide-route";
 import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
+import * as scrollDeepLink from "@/lib/scroll-deep-link-target-into-view";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 vi.mock("next/link", () => ({
@@ -178,5 +180,15 @@ describe("FirstReviewGuidePageClient", () => {
     expect(screen.getByTestId("first-review-guide-progress-unavailable")).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-walkthrough-unavailable")).toBeInTheDocument();
     expect(screen.queryByTestId("first-review-guide-readiness")).not.toBeInTheDocument();
+  });
+
+  it("scrolls the walkthrough progress section when the onboarding checklist hash is active", () => {
+    const scheduleScroll = vi.spyOn(scrollDeepLink, "scheduleScrollDeepLinkTargetIntoView");
+    window.location.hash = `#${FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID}`;
+    mockUseFirstReviewGuideState.mockReturnValue(loadedGuideState);
+
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    expect(scheduleScroll).toHaveBeenCalledWith(FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID);
   });
 });
