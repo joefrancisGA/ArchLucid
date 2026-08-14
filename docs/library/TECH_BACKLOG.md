@@ -1344,7 +1344,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2238 | ~~Unified help content loader — retire per-page `*-help-*` module sprawl~~ **Done** 2026-08-14 — `help-topic-content-loader.ts` + `help-topic-view-resolver.tsx`; see ## TB-2238 below | Maintainability P0 — **V1**; owner easier-to-understand audit 2026-08-13; ~575 help modules; extends Done **TB-143**–**TB-148** | XL |
 | TB-2239 | ~~Extend inline glossary to all load-bearing invented terms (beyond golden path)~~ **Done** 2026-08-14 — `load-bearing-glossary-nouns.ts` + expanded `InlineGlossaryChip`; see ## TB-2239 below | Adoption friction P0 — **V1**; owner easier-to-understand audit 2026-08-13; residual after Done **TB-2134** | M |
 | TB-2240 | ~~One primary persona name across routes, nav labels, and help (architect vs operator vs sponsor)~~ **Done** 2026-08-14 — `primary-persona-vocabulary.ts` + registry/help copy; see ## TB-2240 below | Adoption friction P0 — **V1**; owner easier-to-understand audit 2026-08-13; `(operator)` route group mismatch | M |
-| TB-2241 | Retire or merge hidden low-traffic routes (traffic estimates), not perpetual omission lists; see ## TB-2241 below | Maintainability P0 — **V1**; owner easier-to-use audit 2026-08-13; `.local/owner/ui_route_traffic_estimates.md`; pairs **TB-748**–**TB-753** | L |
+| TB-2241 | **Done** (2026-08-14) — batch 1: canonical contextual-only nav registry (`nav-contextual-only-operator-paths.ts`); architecture intelligence removed from pilot nav (deep-link only); internal platform catalog paths excluded from buyer OVERALL_* traffic rollups; template + CI drift guard `test_tb2241_hidden_route_traffic_policy.py`. Ghost `page.tsx` retirements remain on **TB-1404**/**TB-748** peers | Maintainability P0 — **V1**; owner easier-to-use audit 2026-08-13; `.local/owner/ui_route_traffic_estimates.md`; pairs **TB-748**–**TB-753** | L |
 | TB-2243 | ~~Retire progressive nav disclosure plumbing~~ **Done** 2026-08-13 — drop retired nav disclosure params, dead unlock UI, mobile density parity; Vitest; see ## TB-2243 below | Adoption friction P0 — **V1**; usability item #4; partial toward **TB-2233** | M |
 | TB-2244 | ~~RunStarterTaskFactory cloud-aware policy refs + service catalogs~~ **Done** 2026-08-14 — `RunStarterCloudEvidenceRefs` maps Aws/Gcp policy + catalog tokens; `CloudProvider.None` omits cloud-specific refs; Application.Tests; see ## TB-2244 below | Correctness P0 — **V1**; multi-cloud target parity 2026-08-13 | M |
 | TB-2245 | ~~Multi-cloud inventory evidence-bundle merge at run create~~ **Done** 2026-08-14 — `RunStarterInventoryEvidenceBundleMerger` + `CloudInventoryExtractorEvidenceBundleMerger`; coordination + deferred pipeline; cost citation keys; Application.Tests; see ## TB-2245 below | Correctness P0 — **V1**; multi-cloud target parity 2026-08-13 | M |
@@ -50362,6 +50362,24 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Closure (2026-08-14):** Enablement pack shipped; hosted staging numbers recorded by owner on next CD using capture script (committed pending row documents gates until replaced).
 
 **Size estimate:** S.
+
+---
+
+## TB-2241 ? Retire or merge hidden low-traffic routes (traffic estimates) (P0)
+
+**Window:** V1 ? Maintainability / Adoption friction.
+
+**Status:** **Done** (2026-08-14) ? batch 1: canonical contextual-only nav registry (`nav-contextual-only-operator-paths.ts` + `CONTEXTUAL_ONLY_OPERATOR_NAV_PATHS` in route catalog); architecture intelligence removed from pilot nav (deep-link only from review detail / findings queue / draft refine); internal platform catalog paths excluded from buyer OVERALL_* traffic rollups (`is_buyer_facing_traffic_row`); template policy note + CI drift guard `test_tb2241_hidden_route_traffic_policy.py` + Vitest.
+
+**Priority:** P0.
+
+**Source:** Owner easier-to-use audit 2026-08-13 (**TB-2232**?**TB-2241** batch); pairs **TB-748**?**TB-753** redirect hygiene.
+
+**Why:** ~130 operator routes with scattered nav omissions and score-0 ghost surfaces; perpetual omission lists hide routes without retiring or merging them.
+
+**Closure (2026-08-14):** Batch 1 replaces ad-hoc nav omissions with a registry and fixes buyer traffic rollup pollution from internal platform catalogs. Remaining ghost `page.tsx` behind permanent redirects: **TB-1404** / **TB-1441** peers (do not reopen in this row).
+
+**Size estimate:** L (batch 1 shipped; ghost page retirements tracked on peer rows).
 
 ---
 
