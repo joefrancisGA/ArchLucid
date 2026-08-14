@@ -20,7 +20,7 @@ export const SPECIALTY_HELP_CHROME_BELOW_50_INVENTORY: readonly SpecialtyHelpChr
     helpPath: "/help/api-contracts",
     slug: "api-contracts",
     owningClusterId: "TB-1384",
-    clusterDone: false,
+    clusterDone: true,
   },
   {
     approximateScore: 39,

@@ -17,11 +17,22 @@ import {
   API_CONTRACTS_HELP_PAGE_TITLE,
   API_CONTRACTS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/api-contracts-help-guide-content";
+import {
+  API_CONTRACTS_HELP_JOB_MATRIX,
+  API_CONTRACTS_HELP_JOB_MATRIX_HEADING,
+  API_CONTRACTS_HELP_JOB_MATRIX_TEST_ID,
+} from "@/lib/api-contracts-help-ia-dual";
 import { API_CONTRACTS_HELP_PATH } from "@/lib/api-contracts-help-route";
 import { API_CONTRACTS_HELP_REFERENCE_LANDING } from "@/lib/api-contracts-help-reference-content";
 import {
+  API_CONTRACTS_HELP_RELATED_HEADING,
+  API_CONTRACTS_HELP_RELATED_TEST_ID,
+  apiContractsHelpRelatedGuides,
+} from "@/lib/api-contracts-help-related-guides";
+import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
@@ -48,6 +59,7 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
   const headingGroups = groupHelpMarkdownHeadings(headings);
   const majorSections = headings.filter((heading) => heading.level === 2);
   const governanceApprovalHref = inAppHelpHref("governance-approval");
+  const relatedGuides = apiContractsHelpRelatedGuides();
 
   return (
     <article
@@ -87,6 +99,38 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
       </header>
 
       <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="api-contracts" />
+
+      <section
+        aria-labelledby="help-api-contracts-job-matrix-heading"
+        className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+        data-testid={API_CONTRACTS_HELP_JOB_MATRIX_TEST_ID}
+      >
+        <h2
+          id="help-api-contracts-job-matrix-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          {API_CONTRACTS_HELP_JOB_MATRIX_HEADING}
+        </h2>
+        <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
+          {API_CONTRACTS_HELP_JOB_MATRIX.map((row) => (
+            <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+              {row.isCurrent === true ? (
+                <span
+                  className="shrink-0 font-medium text-al-text-primary"
+                  data-testid="help-api-contracts-job-matrix-current"
+                >
+                  {row.label}
+                </span>
+              ) : (
+                <Link className={cn(OPERATOR_LINK.inline, "shrink-0 font-medium")} href={row.href ?? "#"}>
+                  {row.label}
+                </Link>
+              )}
+              <span className="text-al-text-secondary">{row.when}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section
         aria-labelledby="help-api-contracts-action-panel-heading"
@@ -230,6 +274,35 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
           navigationTopicLabel="API contracts reference"
         />
       </div>
+
+      <section
+        aria-labelledby="help-api-contracts-related-heading"
+        className="space-y-2 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+        data-testid={API_CONTRACTS_HELP_RELATED_TEST_ID}
+      >
+        <h2
+          id="help-api-contracts-related-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          {API_CONTRACTS_HELP_RELATED_HEADING}
+        </h2>
+        <ul className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
+          {relatedGuides.map((guide) => (
+            <li key={guide.href}>
+              <Link
+                href={guide.href}
+                className={cn(
+                  "underline-offset-2 hover:underline",
+                  DESIGN_TOKENS.accent.link,
+                  OPERATOR_LINK.inline,
+                )}
+              >
+                {guide.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
     </article>
   );
 }
