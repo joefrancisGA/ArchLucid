@@ -1891,11 +1891,11 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1905 | **Done** (2026-08-01) ? Vitest anti-reintro: no `/settings/exec-digest` redirect/page/SEX row; see `## TB-1905` below | Testability P2 ? **V1**; with **TB-1901**; pairs **TB-1494** | S |
 | TB-1910 | Identity diagnostics ? Vitest shell honesty + StatusTag + loading; see ## TB-1910 below | Testability P2 ? **V1**; with **TB-1906** | S |
 | TB-1915 | OIDC/JWT tab ? Vitest title + shell + StatusTag + loading; see ## TB-1915 below | Testability P2 ? **V1**; with **TB-1911** | S |
-| TB-1920 | Role mapping tab ? Vitest hub honesty + StatusTag + CTAs; see ## TB-1920 below | Testability P2 ? **V1**; with **TB-1916** | S |
-| TB-1925 | SAML tab ? Vitest fetch label + confirm + shell; see ## TB-1925 below | Testability P2 ? **V1**; with **TB-1921** | S |
+| TB-1920 | **Done** (2026-08-14) ? Role mapping tab Vitest band (`identity-providers-role-mapping-band.test.ts`); see ## TB-1920 below | Testability P2 ? **V1**; with **TB-1916** | S |
+| TB-1925 | **Done** (2026-08-14) ? SAML tab Vitest band (`identity-providers-saml-band.test.ts`); see ## TB-1925 below | Testability P2 ? **V1**; with **TB-1921** | S |
 | TB-1926 | **Done** (2026-07-31) ? Model governance buyer-safe blocked notes; purge AdminAuthority/HTTP from alerts; Vitest; see `## TB-1926` below | Trustworthiness P0 ? **V1**; owner review ~48/100 2026-07-27; traffic **SEM**; after Done **TB-871** | S |
-| TB-1930 | Model governance ? Vitest error honesty + labels + chrome; see ## TB-1930 below | Testability P2 ? **V1**; with **TB-1926** | S |
-| TB-1935 | Users API keys tab ? Vitest SEU deep-link + CTA + empty; see ## TB-1935 below | Testability P2 ? **V1**; with **TB-1931** | S |
+| TB-1930 | **Done** (2026-08-14) ? Model governance Vitest band (`model-governance-band.test.ts`); see ## TB-1930 below | Testability P2 ? **V1**; with **TB-1926** | S |
+| TB-1935 | **Done** (2026-08-14) ? Users API keys tab Vitest band (`settings-users-keys-tab-band.test.ts`); see ## TB-1935 below | Testability P2 ? **V1**; with **TB-1931** | S |
 | TB-1940 | Users tab ? Vitest URL sync + empty composition; see ## TB-1940 below | Testability P2 ? **V1**; with **TB-1936** | S |
 | TB-1943 | **Done** (2026-07-31) ? Sealed records list shows Record unavailable + Retry when signedRecordHref missing; Vitest; see `## TB-1943` below | Trustworthiness P0 ? **V1**; with **TB-1941** | S |
 | TB-1941 | **Done** (2026-08-10) ? Sealed records list traffic **SI** Alerts/gov section honesty; Vitest; see `## TB-1941` below | Trustworthiness P1 ? **V1**; owner review ~50/100 2026-07-27; traffic **SI** | XS |
@@ -28029,6 +28029,56 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 **Depends on:** **TB-1036**. Complements **TB-739**, **TB-978**?**TB-981** (universe pins ? do not invent a third ID source).
 
 **Out of scope:** Marketing `/welcome` proof funnel (**M-107**); inventing synthetic KPI numbers.
+
+**Size estimate:** M.
+
+---
+
+## TB-2297 — Name the decision in the review title (P1) — **Done** (2026-08-14)
+
+**Window:** V1.
+
+**Shipped:** Client `first-pilot-review-title-quality.ts` + intake readiness; server `QuickStartReviewTitleCompleteness` fail-closed on Quick start `SystemName`; no invented “Architecture review” default. Vitest + Application + Api tests.
+
+**Acceptance:** “Test review” / “Retail API” / empty title cannot start Quick start. “Retail API modernization review” can.
+
+**Out of scope:** Decision register / ADR. OpenAPI `systemName` on run summary.
+
+**Size estimate:** M.
+
+---
+
+## TB-2298 — Origin × grounding findings triage (P1) — **Done** (2026-08-14)
+
+**Window:** V1.
+
+**Shipped:** `finding-trust-triage.ts`; toolbar origin/grounding filters; default sort `trust-then-severity`; `ready-for-sponsor-packet` excludes Simulated / Ungrounded / Estimated / Degraded / Deterministic fallback. Reuses TB-2135 provenance.
+
+**Out of scope:** Reopening TB-2135 chips or TB-2179 job-view product.
+
+**Size estimate:** M.
+
+---
+
+## TB-2299 — Impact preview before apply-change (P1) — **Done** (2026-08-14)
+
+**Window:** V1.
+
+**Shipped:** Finding inspect gates Remediated / mark-remediated until impact preview for this review+finding completed this session, or an explicit override. Accepted-risk still uses TB-2184 export impact only. Simulate records completion.
+
+**Out of scope:** Reopening TB-2184 or TB-1987 as a new analyzer.
+
+**Size estimate:** M.
+
+---
+
+## TB-2300 — Second review reuses prior package + compare default (P1) — **Done** (2026-08-14)
+
+**Window:** V1.
+
+**Shipped:** After first commit, Start next review opens Quick start with `priorRunId` (not a blank `/architecture/reviews/new`). Wizard prefills inherited title. After a comparable second package, Do-this-next defaults to compare.
+
+**Out of scope:** Reopening TB-2130 first-run blank Quick start. Copying full ArchitectureRequest constraints.
 
 **Size estimate:** M.
 ---

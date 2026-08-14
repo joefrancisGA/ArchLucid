@@ -14,7 +14,10 @@ describe("marketing design tokens", () => {
   it("shares operator page shell but uses a wider marketing rail", () => {
     expect(MARKETING_LAYOUT.page).toBe(OPERATOR_LAYOUT.page);
     expect(MARKETING_LAYOUT.main).toContain("max-w-6xl");
-    expect(MARKETING_TYPOGRAPHY.body).toBe(OPERATOR_TYPOGRAPHY.body);
+    expect(MARKETING_TYPOGRAPHY.body).toContain("text-base");
+    expect(MARKETING_TYPOGRAPHY.body).not.toBe(OPERATOR_TYPOGRAPHY.body);
+    expect(MARKETING_TYPOGRAPHY.meta).toContain("text-sm");
+    expect(MARKETING_TYPOGRAPHY.meta).not.toBe(OPERATOR_TYPOGRAPHY.helper);
   });
 
   it("uses marketing-scale hero and section typography", () => {

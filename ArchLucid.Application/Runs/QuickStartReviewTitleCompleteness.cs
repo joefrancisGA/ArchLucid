@@ -91,7 +91,9 @@ public static class QuickStartReviewTitleCompleteness
     private static string NormalizeTitle(string? title)
     {
         if (string.IsNullOrWhiteSpace(title))
+        {
             return string.Empty;
+        }
 
         return string.Join(" ", title.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
     }
@@ -109,7 +111,9 @@ public static class QuickStartReviewTitleCompleteness
             .ToArray();
 
         if (parts.Length >= 2)
+        {
             return true;
+        }
 
         string lower = normalized.ToLowerInvariant();
 

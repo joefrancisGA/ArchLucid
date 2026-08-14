@@ -108,14 +108,22 @@ export function WelcomeMarketingPage(props: {
           </p>
         </section>
 
-        <MarketingTierPricingSectionDeferred
-          sectionHeadingId="pricing-heading"
-          sectionTitle="Packaging overview"
-          sectionIntro={BUYER_MARKETING_PRICING_PAGE_INTRO}
-          signupHref="/signup"
-          showSignupCallToAction={false}
-          initialPricing={initialPricing}
-        />
+        <section
+          aria-labelledby="pricing-heading"
+          className={cn(
+            MARKETING_LAYOUT.sectionStack,
+            "rounded-lg border border-neutral-200 bg-neutral-50/80 p-5 dark:border-neutral-800 dark:bg-neutral-950/40 sm:p-6",
+          )}
+        >
+          <MarketingTierPricingSectionDeferred
+            sectionHeadingId="pricing-heading"
+            sectionTitle="Packaging overview"
+            sectionIntro={BUYER_MARKETING_PRICING_PAGE_INTRO}
+            signupHref="/signup"
+            showSignupCallToAction={false}
+            initialPricing={initialPricing}
+          />
+        </section>
       </MarketingPageShell>
     </>
   );

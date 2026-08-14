@@ -5,7 +5,7 @@ import {
   MARKETING_PRICING_FIT_RECOMMENDATIONS,
   MARKETING_PRICING_TIER_BEST_FOR,
   buildMarketingPricingIncludedLines,
-  resolveMarketingTierPrimaryCtaSize,
+  resolveMarketingTierFitQualifier,
   resolveMarketingTierPrimaryCtaVariant,
 } from "@/lib/marketing/marketing-pricing-tier-display";
 import type { PricingPackage } from "@/lib/pricing-types";
@@ -43,15 +43,16 @@ describe("marketing-pricing-tier-display", () => {
     expect(soloRow?.tiers.team).toBe(false);
   });
 
-  it("uses outline CTAs for architect and enterprise", () => {
+  it("uses outline CTAs for architect, team, and enterprise", () => {
     expect(resolveMarketingTierPrimaryCtaVariant("architect", false)).toBe("outline");
+    expect(resolveMarketingTierPrimaryCtaVariant("team", false)).toBe("outline");
     expect(resolveMarketingTierPrimaryCtaVariant("enterprise", false)).toBe("outline");
     expect(resolveMarketingTierPrimaryCtaVariant("professional", true)).toBe("primary");
   });
 
-  it("uses a larger CTA for the recommended professional tier", () => {
-    expect(resolveMarketingTierPrimaryCtaSize("professional", true)).toBe("lg");
-    expect(resolveMarketingTierPrimaryCtaSize("team", false)).toBe("default");
+  it("exposes a fit qualifier for the recommended professional tier", () => {
+    expect(resolveMarketingTierFitQualifier("professional")).toBe("Governance program");
+    expect(resolveMarketingTierFitQualifier("team")).toBeNull();
   });
 
   it("maps each persona to an explicit recommended plan", () => {

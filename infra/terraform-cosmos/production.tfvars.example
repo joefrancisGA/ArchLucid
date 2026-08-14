@@ -1,7 +1,7 @@
-# Staging-oriented example with posture tier (enable account + PE before production drill).
-#   terraform apply -var-file=staging.tfvars.example
+# Production-oriented example with posture tier (enable account + PE before apply).
+#   terraform apply -var-file=production.tfvars.example
 
-posture_tier = "staging"
+posture_tier = "production"
 
 # TB-095: Cosmos polyglot is dormant on production-like hosted pilots until feature flags enable it.
 enable_cosmos_account = false

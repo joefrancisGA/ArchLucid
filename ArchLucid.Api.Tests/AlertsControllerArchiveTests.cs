@@ -3,6 +3,8 @@ using System.Security.Claims;
 using ArchLucid.Api.Controllers.Alerts;
 using ArchLucid.Application.Alerts;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Persistence.ApplicationPorts.Queries;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts;
 
@@ -77,6 +79,8 @@ public sealed class AlertsControllerArchiveTests
         AlertsController sut = new(
             scope.Object,
             records.Object,
+            Mock.Of<IAlertRuleRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
             alertService.Object,
             reader.Object,
             audit.Object)
@@ -130,6 +134,8 @@ public sealed class AlertsControllerArchiveTests
         AlertsController sut = new(
             scope.Object,
             records.Object,
+            Mock.Of<IAlertRuleRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
             alertService.Object,
             reader.Object,
             audit.Object)
