@@ -3348,4 +3348,110 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_cdn_frontdoor_profile_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "fd-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "edge",
+                    Category = GraphTopologyCategories.Data,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_cdn_frontdoor_profile.main"
+                },
+                new GraphNode
+                {
+                    NodeId = "ds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql",
+                    Category = GraphTopologyCategories.Data,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_mssql_server.main"
+                }
+            ]
+        };
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-edge",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_app_configuration_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "svc-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "api",
+                    Category = GraphTopologyCategories.Compute,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_app_service.main"
+                },
+                new GraphNode
+                {
+                    NodeId = "appcfg-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "config",
+                    Category = GraphTopologyCategories.Compute,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_app_configuration.main"
+                }
+            ]
+        };
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "ds-config",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
 }
