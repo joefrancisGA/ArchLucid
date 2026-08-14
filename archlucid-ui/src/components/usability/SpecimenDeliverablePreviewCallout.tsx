@@ -66,7 +66,7 @@ export function SpecimenDeliverablePreviewCallout(
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <Button asChild variant="primary" size="sm" data-testid={`${sectionTestId}-primary-cta`}>
+        <Button asChild variant="outline" size="sm" className="h-8 w-fit" data-testid={`${sectionTestId}-primary-cta`}>
           <Link href={showcaseSpecimenSignedReviewRecordHref()}>{REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA}</Link>
         </Button>
         <Link

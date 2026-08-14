@@ -18,10 +18,10 @@ describe("SpecimenDeliverablePreviewCallout", () => {
 
     expect(screen.getByTestId("reviews-new-specimen-preview")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: REVIEWS_NEW_SPECIMEN_PREVIEW_TITLE })).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-new-specimen-preview-primary-cta")).toHaveAttribute(
-      "href",
-      showcaseSpecimenSignedReviewRecordHref(),
-    );
+    const primaryCta = screen.getByTestId("reviews-new-specimen-preview-primary-cta");
+    expect(primaryCta).toHaveAttribute("href", showcaseSpecimenSignedReviewRecordHref());
+    expect(primaryCta.className).toContain("border-neutral-300");
+    expect(primaryCta.className).not.toContain("bg-[var(--al-primary-action-bg)]");
     expect(screen.getByRole("link", { name: REVIEWS_NEW_SPECIMEN_PREVIEW_FINDINGS_LINK })).toHaveAttribute(
       "href",
       showcaseSpecimenFindingsHref(),

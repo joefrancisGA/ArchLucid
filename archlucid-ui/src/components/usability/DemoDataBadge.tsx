@@ -21,9 +21,9 @@ export function DemoDataBadge(props: DemoDataBadgeProps) {
       )}
       data-testid="demo-data-badge"
       role="status"
-      aria-label="Sample data — not your tenant"
+      aria-label="Sample data"
     >
-      Sample data — not your tenant
+      Sample data
     </span>
   );
 }
