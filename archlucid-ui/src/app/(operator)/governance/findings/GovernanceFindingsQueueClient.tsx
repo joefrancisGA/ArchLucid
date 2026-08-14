@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AlertsFindingsVocabularyRail } from "@/components/AlertsFindingsVocabularyRail";
 import { DecisionRegisterFindingsVocabularyRail } from "@/components/DecisionRegisterFindingsVocabularyRail";
@@ -50,7 +50,8 @@ import {
   GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
-import { COMPARE_FINDING_LIFECYCLE_ANCHOR } from "@/lib/compare-finding-lifecycle";
+import { comparePageHrefWithLifecycleAnchor, COMPARE_FINDING_LIFECYCLE_ANCHOR } from "@/lib/compare-finding-lifecycle";
+import { fetchRunDetailWorkspaceContextBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
@@ -116,6 +117,43 @@ export default function GovernanceFindingsQueueClient({
     groupByResource,
     toggleGroupByResource,
   } = useGovernanceFindingsFilter();
+
+  const [scopedFindingLifecycleCompareHref, setScopedFindingLifecycleCompareHref] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (scopedRunId === null || scopedRunId.length === 0) {
+      setScopedFindingLifecycleCompareHref(null);
+
+      return;
+    }
+
+    const laterOnlyHref = `${comparePageHrefAdaptive("", scopedRunId)}#${COMPARE_FINDING_LIFECYCLE_ANCHOR}`;
+    setScopedFindingLifecycleCompareHref(laterOnlyHref);
+
+    let canceled = false;
+
+    void fetchRunDetailWorkspaceContextBundle(scopedRunId)
+      .then((bundle) => {
+        if (canceled) {
+          return;
+        }
+
+        const priorRunId = bundle.priorCommittedRunId?.trim() ?? "";
+
+        if (priorRunId.length === 0) {
+          return;
+        }
+
+        setScopedFindingLifecycleCompareHref(comparePageHrefWithLifecycleAnchor(priorRunId, scopedRunId));
+      })
+      .catch(() => {
+        // Keep later-only href when workspace context cannot be loaded.
+      });
+
+    return () => {
+      canceled = true;
+    };
+  }, [scopedRunId]);
 
   const setJobView = useCallback((next: FindingJobView): void => {
     setJobViewState(next);
@@ -300,7 +338,10 @@ export default function GovernanceFindingsQueueClient({
             {" · "}
             <Link
               className={OPERATOR_LINK.inline}
-              href={`${comparePageHrefAdaptive("", scopedRunId)}#${COMPARE_FINDING_LIFECYCLE_ANCHOR}`}
+              href={
+                scopedFindingLifecycleCompareHref ??
+                `${comparePageHrefAdaptive("", scopedRunId)}#${COMPARE_FINDING_LIFECYCLE_ANCHOR}`
+              }
             >
               Compare with prior review (finding lifecycle)
             </Link>

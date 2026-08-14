@@ -73,6 +73,12 @@ describe("comparePageHref", () => {
     expect(comparePageHref("a", "b", "friendly")).toBe("/insights/compare-two-reviews?priorRunId=a&laterRunId=b");
   });
 
+  it("omits empty prior side for later-only prefill links", () => {
+    expect(comparePageHref("", "scoped-run", "friendly")).toBe("/insights/compare-two-reviews?laterRunId=scoped-run");
+    expect(comparePageHref("", "scoped-run", "technical")).toBe("/insights/compare-two-reviews?rightRunId=scoped-run");
+    expect(comparePageHref("", "", "friendly")).toBe("/insights/compare-two-reviews");
+  });
+
   it("technical mode emits left/right and omits empty later side", () => {
     expect(comparePageHref("x", "", "technical")).toBe("/insights/compare-two-reviews?leftRunId=x");
     expect(comparePageHref("a", "b", "technical")).toBe("/insights/compare-two-reviews?leftRunId=a&rightRunId=b");

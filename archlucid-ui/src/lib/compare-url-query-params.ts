@@ -51,7 +51,7 @@ export function readCompareRunIdsFromSearchParams(searchParams: Pick<URLSearchPa
 
 /**
  * Builds `/insights/compare-two-reviews?…` with either friendly (`priorRunId`/`laterRunId`) or technical (`leftRunId`/`rightRunId`) keys.
- * Empty `laterRunId` omits the second parameter (picker prefill-only links).
+ * Empty prior or later ids omit that query parameter (picker prefill-only links).
  */
 export function comparePageHref(
   priorRunId: string,
@@ -63,22 +63,31 @@ export function comparePageHref(
   const qs = new URLSearchParams();
 
   if (mode === "friendly") {
-    qs.set("priorRunId", prior);
+    if (prior.length > 0) {
+      qs.set("priorRunId", prior);
+    }
 
     if (later.length > 0) {
       qs.set("laterRunId", later);
     }
+  }
+  else {
+    if (prior.length > 0) {
+      qs.set("leftRunId", prior);
+    }
 
-    return `${COMPARE_TWO_REVIEWS_PATH}?${qs.toString()}`;
+    if (later.length > 0) {
+      qs.set("rightRunId", later);
+    }
   }
 
-  qs.set("leftRunId", prior);
+  const query = qs.toString();
 
-  if (later.length > 0) {
-    qs.set("rightRunId", later);
+  if (query.length === 0) {
+    return COMPARE_TWO_REVIEWS_PATH;
   }
 
-  return `${COMPARE_TWO_REVIEWS_PATH}?${qs.toString()}`;
+  return `${COMPARE_TWO_REVIEWS_PATH}?${query}`;
 }
 
 /** Friendly query names in buyer-polished builds; technical names in full-operator mode. */
