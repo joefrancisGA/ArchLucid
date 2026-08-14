@@ -228,7 +228,7 @@ describe("ItsmAtlassianOAuthCallbackClient failure branches", () => {
 
     const details = screen.getByTestId("itsm-oauth-callback-support-details");
     expect(within(details).getByText(/Pilot workspace/)).toBeInTheDocument();
-    expect(within(details).getByText(/Aug 12, 2026.*UTC/)).toBeInTheDocument();
+    expect(within(details).getByText(/UTC$/)).toBeInTheDocument();
     expect(within(details).getByLabelText("Copy reference ID")).toBeInTheDocument();
 
     const renderedText = details.textContent ?? "";

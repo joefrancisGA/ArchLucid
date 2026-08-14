@@ -65,7 +65,7 @@ export function resolvePolicyPackDetailBreadcrumbLabel(policyPackId: string, pac
   }
 
   if (kind === "healthcare-claims") {
-    return "Healthcare Claims";
+    return "Enterprise Privacy";
   }
 
   const packName = pack?.name?.trim() ?? "";

@@ -14,7 +14,7 @@ describe("policy-pack-detail-resolver", () => {
 
   it("maps healthcare claims demo ids", () => {
     expect(resolvePolicyPackDetailKind("demo-enterprise-privacy-pack", null)).toBe("healthcare-claims");
-    expect(resolvePolicyPackDetailBreadcrumbLabel("demo-enterprise-privacy-pack", null)).toBe("Healthcare Claims");
+    expect(resolvePolicyPackDetailBreadcrumbLabel("demo-enterprise-privacy-pack", null)).toBe("Enterprise Privacy");
   });
 
   it("returns unknown for unrecognized ids without API metadata", () => {

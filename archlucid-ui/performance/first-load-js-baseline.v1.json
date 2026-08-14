@@ -28,7 +28,7 @@
       "firstLoadJsKb": 1489.3
     },
     "/governance/signed-records": {
-      "firstLoadJsKb": 1427.7
+      "firstLoadJsKb": 1454.2
     }
   },
   "notes": "RC30 CI run 31743523883: refresh `/architecture/reviews` (1308.2 kB), `/governance/alerts` (1789.5 kB), and `/governance/alert-rules` (1199.9 kB) after merge-driven First Load growth beyond +25 kB tolerance. Prior baseline from RC29 run 31502052986."

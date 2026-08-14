@@ -70,6 +70,7 @@ public sealed class BaselineMutationAuditDualWritePairingTests
         string assemblyLoc = typeof(Common.IBaselineMutationAuditService).Assembly.Location;
 
         string? assemblyDir = Path.GetDirectoryName(assemblyLoc);
+
         if (string.IsNullOrEmpty(assemblyDir))
             assemblyDir = AppContext.BaseDirectory;
 

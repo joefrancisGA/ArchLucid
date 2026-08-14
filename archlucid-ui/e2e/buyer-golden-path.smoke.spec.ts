@@ -98,7 +98,7 @@ test.describe(
 
     await page.goto(BUYER_GOLDEN_PATH_HREFS.policyPackDetail);
     await expect(
-      page.getByRole("heading", { level: 1, name: /Healthcare Claims Policy Pack v/i }),
+      page.getByRole("heading", { level: 1, name: /Enterprise Privacy Policy Pack v/i }),
     ).toBeVisible();
     await expectNoGenericErrorBoundary(page);
   });
