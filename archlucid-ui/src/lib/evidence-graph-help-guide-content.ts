@@ -37,6 +37,10 @@ export const EVIDENCE_GRAPH_HELP_PRIMARY_ACTION = {
 export const EVIDENCE_GRAPH_HELP_NODE_RELATIONSHIPS_HREF =
   `${EVIDENCE_GRAPH_CANONICAL_PATH}#knowledge-graph-canvas` as const;
 
+/** Deep-link to the interactive graph canvas for path highlighting and selection. */
+export const EVIDENCE_GRAPH_HELP_PATH_HIGHLIGHTING_HREF =
+  `${EVIDENCE_GRAPH_CANONICAL_PATH}?presentation=graph#knowledge-graph-canvas` as const;
+
 export type EvidenceGraphHelpTileItem = {
   readonly label: string;
   readonly detail: string;
@@ -57,7 +61,7 @@ export const EVIDENCE_GRAPH_HELP_TILE_ITEMS: readonly EvidenceGraphHelpTileItem[
   {
     label: "Path highlighting",
     detail: "Focus a selection or highlight a path when you need to explain a specific chain.",
-    href: "/insights/compare-two-reviews",
+    href: EVIDENCE_GRAPH_HELP_PATH_HIGHLIGHTING_HREF,
   },
   {
     label: "Evidence trail export",
