@@ -86,6 +86,69 @@ public sealed class OrphanedAzureResourceFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_prefers_orphan_candidates_json_when_present()
+    {
+        const string orphanCandidatesJson =
+            """
+            {
+              "candidates": [
+                {
+                  "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/disk-from-extractor",
+                  "resourceType": "Microsoft.Compute/disks",
+                  "reason": "Extractor orphan candidate",
+                  "annualSavingsUsd": 240
+                }
+              ]
+            }
+            """;
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Compute/disks",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/disk-from-resources",
+                "properties": {}
+              }
+            ]
+            """;
+
+        OrphanedAzureResourceFindingEngine sut = CreateSut(
+            CreatePackageWithOrphanCandidates(orphanCandidatesJson, resourcesJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Payload.Should().BeOfType<ExtractorOrphanCandidateFindingPayload>();
+        findings[0].Trace.RulesApplied.Should().Contain("extractor-orphan-candidates-json");
+        ((ExtractorOrphanCandidateFindingPayload)findings[0].Payload!).ResourceId.Should().Contain("disk-from-extractor");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_falls_back_to_resources_json_when_orphan_candidates_file_is_empty()
+    {
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Compute/disks",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/disk-from-resources",
+                "properties": {}
+              }
+            ]
+            """;
+
+        OrphanedAzureResourceFindingEngine sut = CreateSut(
+            CreatePackageWithOrphanCandidates("[]", resourcesJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Payload.Should().BeOfType<RequirementFindingPayload>();
+        findings[0].Trace.RulesApplied.Should().Contain("orphaned-azure-resource-classifier");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_returns_empty_when_no_orphans_present()
     {
         const string resourcesJson =
@@ -221,6 +284,20 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             PackageId = Guid.NewGuid(),
             OriginalFileName = "inventory.zip",
             PackageBytes = BuildZip(("manifest.json", "{}")),
+        };
+    }
+
+    private static AzureExtractorPackageDownloadRecord CreatePackageWithOrphanCandidates(
+        string orphanCandidatesJson,
+        string resourcesJson)
+    {
+        return new AzureExtractorPackageDownloadRecord
+        {
+            PackageId = Guid.NewGuid(),
+            OriginalFileName = "inventory.zip",
+            PackageBytes = BuildZip(
+                ("orphan-candidates.json", orphanCandidatesJson),
+                ("resources.json", resourcesJson)),
         };
     }
 

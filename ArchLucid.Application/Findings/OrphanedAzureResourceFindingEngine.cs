@@ -58,18 +58,62 @@ public sealed class OrphanedAzureResourceFindingEngine(
         if (download is null || download.PackageBytes.Length == 0)
             return [];
 
-        string? resourcesJson = AzureInventoryZipResourcesJsonReader.TryReadResourcesJson(download.PackageBytes);
+        string? orphanCandidatesJson =
+            AzureInventoryZipJsonEntryReader.TryReadEntry(download.PackageBytes, "orphan-candidates.json");
 
-        if (string.IsNullOrWhiteSpace(resourcesJson))
-            return [];
+        IReadOnlyList<ExtractorOrphanCandidateFinding> extractorOrphans = [];
+        IReadOnlyList<OrphanedResourceFinding> orphans;
+        bool extractorOrphanCandidatesGrounded;
+        string rulesApplied;
 
-        IReadOnlyList<OrphanedResourceFinding> orphans = OrphanedResourceClassifier.ClassifyFromResourcesJson(resourcesJson);
+        if (orphanCandidatesJson is not null
+            && !string.IsNullOrWhiteSpace(orphanCandidatesJson))
+        {
+            extractorOrphans = ExtractorOrphanCandidatesClassifier.ClassifyFromOrphanCandidatesJson(orphanCandidatesJson);
+        }
+
+        if (extractorOrphans.Count > 0)
+        {
+            orphans = extractorOrphans
+                .Select(static candidate => new OrphanedResourceFinding(
+                    candidate.ResourceId,
+                    candidate.ResourceType,
+                    candidate.Message,
+                    candidate.Category))
+                .ToList();
+
+            extractorOrphanCandidatesGrounded = true;
+            rulesApplied = "extractor-orphan-candidates-json";
+        }
+        else
+        {
+            string? resourcesJson = AzureInventoryZipResourcesJsonReader.TryReadResourcesJson(download.PackageBytes);
+
+            if (string.IsNullOrWhiteSpace(resourcesJson))
+                return [];
+
+            orphans = OrphanedResourceClassifier.ClassifyFromResourcesJson(resourcesJson);
+            extractorOrphanCandidatesGrounded = false;
+            rulesApplied = "orphaned-azure-resource-classifier";
+        }
+
+        Dictionary<string, ExtractorOrphanCandidateFinding> extractorOrphansByResourceId =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ExtractorOrphanCandidateFinding candidate in extractorOrphans)
+        {
+            extractorOrphansByResourceId.TryAdd(candidate.ResourceId, candidate);
+        }
 
         return orphans
-            .Select(static orphan =>
+            .Select(orphan =>
             {
                 IReadOnlyList<string> alternativePaths =
                     OrphanedAzureResourceExplainabilityAlternatives.ResolveForResourceType(orphan.ResourceType);
+
+                extractorOrphansByResourceId.TryGetValue(orphan.ResourceId, out ExtractorOrphanCandidateFinding? extractorOrphan);
+                int entryIndex = extractorOrphan?.EntryIndex ?? -1;
+                decimal? annualSavingsUsd = extractorOrphan?.EstimatedAnnualSavingsUsd;
 
                 return new Finding
                 {
@@ -81,22 +125,65 @@ public sealed class OrphanedAzureResourceFindingEngine(
                     Title = $"Orphaned resource: {orphan.ResourceType}",
                     Rationale = orphan.Message,
                     RelatedNodeIds = [],
-                    PayloadType = nameof(RequirementFindingPayload),
-                    Payload = new RequirementFindingPayload
-                    {
-                        RequirementName = orphan.ResourceId,
-                        RequirementText = orphan.Message,
-                        IsMandatory = false,
-                    },
+                    PayloadType = extractorOrphanCandidatesGrounded
+                        ? nameof(ExtractorOrphanCandidateFindingPayload)
+                        : nameof(RequirementFindingPayload),
+                    Payload = extractorOrphanCandidatesGrounded
+                        ? new ExtractorOrphanCandidateFindingPayload
+                        {
+                            ExtractorArtifactFileName = "orphan-candidates.json",
+                            EntryIndex = entryIndex,
+                            ResourceId = orphan.ResourceId,
+                            ResourceType = orphan.ResourceType,
+                            Reason = orphan.Message,
+                            EstimatedAnnualSavingsUsd = annualSavingsUsd,
+                        }
+                        : new RequirementFindingPayload
+                        {
+                            RequirementName = orphan.ResourceId,
+                            RequirementText = orphan.Message,
+                            IsMandatory = false,
+                        },
                     Trace = new ExplainabilityTrace
                     {
-                        RulesApplied = ["orphaned-azure-resource-classifier"],
-                        DecisionsTaken = ["Flagged unattached disk, NIC, public IP, load balancer, NSG, or route table from extractor inventory."],
+                        RulesApplied = [rulesApplied],
+                        DecisionsTaken =
+                        [
+                            extractorOrphanCandidatesGrounded
+                                ? "Flagged orphan candidates from extractor orphan-candidates.json."
+                                : "Flagged unattached disk, NIC, public IP, load balancer, NSG, or route table from extractor inventory."
+                        ],
                         AlternativePathsConsidered = alternativePaths.ToList(),
-                        Notes = [$"Resource type: {orphan.ResourceType}", $"Resource id: {orphan.ResourceId}"],
+                        Notes = BuildTraceNotes(orphan, extractorOrphanCandidatesGrounded, entryIndex, annualSavingsUsd),
                     },
                 };
             })
             .ToList();
+    }
+
+    private static List<string> BuildTraceNotes(
+        OrphanedResourceFinding orphan,
+        bool extractorOrphanCandidatesGrounded,
+        int entryIndex,
+        decimal? annualSavingsUsd)
+    {
+        List<string> notes =
+        [
+            $"Resource type: {orphan.ResourceType}",
+            $"Resource id: {orphan.ResourceId}",
+        ];
+
+        if (!extractorOrphanCandidatesGrounded)
+            return notes;
+
+        notes.Add("Evidence artifact: orphan-candidates.json");
+
+        if (entryIndex >= 0)
+            notes.Add($"Entry index: {entryIndex}");
+
+        if (annualSavingsUsd is not null)
+            notes.Add($"Estimated annual savings (USD): {annualSavingsUsd:0.##}");
+
+        return notes;
     }
 }

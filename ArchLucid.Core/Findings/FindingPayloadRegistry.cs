@@ -20,7 +20,9 @@ public static class FindingPayloadRegistry
         [nameof(RequirementExpectationFindingPayload)] = typeof(RequirementExpectationFindingPayload),
         [nameof(SecurityBaselineExpectationFindingPayload)] = typeof(SecurityBaselineExpectationFindingPayload),
         [nameof(SecurityBaselineCompletenessFindingPayload)] = typeof(SecurityBaselineCompletenessFindingPayload),
-        [nameof(ComplianceFindingPayload)] = typeof(ComplianceFindingPayload)
+        [nameof(ComplianceFindingPayload)] = typeof(ComplianceFindingPayload),
+        [nameof(ExtractorOrphanCandidateFindingPayload)] = typeof(ExtractorOrphanCandidateFindingPayload),
+        [nameof(AdvisorCostRecommendationFindingPayload)] = typeof(AdvisorCostRecommendationFindingPayload)
     };
 
     public static IReadOnlyDictionary<string, Type> RegisteredTypes => ByPayloadTypeName;
