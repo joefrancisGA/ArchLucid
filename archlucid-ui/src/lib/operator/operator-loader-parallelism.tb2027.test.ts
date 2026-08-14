@@ -10,7 +10,7 @@ function readUiSource(relativePath: string): string {
 }
 
 describe("TB-2027 operator loader parallelism", () => {
-  it("parallelizes run-detail mid-deferred and pipeline/stage timelines", () => {
+  it("parallelizes run-detail mid-deferred and collapses pipeline/stage timelines into one bundle", () => {
     const source = readUiSource(
       "src/app/(operator)/architecture/reviews/[reviewId]/_sections/load-run-detail-deferred-model.ts",
     );
@@ -19,11 +19,11 @@ describe("TB-2027 operator loader parallelism", () => {
     expect(source).toMatch(
       /loadRunDetailMidDeferredModel[\s\S]*?await Promise\.all\(\[\s*loadChangesSinceLastReviewBanner/,
     );
-    expect(source).toContain("loadPipelineTimelineOnly");
-    expect(source).toContain("loadStageTimelineOnly");
-    expect(source).toMatch(
-      /loadPipelineTimelineSections[\s\S]*?await Promise\.all\(\[\s*loadPipelineTimelineOnly/,
-    );
+    expect(source).toContain("fetchRunDetailTimelinesBundle");
+    expect(source).not.toContain("loadPipelineTimelineOnly");
+    expect(source).not.toContain("loadStageTimelineOnly");
+    expect(source).not.toContain("getRunPipelineTimeline");
+    expect(source).not.toContain("getRunStageTimeline");
   });
 
   // The tenant settings loader used to parallelize trial + digest. The digest schedule editor moved to the

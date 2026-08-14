@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 
+using ArchLucid.Api.Models.Runs;
+using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Contracts.Admin;
 using ArchLucid.Contracts.Alerts;
 using ArchLucid.Contracts.Governance;
@@ -172,5 +174,62 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
             await Client.GetAsync("/v1/admin/prerequisites/cloud-connections-summary");
 
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task GetRunDetailCriticalPageBundle_ReturnsOk_WithSlices()
+    {
+        HttpResponseMessage createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-CRITICAL-001")));
+
+        await createResponse.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        Guid runId = Guid.Parse(created!.Run.RunId);
+
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId:D}/execute", null);
+        await executeResponse.EnsureSuccessForTestAsync();
+
+        HttpResponseMessage response =
+            await Client.GetAsync($"/v1/authority/reviews/{runId:D}/critical-page-bundle");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        RunDetailCriticalPageBundleResponse? body =
+            await response.Content.ReadFromJsonAsync<RunDetailCriticalPageBundleResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.BuyerSummary.Should().NotBeNull();
+        body.BuyerSummary.Run.RunId.Should().Be(runId);
+        body.ProgressSummary.Should().NotBeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetRunDetailTimelinesBundle_ReturnsOk_WithSlices()
+    {
+        HttpResponseMessage createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-TIMELINES-001")));
+
+        await createResponse.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        Guid runId = Guid.Parse(created!.Run.RunId);
+
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId:D}/execute", null);
+        await executeResponse.EnsureSuccessForTestAsync();
+
+        HttpResponseMessage response =
+            await Client.GetAsync($"/v1/authority/reviews/{runId:D}/timelines-bundle");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        RunDetailTimelinesBundleResponse? body =
+            await response.Content.ReadFromJsonAsync<RunDetailTimelinesBundleResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.PipelineTimeline.Should().NotBeNull();
+        body.StageTimeline.Should().NotBeNull();
     }
 }

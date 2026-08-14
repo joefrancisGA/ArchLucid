@@ -1,13 +1,7 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { isBrowser } from "@/lib/api/http";
-import {
-  type ApiResponseWithTrace,
-  getManifestSummary,
-  getBuyerRunDetailSummary,
-  getRunSummary,
-  listArtifacts,
-} from "@/lib/api";
+import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 import { buildAdrGeneratorRunInput } from "@/lib/adr-from-run";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -66,25 +60,46 @@ export type LoadRunDetailPageModelResult =
 
 /** Fetches and coerces run-detail plus dependent resources for the run detail route. */
 export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDetailPageModelResult> {
-  let runDetailResponse: ApiResponseWithTrace<RunDetail> | null = null;
+  let runDetailResponse: { data: RunDetail; traceId: string | null } | null = null;
   let loadFailure: ApiLoadFailureState | null = null;
   let usedStaticDemoRun = false;
+  let progressInitialSummary: RunSummary | null = null;
+  let manifestSummary: ManifestSummary | null = null;
+  let artifacts: ArtifactDescriptor[] = [];
+  let manifestSummaryFailure: ApiLoadFailureState | null = null;
+  let manifestSummaryMalformed: string | null = null;
+  let artifactsFailure: ApiLoadFailureState | null = null;
+  let artifactsMalformed: string | null = null;
 
   const serverScopeHeaders = isBrowser() ? null : await resolveServerScopeHeadersForRun(runId);
   const apiScopeOptions =
     serverScopeHeaders !== null ? { scopeHeaders: serverScopeHeaders } : undefined;
 
-  // These two fetches only need runId, so they start alongside the run-detail fetch instead of
-  // after it — collapsing the former two-phase network waterfall. Both loaders swallow their own
-  // failures, so the floating promises are safe when the run-detail fetch short-circuits below.
-  const progressSummaryPromise = getRunSummary(runId).catch(() => null);
-
-  // TB-2022: always slim buyer-summary for first paint (no fat PayloadJson/ResultJson).
-  // Inspect/export keep GET /v1/authority/reviews/{id}. UI chrome density still uses isBuyerPolishedOperatorShellEnv.
   const usedBuyerRunDetailSummary = true;
 
   try {
-    runDetailResponse = await getBuyerRunDetailSummary(runId, apiScopeOptions);
+    const bundleResponse = await fetchRunDetailCriticalPageBundle(runId, apiScopeOptions);
+
+    runDetailResponse = { data: bundleResponse.data.buyerSummary, traceId: bundleResponse.traceId };
+    progressInitialSummary = bundleResponse.data.progressSummary;
+
+    if (bundleResponse.data.manifestSummary !== null) {
+      const coercedSummary = coerceManifestSummary(bundleResponse.data.manifestSummary);
+
+      if (!coercedSummary.ok) {
+        manifestSummaryMalformed = coercedSummary.message;
+      } else {
+        manifestSummary = coercedSummary.value;
+      }
+    }
+
+    const coercedArtifacts = coerceArtifactDescriptorList(bundleResponse.data.artifacts);
+
+    if (!coercedArtifacts.ok) {
+      artifactsMalformed = coercedArtifacts.message;
+    } else {
+      artifacts = coercedArtifacts.items;
+    }
   } catch (e) {
     const fallback = tryStaticDemoRunDetail(runId);
 
@@ -92,6 +107,13 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       runDetailResponse = { data: fallback, traceId: null };
       loadFailure = null;
       usedStaticDemoRun = true;
+
+      const demoManifestId = fallback.run.goldenManifestId;
+
+      if (demoManifestId !== undefined && demoManifestId !== null && demoManifestId.trim().length > 0) {
+        manifestSummary = tryStaticDemoManifestSummary(demoManifestId);
+        artifacts = tryStaticDemoArtifacts(runId, demoManifestId) ?? [];
+      }
     } else {
       loadFailure = toApiLoadFailure(e);
 
@@ -164,34 +186,8 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
 
   const runDetailTraceId = runDetailResponse.traceId;
 
-  let progressInitialSummary: RunSummary | null = null;
-
-  let manifestSummary: ManifestSummary | null = null;
-  let artifacts: ArtifactDescriptor[] = [];
-  let manifestSummaryFailure: ApiLoadFailureState | null = null;
-  let manifestSummaryMalformed: string | null = null;
-  let artifactsFailure: ApiLoadFailureState | null = null;
-  let artifactsMalformed: string | null = null;
   const explanationSummary: RunExplanationSummary | null = null;
   const explanationFailure: ApiLoadFailureState | null = null;
-
-  if (manifestId) {
-    const [resolvedProgressSummary, manifestSummaryResult, artifactsResult] = await Promise.all([
-      progressSummaryPromise,
-      loadRunDetailManifestSummary(manifestId, apiScopeOptions),
-      loadRunDetailArtifacts(runId, manifestId, apiScopeOptions),
-    ]);
-
-    progressInitialSummary = resolvedProgressSummary;
-    manifestSummary = manifestSummaryResult.summary;
-    manifestSummaryFailure = manifestSummaryResult.failure;
-    manifestSummaryMalformed = manifestSummaryResult.malformed;
-    artifacts = artifactsResult.artifacts;
-    artifactsFailure = artifactsResult.failure;
-    artifactsMalformed = artifactsResult.malformed;
-  } else {
-    progressInitialSummary = await progressSummaryPromise;
-  }
 
   const progressForPipelineUi = effectiveRunSummaryForPipeline(progressInitialSummary, resolvedDetail);
 
@@ -308,65 +304,4 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   };
 
   return { kind: "success", model };
-}
-
-type RunDetailManifestSummaryLoadResult = {
-  summary: ManifestSummary | null;
-  failure: ApiLoadFailureState | null;
-  malformed: string | null;
-};
-
-type RunDetailArtifactsLoadResult = {
-  artifacts: ArtifactDescriptor[];
-  failure: ApiLoadFailureState | null;
-  malformed: string | null;
-};
-
-async function loadRunDetailManifestSummary(
-  manifestId: string,
-  options?: { readonly scopeHeaders?: Record<string, string> },
-): Promise<RunDetailManifestSummaryLoadResult> {
-  try {
-    const rawSummary: unknown = await getManifestSummary(manifestId, options);
-    const coercedSummary = coerceManifestSummary(rawSummary);
-
-    if (!coercedSummary.ok) {
-      return { summary: null, failure: null, malformed: coercedSummary.message };
-    }
-
-    return { summary: coercedSummary.value, failure: null, malformed: null };
-  } catch (e) {
-    const staticSummary = tryStaticDemoManifestSummary(manifestId);
-
-    if (staticSummary !== null) {
-      return { summary: staticSummary, failure: null, malformed: null };
-    }
-
-    return { summary: null, failure: toApiLoadFailure(e), malformed: null };
-  }
-}
-
-async function loadRunDetailArtifacts(
-  runId: string,
-  manifestId: string,
-  options?: { readonly scopeHeaders?: Record<string, string> },
-): Promise<RunDetailArtifactsLoadResult> {
-  try {
-    const rawArtifacts: unknown = await listArtifacts(manifestId, options);
-    const coercedArtifacts = coerceArtifactDescriptorList(rawArtifacts);
-
-    if (!coercedArtifacts.ok) {
-      return { artifacts: [], failure: null, malformed: coercedArtifacts.message };
-    }
-
-    return { artifacts: coercedArtifacts.items, failure: null, malformed: null };
-  } catch (e) {
-    const staticArtifacts = tryStaticDemoArtifacts(runId, manifestId);
-
-    if (staticArtifacts !== null) {
-      return { artifacts: staticArtifacts, failure: null, malformed: null };
-    }
-
-    return { artifacts: [], failure: toApiLoadFailure(e), malformed: null };
-  }
 }

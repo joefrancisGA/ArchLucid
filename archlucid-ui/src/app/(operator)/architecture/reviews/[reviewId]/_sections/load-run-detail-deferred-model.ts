@@ -2,9 +2,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   compareRuns,
-  getRunPipelineTimeline,
-  getRunStageTimeline,
 } from "@/lib/api";
+import { fetchRunDetailTimelinesBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 import { loadProjectRunsForRunDetailDeferred } from "./load-project-runs-for-run-detail-deferred";
 import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -188,30 +187,15 @@ async function loadPipelineTimelineSections(
     "pipelineTimelineForUi" | "pipelineTimelineAllForPackageChanges" | "pipelineTimelineFailure" | "stageTimelineForUi"
   >
 > {
-  // Pipeline + stage timelines share a runId but do not depend on each other (TB-2027).
-  const [pipelineSettled, stageSettled] = await Promise.all([
-    loadPipelineTimelineOnly(context),
-    loadStageTimelineOnly(context.routeRunId),
-  ]);
-
-  return {
-    pipelineTimelineForUi: pipelineSettled.pipelineTimelineForUi,
-    pipelineTimelineAllForPackageChanges: pipelineSettled.pipelineTimelineAllForPackageChanges,
-    pipelineTimelineFailure: pipelineSettled.pipelineTimelineFailure,
-    stageTimelineForUi: stageSettled,
-  };
-}
-
-async function loadPipelineTimelineOnly(
-  context: RunDetailDeferredLoadContext,
-): Promise<
-  Pick<RunDetailBelowFoldDeferredModel, "pipelineTimelineForUi" | "pipelineTimelineAllForPackageChanges" | "pipelineTimelineFailure">
-> {
   let pipelineTimeline: PipelineTimelineItem[] | null = null;
   let pipelineTimelineFailure: ApiLoadFailureState | null = null;
+  let stageTimelineForUi: StageTimelineSummary[] = [];
 
   try {
-    pipelineTimeline = await getRunPipelineTimeline(context.routeRunId);
+    const bundle = await fetchRunDetailTimelinesBundle(context.routeRunId);
+
+    pipelineTimeline = bundle.pipelineTimeline;
+    stageTimelineForUi = Array.isArray(bundle.stageTimeline) ? bundle.stageTimeline : [];
   } catch (error) {
     pipelineTimelineFailure = toApiLoadFailure(error);
 
@@ -242,15 +226,6 @@ async function loadPipelineTimelineOnly(
     pipelineTimelineForUi,
     pipelineTimelineAllForPackageChanges: pipelineTimeline,
     pipelineTimelineFailure,
+    stageTimelineForUi,
   };
-}
-
-async function loadStageTimelineOnly(routeRunId: string): Promise<StageTimelineSummary[]> {
-  try {
-    const stageTimelineRaw = await getRunStageTimeline(routeRunId);
-
-    return Array.isArray(stageTimelineRaw) ? stageTimelineRaw : [];
-  } catch {
-    return [];
-  }
 }

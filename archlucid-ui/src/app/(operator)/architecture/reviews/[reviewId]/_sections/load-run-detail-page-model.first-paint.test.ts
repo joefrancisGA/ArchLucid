@@ -10,10 +10,11 @@ const loaderSource = readFileSync(
 );
 
 describe("load-run-detail-page-model first paint (TB-2022)", () => {
-  it("always fetches slim buyer-summary and never imports fat getRunDetail", () => {
-    expect(loaderSource).toContain("getBuyerRunDetailSummary");
+  it("fetches critical-page-bundle and never imports fat getRunDetail", () => {
+    expect(loaderSource).toContain("fetchRunDetailCriticalPageBundle");
     expect(loaderSource).toContain("usedBuyerRunDetailSummary = true");
     expect(loaderSource).not.toMatch(/getRunDetail\b/);
     expect(loaderSource).not.toContain('getRunDetail,');
+    expect(loaderSource).not.toContain("getBuyerRunDetailSummary");
   });
 });
