@@ -87,6 +87,39 @@ public sealed class AgentProposalStructuralPostProcessorTests
     }
 
     [Fact]
+    public void ApplyToProposal_preserves_renamed_datastore_relationships_to_undeclared_graph_endpoints()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    DatastoreName = "renamed-sql",
+                    DatastoreId = "ds-1",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer,
+                },
+            ],
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "api",
+                    TargetId = "renamed-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedRelationships.Should().ContainSingle();
+        proposal.AddedRelationships![0].SourceId.Should().Be("api");
+    }
+
+    [Fact]
     public void ApplyToProposal_defers_relationships_with_undeclared_endpoints_to_commit_merge_gate_validation()
     {
         AgentTopologyProposal proposal = new()

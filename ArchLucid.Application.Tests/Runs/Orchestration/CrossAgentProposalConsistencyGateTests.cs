@@ -11,6 +11,43 @@ namespace ArchLucid.Application.Tests.Runs.Orchestration;
 public sealed class CrossAgentProposalConsistencyGateTests
 {
     [Fact]
+    public void ApplyToResults_preserves_renamed_datastore_relationships_to_undeclared_graph_endpoints()
+    {
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "renamed-sql",
+                        DatastoreId = "ds-1",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "renamed-sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology]);
+
+        topology.ProposedChanges!.AddedRelationships.Should().ContainSingle();
+        topology.ProposedChanges.AddedRelationships![0].TargetId.Should().Be("renamed-sql");
+    }
+
+    [Fact]
     public void ApplyToResults_preserves_relationship_only_proposals_referencing_prior_agent_endpoints()
     {
         AgentResult topology = new()

@@ -112,11 +112,43 @@ public static class CrossAgentProposalConsistencyGate
                 relationships);
         }
 
-        return TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
-            priorClaimedEndpointKeys,
-            proposal.AddedServices,
-            proposal.AddedDatastores,
-            relationships);
+        HashSet<string> declaredEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+            proposal.AddedServices ?? [],
+            proposal.AddedDatastores ?? []);
+
+        HashSet<string> validationEndpointKeys = new(declaredEndpointKeys, StringComparer.OrdinalIgnoreCase);
+
+        foreach (string endpointKey in priorClaimedEndpointKeys)
+        {
+            if (!string.IsNullOrWhiteSpace(endpointKey))
+                validationEndpointKeys.Add(endpointKey);
+        }
+
+        List<ManifestRelationship> retained = [];
+
+        foreach (ManifestRelationship relationship in relationships)
+        {
+            if (ShouldRetainDeclaredProposalRelationship(relationship, declaredEndpointKeys, validationEndpointKeys))
+                retained.Add(relationship);
+        }
+
+        return retained;
+    }
+
+    private static bool ShouldRetainDeclaredProposalRelationship(
+        ManifestRelationship relationship,
+        HashSet<string> declaredEndpointKeys,
+        HashSet<string> validationEndpointKeys)
+    {
+        bool sourceDeclared = declaredEndpointKeys.Contains(relationship.SourceId);
+        bool targetDeclared = declaredEndpointKeys.Contains(relationship.TargetId);
+
+        if (!sourceDeclared || !targetDeclared)
+            return true;
+
+        return TopologyProposalRelationshipEndpointIndex.RelationshipEndpointsAreKnown(
+            relationship,
+            validationEndpointKeys);
     }
 
     private static bool ProposalDeclaresEndpoints(AgentTopologyProposal proposal) =>
