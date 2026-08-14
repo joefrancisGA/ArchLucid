@@ -2,7 +2,7 @@
  * TB-2293 — Sign-in methods ≠ Auth domains vocabulary rail.
  *
  * Why two surfaces exist:
- * - Sign-in methods (`/administration/account-security`) manages linked identities for
+ * - Sign-in methods (`/account/security`) manages linked identities for
  *   you (email link, passkeys, linked identities).
  * - Auth domains (`/administration/auth-domains`) verifies tenant email-domain
  *   ownership and single sign-on enforcement readiness.
@@ -12,7 +12,7 @@
  */
 
 import { AUTH_DOMAINS_SETTINGS_CANONICAL_PATH } from "@/lib/auth-domains-settings-evidence-copy";
-import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
 
 export type AccountSecurityAuthDomainsSurfaceId = "account-security" | "auth-domains";
 
@@ -43,7 +43,7 @@ export const ACCOUNT_SECURITY_AUTH_DOMAINS_COMPACT_LINE =
 export const ACCOUNT_SECURITY_AUTH_DOMAINS_SECURITY_LINK: AccountSecurityAuthDomainsLink = {
   id: "account-security",
   label: "Sign-in methods",
-  href: SETTINGS_ACCOUNT_SECURITY_PATH,
+  href: ACCOUNT_SECURITY_PATH,
   whenToUse: "Manage sign-in methods and linked identities for your account.",
 };
 

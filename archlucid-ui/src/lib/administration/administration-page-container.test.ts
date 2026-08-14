@@ -7,15 +7,18 @@ import { OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
 
 const SRC_ROOT = join(process.cwd(), "src");
 
-/** Administration page roots that must use {@link OperatorPageContainer} `settings` width. */
-const ADMINISTRATION_PAGE_ROOT_MODULES = [
+/**
+ * Settings-shaped page roots that must use {@link OperatorPageContainer} `settings` width.
+ * Personal settings under `/account` share the width contract even though they are not admin pages.
+ */
+const SETTINGS_WIDTH_PAGE_ROOT_MODULES = [
   "app/(operator)/administration/developer/DeveloperSettingsPageClient.tsx",
   "app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningSettingsPageClient.tsx",
-  "app/(operator)/administration/account-security/AccountSecurityPageClient.tsx",
+  "app/(operator)/account/security/AccountSecurityPageClient.tsx",
   "app/(operator)/administration/api-keys/_sections/ApiKeysSettingsPageClient.tsx",
   "app/(operator)/administration/api-keys/_sections/ApiKeysSettingsRestrictedState.tsx",
   "app/(operator)/administration/auth-domains/AuthDomainsPageClient.tsx",
-  "app/(operator)/administration/preferences/_sections/PreferencesSettingsPageView.tsx",
+  "app/(operator)/account/preferences/_sections/PreferencesSettingsPageView.tsx",
   "app/(operator)/administration/notifications/_sections/NotificationPreferenceCenterPageView.tsx",
   "app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardPageClient.tsx",
   "app/(operator)/administration/baseline/BaselineSettingsClient.tsx",
@@ -41,7 +44,7 @@ describe("administration page container width (P0-4)", () => {
     expect(OPERATOR_PAGE_CONTAINER.variant.settings).toBe("w-full max-w-[62rem]");
   });
 
-  it.each(ADMINISTRATION_PAGE_ROOT_MODULES)(
+  it.each(SETTINGS_WIDTH_PAGE_ROOT_MODULES)(
     "%s uses OperatorPageContainer settings variant without hardcoded page-root max-w",
     (modulePath) => {
       const source = readSrcModule(modulePath);

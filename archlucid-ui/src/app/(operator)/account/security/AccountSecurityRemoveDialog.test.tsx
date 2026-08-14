@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   ACCOUNT_SECURITY_REMOVE_WARNING,
   AccountSecurityRemoveDialog,
-} from "@/app/(operator)/administration/account-security/AccountSecurityRemoveDialog";
+} from "@/app/(operator)/account/security/AccountSecurityRemoveDialog";
 
 const sampleMethod = {
   identityId: "id-1",

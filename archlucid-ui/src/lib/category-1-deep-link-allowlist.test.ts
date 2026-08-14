@@ -64,7 +64,7 @@ const ALLOWLIST: readonly {
   {
     pathname: "/help/authentication-sign-in",
     nextHref: "/help/users-and-roles",
-    configureHref: "/administration/account-security",
+    configureHref: "/account/security",
   },
   {
     pathname: "/help/azure-boards",

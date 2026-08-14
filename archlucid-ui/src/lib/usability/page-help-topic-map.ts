@@ -721,7 +721,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "api-keys", label: API_KEYS_HELP_TOPIC_LABEL },
   },
   {
-    prefix: "/administration/preferences",
+    prefix: "/account/preferences",
     topic: { slug: "preferences", label: PREFERENCES_HELP_TOPIC_LABEL },
   },
   {
@@ -729,7 +729,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "notifications", label: NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE },
   },
   {
-    prefix: "/administration/account-security",
+    prefix: "/account/security",
     topic: { slug: "security-trust", label: ACCOUNT_SECURITY_SETTINGS_HELP_TOPIC_LABEL },
   },
   {

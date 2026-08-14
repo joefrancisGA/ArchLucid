@@ -1,3 +1,4 @@
+import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -22,7 +23,7 @@ export const PREFERENCES_HELP_SOURCES: readonly EvidenceOrientationLink[] = [
   },
   {
     label: "Sign-in methods",
-    href: "/administration/account-security",
+    href: ACCOUNT_SECURITY_PATH,
     when: "Open account security when sign-in controls need attention",
   },
   {

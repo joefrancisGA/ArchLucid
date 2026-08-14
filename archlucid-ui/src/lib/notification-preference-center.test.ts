@@ -41,7 +41,7 @@ describe("notification-preference-center (TB-2203)", () => {
     expect(NOTIFICATION_PREFERENCE_CENTER_PATH).toBe("/administration/notifications");
     expect(pathMatchesNotificationPreferenceCenter("/administration/notifications")).toBe(true);
     expect(pathMatchesNotificationPreferenceCenter("/administration/notifications/")).toBe(true);
-    expect(pathMatchesNotificationPreferenceCenter("/administration/preferences")).toBe(false);
+    expect(pathMatchesNotificationPreferenceCenter("/account/preferences")).toBe(false);
   });
 
   it("lists digests, alerts inbox/rules, Teams, and Slack with honest configure CTAs", () => {

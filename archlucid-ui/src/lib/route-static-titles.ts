@@ -75,7 +75,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [CLOUD_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.cloudConnections,
   [AI_USAGE_SETTINGS_PATH]: OPERATOR_NAV_LINK_LABELS.aiUsage,
   "/administration/api-keys": API_KEYS_PAGE_TITLE,
-  "/administration/preferences": "Preferences",
+  "/account/preferences": "Preferences",
   "/administration/notifications": OPERATOR_NAV_LINK_LABELS.notifications,
   "/integrations/jira": OPERATOR_NAV_LINK_LABELS.jira,
   "/integrations/servicenow": OPERATOR_NAV_LINK_LABELS.servicenow,

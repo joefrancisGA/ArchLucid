@@ -1,8 +1,8 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { SETTINGS_PREFERENCES_PATH } from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_PREFERENCES_PATH, ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
-export const PREFERENCES_SETTINGS_CANONICAL_PATH = SETTINGS_PREFERENCES_PATH;
+export const PREFERENCES_SETTINGS_CANONICAL_PATH = ACCOUNT_PREFERENCES_PATH;
 
 export const PREFERENCES_HELP_TOPIC_LABEL = "How preferences work";
 
@@ -22,7 +22,7 @@ export const PREFERENCES_SETTINGS_SOURCES_INTRO =
 /** Operator Sources - no self-href to preferences. */
 export const PREFERENCES_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Getting started", href: inAppHelpHref("getting-started") },
-  { label: "Sign-in methods", href: "/administration/account-security" },
+  { label: "Sign-in methods", href: ACCOUNT_SECURITY_PATH },
   { label: "Users and roles", href: "/administration/users" },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Assurance status", href: "/security-trust" },

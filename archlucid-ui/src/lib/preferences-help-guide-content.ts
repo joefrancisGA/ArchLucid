@@ -11,8 +11,12 @@ export const PREFERENCES_HELP_OVERVIEW =
 
 export const PREFERENCES_HELP_START_HERE_CARD_TITLE = "Start here";
 
+/**
+ * Preferences is reached from the top-bar account menu, not the administration hub — naming
+ * Administration here is what made readers assume an Admin role was required.
+ */
 export const PREFERENCES_HELP_START_HERE_HELPER =
-  "Open Administration → Preferences to choose light, dark, or system appearance for your signed-in profile.";
+  "Open Preferences from your account menu to choose light, dark, or system appearance for your signed-in profile.";
 
 export const PREFERENCES_HELP_PRIMARY_ACTION = {
   label: "Open preferences",
@@ -33,7 +37,7 @@ export const PREFERENCES_HELP_TILE_ITEMS: readonly PreferencesHelpTileItem[] = [
   },
   {
     label: "Where it saves",
-    detail: "Administration → Preferences stores appearance choices on your signed-in profile only.",
+    detail: "Appearance choices save to your signed-in profile only.",
   },
 ] as const;
 

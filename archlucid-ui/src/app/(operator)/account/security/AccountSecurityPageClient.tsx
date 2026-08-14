@@ -52,7 +52,7 @@ import {
 } from "@/lib/sign-in-methods-problem";
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
 import { appSiteHref } from "@/lib/site-urls";
 import { resolveSignInMethodRemoveBlockedReason } from "@/lib/sign-in-method-remove-blocked-copy";
 import { cn } from "@/lib/utils";
@@ -72,7 +72,7 @@ type CardFeedback = {
 function accountSecuritySignInHref(): string {
   return appSiteHref(
     buildAuthSignInHref({
-      returnPath: SETTINGS_ACCOUNT_SECURITY_PATH,
+      returnPath: ACCOUNT_SECURITY_PATH,
     }),
   );
 }
@@ -81,7 +81,7 @@ function accountSecuritySignInAgainHref(): string {
   return appSiteHref(
     buildAuthSignInHref({
       reason: "session-expired",
-      returnPath: SETTINGS_ACCOUNT_SECURITY_PATH,
+      returnPath: ACCOUNT_SECURITY_PATH,
     }),
   );
 }

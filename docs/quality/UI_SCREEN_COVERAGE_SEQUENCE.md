@@ -157,8 +157,8 @@ Sign in as **Admin**. Complete the table in **Pass A**, then again in **Pass B**
 | 64 | `/administration/connection-status` | Disconnected vs ready | [ ] | [ ] |
 | 65 | `/administration/system-health` | Ready vs degraded | [ ] | [ ] |
 | 66 | `/administration/support` | Support bundle download | [ ] | [ ] |
-| 67 | `/administration/preferences` | Account menu — self settings | [ ] | — |
-| 68 | `/administration/account-security` | Account menu | [ ] | — |
+| 67 | `/account/preferences` | Account menu — self settings | [ ] | — |
+| 68 | `/account/security` | Account menu | [ ] | — |
 | 69 | `/administration/baseline` | Via Settings index | [ ] | [ ] |
 | 70 | `/administration/model-governance` | Via Settings index | [ ] | [ ] |
 | 71 | `/administration/extract-upload` | Via Settings index | [ ] | [ ] |

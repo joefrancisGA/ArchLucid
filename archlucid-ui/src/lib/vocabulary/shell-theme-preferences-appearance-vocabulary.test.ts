@@ -10,7 +10,7 @@ import {
   buildShellThemePreferencesAppearanceVocabulary,
   resolveShellThemePreferencesAppearancePeerLink,
 } from "@/lib/vocabulary/shell-theme-preferences-appearance-vocabulary";
-import { SETTINGS_PREFERENCES_PATH } from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
 
 describe("shell-theme-preferences-appearance-vocabulary (TB-2328)", () => {
   it("explains shell ColorModeToggle vs Preferences Appearance durable theme", () => {
@@ -28,7 +28,7 @@ describe("shell-theme-preferences-appearance-vocabulary (TB-2328)", () => {
     expect(model.preferencesAppearanceLink).toEqual(
       SHELL_THEME_PREFERENCES_APPEARANCE_PREFERENCES_LINK,
     );
-    expect(model.preferencesAppearanceLink.href).toBe(SETTINGS_PREFERENCES_PATH);
+    expect(model.preferencesAppearanceLink.href).toBe(ACCOUNT_PREFERENCES_PATH);
     expect(model.preferencesAppearanceLink.label).toBe("Preferences appearance");
   });
 

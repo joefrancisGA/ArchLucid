@@ -291,8 +291,8 @@ Lighter chrome than the full architect workspace; `(sponsor)` route group does n
 | `/settings/cloud-connections` | Cloud connections | Admin + API |
 | `/administration/tenant` | Workspace settings — trial, cost settings, request scope. `AdminAuthority`; non-admin callers get `TenantSettingsRestrictedState` | Admin + API |
 | `/administration/tenant/recycle-bin` | Tenant recycle bin | Admin + API |
-| `/administration/preferences` | Personal appearance and preferences. Ungated (writes only the caller's own record); reached from the top-bar account menu | Any signed-in user |
-| `/administration/account-security` | Personal sign-in methods, linking, removal. Ungated; reached from the top-bar account menu | Any signed-in user |
+| `/account/preferences` | Personal appearance and preferences. Ungated (writes only the caller's own record); reached from the top-bar account menu | Any signed-in user |
+| `/account/security` | Personal sign-in methods, linking, removal. Ungated; reached from the top-bar account menu | Any signed-in user |
 | `/settings/cost-reporting` | Cost reporting | Admin + API |
 | `/settings/webhooks` | Webhooks | Admin + API |
 | `/settings/roles` | Role assignment | Admin + API |

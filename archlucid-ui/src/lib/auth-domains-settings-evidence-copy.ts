@@ -1,3 +1,4 @@
+import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -23,6 +24,6 @@ export const AUTH_DOMAINS_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "SSO and identity", href: "/administration/identity-providers" },
   { label: "Enterprise onboarding help", href: inAppHelpHref("enterprise-onboarding") },
   { label: "Users and roles", href: "/administration/users" },
-  { label: "Sign-in methods", href: "/administration/account-security" },
+  { label: "Sign-in methods", href: ACCOUNT_SECURITY_PATH },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;

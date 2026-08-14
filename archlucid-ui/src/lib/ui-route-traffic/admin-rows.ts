@@ -1,5 +1,6 @@
 import { INTERNAL_EVIDENCE_PROPOSALS_PATH, INTERNAL_PRICING_QUOTE_AGING_PATH } from "@/lib/internal-ops-route-paths";
-import { SETTINGS_ACCOUNT_SECURITY_PATH, SETTINGS_PREFERENCES_PATH, SETTINGS_SECURITY_TRUST_PATH, SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_PREFERENCES_PATH, ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
+import { SETTINGS_SECURITY_TRUST_PATH, SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import type { UiRouteTrafficRow } from "@/lib/ui-route-traffic/types";
 
 /** Traffic workbook rows for the `admin` workbook section. */
@@ -72,7 +73,7 @@ export const ADMIN_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for Preferences settings. Owner backlog shorthand: ADR (template formerly SEP on legacy settings/preferences path). */
   {
     rowId: "ADR",
-    path: SETTINGS_PREFERENCES_PATH,
+    path: ACCOUNT_PREFERENCES_PATH,
     section: "Admin",
     note: "Preferences (Settings) - PreferencesSettingsPageView with PageContextualHelpButton (topic map getting-started; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, appearance / theme. Sibling ADS = account-security; HGX = getting-started help. Personal account settings - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["PreferencesSettingsPageView", "cannot improve further toward 80"],
@@ -80,7 +81,7 @@ export const ADMIN_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for Account security settings. Owner backlog shorthand: ADS (template formerly SEA; template advisory-scans tab ADS renamed ADT). */
   {
     rowId: "ADS",
-    path: SETTINGS_ACCOUNT_SECURITY_PATH,
+    path: ACCOUNT_SECURITY_PATH,
     section: "Admin",
     note: "Account security (Settings) - AccountSecurityPageClient with PageContextualHelpButton (topic map security-trust; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, sign-in methods / link flows. Sibling ADR = preferences; WSX = security-trust settings; HSE = security-trust help. Personal sign-in controls - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["AccountSecurityPageClient", "cannot improve further toward 80"],

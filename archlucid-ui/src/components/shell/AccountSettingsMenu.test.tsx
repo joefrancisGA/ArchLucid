@@ -24,10 +24,7 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-import {
-  SETTINGS_ACCOUNT_SECURITY_PATH,
-  SETTINGS_PREFERENCES_PATH,
-} from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_PREFERENCES_PATH, ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
 import { OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM } from "@/lib/operator/operator-shell-support-affordances";
 
 import {
@@ -51,11 +48,11 @@ describe("AccountSettingsMenu", () => {
 
     expect(screen.getByTestId("account-settings-menu-item-user-preferences")).toHaveAttribute(
       "href",
-      SETTINGS_PREFERENCES_PATH,
+      ACCOUNT_PREFERENCES_PATH,
     );
     expect(screen.getByTestId("account-settings-menu-item-account-security")).toHaveAttribute(
       "href",
-      SETTINGS_ACCOUNT_SECURITY_PATH,
+      ACCOUNT_SECURITY_PATH,
     );
     expect(screen.getByTestId(`account-settings-menu-item-${OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM.id}`)).toHaveAttribute(
       "href",
@@ -64,7 +61,7 @@ describe("AccountSettingsMenu", () => {
   });
 
   it("marks the destination matching the current route as the current page", () => {
-    routing.pathname = SETTINGS_PREFERENCES_PATH;
+    routing.pathname = ACCOUNT_PREFERENCES_PATH;
 
     render(<AccountSettingsMenu />);
 

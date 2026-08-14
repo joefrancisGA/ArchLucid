@@ -25,7 +25,7 @@ describe("preferences-settings-evidence-copy", () => {
 
     expect(registrySource).toContain("preferences-settings-evidence-copy");
     expect(registrySource).toContain("PreferencesSettingsEvidenceOrientationStrip");
-    expect(PREFERENCES_SETTINGS_CANONICAL_PATH).toBe("/administration/preferences");
+    expect(PREFERENCES_SETTINGS_CANONICAL_PATH).toBe("/account/preferences");
   });
 
   it("renders claim discipline and operator Sources follow-ups", () => {

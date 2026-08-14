@@ -27,15 +27,24 @@ export const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
 export type SettingsUsersTabId = "users" | "roles" | "keys";
 
 /**
- * User-scoped settings. These write only the caller's own record, so they are published from the top-bar
- * account menu (`SELF_SETTINGS_DESTINATIONS`) at every authority rank rather than from the admin hub.
+ * Unified notification preference hub (TB-2203) - links digests, alerts, Teams, Slack.
+ *
+ * Stays under `/administration` even though the account menu lists it: the page itself writes nothing
+ * personal, and every channel it launches (digest schedules, alert rules, Teams, Slack) is
+ * workspace-scoped. Settings that write only the caller's own record live under `ACCOUNT_ROOT_PATH`
+ * instead — see `account-route-paths.ts`.
  */
-export const SETTINGS_PREFERENCES_PATH = `${SETTINGS_ROOT_PATH}/preferences`;
-
-/** Unified notification preference hub (TB-2203) - links digests, alerts, Teams, Slack. */
 export const SETTINGS_NOTIFICATIONS_PATH = `${SETTINGS_ROOT_PATH}/notifications`;
 
-export const SETTINGS_ACCOUNT_SECURITY_PATH = `${SETTINGS_ROOT_PATH}/account-security`;
+/**
+ * Retired personal-settings bookmarks — moved to `/account/preferences` and `/account/security`.
+ * Deliberately no App Router page and no next.config redirect: these were authenticated app pages,
+ * so the owner accepted breaking the bookmark rather than carrying a permanent shim.
+ */
+export const RETIRED_ADMINISTRATION_PREFERENCES_PATH = `${SETTINGS_ROOT_PATH}/preferences` as const;
+
+export const RETIRED_ADMINISTRATION_ACCOUNT_SECURITY_PATH =
+  `${SETTINGS_ROOT_PATH}/account-security` as const;
 
 export const SETTINGS_SECURITY_TRUST_PATH = `${SETTINGS_ROOT_PATH}/security-trust`;
 
