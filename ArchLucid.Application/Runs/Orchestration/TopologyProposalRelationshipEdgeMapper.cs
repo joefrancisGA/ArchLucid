@@ -83,12 +83,20 @@ public static class TopologyProposalRelationshipEdgeMapper
         Dictionary<string, string> endpointKeyToNodeId,
         out string nodeId)
     {
-        if (endpointKeyToNodeId.TryGetValue(candidate, out nodeId!))
+        if (string.IsNullOrWhiteSpace(candidate))
+        {
+            nodeId = string.Empty;
+            return false;
+        }
+
+        string trimmedCandidate = candidate.Trim();
+
+        if (endpointKeyToNodeId.TryGetValue(trimmedCandidate, out nodeId!))
             return true;
 
-        if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(candidate)
+        if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedCandidate)
             && endpointKeyToNodeId.TryGetValue(
-                GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(candidate),
+                GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmedCandidate),
                 out nodeId!))
         {
             return true;

@@ -205,8 +205,25 @@ public static class TopologyProposalRelationshipEndpointIndex
     public static bool RelationshipEndpointsAreKnown(
         ManifestRelationship relationship,
         HashSet<string> knownEndpointKeys) =>
-        knownEndpointKeys.Contains(relationship.SourceId)
-        && knownEndpointKeys.Contains(relationship.TargetId);
+        EndpointKeyIsKnown(relationship.SourceId, knownEndpointKeys)
+        && EndpointKeyIsKnown(relationship.TargetId, knownEndpointKeys);
+
+    public static bool EndpointKeyIsKnown(string? endpointKey, HashSet<string> knownEndpointKeys)
+    {
+        if (string.IsNullOrWhiteSpace(endpointKey))
+            return false;
+
+        string trimmed = endpointKey.Trim();
+
+        if (knownEndpointKeys.Contains(trimmed))
+            return true;
+
+        if (!GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmed))
+            return false;
+
+        return knownEndpointKeys.Contains(
+            GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmed));
+    }
 
     public static bool TryResolveGraphTopologyNodeIdForService(
         ManifestService service,
