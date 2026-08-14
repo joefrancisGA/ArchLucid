@@ -187,7 +187,7 @@ describe("nav-config structure", () => {
 
     const pilotHrefs = NAV_GROUPS.find((group) => group.id === "pilot")!.links.map((link) => link.href);
 
-    expect(pilotHrefs).toContain("/architecture/architecture-intelligence");
+    expect(pilotHrefs).not.toContain("/architecture/architecture-intelligence");
     expect(pilotHrefs).toContain("/architecture/digests");
     expect(governanceHrefs).toEqual([
       "/governance/approval-queue",

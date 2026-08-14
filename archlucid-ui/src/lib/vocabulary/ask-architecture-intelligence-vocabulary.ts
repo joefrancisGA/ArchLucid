@@ -55,7 +55,8 @@ export const ASK_ARCHITECTURE_INTELLIGENCE_INTELLIGENCE_LINK: AskArchitectureInt
   id: "architecture-intelligence",
   label: "Architecture intelligence",
   href: ARCHITECTURE_INTELLIGENCE_PATH,
-  whenToUse: "Run closed-loop architecture reasoning or the golden harness.",
+  whenToUse:
+    "Open from a linked review, draft refine, or findings action to run closed-loop reasoning or the golden harness.",
 };
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */

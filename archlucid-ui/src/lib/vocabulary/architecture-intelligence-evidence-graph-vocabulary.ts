@@ -50,7 +50,8 @@ export const ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_INTELLIGENCE_LINK: Archite
     id: "architecture-intelligence",
     label: "Architecture intelligence",
     href: ARCHITECTURE_INTELLIGENCE_PATH,
-    whenToUse: "Run closed-loop architecture reasoning or the golden regression harness.",
+    whenToUse:
+      "Open from a linked review, draft refine, or findings action to run closed-loop reasoning or the golden regression harness.",
   };
 
 export const ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_GRAPH_LINK: ArchitectureIntelligenceEvidenceGraphLink =
