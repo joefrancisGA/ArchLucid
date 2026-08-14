@@ -533,6 +533,15 @@ export const OPERATOR_PRIMARY_FILL_USAGE_CONTRACT = {
     "Use variant=\"outline\", quiet text links, or OPERATOR_LINK for opening another surface — drafts list, help topic, audit trail, settings tab.",
 } as const;
 
+/** TB-2290 — operator Button variant/color matrix; see UI_DESIGN_SYSTEM.md § Button variant/color matrix. */
+export const OPERATOR_BUTTON_VARIANT_COLOR_MATRIX = {
+  canonicalSource: "archlucid-ui/src/components/ui/button.tsx",
+  variants: ["primary", "outline", "default", "secondary", "destructive"] as const,
+  bannedClassNamePrefixes: ["bg-teal-", "bg-emerald-", "bg-rose-", "bg-amber-", "text-teal-"] as const,
+  filledPrimaryRule: OPERATOR_PRIMARY_FILL_USAGE_CONTRACT.filledPrimary,
+  navigationOpensRule: OPERATOR_PRIMARY_FILL_USAGE_CONTRACT.navigationOpens,
+} as const;
+
 export type EnterpriseStatusKind =
   | "ready"
   | "needs-attention"

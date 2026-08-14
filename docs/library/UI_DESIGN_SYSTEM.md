@@ -286,6 +286,32 @@ Canonical strings live in `OPERATOR_PRIMARY_FILL_USAGE_CONTRACT` (`design-tokens
 
 **UI architecture pointer:** `archlucid-ui/docs/ARCHITECTURE.md` § *Where to go next*.
 
+### Button variant/color matrix (**TB-2290** — done 2026-08-14)
+
+Extends § *Visible-boundary `Button` contract* (**TB-2168** Done) and § *Primary action color usage* (**TB-2279** Done). Canonical implementation: `archlucid-ui/src/components/ui/button.tsx` (`buttonVariants`). Programmatic mirror: `OPERATOR_BUTTON_VARIANT_COLOR_MATRIX` in `design-tokens.ts`.
+
+| `variant` | Visual | Use when | Do not use for |
+| --- | --- | --- | --- |
+| **`primary`** | Filled teal (`--al-primary-action-*`) | Exactly one forward or irreversible workflow commit per viewport (**TB-1539**) — Start review, Submit, Save, Approve | Navigation opens, list filters, refresh/export utilities, multiple filled actions on one strip |
+| **`outline`** | Raised white/dark + neutral border | Secondary utilities (Refresh, Preview, Export), dismissible panels, dense row actions that need a visible boundary | The page's single forward job (use `primary`) |
+| **`default`** / **`secondary`** | Quiet neutral grey fill + border | Secondary filled actions when outline is too light — bulk secondary commits, quiet confirms | Forward workflow primary; list-scope filter toggles (**TB-2293**) |
+| **`destructive`** | Red token fill (`OPERATOR_DANGER`) | Irreversible destructive commits (Delete tenant, purge queue) | Semantic status coloring; cautionary non-destructive actions |
+
+**Color override rules (operator `Button`)**
+
+| Rule | Required behavior |
+| --- | --- |
+| Variants only | Set color via `variant` + `size` — not inline `className` `bg-*` / `text-*` fill overrides on operator surfaces. |
+| Banned overrides | `bg-teal-*`, `bg-emerald-*`, `bg-rose-*`, `bg-amber-*`, and hand-rolled semantic success/warn fills on `Button` — they bypass `--al-primary-action-*` and read as duplicate primaries beside real CTAs. |
+| Filter toggles | List-scope filters and view switches use **`FilterChip`** (`aria-pressed`) — not filled `primary` (**TB-665**, **TB-2293**). |
+| Status metadata | Read-only posture uses **`StatusTag`** / **`SeverityTag`** — never a filled `Button` painted as status (**TB-2284**). |
+| Marketing exception | Public marketing shell may use `MARKETING_PRIMARY_CTA_CLASS` until aligned under **TB-2292** — operator shell stays on `variant="primary"`. |
+| Interactive shell budget | Shell LLM budget control may compose `enterpriseStatusTagClass` on an interactive `Button` + popover (**TB-2287**) — not a second primary CTA. |
+
+**Migration cluster (out of scope for this row):** inline teal `Button` sweeps **TB-2291**; marketing teal alignment **TB-2292**; filter-toggle demotion **TB-2293**; semantic filled buttons **TB-2294**; Vitest drift guard **TB-2295**.
+
+**Do not:** add `ghost` / `link` variants; stack multiple filled teal buttons in one viewport; override `buttonVariants` colors per call site without a documented carve-out.
+
 ### Operator empty states (**TB-1552** — done 2026-08-11)
 
 Bans playful empties — this section defines **empty kinds**, Compact-vs-centered choice, first-viewport composition, and CTA/header alignment. CTAs follow the operator primary-CTA contract above (**TB-1539**).

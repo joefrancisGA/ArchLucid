@@ -39,6 +39,7 @@ Specific rules:
 - Add decorative `bg-teal-50`, `bg-amber-50`, or `border-teal-200` on neutral operator cards.
 - Render status as ad-hoc colored `span` elements — use `StatusTag` or `SeverityTag`.
 - Use `Badge` default/secondary/outline variants for read-only status — those are action-oriented; metadata labels use `StatusTag`, `SeverityTag`, or `BooleanStatusChip` (`METADATA_STATUS_TAG_SHELL` + `--al-status-*`). **Do not** add new `StatusPill` imports (**TB-2284**).
+- Add inline `bg-teal-*`, `bg-emerald-*`, `bg-rose-*`, or `bg-amber-*` fill overrides on operator `Button` — use `variant` per § *Button variant/color matrix* (**TB-2290**); migrations **TB-2291**–**TB-2295**.
 - Use `FilterChip` (`src/components/ui/filter-chip.tsx`) for interactive filter/action chips — never reuse metadata label styling for clickable chips.
 - Tint entire neutral cards with semantic fills — color belongs on the status chip or a single left border accent for the current step.
 - Stretch short-label CTAs to full hero/card width (`w-full` / `items-stretch` on wide containers) — use `CTA_WIDTH.content` instead.
