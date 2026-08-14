@@ -10,6 +10,12 @@ import { LEGACY_SEARCH_PATH, SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-re
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
 import { RETIRED_PILOT_OUTCOMES_PATH } from "@/lib/sponsor-report-navigation";
+import {
+  RETIRED_LOGIN_BOOKMARK_PATH,
+  RETIRED_ONBOARD_BOOKMARK_PATH,
+  RETIRED_ONBOARDING_START_BOOKMARK_PATH,
+  RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
+} from "@/lib/ui-route-traffic-retired-redirect-shims";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
 
 /** Extra marketing paths not always in the sitemap (noindex / funnel). */
@@ -83,6 +89,10 @@ const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
   LEGACY_PLANNING_PATH,
   LEGACY_INSIGHTS_PLANNING_PATH,
   RETIRED_PILOT_OUTCOMES_PATH,
+  RETIRED_LOGIN_BOOKMARK_PATH,
+  RETIRED_ONBOARD_BOOKMARK_PATH,
+  RETIRED_ONBOARDING_START_BOOKMARK_PATH,
+  RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
 ];
 
 const OPERATOR_PATH_PREFIXES: readonly string[] = [

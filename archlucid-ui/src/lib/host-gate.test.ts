@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import { decideHostGateRedirect, isMarketingOnlyPath, isOperatorPath } from "@/lib/host-gate";
+import {
+  RETIRED_LOGIN_BOOKMARK_PATH,
+  RETIRED_ONBOARD_BOOKMARK_PATH,
+  RETIRED_ONBOARDING_START_BOOKMARK_PATH,
+  RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
+} from "@/lib/ui-route-traffic-retired-redirect-shims";
 
 const ENV_KEYS = [
   "ARCHLUCID_PUBLIC_SITE_URL",
@@ -33,6 +39,10 @@ describe("host-gate path classifiers", () => {
     expect(isOperatorPath("/reviews/abc")).toBe(true);
     expect(isOperatorPath("/policy-packs")).toBe(true);
     expect(isOperatorPath("/signed-records/demo")).toBe(true);
+    expect(isOperatorPath(RETIRED_LOGIN_BOOKMARK_PATH)).toBe(true);
+    expect(isOperatorPath(RETIRED_ONBOARD_BOOKMARK_PATH)).toBe(true);
+    expect(isOperatorPath(RETIRED_ONBOARDING_START_BOOKMARK_PATH)).toBe(true);
+    expect(isOperatorPath(RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH)).toBe(true);
   });
 
   it("treats welcome/pricing/signup as marketing-only", () => {
@@ -99,5 +109,21 @@ describe("decideHostGateRedirect", () => {
         search: "",
       }),
     ).toEqual({ kind: "next" });
+  });
+
+  it("redirects marketing-host retired bookmark paths to the app origin", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "archlucid.net",
+        pathname: RETIRED_LOGIN_BOOKMARK_PATH,
+        search: "?returnUrl=%2Farchitecture%2Freviews",
+      }),
+    ).toEqual({
+      kind: "redirect",
+      location: `https://app.archlucid.net${RETIRED_LOGIN_BOOKMARK_PATH}?returnUrl=%2Farchitecture%2Freviews`,
+    });
   });
 });
