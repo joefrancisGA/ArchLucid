@@ -11,6 +11,9 @@ const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "baseline-settings",
   "connection-status",
   "contact-support",
+  "decision-register",
+  "evidence-graph",
+  "impact-preview",
 ]);
 
 function formatGuideReviewProvenance(entry: ProductDocumentationEntry): string | null {

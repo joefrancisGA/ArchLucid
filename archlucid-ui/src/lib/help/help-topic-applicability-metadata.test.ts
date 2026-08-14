@@ -66,6 +66,42 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-13 · administration baseline settings orientation");
   });
 
+  it("formats decision register help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "decision-register",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "governance decision register orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · governance decision register orientation");
+  });
+
+  it("formats evidence graph help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "evidence-graph",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "insights evidence graph orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · insights evidence graph orientation");
+  });
+
+  it("formats impact preview help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "impact-preview",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "insights impact preview orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · insights impact preview orientation");
+  });
+
   it("formats ai usage help review provenance", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(

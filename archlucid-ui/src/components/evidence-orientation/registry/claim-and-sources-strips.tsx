@@ -95,10 +95,12 @@ import {
 } from "@/lib/architecture-drafts-help-evidence-copy";
 import {
   EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE,
+  EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE_HEADING,
   EVIDENCE_GRAPH_HELP_FOLLOW_UPS_TITLE,
   EVIDENCE_GRAPH_HELP_SOURCES,
   EVIDENCE_GRAPH_HELP_SOURCES_INTRO,
 } from "@/lib/evidence-graph-help-evidence-copy";
+import { EVIDENCE_GRAPH_HELP_CLAIM_HEADING_ID } from "@/lib/evidence-graph-help-guide-content";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -721,6 +723,8 @@ export function EvidenceGraphHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-evidence-graph"
       claim={EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE}
+      claimHeading={EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={EVIDENCE_GRAPH_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={EVIDENCE_GRAPH_HELP_FOLLOW_UPS_TITLE}
@@ -728,6 +732,8 @@ export function EvidenceGraphHelpEvidenceOrientationStrip(): React.JSX.Element {
       sources={EVIDENCE_GRAPH_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
@@ -858,7 +864,13 @@ export function ItsmOAuthCallbackEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function DecisionRegisterHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type DecisionRegisterHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function DecisionRegisterHelpEvidenceOrientationStrip(
+  props: DecisionRegisterHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-decision-register"
@@ -870,6 +882,8 @@ export function DecisionRegisterHelpEvidenceOrientationStrip(): React.JSX.Elemen
       sources={DECISION_REGISTER_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }

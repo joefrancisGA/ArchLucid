@@ -2,11 +2,12 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { EvidenceGraphHelpEvidenceOrientationStrip } from "@/components/help/EvidenceGraphHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
@@ -17,15 +18,17 @@ import {
 } from "@/lib/design-tokens";
 import { EVIDENCE_GRAPH_HELP_TOPIC_LABEL } from "@/lib/evidence-graph-evidence-copy";
 import {
-  EVIDENCE_GRAPH_HELP_EVIDENCE_TRAIL_HREF,
-  EVIDENCE_GRAPH_HELP_FEATURE_ITEMS,
   EVIDENCE_GRAPH_HELP_GUIDE_HEADINGS,
   EVIDENCE_GRAPH_HELP_HOW_TO_READ_STEPS,
   EVIDENCE_GRAPH_HELP_OVERVIEW,
   EVIDENCE_GRAPH_HELP_PAGE_SUBTITLE,
   EVIDENCE_GRAPH_HELP_PAGE_TITLE,
   EVIDENCE_GRAPH_HELP_PRIMARY_ACTION,
-  EVIDENCE_GRAPH_HELP_SEARCH_HREF,
+  EVIDENCE_GRAPH_HELP_ROLE_PRECONDITION,
+  EVIDENCE_GRAPH_HELP_ROLE_PRECONDITION_TAG,
+  EVIDENCE_GRAPH_HELP_SAMPLE_GRAPH_NOTE,
+  EVIDENCE_GRAPH_HELP_START_HERE_CARD_TITLE,
+  EVIDENCE_GRAPH_HELP_TILE_ITEMS,
 } from "@/lib/evidence-graph-help-guide-content";
 import { EVIDENCE_GRAPH_HELP_CANONICAL_PATH } from "@/lib/evidence-graph-help-evidence-copy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
@@ -51,6 +54,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpEvidenceGraphGuideView(props: HelpEvidenceGraphGuideViewProps): React.ReactElement {
   const { entry } = props;
   const contentGridClass = resolveHelpPageContentGridClass(EVIDENCE_GRAPH_HELP_GUIDE_HEADINGS.length);
+  const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
@@ -59,7 +63,8 @@ export function HelpEvidenceGraphGuideView(props: HelpEvidenceGraphGuideViewProp
     >
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
+      <HelpTopicGuidePageHeader
+        topicTitle={EVIDENCE_GRAPH_HELP_PAGE_TITLE}
         title={EVIDENCE_GRAPH_HELP_PAGE_TITLE}
         titleTestId="help-evidence-graph-page-title"
         subtitle={EVIDENCE_GRAPH_HELP_PAGE_SUBTITLE}
@@ -71,21 +76,39 @@ export function HelpEvidenceGraphGuideView(props: HelpEvidenceGraphGuideViewProp
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p
-            className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="help-evidence-graph-overview"
-          >
+          <p className={readingBodyClass} data-testid="help-evidence-graph-overview">
             {EVIDENCE_GRAPH_HELP_OVERVIEW}
           </p>
 
           <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-evidence-graph-action-panel">
             <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Open evidence graph</CardTitle>
+              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                {EVIDENCE_GRAPH_HELP_START_HERE_CARD_TITLE}
+              </CardTitle>
             </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={EVIDENCE_GRAPH_HELP_PRIMARY_ACTION.href}>{EVIDENCE_GRAPH_HELP_PRIMARY_ACTION.label}</Link>
-              </Button>
+            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button asChild size="sm" variant="primary">
+                  <Link href={EVIDENCE_GRAPH_HELP_PRIMARY_ACTION.href}>{EVIDENCE_GRAPH_HELP_PRIMARY_ACTION.label}</Link>
+                </Button>
+                <StatusTag
+                  kind="neutral"
+                  label={EVIDENCE_GRAPH_HELP_ROLE_PRECONDITION_TAG}
+                  data-testid="help-evidence-graph-role-precondition-tag"
+                />
+              </div>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-evidence-graph-role-precondition"
+              >
+                {EVIDENCE_GRAPH_HELP_ROLE_PRECONDITION}
+              </p>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-evidence-graph-sample-graph-note"
+              >
+                {EVIDENCE_GRAPH_HELP_SAMPLE_GRAPH_NOTE}
+              </p>
             </CardContent>
           </Card>
 
@@ -95,12 +118,16 @@ export function HelpEvidenceGraphGuideView(props: HelpEvidenceGraphGuideViewProp
           >
             <HelpSectionHeading id="what-evidence-graph-shows">What the evidence graph shows</HelpSectionHeading>
             <dl
-              className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="help-evidence-graph-feature-items"
+              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
+              data-testid="help-evidence-graph-tile-items"
             >
-              {EVIDENCE_GRAPH_HELP_FEATURE_ITEMS.map((item) => (
+              {EVIDENCE_GRAPH_HELP_TILE_ITEMS.map((item) => (
                 <div key={item.label}>
-                  <dt className="font-medium text-al-text-primary">{item.label}</dt>
+                  <dt className="font-medium text-al-text-primary">
+                    <Link className={OPERATOR_LINK.nav} href={item.href}>
+                      {item.label}
+                    </Link>
+                  </dt>
                   <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
                 </div>
               ))}
@@ -113,26 +140,18 @@ export function HelpEvidenceGraphGuideView(props: HelpEvidenceGraphGuideViewProp
           >
             <HelpSectionHeading id="how-evidence-graph-works">{EVIDENCE_GRAPH_HELP_TOPIC_LABEL}</HelpSectionHeading>
             <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-evidence-graph-how-stepper"
             >
               {EVIDENCE_GRAPH_HELP_HOW_TO_READ_STEPS.map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={EVIDENCE_GRAPH_HELP_EVIDENCE_TRAIL_HREF}>
-                Read evidence trail help →
-              </Link>
-            </p>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={EVIDENCE_GRAPH_HELP_SEARCH_HREF}>
-                Search review evidence →
-              </Link>
-            </p>
           </section>
 
-          <EvidenceGraphHelpEvidenceOrientationStrip />
+          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+            <EvidenceGraphHelpEvidenceOrientationStrip />
+          </div>
         </div>
 
         <HelpTopicTableOfContents headings={EVIDENCE_GRAPH_HELP_GUIDE_HEADINGS} />
