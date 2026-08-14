@@ -33,6 +33,9 @@ export const GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink
 
 export const GETTING_STARTED_HELP_PATH = "/help/getting-started" as const;
 
+/** Retired operator bookmark — no App Router page; help lives at GETTING_STARTED_HELP_PATH. */
+export const LEGACY_GETTING_STARTED_PATH = "/getting-started" as const;
+
 export const GETTING_STARTED_HELP_TOPIC_LABEL = "How to get started" as const;
 
 export const GETTING_STARTED_HELP_QUICK_START_TITLE = "Start with your first review";

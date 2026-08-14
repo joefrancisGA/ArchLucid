@@ -14,3 +14,12 @@ export const ONBOARDING_OPTIONAL_SETUP_DELEGATION_HEADING_ID =
 export function isFirstReviewGuidePath(pathname: string): boolean {
   return pathname === FIRST_REVIEW_GUIDE_PATH || pathname.startsWith(`${FIRST_REVIEW_GUIDE_PATH}/`);
 }
+
+export function normalizeLocationHashId(hash: string): string {
+  return hash.replace(/^#/, "").trim();
+}
+
+/** True when the URL targets optional workspace setup (Cmd+K finish-setup, shared CTAs). */
+export function isOnboardingOptionalSetupDeepLinkHash(hash: string): boolean {
+  return normalizeLocationHashId(hash) === ONBOARDING_OPTIONAL_SETUP_HEADING_ID;
+}

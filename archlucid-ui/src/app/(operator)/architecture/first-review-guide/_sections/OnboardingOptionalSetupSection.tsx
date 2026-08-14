@@ -16,6 +16,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   ONBOARDING_OPTIONAL_SETUP_DELEGATION_HEADING_ID,
   ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+  isOnboardingOptionalSetupDeepLinkHash,
 } from "@/lib/first-review-guide-route";
 
 import {
@@ -38,13 +39,33 @@ function readOptionalSetupDismissed(): boolean {
   }
 }
 
+function readOptionalSetupDeepLinkActive(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return isOnboardingOptionalSetupDeepLinkHash(window.location.hash);
+}
+
 /** Collapsed-by-default optional workspace setup — secondary to the first-review walkthrough. */
 export function OnboardingOptionalSetupSection() {
   const { phase, context } = useFinishSetupReadinessContext();
   const [dismissed, setDismissed] = useState(false);
+  const [deepLinkActive, setDeepLinkActive] = useState(false);
 
   useEffect(() => {
     setDismissed(readOptionalSetupDismissed());
+
+    const syncDeepLink = () => {
+      setDeepLinkActive(readOptionalSetupDeepLinkActive());
+    };
+
+    syncDeepLink();
+    window.addEventListener("hashchange", syncDeepLink);
+
+    return () => {
+      window.removeEventListener("hashchange", syncDeepLink);
+    };
   }, []);
 
   const onDismiss = useCallback(() => {
@@ -57,7 +78,9 @@ export function OnboardingOptionalSetupSection() {
     setDismissed(true);
   }, []);
 
-  if (phase === "loading" || dismissed) {
+  const hideForDismiss = dismissed && !deepLinkActive;
+
+  if (phase === "loading" || hideForDismiss) {
     return null;
   }
 

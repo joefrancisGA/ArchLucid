@@ -16,7 +16,8 @@ import {
   RETIRED_ONBOARDING_START_BOOKMARK_PATH,
   RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
 } from "@/lib/ui-route-traffic-retired-redirect-shims";
-import { LEGACY_ONBOARDING_PATH } from "@/lib/first-review-guide-route";
+import { LEGACY_ONBOARDING_PATH, isOnboardingOptionalSetupDeepLinkHash } from "@/lib/first-review-guide-route";
+import { LEGACY_GETTING_STARTED_PATH } from "@/lib/getting-started-help-guide-content";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
 
 /** Extra marketing paths not always in the sitemap (noindex / funnel). */
@@ -55,7 +56,6 @@ const CANONICAL_OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/advisory-scheduling",
   SEARCH_REVIEW_EVIDENCE_PATH,
   "/demo",
-  "/getting-started",
   IMPACT_PREVIEW_PATH,
   DIGESTS_HUB_PATH,
   "/workspace",
@@ -94,6 +94,7 @@ const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
   RETIRED_ONBOARDING_START_BOOKMARK_PATH,
   RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
   LEGACY_ONBOARDING_PATH,
+  LEGACY_GETTING_STARTED_PATH,
 ];
 
 const OPERATOR_PATH_PREFIXES: readonly string[] = [
