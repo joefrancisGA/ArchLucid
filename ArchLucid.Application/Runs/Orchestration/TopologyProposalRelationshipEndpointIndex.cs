@@ -488,7 +488,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("synapse_workspace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("data_factory", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("mariadb", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("mariadb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("machine_learning", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -515,7 +516,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("container_registry", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("service_fabric", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("application_gateway", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("virtual_machine", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("virtual_machine", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("batch_account", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
