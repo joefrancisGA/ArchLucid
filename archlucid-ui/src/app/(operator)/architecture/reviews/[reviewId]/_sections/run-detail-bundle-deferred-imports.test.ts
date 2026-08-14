@@ -68,7 +68,7 @@ const bannedStaticImports = [
   './RunDetailCaptureEvidenceSection"',
   './RunDetailBuyerPilotConversionSection"',
   './RunDetailBuyerModeFallbackBanner"',
-  './RunDetailSponsorReportCtaCard"',
+  './RunDetailExecutiveSummaryCtaCard"',
   './RunDetailGovernanceDecisionSection"',
   './RunDetailReviewPackageSection"',
   './RunDetailGovernanceCta"',
@@ -186,7 +186,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('import("./RunDetailSubmittedArchitectureSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailCaptureEvidenceSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailBuyerPilotConversionSection")');
-    expect(deferredChunksSource).toContain('import("./RunDetailSponsorReportCtaCard")');
+    expect(deferredChunksSource).toContain('import("./RunDetailExecutiveSummaryCtaCard")');
     expect(deferredChunksSource).toContain('import("./RunDetailGovernanceCta")');
     expect(deferredChunksSource).toContain('import("./RunDetailGovernanceDecisionSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageSection")');

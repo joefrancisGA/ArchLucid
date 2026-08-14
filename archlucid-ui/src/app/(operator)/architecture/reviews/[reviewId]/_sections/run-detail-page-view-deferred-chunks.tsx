@@ -344,7 +344,8 @@ export const RunDetailSponsorBottomLineDeferred = dynamic(
 );
 
 export const RunDetailSponsorReportCtaCardDeferred = dynamic(
-  () => import("./RunDetailSponsorReportCtaCard").then((module) => module.RunDetailSponsorReportCtaCard),
+  () =>
+    import("./RunDetailExecutiveSummaryCtaCard").then((module) => module.RunDetailSponsorReportCtaCard),
   { ssr: false, loading: () => null },
 );
 

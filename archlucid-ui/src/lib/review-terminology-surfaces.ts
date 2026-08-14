@@ -319,7 +319,7 @@ export const REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS = [
   "src/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackageSummaryHeader.tsx",
   "src/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackagePrimaryAction.tsx",
   "src/app/(operator)/architecture/reviews/[reviewId]/_sections/resolve-review-package-attention-line.ts",
-  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSponsorReportCtaCard.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailExecutiveSummaryCtaCard.tsx",
   "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailGovernanceCta.tsx",
   "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCaptureEvidenceSection.tsx",
   "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSponsorBottomLine.tsx",
