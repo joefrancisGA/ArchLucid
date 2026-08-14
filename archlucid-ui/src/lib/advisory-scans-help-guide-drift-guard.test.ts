@@ -48,6 +48,14 @@ describe("advisory-scans help negation drift guard", () => {
     expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 
+  it("keeps tile hrefs disjoint from sources band hrefs", () => {
+    const tileHrefs = ADVISORY_SCANS_HELP_TILE_ITEMS.map((item) => item.href);
+    const sourceHrefs = ADVISORY_SCANS_SOURCES.map((source) => source.href);
+    const overlap = tileHrefs.filter((href) => sourceHrefs.includes(href));
+
+    expect(overlap).toHaveLength(0);
+  });
+
   it("lists stacked advisory-scans sources with when captions including AI usage", () => {
     const sourceHrefs = ADVISORY_SCANS_SOURCES.map((source) => source.href);
 
@@ -55,5 +63,6 @@ describe("advisory-scans help negation drift guard", () => {
     expect(ADVISORY_SCANS_SOURCES.every((source) => source.when !== undefined)).toBe(true);
     expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "AI usage help")).toBe(true);
     expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "Architecture reviews")).toBe(false);
+    expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "Audit")).toBe(false);
   });
 });

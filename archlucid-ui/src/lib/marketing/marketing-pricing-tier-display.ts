@@ -119,16 +119,18 @@ export function resolveMarketingTierPrimaryCtaVariant(
     return "primary";
   }
 
-  return "primary";
+  return "outline";
 }
 
-export function resolveMarketingTierPrimaryCtaSize(
-  tierId: MarketingPricingTierId,
-  isRecommended: boolean,
-): "default" | "lg" {
-  if (isRecommended && tierId === "professional") {
-    return "lg";
+/** One-line persona qualifier for the recommended tier — sourced from fit recommendations. */
+export function resolveMarketingTierFitQualifier(tierId: MarketingPricingTierId): string | null {
+  if (tierId !== "professional") {
+    return null;
   }
 
-  return "default";
+  const governanceFit = MARKETING_PRICING_FIT_RECOMMENDATIONS.find((row) =>
+    row.recommendedPlan.toLowerCase().includes("professional"),
+  );
+
+  return governanceFit?.teamType ?? null;
 }

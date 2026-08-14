@@ -62,10 +62,25 @@ describe("finding-job-view", () => {
     expect(classifyGovernanceFindingJobView(governance)).toBe("deferred");
   });
 
-  it("maps approved review findings to ready-for-sponsor-packet", () => {
-    const finding = reviewFinding({ findingId: "f-3", humanReviewStatus: 2 });
+  it("maps approved evidence-backed review findings to ready-for-sponsor-packet", () => {
+    const finding = reviewFinding({
+      findingId: "f-3",
+      humanReviewStatus: 2,
+      policyRuleId: "cost-constraint.budget",
+    });
 
     expect(classifyReviewFindingJobView(finding)).toBe("ready-for-sponsor-packet");
+  });
+
+  it("keeps approved ungrounded review findings out of the sponsor-packet view", () => {
+    const finding = reviewFinding({
+      findingId: "f-ungrounded",
+      humanReviewStatus: 2,
+      trustLabel: "MissingCitation",
+      evidenceRefCount: 0,
+    });
+
+    expect(classifyReviewFindingJobView(finding)).toBe("needs-my-decision");
   });
 
   it("maps needs-evidence governance rows to needs-governance", () => {
@@ -79,7 +94,7 @@ describe("finding-job-view", () => {
   it("filters review findings without contradictory job membership", () => {
     const rows = [
       reviewFinding({ findingId: "f-4", humanReviewStatus: 1 }),
-      reviewFinding({ findingId: "f-5", humanReviewStatus: 2 }),
+      reviewFinding({ findingId: "f-5", humanReviewStatus: 2, policyRuleId: "sec.baseline" }),
     ];
 
     const decisionQueue = filterReviewFindingsForJobView(rows, "needs-my-decision");

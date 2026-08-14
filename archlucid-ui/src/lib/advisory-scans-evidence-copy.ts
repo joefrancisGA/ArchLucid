@@ -1,7 +1,6 @@
 import { ADVISORY_SCANS_HREF } from "@/lib/advisory-scans-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const ADVISORY_SCANS_CANONICAL_PATH = ADVISORY_SCANS_HREF;
 
@@ -15,11 +14,6 @@ export const ADVISORY_SCANS_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to the default advisory-scans hub path or tile-covered destinations. */
 export const ADVISORY_SCANS_SOURCES: readonly EvidenceSourceLink[] = [
-  {
-    label: "Audit",
-    href: GOVERNANCE_AUDIT_PATH,
-    when: "Open governed audit trails when scan output needs assurance cites",
-  },
   {
     label: "AI usage help",
     href: inAppHelpHref("ai-usage"),

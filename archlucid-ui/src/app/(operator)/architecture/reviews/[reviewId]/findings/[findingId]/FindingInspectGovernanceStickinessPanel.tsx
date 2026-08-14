@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,7 @@ import { upsertFindingRemediationAssignment } from "@/lib/api/finding-remediatio
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   createWaiverTransitionCopy,
@@ -46,6 +47,13 @@ import {
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import { resolveDispositionConcurrentUpdateNotice } from "@/lib/findings/finding-disposition-concurrent-update";
 import { collabRecentActorsFromDispositionHistory } from "@/lib/collab-recent-actor-presence";
+import {
+  canConfirmFindingApplyChange,
+  FINDING_APPLY_CHANGE_PREVIEW_OVERRIDE_LABEL,
+  FINDING_APPLY_CHANGE_PREVIEW_REQUIRED_MESSAGE,
+  findingApplyChangePreviewHref,
+  isFindingApplyChangeDisposition,
+} from "@/lib/findings/finding-apply-change-preview-gate";
 
 const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "Accepted",
@@ -114,6 +122,7 @@ export function FindingInspectGovernanceStickinessPanel({
     null,
   );
   const [pendingRevokeWaiverConfirm, setPendingRevokeWaiverConfirm] = useState(false);
+  const [applyChangePreviewOverride, setApplyChangePreviewOverride] = useState(false);
 
   const reload = useCallback(async (): Promise<FindingDispositionEvent[]> => {
     const [dispositions, waivers] = await Promise.all([
@@ -613,6 +622,7 @@ export function FindingInspectGovernanceStickinessPanel({
         onOpenChange={(open) => {
           if (!open) {
             setPendingDispositionConfirm(null);
+            setApplyChangePreviewOverride(false);
           }
         }}
         title="Confirm finding disposition"
@@ -620,11 +630,46 @@ export function FindingInspectGovernanceStickinessPanel({
         confirmLabel="Record disposition"
         variant="default"
         busy={busyAction === "disposition" || busyAction === "mark-remediated"}
+        confirmDisabled={
+          isFindingApplyChangeDisposition(pendingDispositionKind) &&
+          !canConfirmFindingApplyChange({
+            runId,
+            findingId,
+            overrideRecorded: applyChangePreviewOverride,
+          })
+        }
         extraContent={
           pendingDispositionConfirm !== null ? (
             <div className="mt-2 space-y-2">
               <DispositionExportBeforeAfterPreview disposition={pendingDispositionKind} />
               <DispositionExportImpactNotice disposition={pendingDispositionKind} />
+              {isFindingApplyChangeDisposition(pendingDispositionKind) ? (
+                <div className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {FINDING_APPLY_CHANGE_PREVIEW_REQUIRED_MESSAGE}
+                  </p>
+                  <Link
+                    href={findingApplyChangePreviewHref(runId, findingId)}
+                    className={OPERATOR_LINK.inline}
+                    data-testid="finding-apply-change-preview-link"
+                  >
+                    Open impact preview for this finding
+                  </Link>
+                  <label className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={applyChangePreviewOverride}
+                      onChange={(event) => {
+                        setApplyChangePreviewOverride(event.target.checked);
+                      }}
+                      data-testid="finding-apply-change-preview-override"
+                    />
+                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      {FINDING_APPLY_CHANGE_PREVIEW_OVERRIDE_LABEL}
+                    </span>
+                  </label>
+                </div>
+              ) : null}
             </div>
           ) : null
         }

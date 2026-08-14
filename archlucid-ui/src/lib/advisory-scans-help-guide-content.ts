@@ -5,6 +5,9 @@ import { ADVISORY_SCANS_HELP_TOPIC_LABEL } from "@/lib/advisory-scans-help-evide
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export const ADVISORY_SCANS_HELP_PAGE_EYEBROW = "Help topic · Governance" as const;
 
 export const ADVISORY_SCANS_HELP_PAGE_TITLE = "Advisory scans";
 
@@ -22,6 +25,11 @@ export const ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION =
 export const ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE =
   "View schedules and prior scan results here; creating schedules and generating scans requires execute access or a management role.";
 
+export const ADVISORY_SCANS_HELP_START_HERE_ROLE_LINK = {
+  label: "execute access or a management role",
+  href: inAppHelpHref("users-and-roles"),
+} as const;
+
 export const ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE = "Start here";
 
 export const ADVISORY_SCANS_HELP_FINALIZE_REVIEW_LINK = {
@@ -33,6 +41,34 @@ export const ADVISORY_SCANS_HELP_PRIMARY_ACTION = {
   label: "Open advisory scans",
   href: ADVISORY_SCANS_CANONICAL_PATH,
 } as const;
+
+export type AdvisoryScansHelpOutputField = {
+  readonly label: string;
+  readonly detail: string;
+};
+
+export const ADVISORY_SCANS_HELP_OUTPUT_FIELDS: readonly AdvisoryScansHelpOutputField[] = [
+  {
+    label: "Priority",
+    detail: "Numeric priority score that ranks follow-up recommendations for triage.",
+  },
+  {
+    label: "Linked finding",
+    detail: "Governance finding opened when the scan surfaces a material architecture concern.",
+  },
+  {
+    label: "Source review",
+    detail: "Finalized architecture review that generated the recommendation.",
+  },
+  {
+    label: "Evidence trail pointer",
+    detail: "Link into the evidence trail when a recommendation needs governed cites.",
+  },
+] as const;
+
+export const ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_HEADING_ID = "related-governance-surfaces" as const;
+
+export const ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_TITLE = "Related governance surfaces" as const;
 
 export type AdvisoryScansHelpTileItem = {
   readonly label: string;
@@ -63,16 +99,53 @@ export const ADVISORY_SCANS_HELP_TILE_ITEMS: readonly AdvisoryScansHelpTileItem[
   },
 ] as const;
 
-export const ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS = [
-  "Finalize an architecture review that should drive follow-up recommendations.",
-  "Generate a scan or configure a schedule on the Schedules tab.",
-  "Open findings or audit when a recommendation needs governed triage.",
+export type AdvisoryScansHelpHowToReadStepPart =
+  | { readonly type: "text"; readonly value: string }
+  | { readonly type: "link"; readonly label: string; readonly href: string };
+
+export type AdvisoryScansHelpHowToReadStep = {
+  readonly parts: readonly AdvisoryScansHelpHowToReadStepPart[];
+};
+
+export const ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS: readonly AdvisoryScansHelpHowToReadStep[] = [
+  {
+    parts: [
+      { type: "text", value: "Finalize " },
+      {
+        type: "link",
+        label: ADVISORY_SCANS_HELP_FINALIZE_REVIEW_LINK.label,
+        href: ADVISORY_SCANS_HELP_FINALIZE_REVIEW_LINK.href,
+      },
+      { type: "text", value: " that should drive follow-up recommendations." },
+    ],
+  },
+  {
+    parts: [
+      { type: "text", value: "Generate a scan or configure a schedule on the " },
+      { type: "link", label: "Schedules tab", href: ADVISORY_SCANS_SCHEDULES_HREF },
+      { type: "text", value: "." },
+    ],
+  },
+  {
+    parts: [
+      { type: "text", value: "Open " },
+      { type: "link", label: "findings", href: GOVERNANCE_FINDINGS_PATH },
+      { type: "text", value: " or " },
+      { type: "link", label: "audit", href: GOVERNANCE_AUDIT_PATH },
+      { type: "text", value: " when a recommendation needs governed triage." },
+    ],
+  },
 ] as const;
 
 export const ADVISORY_SCANS_HELP_CLAIM_HEADING_ID = "help-advisory-scans-claim-discipline-heading" as const;
 
 export const ADVISORY_SCANS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-advisory-scans-show", title: "What advisory scans show" },
+  {
+    level: 2,
+    id: ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_HEADING_ID,
+    title: ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_TITLE,
+  },
   { level: 2, id: "how-advisory-scans-work", title: ADVISORY_SCANS_HELP_TOPIC_LABEL },
   {
     level: 2,

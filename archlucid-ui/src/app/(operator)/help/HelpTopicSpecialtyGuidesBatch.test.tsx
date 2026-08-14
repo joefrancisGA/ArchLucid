@@ -80,7 +80,12 @@ describe("specialty help guides — operator surfaces batch", () => {
 
     expect(screen.getByTestId(testId)).toBeInTheDocument();
 
-    const breadcrumbSlugs = new Set(["servicenow-integration", "sponsor-dashboard", "system-health"]);
+    const breadcrumbSlugs = new Set([
+      "search-review-evidence",
+      "servicenow-integration",
+      "sponsor-dashboard",
+      "system-health",
+    ]);
 
     if (!breadcrumbSlugs.has(slug)) {
       expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();

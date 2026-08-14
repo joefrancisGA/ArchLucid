@@ -19,7 +19,7 @@ public sealed class ArchitectureRequestQuickStartIntakeValidatorTests
         return new ArchitectureRequest
         {
             Description = new string('a', ArchitectureRequestFieldLimits.MinDescriptionLength),
-            SystemName = "Retail API",
+            SystemName = QuickStartReviewTitleCompleteness.QualityExample,
             Environment = "staging",
             CloudProvider = CloudProvider.Azure,
             RequestSource = "wizard",
@@ -93,5 +93,22 @@ public sealed class ArchitectureRequestQuickStartIntakeValidatorTests
         ValidationResult result = await validator.ValidateAsync(request);
 
         result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Quick_start_create_run_rejects_placeholder_activity_title()
+    {
+        ArchitectureRequestValidator validator = new();
+        ArchitectureRequest request = BuildQuickStartRequest();
+        request.SystemName = "Test review";
+
+        SatisfyL0MustSet(request);
+        request.IntakeQuestionAnswers[QuickStartIntakeMetadataKeys.OperatorBriefCharacterCountKey] = "120";
+
+        ValidationResult result = await validator.ValidateAsync(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(error =>
+            error.PropertyName == nameof(ArchitectureRequest.SystemName));
     }
 }

@@ -11,7 +11,8 @@ import {
 export type ReviewPackageDoThisNextKind =
   | ReviewPackagePrimaryActionKind
   | "answer-clarifications"
-  | "view-assessment-progress";
+  | "view-assessment-progress"
+  | "compare-to-prior";
 
 export type ReviewPackageDoThisNext = {
   readonly kind: ReviewPackageDoThisNextKind;
@@ -35,6 +36,8 @@ export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryAct
   readonly governanceDecisionRecorded: boolean;
   /** Create-home uses `archTab=`; committed review workspace uses `reviewTab=` (TB-1831). */
   readonly useCreateHomeWorkspaceTabs: boolean;
+  /** Compare href when a prior package on the same request is already comparable. */
+  readonly compareWithPriorHref?: string | null;
 };
 
 function clarificationsHref(input: ResolveReviewPackageDoThisNextInput): string {
@@ -125,6 +128,26 @@ export function resolveReviewPackageDoThisNext(
     ...input,
     nextAction: input.nextAction,
   });
+
+  const compareWithPriorHref = input.compareWithPriorHref?.trim() ?? "";
+
+  if (
+    compareWithPriorHref.length > 0 &&
+    input.runCompleted &&
+    input.blockingFindingCount === 0 &&
+    (primaryAction.kind === "send-to-sponsor" || primaryAction.kind === "finalize-package")
+  ) {
+    return {
+      kind: "compare-to-prior",
+      sentence: "This package can be compared to the prior review — confirm what changed before sharing.",
+      actionLabel: "Compare to prior review",
+      href: compareWithPriorHref,
+      secondaryAction:
+        primaryAction.href !== null && primaryAction.href !== undefined
+          ? { label: primaryAction.label, href: primaryAction.href }
+          : null,
+    };
+  }
 
   if (primaryAction.kind === "send-to-sponsor" && evidenceCoverageGap(input)) {
     return {

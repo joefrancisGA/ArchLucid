@@ -16,6 +16,10 @@ import {
   type ImpactPreviewBaselineOption,
   type ImpactPreviewComparisonScope,
 } from "@/lib/impact-preview-page-types";
+import {
+  readFindingApplyChangePreviewQuery,
+  recordFindingApplyChangePreviewCompleted,
+} from "@/lib/findings/finding-apply-change-preview-gate";
 import { runSummaryDisplayLabel } from "@/lib/runs/run-summary-display-label";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
 
@@ -86,14 +90,24 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
   });
 
   const baselineRunOptions = useMemo((): ReadonlyArray<{ readonly runId: string; readonly label: string }> => {
+    const seededBaselineId = readFindingApplyChangePreviewQuery(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search),
+    ).baselineRunId;
+
     if (isDemo || runsQuery.data === undefined) {
-      return [];
+      return seededBaselineId !== null ? [{ runId: seededBaselineId, label: seededBaselineId }] : [];
     }
 
-    return runsQuery.data.items.map((item) => ({
+    const fromRuns = runsQuery.data.items.map((item) => ({
       runId: item.runId,
       label: runSummaryDisplayLabel(item),
     }));
+
+    if (seededBaselineId !== null && !fromRuns.some((item) => item.runId === seededBaselineId)) {
+      return [...fromRuns, { runId: seededBaselineId, label: seededBaselineId }];
+    }
+
+    return fromRuns;
   }, [isDemo, runsQuery.data]);
 
   const loadList = useCallback(async () => {
@@ -197,6 +211,14 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
         return prev;
       }
 
+      const seeded = readFindingApplyChangePreviewQuery(
+        new URLSearchParams(typeof window === "undefined" ? "" : window.location.search),
+      ).baselineRunId;
+
+      if (seeded !== null && baselineOptions.some((option) => option.runId === seeded)) {
+        return seeded;
+      }
+
       return baselineOptions[0]?.runId ?? null;
     });
   }, [baselineOptions]);
@@ -215,6 +237,15 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
 
     try {
       await postEvolutionSimulate(selectedId);
+      const previewQuery = readFindingApplyChangePreviewQuery(
+        new URLSearchParams(typeof window === "undefined" ? "" : window.location.search),
+      );
+      const baselineRunId = selectedBaselineId ?? previewQuery.baselineRunId;
+
+      if (baselineRunId !== null && previewQuery.findingId !== null) {
+        recordFindingApplyChangePreviewCompleted(baselineRunId, previewQuery.findingId);
+      }
+
       await loadDetail(selectedId);
       await loadList();
     } catch (e) {
@@ -222,7 +253,7 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
     } finally {
       setSimulateBusy(false);
     }
-  }, [selectedId, loadDetail, loadList]);
+  }, [selectedId, selectedBaselineId, loadDetail, loadList]);
 
   return {
     isDemo,

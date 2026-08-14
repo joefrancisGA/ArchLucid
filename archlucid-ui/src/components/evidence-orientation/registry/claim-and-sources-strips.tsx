@@ -464,6 +464,11 @@ import {
   PRICING_QUOTE_AGING_SOURCES_INTRO,
 } from "@/lib/pricing-quote-aging-evidence-copy";
 import {
+  PLATFORM_BUNDLED_POLICY_PACKS_FOLLOW_UPS_TITLE,
+  PLATFORM_BUNDLED_POLICY_PACKS_SOURCES,
+  PLATFORM_BUNDLED_POLICY_PACKS_SOURCES_INTRO,
+} from "@/lib/platform-bundled-policy-packs-evidence-copy";
+import {
   PRODUCT_LEARNING_FOLLOW_UPS_TITLE,
   PRODUCT_LEARNING_SOURCES,
   PRODUCT_LEARNING_SOURCES_INTRO,
@@ -1016,6 +1021,21 @@ export function PricingQuoteAgingEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={PRICING_QUOTE_AGING_FOLLOW_UPS_TITLE}
       sourcesIntro={PRICING_QUOTE_AGING_SOURCES_INTRO}
       sources={PRICING_QUOTE_AGING_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function PlatformBundledPolicyPacksEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="platform-bundled-policy-packs"
+      claimElement="div"
+      sourcesTitle={PLATFORM_BUNDLED_POLICY_PACKS_FOLLOW_UPS_TITLE}
+      sourcesIntro={PLATFORM_BUNDLED_POLICY_PACKS_SOURCES_INTRO}
+      sources={PLATFORM_BUNDLED_POLICY_PACKS_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
@@ -1949,7 +1969,7 @@ export function SearchReviewEvidenceHelpEvidenceOrientationStrip(): React.JSX.El
       sources={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
+      sourcesLayout="wrap"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -2252,7 +2272,7 @@ export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={ADVISORY_SCANS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ADVISORY_SCANS_HELP_SOURCES_INTRO}
       sources={ADVISORY_SCANS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorNeutral}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}

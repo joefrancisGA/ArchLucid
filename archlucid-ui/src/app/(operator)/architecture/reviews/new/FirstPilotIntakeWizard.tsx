@@ -38,6 +38,7 @@ import {
   useReviewCreationProgress,
 } from "@/hooks/use-review-creation-progress";
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
+import { getRunSummary } from "@/lib/api/architecture-runs";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
 import {
@@ -51,6 +52,10 @@ import {
   REVIEW_START_PREPARING_LABEL,
 } from "@/lib/review-start-progress-copy";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
+import {
+  priorPackageInheritedTitle,
+  readPriorRunIdFromSearch,
+} from "@/lib/second-review-prior-package";
 import { REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
@@ -150,6 +155,9 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const searchParams = useSearchParams();
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const exampleTemplatePrefillAppliedRef = useRef(false);
+  const priorPackagePrefillAppliedRef = useRef(false);
+  const priorRunId = useMemo(() => readPriorRunIdFromSearch(searchParams), [searchParams]);
+  const [inheritedPriorTitle, setInheritedPriorTitle] = useState<string | null>(null);
 
   const exampleTemplate = useMemo(
     () =>
@@ -219,6 +227,38 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     setRunTitle(exampleTemplate.title);
     setBriefText(exampleTemplate.briefText);
   }, [exampleTemplate]);
+
+  useEffect(() => {
+    if (priorRunId === null || priorPackagePrefillAppliedRef.current) {
+      return;
+    }
+
+    priorPackagePrefillAppliedRef.current = true;
+    let canceled = false;
+
+    void getRunSummary(priorRunId)
+      .then((summary) => {
+        if (canceled) {
+          return;
+        }
+
+        const inheritedTitle = priorPackageInheritedTitle(summary);
+
+        if (inheritedTitle.length === 0) {
+          return;
+        }
+
+        setInheritedPriorTitle(inheritedTitle);
+        setRunTitle((current) => (current.trim().length > 0 ? current : inheritedTitle));
+      })
+      .catch(() => {
+        // Prior package metadata is optional; the operator can still type a new title.
+      });
+
+    return () => {
+      canceled = true;
+    };
+  }, [priorRunId]);
 
   const resolvedBrief = useMemo(
     () => buildEvidenceBackedIntakeBrief(runTitle, evidenceFiles, briefText),
@@ -410,6 +450,15 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               aria-required
               data-testid="first-pilot-title"
             />
+            {inheritedPriorTitle !== null ? (
+              <p
+                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="first-pilot-prior-package-inherited"
+              >
+                Inherited from the prior package: “{inheritedPriorTitle}”. Keep it if this is the same decision, or
+                rename it if this pass is a new decision.
+              </p>
+            ) : null}
           </div>
 
           <WizardEvidenceUploadZone

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -35,6 +37,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
   props: RunDetailReviewPackageDoThisNextResolvedProps,
 ): React.JSX.Element {
   const [next, setNext] = useState<ReviewPackageDoThisNext | null>(null);
+  const priorCompare = usePriorSameRequestCompareHref(props.runId, 25);
 
   useEffect(() => {
     let canceled = false;
@@ -62,6 +65,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
           evidenceCoverageLinkedCount: props.evidenceCoverageLinkedCount,
           evidenceCoverageTotalCount: props.evidenceCoverageTotalCount,
           governanceDecisionRecorded: props.governanceDecisionRecorded,
+          compareWithPriorHref: priorCompare.compareWithPriorHref,
         }),
       );
     });
@@ -70,6 +74,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
       canceled = true;
     };
   }, [
+    priorCompare.compareWithPriorHref,
     props.runId,
     props.manifestId,
     props.hasCommitBlockingFailures,

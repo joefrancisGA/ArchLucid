@@ -50,6 +50,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
       revisitDueUtc: entry.revisitDueUtc ?? null,
       isStale: entry.isStale,
       evidenceHref: entry.evidenceHref,
+      evidenceRefCount: (entry.evidenceHref ?? "").trim().length > 0 ? 1 : null,
       humanReviewStatusLabel: formatFindingHumanReviewStatusLabel(entry.humanReviewStatus),
       itsmLinkedTicketsSummary:
         (entry.itsmLinkedTicketsSummary ?? "").trim().length > 0

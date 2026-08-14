@@ -42,6 +42,12 @@ export const EVIDENCE_SOURCES_STYLE = {
     intro: SOURCES_INTRO_HELPER,
     link: SOURCES_LINK_OPERATOR,
   },
+  /** Operator follow-up bands that share ruled section chrome with sibling help sections. */
+  operatorNeutral: {
+    panel: "space-y-3",
+    intro: SOURCES_INTRO_HELPER,
+    link: SOURCES_LINK_OPERATOR,
+  },
   /** Evaluation (marketing / pre-finalize) surfaces still on the legacy teal link. */
   evaluationMuted: {
     panel: SOURCES_PANEL_MUTED,

@@ -19,13 +19,13 @@ export const MARKETING_PRICING_TIER_CTAS: Readonly<Record<MarketingPricingTierId
   architect: {
     primaryLabel: "Start Architect plan",
     primaryKind: "stripe",
-    secondaryLabel: "Start now",
+    secondaryLabel: "Sign up for Architect",
     secondaryKind: "signup",
   },
   team: {
     primaryLabel: "Start team evaluation",
     primaryKind: "stripe",
-    secondaryLabel: "Start team evaluation",
+    secondaryLabel: "Sign up for Team",
     secondaryKind: "signup",
   },
   professional: {

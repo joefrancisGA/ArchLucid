@@ -24,7 +24,9 @@ describe("repeat-review-activation", () => {
 
     expect(prompt).not.toBeNull();
     expect(prompt!.headline).toContain("second");
-    expect(prompt!.primaryHref).toBe("/architecture/reviews/new");
+    expect(prompt!.primaryHref).toContain("/architecture/reviews/new?");
+    expect(prompt!.primaryHref).toContain("priorRunId=run-first");
+    expect(prompt!.primaryHref).not.toBe("/architecture/reviews/new");
     expect(prompt!.summary.toLowerCase()).not.toContain("stickiness");
     expect(prompt!.actions.some((action) => action.href.includes("run-first"))).toBe(true);
     expect(prompt!.actions.some((action) => action.label === "Your repeat architecture review")).toBe(true);

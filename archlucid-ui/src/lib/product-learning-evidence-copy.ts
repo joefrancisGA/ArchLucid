@@ -8,9 +8,6 @@ export const PRODUCT_LEARNING_HELP_TOPIC_LABEL = "How pilot feedback works" as c
 
 export const PRODUCT_LEARNING_FOLLOW_UPS_TITLE = "Where to go next";
 
-export const PRODUCT_LEARNING_CLAIM_DISCIPLINE =
-  "Pilot feedback aggregates review signals for product improvement — ranked opportunities are candidates for human triage, not auto-filed work items, a sealed-review diligence Sources package. Open Improvement planning or Architecture reviews when you need live workflow trails.";
-
 export const PRODUCT_LEARNING_SOURCES_INTRO =
   "Use these follow-ups when feedback trends turn into planning themes, live reviews, or architect help.";
 

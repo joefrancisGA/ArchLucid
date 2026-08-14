@@ -1,6 +1,7 @@
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
+import { secondReviewFromPriorHref } from "@/lib/second-review-prior-package";
 
 export type RepeatReviewActivationAction = {
   label: string;
@@ -44,11 +45,13 @@ export function resolveRepeatReviewActivation(input: {
   const secondHref = reviewHref(input.secondCommittedRunId);
 
   if (committedCount === 1) {
+    const priorRunId = (input.firstCommittedRunId ?? input.latestRunId ?? "").trim();
+
     return {
       headline: "Plan your second committed review",
       summary:
         "The first proof export is the baseline. A follow-up review shows progress when you compare against the prior manifest, replay authority for regressions, or tighten governance dry-runs before enforce.",
-      primaryHref: "/architecture/reviews/new",
+      primaryHref: priorRunId.length > 0 ? secondReviewFromPriorHref(priorRunId) : "/architecture/reviews/new",
       primaryCta: "Start next review",
       actions: [
         {

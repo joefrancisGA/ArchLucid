@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { SearchReviewEvidenceHelpEvidenceOrientationStrip } from "@/components/help/SearchReviewEvidenceHelpEvidenceOrientationStrip";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -20,16 +21,21 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 import { SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL } from "@/lib/search-review-evidence-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_HELP_CANONICAL_PATH } from "@/lib/search-review-evidence-help-evidence-copy";
 import {
+  SEARCH_REVIEW_EVIDENCE_HELP_BREADCRUMB_TOPIC_TITLE,
   SEARCH_REVIEW_EVIDENCE_HELP_FEATURE_ITEMS,
   SEARCH_REVIEW_EVIDENCE_HELP_GUIDE_HEADINGS,
+  SEARCH_REVIEW_EVIDENCE_HELP_HIT_ANATOMY_FIELDS,
   SEARCH_REVIEW_EVIDENCE_HELP_HOW_TO_READ_STEPS,
-  SEARCH_REVIEW_EVIDENCE_HELP_INDEX_SCOPE_NOTE,
+  SEARCH_REVIEW_EVIDENCE_HELP_INDEXED_ROWS,
   SEARCH_REVIEW_EVIDENCE_HELP_OVERVIEW,
+  SEARCH_REVIEW_EVIDENCE_HELP_PAGE_EYEBROW,
   SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE,
   SEARCH_REVIEW_EVIDENCE_HELP_PAGE_TITLE,
+  SEARCH_REVIEW_EVIDENCE_HELP_PRECONDITION,
   SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION,
   SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE,
-  SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_SCOPE_NOTE,
+  SEARCH_REVIEW_EVIDENCE_HELP_WHAT_IS_INDEXED_SECTION_ID,
+  SEARCH_REVIEW_EVIDENCE_HELP_WHAT_IS_INDEXED_TITLE,
 } from "@/lib/search-review-evidence-help-guide-content";
 import { cn } from "@/lib/utils";
 
@@ -64,11 +70,13 @@ export function HelpSearchReviewEvidenceGuideView(
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
+        eyebrow={SEARCH_REVIEW_EVIDENCE_HELP_PAGE_EYEBROW}
         title={SEARCH_REVIEW_EVIDENCE_HELP_PAGE_TITLE}
         titleTestId="help-search-review-evidence-page-title"
         subtitle={SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE}
         navHref={SEARCH_REVIEW_EVIDENCE_HELP_CANONICAL_PATH}
         headingLevel="h1"
+        breadcrumb={<HelpTopicBreadcrumb topicTitle={SEARCH_REVIEW_EVIDENCE_HELP_BREADCRUMB_TOPIC_TITLE} />}
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />
@@ -93,18 +101,32 @@ export function HelpSearchReviewEvidenceGuideView(
               </Button>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-search-review-evidence-start-here-scope-note"
+                data-testid="help-search-review-evidence-precondition"
               >
-                {SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_SCOPE_NOTE}
-              </p>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-search-review-evidence-index-scope-note"
-              >
-                {SEARCH_REVIEW_EVIDENCE_HELP_INDEX_SCOPE_NOTE}
+                {SEARCH_REVIEW_EVIDENCE_HELP_PRECONDITION}
               </p>
             </CardContent>
           </Card>
+
+          <section
+            aria-labelledby={SEARCH_REVIEW_EVIDENCE_HELP_WHAT_IS_INDEXED_SECTION_ID}
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id={SEARCH_REVIEW_EVIDENCE_HELP_WHAT_IS_INDEXED_SECTION_ID}>
+              {SEARCH_REVIEW_EVIDENCE_HELP_WHAT_IS_INDEXED_TITLE}
+            </HelpSectionHeading>
+            <dl
+              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
+              data-testid="help-search-review-evidence-indexed-rows"
+            >
+              {SEARCH_REVIEW_EVIDENCE_HELP_INDEXED_ROWS.map((row) => (
+                <div key={row.term}>
+                  <dt className="font-medium text-al-text-primary">{row.term}</dt>
+                  <dd className="m-0 mt-1 text-al-text-secondary">{row.detail}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
 
           <section
             aria-labelledby="what-search-review-evidence-shows"
@@ -120,9 +142,13 @@ export function HelpSearchReviewEvidenceGuideView(
               {SEARCH_REVIEW_EVIDENCE_HELP_FEATURE_ITEMS.map((item) => (
                 <div key={item.label}>
                   <dt className="font-medium text-al-text-primary">
-                    <Link className={OPERATOR_LINK.nav} href={item.href}>
-                      {item.label}
-                    </Link>
+                    {item.href === undefined ? (
+                      item.label
+                    ) : (
+                      <Link className={OPERATOR_LINK.nav} href={item.href}>
+                        {item.label}
+                      </Link>
+                    )}
                   </dt>
                   <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
                 </div>
@@ -145,6 +171,17 @@ export function HelpSearchReviewEvidenceGuideView(
                 <li key={step}>{step}</li>
               ))}
             </ol>
+            <dl
+              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
+              data-testid="help-search-review-evidence-hit-anatomy"
+            >
+              {SEARCH_REVIEW_EVIDENCE_HELP_HIT_ANATOMY_FIELDS.map((field) => (
+                <div key={field.label}>
+                  <dt className="font-medium text-al-text-primary">{field.label}</dt>
+                  <dd className="m-0 mt-1 text-al-text-secondary">{field.description}</dd>
+                </div>
+              ))}
+            </dl>
           </section>
 
           <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">

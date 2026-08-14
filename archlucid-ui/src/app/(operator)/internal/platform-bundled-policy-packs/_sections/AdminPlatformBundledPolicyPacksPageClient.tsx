@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { PlatformBundledPolicyPacksEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -213,6 +214,8 @@ export function AdminPlatformBundledPolicyPacksPageClient() {
           </div>
         }
       />
+
+      <PlatformBundledPolicyPacksEvidenceOrientationStrip />
 
       {loadError !== null ? (
         <OperatorSectionLoadFailure

@@ -59,6 +59,9 @@ describe("AdminPlatformBundledPolicyPacksPageClient", () => {
   it("gates deactivate behind typed confirmation and skips API until confirmed", async () => {
     render(<AdminPlatformBundledPolicyPacksPageClient />);
 
+    expect(screen.getByTestId("platform-bundled-policy-packs-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("platform-bundled-policy-packs-claim-discipline")).not.toBeInTheDocument();
+
     const toggle = await screen.findByTestId(`platform-bundled-policy-pack-toggle-${sampleRow.bundleContentFile}`);
 
     fireEvent.click(toggle);

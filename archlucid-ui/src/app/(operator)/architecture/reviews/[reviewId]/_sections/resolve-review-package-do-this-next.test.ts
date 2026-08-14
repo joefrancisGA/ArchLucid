@@ -130,4 +130,21 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.href).toContain("reviewTab=evidence");
     expect(next.secondaryAction?.label).toBe("Send to sponsor");
   });
+
+  it("defaults a comparable second package to compare against the prior review", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      manifestId: "manifest-1",
+      runCompleted: true,
+      manifestStatus: "Passed",
+      operatorGovernanceDecision: "Approved",
+      governanceDecisionRecorded: true,
+      compareWithPriorHref: "/insights/compare-two-reviews?leftRunId=prior&rightRunId=run-abc",
+    });
+
+    expect(next.kind).toBe("compare-to-prior");
+    expect(next.actionLabel).toBe("Compare to prior review");
+    expect(next.href).toContain("compare-two-reviews");
+    expect(next.secondaryAction?.label).toBe("Send to sponsor");
+  });
 });

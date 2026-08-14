@@ -84,6 +84,8 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     toolbar.domainFilter,
     toolbar.searchQuery,
     toolbar.jobView,
+    toolbar.originFilter,
+    toolbar.groundingFilter,
   );
   const { visibleFindings: confidenceVisibleScoped, hiddenByConfidenceCount } = applyFindingsConfidenceVisibility(
     toolbarScopedFindings,
@@ -98,6 +100,8 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       toolbar.domainFilter,
       toolbar.searchQuery,
       toolbar.jobView,
+      toolbar.originFilter,
+      toolbar.groundingFilter,
     ),
     showLowConfidence,
   );
@@ -180,6 +184,10 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       onSearchQueryChange={toolbar.setSearchQuery}
       sort={toolbar.sort}
       onSortChange={toolbar.setSort}
+      originFilter={toolbar.originFilter}
+      onOriginFilterChange={toolbar.setOriginFilter}
+      groundingFilter={toolbar.groundingFilter}
+      onGroundingFilterChange={toolbar.setGroundingFilter}
       layout={createHomeSurface ? "compact" : "full"}
       packageCommitted={props.packageCommitted}
       onNaturalLanguageFilterApply={applyNaturalLanguageFacets}

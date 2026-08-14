@@ -14,6 +14,9 @@ internal static class ArchitectureRequestQuickStartIntakeValidation
         if (!QuickStartIntakeRequestEnricher.RequiresL0MustSet(request))
             return false;
 
+        if (QuickStartReviewTitleCompleteness.TryCollectFailures(request, failures))
+            return true;
+
         IReadOnlyList<string> missingKeys = UniversalIntakeMustQuestionCompleteness.EvaluateMissingKeys(
             request.IntakeQuestionAnswers,
             request.IntakeTransparencyTrail);

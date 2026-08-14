@@ -1,6 +1,10 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 import {
+  isGovernanceRowSponsorPacketTrustEligible,
+  isReviewFindingSponsorPacketTrustEligible,
+} from "@/lib/findings/finding-trust-triage";
+import {
   humanReviewStatusDisplay,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
@@ -84,7 +88,11 @@ export function classifyReviewFindingJobView(finding: QuickDecisionFinding): Fin
   }
 
   if (isReadyDisposition(disposition) || reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden") {
-    return "ready-for-sponsor-packet";
+    if (isReviewFindingSponsorPacketTrustEligible(finding)) {
+      return "ready-for-sponsor-packet";
+    }
+
+    return "needs-my-decision";
   }
 
   if (
@@ -110,7 +118,11 @@ export function classifyGovernanceFindingJobView(row: GovernanceFindingQueueRow)
   }
 
   if (isReadyDisposition(disposition) || humanReview.includes("approved") || humanReview.includes("overridden")) {
-    return "ready-for-sponsor-packet";
+    if (isGovernanceRowSponsorPacketTrustEligible(row)) {
+      return "ready-for-sponsor-packet";
+    }
+
+    return "needs-my-decision";
   }
 
   if (
