@@ -15,6 +15,7 @@ import {
 } from "@/lib/architecture-intelligence-help-evidence-copy";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS,
+  ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
   ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION,
   ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION,
   ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION_TAG,
@@ -57,7 +58,10 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
       "href",
       ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK.href,
     );
-    expect(screen.getByRole("heading", { name: ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByTestId("help-architecture-intelligence-claim-discipline").textContent).toContain(
       ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
