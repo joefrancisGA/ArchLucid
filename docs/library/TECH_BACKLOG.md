@@ -24,7 +24,7 @@ Regenerate after opening or closing summary-table rows:
 | Trustworthiness | 9 |
 | Maintainability | 6 |
 | Interoperability | 5 |
-| Performance | 4 |
+| Performance | 3 |
 | Cost-effectiveness | 7 |
 | Code hygiene | 2 |
 | Stickiness | 4 |
@@ -1251,7 +1251,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2143 | ~~Narrow remaining operator `force-dynamic` layouts~~ **Done** 2026-08-09 ? insights group (**8** layouts) ? `OperatorClientDrivenRouteLayout`; **~29 ? ~22** remaining; Vitest + `UI_ARCHITECTURE_V1_1.md` ?4; see ## TB-2143 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2123** | M |
 | TB-2144 | ~~Alerts inbox + billing banners ? TanStack Query~~ **Done** 2026-08-09 ? billing past-due banner + alerts nav badge on Query (inbox controller already Query); Vitest hydration/remount guards; see ## TB-2144 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2123** | S |
 | TB-2145 | ~~Shared shell / home First Load residual~~ **Done** 2026-08-09 ? `/` **1646.1 ? 1587.2 kB** (?58.9 kB); deferred command center, ROI strip, below-fold panels; Vitest + baseline; see ## TB-2145 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; after **TB-2118**/**TB-2061** | L |
-| TB-2146 | Cold-start staging Phase B + paid-lever reopen gate; see ## TB-2146 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2124** | S |
+| TB-2146 | **Done** (2026-08-14) — staging cold-start Phase B + paid-lever reopen gate enablement pack (pending baseline scaffold, capture/checklist scripts, PERFORMANCE doc reopen triggers, CI drift guard); owner capture on next staging CD | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2124** | S |
 | ~~TB-2147~~ | ~~Sweep baselined `title`-attribute help~~ **Done** 2026-08-13 (batch 18 final â€” baseline deleted; `no-restricted-syntax` title ban fully enforced); see ## TB-2147 below | Accessibility P1 ? **V1**; filed from **TB-1666** 2026-08-09 | L |
 | ~~TB-2148~~ | ~~Mutation reversibility classification + undo window for reversible governance actions~~ **Done** 2026-08-09; see `## TB-2148` below | Trustworthiness P0 ? **V1**; owner confusion-reduction ask 2026-08-09; complements Done **TB-2114** | M |
 | ~~TB-2149~~ | ~~Review execution background-safety copy + tenant duration estimate + completion notification~~ **Done** 2026-08-09; see `## TB-2149` below | Adoption friction P0 ? **V1**; owner confusion-reduction ask 2026-08-09; peers **TB-2077**/**TB-2121** | M |
@@ -25500,7 +25500,7 @@ Private-beta deploy P0 (**TB-928**): surface beta-blocking auth/email config in 
 
 **Window:** V1 ? AI/Agent readiness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-14) — staging baseline enablement pack in-repo: pending scaffold [staging-2026-08-14-tb2146-pending.md](../operations/cold-start-baselines/staging-2026-08-14-tb2146-pending.md), scripts/ops/capture-cold-start-baseline.ps1 (Phase **B** median + row writer), enable-cold-start-staging-baseline-checklist.ps1, PERFORMANCE_COLD_START_AND_TRIMMING.md TB-2146 reopen triggers, CI drift guard 	est_tb2146_cold_start_staging_enablement.py. **Owner apply:** run checklist + capture script after the next routine staging CD; update consolidated measurements when Phase **A**/**B** numbers exist.
 
 **Why:** Empty assistant, schema-invalid JSON, content-filter, and non-429 4xx are not fixed by Polly/CB. Mis-classifying them wastes tokens, can poison cache, or incorrectly tick the breaker.
 
@@ -50359,6 +50359,8 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Peers:** Done **TB-2124**/**TB-754**?**TB-759**.
 
 **Out of scope:** Implementing all paid levers without evidence.
+
+**Closure (2026-08-14):** Enablement pack shipped; hosted staging numbers recorded by owner on next CD using capture script (committed pending row documents gates until replaced).
 
 **Size estimate:** S.
 

@@ -132,6 +132,8 @@ If staging passes CD reliably but Phase B is high, prefer **JIT/R2R/CPU** eviden
 | Deployment evidence Markdown | GitHub Actions artifact `deployment-evidence-<env>-<runId>.md` |
 | Product smoke timings | Post-deploy log → `cd_post_deploy_product_smoke.py` summary table |
 | Baseline register | [`docs/operations/cold-start-baselines/`](../operations/cold-start-baselines/README.md) |
+| TB-2146 capture script | `scripts/ops/capture-cold-start-baseline.ps1` (Phase **B** median + scaffold row) |
+| TB-2146 owner checklist | `scripts/ops/enable-cold-start-staging-baseline-checklist.ps1` |
 | CD pipeline | [`DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md) |
 | Profiling / trimming | [`PERFORMANCE_COLD_START_AND_TRIMMING.md`](../library/PERFORMANCE_COLD_START_AND_TRIMMING.md) |
 | Failed deploy / rollback | [`DEPLOYMENT_RUNBOOK.md`](../library/DEPLOYMENT_RUNBOOK.md) |
