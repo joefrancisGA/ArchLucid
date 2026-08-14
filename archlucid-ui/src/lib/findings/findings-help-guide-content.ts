@@ -1,3 +1,4 @@
+import { FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/findings/findings-help-evidence-copy";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   GOVERNANCE_RESOLUTION_PATH,
@@ -308,6 +309,8 @@ export const FINDINGS_HELP_SEVERITY_INTRO =
 export const FINDINGS_HELP_RESPOND_INTRO =
   "Responding to a finding means reviewing evidence, recording a disposition, and tracking follow-up until the risk is resolved, accepted, or waived.";
 
+export const FINDINGS_HELP_CLAIM_HEADING_ID = "help-findings-claim-discipline-heading" as const;
+
 export const FINDINGS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-a-finding-is", title: "What a finding is" },
   { level: 2, id: "anatomy-of-a-finding", title: "Anatomy of a finding" },
@@ -317,4 +320,12 @@ export const FINDINGS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "respond-to-a-finding", title: "Respond to a finding" },
   { level: 2, id: "findings-and-governance", title: "Findings and governance" },
   { level: 2, id: "role-guidance", title: "What each role usually does" },
+  { level: 2, id: FINDINGS_HELP_CLAIM_HEADING_ID, title: FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING },
+  { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
+
+/** Drift guard: claim band owns diligence limits; overview stays affirmative. */
+export const FINDINGS_HELP_NEGATION_DRIFT_MARKERS = {
+  overviewMustNotContain: ["not a sealed-review diligence", "sources package"],
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;

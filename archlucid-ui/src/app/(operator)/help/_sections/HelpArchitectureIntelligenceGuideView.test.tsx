@@ -16,6 +16,7 @@ import {
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS,
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID,
+  ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS,
   ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION,
   ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION,
   ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION_TAG,
@@ -105,5 +106,9 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
     expect(screen.getByTestId("help-architecture-intelligence-how-stepper").textContent?.toLowerCase()).not.toContain(
       "golden harness",
     );
+
+    for (const heading of ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
   });
 });

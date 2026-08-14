@@ -4,12 +4,13 @@ import {
   DIGESTS_SUBSCRIPTIONS_TAB_PATH,
 } from "@/lib/digests-route-paths";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
+import { DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/digests-help-evidence-copy";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 
 export const DIGESTS_HELP_PAGE_TITLE = "Architecture digests";
 
 export const DIGESTS_HELP_PAGE_SUBTITLE =
-  "Schedule summaries of review activity, governance signals, findings, and advisory scans for operators.";
+  "Schedule summaries of review activity, governance signals, findings, and advisory scans for architects.";
 
 export const DIGESTS_HELP_OVERVIEW =
   "Architecture digests are summary reports generated after advisory scans and delivered to subscription destinations. Use Schedule for the separate sponsor sponsor rollup, Subscriptions for architecture digest destinations, and Browse for generated digests.";
@@ -93,9 +94,18 @@ export const DIGESTS_HELP_DESTINATION_CARDS = [
   },
 ] as const;
 
+export const DIGESTS_HELP_CLAIM_HEADING_ID = "help-digests-claim-discipline-heading" as const;
+
 export const DIGESTS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-a-digest-contains", title: DIGESTS_HELP_CONTENT_SECTION_TITLE },
   { level: 2, id: "how-digests-work", title: "How digests work" },
   { level: 2, id: "where-digests-are-managed", title: "Where digests are managed" },
+  { level: 2, id: DIGESTS_HELP_CLAIM_HEADING_ID, title: DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
+
+/** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
+export const DIGESTS_HELP_NEGATION_DRIFT_MARKERS = {
+  overviewMustNotContain: ["not a sealed review record", "sealed review record evidence trail"],
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;

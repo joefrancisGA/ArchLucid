@@ -178,7 +178,6 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
           </CardContent>
         </Card>
 
-        <FindingsHelpEvidenceOrientationStrip />
         <HelpFindingsWorkspaceReadinessStrip />
       </div>
 
@@ -323,6 +322,8 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
               ))}
             </div>
           </section>
+
+          <FindingsHelpEvidenceOrientationStrip />
 
           <p className={cn("m-0 pt-2", OPERATOR_TYPOGRAPHY.label)}>
             <Link

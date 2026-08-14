@@ -19,6 +19,7 @@ vi.mock("@/lib/recurrence-local-time", async () => {
 import { HelpRecurrenceSchedulesGuideView } from "@/app/(operator)/help/_sections/HelpRecurrenceSchedulesGuideView";
 import {
   RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE,
+  RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING,
   RECURRENCE_SCHEDULES_HELP_DIGEST_SCHEDULE_LINK,
   RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE,
   RECURRENCE_SCHEDULES_HELP_HEALTH_AUDIT_TRAIL_NOTE,
@@ -27,6 +28,7 @@ import {
 } from "@/lib/recurrence-schedules-help-evidence-copy";
 import {
   RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS,
+  RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
   RECURRENCE_SCHEDULES_HELP_EXAMPLES,
   RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION,
   RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION_TAG,
@@ -122,6 +124,10 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
     expect(screen.getByTestId("help-recurrence-schedules-claim-discipline")).toHaveTextContent(
       RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE,
     );
+    expect(screen.getByRole("heading", { name: RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByRole("heading", { name: RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const followUps = screen.getByTestId("help-recurrence-schedules-sources");
@@ -165,6 +171,10 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
     expect(screen.getByTestId("help-recurrence-schedules-how-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("help-recurrence-schedules-guide").textContent).not.toMatch(/\bSources\b/);
     expect(screen.getByTestId("help-recurrence-schedules-guide").textContent?.toLowerCase()).not.toMatch(/\brun\b/);
-    expect(RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS).toHaveLength(6);
+    expect(RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS).toHaveLength(7);
+
+    for (const heading of RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
   });
 });

@@ -12,10 +12,13 @@ vi.mock("@/app/(operator)/help/_sections/HelpFindingsWorkspaceReadinessStrip", (
 import { HelpFindingsGuideView } from "@/app/(operator)/help/_sections/HelpFindingsGuideView";
 import {
   FINDINGS_HELP_CLAIM_DISCIPLINE,
+  FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING,
   FINDINGS_HELP_SOURCES,
 } from "@/lib/findings/findings-help-evidence-copy";
 import {
+  FINDINGS_HELP_CLAIM_HEADING_ID,
   FINDINGS_HELP_EVIDENCE_ACTIONS,
+  FINDINGS_HELP_GUIDE_HEADINGS,
   FINDINGS_HELP_OVERVIEW,
   FINDINGS_HELP_PAGE_SUBTITLE,
   FINDINGS_HELP_PAGE_TITLE,
@@ -67,6 +70,10 @@ describe("HelpFindingsGuideView", () => {
     expect(screen.getByText(FINDINGS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-findings-workspace-readiness-mock")).toBeInTheDocument();
     expect(screen.getByTestId("help-findings-claim-discipline")).toHaveTextContent(FINDINGS_HELP_CLAIM_DISCIPLINE);
+    expect(screen.getByRole("heading", { name: FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      FINDINGS_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByTestId("help-findings-overview")).toHaveTextContent(FINDINGS_HELP_OVERVIEW);
 
     const actionPanel = screen.getByTestId("help-findings-action-panel");
@@ -122,6 +129,18 @@ describe("HelpFindingsGuideView", () => {
       "href",
       "#role-guidance",
     );
+    expect(within(desktopToc).getByRole("link", { name: FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "href",
+      `#${FINDINGS_HELP_CLAIM_HEADING_ID}`,
+    );
+    expect(within(desktopToc).getByRole("link", { name: "Where to go next" })).toHaveAttribute(
+      "href",
+      "#where-to-go-next",
+    );
+
+    for (const heading of FINDINGS_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
   });
 
   it("avoids developer-facing routes and implementation jargon in visible copy", () => {

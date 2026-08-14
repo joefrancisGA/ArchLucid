@@ -10,6 +10,7 @@ import {
   RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
 } from "@/lib/recurrence-schedules-copy";
 import {
+  RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING,
   RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS_TITLE,
 } from "@/lib/recurrence-schedules-help-evidence-copy";
 import {
@@ -74,6 +75,8 @@ export const RECURRENCE_SCHEDULES_HELP_SCHEDULE_KIND_SECTION_TITLE = DIGEST_RECU
 
 export const RECURRENCE_SCHEDULES_HELP_SCHEDULE_KIND_BODY = DIGEST_RECURRENCE_SCHEDULE_WHY_TWO;
 
+export const RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID = "help-recurrence-schedules-claim-discipline-heading" as const;
+
 export const RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   {
     level: 2,
@@ -92,5 +95,16 @@ export const RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHead
     id: "schedule-health-and-trust",
     title: RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS_TITLE,
   },
+  {
+    level: 2,
+    id: RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
+    title: RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
+
+/** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
+export const RECURRENCE_SCHEDULES_HELP_NEGATION_DRIFT_MARKERS = {
+  overviewMustNotContain: ["not a sealed review record", "digest delivery receipt"],
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;

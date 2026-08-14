@@ -32,16 +32,20 @@ import {
 } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   DIGESTS_HELP_CLAIM_DISCIPLINE,
+  DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING,
   DIGESTS_HELP_FOLLOW_UPS_TITLE,
   DIGESTS_HELP_SOURCES,
   DIGESTS_HELP_SOURCES_INTRO,
 } from "@/lib/digests-help-evidence-copy";
+import { DIGESTS_HELP_CLAIM_HEADING_ID } from "@/lib/digests-help-guide-content";
 import {
   RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE,
+  RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING,
   RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE,
   RECURRENCE_SCHEDULES_HELP_SOURCES,
   RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO,
 } from "@/lib/recurrence-schedules-help-evidence-copy";
+import { RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID } from "@/lib/recurrence-schedules-help-guide-content";
 import {
   ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
   ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -240,9 +244,12 @@ import {
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import {
   FINDINGS_HELP_CLAIM_DISCIPLINE,
+  FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING,
+  FINDINGS_HELP_FOLLOW_UPS_TITLE,
   FINDINGS_HELP_SOURCES,
   FINDINGS_HELP_SOURCES_INTRO,
 } from "@/lib/findings/findings-help-evidence-copy";
+import { FINDINGS_HELP_CLAIM_HEADING_ID } from "@/lib/findings/findings-help-guide-content";
 import {
   INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE,
   INTEGRATION_READINESS_HELP_SOURCES,
@@ -371,6 +378,8 @@ export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-digests"
       claim={DIGESTS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={DIGESTS_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={DIGESTS_HELP_FOLLOW_UPS_TITLE}
@@ -378,6 +387,7 @@ export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
       sources={DIGESTS_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -387,6 +397,8 @@ export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Ele
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-recurrence-schedules"
       claim={RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE}
+      claimHeading={RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE}
@@ -394,6 +406,7 @@ export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Ele
       sources={RECURRENCE_SCHEDULES_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -739,8 +752,16 @@ export function FindingsHelpEvidenceOrientationStrip(): React.JSX.Element {
       slug="findings-help"
       claimTestId="help-findings-claim-discipline"
       claim={FINDINGS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={FINDINGS_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={FINDINGS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={FINDINGS_HELP_SOURCES_INTRO}
       sources={FINDINGS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -896,6 +917,7 @@ export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(): React.JS
       slug="help-architecture-intelligence"
       claim={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE}
       claimHeading={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE}

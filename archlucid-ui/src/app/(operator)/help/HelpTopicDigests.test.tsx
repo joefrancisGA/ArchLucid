@@ -8,13 +8,16 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 import { HelpDigestsGuideView } from "@/app/(operator)/help/_sections/HelpDigestsGuideView";
 import {
   DIGESTS_HELP_CLAIM_DISCIPLINE,
+  DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING,
   DIGESTS_HELP_FOLLOW_UPS_TITLE,
   DIGESTS_HELP_SOURCES,
   DIGESTS_HELP_SUBSCRIPTION_AUDIT_TRAIL_LINK,
   DIGESTS_HELP_SUBSCRIPTION_CONSTRAINTS,
 } from "@/lib/digests-help-evidence-copy";
 import {
+  DIGESTS_HELP_CLAIM_HEADING_ID,
   DIGESTS_HELP_CONTENT_ITEMS,
+  DIGESTS_HELP_GUIDE_HEADINGS,
   DIGESTS_HELP_OVERVIEW,
   DIGESTS_HELP_PAGE_SUBTITLE,
   DIGESTS_HELP_PAGE_TITLE,
@@ -99,6 +102,10 @@ describe("HelpDigestsGuideView", () => {
     render(<HelpDigestsGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-digests-claim-discipline")).toHaveTextContent(DIGESTS_HELP_CLAIM_DISCIPLINE);
+    expect(screen.getByRole("heading", { name: DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      DIGESTS_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByRole("heading", { name: DIGESTS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: HELP_DILIGENCE_ARTIFACT_INDEX_TITLE })).toBeNull();
     expect(screen.getByTestId("help-digests-sources")).toBeInTheDocument();
@@ -140,6 +147,10 @@ describe("HelpDigestsGuideView", () => {
     expect(screen.getByTestId("help-digests-how-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("help-digests-destination-cards")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
+
+    for (const heading of DIGESTS_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
   });
 
   it("does not surface Sources jargon on the page", () => {

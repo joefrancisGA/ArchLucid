@@ -12,8 +12,10 @@ export const RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH = "/help/recurrence-schedu
 
 export const RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL = RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE;
 
+export const RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE =
-  "This guide explains automated re-review cadences — it is not a sealed review record or digest delivery receipt.";
+  "This guide explains automated re-review cadences, schedule health signals, and follow-up cloned reviews — open Recurrence schedules or Architecture digests help when cadence types need separation.";
 
 export const RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
