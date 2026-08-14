@@ -232,4 +232,31 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
         body!.PipelineTimeline.Should().NotBeNull();
         body.StageTimeline.Should().NotBeNull();
     }
+
+    [SkippableFact]
+    public async Task GetRunDetailWorkspaceContextBundle_ReturnsOk_WithSlices()
+    {
+        HttpResponseMessage createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-PAGEBUNDLE-WORKSPACE-001")));
+
+        await createResponse.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        Guid runId = Guid.Parse(created!.Run.RunId);
+
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId:D}/execute", null);
+        await executeResponse.EnsureSuccessForTestAsync();
+
+        HttpResponseMessage response =
+            await Client.GetAsync($"/v1/authority/reviews/{runId:D}/workspace-context-bundle");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        RunDetailWorkspaceContextBundleResponse? body =
+            await response.Content.ReadFromJsonAsync<RunDetailWorkspaceContextBundleResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.RecentProjectRuns.Should().NotBeNull();
+    }
 }

@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -33,10 +34,12 @@ public sealed class RunDetailPageBundleController(
     IRunPipelineAuditTimelineService pipelineAuditTimeline,
     IRunRepository runRepository,
     IRunStageOutcomesRepository runStageOutcomesRepository,
+    IAuthorityCompareService compareService,
     IScopeContextProvider scopeProvider,
     IConfiguration configuration,
     ILogger<RunDetailPageBundleController> logger) : ControllerBase
 {
+    private const int DeferredProjectRunTake = 60;
     private readonly IAuthorityQueryService _queryService =
         queryService ?? throw new ArgumentNullException(nameof(queryService));
 
@@ -54,6 +57,9 @@ public sealed class RunDetailPageBundleController(
 
     private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
         runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
+
+    private readonly IAuthorityCompareService _compareService =
+        compareService ?? throw new ArgumentNullException(nameof(compareService));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
@@ -154,6 +160,138 @@ public sealed class RunDetailPageBundleController(
         };
 
         return Ok(body);
+    }
+
+    /// <summary>Deferred workspace context: recent project runs and prior-committed compare when applicable.</summary>
+    [HttpGet("workspace-context-bundle")]
+    [ProducesResponseType(typeof(RunDetailWorkspaceContextBundleResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetWorkspaceContextBundle(Guid runId, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        RunSummaryDto? currentRun =
+            await _queryService.GetRunSummaryAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+        if (currentRun is null)
+        {
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        }
+
+        IReadOnlyList<RunSummaryDto> projectRuns = await _queryService
+            .ListRunsByProjectAsync(scope, currentRun.ProjectId, DeferredProjectRunTake, cancellationToken)
+            .ConfigureAwait(false);
+
+        RunSummaryDto? priorCommittedRun = FindPriorCommittedRun(runId, projectRuns);
+        RunComparisonResponse? priorComparison = null;
+
+        if (priorCommittedRun is not null)
+        {
+            try
+            {
+                RunComparisonResult? comparison = await _compareService
+                    .CompareRunsAsync(scope, priorCommittedRun.RunId, runId, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (comparison is not null)
+                {
+                    priorComparison = MapRunComparison(comparison);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(
+                    ex,
+                    "Prior-committed compare skipped for run {RunId} against {PriorRunId}.",
+                    runId,
+                    priorCommittedRun.RunId);
+            }
+        }
+
+        RunDetailWorkspaceContextBundleResponse body = new()
+        {
+            RecentProjectRuns = projectRuns.Select(ToRunSummaryResponse).ToList(),
+            PriorCommittedRunComparison = priorComparison,
+            PriorCommittedRunId = priorCommittedRun?.RunId,
+            PriorCommittedRunCreatedUtc = priorCommittedRun?.CreatedUtc,
+        };
+
+        return Ok(body);
+    }
+
+    private static RunSummaryDto? FindPriorCommittedRun(Guid currentRunId, IReadOnlyList<RunSummaryDto> runs)
+    {
+        int currentIndex = -1;
+
+        for (int i = 0; i < runs.Count; i++)
+        {
+            if (runs[i].RunId == currentRunId)
+            {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        if (currentIndex < 0)
+        {
+            return null;
+        }
+
+        for (int i = currentIndex + 1; i < runs.Count; i++)
+        {
+            RunSummaryDto candidate = runs[i];
+
+            if (candidate.HasGoldenManifest)
+            {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private static RunComparisonResponse MapRunComparison(RunComparisonResult result)
+    {
+        return new RunComparisonResponse
+        {
+            LeftRunId = result.LeftRunId,
+            RightRunId = result.RightRunId,
+            RunLevelDiffs = result.RunLevelDiffs.Select(MapDiff).ToList(),
+            ManifestComparison = result.ManifestComparison is null
+                ? null
+                : MapManifestComparison(result.ManifestComparison),
+            RunLevelDiffCount = result.RunLevelDiffs.Count,
+            HasManifestComparison = result.ManifestComparison is not null,
+        };
+    }
+
+    private static ManifestComparisonResponse MapManifestComparison(ManifestComparisonResult result)
+    {
+        return new ManifestComparisonResponse
+        {
+            LeftManifestId = result.LeftManifestId,
+            RightManifestId = result.RightManifestId,
+            LeftManifestHash = result.LeftManifestHash,
+            RightManifestHash = result.RightManifestHash,
+            AddedCount = result.AddedCount,
+            RemovedCount = result.RemovedCount,
+            ChangedCount = result.ChangedCount,
+            Diffs = result.Diffs.Select(MapDiff).ToList(),
+            DiffCount = result.Diffs.Count,
+        };
+    }
+
+    private static DiffItemResponse MapDiff(DiffItem item)
+    {
+        return new DiffItemResponse
+        {
+            Section = item.Section,
+            Key = item.Key,
+            DiffKind = item.DiffKind,
+            BeforeValue = item.BeforeValue,
+            AfterValue = item.AfterValue,
+            Notes = item.Notes,
+        };
     }
 
     private async Task<BuyerRunDetailSummaryDto> BuildBuyerSummaryAsync(

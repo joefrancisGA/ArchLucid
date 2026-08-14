@@ -20,10 +20,13 @@ describe("TB-2027 operator loader parallelism", () => {
       /loadRunDetailMidDeferredModel[\s\S]*?await Promise\.all\(\[\s*loadChangesSinceLastReviewBanner/,
     );
     expect(source).toContain("fetchRunDetailTimelinesBundle");
+    expect(source).toContain("loadRunDetailWorkspaceContextBundleCached");
     expect(source).not.toContain("loadPipelineTimelineOnly");
     expect(source).not.toContain("loadStageTimelineOnly");
     expect(source).not.toContain("getRunPipelineTimeline");
     expect(source).not.toContain("getRunStageTimeline");
+    expect(source).not.toContain("compareRuns");
+    expect(source).not.toContain("listRunsByProject");
   });
 
   // The tenant settings loader used to parallelize trial + digest. The digest schedule editor moved to the

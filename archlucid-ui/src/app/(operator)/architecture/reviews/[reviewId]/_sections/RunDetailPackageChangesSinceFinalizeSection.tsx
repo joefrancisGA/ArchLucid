@@ -3,7 +3,7 @@
 import { useEffect, useState, type JSX } from "react";
 
 import { PackageChangesSinceFinalizePanel } from "@/components/PackageChangesSinceFinalizePanel";
-import { getRunPipelineTimeline } from "@/lib/api";
+import { fetchRunDetailTimelinesBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 import { tryStaticDemoPipelineTimeline } from "@/lib/operator/operator-static-demo";
 import type { PackageChangeSourceEvent } from "@/lib/package-changes-since-finalize";
 
@@ -13,7 +13,7 @@ export type RunDetailPackageChangesSinceFinalizeSectionProps = {
 };
 
 /**
- * TB-2200 — thin client that reuses GET pipeline-timeline (no new API) for the review-package tab.
+ * TB-2200 — thin client that reuses timelines bundle pipeline feed for the review-package tab.
  * Activity tab maps the already-loaded below-fold pipeline feed instead of this hop.
  */
 export function RunDetailPackageChangesSinceFinalizeSection(
@@ -33,8 +33,10 @@ export function RunDetailPackageChangesSinceFinalizeSection(
       };
     }
 
-    void getRunPipelineTimeline(props.runId)
-      .then((rows) => {
+    void fetchRunDetailTimelinesBundle(props.runId)
+      .then((bundle) => {
+        const rows = bundle.pipelineTimeline;
+
         if (!canceled) {
           setEvents(Array.isArray(rows) ? rows : []);
         }

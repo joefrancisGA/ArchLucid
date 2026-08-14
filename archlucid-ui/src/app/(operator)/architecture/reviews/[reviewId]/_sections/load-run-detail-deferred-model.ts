@@ -1,19 +1,15 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import {
-  compareRuns,
-} from "@/lib/api";
 import { fetchRunDetailTimelinesBundle } from "@/lib/fetch-run-detail-page-bundle-client";
-import { loadProjectRunsForRunDetailDeferred } from "./load-project-runs-for-run-detail-deferred";
+import { loadRunDetailWorkspaceContextBundleCached } from "./load-run-detail-workspace-context-bundle-cached";
 import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { findPriorCommittedRun } from "@/lib/find-prior-committed-run";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { coerceRunComparison } from "@/lib/operator/operator-response-guards";
 import { tryStaticDemoPipelineTimeline } from "@/lib/operator/operator-static-demo";
 import { resolveRunDetailSavingsSummary } from "@/lib/runs/run-detail-savings-summary-resolve";
 import { isTimelineMilestoneEvent } from "@/lib/timeline-milestone-events";
-import type { ArtifactDescriptor, PipelineTimelineItem, RunDetail, RunSummary } from "@/types/authority";
+import type { ArtifactDescriptor, PipelineTimelineItem, RunDetail } from "@/types/authority";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 
 import type {
@@ -101,22 +97,18 @@ async function loadChangesSinceLastReviewBanner(
     return null;
   }
 
-  let priorCommittedRun: RunSummary | null = null;
-
   try {
-    const projectRuns = await loadProjectRunsForRunDetailDeferred(context.resolvedDetail.run.projectId, 60);
-    priorCommittedRun = findPriorCommittedRun(context.resolvedDetail.run.runId, projectRuns);
-  } catch {
-    return null;
-  }
+    const workspaceContext = await loadRunDetailWorkspaceContextBundleCached(context.routeRunId);
 
-  if (priorCommittedRun === null) {
-    return null;
-  }
+    if (
+      workspaceContext.priorCommittedRunComparison === null
+      || workspaceContext.priorCommittedRunId === null
+      || workspaceContext.priorCommittedRunCreatedUtc === null
+    ) {
+      return null;
+    }
 
-  try {
-    const rawCompare: unknown = await compareRuns(priorCommittedRun.runId, context.resolvedDetail.run.runId);
-    const coercedCmp = coerceRunComparison(rawCompare);
+    const coercedCmp = coerceRunComparison(workspaceContext.priorCommittedRunComparison);
 
     if (!coercedCmp.ok) {
       return null;
@@ -129,8 +121,8 @@ async function loadChangesSinceLastReviewBanner(
     }
 
     return {
-      priorReviewDateLabel: formatInstantForLocale(priorCommittedRun.createdUtc),
-      priorRunId: priorCommittedRun.runId,
+      priorReviewDateLabel: formatInstantForLocale(workspaceContext.priorCommittedRunCreatedUtc),
+      priorRunId: workspaceContext.priorCommittedRunId,
       currentRunId: context.resolvedDetail.run.runId,
       copy,
     };
@@ -146,7 +138,8 @@ async function loadProjectRunContext(
   let architectureGraphTemporalMinUtc = context.resolvedDetail.run.createdUtc;
 
   try {
-    const projectRuns = await loadProjectRunsForRunDetailDeferred(context.resolvedDetail.run.projectId, 60);
+    const workspaceContext = await loadRunDetailWorkspaceContextBundleCached(context.routeRunId);
+    const projectRuns = workspaceContext.recentProjectRuns;
 
     canShowCompareReviewButton = projectRuns.length >= 2;
 

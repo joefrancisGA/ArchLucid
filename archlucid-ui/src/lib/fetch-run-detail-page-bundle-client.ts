@@ -1,7 +1,14 @@
 import type { ApiResponseWithTrace } from "@/lib/api";
 import { apiGetJsonWithTrace } from "@/lib/api/http";
-import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail, RunSummary } from "@/types/authority";
+import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunComparison, RunDetail, RunSummary } from "@/types/authority";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
+
+export type RunDetailWorkspaceContextBundle = {
+  readonly recentProjectRuns: RunSummary[];
+  readonly priorCommittedRunComparison: RunComparison | null;
+  readonly priorCommittedRunId: string | null;
+  readonly priorCommittedRunCreatedUtc: string | null;
+};
 
 export type RunDetailCriticalPageBundle = {
   readonly buyerSummary: RunDetail;
@@ -35,4 +42,16 @@ export async function fetchRunDetailTimelinesBundle(
     `/v1/authority/reviews/${encodeURIComponent(runId)}/timelines-bundle`,
     options,
   ).then((response) => response.data);
+}
+
+export async function fetchRunDetailWorkspaceContextBundle(
+  runId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<RunDetailWorkspaceContextBundle> {
+  const response = await apiGetJsonWithTrace<RunDetailWorkspaceContextBundle>(
+    `/v1/authority/reviews/${encodeURIComponent(runId)}/workspace-context-bundle`,
+    options,
+  );
+
+  return response.data;
 }
