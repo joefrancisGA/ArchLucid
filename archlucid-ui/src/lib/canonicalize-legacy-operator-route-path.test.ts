@@ -66,16 +66,16 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/settings/ai-usage")).toBe("/administration/ai-usage");
   });
 
-  it("maps legacy onboarding and marketing bookmarks to canonical paths (TB-1801 / TB-1816)", () => {
-    expect(canonicalizeLegacyOperatorRoutePath("/onboarding/start")).toBe("/architecture/first-review-guide");
+  it("maps legacy marketing bookmarks to canonical paths (TB-1816)", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/quick-start")).toBe("/get-started");
   });
 
-  it("maps legacy login, onboard, and architecture-graph bookmarks (TB-1794 / TB-1798 / TB-1806)", () => {
-    expect(canonicalizeLegacyOperatorRoutePath("/login")).toBe("/auth/signin");
-    expect(canonicalizeLegacyOperatorRoutePath("/onboard")).toBe("/architecture/first-review-guide");
+  it("does not canonicalize retired redirect-only bookmarks (LOG / OXX / OSX / OAX)", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/login")).toBe("/login");
+    expect(canonicalizeLegacyOperatorRoutePath("/onboard")).toBe("/onboard");
+    expect(canonicalizeLegacyOperatorRoutePath("/onboarding/start")).toBe("/onboarding/start");
     expect(canonicalizeLegacyOperatorRoutePath("/operate/architecture-graph")).toBe(
-      "/insights/evidence-graph",
+      "/operate/architecture-graph",
     );
   });
 

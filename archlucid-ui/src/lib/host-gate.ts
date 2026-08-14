@@ -3,9 +3,6 @@ import { COMPARE_TWO_REVIEWS_PATH, LEGACY_COMPARE_PATH } from "@/lib/compare-two
 import { EVIDENCE_GRAPH_PATH, LEGACY_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { ARCHITECTURE_SCORECARD_PATH, LEGACY_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { IMPACT_PREVIEW_PATH, LEGACY_EVOLUTION_REVIEW_PATH } from "@/lib/impact-preview-route";
-import { LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH } from "@/lib/legacy-architecture-graph-route";
-import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
-import { LEGACY_LOGIN_PATH } from "@/lib/legacy-login-route";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { PLANNING_PATH, LEGACY_INSIGHTS_PLANNING_PATH, LEGACY_PLANNING_PATH } from "@/lib/planning-route";
 import { LEGACY_PRODUCT_LEARNING_PATH, PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
@@ -46,8 +43,6 @@ const CANONICAL_OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/sponsor",
   EVIDENCE_GRAPH_PATH,
   PATTERN_LIBRARY_PATH,
-  LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
-  LEGACY_ONBOARD_PATH,
   "/onboarding",
   PLANNING_PATH,
   PRODUCT_LEARNING_PATH,
@@ -85,7 +80,6 @@ const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
   LEGACY_ASK_PATH,
   LEGACY_EVOLUTION_REVIEW_PATH,
   LEGACY_DIGESTS_HUB_PATH,
-  LEGACY_LOGIN_PATH,
   LEGACY_PLANNING_PATH,
   LEGACY_INSIGHTS_PLANNING_PATH,
   RETIRED_PILOT_OUTCOMES_PATH,

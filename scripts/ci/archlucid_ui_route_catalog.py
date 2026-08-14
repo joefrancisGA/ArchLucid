@@ -110,11 +110,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/settings/cost-reporting": "/administration/ai-usage",
     "/settings/ai-usage": "/administration/ai-usage",
     "/admin/ai-usage-cost": "/administration/ai-usage",
-    "/onboarding/start": "/architecture/first-review-guide",
-    "/onboard": "/architecture/first-review-guide",
     "/quick-start": "/get-started",
-    "/login": "/auth/signin",
-    "/operate/architecture-graph": "/insights/evidence-graph",
     "/administration/tenant": "/administration/workspace-settings",
     "/administration/tenant/recycle-bin": "/administration/workspace-settings/recycle-bin",
     "/governance/alerts?tab=inbox": "/governance/alerts",
@@ -429,7 +425,7 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Admin"
     if path.startswith("/admin"):
         return "Admin"
-    if path.startswith("/auth") or path == "/login" or path == "/403":
+    if path.startswith("/auth") or path == "/403":
         return "Auth"
     if path.startswith("/help"):
         return "Help topic"
