@@ -77,7 +77,7 @@ Hub surfaces (`/architecture/first-review-guide`, operator home setup cards, Cor
 |------|-----------|
 | Every action has **exactly one owning page** | Avoid duplicate SSO, health, or role-management flows across hubs. |
 | Hub pages may show **completion status** and **deep-link** only | No embedded forms, wizards, or mutation controls for actions owned elsewhere. |
-| Hub pages must **not** link to `operator-system-admin` cluster routes in default customer shells | e.g. `/internal/health`, `/internal/configuration`, `/internal/integration-events/dlq`, internal value-report tabs. Use buyer-safe `/administration/system-health` when platform health is linked (see **TB-677**). |
+| Hub pages must **not** link to `operator-system-admin` cluster routes in default customer shells | e.g. `/internal/health`, `/internal/configuration`, `/internal/failed-integration-messages`, internal value-report tabs. Use buyer-safe `/administration/system-health` when platform health is linked (see **TB-677**). |
 | Role-gated blocks use **authority flags**, not disclosure alone | Optional setup stays collapsed **and** non-admins see delegation copy only (**TB-678**). |
 
 **Contract module:** `src/lib/onboarding-hub-contract.ts`  

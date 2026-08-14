@@ -2,7 +2,7 @@ import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
-export const INTEGRATION_EVENTS_DLQ_CANONICAL_PATH = "/internal/integration-events/dlq" as const;
+export const INTEGRATION_EVENTS_DLQ_CANONICAL_PATH = "/internal/failed-integration-messages" as const;
 
 export const INTEGRATION_EVENTS_DLQ_HELP_TOPIC_LABEL = "How integration dead letters work" as const;
 

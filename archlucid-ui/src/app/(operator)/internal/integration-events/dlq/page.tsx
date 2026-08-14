@@ -1,12 +1,8 @@
-import type { Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
 
-import { IntegrationEventsDlqPageClient } from "./_sections/IntegrationEventsDlqPageClient";
+import { INTERNAL_INTEGRATION_EVENTS_DLQ_PATH } from "@/lib/internal-ops-route-paths";
 
-export const metadata: Metadata = {
-  title: "Integration event dead letters",
-};
-
-/** Admin-only dead-letter queue for failed outbound integration events. */
-export default function IntegrationEventsDlqPage() {
-  return <IntegrationEventsDlqPageClient />;
+/** Retired IA path — canonical surface is `/internal/failed-integration-messages`. */
+export default function LegacyInternalIntegrationEventsDlqPage(): never {
+  permanentRedirect(INTERNAL_INTEGRATION_EVENTS_DLQ_PATH);
 }

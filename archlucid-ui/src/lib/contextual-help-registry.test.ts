@@ -205,7 +205,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/integrations/servicenow",
       "/integrations/slack",
       "/integrations/webhooks",
-      "/internal/integration-events/dlq",
+      "/internal/failed-integration-messages",
       "/integrations/teams",
     ].sort());
   });

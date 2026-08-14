@@ -4,7 +4,7 @@
  * Why two surfaces exist:
  * - Webhooks (`/integrations/webhooks`) configure *outbound delivery* —
  *   destination URLs, events, and signing for customer webhook subscriptions.
- * - Integration event dead letters (`/internal/integration-events/dlq`) are the
+ * - Integration event dead letters (`/internal/failed-integration-messages`) are the
  *   *ops recovery* queue for outbound integration events that exhausted publish
  *   retries and need inspect / retry / suppress.
  *

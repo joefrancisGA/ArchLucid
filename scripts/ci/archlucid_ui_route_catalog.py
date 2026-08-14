@@ -191,7 +191,8 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/internal/replay": "/internal/validate-route",
     # Legacy internal-ops path segments.
     "/internal-operations/recommendation-learning": "/internal/recommendation-learning",
-    "/operate/integration-events/dlq": "/internal/integration-events/dlq",
+    "/operate/integration-events/dlq": "/internal/failed-integration-messages",
+    "/internal/integration-events/dlq": "/internal/failed-integration-messages",
     "/product-learning": "/internal/product-learning",
 }
 

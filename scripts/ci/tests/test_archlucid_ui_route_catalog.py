@@ -322,7 +322,7 @@ def test_infer_section_maps_internal_and_insights_sponsor_paths() -> None:
     assert catalog["/internal/health"].section == "Admin"
     assert catalog["/internal/validate-route"].section == "Marketing"
     assert catalog["/internal/product-learning"].section == "Onboarding"
-    assert catalog["/internal/integration-events/dlq"].section == "Advisory"
+    assert catalog["/internal/failed-integration-messages"].section == "Advisory"
     assert catalog["/insights/roi-summary"].section == "Sponsor report"
     assert catalog["/insights/pilot-outcomes"].section == "Sponsor report"
     assert catalog["/help/configuration-reference"].section == "Internal"

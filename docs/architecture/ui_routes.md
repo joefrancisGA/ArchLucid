@@ -265,7 +265,7 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/portfolio` | Retired — redirects to `/architecture/sponsor-dashboard` | Legacy bookmark only |
 | `/operate/architecture-graph` | Legacy Operate shim | App Router redirect to `/insights/evidence-graph` (query preserved; canonical UX on **INE**) |
 | `/architecture/architecture-intelligence` | Closed-loop architecture reasoning lab | Execute role; deep-link with `?runId=` from reviews/findings. Golden fixture + publish round trip. |
-| `/internal/integration-events/dlq` | Integration event DLQ | Full architect workspace + Admin + T2 API |
+| `/internal/failed-integration-messages` | Integration event DLQ | Full architect workspace + Admin + T2 API |
 
 ### Sponsor route group
 

@@ -95,6 +95,7 @@ const LEGACY_SETTINGS_AI_USAGE_PATH = "/settings/ai-usage";
 const LEGACY_ADMIN_ROOT_PATH = "/admin";
 const LEGACY_INTERNAL_OPERATIONS_ROOT_PATH = "/internal-operations";
 const LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH = "/operate/integration-events/dlq";
+const LEGACY_INTERNAL_INTEGRATION_EVENTS_DLQ_PATH = "/internal/integration-events/dlq";
 const LEGACY_REPLAY_PATH = "/replay";
 const LEGACY_INTERNAL_REPLAY_PATH = "/internal/replay";
 const LEGACY_INSIGHTS_SPONSOR_SUMMARY_PATH = "/insights/sponsor-summary";
@@ -295,7 +296,10 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
     return normalized.replace(LEGACY_INTERNAL_REPLAY_PATH, INTERNAL_REPLAY_PATH);
   }
 
-  if (normalized === LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH) {
+  if (
+    normalized === LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH
+    || normalized === LEGACY_INTERNAL_INTEGRATION_EVENTS_DLQ_PATH
+  ) {
     return INTERNAL_INTEGRATION_EVENTS_DLQ_PATH;
   }
 

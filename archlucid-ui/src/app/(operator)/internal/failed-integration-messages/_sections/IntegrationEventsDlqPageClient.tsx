@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   IntegrationEventsDlqBulkRetryConfirmDialog,
   IntegrationEventsDlqSuppressConfirmDialog,
-} from "@/app/(operator)/internal/integration-events/dlq/_sections/IntegrationEventsDlqConfirmDialogs";
+} from "@/app/(operator)/internal/failed-integration-messages/_sections/IntegrationEventsDlqConfirmDialogs";
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";

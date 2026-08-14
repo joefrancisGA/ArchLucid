@@ -21,7 +21,7 @@ export const HUB_PAGE_DRIFT_GUARD_SOURCES = [
 /** Internal Operations / staff-only href prefixes that must not appear on hub surfaces. */
 export const HUB_PAGE_FORBIDDEN_INTERNAL_HREF_PREFIXES = [
   "/internal/",
-  "/internal/integration-events/dlq",
+  "/internal/failed-integration-messages",
   "/insights/roi-summary",
 ] as const;
 

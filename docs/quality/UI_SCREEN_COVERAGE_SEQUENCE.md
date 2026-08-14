@@ -180,7 +180,7 @@ Requires host / `features.showSystemAdministrationNav`. Walk once empty, once af
 | [ ] | [ ] | `/internal/deployment-status` |
 | [ ] | [ ] | `/internal/rag-health` |
 | [ ] | [ ] | `/internal/configuration` |
-| [ ] | [ ] | `/internal/integration-events/dlq` |
+| [ ] | [ ] | `/internal/failed-integration-messages` |
 | [ ] | [ ] | `/internal/evidence-proposals` |
 | [ ] | [ ] | `/internal/validate-route` |
 | [ ] | [ ] | `/internal/recommendation-learning` |

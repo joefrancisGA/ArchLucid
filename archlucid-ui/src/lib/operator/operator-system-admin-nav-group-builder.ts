@@ -254,7 +254,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
 
-          href: INTERNAL_INTEGRATION_EVENTS_DLQ_PATH as typeof INTERNAL_INTEGRATION_EVENTS_DLQ_PATH & "/internal/integration-events/dlq",
+          href: INTERNAL_INTEGRATION_EVENTS_DLQ_PATH as typeof INTERNAL_INTEGRATION_EVENTS_DLQ_PATH & "/internal/failed-integration-messages",
 
           label: OPERATOR_NAV_LINK_LABELS.failedIntegrationMessages,
 

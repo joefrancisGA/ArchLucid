@@ -85,4 +85,13 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/internal/replay")).toBe("/internal/validate-route");
     expect(canonicalizeLegacyOperatorRoutePath("/internal/validate-route")).toBe("/internal/validate-route");
   });
+
+  it("maps legacy dead-letter bookmarks to failed-integration-messages", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/operate/integration-events/dlq")).toBe(
+      "/internal/failed-integration-messages",
+    );
+    expect(canonicalizeLegacyOperatorRoutePath("/internal/integration-events/dlq")).toBe(
+      "/internal/failed-integration-messages",
+    );
+  });
 });

@@ -27,7 +27,7 @@ const GOVERNANCE_REVIEWS_INSIGHTS_BUTTON_PATHS = [
   "src/components/ReasoningTraceReadMore.tsx",
   "src/app/(operator)/internal/pricing-quote-aging/_sections/PricingQuoteAgingPageView.tsx",
   "src/app/(operator)/internal/trial-funnel/_sections/TrialFunnelOpsPageClient.tsx",
-  "src/app/(operator)/internal/integration-events/dlq/_sections/IntegrationEventsDlqPageClient.tsx",
+  "src/app/(operator)/internal/failed-integration-messages/_sections/IntegrationEventsDlqPageClient.tsx",
   "src/app/(operator)/internal/recommendation-learning/_sections/RecommendationLearningOpsPageClient.tsx",
 ] as const;
 
