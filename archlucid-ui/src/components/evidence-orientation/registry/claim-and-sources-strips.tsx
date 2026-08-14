@@ -408,6 +408,14 @@ import {
   PRICING_QUOTE_AGING_SOURCES_INTRO,
 } from "@/lib/pricing-quote-aging-evidence-copy";
 import {
+  RAG_HEALTH_CLAIM_DISCIPLINE,
+  RAG_HEALTH_CLAIM_DISCIPLINE_HEADING,
+  RAG_HEALTH_CLAIM_HEADING_ID,
+  RAG_HEALTH_FOLLOW_UPS_TITLE,
+  RAG_HEALTH_SOURCES,
+  RAG_HEALTH_SOURCES_INTRO,
+} from "@/lib/rag-health-evidence-copy";
+import {
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE,
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE_HEADING,
   REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID,
@@ -693,7 +701,6 @@ export function RoiSummaryHelpEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
-      headingClassName={OPERATOR_TYPOGRAPHY.sectionTitle}
     />
   );
 }
@@ -832,6 +839,25 @@ export function PricingQuoteAgingEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={PRICING_QUOTE_AGING_FOLLOW_UPS_TITLE}
       sourcesIntro={PRICING_QUOTE_AGING_SOURCES_INTRO}
       sources={PRICING_QUOTE_AGING_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function RagHealthEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="rag-health"
+      claim={RAG_HEALTH_CLAIM_DISCIPLINE}
+      claimHeading={RAG_HEALTH_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={RAG_HEALTH_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={RAG_HEALTH_FOLLOW_UPS_TITLE}
+      sourcesIntro={RAG_HEALTH_SOURCES_INTRO}
+      sources={RAG_HEALTH_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"

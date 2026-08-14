@@ -14,8 +14,28 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
 }));
 
 vi.mock("@/lib/rag-health-admin", () => ({
-  fetchAdminRagHealth: vi.fn(),
+  fetchAdminRagHealth: vi.fn().mockResolvedValue({
+    embeddingModelId: "text-embedding-3-small",
+    corpora: [],
+  }),
 }));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+describe("RagHealthAdminPageClient — evidence orientation", () => {
+  it("renders the claim-discipline orientation strip on the live admin page", async () => {
+    authMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+    authMock.isAuthorityLoading = false;
+
+    render(<RagHealthAdminPageClient />);
+
+    expect(await screen.findByTestId("rag-health-admin-page")).toBeInTheDocument();
+    expect(screen.getByTestId("rag-health-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+  });
+});
 
 describe("RagHealthAdminPageClient — unauthorized navigation", () => {
   it("blocks direct navigation for callers without administrator access", () => {

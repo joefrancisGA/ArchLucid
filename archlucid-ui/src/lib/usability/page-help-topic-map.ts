@@ -48,6 +48,7 @@ import { GETTING_STARTED_HELP_TOPIC_LABEL } from "@/lib/getting-started-help-gui
 import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evidence-copy";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import { IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL } from "@/lib/improvement-planning-help-evidence-copy";
+import { RAG_HEALTH_HELP_TOPIC_LABEL } from "@/lib/rag-health-evidence-copy";
 import { RECOMMENDATION_LEARNING_HELP_TOPIC_LABEL } from "@/lib/recommendation-learning-evidence-copy";
 import { SIGNED_RECORDS_LIST_HELP_TOPIC_LABEL } from "@/lib/signed-records-list-evidence-copy";
 import { ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } from "@/lib/architecture-drafts-evidence-copy";
@@ -552,6 +553,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/insights/impact-preview",
     topic: { slug: "impact-preview", label: IMPACT_PREVIEW_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/internal/rag-health",
+    topic: { slug: "troubleshooting", label: RAG_HEALTH_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/admin/rag-health",
+    topic: { slug: "troubleshooting", label: RAG_HEALTH_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/internal/recommendation-learning",

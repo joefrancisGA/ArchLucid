@@ -1,0 +1,57 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
+import { render, screen, within } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { RagHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import {
+  RAG_HEALTH_CANONICAL_PATH,
+  RAG_HEALTH_CLAIM_DISCIPLINE,
+  RAG_HEALTH_CLAIM_DISCIPLINE_HEADING,
+  RAG_HEALTH_CLAIM_HEADING_ID,
+  RAG_HEALTH_FOLLOW_UPS_TITLE,
+  RAG_HEALTH_SOURCES,
+  RAG_HEALTH_SOURCES_INTRO,
+} from "@/lib/rag-health-evidence-copy";
+
+describe("rag-health-evidence-copy", () => {
+  it("wires exports into the RAG corpus health evidence strip registry", () => {
+    const registryPath = path.join(
+      process.cwd(),
+      "src/components/evidence-orientation/registry/claim-and-sources-strips.tsx",
+    );
+    const registrySource = readFileSync(registryPath, "utf8");
+
+    expect(registrySource).toContain("rag-health-evidence-copy");
+    expect(registrySource).toContain("RagHealthEvidenceOrientationStrip");
+    expect(RAG_HEALTH_CANONICAL_PATH).toBe("/internal/rag-health");
+  });
+
+  it("renders claim discipline and operator Sources follow-ups", () => {
+    render(<RagHealthEvidenceOrientationStrip />);
+
+    expect(screen.getByTestId("rag-health-claim-discipline")).toHaveTextContent(RAG_HEALTH_CLAIM_DISCIPLINE);
+    expect(screen.getByText(RAG_HEALTH_SOURCES_INTRO)).toBeInTheDocument();
+
+    const sources = screen.getByTestId("rag-health-sources");
+
+    for (const link of RAG_HEALTH_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    expect(
+      within(sources).queryByRole("link", { name: new RegExp(`^${RAG_HEALTH_CANONICAL_PATH}$`, "i") }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("labels claim discipline and follow-ups for accessibility parity", () => {
+    render(<RagHealthEvidenceOrientationStrip />);
+
+    const claim = screen.getByTestId("rag-health-claim-discipline");
+    expect(claim).toHaveAttribute("aria-labelledby", RAG_HEALTH_CLAIM_HEADING_ID);
+    expect(screen.getByRole("heading", { name: RAG_HEALTH_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: RAG_HEALTH_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
+  });
+});
