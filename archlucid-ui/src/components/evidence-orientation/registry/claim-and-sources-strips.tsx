@@ -174,6 +174,14 @@ import {
 } from "@/lib/jira-integration-help-evidence-copy";
 import { JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/jira-integration-help-guide-content";
 import {
+  JIRA_INTEGRATION_CLAIM_DISCIPLINE,
+  JIRA_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
+  JIRA_INTEGRATION_CLAIM_HEADING_ID,
+  JIRA_INTEGRATION_FOLLOW_UPS_TITLE,
+  JIRA_INTEGRATION_SOURCES,
+  JIRA_INTEGRATION_SOURCES_INTRO,
+} from "@/lib/jira-integration-evidence-copy";
+import {
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE,
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING,
   MODEL_GOVERNANCE_HELP_FOLLOW_UPS_TITLE,
@@ -1337,6 +1345,25 @@ export function JiraIntegrationHelpEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function JiraIntegrationEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="jira-integration"
+      claim={JIRA_INTEGRATION_CLAIM_DISCIPLINE}
+      claimHeading={JIRA_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={JIRA_INTEGRATION_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={JIRA_INTEGRATION_FOLLOW_UPS_TITLE}
+      sourcesIntro={JIRA_INTEGRATION_SOURCES_INTRO}
+      sources={JIRA_INTEGRATION_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }

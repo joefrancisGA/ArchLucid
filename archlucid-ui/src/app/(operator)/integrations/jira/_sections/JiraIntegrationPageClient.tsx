@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
+import { JiraIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
@@ -424,6 +425,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
       />
 
       <ItsmConnectorProviderChooserRail currentProviderId="jira" />
+      <JiraIntegrationEvidenceOrientationStrip />
 
       {connectError ? (
         <p className="m-0 text-red-600 dark:text-red-400" role="alert" data-testid="jira-oauth-connect-error">
