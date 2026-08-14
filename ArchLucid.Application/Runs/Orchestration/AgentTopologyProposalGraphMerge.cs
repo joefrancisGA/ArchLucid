@@ -46,6 +46,7 @@ public static class AgentTopologyProposalGraphMerge
         {
             AddTopologyKey(seenTopologyKeys, node.Label);
             AddTopologyKey(seenTopologyKeys, node.NodeId);
+            AddTopologyKey(seenTopologyKeys, node.SourceId);
         }
 
         List<GraphNode> added = [];

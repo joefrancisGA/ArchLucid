@@ -29,14 +29,19 @@ public static class TopologyProposalRelationshipEdgeMapper
         Dictionary<string, string> idByNodeId = topologyNodes
             .ToDictionary(static n => n.NodeId, static n => n.NodeId, StringComparer.OrdinalIgnoreCase);
 
+        Dictionary<string, string> idBySourceId = topologyNodes
+            .Where(static n => !string.IsNullOrWhiteSpace(n.SourceId))
+            .GroupBy(static n => n.SourceId!, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(static g => g.Key, static g => g.First().NodeId, StringComparer.OrdinalIgnoreCase);
+
         List<GraphEdge> edges = [];
 
         foreach (ManifestRelationship relationship in relationships)
         {
-            if (!TryResolveNodeId(relationship.SourceId, idByLabel, idByNodeId, out string? fromNodeId))
+            if (!TryResolveNodeId(relationship.SourceId, idByLabel, idByNodeId, idBySourceId, out string? fromNodeId))
                 continue;
 
-            if (!TryResolveNodeId(relationship.TargetId, idByLabel, idByNodeId, out string? toNodeId))
+            if (!TryResolveNodeId(relationship.TargetId, idByLabel, idByNodeId, idBySourceId, out string? toNodeId))
                 continue;
 
             string edgeType = MapRelationshipType(relationship.RelationshipType);
@@ -64,9 +69,13 @@ public static class TopologyProposalRelationshipEdgeMapper
         string candidate,
         Dictionary<string, string> idByLabel,
         Dictionary<string, string> idByNodeId,
+        Dictionary<string, string> idBySourceId,
         out string nodeId)
     {
         if (idByNodeId.TryGetValue(candidate, out nodeId!))
+            return true;
+
+        if (idBySourceId.TryGetValue(candidate, out nodeId!))
             return true;
 
         if (idByLabel.TryGetValue(candidate, out nodeId!))
