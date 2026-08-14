@@ -43,15 +43,12 @@ public static class AgentProposalStructuralPostProcessor
         if (services is null || services.Count == 0)
             return [];
 
-        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> seenEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
         List<ManifestService> deduped = [];
 
         foreach (ManifestService service in services)
         {
-            if (string.IsNullOrWhiteSpace(service.ServiceName))
-                continue;
-
-            if (!seen.Add(service.ServiceName))
+            if (!TopologyProposalRelationshipEndpointIndex.TryClaimService(service, seenEndpointKeys))
                 continue;
 
             deduped.Add(service);
@@ -65,15 +62,12 @@ public static class AgentProposalStructuralPostProcessor
         if (datastores is null || datastores.Count == 0)
             return [];
 
-        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> seenEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
         List<ManifestDatastore> deduped = [];
 
         foreach (ManifestDatastore datastore in datastores)
         {
-            if (string.IsNullOrWhiteSpace(datastore.DatastoreName))
-                continue;
-
-            if (!seen.Add(datastore.DatastoreName))
+            if (!TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(datastore, seenEndpointKeys))
                 continue;
 
             deduped.Add(datastore);

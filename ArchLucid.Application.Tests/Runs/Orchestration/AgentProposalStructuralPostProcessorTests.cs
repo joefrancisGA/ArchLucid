@@ -113,4 +113,58 @@ public sealed class AgentProposalStructuralPostProcessorTests
 
         proposal.RequiredControls.Should().BeEquivalentTo(["Key Vault", "Private Endpoints"]);
     }
+
+    [Fact]
+    public void ApplyToProposal_dedupes_duplicate_service_ids_within_single_proposal()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-1",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceName = "renamed-api",
+                    ServiceId = "svc-1",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.Functions,
+                },
+            ],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedServices.Should().ContainSingle();
+        proposal.AddedServices[0].ServiceName.Should().Be("api");
+    }
+
+    [Fact]
+    public void ApplyToProposal_keeps_id_only_services_when_name_is_absent()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = "svc-1",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedServices.Should().ContainSingle();
+        proposal.AddedServices[0].ServiceId.Should().Be("svc-1");
+    }
 }

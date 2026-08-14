@@ -50,6 +50,7 @@ public static class AgentTopologyProposalGraphMerge
 
         List<GraphNode> added = [];
         List<GraphEdge> addedEdges = [];
+        HashSet<string> seenDirectedEdgeKeys = CollectDirectedEdgeKeys(graph.Edges);
 
         foreach (AgentResult result in validatedResults)
         {
@@ -78,9 +79,12 @@ public static class AgentTopologyProposalGraphMerge
             {
                 if (proposal.AddedRelationships is { Count: > 0 })
                 {
-                    addedEdges.AddRange(TopologyProposalRelationshipEdgeMapper.MapRelationships(
-                        [.. graph.Nodes, .. added],
-                        proposal.AddedRelationships));
+                    AppendUniqueEdges(
+                        addedEdges,
+                        seenDirectedEdgeKeys,
+                        TopologyProposalRelationshipEdgeMapper.MapRelationships(
+                            [.. graph.Nodes, .. added],
+                            proposal.AddedRelationships));
                 }
 
                 continue;
@@ -96,9 +100,12 @@ public static class AgentTopologyProposalGraphMerge
 
             if (proposal.AddedRelationships is { Count: > 0 })
             {
-                addedEdges.AddRange(TopologyProposalRelationshipEdgeMapper.MapRelationships(
-                    [.. graph.Nodes, .. added],
-                    proposal.AddedRelationships));
+                AppendUniqueEdges(
+                    addedEdges,
+                    seenDirectedEdgeKeys,
+                    TopologyProposalRelationshipEdgeMapper.MapRelationships(
+                        [.. graph.Nodes, .. added],
+                        proposal.AddedRelationships));
             }
         }
 
@@ -203,4 +210,35 @@ public static class AgentTopologyProposalGraphMerge
 
         return true;
     }
+
+    private static HashSet<string> CollectDirectedEdgeKeys(IReadOnlyList<GraphEdge> edges)
+    {
+        HashSet<string> seenDirectedEdgeKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (GraphEdge edge in edges)
+        {
+            seenDirectedEdgeKeys.Add(BuildDirectedEdgeKey(edge.FromNodeId, edge.ToNodeId, edge.EdgeType));
+        }
+
+        return seenDirectedEdgeKeys;
+    }
+
+    private static void AppendUniqueEdges(
+        List<GraphEdge> target,
+        HashSet<string> seenDirectedEdgeKeys,
+        IReadOnlyList<GraphEdge> candidateEdges)
+    {
+        foreach (GraphEdge edge in candidateEdges)
+        {
+            string edgeKey = BuildDirectedEdgeKey(edge.FromNodeId, edge.ToNodeId, edge.EdgeType);
+
+            if (!seenDirectedEdgeKeys.Add(edgeKey))
+                continue;
+
+            target.Add(edge);
+        }
+    }
+
+    private static string BuildDirectedEdgeKey(string fromNodeId, string toNodeId, string edgeType) =>
+        $"{fromNodeId}|{toNodeId}|{edgeType}";
 }
