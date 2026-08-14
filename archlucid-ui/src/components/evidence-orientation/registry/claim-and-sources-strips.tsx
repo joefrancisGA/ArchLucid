@@ -631,7 +631,10 @@ import {
   WEBHOOKS_INTEGRATION_HELP_SOURCES,
   WEBHOOKS_INTEGRATION_HELP_SOURCES_INTRO,
 } from "@/lib/webhooks-integration-help-evidence-copy";
-import { WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/webhooks-integration-help-guide-content";
+import {
+  WEBHOOKS_INTEGRATION_HELP_ALERT_RULES_HREF,
+  WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID,
+} from "@/lib/webhooks-integration-help-guide-content";
 import {
   WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE,
   WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
@@ -1676,6 +1679,7 @@ export function WebhooksIntegrationHelpEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+      promotedSourceHref={WEBHOOKS_INTEGRATION_HELP_ALERT_RULES_HREF}
     />
   );
 }
@@ -2006,7 +2010,7 @@ export function SponsorDashboardHelpEvidenceOrientationStrip(
       sourcesTitle={SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SPONSOR_DASHBOARD_HELP_SOURCES_INTRO}
       sources={SPONSOR_DASHBOARD_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorNeutral}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}

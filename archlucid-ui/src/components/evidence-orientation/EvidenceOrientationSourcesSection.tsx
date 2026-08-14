@@ -5,6 +5,7 @@ import {
   EVIDENCE_SOURCES_STYLE,
   type EvidenceOrientationSourcesStyle,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
+import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -35,6 +36,8 @@ export type EvidenceOrientationSourcesSectionProps = {
    * the destination before click.
    */
   readonly distinguishFollowUpDestinations?: boolean;
+  /** When set, the matching follow-up renders as an outline button above the link list. */
+  readonly promotedSourceHref?: string;
 };
 
 /** Sources / follow-up index band shared by every evidence orientation strip. */
@@ -49,6 +52,7 @@ export function EvidenceOrientationSourcesSection({
   listClassName,
   headingClassName,
   distinguishFollowUpDestinations = false,
+  promotedSourceHref,
 }: EvidenceOrientationSourcesSectionProps): React.JSX.Element {
   return (
     <section className={style.panel} aria-labelledby={headingId} data-testid={testId}>
@@ -61,15 +65,24 @@ export function EvidenceOrientationSourcesSection({
           const linkLabel = distinguishFollowUpDestinations
             ? formatHelpFollowUpLinkAccessibleName(link.href, link.label)
             : link.label;
+          const isPromoted = promotedSourceHref !== undefined && link.href === promotedSourceHref;
 
           return (
           <li key={`${link.href}-${link.label}`}>
-            <Link className={style.link} href={link.href}>
-              {linkLabel}
-              {link.adminOnly === true ? (
-                <span className={cn("ml-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>(Admin)</span>
-              ) : null}
-            </Link>
+            {isPromoted ? (
+              <Button asChild size="sm" variant="outline">
+                <Link className={style.link} href={link.href}>
+                  {linkLabel}
+                </Link>
+              </Button>
+            ) : (
+              <Link className={style.link} href={link.href}>
+                {linkLabel}
+                {link.adminOnly === true ? (
+                  <span className={cn("ml-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>(Admin)</span>
+                ) : null}
+              </Link>
+            )}
             {link.when === undefined ? null : (
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{link.when}</p>
             )}

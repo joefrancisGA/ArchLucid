@@ -37,6 +37,7 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
   readonly stripTestId?: string;
   /** Help topic strips default true so follow-up links prefix Read vs Open. */
   readonly distinguishFollowUpDestinations?: boolean;
+  readonly promotedSourceHref?: string;
 };
 
 /**
@@ -63,6 +64,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   headingClassName,
   stripTestId,
   distinguishFollowUpDestinations = slug.startsWith("help-"),
+  promotedSourceHref,
 }: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element {
   return (
     <EvidenceOrientationStripShell testId={stripTestId ?? `${slug}-orientation`}>
@@ -94,6 +96,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         listClassName={readingBodyClassName}
         headingClassName={headingClassName}
         distinguishFollowUpDestinations={distinguishFollowUpDestinations}
+        promotedSourceHref={promotedSourceHref}
       />
     </EvidenceOrientationStripShell>
   );

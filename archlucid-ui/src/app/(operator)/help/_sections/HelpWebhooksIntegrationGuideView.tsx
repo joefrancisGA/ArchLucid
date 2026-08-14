@@ -1,23 +1,20 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpWebhooksIntegrationHeaderActions } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationHeaderActions";
 import { WebhooksIntegrationHelpEvidenceOrientationStrip } from "@/components/help/WebhooksIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { Button } from "@/components/ui/button";
 import {
-  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { WEBHOOKS_INTEGRATION_HELP_CANONICAL_PATH } from "@/lib/webhooks-integration-help-evidence-copy";
 import {
-  WEBHOOKS_INTEGRATION_HELP_ALERT_RULES_HREF,
-  WEBHOOKS_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
   WEBHOOKS_INTEGRATION_HELP_DELIVERY_SECTION_ID,
   WEBHOOKS_INTEGRATION_HELP_FEATURE_ITEMS,
   WEBHOOKS_INTEGRATION_HELP_GUIDE_HEADINGS,
@@ -26,10 +23,7 @@ import {
   WEBHOOKS_INTEGRATION_HELP_OVERVIEW,
   WEBHOOKS_INTEGRATION_HELP_PAGE_SUBTITLE,
   WEBHOOKS_INTEGRATION_HELP_PAGE_TITLE,
-  WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION,
-  WEBHOOKS_INTEGRATION_HELP_READINESS_HREF,
 } from "@/lib/webhooks-integration-help-guide-content";
-import { WEBHOOKS_INTEGRATION_HELP_CANONICAL_PATH } from "@/lib/webhooks-integration-help-evidence-copy";
 import { WEBHOOKS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/webhooks-integration-evidence-copy";
 import {
   WEBHOOKS_CLOUD_EVENTS_ENVELOPE_NOTE,
@@ -37,8 +31,8 @@ import {
   WEBHOOKS_SIGNATURE_ALGORITHM,
   WEBHOOKS_SIGNATURE_HEADER_NAME,
   WEBHOOKS_SIGNATURE_KEY_SCOPE_NOTE,
-  WEBHOOKS_SIGNATURE_VERIFICATION,
   WEBHOOKS_SIGNATURE_VALUE_PREFIX,
+  WEBHOOKS_SIGNATURE_VERIFICATION,
 } from "@/lib/webhooks-page-copy";
 import { cn } from "@/lib/utils";
 
@@ -77,21 +71,7 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
         navHref={WEBHOOKS_INTEGRATION_HELP_CANONICAL_PATH}
         headingLevel="h1"
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={
-          <div className="flex flex-col items-start gap-2" data-testid="help-webhooks-integration-header-actions">
-            <Button asChild size="sm" variant="primary">
-              <Link href={WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION.href}>
-                {WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION.label}
-              </Link>
-            </Button>
-            <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="help-webhooks-integration-mutation-prerequisite"
-            >
-              {WEBHOOKS_INTEGRATION_HELP_MUTATION_PREREQUISITE_NOTICE}
-            </p>
-          </div>
-        }
+        actions={<HelpWebhooksIntegrationHeaderActions entry={entry} />}
       />
 
       <div className={contentGridClass}>
@@ -101,6 +81,12 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
             data-testid="help-webhooks-integration-overview"
           >
             {WEBHOOKS_INTEGRATION_HELP_OVERVIEW}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="help-webhooks-integration-mutation-prerequisite"
+          >
+            {WEBHOOKS_INTEGRATION_HELP_MUTATION_PREREQUISITE_NOTICE}
           </p>
 
           <section
@@ -133,26 +119,26 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
               <p className="m-0">{WEBHOOKS_SIGNATURE_VERIFICATION}</p>
               <p className="m-0 text-al-text-primary">{WEBHOOKS_SIGNATURE_KEY_SCOPE_NOTE}</p>
               <p className="m-0">{WEBHOOKS_CLOUD_EVENTS_ENVELOPE_NOTE}</p>
-              <details
-                className={HELP_PAGE_LAYOUT.details}
-                data-testid="help-webhooks-integration-signature-technical-details"
+              <dl
+                className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="help-webhooks-integration-signature-contract"
               >
-                <summary
-                  className={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
-                >
-                  Signature header and algorithm
-                </summary>
-                <div className={HELP_PAGE_LAYOUT.detailsBody}>
-                  <p className="m-0">
-                    <span className="font-mono">{WEBHOOKS_SIGNATURE_HEADER_NAME}</span>:{" "}
-                    <span className="font-mono">
-                      {WEBHOOKS_SIGNATURE_VALUE_PREFIX}
-                      {"{lowercase-hex-digest}"}
-                    </span>
-                  </p>
-                  <p className="m-0 mt-2">{WEBHOOKS_SIGNATURE_ALGORITHM}</p>
+                <div>
+                  <dt className="font-medium text-al-text-primary">Signature header</dt>
+                  <dd className="m-0 mt-1 font-mono text-al-text-secondary">{WEBHOOKS_SIGNATURE_HEADER_NAME}</dd>
                 </div>
-              </details>
+                <div>
+                  <dt className="font-medium text-al-text-primary">Value format</dt>
+                  <dd className="m-0 mt-1 font-mono text-al-text-secondary">
+                    {WEBHOOKS_SIGNATURE_VALUE_PREFIX}
+                    {"{lowercase-hex-digest}"}
+                  </dd>
+                </div>
+                <div className="sm:col-span-2">
+                  <dt className="font-medium text-al-text-primary">Algorithm</dt>
+                  <dd className="m-0 mt-1 text-al-text-secondary">{WEBHOOKS_SIGNATURE_ALGORITHM}</dd>
+                </div>
+              </dl>
             </div>
           </section>
 
@@ -169,20 +155,6 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
                 <li key={step}>{step}</li>
               ))}
             </ol>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={WEBHOOKS_INTEGRATION_HELP_ALERT_RULES_HREF}>
-                Open alert rules →
-              </Link>
-            </p>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link
-                className={OPERATOR_LINK.inline}
-                href={WEBHOOKS_INTEGRATION_HELP_READINESS_HREF}
-                data-testid="help-webhooks-integration-readiness-link"
-              >
-                Open integration readiness →
-              </Link>
-            </p>
           </section>
 
           <WebhooksIntegrationHelpEvidenceOrientationStrip />

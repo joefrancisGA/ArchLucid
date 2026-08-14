@@ -84,4 +84,5 @@ export const WEBHOOKS_INTEGRATION_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHead
 export const WEBHOOKS_INTEGRATION_HELP_NEGATION_DRIFT_MARKERS = {
   overviewMustNotContain: ["not a sealed-review diligence package", "not a diligence package"],
   claimMustNotContain: ["sources package", "sealed-review diligence"],
+  claimMustNotStartWith: ["This guide explains"],
 } as const;

@@ -21,6 +21,10 @@ describe("webhooks integration help drift guard", () => {
         `claim must not contain "${phrase}"`,
       ).not.toContain(phrase);
     }
+
+    for (const prefix of WEBHOOKS_INTEGRATION_HELP_NEGATION_DRIFT_MARKERS.claimMustNotStartWith) {
+      expect(WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE.startsWith(prefix)).toBe(false);
+    }
   });
 
   it("keeps overview free of diligence negation drift", () => {
