@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 
+using ArchLucid.Contracts.Admin;
 using ArchLucid.Contracts.Alerts;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Integrations;
@@ -144,5 +145,32 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
             await response.Content.ReadFromJsonAsync<AlertsInboxWorkspaceContextResponse>(JsonOptions);
 
         body.Should().NotBeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetRoiSummaryPageBundle_ReturnsOk_WithSlices()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/tenant/roi-summary-page-bundle?rollingDays=30");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        ArchLucid.Api.Models.Tenancy.TenantRoiSummaryPageBundleResponse? body =
+            await response.Content.ReadFromJsonAsync<ArchLucid.Api.Models.Tenancy.TenantRoiSummaryPageBundleResponse>(
+                JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.PilotToDate.Should().NotBeNull();
+        body.RollingWindow.Should().NotBeNull();
+        body.PilotToDatePreCommitBlocks.Should().NotBeNull();
+        body.RollingWindowPreCommitBlocks.Should().NotBeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetAdminPrerequisitesCloudConnectionsSummary_ReturnsOk()
+    {
+        HttpResponseMessage response =
+            await Client.GetAsync("/v1/admin/prerequisites/cloud-connections-summary");
+
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Forbidden);
     }
 }

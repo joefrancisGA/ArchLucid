@@ -6,25 +6,16 @@ import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthor
 import { useAdminConfigLintSummaryQuery } from "@/hooks/use-admin-config-lint-summary-query";
 import { useBillingSubscriptionStatusQuery } from "@/hooks/use-billing-subscription-status-query";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
-import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
-import { listTier2Connections } from "@/lib/api/cloud-connections-api";
-import { listGcpTier2Connections } from "@/lib/api/gcp-cloud-connections-api";
+import { fetchAdminPrerequisitesCloudConnectionsSummary } from "@/lib/fetch-admin-prerequisites-cloud-summary-client";
+import { fetchIdentityProvidersPageBundle } from "@/lib/fetch-identity-providers-page-bundle-client";
 import type { FinishSetupWizardContext } from "@/lib/finish-setup-wizard-steps";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   resolveAdminPrerequisitesReadiness,
   type AdminPrerequisiteRow,
   type ResolveAdminPrerequisitesReadinessInput,
 } from "@/lib/resolve-admin-prerequisites-readiness";
-import type { components } from "@/lib/openapi-schemas";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-
-type AdminAuthConfigurationDiagnosticsResponse =
-  components["schemas"]["AdminAuthConfigurationDiagnosticsResponse"];
-type AdminIdentityProviderDiagnosticsResponse =
-  components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
-type AdminOidcDiagnosticsResponse = components["schemas"]["AdminOidcDiagnosticsResponse"];
 
 export type AdminPrerequisitesReadinessState = {
   readonly phase: "loading" | "ready";
@@ -36,33 +27,17 @@ async function fetchIdentityDiagnostics(): Promise<{
   readonly identity: ResolveAdminPrerequisitesReadinessInput["identity"];
   readonly identityLoadFailed: boolean;
 }> {
-  const opts = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" });
-
   try {
-    const [authConfigRes, identityProviderRes, oidcRes] = await Promise.all([
-      fetch("/api/proxy/v1/admin/auth/configuration-diagnostics", opts),
-      fetch("/api/proxy/v1/admin/diagnostics/identity-providers", opts),
-      fetch("/api/proxy/v1/admin/auth/oidc-diagnostics", opts),
-    ]);
-
-    if (!authConfigRes.ok) {
-      return { identity: null, identityLoadFailed: true };
-    }
-
-    const authConfigurationDiagnostics = (await authConfigRes.json()) as AdminAuthConfigurationDiagnosticsResponse;
-    const identityProviderDiagnostics = identityProviderRes.ok
-      ? ((await identityProviderRes.json()) as AdminIdentityProviderDiagnosticsResponse)
-      : null;
-    const oidcDiagnostics = oidcRes.ok ? ((await oidcRes.json()) as AdminOidcDiagnosticsResponse) : null;
+    const bundle = await fetchIdentityProvidersPageBundle();
 
     return {
       identity: {
-        authConfigurationDiagnostics,
+        authConfigurationDiagnostics: bundle.authConfigurationDiagnostics,
         authConfigurationDiagnosticsAvailable: true,
-        identityProviderDiagnostics,
-        identityProviderDiagnosticsAvailable: identityProviderRes.ok,
-        oidcDiagnostics,
-        oidcDiagnosticsAvailable: oidcRes.ok,
+        identityProviderDiagnostics: bundle.identityProviderDiagnostics,
+        identityProviderDiagnosticsAvailable: true,
+        oidcDiagnostics: bundle.oidcDiagnostics,
+        oidcDiagnosticsAvailable: true,
       },
       identityLoadFailed: false,
     };
@@ -73,14 +48,10 @@ async function fetchIdentityDiagnostics(): Promise<{
 
 async function fetchCloudSummary(): Promise<ResolveAdminPrerequisitesReadinessInput["cloud"]> {
   try {
-    const [azureConnections, awsConnections, gcpConnections] = await Promise.all([
-      listTier2Connections(),
-      listAwsTier2Connections(),
-      listGcpTier2Connections(),
-    ]);
+    const summary = await fetchAdminPrerequisitesCloudConnectionsSummary();
 
     return {
-      anyConfigured: azureConnections.length > 0 || awsConnections.length > 0 || gcpConnections.length > 0,
+      anyConfigured: summary.anyConfigured,
       loadFailed: false,
     };
   } catch {
