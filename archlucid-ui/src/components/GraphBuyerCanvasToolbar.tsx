@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import {
   BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA,
   BUYER_EVIDENCE_GRAPH_RESET_VIEW_CTA,
@@ -72,16 +74,15 @@ export function GraphBuyerCanvasToolbar({
       >
         {BUYER_EVIDENCE_GRAPH_TRACE_PATH_CTA}
       </Button>
-      <Button
-        type="button"
-        size="sm"
-        variant={showPathOnly ? "primary" : "outline"}
-        onClick={onTogglePathOnly}
-        disabled={pathActionsDisabled}
+      <FilterChip
+        className={buyerFilterChipClass(showPathOnly, pathActionsDisabled)}
+        aria-pressed={showPathOnly}
         aria-describedby={pathActionsDisabled ? selectionRequiredHintId : undefined}
+        disabled={pathActionsDisabled}
+        onClick={onTogglePathOnly}
       >
         {showPathOnly ? BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA : BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA}
-      </Button>
+      </FilterChip>
       <Button type="button" size="sm" variant="outline" onClick={onResetView}>
         {BUYER_EVIDENCE_GRAPH_RESET_VIEW_CTA}
       </Button>

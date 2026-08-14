@@ -303,12 +303,12 @@ Extends § *Visible-boundary `Button` contract* (**TB-2168** Done) and § *Prima
 | --- | --- |
 | Variants only | Set color via `variant` + `size` — not inline `className` `bg-*` / `text-*` fill overrides on operator surfaces. |
 | Banned overrides | `bg-teal-*`, `bg-emerald-*`, `bg-rose-*`, `bg-amber-*`, and hand-rolled semantic success/warn fills on `Button` — they bypass `--al-primary-action-*` and read as duplicate primaries beside real CTAs. |
-| Filter toggles | List-scope filters and view switches use **`FilterChip`** (`aria-pressed`) — not filled `primary` (**TB-665**, **TB-2293**). |
+| Filter toggles | List-scope filters and view switches use **`FilterChip`** (`aria-pressed`) — not filled `primary` `Button` (**TB-665**, **TB-2293**). |
 | Status metadata | Read-only posture uses **`StatusTag`** / **`SeverityTag`** — never a filled `Button` painted as status (**TB-2284**). |
 | Marketing primary CTA | `MARKETING_PRIMARY_CTA_CLASS` uses the same `--al-primary-action-*` tokens as operator `variant="primary"` (**TB-2292**). |
 | Interactive shell budget | Shell LLM budget control may compose `enterpriseStatusTagClass` on an interactive `Button` + popover (**TB-2287**) — not a second primary CTA. |
 
-**Migration cluster (out of scope for this row):** inline teal `Button` sweeps **TB-2291** (Done); marketing teal alignment **TB-2292** (Done); filter-toggle demotion **TB-2293**; semantic filled buttons **TB-2294**; Vitest drift guard **TB-2295**.
+**Migration cluster (out of scope for this row):** inline teal `Button` sweeps **TB-2291** (Done); marketing teal alignment **TB-2292** (Done); filter-toggle demotion **TB-2293** (Done); semantic filled buttons **TB-2294**; Vitest drift guard **TB-2295**.
 
 **Do not:** add `ghost` / `link` variants; stack multiple filled teal buttons in one viewport; override `buttonVariants` colors per call site without a documented carve-out.
 

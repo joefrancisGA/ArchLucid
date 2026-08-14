@@ -2,8 +2,8 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import Link from "next/link";
 
-import { GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
 import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
 import { TabsContent } from "@/components/ui/tabs";
 import { EvidenceTrailTracePanel } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailTracePanel";
 import {
@@ -22,6 +22,7 @@ import {
 } from "@/lib/graph-view-model-export";
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 import { GraphInteractiveCanvas } from "@/app/(operator)/insights/evidence-graph/_sections/GraphInteractiveCanvas";
@@ -93,17 +94,15 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
           <TabsContent value="graph" className="pt-0" data-testid="graph-presentation-panel-graph">
             <div className={cn("mb-2 flex flex-wrap gap-2", graphMainColumnMaxClass)} role="group" aria-label="Graph scope" data-testid="graph-scope-pills">
               {BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS.map((option) => (
-                <Button
+                <FilterChip
                   key={option.mode}
-                  type="button"
-                  size="sm"
-                  variant={mode === option.mode ? "primary" : "outline"}
+                  className={buyerFilterChipClass(mode === option.mode, false)}
                   aria-pressed={mode === option.mode}
-                  title={GRAPH_MODE_NATIVE_TITLES[option.mode]}
+                  aria-label={`Graph scope: ${option.label}`}
                   onClick={() => onModeChange(option.mode)}
                 >
                   {option.label}
-                </Button>
+                </FilterChip>
               ))}
             </div>
             <div className={cn("mb-2 flex flex-wrap items-center gap-3", graphMainColumnMaxClass)}>
