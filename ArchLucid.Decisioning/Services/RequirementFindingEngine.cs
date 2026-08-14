@@ -23,13 +23,21 @@ public class RequirementFindingEngine : IFindingEngine
         {
             node.Properties.TryGetValue("text", out string? requirementText);
 
-            List<string> relatedFromGraph = graphSnapshot
-                .GetOutgoingTargets(
-                    node.NodeId,
-                    "RELATES_TO",
-                    GraphEdgeDecisioningThresholds.MinWeightForSemanticLink)
-                .Select(n => n.NodeId)
+            List<GraphEdge> relatesToEdges = graphSnapshot.Edges
+                .Where(edge =>
+                    string.Equals(edge.FromNodeId, node.NodeId, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(edge.EdgeType, GraphEdgeTypes.RelatesTo, StringComparison.OrdinalIgnoreCase)
+                    && edge.Weight >= GraphEdgeDecisioningThresholds.MinWeightForSemanticLink)
                 .ToList();
+
+            List<string> relatedFromGraph = relatesToEdges
+                .Select(edge => edge.ToNodeId)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            bool hasExplicitTargets = relatesToEdges.Any(edge =>
+                string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.RequirementTargeted,
+                    StringComparison.OrdinalIgnoreCase));
 
             List<string> relatedNodeIds = [node.NodeId];
 
@@ -57,7 +65,9 @@ public class RequirementFindingEngine : IFindingEngine
                 DecisionsTaken =
                 [
                     relatedFromGraph.Count > 0
-                        ? "Linked requirement to topology resources via RELATES_TO graph edges."
+                        ? hasExplicitTargets
+                            ? "Linked requirement to topology resources via explicit relatedTopologyNodeIds."
+                            : "Linked requirement to the sole in-scope topology resource (single-topology fallback)."
                         : "Promote requirement into candidate architecture decision input."
                 ],
                 AlternativePathsConsidered = relatedFromGraph.Count > 0
@@ -68,7 +78,7 @@ public class RequirementFindingEngine : IFindingEngine
                     ]
                     :
                     [
-                        "Add TopologyResource nodes and RELATES_TO edges from this requirement.",
+                        "Add TopologyResource nodes and explicit relatedTopologyNodeIds on the requirement.",
                         "Track as backlog until architecture scope includes target resources."
                     ],
                 Notes =

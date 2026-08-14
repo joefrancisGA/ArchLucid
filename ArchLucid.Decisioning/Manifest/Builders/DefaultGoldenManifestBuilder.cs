@@ -53,6 +53,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         FindingsSnapshotIdIndex findingsById = new(findingsSnapshot);
 
         PopulateRequirements(manifest, findingsByType);
+        PopulateRequirementTraceabilityDecisions(manifest, findingsByType);
         PopulateTopologyFromGraph(manifest, graphSnapshot);
         PopulateTopology(manifest, findingsByType);
         PopulateSecurity(manifest, findingsByType);
@@ -229,6 +230,101 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             ManifestDecisionConfidenceProjector.ApplyTo(requirementDecision, finding);
             manifest.Decisions.Add(requirementDecision);
         }
+    }
+
+    private static void PopulateRequirementTraceabilityDecisions(
+        ManifestDocument manifest,
+        FindingsSnapshotTypeIndex findingsByType)
+    {
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementGap))
+        {
+            TopologyGapFindingPayload? payload = FindingPayloadConverter.ToTopologyGapPayload(finding);
+
+            if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "RequirementGap");
+
+                continue;
+            }
+
+            AddRequirementManifestDecision(
+                manifest,
+                finding,
+                payload.Description,
+                payload.Impact,
+                "RemediationRequired");
+        }
+
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementCoverageFinding))
+        {
+            RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
+
+            if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "RequirementCoverageDecision");
+
+                continue;
+            }
+
+            AddRequirementManifestDecision(
+                manifest,
+                finding,
+                finding.Rationale,
+                payload.UncoveredRequirements.Count == 0
+                    ? finding.Rationale
+                    : string.Join(", ", payload.UncoveredRequirements),
+                "CloseCoverageGap");
+        }
+
+        foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementExpectationFinding))
+        {
+            RequirementExpectationFindingPayload? payload =
+                FindingPayloadConverter.ToRequirementExpectationPayload(finding);
+
+            if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "RequirementExpectationDecision");
+
+                continue;
+            }
+
+            AddRequirementManifestDecision(
+                manifest,
+                finding,
+                finding.Rationale,
+                payload.MissingThemes.Count == 0
+                    ? finding.Rationale
+                    : string.Join(", ", payload.MissingThemes),
+                "AddMissingThemes");
+        }
+    }
+
+    private static void AddRequirementManifestDecision(
+        ManifestDocument manifest,
+        Finding finding,
+        string rationale,
+        string impact,
+        string selectedOption)
+    {
+        manifest.UnresolvedIssues.Items.Add(new ManifestIssue
+        {
+            IssueType = finding.FindingType,
+            Title = finding.Title,
+            Description = impact,
+            Severity = finding.Severity.ToString(),
+            SupportingFindingIds = [finding.FindingId]
+        });
+
+        ResolvedArchitectureDecision decision = new()
+        {
+            Category = "Requirement",
+            Title = finding.Title,
+            SelectedOption = selectedOption,
+            Rationale = rationale,
+            SupportingFindingIds = [finding.FindingId]
+        };
+        ManifestDecisionConfidenceProjector.ApplyTo(decision, finding);
+        manifest.Decisions.Add(decision);
     }
 
     private static void PopulateTopologyFromGraph(ManifestDocument manifest, GraphSnapshot graphSnapshot)

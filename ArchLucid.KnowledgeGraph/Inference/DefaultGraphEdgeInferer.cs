@@ -10,8 +10,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     private const double WeightHeuristicTopologyContainment = 0.5d;
     private const double WeightPolicyTargeted = 1d;
     private const double WeightPolicySingleTopology = 0.55d;
-    private const double WeightRequirementHeuristic = 0.55d;
     private const double WeightRequirementTargeted = 1d;
+    private const double WeightRequirementSingleTopology = 0.55d;
     private const double WeightSecurityTargeted = 1d;
     private const double WeightSecuritySingleTopology = 0.55d;
     private const double WeightTopologyRelationship = 1d;
@@ -316,21 +316,17 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                 continue;
             }
 
-            string requirementText = requirement.Properties.TryGetValue("text", out string? text)
-                ? text
-                : requirement.Label;
+            if (topologyNodes.Count != 1)
+                continue;
 
-            foreach (GraphNode resource in topologyNodes)
-
-                if (LooksRelevant(requirementText, resource))
-
-                    edges.Add(CreateEdge(
-                        requirement.NodeId,
-                        resource.NodeId,
-                        GraphEdgeTypes.RelatesTo,
-                        "relates to",
-                        WeightRequirementHeuristic,
-                        GraphEdgeInferenceSources.RequirementTextHeuristic));
+            GraphNode soleTopology = topologyNodes[0];
+            edges.Add(CreateEdge(
+                requirement.NodeId,
+                soleTopology.NodeId,
+                GraphEdgeTypes.RelatesTo,
+                "relates to",
+                WeightRequirementSingleTopology,
+                GraphEdgeInferenceSources.RequirementSingleTopologyFallback));
         }
     }
 
@@ -344,34 +340,6 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
 
         string[] parts = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         return parts.Length == 0 ? null : parts.ToHashSet(StringComparer.OrdinalIgnoreCase);
-    }
-
-    private static bool LooksRelevant(string requirementText, GraphNode resource)
-    {
-        string text = requirementText.ToLowerInvariant();
-        string label = resource.Label.ToLowerInvariant();
-        string category = resource.Category?.ToLowerInvariant() ?? string.Empty;
-
-        if (text.Contains("network", StringComparison.Ordinal) && (label.Contains("vnet", StringComparison.Ordinal) ||
-                                                                   label.Contains("subnet", StringComparison.Ordinal) ||
-                                                                   string.Equals(category,
-                                                                       GraphTopologyCategories.Network,
-                                                                       StringComparison.OrdinalIgnoreCase)))
-            return true;
-
-        if (text.Contains("storage", StringComparison.Ordinal) && string.Equals(category,
-                GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (text.Contains("compute", StringComparison.Ordinal) && string.Equals(category,
-                GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (text.Contains("security", StringComparison.Ordinal) && resource.NodeType == GraphNodeTypes.SecurityBaseline)
-            return true;
-
-        return text.Contains("database", StringComparison.Ordinal) && string.Equals(category,
-            GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase);
     }
 
     private static GraphEdge CreateEdge(

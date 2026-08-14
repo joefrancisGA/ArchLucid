@@ -125,6 +125,7 @@ public sealed class KnowledgeGraphPackageCoverageBatchRc28Tests
     [InlineData(GraphEdgeInferenceSources.PolicyTargeted, "applicableTopologyNodeIds")]
     [InlineData(GraphEdgeInferenceSources.PolicySingleTopologyFallback, "lone resource")]
     [InlineData(GraphEdgeInferenceSources.RequirementTargeted, "relatedTopologyNodeIds")]
+    [InlineData(GraphEdgeInferenceSources.RequirementSingleTopologyFallback, "lone resource")]
     [InlineData(GraphEdgeInferenceSources.RequirementTextHeuristic, "hypothesis")]
     [InlineData(GraphEdgeInferenceSources.SecurityTargeted, "protectedTopologyNodeIds")]
     [InlineData(GraphEdgeInferenceSources.SecuritySingleTopologyFallback, "exactly one topology")]

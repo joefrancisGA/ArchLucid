@@ -29,6 +29,7 @@ public sealed class CompositeCanonicalEnricher(IReadOnlyList<ICanonicalObjectTyp
             results.Add(current);
         }
 
-        return AppServiceNetworkAccessSecurityBaselineExpander.Expand(results);
+        return SecurityBaselineSensitivityScopeExpander.Expand(
+            AppServiceNetworkAccessSecurityBaselineExpander.Expand(results));
     }
 }

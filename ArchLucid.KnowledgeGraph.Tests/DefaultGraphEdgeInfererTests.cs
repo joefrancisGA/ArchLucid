@@ -121,7 +121,7 @@ public sealed class DefaultGraphEdgeInfererTests
     }
 
     [Fact]
-    public void InferEdges_RequirementMentioningNetwork_RelatesToVnet()
+    public void InferEdges_RequirementWithSingleTopology_UsesSingleTopologyFallback()
     {
         ContextSnapshot snapshot = BuildSnapshot();
         string contextNodeId = $"context-{snapshot.SnapshotId:N}";
@@ -149,7 +149,32 @@ public sealed class DefaultGraphEdgeInfererTests
         edges.Should().Contain(e =>
             e.FromNodeId == "req-1" &&
             e.ToNodeId == "res-vnet" &&
-            e.EdgeType == GraphEdgeTypes.RelatesTo);
+            e.EdgeType == GraphEdgeTypes.RelatesTo &&
+            e.InferenceSource == GraphEdgeInferenceSources.RequirementSingleTopologyFallback);
+    }
+
+    [Fact]
+    public void InferEdges_MultipleTopologyWithoutExplicitRequirementScope_EmitsNoRelatesToEdges()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        string contextNodeId = $"context-{snapshot.SnapshotId:N}";
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx"
+        };
+        GraphNode req = new()
+        {
+            NodeId = "req-1",
+            NodeType = GraphNodeTypes.Requirement,
+            Label = "Network isolation required",
+            Properties = new Dictionary<string, string> { ["text"] = "network isolation required" }
+        };
+        GraphNode r1 = new() { NodeId = "res-1", NodeType = GraphNodeTypes.TopologyResource, Label = "a" };
+        GraphNode r2 = new() { NodeId = "res-2", NodeType = GraphNodeTypes.TopologyResource, Label = "b" };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [contextNode, req, r1, r2]);
+
+        edges.Should().NotContain(e => e.EdgeType == GraphEdgeTypes.RelatesTo);
     }
 
     [Fact]

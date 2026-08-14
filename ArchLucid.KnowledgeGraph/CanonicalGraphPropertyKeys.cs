@@ -6,9 +6,8 @@ namespace ArchLucid.KnowledgeGraph;
 ///     strings (e.g. <c>obj-abc123</c>, <c>context-…</c> is not a topology target).
 /// </summary>
 /// <remarks>
-///     When absent for policies or security baselines, inference only links a single topology anchor (one resource) or
-///     skips scope edges until explicit IDs are provided. Requirements still use a narrow text heuristic when
-///     <see cref="RelatedTopologyNodeIds" /> is unset.
+///     When absent for policies, security baselines, or requirements, inference only links a single topology anchor
+///     (one resource) or skips scope edges until explicit IDs are provided.
 /// </remarks>
 public static class CanonicalGraphPropertyKeys
 {
@@ -26,4 +25,12 @@ public static class CanonicalGraphPropertyKeys
 
     /// <summary>Topology resource nodes: explicit downstream exposure targets (comma-separated node ids).</summary>
     public const string ExposesToNodeIds = "exposesToNodeIds";
+
+    /// <summary>
+    ///     Topology resource sensitivity label for baseline scoping — see <see cref="TopologySensitivityLevels" />.
+    /// </summary>
+    public const string TopologySensitivity = "topologySensitivity";
+
+    /// <summary>Security baseline nodes: sensitivity scope when explicit protected ids are absent.</summary>
+    public const string BaselineScope = "baselineScope";
 }

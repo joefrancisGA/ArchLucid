@@ -11,6 +11,7 @@ public static class GraphEdgeInferenceSources
     public const string PolicyTargeted = "policy-targeted-topology";
     public const string PolicySingleTopologyFallback = "policy-single-topology-fallback";
     public const string RequirementTargeted = "requirement-targeted-topology";
+    public const string RequirementSingleTopologyFallback = "requirement-single-topology-fallback";
     public const string RequirementTextHeuristic = "requirement-text-heuristic";
     public const string SecurityTargeted = "security-targeted-topology";
     public const string SecuritySingleTopologyFallback = "security-single-topology-fallback";
