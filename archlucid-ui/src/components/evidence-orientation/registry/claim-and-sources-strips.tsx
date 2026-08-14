@@ -166,6 +166,14 @@ import {
 } from "@/lib/search-review-evidence-help-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID } from "@/lib/search-review-evidence-help-guide-content";
 import {
+  AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE,
+  AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
+  AZURE_BOARDS_INTEGRATION_CLAIM_HEADING_ID,
+  AZURE_BOARDS_INTEGRATION_FOLLOW_UPS_TITLE,
+  AZURE_BOARDS_INTEGRATION_SOURCES,
+  AZURE_BOARDS_INTEGRATION_SOURCES_INTRO,
+} from "@/lib/azure-boards-integration-evidence-copy";
+import {
   JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
@@ -1327,6 +1335,25 @@ export function ModelGovernanceHelpEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function AzureBoardsIntegrationEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="azure-boards-integration"
+      claim={AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE}
+      claimHeading={AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={AZURE_BOARDS_INTEGRATION_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={AZURE_BOARDS_INTEGRATION_FOLLOW_UPS_TITLE}
+      sourcesIntro={AZURE_BOARDS_INTEGRATION_SOURCES_INTRO}
+      sources={AZURE_BOARDS_INTEGRATION_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }

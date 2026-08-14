@@ -45,6 +45,8 @@ import {
   AZURE_BOARDS_PAGE_TITLE,
   AZURE_BOARDS_TEST_CONNECTION_LABEL,
 } from "@/lib/azure-boards-page-copy";
+import { AZURE_BOARDS_INTEGRATION_SOURCES } from "@/lib/azure-boards-integration-evidence-copy";
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 
 function baseSettings(overrides: Record<string, unknown> = {}) {
   return {
@@ -100,6 +102,22 @@ describe("AzureBoardsIntegrationPageClient", () => {
     for (const pattern of AZURE_BOARDS_BANNED_UI_PATTERNS) {
       expect(text).not.toMatch(pattern);
     }
+  });
+
+  it("renders the Azure Boards integration Sources and claim-discipline strip", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await screen.findByTestId("azure-boards-integration-orientation");
+
+    const sources = screen.getByTestId("azure-boards-integration-sources");
+
+    for (const link of AZURE_BOARDS_INTEGRATION_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
+    expect(readinessLinks).toHaveLength(1);
+    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
   });
 
   it("TB-1756: uses operator spacing tokens instead of marketing-scale py-8 / space-y-8", async () => {

@@ -89,6 +89,7 @@ import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPER
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { AzureBoardsIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 
 import { AzureBoardsIntegrationAside } from "./AzureBoardsIntegrationAside";
@@ -465,6 +466,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
       />
 
       <ItsmConnectorProviderChooserRail currentProviderId="azure-boards" />
+      <AzureBoardsIntegrationEvidenceOrientationStrip />
 
 {isInitialLoad ? (
         <AzureBoardsIntegrationPageLoadingSkeleton />
