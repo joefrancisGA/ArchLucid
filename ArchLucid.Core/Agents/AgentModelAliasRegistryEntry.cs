@@ -54,6 +54,42 @@ public sealed class AgentModelAliasRegistryEntry
         init;
     } = [];
 
+    public AgentModelTokenizerProfile TokenizerProfile
+    {
+        get;
+        init;
+    } = AgentModelTokenizerProfile.CharHeuristic;
+
+    public int CharsPerToken
+    {
+        get;
+        init;
+    } = AgentModelCatalogTokenMath.DefaultCharsPerToken;
+
+    public decimal TokenizerErrorMarginPercent
+    {
+        get;
+        init;
+    } = AgentModelCatalogPricingDefaults.DefaultTokenizerErrorMarginPercent;
+
+    public decimal? InputUsdPerMillionTokens
+    {
+        get;
+        init;
+    }
+
+    public decimal? OutputUsdPerMillionTokens
+    {
+        get;
+        init;
+    }
+
+    public decimal? ReasoningUsdPerMillionTokens
+    {
+        get;
+        init;
+    }
+
     public bool IsTaskApproved(string taskType)
     {
         if (string.IsNullOrWhiteSpace(taskType))

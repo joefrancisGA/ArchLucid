@@ -176,6 +176,7 @@ public sealed class ArchitectureIntelligenceReviewTierBudgetGuardTests
                 It.IsAny<int>(),
                 It.IsAny<int>(),
                 It.IsAny<int>(),
+                It.IsAny<string?>(),
                 It.IsAny<string?>()))
             .Returns(estimatedCostUsd);
 

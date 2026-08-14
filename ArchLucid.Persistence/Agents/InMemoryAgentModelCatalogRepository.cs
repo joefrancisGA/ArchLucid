@@ -77,6 +77,12 @@ public sealed class InMemoryAgentModelCatalogRepository : IAgentModelCatalogRepo
             ExternalSubprocessorDisclosureComplete = row.ExternalSubprocessorDisclosureComplete,
             LifecycleStatus = row.LifecycleStatus,
             StructuredOutputProbeUtc = row.StructuredOutputProbeUtc,
+            TokenizerProfile = row.TokenizerProfile,
+            CharsPerToken = row.CharsPerToken,
+            TokenizerErrorMarginPercent = row.TokenizerErrorMarginPercent,
+            InputUsdPerMillionTokens = row.InputUsdPerMillionTokens,
+            OutputUsdPerMillionTokens = row.OutputUsdPerMillionTokens,
+            ReasoningUsdPerMillionTokens = row.ReasoningUsdPerMillionTokens,
             Evaluations = row.Evaluations
                 .Select(
                     evaluation => new AgentModelCatalogEvaluationRow

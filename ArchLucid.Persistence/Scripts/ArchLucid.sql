@@ -10014,6 +10014,15 @@ BEGIN
         LifecycleStatus          NVARCHAR(32) NOT NULL
             CONSTRAINT DF_AgentModelCatalogEntry_LifecycleStatus DEFAULT (N'Available'),
         StructuredOutputProbeUtc DATETIME2(7) NULL,
+        TokenizerProfile           NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerProfile DEFAULT (N'CharHeuristic'),
+        CharsPerToken              INT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_CharsPerToken DEFAULT (4),
+        TokenizerErrorMarginPercent DECIMAL(5, 2) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerErrorMarginPercent DEFAULT (25.00),
+        InputUsdPerMillionTokens   DECIMAL(18, 6) NULL,
+        OutputUsdPerMillionTokens  DECIMAL(18, 6) NULL,
+        ReasoningUsdPerMillionTokens DECIMAL(18, 6) NULL,
         CreatedUtc               DATETIME2(7) NOT NULL
             CONSTRAINT DF_AgentModelCatalogEntry_CreatedUtc DEFAULT SYSUTCDATETIME(),
         UpdatedUtc               DATETIME2(7) NOT NULL
@@ -10050,5 +10059,21 @@ BEGIN
     ALTER TABLE dbo.AgentModelCatalogEntry
         ADD ExternalSubprocessorDisclosureComplete BIT NOT NULL
             CONSTRAINT DF_AgentModelCatalogEntry_ExternalSubprocessorDisclosureComplete DEFAULT (0);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentModelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentModelCatalogEntry', N'TokenizerProfile') IS NULL
+BEGIN
+    ALTER TABLE dbo.AgentModelCatalogEntry
+        ADD TokenizerProfile NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerProfile DEFAULT (N'CharHeuristic'),
+            CharsPerToken INT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_CharsPerToken DEFAULT (4),
+            TokenizerErrorMarginPercent DECIMAL(5, 2) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerErrorMarginPercent DEFAULT (25.00),
+            InputUsdPerMillionTokens DECIMAL(18, 6) NULL,
+            OutputUsdPerMillionTokens DECIMAL(18, 6) NULL,
+            ReasoningUsdPerMillionTokens DECIMAL(18, 6) NULL;
 END;
 GO

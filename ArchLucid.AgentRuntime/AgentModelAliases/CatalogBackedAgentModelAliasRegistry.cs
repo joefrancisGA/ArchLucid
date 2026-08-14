@@ -116,7 +116,13 @@ public sealed class CatalogBackedAgentModelAliasRegistry(
             ApprovedTaskTypes = row.ApprovedTaskTypes,
             DataBoundary = row.DataBoundary,
             StructuredOutputLevel = row.StructuredOutputLevel,
-            TaskEvaluations = row.Evaluations
+            TaskEvaluations = row.Evaluations,
+            TokenizerProfile = row.TokenizerProfile,
+            CharsPerToken = row.CharsPerToken,
+            TokenizerErrorMarginPercent = row.TokenizerErrorMarginPercent,
+            InputUsdPerMillionTokens = row.InputUsdPerMillionTokens,
+            OutputUsdPerMillionTokens = row.OutputUsdPerMillionTokens,
+            ReasoningUsdPerMillionTokens = row.ReasoningUsdPerMillionTokens,
         };
     }
 

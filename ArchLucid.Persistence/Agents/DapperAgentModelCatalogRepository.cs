@@ -44,7 +44,13 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                                     DataBoundary,
                                     ExternalSubprocessorDisclosureComplete,
                                     LifecycleStatus,
-                                    StructuredOutputProbeUtc
+                                    StructuredOutputProbeUtc,
+                                    TokenizerProfile,
+                                    CharsPerToken,
+                                    TokenizerErrorMarginPercent,
+                                    InputUsdPerMillionTokens,
+                                    OutputUsdPerMillionTokens,
+                                    ReasoningUsdPerMillionTokens
                                 FROM dbo.AgentModelCatalogEntry WITH (NOLOCK)
                                 ORDER BY AliasId ASC;
                                 """;
@@ -112,6 +118,12 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                                               ExternalSubprocessorDisclosureComplete = @ExternalSubprocessorDisclosureComplete,
                                               LifecycleStatus = @LifecycleStatus,
                                               StructuredOutputProbeUtc = @StructuredOutputProbeUtc,
+                                              TokenizerProfile = @TokenizerProfile,
+                                              CharsPerToken = @CharsPerToken,
+                                              TokenizerErrorMarginPercent = @TokenizerErrorMarginPercent,
+                                              InputUsdPerMillionTokens = @InputUsdPerMillionTokens,
+                                              OutputUsdPerMillionTokens = @OutputUsdPerMillionTokens,
+                                              ReasoningUsdPerMillionTokens = @ReasoningUsdPerMillionTokens,
                                               UpdatedUtc = SYSUTCDATETIME()
                                       WHEN NOT MATCHED THEN
                                           INSERT (
@@ -125,7 +137,13 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                                               DataBoundary,
                                               ExternalSubprocessorDisclosureComplete,
                                               LifecycleStatus,
-                                              StructuredOutputProbeUtc)
+                                              StructuredOutputProbeUtc,
+                                              TokenizerProfile,
+                                              CharsPerToken,
+                                              TokenizerErrorMarginPercent,
+                                              InputUsdPerMillionTokens,
+                                              OutputUsdPerMillionTokens,
+                                              ReasoningUsdPerMillionTokens)
                                           VALUES (
                                               @AliasId,
                                               @ProviderConnectionKind,
@@ -137,7 +155,13 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                                               @DataBoundary,
                                               @ExternalSubprocessorDisclosureComplete,
                                               @LifecycleStatus,
-                                              @StructuredOutputProbeUtc);
+                                              @StructuredOutputProbeUtc,
+                                              @TokenizerProfile,
+                                              @CharsPerToken,
+                                              @TokenizerErrorMarginPercent,
+                                              @InputUsdPerMillionTokens,
+                                              @OutputUsdPerMillionTokens,
+                                              @ReasoningUsdPerMillionTokens);
                                       """;
 
         const string deleteEvalSql = """
@@ -179,7 +203,13 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                     DataBoundary = row.DataBoundary.ToString(),
                     row.ExternalSubprocessorDisclosureComplete,
                     LifecycleStatus = row.LifecycleStatus.ToString(),
-                    row.StructuredOutputProbeUtc
+                    row.StructuredOutputProbeUtc,
+                    TokenizerProfile = row.TokenizerProfile.ToString(),
+                    row.CharsPerToken,
+                    row.TokenizerErrorMarginPercent,
+                    row.InputUsdPerMillionTokens,
+                    row.OutputUsdPerMillionTokens,
+                    row.ReasoningUsdPerMillionTokens
                 },
                 cancellationToken: cancellationToken));
 
@@ -225,6 +255,16 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
                 ? lifecycle
                 : AgentModelCatalogLifecycleStatus.Available,
             StructuredOutputProbeUtc = entry.StructuredOutputProbeUtc,
+            TokenizerProfile = Enum.TryParse(entry.TokenizerProfile, true, out AgentModelTokenizerProfile tokenizerProfile)
+                ? tokenizerProfile
+                : AgentModelTokenizerProfile.CharHeuristic,
+            CharsPerToken = entry.CharsPerToken > 0 ? entry.CharsPerToken : AgentModelCatalogTokenMath.DefaultCharsPerToken,
+            TokenizerErrorMarginPercent = entry.TokenizerErrorMarginPercent > 0m
+                ? entry.TokenizerErrorMarginPercent
+                : AgentModelCatalogPricingDefaults.DefaultTokenizerErrorMarginPercent,
+            InputUsdPerMillionTokens = entry.InputUsdPerMillionTokens,
+            OutputUsdPerMillionTokens = entry.OutputUsdPerMillionTokens,
+            ReasoningUsdPerMillionTokens = entry.ReasoningUsdPerMillionTokens,
             Evaluations = evaluations
         };
     }
@@ -280,6 +320,19 @@ public sealed class DapperAgentModelCatalogRepository(ISqlConnectionFactory conn
         public string LifecycleStatus { get; set; } = nameof(AgentModelCatalogLifecycleStatus.Available);
 
         public DateTime? StructuredOutputProbeUtc { get; set; }
+
+        public string TokenizerProfile { get; set; } = nameof(AgentModelTokenizerProfile.CharHeuristic);
+
+        public int CharsPerToken { get; set; } = AgentModelCatalogTokenMath.DefaultCharsPerToken;
+
+        public decimal TokenizerErrorMarginPercent { get; set; } =
+            AgentModelCatalogPricingDefaults.DefaultTokenizerErrorMarginPercent;
+
+        public decimal? InputUsdPerMillionTokens { get; set; }
+
+        public decimal? OutputUsdPerMillionTokens { get; set; }
+
+        public decimal? ReasoningUsdPerMillionTokens { get; set; }
     }
 
     private sealed class EvalDbRow

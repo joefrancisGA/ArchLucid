@@ -272,6 +272,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<LlmPromptRedactionOptions>(configuration.GetSection(LlmPromptRedactionOptions.SectionName));
         services.Configure<LlmContextWindowOptions>(configuration.GetSection(LlmContextWindowOptions.SectionPath));
         services.AddSingleton<ITokenCounter, CharHeuristicTokenCounter>();
+        services.AddSingleton<ITokenCounterResolver, CatalogTokenCounterResolver>();
         services.AddSingleton<IPostConfigureOptions<LlmPromptRedactionOptions>, LlmPromptRedactionProductionWarningPostConfigure>();
         services.Configure<LlmCompletionCacheOptions>(configuration.GetSection(LlmCompletionCacheOptions.SectionName));
         services.AddSingleton<ISemanticCache>(sp =>

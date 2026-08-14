@@ -1,5 +1,5 @@
 using ArchLucid.AgentRuntime.AgentModelAliases;
-using ArchLucid.Core.Agents;
+using ArchLucid.Application.Agents;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.Agents;

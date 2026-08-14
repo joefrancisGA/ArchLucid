@@ -1,4 +1,6 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
 
@@ -19,13 +21,16 @@ public sealed class ArchitectureIntelligenceReviewTierBudgetGuard : IArchitectur
 {
     private readonly ITenantAiBudgetPolicyResolver? _budgetPolicyResolver;
     private readonly ILlmCostEstimator? _costEstimator;
+    private readonly IAgentModelAliasRegistry? _modelAliasRegistry;
 
     public ArchitectureIntelligenceReviewTierBudgetGuard(
         ITenantAiBudgetPolicyResolver? budgetPolicyResolver = null,
-        ILlmCostEstimator? costEstimator = null)
+        ILlmCostEstimator? costEstimator = null,
+        IAgentModelAliasRegistry? modelAliasRegistry = null)
     {
         _budgetPolicyResolver = budgetPolicyResolver;
         _costEstimator = costEstimator;
+        _modelAliasRegistry = modelAliasRegistry;
     }
 
     public async Task<ArchitectureIntelligenceBudgetDecision> EvaluateAsync(
@@ -34,11 +39,12 @@ public sealed class ArchitectureIntelligenceReviewTierBudgetGuard : IArchitectur
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        int promptTokens = EstimatePromptTokens(request);
+        AgentModelAliasRegistryEntry? catalogEntry = ResolveCatalogEntry(request);
+        int promptTokens = EstimatePromptTokens(request, catalogEntry);
         int depthAllowance = DepthTokenAllowance(request.ReviewTier);
 
         TenantAiBudgetPolicySnapshot? policy = await TryResolvePolicyAsync(request, cancellationToken);
-        decimal? estimatedCostUsd = TryEstimateCostUsd(promptTokens, request.ReviewTier);
+        decimal? estimatedCostUsd = TryEstimateCostUsd(promptTokens, request.ReviewTier, catalogEntry);
         decimal? remainingUsd = policy?.RemainingAmountUsd;
 
         ArchitectureIntelligenceBudgetEstimate estimate = new()
@@ -77,7 +83,9 @@ public sealed class ArchitectureIntelligenceReviewTierBudgetGuard : IArchitectur
         };
     }
 
-    internal static int EstimatePromptTokens(ClosedLoopReasoningRequest request)
+    internal static int EstimatePromptTokens(
+        ClosedLoopReasoningRequest request,
+        AgentModelAliasRegistryEntry? catalogEntry = null)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -85,8 +93,9 @@ public sealed class ArchitectureIntelligenceReviewTierBudgetGuard : IArchitectur
         int framingChars = request.FramingAnswers.Sum(pair =>
             pair.Key.Length + (pair.Value?.Length ?? 0));
 
-        // Rough chars→tokens; plus fixed role overhead so empty sources still reserve budget.
-        int contentTokens = Math.Max(1, (sourceChars + framingChars) / 4);
+        int contentTokens = Math.Max(
+            1,
+            AgentModelCatalogTokenMath.EstimateTokensFromCharCount(sourceChars + framingChars, catalogEntry));
 
         return contentTokens + RoleOverheadTokens(request.ReviewTier);
     }
@@ -118,14 +127,54 @@ public sealed class ArchitectureIntelligenceReviewTierBudgetGuard : IArchitectur
         };
     }
 
-    private decimal? TryEstimateCostUsd(int promptTokens, ArchitectureIntelligenceReviewTier tier)
+    private AgentModelAliasRegistryEntry? ResolveCatalogEntry(ClosedLoopReasoningRequest request)
+    {
+        if (_modelAliasRegistry is null)
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.ModelAliasId)
+            && _modelAliasRegistry.TryGet(request.ModelAliasId, out AgentModelAliasRegistryEntry? byAlias)
+            && byAlias is not null)
+        {
+            return byAlias;
+        }
+
+        string tierAliasId = _modelAliasRegistry.ResolveAliasIdForTier(MapReviewTierToModelTier(request.ReviewTier));
+
+        if (_modelAliasRegistry.TryGet(tierAliasId, out AgentModelAliasRegistryEntry? byTier) && byTier is not null)
+        {
+            return byTier;
+        }
+
+        return null;
+    }
+
+    private static LlmModelTier MapReviewTierToModelTier(ArchitectureIntelligenceReviewTier tier) =>
+        tier switch
+        {
+            ArchitectureIntelligenceReviewTier.Trial => LlmModelTier.Economy,
+            ArchitectureIntelligenceReviewTier.Deep => LlmModelTier.Premium,
+            _ => LlmModelTier.Standard,
+        };
+
+    private decimal? TryEstimateCostUsd(
+        int promptTokens,
+        ArchitectureIntelligenceReviewTier tier,
+        AgentModelAliasRegistryEntry? catalogEntry)
     {
         if (_costEstimator is null)
         {
             return null;
         }
 
-        return _costEstimator.EstimateUsd(promptTokens, AssumedCompletionTokens(tier));
+        return _costEstimator.EstimateUsd(
+            promptTokens,
+            AssumedCompletionTokens(tier),
+            0,
+            catalogEntry?.DeploymentName,
+            catalogEntry?.AliasId);
     }
 
     private async Task<TenantAiBudgetPolicySnapshot?> TryResolvePolicyAsync(

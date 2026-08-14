@@ -73,6 +73,43 @@ public sealed class AgentModelCatalogRow
         init;
     }
 
+    public AgentModelTokenizerProfile TokenizerProfile
+    {
+        get;
+        init;
+    } = AgentModelTokenizerProfile.CharHeuristic;
+
+    public int CharsPerToken
+    {
+        get;
+        init;
+    } = AgentModelCatalogTokenMath.DefaultCharsPerToken;
+
+    /// <summary>Documented pre-flight estimate error margin for golden-case assertions (TB-2107).</summary>
+    public decimal TokenizerErrorMarginPercent
+    {
+        get;
+        init;
+    } = AgentModelCatalogPricingDefaults.DefaultTokenizerErrorMarginPercent;
+
+    public decimal? InputUsdPerMillionTokens
+    {
+        get;
+        init;
+    }
+
+    public decimal? OutputUsdPerMillionTokens
+    {
+        get;
+        init;
+    }
+
+    public decimal? ReasoningUsdPerMillionTokens
+    {
+        get;
+        init;
+    }
+
     public IReadOnlyList<AgentModelCatalogEvaluationRow> Evaluations
     {
         get;

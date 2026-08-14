@@ -1,7 +1,10 @@
 ﻿using System.Diagnostics.Metrics;
 
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Llm;
 
 using FluentAssertions;
 
@@ -43,6 +46,38 @@ public sealed class LlmCostEstimatorTests
         decimal? usd = sut.EstimateUsd(2_000_000, 1_000_000);
 
         usd.Should().Be(21m);
+    }
+
+    [SkippableFact]
+    public void EstimateUsd_uses_catalog_alias_rates_without_appsettings_deployment()
+    {
+        StubAgentModelAliasRegistry registry = new(
+            new AgentModelAliasRegistryEntry
+            {
+                AliasId = "catalog-only-alias",
+                ProviderConnectionKind = AgentModelAliasProviderKinds.ArchLucidManagedAzureOpenAi,
+                DeploymentName = "unused-deployment",
+                CapabilityTags = [],
+                ApprovedTaskTypes = [],
+                InputUsdPerMillionTokens = 4m,
+                OutputUsdPerMillionTokens = 20m,
+                ReasoningUsdPerMillionTokens = 20m,
+            });
+
+        LlmCostEstimator sut = new(
+            Options.Create(
+                new LlmCostEstimationOptions
+                {
+                    Enabled = true,
+                    InputUsdPerMillionTokens = 1m,
+                    OutputUsdPerMillionTokens = 1m,
+                }),
+            NoOpLlmCostEstimationUsdRateOverride.Instance,
+            registry);
+
+        decimal? usd = sut.EstimateUsd(1_000_000, 1_000_000, 0, deploymentLabel: null, modelAliasId: "catalog-only-alias");
+
+        usd.Should().Be(24m);
     }
 
     [SkippableFact]
@@ -293,4 +328,20 @@ public sealed class LlmCostEstimatorTests
         string Name,
         double Value,
         List<KeyValuePair<string, object?>> Tags);
+
+    private sealed class StubAgentModelAliasRegistry(AgentModelAliasRegistryEntry entry) : IAgentModelAliasRegistry
+    {
+        public IReadOnlyCollection<AgentModelAliasRegistryEntry> ListEntries() => [entry];
+
+        public AgentModelAliasRegistryEntry GetRequired(string aliasId) => entry;
+
+        public bool TryGet(string aliasId, out AgentModelAliasRegistryEntry? found)
+        {
+            found = string.Equals(aliasId, entry.AliasId, StringComparison.OrdinalIgnoreCase) ? entry : null;
+
+            return found is not null;
+        }
+
+        public string ResolveAliasIdForTier(LlmModelTier tier) => entry.AliasId;
+    }
 }

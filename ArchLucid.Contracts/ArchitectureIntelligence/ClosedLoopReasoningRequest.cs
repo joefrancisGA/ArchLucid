@@ -85,4 +85,11 @@ public class ClosedLoopReasoningRequest
         get;
         set;
     } = ArchitectureIntelligenceReviewTier.Standard;
+
+    /// <summary>Optional catalog alias for engine-aware pre-flight token and cost estimates (TB-2107).</summary>
+    public string? ModelAliasId
+    {
+        get;
+        set;
+    }
 }

@@ -75,6 +75,9 @@ public static class AgentModelCatalogDefaultSeed
         IReadOnlyList<string> capabilityTags,
         IReadOnlyList<string> approvedTaskTypes)
     {
+        (decimal inputUsd, decimal outputUsd, decimal reasoningUsd) =
+            AgentModelCatalogPricingDefaults.ResolveUsdRatesForTier(tier);
+
         return new AgentModelCatalogRow
         {
             AliasId = aliasId,
@@ -85,6 +88,12 @@ public static class AgentModelCatalogDefaultSeed
             StructuredOutputLevel = AgentModelStructuredOutputLevel.StrictJsonSchema,
             DataBoundary = AgentModelDataBoundaryKind.AzureBoundary,
             LifecycleStatus = AgentModelCatalogLifecycleStatus.Available,
+            TokenizerProfile = AgentModelTokenizerProfile.CharHeuristic,
+            CharsPerToken = AgentModelCatalogTokenMath.DefaultCharsPerToken,
+            TokenizerErrorMarginPercent = AgentModelCatalogPricingDefaults.DefaultTokenizerErrorMarginPercent,
+            InputUsdPerMillionTokens = inputUsd,
+            OutputUsdPerMillionTokens = outputUsd,
+            ReasoningUsdPerMillionTokens = reasoningUsd,
             Evaluations = approvedTaskTypes
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Select(
