@@ -8,6 +8,9 @@ import { TeamsIntegrationEvidenceOrientationStrip } from "@/components/evidence-
 import {
   TEAMS_INTEGRATION_CANONICAL_PATH,
   TEAMS_INTEGRATION_CLAIM_DISCIPLINE,
+  TEAMS_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
+  TEAMS_INTEGRATION_CLAIM_HEADING_ID,
+  TEAMS_INTEGRATION_FOLLOW_UPS_TITLE,
   TEAMS_INTEGRATION_SOURCES,
   TEAMS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/teams-integration-evidence-copy";
@@ -42,5 +45,15 @@ describe("teams-integration-evidence-copy", () => {
     expect(
       within(sources).queryByRole("link", { name: new RegExp(`^${TEAMS_INTEGRATION_CANONICAL_PATH}$`, "i") }),
     ).not.toBeInTheDocument();
+  });
+
+  it("labels claim discipline and follow-ups for accessibility parity", () => {
+    render(<TeamsIntegrationEvidenceOrientationStrip />);
+
+    const claim = screen.getByTestId("teams-integration-claim-discipline");
+    expect(claim).toHaveAttribute("aria-labelledby", TEAMS_INTEGRATION_CLAIM_HEADING_ID);
+    expect(screen.getByRole("heading", { name: TEAMS_INTEGRATION_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: TEAMS_INTEGRATION_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.queryByText(/Sources package/i)).toBeNull();
   });
 });

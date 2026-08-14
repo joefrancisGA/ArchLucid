@@ -368,6 +368,9 @@ import {
 import { TEAMS_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/teams-integration-help-guide-content";
 import {
   TEAMS_INTEGRATION_CLAIM_DISCIPLINE,
+  TEAMS_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
+  TEAMS_INTEGRATION_CLAIM_HEADING_ID,
+  TEAMS_INTEGRATION_FOLLOW_UPS_TITLE,
   TEAMS_INTEGRATION_SOURCES,
   TEAMS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/teams-integration-evidence-copy";
@@ -1115,8 +1118,16 @@ export function TeamsIntegrationEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="teams-integration"
       claim={TEAMS_INTEGRATION_CLAIM_DISCIPLINE}
+      claimHeading={TEAMS_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={TEAMS_INTEGRATION_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={TEAMS_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={TEAMS_INTEGRATION_SOURCES_INTRO}
       sources={TEAMS_INTEGRATION_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
