@@ -129,7 +129,7 @@ function resolveLifecycleStatusLabel(packRecord: PolicyPack | null): string {
   return status;
 }
 
-function resolveLifecycleStatusTagKind(packRecord: PolicyPack | null): "ready" | "neutral" | "warning" {
+function resolveLifecycleStatusTagKind(packRecord: PolicyPack | null): "ready" | "neutral" | "needs-attention" {
   const label = resolveLifecycleStatusLabel(packRecord).toLowerCase();
 
   if (label === "active") {
@@ -137,7 +137,7 @@ function resolveLifecycleStatusTagKind(packRecord: PolicyPack | null): "ready" |
   }
 
   if (label === "draft") {
-    return "warning";
+    return "needs-attention";
   }
 
   return "neutral";

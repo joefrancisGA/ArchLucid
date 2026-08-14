@@ -13,6 +13,8 @@ import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 export type PolicyPackDetailHubVocabularyRailProps = {
   /** Surface hosting the strip — marks packs hub vs pack detail and links to the peer. */
   readonly currentSurfaceId: PolicyPackDetailHubSurfaceId;
+  /** When on the packs hub, deep-links pack detail peer to this pack when set. */
+  readonly policyPackId?: string;
   /** Compact one-line strip (default) vs fuller why-two explanation. */
   readonly variant?: "compact" | "full";
   readonly className?: string;
@@ -29,7 +31,7 @@ export function PolicyPackDetailHubVocabularyRail(
   props: PolicyPackDetailHubVocabularyRailProps,
 ): JSX.Element {
   const model = props.model ?? buildPolicyPackDetailHubVocabulary();
-  const peer = resolvePolicyPackDetailHubPeerLink(props.currentSurfaceId);
+  const peer = resolvePolicyPackDetailHubPeerLink(props.currentSurfaceId, props.policyPackId);
   const currentLink =
     props.currentSurfaceId === "policy-packs" ? model.packsHubLink : model.packDetailLink;
 

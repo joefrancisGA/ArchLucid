@@ -12,7 +12,7 @@
  * which reconciles pack assignment with effective standards.
  */
 
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH, governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 
 export type PolicyPackDetailHubSurfaceId = "policy-packs" | "pack-detail";
 
@@ -69,8 +69,18 @@ export function buildPolicyPackDetailHubVocabulary(): PolicyPackDetailHubVocabul
 /** Peer deep-link for the surface you are not currently on. */
 export function resolvePolicyPackDetailHubPeerLink(
   currentSurfaceId: PolicyPackDetailHubSurfaceId,
+  policyPackId?: string,
 ): PolicyPackDetailHubLink {
   if (currentSurfaceId === "policy-packs") {
+    const id = policyPackId?.trim() ?? "";
+
+    if (id.length > 0) {
+      return {
+        ...POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK,
+        href: governancePolicyPackDetailPath(id),
+      };
+    }
+
     return POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK;
   }
 

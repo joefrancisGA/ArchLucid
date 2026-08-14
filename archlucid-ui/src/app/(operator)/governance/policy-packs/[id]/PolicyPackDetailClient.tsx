@@ -124,14 +124,6 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
   }
 
   if (kind === "responsible-ai") {
-    if (loading) {
-      return (
-        <div className="p-4" data-testid="policy-pack-detail-loading">
-          <p className="m-0 text-al-text-secondary">Loading policy pack…</p>
-        </div>
-      );
-    }
-
     return withEvidenceChrome(
       <ResponsibleAiPolicyPackDetail
         policyPackId={policyPackId}
