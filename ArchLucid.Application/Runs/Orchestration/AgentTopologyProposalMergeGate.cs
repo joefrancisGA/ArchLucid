@@ -19,6 +19,7 @@ public static class AgentTopologyProposalMergeGate
         ArgumentNullException.ThrowIfNull(results);
 
         HashSet<string> inventoriedIdentifiers = ResolveInventoriedIdentifiers(graph);
+        HashSet<string> relationshipEndpointKeys = ResolveRelationshipEndpointKeys(graph, inventoriedIdentifiers);
 
         if (inventoriedIdentifiers.Count == 0)
             return results;
@@ -33,7 +34,10 @@ public static class AgentTopologyProposalMergeGate
                 continue;
             }
 
-            AgentTopologyProposal sanitized = SanitizeProposal(result.ProposedChanges, inventoriedIdentifiers);
+            AgentTopologyProposal sanitized = SanitizeProposal(
+                result.ProposedChanges,
+                inventoriedIdentifiers,
+                relationshipEndpointKeys);
 
             if (ProposalIsEmpty(sanitized))
                 continue;
@@ -65,13 +69,34 @@ public static class AgentTopologyProposalMergeGate
         return identifiers;
     }
 
+    private static HashSet<string> ResolveRelationshipEndpointKeys(
+        GraphSnapshot graph,
+        HashSet<string> inventoriedIdentifiers)
+    {
+        HashSet<string> relationshipEndpointKeys = new(inventoriedIdentifiers, StringComparer.OrdinalIgnoreCase);
+
+        foreach (GraphNode node in graph.Nodes)
+        {
+            if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (!IsAgentProposedNode(node))
+                continue;
+
+            TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(relationshipEndpointKeys, node);
+        }
+
+        return relationshipEndpointKeys;
+    }
+
     private static bool IsAgentProposedNode(GraphNode node) =>
         string.Equals(node.SourceType, nameof(AgentType.Topology), StringComparison.OrdinalIgnoreCase)
         && string.Equals(node.SourceId, "ProposedChanges", StringComparison.OrdinalIgnoreCase);
 
     private static AgentTopologyProposal SanitizeProposal(
         AgentTopologyProposal proposal,
-        HashSet<string> inventoriedIdentifiers)
+        HashSet<string> inventoriedIdentifiers,
+        HashSet<string> relationshipEndpointKeys)
     {
         List<ManifestService> services = proposal.AddedServices?
             .Where(s => !string.IsNullOrWhiteSpace(s.ServiceName) || !string.IsNullOrWhiteSpace(s.ServiceId))
@@ -84,7 +109,7 @@ public static class AgentTopologyProposalMergeGate
             .ToList() ?? [];
 
         List<ManifestRelationship> relationships = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
-            inventoriedIdentifiers,
+            relationshipEndpointKeys,
             services,
             datastores,
             proposal.AddedRelationships);
