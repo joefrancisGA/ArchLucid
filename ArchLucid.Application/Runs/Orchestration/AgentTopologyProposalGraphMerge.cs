@@ -66,7 +66,6 @@ public static class AgentTopologyProposalGraphMerge
 
             string? reasoning = result.ReasoningTrace?.Trim();
             Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
-            GraphNode[] topologyNodesForAliasResolution = [.. graph.Nodes, .. added];
 
             if (proposal.AddedServices is { Count: > 0 })
             {
@@ -81,7 +80,7 @@ public static class AgentTopologyProposalGraphMerge
                     TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases(
                         endpointAliases,
                         svc,
-                        topologyNodesForAliasResolution);
+                        [.. graph.Nodes, .. added]);
                 }
             }
 
@@ -112,7 +111,7 @@ public static class AgentTopologyProposalGraphMerge
                 TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointAliases(
                     endpointAliases,
                     ds,
-                    topologyNodesForAliasResolution);
+                    [.. graph.Nodes, .. added]);
             }
 
             if (proposal.AddedRelationships is { Count: > 0 })
