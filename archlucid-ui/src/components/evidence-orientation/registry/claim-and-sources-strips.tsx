@@ -327,6 +327,16 @@ import {
 } from "@/lib/connection-status-evidence-copy";
 import { CONNECTION_STATUS_HELP_CLAIM_HEADING_ID } from "@/lib/connection-status-help-guide-content";
 import {
+  ADMIN_CONFIGURATION_FOLLOW_UPS_TITLE,
+  ADMIN_CONFIGURATION_SOURCES,
+  ADMIN_CONFIGURATION_SOURCES_INTRO,
+} from "@/lib/admin-configuration-evidence-copy";
+import {
+  ADMIN_HEALTH_FOLLOW_UPS_TITLE,
+  ADMIN_HEALTH_SOURCES,
+  ADMIN_HEALTH_SOURCES_INTRO,
+} from "@/lib/admin-health-evidence-copy";
+import {
   DEMO_READINESS_CLAIM_DISCIPLINE,
   DEMO_READINESS_CLAIM_DISCIPLINE_HEADING,
   DEMO_READINESS_CLAIM_HEADING_ID,
@@ -915,6 +925,36 @@ export function ConnectionStatusEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={CONNECTION_STATUS_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECTION_STATUS_SOURCES_INTRO}
       sources={CONNECTION_STATUS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function AdminConfigurationEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="admin-configuration"
+      claimElement="div"
+      sourcesTitle={ADMIN_CONFIGURATION_FOLLOW_UPS_TITLE}
+      sourcesIntro={ADMIN_CONFIGURATION_SOURCES_INTRO}
+      sources={ADMIN_CONFIGURATION_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function AdminHealthEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="admin-health"
+      claimElement="div"
+      sourcesTitle={ADMIN_HEALTH_FOLLOW_UPS_TITLE}
+      sourcesIntro={ADMIN_HEALTH_SOURCES_INTRO}
+      sources={ADMIN_HEALTH_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"

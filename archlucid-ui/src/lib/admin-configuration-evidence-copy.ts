@@ -1,9 +1,13 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { INTERNAL_CONFIGURATION_PATH } from "@/lib/internal-ops-route-paths";
 
-export const ADMIN_CONFIGURATION_CLAIM_DISCIPLINE =
-  "Configuration summary lists effective non-sensitive deployment keys for administrators — it is not a sealed-review diligence Sources package. Open Diagnostics, System health, or Audit when you need readiness or governed trails.";
+export const ADMIN_CONFIGURATION_CANONICAL_PATH = INTERNAL_CONFIGURATION_PATH;
+
+export const ADMIN_CONFIGURATION_HELP_TOPIC_LABEL = "How configuration summary works" as const;
+
+export const ADMIN_CONFIGURATION_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const ADMIN_CONFIGURATION_SOURCES_INTRO =
   "Use these follow-ups when a config key needs readiness checks, troubleshooting, or activity trails.";

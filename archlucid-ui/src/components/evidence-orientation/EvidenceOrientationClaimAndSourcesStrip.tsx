@@ -15,7 +15,11 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
    * and `{slug}-sources-heading`; surfaces whose published ids predate that convention override below.
    */
   readonly slug: string;
-  readonly claim: string;
+  /**
+   * Claim-discipline body. Omit on surfaces whose header already states scope — those render a
+   * sources-only strip rather than a band that restates the subtitle.
+   */
+  readonly claim?: string;
   /** Optional visible heading for the claim band (for example "What AI usage is not"). */
   readonly claimHeading?: string;
   /** Stable anchor id; defaults to `{slug}-claim-discipline-heading`. */
@@ -68,22 +72,24 @@ export function EvidenceOrientationClaimAndSourcesStrip({
 }: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element {
   return (
     <EvidenceOrientationStripShell testId={stripTestId ?? `${slug}-orientation`}>
-      <EvidenceOrientationClaimCallout
-        testId={claimTestId ?? `${slug}-claim-discipline`}
-        body={claim}
-        style={claimStyle}
-        element={claimElement}
-        bodyClassName={readingBodyClassName}
-        headingClassName={headingClassName}
-        heading={
-          claimHeading === undefined
-            ? undefined
-            : {
-                text: claimHeading,
-                id: claimHeadingId ?? `${slug}-claim-discipline-heading`,
-              }
-        }
-      />
+      {claim === undefined ? null : (
+        <EvidenceOrientationClaimCallout
+          testId={claimTestId ?? `${slug}-claim-discipline`}
+          body={claim}
+          style={claimStyle}
+          element={claimElement}
+          bodyClassName={readingBodyClassName}
+          headingClassName={headingClassName}
+          heading={
+            claimHeading === undefined
+              ? undefined
+              : {
+                  text: claimHeading,
+                  id: claimHeadingId ?? `${slug}-claim-discipline-heading`,
+                }
+          }
+        />
+      )}
 
       <EvidenceOrientationSourcesSection
         testId={sourcesTestId ?? `${slug}-sources`}

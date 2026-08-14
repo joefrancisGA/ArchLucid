@@ -17,6 +17,7 @@ import {
 } from "@/components/health-dashboard/HealthDashboardSections";
 import { HealthBuildDetailsDisclosure } from "@/components/health-dashboard/HealthBuildDetailsDisclosure";
 import { TenantCatalogMigrationDiagnosticsSection } from "@/components/tenancy/TenantCatalogMigrationDiagnosticsSection";
+import { AdminHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -80,6 +81,7 @@ export function AdminHealthPageView(props: Props) {
           subtitle="Workspace health, required services, and configuration advisories for this deployment."
           actions={<PageContextualHelpButton />}
         />
+        <AdminHealthEvidenceOrientationStrip />
         <HealthOverallStatusHeader
           overallStatus={overall}
           title={headline.title}

@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 
 import { ConfigurationSystemHealthVocabularyRail } from "@/components/ConfigurationSystemHealthVocabularyRail";
+import { AdminConfigurationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { INTERNAL_CONFIGURATION_PATH } from "@/lib/internal-ops-route-paths";
@@ -105,6 +106,8 @@ export function AdminConfigurationPageView(props: Props) {
           />
         </div>
       </OperatorPageHeader>
+
+      <AdminConfigurationEvidenceOrientationStrip />
 
       <Card data-testid="admin-configuration-env-health">
         <CardHeader>
