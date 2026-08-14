@@ -109,6 +109,55 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [SkippableFact]
+    public void WithMergedTopologyProposals_does_not_duplicate_node_ids_already_in_graph()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "svc-existing",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "existing-api"
+                }
+            ],
+            Edges = [],
+            Warnings = []
+        };
+
+        AgentResult topology = new()
+        {
+            ResultId = "r1",
+            TaskId = "t1",
+            RunId = "run-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "new-label",
+                        ServiceId = "svc-existing",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            },
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+        merged.Nodes.Should().HaveCount(1);
+    }
+
+    [SkippableFact]
     public void WithMergedTopologyProposals_propagates_topology_agent_reasoning_trace_to_added_nodes()
     {
         GraphSnapshot graph = new()

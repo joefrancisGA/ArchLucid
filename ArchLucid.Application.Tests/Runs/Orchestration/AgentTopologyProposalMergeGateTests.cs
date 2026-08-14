@@ -318,4 +318,96 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenInventoryExists_AllowsServicesKeyedByInventoriedNodeIds()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "svc-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "api",
+                    Category = GraphTopologyCategories.Compute,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_app_service.main"
+                }
+            ]
+        };
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedServices.Should().ContainSingle()
+            .Which.ServiceId.Should().Be("svc-1");
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenInventoryExists_AllowsDatastoresKeyedByInventoriedNodeIds()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "ds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql",
+                    Category = GraphTopologyCategories.Data,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_mssql_server.main"
+                }
+            ]
+        };
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "renamed-sql",
+                        DatastoreId = "ds-1",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedDatastores.Should().ContainSingle()
+            .Which.DatastoreId.Should().Be("ds-1");
+    }
 }

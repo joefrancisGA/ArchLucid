@@ -82,13 +82,13 @@ public static class AgentTopologyProposalMergeGate
         HashSet<string> inventoriedIdentifiers)
     {
         List<ManifestService> services = proposal.AddedServices?
-            .Where(s => !string.IsNullOrWhiteSpace(s.ServiceName))
-            .Where(s => inventoriedIdentifiers.Contains(s.ServiceName))
+            .Where(s => !string.IsNullOrWhiteSpace(s.ServiceName) || !string.IsNullOrWhiteSpace(s.ServiceId))
+            .Where(s => MatchesInventoriedIdentifier(s.ServiceName, s.ServiceId, inventoriedIdentifiers))
             .ToList() ?? [];
 
         List<ManifestDatastore> datastores = proposal.AddedDatastores?
-            .Where(d => !string.IsNullOrWhiteSpace(d.DatastoreName))
-            .Where(d => inventoriedIdentifiers.Contains(d.DatastoreName))
+            .Where(d => !string.IsNullOrWhiteSpace(d.DatastoreName) || !string.IsNullOrWhiteSpace(d.DatastoreId))
+            .Where(d => MatchesInventoriedIdentifier(d.DatastoreName, d.DatastoreId, inventoriedIdentifiers))
             .ToList() ?? [];
 
         List<ManifestRelationship> relationships = proposal.AddedRelationships?
@@ -105,6 +105,20 @@ public static class AgentTopologyProposalMergeGate
             RequiredControls = proposal.RequiredControls,
             Warnings = proposal.Warnings
         };
+    }
+
+    private static bool MatchesInventoriedIdentifier(
+        string? primaryName,
+        string? alternateId,
+        HashSet<string> inventoriedIdentifiers)
+    {
+        if (!string.IsNullOrWhiteSpace(primaryName) && inventoriedIdentifiers.Contains(primaryName))
+            return true;
+
+        if (!string.IsNullOrWhiteSpace(alternateId) && inventoriedIdentifiers.Contains(alternateId))
+            return true;
+
+        return false;
     }
 
     private static bool ProposalIsEmpty(AgentTopologyProposal proposal) =>
