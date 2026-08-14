@@ -499,7 +499,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("windows_web_app", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("web_app", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("kubernetes_cluster", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("static_site", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("static_site", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("signalr_service", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
