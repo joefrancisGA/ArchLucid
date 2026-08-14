@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EvidenceProposalsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { INTERNAL_EVIDENCE_PROPOSALS_PATH } from "@/lib/internal-ops-route-paths";
@@ -83,6 +84,7 @@ export function AdminEvidenceProposalsPageClient() {
         subtitle="Review agent-suggested catalog entries from recent reviews and promote approved items into the tenant curated evidence catalog."
         actions={<PageContextualHelpButton />}
       />
+      <EvidenceProposalsEvidenceOrientationStrip />
 {error !== null ? (
         <p
           role="alert"

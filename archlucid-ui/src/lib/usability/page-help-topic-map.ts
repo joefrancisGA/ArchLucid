@@ -43,6 +43,7 @@ import { WHY_ARCHLUCID_HELP_TOPIC_LABEL } from "@/lib/why-archlucid-evidence-cop
 import { DEPLOYMENT_STATUS_HELP_TOPIC_LABEL } from "@/lib/deployment-status-evidence-copy";
 import { FLEET_LLM_COGS_HELP_TOPIC_LABEL } from "@/lib/fleet-llm-cogs-evidence-copy";
 import { DPA_TEMPLATE_HELP_TOPIC_LABEL } from "@/lib/dpa-template-help-guide-content";
+import { EVIDENCE_PROPOSALS_HELP_TOPIC_LABEL } from "@/lib/evidence-proposals-evidence-copy";
 import { EVIDENCE_TRAIL_HELP_TOPIC_LABEL } from "@/lib/evidence-trail-help-evidence-copy";
 import { GETTING_STARTED_HELP_TOPIC_LABEL } from "@/lib/getting-started-help-guide-content";
 import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evidence-copy";
@@ -445,6 +446,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/insights/improvement-planning",
     topic: { slug: "improvement-planning", label: IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/internal/evidence-proposals",
+    topic: { slug: "evidence-trail", label: EVIDENCE_PROPOSALS_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/admin/evidence-proposals",
+    topic: { slug: "evidence-trail", label: EVIDENCE_PROPOSALS_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/internal/product-learning",

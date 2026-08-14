@@ -158,6 +158,14 @@ import {
 } from "@/lib/evidence-graph-help-evidence-copy";
 import { EVIDENCE_GRAPH_HELP_CLAIM_HEADING_ID } from "@/lib/evidence-graph-help-guide-content";
 import {
+  EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE,
+  EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE_HEADING,
+  EVIDENCE_PROPOSALS_CLAIM_HEADING_ID,
+  EVIDENCE_PROPOSALS_FOLLOW_UPS_TITLE,
+  EVIDENCE_PROPOSALS_SOURCES,
+  EVIDENCE_PROPOSALS_SOURCES_INTRO,
+} from "@/lib/evidence-proposals-evidence-copy";
+import {
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING,
   ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE,
@@ -801,6 +809,25 @@ export function DeploymentStatusEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={DEPLOYMENT_STATUS_FOLLOW_UPS_TITLE}
       sourcesIntro={DEPLOYMENT_STATUS_SOURCES_INTRO}
       sources={DEPLOYMENT_STATUS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function EvidenceProposalsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="evidence-proposals"
+      claim={EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE}
+      claimHeading={EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={EVIDENCE_PROPOSALS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={EVIDENCE_PROPOSALS_FOLLOW_UPS_TITLE}
+      sourcesIntro={EVIDENCE_PROPOSALS_SOURCES_INTRO}
+      sources={EVIDENCE_PROPOSALS_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
