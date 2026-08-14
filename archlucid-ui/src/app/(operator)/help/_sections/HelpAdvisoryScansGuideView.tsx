@@ -7,9 +7,9 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  ADVISORY_SCANS_HELP_FINALIZE_REVIEW_LINK,
   ADVISORY_SCANS_HELP_GUIDE_HEADINGS,
   ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS,
   ADVISORY_SCANS_HELP_OVERVIEW,
@@ -17,6 +17,7 @@ import {
   ADVISORY_SCANS_HELP_PAGE_TITLE,
   ADVISORY_SCANS_HELP_PRIMARY_ACTION,
   ADVISORY_SCANS_HELP_ROLE_PRECONDITION,
+  ADVISORY_SCANS_HELP_ROLE_PRECONDITION_TAG,
   ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE,
   ADVISORY_SCANS_HELP_TILE_ITEMS,
 } from "@/lib/advisory-scans-help-guide-content";
@@ -40,7 +41,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   return (
     <h2
       id={props.id}
-      className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY.cardTitle, "m-0 scroll-mt-24")}
+      className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY.sectionTitle, "m-0 scroll-mt-24")}
     >
       {props.children}
     </h2>
@@ -84,17 +85,22 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button asChild size="sm" variant="primary">
+                  <Link href={ADVISORY_SCANS_HELP_PRIMARY_ACTION.href}>{ADVISORY_SCANS_HELP_PRIMARY_ACTION.label}</Link>
+                </Button>
+                <StatusTag
+                  kind="neutral"
+                  label={ADVISORY_SCANS_HELP_ROLE_PRECONDITION_TAG}
+                  data-testid="help-advisory-scans-role-precondition-tag"
+                />
+              </div>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="help-advisory-scans-role-precondition"
               >
                 {ADVISORY_SCANS_HELP_ROLE_PRECONDITION}
               </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={ADVISORY_SCANS_HELP_PRIMARY_ACTION.href}>{ADVISORY_SCANS_HELP_PRIMARY_ACTION.label}</Link>
-                </Button>
-              </div>
             </CardContent>
           </Card>
 
@@ -129,13 +135,7 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
               className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-advisory-scans-how-stepper"
             >
-              <li>
-                <Link className={OPERATOR_LINK.inline} href={ADVISORY_SCANS_HELP_FINALIZE_REVIEW_LINK.href}>
-                  {ADVISORY_SCANS_HELP_FINALIZE_REVIEW_LINK.label}
-                </Link>
-                {" that should drive follow-up recommendations."}
-              </li>
-              {ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS.slice(1).map((step) => (
+              {ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS.map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>

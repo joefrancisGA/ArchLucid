@@ -15,10 +15,12 @@ import {
   ADVISORY_SCANS_HELP_CLAIM_HEADING_ID,
   ADVISORY_SCANS_HELP_PRIMARY_ACTION,
   ADVISORY_SCANS_HELP_ROLE_PRECONDITION,
+  ADVISORY_SCANS_HELP_ROLE_PRECONDITION_TAG,
   ADVISORY_SCANS_HELP_TILE_ITEMS,
 } from "@/lib/advisory-scans-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpAdvisoryScansGuideView", () => {
@@ -42,6 +44,9 @@ describe("HelpAdvisoryScansGuideView", () => {
     expect(screen.getByTestId("help-advisory-scans-role-precondition")).toHaveTextContent(
       ADVISORY_SCANS_HELP_ROLE_PRECONDITION,
     );
+    expect(screen.getByTestId("help-advisory-scans-role-precondition-tag")).toHaveTextContent(
+      ADVISORY_SCANS_HELP_ROLE_PRECONDITION_TAG,
+    );
     expect(screen.getByTestId("help-advisory-scans-role-precondition").textContent?.toLowerCase()).not.toContain("now");
     expect(screen.getByTestId("help-advisory-scans-role-precondition").textContent?.toLowerCase()).not.toContain(
       "executions",
@@ -61,13 +66,12 @@ describe("HelpAdvisoryScansGuideView", () => {
       "href",
       ADVISORY_SCANS_HELP_PRIMARY_ACTION.href,
     );
-    expect(screen.getByRole("link", { name: "Explainability trail" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Finalize an architecture review" })).toHaveAttribute(
-      "href",
-      "/architecture/reviews",
-    );
+    expect(screen.getByRole("link", { name: "Audit trail" })).toHaveAttribute("href", "/governance/audit");
     expect(screen.getAllByRole("link", { name: ADVISORY_SCANS_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
-    expect(screen.getByRole("heading", { name: "Start here" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Start here" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What advisory scans show" }).className).toContain(
+      OPERATOR_TYPOGRAPHY.sectionTitle.split(" ")[0],
+    );
 
     for (const item of ADVISORY_SCANS_HELP_TILE_ITEMS) {
       expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
@@ -78,5 +82,7 @@ describe("HelpAdvisoryScansGuideView", () => {
     }
 
     expect(screen.getByRole("link", { name: "AI usage help" })).toHaveAttribute("href", "/help/ai-usage");
+    expect(screen.queryByRole("link", { name: "Architecture reviews" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Scan generation" })).not.toBeInTheDocument();
   });
 });

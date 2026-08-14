@@ -16,11 +16,6 @@ export const ADVISORY_SCANS_SOURCES_INTRO =
 /** Operator Sources — no self-href to the default advisory-scans hub path or tile-covered destinations. */
 export const ADVISORY_SCANS_SOURCES: readonly EvidenceSourceLink[] = [
   {
-    label: "Architecture reviews",
-    href: "/architecture/reviews",
-    when: "Finalize a review before generating follow-up recommendations",
-  },
-  {
     label: "Audit",
     href: GOVERNANCE_AUDIT_PATH,
     when: "Open governed audit trails when scan output needs assurance cites",

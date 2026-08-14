@@ -3,6 +3,8 @@
  * @see docs/library/UI_DESIGN_SYSTEM.md
  */
 
+import { cn } from "@/lib/utils";
+
 /** CSS custom properties wired in `src/app/globals.css` and Tailwind `theme.extend.colors.al`. */
 export const AL_CSS_VAR_NAMES = {
   surfaceBase: "--al-surface-base",
@@ -232,11 +234,22 @@ export const OPERATOR_BUTTON_PAGE_CLASS = `h-9 px-4 ${OPERATOR_TYPE_SCALE.button
 export const OPERATOR_BUTTON_COMPACT_CLASS = `h-7 px-3 ${OPERATOR_TYPE_SCALE.tab}`;
 
 /** Inline link treatments — reserve strong teal underline for navigation, not step labels. */
+const OPERATOR_LINK_FOCUS =
+  "rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]";
+
 export const OPERATOR_LINK = {
-  nav: "font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]",
-  inline:
+  nav: cn(
+    "inline-flex min-h-8 items-center font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]",
+    OPERATOR_LINK_FOCUS,
+  ),
+  inline: cn(
     "font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)]",
-  step: "font-medium text-al-text-primary no-underline hover:text-[var(--al-accent-link)] hover:underline underline-offset-2",
+    OPERATOR_LINK_FOCUS,
+  ),
+  step: cn(
+    "font-medium text-al-text-primary no-underline hover:text-[var(--al-accent-link)] hover:underline underline-offset-2",
+    OPERATOR_LINK_FOCUS,
+  ),
   /** Compact bordered chip for numbered journey steps — clearly interactive without primary-button weight. */
   stepPill:
     "inline-flex min-h-7 max-w-full items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-[13px] font-medium leading-5 text-al-text-primary shadow-sm transition-colors hover:border-[var(--al-accent-interactive)] hover:bg-al-surface-raised hover:text-[var(--al-accent-link)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-interactive)] focus-visible:ring-offset-2 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
@@ -246,7 +259,10 @@ export const OPERATOR_LINK = {
   /** Highlights the suggested next step when the operator is not already on a journey route. */
   stepPillRecommended:
     "border-neutral-400 bg-al-surface-raised dark:border-neutral-500",
-  optional: `${OPERATOR_TYPE_SCALE.helper} font-medium text-al-text-secondary underline decoration-al-text-secondary/40 underline-offset-2 hover:text-al-text-primary hover:decoration-[var(--al-accent-interactive)]`,
+  optional: cn(
+    `${OPERATOR_TYPE_SCALE.helper} font-medium text-al-text-secondary underline decoration-al-text-secondary/40 underline-offset-2 hover:text-al-text-primary hover:decoration-[var(--al-accent-interactive)]`,
+    OPERATOR_LINK_FOCUS,
+  ),
 } as const;
 
 /**

@@ -59,13 +59,11 @@ export function ReviewPackageDoThisNextStrip(
           </span>
         )}
         {next.secondaryAction !== null && next.secondaryAction !== undefined ? (
-          <Link
-            href={next.secondaryAction.href}
-            className={cn(OPERATOR_TYPOGRAPHY.body, "text-center text-al-text-secondary underline-offset-2 hover:underline sm:text-right")}
-            data-testid="review-package-do-this-next-secondary-action"
-          >
-            {next.secondaryAction.label}
-          </Link>
+          <Button type="button" variant="outline" size="sm" asChild>
+            <Link href={next.secondaryAction.href} data-testid="review-package-do-this-next-secondary-action">
+              {next.secondaryAction.label}
+            </Link>
+          </Button>
         ) : null}
       </div>
     </section>

@@ -53,6 +53,8 @@ describe("ReviewPackageDoThisNextStrip", () => {
     );
 
     expect(screen.getByRole("link", { name: "Review evidence coverage" })).toBeInTheDocument();
-    expect(screen.getByTestId("review-package-do-this-next-secondary-action")).toHaveTextContent("Send to sponsor");
+    const sponsorAction = screen.getByTestId("review-package-do-this-next-secondary-action");
+    expect(sponsorAction).toHaveTextContent("Send to sponsor");
+    expect(sponsorAction.className).toContain("border-neutral-300");
   });
 });

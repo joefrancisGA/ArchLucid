@@ -17,8 +17,8 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     "/governance/findings",
     "/governance/policy-packs",
     SIGNED_RECORDS_LIST_PATH,
+    "/governance/advisory-scans",
     "/governance/alerts",
-    "/governance/alert-rules",
   ],
   // Routine configuration leads; System health and Support are break-glass pages and Support is also
   // published as an inline bundle card on the settings hub, so neither needs a first-viewport slot.

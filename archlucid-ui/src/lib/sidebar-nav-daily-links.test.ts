@@ -24,7 +24,27 @@ describe("splitSidebarLinksDailyVsMore", () => {
     expect(split.more).toEqual([]);
   });
 
-  it("keeps alert rules in the governance daily strip beside Alerts", () => {
+  it("keeps advisory scans in the governance daily strip", () => {
+    const links = [
+      link("/governance/advisory-scans", "Advisory scans"),
+      link("/governance/alert-rules", "Alert rules"),
+      link("/governance/alerts", "Alerts"),
+      link("/governance/approval-queue", "Approval"),
+      link("/governance/findings", "Findings"),
+      link("/governance/audit", "Audit"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/");
+
+    expect(split.daily.map((row) => row.href)).toEqual([
+      "/governance/approval-queue",
+      "/governance/findings",
+      "/governance/advisory-scans",
+      "/governance/alerts",
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual(["/governance/alert-rules", "/governance/audit"]);
+  });
+
+  it("keeps alert rules in more when advisory scans occupies the daily slot", () => {
     const links = [
       link("/governance/alert-rules", "Alert rules"),
       link("/governance/alerts", "Alerts"),
@@ -38,9 +58,8 @@ describe("splitSidebarLinksDailyVsMore", () => {
       "/governance/approval-queue",
       "/governance/findings",
       "/governance/alerts",
-      "/governance/alert-rules",
     ]);
-    expect(split.more.map((row) => row.href)).toEqual(["/governance/audit"]);
+    expect(split.more.map((row) => row.href)).toEqual(["/governance/alert-rules", "/governance/audit"]);
   });
 
   it("splits governance into daily vs more and preserves daily order", () => {

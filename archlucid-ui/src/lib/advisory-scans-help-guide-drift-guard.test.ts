@@ -8,6 +8,7 @@ import { ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE } from "@/lib/advisory-scans-help-
 import {
   ADVISORY_SCANS_HELP_OVERVIEW,
   ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS,
+  ADVISORY_SCANS_HELP_PAGE_SUBTITLE,
   ADVISORY_SCANS_HELP_TILE_ITEMS,
 } from "@/lib/advisory-scans-help-guide-content";
 
@@ -28,13 +29,23 @@ describe("advisory-scans help negation drift guard", () => {
     expect(diligenceNegationCount).toBe(1);
   });
 
-  it("names explainability trace fields aligned with EXPLAINABILITY_TRACE_COVERAGE", () => {
-    const explainabilityTile = ADVISORY_SCANS_HELP_TILE_ITEMS.find((item) => item.label === "Explainability trail");
+  it("keeps overview distinct from the page subtitle", () => {
+    expect(ADVISORY_SCANS_HELP_OVERVIEW).not.toBe(ADVISORY_SCANS_HELP_PAGE_SUBTITLE);
+    expect(ADVISORY_SCANS_HELP_OVERVIEW.toLowerCase()).not.toContain("prioritized follow-up");
+  });
 
-    expect(explainabilityTile).toBeDefined();
-    expect(explainabilityTile?.detail.toLowerCase()).toContain("graph nodes examined");
-    expect(explainabilityTile?.detail.toLowerCase()).toContain("rules applied");
-    expect(explainabilityTile?.detail.toLowerCase()).toContain("alternative paths");
+  it("names audit trail tile with governed assurance destination", () => {
+    const auditTile = ADVISORY_SCANS_HELP_TILE_ITEMS.find((item) => item.label === "Audit trail");
+
+    expect(auditTile).toBeDefined();
+    expect(auditTile?.detail.toLowerCase()).toContain("governed");
+    expect(auditTile?.href).toContain("/governance/audit");
+  });
+
+  it("uses unique hrefs across tile labels", () => {
+    const hrefs = ADVISORY_SCANS_HELP_TILE_ITEMS.map((item) => item.href);
+
+    expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 
   it("lists stacked advisory-scans sources with when captions including AI usage", () => {
@@ -43,5 +54,6 @@ describe("advisory-scans help negation drift guard", () => {
     expect(new Set(sourceHrefs).size).toBe(sourceHrefs.length);
     expect(ADVISORY_SCANS_SOURCES.every((source) => source.when !== undefined)).toBe(true);
     expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "AI usage help")).toBe(true);
+    expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "Architecture reviews")).toBe(false);
   });
 });
