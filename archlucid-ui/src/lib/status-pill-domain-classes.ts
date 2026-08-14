@@ -25,7 +25,7 @@ function pipelineSemanticClass(status: string): string {
       return "bg-blue-500/10 text-blue-900 dark:bg-blue-500/15 dark:text-blue-200";
 
     case "Starting":
-      return "bg-neutral-500/10 text-al-text-secondary dark:bg-neutral-500/15";
+      return "bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)]";
 
     default:
       return generalSemanticClass(status);
@@ -56,7 +56,7 @@ export function governanceDomainBadgeClass(status: string): string {
 
     case "Draft":
     default:
-      return "bg-neutral-500/10 text-al-text-secondary dark:bg-neutral-500/15";
+      return "bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)]";
   }
 }
 
@@ -82,7 +82,7 @@ function healthSemanticClass(status: string): string {
     || s === "n/a"
     || s === "unknown"
   ) {
-    return "bg-neutral-500/10 text-al-text-secondary dark:bg-neutral-500/15";
+    return "bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)]";
   }
 
   if (s === "advisory" || s === "warn" || s === "warning") {
@@ -98,10 +98,10 @@ function healthSemanticClass(status: string): string {
 
 function generalSemanticClass(status: string): string {
   if (status.trim().length === 0) {
-    return "bg-neutral-500/8 text-al-text-secondary dark:bg-neutral-500/12";
+    return "bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)]";
   }
 
-  return "bg-neutral-500/10 text-al-text-primary dark:bg-neutral-500/15";
+  return "bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)]";
 }
 
 /**

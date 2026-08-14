@@ -272,6 +272,18 @@ Carbon and Fluent both enforce **one filled primary action** per viewport. This 
 
 **Out of scope here:** Marketing/auth/help CTAs; Vitest dual-primary guard (**TB-1544** — extend from `operator-primary-cta-inventory.ts`).
 
+### Primary action color usage (**TB-2279** — done 2026-08-14)
+
+Extends the operator primary CTA contract (**TB-1539**) and inline link contract (**TB-1671**). Teal fill is for **forward workflow**, not navigation wallpaper.
+
+| Use filled teal (`Button variant="primary"`) | Use outline / link instead |
+|------|------|
+| Start review, submit intake, approve disposition, save settings commit | Open drafts list, help topic, audit trail, related settings tab |
+| Irreversible or state-changing workflow on the current surface | Refresh, preview, export, view detail in another route |
+| Exactly one forward job per viewport (pairs **TB-1539**) | `OPERATOR_LINK`, `variant="outline"`, or quiet text links for surface opens |
+
+Canonical strings live in `OPERATOR_PRIMARY_FILL_USAGE_CONTRACT` (`design-tokens.ts`). New surfaces default to outline/link for navigation opens; migrate existing filled navigation CTAs incrementally (**TB-2291** cluster).
+
 **UI architecture pointer:** `archlucid-ui/docs/ARCHITECTURE.md` § *Where to go next*.
 
 ### Operator empty states (**TB-1552** — done 2026-08-11)
@@ -376,11 +388,13 @@ Authoritative implementation: `archlucid-ui/src/lib/design-tokens.ts` and CSS va
 
 | Token | Light-mode role |
 |-------|-----------------|
-| `--al-surface-base` | Page background (`$layer-00`) |
-| `--al-surface-raised` | Cards, tables, callouts (`$layer-01`) |
+| `--al-surface-base` | Page background (`$layer-00`) — micro-shifted from raised white for panel-on-canvas separation (**TB-2278**) |
+| `--al-surface-raised` | Cards, tables, callouts (`$layer-01`) — always paired with `border-neutral-200` hairline on operator cards |
 | `--al-accent-interactive` | Links, selected row left border |
 | `--al-accent-border-focus` | Focus rings (interactive only) |
 | `--al-status-*` | Semantic fills for `StatusTag` / `SeverityTag` |
+| `--al-status-neutral-*` | Informational/limitation metadata — scope honesty, not configured, draft (**TB-2277**) |
+| `--al-status-approved-monitoring-*` | Cool gray-teal monitoring posture — distinct from ready green (**TB-2280**) |
 | `--al-layer-hover` | Table row hover |
 
 Use `DESIGN_TOKENS.callout.*` for warn/blocked/info banners — not decorative `bg-*-50` pastels on neutral cards.

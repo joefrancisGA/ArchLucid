@@ -32,6 +32,9 @@ export const AL_CSS_VAR_NAMES = {
   statusApprovedFg: "--al-status-approved-fg",
   statusApprovedMonitoringBg: "--al-status-approved-monitoring-bg",
   statusApprovedMonitoringFg: "--al-status-approved-monitoring-fg",
+  statusNeutralBg: "--al-status-neutral-bg",
+  statusNeutralFg: "--al-status-neutral-fg",
+  statusNeutralBorder: "--al-status-neutral-border",
   dangerActionBg: "--al-danger-action-bg",
   dangerActionBgHover: "--al-danger-action-bg-hover",
   dangerActionFg: "--al-danger-action-fg",
@@ -522,6 +525,14 @@ export const OPERATOR_CALLOUT_BLOCKED_CLASS = DESIGN_TOKENS.callout.blocked;
 export const OPERATOR_CALLOUT_SUCCESS_CLASS = DESIGN_TOKENS.callout.success;
 export const OPERATOR_SURFACE_CARD_CLASS = DESIGN_TOKENS.surface.card;
 
+/** TB-2279 — filled teal is for forward/irreversible workflow commits only; navigation opens use outline/link. */
+export const OPERATOR_PRIMARY_FILL_USAGE_CONTRACT = {
+  filledPrimary:
+    "Use Button variant=\"primary\" (filled teal) only for forward or irreversible workflow commits — start review, submit, approve, save.",
+  navigationOpens:
+    "Use variant=\"outline\", quiet text links, or OPERATOR_LINK for opening another surface — drafts list, help topic, audit trail, settings tab.",
+} as const;
+
 export type EnterpriseStatusKind =
   | "ready"
   | "needs-attention"
@@ -580,17 +591,17 @@ export function enterpriseStatusTagClass(kind: EnterpriseStatusKind): string {
       return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-emerald-600 bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)] dark:border-l-emerald-500`;
 
     case "approved-with-monitoring":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-teal-700 bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)] dark:border-l-teal-500`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-cyan-800 bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)] dark:border-l-cyan-500`;
 
     case "in-progress":
       return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-sky-700 bg-sky-100 text-sky-950 dark:border-l-sky-500 dark:bg-sky-950/60 dark:text-sky-100`;
 
     case "draft":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-neutral-500 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-400 dark:bg-neutral-800/80`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-[var(--al-status-neutral-border)] bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)] dark:border-l-[var(--al-status-neutral-border)]`;
 
     case "neutral":
     default:
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-neutral-400 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-500 dark:bg-neutral-800/80`;
+      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-[var(--al-status-neutral-border)] bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)] dark:border-l-[var(--al-status-neutral-border)]`;
   }
 }
 
