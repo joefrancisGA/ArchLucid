@@ -101,6 +101,7 @@ import {
 } from "@/lib/evidence-graph-help-evidence-copy";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
+  ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING,
   ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE,
   ARCHITECTURE_INTELLIGENCE_HELP_SOURCES,
   ARCHITECTURE_INTELLIGENCE_HELP_SOURCES_INTRO,
@@ -742,6 +743,7 @@ export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(): React.JS
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-architecture-intelligence"
       claim={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE}
+      claimHeading={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE}

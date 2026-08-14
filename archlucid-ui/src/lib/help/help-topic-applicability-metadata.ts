@@ -4,6 +4,7 @@ const HELP_TOPIC_REGISTRY_PROVENANCE_SLUGS = new Set(["report-a-problem"]);
 
 const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "architecture-drafts",
+  "architecture-intelligence",
   "architecture-scorecard",
   "advisory-scans",
   "ai-usage",

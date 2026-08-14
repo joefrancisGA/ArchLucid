@@ -66,6 +66,18 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-13 · Administration · AI usage orientation");
   });
 
+  it("formats architecture intelligence help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "architecture-intelligence",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "architecture intelligence orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · architecture intelligence orientation");
+  });
+
   it("formats architecture drafts help review provenance", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
