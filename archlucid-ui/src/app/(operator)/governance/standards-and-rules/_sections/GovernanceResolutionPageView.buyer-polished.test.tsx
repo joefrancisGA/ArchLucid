@@ -31,6 +31,7 @@ describe("GovernanceResolutionPageView buyer-polished shell", () => {
     expect(screen.getAllByLabelText("Status: Required").length).toBeGreaterThan(0);
     expect(screen.getByTestId("finding-evidence-link-chip")).toBeInTheDocument();
     expect(screen.getByTestId("standards-rules-refresh")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-resolution-export-markdown")).toBeInTheDocument();
     expect(screen.getByText("PHI minimization required")).toBeInTheDocument();
     expect(screen.queryByText(/Submit for governance approval/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Approval queue/i)).not.toBeInTheDocument();

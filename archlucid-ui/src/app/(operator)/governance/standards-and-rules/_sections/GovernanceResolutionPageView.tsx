@@ -18,21 +18,15 @@ import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPa
 import {
   PageContextualHelpButton,
 } from "@/components/usability/PageContextualHelpButton";
-import { Button } from "@/components/ui/button";
-import { RefreshButton } from "@/components/ui/refresh-button";
 import {
-  governanceResolutionChangeRelatedControlsLead,
-  governanceResolutionChangeRelatedControlsReaderSupplement,
   governanceResolutionEffectivePolicyHeadingOperator,
   governanceResolutionEffectivePolicyHeadingReader,
   governanceResolutionPageLeadOperator,
   governanceResolutionPageLeadReader,
   governanceResolutionRawOutputAccordionLabel,
-  governanceResolutionRefreshPolicySectionHeading,
   governanceResolutionResolutionDetailsHeadingOperator,
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
-import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance/governance-resolution-markdown";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -51,6 +45,7 @@ import {
   STANDARDS_RULES_PAGE_TITLE,
 } from "@/lib/standards-rules-page";
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
+import { GovernanceResolutionExportControls } from "./GovernanceResolutionExportControls";
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
 import { StandardsRulesFilters } from "./StandardsRulesFilters";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
@@ -156,54 +151,7 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
         </div>
       </section>
 
-      <section
-        aria-labelledby="governance-change-controls-heading"
-        className={cn(
-          !canMutateEnterprisePolicySurfaces &&
-            "rounded-md border border-neutral-200/80 bg-neutral-50/60 p-3 dark:border-neutral-700/60 dark:bg-neutral-900/35",
-        )}
-      >
-        <h3 id="governance-change-controls-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-          {governanceResolutionRefreshPolicySectionHeading}
-        </h3>
-        <p className={cn("mb-2.5 mt-0 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {governanceResolutionChangeRelatedControlsLead}
-        </p>
-        {!canMutateEnterprisePolicySurfaces ? (
-          <p className={cn("mb-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
-            {governanceResolutionChangeRelatedControlsReaderSupplement}
-          </p>
-        ) : null}
-        <div className="mb-0 flex flex-wrap gap-2">
-          <RefreshButton busy={m.loading} onClick={() => void m.load()} />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            data-testid="governance-resolution-export-markdown"
-            aria-label="Download a point-in-time diagnostic report with notes, conflicts, decisions, and effective content"
-            disabled={m.loading || m.data === null}
-            aria-describedby={m.data === null && !m.loading ? "governance-resolution-export-disabled-hint" : undefined}
-            onClick={() => {
-              if (m.data === null) {
-                return;
-              }
-
-              triggerGovernanceResolutionMarkdownDownload(m.data);
-            }}
-          >
-            Export diagnostic report
-          </Button>
-        </div>
-        {m.data === null && !m.loading ? (
-          <p
-            id="governance-resolution-export-disabled-hint"
-            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          >
-            Refresh governance resolution data before exporting a diagnostic report.
-          </p>
-        ) : null}
-      </section>
+      <GovernanceResolutionExportControls model={m} />
     </>
   );
 }
@@ -253,6 +201,7 @@ export function GovernanceResolutionPageView(props: Props) {
           }}
           refreshing={m.loading}
         />
+        <GovernanceResolutionExportControls compact model={m} />
         {allRuleRows.length === 0 ? (
           <StandardsRulesEmptyState />
         ) : filteredRuleRows.length === 0 ? (
