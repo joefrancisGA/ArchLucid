@@ -54,6 +54,18 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-13 · governance advisory scans orientation");
   });
 
+  it("formats baseline settings help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "baseline-settings",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "administration baseline settings orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · administration baseline settings orientation");
+  });
+
   it("formats ai usage help review provenance", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
@@ -88,6 +100,18 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
         }),
       ),
     ).toBe("Last reviewed 2026-08-13 · architecture drafts orientation");
+  });
+
+  it("formats connection status help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "connection-status",
+          lastReviewed: "2026-08-12",
+          releaseApplicability: "administration connection status orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-12 · administration connection status orientation");
   });
 
   it("returns null when report-a-problem registry metadata is absent", () => {

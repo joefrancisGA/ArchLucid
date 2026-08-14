@@ -27,4 +27,14 @@ describe("connection-status-help-status-legend", () => {
       expect(resolveConnectorDisplayStatusTag(status).label).toBeTruthy();
     }
   });
+
+  it("assigns a distinct status kind to every connector display status", () => {
+    const kinds = EXPECTED_STATUSES.map((status) => resolveConnectorDisplayStatusTag(status).kind);
+
+    expect(new Set(kinds).size).toBe(EXPECTED_STATUSES.length);
+    expect(resolveConnectorDisplayStatusTag("Recommended").kind).not.toBe(
+      resolveConnectorDisplayStatusTag("Needs attention").kind,
+    );
+    expect(resolveConnectorDisplayStatusTag("Needs attention").label).toBe("Needs attention");
+  });
 });

@@ -8,6 +8,9 @@ const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "architecture-scorecard",
   "advisory-scans",
   "ai-usage",
+  "baseline-settings",
+  "connection-status",
+  "contact-support",
 ]);
 
 function formatGuideReviewProvenance(entry: ProductDocumentationEntry): string | null {

@@ -322,7 +322,7 @@ export function resolveConnectorDisplayStatusTag(status: ConnectorDisplayStatus)
       return { kind: "ready", label: "Ready" };
 
     case "Recommended":
-      return { kind: "needs-attention", label: "Recommended" };
+      return { kind: "in-progress", label: "Recommended" };
 
     case "Optional":
       return { kind: "neutral", label: "Optional" };
@@ -334,7 +334,7 @@ export function resolveConnectorDisplayStatusTag(status: ConnectorDisplayStatus)
       return { kind: "blocked", label: "Disabled" };
 
     case "Needs attention":
-      return { kind: "needs-attention", label: "Action needed" };
+      return { kind: "needs-attention", label: "Needs attention" };
 
     default: {
       const exhaustive: never = status;

@@ -3,21 +3,24 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { fetchTenantIntegrationsOperations } from "@/lib/api";
+import { pickOptionalAsOfUtc } from "@/lib/ai-usage-fetch-utils";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { readActiveWorkspaceScopeLabel } from "@/lib/active-workspace-scope-label";
 import { buildIntegrationReadinessSummaryTiles } from "@/lib/connector-readiness-summary";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
-import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
 import {
   CONNECTION_STATUS_HELP_READINESS_SECTION_TITLE,
 } from "@/lib/connection-status-help-guide-content";
+import type { TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
 
 export const CONNECTION_STATUS_HELP_WORKSPACE_SCOPE_FALLBACK_LABEL = "This workspace";
 
 export type ConnectionStatusHelpReadinessMetric = {
+  readonly id: string;
   readonly label: string;
   readonly valueLabel: string;
   readonly statusKind: EnterpriseStatusKind;
-  readonly href: string;
+  readonly href: string | null;
 };
 
 export type ConnectionStatusHelpWorkspaceReadinessSnapshot = {
@@ -56,6 +59,23 @@ function summaryToneToStatusKind(tone: "healthy" | "attention" | "neutral" | "di
   }
 }
 
+function resolveIntegrationsOperationsAsOfUtc(data: TenantIntegrationsOperationsDto): string | null {
+  const explicit = data.asOfUtc?.trim() ?? "";
+
+  if (explicit.length > 0) {
+    return explicit;
+  }
+
+  return pickOptionalAsOfUtc(data as unknown as Record<string, unknown>);
+}
+
+/** Filtered inventory deep links are not yet on `/administration/connection-status`. */
+export function resolveConnectionStatusHelpReadinessTileHref(tileId: string): string | null {
+  void tileId;
+
+  return null;
+}
+
 export function useConnectionStatusHelpWorkspaceReadiness(): ConnectionStatusHelpWorkspaceReadinessSnapshot {
   const [snapshot, setSnapshot] = useState(INITIAL_SNAPSHOT);
 
@@ -65,23 +85,25 @@ export function useConnectionStatusHelpWorkspaceReadiness(): ConnectionStatusHel
     void fetchTenantIntegrationsOperations()
       .then((data) => {
         const tiles = buildIntegrationReadinessSummaryTiles(data);
+        const workspaceScopeLabel = readActiveWorkspaceScopeLabel();
 
         setSnapshot({
           loading: false,
           loadFailed: false,
           loadForbidden: false,
           metrics: tiles.map((tile) => ({
+            id: tile.id,
             label: tile.label,
             valueLabel: tile.value,
             statusKind: summaryToneToStatusKind(tile.tone),
-            href: CONNECTION_STATUS_CANONICAL_PATH,
+            href: resolveConnectionStatusHelpReadinessTileHref(tile.id),
           })),
-          workspaceScopeLabel: CONNECTION_STATUS_HELP_WORKSPACE_SCOPE_FALLBACK_LABEL,
-          loadedAtUtc: new Date().toISOString(),
+          workspaceScopeLabel,
+          loadedAtUtc: resolveIntegrationsOperationsAsOfUtc(data),
         });
       })
       .catch((error: unknown) => {
-        if (isApiRequestError(error) && error.status === 403) {
+        if (isApiRequestError(error) && error.httpStatus === 403) {
           setSnapshot({
             loading: false,
             loadFailed: false,

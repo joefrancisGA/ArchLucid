@@ -4,6 +4,7 @@ import {
   formatConnectorCustomerSummary,
   formatConnectorDisplayStatus,
   groupConnectorsByPurpose,
+  resolveConnectorDisplayStatusTag,
   resolveConnectorGuidance,
   resolveConnectorHumanStatus,
   resolveIntegrationEventBusDisplayStatus,
@@ -68,6 +69,17 @@ describe("connector-operations-present", () => {
     const teams = connector({ connectorKey: "teams", smokeReadiness: "NotConfigured" });
 
     expect(formatConnectorDisplayStatus(teams)).toBe("Recommended");
+  });
+
+  it("maps display status tags with distinct kinds for Recommended and Needs attention", () => {
+    expect(resolveConnectorDisplayStatusTag("Recommended")).toEqual({
+      kind: "in-progress",
+      label: "Recommended",
+    });
+    expect(resolveConnectorDisplayStatusTag("Needs attention")).toEqual({
+      kind: "needs-attention",
+      label: "Needs attention",
+    });
   });
 
   it("labels partially configured optional connectors as Optional", () => {

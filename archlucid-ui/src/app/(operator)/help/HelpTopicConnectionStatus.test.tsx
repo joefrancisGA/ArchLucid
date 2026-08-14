@@ -35,7 +35,10 @@ describe("HelpConnectionStatusGuideView (HCO)", () => {
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
     expect(screen.getByTestId("help-connection-status-status-legend")).toBeInTheDocument();
     expect(screen.getByText("Ready")).toBeInTheDocument();
-    expect(screen.getByText("Action needed")).toBeInTheDocument();
+    expect(screen.getByText("Needs attention")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
+      "Last reviewed 2026-08-12 · administration connection status orientation",
+    );
     expect(screen.queryByText(/Sources package/i)).toBeNull();
     expect(screen.queryByRole("link", { name: CONNECTION_STATUS_HELP_PRIMARY_ACTION.label })).toBe(
       screen.getByTestId("help-connection-status-primary-cta"),
