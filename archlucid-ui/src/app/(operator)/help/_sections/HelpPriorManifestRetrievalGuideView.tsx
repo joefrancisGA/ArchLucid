@@ -15,7 +15,7 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -29,6 +29,7 @@ import {
 import {
   PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED,
   PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED_HEADING,
+  PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_HEADING_ID,
 } from "@/lib/prior-manifest-retrieval-help-evidence-copy";
 import {
   PRIOR_MANIFEST_RETRIEVAL_HELP_JOB_MATRIX,
@@ -52,7 +53,10 @@ export function HelpPriorManifestRetrievalGuideView(
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const headings = appendHelpClaimDisciplineTocHeadings(
+    extractHelpMarkdownHeadings(preparedMarkdown),
+    PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_HEADING_ID,
+  );
 
   return (
     <article
@@ -93,8 +97,6 @@ export function HelpPriorManifestRetrievalGuideView(
           </div>
         }
       />
-
-      <PriorManifestRetrievalHelpEvidenceOrientationStrip />
 
       <section
         aria-labelledby="help-prior-manifest-retrieval-job-matrix-heading"
@@ -168,6 +170,8 @@ export function HelpPriorManifestRetrievalGuideView(
               ))}
             </ul>
           </section>
+
+          <PriorManifestRetrievalHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={headings} />

@@ -93,8 +93,6 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
 
       <HelpAuditTrailPageHeader entry={entry} subtitle={auditTrailHelpPageSubtitle(buyerPolishedShell)} />
 
-      <AuditTrailHelpEvidenceOrientationStrip />
-
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn("min-w-0 space-y-8", "max-w-[42rem] lg:max-w-none")}>
           <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-audit-trail-overview">
@@ -221,6 +219,8 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
               {AUDIT_TRAIL_HELP_RELATED_PRODUCT_DOCS.label}
             </Link>
           </p>
+
+          <AuditTrailHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={AUDIT_TRAIL_HELP_GUIDE_HEADINGS} enableScrollSpy />

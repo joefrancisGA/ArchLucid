@@ -44,10 +44,13 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import {
+  COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID,
+} from "@/lib/comparison-replay-help-evidence-copy";
 import { cn } from "@/lib/utils";
 
 type HelpComparisonReplayGuideViewProps = {
@@ -77,7 +80,10 @@ export function HelpComparisonReplayGuideView(
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const headings = appendHelpClaimDisciplineTocHeadings(
+    extractHelpMarkdownHeadings(preparedMarkdown),
+    COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID,
+  );
   const deferredJobDetail = splitComparisonReplayDeferredDetail(preparedMarkdown);
   const validateUnavailable = comparisonReplayValidateReviewUnavailableCopy();
   const validateActionAvailable = isComparisonReplayValidateReviewActionAvailable();
@@ -102,8 +108,6 @@ export function HelpComparisonReplayGuideView(
           </div>
         </div>
       </header>
-
-      <ComparisonReplayHelpEvidenceOrientationStrip />
 
       <div
         className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
@@ -246,6 +250,8 @@ export function HelpComparisonReplayGuideView(
               ))}
             </ul>
           </section>
+
+          <ComparisonReplayHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={headings} />

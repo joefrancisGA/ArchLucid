@@ -28,7 +28,7 @@ import {
   GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING,
   GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS,
 } from "@/lib/governance/governance-approval-help-guide-content";
-import { GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE } from "@/lib/governance/governance-approval-help-evidence-copy";
+import { GovernanceApprovalHelpEvidenceOrientationStrip } from "@/components/help/GovernanceApprovalHelpEvidenceOrientationStrip";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
@@ -234,13 +234,6 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
             </Link>
           </CardContent>
         </Card>
-
-        <aside
-          className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
-          data-testid="help-governance-approval-claim-discipline"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE}</p>
-        </aside>
       </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
@@ -359,6 +352,8 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
             <HelpSectionHeading id="troubleshooting">Troubleshooting</HelpSectionHeading>
             <TroubleshootingList />
           </section>
+
+          <GovernanceApprovalHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS} enableScrollSpy />

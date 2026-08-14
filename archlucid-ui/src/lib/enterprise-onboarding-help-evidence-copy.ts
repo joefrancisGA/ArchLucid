@@ -5,14 +5,20 @@ export const ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH = "/help/enterprise-onboa
 
 export const ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL = "How enterprise onboarding works" as const;
 
+export const ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
+export const ENTERPRISE_ONBOARDING_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID =
+  "help-enterprise-onboarding-claim-discipline-heading" as const;
+
 export const ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE = "Related setup and trust pages";
 
 export const ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE =
-  "This enterprise onboarding checklist orients architects on SSO, identity, and hosted tenant setup — it is not a sealed review record. Open Identity providers, Security and trust, or Audit when you need live evidence trails or governance approval records.";
+  "This checklist orients architects on SSO, identity, and hosted tenant setup — open Identity providers, Security and trust, or Audit when you need live evidence trails or governance approval records.";
 
 export const ENTERPRISE_ONBOARDING_HELP_SOURCES_INTRO =
   "Use these follow-ups when onboarding checklist steps turn into identity setup, roles, cloud attachment, or assurance orientation.";
-
 
 /** Operator Sources - no self-href to `/help/enterprise-onboarding`. */
 export const ENTERPRISE_ONBOARDING_HELP_SOURCES: readonly EvidenceSourceLink[] = [

@@ -192,8 +192,6 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
         </div>
       </header>
 
-      <ConnectAwsSecurelyHelpEvidenceOrientationStrip />
-
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-connect-aws-securely-primary">
           <section aria-labelledby="security-model" className="space-y-3">
@@ -370,6 +368,8 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
               <Link href={CONNECT_AWS_SECURELY_CONFIGURE_HREF}>{CONNECT_AWS_SECURELY_CONFIGURE_ACTION}</Link>
             </Button>
           </div>
+
+          <ConnectAwsSecurelyHelpEvidenceOrientationStrip />
         </div>
         <HelpTopicTableOfContents headings={CONNECT_AWS_SECURELY_TOC_HEADINGS} enableScrollSpy />
       </div>

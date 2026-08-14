@@ -1,5 +1,9 @@
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import {
+  TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING,
+  TROUBLESHOOTING_HELP_CLAIM_HEADING_ID,
+} from "@/lib/troubleshooting-help-evidence-copy";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
@@ -356,10 +360,13 @@ export const TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS: readonly Troubleshootin
   },
 ] as const;
 
+
 export const TROUBLESHOOTING_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "start-here", title: "Start here" },
   { level: 2, id: "common-issues", title: "Common issues" },
   { level: 2, id: "decision-tree", title: "Decision tree" },
   { level: 2, id: "before-contacting-support", title: "Before contacting support" },
   { level: 2, id: "advanced-diagnostics", title: "Advanced diagnostics" },
+  { level: 2, id: TROUBLESHOOTING_HELP_CLAIM_HEADING_ID, title: TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING },
+  { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

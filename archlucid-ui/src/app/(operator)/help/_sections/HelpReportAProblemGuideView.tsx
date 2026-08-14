@@ -119,8 +119,6 @@ export function HelpReportAProblemGuideView(
         }
       />
 
-      <ReportProblemHelpEvidenceOrientationStrip />
-
       <p
         className={cn("m-0 max-w-3xl rounded-md border border-neutral-200 bg-al-surface-raised p-4", OPERATOR_TYPOGRAPHY.body)}
         data-testid="help-report-a-problem-no-trigger-callout"
@@ -231,6 +229,8 @@ export function HelpReportAProblemGuideView(
             ))}
           </ul>
         </section>
+
+        <ReportProblemHelpEvidenceOrientationStrip />
       </div>
     </article>
   );

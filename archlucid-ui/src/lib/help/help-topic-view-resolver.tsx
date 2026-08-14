@@ -7,6 +7,7 @@ import { ScopeHelpEvidenceOrientationStrip } from "@/components/help/ScopeHelpEv
 import { SecurityTrustHelpEvidenceOrientationStrip } from "@/components/help/SecurityTrustHelpEvidenceOrientationStrip";
 import { SubprocessorsHelpEvidenceOrientationStrip } from "@/components/help/SubprocessorsHelpEvidenceOrientationStrip";
 import { HelpSubprocessorsHeaderMetadata } from "@/app/(operator)/help/_sections/HelpSubprocessorsHeaderMetadata";
+import { SECURITY_TRUST_HELP_CLAIM_HEADING_ID } from "@/lib/security-trust-help-evidence-copy";
 import { assertHelpTopicCatchAllFallthroughAllowed } from "@/lib/help/help-topic-catch-all-fallthrough";
 import type { LoadedHelpTopicContent } from "@/lib/help/help-topic-content-loader";
 
@@ -557,6 +558,7 @@ export function resolveHelpTopicView(
         markdown={loaded.markdown}
         showContextualHelp
         evidenceOrientation={<SecurityTrustHelpEvidenceOrientationStrip />}
+        claimDisciplineTocHeadingId={SECURITY_TRUST_HELP_CLAIM_HEADING_ID}
       />
     );
   }

@@ -1,5 +1,9 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
+  AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING,
+  AUDIT_TRAIL_HELP_CLAIM_HEADING_ID,
+} from "@/lib/audit-trail-help-evidence-copy";
+import {
   AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS,
   AUDIT_TRAIL_PAGE_SUBTITLE_BUYER,
   AUDIT_TRAIL_PAGE_SUBTITLE_OPERATOR,
@@ -202,6 +206,7 @@ export const AUDIT_TRAIL_HELP_TECHNICAL_REFERENCE_SECTIONS = [
   },
 ] as const;
 
+
 export const AUDIT_TRAIL_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-the-audit-trail-is", title: "What the audit trail is" },
   { level: 2, id: "anatomy-of-an-entry", title: "Anatomy of an audit trail entry" },
@@ -209,5 +214,13 @@ export const AUDIT_TRAIL_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "evidence-trail-connection", title: "Connection to the evidence trail" },
   { level: 2, id: "live-surface-vs-help", title: "Live audit trail vs this help topic" },
   { level: 2, id: "role-guidance", title: "Role guidance" },
+  { level: 2, id: AUDIT_TRAIL_HELP_CLAIM_HEADING_ID, title: AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING },
+  { level: 2, id: "where-to-go-next", title: "Where to go next" },
   { level: 2, id: "technical-reference", title: "Technical reference" },
 ];
+
+/** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
+export const AUDIT_TRAIL_HELP_NEGATION_DRIFT_MARKERS = {
+  overviewMustNotContain: ["sources package", "sealed-review diligence"],
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;

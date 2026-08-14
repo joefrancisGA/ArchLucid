@@ -17,7 +17,7 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -35,6 +35,7 @@ import {
 } from "@/lib/subprocessors-help-guide-content";
 import {
   SUBPROCESSORS_HELP_RELATED_HEADING,
+  SUBPROCESSORS_HELP_CLAIM_HEADING_ID,
 } from "@/lib/subprocessors-help-evidence-copy";
 import {
   SUBPROCESSORS_HELP_RELATED_TEST_ID,
@@ -56,7 +57,10 @@ export function HelpSubprocessorsGuideView(
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const headings = appendHelpClaimDisciplineTocHeadings(
+    extractHelpMarkdownHeadings(preparedMarkdown),
+    SUBPROCESSORS_HELP_CLAIM_HEADING_ID,
+  );
   const relatedGuides = subprocessorsHelpRelatedGuides();
 
   return (
@@ -122,8 +126,6 @@ export function HelpSubprocessorsGuideView(
           </CardContent>
         </Card>
       </div>
-
-      <SubprocessorsHelpEvidenceOrientationStrip />
 
       <section
         aria-labelledby="help-subprocessors-job-matrix-heading"
@@ -197,6 +199,8 @@ export function HelpSubprocessorsGuideView(
               ))}
             </ul>
           </section>
+
+          <SubprocessorsHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={headings} />

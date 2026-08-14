@@ -25,7 +25,7 @@ import {
   GOVERNANCE_APPROVAL_HELP_STATUS_ROWS,
   GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS,
 } from "@/lib/governance/governance-approval-help-guide-content";
-import { GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE } from "@/lib/governance/governance-approval-help-evidence-copy";
+import { GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE, GOVERNANCE_APPROVAL_HELP_SOURCES } from "@/lib/governance/governance-approval-help-evidence-copy";
 import { governanceDomainBadgeClass } from "@/lib/status-pill-domain-classes";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -55,10 +55,19 @@ function primaryCopyText(): string {
   return primary.textContent?.toLowerCase() ?? "";
 }
 
-function collectPageLinkHrefs(): string[] {
+function collectPageLinkHrefs(options?: { excludeOrientationStrip?: boolean }): string[] {
   const guide = screen.getByTestId("help-governance-approval-guide");
+  const orientationStrip = guide.querySelector('[data-testid="help-governance-approval-orientation"]');
 
-  return Array.from(guide.querySelectorAll("a[href]")).map((anchor) => anchor.getAttribute("href") ?? "");
+  return Array.from(guide.querySelectorAll("a[href]"))
+    .filter((anchor) => {
+      if (options?.excludeOrientationStrip && orientationStrip?.contains(anchor)) {
+        return false;
+      }
+
+      return true;
+    })
+    .map((anchor) => anchor.getAttribute("href") ?? "");
 }
 
 describe("HelpGovernanceApprovalGuideView", () => {
@@ -195,18 +204,29 @@ describe("HelpGovernanceApprovalGuideView", () => {
     }
   });
 
-  it("keeps unique hrefs across visible link affordances", () => {
+  it("keeps unique hrefs across primary and body link affordances", () => {
     if (entry === undefined) {
       throw new Error("Expected governance-approval documentation entry.");
     }
 
     render(<HelpGovernanceApprovalGuideView entry={entry} />);
 
-    const hrefs = collectPageLinkHrefs().filter((href) => !href.startsWith("#"));
+    const hrefs = collectPageLinkHrefs({ excludeOrientationStrip: true }).filter((href) => !href.startsWith("#"));
     expect(new Set(hrefs).size).toBe(hrefs.length);
 
+    const followUpHrefs = GOVERNANCE_APPROVAL_HELP_SOURCES.map((source) => source.href);
+    expect(new Set(followUpHrefs).size).toBe(followUpHrefs.length);
+
     for (const action of GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS) {
-      expect(screen.getByRole("link", { name: action.label })).toHaveAttribute("href", action.href);
+      expect(
+        within(screen.getByTestId("help-governance-approval-common-actions")).getByRole("link", { name: action.label }),
+      ).toHaveAttribute("href", action.href);
+    }
+
+    for (const source of GOVERNANCE_APPROVAL_HELP_SOURCES) {
+      expect(
+        within(screen.getByTestId("help-governance-approval-orientation")).getByRole("link", { name: source.label }),
+      ).toHaveAttribute("href", source.href);
     }
   });
 

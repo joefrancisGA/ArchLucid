@@ -10,6 +10,7 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
   AUTHENTICATION_SIGN_IN_HELP_CANONICAL_PATH,
+  AUTHENTICATION_SIGN_IN_HELP_CLAIM_HEADING_ID,
   AUTHENTICATION_SIGN_IN_HELP_PAGE_SCOPE,
 } from "@/lib/authentication-sign-in-help-evidence-copy";
 import {
@@ -17,7 +18,7 @@ import {
   splitAuthenticationSignInHelpMarkdown,
 } from "@/lib/authentication-sign-in-help-guide-content";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -59,7 +60,10 @@ export function HelpAuthenticationSignInGuideView(
     helpTopicSlug: entry.slug,
   });
   const sections = splitAuthenticationSignInHelpMarkdown(preparedMarkdown);
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown).filter((heading) => heading.id !== "related");
+  const headings = appendHelpClaimDisciplineTocHeadings(
+    extractHelpMarkdownHeadings(preparedMarkdown).filter((heading) => heading.id !== "related"),
+    AUTHENTICATION_SIGN_IN_HELP_CLAIM_HEADING_ID,
+  );
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
   const collapsibleSections = AUTHENTICATION_SIGN_IN_HELP_COLLAPSIBLE_SECTIONS;
 
@@ -91,8 +95,6 @@ export function HelpAuthenticationSignInGuideView(
       >
         <HelpTopicSignInFailureTriageLine />
       </OperatorPageHeader>
-
-      <AuthenticationSignInHelpEvidenceOrientationStrip />
 
       <HelpAuthenticationSignInActionPanel />
 
@@ -138,6 +140,7 @@ export function HelpAuthenticationSignInGuideView(
 
             {renderHelpMarkdownSection(sections.securityPrivacyMarkdown, entry, sourceDocPath)}
             <HelpAuthenticationSignInRelatedTopics />
+            <AuthenticationSignInHelpEvidenceOrientationStrip />
           </div>
         </div>
 

@@ -11,12 +11,18 @@ export const INTEGRATION_READINESS_HELP_PRIMARY_ACTION = {
   testId: "help-integration-readiness-open-connection-status",
 } as const;
 
+export const INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE =
-  "This integration readiness guide is architect orientation for connector setup priority — it is not a sealed-review diligence Sources package. Open Connection status or a specific integration settings page when you need live connector health.";
+  "This guide orients architects on connector setup priority — open Connection status or a specific integration settings page when you need live connector health.";
+
+export const INTEGRATION_READINESS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const INTEGRATION_READINESS_HELP_CLAIM_HEADING_ID =
+  "help-integration-readiness-claim-discipline-heading" as const;
 
 export const INTEGRATION_READINESS_HELP_SOURCES_INTRO =
   "Use these follow-ups when readiness labels turn into live connector setup, ITSM destinations, or cloud evidence attachments.";
-
 
 /** Operator Sources - no self-href to `/help/integration-readiness`. */
 export const INTEGRATION_READINESS_HELP_SOURCES: readonly EvidenceSourceLink[] = [

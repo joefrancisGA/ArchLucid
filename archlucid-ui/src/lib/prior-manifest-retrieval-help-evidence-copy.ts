@@ -12,8 +12,15 @@ export const PRIOR_MANIFEST_RETRIEVAL_HELP_CANONICAL_PATH = "/help/prior-manifes
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_TOPIC_LABEL =
   "How Ask memory from finalized reviews works" as const;
 
+export const PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE =
-  "This Ask memory guide orients architects on how finalized reviews become searchable tenant memory — it is help orientation, not a sealed-review diligence Sources package from your tenant. Open Search review evidence or Ask when you need live retrieval hits.";
+  "This guide orients architects on how finalized reviews become searchable tenant memory — open Search review evidence or Ask when you need live retrieval hits.";
+
+export const PRIOR_MANIFEST_RETRIEVAL_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_HEADING_ID =
+  "help-prior-manifest-retrieval-claim-discipline-heading" as const;
 
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES_INTRO =
   "Use these follow-ups when Ask-memory vocabulary turns into live search, Ask answers, or finalized package lineage.";

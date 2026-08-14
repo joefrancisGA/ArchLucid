@@ -1,5 +1,9 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-scorecard-page-copy";
+import {
+  ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE_HEADING,
+  ARCHITECTURE_SCORECARD_HELP_CLAIM_HEADING_ID,
+} from "@/lib/architecture-scorecard-help-evidence-copy";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
 import {
@@ -114,10 +118,12 @@ export const ARCHITECTURE_SCORECARD_HELP_SIBLING_REPORTS = [
   },
 ] as const;
 
+
 export const ARCHITECTURE_SCORECARD_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-the-scorecard-shows", title: "What the scorecard shows" },
   { level: 2, id: "how-to-read-architecture-scorecard", title: ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL },
   { level: 2, id: "basis-of-estimate", title: ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_SECTION_TITLE },
   { level: 2, id: "scorecard-vs-roi-summary", title: ARCHITECTURE_SCORECARD_HELP_SCORECARD_ROI_SECTION_TITLE },
+  { level: 2, id: ARCHITECTURE_SCORECARD_HELP_CLAIM_HEADING_ID, title: ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE_HEADING },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

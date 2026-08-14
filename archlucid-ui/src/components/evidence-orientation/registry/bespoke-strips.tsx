@@ -1,3 +1,4 @@
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientation/EvidenceOrientationClaimCallout";
 import { AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE } from "@/lib/azure-permissions-help-evidence-copy";
 import { EvidenceOrientationLead } from "@/components/evidence-orientation/EvidenceOrientationLead";
@@ -14,7 +15,7 @@ import {
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import { cn } from "@/lib/utils";
-import { EVIDENCE_CLAIM_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
+import { EVIDENCE_CLAIM_STYLE, EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE,
   CONNECT_GCP_SECURELY_SOURCES,
@@ -35,10 +36,10 @@ import { PROCUREMENT_HELP_CLAIM_DISCIPLINE, PROCUREMENT_HELP_LEAD } from "@/lib/
 import { SCOPE_HELP_CLAIM_DISCIPLINE } from "@/lib/scope-help-evidence-copy";
 import { EvidenceOrientationMetaLine } from "@/components/evidence-orientation/EvidenceOrientationMetaLine";
 import {
-  TROUBLESHOOTING_HELP_APPLICABILITY,
   TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE,
-  TROUBLESHOOTING_HELP_LAST_REVIEWED_LABEL,
-  TROUBLESHOOTING_HELP_RELATED_TITLE,
+  TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING,
+  TROUBLESHOOTING_HELP_CLAIM_HEADING_ID,
+  TROUBLESHOOTING_HELP_FOLLOW_UPS_TITLE,
   TROUBLESHOOTING_HELP_SOURCES,
   TROUBLESHOOTING_HELP_SOURCES_INTRO,
 } from "@/lib/troubleshooting-help-evidence-copy";
@@ -206,26 +207,21 @@ export function ScopeHelpEvidenceOrientationStrip(): React.JSX.Element {
 
 export function TroubleshootingHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
-    <EvidenceOrientationStripShell testId="troubleshooting-help-orientation">
-      <EvidenceOrientationClaimCallout
-        testId="troubleshooting-help-claim-discipline"
-        body={TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE}
-      />
-
-      <EvidenceOrientationMetaLine
-        testId="troubleshooting-help-freshness"
-        label={TROUBLESHOOTING_HELP_LAST_REVIEWED_LABEL}
-        text={TROUBLESHOOTING_HELP_APPLICABILITY}
-      />
-
-      <EvidenceOrientationSourcesSection
-        testId="troubleshooting-help-related"
-        headingId="troubleshooting-help-related-heading"
-        title={TROUBLESHOOTING_HELP_RELATED_TITLE}
-        intro={TROUBLESHOOTING_HELP_SOURCES_INTRO}
-        links={TROUBLESHOOTING_HELP_SOURCES}
-      />
-    </EvidenceOrientationStripShell>
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="troubleshooting-help"
+      claimTestId="troubleshooting-help-claim-discipline"
+      claim={TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE}
+      claimHeading={TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={TROUBLESHOOTING_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={TROUBLESHOOTING_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={TROUBLESHOOTING_HELP_SOURCES_INTRO}
+      sources={TROUBLESHOOTING_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
   );
 }
 

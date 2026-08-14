@@ -3,26 +3,49 @@ import { EvidenceOrientationSourcesSection } from "@/components/evidence-orienta
 import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
 import {
   AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE,
+  AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING,
+  AUDIT_TRAIL_HELP_CLAIM_HEADING_ID,
+  AUDIT_TRAIL_HELP_FOLLOW_UPS_TITLE,
   AUDIT_TRAIL_HELP_SOURCES,
   AUDIT_TRAIL_HELP_SOURCES_INTRO,
 } from "@/lib/audit-trail-help-evidence-copy";
 import {
+  ALERTS_HELP_CLAIM_DISCIPLINE,
+  ALERTS_HELP_CLAIM_DISCIPLINE_HEADING,
+  ALERTS_HELP_CLAIM_HEADING_ID,
+  ALERTS_HELP_FOLLOW_UPS_TITLE,
+  ALERTS_HELP_SOURCES,
+  ALERTS_HELP_SOURCES_INTRO,
+} from "@/lib/alerts-help-evidence-copy";
+import {
   AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE,
+  AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE_HEADING,
+  AUTHENTICATION_SIGN_IN_HELP_CLAIM_HEADING_ID,
+  AUTHENTICATION_SIGN_IN_HELP_FOLLOW_UPS_TITLE,
   AUTHENTICATION_SIGN_IN_HELP_SOURCES,
   AUTHENTICATION_SIGN_IN_HELP_SOURCES_INTRO,
 } from "@/lib/authentication-sign-in-help-evidence-copy";
 import {
   COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE,
+  COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE_HEADING,
+  COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID,
+  COMPARISON_REPLAY_HELP_FOLLOW_UPS_TITLE,
   COMPARISON_REPLAY_HELP_SOURCES,
   COMPARISON_REPLAY_HELP_SOURCES_INTRO,
 } from "@/lib/comparison-replay-help-evidence-copy";
 import {
   CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
+  CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING,
+  CONNECT_AWS_SECURELY_CLAIM_HEADING_ID,
+  CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE,
   CONNECT_AWS_SECURELY_SOURCES,
   CONNECT_AWS_SECURELY_SOURCES_INTRO,
 } from "@/lib/connect-aws-securely-help-evidence-copy";
 import {
   CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE,
+  CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE_HEADING,
+  CONNECT_AZURE_SECURELY_CLAIM_HEADING_ID,
+  CONNECT_AZURE_SECURELY_FOLLOW_UPS_TITLE,
   CONNECT_AZURE_SECURELY_SOURCES,
   CONNECT_AZURE_SECURELY_SOURCES_INTRO,
 } from "@/lib/connect-azure-securely-help-content";
@@ -175,6 +198,9 @@ import {
 } from "@/lib/workspace-settings-help-evidence-copy";
 import { WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID } from "@/lib/workspace-settings-help-guide-content";
 import {
+  ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE,
+  ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE_HEADING,
+  ARCHITECTURE_SCORECARD_HELP_CLAIM_HEADING_ID,
   ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE,
   ARCHITECTURE_SCORECARD_HELP_SOURCES,
   ARCHITECTURE_SCORECARD_HELP_SOURCES_INTRO,
@@ -238,10 +264,20 @@ import {
 import { STANDARDS_RULES_HELP_CLAIM_HEADING_ID } from "@/lib/standards-rules-help-guide-content";
 import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
-  ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
+  ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE_HEADING,
+  ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID,
+  ENTERPRISE_ONBOARDING_HELP_FOLLOW_UPS_TITLE,
   ENTERPRISE_ONBOARDING_HELP_SOURCES,
   ENTERPRISE_ONBOARDING_HELP_SOURCES_INTRO,
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
+import {
+  GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE,
+  GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE_HEADING,
+  GOVERNANCE_APPROVAL_HELP_CLAIM_HEADING_ID,
+  GOVERNANCE_APPROVAL_HELP_FOLLOW_UPS_TITLE,
+  GOVERNANCE_APPROVAL_HELP_SOURCES,
+  GOVERNANCE_APPROVAL_HELP_SOURCES_INTRO,
+} from "@/lib/governance/governance-approval-help-evidence-copy";
 import {
   FINDINGS_HELP_CLAIM_DISCIPLINE,
   FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -252,41 +288,65 @@ import {
 import { FINDINGS_HELP_CLAIM_HEADING_ID } from "@/lib/findings/findings-help-guide-content";
 import {
   INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE,
+  INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE_HEADING,
+  INTEGRATION_READINESS_HELP_CLAIM_HEADING_ID,
+  INTEGRATION_READINESS_HELP_FOLLOW_UPS_TITLE,
   INTEGRATION_READINESS_HELP_SOURCES,
   INTEGRATION_READINESS_HELP_SOURCES_INTRO,
 } from "@/lib/integration-readiness-help-evidence-copy";
 import {
   PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE,
+  PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE_HEADING,
+  PILOT_FEEDBACK_HELP_CLAIM_HEADING_ID,
+  PILOT_FEEDBACK_HELP_FOLLOW_UPS_TITLE,
   PILOT_FEEDBACK_HELP_SOURCES,
   PILOT_FEEDBACK_HELP_SOURCES_INTRO,
 } from "@/lib/pilot-feedback-help-evidence-copy";
 import {
   PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE,
+  PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE_HEADING,
+  PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_HEADING_ID,
+  PRIOR_MANIFEST_RETRIEVAL_HELP_FOLLOW_UPS_TITLE,
   PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES,
   PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES_INTRO,
 } from "@/lib/prior-manifest-retrieval-help-evidence-copy";
 import {
   POLICY_PACKS_HELP_CLAIM_DISCIPLINE,
+  POLICY_PACKS_HELP_CLAIM_DISCIPLINE_HEADING,
+  POLICY_PACKS_HELP_CLAIM_HEADING_ID,
+  POLICY_PACKS_HELP_FOLLOW_UPS_TITLE,
   POLICY_PACKS_HELP_SOURCES,
   POLICY_PACKS_HELP_SOURCES_INTRO,
 } from "@/lib/policy/policy-packs-help-evidence-copy";
 import {
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE,
+  REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE_HEADING,
+  REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID,
+  REPEAT_REVIEW_LOOP_HELP_FOLLOW_UPS_TITLE,
   REPEAT_REVIEW_LOOP_HELP_SOURCES,
   REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO,
 } from "@/lib/repeat-review-loop-help-evidence-copy";
 import {
   REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE,
+  REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE_HEADING,
+  REPORT_A_PROBLEM_HELP_CLAIM_HEADING_ID,
+  REPORT_A_PROBLEM_HELP_FOLLOW_UPS_TITLE,
   REPORT_A_PROBLEM_HELP_SOURCES,
   REPORT_A_PROBLEM_HELP_SOURCES_INTRO,
 } from "@/lib/report-a-problem-help-evidence-copy";
 import {
   SECURITY_TRUST_HELP_CLAIM_DISCIPLINE,
+  SECURITY_TRUST_HELP_CLAIM_DISCIPLINE_HEADING,
+  SECURITY_TRUST_HELP_CLAIM_HEADING_ID,
+  SECURITY_TRUST_HELP_FOLLOW_UPS_TITLE,
   SECURITY_TRUST_HELP_SOURCES,
   SECURITY_TRUST_HELP_SOURCES_INTRO,
 } from "@/lib/security-trust-help-evidence-copy";
 import {
   SUBPROCESSORS_HELP_CLAIM_DISCIPLINE,
+  SUBPROCESSORS_HELP_CLAIM_DISCIPLINE_HEADING,
+  SUBPROCESSORS_HELP_CLAIM_HEADING_ID,
+  SUBPROCESSORS_HELP_FOLLOW_UPS_TITLE,
   SUBPROCESSORS_HELP_SOURCES,
   SUBPROCESSORS_HELP_SOURCES_INTRO,
 } from "@/lib/subprocessors-help-evidence-copy";
@@ -323,8 +383,36 @@ export function AuditTrailHelpEvidenceOrientationStrip(): React.JSX.Element {
       slug="audit-trail-help"
       claimTestId="help-audit-trail-claim-discipline"
       claim={AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE}
+      claimHeading={AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={AUDIT_TRAIL_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={AUDIT_TRAIL_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={AUDIT_TRAIL_HELP_SOURCES_INTRO}
       sources={AUDIT_TRAIL_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function AlertsHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-alerts"
+      claimTestId="help-alerts-claim-discipline"
+      claim={ALERTS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={ALERTS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={ALERTS_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ALERTS_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={ALERTS_HELP_SOURCES_INTRO}
+      sources={ALERTS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -334,8 +422,16 @@ export function AuthenticationSignInHelpEvidenceOrientationStrip(): React.JSX.El
     <EvidenceOrientationClaimAndSourcesStrip
       slug="authentication-sign-in-help"
       claim={AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE}
+      claimHeading={AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={AUTHENTICATION_SIGN_IN_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={AUTHENTICATION_SIGN_IN_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={AUTHENTICATION_SIGN_IN_HELP_SOURCES_INTRO}
       sources={AUTHENTICATION_SIGN_IN_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -345,8 +441,16 @@ export function ComparisonReplayHelpEvidenceOrientationStrip(): React.JSX.Elemen
     <EvidenceOrientationClaimAndSourcesStrip
       slug="comparison-replay-help"
       claim={COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE}
+      claimHeading={COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={COMPARISON_REPLAY_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={COMPARISON_REPLAY_HELP_SOURCES_INTRO}
       sources={COMPARISON_REPLAY_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -356,8 +460,16 @@ export function ConnectAwsSecurelyHelpEvidenceOrientationStrip(): React.JSX.Elem
     <EvidenceOrientationClaimAndSourcesStrip
       slug="connect-aws-securely-help"
       claim={CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE}
+      claimHeading={CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={CONNECT_AWS_SECURELY_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECT_AWS_SECURELY_SOURCES_INTRO}
       sources={CONNECT_AWS_SECURELY_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -367,8 +479,16 @@ export function ConnectAzureSecurelyHelpEvidenceOrientationStrip(): React.JSX.El
     <EvidenceOrientationClaimAndSourcesStrip
       slug="connect-azure-securely-help"
       claim={CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE}
+      claimHeading={CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={CONNECT_AZURE_SECURELY_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={CONNECT_AZURE_SECURELY_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECT_AZURE_SECURELY_SOURCES_INTRO}
       sources={CONNECT_AZURE_SECURELY_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -439,16 +559,21 @@ export function RoiSummaryHelpEvidenceOrientationStrip(
 
 export function ArchitectureScorecardHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
-    <EvidenceOrientationStripShell testId="help-architecture-scorecard-orientation">
-      <EvidenceOrientationSourcesSection
-        testId="help-architecture-scorecard-sources"
-        headingId="related-evidence-and-sources"
-        title={ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE}
-        intro={ARCHITECTURE_SCORECARD_HELP_SOURCES_INTRO}
-        links={ARCHITECTURE_SCORECARD_HELP_SOURCES}
-        style={EVIDENCE_SOURCES_STYLE.operatorRaised}
-      />
-    </EvidenceOrientationStripShell>
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-architecture-scorecard"
+      claimTestId="help-architecture-scorecard-claim-discipline"
+      claim={ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE}
+      claimHeading={ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={ARCHITECTURE_SCORECARD_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE}
+      sourcesIntro={ARCHITECTURE_SCORECARD_HELP_SOURCES_INTRO}
+      sources={ARCHITECTURE_SCORECARD_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="related-evidence-and-sources"
+      sourcesLayout="stacked"
+    />
   );
 }
 
@@ -747,9 +872,36 @@ export function EnterpriseOnboardingHelpEvidenceOrientationStrip(): React.JSX.El
     <EvidenceOrientationClaimAndSourcesStrip
       slug="enterprise-onboarding-help"
       claim={ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE}
-      sourcesTitle={ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE}
+      claimHeading={ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ENTERPRISE_ONBOARDING_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ENTERPRISE_ONBOARDING_HELP_SOURCES_INTRO}
       sources={ENTERPRISE_ONBOARDING_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function GovernanceApprovalHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-governance-approval"
+      claimTestId="help-governance-approval-claim-discipline"
+      claim={GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE}
+      claimHeading={GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={GOVERNANCE_APPROVAL_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={GOVERNANCE_APPROVAL_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={GOVERNANCE_APPROVAL_HELP_SOURCES_INTRO}
+      sources={GOVERNANCE_APPROVAL_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -779,23 +931,35 @@ export function IntegrationReadinessHelpEvidenceOrientationStrip(): React.JSX.El
     <EvidenceOrientationClaimAndSourcesStrip
       slug="integration-readiness-help"
       claim={INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={INTEGRATION_READINESS_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={INTEGRATION_READINESS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={INTEGRATION_READINESS_HELP_SOURCES_INTRO}
       sources={INTEGRATION_READINESS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
-
-const PILOT_FEEDBACK_HELP_FOLLOW_UPS_TITLE = "Follow-up surfaces";
 
 export function PilotFeedbackHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-pilot-feedback"
       claim={PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE}
+      claimHeading={PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={PILOT_FEEDBACK_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={PILOT_FEEDBACK_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={PILOT_FEEDBACK_HELP_SOURCES_INTRO}
       sources={PILOT_FEEDBACK_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -805,9 +969,16 @@ export function PriorManifestRetrievalHelpEvidenceOrientationStrip(): React.JSX.
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-prior-manifest-retrieval"
       claim={PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE}
+      claimHeading={PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
+      sourcesTitle={PRIOR_MANIFEST_RETRIEVAL_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES_INTRO}
       sources={PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -817,8 +988,16 @@ export function PolicyPacksHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="policy-packs-help"
       claim={POLICY_PACKS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={POLICY_PACKS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={POLICY_PACKS_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={POLICY_PACKS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={POLICY_PACKS_HELP_SOURCES_INTRO}
       sources={POLICY_PACKS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -828,9 +1007,16 @@ export function RepeatReviewLoopHelpEvidenceOrientationStrip(): React.JSX.Elemen
     <EvidenceOrientationClaimAndSourcesStrip
       slug="repeat-review-loop-help"
       claim={REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorInfo}
+      claimHeading={REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={REPEAT_REVIEW_LOOP_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO}
       sources={REPEAT_REVIEW_LOOP_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -840,8 +1026,16 @@ export function ReportProblemHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="report-a-problem-help"
       claim={REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE}
+      claimHeading={REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={REPORT_A_PROBLEM_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={REPORT_A_PROBLEM_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={REPORT_A_PROBLEM_HELP_SOURCES_INTRO}
       sources={REPORT_A_PROBLEM_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -851,8 +1045,16 @@ export function SecurityTrustHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="security-trust-help"
       claim={SECURITY_TRUST_HELP_CLAIM_DISCIPLINE}
+      claimHeading={SECURITY_TRUST_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={SECURITY_TRUST_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={SECURITY_TRUST_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SECURITY_TRUST_HELP_SOURCES_INTRO}
       sources={SECURITY_TRUST_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
@@ -862,8 +1064,16 @@ export function SubprocessorsHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="subprocessors-help"
       claim={SUBPROCESSORS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={SUBPROCESSORS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={SUBPROCESSORS_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={SUBPROCESSORS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SUBPROCESSORS_HELP_SOURCES_INTRO}
       sources={SUBPROCESSORS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }

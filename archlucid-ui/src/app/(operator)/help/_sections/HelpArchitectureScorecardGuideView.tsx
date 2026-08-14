@@ -169,6 +169,8 @@ export function HelpArchitectureScorecardGuideView(
             <ScorecardRoiVocabularyRail currentSurfaceId="scorecard" variant="full" />
           </section>
 
+          <ArchitectureScorecardHelpEvidenceOrientationStrip />
+
           <section
             aria-labelledby="where-to-go-next"
             className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
@@ -192,8 +194,6 @@ export function HelpArchitectureScorecardGuideView(
               ))}
             </div>
           </section>
-
-          <ArchitectureScorecardHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={ARCHITECTURE_SCORECARD_HELP_GUIDE_HEADINGS} />

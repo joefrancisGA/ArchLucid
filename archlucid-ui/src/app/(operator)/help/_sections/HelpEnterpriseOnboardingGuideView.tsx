@@ -19,7 +19,10 @@ import {
   ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION,
   ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS,
 } from "@/lib/enterprise-onboarding-help-copy";
-import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import {
+  ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID,
+} from "@/lib/enterprise-onboarding-help-evidence-copy";
+import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -39,10 +42,13 @@ export function HelpEnterpriseOnboardingGuideView(
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = [
-    { id: "onboarding-hub", title: "Onboarding hub", level: 2 as const },
-    ...extractHelpMarkdownHeadings(preparedMarkdown),
-  ];
+  const headings = appendHelpClaimDisciplineTocHeadings(
+    [
+      { id: "onboarding-hub", title: "Onboarding hub", level: 2 as const },
+      ...extractHelpMarkdownHeadings(preparedMarkdown),
+    ],
+    ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID,
+  );
 
   return (
     <article
@@ -106,7 +112,6 @@ export function HelpEnterpriseOnboardingGuideView(
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-topic-content">
           <EnterpriseOnboardingHubSteps />
-          <EnterpriseOnboardingHelpEvidenceOrientationStrip />
           <MarketingAccessibilityMarkdownFragment
             markdownBody={markdown}
             tableCaption={`${entry.title} reference table`}
@@ -115,6 +120,7 @@ export function HelpEnterpriseOnboardingGuideView(
             helpTopicSlug={entry.slug}
             preparedMarkdownOverride={preparedMarkdown}
           />
+          <EnterpriseOnboardingHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={headings} enableScrollSpy />

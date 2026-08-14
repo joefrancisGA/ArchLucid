@@ -136,8 +136,6 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
         </div>
       </header>
 
-      <ConnectAzureSecurelyHelpEvidenceOrientationStrip />
-
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-connect-azure-securely-primary">
           <section aria-labelledby="security-model" className="space-y-3">
@@ -329,6 +327,8 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
               <Link href={CONNECT_AZURE_SECURELY_CONFIGURE_HREF}>{CONNECT_AZURE_SECURELY_CONFIGURE_ACTION}</Link>
             </Button>
           </div>
+
+          <ConnectAzureSecurelyHelpEvidenceOrientationStrip />
         </div>
         <HelpTopicTableOfContents headings={CONNECT_AZURE_SECURELY_TOC_HEADINGS} enableScrollSpy />
       </div>

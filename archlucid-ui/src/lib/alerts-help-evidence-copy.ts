@@ -4,12 +4,17 @@ import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_AUDIT_P
 
 export const ALERTS_HELP_CANONICAL_PATH = "/help/alerts" as const;
 
+export const ALERTS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const ALERTS_HELP_CLAIM_DISCIPLINE =
-  "This alerts guide explains how notifications are raised and routed — it is not a sealed-review diligence Sources package. Open Alert rules, the alerts inbox, or Audit when you need live configuration or governed trails.";
+  "This guide explains how notifications are raised and routed — open Alert rules, the alerts inbox, or Audit when you need live configuration or governed trails.";
+
+export const ALERTS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const ALERTS_HELP_CLAIM_HEADING_ID = "help-alerts-claim-discipline-heading" as const;
 
 export const ALERTS_HELP_SOURCES_INTRO =
   "Use these follow-ups when you need live alert configuration, inbox triage, destinations, or product orientation.";
-
 
 /** Operator Sources — no self-href to `/help/alerts`. */
 export const ALERTS_HELP_SOURCES: readonly EvidenceSourceLink[] = [

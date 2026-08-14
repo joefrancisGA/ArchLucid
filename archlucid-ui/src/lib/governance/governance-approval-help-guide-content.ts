@@ -1,6 +1,10 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
+  GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE_HEADING,
+  GOVERNANCE_APPROVAL_HELP_CLAIM_HEADING_ID,
+} from "@/lib/governance/governance-approval-help-evidence-copy";
+import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
@@ -369,6 +373,7 @@ export const GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_SECTIONS = [
   },
 ] as const;
 
+
 export const GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "overview", title: "Overview" },
   { level: 2, id: "governance-workflow", title: "Governance workflow" },
@@ -382,5 +387,12 @@ export const GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeadi
   { level: 2, id: "decision-outcomes", title: "Decision outcomes" },
   { level: 2, id: "common-actions", title: "Common actions" },
   { level: 2, id: "troubleshooting", title: "Troubleshooting" },
+  { level: 2, id: GOVERNANCE_APPROVAL_HELP_CLAIM_HEADING_ID, title: GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE_HEADING },
+  { level: 2, id: "where-to-go-next", title: "Where to go next" },
   { level: 2, id: "technical-reference", title: "Technical reference" },
 ] as const;
+
+/** Drift guard: claim band owns diligence limits. */
+export const GOVERNANCE_APPROVAL_HELP_NEGATION_DRIFT_MARKERS = {
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;

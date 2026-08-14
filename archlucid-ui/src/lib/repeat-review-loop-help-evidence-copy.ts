@@ -10,8 +10,15 @@ import {
 
 export const REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH = "/help/repeat-review-loop" as const;
 
+export const REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE =
-  "This guide explains the repeat-review loop. For live architecture packages or assurance claims, open Compare, Validate review, or the audit trail.";
+  "This guide explains the repeat-review loop — open Compare, Validate review, or Audit when you need live architecture packages or assurance trails.";
+
+export const REPEAT_REVIEW_LOOP_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID =
+  "help-repeat-review-loop-claim-discipline-heading" as const;
 
 export const REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO =
   "Use these follow-ups when repeat-review guidance turns into sponsor outcomes, review workflow detail, or assurance trails.";

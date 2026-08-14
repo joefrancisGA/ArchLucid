@@ -83,7 +83,7 @@ describe("HelpArchitectureScorecardGuideView", () => {
 
     expect(screen.getAllByRole("heading", { name: "Where to go next" })).toHaveLength(1);
     expect(screen.getByRole("heading", { name: ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE })).toBeInTheDocument();
-    expect(screen.queryByTestId("help-architecture-scorecard-claim-discipline")).toBeNull();
+    expect(screen.getByTestId("help-architecture-scorecard-claim-discipline")).toBeInTheDocument();
   });
 
   it("links the primary action and related evidence without self-referential scorecard links", () => {

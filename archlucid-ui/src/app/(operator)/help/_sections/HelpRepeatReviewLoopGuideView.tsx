@@ -23,7 +23,7 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -41,6 +41,7 @@ import {
 import {
   REPEAT_REVIEW_LOOP_HELP_RELATED,
   REPEAT_REVIEW_LOOP_HELP_RELATED_HEADING,
+  REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID,
 } from "@/lib/repeat-review-loop-help-evidence-copy";
 import {
   COMPARE_REPEAT_REVIEW_HELP_JOB_MATRIX_HEADING,
@@ -64,7 +65,10 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const headings = appendHelpClaimDisciplineTocHeadings(
+    extractHelpMarkdownHeadings(preparedMarkdown),
+    REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID,
+  );
   const diagramThemeVariables = dark
     ? REPEAT_REVIEW_LOOP_HELP_DIAGRAM_THEME_VARIABLES_DARK
     : REPEAT_REVIEW_LOOP_HELP_DIAGRAM_THEME_VARIABLES;
@@ -153,8 +157,6 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
         </Card>
       </div>
 
-      <RepeatReviewLoopHelpEvidenceOrientationStrip />
-
       <HelpRepeatReviewLoopWorkflowStepper />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
@@ -215,6 +217,8 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
               ))}
             </ul>
           </section>
+
+          <RepeatReviewLoopHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={headings} />

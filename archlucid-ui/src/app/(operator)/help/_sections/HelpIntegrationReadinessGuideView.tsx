@@ -91,8 +91,6 @@ export function HelpIntegrationReadinessGuideView(
         </div>
       </header>
 
-      <IntegrationReadinessHelpEvidenceOrientationStrip />
-
       <div className="space-y-4" data-testid={INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_TEST_ID}>
         <Card data-testid="help-integration-readiness-action-panel">
           <CardHeader className={OPERATOR_CARD.header}>
@@ -175,6 +173,8 @@ export function HelpIntegrationReadinessGuideView(
           />
         </div>
       ) : null}
+
+      <IntegrationReadinessHelpEvidenceOrientationStrip />
     </article>
   );
 }

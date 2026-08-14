@@ -55,7 +55,7 @@ import {
   countSecurityTrustPostureTableRows,
 } from "@/lib/security-trust-help-presentation";
 
-import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { extractHelpMarkdownHeadings, appendHelpClaimDisciplineTocHeadings } from "@/lib/help/help-markdown-headings";
 
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 
@@ -91,6 +91,14 @@ type HelpTopicMarkdownViewProps = {
 
   readonly tocGroups?: readonly HelpTopicTocGroup[];
 
+  /** When set with `evidenceOrientation`, appends claim-discipline + where-to-go-next TOC rows. */
+
+  readonly claimDisciplineTocHeadingId?: string;
+
+  readonly claimDisciplineTocHeadingTitle?: string;
+
+  readonly followUpsTocTitle?: string;
+
   /** Wider technical-reference grid for dense questionnaire tables. */
 
   readonly layoutVariant?: "default" | "technicalReference";
@@ -125,6 +133,12 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
     showExportClaimDiscipline = false,
 
+    claimDisciplineTocHeadingId,
+
+    claimDisciplineTocHeadingTitle,
+
+    followUpsTocTitle,
+
   } = props;
 
   const sourceDocPath = entry.sourcePaths[0] ?? "";
@@ -147,7 +161,15 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   const extractedHeadings = extractHelpMarkdownHeadings(preparedMarkdown);
 
-  const headings = extractedHeadings;
+  const headings =
+    evidenceOrientation !== undefined && claimDisciplineTocHeadingId !== undefined
+      ? appendHelpClaimDisciplineTocHeadings(
+          extractedHeadings,
+          claimDisciplineTocHeadingId,
+          claimDisciplineTocHeadingTitle,
+          followUpsTocTitle,
+        )
+      : extractedHeadings;
 
   const isSecurityTrustHelp = entry.slug === "security-trust";
 
@@ -280,10 +302,6 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
 
 
-      {!evidenceOrientation ? null : evidenceOrientation}
-
-
-
       {securityTrustPostureCounts !== null ? (
         <SecurityTrustHelpPostureSummary counts={securityTrustPostureCounts} tableRowTotal={postureTableRowTotal} />
       ) : null}
@@ -315,6 +333,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             preparedMarkdownOverride={preparedMarkdown}
 
           />
+
+          {!evidenceOrientation ? null : evidenceOrientation}
 
         </div>
 
