@@ -11,7 +11,7 @@ import {
   PREFERENCES_HELP_OVERVIEW,
   PREFERENCES_HELP_PAGE_SUBTITLE,
   PREFERENCES_HELP_PRIMARY_ACTION,
-  PREFERENCES_HELP_START_HERE_SCOPE_NOTE,
+  PREFERENCES_HELP_START_HERE_HELPER,
   PREFERENCES_HELP_TILE_ITEMS,
 } from "@/lib/preferences-help-guide-content";
 
@@ -82,7 +82,7 @@ describe("preferences help negation drift guard", () => {
     expect(tileLabels).not.toContain("Sign-in methods");
     expect(tileLabels).not.toContain("Onboarding");
     expect(tileLabels).not.toContain("Appearance card");
-    expect(tileLabels).not.toContain("Account sync");
+    expect(tileLabels).not.toContain("Personal scope");
     expect(new Set(tileLabels).size).toBe(tileLabels.length);
     expect(tileLabels).toHaveLength(2);
   });
@@ -109,7 +109,7 @@ describe("preferences help negation drift guard", () => {
   it("avoids API vocabulary in how-to steps and keeps role precondition in Start here copy", () => {
     const guideCopy = [
       PREFERENCES_HELP_OVERVIEW,
-      PREFERENCES_HELP_START_HERE_SCOPE_NOTE,
+      PREFERENCES_HELP_START_HERE_HELPER,
       PREFERENCES_HELP_HOW_TO_READ_STEPS.join(" "),
       PREFERENCES_HELP_CHANGES_ITEMS.map((item) => `${item.label} ${item.detail}`).join(" "),
     ].join(" ");

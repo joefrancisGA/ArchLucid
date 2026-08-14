@@ -7,6 +7,7 @@ import {
 } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { cn } from "@/lib/utils";
 
 /** `wrap` reads as a chip row; `stacked` gives each link its own line so a `when` caption can follow it. */
@@ -29,6 +30,11 @@ export type EvidenceOrientationSourcesSectionProps = {
   readonly listClassName?: string;
   /** Optional heading scale — help specialty guides pass sectionTitle so TOC h2s match page sections. */
   readonly headingClassName?: string;
+  /**
+   * When true, prefixes follow-up link labels with Read (help) or Open (product) so readers know
+   * the destination before click.
+   */
+  readonly distinguishFollowUpDestinations?: boolean;
 };
 
 /** Sources / follow-up index band shared by every evidence orientation strip. */
@@ -42,6 +48,7 @@ export function EvidenceOrientationSourcesSection({
   layout = "wrap",
   listClassName,
   headingClassName,
+  distinguishFollowUpDestinations = false,
 }: EvidenceOrientationSourcesSectionProps): React.JSX.Element {
   return (
     <section className={style.panel} aria-labelledby={headingId} data-testid={testId}>
@@ -50,10 +57,15 @@ export function EvidenceOrientationSourcesSection({
       </h2>
       <p className={style.intro}>{intro}</p>
       <ul className={cn(SOURCES_LIST_CLASS[layout], listClassName ?? OPERATOR_TYPOGRAPHY.body)}>
-        {links.map((link) => (
+        {links.map((link) => {
+          const linkLabel = distinguishFollowUpDestinations
+            ? formatHelpFollowUpLinkAccessibleName(link.href, link.label)
+            : link.label;
+
+          return (
           <li key={`${link.href}-${link.label}`}>
             <Link className={style.link} href={link.href}>
-              {link.label}
+              {linkLabel}
               {link.adminOnly === true ? (
                 <span className={cn("ml-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>(Admin)</span>
               ) : null}
@@ -62,7 +74,8 @@ export function EvidenceOrientationSourcesSection({
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{link.when}</p>
             )}
           </li>
-        ))}
+          );
+        })}
       </ul>
     </section>
   );

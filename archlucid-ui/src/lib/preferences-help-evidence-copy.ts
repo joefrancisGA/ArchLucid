@@ -1,6 +1,5 @@
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { PREFERENCES_SETTINGS_SOURCES_INTRO } from "@/lib/preferences-settings-evidence-copy";
 
 export const PREFERENCES_HELP_CANONICAL_PATH = "/help/preferences" as const;
 
@@ -11,7 +10,8 @@ export const PREFERENCES_HELP_CLAIM_DISCIPLINE =
 
 export const PREFERENCES_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
-export const PREFERENCES_HELP_SOURCES_INTRO = PREFERENCES_SETTINGS_SOURCES_INTRO;
+export const PREFERENCES_HELP_SOURCES_INTRO =
+  "Follow these links when personal theme settings lead to onboarding, account security, or assurance cites.";
 
 /** Operator follow-ups — no self-href to preferences. */
 export const PREFERENCES_HELP_SOURCES: readonly EvidenceOrientationLink[] = [

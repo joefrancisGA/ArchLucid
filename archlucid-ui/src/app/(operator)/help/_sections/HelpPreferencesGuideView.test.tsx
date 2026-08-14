@@ -19,10 +19,11 @@ import {
   PREFERENCES_HELP_NEGATION_DRIFT_MARKERS,
   PREFERENCES_HELP_PRIMARY_ACTION,
   PREFERENCES_HELP_START_HERE_CARD_TITLE,
-  PREFERENCES_HELP_START_HERE_SCOPE_NOTE,
+  PREFERENCES_HELP_START_HERE_HELPER,
   PREFERENCES_HELP_TILE_ITEMS,
 } from "@/lib/preferences-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -41,10 +42,10 @@ describe("HelpPreferencesGuideView", () => {
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · Scope: personal account settings · Audience: all signed-in users",
     );
-    expect(screen.getByTestId("help-preferences-start-here-scope-note")).toHaveTextContent(
-      PREFERENCES_HELP_START_HERE_SCOPE_NOTE,
+    expect(screen.getByTestId("help-preferences-start-here-helper")).toHaveTextContent(
+      PREFERENCES_HELP_START_HERE_HELPER,
     );
-    expect(screen.queryByTestId("help-preferences-role-precondition-tag")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-preferences-start-here-scope-note")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-preferences-claim-discipline").textContent).toContain(
       PREFERENCES_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
@@ -87,7 +88,8 @@ describe("HelpPreferencesGuideView", () => {
 
     for (const source of PREFERENCES_HELP_SOURCES) {
       const sourcesRegion = within(screen.getByTestId("help-preferences-sources"));
-      expect(sourcesRegion.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(sourcesRegion.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
     for (const heading of PREFERENCES_HELP_GUIDE_HEADINGS) {

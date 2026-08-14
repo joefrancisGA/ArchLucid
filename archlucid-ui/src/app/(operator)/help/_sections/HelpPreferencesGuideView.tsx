@@ -7,6 +7,7 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
@@ -24,7 +25,7 @@ import {
   PREFERENCES_HELP_PAGE_TITLE,
   PREFERENCES_HELP_PRIMARY_ACTION,
   PREFERENCES_HELP_START_HERE_CARD_TITLE,
-  PREFERENCES_HELP_START_HERE_SCOPE_NOTE,
+  PREFERENCES_HELP_START_HERE_HELPER,
   PREFERENCES_HELP_TILE_ITEMS,
 } from "@/lib/preferences-help-guide-content";
 import { PREFERENCES_HELP_CANONICAL_PATH } from "@/lib/preferences-help-evidence-copy";
@@ -80,6 +81,7 @@ export function HelpPreferencesGuideView(props: HelpPreferencesGuideViewProps): 
         navHref={PREFERENCES_HELP_CANONICAL_PATH}
         headingLevel="h1"
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        actions={<PageContextualHelpButton />}
       />
 
       <div className={contentGridClass}>
@@ -95,15 +97,15 @@ export function HelpPreferencesGuideView(props: HelpPreferencesGuideViewProps): 
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-preferences-start-here-helper"
+              >
+                {PREFERENCES_HELP_START_HERE_HELPER}
+              </p>
               <Button asChild size="sm" variant="primary">
                 <Link href={PREFERENCES_HELP_PRIMARY_ACTION.href}>{PREFERENCES_HELP_PRIMARY_ACTION.label}</Link>
               </Button>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-preferences-start-here-scope-note"
-              >
-                {PREFERENCES_HELP_START_HERE_SCOPE_NOTE}
-              </p>
             </CardContent>
           </Card>
 

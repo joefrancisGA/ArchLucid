@@ -11,8 +11,8 @@ export const PREFERENCES_HELP_OVERVIEW =
 
 export const PREFERENCES_HELP_START_HERE_CARD_TITLE = "Start here";
 
-export const PREFERENCES_HELP_START_HERE_SCOPE_NOTE =
-  "Preferences write only your own account record.";
+export const PREFERENCES_HELP_START_HERE_HELPER =
+  "Open Administration → Preferences to choose light, dark, or system appearance for your signed-in profile.";
 
 export const PREFERENCES_HELP_PRIMARY_ACTION = {
   label: "Open preferences",
@@ -32,8 +32,8 @@ export const PREFERENCES_HELP_TILE_ITEMS: readonly PreferencesHelpTileItem[] = [
     detail: "Light, dark, or system appearance saved to your account.",
   },
   {
-    label: "Personal scope",
-    detail: "Changes apply only to your signed-in profile — not workspace governance or tenant defaults.",
+    label: "Where it saves",
+    detail: "Administration → Preferences stores appearance choices on your signed-in profile only.",
   },
 ] as const;
 
