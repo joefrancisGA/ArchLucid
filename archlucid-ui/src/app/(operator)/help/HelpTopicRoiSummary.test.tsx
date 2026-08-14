@@ -9,18 +9,28 @@ import { HelpRoiSummaryGuideView } from "@/app/(operator)/help/_sections/HelpRoi
 import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
 import {
   ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
+  ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING,
+  ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
   ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE,
   ROI_SUMMARY_HELP_SOURCES,
 } from "@/lib/roi-summary-help-evidence-copy";
 import {
+  ROI_SUMMARY_HELP_BREADCRUMB_TOPIC_TITLE,
+  ROI_SUMMARY_HELP_GUIDE_HEADINGS,
+  ROI_SUMMARY_HELP_METHODOLOGY_UNITS,
+  ROI_SUMMARY_HELP_NEARBY_SURFACES_SECTION_TITLE,
   ROI_SUMMARY_HELP_OVERVIEW,
   ROI_SUMMARY_HELP_PAGE_SUBTITLE,
   ROI_SUMMARY_HELP_PAGE_TITLE,
   ROI_SUMMARY_HELP_PRIMARY_ACTION,
   ROI_SUMMARY_HELP_REPORT_ITEMS,
   ROI_SUMMARY_HELP_SIBLING_REPORTS,
+  ROI_SUMMARY_HELP_START_HERE_CARD_TITLE,
+  ROI_SUMMARY_HELP_START_HERE_HELPER,
 } from "@/lib/roi-summary-help-guide-content";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpRoiSummaryGuideView", () => {
@@ -66,11 +76,22 @@ describe("HelpRoiSummaryGuideView", () => {
       expect(within(reportItems).getByText(item.detail)).toBeInTheDocument();
     }
 
-    expect(screen.getByTestId("help-roi-summary-methodology")).toBeInTheDocument();
+    const methodology = screen.getByTestId("help-roi-summary-methodology");
+    const formula = screen.getByTestId("help-roi-summary-methodology-formula");
+    const units = screen.getByTestId("help-roi-summary-methodology-units");
+
+    expect(methodology).toBeInTheDocument();
+    expect(formula).toHaveTextContent(/\d+×Critical/);
+    expect(units).toHaveTextContent(ROI_SUMMARY_HELP_METHODOLOGY_UNITS);
+    expect(formula.compareDocumentPosition(units) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(formula.className).toContain(HELP_PAGE_LAYOUT.readingBody);
+    expect(formula.className).not.toContain("font-mono");
+
     expect(screen.getByRole("link", { name: "Review pilot ROI measurement methodology" })).toHaveAttribute(
       "href",
       SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF,
     );
+    expect(screen.getByRole("heading", { name: ROI_SUMMARY_HELP_NEARBY_SURFACES_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-roi-vocabulary")).toBeInTheDocument();
     expect(screen.getByTestId("baseline-roi-vocabulary")).toBeInTheDocument();
 
@@ -91,8 +112,16 @@ describe("HelpRoiSummaryGuideView", () => {
 
     render(<HelpRoiSummaryGuideView entry={entry} />);
 
-    expect(screen.getByTestId("help-roi-summary-claim-discipline")).toHaveTextContent(ROI_SUMMARY_HELP_CLAIM_DISCIPLINE);
+    const claimDiscipline = screen.getByTestId("help-roi-summary-claim-discipline");
+    const siblingReports = screen.getByTestId("help-roi-summary-sibling-reports");
+
+    expect(claimDiscipline).toHaveTextContent(ROI_SUMMARY_HELP_CLAIM_DISCIPLINE);
+    expect(screen.getByRole("heading", { name: ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByRole("heading", { name: ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(claimDiscipline.compareDocumentPosition(siblingReports) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const followUps = screen.getByTestId("help-roi-summary-sources");
     for (const source of ROI_SUMMARY_HELP_SOURCES) {
@@ -100,7 +129,7 @@ describe("HelpRoiSummaryGuideView", () => {
     }
   });
 
-  it("links the primary action to ROI summary", () => {
+  it("links the primary action to ROI summary with a distinct start-here card", () => {
     if (entry === undefined) {
       throw new Error("Expected ROI summary documentation entry.");
     }
@@ -114,18 +143,36 @@ describe("HelpRoiSummaryGuideView", () => {
       SPONSOR_REPORT_ROI_SUMMARY_PATH,
     );
     expect(ROI_SUMMARY_HELP_PRIMARY_ACTION.href).toBe(SPONSOR_REPORT_ROI_SUMMARY_PATH);
-    expect(within(actionPanel).getAllByRole("link")).toHaveLength(1);
+    expect(screen.getAllByRole("link", { name: ROI_SUMMARY_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
+    expect(
+      screen.getByRole("heading", { level: 2, name: ROI_SUMMARY_HELP_START_HERE_CARD_TITLE }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("help-roi-summary-start-here-helper")).toHaveTextContent(
+      ROI_SUMMARY_HELP_START_HERE_HELPER,
+    );
   });
 
-  it("renders how-to-read steps and TOC rail", () => {
+  it("renders breadcrumb, readingBody, how-to-read steps, and TOC rail", () => {
     if (entry === undefined) {
       throw new Error("Expected ROI summary documentation entry.");
     }
 
     render(<HelpRoiSummaryGuideView entry={entry} />);
 
+    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
+      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
+    );
+    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(ROI_SUMMARY_HELP_BREADCRUMB_TOPIC_TITLE);
+    expect(screen.getByTestId("help-roi-summary-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
+    expect(screen.getByTestId("help-roi-summary-report-items").className).toContain(HELP_PAGE_LAYOUT.readingBody);
+    expect(screen.getByTestId("help-roi-summary-data-needs").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByRole("heading", { name: "How to read ROI summary" })).toBeInTheDocument();
     expect(screen.getByTestId("help-roi-summary-how-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("help-roi-summary-guide").textContent).not.toMatch(/\bSources\b/);
+
+    for (const heading of ROI_SUMMARY_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { name: heading.title })).toHaveAttribute("id", heading.id);
+    }
   });
 });

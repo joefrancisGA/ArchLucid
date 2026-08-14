@@ -44,6 +44,8 @@ import {
 } from "@/lib/recurrence-schedules-help-evidence-copy";
 import {
   ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
+  ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING,
+  ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
   ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE,
   ROI_SUMMARY_HELP_SOURCES,
   ROI_SUMMARY_HELP_SOURCES_INTRO,
@@ -364,11 +366,19 @@ export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Ele
   );
 }
 
-export function RoiSummaryHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type RoiSummaryHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function RoiSummaryHelpEvidenceOrientationStrip(
+  props: RoiSummaryHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-roi-summary"
       claim={ROI_SUMMARY_HELP_CLAIM_DISCIPLINE}
+      claimHeading={ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={ROI_SUMMARY_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE}
@@ -376,6 +386,8 @@ export function RoiSummaryHelpEvidenceOrientationStrip(): React.JSX.Element {
       sources={ROI_SUMMARY_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
