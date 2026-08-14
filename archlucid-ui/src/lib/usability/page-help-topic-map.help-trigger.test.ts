@@ -19,11 +19,6 @@ const PAGE_HELP_TITLE_COLLISION_SURFACES: ReadonlyArray<{
   readonly modulePath: string;
 }> = [
   {
-    pathname: "/",
-    pageTitle: OPERATOR_HOME_PAGE_TITLE,
-    modulePath: "app/(operator)/_sections/OperatorHomePageHeader.tsx",
-  },
-  {
     pathname: "/governance/alert-rules",
     pageTitle: ALERTS_CONFIGURATION_PAGE_TITLE,
     modulePath: "app/(operator)/governance/alert-rules/AlertRulesPageHeader.tsx",
@@ -68,4 +63,12 @@ describe("page-help-topic-map — help trigger label collisions (P0-5)", () => {
       expect(source).toMatch(/PageContextualHelpButton[^>]*triggerText=\{PAGE_HELP_SHORT_TRIGGER_TEXT\}/);
     },
   );
+
+  it("operator home mounts PageContextualHelpButton with the Home topic label (not shortened Help)", () => {
+    const source = readSrcModule("app/(operator)/_sections/OperatorHomePageHeader.tsx");
+
+    expect(source).toContain("<PageContextualHelpButton");
+    expect(source).not.toContain("PAGE_HELP_SHORT_TRIGGER_TEXT");
+    expect(pageHelpTopicForPathname("/")?.label).toBe(OPERATOR_HOME_PAGE_TITLE);
+  });
 });
