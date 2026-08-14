@@ -59,18 +59,10 @@ public static class AgentTopologyProposalMergeGate
             if (IsAgentProposedNode(node))
                 continue;
 
-            AddIdentifier(identifiers, node.Label);
-            AddIdentifier(identifiers, node.NodeId);
-            AddIdentifier(identifiers, node.SourceId);
+            TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(identifiers, node);
         }
 
         return identifiers;
-    }
-
-    private static void AddIdentifier(HashSet<string> identifiers, string? value)
-    {
-        if (!string.IsNullOrWhiteSpace(value))
-            identifiers.Add(value);
     }
 
     private static bool IsAgentProposedNode(GraphNode node) =>

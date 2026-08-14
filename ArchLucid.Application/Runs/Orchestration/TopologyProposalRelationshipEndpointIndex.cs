@@ -1,4 +1,6 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -17,15 +19,25 @@ public static class TopologyProposalRelationshipEndpointIndex
         {
             AddEndpointKey(knownEndpointKeys, service.ServiceName);
             AddEndpointKey(knownEndpointKeys, service.ServiceId);
+            AddSyntheticServiceEndpointKey(knownEndpointKeys, service.ServiceName);
         }
 
         foreach (ManifestDatastore datastore in datastores)
         {
             AddEndpointKey(knownEndpointKeys, datastore.DatastoreName);
             AddEndpointKey(knownEndpointKeys, datastore.DatastoreId);
+            AddSyntheticDatastoreEndpointKey(knownEndpointKeys, datastore.DatastoreName);
         }
 
         return knownEndpointKeys;
+    }
+
+    public static void AddGraphNodeEndpointKeys(HashSet<string> endpointKeys, GraphNode node)
+    {
+        AddEndpointKey(endpointKeys, node.Label);
+        AddEndpointKey(endpointKeys, node.NodeId);
+        AddEndpointKey(endpointKeys, node.SourceId);
+        AddArmResourceIdEndpointKeys(endpointKeys, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node));
     }
 
     public static List<ManifestRelationship> FilterKnownRelationships(
@@ -71,14 +83,19 @@ public static class TopologyProposalRelationshipEndpointIndex
         if (string.IsNullOrWhiteSpace(service.ServiceName) && string.IsNullOrWhiteSpace(service.ServiceId))
             return false;
 
+        string? syntheticNodeId = BuildSyntheticServiceNodeId(service.ServiceName);
+
         if (EndpointKeyIsClaimed(service.ServiceName, claimedEndpointKeys)
-            || EndpointKeyIsClaimed(service.ServiceId, claimedEndpointKeys))
+            || EndpointKeyIsClaimed(service.ServiceId, claimedEndpointKeys)
+            || EndpointKeyIsClaimed(syntheticNodeId, claimedEndpointKeys))
         {
             return false;
         }
 
         AddEndpointKey(claimedEndpointKeys, service.ServiceName);
         AddEndpointKey(claimedEndpointKeys, service.ServiceId);
+        AddEndpointKey(claimedEndpointKeys, syntheticNodeId);
+        AddArmResourceIdEndpointKeys(claimedEndpointKeys, service.ServiceId);
 
         return true;
     }
@@ -88,14 +105,19 @@ public static class TopologyProposalRelationshipEndpointIndex
         if (string.IsNullOrWhiteSpace(datastore.DatastoreName) && string.IsNullOrWhiteSpace(datastore.DatastoreId))
             return false;
 
+        string? syntheticNodeId = BuildSyntheticDatastoreNodeId(datastore.DatastoreName);
+
         if (EndpointKeyIsClaimed(datastore.DatastoreName, claimedEndpointKeys)
-            || EndpointKeyIsClaimed(datastore.DatastoreId, claimedEndpointKeys))
+            || EndpointKeyIsClaimed(datastore.DatastoreId, claimedEndpointKeys)
+            || EndpointKeyIsClaimed(syntheticNodeId, claimedEndpointKeys))
         {
             return false;
         }
 
         AddEndpointKey(claimedEndpointKeys, datastore.DatastoreName);
         AddEndpointKey(claimedEndpointKeys, datastore.DatastoreId);
+        AddEndpointKey(claimedEndpointKeys, syntheticNodeId);
+        AddArmResourceIdEndpointKeys(claimedEndpointKeys, datastore.DatastoreId);
 
         return true;
     }
@@ -111,6 +133,31 @@ public static class TopologyProposalRelationshipEndpointIndex
         if (!string.IsNullOrWhiteSpace(value))
             knownEndpointKeys.Add(value);
     }
+
+    private static void AddArmResourceIdEndpointKeys(HashSet<string> endpointKeys, string? resourceId)
+    {
+        if (!GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(resourceId))
+            return;
+
+        AddEndpointKey(endpointKeys, resourceId);
+        AddEndpointKey(endpointKeys, GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(resourceId!));
+    }
+
+    private static void AddSyntheticServiceEndpointKey(HashSet<string> endpointKeys, string? serviceName)
+    {
+        AddEndpointKey(endpointKeys, BuildSyntheticServiceNodeId(serviceName));
+    }
+
+    private static void AddSyntheticDatastoreEndpointKey(HashSet<string> endpointKeys, string? datastoreName)
+    {
+        AddEndpointKey(endpointKeys, BuildSyntheticDatastoreNodeId(datastoreName));
+    }
+
+    private static string? BuildSyntheticServiceNodeId(string? serviceName) =>
+        string.IsNullOrWhiteSpace(serviceName) ? null : $"svc-{serviceName}";
+
+    private static string? BuildSyntheticDatastoreNodeId(string? datastoreName) =>
+        string.IsNullOrWhiteSpace(datastoreName) ? null : $"ds-{datastoreName}";
 
     private static bool EndpointKeyIsClaimed(string? value, HashSet<string> claimedEndpointKeys) =>
         !string.IsNullOrWhiteSpace(value) && claimedEndpointKeys.Contains(value);

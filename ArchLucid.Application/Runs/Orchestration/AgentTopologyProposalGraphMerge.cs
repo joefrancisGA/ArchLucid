@@ -44,9 +44,7 @@ public static class AgentTopologyProposalGraphMerge
 
         foreach (GraphNode node in graph.Nodes)
         {
-            AddTopologyKey(seenTopologyKeys, node.Label);
-            AddTopologyKey(seenTopologyKeys, node.NodeId);
-            AddTopologyKey(seenTopologyKeys, node.SourceId);
+            TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(seenTopologyKeys, node);
         }
 
         List<GraphNode> added = [];
@@ -69,7 +67,7 @@ public static class AgentTopologyProposalGraphMerge
             {
                 foreach (ManifestService svc in proposal.AddedServices)
                 {
-                    if (!TryClaimService(svc, seenTopologyKeys))
+                    if (!TopologyProposalRelationshipEndpointIndex.TryClaimService(svc, seenTopologyKeys))
                         continue;
 
                     added.Add(TopologyServiceNode(svc, reasoning));
@@ -93,7 +91,7 @@ public static class AgentTopologyProposalGraphMerge
 
             foreach (ManifestDatastore ds in proposal.AddedDatastores)
             {
-                if (!TryClaimDatastore(ds, seenTopologyKeys))
+                if (!TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(ds, seenTopologyKeys))
                     continue;
 
                 added.Add(TopologyDatastoreNode(ds, reasoning));
@@ -162,54 +160,6 @@ public static class AgentTopologyProposalGraphMerge
         Enum e2)
     {
         return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [key1] = e1.ToString(), [key2] = e2.ToString() };
-    }
-
-    private static void AddTopologyKey(HashSet<string> seenTopologyKeys, string? value)
-    {
-        if (!string.IsNullOrWhiteSpace(value))
-            seenTopologyKeys.Add(value);
-    }
-
-    private static bool TryClaimService(ManifestService service, HashSet<string> seenTopologyKeys)
-    {
-        if (string.IsNullOrWhiteSpace(service.ServiceName) && string.IsNullOrWhiteSpace(service.ServiceId))
-            return false;
-
-        string nodeId = !string.IsNullOrWhiteSpace(service.ServiceId)
-            ? service.ServiceId
-            : $"svc-{service.ServiceName}";
-
-        if (!string.IsNullOrWhiteSpace(service.ServiceName) && seenTopologyKeys.Contains(service.ServiceName))
-            return false;
-
-        if (seenTopologyKeys.Contains(nodeId))
-            return false;
-
-        AddTopologyKey(seenTopologyKeys, service.ServiceName);
-        AddTopologyKey(seenTopologyKeys, nodeId);
-
-        return true;
-    }
-
-    private static bool TryClaimDatastore(ManifestDatastore datastore, HashSet<string> seenTopologyKeys)
-    {
-        if (string.IsNullOrWhiteSpace(datastore.DatastoreName) && string.IsNullOrWhiteSpace(datastore.DatastoreId))
-            return false;
-
-        string nodeId = !string.IsNullOrWhiteSpace(datastore.DatastoreId)
-            ? datastore.DatastoreId
-            : $"ds-{datastore.DatastoreName}";
-
-        if (!string.IsNullOrWhiteSpace(datastore.DatastoreName) && seenTopologyKeys.Contains(datastore.DatastoreName))
-            return false;
-
-        if (seenTopologyKeys.Contains(nodeId))
-            return false;
-
-        AddTopologyKey(seenTopologyKeys, datastore.DatastoreName);
-        AddTopologyKey(seenTopologyKeys, nodeId);
-
-        return true;
     }
 
     private static HashSet<string> CollectDirectedEdgeKeys(IReadOnlyList<GraphEdge> edges)

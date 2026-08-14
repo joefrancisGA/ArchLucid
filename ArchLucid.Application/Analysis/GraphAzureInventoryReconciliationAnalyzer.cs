@@ -49,7 +49,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
         foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
         {
-            string? resourceId = TryReadResourceId(node);
+            string? resourceId = TryReadTopologyResourceId(node);
 
             if (!string.IsNullOrWhiteSpace(resourceId))
                 ids.Add(NormalizeArmResourceId(resourceId));
@@ -58,7 +58,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         return ids;
     }
 
-    private static string? TryReadResourceId(GraphNode node)
+    internal static string? TryReadTopologyResourceId(GraphNode node)
     {
         foreach (string key in new[] { "resourceId", "azureResourceId", "armResourceId", "id" })
         {

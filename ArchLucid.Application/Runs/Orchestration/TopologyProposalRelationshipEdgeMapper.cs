@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -34,14 +35,16 @@ public static class TopologyProposalRelationshipEdgeMapper
             .GroupBy(static n => n.SourceId!, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(static g => g.Key, static g => g.First().NodeId, StringComparer.OrdinalIgnoreCase);
 
+        Dictionary<string, string> idByArmResourceId = BuildArmResourceIdIndex(topologyNodes);
+
         List<GraphEdge> edges = [];
 
         foreach (ManifestRelationship relationship in relationships)
         {
-            if (!TryResolveNodeId(relationship.SourceId, idByLabel, idByNodeId, idBySourceId, out string? fromNodeId))
+            if (!TryResolveNodeId(relationship.SourceId, idByLabel, idByNodeId, idBySourceId, idByArmResourceId, out string? fromNodeId))
                 continue;
 
-            if (!TryResolveNodeId(relationship.TargetId, idByLabel, idByNodeId, idBySourceId, out string? toNodeId))
+            if (!TryResolveNodeId(relationship.TargetId, idByLabel, idByNodeId, idBySourceId, idByArmResourceId, out string? toNodeId))
                 continue;
 
             string edgeType = MapRelationshipType(relationship.RelationshipType);
@@ -60,6 +63,24 @@ public static class TopologyProposalRelationshipEdgeMapper
         return edges;
     }
 
+    private static Dictionary<string, string> BuildArmResourceIdIndex(IReadOnlyList<GraphNode> topologyNodes)
+    {
+        Dictionary<string, string> idByArmResourceId = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (GraphNode node in topologyNodes)
+        {
+            string? resourceId = GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node);
+
+            if (string.IsNullOrWhiteSpace(resourceId))
+                continue;
+
+            idByArmResourceId.TryAdd(resourceId, node.NodeId);
+            idByArmResourceId.TryAdd(GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(resourceId), node.NodeId);
+        }
+
+        return idByArmResourceId;
+    }
+
     private static string MapRelationshipType(RelationshipType relationshipType) =>
         relationshipType == RelationshipType.AuthenticatesWith
             ? GraphEdgeTypes.DependsOn
@@ -70,6 +91,7 @@ public static class TopologyProposalRelationshipEdgeMapper
         Dictionary<string, string> idByLabel,
         Dictionary<string, string> idByNodeId,
         Dictionary<string, string> idBySourceId,
+        Dictionary<string, string> idByArmResourceId,
         out string nodeId)
     {
         if (idByNodeId.TryGetValue(candidate, out nodeId!))
@@ -77,6 +99,17 @@ public static class TopologyProposalRelationshipEdgeMapper
 
         if (idBySourceId.TryGetValue(candidate, out nodeId!))
             return true;
+
+        if (idByArmResourceId.TryGetValue(candidate, out nodeId!))
+            return true;
+
+        if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(candidate)
+            && idByArmResourceId.TryGetValue(
+                GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(candidate),
+                out nodeId!))
+        {
+            return true;
+        }
 
         if (idByLabel.TryGetValue(candidate, out nodeId!))
             return true;

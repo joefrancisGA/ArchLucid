@@ -421,4 +421,123 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.ToNodeId == "ds-1" &&
             e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
+
+    [SkippableFact]
+    public void WithMergedTopologyProposals_does_not_duplicate_nodes_when_service_id_matches_arm_resource_id_property()
+    {
+        const string vmResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph";
+
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm-graph",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = vmResourceId }
+                }
+            ],
+            Edges = [],
+            Warnings = []
+        };
+
+        AgentResult topology = new()
+        {
+            ResultId = "r1",
+            TaskId = "t1",
+            RunId = "run-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-vm",
+                        ServiceId = vmResourceId,
+                        ServiceType = ServiceType.Worker,
+                        RuntimePlatform = RuntimePlatform.Vm
+                    }
+                ]
+            },
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Nodes.Should().HaveCount(1);
+        merged.Nodes[0].NodeId.Should().Be("t1");
+    }
+
+    [SkippableFact]
+    public void WithMergedTopologyProposals_adds_edges_when_relationships_use_arm_resource_id_properties()
+    {
+        const string vmResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph";
+
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm-graph",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = vmResourceId }
+                },
+                new GraphNode
+                {
+                    NodeId = "ds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql",
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_mssql_server.main"
+                }
+            ],
+            Edges = [],
+            Warnings = []
+        };
+
+        AgentResult topology = new()
+        {
+            ResultId = "r1",
+            TaskId = "t1",
+            RunId = "run-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = vmResourceId,
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            },
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "t1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
 }

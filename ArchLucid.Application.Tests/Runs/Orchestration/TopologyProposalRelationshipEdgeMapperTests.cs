@@ -87,4 +87,47 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
             e.ToNodeId == "ds-1" &&
             e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
+
+    [Fact]
+    public void MapRelationships_resolves_endpoints_keyed_by_arm_resource_id_property()
+    {
+        const string vmResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "t1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "vm-graph",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { ["resourceId"] = vmResourceId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = vmResourceId,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "t1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
 }

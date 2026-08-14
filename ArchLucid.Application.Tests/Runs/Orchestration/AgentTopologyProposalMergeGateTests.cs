@@ -474,4 +474,59 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedRelationships![0].SourceId.Should().Be("renamed-api");
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipsKeyedByArmResourceIdProperty()
+    {
+        const string vmResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm-graph",
+                    Category = GraphTopologyCategories.Compute,
+                    Properties = new Dictionary<string, string> { ["resourceId"] = vmResourceId }
+                },
+                new GraphNode
+                {
+                    NodeId = "ds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql",
+                    Category = GraphTopologyCategories.Data,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_mssql_server.main"
+                }
+            ]
+        };
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = vmResourceId,
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
 }
