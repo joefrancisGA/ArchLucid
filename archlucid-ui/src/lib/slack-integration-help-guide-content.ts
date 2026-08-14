@@ -2,6 +2,7 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
 import {
   SLACK_INTEGRATION_HELP_SUMMARY,
+  SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP,
   SLACK_INTEGRATION_PAGE_SUBTITLE,
   SLACK_INTEGRATION_PAGE_TITLE,
   SLACK_INTEGRATION_SECURITY_NOTE,
@@ -11,16 +12,26 @@ import {
   SLACK_SETUP_STEP_SEND_TEST,
 } from "@/lib/slack-integration-page-copy";
 
+export const SLACK_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE = "Slack integration";
+
 export const SLACK_INTEGRATION_HELP_PAGE_TITLE = SLACK_INTEGRATION_PAGE_TITLE;
 
 export const SLACK_INTEGRATION_HELP_PAGE_SUBTITLE = SLACK_INTEGRATION_PAGE_SUBTITLE;
 
 export const SLACK_INTEGRATION_HELP_OVERVIEW = SLACK_INTEGRATION_HELP_SUMMARY;
 
+export const SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE = "Start here";
+
+export const SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION_TAG = "Incoming webhook";
+
+export const SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION = SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP;
+
 export const SLACK_INTEGRATION_HELP_PRIMARY_ACTION = {
   label: "Open Slack notifications",
   href: "/integrations/slack",
 } as const;
+
+export const SLACK_INTEGRATION_HELP_SETUP_SECTION_TITLE = "Set up Slack notifications";
 
 export const SLACK_INTEGRATION_HELP_SETUP_STEPS = [
   SLACK_SETUP_STEP_CREATE_WEBHOOK,
@@ -45,7 +56,7 @@ export const SLACK_INTEGRATION_HELP_FEATURE_ITEMS: readonly SlackIntegrationHelp
   },
   {
     label: "Alert routing",
-    detail: "Open Alert rules when you need to change which events fire Slack notifications.",
+    detail: "Governance events post when matching alert rules fire and this destination stays enabled.",
   },
   {
     label: "Credential handling",
@@ -54,15 +65,19 @@ export const SLACK_INTEGRATION_HELP_FEATURE_ITEMS: readonly SlackIntegrationHelp
 ] as const;
 
 export const SLACK_INTEGRATION_HELP_HOW_TO_READ_STEPS = [
-  "Create a dedicated Slack incoming webhook for ArchLucid governance alerts.",
-  "Add destination details, send a successful test, then save the destination.",
-  "Open Alert rules when notifications fire but the wrong events reach Slack.",
+  "Governance alerts post to enabled destinations when matching alert rules fire.",
+  "Review delivery history on the Slack notifications page when channels miss expected posts.",
+  "Open Integration readiness when Slack is one of several connectors under procurement review.",
 ] as const;
-
-export const SLACK_INTEGRATION_HELP_ALERT_RULES_HREF = "/governance/alert-rules";
 
 export const SLACK_INTEGRATION_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-slack-notifications-do", title: "What Slack notifications do" },
+  { level: 2, id: "set-up-slack-notifications", title: SLACK_INTEGRATION_HELP_SETUP_SECTION_TITLE },
   { level: 2, id: "how-slack-notifications-work", title: SLACK_INTEGRATION_HELP_TOPIC_LABEL },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
+
+/** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
+export const SLACK_INTEGRATION_HELP_NEGATION_DRIFT_MARKERS = {
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;

@@ -2,23 +2,23 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { SlackIntegrationHelpEvidenceOrientationStrip } from "@/components/help/SlackIntegrationHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
-  SLACK_INTEGRATION_HELP_ALERT_RULES_HREF,
+  SLACK_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
   SLACK_INTEGRATION_HELP_FEATURE_ITEMS,
   SLACK_INTEGRATION_HELP_GUIDE_HEADINGS,
   SLACK_INTEGRATION_HELP_HOW_TO_READ_STEPS,
@@ -26,6 +26,10 @@ import {
   SLACK_INTEGRATION_HELP_PAGE_SUBTITLE,
   SLACK_INTEGRATION_HELP_PAGE_TITLE,
   SLACK_INTEGRATION_HELP_PRIMARY_ACTION,
+  SLACK_INTEGRATION_HELP_SETUP_STEPS,
+  SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE,
+  SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION,
+  SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION_TAG,
 } from "@/lib/slack-integration-help-guide-content";
 import { SLACK_INTEGRATION_HELP_CANONICAL_PATH } from "@/lib/slack-integration-help-evidence-copy";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
@@ -50,6 +54,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideViewProps): React.ReactElement {
   const { entry } = props;
   const contentGridClass = resolveHelpPageContentGridClass(SLACK_INTEGRATION_HELP_GUIDE_HEADINGS.length);
+  const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
@@ -58,7 +63,8 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
     >
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
+      <HelpTopicGuidePageHeader
+        topicTitle={SLACK_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE}
         title={SLACK_INTEGRATION_HELP_PAGE_TITLE}
         titleTestId="help-slack-integration-page-title"
         subtitle={SLACK_INTEGRATION_HELP_PAGE_SUBTITLE}
@@ -70,23 +76,35 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p
-            className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="help-slack-integration-overview"
-          >
+          <p className={readingBodyClass} data-testid="help-slack-integration-overview">
             {SLACK_INTEGRATION_HELP_OVERVIEW}
           </p>
 
           <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-slack-integration-action-panel">
             <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Open Slack notifications</CardTitle>
+              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                {SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE}
+              </CardTitle>
             </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={SLACK_INTEGRATION_HELP_PRIMARY_ACTION.href}>
-                  {SLACK_INTEGRATION_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
+            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button asChild size="sm" variant="primary">
+                  <Link href={SLACK_INTEGRATION_HELP_PRIMARY_ACTION.href}>
+                    {SLACK_INTEGRATION_HELP_PRIMARY_ACTION.label}
+                  </Link>
+                </Button>
+                <StatusTag
+                  kind="neutral"
+                  label={SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION_TAG}
+                  data-testid="help-slack-integration-webhook-precondition-tag"
+                />
+              </div>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-slack-integration-webhook-precondition"
+              >
+                {SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION}
+              </p>
             </CardContent>
           </Card>
 
@@ -96,7 +114,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
           >
             <HelpSectionHeading id="what-slack-notifications-do">What Slack notifications do</HelpSectionHeading>
             <dl
-              className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-slack-integration-feature-items"
             >
               {SLACK_INTEGRATION_HELP_FEATURE_ITEMS.map((item) => (
@@ -109,26 +127,36 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
           </section>
 
           <section
+            aria-labelledby="set-up-slack-notifications"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id="set-up-slack-notifications">Set up Slack notifications</HelpSectionHeading>
+            <ol
+              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
+              data-testid="help-slack-integration-setup-stepper"
+            >
+              {SLACK_INTEGRATION_HELP_SETUP_STEPS.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+          </section>
+
+          <section
             aria-labelledby="how-slack-notifications-work"
             className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
           >
             <HelpSectionHeading id="how-slack-notifications-work">{SLACK_INTEGRATION_HELP_TOPIC_LABEL}</HelpSectionHeading>
             <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-slack-integration-how-stepper"
             >
               {SLACK_INTEGRATION_HELP_HOW_TO_READ_STEPS.map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={SLACK_INTEGRATION_HELP_ALERT_RULES_HREF}>
-                Open alert rules →
-              </Link>
-            </p>
           </section>
 
-          <SlackIntegrationHelpEvidenceOrientationStrip />
+          <SlackIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
         </div>
 
         <HelpTopicTableOfContents headings={SLACK_INTEGRATION_HELP_GUIDE_HEADINGS} />

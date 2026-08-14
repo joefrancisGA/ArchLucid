@@ -126,6 +126,18 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-13 · integrations jira orientation");
   });
 
+  it("formats slack integration help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "slack-integration",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "integrations slack notifications orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · integrations slack notifications orientation");
+  });
+
   it("formats model governance help review provenance", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
