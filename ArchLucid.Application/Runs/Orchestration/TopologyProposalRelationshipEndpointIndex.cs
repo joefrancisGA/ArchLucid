@@ -262,6 +262,15 @@ public static class TopologyProposalRelationshipEndpointIndex
 
             if (ArmResourceIdMatches(service.ServiceId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node)))
                 return true;
+
+            if (!string.IsNullOrWhiteSpace(node.Label)
+                && string.Equals(
+                    service.ServiceId,
+                    BuildSyntheticServiceNodeId(node.Label),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(service.ServiceName))
@@ -288,6 +297,15 @@ public static class TopologyProposalRelationshipEndpointIndex
 
             if (ArmResourceIdMatches(datastore.DatastoreId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node)))
                 return true;
+
+            if (!string.IsNullOrWhiteSpace(node.Label)
+                && string.Equals(
+                    datastore.DatastoreId,
+                    BuildSyntheticDatastoreNodeId(node.Label),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(datastore.DatastoreName))
