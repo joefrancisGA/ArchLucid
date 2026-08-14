@@ -1,5 +1,12 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import {
+  SUBPROCESSORS_HELP_PRIMARY_ACTIONS,
+} from "@/lib/subprocessors-help-guide-content";
+import {
+  SUBPROCESSORS_HELP_RELATED_GUIDES,
+  subprocessorsHelpRelatedGuides,
+} from "@/lib/subprocessors-help-related-guides";
 
 export const SUBPROCESSORS_HELP_CANONICAL_PATH = "/help/subprocessors" as const;
 
@@ -8,7 +15,6 @@ export const SUBPROCESSORS_HELP_CLAIM_DISCIPLINE =
 
 export const SUBPROCESSORS_HELP_SOURCES_INTRO =
   "Use these follow-ups when subprocessor vocabulary turns into DPA negotiation, trust-center materials, or data-handling diligence.";
-
 
 /** Operator Sources — no self-href to `/help/subprocessors`. */
 export const SUBPROCESSORS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
@@ -25,8 +31,15 @@ export function formatSubprocessorsHelpReviewedCopy(lastReviewed: string): strin
   return `Register reviewed ${lastReviewed} — current subprocessor list for hosted ArchLucid SaaS.`;
 }
 
+/** Primary CTA — Trust Center diligence pack (TB-1751). */
 export const SUBPROCESSORS_HELP_PRIMARY_ACTION = {
-  label: "Open DPA template",
-  href: inAppHelpHref("dpa-template"),
-  testId: "help-subprocessors-primary-action",
+  label: SUBPROCESSORS_HELP_PRIMARY_ACTIONS.openTrustCenter.label,
+  href: SUBPROCESSORS_HELP_PRIMARY_ACTIONS.openTrustCenter.href,
+  testId: SUBPROCESSORS_HELP_PRIMARY_ACTIONS.openTrustCenter.testId,
 } as const;
+
+export const SUBPROCESSORS_HELP_RELATED = subprocessorsHelpRelatedGuides();
+
+export const SUBPROCESSORS_HELP_RELATED_HEADING = "Related help" as const;
+
+export { SUBPROCESSORS_HELP_RELATED_GUIDES };

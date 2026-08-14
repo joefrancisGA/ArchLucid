@@ -38,7 +38,7 @@ Regenerate after opening or closing summary-table rows:
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-**Updated:** 2026-08-13 (**TB-1741**–**TB-1745** **Done** — `HelpReportAProblemGuideView` + Open Support CTA; dead-end honesty callout; troubleshooting IA dual job matrix; where-it-appears before deferred capture fields; Related ≤3 + mailto; Vitest). Prior: 2026-08-13 (**TB-1736**–**TB-1737**/**TB-1740** **Done** — sponsor-report product-overview sections + Start first review CTA; title/subtitle honesty; M-18 anchors excluded; Vitest). Prior: 2026-08-13 (**TB-1731**–**TB-1735** **Done** — `HelpPriorManifestRetrievalGuideView` + Ask CTA; Ask-memory title honesty; job-matrix IA dual; Related ≤3 + finalize inbound copy; Vitest). Prior: 2026-08-13 (**TB-2232** **Done** — canonical home next-action slot (`OperatorHomeCanonicalNextActionSlot` + `resolveOperatorCanonicalNextAction`); tenant API first with lifecycle fallback; retired `OperatorNextActionsCard` from stickiness cockpit; Vitest inventory). Prior: 2026-08-13 (**TB-1685** **Done** — COR first-viewport three-step job chrome; full five-step workflow deferred below fold; Vitest). Prior: 2026-08-13 (**TB-1716**/**TB-1718**–**TB-1720** **Done** — pilot-feedback inbound labels; `HelpPilotFeedbackGuideView` + workflow/job-matrix chrome already shipped; Vitest). Prior: 2026-08-13 (**TB-1711**–**TB-1715** **Done** — path-chooser Related ≤3; `path-chooser-help-inbound-label-surfaces`; Vitest). Prior: 2026-08-13 (**TB-1684** **Done** — COR CTA honesty: workflow step 2 + evidence-only optional card primary href `/architecture/reviews/new`; extract-upload demoted to advanced prose; Vitest). Prior: 2026-08-13 (**TB-1683** **Done** — COR job-matrix IA dual: full first-review vs evidence-only fast path; `#fast-path-evidence-only-review` anchor; Vitest). Prior: 2026-08-13 (**TB-1682** **Done** — HEV retired; no `includeIntroWithSections` markdown dump on `CORE_PILOT.md`; canonical COR uses `HelpCorePilotGuideView`; registry Vitest). Prior: 2026-08-13 (**TB-1656** **Done** — backlog sync; `/help/data-handling` registry SoT is `DATA_HANDLING.md` with TB-1660 drift guard; Vitest verified). Prior: 2026-08-13 (**TB-1655** **Done** — data-handling Related diligence rail with Trust Center + security-trust discovery; Vitest). Prior: 2026-08-13 (**TB-1651** **Done** — `/help/data-handling` specialty `HelpDataHandlingTenantIsolationGuideView` + Open Trust Center primary CTA; Vitest verified). Prior: 2026-08-13 (**TB-1640** **Done** — compare/replay Related trimmed to curated help guides; unified inbound page-help labels for compare/replay routes; Vitest). Prior: 2026-08-13 (**TB-1639** **Done** — compare/replay first-viewport two-card job chrome before deferred markdown; Vitest TB-1639). Prior: 2026-08-13 (**TB-1638** **Done** — compare/replay ↔ repeat-review-loop IA dual job matrix; one mutual cross-link per page with distinct job copy; Vitest). Prior: 2026-08-13 (**TB-1636** **Done** — `/help/comparison-replay` specialty guide with compare vs validate decision panel, Open Compare two reviews CTA, Mermaid decision flow; Vitest). Prior: 2026-08-13 (**TB-1635** **Done** — CAIQ/SIG help Help Center advanced discovery + Trust/compliance-journey pre-fill draft deep-links; Vitest). Prior: 2026-08-13 (**TB-1634** **Done** — CAIQ/SIG help first-viewport density: SIG family tables deferred behind `HelpLazyDetails`; lite-only posture chip reconciliation; Vitest). Prior: 2026-08-13 (**TB-1631** **Done** — `/help/caiq-sig-response` specialty buyer questionnaire guide: Trust/compliance/diligence CTAs, CAIQ-vs-SIG job matrix, workflow chrome; Vitest). Prior: 2026-08-13 (**TB-1630** **Done** — azure-permissions help connection-context Suspense skeleton replaces text fallback; Vitest). Prior: 2026-08-13 (**TB-1629** **Done** — azure-permissions help IA dual with Connect Azure securely: job-matrix first viewport, page-help retarget to `cloud-connections-azure`, mutual-link Vitest). Prior: 2026-08-13 (**TB-1628** **Done** — azure-permissions help primary-chrome jargon honesty + deferred requirements-reviewed disclosure; Vitest). Prior: 2026-08-13 (**TB-1627** **Done** — azure-permissions help first-viewport density: required-role summary, setup/verify before deferred matrix/custom-role disclosures; Vitest). Prior: 2026-08-13 (**TB-1622** **Done** — Azure Boards help limitations heading honesty + Phase 1 jargon guards; Vitest). Prior: 2026-08-13 (**TB-1620** **Done** — Azure Boards help setup-step deep links: `HelpAzureBoardsSetupStepCtAs`, markdown **Test connection** link, Vitest). Prior: 2026-08-13 (**TB-1619** **Done** — backlog closure; `HelpAzureBoardsGuideView` + primary CTA + connection-context honesty already shipped in `05e382737`; Vitest verified). Prior: 2026-08-13 (**TB-1618** **Done** — `AuthFlowShell` inbound help link uses `AUTHENTICATION_SIGN_IN_HELP_PAGE_TITLE`; `authentication-sign-in-inbound-copy` Vitest). Prior: 2026-08-13 (**TB-1617** **Done** — authentication-sign-in Related capped at two product-safe guides; SSO follow-up routes to SSO wizard; Vitest). Prior: 2026-08-13 (**TB-1614**–**TB-1616** **Done** — authentication-sign-in specialty companion: Sign in CTA, eval/invite actions, collapsible SSO/recovery/issues; Vitest). Prior: 2026-08-13 (**TB-1612** **Done** — admin diagnostics Related caps buyer topics; eng/CLI runbooks Admin-only via `listAdminDiagnosticsHelpRelatedTopics`; Vitest; pairs **TB-1246**). Prior: 2026-08-13 (**TB-1605** **Done** — accelerator-chooser help title/tier honesty: **Starter proof packs** canonical title, product-help + help-center product tier, `accelerator-chooser-help-title-honesty` Vitest guards; pairs **TB-1604**/**TB-1397**). Prior: 2026-08-13 (**TB-1415** **Done** — specialty help chrome honesty CI (`check_specialty_help_chrome_honesty.py`) + Vitest inventory drift guard; pairs **M-251**). Prior: 2026-08-13 (**TB-1414** **Done** — `SPECIALTY_HELP_CHROME_CONTRACT.md` + `specialty-help-chrome-below-50-inventory` Vitest; orchestrates ≤~50 help clusters). Prior: 2026-08-13 (**TB-1403** **Done** — review-packages export jargon softened to signed review record; export next-steps panel with sample/start CTAs + universe honesty; Vitest guards). Prior: 2026-08-13 (**TB-1402** **Done** — review-packages Related guides trimmed to three (evidence-intake, findings, evidence-trail); `review-packages-help-related-guides` Vitest guards). Prior: 2026-08-13 (**TB-1401** **Done** — review-packages TOC anchors use architecture-package ids; legacy review-package hash aliases redirect in `HelpTopicHashScroll`; Vitest guards). Prior: 2026-08-13 (**TB-1400** **Done** — review-packages title hierarchy: Architecture packages on registry/H1/page-help; hub synonym in subtitle; `review-packages-help-title-honesty` Vitest guards). Prior: 2026-08-13 (**TB-1399** **Done** — review-packages specialty companion via `HelpReviewPackagesGuideView` with Open reviews CTA; `help-review-packages-guide` Vitest guards). Prior: 2026-08-13 (**TB-1398** **Done** — repeat-review loop-step deep-link CTA chrome via `HelpRepeatReviewLoopWorkflowStepper`; recommended-loop prose omitted from markdown; Vitest guards). Prior: 2026-08-13 (**TB-1397** **Done** — repeat-review Related density: three buyer-safe guides, no accelerator-chooser; `repeat-review-loop-help-related-guides` Vitest guards). Prior: 2026-08-13 (**TB-1377** **Done** — help discovery twin collapse: featured grid + search catalog converge on `first-architecture-review`; `first-architecture-review-help-discovery` Vitest guards). Prior: 2026-08-13 (**TB-1376** **Done** — inbound first-review help pointers: CorePilot checklist/wizard + listed surfaces use `/help/first-architecture-review`; `first-architecture-review-help-inbound-handoff` Vitest guards). Prior: 2026-08-13 (**TB-1375** **Done** — first-review help jargon purge: `CORE_PILOT.md` scope/success-signal copy, buyer orientation footer heading, `first-architecture-review-help-banned-copy` Vitest guards). Prior: 2026-08-13 (**TB-2195** **Done** — assigned-to-me findings queue: `assignedToMe` server filter on risk register, personal route + nav, remediation assignment email, operator-home assigned count; Application + API + UI tests). Prior: 2026-08-13 (**TB-2194** **Done** â€” cross-review finding lifecycle: `CrossReviewFindingLifecycleService` + per-finding records on compare-two-reviews, finding inspect hint, governance queue link, recurrence email canonical compare URL with `#compare-finding-lifecycle`; Application + UI tests). Prior: 2026-08-13 (**TB-2193** **Done** â€” leader-elected `WaiverExpiryNotificationHostedService` + escalating email reminders at 30/14/7/0-day boundaries; idempotent `SentEmails` ledger + audit; 83 unit tests; email-only residual documented). Prior: 2026-08-13 (**TB-2147** **Done** â€” final batch 18 clears provenance/ROI/tabs/wizard surfaces; deleted `title-attribute-legacy-surfaces.mjs` + ESLint override; baseline 5â†’0). Prior: 2026-08-13 (**TB-2147** batch 17 â€” layer chrome/governance inspector; baseline 10â†’5 files). Prior: 2026-08-13 (**TB-2147** batch 15 â€” CTO demo tour/compliance drift; baseline 20â†’15 files). Prior: 2026-08-13 (**TB-2147** batch 14 â€” architecture drafts, artifact integrity/list, before/after delta; baseline 25â†’20 files). Prior: 2026-08-13 (**TB-2147** batch 13 â€” evidence graph, Slack destination form, trial funnel ops; baseline 29â†’25 files). Prior: 2026-08-13 (**TB-2147** batch 12 â€” AI usage/billing/sponsor ROI; baseline 33â†’29 files). Prior: 2026-08-12 (**TB-2147** batch 5 â€” alerts hub surfaces; baseline 68â†’60 files). Prior: 2026-08-12 (**TB-2147** batch 4 â€” forensics/retrieval `title` sweep; baseline 74â†’68 files). Prior: 2026-08-12 (**TB-2147** batch 3 â€” operator page-header freshness `<time>` metadata; baseline 85â†’76 files). Prior: 2026-08-12 (**TB-1367** **Done** â€” `ELEVATOR_PITCH_V1_CLAIM_AUDIT_CONTRACT.md`; brief Â§4 + pitch alias reconciled with `V1_SCOPE` Â§2.13â€“Â§2.15 connector GA; pairs **TB-1368** / **M-245**/**M-246**). Prior: 2026-08-12 (**TB-1197** **Done** â€” `check_unvalidated_proposal_overlay_honesty.py` + Vitest `unvalidated-proposal-overlay-honesty.test.ts`; wired in `run_buyer_surface_strict_guards.py`; pairs **M-203**). Prior: 2026-08-12 (**TB-2193** **Done** - leader-elected daily waiver-expiry scanner sends 30/14/7/0-day email reminders without anyone opening the app; idempotency keyed per expiry deadline so a renewal restarts the series; email only, Teams/webhook left as a tracked residual; three original approach steps corrected in the row). Prior: 2026-08-12 (**TB-1173** **Done** â€” `check_golden_cohort_relock_rubber_stamp_honesty.py` + Vitest `golden-cohort-relock-honesty.test.ts`; wired in `run_buyer_surface_strict_guards.py`; pairs **M-201**). Prior: 2026-08-12 (**TB-1235**â€“**TB-1240** **Done** â€” AWS help banned-copy + IAM manifest + OIDC trust-policy template + workflow/classification chrome; GCP specialty guide + banned-copy Vitest; pairs **TB-1234**/**TB-720**). Prior: 2026-08-12 (**TB-2192** **Done** - post-commit recurrence proposal gains a **Not now** decline that creates no schedule plus honest completion-recipient disclosure; corrects two wrong premises in the original row - the card was already open post-commit, and completion email honors no per-recipient preference). Prior: 2026-08-12 (**TB-2191** **Done** - stickiness cockpit renders on operator home via `OperatorHomeStickinessCockpitDeferred`; `health-score` stays internal-only; banned "First-value" / "run" copy fixed in `OperatorStickinessSnapshotCard` and now covered by the home vocabulary guard). Prior: 2026-08-12 (**TB-1145** **Done** ? SOC 2 / pen-test talk-track honesty CI + Vitest guard; pairs **M-196**). Prior: 2026-08-12 (**TB-2191**ï¿½**TB-2200** **opened** ï¿½ owner stickiness ask: ten improvements to product stickiness; **TB-2191**ï¿½**TB-2195** V1 (wire the unrendered stickiness cockpit, recurrence-by-default at commit, waiver-expiry scanner, verified-resolved finding lifecycle, assigned-to-me queue); **TB-2196**ï¿½**TB-2200** V1.1 (tokenized sponsor links, two-way Teams/Slack actions, GitHub App + Check Runs, tenant-authored approved-architecture registry, workspace-scoped Ask); see cluster note above). Prior: 2026-08-12 (**TB-1035** **Done** ? strangler next-slice honesty CI + Vitest guard; pairs **M-184**). Prior: 2026-08-12 (**TB-1033** **Done** ? launch-load failure-order honesty CI + Vitest guard; pairs **M-182**). Prior: 2026-08-12 (**TB-1031** **Done** ? first-15 package-spine honesty CI + Vitest guard; pairs **M-180**). Prior: 2026-08-12 (**TB-1027** **Done** ? operator primary-object honesty CI + Vitest guard; pairs **M-176**). Prior: 2026-08-12 (**TB-1025** **Done** ? comparison replay drift honesty CI + Vitest guard; pairs **M-174**). Prior: 2026-08-12 (**TB-1850** **Done** ? create-home Evidence band Vitest (TB-1846?TB-1849 orientation + REE traffic honesty + RunDetailPageView wiring)). Prior: 2026-08-12 (**TB-2041** **Done** ? short-helper measure Vitest guard + residual inventory allowlist). Prior: 2026-08-12 (**TB-2040** **Done** ? representative operator hub short intros use full work-surface width; Vitest contract). Prior: 2026-08-12 (**TB-2039** **Done** ? OperatorPageHeader + PageHeading drop default subtitle measure caps; Overview removes `max-w-none` override; Vitest). Prior: 2026-08-12 (**TB-1853** **Done** ? create-home Findings in-progress empty state + Activity/Clarifications CTAs; Vitest). Prior: 2026-08-12 (**TB-1852** **Done** - create-home Findings pre-finalize orientation + Activity link; Vitest). Prior: 2026-08-12 (**TB-1849** **Done** - shared Add evidence capture label + lighter capture section chrome; Vitest). Prior: 2026-08-12 (**TB-1848** **Done** - create-home Evidence Diagram cross-link CTA + archTab=diagram href; Vitest). Prior: 2026-08-12 (**TB-1843** **Done** ? diagram insufficient orientation + Clarify architecture primary CTA + conditional regenerate; Vitest). Prior: 2026-08-12 (**TB-1842** **Done** ? diagram tab Add details uses run-scoped `buildArchitectureCorrectionHref`; Vitest). Prior: 2026-08-12 (**TB-1814** **Done** - pattern library repeat-review-loop page-help topic + Vitest). Prior: 2026-08-12 (**TB-1812** **Done** - pattern detail contextual peer-compare via resolvePatternLibraryPeerCompare; Vitest). Prior: 2026-08-12 (**TB-1808** **Done** ? `/operate/architecture-graph` redirect-only page preserves query to `/insights/evidence-graph`). Prior: 2026-08-12 (**TB-1806** **Done** ? OAX redirect-shim traffic workbook row + Vitest for `/operate/architecture-graph`). Prior: 2026-08-12 (**TB-1789** **Done** ? recommendation-learning ops OperatorPageHeader/StatusTag/EnterpriseTable + Vitest anti-pastel guard). Prior: 2026-08-12 (**TB-1788** **Done** ? recommendation-learning ops distinct refresh vs load-persisted toolbar + Vitest). Prior: 2026-08-12 (**TB-1660** **Done** ? Vitest data-handling Three-layers + anti-stub drift guard). Prior: 2026-08-12 (**TB-1650** **Done** ? Vitest EnterpriseTable allowlist guard on exemplar inventory surfaces). Prior: 2026-08-12 (**TB-1675** **Done** ? Vitest bare navigational Link/a affordance guard + grandfathered baseline). Prior: 2026-08-12 (**TB-1674** **Done** ? secondary inline-link surfaces + TB-1674 migration inventory). Prior: 2026-08-12 (**TB-1672** **Done** ? compare section nav + DOCX download + provenance error helper use OPERATOR_LINK). Prior: 2026-08-12 (**TB-1671** **Done** ? operator inline-link affordance contract in UI_DESIGN_SYSTEM + ARCHITECTURE pointer; `OPERATOR_LINK` / marketing inline tokens). Prior: 2026-08-12 (**TB-1670** **Done** ? unified PageContextualHelpButton allowlist + non-null topic Vitest guard; merges TB-1666 exemplars + TB-1667?TB-1669). Prior: 2026-08-12 (**TB-1669** **Done** ? integrations + extended-nav page help inventory + `/internal/health` topic map; Vitest TB-1669). Prior: 2026-08-12 (**TB-1668** **Done** ? governance + sponsor-report page help mounts + topic map; Vitest TB-1668). Prior: 2026-08-12 (**TB-1667** **Done** ? pilot/analysis page help mounts + topic map; Vitest TB-1667). Prior: 2026-08-12 (**TB-1662** **Done** ? line-tab variant on Advisory/Help panel/Runs dashboard; TB-1662 surface inventory + Vitest). Prior: 2026-08-12 (**TB-1661** **Done** ? operator line-tabs visual contract in UI_DESIGN_SYSTEM + ARCHITECTURE pointer). Prior: 2026-08-12 (**TB-1649** **Done** ? Recurrence/Digests action budget + buyer labels; Reviews StatusTag via RunStatusBadge; raw-table migrate inventory for TB-1650; Vitest). Prior: 2026-08-12 (**TB-1648** **Done** ? Slack + Webhooks EnterpriseTable destination inventory; Vitest). Prior: 2026-08-12 (**TB-1647** **Done** ? Advisory schedules + Alert rules EnterpriseTable inventory; StatusTag; history disclosure; Vitest). Prior: 2026-08-12 (**TB-1643** **Done** ? backlog sync; creating-runs single-hop redirect to review-guide; Vitest). Prior: 2026-08-12 (**TB-1603** **Done** ? help catch-all page dispatch inventory CI; Vitest drift guard). Prior: 2026-08-12 (**TB-2190** **Done** ? sync CreateRun ArchitectureRequest-first + missing-request orphan auto-remediation). Prior: 2026-08-12 (**TB-1613** **Done** ? admin diagnostics inbound label + contributor doc-href honesty; Vitest). Prior: 2026-08-12 (**TB-1608** **Done** ? accelerator chooser home inbound copy SoT + buyer-safe chrome; Vitest). Prior: 2026-08-12 (**TB-1599** **Done** ? unknown/unloadable help slugs render `HelpTopicNotFoundView`; Vitest). Prior: 2026-08-12 (**TB-1602** **Done** ? HE. traffic row retagged Router meta; per-slug scoring honesty; Vitest). Prior: 2026-08-12 (**TB-1601** **Done** ? help catch-all fallthrough guard + `choose-your-next-step` specialty dispatch; Vitest). Prior: 2026-08-12 (**TB-1600** **Done** ? help topic `loading.tsx` + `HelpTopicPageLoadingSkeleton`; ISR cache policy module; Vitest). Prior: 2026-08-12 (**TB-1595** **Done** ? GOI traffic row removed; contributor doc guards; empty-state inventory canonical `/governance/alerts`; Vitest already shipped 2026-08-11). Prior: 2026-08-12 (**TB-1594** **Done** ? backlog sync; `?tab=inbox` permanent redirect to `/governance/alerts` preserving filters; Vitest + route catalog already shipped 2026-08-11). Prior: 2026-08-12 (**TB-1591** **Done** ? simulation mode tabs use operator labels Simple rule / Advanced rule / Compare thresholds; Vitest). Prior: 2026-08-12 (**TB-1590** **Done** ? simulation/tuning forms use design-system Input/Button + primary Simulate/Recommend CTAs; Vitest). Prior: 2026-08-12 (**TB-1589** **Done** ? Test alerts tab demotes Simulate/Tune duplicate h2; tuning in closed disclosure; Vitest). Prior: 2026-08-12 (**TB-1588** **Done** ? Conditions tab design-system Select for rule type/priority; list loading skeleton on initial fetch; Vitest). Prior: 2026-08-12 (**TB-1586** **Done** ? Conditions tab Create `variant="primary" size="sm"`; one primary CTA locus empty vs revealed form; Vitest). Prior: 2026-08-12 (**TB-1585** **Done** ? Conditions tab collapses stacked hub lead + findings helper; field help on condition type; Vitest). Prior: 2026-08-12 (**TB-1584** **Done** ? Conditions tab demotes duplicate `Alert conditions` h2 to section h3; Vitest source + render guards). Prior: 2026-08-11 (**TB-1846** **Done** ? summary-table sync; REE create-home-only `archTab=evidence` traffic honesty +Vitest already shipped 2026-08-10). Prior: 2026-08-11 (**TB-1799** **Done** ? summary-table sync; legacy `/onboard` contributor doc guard + canonical first-review-guide paths already shipped 2026-08-10). Prior: 2026-08-11 (**TB-1149** **Done** ? Jira integrations: structured issue-type-by-severity rows + optional JSON disclosure; client validation; Vitest). Prior: 2026-08-11 (**TB-1143** **Done** ? Cloud connections: collapse unconfigured provider cards to Not connected + auth model; hide Last validation/Evidence zero theater; Vitest). Prior: 2026-08-11 (**TB-1141** **Done** ? Cloud provider summary cards: single primary CTA via `resolveCloudProviderSummaryPrimaryCtaLabel` (Configure / Open connection); Vitest). Prior: 2026-08-11 (**TB-1138** **Done** ? Governance setup: hide all-Pending foundation panel under untouched checklist; `shouldShowGovernanceSetupFoundationPanel`; Vitest). Prior: 2026-08-11 (**TB-1137** **Done** ? Governance setup checklist: numbered step track; primary CTA only on recommended-next; outline CTAs on demoted steps; two-column layout with outcomes rail; Vitest). Prior: 2026-08-11 (**TB-1144** **Done** ? [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md`](SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md) conversation ladder + forbidden hedges; buyer packet M-197 contributor-contract anchor; aligns [`PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md`](../go-to-market/PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md) to planned-not-scheduled; names **TB-1145** CI follow-on; pairs **M-196**/**M-197**). Prior: 2026-08-11 (**TB-990** **Done** ? MVO quiet/firing classification in `SUPPORT_PROBLEM_REPORT_TRIAGE.md`: mandatory triage step, outcomes A/B/C, Alert history checklist, AMW PromQL snippets, **M-120** false-negative hook; cross-links **TB-989** contract). Prior: 2026-08-11 (**TB-1773** **Done** ? summary-table sync; GCP live Validate + Recent activity panels shipped in `8021a6d12`). Prior: 2026-08-11 (**TB-1121** **Done** ? `check_security_review_ready_without_musts_honesty.py` forbids first-review-ready without M-151+M-118, M-171-as-first-gate, and missing TB-1120 ship-order cites; wired in `run_buyer_surface_strict_guards.py`; pairs **M-192**; closes **TB-1120** contract). Prior: 2026-08-11 (**TB-1123** **Done** ? `check_isolation_claims_too_strong_honesty.py` forbids RLS-as-live, workspace-as-security-boundary, crypto-proof/per-tenant Search, NetArch-alone isolation, and G3 fully-proven overclaims; wired in `run_buyer_surface_strict_guards.py`; pairs **M-194**; softens G3 ?provable? copy in claim readiness + buyer packet). Prior: 2026-08-11 (**TB-1122** **Done** ? [ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md](ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md) too-strong vs INV-001/ADR 0037 matrix + living-doc RLS-as-control purge; G3 soften; **TB-1123** named as CI follow-on; GTM **M-194**/**M-195**). Prior: 2026-08-11 (**TB-1113** **Done** ? `check_minimum_pilot_trust_packet_honesty.py` forbids CPA/3P-as-pilot-trust, self-attested=certified, and SOC 2 ready / pen-test-in-flight hedges; wired in `run_buyer_surface_strict_guards.py`; pairs **M-190**; does not reopen **TB-135**/**TB-136**). Prior: 2026-08-11 (**TB-1112** **Done** - [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md) Stage 0 pilot trust include/drop + too-strong matrix; GTM **M-190**/**M-191** cross-links; **TB-1113** named as CI follow-on; does not reopen **TB-135**/**TB-136**). Prior: 2026-08-11 (**TB-1646** **Done** - Operator populated-list contract in UI_DESIGN_SYSTEM.md + ARCHITECTURE.md pointer; named list kinds; EnterpriseTable + StatusTag default; apply **TB-1647**?**TB-1650**). Prior: 2026-08-11 (**TB-1575** **Done** - operator side-rail inventory + demote Teams/Slack/Azure Boards/ServiceNow about-asides; named kind markers; operator-side-rail-inventory.ts; Vitest; TB-1576 checklist). Prior: 2026-08-11 (**TB-1574** **Done** - live preview/readiness rails stack when sparse and pin when live; Digests Schedule + Alert rules; operator-live-preview-readiness-rail; Vitest). Prior: 2026-08-11 (**TB-1573** **Done** - Recurrence teaching helper collapsed disclosure + Advisory Schedules scope inline; anti-exemplars under TB-1572). Prior: 2026-08-11 (**TB-1572** **Done** ? Operator side-rail contract in UI_DESIGN_SYSTEM.md + ARCHITECTURE.md pointer; single-column default; allow/ban rail kinds; apply **TB-1573**?**TB-1576**). Prior: 2026-08-11 (**TB-1625** **Done** ? `check_policy_pack_customer_rule_sandbox_honesty.py` forbids WASM/Firecracker sandbox, pack-JSON RCE, broken-packs-never-affect, platform-wide-degrade, and execute-time-pin overclaims; wired in `run_buyer_surface_strict_guards.py`; pairs **M-298**). Prior: 2026-08-11 (**TB-1624** **Done** ? [`POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md`](POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md) sandbox/pin/blast-radius matrix + CI anchors; GTM **M-298**/**M-299**; **TB-1625** named as CI follow-on). Prior: 2026-08-11 (**TB-1578** **Done** ? `check_shared_aoai_tpm_noisy_neighbor_honesty.py` forbids fair-share-TPM / budget-isolation / replicas-fix-LLM / silent-starvation overclaims in buyer docs; wired in `run_buyer_surface_strict_guards.py`; pairs **M-296**). Prior: 2026-08-11 (**TB-1577** **Done** ? [`SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`](SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md) spend-cap vs fair-share vs breaker-coupling matrix + tenant-B saturation experience; GTM **M-296**/**M-297** cross-links in buyer packet + `PA_CLAIM_HONESTY_INDEX.md`; **TB-1578** named as CI follow-on). Prior: 2026-08-11 (**TB-1571** **Done** ? `check_paying_tenant_spend_storm_honesty.py` forbids unbounded-key-spend / meter-equals-invoice / Quick-Scan-plane overclaims in buyer docs; wired in `run_buyer_surface_strict_guards.py`; pairs **M-294**). Prior: 2026-08-11 (**TB-1570** **Done** ? [`PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md`](PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md) control-plane + metering/dispute matrix; GTM **M-294**/**M-295** cross-links in buyer packet + `PA_CLAIM_HONESTY_INDEX.md`; **TB-1571** named as CI follow-on). Prior: 2026-08-11 (**TB-1288** **Done** ? `check_anti_gates_alone_finops_honesty.py` forbids gates-alone FinOps / call-site-reserve-enough / SDK-bypass / stale-$50 cohort-cap overclaims in buyer docs; wired in `run_buyer_surface_strict_guards.py`; pairs **M-225**). Prior: 2026-08-11 (**TB-1287** **Done** ? `LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md` gates vs mature-plane matrix; chokepoint pin `LlmCompletionAccountingClient`; cohort **$15** cap; **TB-1288** CI anchors; buyer packet **M-226** residuals + path-stable alias; cross-links INV-004 / **TB-975**/**TB-976**/**TB-977**; pairs **M-225**/**M-226**). Prior: 2026-08-11 (**TB-1271** **Done** ? `check_concurrent_execute_commit_honesty.py` forbids exactly-once commit / silent-double-package / retry-never-spends overclaims in buyer docs; wired in `run_buyer_surface_strict_guards.py`; pairs **M-221**). Prior: 2026-08-11 (**Help alias Batch R + TB-1444/TB-1445** **Done** ? fold internal-runbook twins `first-review`/`first-value-20-minutes`/`policy-pack-delta-demo` into COR/HEO; `legacy-alert-routing-route-doc-guard.test.ts`; canonicalize `/alert-routing` docs to Notifications tab). Prior: 2026-08-11 (**TB-977** **Done** ? SQL-owned UTC month period key via `GetSqlUtcMonthlyPeriodKeyAsync`; in-flight reservation admission fairness + OTel counters; `LlmMonthlyTenantDollarBudgetTrackerTb977Tests`). Prior: 2026-08-11 (**TB-1278** **Done** ? `check_manifest_schema_evolution_honesty.py` forbids SchemaVersion/dual-write/rewrite-sealed overclaims in buyer/WNTP paths; wired in `run_buyer_surface_strict_guards.py`; pairs **M-223**). Prior: 2026-08-11 (**Help alias Batch U+V** **Done** ? fold alert-rules stub traffic rows GON/GOA/GOT; `TECH_BACKLOG_OPEN` sync closes **TB-2050**?**TB-2052**; pattern-library Category-1 Start a review deep link). Prior: 2026-08-11 (**Help alias Batch T + TB-2052 patterns** **Done** ? Vitest parity for every `HELP_TOPIC_PERMANENT_REDIRECTS` slug vs Python `WORKBOOK_PATH_MIGRATIONS`; pattern-library secondary hubs in Learn-more job-match inventory). Prior: 2026-08-11 (**Help alias Batch S** **Done** ? Playwright `@help-redirects` smoke for every `HELP_TOPIC_PERMANENT_REDIRECTS` bookmark; shared `help-topic-permanent-redirect-cases` helper + Vitest contract). Prior: 2026-08-11 (**TB-1277** **Done** ? `MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md` tolerant-reader-first evolution matrix; buyer packet **M-224** cites engineering SoT; **TB-1278** named as CI follow-on). Prior: 2026-08-11 (**TB-994** **Done** ? outbox publish-then-crash replay regression test + `check_outbox_exactly_once_honesty.py` buyer-doc guard; contract ?7 verification table; completes TB-992?993?994 outbox enforcement). Prior: 2026-08-11 (**TB-1270** **Done** ? `CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md` first-wins commit CAS + execute process-idempotency race matrix; buyer packet **M-222** cites engineering SoT; **TB-1271** named as CI follow-on). Prior: 2026-08-11 (**TB-993** **Done** ? outbox `MessageId` fail-closed gateway; producer architecture anchors; `INTEGRATION_EVENT_HANDLER_IDEMPOTENCY_INVENTORY.md`; retrieval replay idempotency test). Prior: 2026-08-11 (**TB-992** **Done** ? `TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` replay-safe vs must-idempotent matrix; cross-links M-144/M-145, ADR 0004/0043/0044, catalog + ITSM map; enforcement surfaces for **TB-993**/**TB-994**). Prior: 2026-08-11 (**TB-961** **Done** ? Worker SIGTERM drain gate (`WorkerHostDrainHostedService`), execute ownership lease release on `ApplicationStopping`, drain telemetry (`archlucid_worker_drain_*`), ACA `worker_termination_grace_period_seconds` default 60; unit tests). Prior: 2026-08-11 (**TB-959** **Done** ? review-path create?execute?commit canary workflow + runbook + paging script; CI workflow contract test). Prior: 2026-08-11 (**TB-958** **Done** ? fleet-wide stale in-flight run P0 alert + cardinality-safe gauges/logs; `StaleInFlightRunMetricsHostedService`; Terraform `ArchLucidStaleInFlightRunsTf`; runbook `STALE_IN_FLIGHT_RUNS.md`). Prior: 2026-08-11 (**TB-988** **Done** ? concurrent finding disposition race regression tests + ITSM HumanReviewStatus last-writer SQL integration; `FindingDispositionConcurrentRaceTests`; contract verification anchors). Prior: 2026-08-11 (**TB-987** **Done** ? finding race honesty: concurrent disposition UX after save + ITSM HumanReviewStatus provenance caption; Vitest). Prior: 2026-08-10 (**Help alias Batch P+Q** **Done** ? Python `WORKBOOK_PATH_MIGRATIONS` alert-routing ? `?tab=notifications`; stale `?tab=routing` fold; CHANGELOG/QA/template archaeology for api-contracts canonical + notifications tab). Prior: 2026-08-10 (**TB-986** **Done** ? finding concurrent disposition / HumanReviewStatus conflict contract; V1 option A append-only). Prior: 2026-08-10 (**Help alias Batch M+N+O** **Done** ? Python catalog discovers cloud slash help paths from `cloud-connections-help-routes.ts`; rename `ui-route-traffic-api-contracts-help`; docs/skill sweep to `/help/api-contracts`). Prior: 2026-08-10 (**TB-1563** **Done** ? Worker rolling-deploy drain/handoff/kill claim map). Prior: 2026-08-10 (**TB-1523** **Done** ? crash recovery long-running review / AgentTasks-in-flight claim map). Prior: 2026-08-10 (**TB-1299** **Done** ? Real-execute AOAI throttle policy contract). Prior: 2026-08-10 (**Help alias Batch L** **Done** ? flip Python `WORKBOOK_PATH_MIGRATIONS` HEP fold to `/help/governance-api-contracts` ? `/help/api-contracts`; Vitest parity in `api-contracts-help-route.test.ts`; orphan `*-help-alias` shims already absent). Prior: 2026-08-10 (**TB-960** **Done** ? ACA Worker LLM failure-semantics engineering contract). Prior: 2026-08-10 (**TB-1371** **Done** ? TB-881 ship-blocker classification engineering contract). Prior: 2026-08-10 (**TB-1938** **Done** ? Users tab principals-jargon Vitest guards; copy from **TB-1211**). Prior: 2026-08-10 (**TB-1917** **Done** ? backlog closure; role-mapping shell subtitle + deduped helper shipped in `5f2629596`). Prior: 2026-08-10 (**TB-1914** **Done** ? OIDC/JWT tab loading/empty + CTA hierarchy; `oidc-page-cta.ts`; Vitest). Prior: 2026-08-10 (**Help alias Batch J+K** **Done** ? merged `help-topic-permanent-redirects.test.ts` into `retired-help-topic-alias-honesty.test.ts`; `cloud-connections-help-routes.ts` replaces `HELP_TOPIC_SLUG_ALIASES`; TECH_BACKLOG_OPEN COR/HFE/FIR redirect-done sync). Prior: 2026-08-10 (**Help alias Batch H** **Done** ? `workspace-navigation-help-alignment` rename; dead `core-pilot-help-alias-route-metadata` removed; page-help Learn more uses `inAppHelpHref` (no retired `how-it-works` slug); hyphen cloud-connection permanent redirects; `doc-index.json` PIL?HP; backlog sync **TB-1623**/**TB-1721**/**TB-1736**). Prior: 2026-08-10 (**Help alias Batch F+G** **Done** ? per-topic honesty tests merged into `retired-help-topic-alias-honesty.test.ts` driven by manifest `bannedBuyerCopy` / `buyerSurfaceGuards`; pruned backward-compat shim exports from `ui-route-traffic-retired-help-topic-aliases.ts`; operator-auth-roles added to manifest). Prior: 2026-08-10 (**TB-1296** **Done** ? `/welcome` proof CTA ladder below hero; Vitest). Prior: 2026-08-10 (**TB-1295** **Done** ? `/welcome` self-demo primary conversion path; Vitest). Prior: 2026-08-10 (**TB-1294** **Done** ? `/welcome` hero budget: differentiators below hero band; metadata title; Vitest). Prior: 2026-08-10 (**TB-1290** **Done** ? Projects recycle bin restore confirm dialog before POST; Vitest). Prior: 2026-08-10 (**TB-1289** **Done** ? Projects recycle bin Administration breadcrumb + shared page header/help; Vitest; STR traffic note). Prior: 2026-08-10 (**TB-1893** **Done** ? Sign-in domains in-page confirm for enable enforcement + recovery remove; `AuthDomainsActionConfirmDialog` + `auth-domains-confirm-copy.ts`; Vitest). Prior: 2026-08-10 (**TB-1941**/**TB-1942**/**TB-991** **Done** ? signed records list **SI** traffic Alerts/gov honesty; empty Browse reviews `/architecture/reviews` (no `projectId=default`); solo-ops MVO honesty CI guard + unit tests; Vitest). Prior: 2026-08-10 (**TB-1883** **Done** ? Sign-in methods in-page remove confirm + blocked-remove reasons; `sign-in-method-remove-blocked-copy.ts`; Vitest). Prior: 2026-08-10 (**TB-1931**/**TB-1933**/**TB-1936** **Done** ? Users hub API key roles tab job honesty + keys-specific directory notes; SSU `?tab=users` URL sync; Vitest). Prior: 2026-08-10 (**TB-1881** **Done** ? Sign-in methods buyer chrome on `/administration/account-security`; `account-security-page-copy.ts` + contextual help/topic map/evidence copy alignment; Vitest drift guard). Prior: 2026-08-10 (**TB-1921**/**TB-1922**/**TB-1923** **Done** ? SAML tab metadata-fetch CTA honesty, in-page save confirm, shell subtitle + card title density; Vitest). Prior: 2026-08-10 (**TB-2175**/**TB-2176**/**TB-2177** **Done** ? review-scoped Do-this-next strip; brief scope-understanding execute gate; evidence gap forecast before execute; Vitest). Prior: 2026-08-10 (**TB-1877** **Done** ? guided intake Guided questions tab syncs `?path=guided-intake`; Vitest TB-1877 guard; landed with **TB-1867**). Prior: 2026-08-10 (**TB-1879** **Done** ? guided intake demotes context banners to helper lines; `guided-intake-primary-panel`; Vitest). Prior: 2026-08-10 (**TB-1878** **Done** ? guided intake buyer chrome purges admission/Socratic jargon; Vitest). Prior: 2026-08-10 (**TB-1863**/**TB-1864**/**TB-1865**/**TB-2185**?**TB-2188** **Done** ? al-ui-rate **REO** Overview: evidence orientation strip, structuring-failure honesty, empty-state CTAs, clarifications dedupe, risks/constraints default-open, StatusTag provenance + legend, Vitest; commit `68f218f96`). Prior: 2026-08-10 (**TB-1876** **Done** ? ENE `path=guided-intake` aliases Guided questions tab in traffic notes; Vitest). Prior: 2026-08-10 (**TB-1867** **Done** ? `/reviews/new` path tabs sync `?path=` in URL; `buildReviewsNewPathHref`; Vitest all paths). Prior: 2026-08-10 (**TB-1866** **Done** ? REN `path=detailed` aliases Templates and imports tab in traffic notes; Vitest). Prior: 2026-08-10 (**TB-1851** **Done** ? REF create-home-only `archTab=findings` traffic honesty; Vitest). Prior: 2026-08-10 (**TB-1871**/**TB-1872**/**TB-2184** **Done** ? REQ Quick start traffic alias + path=quick-review tab sync Vitest; disposition-export-impact SoT + confirm UI). Prior: 2026-08-10 (**TB-1846** **Done** ? REE create-home-only `archTab=evidence` traffic honesty; Vitest). Prior: 2026-08-10 (**TB-1844** **Done** ? diagram Mermaid source/copy/download gated behind disclosure; `ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE`; Vitest). Prior: 2026-08-10 (**TB-1841** **Done** ? RED create-home-only `archTab=diagram` traffic honesty; Vitest). Prior: 2026-08-10 (**TB-1836** **Done** ? REC create-home-only `archTab=clarifications` traffic honesty; Vitest). Prior: 2026-08-10 (**TB-1799**/**TB-1807**/**TB-1833** **Done** ? legacy `/onboard` doc guard; architecture-graph noindex metadata + SEO Vitest; tab href create-intent opt-in). Prior: 2026-08-10 (**TB-1766** **Done** ? Azure cloud detail Tier/hosted-pull jargon purge; `azure-cloud-connection-copy.ts`; Vitest). Prior: 2026-08-10 (**TB-1786**/**TB-1793**/**TB-1797** **Done** ? recommendation-learning Internal Ops traffic/SEO; legacy `/login` + `/onboard` noindex metadata Vitest). Prior: 2026-08-10 (**TB-1765** **Done** ? AWS cloud detail copyable IAM trust-policy starter; `aws-cloud-connection-trust-policy-starter.ts` + `AwsTrustPolicyStarterPanel`; Vitest). Prior: 2026-08-10 (**TB-1763** **Done** ? AWS cloud detail Tier/hosted-poll jargon purge; `AWS_CLOUD_CONNECTION_BANNED_COPY`; Vitest). Prior: 2026-08-10 (**TB-1762** **Done** ? AWS cloud detail live Validate + Recent activity panels; `AwsConnectionDataContext`, validate/activity panels; Vitest). Prior: 2026-08-10 (**TB-1707** **Done** ? HEO alias permanent redirect `operator-auth-roles` ? `/help/users-and-roles`; `operator-auth-roles-help-alias-honesty.test.ts`; Vitest). Prior: 2026-08-10 (**TB-1704** **Done** ? HEZ alias permanent redirect `integrations/azure-boards` ? `/help/azure-boards`; `azure-boards-help-alias-honesty.test.ts`; Vitest). Prior: 2026-08-10 (**TB-1598** **Done** ? alerts inbox `resolveAlertsOpenReviewPackagesHref` omits `projectId=default`; list loading skeleton; Vitest). Prior: 2026-08-10 (**TB-1597** **Done** ? alerts inbox summary row hidden until rules exist and evaluation timestamp is present; `shouldShowAlertsInboxSummaryRow`; Vitest). Prior: 2026-08-10 (**TB-1557** **Done** ? zero-downtime SQL migration claim map; GTM **M-286**/**M-287** cross-links in `PUBLIC_CLAIM_BOUNDARY_GUIDE.md`, buyer packet, `PA_CLAIM_HONESTY_INDEX.md`; `ZERO_DOWNTIME_SQL_MIGRATION_PA_ONE_PAGER.md` alias). Prior: 2026-08-10 (**TB-1550** **Done** ? evidence/audit ordering & causality claim map; GTM **M-284**/**M-285** cross-links). Prior: 2026-08-10 (**TB-1537** **Done** ? mid-run authority revocation claim map; GTM **M-282**/**M-283** cross-links in `PUBLIC_CLAIM_BOUNDARY_GUIDE.md`, buyer packet, `PA_CLAIM_HONESTY_INDEX.md`; `MID_RUN_AUTHORITY_REVOCATION_PA_ONE_PAGER.md` alias). Prior: 2026-08-10 (**TB-1592** **Done** ? Alert simulation/tuning GUID placeholder + `default` slug honesty: empty review-ID placeholder + helpers; Current project slug placeholder; session-resolved wire slug; Vitest). Prior: 2026-08-10 (**TB-1507** **Done** ? live vs nightly tripwire honesty CI: `check_live_vs_nightly_tripwire_honesty.py` fails nightly-as-live-tripwire, always-before-customers, G-REAL-01-as-continuous-monitor, and Prometheus-alone model-rev stubs; wired to strict guards + CI; pairs **M-275**; contract **TB-1506**). Prior: 2026-08-10 (**TB-1587** **Done** ? Alert rules Conditions scope preview honesty: no invented `projectId=default`; session/persisted resolve + omit; Vitest). Prior: 2026-08-10 (**TB-1506** **Done** ? live vs nightly finding-quality tripwire map: TB-683 offline exemplar scoring vs live gates/metrics; no pre-customer canary explicit in `LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md`; buyer packet **M-276**; follow-on **TB-1507**). Prior: 2026-08-10 (**TB-1504** **Done** ? Digests browse export `.md` + `Download Markdown` honesty; delivery attempts map to StatusTag vocabulary with raw diagnostics only in Technical details; Vitest guards). Prior: 2026-08-10 (**TB-1500** **Done** ? AOAI retirement repro honesty CI: `check_aoai_retirement_repro_honesty.py` fails bit-identical-forever, replay-as-LLM-oracle, auto-upgrade ManifestHash continuity, and rubber-stamp re-lock stubs; wired to strict guards + CI; pairs **M-273**). Prior: 2026-08-10 (**TB-1503** **Done** ? Digests browse Coverage column honesty: `resolveDigestPeriodCoverage` surfaces short review refs + change/snapshot labels instead of opaque Compared/Current period; Vitest guards). Prior: 2026-08-10 (**TB-1499** **Done** ? AOAI model retirement vs replay/cohort/re-lock claim survival map: survive-vs-break matrix + auto-upgrade quiet-false in `AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md`; cross-links from comparison replay contract, replay runbook, buyer packet **M-274**; follow-on **TB-1500**). Prior: 2026-08-10 (**TB-1497** **Done** ? project soft-delete vs sealed evidence residue plane map: cascade/residue table in `PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md`; recycle-bin purge ? evidence erasure explicit; cross-links from append-only contract, GDPR map, buyer packet **M-272**; follow-on **TB-1498**). Prior: 2026-08-10 (**TB-1490** **Done** ? evidence backup/restore vs append-only plane map: restore-vs-tamper matrix + SQL/blob skew in `EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md`; external-anchor requirement explicit; cross-links from `EVIDENCE_IMMUTABILITY.md`, append-only contract, GDPR map, buyer packet **M-270**; follow-on **TB-1491**). Prior: 2026-08-10 (**TB-2167** **Done** ? host leader election for singleton background loops; `BackgroundJobStuckRunningWatchdogHostedService` + orphan probes gated; contention tests; `GET /v1/admin/diagnostics/leases`; decision-pack note in `PERFORMANCE_COLD_START_AND_TRIMMING.md`). Prior: 2026-08-10 (**TB-1488** **Done** ? offline-verifiable export portability plane map: code-backed offline vs online split in `OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md`; departing-tenant export-before-purge explicit; cross-links from `EVIDENCE_IMMUTABILITY.md`, DSAR ?5, buyer packet **M-268**; follow-on **TB-1489**). Prior: 2026-08-10 (**TB-1486** **Done** ? compliance journey doc-link honesty: destination-labeled diligence links; Trust Center downloads preferred for CAIQ/SIG; Vitest guards). Prior: 2026-08-10 (**TB-1470** **Done** ? GDPR erasure vs append-only plane map: code-backed delete/retain table in `GDPR_ERASURE_VS_APPEND_ONLY_MAP.md`; Search residual explicit; cross-links from append-only contract, DSAR, buyer packet **M-266**; follow-on **TB-1471**). Prior: 2026-08-10 (**TB-1464** **Done** ? weekly buyer-claim drift honesty CI: `check_weekly_buyer_claim_drift_honesty.py` guards C1?C6 reintroductions; C1/C2 claim-boundary rows rewritten; wired in `ci.yml` + strict guards). Prior: 2026-08-10 (**TB-1463** **Done** ? weekly buyer-claim drift inventory contract: closure snapshot in `WEEKLY_BUYER_CLAIM_DRIFT_2026_07_27.md`; C3?C6 shipped via cited TB rows; C1/C2 open on **TB-1343**/**TB-1367**; cross-link from `PUBLIC_CLAIM_BOUNDARY_GUIDE.md`; pairs **M-263**/**M-264**; follow-on **TB-1464**). Prior: 2026-08-10 (**TB-2166** **Done** ? Web Worker INP offload for evidence graph + compare surfaces: typed `inp-offload-*` contract/worker/client; wired into `ProvenanceGraphViewport`, `FindingEvidenceGraph`, `GraphViewer`, `useCompareGovernanceDiff`, `ArchitectureManifestUnifiedDiffView`; evidence-graph type filter `startTransition` + `useDeferredValue`; Vitest; INP note in `PERFORMANCE_BASELINES.md`). Prior: 2026-08-10 (**TB-985** **Done** ? cross-surface Simulator-ROI honesty regression: `SponsorSimulatorRoiForbidAssertions` + ExecutionMode/SponsorArtifact invariant tests; TB-983 forbid anchors in `check_sponsor_evidence_label_consistency.py`; `SPONSOR_CLAIM_LABEL_AUDIT.md` RC verification). Prior: 2026-08-10 (**TB-1561** **Done** ? configuration architecture claim map in `CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md`; machines A?F; precedence ladder in `CONFIGURATION_REFERENCE.md`; GTM **M-290**/**M-291** cross-links; buyer one-pager **M-291**). Prior: 2026-08-10 (**TB-1581** **Done** ? composite alert rules enum/join/enabled honesty: `composite-alert-rules-labels.ts`; operator-safe list summaries + `StatusTag` active/paused; drop eng operator option suffixes; Vitest). Prior: 2026-08-10 (**TB-2140** **Done** ? quality-gated Critic phase overlap + tighter phase-1 admission; `StagedCriticOverlapPolicy` + `StagedCriticPhaseAdmissionLimiter`; `STAGED_CRITIC_WALL_TIME_CONTRACT.md` ?6; Vitest). Prior: 2026-08-10 (**TB-983** **Done** ? fused Simulator-derived ROI/savings sponsor forbid contract in `SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md`; PASS/WARN/HOLD table + TB-984 enforcement / TB-985 CI anchors; M-138 cross-link). Prior: 2026-08-10 (**TB-1476** **Done** ? invite auth chrome safe secondary exits: Sign in again, Use a different account, Help, Back to ArchLucid on valid/invalid/validation-failed states; `invitation-auth-secondary-exit-copy.ts`; `InvitationAuthSecondaryExitActions`; Vitest). Prior: 2026-08-10 (**TB-1475** **Done** ? valid invitation panel design-system card + `roleDisplayLabel` mapping; tokenized SSO warn callout; defer `storeInvitationToken` until Valid; `InvitationValidPanel`; Vitest). Prior: 2026-08-10 (**TB-1474** **Done** ? invitation invalid/expired/revoked/accepted recovery CTAs: Sign in without invitation, Request access, Back to ArchLucid, Help; tokenized blocked callout; `invitation-invalid-recovery-copy.ts`; `InvitationInvalidRecoveryActions`; Vitest). Prior: 2026-08-10 (**TB-1473** **Done** ? invitation accept loading skeleton matching valid-panel width; title + summary-card placeholders; polite Validating status text; Vitest). Prior: 2026-08-10 (**TB-1472** **Done** ? `/auth/invite` document metadata + `AuthFlowShell` brand chrome + Suspense fallback; `auth-invite-page-copy.ts`; `InvitationAcceptLoadingView`; Vitest). Prior: 2026-08-10 (**TB-1469** **Done** ? bootstrap load-error + no-access secondary exits: Sign in again, Use a different account, public `/welcome` link; fixes stuck loading on fetch failure; `post-auth-bootstrap-exit-copy.ts`; Vitest). Prior: 2026-08-10 (**TB-1468** **Done** ? bootstrap select-workspace primary continue for single workspace + choose lead; no-access denialReason sanitizer; Request access primary; Vitest). Prior: 2026-08-10 (**TB-1467** **Done** ? create-workspace form wires Country or region select + residency honesty hint; shared `Input`/`Select`/`Checkbox`; `create-workspace-data-regions.ts`; Vitest). ? repo-wide `button-visible-boundary-drift-guard.test.ts` forbids ghost/link `Button` variants under `archlucid-ui/src`; `button.test.tsx` variant-key inventory + filled-variant no-border negative assertion; empty allowlist after **TB-2170**?**TB-2173**). Prior: 2026-08-10 (**TB-2170** **Done** ? shell/auth/marketing visible-boundary guard on 17 first-impression surfaces; ghost?outline migration from **TB-2168**; `button-visible-boundary-source-patterns.ts`; asChild nav carve-out remains **TB-1671**?**TB-1675**). Prior: 2026-08-10 (**TB-2169** **Done** ? shared button wrappers enforce outline-only visible boundaries; `DismissControl` default + Vitest bordered assertions; `shared-button-wrapper-visible-boundary.test.ts` inventory on nine wrapper modules). Prior: 2026-08-10 (**TB-2168** **Done** ? visible-boundary `Button` contract: removed `ghost`/`link` from `buttonVariants`; design-system + Cursor rule; Vitest; mechanical ghost?outline migration across `archlucid-ui`). Prior: 2026-08-10 (**TB-2165** **Done** ? TanStack Query `sessionStorage` persistence for allowlisted operator list/summary reads; scoped by build buster + JWT subject + tenant scope; `OperatorQueryProvider` wires `persistQueryClient`; Vitest). Prior: 2026-08-10 (**TB-2163** **Done** ? per-slice STJ `JsonSerializerContext` for auth/me, run list, findings keyset, audit keyset, and problem details; `ArchLucidApiJsonSerializerOptions` resolver chain + reflection fallback; wire-parity tests). Prior: 2026-08-10 (**TB-2161** **Done** ? zero-cost host runtime knobs via `ArchLucid.Host.Runtime.props`: Server GC + `GCConserveMemory=1`, Tiered PGO, invariant globalization; Dockerfile drops `icu-libs`; architecture guard + pending cold-start baseline row). Prior: 2026-08-10 (**TB-2160** **Done** ? per-key single-flight in `HybridHotPathReadCache` via `HotPathReadCacheSingleFlight`; `archlucid_hot_path_read_cache_inflight_deduped_total` + admin cache diagnostics; concurrent-miss + fault Vitest). Prior: 2026-08-10 (**TB-2159** **Done** ? Azure OpenAI prompt-cache telemetry: `archlucid_llm_prompt_cache_hit_ratio` gauge + aggregate tracking; cached-input token accounting test; byte-stable prefix guard tests; `AZURE_OPENAI_PROMPT_CACHE_PREFIX.md` + `OBSERVABILITY.md`; builds on Done **TB-681**). Prior: 2026-08-10 (**TB-2158** **Done** ? conditional GET (`ETag` / `If-None-Match`) on hot operator reads: shared `ConditionalGetNegotiation` + `ConditionalGetControllerExtensions`; `RowVersion`-derived tags on run detail (early 304), run lists, findings list; audit page fingerprint; `private, no-store` validator headers; integration + unit tests). Prior: 2026-08-10 (**TB-2157** **Done** ? wizard session persistence via `wizard-session-persistence.ts` + `useWizardSessionPersistence`; resume prompt + `WizardSessionSaveStatus` on intake trio, templates wizard, pilot baseline, SSO wizard; Vitest). Prior: 2026-08-10 (**TB-2156** **Done** ? admin prerequisites readiness board on `/administration`; `resolve-admin-prerequisites-readiness.ts` + `AdminPrerequisitesReadinessBoard`; unmet-only dependency-ordered rows from existing health/config/identity/cloud/billing probes; Vitest). Prior: 2026-08-10 (**TB-2154** **Done** ? one-sentence finding derivation on review + governance cards via `finding-derivation-sentence.ts` + `FindingDerivationLine`; honest unavailable fallback; Vitest). Prior: 2026-08-10 (**TB-2153** **Done** ? canonical object home registry + `CanonicalObjectSecondaryViewStrip`; wired on governance findings queue, review findings/governance/authority sections, evidence trace, approval inspector; golden-path Vitest inventory). Prior: 2026-08-10 (**TB-2152** **Done** ? self-describing metric counts via `metric-count-presentation.ts` + `SelfDescribingMetricCount`; wired on home KPIs, governance queue summary, review findings workspace, sponsor dashboard; parity Vitest + `UI_DESIGN_SYSTEM.md` ? metric counts). Prior: 2026-08-10 (**TB-2151** **Done** ? pre-intake specimen preview callout on `/architecture/reviews/new` + home review-start card; Vitest). Prior: 2026-08-09 (**TB-2149** **Done** ? review pipeline background-safety copy + tenant p50/p90 duration estimate + completion notification opt-in; `RunProgressTracker` + `ReviewGenerationCreatedNotice`; Vitest). Prior: 2026-08-09 (**TB-2148** **Done** ? governed mutation reversibility registry + confirm copy + bulk-disposition undo window; Vitest). Prior: 2026-08-09 (**TB-1465** **Done** ? `/auth/bootstrap` document metadata + `AuthFlowShell` + Suspense loading fallback; Vitest). Prior: 2026-08-09 (**TB-2168**?**TB-2174** **opened** ? owner ask: eliminate ghost / borderless `Button` variants ? **102** `variant="ghost"` sites in **72** files + **4** `variant="link"`; P0 button-border contract + sweeps + CI guard; see cluster note below). Prior: 2026-08-09 (**TB-1454** **Done** ? architecture draft workspace first-viewport density: short lead, alternatives folded into guidance disclosure; Vitest). Prior: 2026-08-09 (**TB-1453** **Done** ? architecture draft workspace loading skeleton + Back to Architecture drafts wayfinding on edit routes; Vitest). Prior: 2026-08-09 (**TB-1451** **Done** ? `/architectures/[id]` scoped `generateMetadata` draft title + edit workspace H1; Vitest). Prior: 2026-08-09 (**TB-1450** **Done** ? `/architectures` list `useSyncExternalStore` hydration + loading gate; `EnterpriseTable` draft rows; Vitest). Prior: 2026-08-09 (**TB-1449** **Done** ? `/architectures` first-viewport density: short scope subtitle, disclosure only when drafts exist, action-oriented empty copy; Vitest). Prior: 2026-08-09 (**TB-1446** **Done** ? `/architectures` `OperatorPageHeader` H1 + always-visible primary Create architecture header CTA; Vitest). Prior: 2026-08-09 (**TB-1462** **Done** ? `/architectures/new` resume-first page subtitle + workspace lead when browser-local drafts exist; Continue draft is primary; Vitest). Prior: 2026-08-09 (**TB-1461** **Done** ? `/architectures/new` page subtitle + distinct resume/new-draft section titles; form h2 uses `New architecture draft` instead of Untitled architecture; Vitest). Prior: 2026-08-09 (**TB-1458** **Done** ? `/architectures/new` `OperatorPageHeader` H1 + header `PageContextualHelpButton`; workspace body help deduped on `/new`; Vitest). Prior: 2026-08-09 (**TB-1460** **Done** ? architecture draft autosave reassurance gated on `hasPersistedDraft`; `/new` no longer claims active autosave before first save; Vitest). Prior: 2026-08-09 (**TB-1459** **Done** ? `/architectures/new` browser-local recent-drafts honesty: `ArchitectureCreationLocalDraftsPanel` resume/empty guidance + view-all label; Vitest; pairs **TB-1448**). Prior: 2026-08-09 (**TB-1457** **Done** ? bake-off 15-min loser-sequence honesty CI: EA-fake-loss / smarter-than-GPT / unmeasured-kill-rate guards + contract anchors; pairs **M-261**). Prior: 2026-08-09 (**TB-1456** **Done** ? fused bake-off loser-order + 15-minute proof sequence contract; GTM M-261/M-262 cross-links in competitive positioning). Prior: 2026-08-09 (**TB-2158**?**TB-2167** **opened** ? owner ask: create P0s for ten quantified performance levers verified absent in tree ? Performance wave 7; see cluster note below). Prior: 2026-08-09 (**TB-2148**?**TB-2157** **opened** ? owner ask: create P0s for ten untracked confusion-reduction levers; see cluster note below). Prior: 2026-08-09 (**TB-1455** **Done** ? architecture draft workspace autosave reassurance on save status; removed redundant disabled Save draft; Save now retry on error/offline only; Save and exit retained; Vitest). Prior: 2026-08-09 (**TB-1426** **Done** ? deployment status external-link new-tab honesty + softened page lead without BUILD_ID jargon; Vitest). Prior: 2026-08-09 (**TB-1423** **Done** ? deployment status overall `StatusTag` with human `overallStatusLabel` aria; Vitest). Prior: 2026-08-09 (**TB-1412** **Done** ? demo readiness admin Recheck primary in PageHeading; diagnostics text link; authority loading skeleton; Vitest). Prior: 2026-08-09 (**TB-1416** **Done** ? fused INV-001 / decide-once / committed-manifest PA triad challenge matrix in `INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`; GTM M-254 residuals). Prior: 2026-08-09 (**TB-1413** **Done** ? Demo readiness check rows use Pass/Warn/Fail StatusTag labels with adjacent check titles; Vitest). Prior: 2026-08-09 (**TB-1411** **Done** ? Demo readiness admin tooling-disabled empty state with diagnostics/System health CTAs; Vitest). Prior: 2026-08-09 (**TB-1409** **Done** ? Demo readiness admin PageHeading + Internal Operations eyebrow; single H1; panel duplicate H2 suppressed; Vitest). Prior: 2026-08-09 (**TB-1380** **Done** ? first-architecture-review title honesty across registry/help center/home banner/Ctrl+K search; Vitest pilot/commit jargon guards). Prior: 2026-08-09 (**TB-1341** **Done** ? enterprise-onboarding title/audience honesty: canonical `ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE`; registry `operator` + help-center `admin` tier; Vitest). Prior: 2026-08-09 (**TB-2145** **Done** ? home `/` First Load JS **1646.1 ? 1587.2 kB** (?58.9 kB); deferred pilot command center, sponsor ROI strip, below-fold panels, and CTO demo redirect; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2144** **Done** ? billing past-due banner + alerts nav badge ? TanStack Query; `useBillingSubscriptionStatusQuery` + shared `alertsInboxSummary` cache; SSR inbox hydration guard; Vitest remount/freshness). Prior: 2026-08-09 (**TB-2143** **Done** ? insights operator layouts (**8**) migrated off blanket `force-dynamic` to `OperatorClientDrivenRouteLayout`; remaining operator `force-dynamic` layouts **~22** (was **~29**); Vitest import guards + `UI_ARCHITECTURE_V1_1.md` ?4). Prior: 2026-08-09 (**TB-2142** **Done** ? run detail First Load JS **2150.6 ? 1879.1 kB** (?271.5 kB); deferred evidence tab, share row, demo chrome, manifest alerts, run actions, help registrar; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2139** **Done** ? `role-shaped-nav-density` persona defaults for architect/governance/admin; sidebar ?Show all destinations? + command palette parity; Vitest). Prior: 2026-08-09 (**TB-2138** **Done** ? unified golden sponsor-package walkthrough: `golden-sponsor-package-walkthrough` SoT, checklist panel on home/help/demo explain, destination scroll to `#sponsor-handoff` gated on sample runs; Vitest). Prior: 2026-08-09 (**TB-2137** **Done** ? golden-path empty/error recovery: `operator-branded-not-found-copy`, reviews hub not-found vs outage try-next, `isApiNotFoundFailure` error codes, buyer `RESOURCE_NOT_FOUND` headings; Vitest). Prior: 2026-08-09 (**TB-2136** **Done** ? job ? pack chooser primary on first-run `/architecture/reviews/new`; `AcceleratorJobChooserList` + expected-output buyer nouns; home `AcceleratorChooserCard` after first commit; Vitest). Prior: 2026-08-09 (**TB-2135** **Done** ? `finding-trust-presentation` contract shared by inspect, compare decision-delta chips, and export footers; inferred `DeterministicRule` parity when wire label absent; Vitest cross-surface fixtures). Prior: 2026-08-09 (**TB-2134** **Done** ? `InlineGlossaryChip` + `golden-path-glossary-nouns` SoT from customer glossary; chips on home empty, new review, review detail, post-finalize sponsor strip; Vitest). Prior: 2026-08-09 (**TB-2133** **Done** ? restored pre-commit progressive disclosure: `filterNavLinksByCommittedArchitectureReviewGate` + shell/palette wiring; Operate/diagnostics hidden until first finalize; Vitest pre/post-commit snapshots). Prior: 2026-08-09 (**TB-2130**?**TB-2139** **opened** ? owner ask: create P0s for ten easier-to-use / easier-to-understand levers; see cluster note below). Prior: 2026-08-09 (**TB-1323** **Done** ? `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** ? `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** ? session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** ? `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** ? `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
+**Updated:** 2026-08-13 (**TB-2244**–**TB-2263** **opened** — AWS/GCP vs Azure customer-target parity cluster: run-start policy refs, evidence merge, wizard upload routing, graph reconciliation, standard-baseline UX/enforcement, chat intake, sponsor ROI, agent prompts, templates/demo defaults, Tier 1 chunk upload, CLI validate, naming hygiene; pairs Done **TB-874**–**TB-876** / open **TB-2215**). Prior: 2026-08-13 (**TB-1751**/**TB-1753**/**TB-1754** **Done** — `HelpSubprocessorsGuideView` + Open Trust Center CTA; DPA/Trust job matrix; single H1 + Help Center product tier; Vitest). Prior: 2026-08-13 (**TB-1741**–**TB-1745** **Done** — `HelpReportAProblemGuideView` + Open Support CTA; dead-end honesty callout; troubleshooting IA dual job matrix; where-it-appears before deferred capture fields; Related ≤3 + mailto; Vitest). Prior: 2026-08-13 (**TB-1736**–**TB-1737**/**TB-1740** **Done** — sponsor-report product-overview sections + Start first review CTA; title/subtitle honesty; M-18 anchors excluded; Vitest). Prior: 2026-08-13 (**TB-1731**–**TB-1735** **Done** — `HelpPriorManifestRetrievalGuideView` + Ask CTA; Ask-memory title honesty; job-matrix IA dual; Related ≤3 + finalize inbound copy; Vitest). Prior: 2026-08-13 (**TB-2232** **Done** — canonical home next-action slot (`OperatorHomeCanonicalNextActionSlot` + `resolveOperatorCanonicalNextAction`); tenant API first with lifecycle fallback; retired `OperatorNextActionsCard` from stickiness cockpit; Vitest inventory). Prior: 2026-08-13 (**TB-1685** **Done** — COR first-viewport three-step job chrome; full five-step workflow deferred below fold; Vitest). Prior: 2026-08-13 (**TB-1716**/**TB-1718**–**TB-1720** **Done** — pilot-feedback inbound labels; `HelpPilotFeedbackGuideView` + workflow/job-matrix chrome already shipped; Vitest). Prior: 2026-08-13 (**TB-1711**–**TB-1715** **Done** — path-chooser Related ≤3; `path-chooser-help-inbound-label-surfaces`; Vitest). Prior: 2026-08-13 (**TB-1684** **Done** — COR CTA honesty: workflow step 2 + evidence-only optional card primary href `/architecture/reviews/new`; extract-upload demoted to advanced prose; Vitest). Prior: 2026-08-13 (**TB-1683** **Done** — COR job-matrix IA dual: full first-review vs evidence-only fast path; `#fast-path-evidence-only-review` anchor; Vitest). Prior: 2026-08-13 (**TB-1682** **Done** — HEV retired; no `includeIntroWithSections` markdown dump on `CORE_PILOT.md`; canonical COR uses `HelpCorePilotGuideView`; registry Vitest). Prior: 2026-08-13 (**TB-1656** **Done** — backlog sync; `/help/data-handling` registry SoT is `DATA_HANDLING.md` with TB-1660 drift guard; Vitest verified). Prior: 2026-08-13 (**TB-1655** **Done** — data-handling Related diligence rail with Trust Center + security-trust discovery; Vitest). Prior: 2026-08-13 (**TB-1651** **Done** — `/help/data-handling` specialty `HelpDataHandlingTenantIsolationGuideView` + Open Trust Center primary CTA; Vitest verified). Prior: 2026-08-13 (**TB-1640** **Done** — compare/replay Related trimmed to curated help guides; unified inbound page-help labels for compare/replay routes; Vitest). Prior: 2026-08-13 (**TB-1639** **Done** — compare/replay first-viewport two-card job chrome before deferred markdown; Vitest TB-1639). Prior: 2026-08-13 (**TB-1638** **Done** — compare/replay ↔ repeat-review-loop IA dual job matrix; one mutual cross-link per page with distinct job copy; Vitest). Prior: 2026-08-13 (**TB-1636** **Done** — `/help/comparison-replay` specialty guide with compare vs validate decision panel, Open Compare two reviews CTA, Mermaid decision flow; Vitest). Prior: 2026-08-13 (**TB-1635** **Done** — CAIQ/SIG help Help Center advanced discovery + Trust/compliance-journey pre-fill draft deep-links; Vitest). Prior: 2026-08-13 (**TB-1634** **Done** — CAIQ/SIG help first-viewport density: SIG family tables deferred behind `HelpLazyDetails`; lite-only posture chip reconciliation; Vitest). Prior: 2026-08-13 (**TB-1631** **Done** — `/help/caiq-sig-response` specialty buyer questionnaire guide: Trust/compliance/diligence CTAs, CAIQ-vs-SIG job matrix, workflow chrome; Vitest). Prior: 2026-08-13 (**TB-1630** **Done** — azure-permissions help connection-context Suspense skeleton replaces text fallback; Vitest). Prior: 2026-08-13 (**TB-1629** **Done** — azure-permissions help IA dual with Connect Azure securely: job-matrix first viewport, page-help retarget to `cloud-connections-azure`, mutual-link Vitest). Prior: 2026-08-13 (**TB-1628** **Done** — azure-permissions help primary-chrome jargon honesty + deferred requirements-reviewed disclosure; Vitest). Prior: 2026-08-13 (**TB-1627** **Done** — azure-permissions help first-viewport density: required-role summary, setup/verify before deferred matrix/custom-role disclosures; Vitest). Prior: 2026-08-13 (**TB-1622** **Done** — Azure Boards help limitations heading honesty + Phase 1 jargon guards; Vitest). Prior: 2026-08-13 (**TB-1620** **Done** — Azure Boards help setup-step deep links: `HelpAzureBoardsSetupStepCtAs`, markdown **Test connection** link, Vitest). Prior: 2026-08-13 (**TB-1619** **Done** — backlog closure; `HelpAzureBoardsGuideView` + primary CTA + connection-context honesty already shipped in `05e382737`; Vitest verified). Prior: 2026-08-13 (**TB-1618** **Done** — `AuthFlowShell` inbound help link uses `AUTHENTICATION_SIGN_IN_HELP_PAGE_TITLE`; `authentication-sign-in-inbound-copy` Vitest). Prior: 2026-08-13 (**TB-1617** **Done** — authentication-sign-in Related capped at two product-safe guides; SSO follow-up routes to SSO wizard; Vitest). Prior: 2026-08-13 (**TB-1614**–**TB-1616** **Done** — authentication-sign-in specialty companion: Sign in CTA, eval/invite actions, collapsible SSO/recovery/issues; Vitest). Prior: 2026-08-13 (**TB-1612** **Done** — admin diagnostics Related caps buyer topics; eng/CLI runbooks Admin-only via `listAdminDiagnosticsHelpRelatedTopics`; Vitest; pairs **TB-1246**). Prior: 2026-08-13 (**TB-1605** **Done** — accelerator-chooser help title/tier honesty: **Starter proof packs** canonical title, product-help + help-center product tier, `accelerator-chooser-help-title-honesty` Vitest guards; pairs **TB-1604**/**TB-1397**). Prior: 2026-08-13 (**TB-1415** **Done** — specialty help chrome honesty CI (`check_specialty_help_chrome_honesty.py`) + Vitest inventory drift guard; pairs **M-251**). Prior: 2026-08-13 (**TB-1414** **Done** — `SPECIALTY_HELP_CHROME_CONTRACT.md` + `specialty-help-chrome-below-50-inventory` Vitest; orchestrates ≤~50 help clusters). Prior: 2026-08-13 (**TB-1403** **Done** — review-packages export jargon softened to signed review record; export next-steps panel with sample/start CTAs + universe honesty; Vitest guards). Prior: 2026-08-13 (**TB-1402** **Done** — review-packages Related guides trimmed to three (evidence-intake, findings, evidence-trail); `review-packages-help-related-guides` Vitest guards). Prior: 2026-08-13 (**TB-1401** **Done** — review-packages TOC anchors use architecture-package ids; legacy review-package hash aliases redirect in `HelpTopicHashScroll`; Vitest guards). Prior: 2026-08-13 (**TB-1400** **Done** — review-packages title hierarchy: Architecture packages on registry/H1/page-help; hub synonym in subtitle; `review-packages-help-title-honesty` Vitest guards). Prior: 2026-08-13 (**TB-1399** **Done** — review-packages specialty companion via `HelpReviewPackagesGuideView` with Open reviews CTA; `help-review-packages-guide` Vitest guards). Prior: 2026-08-13 (**TB-1398** **Done** — repeat-review loop-step deep-link CTA chrome via `HelpRepeatReviewLoopWorkflowStepper`; recommended-loop prose omitted from markdown; Vitest guards). Prior: 2026-08-13 (**TB-1397** **Done** — repeat-review Related density: three buyer-safe guides, no accelerator-chooser; `repeat-review-loop-help-related-guides` Vitest guards). Prior: 2026-08-13 (**TB-1377** **Done** — help discovery twin collapse: featured grid + search catalog converge on `first-architecture-review`; `first-architecture-review-help-discovery` Vitest guards). Prior: 2026-08-13 (**TB-1376** **Done** — inbound first-review help pointers: CorePilot checklist/wizard + listed surfaces use `/help/first-architecture-review`; `first-architecture-review-help-inbound-handoff` Vitest guards). Prior: 2026-08-13 (**TB-1375** **Done** — first-review help jargon purge: `CORE_PILOT.md` scope/success-signal copy, buyer orientation footer heading, `first-architecture-review-help-banned-copy` Vitest guards). Prior: 2026-08-13 (**TB-2195** **Done** — assigned-to-me findings queue: `assignedToMe` server filter on risk register, personal route + nav, remediation assignment email, operator-home assigned count; Application + API + UI tests). Prior: 2026-08-13 (**TB-2194** **Done** â€” cross-review finding lifecycle: `CrossReviewFindingLifecycleService` + per-finding records on compare-two-reviews, finding inspect hint, governance queue link, recurrence email canonical compare URL with `#compare-finding-lifecycle`; Application + UI tests). Prior: 2026-08-13 (**TB-2193** **Done** â€” leader-elected `WaiverExpiryNotificationHostedService` + escalating email reminders at 30/14/7/0-day boundaries; idempotent `SentEmails` ledger + audit; 83 unit tests; email-only residual documented). Prior: 2026-08-13 (**TB-2147** **Done** â€” final batch 18 clears provenance/ROI/tabs/wizard surfaces; deleted `title-attribute-legacy-surfaces.mjs` + ESLint override; baseline 5â†’0). Prior: 2026-08-13 (**TB-2147** batch 17 â€” layer chrome/governance inspector; baseline 10â†’5 files). Prior: 2026-08-13 (**TB-2147** batch 15 â€” CTO demo tour/compliance drift; baseline 20â†’15 files). Prior: 2026-08-13 (**TB-2147** batch 14 â€” architecture drafts, artifact integrity/list, before/after delta; baseline 25â†’20 files). Prior: 2026-08-13 (**TB-2147** batch 13 â€” evidence graph, Slack destination form, trial funnel ops; baseline 29â†’25 files). Prior: 2026-08-13 (**TB-2147** batch 12 â€” AI usage/billing/sponsor ROI; baseline 33â†’29 files). Prior: 2026-08-12 (**TB-2147** batch 5 â€” alerts hub surfaces; baseline 68â†’60 files). Prior: 2026-08-12 (**TB-2147** batch 4 â€” forensics/retrieval `title` sweep; baseline 74â†’68 files). Prior: 2026-08-12 (**TB-2147** batch 3 â€” operator page-header freshness `<time>` metadata; baseline 85â†’76 files). Prior: 2026-08-12 (**TB-1367** **Done** â€” `ELEVATOR_PITCH_V1_CLAIM_AUDIT_CONTRACT.md`; brief Â§4 + pitch alias reconciled with `V1_SCOPE` Â§2.13â€“Â§2.15 connector GA; pairs **TB-1368** / **M-245**/**M-246**). Prior: 2026-08-12 (**TB-1197** **Done** â€” `check_unvalidated_proposal_overlay_honesty.py` + Vitest `unvalidated-proposal-overlay-honesty.test.ts`; wired in `run_buyer_surface_strict_guards.py`; pairs **M-203**). Prior: 2026-08-12 (**TB-2193** **Done** - leader-elected daily waiver-expiry scanner sends 30/14/7/0-day email reminders without anyone opening the app; idempotency keyed per expiry deadline so a renewal restarts the series; email only, Teams/webhook left as a tracked residual; three original approach steps corrected in the row). Prior: 2026-08-12 (**TB-1173** **Done** â€” `check_golden_cohort_relock_rubber_stamp_honesty.py` + Vitest `golden-cohort-relock-honesty.test.ts`; wired in `run_buyer_surface_strict_guards.py`; pairs **M-201**). Prior: 2026-08-12 (**TB-1235**â€“**TB-1240** **Done** â€” AWS help banned-copy + IAM manifest + OIDC trust-policy template + workflow/classification chrome; GCP specialty guide + banned-copy Vitest; pairs **TB-1234**/**TB-720**). Prior: 2026-08-12 (**TB-2192** **Done** - post-commit recurrence proposal gains a **Not now** decline that creates no schedule plus honest completion-recipient disclosure; corrects two wrong premises in the original row - the card was already open post-commit, and completion email honors no per-recipient preference). Prior: 2026-08-12 (**TB-2191** **Done** - stickiness cockpit renders on operator home via `OperatorHomeStickinessCockpitDeferred`; `health-score` stays internal-only; banned "First-value" / "run" copy fixed in `OperatorStickinessSnapshotCard` and now covered by the home vocabulary guard). Prior: 2026-08-12 (**TB-1145** **Done** ? SOC 2 / pen-test talk-track honesty CI + Vitest guard; pairs **M-196**). Prior: 2026-08-12 (**TB-2191**ï¿½**TB-2200** **opened** ï¿½ owner stickiness ask: ten improvements to product stickiness; **TB-2191**ï¿½**TB-2195** V1 (wire the unrendered stickiness cockpit, recurrence-by-default at commit, waiver-expiry scanner, verified-resolved finding lifecycle, assigned-to-me queue); **TB-2196**ï¿½**TB-2200** V1.1 (tokenized sponsor links, two-way Teams/Slack actions, GitHub App + Check Runs, tenant-authored approved-architecture registry, workspace-scoped Ask); see cluster note above). Prior: 2026-08-12 (**TB-1035** **Done** ? strangler next-slice honesty CI + Vitest guard; pairs **M-184**). Prior: 2026-08-12 (**TB-1033** **Done** ? launch-load failure-order honesty CI + Vitest guard; pairs **M-182**). Prior: 2026-08-12 (**TB-1031** **Done** ? first-15 package-spine honesty CI + Vitest guard; pairs **M-180**). Prior: 2026-08-12 (**TB-1027** **Done** ? operator primary-object honesty CI + Vitest guard; pairs **M-176**). Prior: 2026-08-12 (**TB-1025** **Done** ? comparison replay drift honesty CI + Vitest guard; pairs **M-174**). Prior: 2026-08-12 (**TB-1850** **Done** ? create-home Evidence band Vitest (TB-1846?TB-1849 orientation + REE traffic honesty + RunDetailPageView wiring)). Prior: 2026-08-12 (**TB-2041** **Done** ? short-helper measure Vitest guard + residual inventory allowlist). Prior: 2026-08-12 (**TB-2040** **Done** ? representative operator hub short intros use full work-surface width; Vitest contract). Prior: 2026-08-12 (**TB-2039** **Done** ? OperatorPageHeader + PageHeading drop default subtitle measure caps; Overview removes `max-w-none` override; Vitest). Prior: 2026-08-12 (**TB-1853** **Done** ? create-home Findings in-progress empty state + Activity/Clarifications CTAs; Vitest). Prior: 2026-08-12 (**TB-1852** **Done** - create-home Findings pre-finalize orientation + Activity link; Vitest). Prior: 2026-08-12 (**TB-1849** **Done** - shared Add evidence capture label + lighter capture section chrome; Vitest). Prior: 2026-08-12 (**TB-1848** **Done** - create-home Evidence Diagram cross-link CTA + archTab=diagram href; Vitest). Prior: 2026-08-12 (**TB-1843** **Done** ? diagram insufficient orientation + Clarify architecture primary CTA + conditional regenerate; Vitest). Prior: 2026-08-12 (**TB-1842** **Done** ? diagram tab Add details uses run-scoped `buildArchitectureCorrectionHref`; Vitest). Prior: 2026-08-12 (**TB-1814** **Done** - pattern library repeat-review-loop page-help topic + Vitest). Prior: 2026-08-12 (**TB-1812** **Done** - pattern detail contextual peer-compare via resolvePatternLibraryPeerCompare; Vitest). Prior: 2026-08-12 (**TB-1808** **Done** ? `/operate/architecture-graph` redirect-only page preserves query to `/insights/evidence-graph`). Prior: 2026-08-12 (**TB-1806** **Done** ? OAX redirect-shim traffic workbook row + Vitest for `/operate/architecture-graph`). Prior: 2026-08-12 (**TB-1789** **Done** ? recommendation-learning ops OperatorPageHeader/StatusTag/EnterpriseTable + Vitest anti-pastel guard). Prior: 2026-08-12 (**TB-1788** **Done** ? recommendation-learning ops distinct refresh vs load-persisted toolbar + Vitest). Prior: 2026-08-12 (**TB-1660** **Done** ? Vitest data-handling Three-layers + anti-stub drift guard). Prior: 2026-08-12 (**TB-1650** **Done** ? Vitest EnterpriseTable allowlist guard on exemplar inventory surfaces). Prior: 2026-08-12 (**TB-1675** **Done** ? Vitest bare navigational Link/a affordance guard + grandfathered baseline). Prior: 2026-08-12 (**TB-1674** **Done** ? secondary inline-link surfaces + TB-1674 migration inventory). Prior: 2026-08-12 (**TB-1672** **Done** ? compare section nav + DOCX download + provenance error helper use OPERATOR_LINK). Prior: 2026-08-12 (**TB-1671** **Done** ? operator inline-link affordance contract in UI_DESIGN_SYSTEM + ARCHITECTURE pointer; `OPERATOR_LINK` / marketing inline tokens). Prior: 2026-08-12 (**TB-1670** **Done** ? unified PageContextualHelpButton allowlist + non-null topic Vitest guard; merges TB-1666 exemplars + TB-1667?TB-1669). Prior: 2026-08-12 (**TB-1669** **Done** ? integrations + extended-nav page help inventory + `/internal/health` topic map; Vitest TB-1669). Prior: 2026-08-12 (**TB-1668** **Done** ? governance + sponsor-report page help mounts + topic map; Vitest TB-1668). Prior: 2026-08-12 (**TB-1667** **Done** ? pilot/analysis page help mounts + topic map; Vitest TB-1667). Prior: 2026-08-12 (**TB-1662** **Done** ? line-tab variant on Advisory/Help panel/Runs dashboard; TB-1662 surface inventory + Vitest). Prior: 2026-08-12 (**TB-1661** **Done** ? operator line-tabs visual contract in UI_DESIGN_SYSTEM + ARCHITECTURE pointer). Prior: 2026-08-12 (**TB-1649** **Done** ? Recurrence/Digests action budget + buyer labels; Reviews StatusTag via RunStatusBadge; raw-table migrate inventory for TB-1650; Vitest). Prior: 2026-08-12 (**TB-1648** **Done** ? Slack + Webhooks EnterpriseTable destination inventory; Vitest). Prior: 2026-08-12 (**TB-1647** **Done** ? Advisory schedules + Alert rules EnterpriseTable inventory; StatusTag; history disclosure; Vitest). Prior: 2026-08-12 (**TB-1643** **Done** ? backlog sync; creating-runs single-hop redirect to review-guide; Vitest). Prior: 2026-08-12 (**TB-1603** **Done** ? help catch-all page dispatch inventory CI; Vitest drift guard). Prior: 2026-08-12 (**TB-2190** **Done** ? sync CreateRun ArchitectureRequest-first + missing-request orphan auto-remediation). Prior: 2026-08-12 (**TB-1613** **Done** ? admin diagnostics inbound label + contributor doc-href honesty; Vitest). Prior: 2026-08-12 (**TB-1608** **Done** ? accelerator chooser home inbound copy SoT + buyer-safe chrome; Vitest). Prior: 2026-08-12 (**TB-1599** **Done** ? unknown/unloadable help slugs render `HelpTopicNotFoundView`; Vitest). Prior: 2026-08-12 (**TB-1602** **Done** ? HE. traffic row retagged Router meta; per-slug scoring honesty; Vitest). Prior: 2026-08-12 (**TB-1601** **Done** ? help catch-all fallthrough guard + `choose-your-next-step` specialty dispatch; Vitest). Prior: 2026-08-12 (**TB-1600** **Done** ? help topic `loading.tsx` + `HelpTopicPageLoadingSkeleton`; ISR cache policy module; Vitest). Prior: 2026-08-12 (**TB-1595** **Done** ? GOI traffic row removed; contributor doc guards; empty-state inventory canonical `/governance/alerts`; Vitest already shipped 2026-08-11). Prior: 2026-08-12 (**TB-1594** **Done** ? backlog sync; `?tab=inbox` permanent redirect to `/governance/alerts` preserving filters; Vitest + route catalog already shipped 2026-08-11). Prior: 2026-08-12 (**TB-1591** **Done** ? simulation mode tabs use operator labels Simple rule / Advanced rule / Compare thresholds; Vitest). Prior: 2026-08-12 (**TB-1590** **Done** ? simulation/tuning forms use design-system Input/Button + primary Simulate/Recommend CTAs; Vitest). Prior: 2026-08-12 (**TB-1589** **Done** ? Test alerts tab demotes Simulate/Tune duplicate h2; tuning in closed disclosure; Vitest). Prior: 2026-08-12 (**TB-1588** **Done** ? Conditions tab design-system Select for rule type/priority; list loading skeleton on initial fetch; Vitest). Prior: 2026-08-12 (**TB-1586** **Done** ? Conditions tab Create `variant="primary" size="sm"`; one primary CTA locus empty vs revealed form; Vitest). Prior: 2026-08-12 (**TB-1585** **Done** ? Conditions tab collapses stacked hub lead + findings helper; field help on condition type; Vitest). Prior: 2026-08-12 (**TB-1584** **Done** ? Conditions tab demotes duplicate `Alert conditions` h2 to section h3; Vitest source + render guards). Prior: 2026-08-11 (**TB-1846** **Done** ? summary-table sync; REE create-home-only `archTab=evidence` traffic honesty +Vitest already shipped 2026-08-10). Prior: 2026-08-11 (**TB-1799** **Done** ? summary-table sync; legacy `/onboard` contributor doc guard + canonical first-review-guide paths already shipped 2026-08-10). Prior: 2026-08-11 (**TB-1149** **Done** ? Jira integrations: structured issue-type-by-severity rows + optional JSON disclosure; client validation; Vitest). Prior: 2026-08-11 (**TB-1143** **Done** ? Cloud connections: collapse unconfigured provider cards to Not connected + auth model; hide Last validation/Evidence zero theater; Vitest). Prior: 2026-08-11 (**TB-1141** **Done** ? Cloud provider summary cards: single primary CTA via `resolveCloudProviderSummaryPrimaryCtaLabel` (Configure / Open connection); Vitest). Prior: 2026-08-11 (**TB-1138** **Done** ? Governance setup: hide all-Pending foundation panel under untouched checklist; `shouldShowGovernanceSetupFoundationPanel`; Vitest). Prior: 2026-08-11 (**TB-1137** **Done** ? Governance setup checklist: numbered step track; primary CTA only on recommended-next; outline CTAs on demoted steps; two-column layout with outcomes rail; Vitest). Prior: 2026-08-11 (**TB-1144** **Done** ? [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md`](SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md) conversation ladder + forbidden hedges; buyer packet M-197 contributor-contract anchor; aligns [`PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md`](../go-to-market/PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md) to planned-not-scheduled; names **TB-1145** CI follow-on; pairs **M-196**/**M-197**). Prior: 2026-08-11 (**TB-990** **Done** ? MVO quiet/firing classification in `SUPPORT_PROBLEM_REPORT_TRIAGE.md`: mandatory triage step, outcomes A/B/C, Alert history checklist, AMW PromQL snippets, **M-120** false-negative hook; cross-links **TB-989** contract). Prior: 2026-08-11 (**TB-1773** **Done** ? summary-table sync; GCP live Validate + Recent activity panels shipped in `8021a6d12`). Prior: 2026-08-11 (**TB-1121** **Done** ? `check_security_review_ready_without_musts_honesty.py` forbids first-review-ready without M-151+M-118, M-171-as-first-gate, and missing TB-1120 ship-order cites; wired in `run_buyer_surface_strict_guards.py`; pairs **M-192**; closes **TB-1120** contract). Prior: 2026-08-11 (**TB-1123** **Done** ? `check_isolation_claims_too_strong_honesty.py` forbids RLS-as-live, workspace-as-security-boundary, crypto-proof/per-tenant Search, NetArch-alone isolation, and G3 fully-proven overclaims; wired in `run_buyer_surface_strict_guards.py`; pairs **M-194**; softens G3 ?provable? copy in claim readiness + buyer packet). Prior: 2026-08-11 (**TB-1122** **Done** ? [ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md](ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md) too-strong vs INV-001/ADR 0037 matrix + living-doc RLS-as-control purge; G3 soften; **TB-1123** named as CI follow-on; GTM **M-194**/**M-195**). Prior: 2026-08-11 (**TB-1113** **Done** ? `check_minimum_pilot_trust_packet_honesty.py` forbids CPA/3P-as-pilot-trust, self-attested=certified, and SOC 2 ready / pen-test-in-flight hedges; wired in `run_buyer_surface_strict_guards.py`; pairs **M-190**; does not reopen **TB-135**/**TB-136**). Prior: 2026-08-11 (**TB-1112** **Done** - [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md) Stage 0 pilot trust include/drop + too-strong matrix; GTM **M-190**/**M-191** cross-links; **TB-1113** named as CI follow-on; does not reopen **TB-135**/**TB-136**). Prior: 2026-08-11 (**TB-1646** **Done** - Operator populated-list contract in UI_DESIGN_SYSTEM.md + ARCHITECTURE.md pointer; named list kinds; EnterpriseTable + StatusTag default; apply **TB-1647**?**TB-1650**). Prior: 2026-08-11 (**TB-1575** **Done** - operator side-rail inventory + demote Teams/Slack/Azure Boards/ServiceNow about-asides; named kind markers; operator-side-rail-inventory.ts; Vitest; TB-1576 checklist). Prior: 2026-08-11 (**TB-1574** **Done** - live preview/readiness rails stack when sparse and pin when live; Digests Schedule + Alert rules; operator-live-preview-readiness-rail; Vitest). Prior: 2026-08-11 (**TB-1573** **Done** - Recurrence teaching helper collapsed disclosure + Advisory Schedules scope inline; anti-exemplars under TB-1572). Prior: 2026-08-11 (**TB-1572** **Done** ? Operator side-rail contract in UI_DESIGN_SYSTEM.md + ARCHITECTURE.md pointer; single-column default; allow/ban rail kinds; apply **TB-1573**?**TB-1576**). Prior: 2026-08-11 (**TB-1625** **Done** ? `check_policy_pack_customer_rule_sandbox_honesty.py` forbids WASM/Firecracker sandbox, pack-JSON RCE, broken-packs-never-affect, platform-wide-degrade, and execute-time-pin overclaims; wired in `run_buyer_surface_strict_guards.py`; pairs **M-298**). Prior: 2026-08-11 (**TB-1624** **Done** ? [`POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md`](POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md) sandbox/pin/blast-radius matrix + CI anchors; GTM **M-298**/**M-299**; **TB-1625** named as CI follow-on). Prior: 2026-08-11 (**TB-1578** **Done** ? `check_shared_aoai_tpm_noisy_neighbor_honesty.py` forbids fair-share-TPM / budget-isolation / replicas-fix-LLM / silent-starvation overclaims in buyer docs; wired in `run_buyer_surface_strict_guards.py`; pairs **M-296**). Prior: 2026-08-11 (**TB-1577** **Done** ? [`SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`](SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md) spend-cap vs fair-share vs breaker-coupling matrix + tenant-B saturation experience; GTM **M-296**/**M-297** cross-links in buyer packet + `PA_CLAIM_HONESTY_INDEX.md`; **TB-1578** named as CI follow-on). Prior: 2026-08-11 (**TB-1571** **Done** ? `check_paying_tenant_spend_storm_honesty.py` forbids unbounded-key-spend / meter-equals-invoice / Quick-Scan-plane overclaims in buyer docs; wired in `run_buyer_surface_strict_guards.py`; pairs **M-294**). Prior: 2026-08-11 (**TB-1570** **Done** ? [`PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md`](PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md) control-plane + metering/dispute matrix; GTM **M-294**/**M-295** cross-links in buyer packet + `PA_CLAIM_HONESTY_INDEX.md`; **TB-1571** named as CI follow-on). Prior: 2026-08-11 (**TB-1288** **Done** ? `check_anti_gates_alone_finops_honesty.py` forbids gates-alone FinOps / call-site-reserve-enough / SDK-bypass / stale-$50 cohort-cap overclaims in buyer docs; wired in `run_buyer_surface_strict_guards.py`; pairs **M-225**). Prior: 2026-08-11 (**TB-1287** **Done** ? `LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md` gates vs mature-plane matrix; chokepoint pin `LlmCompletionAccountingClient`; cohort **$15** cap; **TB-1288** CI anchors; buyer packet **M-226** residuals + path-stable alias; cross-links INV-004 / **TB-975**/**TB-976**/**TB-977**; pairs **M-225**/**M-226**). Prior: 2026-08-11 (**TB-1271** **Done** ? `check_concurrent_execute_commit_honesty.py` forbids exactly-once commit / silent-double-package / retry-never-spends overclaims in buyer docs; wired in `run_buyer_surface_strict_guards.py`; pairs **M-221**). Prior: 2026-08-11 (**Help alias Batch R + TB-1444/TB-1445** **Done** ? fold internal-runbook twins `first-review`/`first-value-20-minutes`/`policy-pack-delta-demo` into COR/HEO; `legacy-alert-routing-route-doc-guard.test.ts`; canonicalize `/alert-routing` docs to Notifications tab). Prior: 2026-08-11 (**TB-977** **Done** ? SQL-owned UTC month period key via `GetSqlUtcMonthlyPeriodKeyAsync`; in-flight reservation admission fairness + OTel counters; `LlmMonthlyTenantDollarBudgetTrackerTb977Tests`). Prior: 2026-08-11 (**TB-1278** **Done** ? `check_manifest_schema_evolution_honesty.py` forbids SchemaVersion/dual-write/rewrite-sealed overclaims in buyer/WNTP paths; wired in `run_buyer_surface_strict_guards.py`; pairs **M-223**). Prior: 2026-08-11 (**Help alias Batch U+V** **Done** ? fold alert-rules stub traffic rows GON/GOA/GOT; `TECH_BACKLOG_OPEN` sync closes **TB-2050**?**TB-2052**; pattern-library Category-1 Start a review deep link). Prior: 2026-08-11 (**Help alias Batch T + TB-2052 patterns** **Done** ? Vitest parity for every `HELP_TOPIC_PERMANENT_REDIRECTS` slug vs Python `WORKBOOK_PATH_MIGRATIONS`; pattern-library secondary hubs in Learn-more job-match inventory). Prior: 2026-08-11 (**Help alias Batch S** **Done** ? Playwright `@help-redirects` smoke for every `HELP_TOPIC_PERMANENT_REDIRECTS` bookmark; shared `help-topic-permanent-redirect-cases` helper + Vitest contract). Prior: 2026-08-11 (**TB-1277** **Done** ? `MANIFEST_CONTENT_SCHEMA_EVOLUTION_CONTRACT.md` tolerant-reader-first evolution matrix; buyer packet **M-224** cites engineering SoT; **TB-1278** named as CI follow-on). Prior: 2026-08-11 (**TB-994** **Done** ? outbox publish-then-crash replay regression test + `check_outbox_exactly_once_honesty.py` buyer-doc guard; contract ?7 verification table; completes TB-992?993?994 outbox enforcement). Prior: 2026-08-11 (**TB-1270** **Done** ? `CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md` first-wins commit CAS + execute process-idempotency race matrix; buyer packet **M-222** cites engineering SoT; **TB-1271** named as CI follow-on). Prior: 2026-08-11 (**TB-993** **Done** ? outbox `MessageId` fail-closed gateway; producer architecture anchors; `INTEGRATION_EVENT_HANDLER_IDEMPOTENCY_INVENTORY.md`; retrieval replay idempotency test). Prior: 2026-08-11 (**TB-992** **Done** ? `TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` replay-safe vs must-idempotent matrix; cross-links M-144/M-145, ADR 0004/0043/0044, catalog + ITSM map; enforcement surfaces for **TB-993**/**TB-994**). Prior: 2026-08-11 (**TB-961** **Done** ? Worker SIGTERM drain gate (`WorkerHostDrainHostedService`), execute ownership lease release on `ApplicationStopping`, drain telemetry (`archlucid_worker_drain_*`), ACA `worker_termination_grace_period_seconds` default 60; unit tests). Prior: 2026-08-11 (**TB-959** **Done** ? review-path create?execute?commit canary workflow + runbook + paging script; CI workflow contract test). Prior: 2026-08-11 (**TB-958** **Done** ? fleet-wide stale in-flight run P0 alert + cardinality-safe gauges/logs; `StaleInFlightRunMetricsHostedService`; Terraform `ArchLucidStaleInFlightRunsTf`; runbook `STALE_IN_FLIGHT_RUNS.md`). Prior: 2026-08-11 (**TB-988** **Done** ? concurrent finding disposition race regression tests + ITSM HumanReviewStatus last-writer SQL integration; `FindingDispositionConcurrentRaceTests`; contract verification anchors). Prior: 2026-08-11 (**TB-987** **Done** ? finding race honesty: concurrent disposition UX after save + ITSM HumanReviewStatus provenance caption; Vitest). Prior: 2026-08-10 (**Help alias Batch P+Q** **Done** ? Python `WORKBOOK_PATH_MIGRATIONS` alert-routing ? `?tab=notifications`; stale `?tab=routing` fold; CHANGELOG/QA/template archaeology for api-contracts canonical + notifications tab). Prior: 2026-08-10 (**TB-986** **Done** ? finding concurrent disposition / HumanReviewStatus conflict contract; V1 option A append-only). Prior: 2026-08-10 (**Help alias Batch M+N+O** **Done** ? Python catalog discovers cloud slash help paths from `cloud-connections-help-routes.ts`; rename `ui-route-traffic-api-contracts-help`; docs/skill sweep to `/help/api-contracts`). Prior: 2026-08-10 (**TB-1563** **Done** ? Worker rolling-deploy drain/handoff/kill claim map). Prior: 2026-08-10 (**TB-1523** **Done** ? crash recovery long-running review / AgentTasks-in-flight claim map). Prior: 2026-08-10 (**TB-1299** **Done** ? Real-execute AOAI throttle policy contract). Prior: 2026-08-10 (**Help alias Batch L** **Done** ? flip Python `WORKBOOK_PATH_MIGRATIONS` HEP fold to `/help/governance-api-contracts` ? `/help/api-contracts`; Vitest parity in `api-contracts-help-route.test.ts`; orphan `*-help-alias` shims already absent). Prior: 2026-08-10 (**TB-960** **Done** ? ACA Worker LLM failure-semantics engineering contract). Prior: 2026-08-10 (**TB-1371** **Done** ? TB-881 ship-blocker classification engineering contract). Prior: 2026-08-10 (**TB-1938** **Done** ? Users tab principals-jargon Vitest guards; copy from **TB-1211**). Prior: 2026-08-10 (**TB-1917** **Done** ? backlog closure; role-mapping shell subtitle + deduped helper shipped in `5f2629596`). Prior: 2026-08-10 (**TB-1914** **Done** ? OIDC/JWT tab loading/empty + CTA hierarchy; `oidc-page-cta.ts`; Vitest). Prior: 2026-08-10 (**Help alias Batch J+K** **Done** ? merged `help-topic-permanent-redirects.test.ts` into `retired-help-topic-alias-honesty.test.ts`; `cloud-connections-help-routes.ts` replaces `HELP_TOPIC_SLUG_ALIASES`; TECH_BACKLOG_OPEN COR/HFE/FIR redirect-done sync). Prior: 2026-08-10 (**Help alias Batch H** **Done** ? `workspace-navigation-help-alignment` rename; dead `core-pilot-help-alias-route-metadata` removed; page-help Learn more uses `inAppHelpHref` (no retired `how-it-works` slug); hyphen cloud-connection permanent redirects; `doc-index.json` PIL?HP; backlog sync **TB-1623**/**TB-1721**/**TB-1736**). Prior: 2026-08-10 (**Help alias Batch F+G** **Done** ? per-topic honesty tests merged into `retired-help-topic-alias-honesty.test.ts` driven by manifest `bannedBuyerCopy` / `buyerSurfaceGuards`; pruned backward-compat shim exports from `ui-route-traffic-retired-help-topic-aliases.ts`; operator-auth-roles added to manifest). Prior: 2026-08-10 (**TB-1296** **Done** ? `/welcome` proof CTA ladder below hero; Vitest). Prior: 2026-08-10 (**TB-1295** **Done** ? `/welcome` self-demo primary conversion path; Vitest). Prior: 2026-08-10 (**TB-1294** **Done** ? `/welcome` hero budget: differentiators below hero band; metadata title; Vitest). Prior: 2026-08-10 (**TB-1290** **Done** ? Projects recycle bin restore confirm dialog before POST; Vitest). Prior: 2026-08-10 (**TB-1289** **Done** ? Projects recycle bin Administration breadcrumb + shared page header/help; Vitest; STR traffic note). Prior: 2026-08-10 (**TB-1893** **Done** ? Sign-in domains in-page confirm for enable enforcement + recovery remove; `AuthDomainsActionConfirmDialog` + `auth-domains-confirm-copy.ts`; Vitest). Prior: 2026-08-10 (**TB-1941**/**TB-1942**/**TB-991** **Done** ? signed records list **SI** traffic Alerts/gov honesty; empty Browse reviews `/architecture/reviews` (no `projectId=default`); solo-ops MVO honesty CI guard + unit tests; Vitest). Prior: 2026-08-10 (**TB-1883** **Done** ? Sign-in methods in-page remove confirm + blocked-remove reasons; `sign-in-method-remove-blocked-copy.ts`; Vitest). Prior: 2026-08-10 (**TB-1931**/**TB-1933**/**TB-1936** **Done** ? Users hub API key roles tab job honesty + keys-specific directory notes; SSU `?tab=users` URL sync; Vitest). Prior: 2026-08-10 (**TB-1881** **Done** ? Sign-in methods buyer chrome on `/administration/account-security`; `account-security-page-copy.ts` + contextual help/topic map/evidence copy alignment; Vitest drift guard). Prior: 2026-08-10 (**TB-1921**/**TB-1922**/**TB-1923** **Done** ? SAML tab metadata-fetch CTA honesty, in-page save confirm, shell subtitle + card title density; Vitest). Prior: 2026-08-10 (**TB-2175**/**TB-2176**/**TB-2177** **Done** ? review-scoped Do-this-next strip; brief scope-understanding execute gate; evidence gap forecast before execute; Vitest). Prior: 2026-08-10 (**TB-1877** **Done** ? guided intake Guided questions tab syncs `?path=guided-intake`; Vitest TB-1877 guard; landed with **TB-1867**). Prior: 2026-08-10 (**TB-1879** **Done** ? guided intake demotes context banners to helper lines; `guided-intake-primary-panel`; Vitest). Prior: 2026-08-10 (**TB-1878** **Done** ? guided intake buyer chrome purges admission/Socratic jargon; Vitest). Prior: 2026-08-10 (**TB-1863**/**TB-1864**/**TB-1865**/**TB-2185**?**TB-2188** **Done** ? al-ui-rate **REO** Overview: evidence orientation strip, structuring-failure honesty, empty-state CTAs, clarifications dedupe, risks/constraints default-open, StatusTag provenance + legend, Vitest; commit `68f218f96`). Prior: 2026-08-10 (**TB-1876** **Done** ? ENE `path=guided-intake` aliases Guided questions tab in traffic notes; Vitest). Prior: 2026-08-10 (**TB-1867** **Done** ? `/reviews/new` path tabs sync `?path=` in URL; `buildReviewsNewPathHref`; Vitest all paths). Prior: 2026-08-10 (**TB-1866** **Done** ? REN `path=detailed` aliases Templates and imports tab in traffic notes; Vitest). Prior: 2026-08-10 (**TB-1851** **Done** ? REF create-home-only `archTab=findings` traffic honesty; Vitest). Prior: 2026-08-10 (**TB-1871**/**TB-1872**/**TB-2184** **Done** ? REQ Quick start traffic alias + path=quick-review tab sync Vitest; disposition-export-impact SoT + confirm UI). Prior: 2026-08-10 (**TB-1846** **Done** ? REE create-home-only `archTab=evidence` traffic honesty; Vitest). Prior: 2026-08-10 (**TB-1844** **Done** ? diagram Mermaid source/copy/download gated behind disclosure; `ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE`; Vitest). Prior: 2026-08-10 (**TB-1841** **Done** ? RED create-home-only `archTab=diagram` traffic honesty; Vitest). Prior: 2026-08-10 (**TB-1836** **Done** ? REC create-home-only `archTab=clarifications` traffic honesty; Vitest). Prior: 2026-08-10 (**TB-1799**/**TB-1807**/**TB-1833** **Done** ? legacy `/onboard` doc guard; architecture-graph noindex metadata + SEO Vitest; tab href create-intent opt-in). Prior: 2026-08-10 (**TB-1766** **Done** ? Azure cloud detail Tier/hosted-pull jargon purge; `azure-cloud-connection-copy.ts`; Vitest). Prior: 2026-08-10 (**TB-1786**/**TB-1793**/**TB-1797** **Done** ? recommendation-learning Internal Ops traffic/SEO; legacy `/login` + `/onboard` noindex metadata Vitest). Prior: 2026-08-10 (**TB-1765** **Done** ? AWS cloud detail copyable IAM trust-policy starter; `aws-cloud-connection-trust-policy-starter.ts` + `AwsTrustPolicyStarterPanel`; Vitest). Prior: 2026-08-10 (**TB-1763** **Done** ? AWS cloud detail Tier/hosted-poll jargon purge; `AWS_CLOUD_CONNECTION_BANNED_COPY`; Vitest). Prior: 2026-08-10 (**TB-1762** **Done** ? AWS cloud detail live Validate + Recent activity panels; `AwsConnectionDataContext`, validate/activity panels; Vitest). Prior: 2026-08-10 (**TB-1707** **Done** ? HEO alias permanent redirect `operator-auth-roles` ? `/help/users-and-roles`; `operator-auth-roles-help-alias-honesty.test.ts`; Vitest). Prior: 2026-08-10 (**TB-1704** **Done** ? HEZ alias permanent redirect `integrations/azure-boards` ? `/help/azure-boards`; `azure-boards-help-alias-honesty.test.ts`; Vitest). Prior: 2026-08-10 (**TB-1598** **Done** ? alerts inbox `resolveAlertsOpenReviewPackagesHref` omits `projectId=default`; list loading skeleton; Vitest). Prior: 2026-08-10 (**TB-1597** **Done** ? alerts inbox summary row hidden until rules exist and evaluation timestamp is present; `shouldShowAlertsInboxSummaryRow`; Vitest). Prior: 2026-08-10 (**TB-1557** **Done** ? zero-downtime SQL migration claim map; GTM **M-286**/**M-287** cross-links in `PUBLIC_CLAIM_BOUNDARY_GUIDE.md`, buyer packet, `PA_CLAIM_HONESTY_INDEX.md`; `ZERO_DOWNTIME_SQL_MIGRATION_PA_ONE_PAGER.md` alias). Prior: 2026-08-10 (**TB-1550** **Done** ? evidence/audit ordering & causality claim map; GTM **M-284**/**M-285** cross-links). Prior: 2026-08-10 (**TB-1537** **Done** ? mid-run authority revocation claim map; GTM **M-282**/**M-283** cross-links in `PUBLIC_CLAIM_BOUNDARY_GUIDE.md`, buyer packet, `PA_CLAIM_HONESTY_INDEX.md`; `MID_RUN_AUTHORITY_REVOCATION_PA_ONE_PAGER.md` alias). Prior: 2026-08-10 (**TB-1592** **Done** ? Alert simulation/tuning GUID placeholder + `default` slug honesty: empty review-ID placeholder + helpers; Current project slug placeholder; session-resolved wire slug; Vitest). Prior: 2026-08-10 (**TB-1507** **Done** ? live vs nightly tripwire honesty CI: `check_live_vs_nightly_tripwire_honesty.py` fails nightly-as-live-tripwire, always-before-customers, G-REAL-01-as-continuous-monitor, and Prometheus-alone model-rev stubs; wired to strict guards + CI; pairs **M-275**; contract **TB-1506**). Prior: 2026-08-10 (**TB-1587** **Done** ? Alert rules Conditions scope preview honesty: no invented `projectId=default`; session/persisted resolve + omit; Vitest). Prior: 2026-08-10 (**TB-1506** **Done** ? live vs nightly finding-quality tripwire map: TB-683 offline exemplar scoring vs live gates/metrics; no pre-customer canary explicit in `LIVE_VS_NIGHTLY_FINDING_QUALITY_TRIPWIRE_MAP.md`; buyer packet **M-276**; follow-on **TB-1507**). Prior: 2026-08-10 (**TB-1504** **Done** ? Digests browse export `.md` + `Download Markdown` honesty; delivery attempts map to StatusTag vocabulary with raw diagnostics only in Technical details; Vitest guards). Prior: 2026-08-10 (**TB-1500** **Done** ? AOAI retirement repro honesty CI: `check_aoai_retirement_repro_honesty.py` fails bit-identical-forever, replay-as-LLM-oracle, auto-upgrade ManifestHash continuity, and rubber-stamp re-lock stubs; wired to strict guards + CI; pairs **M-273**). Prior: 2026-08-10 (**TB-1503** **Done** ? Digests browse Coverage column honesty: `resolveDigestPeriodCoverage` surfaces short review refs + change/snapshot labels instead of opaque Compared/Current period; Vitest guards). Prior: 2026-08-10 (**TB-1499** **Done** ? AOAI model retirement vs replay/cohort/re-lock claim survival map: survive-vs-break matrix + auto-upgrade quiet-false in `AOAI_MODEL_RETIREMENT_REPRO_CLAIM_MAP.md`; cross-links from comparison replay contract, replay runbook, buyer packet **M-274**; follow-on **TB-1500**). Prior: 2026-08-10 (**TB-1497** **Done** ? project soft-delete vs sealed evidence residue plane map: cascade/residue table in `PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md`; recycle-bin purge ? evidence erasure explicit; cross-links from append-only contract, GDPR map, buyer packet **M-272**; follow-on **TB-1498**). Prior: 2026-08-10 (**TB-1490** **Done** ? evidence backup/restore vs append-only plane map: restore-vs-tamper matrix + SQL/blob skew in `EVIDENCE_BACKUP_RESTORE_INVARIANT_MAP.md`; external-anchor requirement explicit; cross-links from `EVIDENCE_IMMUTABILITY.md`, append-only contract, GDPR map, buyer packet **M-270**; follow-on **TB-1491**). Prior: 2026-08-10 (**TB-2167** **Done** ? host leader election for singleton background loops; `BackgroundJobStuckRunningWatchdogHostedService` + orphan probes gated; contention tests; `GET /v1/admin/diagnostics/leases`; decision-pack note in `PERFORMANCE_COLD_START_AND_TRIMMING.md`). Prior: 2026-08-10 (**TB-1488** **Done** ? offline-verifiable export portability plane map: code-backed offline vs online split in `OFFLINE_VERIFIABLE_EXPORT_PORTABILITY.md`; departing-tenant export-before-purge explicit; cross-links from `EVIDENCE_IMMUTABILITY.md`, DSAR ?5, buyer packet **M-268**; follow-on **TB-1489**). Prior: 2026-08-10 (**TB-1486** **Done** ? compliance journey doc-link honesty: destination-labeled diligence links; Trust Center downloads preferred for CAIQ/SIG; Vitest guards). Prior: 2026-08-10 (**TB-1470** **Done** ? GDPR erasure vs append-only plane map: code-backed delete/retain table in `GDPR_ERASURE_VS_APPEND_ONLY_MAP.md`; Search residual explicit; cross-links from append-only contract, DSAR, buyer packet **M-266**; follow-on **TB-1471**). Prior: 2026-08-10 (**TB-1464** **Done** ? weekly buyer-claim drift honesty CI: `check_weekly_buyer_claim_drift_honesty.py` guards C1?C6 reintroductions; C1/C2 claim-boundary rows rewritten; wired in `ci.yml` + strict guards). Prior: 2026-08-10 (**TB-1463** **Done** ? weekly buyer-claim drift inventory contract: closure snapshot in `WEEKLY_BUYER_CLAIM_DRIFT_2026_07_27.md`; C3?C6 shipped via cited TB rows; C1/C2 open on **TB-1343**/**TB-1367**; cross-link from `PUBLIC_CLAIM_BOUNDARY_GUIDE.md`; pairs **M-263**/**M-264**; follow-on **TB-1464**). Prior: 2026-08-10 (**TB-2166** **Done** ? Web Worker INP offload for evidence graph + compare surfaces: typed `inp-offload-*` contract/worker/client; wired into `ProvenanceGraphViewport`, `FindingEvidenceGraph`, `GraphViewer`, `useCompareGovernanceDiff`, `ArchitectureManifestUnifiedDiffView`; evidence-graph type filter `startTransition` + `useDeferredValue`; Vitest; INP note in `PERFORMANCE_BASELINES.md`). Prior: 2026-08-10 (**TB-985** **Done** ? cross-surface Simulator-ROI honesty regression: `SponsorSimulatorRoiForbidAssertions` + ExecutionMode/SponsorArtifact invariant tests; TB-983 forbid anchors in `check_sponsor_evidence_label_consistency.py`; `SPONSOR_CLAIM_LABEL_AUDIT.md` RC verification). Prior: 2026-08-10 (**TB-1561** **Done** ? configuration architecture claim map in `CONFIGURATION_ARCHITECTURE_PRECEDENCE_VALIDATION_DRIFT_CLAIM_MAP.md`; machines A?F; precedence ladder in `CONFIGURATION_REFERENCE.md`; GTM **M-290**/**M-291** cross-links; buyer one-pager **M-291**). Prior: 2026-08-10 (**TB-1581** **Done** ? composite alert rules enum/join/enabled honesty: `composite-alert-rules-labels.ts`; operator-safe list summaries + `StatusTag` active/paused; drop eng operator option suffixes; Vitest). Prior: 2026-08-10 (**TB-2140** **Done** ? quality-gated Critic phase overlap + tighter phase-1 admission; `StagedCriticOverlapPolicy` + `StagedCriticPhaseAdmissionLimiter`; `STAGED_CRITIC_WALL_TIME_CONTRACT.md` ?6; Vitest). Prior: 2026-08-10 (**TB-983** **Done** ? fused Simulator-derived ROI/savings sponsor forbid contract in `SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md`; PASS/WARN/HOLD table + TB-984 enforcement / TB-985 CI anchors; M-138 cross-link). Prior: 2026-08-10 (**TB-1476** **Done** ? invite auth chrome safe secondary exits: Sign in again, Use a different account, Help, Back to ArchLucid on valid/invalid/validation-failed states; `invitation-auth-secondary-exit-copy.ts`; `InvitationAuthSecondaryExitActions`; Vitest). Prior: 2026-08-10 (**TB-1475** **Done** ? valid invitation panel design-system card + `roleDisplayLabel` mapping; tokenized SSO warn callout; defer `storeInvitationToken` until Valid; `InvitationValidPanel`; Vitest). Prior: 2026-08-10 (**TB-1474** **Done** ? invitation invalid/expired/revoked/accepted recovery CTAs: Sign in without invitation, Request access, Back to ArchLucid, Help; tokenized blocked callout; `invitation-invalid-recovery-copy.ts`; `InvitationInvalidRecoveryActions`; Vitest). Prior: 2026-08-10 (**TB-1473** **Done** ? invitation accept loading skeleton matching valid-panel width; title + summary-card placeholders; polite Validating status text; Vitest). Prior: 2026-08-10 (**TB-1472** **Done** ? `/auth/invite` document metadata + `AuthFlowShell` brand chrome + Suspense fallback; `auth-invite-page-copy.ts`; `InvitationAcceptLoadingView`; Vitest). Prior: 2026-08-10 (**TB-1469** **Done** ? bootstrap load-error + no-access secondary exits: Sign in again, Use a different account, public `/welcome` link; fixes stuck loading on fetch failure; `post-auth-bootstrap-exit-copy.ts`; Vitest). Prior: 2026-08-10 (**TB-1468** **Done** ? bootstrap select-workspace primary continue for single workspace + choose lead; no-access denialReason sanitizer; Request access primary; Vitest). Prior: 2026-08-10 (**TB-1467** **Done** ? create-workspace form wires Country or region select + residency honesty hint; shared `Input`/`Select`/`Checkbox`; `create-workspace-data-regions.ts`; Vitest). ? repo-wide `button-visible-boundary-drift-guard.test.ts` forbids ghost/link `Button` variants under `archlucid-ui/src`; `button.test.tsx` variant-key inventory + filled-variant no-border negative assertion; empty allowlist after **TB-2170**?**TB-2173**). Prior: 2026-08-10 (**TB-2170** **Done** ? shell/auth/marketing visible-boundary guard on 17 first-impression surfaces; ghost?outline migration from **TB-2168**; `button-visible-boundary-source-patterns.ts`; asChild nav carve-out remains **TB-1671**?**TB-1675**). Prior: 2026-08-10 (**TB-2169** **Done** ? shared button wrappers enforce outline-only visible boundaries; `DismissControl` default + Vitest bordered assertions; `shared-button-wrapper-visible-boundary.test.ts` inventory on nine wrapper modules). Prior: 2026-08-10 (**TB-2168** **Done** ? visible-boundary `Button` contract: removed `ghost`/`link` from `buttonVariants`; design-system + Cursor rule; Vitest; mechanical ghost?outline migration across `archlucid-ui`). Prior: 2026-08-10 (**TB-2165** **Done** ? TanStack Query `sessionStorage` persistence for allowlisted operator list/summary reads; scoped by build buster + JWT subject + tenant scope; `OperatorQueryProvider` wires `persistQueryClient`; Vitest). Prior: 2026-08-10 (**TB-2163** **Done** ? per-slice STJ `JsonSerializerContext` for auth/me, run list, findings keyset, audit keyset, and problem details; `ArchLucidApiJsonSerializerOptions` resolver chain + reflection fallback; wire-parity tests). Prior: 2026-08-10 (**TB-2161** **Done** ? zero-cost host runtime knobs via `ArchLucid.Host.Runtime.props`: Server GC + `GCConserveMemory=1`, Tiered PGO, invariant globalization; Dockerfile drops `icu-libs`; architecture guard + pending cold-start baseline row). Prior: 2026-08-10 (**TB-2160** **Done** ? per-key single-flight in `HybridHotPathReadCache` via `HotPathReadCacheSingleFlight`; `archlucid_hot_path_read_cache_inflight_deduped_total` + admin cache diagnostics; concurrent-miss + fault Vitest). Prior: 2026-08-10 (**TB-2159** **Done** ? Azure OpenAI prompt-cache telemetry: `archlucid_llm_prompt_cache_hit_ratio` gauge + aggregate tracking; cached-input token accounting test; byte-stable prefix guard tests; `AZURE_OPENAI_PROMPT_CACHE_PREFIX.md` + `OBSERVABILITY.md`; builds on Done **TB-681**). Prior: 2026-08-10 (**TB-2158** **Done** ? conditional GET (`ETag` / `If-None-Match`) on hot operator reads: shared `ConditionalGetNegotiation` + `ConditionalGetControllerExtensions`; `RowVersion`-derived tags on run detail (early 304), run lists, findings list; audit page fingerprint; `private, no-store` validator headers; integration + unit tests). Prior: 2026-08-10 (**TB-2157** **Done** ? wizard session persistence via `wizard-session-persistence.ts` + `useWizardSessionPersistence`; resume prompt + `WizardSessionSaveStatus` on intake trio, templates wizard, pilot baseline, SSO wizard; Vitest). Prior: 2026-08-10 (**TB-2156** **Done** ? admin prerequisites readiness board on `/administration`; `resolve-admin-prerequisites-readiness.ts` + `AdminPrerequisitesReadinessBoard`; unmet-only dependency-ordered rows from existing health/config/identity/cloud/billing probes; Vitest). Prior: 2026-08-10 (**TB-2154** **Done** ? one-sentence finding derivation on review + governance cards via `finding-derivation-sentence.ts` + `FindingDerivationLine`; honest unavailable fallback; Vitest). Prior: 2026-08-10 (**TB-2153** **Done** ? canonical object home registry + `CanonicalObjectSecondaryViewStrip`; wired on governance findings queue, review findings/governance/authority sections, evidence trace, approval inspector; golden-path Vitest inventory). Prior: 2026-08-10 (**TB-2152** **Done** ? self-describing metric counts via `metric-count-presentation.ts` + `SelfDescribingMetricCount`; wired on home KPIs, governance queue summary, review findings workspace, sponsor dashboard; parity Vitest + `UI_DESIGN_SYSTEM.md` ? metric counts). Prior: 2026-08-10 (**TB-2151** **Done** ? pre-intake specimen preview callout on `/architecture/reviews/new` + home review-start card; Vitest). Prior: 2026-08-09 (**TB-2149** **Done** ? review pipeline background-safety copy + tenant p50/p90 duration estimate + completion notification opt-in; `RunProgressTracker` + `ReviewGenerationCreatedNotice`; Vitest). Prior: 2026-08-09 (**TB-2148** **Done** ? governed mutation reversibility registry + confirm copy + bulk-disposition undo window; Vitest). Prior: 2026-08-09 (**TB-1465** **Done** ? `/auth/bootstrap` document metadata + `AuthFlowShell` + Suspense loading fallback; Vitest). Prior: 2026-08-09 (**TB-2168**?**TB-2174** **opened** ? owner ask: eliminate ghost / borderless `Button` variants ? **102** `variant="ghost"` sites in **72** files + **4** `variant="link"`; P0 button-border contract + sweeps + CI guard; see cluster note below). Prior: 2026-08-09 (**TB-1454** **Done** ? architecture draft workspace first-viewport density: short lead, alternatives folded into guidance disclosure; Vitest). Prior: 2026-08-09 (**TB-1453** **Done** ? architecture draft workspace loading skeleton + Back to Architecture drafts wayfinding on edit routes; Vitest). Prior: 2026-08-09 (**TB-1451** **Done** ? `/architectures/[id]` scoped `generateMetadata` draft title + edit workspace H1; Vitest). Prior: 2026-08-09 (**TB-1450** **Done** ? `/architectures` list `useSyncExternalStore` hydration + loading gate; `EnterpriseTable` draft rows; Vitest). Prior: 2026-08-09 (**TB-1449** **Done** ? `/architectures` first-viewport density: short scope subtitle, disclosure only when drafts exist, action-oriented empty copy; Vitest). Prior: 2026-08-09 (**TB-1446** **Done** ? `/architectures` `OperatorPageHeader` H1 + always-visible primary Create architecture header CTA; Vitest). Prior: 2026-08-09 (**TB-1462** **Done** ? `/architectures/new` resume-first page subtitle + workspace lead when browser-local drafts exist; Continue draft is primary; Vitest). Prior: 2026-08-09 (**TB-1461** **Done** ? `/architectures/new` page subtitle + distinct resume/new-draft section titles; form h2 uses `New architecture draft` instead of Untitled architecture; Vitest). Prior: 2026-08-09 (**TB-1458** **Done** ? `/architectures/new` `OperatorPageHeader` H1 + header `PageContextualHelpButton`; workspace body help deduped on `/new`; Vitest). Prior: 2026-08-09 (**TB-1460** **Done** ? architecture draft autosave reassurance gated on `hasPersistedDraft`; `/new` no longer claims active autosave before first save; Vitest). Prior: 2026-08-09 (**TB-1459** **Done** ? `/architectures/new` browser-local recent-drafts honesty: `ArchitectureCreationLocalDraftsPanel` resume/empty guidance + view-all label; Vitest; pairs **TB-1448**). Prior: 2026-08-09 (**TB-1457** **Done** ? bake-off 15-min loser-sequence honesty CI: EA-fake-loss / smarter-than-GPT / unmeasured-kill-rate guards + contract anchors; pairs **M-261**). Prior: 2026-08-09 (**TB-1456** **Done** ? fused bake-off loser-order + 15-minute proof sequence contract; GTM M-261/M-262 cross-links in competitive positioning). Prior: 2026-08-09 (**TB-2158**?**TB-2167** **opened** ? owner ask: create P0s for ten quantified performance levers verified absent in tree ? Performance wave 7; see cluster note below). Prior: 2026-08-09 (**TB-2148**?**TB-2157** **opened** ? owner ask: create P0s for ten untracked confusion-reduction levers; see cluster note below). Prior: 2026-08-09 (**TB-1455** **Done** ? architecture draft workspace autosave reassurance on save status; removed redundant disabled Save draft; Save now retry on error/offline only; Save and exit retained; Vitest). Prior: 2026-08-09 (**TB-1426** **Done** ? deployment status external-link new-tab honesty + softened page lead without BUILD_ID jargon; Vitest). Prior: 2026-08-09 (**TB-1423** **Done** ? deployment status overall `StatusTag` with human `overallStatusLabel` aria; Vitest). Prior: 2026-08-09 (**TB-1412** **Done** ? demo readiness admin Recheck primary in PageHeading; diagnostics text link; authority loading skeleton; Vitest). Prior: 2026-08-09 (**TB-1416** **Done** ? fused INV-001 / decide-once / committed-manifest PA triad challenge matrix in `INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_CHALLENGE_MATRIX.md`; GTM M-254 residuals). Prior: 2026-08-09 (**TB-1413** **Done** ? Demo readiness check rows use Pass/Warn/Fail StatusTag labels with adjacent check titles; Vitest). Prior: 2026-08-09 (**TB-1411** **Done** ? Demo readiness admin tooling-disabled empty state with diagnostics/System health CTAs; Vitest). Prior: 2026-08-09 (**TB-1409** **Done** ? Demo readiness admin PageHeading + Internal Operations eyebrow; single H1; panel duplicate H2 suppressed; Vitest). Prior: 2026-08-09 (**TB-1380** **Done** ? first-architecture-review title honesty across registry/help center/home banner/Ctrl+K search; Vitest pilot/commit jargon guards). Prior: 2026-08-09 (**TB-1341** **Done** ? enterprise-onboarding title/audience honesty: canonical `ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE`; registry `operator` + help-center `admin` tier; Vitest). Prior: 2026-08-09 (**TB-2145** **Done** ? home `/` First Load JS **1646.1 ? 1587.2 kB** (?58.9 kB); deferred pilot command center, sponsor ROI strip, below-fold panels, and CTO demo redirect; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2144** **Done** ? billing past-due banner + alerts nav badge ? TanStack Query; `useBillingSubscriptionStatusQuery` + shared `alertsInboxSummary` cache; SSR inbox hydration guard; Vitest remount/freshness). Prior: 2026-08-09 (**TB-2143** **Done** ? insights operator layouts (**8**) migrated off blanket `force-dynamic` to `OperatorClientDrivenRouteLayout`; remaining operator `force-dynamic` layouts **~22** (was **~29**); Vitest import guards + `UI_ARCHITECTURE_V1_1.md` ?4). Prior: 2026-08-09 (**TB-2142** **Done** ? run detail First Load JS **2150.6 ? 1879.1 kB** (?271.5 kB); deferred evidence tab, share row, demo chrome, manifest alerts, run actions, help registrar; Vitest import guards + baseline refresh). Prior: 2026-08-09 (**TB-2139** **Done** ? `role-shaped-nav-density` persona defaults for architect/governance/admin; sidebar ?Show all destinations? + command palette parity; Vitest). Prior: 2026-08-09 (**TB-2138** **Done** ? unified golden sponsor-package walkthrough: `golden-sponsor-package-walkthrough` SoT, checklist panel on home/help/demo explain, destination scroll to `#sponsor-handoff` gated on sample runs; Vitest). Prior: 2026-08-09 (**TB-2137** **Done** ? golden-path empty/error recovery: `operator-branded-not-found-copy`, reviews hub not-found vs outage try-next, `isApiNotFoundFailure` error codes, buyer `RESOURCE_NOT_FOUND` headings; Vitest). Prior: 2026-08-09 (**TB-2136** **Done** ? job ? pack chooser primary on first-run `/architecture/reviews/new`; `AcceleratorJobChooserList` + expected-output buyer nouns; home `AcceleratorChooserCard` after first commit; Vitest). Prior: 2026-08-09 (**TB-2135** **Done** ? `finding-trust-presentation` contract shared by inspect, compare decision-delta chips, and export footers; inferred `DeterministicRule` parity when wire label absent; Vitest cross-surface fixtures). Prior: 2026-08-09 (**TB-2134** **Done** ? `InlineGlossaryChip` + `golden-path-glossary-nouns` SoT from customer glossary; chips on home empty, new review, review detail, post-finalize sponsor strip; Vitest). Prior: 2026-08-09 (**TB-2133** **Done** ? restored pre-commit progressive disclosure: `filterNavLinksByCommittedArchitectureReviewGate` + shell/palette wiring; Operate/diagnostics hidden until first finalize; Vitest pre/post-commit snapshots). Prior: 2026-08-09 (**TB-2130**?**TB-2139** **opened** ? owner ask: create P0s for ten easier-to-use / easier-to-understand levers; see cluster note below). Prior: 2026-08-09 (**TB-1323** **Done** ? `/demo/explain` conversion CTA auth honesty: anonymous viewers get sign-in + `/see-it` ladder; signed-in keeps wizard preset; Vitest guards). Prior: 2026-08-09 (**TB-1320** **Done** ? `/demo/explain` status banner uses `StatusTag` + human generated time; review id/manifest version/ISO behind Technical details; Vitest guards). Prior: 2026-08-09 (**TB-1316** **Done** ? session-expired OIDC errors use **Sign-in could not start** + in-place Try again preserving `returnUrl`). Prior: 2026-08-09 (**TB-1315** **Done** ? `/auth/session-expired` secondary exit to `/welcome`; Vitest forbids auth-bounce `/`). Prior: 2026-08-09 (**TB-1308** **Done** ? `/why-archlucid` operator counter copy + in-app footer; Vitest forbids eng metric/repo path leakage).
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1???V1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ??6/??6a); **TB-599???TB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ??? **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -89,7 +89,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-143 ? TB-148** were added 2026-05-30 from owner-ratified product documentation presentation guidance (decision date 2026-05-27). Customer-facing help must not dump buyers or operators into raw GitHub repository browsing. **TB-143** (in-app markdown renderer + `/help/{topic}` routes) and **TB-144** (documentation registry) are foundational; **TB-145** migrates existing GitHub blob links; **TB-146** bans redirect stubs; **TB-147** adds CI drift guard; **TB-148** adds role-gated optional source links. Canonical standard: [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](PRODUCT_DOCUMENTATION_PRESENTATION.md).
 
-**TB-149 ? TB-155** were added 2026-05-31 from a cross-layer **data consistency** audit (sponsor KPIs, governance decisions-needed summary, waiver/disposition state, recurrence trigger idempotency). They extend **TB-103?105** and partially close **TB-104** (canonical 14-day waiver window). **TB-149** unifies two non-equivalent server implementations of the expiring-waiver window. **TB-150** fixes `TotalDecisionItems` double-counting overlapping finding categories. **TB-151** and **TB-152** correct inverted or aliased fields on `ExecutiveSummaryResult`. **TB-153** prevents duplicate recurring review runs on ACA restart. **TB-154** enforces waiver ? disposition invariants. **TB-155** stops cached ROI waiver counts from diverging from live decisions-needed. Cross-ref **TB-062**, **TB-012** (**INV-009**), **TB-089** (digest retry ? different surface).
+**TB-149 ? TB-155** were added 2026-05-31 from a cross-layer **data consistency** audit (sponsor KPIs, governance decisions-needed summary, waiver/disposition state, recurrence trigger idempotency). They extend **TB-103?105** and partially close **TB-104** (canonical 14-day waiver window). **TB-149** unifies two non-equivalent server implementations of the expiring-waiver window. **TB-150** fixes `TotalDecisionItems` double-counting overlapping finding categories. **TB-151** and **TB-152** correct inverted or aliased fields on `SponsorSummaryResult`. **TB-153** prevents duplicate recurring review runs on ACA restart. **TB-154** enforces waiver ? disposition invariants. **TB-155** stops cached ROI waiver counts from diverging from live decisions-needed. Cross-ref **TB-062**, **TB-012** (**INV-009**), **TB-089** (digest retry ? different surface).
 
 **TB-156 ? TB-157** were added 2026-05-31 from local-dev triage: operators running `start-local-api-and-ui.ps1` (or UI-only) saw repeated Sonner warnings **?Review assistant unavailable / AI assistant service is not reachable?** while the root cause was **ArchLucid.Api not running** or **UI proxy ? API misconfiguration** (502), not Azure OpenAI / Ask. **Both are P0 ? pick up in the next available engineering thread** before other backlog polish. **TB-156** fail-closes the startup script on a full browser ? UI ? `/api/proxy` ? API chain. **TB-157** reframes connectivity toasts so proxy/API outages say **API unreachable**, reserving assistant wording for Ask/SSE-only failures. Cross-ref [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`docs/library/customer-facing/OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md), `scripts/env-readiness.ps1`, `scripts/demo-start-local.ps1`.
 
@@ -117,7 +117,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-222 ? TB-228** were added 2026-06-02 from an independent first-principles **Stickiness** quality assessment (`docs/assessments/Stickiness_06022026.MD`, score 63/100, COMMERCIAL weight 6/116). They address: recurrence scheduling UI post-commit + management page (**TB-222**, P1), decisions-needed KPI card on governance dashboard (**TB-223**, P1), AI conversational compare-two-runs narrative (**TB-224**, P1), CS-06 RLS fix on `SqlOperatorStickinessSnapshotReader` (**TB-225**, P1 security), risk exceptions dedicated management page (**TB-226**, P2), `collect-first-pilot-proof.ps1` multi-run support (**TB-227**, P2), and internal tenant health score admin surface (**TB-228**, P3). These do not duplicate **TB-057?063** (stickiness feature backlog), **TB-048/TB-073** (tenancy bleed on other repos), or **TB-062** (sponsor dashboard live KPIs).
 
-**TB-229 ? TB-237** were added 2026-06-02 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06022026.MD`, score 65/100, COMMERCIAL weight 8/116). They address: reference-customer first-contact workflow (**TB-229**, P1), GTM collateral placeholder audit and CI guard (**TB-230**, P1), Stage 0?1 claim-readiness status tracker and proof run log (**TB-231**, P1), LinkedIn publishing calendar (**TB-232**, P2), demo video storyboard (**TB-233**, P2), `SHOULD_YOU_EVALUATE.md` ICP enrichment (**TB-234**, P2), `EXECUTIVE_ONE_EMAIL_KIT.md` creation (**TB-235**, P2), demo video production (historical **TB-236** ? GTM **M-16**, removed 2026-07-19; PQ-MKT-03 resolved V1.1), and pricing page early-adopter framing (**TB-237**, P2). These do not duplicate **TB-131?134** (commercial packaging), GTM proof-cohort / demo-asset rows (**G-REAL-06**/**G-REAL-07**, **M-07**/**M-16**/**M-24**?**M-27**), **TB-162**/**TB-163** (support / procurement docs), or **TB-170?176** (proof pack chooser/metadata).
+**TB-229 ? TB-237** were added 2026-06-02 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06022026.MD`, score 65/100, COMMERCIAL weight 8/116). They address: reference-customer first-contact workflow (**TB-229**, P1), GTM collateral placeholder audit and CI guard (**TB-230**, P1), Stage 0?1 claim-readiness status tracker and proof run log (**TB-231**, P1), LinkedIn publishing calendar (**TB-232**, P2), demo video storyboard (**TB-233**, P2), `SHOULD_YOU_EVALUATE.md` ICP enrichment (**TB-234**, P2), `SPONSOR_ONE_EMAIL_KIT.md` creation (**TB-235**, P2), demo video production (historical **TB-236** ? GTM **M-16**, removed 2026-07-19; PQ-MKT-03 resolved V1.1), and pricing page early-adopter framing (**TB-237**, P2). These do not duplicate **TB-131?134** (commercial packaging), GTM proof-cohort / demo-asset rows (**G-REAL-06**/**G-REAL-07**, **M-07**/**M-16**/**M-24**?**M-27**), **TB-162**/**TB-163** (support / procurement docs), or **TB-170?176** (proof pack chooser/metadata).
 
 **TB-252 ? TB-254** were added 2026-06-03 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06032026.MD`, score 75/100, COMMERCIAL weight 8/116). They address: generate/commit raster brand assets and fix broken references (**TB-252**, P1 ? `og-default.png` and `icon-192.png` are referenced in `layout.tsx`, `manifest.webmanifest`, and an e2e fixture but only SVG variants exist; social cards on LinkedIn ? the #1 channel ? render with no preview image, and the PWA/Apple icons are broken), buyer-facing Open Graph / Twitter metadata (**TB-253**, P1 ? the social-share description is operator jargon that violates `POSITIONING.md ?7` on every shared link), and `FAQPage` JSON-LD plus buyer-relevant FAQ expansion (**TB-254**, P2 ? free Google rich-result lever; `/faq` currently emits no structured data and has only 3 operator-focused Q&A). These do not duplicate prior Marketability items **TB-229**?**TB-237** (06-02 engineering Done; demo video production is GTM **M-16**, historical **TB-236** removed 2026-07-19) or **TB-020** (existing marketing JSON-LD). Owner-action GTM execution (published references, live checkout, SOC 2 CPA) remains excluded from `(A)` per `Assessment-Scope-V1_1.mdc`.
 
@@ -129,7 +129,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-264 ? TB-266** were added 2026-06-03 from an independent first-principles **Differentiability** quality assessment (`docs/assessments/Differentiability_06032026.MD`, score 80/100, COMMERCIAL weight 4/116). They harden the proof-backed `/why` differentiation surface ? the product's most defensible positioning artifact ? on the two axes inside this quality's own definition (verifiable proof + claim discipline): competitor-baseline citation discipline (**TB-264**, P1 ? 3 of the 5 benchmarked rows quantify the competitor side ("2?6 skilled hours", "8?20 DBA/engineering hours", "half a day per release") with `citation = "first-party assertion (no external citation yet)"`; `assert_why_rows_have_evidence.py` only checks fields are non-empty, so an unsourced *quantified* competitor claim ships next to fully-cited ArchLucid rows), a named generic-AI contrast on the public `/why` front door (**TB-265**, P2 ? the front-door rows contrast only against "incumbent diagram-and-doc stacks"; the generic-AI contrast exists in `DIFFERENTIATION_PROOF_PACKET.md` but not on the buyer-facing surface), and a cohort-claim integrity guard (**TB-266**, P2 ? flagship claim #4 cites `GoldenCohortBaselineConstants`, a zeroed placeholder SHA until an owner lock run, with no CI guard tying the public claim to the real lock state). These do not duplicate the Marketability cluster **TB-229?TB-237** (messaging/social-proof/funnel) or **TB-252?254** (raster assets, OG metadata, FAQ schema); TB-264?266 target the differentiation *proof discipline* specifically. The golden-cohort baseline lock itself and any third-party competitive study are owner actions excluded from `(A)`.
 
-**TB-267 ? TB-269** were added 2026-06-03 from an independent first-principles **Sponsor Value Visibility** re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`, score 83/100 ? up from 70 on 06-02 because the entire prior cluster TB-239/241/243/244?249 is now Done; COMMERCIAL weight 4/116). They close the remaining sponsor route-group + narrative gaps: an `/sponsor/dashboard` route under sponsor chrome (**TB-267**, P2 ? `ExecutiveShellFrame`'s "Dashboard" nav links to `/dashboard`, which renders `ExecutiveRoiDashboardPageView` under the *operator* shell with the full sidebar; the `(sponsor)` group has only `reviews` + `scorecard`, so a sponsor in the clean sponsor chrome is dumped into the operator UI), an in-product deterministic sponsor narrative summary line (**TB-268**, P2 ? the live dashboard/scorecard show tiles + a recommended-actions list but no synthesized "this period: N reviews, M findings, ~$X/H hours saved; top action: ?" sentence; the TB-241 AI narrative exists only on the gated board-pack export), and a dashboard ROI trend window selector matching the scorecard's 30d/quarter/all (**TB-269**, P3 ? `ExecutiveRoiTrendSection` is a fixed window). These do not duplicate the now-Done **TB-244?249** EVV cluster; TB-246 added the nav *link* but never created the sponsor-chrome dashboard *route* (TB-267), and TB-247 added a recommended-actions *list* but not a synthesized narrative *line* (TB-268). Enabling the TB-241 AI narrative by default remains owner validation, excluded from `(A)`.
+**TB-267 ? TB-269** were added 2026-06-03 from an independent first-principles **Sponsor Value Visibility** re-assessment (`docs/assessments/SponsorValueVisibility_06032026.MD`, score 83/100 ? up from 70 on 06-02 because the entire prior cluster TB-239/241/243/244?249 is now Done; COMMERCIAL weight 4/116). They close the remaining sponsor route-group + narrative gaps: an `/sponsor/dashboard` route under sponsor chrome (**TB-267**, P2 ? `SponsorShellFrame`'s "Dashboard" nav links to `/dashboard`, which renders `SponsorRoiDashboardPageView` under the *operator* shell with the full sidebar; the `(sponsor)` group has only `reviews` + `scorecard`, so a sponsor in the clean sponsor chrome is dumped into the operator UI), an in-product deterministic sponsor narrative summary line (**TB-268**, P2 ? the live dashboard/scorecard show tiles + a recommended-actions list but no synthesized "this period: N reviews, M findings, ~$X/H hours saved; top action: ?" sentence; the TB-241 AI narrative exists only on the gated board-pack export), and a dashboard ROI trend window selector matching the scorecard's 30d/quarter/all (**TB-269**, P3 ? `SponsorRoiTrendSection` is a fixed window). These do not duplicate the now-Done **TB-244?249** EVV cluster; TB-246 added the nav *link* but never created the sponsor-chrome dashboard *route* (TB-267), and TB-247 added a recommended-actions *list* but not a synthesized narrative *line* (TB-268). Enabling the TB-241 AI narrative by default remains owner validation, excluded from `(A)`.
 
 **TB-270 ? TB-272** were added 2026-06-03 from an independent first-principles **Usability** quality assessment (`docs/assessments/Usability_06032026.MD`, score 83/100, ENTERPRISE weight 3/116, scoring the full operator shell). The operator UX is unusually mature (Ctrl/?-K command palette, breadcrumbs, global search, persona shell presets, skip-link + route announcer + focus management, 15 jest-axe suites + ~81-route Playwright axe matrix, generated help index, rich first-run cockpit); these items close the remaining friction/consistency smells: disambiguate the review-creation entry points (**TB-270**, P2 ? the core pilot path exposes `QuickReviewWizard` plus `QuickStartWizard` and `SimplifiedPilotWizard` inside `NewRunWizardClient` alongside the full 9-step wizard, i.e. multiple near-synonymous entry points on the single highest-stakes task), a universal failure identifier (**TB-271**, P2 ? `OperatorApiProblem` shows a correlation id only when the server returns one, so non-Problem-Details failures leave the user nothing to quote in a support request), and empty/loading-state consistency (**TB-272**, P3 ? dual empty-state components `EmptyState` vs `OperatorEmptyState`, and only 22 routes have `loading.tsx` so `/` and `/governance` lack skeletons). Per `Assessment-Scope-V1_1.mdc`, absence of assistive-technology user-lab testing is **not** an `(A)` defect and is not represented here; automated axe coverage is the in-scope posture.
 
@@ -356,9 +356,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 
 **TB-1516 ? TB-1520** were added 2026-07-27 from an **owner review of the public example aggregate ROI bulletin** at `/example-roi-bulletin` (scored ~48/100; traffic **EXA**). Strengths: hard synthetic / not-signed / N?5 / CHANGELOG-forbidden honesty; metadata + robots; checked-in sample loader; Vitest guards on sample + `minTenants=5`; admin preview 401/403 expectation called out. Residual: bare `<main>` without `MarketingPageShell` (parity **TB-1483**); hardcoded `neutral-*`; no `revalidate=300` / `data-testid`; first viewport elevates a mono `/api/proxy/v1/admin/roi-bulletin-preview?` URL and footer `docs/CLI_USAGE.md` + CLI flags (contributor dump for a marketing/SEO path); sample is raw `<pre>` with duplicated ?Checked-in sample Markdown? chrome; hardcoded `Q1-2026` may stale. Keep anti-overclaim ? do not present synthetic numbers as published ROI. **TB-1516** (P1) shell/tokens. **TB-1517** (P2) ISR/testid. **TB-1518** (P1) CTA hierarchy. **TB-1519** (P1) Markdown render. **TB-1520** (P0) contributor/admin honesty. No new GTM IDs. (IDs **TB-1516**?**TB-1520**; skip PA **TB-1514**?**TB-1515**; skip header **TB-1508**?**TB-1513**; skip DIB **TB-1501**?**TB-1505**.)
 
-**TB-1525 ? TB-1529** were added 2026-07-27 from an **owner review of `/sponsor/dashboard`** (scored ~44/100; traffic **EDA**). Strengths: metadata uses buyer portfolio title vocabulary; page still wires `ExecutiveRoiDashboardPageView surface="sponsor"`. Residual / regression vs Done **TB-608**: `next.config.ts` permanently redirects `/sponsor/dashboard` ? `/dashboard` while `(sponsor)/sponsor/dashboard/page.tsx` still exists as product UI; `ExecutiveShellFrame` Dashboard link + active highlight still use `/sponsor/dashboard` (Vitest asserts that href); sponsors clicking Dashboard therefore leave sponsor chrome for the operator `/dashboard` shell. Product UX of the portfolio view lives on `/dashboard` ? this alias is a split-brain ghost. **TB-1525** (P1) pick one SoT (restore sponsor route **or** finish retirement). **TB-1526** (P1) nav. **TB-1527** (P2) traffic. **TB-1528** (P2) CI. **TB-1529** (P1) sponsor CTAs. No new GTM IDs. (IDs **TB-1525**?**TB-1529**; skip PA **TB-1523**?**TB-1524**.)
+**TB-1525 ? TB-1529** were added 2026-07-27 from an **owner review of `/sponsor/dashboard`** (scored ~44/100; traffic **EDA**). Strengths: metadata uses buyer portfolio title vocabulary; page still wires `SponsorRoiDashboardPageView surface="sponsor"`. Residual / regression vs Done **TB-608**: `next.config.ts` permanently redirects `/sponsor/dashboard` ? `/dashboard` while `(sponsor)/sponsor/dashboard/page.tsx` still exists as product UI; `SponsorShellFrame` Dashboard link + active highlight still use `/sponsor/dashboard` (Vitest asserts that href); sponsors clicking Dashboard therefore leave sponsor chrome for the operator `/dashboard` shell. Product UX of the portfolio view lives on `/dashboard` ? this alias is a split-brain ghost. **TB-1525** (P1) pick one SoT (restore sponsor route **or** finish retirement). **TB-1526** (P1) nav. **TB-1527** (P2) traffic. **TB-1528** (P2) CI. **TB-1529** (P1) sponsor CTAs. No new GTM IDs. (IDs **TB-1525**?**TB-1529**; skip PA **TB-1523**?**TB-1524**.)
 
-**TB-1532 ? TB-1536** were added 2026-07-27 from an **owner review of the sponsor scorecard** at `/sponsor/scorecard` (scored ~51/100; traffic **EXS**). Strengths: buyer metadata title; `ExecutivePageHeader`; access gate + Sign in; time-range selector; `ExecutiveValueNarrativeBanner`; KPI cards; Recommended actions; empty state with Start review / Dashboard / sample; About disclosure; some buyer-polish copy when env enabled. Residual: loading/access are prose-only; page lead still cites ?pilot value report and governance drift endpoints?; non-`buyerPolished` path still surfaces pilot-value-report window jargon, severity-weighted ROI + `3 h ? reviews` fallback, and ?not enough buckets?; silent fallback still applies under buyer polish without a clear label; About section always teaches API/coefficients; unauthorized secondary CTA uses `/reviews?projectId=default`; raw `<select>` + empty preview stack density. Coordinate Dashboard empty CTA with **TB-1529** (do not reopen EDA dual-SoT). **TB-1532** (P1) skeletons. **TB-1533** (P1) buyer-safe chrome. **TB-1534** (P0) hours honesty. **TB-1535** (P1) eng leak demote. **TB-1536** (P1) control/density. No new GTM IDs. (IDs **TB-1532**?**TB-1536**; skip PA **TB-1530**?**TB-1531**; skip EDA **TB-1525**?**TB-1529**.)
+**TB-1532 ? TB-1536** were added 2026-07-27 from an **owner review of the sponsor scorecard** at `/sponsor/scorecard` (scored ~51/100; traffic **EXS**). Strengths: buyer metadata title; `SponsorPageHeader`; access gate + Sign in; time-range selector; `SponsorValueNarrativeBanner`; KPI cards; Recommended actions; empty state with Start review / Dashboard / sample; About disclosure; some buyer-polish copy when env enabled. Residual: loading/access are prose-only; page lead still cites ?pilot value report and governance drift endpoints?; non-`buyerPolished` path still surfaces pilot-value-report window jargon, severity-weighted ROI + `3 h ? reviews` fallback, and ?not enough buckets?; silent fallback still applies under buyer polish without a clear label; About section always teaches API/coefficients; unauthorized secondary CTA uses `/reviews?projectId=default`; raw `<select>` + empty preview stack density. Coordinate Dashboard empty CTA with **TB-1529** (do not reopen EDA dual-SoT). **TB-1532** (P1) skeletons. **TB-1533** (P1) buyer-safe chrome. **TB-1534** (P0) hours honesty. **TB-1535** (P1) eng leak demote. **TB-1536** (P1) control/density. No new GTM IDs. (IDs **TB-1532**?**TB-1536**; skip PA **TB-1530**?**TB-1531**; skip EDA **TB-1525**?**TB-1529**.)
 
 **TB-1539 ? TB-1544** were added 2026-07-27 from an **owner primary-CTA convention pass** (Digests Browse vs Recurrence vs Reviews hub vs Advisory Schedules). Finding: five competing page-primary patterns ? (1) header Create `variant="primary"` + outline utilities (Digests browse ? exemplar), (2) header Create on bare `default` + empty promoting a secondary nav link as `primary` (Recurrence residual after Done **TB-1131**), (3) help-only header + filled Start in a body band **and** empty inventory (Reviews), (4) always-on form submit as implicit primary with no header Create (Advisory Schedules; pairs whitespace **TB-1477**), (5) N equal card/form primaries or equal outline mutation siblings (cloud **TB-1141**, DLQ **TB-1276** ? keep those surface rows; this cluster owns the cross-page rule). Recommended standard: one primary job per page/tab; exactly one `Button variant="primary" size="sm"` in the first viewport; place in `OperatorPageHeader` actions (Help ? Primary ? outline utilities); empty reuses the same Create/Start job (never a different filled primary); Refresh/Preview/View X stay outline/secondary; marketing/auth/help out of scope. **TB-1539** (P1) design-system contract. **TB-1540** (P1) Recurrence residual ranking/`primary` variant. **TB-1541** (P1) Reviews hub single Start locus. **TB-1542** (P1) Advisory Schedules empty-first + header Create. **TB-1543** (P1) key-hub inventory migrate. **TB-1544** (P2) Vitest ?1 primary guard. No new GTM IDs. (IDs **TB-1539**?**TB-1544**; skip PA **TB-1537**?**TB-1538** / EXS **TB-1532**?**TB-1536**.)
 
@@ -420,7 +420,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 
 **TB-1681 ? TB-1685** were added 2026-07-27 from an **owner review of Evidence-only review guide** at `/help/evidence-only-review` (~42/100; traffic **HEV**). Strengths: buyer audience + product Help Center tier; sectionAnchor reuse from `CORE_PILOT.md` (**TB-727** Done); short fast-path steps when isolated. Residual: `includeIntroWithSections: true` dumps the full ?Your first architecture review? intro before the fast-path H2 ? near-duplicate of specialty `/help/core-pilot` (**TB-1331** cluster); bare `HelpTopicMarkdownView` with no primary Start CTA; markdown points **Upload evidence** at `/administration/settings/extract-upload` while Start lives at `/reviews/new`; no explicit job split vs core-pilot. IDs skip HDP **TB-1676**?**TB-1680**. No new GTM IDs.
 
-**TB-1686 ? TB-1690** were added 2026-07-27 from an **owner review of Sponsor summary** at `/help/sponsor-summary` (~30/100; traffic **EXE**). Strengths: buyer audience + product Help Center tier; registry summary promises sponsor-safe summaries / ROI basis. Residual: `sourcePaths` is the entire customer `FAQ.md` (H1 **Frequently asked questions**) with zero sponsor/ROI content ? day-one-developer, RLS-as-control, `ArchLucid.Contracts`, **TB-600**, V1_SCOPE paths; bare `HelpTopicMarkdownView`; `in-app-doc-href.ts` uses this slug as a catch-all for procurement pack, pricing philosophy, cost model, competitive comparison, order form, etc. Retarget to `EXECUTIVE_SPONSOR_BRIEF.md` (or sectionAnchors) + specialty CTA; stop FAQ dump. IDs skip HEV **TB-1681**?**TB-1685**. No new GTM IDs.
+**TB-1686 ? TB-1690** were added 2026-07-27 from an **owner review of Sponsor summary** at `/help/sponsor-summary` (~30/100; traffic **EXE**). Strengths: buyer audience + product Help Center tier; registry summary promises sponsor-safe summaries / ROI basis. Residual: `sourcePaths` is the entire customer `FAQ.md` (H1 **Frequently asked questions**) with zero sponsor/ROI content ? day-one-developer, RLS-as-control, `ArchLucid.Contracts`, **TB-600**, V1_SCOPE paths; bare `HelpTopicMarkdownView`; `in-app-doc-href.ts` uses this slug as a catch-all for procurement pack, pricing philosophy, cost model, competitive comparison, order form, etc. Retarget to `SPONSOR_SPONSOR_BRIEF.md` (or sectionAnchors) + specialty CTA; stop FAQ dump. IDs skip HEV **TB-1681**?**TB-1685**. No new GTM IDs.
 
 **TB-1691 ? TB-1695** were added 2026-07-27 from an **owner review of First value in 20 minutes (internal runbook)** at `/help/first-value-20-minutes` (~40/100; traffic **HEF**). **Done** 2026-08-02 ? specialty `HelpFirstValue20GuideView`, 20-min sectionAnchors retarget, job-matrix IA dual, Admin title honesty; **TB-1693** leakage strip retained. IDs skip EXE **TB-1686**?**TB-1690**. No new GTM IDs.
 
@@ -440,7 +440,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 
 **TB-1731 ? TB-1735** were added 2026-07-27 from an **owner review of Prior manifest retrieval** at `/help/prior-manifest-retrieval` (~50/100; traffic **HEP**). Strengths: short customer-facing `PRIOR_MANIFEST_RETRIEVAL_GUIDE.md`; `contentKind: product-help` + operator audience; clear finalize?Ask memory story; Admin details pattern for limits; in-app Related to pilot-guide / findings / review-packages; finalize success on `CommitRunButton` deep-links here. Residual: bare `HelpTopicMarkdownView` with no Open Ask / packages CTA; title/slug/inbound ?Prior manifest? fights glossary (former *signed manifest* / *golden manifest*); Admin details expose `Retrieval:PriorManifest:MaxPriorManifestsPerIndex`; weak job split vs repeat-review-loop / comparison-replay; Related omits Ask and second-review guides while finalize chrome still says ?Prior manifest guide?. Pairs **TB-1414**. IDs skip POL **TB-1726**?**TB-1730**. No new GTM IDs.
 
-**TB-1736 ? TB-1740** were added 2026-07-27 from an **owner review of ArchLucid product overview** at `/help/product-overview` (~42/100; traffic **HPR**). Strengths: TB-727 `sectionAnchors` on `EXECUTIVE_SPONSOR_BRIEF.md` ??1?4 (not full GTM file); buyer audience + product Help Center tier; `pdfStatus: public`; clear what/problem/pillars story. Residual: bare `HelpTopicMarkdownView` with no Start first-review CTA; markdown H1 ?Sponsor Sponsor Brief? fights registry ?ArchLucid product overview?; pillars/pitch body leak `ExplainabilityTrace`, JSON/YAML rules, ?78 typed audit events?, ADR/`V1_DEFERRED`/POSITIONING `.md` paths, open **M-245**; founder **M-18** outreach templates sit in buyer overview; open **TB-1686** will retarget EXE onto the same brief ? risk of twin sponsor pages without a job split. Pairs **TB-1414**. IDs skip HEP **TB-1731**?**TB-1735**. No new GTM IDs.
+**TB-1736 ? TB-1740** were added 2026-07-27 from an **owner review of ArchLucid product overview** at `/help/product-overview` (~42/100; traffic **HPR**). Strengths: TB-727 `sectionAnchors` on `SPONSOR_SPONSOR_BRIEF.md` ??1?4 (not full GTM file); buyer audience + product Help Center tier; `pdfStatus: public`; clear what/problem/pillars story. Residual: bare `HelpTopicMarkdownView` with no Start first-review CTA; markdown H1 ?Sponsor Sponsor Brief? fights registry ?ArchLucid product overview?; pillars/pitch body leak `ExplainabilityTrace`, JSON/YAML rules, ?78 typed audit events?, ADR/`V1_DEFERRED`/POSITIONING `.md` paths, open **M-245**; founder **M-18** outreach templates sit in buyer overview; open **TB-1686** will retarget EXE onto the same brief ? risk of twin sponsor pages without a job split. Pairs **TB-1414**. IDs skip HEP **TB-1731**?**TB-1735**. No new GTM IDs.
 
 **TB-1741 ? TB-1745** were added 2026-07-27 from an **owner review of Report a problem** at `/help/report-a-problem` (~55/100; traffic **HRE**) after Done **TB-790**. Strengths: short customer-facing `REPORT_A_PROBLEM.md`; honest next-business-day SLA (copy-guarded); clear consent / never-silent capture; product Help Center tier; Related to troubleshooting + `/administration/settings/support`. Residual: bare `HelpTopicMarkdownView` with no primary Open Settings ? Support CTA; Help topic itself cannot open Report problem ? readers without a failure surface hit a dead end; weak job split vs troubleshooting ?try fixes first?; capture field table dominates before ?where Report problem appears?; Related includes security-trust and omits visible mailto fallback. Pairs **TB-1414**. IDs skip HPR **TB-1736**?**TB-1740**. No new GTM IDs.
 
@@ -645,7 +645,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 
 **TB-877** was added 2026-07-19 for **community summarization Graph-RAG (RAG-V2-001 remainder)** after the owner overrode [ADR 0057](../architecture/adrs/0057-graph-rag-community-summarization-scope-decision.md)'s defer recommendation in favor of option (a) (implement now). Bounded multi-hop already shipped (**TB-597**). This item adds Leiden/Louvain community detection over `GraphSnapshot` plus hierarchical LLM summarization per community, cached/re-embedded on the ADR 0004 outbox cadence, with derived summaries excluded from `GraphSnapshotCanonicalFingerprint`. Default **off** for buyer-facing posture claims until a TB-595-style ablation exists; spend must hit `LlmMonthlyTenantDollarBudgetTracker`. Does not replace **TB-595**/**TB-596** (ablation / production posture for bounded multi-hop).
 
-**TB-874 ? TB-876** were added 2026-07-19 to track **remaining V1 multi-cloud architecture analysis** after owner promotion of [`V1_SCOPE.md`](V1_SCOPE.md) ?2.19 (2026-07-05). Already shipped: `CloudProvider.Aws`/`.Gcp`, Tier 2 hosted polling (**TB-402**/**TB-403**), AWS/GCP Cost retail grounding (**TB-603**), multi-cloud policy packs (**TB-701**?**TB-719**), per-cloud connection help (**TB-720**). **Still open for V1 GA analysis-path parity:** **TB-876** (P1) customer-controlled Tier 1 inventory ZIP upload (no ArchLucid credentials in the customer AWS/GCP account) at parity with ?2.16 Azure extractor posture. Does **not** reopen **TB-214** (generic non-Azure evidence JSON ? DEFERRED V1.1). Does **not** include re-hosting on AWS/GCP ([ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md)) or single-run multi-cloud graph merge. Canonical plan: [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) ??5.2?5.5 (title retains V1.1; scope is now V1 per ?2.19).
+**TB-874 ? TB-876** were added 2026-07-19 to track **remaining V1 multi-cloud architecture analysis** after owner promotion of [`V1_SCOPE.md`](V1_SCOPE.md) ?2.19 (2026-07-05). **Done (2026-07-21/22):** Terraform classification (**TB-874**), cloud-aware agent addenda (**TB-875**), Tier 1 AWS/GCP inventory ZIP upload API (**TB-876**). Already shipped peers: `CloudProvider.Aws`/`.Gcp`, Tier 2 hosted polling (**TB-402**/**TB-403**), AWS/GCP Cost retail grounding (**TB-603**), multi-cloud policy packs (**TB-701**?**TB-719**), per-cloud connection help (**TB-720**). **Residual parity gaps** filed **2026-08-13** as **TB-2244**?**TB-2263** (run-start Azure-only policy/catalog refs, Azure-only evidence-bundle merge, wizard upload mis-routing, Azure-only graph reconciliation, Azure-shaped standard-baseline UI/enforcement, chat intake Azure-only, sponsor orphan KPI Azure-only, demo/template Azure defaults, naming/diagnostics drift). Does **not** reopen **TB-214** (generic non-Azure evidence JSON ? DEFERRED V1.1). Does **not** include re-hosting on AWS/GCP ([ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md)) or single-run multi-cloud graph merge. Canonical plan: [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) ??5.2?5.5.
+
+**TB-2244 ? TB-2263** were added 2026-08-13 from an owner ask to **file backlog items for every AWS/GCP vs Azure customer-target parity gap** identified in a codebase audit (hosting remains Azure-first per ADR 0020; this cluster is **analysis-target** parity only). **Grounding:** `RunStarterTaskFactory.BuildPolicyRefs` / `BuildServiceCatalogRefs` always inject Azure packs; `ArchitectureRunAuthorityCoordination` merges only `IAzureExtractorPackageRepository`; wizard `use-new-run-wizard-pending-evidence` always uploads via Azure extractor API and forces `cloudProvider: Azure`; `GraphAzureInventoryReconciliationFindingEngine` has no AWS/GCP peers; UI `policy-pack-standard-baseline.ts` and `StandardBaselinePolicyRuleIdPrefixes` are Azure-only; `ChatIntakeParserService` allows only `None`/`Azure`; sponsor `OrphanCandidateFindingClassifier` recognizes only Azure orphan markers; `RoiCostEvidenceFreshnessEvaluator` reads Azure packages only; `AgentUserPromptStaticPrefix` lacks AWS/GCP Important guidance blocks; templates/presets/demo paths default to Azure; Azure-only chunked upload and CLI `validate-zip`; `FORTHCOMING_CLOUD_PROVIDER_ROWS` still lists AWS/GCP as forthcoming. **Recommended ship order:** **TB-2244** ? **TB-2245** ? **TB-2246** ? **TB-2248** ? **TB-2249** ? **TB-2250** ? **TB-2251**/**TB-2252** ? UX/templates (**TB-2254**?**TB-2261**) ? hygiene (**TB-2256**?**TB-2263**). **Peers not duplicated:** Done **TB-874**?**TB-876**, **TB-701**?**TB-719**, **TB-402**/**TB-403**, **TB-720**, Done **TB-2218** (orphan engines); open **TB-2215** (cost-constraint parity), **TB-2210** (inventory-backed security baseline ? Azure-only today ? **TB-2262** extends), **TB-337**?**TB-344** (Azure-first onboarding framing ? different axis). No new GTM IDs.
 
 **TB-748 ??? TB-753** were added 2026-07-10 from an owner-directed **App Router physical ??? nav canonical alignment** follow-up (session 2026-07-10). **TB-405???408** and **TB-399** shipped canonical browser URLs and nav hrefs via `next.config.ts` redirects/rewrites while many `page.tsx` files remain at legacy folder paths ??? developers see folder trees that disagree with sidebar prefixes and the owner traffic workbook still tracks some physical/obsolete paths. **Owner bias:** physical `archlucid-ui/src/app/**` placement should match nav structure; redirects are bookmark-compat shims only. **TB-748** (P2) aligns the gitignored owner workbook + bootstrap template to canonical URLs and adds a drift guard. **TB-749** (P1) physically relocates governance outliers under `(operator)/governance/**` and deletes duplicate `policy-packs` trees. **TB-750** (P1) moves cloud-connection pages under `(operator)/integrations/cloud-connections/**` and renames `integrations/operations` ??? `integrations/readiness` (nav label **Connection status** / canonical `/integrations/readiness` wins). **TB-751** (P1) colocates tenant-admin pages under `(operator)/settings/**`. **TB-752** (P2) moves `manifests/**` ??? `signed-records/**`. **TB-753** (P2) renames `settings/cost-reporting` ??? `settings/ai-usage`. Does not duplicate **TB-404** (policy + nav-prefix drift guard ??? prerequisite, Done). Cross-ref [`UI_ROUTE_TRAFFIC_ESTIMATES_OWNER.md`](../architecture/UI_ROUTE_TRAFFIC_ESTIMATES_OWNER.md), [`ui_routes.md`](../architecture/ui_routes.md), `scripts/ci/remove-archlucid-ui-legacy-route-rows.py`.
 
@@ -655,11 +657,11 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 
 **TB-250 ? TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 ? authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 ? `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** closed **2026-06-03 batch 5CE** (drift guard ? partial-failure surfacing and sentinel exclusion were already shipped).
 
-**TB-244 ? TB-249** were added 2026-06-02 from an independent first-principles **Sponsor Value Visibility** quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), sponsor shell nav ? scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on sponsor scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (sponsor dashboard KPI replacement), **TB-103?105** (orphan-candidate pipeline), or **TB-238?243** (Proof-of-ROI readiness items).
+**TB-244 ? TB-249** were added 2026-06-02 from an independent first-principles **Sponsor Value Visibility** quality assessment (`docs/assessments/SponsorValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), sponsor shell nav ? scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on sponsor scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (sponsor dashboard KPI replacement), **TB-103?105** (orphan-candidate pipeline), or **TB-238?243** (Proof-of-ROI readiness items).
 
 **TB-238 ? TB-243** were added 2026-06-02 from an independent first-principles **Proof-of-ROI Readiness** quality assessment (`docs/assessments/ProofOfROIReadiness_06022026.MD`, score 72/100, COMMERCIAL weight 5/116). They address: baseline capture prompt in pilot wizard (**TB-238**, P1), sponsor ROI history run-mode label (**TB-239**, P1), sponsor ROI surface data quality regression guard (**TB-240**, P1), board-pack AI sponsor narrative (**TB-241**, P2), ROI model freshness CI guard (**TB-242**, P2), and sponsor proof delivery tracking event (**TB-243**, P2). These do not duplicate **TB-103?105** (orphan-candidate dual pipeline / waiver window / bucket bucketing), **TB-149?155** (data consistency defect fixes), **TB-062** (sponsor dashboard KPI replacement), or **TB-186** (run summary one-pager). TB-240 specifically adds regression-guard tests that verify TB-103/TB-149/TB-151/TB-152/TB-155 fixes hold; it is a guard, not a duplicate of those fixes.
 
-**TB-2232 — TB-2241** were added 2026-08-13 from an owner ask to **create P0 backlog items** for ten **easier-to-use / less-confusing** levers identified in a product-surface audit (~130 operator routes, ~80 nav rows, 8+ independent next-action resolvers, 575 `*help*` modules). All **P0** **V1** — residual consolidation after Done **TB-2130**–**TB-2139**, **TB-2148**–**TB-2157**, **TB-2175**–**TB-2184**, and **TB-2191**–**TB-2195**; **do not reopen** those rows individually. **TB-2232** single next-action resolver (one strip/card per page; retire parallel home/review/digest resolvers). **TB-2233** nav visibility = authority + lifecycle only (demo/buyer omissions → explicit shell preset). **TB-2234** buyer URL segment `[runId]` → `[reviewId]` + redirects. **TB-2235** finish executive → sponsor rename (dual dashboards/paths). **TB-2236** one demo + one get-started marketing spine. **TB-2237** split customer vs internal help search corpus (no runbook leakage). **TB-2238** unified help content loader (retire per-page `*-help-*` module sprawl). **TB-2239** extend inline glossary beyond golden path (load-bearing invented terms). **TB-2240** one primary persona name across routes, nav, help. **TB-2241** retire hidden routes using traffic estimates (not perpetual nav omission lists). **Recommended ship order:** **TB-2232** → **TB-2233** → **TB-2240** → **TB-2235** → **TB-2234** → **TB-2236** → **TB-2237** → **TB-2239** → **TB-2238** → **TB-2241**. Peers: Done **TB-1026**/**TB-2133**/**TB-2134**/**TB-2175**; open **TB-748**–**TB-753** (physical route alignment). No new GTM IDs.
+**TB-2232 — TB-2241** were added 2026-08-13 from an owner ask to **create P0 backlog items** for ten **easier-to-use / less-confusing** levers identified in a product-surface audit (~130 operator routes, ~80 nav rows, 8+ independent next-action resolvers, 575 `*help*` modules). All **P0** **V1** — residual consolidation after Done **TB-2130**–**TB-2139**, **TB-2148**–**TB-2157**, **TB-2175**–**TB-2184**, and **TB-2191**–**TB-2195**; **do not reopen** those rows individually. **TB-2232** single next-action resolver (one strip/card per page; retire parallel home/review/digest resolvers). **TB-2233** nav visibility = authority + lifecycle only (demo/buyer omissions → explicit shell preset). **TB-2234** buyer URL segment `[runId]` → `[reviewId]` + redirects. **TB-2235** finish sponsor → sponsor rename (dual dashboards/paths). **TB-2236** one demo + one get-started marketing spine. **TB-2237** split customer vs internal help search corpus (no runbook leakage). **TB-2238** unified help content loader (retire per-page `*-help-*` module sprawl). **TB-2239** extend inline glossary beyond golden path (load-bearing invented terms). **TB-2240** one primary persona name across routes, nav, help. **TB-2241** retire hidden routes using traffic estimates (not perpetual nav omission lists). **Recommended ship order:** **TB-2232** → **TB-2233** → **TB-2240** → **TB-2235** → **TB-2234** → **TB-2236** → **TB-2237** → **TB-2239** → **TB-2238** → **TB-2241**. Peers: Done **TB-1026**/**TB-2133**/**TB-2134**/**TB-2175**; open **TB-748**–**TB-753** (physical route alignment). No new GTM IDs.
 
 **TB-2201 — TB-2231** were added 2026-08-13 from an owner ask to **file backlog items for six non-policy-pack assessment pillars** (requirements traceability, security baseline coverage, cost constraint adherence, inventory reality, agent critique, output integrity) after the topology evaluation upgrades shipped (workload-conditioned categories, structural topology gaps, relationship inference, validate-before-overlay, cross-run diff, anti-patterns). **Grounding:** deterministic `IFindingEngine` paths (`requirement`, `requirement-coverage`, `security-baseline`, `security-coverage`, `cost-constraint`, `orphaned-azure-resource`) plus agent critique (Cost, Critic, Compliance) and output integrity (quality gate, insight density, feasibility verdict, governance block) — all independent of tenant-assigned curated policy packs. **Pattern reuse:** `TopologyExpectedCategoryResolver` → requirements/security scope (**TB-2201**, **TB-2206**); `TopologyStructureAnalyzer` → requirement/security structural engines (**TB-2202**, **TB-2207**); `AgentTopologyProposalMergeGate` → all agent proposals (**TB-2221**, **TB-2214**); `GraphSnapshotTopologyDiffAnalyzer` → cross-run diffs (**TB-2205**). **Recommended ship order:** **TB-2216**/**TB-2211** (inventory↔graph + cost from request) → **TB-2201**/**TB-2206** (workload-conditioned expectations) → **TB-2221**/**TB-2214** (validate-before-overlay) → **TB-2202**/**TB-2207** (structural gap engines) → **TB-2226** (fail-closed Real commit). **Peers not duplicated:** shipped topology engines; Done **TB-1196**/**TB-1197** (contract + honesty CI — **TB-2221** extends to cost/compliance/critic); open **TB-1369**/**TB-1370** (agent leak paths — **TB-2221**/**TB-2222** implement); **TB-874**–**TB-876** (multi-cloud analysis — **TB-2215**/**TB-2218** align). No new GTM IDs.
 
@@ -1029,7 +1031,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1518 | **Done** (2026-08-11) ? Example ROI bulletin buyer CTA hierarchy; `ExampleRoiBulletinPageBody.tsx` + Vitest; see ## TB-1518 below | Adoption friction P1 ? **V1**; with **TB-1516** | S |
 | TB-1519 | **Done** (2026-08-11) ? Example ROI bulletin Markdown render + dedupe chrome; see ## TB-1519 below | Adoption friction P1 ? **V1**; with **TB-1516** | S |
 | TB-1526 | **Done** (2026-08-10) ? Sponsor shell Dashboard nav + active highlight on canonical `/architecture/sponsor-dashboard`; `sponsor-shell-dashboard-nav.test.ts`; see ## TB-1526 below | Adoption friction P1 ? **V1**; with **TB-1525** | S |
-| TB-1532 | **Done** (2026-08-11) ? Sponsor dashboard loading skeletons (ARE successor); `ExecutiveDashboardLoadingSkeleton.tsx`; see ## TB-1532 below | Adoption friction P1 ? **V1**; owner review ~51/100 2026-07-27; traffic **EXS** | S |
+| TB-1532 | **Done** (2026-08-11) ? Sponsor dashboard loading skeletons (ARE successor); `SponsorDashboardLoadingSkeleton.tsx`; see ## TB-1532 below | Adoption friction P1 ? **V1**; owner review ~51/100 2026-07-27; traffic **EXS** | S |
 | TB-1536 | **Done** (2026-08-11) ? Sponsor time-range Select + scorecard empty preview disclosure; see ## TB-1536 below | Adoption friction P1 ? **V1**; with **TB-1532**; pairs **TB-1529** empty Dashboard CTA | S |
 | TB-1539 | **Done** (2026-08-11) ? Operator primary-CTA contract ? document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer); see ## TB-1539 below | Adoption friction P1 ? **V1**; owner CTA-convention pass 2026-07-27; pairs header narrative **TB-1508**?**TB-1513** | S |
 | TB-1540 | **Done** (2026-08-11) ? Recurrence ? Create `variant="primary"` + empty ranking residual (demote View*); see ## TB-1540 below | Adoption friction P1 ? **V1**; residual after Done **TB-1131**; with **TB-1539** | S |
@@ -1158,7 +1160,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2051 | **Done** (2026-08-05) ? Category-1 popover ? actionable deep-link CTAs for next/configure fields; Digests golden retained; allowlisted hubs; see ## TB-2051 below | Adoption friction P0 ? **V1**; with **TB-2048**; Digests Schedule is golden | S |
 | TB-2052 | **Done** (2026-08-06) ? Vitest ? Learn more job-match + Digests golden + ban generic secondary-hub targets; learn-more-job-match.test.ts; see ## TB-2052 below | Testability P0 ? **V1**; after **TB-2049**?**TB-2051**; pairs **TB-1670** (do not reopen) | S |
 | TB-2053 | **Done** (2026-08-06) ? Slim Application rollup/compare off full `ResultJson` via `GetRollupProjectionByRunIdAsync`; see ## TB-2053 below | Performance P0 ? **V1**; owner top-10 untracked perf refile 2026-08-06; after slim export/rollup callers | M |
-| TB-2054 | **Done** (2026-08-06) ? ROI history/trends/portfolio use `GetRunDetailForRoiAsync` (rollup+mute); see ## TB-2054 below | Performance P0 ? **V1**; owner top-10 untracked perf refile 2026-08-06; `ExecutiveRoiSummaryService` | L |
+| TB-2054 | **Done** (2026-08-06) ? ROI history/trends/portfolio use `GetRunDetailForRoiAsync` (rollup+mute); see ## TB-2054 below | Performance P0 ? **V1**; owner top-10 untracked perf refile 2026-08-06; `SponsorRoiSummaryService` | L |
 | TB-2055 | **Done** (2026-08-07) ? retrieval indexing outbox slim detail + bounded parallel; see ## TB-2055 below | Performance P0 ? **V1**; owner top-10 untracked perf refile 2026-08-06; `RetrievalIndexingOutboxProcessor` | M |
 | TB-2056 | **Done** (2026-08-07) ? post-commit projection + export-blob outboxes bounded parallel batch drain; see ## TB-2056 below | Performance P0 ? **V1**; owner top-10 untracked perf refile 2026-08-06; peers **TB-586** pattern | M |
 | TB-2057 | **Done** (2026-08-07) ? comparison list/search omit `PayloadJson`; see ## TB-2057 below | Performance P0 ? **V1**; owner top-10 untracked perf refile 2026-08-06; after **TB-929** | M |
@@ -1326,7 +1328,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2232 | ~~Single next-action resolver — one guidance widget per page; retire parallel home/review/digest resolvers~~ **Done** 2026-08-13 — `OperatorHomeCanonicalNextActionSlot` + `operator-canonical-next-action`; see ## TB-2232 below | Adoption friction P0 — **V1**; owner easier-to-use audit 2026-08-13; residual after Done **TB-2175**/**TB-1036**–**TB-1039** | L |
 | TB-2233 | Nav visibility model = authority + lifecycle only; demo/buyer omissions → explicit shell preset; partial **TB-2243**; see ## TB-2233 below | Adoption friction P0 — **V1**; owner easier-to-use audit 2026-08-13; simplifies `nav-shell-visibility.ts` chain | L |
 | TB-2234 | Buyer URL segment `[runId]` → `[reviewId]` with permanent redirects; see ## TB-2234 below | Adoption friction P0 — **V1**; owner easier-to-understand audit 2026-08-13; complements Done **TB-2131** copy sweep | L |
-| TB-2235 | Complete executive → sponsor rename (dual dashboards, paths, help modules); see ## TB-2235 below | Adoption friction P0 — **V1**; owner easier-to-understand audit 2026-08-13; half-finished rename in tree | M |
+| TB-2235 | Complete sponsor → sponsor rename (dual dashboards, paths, help modules); see ## TB-2235 below | Adoption friction P0 — **V1**; owner easier-to-understand audit 2026-08-13; half-finished rename in tree | M |
 | TB-2236 | Consolidate marketing try-it entry points to one demo + one get-started spine; see ## TB-2236 below | Adoption friction P0 — **V1**; owner easier-to-use audit 2026-08-13; nine competing doors today | M |
 | TB-2237 | Split customer vs internal help search corpus (exclude runbooks from buyer search); see ## TB-2237 below | Trustworthiness P0 — **V1**; owner easier-to-understand audit 2026-08-13; `HELP_DOC_SEARCH_RECORDS` indexes `docs/runbooks/**` | M |
 | TB-2238 | Unified help content loader — retire per-page `*-help-*` module sprawl; see ## TB-2238 below | Maintainability P0 — **V1**; owner easier-to-understand audit 2026-08-13; ~575 help modules; extends Done **TB-143**–**TB-148** | XL |
@@ -1334,6 +1336,26 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2240 | One primary persona name across routes, nav labels, and help (architect vs operator vs sponsor); see ## TB-2240 below | Adoption friction P0 — **V1**; owner easier-to-understand audit 2026-08-13; `(operator)` route group mismatch | M |
 | TB-2241 | Retire or merge hidden low-traffic routes (traffic estimates), not perpetual omission lists; see ## TB-2241 below | Maintainability P0 — **V1**; owner easier-to-use audit 2026-08-13; `.local/owner/ui_route_traffic_estimates.md`; pairs **TB-748**–**TB-753** | L |
 | TB-2243 | ~~Retire progressive nav disclosure plumbing~~ **Done** 2026-08-13 — drop retired nav disclosure params, dead unlock UI, mobile density parity; Vitest; see ## TB-2243 below | Adoption friction P0 — **V1**; usability item #4; partial toward **TB-2233** | M |
+| TB-2244 | RunStarterTaskFactory cloud-aware policy refs + service catalogs; see ## TB-2244 below | Correctness P0 — **V1**; multi-cloud target parity 2026-08-13; `BuildPolicyRefs` / `BuildServiceCatalogRefs` Azure-only today | M |
+| TB-2245 | Multi-cloud inventory evidence-bundle merge at run create; see ## TB-2245 below | Correctness P0 — **V1**; multi-cloud target parity 2026-08-13; Azure-only `AzureExtractorEvidenceBundleMerger` path | M |
+| TB-2246 | Wizard pending inventory upload — cloud-aware provider routing; see ## TB-2246 below | Adoption friction P0 — **V1**; multi-cloud target parity 2026-08-13; misroutes Aws/Gcp ZIP to Azure upload | M |
+| TB-2247 | Wizard optional enrichment — Tier 1 ZIP upload panel for Aws/Gcp; see ## TB-2247 below | Adoption friction P1 — **V1**; multi-cloud target parity 2026-08-13; `WizardStepAzureContext` Azure-only ZIP field | S |
+| TB-2248 | Graph ↔ AWS/GCP inventory reconciliation finding engines; see ## TB-2248 below | Correctness P1 — **V1**; multi-cloud target parity 2026-08-13; peer to Done **TB-2216** (Azure-only) | L |
+| TB-2249 | Standard baseline badge + rule-id prefixes per cloud target; see ## TB-2249 below | Trustworthiness P1 — **V1**; multi-cloud target parity 2026-08-13; UI + `StandardBaselinePolicyRuleIdPrefixes` Azure-only | M |
+| TB-2250 | Chat intake parser — allow Aws/Gcp `cloudProvider`; see ## TB-2250 below | Adoption friction P1 — **V1**; multi-cloud target parity 2026-08-13; prompt allows only None/Azure | S |
+| TB-2251 | Sponsor orphan-candidate KPI — AWS/GCP finding markers; see ## TB-2251 below | Correctness P1 — **V1**; multi-cloud target parity 2026-08-13; `OrphanCandidateFindingClassifier` Azure-only | S |
+| TB-2252 | ROI cost-evidence freshness — AWS/GCP inventory packages; see ## TB-2252 below | Correctness P1 — **V1**; multi-cloud target parity 2026-08-13; `RoiCostEvidenceFreshnessEvaluator` Azure-only | M |
+| TB-2253 | AgentUserPromptStaticPrefix — AWS/GCP Important guidance blocks; see ## TB-2253 below | AI/Agent readiness P2 — **V1**; multi-cloud target parity 2026-08-13; extends Done **TB-875** user addenda | M |
+| TB-2254 | Request templates + wizard presets — non-Azure target examples; see ## TB-2254 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; all presets `CloudProvider.Azure` | M |
+| TB-2255 | Demo/zero-config paths — respect Aws/Gcp cloud target; see ## TB-2255 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; force Azure on file select | S |
+| TB-2256 | AWS/GCP Tier 1 chunked ZIP upload parity; see ## TB-2256 below | Interoperability P2 — **V1**; multi-cloud target parity 2026-08-13; Azure-only chunk session store | L |
+| TB-2257 | CLI `validate-zip` for AWS/GCP inventory packages; see ## TB-2257 below | Code hygiene P3 — **V1**; multi-cloud target parity 2026-08-13; Azure-only `AzureValidateZipCommand` | S |
+| TB-2258 | Multi-cloud inventory demo scenario ZIPs; see ## TB-2258 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; Azure-only `arch-lucid-azure-extractor-demo-scenarios` | M |
+| TB-2259 | Rename Azure-prefixed multi-cloud wizard/shell components; see ## TB-2259 below | Maintainability P3 — **V1**; multi-cloud target parity 2026-08-13; `WizardStepAzureContext`, `AzureExtractorZipDropZone` | M |
+| TB-2260 | Remove stale `FORTHCOMING_CLOUD_PROVIDER_ROWS` admin copy; see ## TB-2260 below | Adoption friction P3 — **V1**; multi-cloud target parity 2026-08-13; AWS/GCP Tier 2 shipped | S |
+| TB-2261 | Quick Scan `PrimaryEnvironment` — Aws/Gcp options; see ## TB-2261 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; sample/default Azure-only | S |
+| TB-2262 | Inventory-backed security baseline validation for AWS/GCP; see ## TB-2262 below | Correctness P2 — **V1.1**; multi-cloud target parity 2026-08-13; extends open **TB-2210** (Azure-only) | L |
+| TB-2263 | Help/governance copy — no tri-cloud peer claims until baseline UX ships; see ## TB-2263 below | Trustworthiness P2 — **V1**; multi-cloud target parity 2026-08-13; pairs **TB-2249**; assessment §14 guard | S |
 | TB-932 | **Done** (2026-08-09) ? **Won't do** ? Offload large JSON payloads to blob storage; DEV LOB evidence max ~30 KB / 0% ?1 MB; see ## TB-932 below | Performance P0 ? **V1** (promoted P0 + V1 2026-08-08 with perf wave 5; evidence-gated; was P3 V2); after **TB-929**?**TB-931**; peers **TB-2119** | L |
 | TB-2103 | **Done** (2026-08-13) ? Operator-maintained model catalog ? DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal `/internal/agent-model-catalog` + admin API; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 ? **V1.1**; ADR 0065 D2? | L |
 | TB-2104 | **Done** (2026-08-13) ? Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 ? **V1.1**; ADR 0065 D4? | M |
@@ -1543,7 +1565,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1683 | **Done** (2026-08-13) — COR job-matrix IA dual vs evidence-only fast path; retired core-pilot/HEV aliases; Vitest; see ## TB-1683 below | Adoption friction P1 ? **V1**; with **TB-1681** | S |
 | TB-1684 | **Done** (2026-08-13) — COR workflow + optional card start at `/architecture/reviews/new`; extract-upload demoted to advanced prose; Vitest; see ## TB-1684 below | Trustworthiness P1 ? **V1**; with **TB-1681** | S |
 | TB-1685 | **Done** (2026-08-13) — COR first-viewport three-step job chrome; full five-step stepper deferred below fold; Vitest; see ## TB-1685 below | Adoption friction P1 ? **V1**; with **TB-1681** | S |
-| TB-1686 | **Done** (2026-08-13) — `/help/sponsor-report` retarget SoT to `EXECUTIVE_SPONSOR_BRIEF.md` + scorecard; Vitest; see ## TB-1686 below | Trustworthiness P1 ? **V1**; owner review ~30/100 2026-07-27; traffic **EXE**; pairs **TB-1414** | M |
+| TB-1686 | **Done** (2026-08-13) — `/help/sponsor-report` retarget SoT to `SPONSOR_SPONSOR_BRIEF.md` + scorecard; Vitest; see ## TB-1686 below | Trustworthiness P1 ? **V1**; owner review ~30/100 2026-07-27; traffic **EXE**; pairs **TB-1414** | M |
 | TB-1687 | **Done** (2026-08-13) — `HelpSponsorSummaryGuideView` specialty + sponsor value-report CTAs; Vitest; see ## TB-1687 below | Adoption friction P1 ? **V1**; with **TB-1686** | M |
 | TB-1689 | **Done** (2026-08-13) — sponsor-report in-app-doc-href diligence mappings; Vitest; see ## TB-1689 below | Trustworthiness P1 ? **V1**; with **TB-1686**; pairs **TB-1253** | S |
 | TB-1690 | **Done** (2026-08-13) — sponsor-report title/body honesty + inbound label surfaces; Vitest; see ## TB-1690 below | Trustworthiness P1 ? **V1**; with **TB-1686** | S |
@@ -1590,9 +1612,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1746 | ~~`/help/soc2-self-assessment` specialty buyer guide + Trust CTA~~ **Done** 2026-08-03 ? `HelpSoc2SelfAssessmentGuideView` + Trust/CAIQ/procurement CTAs; Vitest; see ## TB-1746 below | Adoption friction P1 ? **V1**; owner review ~40/100 2026-07-27; traffic **HES**; pairs **TB-1414**/**TB-1631**; do not reopen **TB-135**/**TB-136** | M |
 | TB-1749 | ~~SOC2 self-assessment help ? IA dual with CAIQ / Trust / procurement~~ **Done** 2026-08-03 ? job matrix + Sources; Vitest; see ## TB-1749 below | Adoption friction P1 ? **V1**; with **TB-1746**; pairs **TB-1635**/**TB-1253** | S |
 | TB-1750 | ~~SOC2 self-assessment help ? title + Help Center discovery~~ **Done** 2026-08-03 ? product-tier catalog + display; Vitest; see ## TB-1750 below | Adoption friction P1 ? **V1**; with **TB-1746** | S |
-| TB-1751 | `/help/subprocessors` specialty buyer register + Trust CTA; see ## TB-1751 below | Adoption friction P1 ? **V1**; owner review ~44/100 2026-07-27; traffic **HSU**; pairs **TB-1414**/**TB-1679** | M |
-| TB-1753 | Subprocessors help ? IA dual with DPA / Trust; see ## TB-1753 below | Adoption friction P1 ? **V1**; with **TB-1751**; pairs **TB-1676**/**TB-1679** | S |
-| TB-1754 | Subprocessors help ? title + Help Center discovery; see ## TB-1754 below | Adoption friction P1 ? **V1**; with **TB-1751** | S |
+| TB-1751 | **Done** (2026-08-13) — `HelpSubprocessorsGuideView` + Open Trust Center CTA; Vitest; see ## TB-1751 below | Adoption friction P1 ? **V1**; owner review ~44/100 2026-07-27; traffic **HSU**; pairs **TB-1414**/**TB-1679** | M |
+| TB-1753 | **Done** (2026-08-13) — subprocessors IA dual job matrix vs DPA / Trust; Vitest; see ## TB-1753 below | Adoption friction P1 ? **V1**; with **TB-1751**; pairs **TB-1676**/**TB-1679** | S |
+| TB-1754 | **Done** (2026-08-13) — subprocessors single H1 + Help Center product tier; Vitest; see ## TB-1754 below | Adoption friction P1 ? **V1**; with **TB-1751** | S |
 | TB-1759 | Azure Boards page-help inbound ? canonical `/help/azure-boards`; see ## TB-1759 below | Adoption friction P1 ? **V1**; with **TB-1756**; pairs **TB-1623**/**TB-1701** | S |
 | TB-1768 | Azure cloud detail ? page-help ? `/help/cloud-connections/azure`; see ## TB-1768 below | Adoption friction P1 ? **V1**; with **TB-1766**; pairs **TB-1629** | S |
 | TB-1795 | Docs/help ? login language ? `/auth/signin` (keep shim); see ## TB-1795 below | Trustworthiness P1 ? **V1**; with **TB-1791**; pairs **TB-1614** (do not reopen) | S |
@@ -1769,7 +1791,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1673 | **Done** (2026-07-30) ? resting link affordance on home recommended-next, Reviews titles, Signup pricing, Core Pilot checkpoints, Demo preview Schedule demo; see `## TB-1673` below | Adoption friction P3 ? **V1**; with **TB-1671**; pairs **TB-1539** | S |
 | TB-1675 | **Done** (2026-08-12) ? Vitest bare navigational Link/a affordance guard + grandfathered baseline; see ## TB-1675 below | Testability P2 ? **V1**; after **TB-1672**?**TB-1674**; pairs **TB-1671** / **TB-1556** / **TB-1576** / **TB-1650** / **TB-1665** / **TB-1670** | S |
 | TB-1677 | ~~DPA help ? contributor / .md path leakage strip~~ **Done** 2026-07-30 ? `stripDpaTemplateContributorLeakage`; source `DPA_TEMPLATE.md` buyer links; Vitest | Trustworthiness P0 ? **V1**; with **TB-1676**; pairs **TB-1235** | S |
-| TB-1688 | ~~Sponsor-summary help ? contributor FAQ / .md leakage strip~~ **Done** 2026-07-30 ? `stripExecutiveSummaryContributorLeakage`; `helpTopicSlug` gate; Vitest | Trustworthiness P0 ? **V1**; with **TB-1686**; pairs **TB-1235** | S |
+| TB-1688 | ~~Sponsor-summary help ? contributor FAQ / .md leakage strip~~ **Done** 2026-07-30 ? `stripSponsorSummaryContributorLeakage`; `helpTopicSlug` gate; Vitest | Trustworthiness P0 ? **V1**; with **TB-1686**; pairs **TB-1235** | S |
 | TB-1693 | ~~First-value-20 help ? CLI/dotnet / runbook-path leakage strip~~ **Done** 2026-07-30 ? `stripFirstValue20ContributorLeakage`; 20-min section extract; Vitest | Trustworthiness P0 ? **V1**; with **TB-1691**; pairs **TB-1235** | S |
 | TB-1702 | **Done** (2026-08-10) ? HEZ alias traffic workbook fold ? HAZ; `ui-route-traffic-retired-help-topic-aliases.ts` manifest guard; see ## TB-1702 below | Adoption friction P2 ? **V1**; with **TB-1701**; pairs **TB-1644**/**TB-1493** | S |
 | TB-1703 | **Done** (2026-08-10) ? HEZ alias anti-reintro product deep-link CI; `retired-help-topic-alias-honesty.test.ts`; see ## TB-1703 below | Testability P2 ? **V1**; after **TB-1701**; pairs **TB-1623** | S |
@@ -1901,7 +1923,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-566 | ~~Push `"use client"` boundaries down ??? server-render marketing `WelcomeMarketingPage` sections + settings `*PageView.tsx` that only render props; thin `*Client.tsx` for mutations~~ ? **Done** (2026-07-03) | Performance P2 ? **V1.1** | M |
 | TB-567 | ~~ISR (`revalidate = 300`) on `/welcome`, `/pricing`, `/trust` marketing routes (parity with `see-it`, `live-demo`)~~ ? **Done** (2026-07-01) | Performance P2 ? **V1.1** | XS |
 | TB-568 | ~~Memoize + split operator shell context providers ??? narrow `WorkspaceActiveRunProvider` / governance mode re-render blast radius in `AppShellClient`~~ ? **Done** (2026-07-03) | Performance P2 ? **V1.1** | S |
-| TB-569 | ~~Migrate `ExecutiveDashboardDataContext` from provider-level `useEffect` fetch to React Query shared key~~ ? **Done** (2026-07-03) | Performance P2 ? **V1.1** | S |
+| TB-569 | ~~Migrate `SponsorDashboardDataContext` from provider-level `useEffect` fetch to React Query shared key~~ ? **Done** (2026-07-03) | Performance P2 ? **V1.1** | S |
 | TB-570 | ~~Audit static `recharts` imports ??? ensure all chart paths use `dynamic()` wrapper (no bypass via alternate call sites)~~ ? **Done** (2026-07-01) | Performance P2 ? **V1.1** | XS |
 | TB-571 | ~~Nested `Suspense` on run detail + governance hub ??? stream below-fold sections (`RunDetailBelowFoldSections`, findings queue)~~ ? **Done** (2026-07-03) | Performance P2 ? **V1.1**; **UI_ARCHITECTURE_V1_1.md** ??7 | M |
 | TB-572 | ~~Defer App Insights initialization until `requestIdleCallback` or first interaction~~ ? **Done** (2026-07-01) | Performance P2 ? **V1.1** | XS |
@@ -1940,7 +1962,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-605 | ~~Value-report outcomes tab strip bypasses internal-only nav gating~~ **Done 2026-07-04** ??? `resolveVisibleValueReportOutcomesTabs` + `isShowSystemAdministrationNavEnabled()` hide internal `/value-report/pilot` and `/value-report/roi` tabs on customer-visible `/value-report` and `/insights/architecture-scorecard` surfaces, mirroring `operator-system-admin` sidebar gating; regression tests in `value-report-outcomes-nav-tabs.test.ts` and `ValueReportOutcomesNav.test.tsx` | Trustworthiness P0 ? **V1**; found during a left-nav business-purpose review 2026-07-04 | S |
 | TB-606 | ~~Sidebar "Review packages" label is a noun/verb garden-path phrase and diverges from breadcrumb wording for the same destination~~ **Done 2026-07-04** ??? `OPERATOR_NAV_LINK_LABELS.reviewPackage` default is **Reviews**; `resolveReviewsListNavLinkLabel` + `presentSidebarNavLinkForCluster` apply `governanceModeVocabulary` (`Reviews` / `Runs`) for `/reviews` list hrefs so sidebar matches `RunDetailBreadcrumb`; regression tests in `operator-nav-labels.test.ts`, `sidebar-nav-link-filters.test.ts`, `pilot-nav-group-builder.test.ts` | Adoption friction P2 ? **V1**; found during a left-nav business-purpose review 2026-07-04 | S |
 | TB-607 | Help-page layout + inline help + Help drawer architect polish ??? **Done** (2026-07-04): `help-page-layout.ts` shared tokens for `/help/*` section spacing, TOC hierarchy, tables/lists; `InlineHelp` / `inlineHelpAriaLabel` standardize 28??28px info triggers with `Help: ??` labels (Sponsor ROI, policy-pack fields, legacy `InfoTooltip`); `HelpSearchPanel` grouped topic catalog + route-based recommendations; regression tests across help layout, TOC, ROI strip, and Help drawer | Adoption friction P2 + explainability P3 ? **V1**; found during visual-polish / comprehension pass 2026-07-04 | M |
-| TB-608 | ~~Sidebar "Sponsor dashboard" (`/dashboard`) and the sponsor-shell route (`/sponsor/dashboard`) silently diverged in content for real tenants~~ **Done** (2026-07-04) ??? `ExecutiveRoiDashboardPageView` previously rendered a materially different "legacy operator" layout (`surface="operator"`, non-demo env) vs. the newer "portfolio" layout (`surface="sponsor"` or demo/trial env); owner directed keeping a single left-nav destination once told the two weren't actually the same content. Retired `(sponsor)/sponsor/dashboard/page.tsx` in favor of a 301 redirect to `/dashboard`; `ExecutiveRoiDashboardPageView` always renders the portfolio layout now (legacy layout + its now-dead header-copy branch removed); `ExecutiveShellFrame`'s own "Dashboard" tab and `ExecutiveScorecardEmptyState`'s tertiary action point at `/dashboard`; `resolveSponsorExecutiveRedirectTarget` exempts `/dashboard` so Sponsor-only principals can actually reach it instead of being bounced to `/sponsor/reviews`; regression tests in `ExecutiveRoiDashboardPageView.test.tsx`, `ExecutiveShellFrame.test.tsx`, `sponsor-sponsor-shell-redirect.test.ts`, `ExecutiveScorecardEmptyState.test.tsx`, and `e2e/sponsor-roi-dashboard.spec.ts` | Adoption friction P2 ? **V1**; found + directed during a left-nav business-purpose review 2026-07-04 | M |
+| TB-608 | ~~Sidebar "Sponsor dashboard" (`/dashboard`) and the sponsor-shell route (`/sponsor/dashboard`) silently diverged in content for real tenants~~ **Done** (2026-07-04) ??? `SponsorRoiDashboardPageView` previously rendered a materially different "legacy operator" layout (`surface="operator"`, non-demo env) vs. the newer "portfolio" layout (`surface="sponsor"` or demo/trial env); owner directed keeping a single left-nav destination once told the two weren't actually the same content. Retired `(sponsor)/sponsor/dashboard/page.tsx` in favor of a 301 redirect to `/dashboard`; `SponsorRoiDashboardPageView` always renders the portfolio layout now (legacy layout + its now-dead header-copy branch removed); `SponsorShellFrame`'s own "Dashboard" tab and `SponsorScorecardEmptyState`'s tertiary action point at `/dashboard`; `resolveSponsorRedirectTarget` exempts `/dashboard` so Sponsor-only principals can actually reach it instead of being bounced to `/sponsor/reviews`; regression tests in `SponsorRoiDashboardPageView.test.tsx`, `SponsorShellFrame.test.tsx`, `sponsor-sponsor-shell-redirect.test.ts`, `SponsorScorecardEmptyState.test.tsx`, and `e2e/sponsor-roi-dashboard.spec.ts` | Adoption friction P2 ? **V1**; found + directed during a left-nav business-purpose review 2026-07-04 | M |
 | TB-609 | CodeQL hardening ??? migrate `SanitizedLoggerDebugExtensions` (`LogDebugAgentTaskFinished`, `LogDebugCuratedEvidenceProposalSkipped`, `LogDebugReferenceCaseEvaluationFailed`) to the `[LoggerMessage]` pattern in `SanitizedLoggerDebugExtensions.LoggerMessage.cs` so `LogSanitizer.Sanitize` propagates to the `ILogger` sink without `params object?[]` boxing; remove call-site `// codeql[cs/log-forging]` comments once SARIF is clean; regression tests in `SanitizedLoggerDebugExtensionsTests` ??? **Done** (2026-07-04) | Code hygiene P2 ? **V1**; residual from CodeQL triage 2026-07-04 (dismissed alerts #736???#737) | M |
 | TB-610 | ~~Trial bootstrap denial-path PII log posture~~ **Done 2026-07-04** ??? `LogSanitizer.EmailDomainForLogs` logs only the email domain on `TrialTenantBootstrapService` email-verification denial paths; full `auditActorEmail` retained in `AuditEvent` actor fields; tests in `LogSanitizerTests` and `TrialTenantBootstrapServiceTests` | Trustworthiness P2 ? **V1**; residual from CodeQL triage 2026-07-04 (dismissed alert #735) | S |
 | TB-631 | ~~"Diagnostics dashboard" (`/admin/health`) and "System health" (`/health`) ??? two different pages at two different authority tiers ??? both rendered an identical heading "System health"~~ **Done 2026-07-05** ??? renamed the Admin page's heading to "Diagnostics dashboard" to match its own nav label; per-section graceful auth degradation on the Admin page is deliberate, left untouched | Adoption friction P3 ? **V1**; found during a left-nav business-purpose review 2026-07-05 | XS |
@@ -2180,7 +2202,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-202 | ~~`ArchLucid.Notifications` unit tests ? `SlackInteractivityVerifier` HMAC, `ChatOpsWebhookDeliveryService` HTTP delivery (success/4xx/5xx), `AuthorityRunCommittedChatOpsHook` event handler~~ ? **Done** (2026-06-02, batch 5O): existing suite extended with HTTP 4xx/5xx propagation tests; `test_correctness_batch_5o.py` drift guard | Maintainability P2 ? **V1** | M |
 | TB-203 | ~~`ConversationService` unit tests ? new conversation, append message, empty message, max-turn limit, session not found~~ ? **Done** (2026-06-02, batch 5P): `ConversationServiceTests` covers create/reuse/scope-mismatch/missing-id/history take/empty content; `test_correctness_batch_5p.py` drift guard | Maintainability P2 ? **V1** | M |
 | TB-204 | ~~Decision rule action differentiation in `RuleAuditTracePayload` ? add `RequiredFindingIds` / `AllowedFindingIds` / `PreferredFindingIds` sets alongside existing `AcceptedFindingIds` union; update mapper + DTO~~ ? **Done** (2026-06-02, batch 5Q): engine, explainability DTO, SQL migration 238, `RuleBasedDecisionEngineActionDifferentiationTests`; `test_correctness_batch_5q.py` drift guard | Maintainability P2 ? **V1** | S |
-| TB-205 | ~~`BuildHistoryAsync` / `BuildExportAsync` / `CollectCommittedRunsForTrendsAsync` pagination safety ? add `maxPages = 500` guard + warning log to all three `while(true)` pagination loops in `ExecutiveRoiSummaryService`~~ ? **Done** (2026-06-02, batch 5J): `maxPages = 2_000` + warning log on all three pagination loops | Reliability P1 ? **V1** | XS |
+| TB-205 | ~~`BuildHistoryAsync` / `BuildExportAsync` / `CollectCommittedRunsForTrendsAsync` pagination safety ? add `maxPages = 500` guard + warning log to all three `while(true)` pagination loops in `SponsorRoiSummaryService`~~ ? **Done** (2026-06-02, batch 5J): `maxPages = 2_000` + warning log on all three pagination loops | Reliability P1 ? **V1** | XS |
 | TB-206 | ~~`ResolveEnvironmentLabel` null guard ? null-coalesce `service.Tags ?? []`; add unit tests for null tags, empty tags, valid env tag~~ ? **Done** (2026-06-02, batch 5J): null-safe tag iteration in `ResolveEnvironmentLabel` | Reliability P1 ? **V1** | XS |
 
 | TB-177 | ~~Adversarial Critic second-pass ? challenge-first prompt + empty-findings quality gate signal~~ ? **Done** (2026-06-02, batch 5M): `CriticSystemPromptTemplate` rules 8?9; heuristic zero-score for empty `findings[]`; `CriticAgentHandlerTests` + `test_ai_readiness_batch_5m.py` | Maintainability P2 ? **V1** | S |
@@ -2218,7 +2240,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-221 | Hosted SaaS self-serve trial ? DEFERRED: requires live Stripe (commerce un-hold) + DNS cutover to `signup.archlucid.net`; V1.1 per `V1_DEFERRED.md ?6r` (PQ-TTV-01 resolved 2026-06-02); Cursor role: none until commerce un-hold | Commercial / marketability P3 ? **V1.1**; DEFERRED ? owner commerce un-hold (PQ-TTV-01) | M |
 
 | TB-222 | ~~Recurrence scheduling UI ? `RecurrenceSchedulePostCommitCard` post-commit nudge + `/governance/recurrence-schedules` management page; calls `createArchitectureReviewRecurrenceSchedule` / `listArchitectureReviewRecurrenceSchedules`; enable/disable toggle~~ ? **Done** (2026-06-02, batch 5AO): PUT toggle + management table + post-commit card; `test_adoption_batch_5ao.py` | Maintainability P2 ? **V1** | M |
-| TB-223 | ~~`DecisionsNeededSummaryCard` in governance dashboard ? parallel-fetch `GET /v1/governance/decisions-needed-summary`; 6-tile KPI grid (pendingApprovals, staleRisks, unownedHighSeverityRisks, findingsAwaitingEvidence, waiversExpiringWithin14Days, deferredFindingsDue); warn accent when waivers expiring; empty state; 30s auto-refresh~~ ? **Done** (2026-06-02, batch 5AK): `DecisionsNeededSummaryCard` on `ExecutiveWorkspaceHealthDashboard`; `test_adoption_batch_5ak.py` | Maintainability P2 ? **V1** | S |
+| TB-223 | ~~`DecisionsNeededSummaryCard` in governance dashboard ? parallel-fetch `GET /v1/governance/decisions-needed-summary`; 6-tile KPI grid (pendingApprovals, staleRisks, unownedHighSeverityRisks, findingsAwaitingEvidence, waiversExpiringWithin14Days, deferredFindingsDue); warn accent when waivers expiring; empty state; 30s auto-refresh~~ ? **Done** (2026-06-02, batch 5AK): `DecisionsNeededSummaryCard` on `SponsorWorkspaceHealthDashboard`; `test_adoption_batch_5ak.py` | Maintainability P2 ? **V1** | S |
 | TB-224 | ~~AI compare narrative ? extend `AskService` for `BaseRunId + TargetRunId`; one fast LLM call; `ComparisonNarrative` on `AskResponse`; highlighted callout above compare delta table; guarded by `Ask:GenerateComparisonNarrative`~~ ? **Done** (2026-06-02, batch 5AM): `AskComparisonNarrativeOptions` + compact delta prompt; compare UI callout; `test_adoption_batch_5am.py` | Maintainability P2 ? **V1** | M |
 | TB-225 | ~~CS-06 fix ? inject `IRlsSessionContextApplicator` in `SqlOperatorStickinessSnapshotReader`; `ApplyAsync` before queries in `GetOperatorSignalsAsync` + `GetFunnelSnapshotAsync`; rename `ToDateTimeOffset` ? `ToNullableUtcDateTime`; one-line `{ get; init; }` row types; `long` COUNT columns~~ ? **Done** (2026-06-02, batch 5AP): `SqlRlsSessionContextApplicator` + read-replica factory; `test_adoption_batch_5ap.py` | Maintainability P2 ? **V1** | S |
 | TB-226 | ~~Risk exceptions management page ? `archlucid-ui/src/app/(operator)/governance/risk-exceptions/page.tsx` + `RiskExceptionsClient.tsx`; `EnterpriseTable` with expiry sort, StatusTag (Active/Expiring/Expired), Renew/Revoke actions; warning callout when any within 14 days; nav entry after "Governance findings"~~ ? **Done** (2026-06-02, batch 5AS): management page + pilot nav + Vitest; `test_adoption_batch_5as.py` | Maintainability P2 ? **V1** | M |
@@ -2230,19 +2252,19 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-232 | ~~LinkedIn publishing calendar ? `docs/go-to-market/LINKEDIN_PUBLISHING_SCHEDULE.md`; assign publish dates to M-10 through M-15 (weekly Monday 8 AM); hashtag set per post; comment-seed prompts; Published/Engagement tracking column~~ ? **Done** (2026-06-02, batch 5BF): publishing schedule M-10?M-15; `test_adoption_batch_5bf.py` | Maintainability P2 ? **V1** | XS |
 | TB-233 | ~~Demo video storyboard ? `docs/go-to-market/DEMO_VIDEO_STORYBOARD.md`; shot-by-shot table from `DEMO_VIDEO_SCRIPT.md` (URL/screen, action, narration, annotation, duration); pre- and post-production checklists; target <3 min total~~ ? **Done** (2026-06-02, batch 5BG): storyboard + datasheet/brief links; `test_adoption_batch_5bg.py` | Maintainability P2 ? **V1** | S |
 | TB-234 | ~~`SHOULD_YOU_EVALUATE.md` ICP enrichment ? add Q5 (team ?3 architects); update 15-min eval path with hosted SaaS link + quote-request fallback; add "Strong fit signals" section (5 ICP indicators)~~ ? **Done** (2026-06-02, batch 5BH): Q5 + eval path + strong-fit section; `test_adoption_batch_5bh.py` | Maintainability P2 ? **V1** | XS |
-| TB-235 | ~~`EXECUTIVE_ONE_EMAIL_KIT.md` ? verify or create; 3 subject lines; 120-word body with `<<PILOT_OUTCOME>>`; four-artifact checklist; follow-up timing; cross-ref to `EXECUTIVE_SPONSOR_BRIEF.md`~~ ? **Done** (2026-06-02, batch 5BI): pilot closeout email + attachments + follow-up; `test_adoption_batch_5bi.py` | Maintainability P2 ? **V1** | XS |
+| TB-235 | ~~`SPONSOR_ONE_EMAIL_KIT.md` ? verify or create; 3 subject lines; 120-word body with `<<PILOT_OUTCOME>>`; four-artifact checklist; follow-up timing; cross-ref to `SPONSOR_SPONSOR_BRIEF.md`~~ ? **Done** (2026-06-02, batch 5BI): pilot closeout email + attachments + follow-up; `test_adoption_batch_5bi.py` | Maintainability P2 ? **V1** | XS |
 | TB-237 | ~~Pricing page early-adopter framing ? add "Early adopter pricing" 2-sentence note below tier grid in marketing pricing component; add "Transparent early-access framing" row to `PRICING_PHILOSOPHY.md ?1`~~ ? **Done** (2026-06-02, batch 5BJ): `BUYER_EARLY_ADOPTER_PRICING_NOTE` + `pricing-early-adopter-framing` test id; `PRICING_PHILOSOPHY.md` ?1 row; `test_adoption_batch_5bj.py` | Maintainability P2 ? **V1** | XS |
 | TB-238 | ~~Baseline capture prompt in pilot wizard ? add optional "Baseline metrics" step to architecture request wizard; numeric input for review cycle hours + confidence select; on submit call `PUT /v1/tenant/baseline`; skip button; Vitest tests; update `FIRST_PILOT_OPERATOR_PATH.md` Phase D2a~~ ? **Done** (2026-06-02, batch 5AJ): `WizardStepBaselineMetrics` + `save-tenant-review-cycle-baseline.ts`; `test_adoption_batch_5aj.py` | Maintainability P2 ? **V1** | S |
-| TB-239 | ~~Sponsor ROI history run-mode label ? add `RealRunCount`, `SimulatorRunCount`, `RealModeSavingsUsd`, `IsMixedMode` to `ExecutiveRoiHistoryPeriod`; compute from `dbo.Runs.ExecutionMode`; frontend: mode footnote + Simulator-only badge + tooltip~~ ? **Done** (2026-06-02, batch 5AL): `ExecutiveRoiHistoryRunModeCalculator` + trend chart footnote/tooltips; `test_adoption_batch_5al.py` | Maintainability P2 ? **V1** | S |
-| TB-240 | ~~Sponsor ROI surface data quality regression guard ? add `ExecutiveRoiSummaryInvariantTests.cs` covering FindingsReduced/FindingsAdded polarity (TB-151/152), waiver 14-day window consistency (TB-149), orphan-candidate single pipeline (TB-103), cache freshness (TB-155)~~ ? **Done** (2026-06-02, batch 5AN): `ExecutiveRoiSummaryInvariantTests.cs`; `test_adoption_batch_5an.py` | Maintainability P2 ? **V1** | S |
-| TB-241 | ~~Board-pack AI sponsor narrative ? `Roi:GenerateBoardPackNarrative` config flag (default false); when true call `IAgentCompletionClient` (ModelTier.Fast) with savings/ROI/mode/confidence JSON; prefix board-pack Markdown with `## Sponsor summary`; frontend toggle; unit test~~ ? **Done** (2026-06-02, batch 5AQ): exporter + dashboard toggle + `ExecutiveRoiBoardPackExporterNarrativeTests`; `test_adoption_batch_5aq.py` | Maintainability P2 ? **V1** | M |
+| TB-239 | ~~Sponsor ROI history run-mode label ? add `RealRunCount`, `SimulatorRunCount`, `RealModeSavingsUsd`, `IsMixedMode` to `SponsorRoiHistoryPeriod`; compute from `dbo.Runs.ExecutionMode`; frontend: mode footnote + Simulator-only badge + tooltip~~ ? **Done** (2026-06-02, batch 5AL): `SponsorRoiHistoryRunModeCalculator` + trend chart footnote/tooltips; `test_adoption_batch_5al.py` | Maintainability P2 ? **V1** | S |
+| TB-240 | ~~Sponsor ROI surface data quality regression guard ? add `SponsorRoiSummaryInvariantTests.cs` covering FindingsReduced/FindingsAdded polarity (TB-151/152), waiver 14-day window consistency (TB-149), orphan-candidate single pipeline (TB-103), cache freshness (TB-155)~~ ? **Done** (2026-06-02, batch 5AN): `SponsorRoiSummaryInvariantTests.cs`; `test_adoption_batch_5an.py` | Maintainability P2 ? **V1** | S |
+| TB-241 | ~~Board-pack AI sponsor narrative ? `Roi:GenerateBoardPackNarrative` config flag (default false); when true call `IAgentCompletionClient` (ModelTier.Fast) with savings/ROI/mode/confidence JSON; prefix board-pack Markdown with `## Sponsor summary`; frontend toggle; unit test~~ ? **Done** (2026-06-02, batch 5AQ): exporter + dashboard toggle + `SponsorRoiBoardPackExporterNarrativeTests`; `test_adoption_batch_5aq.py` | Maintainability P2 ? **V1** | M |
 | TB-242 | ~~ROI model freshness CI guard ? `scripts/ci/check_roi_model_freshness.py`; extract "Last reviewed:" date from `ROI_MODEL.md`; warn-only exit 0 when >90 days old; add CI step; update `ROI_MODEL.md` last-reviewed date to 2026-06-02~~ ? **Done** (2026-06-02, batch 5AT): warn-only script + CI step + ROI_MODEL refresh; `test_adoption_batch_5at.py` | Maintainability P2 ? **V1** | XS |
 | TB-243 | ~~Sponsor proof delivery tracking event ? `AuditEventType.SponsorEvidencePackSent` (type 79); `POST /v1/pilots/runs/{runId}/sponsor-pack-sent` (optional recipient + delivery method); "Mark as sent to sponsor" button in `RunDetailFirstScreenProofStatus.tsx` ? `StatusTag "Sent to sponsor"`; unit tests~~ ? **Done** (2026-06-02, batch 5AV): audit event + API + `EmailRunToSponsorBanner` CTA; `test_adoption_batch_5av.py` | Maintainability P2 ? **V1** | S |
-| TB-244 | ~~KPI tile drill-through navigation ? wrap each count in `ExecutiveRoiDashboardLiveKpiCards.tsx` with a Next.js `<Link>` pointing to the relevant filtered page (e.g., `/runs?filter=orphan-candidates`, `/compliance?filter=drift`); add `data-testid` for each link; Vitest tests~~ ? **Done** (2026-06-02, batch 5AX): KPI links + orphan/SQL tiles + governance `?filter=`; `test_adoption_batch_5ax.py` | Maintainability P2 ? **V1** | S |
-| TB-245 | ~~ROI trend chart upgrade to SVG bar chart ? replace CSS `<div>` proportional bars in `ExecutiveRoiTrendSection.tsx` with a proper SVG chart (reuse `ExecutiveRoiSystemicIssueTrendChart` pattern); add Y-axis labels, month labels, on-hover tooltips with exact values; Vitest snapshot test~~ ? **Done** (2026-06-02, batch 5AZ): `ExecutiveRoiSavingsTrendSvgChart` + snapshot test; `test_adoption_batch_5az.py` | Maintainability P2 ? **V1** | M |
-| TB-246 | ~~Sponsor shell nav ? add Scorecard and Dashboard links ? add "Scorecard" (`/sponsor/scorecard`) and "Dashboard" (`/sponsor/dashboard`) `<Button>` nav links to `ExecutiveShellFrame.tsx` header nav; highlight active route; Vitest test~~ ? **Done** (2026-06-02, batch 5AW): `ExecutiveShellFrame` nav + Vitest; `test_adoption_batch_5aw.py` | Maintainability P2 ? **V1** | XS |
-| TB-247 | ~~"Top 3 actions" section on sponsor scorecard ? add a "Recommended actions" card to `ExecutiveScorecardClient.tsx` that derives 1?3 plain-language recommendations from loaded data (highest-drift policy, largest orphan cost bucket, most overdue review); unit tests for derivation logic~~ ? **Done** (2026-06-02, batch 5AY): recommended-actions card + derivation module; `test_adoption_batch_5ay.py` | Maintainability P2 ? **V1** | M |
-| TB-248 | ~~"Day N since first commit" badge on sponsor KPI strip ? compute `N = (today - firstCommitUtc).TotalDays` and add "Day {N} of your ArchLucid pilot" display below the savings KPI tile in `ExecutiveRoiDashboardLiveKpiCards.tsx`; read `FirstCommitUtc` from ROI summary endpoint; unit test~~ ? **Done** (2026-06-02, batch 5BA): `FirstCommitUtc` on sponsor summary + pilot day badge; `test_adoption_batch_5ba.py` | Maintainability P2 ? **V1** | S |
+| TB-244 | ~~KPI tile drill-through navigation ? wrap each count in `SponsorRoiDashboardLiveKpiCards.tsx` with a Next.js `<Link>` pointing to the relevant filtered page (e.g., `/runs?filter=orphan-candidates`, `/compliance?filter=drift`); add `data-testid` for each link; Vitest tests~~ ? **Done** (2026-06-02, batch 5AX): KPI links + orphan/SQL tiles + governance `?filter=`; `test_adoption_batch_5ax.py` | Maintainability P2 ? **V1** | S |
+| TB-245 | ~~ROI trend chart upgrade to SVG bar chart ? replace CSS `<div>` proportional bars in `SponsorRoiTrendSection.tsx` with a proper SVG chart (reuse `SponsorRoiSystemicIssueTrendChart` pattern); add Y-axis labels, month labels, on-hover tooltips with exact values; Vitest snapshot test~~ ? **Done** (2026-06-02, batch 5AZ): `SponsorRoiSavingsTrendSvgChart` + snapshot test; `test_adoption_batch_5az.py` | Maintainability P2 ? **V1** | M |
+| TB-246 | ~~Sponsor shell nav ? add Scorecard and Dashboard links ? add "Scorecard" (`/sponsor/scorecard`) and "Dashboard" (`/sponsor/dashboard`) `<Button>` nav links to `SponsorShellFrame.tsx` header nav; highlight active route; Vitest test~~ ? **Done** (2026-06-02, batch 5AW): `SponsorShellFrame` nav + Vitest; `test_adoption_batch_5aw.py` | Maintainability P2 ? **V1** | XS |
+| TB-247 | ~~"Top 3 actions" section on sponsor scorecard ? add a "Recommended actions" card to `SponsorScorecardClient.tsx` that derives 1?3 plain-language recommendations from loaded data (highest-drift policy, largest orphan cost bucket, most overdue review); unit tests for derivation logic~~ ? **Done** (2026-06-02, batch 5AY): recommended-actions card + derivation module; `test_adoption_batch_5ay.py` | Maintainability P2 ? **V1** | M |
+| TB-248 | ~~"Day N since first commit" badge on sponsor KPI strip ? compute `N = (today - firstCommitUtc).TotalDays` and add "Day {N} of your ArchLucid pilot" display below the savings KPI tile in `SponsorRoiDashboardLiveKpiCards.tsx`; read `FirstCommitUtc` from ROI summary endpoint; unit test~~ ? **Done** (2026-06-02, batch 5BA): `FirstCommitUtc` on sponsor summary + pilot day badge; `test_adoption_batch_5ba.py` | Maintainability P2 ? **V1** | S |
 | TB-249 | ~~Cross-tenant portfolio graceful 403 ? in `RoiController.GetCrossTenantPortfolioSummaryAsync` return a structured `ProblemDetails` with user-facing guidance when directory object key is missing (403); update `PortfolioPageView.tsx` to display the guidance text rather than a blank/silent error; create `docs/library/MULTI_TENANT_PORTFOLIO.md`~~ ? **Done** (2026-06-02, batch 5BB): ProblemDetails 403 + portfolio UI card + doc; `test_adoption_batch_5bb.py` | Maintainability P2 ? **V1** | S |
 | TB-250 | ~~Authority pipeline stage timeline in operator UI ? add `dbo.RunStageOutcomes` (migration); write rows at stage start/end in `AuthorityPipelineStagesExecutor`; expose `GET /v1/architecture/run/{runId}/stage-timeline` returning `StageTimelineSummary[]` (name, startedUtc, completedUtc, outcomeStatus, durationMs); add collapse-by-default "Pipeline stages" section to `/reviews/{runId}` with `StatusTag` per stage and OTel deep-link when `OtelTraceId` present; unit + integration tests~~ ? **Done** (2026-06-02, batch 5BW): migration `240_RunStageOutcomes.sql` + `RunDetailPipelineStagesSection`; `test_traceability_batch_5bw.py` | Maintainability P2 ? **V1** | M |
 | TB-251 | ~~Retrieval indexing at-least-once outbox ? `dbo.RetrievalIndexOutbox` migration (OutboxId, RunId, CreatedUtc, ProcessedUtc, AttemptCount, LastError); insert row after manifest commit in `ManifestFinalizationService`; `RetrievalIndexOutboxWorker : BackgroundService` polls every 30 s, calls `IRetrievalRunCompletionIndexer`, marks processed or increments AttemptCount; emit `AuditEventTypes.RetrievalIndexingFailed` at AttemptCount = 5; add constant + matrix row; unit tests~~ ? **Done** (2026-06-02, batch 5BX): `dbo.RetrievalIndexingOutbox` + `RetrievalIndexingOutboxProcessor` + lease/dead-letter (DbUp 019/219); `test_traceability_batch_5bx.py` | Maintainability P2 ? **V1** | M |
@@ -2261,9 +2283,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-264 | ~~Competitor-baseline citation discipline guard ? extend `scripts/ci/assert_why_rows_have_evidence.py` so any `competitorBaseline` cell containing a numeric quantity (regex: digits + `hour`/`day`/`week`/`%`/range dash) must carry a non-placeholder external `citation` (HTTPS, not the `first-party assertion` phrase) OR be reworded as explicitly illustrative ("illustrative, not benchmarked"); reword the 3 unsourced quantified rows in `why-archlucid-comparison.ts` + `WhyArchLucidPackBuilder.cs` (keep byte-for-row sync); pytest for pass/fail cases~~ ? **Done** (2026-06-03, batch 5CN): illustrative reword + quantified-baseline guard in `assert_why_rows_have_evidence.py`; `test_differentiability_batch_5cn.py` | Maintainability P2 ? **V1** | S |
 | TB-265 | ~~Named generic-AI contrast on public `/why` ? promote the existing `DIFFERENTIATION_PROOF_PACKET.md` "Generic AI assistant" contrast into the buyer-facing surface: a 6th front-door contrast block (or a dedicated "vs a chat assistant" section) on `WhyArchlucidMarketingView` + a `marketing-faq.ts` Q&A ("How is this different from using ChatGPT/Copilot?"), framed honestly (persisted manifest, audit ledger, governance gate, evidence chain vs a non-durable chat session); Vitest~~ ? **Done** (2026-06-03, batch 5CN): `MARKETING_GENERIC_AI_CONTRAST_POINTS` + `/why` section + FAQ; Vitest | Maintainability P2 ? **V1** | S |
 | TB-266 | ~~Cohort-claim integrity guard ? new `scripts/ci/assert_why_cohort_claim_locked.py` that fails (or forces an "(baseline lock pending)" annotation) when `/why` claim #4 asserts deterministic drift detection while `GoldenCohortBaselineConstants` fingerprints are still the zeroed placeholder; wire as a `/why` CI step; pytest~~ ? **Done** (2026-06-03, batch 5CN): `assert_why_cohort_claim_locked.py` + CI step; narrative disclosure; `test_differentiability_batch_5cn.py` | Maintainability P2 ? **V1** | S |
-| TB-267 | ~~`/sponsor/dashboard` route under sponsor chrome ? new `(sponsor)/sponsor/dashboard/page.tsx` rendering `ExecutiveRoiDashboardPageView` inside `ExecutiveShellFrame` (thin provider wrapper if dashboard sections need operator-nav context); repoint the `ExecutiveShellFrame` "Dashboard" nav `<Link>` from `/dashboard` to `/sponsor/dashboard`; update active-route highlight + Vitest~~ ? **Done** (2026-06-03, batch 5CO): `(sponsor)/sponsor/dashboard/page.tsx` + nav href; `test_executive_value_batch_5co.py` | Maintainability P2 ? **V1** | M |
-| TB-268 | ~~In-product sponsor narrative summary line ? `buildExecutiveValueNarrative` helper deriving a plain-language synthesis ("This period: {reviews} reviews, {findings} findings, ~${savings}/{hours} h saved; top action: {topRecommendedAction}") from the already-loaded `pilot-value-report` + recommended-actions data; render atop `ExecutiveScorecardClient` (and the dashboard) above the tiles; deterministic (no LLM); unit + Vitest~~ ? **Done** (2026-06-03, batch 5CO): `buildExecutiveValueNarrative` + `ExecutiveValueNarrativeBanner`; scorecard + sponsor dashboard | Maintainability P2 ? **V1** | S |
-| TB-269 | ~~Dashboard ROI trend window selector ? add a 30d/quarter/all/year range selector to `ExecutiveRoiTrendSection` matching `ExecutiveScorecardClient`'s control; thread the selected window to the history fetch; Vitest~~ ? **Done** (2026-06-03, batch 5CO): client-side filter + `exec-roi-trend-time-range`; scorecard year option; `test_executive_value_batch_5co.py` | Maintainability P2 ? **V1** | S |
+| TB-267 | ~~`/sponsor/dashboard` route under sponsor chrome ? new `(sponsor)/sponsor/dashboard/page.tsx` rendering `SponsorRoiDashboardPageView` inside `SponsorShellFrame` (thin provider wrapper if dashboard sections need operator-nav context); repoint the `SponsorShellFrame` "Dashboard" nav `<Link>` from `/dashboard` to `/sponsor/dashboard`; update active-route highlight + Vitest~~ ? **Done** (2026-06-03, batch 5CO): `(sponsor)/sponsor/dashboard/page.tsx` + nav href; `test_executive_value_batch_5co.py` | Maintainability P2 ? **V1** | M |
+| TB-268 | ~~In-product sponsor narrative summary line ? `buildSponsorValueNarrative` helper deriving a plain-language synthesis ("This period: {reviews} reviews, {findings} findings, ~${savings}/{hours} h saved; top action: {topRecommendedAction}") from the already-loaded `pilot-value-report` + recommended-actions data; render atop `SponsorScorecardClient` (and the dashboard) above the tiles; deterministic (no LLM); unit + Vitest~~ ? **Done** (2026-06-03, batch 5CO): `buildSponsorValueNarrative` + `SponsorValueNarrativeBanner`; scorecard + sponsor dashboard | Maintainability P2 ? **V1** | S |
+| TB-269 | ~~Dashboard ROI trend window selector ? add a 30d/quarter/all/year range selector to `SponsorRoiTrendSection` matching `SponsorScorecardClient`'s control; thread the selected window to the history fetch; Vitest~~ ? **Done** (2026-06-03, batch 5CO): client-side filter + `exec-roi-trend-time-range`; scorecard year option; `test_executive_value_batch_5co.py` | Maintainability P2 ? **V1** | S |
 | TB-270 | ~~Disambiguate review-creation entry points ? audit the reachable "quick" creation paths (`QuickReviewWizard` top-level vs `QuickStartWizard` / `SimplifiedPilotWizard` inside `NewRunWizardClient`); make `ReviewsNewPathSwitcher` the single decision surface with clear labels ("Quick review" vs "Full guided review") and document which path renders in which mode; Vitest guard that exactly one quick path is reachable per shell mode (do NOT remove wizard logic ? relabel/route only)~~ ? **Done** (2026-06-04, batch 5DM): path hint copy, relabeled wizard mode toggle, Vitest single-path guard | Maintainability P2 ? **V1** | M |
 | TB-271 | ~~Universal failure identifier ? generate a client-side request id (`crypto.randomUUID`) per API call in `api/http.ts`, send it as the correlation header, and have `OperatorApiProblem` fall back to it when the server returns no correlation id; route the remaining raw-text / `OperatorShellMessage` error sites through `OperatorApiProblem` (or surface the id); Vitest that a non-Problem-Details failure still renders a copyable id~~ ? **Done** (2026-06-04, batch 5DM): `applyCorrelationHeaders` + `buildApiRequestErrorFromParts` request fallback; `api-error.test.ts` | Maintainability P2 ? **V1** | S |
 | TB-272 | ~~Empty/loading-state consistency ? consolidate `EmptyState` and `OperatorEmptyState` into one component/API (keep one, adapt call sites); add `loading.tsx` route skeletons for high-traffic routes lacking them (`/`, `/governance`); optional warn-only `scripts/ci/check_operator_token_drift.py` flagging raw `text-neutral-*` where `al-*` tokens exist; Vitest~~ ? **Done** (2026-06-04, batch 5DM): `OperatorEmptyState` delegates plain-text to `EmptyState`; `dashboard/loading.tsx` + `governance/loading.tsx` | Maintainability P2 ? **V1** | M |
@@ -2274,7 +2296,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-278 | ~~Route tenant IDOR integration test matrix ? for each tenant-scoped `{tenantId}` route (sponsor summary, reference-evidence, metering, value-report): tenant A token + tenant B route ? **403**; matching tenant ? **200**/expected status; no dedicated tests exist today~~ ? **Done** (2026-06-05, batch 5DU-route-tenant-p0): route-tenant integration matrix + `test_route_tenant_batch.py` | Correctness P0 ? **V1** | S |
 | ~~TB-281~~ | ~~Value-report scope-only URL~~ ? **Done** (batch **5DU-route-tenant-p1**): `POST /v1/value-report/generate` + UI/CLI callers; legacy `{tenantId}` alias retained | Trustworthiness P1 | S |
 | ~~TB-279~~ | ~~Tenant-scoped admin route migration~~ ? **Done** (batch **5DU-route-tenant-p1**): scope-only reference-evidence + metering summary; legacy aliases retained | Architectural integrity P2 | M |
-| ~~TB-280~~ | ~~Retire legacy authority sponsor-summary `{tenantId}` route~~ ? **Done** (batch **5DU-route-tenant-p1**): removed `ExecutiveSummaryController`; CI guard in `test_route_tenant_p1_batch.py` | Architectural integrity P2 | XS |
+| ~~TB-280~~ | ~~Retire legacy authority sponsor-summary `{tenantId}` route~~ ? **Done** (batch **5DU-route-tenant-p1**): removed `SponsorSummaryController`; CI guard in `test_route_tenant_p1_batch.py` | Architectural integrity P2 | XS |
 | ~~TB-282~~ | ~~Cross-tenant usage rollup policy alignment~~ ? **Done** (batch **5DU-route-tenant-p1**): `AdminCrossTenantUsageRollupController` + **RequireOperatorRole**; RBAC integration tests | Trustworthiness P2 | XS |
 | ~~TB-283~~ | ~~Buyer run detail summary DTO~~ ? **Done** (batch **5DW-trust-pilot-p0**): `BuyerRunDetailSummaryDto`, `RunDetailBuyerMapper`, `GET /v1/authority/runs/{runId}/buyer-summary`, buyer-polished UI loader | Architectural integrity P0 | M |
 | ~~TB-284~~ | ~~Audience-tier Problem Details~~ ? **Done** (batch **5DW-trust-pilot-p0**): `ProblemDetailsAudience`, `x-archlucid-audience: buyer`, buyer-safe `supportHint` copy + golden tests | Trustworthiness P0 | S |
@@ -2292,7 +2314,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | ~~TB-296~~ | ~~Export blob push SSRF integration (API)~~ ? **Done** (batch **5DW-trust-paid-p1b**): API-layer SSRF regressions in `ScopedSnapshotReadIdorIntegrationTests` | Trustworthiness P1 | S |
 | ~~TB-297~~ | ~~Governance HTTP negative-path matrix~~ ? **Done** (batch **5DW-trust-paid-p1b**): `GovernanceNegativePathIntegrationTests` + `test_trust_paid_p1b_batch.py` | Testability P1 | M |
 | ~~TB-298~~ | ~~Manifest artifact download integrity~~ ? **Done** (batch **5DW-trust-paid-p1b**): matching-tenant artifact list/download success path in SQL integration | Trustworthiness P1 | S |
-| ~~TB-299~~ | ~~Sponsor ROI board-pack live E2E~~ ? **Done** (batch **5DW-trust-paid-p1b**): `ExecutiveRoiBoardPackEndpointTests` + `live-api-sponsor-board-pack.spec.ts` | Testability P1 | S |
+| ~~TB-299~~ | ~~Sponsor ROI board-pack live E2E~~ ? **Done** (batch **5DW-trust-paid-p1b**): `SponsorRoiBoardPackEndpointTests` + `live-api-sponsor-board-pack.spec.ts` | Testability P1 | S |
 | ~~TB-300~~ | ~~Scope identity auth permutation table~~ ? **Done** (batch **5DW-trust-paid-p1b**): JWT/DevBypass permutations + pen-test matrix row | Trustworthiness P1 | M |
 | ~~TB-301~~ | ~~Targeted Persistence tenant-read SQL probes~~ ? **Done** (batch **5DX-trust-p2**): five `*ScopeIsolationSqlIntegrationTests.cs` probes + `test_trust_p2_batch.py` | Testability P2 | M |
 | TB-009 | ~~Architecture invariant program ? doc + ADR 0035 finalize~~ ? **Done** (doc land 2026-05-09): catalog + Cursor rule; Waves A?C Done (**TB-010**?**TB-012**); not an open engineering item (cleared from `TECH_BACKLOG_OPEN.md` 2026-07-18). Optional: owner accepts ADR 0035 | Maintainability P2 ? **V1** | M |
@@ -2337,11 +2359,11 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-108 | ~~RunDetailPageView ? render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures`~~ ? **Done** (2026-05-31): `FindingCoverageDispositionPanel` + `commitBlockedReason` on `CommitRunButton` | Maintainability P2 ? **V1** | S |
 | TB-103 | Orphan candidate count + savings ? expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness ? **Done** 2026-05-31; reaffirmed 2026-06-01 | M |
 | TB-104 | 14-day expiring waiver KPI ? server-compute the window; remove client-side date rule | Customer-visible correctness ? **Done**; dashboard uses `waiversExpiringWithin14Days` only (**TB-155**, **TB-168**) | S |
-| TB-105 | Business-impact category buckets ? add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher | Customer-visible correctness ? **Done** 2026-05-31 | S |
+| TB-105 | Business-impact category buckets ? add pre-bucketed counts to `SponsorRoiSummaryResponse`; remove substring matcher | Customer-visible correctness ? **Done** 2026-05-31 | S |
 | TB-149 | ~~Canonical 14-day expiring-waiver window ? single server implementation; delete `CountExpiringWaivers` duplicate~~ ? **Done** (2026-05-31): `GovernanceWaiverExpiryWindow.CountExpiringWithinDays` | Maintainability P2 ? **V1** | S |
 | TB-150 | ~~Decisions-needed `TotalDecisionItems` ? union cardinality across buckets, not sum~~ ? **Done** (2026-05-31): `GovernanceDecisionsNeededSummaryCalculator` | Maintainability P2 ? **V1** | S |
-| TB-151 | ~~`ExecutiveSummaryResult.TotalRiskReductionScore` ? rename or map to pending-decision count~~ ? **Done** (2026-05-31): `ResolvedFindingsCount30Days` + `PendingGovernanceDecisionCount` | Maintainability P2 ? **V1** | XS |
-| TB-152 | ~~`ExecutiveSummaryResult.CostWasteUsd` ? stop aliasing `TotalEstimatedUsdSavings`~~ ? **Done** (2026-05-31): `CostWasteUsd: null` in live mapper | Maintainability P2 ? **V1** | XS |
+| TB-151 | ~~`SponsorSummaryResult.TotalRiskReductionScore` ? rename or map to pending-decision count~~ ? **Done** (2026-05-31): `ResolvedFindingsCount30Days` + `PendingGovernanceDecisionCount` | Maintainability P2 ? **V1** | XS |
+| TB-152 | ~~`SponsorSummaryResult.CostWasteUsd` ? stop aliasing `TotalEstimatedUsdSavings`~~ ? **Done** (2026-05-31): `CostWasteUsd: null` in live mapper | Maintainability P2 ? **V1** | XS |
 | TB-153 | ~~Recurring architecture review trigger ? idempotency before `ExecuteRunAsync`~~ ? **Done** (2026-05-31): checkpoint before `ExecuteRunAsync` | Correctness P0 ? **V1** | M |
 | TB-154 | ~~Waiver ? disposition state machine ? bidirectional invariants~~ ? **Done** (2026-05-31): waiver/disposition guards | Maintainability P2 ? **V1** | M |
 | TB-155 | ~~ROI cache TTL vs live decisions-needed ? canonical expiring-waiver source~~ ? **Done** (2026-05-31): cache refresh + dashboard single source | Maintainability P2 ? **V1** | S |
@@ -2377,7 +2399,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-165 | ~~Assessment score consistency guard~~ ? **Done** (2026-06-01): `check_assessment_score_consistency.py` + `Assert-AssessmentScoreConsistency.ps1`; extended by **TB-354**; not an open engineering item (cleared from `TECH_BACKLOG_OPEN.md` 2026-07-18) | Maintainability P2 ? **V1** | XS-S |
 | TB-166 | Release claim gate for full real-mode AI evidence | Release safety ? **Done** (2026-06-01): `check_release_real_mode_claim.py` + `Invoke-ReleaseRealModeClaimGate.ps1` | S |
 | TB-167 | ~~Sponsor AI readiness posture artifact~~ ? **Done** (2026-06-03, batch 5CP): `Write-AiReadinessPosture.ps1` wired via `Add-AiReadinessPostureFinding` in `collect-first-pilot-proof.ps1`; `AI_READINESS_POSTURE.md` updated; `test_proof_roi_batch_5cp.py` | Maintainability P2 ? **V1** | S-M |
-| TB-168 | Sponsor KPI semantic contract and UI heuristic regression guard | Customer-visible correctness ? **Done** (2026-06-01): `EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`, UI + Application.Tests guards | S |
+| TB-168 | Sponsor KPI semantic contract and UI heuristic regression guard | Customer-visible correctness ? **Done** (2026-06-01): `SPONSOR_KPI_SEMANTIC_CONTRACT.json`, UI + Application.Tests guards | S |
 | TB-169 | Pilot-first onboarding and Operate-surface progressive disclosure | Adoption friction ? **Done** (2026-06-01): committed-review nav gate + first-run workflow panel | M |
 | TB-170 | ~~Remediate stale relative markdown links (docs/nav consolidation drift)~~ ? **Done** (2026-06-01, batch 5F): `repair_doc_links_batch5f.py` + stubs; `check_doc_links.py` exit 0; CI merge-blocking | Maintainability P2 ? **V1** | L |
 | TB-143 | ~~In-app markdown documentation renderer + `/help/{topic}` routes~~ ? **Done** (2026-06-01): registry-backed `/help/{topic}` renderer | Maintainability P2 ? **V1** | M |
@@ -3221,7 +3243,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 
 ## TB-168 ? Sponsor KPI semantic contract and UI heuristic regression guard
 
-**Status (2026-06-01):** **Done** ? `docs/library/EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`; UI guard tests (`sponsor-kpi-semantic-contract.test.ts`, live KPI cards ban `expiringWaiversCount14Days ??`); `CachingExecutiveRoiSummaryServiceTests` proves live governance refresh over stale cache; dashboard expiring-waiver tile uses `waiversExpiringWithin14Days` only (**TB-155**).
+**Status (2026-06-01):** **Done** ? `docs/library/SPONSOR_KPI_SEMANTIC_CONTRACT.json`; UI guard tests (`sponsor-kpi-semantic-contract.test.ts`, live KPI cards ban `expiringWaiversCount14Days ??`); `CachingSponsorRoiSummaryServiceTests` proves live governance refresh over stale cache; dashboard expiring-waiver tile uses `waiversExpiringWithin14Days` only (**TB-155**).
 
 **Objective:** Prevent customer-visible sponsor KPI, ROI, waiver, and decision-count semantics from drifting back into duplicated UI/backend/cache implementations after the known fixes land.
 
@@ -3242,7 +3264,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 - Cache fallback behavior is explicit and tested; stale cached values cannot silently override fresher governance/decision values.
 - The guard is narrow enough not to ban harmless formatting, rounding, or display-only transformations.
 
-**Refs:** **TB-103**, **TB-104**, **TB-105**, **TB-149**, **TB-150**, **TB-151**, **TB-152**, **TB-153**, **TB-154**, **TB-155**, `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`, `ArchLucid.Application/Roi/CachingExecutiveRoiSummaryService.cs`, `archlucid-ui/src/lib/runs/run-potential-savings-parser.ts`, `docs/library/PILOT_SCORECARD_API.md`.
+**Refs:** **TB-103**, **TB-104**, **TB-105**, **TB-149**, **TB-150**, **TB-151**, **TB-152**, **TB-153**, **TB-154**, **TB-155**, `ArchLucid.Application/Roi/SponsorRoiSummaryService.cs`, `ArchLucid.Application/Roi/CachingSponsorRoiSummaryService.cs`, `archlucid-ui/src/lib/runs/run-potential-savings-parser.ts`, `docs/library/PILOT_SCORECARD_API.md`.
 
 **Size estimate:** S.
 
@@ -5285,7 +5307,7 @@ Generic summaries do not create durable operating habits. A sticky digest must t
 
 - `ArchLucid.Api/Controllers/Advisory/*`
 - `ArchLucid.Application/Advisory/*Digest*`
-- `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
+- `ArchLucid.Application/Roi/SponsorRoiSummaryService.cs`
 - `ArchLucid.Persistence/Governance/*`
 - `archlucid-ui/src/app/(operator)/digests/`
 - `docs/library/PRODUCT_PACKAGING.md`
@@ -5305,7 +5327,7 @@ Any sponsor card that mixes live ROI with mock or illustrative KPIs weakens trus
 **What to do:**
 
 1. Inventory sponsor dashboard cards and identify which are live, mock, illustrative, or simulator-backed.
-2. Replace mock KPI cards with `ExecutiveRoiSummary`, compliance drift trend, finding disposition counts, waiver expiry counts, and completed-review counts where live data exists.
+2. Replace mock KPI cards with `SponsorRoiSummary`, compliance drift trend, finding disposition counts, waiver expiry counts, and completed-review counts where live data exists.
 3. Clearly label simulator/demo values if they remain in demo-only routes; do not show them in production sponsor surfaces.
 4. Prefer fewer cards with inspectable assumptions over a comprehensive dashboard with weak provenance.
 5. Add regression tests or fixture assertions that production sponsor pages do not import mock KPI modules.
@@ -5323,7 +5345,7 @@ Any sponsor card that mixes live ROI with mock or illustrative KPIs weakens trus
 - `archlucid-ui/src/app/(operator)/sponsor/`
 - `archlucid-ui/src/lib/*sponsor*mock*`
 - `ArchLucid.Api/Controllers/Analytics/RoiAnalyticsController.cs`
-- `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
+- `ArchLucid.Application/Roi/SponsorRoiSummaryService.cs`
 
 **Size estimate:** **S** ? UI cleanup plus data-source alignment.
 
@@ -6244,11 +6266,11 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 
 **Problem:**
 
-`ExecDigestWeeklyArchLucidJob`, `WeeklyExecutiveSummaryJob`, and related delivery scanners delegate to Application-layer scanners. If delivery is recorded **after** send and Azure Container Apps retries the job on non-zero exit, operators may receive duplicate digest emails. Jobs.Cli does not write cost or provenance rows; the risk here is customer-visible duplicate notifications, not FinOps double-counting.
+`ExecDigestWeeklyArchLucidJob`, `WeeklySponsorSummaryJob`, and related delivery scanners delegate to Application-layer scanners. If delivery is recorded **after** send and Azure Container Apps retries the job on non-zero exit, operators may receive duplicate digest emails. Jobs.Cli does not write cost or provenance rows; the risk here is customer-visible duplicate notifications, not FinOps double-counting.
 
 **What to do:**
 
-1. Audit `ExecDigestWeeklyDeliveryScanner`, `WeeklyExecutiveSummaryDeliveryScanner`, and `WeeklyArchitectureDigestJobRunner` for send vs persist order.
+1. Audit `ExecDigestWeeklyDeliveryScanner`, `WeeklySponsorSummaryDeliveryScanner`, and `WeeklyArchitectureDigestJobRunner` for send vs persist order.
 2. Ensure idempotency key (tenant + digest period + channel) is written **before** outbound send, or use outbox pattern with at-least-once safe consumers.
 3. Add unit/integration tests: simulated retry after send does not enqueue a second delivery for the same period.
 4. Document idempotency contract in scanner XML comments and [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
@@ -6260,9 +6282,9 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 
 **Affected files / projects:**
 
-- `ArchLucid.Application/` (digest scanner implementations ? locate via `ExecDigestWeeklyDeliveryScanner`, `WeeklyExecutiveSummaryDeliveryScanner`)
+- `ArchLucid.Application/` (digest scanner implementations ? locate via `ExecDigestWeeklyDeliveryScanner`, `WeeklySponsorSummaryDeliveryScanner`)
 - `ArchLucid.Host.Core/Jobs/ExecDigestWeeklyArchLucidJob.cs`
-- `ArchLucid.Host.Core/Jobs/WeeklyExecutiveSummaryJob.cs`
+- `ArchLucid.Host.Core/Jobs/WeeklySponsorSummaryJob.cs`
 - `ArchLucid.Host.Core/Jobs/WeeklyArchitectureDigestArchLucidJob.cs`
 - Application tests for scanner idempotency
 
@@ -6738,7 +6760,7 @@ All 7 Logic App Standard resources in `terraform-logicapps/main.tf` pass `storag
 
 ## TB-103 ? Orphan candidate count + savings ? expose via backend API; remove UI heuristic parser
 
-**Status (2026-05-31):** **Done** ? `ExecutiveOrphanCandidateKpiCalculator` + `orphanCandidates` on `ExecutiveRoiSummaryResponse`; `ExecutiveOrphanCandidatesCard` reads API only; orphan heuristics removed from `run-potential-savings-parser.ts` (run detail uses cost artifact only).
+**Status (2026-05-31):** **Done** ? `SponsorOrphanCandidateKpiCalculator` + `orphanCandidates` on `SponsorRoiSummaryResponse`; `SponsorOrphanCandidatesCard` reads API only; orphan heuristics removed from `run-potential-savings-parser.ts` (run detail uses cost artifact only).
 
 **Source:** Cross-layer domain-term audit (2026-05-27).
 
@@ -6751,32 +6773,32 @@ All 7 Logic App Standard resources in `terraform-logicapps/main.tf` pass `storag
 | Backend | `ArchLucid.ArtifactSynthesis/Classifiers/OrphanedResourceClassifier.cs` | `resources.json` (ARM dump) | Deterministic ARM rules (unattached disks, NICs without VM, public IPs without `ipConfiguration`) |
 | Backend | `ArchLucid.Application/Findings/OrphanedAzureResourceFindingEngine.cs` | Above classifier | Emits typed `OrphanedAzureResource` findings |
 | **Frontend** | `archlucid-ui/src/lib/runs/run-potential-savings-parser.ts` | `orphan-candidates.json` (extractor artifact) | Regex heuristic: coerces `candidates`/`resources`/`items`/`orphans` arrays; sums cost fields by keyword match |
-| **Frontend** | `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveOrphanCandidatesCard.tsx` | Above parser | `count = array.length`, `savings = heuristic USD sum` |
+| **Frontend** | `archlucid-ui/src/app/(operator)/dashboard/_sections/SponsorOrphanCandidatesCard.tsx` | Above parser | `count = array.length`, `savings = heuristic USD sum` |
 
 The UI card never reads backend orphan findings. Count and dollar figures can diverge from server-side classification without either side producing an error. The heuristic string matching in `run-potential-savings-parser.ts` (`\borgan\b`, cost-field keyword scan) is a maintenance liability as extractor output shapes evolve.
 
 **What to do:**
 
-1. Add a new read model / query in `ArchLucid.Application` (or extend `ExecutiveRoiSummaryService`) that exposes `OrphanCandidateSummary { Count: int, AnnualSavingsUsd: decimal, EvidenceRunId: Guid }` derived from committed `OrphanedAzureResource` findings for the tenant's latest analyzed run.
-2. Expose the new field on `GET /v1/roi/sponsor-summary` response (`ExecutiveRoiSummaryResponse`) ? or as a dedicated `GET /v1/roi/orphan-candidate-summary` endpoint if the data source is a separate analysis pipeline.
-3. Replace `ExecutiveOrphanCandidatesCard.tsx` to call the API field instead of fetching and parsing `orphan-candidates.json`.
+1. Add a new read model / query in `ArchLucid.Application` (or extend `SponsorRoiSummaryService`) that exposes `OrphanCandidateSummary { Count: int, AnnualSavingsUsd: decimal, EvidenceRunId: Guid }` derived from committed `OrphanedAzureResource` findings for the tenant's latest analyzed run.
+2. Expose the new field on `GET /v1/roi/sponsor-summary` response (`SponsorRoiSummaryResponse`) ? or as a dedicated `GET /v1/roi/orphan-candidate-summary` endpoint if the data source is a separate analysis pipeline.
+3. Replace `SponsorOrphanCandidatesCard.tsx` to call the API field instead of fetching and parsing `orphan-candidates.json`.
 4. Delete `heuristicAnnualUsdOpportunityFromOrphanCandidatesJson`, `coerceOrphanList`, and `sumOrphanCandidateRowUsdAnnual` from `run-potential-savings-parser.ts` once no remaining callers exist. Retain `run-savings-summary-model.ts` only if it is still needed for a different artifact type.
 5. Update `RunSavingsSummary.tsx` JSDoc comment which references `orphan-candidates.json` directly.
 6. Add a unit test asserting the new API field matches the count produced by `OrphanedResourceClassifier` given a known `resources.json` fixture.
 
 **Acceptance criteria:**
 
-- `ExecutiveOrphanCandidatesCard` displays count and savings sourced from the backend without fetching any raw artifact JSON.
+- `SponsorOrphanCandidatesCard` displays count and savings sourced from the backend without fetching any raw artifact JSON.
 - `run-potential-savings-parser.ts` contains no heuristic orphan logic (or the file is deleted if no other caller remains).
 - Count and savings figures are consistent with `OrphanedAzureResource` findings visible in the findings panel for the same run.
 - No regression to the finding-level orphan detail pages.
 
 **Affected files / projects:**
 
-- `ArchLucid.Application/Findings/OrphanedAzureResourceFindingEngine.cs` (or `ExecutiveRoiSummaryService.cs`)
+- `ArchLucid.Application/Findings/OrphanedAzureResourceFindingEngine.cs` (or `SponsorRoiSummaryService.cs`)
 - `ArchLucid.Api/Controllers/Roi/RoiController.cs`
-- `ArchLucid.Contracts/Roi/ExecutiveRoiSummaryResponse.cs` (or new contract)
-- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveOrphanCandidatesCard.tsx`
+- `ArchLucid.Contracts/Roi/SponsorRoiSummaryResponse.cs` (or new contract)
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/SponsorOrphanCandidatesCard.tsx`
 - `archlucid-ui/src/lib/runs/run-potential-savings-parser.ts`
 - `archlucid-ui/src/lib/runs/run-savings-summary-model.ts`
 - `archlucid-ui/src/components/RunSavingsSummary.tsx`
@@ -6789,16 +6811,16 @@ The UI card never reads backend orphan findings. Count and dollar figures can di
 
 ## TB-104 ? 14-day expiring waiver KPI ? server-compute the window; remove client-side date rule
 
-**Status (2026-05-31):** **Done** ? `GovernanceWaiverExpiryWindow` + `ExpiringWaiversCount14Days` on ROI; dashboard uses `waiversExpiringWithin14Days`; `ExecutiveReviewPacketPortfolioSignalsFactory` maps ROI expiring count (not `ActiveWaiversCount`).
+**Status (2026-05-31):** **Done** ? `GovernanceWaiverExpiryWindow` + `ExpiringWaiversCount14Days` on ROI; dashboard uses `waiversExpiringWithin14Days`; `SponsorReviewPacketPortfolioSignalsFactory` maps ROI expiring count (not `ActiveWaiversCount`).
 
 **Source:** Cross-layer domain-term audit (2026-05-27). Cross-ref: code comment references TB-062 gap.
 
 **Problem:**
 
-`ExecutiveRoiDashboardLiveKpiCards.tsx` computes the "expiring waivers" dashboard tile client-side:
+`SponsorRoiDashboardLiveKpiCards.tsx` computes the "expiring waivers" dashboard tile client-side:
 
 ```typescript
-// archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardLiveKpiCards.tsx
+// archlucid-ui/src/app/(operator)/dashboard/_sections/SponsorRoiDashboardLiveKpiCards.tsx
 const countExpiringWaivers = (entries: RiskExceptionRecord[]) =>
   entries.filter(e => {
     const expiresMs = new Date(e.expiresAtUtc).getTime();
@@ -6806,7 +6828,7 @@ const countExpiringWaivers = (entries: RiskExceptionRecord[]) =>
   }).length;
 ```
 
-The 14-day window is a business rule that exists only in the browser. `ExecutiveReviewPacketBuilder.cs` has an `ExpiringWaiversCount14Days` field in the review packet model but populates it from `ActiveWaiversCount` (a known placeholder). Consequences:
+The 14-day window is a business rule that exists only in the browser. `SponsorReviewPacketBuilder.cs` has an `ExpiringWaiversCount14Days` field in the review packet model but populates it from `ActiveWaiversCount` (a known placeholder). Consequences:
 
 - The rule can change on the server (e.g., moved to 30 days) without the dashboard tile updating.
 - The dashboard tile is evaluated in the user's local time zone (`Date.now()`), not UTC.
@@ -6814,10 +6836,10 @@ The 14-day window is a business rule that exists only in the browser. `Executive
 
 **What to do:**
 
-1. In `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs` (or `RiskExceptionService`), compute `ExpiringWaiversCount14Days` correctly: count active waivers where `ExpiresAtUtc` is within the next 14 calendar days from UTC now.
-2. Add `ExpiringWaiversCount14Days: int` to `ExecutiveRoiSummaryResponse` (it may already exist as a stub ? verify and populate it).
-3. Fix `ExecutiveReviewPacketBuilder.cs` to read the same field rather than `ActiveWaiversCount`.
-4. Replace the `countExpiringWaivers` client-side filter in `ExecutiveRoiDashboardLiveKpiCards.tsx` with the API-provided field.
+1. In `ArchLucid.Application/Roi/SponsorRoiSummaryService.cs` (or `RiskExceptionService`), compute `ExpiringWaiversCount14Days` correctly: count active waivers where `ExpiresAtUtc` is within the next 14 calendar days from UTC now.
+2. Add `ExpiringWaiversCount14Days: int` to `SponsorRoiSummaryResponse` (it may already exist as a stub ? verify and populate it).
+3. Fix `SponsorReviewPacketBuilder.cs` to read the same field rather than `ActiveWaiversCount`.
+4. Replace the `countExpiringWaivers` client-side filter in `SponsorRoiDashboardLiveKpiCards.tsx` with the API-provided field.
 5. Add a unit test for the 14-day boundary calculation (including day-boundary edge case at UTC midnight).
 
 **Acceptance criteria:**
@@ -6829,11 +6851,11 @@ The 14-day window is a business rule that exists only in the browser. `Executive
 
 **Affected files / projects:**
 
-- `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
-- `ArchLucid.Application/Exports/ExecutiveReviewPacketBuilder.cs`
-- `ArchLucid.Contracts/Roi/ExecutiveRoiSummaryResponse.cs`
+- `ArchLucid.Application/Roi/SponsorRoiSummaryService.cs`
+- `ArchLucid.Application/Exports/SponsorReviewPacketBuilder.cs`
+- `ArchLucid.Contracts/Roi/SponsorRoiSummaryResponse.cs`
 - `ArchLucid.Api/Controllers/Roi/RoiController.cs`
-- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardLiveKpiCards.tsx`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/SponsorRoiDashboardLiveKpiCards.tsx`
 
 **Cross-ref:** **TB-062** (sponsor dashboard live KPI replacement); **TB-057** (governance stickiness review packet); **TB-149** (canonical window ? supersedes duplicate `CountExpiringWaivers` logic); **TB-155** (cached ROI vs live decisions-needed).
 
@@ -6841,9 +6863,9 @@ The 14-day window is a business rule that exists only in the browser. `Executive
 
 ---
 
-## TB-105 ? Business-impact category buckets ? add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher
+## TB-105 ? Business-impact category buckets ? add pre-bucketed counts to `SponsorRoiSummaryResponse`; remove substring matcher
 
-**Status (2026-05-31):** **Done** ? six pillars (`Security`, `Compliance`, `Reliability`, `Cost`, `Governance`, `Other`) via `ExecutiveBusinessImpactPillarMatchers` + classifier; widget + `StaleArchitectureRiskCount` on ROI aligned with decisions-needed and review packet.
+**Status (2026-05-31):** **Done** ? six pillars (`Security`, `Compliance`, `Reliability`, `Cost`, `Governance`, `Other`) via `SponsorBusinessImpactPillarMatchers` + classifier; widget + `StaleArchitectureRiskCount` on ROI aligned with decisions-needed and review packet.
 
 **Source:** Cross-layer domain-term audit (2026-05-27).
 
@@ -6866,11 +6888,11 @@ Problems with this approach:
 
 - The bucket definitions (which `category` substrings map to which pillar) live only in the UI. They cannot be unit-tested against real category values from the backend.
 - A backend category rename (e.g., `"resiliency"` ? `"resilience"`) silently zeroes the reliability bucket without a compilation error.
-- The backend `ExecutiveRoiSummaryService` already has full category information when building the response; it can produce authoritative counts with zero ambiguity.
+- The backend `SponsorRoiSummaryService` already has full category information when building the response; it can produce authoritative counts with zero ambiguity.
 
 **What to do:**
 
-1. In `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`, aggregate `topSystemicIssues` into named pillar buckets (`Security`, `Reliability`, `Compliance`, `Cost`, `Governance`, `Other`) using the same category taxonomy the backend uses for findings classification. Add a `BusinessImpactBuckets` property to `ExecutiveRoiSummaryResponse`.
+1. In `ArchLucid.Application/Roi/SponsorRoiSummaryService.cs`, aggregate `topSystemicIssues` into named pillar buckets (`Security`, `Reliability`, `Compliance`, `Cost`, `Governance`, `Other`) using the same category taxonomy the backend uses for findings classification. Add a `BusinessImpactBuckets` property to `SponsorRoiSummaryResponse`.
 2. Define the bucket-to-category mapping as a named constant or enum in `ArchLucid.Core` or `ArchLucid.Contracts` so it is reusable and testable.
 3. Replace the `sumIssueCounts` calls in `BusinessImpactSummaryWidget.tsx` with the pre-bucketed counts from the API response.
 4. Delete `sumIssueCounts` (or mark it internal-test-only) once no production callers remain.
@@ -6878,14 +6900,14 @@ Problems with this approach:
 
 **Acceptance criteria:**
 
-- `BusinessImpactSummaryWidget` reads bucket counts from `ExecutiveRoiSummaryResponse.BusinessImpactBuckets`; no substring matching occurs in production UI code.
+- `BusinessImpactSummaryWidget` reads bucket counts from `SponsorRoiSummaryResponse.BusinessImpactBuckets`; no substring matching occurs in production UI code.
 - A backend category rename causes a compilation error or failing unit test, not a silent KPI zero.
-- Bucket counts in the widget match what `ExecutiveRoiSummaryService` computed for the same response payload.
+- Bucket counts in the widget match what `SponsorRoiSummaryService` computed for the same response payload.
 
 **Affected files / projects:**
 
-- `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
-- `ArchLucid.Contracts/Roi/ExecutiveRoiSummaryResponse.cs` (new `BusinessImpactBuckets` shape)
+- `ArchLucid.Application/Roi/SponsorRoiSummaryService.cs`
+- `ArchLucid.Contracts/Roi/SponsorRoiSummaryResponse.cs` (new `BusinessImpactBuckets` shape)
 - `ArchLucid.Core` or `ArchLucid.Contracts` (category ? pillar mapping constant)
 - `archlucid-ui/src/components/BusinessImpactSummaryWidget.tsx`
 - `ArchLucid.Application.Tests/Roi/` (new unit tests)
@@ -6898,7 +6920,7 @@ Problems with this approach:
 
 ## TB-149 ? Canonical 14-day expiring-waiver window ? single server implementation
 
-**Status (2026-05-31):** **Done** ? `GovernanceWaiverExpiryWindow.CountExpiringWithinDays` (`[now, now+14d]` UTC inclusive); `ExecutiveRoiSummaryService.CountExpiringWaivers` removed; composer + ROI share helper; unit tests in `GovernanceWaiverExpiryWindowTests`.
+**Status (2026-05-31):** **Done** ? `GovernanceWaiverExpiryWindow.CountExpiringWithinDays` (`[now, now+14d]` UTC inclusive); `SponsorRoiSummaryService.CountExpiringWaivers` removed; composer + ROI share helper; unit tests in `GovernanceWaiverExpiryWindowTests`.
 
 **Source:** Cross-layer data consistency audit (2026-05-31). Extends **TB-104**.
 
@@ -6906,7 +6928,7 @@ Problems with this approach:
 
 Two server paths compute ?waivers expiring within 14 days? with **different predicates**:
 
-- `ExecutiveRoiSummaryService.CountExpiringWaivers` ? `ExpiresAtUtc <= now.AddDays(14)` with **no lower bound** (includes already-expired rows that missed `MarkExpiredAsync`).
+- `SponsorRoiSummaryService.CountExpiringWaivers` ? `ExpiresAtUtc <= now.AddDays(14)` with **no lower bound** (includes already-expired rows that missed `MarkExpiredAsync`).
 - `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` ? `ExpiresAtUtc >= now && ExpiresAtUtc <= now.AddDays(14)` (correct inclusive window).
 
 The dashboard prefers `summary.expiringWaiversCount14Days` from the ROI endpoint when present (`??` only falls back when null), so the tile routinely shows the ROI count, not the decisions-needed count.
@@ -6914,8 +6936,8 @@ The dashboard prefers `summary.expiringWaiversCount14Days` from the ROI endpoint
 **What to do:**
 
 1. Extract one shared helper (e.g. `GovernanceWaiverExpiryWindow.CountWithinDays(activeWaivers, nowUtc, days: 14)`) with documented UTC inclusive bounds `[now, now+14d]`.
-2. Delete `ExecutiveRoiSummaryService.CountExpiringWaivers`; populate `ExpiringWaiversCount14Days` from the shared helper (or delegate to `IGovernanceDigestDecisionNeededComposer` / shared service).
-3. Update `ExecutiveRoiDashboardLiveKpiCards.tsx` to read **only** `decisionsNeeded.waiversExpiringWithin14Days` or a single ROI field sourced from the same helper ? remove dual-source `??` when both are populated.
+2. Delete `SponsorRoiSummaryService.CountExpiringWaivers`; populate `ExpiringWaiversCount14Days` from the shared helper (or delegate to `IGovernanceDigestDecisionNeededComposer` / shared service).
+3. Update `SponsorRoiDashboardLiveKpiCards.tsx` to read **only** `decisionsNeeded.waiversExpiringWithin14Days` or a single ROI field sourced from the same helper ? remove dual-source `??` when both are populated.
 4. Unit tests: expired yesterday excluded; expires exactly at `now+14d` included; expires at `now+14d+1s` excluded.
 
 **Acceptance criteria:**
@@ -6925,9 +6947,9 @@ The dashboard prefers `summary.expiringWaiversCount14Days` from the ROI endpoint
 
 **Affected files:**
 
-- `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
+- `ArchLucid.Application/Roi/SponsorRoiSummaryService.cs`
 - `ArchLucid.Application/Governance/GovernanceDigestDecisionNeededComposer.cs`
-- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardLiveKpiCards.tsx`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/SponsorRoiDashboardLiveKpiCards.tsx`
 - `ArchLucid.Application.Tests/Governance/` or `ArchLucid.Application.Tests/Roi/`
 
 **Cross-ref:** **TB-104**, **TB-155**, **TB-062**.
@@ -6976,15 +6998,15 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 ---
 
-## TB-151 ? `ExecutiveSummaryResult.TotalRiskReductionScore` ? semantic fix
+## TB-151 ? `SponsorSummaryResult.TotalRiskReductionScore` ? semantic fix
 
-**Status (2026-05-31):** **Done** ? `TotalRiskReductionScore` maps to `ResolvedFindingsCount30Days`; added `PendingGovernanceDecisionCount` on `ExecutiveSummaryResult`; `ExecutiveReportsSummaryServiceTests`.
+**Status (2026-05-31):** **Done** ? `TotalRiskReductionScore` maps to `ResolvedFindingsCount30Days`; added `PendingGovernanceDecisionCount` on `SponsorSummaryResult`; `SponsorReportsSummaryServiceTests`.
 
 **Source:** Cross-layer data consistency audit (2026-05-31).
 
 **Problem:**
 
-`ExecutiveReportsSummaryService` maps `TotalRiskReductionScore = decisions.TotalDecisionItems`. Higher pending governance load **increases** a field named as if risk were **reduced**. PDF/export or partner integrations that consume `ExecutiveSummaryResult` may mis-rank tenants.
+`SponsorReportsSummaryService` maps `TotalRiskReductionScore = decisions.TotalDecisionItems`. Higher pending governance load **increases** a field named as if risk were **reduced**. PDF/export or partner integrations that consume `SponsorSummaryResult` may mis-rank tenants.
 
 **What to do (pick one, document in OpenAPI):**
 
@@ -6994,11 +7016,11 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 **Acceptance criteria:**
 
 - No field name implies ?reduction? while monotonically increasing with outstanding decisions.
-- `ExecutiveSummaryController` response documented in contract snapshot.
+- `SponsorSummaryController` response documented in contract snapshot.
 
 **Affected files:**
 
-- `ArchLucid.Application/Reports/ExecutiveReportsSummaryService.cs`
+- `ArchLucid.Application/Reports/SponsorReportsSummaryService.cs`
 - `ArchLucid.Contracts` / reports DTOs
 - OpenAPI snapshot + `archlucid-ui` types if exposed
 
@@ -7008,15 +7030,15 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 ---
 
-## TB-152 ? `ExecutiveSummaryResult.CostWasteUsd` ? stop aliasing savings
+## TB-152 ? `SponsorSummaryResult.CostWasteUsd` ? stop aliasing savings
 
-**Status (2026-05-31):** **Done** ? `ExecutiveReportsSummaryService` sets `CostWasteUsd: null`; `ExecutiveReportsSummaryServiceTests` asserts separation from `TotalEstimatedUsdSavings`.
+**Status (2026-05-31):** **Done** ? `SponsorReportsSummaryService` sets `CostWasteUsd: null`; `SponsorReportsSummaryServiceTests` asserts separation from `TotalEstimatedUsdSavings`.
 
 **Source:** Cross-layer data consistency audit (2026-05-31).
 
 **Problem:**
 
-`ExecutiveReportsSummaryService` sets `CostWasteUsd = roi.TotalEstimatedUsdSavings`. Current monthly waste and estimated recoverable savings are related but not identical; a future ROI field split would silently desync exports.
+`SponsorReportsSummaryService` sets `CostWasteUsd = roi.TotalEstimatedUsdSavings`. Current monthly waste and estimated recoverable savings are related but not identical; a future ROI field split would silently desync exports.
 
 **What to do:**
 
@@ -7029,7 +7051,7 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 **Affected files:**
 
-- `ArchLucid.Application/Reports/ExecutiveReportsSummaryService.cs`
+- `ArchLucid.Application/Reports/SponsorReportsSummaryService.cs`
 - Sponsor summary contract types
 
 **Cross-ref:** **TB-062**, FinOps ROI contracts.
@@ -7111,13 +7133,13 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 ## TB-155 ? ROI cache vs live decisions-needed ? canonical expiring-waiver source
 
-**Status (2026-05-31):** **Done** ? `CachingExecutiveRoiSummaryService` refreshes `ExpiringWaiversCount14Days` on every read; dashboard tile uses `waiversExpiringWithin14Days` only (no ROI `??` fallback).
+**Status (2026-05-31):** **Done** ? `CachingSponsorRoiSummaryService` refreshes `ExpiringWaiversCount14Days` on every read; dashboard tile uses `waiversExpiringWithin14Days` only (no ROI `??` fallback).
 
 **Source:** Cross-layer data consistency audit (2026-05-31). Extends **TB-104**, **TB-149**.
 
 **Problem:**
 
-`CachingExecutiveRoiSummaryService` can serve `ExpiringWaiversCount14Days` up to the configured TTL (hours). `getGovernanceDecisionsNeededSummary()` is uncached. The dashboard parallel-fetch uses ROI value when non-null, so expiring-waiver tile can lag decisions-needed by TTL after waiver create/renew/revoke.
+`CachingSponsorRoiSummaryService` can serve `ExpiringWaiversCount14Days` up to the configured TTL (hours). `getGovernanceDecisionsNeededSummary()` is uncached. The dashboard parallel-fetch uses ROI value when non-null, so expiring-waiver tile can lag decisions-needed by TTL after waiver create/renew/revoke.
 
 **What to do:**
 
@@ -7131,8 +7153,8 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 **Affected files:**
 
-- `ArchLucid.Application/Roi/CachingExecutiveRoiSummaryService.cs` (if present)
-- `ExecutiveRoiDashboardLiveKpiCards.tsx`
+- `ArchLucid.Application/Roi/CachingSponsorRoiSummaryService.cs` (if present)
+- `SponsorRoiDashboardLiveKpiCards.tsx`
 - Cache invalidation hook in governance mutating endpoints
 
 **Cross-ref:** **TB-149**, **TB-104**, **TB-062**.
@@ -8961,7 +8983,7 @@ Create docs/go-to-market/DEMO_VIDEO_STORYBOARD.md with:
   - [ ] Add title card: "ArchLucid ? Defensible architecture, on demand"
   - [ ] Add captions for accessibility
   - [ ] Upload to Loom or Wistia (not YouTube for sales demo ? avoid competitor ads)
-  - [ ] Add link in PRODUCT_DATASHEET.md and EXECUTIVE_SPONSOR_BRIEF.md
+  - [ ] Add link in PRODUCT_DATASHEET.md and SPONSOR_SPONSOR_BRIEF.md
 ```
 
 **Affected files / projects:**
@@ -9016,7 +9038,7 @@ In docs/go-to-market/SHOULD_YOU_EVALUATE.md:
 
 ---
 
-## TB-235 ? `EXECUTIVE_ONE_EMAIL_KIT.md` ? verify or create
+## TB-235 ? `SPONSOR_ONE_EMAIL_KIT.md` ? verify or create
 
 **Source assessment:** `docs/assessments/Marketability_06022026.MD` ?MKT-07
 **Priority:** P2
@@ -9024,32 +9046,32 @@ In docs/go-to-market/SHOULD_YOU_EVALUATE.md:
 
 **Problem:**
 
-`EXECUTIVE_SPONSOR_BRIEF.md ?Related` references `EXECUTIVE_ONE_EMAIL_KIT.md` as "one-email sponsor/procurement copy." If that file does not exist, it is a dead reference in the sponsor brief. An owner who finishes a pilot and wants to close the sponsor via email needs this kit.
+`SPONSOR_SPONSOR_BRIEF.md ?Related` references `SPONSOR_ONE_EMAIL_KIT.md` as "one-email sponsor/procurement copy." If that file does not exist, it is a dead reference in the sponsor brief. An owner who finishes a pilot and wants to close the sponsor via email needs this kit.
 
 **What to do:**
 
 ```
-Check whether docs/go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md exists.
+Check whether docs/go-to-market/SPONSOR_ONE_EMAIL_KIT.md exists.
 
 If it does not exist, create it with:
 - 3 subject line variants (urgency-light, outcome-first, meeting-request)
 - 120-word email body with: opening hook, 2-sentence product description, pilot outcome placeholder (<<PILOT_OUTCOME>>), and CTA (schedule 30 minutes to review findings)
 - Four-artifact checklist the operator attaches:
-  1. Sponsor Sponsor Brief PDF (docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md ? export)
+  1. Sponsor Sponsor Brief PDF (docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md ? export)
   2. First-value report PDF (POST /v1/pilots/runs/{runId}/first-value-report.pdf)
   3. Pilot proof packet ZIP (scripts/collect-first-pilot-proof.ps1)
   4. ROI estimate (docs/library/PILOT_ROI_MODEL.md ?5 benchmark)
 - Follow-up timing guidance (48-hour first follow-up, 5-day second follow-up)
-- Cross-reference back to EXECUTIVE_SPONSOR_BRIEF.md as the canonical sponsor narrative
+- Cross-reference back to SPONSOR_SPONSOR_BRIEF.md as the canonical sponsor narrative
 
 If the file exists but is a stub, fill it with the above content.
 ```
 
 **Affected files / projects:**
 
-- `docs/go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md` (create if missing)
+- `docs/go-to-market/SPONSOR_ONE_EMAIL_KIT.md` (create if missing)
 
-**Cross-ref:** `EXECUTIVE_SPONSOR_BRIEF.md`, TB-227 (`collect-first-pilot-proof.ps1`), TB-229 (reference capture workflow).
+**Cross-ref:** `SPONSOR_SPONSOR_BRIEF.md`, TB-227 (`collect-first-pilot-proof.ps1`), TB-229 (reference capture workflow).
 ## TB-237 ? Pricing page early-adopter framing
 
 **Source assessment:** `docs/assessments/Marketability_06022026.MD` ?MKT-09
@@ -9146,13 +9168,13 @@ Add a baseline capture step to the architecture request wizard.
 Add run-mode breakdown to the sponsor ROI history response.
 
 Backend:
-1. In `ExecutiveRoiHistoryPeriod` (search for `ExecutiveRoiHistoryPeriod` or `ExecutiveRoiHistoryResponse`), add:
+1. In `SponsorRoiHistoryPeriod` (search for `SponsorRoiHistoryPeriod` or `SponsorRoiHistoryResponse`), add:
    - `int RealRunCount` ? committed runs with ExecutionMode = Real
    - `int SimulatorRunCount` ? committed runs with ExecutionMode != Real
    - `decimal RealModeSavingsUsd` ? savings pro-rated to Real-mode runs (total ? real/(real+sim))
    - `bool IsMixedMode` ? true when both Real and Simulator runs contributed
 
-2. In `IExecutiveRoiSummaryService.BuildHistoryAsync`, compute per-period mode breakdown from dbo.Runs.ExecutionMode.
+2. In `ISponsorRoiSummaryService.BuildHistoryAsync`, compute per-period mode breakdown from dbo.Runs.ExecutionMode.
 
 3. Add unit test: 3 Real + 2 Simulator ? correct mode counts and pro-rated savings.
 
@@ -9165,8 +9187,8 @@ Frontend:
 
 **Affected files / projects:**
 
-- `ArchLucid.Application/Roi/IExecutiveRoiSummaryService.cs`
-- `ExecutiveRoiHistoryPeriod` contract
+- `ArchLucid.Application/Roi/ISponsorRoiSummaryService.cs`
+- `SponsorRoiHistoryPeriod` contract
 - Sponsor ROI history chart in `archlucid-ui`
 
 **Cross-ref:** `RoiController.cs` `/sponsor-summary/history`, `PILOT_SUCCESS_SCORECARD.md ?2.4` (Operational metrics ? Run success rate).
@@ -9181,37 +9203,37 @@ Frontend:
 
 **Problem:**
 
-TB-103 (orphan-candidate dual pipeline), TB-149 (waiver window inconsistency), TB-151/TB-152 (inverted/aliased fields on `ExecutiveSummaryResult`), and TB-155 (cache vs live divergence) are the four documented defects in the sponsor ROI summary surface. Once those fixes land, there is no regression guard that keeps them fixed. This TB adds logical invariant tests to prevent silent regression.
+TB-103 (orphan-candidate dual pipeline), TB-149 (waiver window inconsistency), TB-151/TB-152 (inverted/aliased fields on `SponsorSummaryResult`), and TB-155 (cache vs live divergence) are the four documented defects in the sponsor ROI summary surface. Once those fixes land, there is no regression guard that keeps them fixed. This TB adds logical invariant tests to prevent silent regression.
 
 **What to do:**
 
 ```
-Create ArchLucid.Application.Tests/Roi/ExecutiveRoiSummaryInvariantTests.cs:
+Create ArchLucid.Application.Tests/Roi/SponsorRoiSummaryInvariantTests.cs:
 
 Test 1 ? FindingsReduced/FindingsAdded polarity (guards TB-151/TB-152):
 - Given two runs where run2 has fewer findings than run1
-- Assert ExecutiveSummaryResult.FindingsReduced > 0
-- Assert ExecutiveSummaryResult.FindingsAdded == 0
+- Assert SponsorSummaryResult.FindingsReduced > 0
+- Assert SponsorSummaryResult.FindingsAdded == 0
 
 Test 2 ? WaiversExpiringWithin14Days consistency (guards TB-149):
 - Given a waiver expiring in 10 days
 - Assert GovernanceDecisionsNeededSummary.WaiversExpiringWithin14Days == 1
-- Assert ExecutiveSummaryResult waiver count agrees
+- Assert SponsorSummaryResult waiver count agrees
 
 Test 3 ? OrphanCandidateCount single source (guards TB-103):
 - Given a run with 3 orphan candidates from one pipeline only
-- Assert ExecutiveSummaryResult.OrphanCandidateCount == 3 (not 6 from two pipelines)
+- Assert SponsorSummaryResult.OrphanCandidateCount == 3 (not 6 from two pipelines)
 
 Test 4 ? Cache freshness (guards TB-155):
 - Given a new waiver decision written after cache is populated
-- Assert GetExecutiveSummaryAsync returns the updated count (cache invalidated)
+- Assert GetSponsorSummaryAsync returns the updated count (cache invalidated)
 
 Add a comment in each test: `// Regression guard for TB-NNN ? <summary of original defect>`.
 ```
 
 **Affected files / projects:**
 
-- `ArchLucid.Application.Tests/Roi/ExecutiveRoiSummaryInvariantTests.cs` (new)
+- `ArchLucid.Application.Tests/Roi/SponsorRoiSummaryInvariantTests.cs` (new)
 - No production code changes ? guard only
 
 **Cross-ref:** TB-103, TB-149, TB-151, TB-152, TB-155 ? this TB guards those fixes, does not implement them.
@@ -9561,12 +9583,12 @@ Documentation:
 
 ## TB-244 ? KPI tile drill-through navigation (P1)
 
-**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
-**Problem:** `ExecutiveRoiDashboardLiveKpiCards.tsx` renders live count tiles for orphan candidates, SQL backup mismatches, and similar signals, but none of the tiles are clickable. An sponsor sponsor who wants to understand the numbers behind a KPI must navigate away manually. This is the highest-deficiency gap in the EVV assessment (sub-dimension deficiency 10.50 + 6.60).
+**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/SponsorValueVisibility_06022026.MD`), 2026-06-02.
+**Problem:** `SponsorRoiDashboardLiveKpiCards.tsx` renders live count tiles for orphan candidates, SQL backup mismatches, and similar signals, but none of the tiles are clickable. An sponsor sponsor who wants to understand the numbers behind a KPI must navigate away manually. This is the highest-deficiency gap in the EVV assessment (sub-dimension deficiency 10.50 + 6.60).
 
 **Cursor prompt:**
 ```
-Add click-through navigation to each KPI tile in ExecutiveRoiDashboardLiveKpiCards.tsx.
+Add click-through navigation to each KPI tile in SponsorRoiDashboardLiveKpiCards.tsx.
 
 1. Import Next.js Link from 'next/link'.
 
@@ -9587,7 +9609,7 @@ Add click-through navigation to each KPI tile in ExecutiveRoiDashboardLiveKpiCar
 
 **Affected files / projects:**
 
-- `archlucid-ui/src/app/sponsor/` (`ExecutiveRoiDashboardLiveKpiCards.tsx`)
+- `archlucid-ui/src/app/sponsor/` (`SponsorRoiDashboardLiveKpiCards.tsx`)
 
 **Cross-ref:** TB-245 (trend chart upgrade ? same dashboard page), TB-246 (sponsor shell nav), TB-062 (sponsor KPI replacement).
 
@@ -9595,14 +9617,14 @@ Add click-through navigation to each KPI tile in ExecutiveRoiDashboardLiveKpiCar
 
 ## TB-245 ? ROI trend chart upgrade to SVG bar chart (P1)
 
-**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
-**Problem:** `ExecutiveRoiTrendSection.tsx` renders 6-month ROI trend data as proportional CSS `<div>` elements. There are no axis labels, no month labels on bars, and no hover tooltips showing exact values. This is visually indistinguishable from a placeholder and is unacceptable in an sponsor-facing dashboard.
+**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/SponsorValueVisibility_06022026.MD`), 2026-06-02.
+**Problem:** `SponsorRoiTrendSection.tsx` renders 6-month ROI trend data as proportional CSS `<div>` elements. There are no axis labels, no month labels on bars, and no hover tooltips showing exact values. This is visually indistinguishable from a placeholder and is unacceptable in an sponsor-facing dashboard.
 
 **Cursor prompt:**
 ```
-Replace the CSS div-bar implementation in ExecutiveRoiTrendSection.tsx with a proper SVG bar chart.
+Replace the CSS div-bar implementation in SponsorRoiTrendSection.tsx with a proper SVG bar chart.
 
-1. Reference the existing ExecutiveRoiSystemicIssueTrendChart component (or pattern) in the same directory. Reuse its SVG rendering approach, color tokens, and responsive container pattern.
+1. Reference the existing SponsorRoiSystemicIssueTrendChart component (or pattern) in the same directory. Reuse its SVG rendering approach, color tokens, and responsive container pattern.
 
 2. The chart must render:
    - Vertical bars scaled to the max value in the dataset.
@@ -9619,8 +9641,8 @@ Replace the CSS div-bar implementation in ExecutiveRoiTrendSection.tsx with a pr
 
 **Affected files / projects:**
 
-- `archlucid-ui/src/app/sponsor/` (`ExecutiveRoiTrendSection.tsx`)
-- Reference: `ExecutiveRoiSystemicIssueTrendChart.tsx` (pattern source)
+- `archlucid-ui/src/app/sponsor/` (`SponsorRoiTrendSection.tsx`)
+- Reference: `SponsorRoiSystemicIssueTrendChart.tsx` (pattern source)
 
 **Cross-ref:** TB-244 (KPI drill-through ? same dashboard page), TB-062 (sponsor KPI replacement original spec).
 
@@ -9628,14 +9650,14 @@ Replace the CSS div-bar implementation in ExecutiveRoiTrendSection.tsx with a pr
 
 ## TB-246 ? Sponsor shell nav ? add Scorecard and Dashboard links (P1)
 
-**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
-**Problem:** `ExecutiveShellFrame.tsx` renders the outer chrome for the sponsor-facing route group but its navigation header is missing links to the Scorecard (`/sponsor/scorecard`) and Dashboard (`/sponsor/dashboard`). Both pages exist but are undiscoverable for any sponsor who lands directly on the shell.
+**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/SponsorValueVisibility_06022026.MD`), 2026-06-02.
+**Problem:** `SponsorShellFrame.tsx` renders the outer chrome for the sponsor-facing route group but its navigation header is missing links to the Scorecard (`/sponsor/scorecard`) and Dashboard (`/sponsor/dashboard`). Both pages exist but are undiscoverable for any sponsor who lands directly on the shell.
 
 **Cursor prompt:**
 ```
-Add navigation links to ExecutiveShellFrame.tsx.
+Add navigation links to SponsorShellFrame.tsx.
 
-1. In the header nav section of ExecutiveShellFrame.tsx, add two nav items:
+1. In the header nav section of SponsorShellFrame.tsx, add two nav items:
    - "Dashboard" ? href="/sponsor/dashboard"
    - "Scorecard" ? href="/sponsor/scorecard"
 
@@ -9648,7 +9670,7 @@ Add navigation links to ExecutiveShellFrame.tsx.
 
 **Affected files / projects:**
 
-- `archlucid-ui/src/app/sponsor/` (`ExecutiveShellFrame.tsx`)
+- `archlucid-ui/src/app/sponsor/` (`SponsorShellFrame.tsx`)
 
 **Cross-ref:** TB-244 (KPI tiles ? linked from dashboard), TB-247 (scorecard actions section ? visible once nav lands user on scorecard).
 
@@ -9656,12 +9678,12 @@ Add navigation links to ExecutiveShellFrame.tsx.
 
 ## TB-247 ? "Top 3 actions" section on sponsor scorecard (P2)
 
-**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
-**Problem:** `ExecutiveScorecardClient.tsx` displays aggregate metrics (savings totals, drift counts, orphan buckets) but provides no forward guidance. An sponsor sponsor sees what has happened but receives no plain-language recommendation about what to do next. This is the highest P2 sub-dimension deficiency in the EVV assessment (6.60).
+**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/SponsorValueVisibility_06022026.MD`), 2026-06-02.
+**Problem:** `SponsorScorecardClient.tsx` displays aggregate metrics (savings totals, drift counts, orphan buckets) but provides no forward guidance. An sponsor sponsor sees what has happened but receives no plain-language recommendation about what to do next. This is the highest P2 sub-dimension deficiency in the EVV assessment (6.60).
 
 **Cursor prompt:**
 ```
-Add a "Recommended actions" card to ExecutiveScorecardClient.tsx.
+Add a "Recommended actions" card to SponsorScorecardClient.tsx.
 
 1. After the existing summary metrics section, add a new card with heading "Recommended actions".
 
@@ -9685,7 +9707,7 @@ Add a "Recommended actions" card to ExecutiveScorecardClient.tsx.
 
 **Affected files / projects:**
 
-- `archlucid-ui/src/app/sponsor/` (`ExecutiveScorecardClient.tsx`)
+- `archlucid-ui/src/app/sponsor/` (`SponsorScorecardClient.tsx`)
 
 **Cross-ref:** TB-246 (nav links ? user must be able to find the scorecard), TB-244 (KPI drill-through ? recommendations link to same filtered pages).
 
@@ -9693,16 +9715,16 @@ Add a "Recommended actions" card to ExecutiveScorecardClient.tsx.
 
 ## TB-248 ? "Day N since first commit" badge on sponsor KPI strip (P2)
 
-**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
-**Problem:** `EXECUTIVE_SPONSOR_BRIEF.md` explicitly describes a "Day N since first commit" badge as a key sponsor trust signal. This badge is not live in `ExecutiveRoiDashboardLiveKpiCards.tsx`. Its absence means the longitudinal pilot narrative ? "you have been running ArchLucid for N days and here is what we found" ? is not surfaced to the sponsor in the UI.
+**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/SponsorValueVisibility_06022026.MD`), 2026-06-02.
+**Problem:** `SPONSOR_SPONSOR_BRIEF.md` explicitly describes a "Day N since first commit" badge as a key sponsor trust signal. This badge is not live in `SponsorRoiDashboardLiveKpiCards.tsx`. Its absence means the longitudinal pilot narrative ? "you have been running ArchLucid for N days and here is what we found" ? is not surfaced to the sponsor in the UI.
 
 **Cursor prompt:**
 ```
-Add a "Day N of your ArchLucid pilot" display to ExecutiveRoiDashboardLiveKpiCards.tsx.
+Add a "Day N of your ArchLucid pilot" display to SponsorRoiDashboardLiveKpiCards.tsx.
 
 1. The ROI summary endpoint (GET /v1/roi/sponsor-summary) should already return FirstCommitUtc (ISO 8601 string). If it does not, add it to the response DTO in ArchLucid.Api.
 
-2. In ExecutiveRoiDashboardLiveKpiCards.tsx, compute:
+2. In SponsorRoiDashboardLiveKpiCards.tsx, compute:
    const daysSinceFirstCommit = Math.floor((Date.now() - new Date(summary.firstCommitUtc).getTime()) / 86_400_000);
 
 3. Below the primary savings KPI tile, add a secondary display:
@@ -9717,16 +9739,16 @@ Add a "Day N of your ArchLucid pilot" display to ExecutiveRoiDashboardLiveKpiCar
 
 **Affected files / projects:**
 
-- `archlucid-ui/src/app/sponsor/` (`ExecutiveRoiDashboardLiveKpiCards.tsx`)
+- `archlucid-ui/src/app/sponsor/` (`SponsorRoiDashboardLiveKpiCards.tsx`)
 - `ArchLucid.Api/` (add `FirstCommitUtc` to sponsor summary DTO if missing)
 
-**Cross-ref:** TB-244 (KPI tiles ? same component file), `EXECUTIVE_SPONSOR_BRIEF.md`.
+**Cross-ref:** TB-244 (KPI tiles ? same component file), `SPONSOR_SPONSOR_BRIEF.md`.
 
 ---
 
 ## TB-249 ? Cross-tenant portfolio graceful 403 (P3)
 
-**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
+**Source:** Sponsor Value Visibility quality assessment (`docs/assessments/SponsorValueVisibility_06022026.MD`), 2026-06-02.
 **Problem:** `GET /v1/roi/cross-tenant-portfolio` returns a silent HTTP 403 when a directory object key is missing (misconfigured multi-tenant setup). `PortfolioPageView.tsx` receives a 403 with no body guidance and renders a blank or generic error state. Enterprise customers with misconfigured tenants have no way to diagnose the issue without opening a support ticket.
 
 **Cursor prompt:**
@@ -9767,7 +9789,7 @@ Unit tests:
 - `archlucid-ui/src/app/sponsor/` (`PortfolioPageView.tsx` or equivalent)
 - `docs/library/MULTI_TENANT_PORTFOLIO.md` (new file)
 
-**Cross-ref:** TB-244?248 (other EVV items ? same sponsor route group), `EXECUTIVE_SPONSOR_BRIEF.md`.
+**Cross-ref:** TB-244?248 (other EVV items ? same sponsor route group), `SPONSOR_SPONSOR_BRIEF.md`.
 
 ---
 
@@ -10313,7 +10335,7 @@ Close the recurrence re-engagement loop with a completion notification + drift d
 - New options type (`Stickiness:RecurrenceCompletionNotification`)
 - Tests (`ArchLucid.Application.Tests/`)
 
-**Cross-ref:** TB-224 (compare narrative ? reuse delta), TB-263 (awaiting-review inbox), `WeeklyExecutiveSummaryDeliveryScanner` (recipient/dispatch pattern).
+**Cross-ref:** TB-224 (compare narrative ? reuse delta), TB-263 (awaiting-review inbox), `WeeklySponsorSummaryDeliveryScanner` (recipient/dispatch pattern).
 
 ---
 
@@ -10488,63 +10510,63 @@ Tie the public /why "deterministic drift detection" claim to the real golden-coh
 
 ## TB-267 ? `/sponsor/dashboard` route under sponsor chrome (P2)
 
-**Source:** Sponsor Value Visibility re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`), 2026-06-03.
-**Problem:** `ExecutiveShellFrame` (the minimal sponsor chrome ? wordmark, auth, theme, no operator sidebar) has a "Dashboard" nav `<Link href="/dashboard">`. But `/dashboard` is in the **operator** route group and renders `ExecutiveRoiDashboardPageView` under the **full operator shell** (sidebar + operator nav). The `(sponsor)` route group contains only `reviews` and `scorecard`. So a sponsor working inside the clean sponsor chrome who clicks "Dashboard" is thrown into the operator UI. TB-246 added the *link* but the sponsor-chrome dashboard *route* was never created.
+**Source:** Sponsor Value Visibility re-assessment (`docs/assessments/SponsorValueVisibility_06032026.MD`), 2026-06-03.
+**Problem:** `SponsorShellFrame` (the minimal sponsor chrome ? wordmark, auth, theme, no operator sidebar) has a "Dashboard" nav `<Link href="/dashboard">`. But `/dashboard` is in the **operator** route group and renders `SponsorRoiDashboardPageView` under the **full operator shell** (sidebar + operator nav). The `(sponsor)` route group contains only `reviews` and `scorecard`. So a sponsor working inside the clean sponsor chrome who clicks "Dashboard" is thrown into the operator UI. TB-246 added the *link* but the sponsor-chrome dashboard *route* was never created.
 
 **Cursor prompt:**
 ```
 Give the sponsor route group its own dashboard so the "Dashboard" nav stays in sponsor chrome.
 
 1. Create archlucid-ui/src/app/(sponsor)/sponsor/dashboard/page.tsx that renders the same
-   ExecutiveRoiDashboardPageView used by /dashboard, but inside the (sponsor) layout (ExecutiveShellFrame).
-   Reuse the existing page sections ? do NOT fork the dashboard component. If ExecutiveRoiDashboardPageView
+   SponsorRoiDashboardPageView used by /dashboard, but inside the (sponsor) layout (SponsorShellFrame).
+   Reuse the existing page sections ? do NOT fork the dashboard component. If SponsorRoiDashboardPageView
    depends on operator-nav context providers, add the minimal provider wrapper in the (sponsor) layout or
    a thin local wrapper; do not pull in the operator sidebar.
-2. In archlucid-ui/src/components/ExecutiveShellFrame.tsx, change the "Dashboard" Link href from
+2. In archlucid-ui/src/components/SponsorShellFrame.tsx, change the "Dashboard" Link href from
    "/dashboard" to "/sponsor/dashboard" and update the active-route check
    (pathname.startsWith("/sponsor/dashboard")).
 3. Keep /dashboard working for operators (do not remove it).
-4. Vitest: ExecutiveShellFrame "Dashboard" link href === "/sponsor/dashboard" and is marked active on
-   that route; a render test that the new page mounts ExecutiveRoiDashboardPageView.
+4. Vitest: SponsorShellFrame "Dashboard" link href === "/sponsor/dashboard" and is marked active on
+   that route; a render test that the new page mounts SponsorRoiDashboardPageView.
 ```
 
 **Affected files / projects:**
 
 - `archlucid-ui/src/app/(sponsor)/sponsor/dashboard/page.tsx` (new)
 - `archlucid-ui/src/app/(sponsor)/layout.tsx` (provider wrapper if needed)
-- `archlucid-ui/src/components/ExecutiveShellFrame.tsx`
+- `archlucid-ui/src/components/SponsorShellFrame.tsx`
 - Vitest
 
-**Cross-ref:** TB-246 (added the nav link ? this completes it), `ExecutiveRoiDashboardPageView.tsx`.
+**Cross-ref:** TB-246 (added the nav link ? this completes it), `SponsorRoiDashboardPageView.tsx`.
 
 ---
 
 ## TB-268 ? In-product sponsor narrative summary line (P2)
 
-**Source:** Sponsor Value Visibility re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`), 2026-06-03.
+**Source:** Sponsor Value Visibility re-assessment (`docs/assessments/SponsorValueVisibility_06032026.MD`), 2026-06-03.
 **Problem:** The live dashboard and scorecard now show KPI tiles and a recommended-actions list, but neither opens with a plain-language synthesis sentence. A sponsor still assembles the story from tiles. The AI sponsor narrative (TB-241) exists only on the **board-pack export** and is gated default-off, so the in-product surfaces have no "what happened / what it's worth / what to do" line.
 
 **Cursor prompt:**
 ```
 Add a deterministic (no-LLM) sponsor narrative summary line to the live sponsor surfaces.
 
-1. Create archlucid-ui/src/lib/sponsor-value-narrative.ts exporting buildExecutiveValueNarrative(input)
+1. Create archlucid-ui/src/lib/sponsor-value-narrative.ts exporting buildSponsorValueNarrative(input)
    -> string, where input = { reviewsCount, findingsCount, estimatedSavingsUsd?|estimatedHours, topAction? }.
    Produce e.g.: "This period: 4 reviews, 27 findings, ~$18,400 saved. Top action: resolve 3 critical
    security findings." Omit any clause whose value is null/0; if no committed runs, return a neutral
    "No committed reviews in this range yet." Keep wording aligned with WHAT_NOT_TO_PROMISE.md.
-2. Render the line as a prominent <p> at the top of ExecutiveScorecardClient (above the tiles), reusing the
-   already-loaded report + recommendedActions[0]. Add the same line atop ExecutiveRoiDashboardPageView using
+2. Render the line as a prominent <p> at the top of SponsorScorecardClient (above the tiles), reusing the
+   already-loaded report + recommendedActions[0]. Add the same line atop SponsorRoiDashboardPageView using
    the sponsor-summary data it already fetches.
-3. Unit tests for buildExecutiveValueNarrative (full, partial, zero cases) + Vitest that the scorecard renders
+3. Unit tests for buildSponsorValueNarrative (full, partial, zero cases) + Vitest that the scorecard renders
    the narrative line.
 ```
 
 **Affected files / projects:**
 
 - `archlucid-ui/src/lib/sponsor-value-narrative.ts` (new)
-- `archlucid-ui/src/app/(sponsor)/sponsor/scorecard/ExecutiveScorecardClient.tsx`
-- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardPageView.tsx`
+- `archlucid-ui/src/app/(sponsor)/sponsor/scorecard/SponsorScorecardClient.tsx`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/SponsorRoiDashboardPageView.tsx`
 - Unit + Vitest
 
 **Cross-ref:** TB-247 (recommended-actions ? source of the top action), TB-241 (AI board-pack narrative ? export-only complement).
@@ -10553,15 +10575,15 @@ Add a deterministic (no-LLM) sponsor narrative summary line to the live sponsor 
 
 ## TB-269 ? Dashboard ROI trend window selector (P3)
 
-**Source:** Sponsor Value Visibility re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`), 2026-06-03.
-**Problem:** `ExecutiveRoiTrendSection` renders a fixed historical window, while `ExecutiveScorecardClient` has a 30d/quarter/all selector. A sponsor cannot reconcile the dashboard trend with the scorecard's selected range or look at year-over-year.
+**Source:** Sponsor Value Visibility re-assessment (`docs/assessments/SponsorValueVisibility_06032026.MD`), 2026-06-03.
+**Problem:** `SponsorRoiTrendSection` renders a fixed historical window, while `SponsorScorecardClient` has a 30d/quarter/all selector. A sponsor cannot reconcile the dashboard trend with the scorecard's selected range or look at year-over-year.
 
 **Cursor prompt:**
 ```
 Add a time-window selector to the dashboard ROI trend section.
 
-1. In ExecutiveRoiTrendSection.tsx, add a 30d / quarter / all / year <select> (mirror the control and
-   labels in ExecutiveScorecardClient). Thread the selected window into the history fetch
+1. In SponsorRoiTrendSection.tsx, add a 30d / quarter / all / year <select> (mirror the control and
+   labels in SponsorScorecardClient). Thread the selected window into the history fetch
    (GET /v1/roi/sponsor-summary/history) ? if the endpoint only supports a fixed window, pass the range
    and filter client-side, and open a follow-up note for a server-side window param.
 2. Default to the existing window so current behavior is unchanged when untouched.
@@ -10571,11 +10593,11 @@ Add a time-window selector to the dashboard ROI trend section.
 
 **Affected files / projects:**
 
-- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiTrendSection.tsx`
-- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiSavingsTrendSvgChart.tsx` (consumes the points)
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/SponsorRoiTrendSection.tsx`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/SponsorRoiSavingsTrendSvgChart.tsx` (consumes the points)
 - Vitest
 
-**Cross-ref:** TB-245 (the SVG chart this selector drives), `ExecutiveScorecardClient.tsx` (selector pattern to mirror).
+**Cross-ref:** TB-245 (the SVG chart this selector drives), `SponsorScorecardClient.tsx` (selector pattern to mirror).
 
 ---
 
@@ -10707,7 +10729,7 @@ Make operator empty/loading states consistent.
 | BDA-013 | Finding detail | Invented confidence "Medium confidence ? based on policy rule match and cited intake subgraph evidence." used as fallback when none present ? `FindingDetailPageView.tsx` (~169?171). | Fabricating confidence on failure is a trust violation for an evidence product. | Show "Confidence not available" rather than inventing a level. | "Confidence not available for this finding." |
 | BDA-014 | Finding inspect | Synthetic gap-fill "Jordan Lee (Architecture approver)" when `auditRowId` is missing ? `FindingInspectAuditSection.tsx` (~49?54). | Fabricated audit linkage when the real event id is absent. | Show "No linked audit event" instead of a fabricated one. | "No linked audit event for this finding." |
 | BDA-015 | Sponsor summary | Cost-evidence KPI labeled "Demo-derived" + "Cost evidence is illustrative ? do not treat as measured Azure spend." ? `sponsor-roi-kpi-display.ts` (~59?63). | Tells the sponsor the ROI backing is fabricated, undermining every adjacent dollar tile. | Only show illustrative labeling when the value truly is illustrative; otherwise bind to measured inventory and label the basis. | "Cost evidence: measured from uploaded Azure inventory." |
-| BDA-016 | Sponsor scorecard | "Figures below are placeholders. Operators can finalize a review to populate ROI and drift context." ? `ExecutiveScorecardClient.tsx` (~307?308). | A direct "placeholder" admission on an sponsor golden-path screen. | Render the scorecard only when real data exists; otherwise a governance-credible empty state without "placeholder". | "Finalize a review to populate sponsor ROI and drift." |
+| BDA-016 | Sponsor scorecard | "Figures below are placeholders. Operators can finalize a review to populate ROI and drift context." ? `SponsorScorecardClient.tsx` (~307?308). | A direct "placeholder" admission on an sponsor golden-path screen. | Render the scorecard only when real data exists; otherwise a governance-credible empty state without "placeholder". | "Finalize a review to populate sponsor ROI and drift." |
 | BDA-017 | Sponsor summary | Sponsor export discovery uses `loadProjectRunsMergedWithDemoFallback`, so sponsor DOCX exports can merge demo runs as the latest committed review ? `SponsorExportsSection.tsx` (~28). | A buyer could download sample evidence believing it is their own data. | Never merge demo runs into sponsor exports in buyer/tenant mode. | ? |
 | BDA-018 | Review detail | "Real mode unavailable for this run" / "simulator fallback" banner ? `RunDetailBuyerModeFallbackBanner.tsx` (~23?25). | Tells the buyer the package was not executed on real infrastructure. | Ensure the demo run is a real-mode artifact; suppress simulator-fallback wording in buyer mode. | ? |
 | BDA-019 | Review detail | "$94,360" headline "Annualized savings opportunity" carrying a "demonstration KPI" badge ? `run-savings-summary-model.ts` (~65?66), `RunSavingsSummary.tsx` (~19?35). | A large dollar headline tagged "demonstration" undermines financial trust. | Bind to real savings, or move the figure behind a clearly labeled methodology; do not headline-size a demo number. | "Estimated annualized savings (methodology ?)" |
@@ -10752,31 +10774,31 @@ Make operator empty/loading states consistent.
 | BDA-053 | Review detail | "Review ID:" + monospace `{runId}` during in-progress reviews ? `RunProgressTracker.tsx` (~105?106). | Exposes internal correlation id on a buyer surface. | Hide raw id in buyer mode (keep copyable id behind a details control). | ? |
 | BDA-054 | Review detail | Operator runbook text "check GET /health/ready on the API" ? `RunProgressTracker.tsx` (~84). | Operator/runbook instruction on a buyer demo path. | Hide in buyer mode; show a neutral status message. | "We're preparing this review; this can take a moment." |
 | BDA-055 | Review detail | "Finding coverage is commit-blocking. Failed engines: ?" exposes internal engine labels ? `RunDetailPageView.tsx` (~103?106). | Internal engine names leak when finalize is blocked. | Map engine names to buyer categories; hide raw labels. | "Some checks must finish before this review can be finalized." |
-| BDA-056 | Review detail | Capitalization mismatch: "Sponsor Summary" (Title Case card) vs "or view manifest summary ?" (sentence case link) ? `RunDetailExecutiveSummaryCtaCard.tsx` (~18, 34). | Inconsistent casing + "manifest summary" vs elsewhere "Signed manifest". | Standardize casing and manifest noun. | "Sponsor summary" / "View the signed manifest ?" |
+| BDA-056 | Review detail | Capitalization mismatch: "Sponsor Summary" (Title Case card) vs "or view manifest summary ?" (sentence case link) ? `RunDetailSponsorSummaryCtaCard.tsx` (~18, 34). | Inconsistent casing + "manifest summary" vs elsewhere "Signed manifest". | Standardize casing and manifest noun. | "Sponsor summary" / "View the signed manifest ?" |
 | BDA-057 | Review detail | Technical idempotency badge "Replayed" on the main H1 row ? `RunDetailPageHeader.tsx` (~114). | Internal concept on the primary header. | Hide in buyer mode or relabel. | ? |
 | BDA-058 | Review detail | Help link "Architecture review steps ? Core Pilot guide" ? `RunDetailPageHeader.tsx` (~129). | Internal "Core Pilot" naming on a buyer link. | Rename. | "Architecture review steps ? guide" |
 | BDA-059 | Review detail | "Finalize package" (label) vs "Finalize review" (button) on the same affordance ? `RunDetailPageHeader.tsx` (~206), `CommitRunButton.tsx` (~129). | Inconsistent verb/noun pair on the finalize control. | Standardize. | "Finalize review" |
 | BDA-060 | Cross-cutting glossary | Product jargon term "Golden manifest" on buyer tooltips; definition also hedges PKI "signed" claims ? `glossary-terms.ts` (~18?20). | "Golden" jargon + hedged "signed" weakens the signed-record claim. | Rename to "Signed manifest"; tighten the definition. | term: "Signed manifest" |
-| BDA-061 | Sponsor summary | "Day {pilotDayNumber} of your ArchLucid pilot" ? `ExecutiveRoiDashboardLiveKpiCards.tsx` (~142?143). | Frames the sponsor view as a time-boxed pilot, not production governance. | Hide pilot-day framing in buyer mode. | ? |
-| BDA-062 | Sponsor summary | Raw "Sponsor summary HTTP ${status}" on error ? `ExecutiveRoiDashboardLiveKpiCards.tsx` (~75). | Raw HTTP status reads as a broken product. | Map to a governed failure message with a copyable id. | "We couldn't load the sponsor summary. Reference: <id>." |
+| BDA-061 | Sponsor summary | "Day {pilotDayNumber} of your ArchLucid pilot" ? `SponsorRoiDashboardLiveKpiCards.tsx` (~142?143). | Frames the sponsor view as a time-boxed pilot, not production governance. | Hide pilot-day framing in buyer mode. | ? |
+| BDA-062 | Sponsor summary | Raw "Sponsor summary HTTP ${status}" on error ? `SponsorRoiDashboardLiveKpiCards.tsx` (~75). | Raw HTTP status reads as a broken product. | Map to a governed failure message with a copyable id. | "We couldn't load the sponsor summary. Reference: <id>." |
 | BDA-063 | Sponsor summary | Footnote "Not returned by the sponsor ROI summary API for this tenant." ? `sponsor-roi-kpi-display.ts` (~21). | Exposes multi-tenant/API semantics to executives. | Buyer-safe empty-value copy. | "Not available for this workspace yet." |
-| BDA-064 | Sponsor summary | Internal API routes printed on cards: "Data from GET /v1/roi/sponsor-summary" and siblings ? `ExecutiveRoiSummarySection.tsx` (~240), `BusinessImpactSummaryWidget.tsx` (~112), `ExecutiveRoiTrendSection.tsx` (~131), `ExecutiveRoiEnvironmentSavingsSection.tsx` (~56), `ExecutiveComplianceDriftTrendSection.tsx` (~58). | Developer endpoint strings on sponsor cards look unfinished. | Replace with a plain-language source/methodology note (or a "How this is calculated" link). | "Source: committed reviews in this workspace." |
+| BDA-064 | Sponsor summary | Internal API routes printed on cards: "Data from GET /v1/roi/sponsor-summary" and siblings ? `SponsorRoiSummarySection.tsx` (~240), `BusinessImpactSummaryWidget.tsx` (~112), `SponsorRoiTrendSection.tsx` (~131), `SponsorRoiEnvironmentSavingsSection.tsx` (~56), `SponsorComplianceDriftTrendSection.tsx` (~58). | Developer endpoint strings on sponsor cards look unfinished. | Replace with a plain-language source/methodology note (or a "How this is calculated" link). | "Source: committed reviews in this workspace." |
 | BDA-065 | Sponsor summary | "How directional savings estimates are calculated." ? `SponsorExportsSection.tsx` (~119). | "Directional" signals estimates, not evidenced savings. | Reword to evidence-based framing with methodology link. | "How savings are calculated from your committed reviews." |
-| BDA-066 | Sponsor summary | Informal "Include AI sponsor summary (uses 1 fast LLM call when enabled in API config)" ? `ExecutiveRoiSummarySection.tsx` (~237). | "Fast LLM call" / "API config" undermines audit-grade tone on a board export. | Buyer-facing rewrite. | "Include an AI-generated sponsor summary." |
-| BDA-067 | Sponsor summary | CSV export headers "FindingId,RunId,SystemName,?" (PascalCase) ? `ExecutiveRoiSummarySection.tsx` (~108). | Schema field names leak into sponsor exports. | Use human headers in exported CSV. | "Finding, Review, System, ?" |
-| BDA-068 | Sponsor summary | Dense "Open estimated $? ? Deferred/waived $?" with no inline methodology ? `ExecutiveRoiSummarySection.tsx` (~273?274). | Finance jargon with no basis link on the card. | Add a methodology link; plain labels. | "Estimated open savings ? Deferred/waived" |
-| BDA-069 | Sponsor summary | "Simulator-only" beside USD savings bars ? `ExecutiveRoiTrendSection.tsx` (~186). | Admits simulator-derived periods next to bars that look like actuals. | Ensure buyer trend uses real runs; relabel. | ? |
-| BDA-070 | Sponsor summary | "Chart includes both Real and Simulator runs. Hover savings bars for exact monthly savings." ? `ExecutiveRoiTrendSection.tsx` (~206). | Requires hover + internal Real/Simulator vocabulary; easy to miss. | Remove Real/Simulator vocabulary in buyer mode; show values without hover. | ? |
-| BDA-071 | Sponsor summary | Stacked environment bar has no chart title / axis ("Estimated USD") / legend; raw env names like `prod`/`dev` ? `ExecutiveRoiEnvironmentSavingsSection.tsx` (~67?90). | Unlabeled chart with raw env tags is not self-describing. | Add title, axis label, legend; map env names. | "Estimated annual savings by environment (USD)" |
-| BDA-072 | Sponsor summary | Inconsistent chart grammar: amber `div` bars for "Critical security findings" with no Y-axis vs SVG savings chart with Y ticks ? `ExecutiveRoiTrendSection.tsx` (~179?197) vs `ExecutiveRoiSavingsTrendSvgChart.tsx`. | Two chart styles on one view; the findings scale is unexplained. | Unify on the SVG chart primitive with axis/legend. | ? |
-| BDA-073 | Sponsor summary | Internal term "Orphan Candidates" (Title Case) ? `ExecutiveOrphanCandidatesCard.tsx` (~72, 90, 107). | Internal product term inconsistent with buyer vocabulary. | Rename to a buyer concept. | "Unused / orphaned resources" |
-| BDA-074 | Sponsor summary | "Estimated savings: {formatUsd}/yr" with no pricing basis ? `ExecutiveOrphanCandidatesCard.tsx` (~124). | Annual dollar claim with no basis on the tile. | Add basis label/methodology link. | "Est. savings/yr (list-price basis)" |
-| BDA-075 | Sponsor summary | Tilde-prefixed USD "~$X /" in a marketing-style narrative with no citation ? `sponsor-value-narrative.ts` (~24?36), `ExecutiveValueNarrativeBanner.tsx`. | Reads as marketing, not evidence. | Cite the basis; or remove the dollar figure from the narrative line. | ? |
-| BDA-076 | Sponsor summary | Mixed framing "Portfolio ROI summary" vs page title "Sponsor summary" ? `ExecutiveRoiSummarySection.tsx` (~200) vs `buyer-surface-vocabulary.ts` (~24). | Two names for the same view on one scroll. | Standardize. | "Sponsor summary" |
-| BDA-077 | Sponsor summary | Baseline banner "Sponsor ROI summaries stay grounded when you upload an Azure extractor inventory ZIP" ? `ExecutiveDashboardBaselineWarningBanner.tsx` (~55?56). | Tells buyers current ROI may be ungrounded; "extractor inventory ZIP" is jargon. | Soften to a setup nudge in buyer mode. | "Upload your Azure inventory to ground these figures." |
-| BDA-078 | Sponsor scorecard | "Window matches pilot-value-report bounds (toUtc exclusive where applicable)." ? `ExecutiveScorecardClient.tsx` (~293). | Internal API/window semantics exposed to executives. | Plain-language window help. | "Showing the selected time range." |
-| BDA-079 | Sponsor scorecard | "Committed runs (pilot-value-report)" leaks an artifact name under a KPI ? `ExecutiveScorecardClient.tsx` (~324). | Implementation artifact name on a KPI footnote. | Remove the artifact name. | "Committed reviews" |
-| BDA-080 | Sponsor scorecard | "Severity-weighted ROI model" + "fallback {AVERAGE_MANUAL_REVIEW_HOURS} h ? reviews when weighted hours are zero" ? `ExecutiveScorecardClient.tsx` (~349?352). | Model + fallback reads as fabricated hours if severities are zero. | Hide the fallback formula; link methodology. | "Estimated hours saved (methodology ?)" |
+| BDA-066 | Sponsor summary | Informal "Include AI sponsor summary (uses 1 fast LLM call when enabled in API config)" ? `SponsorRoiSummarySection.tsx` (~237). | "Fast LLM call" / "API config" undermines audit-grade tone on a board export. | Buyer-facing rewrite. | "Include an AI-generated sponsor summary." |
+| BDA-067 | Sponsor summary | CSV export headers "FindingId,RunId,SystemName,?" (PascalCase) ? `SponsorRoiSummarySection.tsx` (~108). | Schema field names leak into sponsor exports. | Use human headers in exported CSV. | "Finding, Review, System, ?" |
+| BDA-068 | Sponsor summary | Dense "Open estimated $? ? Deferred/waived $?" with no inline methodology ? `SponsorRoiSummarySection.tsx` (~273?274). | Finance jargon with no basis link on the card. | Add a methodology link; plain labels. | "Estimated open savings ? Deferred/waived" |
+| BDA-069 | Sponsor summary | "Simulator-only" beside USD savings bars ? `SponsorRoiTrendSection.tsx` (~186). | Admits simulator-derived periods next to bars that look like actuals. | Ensure buyer trend uses real runs; relabel. | ? |
+| BDA-070 | Sponsor summary | "Chart includes both Real and Simulator runs. Hover savings bars for exact monthly savings." ? `SponsorRoiTrendSection.tsx` (~206). | Requires hover + internal Real/Simulator vocabulary; easy to miss. | Remove Real/Simulator vocabulary in buyer mode; show values without hover. | ? |
+| BDA-071 | Sponsor summary | Stacked environment bar has no chart title / axis ("Estimated USD") / legend; raw env names like `prod`/`dev` ? `SponsorRoiEnvironmentSavingsSection.tsx` (~67?90). | Unlabeled chart with raw env tags is not self-describing. | Add title, axis label, legend; map env names. | "Estimated annual savings by environment (USD)" |
+| BDA-072 | Sponsor summary | Inconsistent chart grammar: amber `div` bars for "Critical security findings" with no Y-axis vs SVG savings chart with Y ticks ? `SponsorRoiTrendSection.tsx` (~179?197) vs `SponsorRoiSavingsTrendSvgChart.tsx`. | Two chart styles on one view; the findings scale is unexplained. | Unify on the SVG chart primitive with axis/legend. | ? |
+| BDA-073 | Sponsor summary | Internal term "Orphan Candidates" (Title Case) ? `SponsorOrphanCandidatesCard.tsx` (~72, 90, 107). | Internal product term inconsistent with buyer vocabulary. | Rename to a buyer concept. | "Unused / orphaned resources" |
+| BDA-074 | Sponsor summary | "Estimated savings: {formatUsd}/yr" with no pricing basis ? `SponsorOrphanCandidatesCard.tsx` (~124). | Annual dollar claim with no basis on the tile. | Add basis label/methodology link. | "Est. savings/yr (list-price basis)" |
+| BDA-075 | Sponsor summary | Tilde-prefixed USD "~$X /" in a marketing-style narrative with no citation ? `sponsor-value-narrative.ts` (~24?36), `SponsorValueNarrativeBanner.tsx`. | Reads as marketing, not evidence. | Cite the basis; or remove the dollar figure from the narrative line. | ? |
+| BDA-076 | Sponsor summary | Mixed framing "Portfolio ROI summary" vs page title "Sponsor summary" ? `SponsorRoiSummarySection.tsx` (~200) vs `buyer-surface-vocabulary.ts` (~24). | Two names for the same view on one scroll. | Standardize. | "Sponsor summary" |
+| BDA-077 | Sponsor summary | Baseline banner "Sponsor ROI summaries stay grounded when you upload an Azure extractor inventory ZIP" ? `SponsorDashboardBaselineWarningBanner.tsx` (~55?56). | Tells buyers current ROI may be ungrounded; "extractor inventory ZIP" is jargon. | Soften to a setup nudge in buyer mode. | "Upload your Azure inventory to ground these figures." |
+| BDA-078 | Sponsor scorecard | "Window matches pilot-value-report bounds (toUtc exclusive where applicable)." ? `SponsorScorecardClient.tsx` (~293). | Internal API/window semantics exposed to executives. | Plain-language window help. | "Showing the selected time range." |
+| BDA-079 | Sponsor scorecard | "Committed runs (pilot-value-report)" leaks an artifact name under a KPI ? `SponsorScorecardClient.tsx` (~324). | Implementation artifact name on a KPI footnote. | Remove the artifact name. | "Committed reviews" |
+| BDA-080 | Sponsor scorecard | "Severity-weighted ROI model" + "fallback {AVERAGE_MANUAL_REVIEW_HOURS} h ? reviews when weighted hours are zero" ? `SponsorScorecardClient.tsx` (~349?352). | Model + fallback reads as fabricated hours if severities are zero. | Hide the fallback formula; link methodology. | "Estimated hours saved (methodology ?)" |
 | BDA-081 | Manifest summary | Hardwired headline "Signed decision record ? Claims Intake Modernization Review Package" ? `ManifestDetailPageView.tsx` (~235?236). | Fictional program name presented as the authoritative signed record. | Drive name from the package; generic in buyer mode. | "Signed decision record ? architecture review package" |
 | BDA-082 | Manifest summary | Breadcrumb link "Public showcase" ? `ManifestDetailPageView.tsx` (~224). | "Public showcase" on an operator manifest undercuts enterprise-only positioning. | Hide in buyer mode. | ? |
 | BDA-083 | Manifest summary | Hardcoded counts `SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT` / `?AUDIT_TRAIL_EVENT_COUNT` (15 / 7) ? `ManifestDetailSummaryPanel.tsx` (~268, 278). | Static counts can disagree with live graph/audit APIs; buyers treat tiles as measured. | Derive from the same APIs the linked pages use, or label as example. | ? |
@@ -10839,13 +10861,13 @@ Make operator empty/loading states consistent.
 | BDA-134 | Home | "artifact bundle" lowercase mid-list next to Title Case items ("Governed decision record") ? `WelcomeBanner.tsx` (~277). | Inconsistent casing in the glossary list. | Standardize casing. | "Artifact bundle" |
 | BDA-135 | Home | Weak hierarchy: hero `pageTitle` (`text-lg`) vs section heading (`text-sm`) ? `WelcomeBanner.tsx` (~243), `design-tokens.ts` (~47?63). | Zone labels can feel as heavy as the hero. | Increase hero scale or reduce section weight per the design system. | ? |
 | BDA-136 | Reviews list | Footer "1 finalized review package" when `totalCount === 1` ? `RunsListClient.tsx` (~795). | Reinforces a single-demo workspace impression. | Neutral count copy; seed a second example if appropriate. | ? |
-| BDA-137 | Sponsor summary | Tooltip-only enums "{realRunCount} Real ? {simulatorRunCount} Simulator" ? `ExecutiveRoiTrendSection.tsx` (~43). | Raw run-mode enums in tooltips (low exposure). | Map to buyer labels or remove from buyer mode. | ? |
-| BDA-138 | Sponsor summary | Hardcoded KPI label "Findings remediated (30d)" vs vocabulary-driven tiles ? `ExecutiveRoiDashboardLiveKpiCards.tsx` (~264?265). | Inconsistent labeling pattern suggests half-migrated copy. | Move into the buyer vocabulary object. | ? |
-| BDA-139 | Sponsor summary | KPI typography `font-mono text-4xl` vs report `text-sm font-semibold` for money/counts ? `ExecutiveRoiDashboardLiveKpiCards.tsx` vs `ExecutiveRoiSummarySection.tsx` (~249). | Mixed "dashboard counter" and "report" hierarchy on one page. | Pick one numeric type treatment. | ? |
-| BDA-140 | Sponsor scorecard | Engineering-empty copy "Trend: not enough buckets in range" on a CISO compliance tile ? `ExecutiveScorecardClient.tsx` (~49). | Reads as a debug message. | Buyer-safe empty trend copy. | "Not enough data in this range yet." |
-| BDA-141 | Sponsor scorecard | Weak/generic CTA "View ?" on recommended actions ? `ExecutiveScorecardClient.tsx` (~392). | Generic CTA vs governance-specific next step. | Action-specific label. | "Review this action ?" |
+| BDA-137 | Sponsor summary | Tooltip-only enums "{realRunCount} Real ? {simulatorRunCount} Simulator" ? `SponsorRoiTrendSection.tsx` (~43). | Raw run-mode enums in tooltips (low exposure). | Map to buyer labels or remove from buyer mode. | ? |
+| BDA-138 | Sponsor summary | Hardcoded KPI label "Findings remediated (30d)" vs vocabulary-driven tiles ? `SponsorRoiDashboardLiveKpiCards.tsx` (~264?265). | Inconsistent labeling pattern suggests half-migrated copy. | Move into the buyer vocabulary object. | ? |
+| BDA-139 | Sponsor summary | KPI typography `font-mono text-4xl` vs report `text-sm font-semibold` for money/counts ? `SponsorRoiDashboardLiveKpiCards.tsx` vs `SponsorRoiSummarySection.tsx` (~249). | Mixed "dashboard counter" and "report" hierarchy on one page. | Pick one numeric type treatment. | ? |
+| BDA-140 | Sponsor scorecard | Engineering-empty copy "Trend: not enough buckets in range" on a CISO compliance tile ? `SponsorScorecardClient.tsx` (~49). | Reads as a debug message. | Buyer-safe empty trend copy. | "Not enough data in this range yet." |
+| BDA-141 | Sponsor scorecard | Weak/generic CTA "View ?" on recommended actions ? `SponsorScorecardClient.tsx` (~392). | Generic CTA vs governance-specific next step. | Action-specific label. | "Review this action ?" |
 | BDA-142 | Sponsor scorecard | "${hoursRounded} h saved" in the narrative banner without audit proof ? `sponsor-value-narrative.ts` (~36). | "Saved hours" reads as marketing. | Add basis/methodology, or qualify as estimate. | "~{N} h saved (estimated)" |
-| BDA-143 | Sponsor scorecard | Absolute claim "No actions needed ? all signals are healthy." ? `ExecutiveScorecardClient.tsx` (~380). | Over-confident while ROI may still be estimated/demo-derived elsewhere. | Qualify. | "No actions needed for the current period." |
+| BDA-143 | Sponsor scorecard | Absolute claim "No actions needed ? all signals are healthy." ? `SponsorScorecardClient.tsx` (~380). | Over-confident while ROI may still be estimated/demo-derived elsewhere. | Qualify. | "No actions needed for the current period." |
 | BDA-144 | Manifest summary | "View PHI minimization risk and evidence" ? showcase-specific finding baked into a CTA label ? `ManifestDetailPageView.tsx` (~154). | Demo-package-specific CTA. | Generic CTA in buyer mode. | "View top risk and evidence" |
 | BDA-145 | Manifest summary | Authority blurb repeats "Claims Intake Modernization package" ? `ManifestDetailPageView.tsx` (~284?285). | Repeats the sample program name as authoritative. | Generic in buyer mode. | ? |
 | BDA-146 | Manifest summary | Dead-end "Open the review for full context" with count only (no excerpts) on non-showcase decisions ? `ManifestTopDecisionsCard.tsx` (~48?50). | Promises decisions but pushes away with no excerpt. | Render top decision bullets from the API. | ? |
@@ -10912,7 +10934,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 - `ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs` (new)
 - `ArchLucid.Api/Security/RouteTenantScopeAuthorization.cs` (delegate or fold into filter)
-- `ArchLucid.Api/Controllers/Authority/ExecutiveSummaryController.cs`
+- `ArchLucid.Api/Controllers/Authority/SponsorSummaryController.cs`
 - `ArchLucid.Api/Controllers/Admin/ReferenceEvidenceAdminController.cs`
 - `ArchLucid.Api/Controllers/Admin/MeteringAdminController.cs`
 - `ArchLucid.Api/Controllers/ValueReports/ValueReportController.cs`
@@ -10990,7 +11012,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-280 ? Retire legacy authority sponsor-summary `{tenantId}` route (P2) ? **Done (2026-06-05 batch 5DU-route-tenant-p1)**
 
-**Shipped:** removed `Authority/ExecutiveSummaryController`; positive-path matrix uses `/v1/reports/sponsor-summary`; CI guard blocks new legacy references.
+**Shipped:** removed `Authority/SponsorSummaryController`; positive-path matrix uses `/v1/reports/sponsor-summary`; CI guard blocks new legacy references.
 
 **Cross-ref:** **TB-279**, EVV cluster (**TB-244?249**).
 
@@ -11309,7 +11331,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-299 ? Sponsor ROI board-pack live E2E (P1) ? **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
-**Shipped:** `ExecutiveRoiBoardPackEndpointTests` orphan/freshness contract checks + `live-api-sponsor-board-pack.spec.ts`.
+**Shipped:** `SponsorRoiBoardPackEndpointTests` orphan/freshness contract checks + `live-api-sponsor-board-pack.spec.ts`.
 
 **Cross-ref:** **TB-240**, **TB-241**.
 
@@ -15413,7 +15435,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 **Source:** Copy, terminology, and product language audit (2026-06-28), finding C05. Severity: **P0**.
 
-**Problem:** `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.costEvidenceNotConfiguredFootnote = "Add Azure cost evidence to estimate savings and ROI."` Only Azure is named despite AWS and GCP support.
+**Problem:** `BUYER_SPONSOR_SUMMARY_VOCABULARY.costEvidenceNotConfiguredFootnote = "Add Azure cost evidence to estimate savings and ROI."` Only Azure is named despite AWS and GCP support.
 
 **V1 scope:**
 
@@ -15469,7 +15491,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 **Source:** Copy, terminology, and product language audit (2026-06-28), finding C07. Severity: **P1**.
 
-**Problem:** `BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL = "Committed reviews"` is inconsistent with "Finalized" used throughout the pipeline status system.
+**Problem:** `BUYER_SPONSOR_SCORECARD_COMMITTED_LABEL = "Committed reviews"` is inconsistent with "Finalized" used throughout the pipeline status system.
 
 **V1 scope:**
 
@@ -15497,7 +15519,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 **Source:** Copy, terminology, and product language audit (2026-06-28), finding C08. Severity: **P1**.
 
-**Problem:** `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.emptyStateDescription` and `portfolioMetricsUnavailableDescription` both use "commit" (e.g. "Portfolio metrics appear after you commit at least one review package."). These appear in the most prominent dashboard empty state.
+**Problem:** `BUYER_SPONSOR_SUMMARY_VOCABULARY.emptyStateDescription` and `portfolioMetricsUnavailableDescription` both use "commit" (e.g. "Portfolio metrics appear after you commit at least one review package."). These appear in the most prominent dashboard empty state.
 
 **V1 scope:**
 
@@ -16825,7 +16847,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 ---
 
-## TB-508 ??? Disambiguate ExecutiveSqlBackupRegionVerificationCard ??? ArchLucid infra vs. customer data
+## TB-508 ??? Disambiguate SponsorSqlBackupRegionVerificationCard ??? ArchLucid infra vs. customer data
 
 **Status:** **Done** (2026-06-30)
 
@@ -16833,11 +16855,11 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 
 **Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T08. Severity: **P1**.
 
-**Problem:** `ExecutiveSqlBackupRegionVerificationCard` appears on the sponsor dashboard and displays a backup region name with a check mark or warning triangle. The title "Database backup region check" and the region label are drawn from ArchLucid's own infrastructure Terraform verification artifact ??? not the customer's data. A buyer who sees this card might believe it is reporting on the backup region of their architecture review data or their own systems. The source and scope of this metric are not labeled on the card.
+**Problem:** `SponsorSqlBackupRegionVerificationCard` appears on the sponsor dashboard and displays a backup region name with a check mark or warning triangle. The title "Database backup region check" and the region label are drawn from ArchLucid's own infrastructure Terraform verification artifact ??? not the customer's data. A buyer who sees this card might believe it is reporting on the backup region of their architecture review data or their own systems. The source and scope of this metric are not labeled on the card.
 
 **V1 scope:**
 
-1. Update `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.sqlBackupRegionVerificationMetric.description` to say:
+1. Update `BUYER_SPONSOR_SUMMARY_VOCABULARY.sqlBackupRegionVerificationMetric.description` to say:
    `"ArchLucid platform database backup region ??? verified against Terraform CI. Shows where ArchLucid stores your workspace data."`
 2. Add a sub-label on the card below the region name: `"ArchLucid platform infrastructure ??? not your architecture workloads."` ??? to be clear this is ArchLucid's own backup, which is relevant to buyers as a vendor trust signal.
 
@@ -16848,7 +16870,7 @@ Operators sharing links cannot predict whether an admin task lives under `/admin
 **Affected files:**
 
 - `archlucid-ui/src/lib/vocabulary/buyer-surface-vocabulary.ts`
-- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveSqlBackupRegionVerificationCard.tsx`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/SponsorSqlBackupRegionVerificationCard.tsx`
 
 **Size estimate:** **XS**
 
@@ -17057,11 +17079,11 @@ Reader role capabilities:
 
 **Source:** Enterprise trust, security, and procurement audit (2026-06-29), finding T15. Severity: **P2**.
 
-**Problem:** `ExecutiveSqlBackupRegionVerificationCard` shows `"Loading backup region verification??"` in the loading state. "Backup region verification" is internal infrastructure vocabulary on an sponsor dashboard card that a buyer CTO would see. The loading message uses the technical component description, not a buyer-safe label.
+**Problem:** `SponsorSqlBackupRegionVerificationCard` shows `"Loading backup region verification??"` in the loading state. "Backup region verification" is internal infrastructure vocabulary on an sponsor dashboard card that a buyer CTO would see. The loading message uses the technical component description, not a buyer-safe label.
 
 **V1 scope:**
 
-1. In `ExecutiveSqlBackupRegionVerificationCard.tsx`, change the loading message from `"Loading backup region verification??"` to use `v.title` or `"Checking backup status??"` for consistency with the card header.
+1. In `SponsorSqlBackupRegionVerificationCard.tsx`, change the loading message from `"Loading backup region verification??"` to use `v.title` or `"Checking backup status??"` for consistency with the card header.
 
 **Acceptance criteria:**
 
@@ -17069,7 +17091,7 @@ Reader role capabilities:
 
 **Affected files:**
 
-- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveSqlBackupRegionVerificationCard.tsx`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/SponsorSqlBackupRegionVerificationCard.tsx`
 
 **Size estimate:** **XS**
 
@@ -18313,7 +18335,7 @@ const [submitManifestVersion, setSubmitManifestVersion] = useState(
 **Approach (shipped, `72cfdc6cb9`):**
 
 1. Added operator-home and sponsor query hooks: `use-runs-by-project-paged-query`, `use-pilot-recent-deltas-query`, `use-sponsor-roi-summary-query`, `use-core-pilot-commit-context-query` ??? shared keys in `operator-query-keys.ts`, 60s stale / 5min GC defaults.
-2. Migrated high-traffic consumers: `RunsDashboardPanelClient`, `OperatorHomeExecutiveRoiStrip`, sponsor dashboard KPI cards/sections, core-pilot cards, and related home panels to TanStack Query.
+2. Migrated high-traffic consumers: `RunsDashboardPanelClient`, `OperatorHomeSponsorRoiStrip`, sponsor dashboard KPI cards/sections, core-pilot cards, and related home panels to TanStack Query.
 3. Added `operator-query-invalidation.ts` for run-lifecycle and sponsor ROI cache busting after writes.
 4. Documented partial remainder in `UI_ARCHITECTURE_V1_1.md` ??1 ??? governance findings queue and alerts inbox client refresh paths intentionally deferred (server loaders / follow-on batches).
 
@@ -18499,7 +18521,7 @@ experimental: {
 
 ---
 
-## TB-569 ??? Migrate `ExecutiveDashboardDataContext` to React Query (P2)
+## TB-569 ??? Migrate `SponsorDashboardDataContext` to React Query (P2)
 
 **Status:** **Done** (2026-07-03)
 
@@ -18517,7 +18539,7 @@ experimental: {
 - Loading/error states unchanged from operator perspective.
 - Unit tests cover query key scoping.
 
-**Affected files:** `archlucid-ui/src/components/sponsor/ExecutiveDashboardDataContext.tsx`
+**Affected files:** `archlucid-ui/src/components/sponsor/SponsorDashboardDataContext.tsx`
 
 **Size estimate:** **S**
 
@@ -18529,7 +18551,7 @@ experimental: {
 
 **Status:** **Done** (2026-07-01)
 
-**Why:** `ExecutiveRoiSystemicIssueTrendChart.tsx` imports `recharts` statically; parent `ExecutiveRoiSummarySection` wraps it in `dynamic()`. Other call sites may bypass the split.
+**Why:** `SponsorRoiSystemicIssueTrendChart.tsx` imports `recharts` statically; parent `SponsorRoiSummarySection` wraps it in `dynamic()`. Other call sites may bypass the split.
 
 **Approach:**
 
@@ -18542,7 +18564,7 @@ experimental: {
 - Grep shows no static recharts import on operator home/reviews hot paths.
 - Sponsor dashboard charts still render.
 
-**Affected files:** `archlucid-ui/src/components/sponsor/ExecutiveRoiSystemicIssueTrendChart.tsx` and any other recharts importers
+**Affected files:** `archlucid-ui/src/components/sponsor/SponsorRoiSystemicIssueTrendChart.tsx` and any other recharts importers
 
 **Size estimate:** **XS**
 
@@ -22606,13 +22628,13 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 **Window:** V1.
 
-**Status:** **Done** (2026-07-17) ? Added `product-overview` (EXECUTIVE_SPONSOR_BRIEF ????1???4), `evidence-only-review` (CORE_PILOT fast-path section), and `data-handling-tenant-isolation` (DATA_HANDLING + TENANT_ISOLATION buyer sections) to `product-documentation-registry.ts` with `{#anchor}` tags on source headings; `pdfStatus: "public"`; `help-center-catalog.ts` tier rows; `product-documentation-content-kinds.ts` mappings; Vitest in `product-documentation-registry.test.ts`.
+**Status:** **Done** (2026-07-17) ? Added `product-overview` (SPONSOR_SPONSOR_BRIEF ????1???4), `evidence-only-review` (CORE_PILOT fast-path section), and `data-handling-tenant-isolation` (DATA_HANDLING + TENANT_ISOLATION buyer sections) to `product-documentation-registry.ts` with `{#anchor}` tags on source headings; `pdfStatus: "public"`; `help-center-catalog.ts` tier rows; `product-documentation-content-kinds.ts` mappings; Vitest in `product-documentation-registry.test.ts`.
 
 **Why:** "ArchLucid Product Overview," "Evidence-Only Review Guide," and "Data Handling and Tenant Isolation" have no 1:1 existing registry slug, but their content already exists in other markdown files. Reuse via the registry's existing `sectionAnchors` + `includeIntroWithSections` mechanism (already used by `cloud-connections-azure`) instead of forking new markdown files to maintain.
 
 **Approach:**
 
-1. Add a `product-overview` registry entry sourced from `docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md` ????1???4 (`sectionAnchors`).
+1. Add a `product-overview` registry entry sourced from `docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md` ????1???4 (`sectionAnchors`).
 2. Add an `evidence-only-review` registry entry sourced from `docs/CORE_PILOT.md`'s "Fast path: evidence-only review" section.
 3. Add a `data-handling-tenant-isolation` registry entry merging `docs/library/customer-facing/HOW_ARCHLUCID_WORKS.md` / `DATA_HANDLING.md` and `docs/go-to-market/TENANT_ISOLATION.md` (multiple `sourcePaths`, matching the existing `security-trust` entry's two-source pattern).
 4. Set `pdfStatus: "public"` and `audience` per `PDF_DOCUMENTATION_STRATEGY.md` ??3 on all three.
@@ -26291,7 +26313,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 **Approach:**
 
 1. Architecture / Vitest / API contract tests: no surface maps Mixed or Fallback to Real; Fallback and RealModeFellBackToSimulator stay visible where shown today.
-2. Document and guard: within-run Mixed ? `ExecutiveRoiHistoryPeriod.IsMixedMode` (period mix) ? distinct copy keys.
+2. Document and guard: within-run Mixed ? `SponsorRoiHistoryPeriod.IsMixedMode` (period mix) ? distinct copy keys.
 3. Finding / package trust labels and export metadata cite run + per-task mode consistently after **TB-970**.
 4. Optional: drift guard on copy that claims ?Real mode evidence? when roll-up is Mixed/Simulator/Fallback.
 
@@ -26659,7 +26681,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Status:** **Done** (2026-08-10).
 
-**Closed:** `isProjectedUsdSponsorBadgeVisible` aligns Email-to-sponsor projected-USD badge with PDF execution-mode gates; buyer-polished `ExecutiveRoiTrendSection` charts `realModeSavingsUsd` via `resolveExecutiveTrendSavingsUsd`; Vitest coverage. Residual: API `TotalEstimatedUsdSavings` headline aggregation and board-pack composer ? operator-density views unchanged with labels.
+**Closed:** `isProjectedUsdSponsorBadgeVisible` aligns Email-to-sponsor projected-USD badge with PDF execution-mode gates; buyer-polished `SponsorRoiTrendSection` charts `realModeSavingsUsd` via `resolveSponsorTrendSavingsUsd`; Vitest coverage. Residual: API `TotalEstimatedUsdSavings` headline aggregation and board-pack composer ? operator-density views unchanged with labels.
 
 **Priority:** P1.
 
@@ -26667,8 +26689,8 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Problem:**
 
-1. `ExecutiveRoiSummaryService` `TotalEstimatedUsdSavings` aggregates Simulator+Real without a sponsor-safe Real-only headline.
-2. Buyer-polished `ExecutiveRoiTrendSection` still plots Simulator-inclusive USD bars (**BDA-069**/**BDA-070**) despite **TB-239** exposing `RealModeSavingsUsd`.
+1. `SponsorRoiSummaryService` `TotalEstimatedUsdSavings` aggregates Simulator+Real without a sponsor-safe Real-only headline.
+2. Buyer-polished `SponsorRoiTrendSection` still plots Simulator-inclusive USD bars (**BDA-069**/**BDA-070**) despite **TB-239** exposing `RealModeSavingsUsd`.
 3. `EmailRunToSponsorBanner` can show ?projected savings (estimate)? while `isExternalSponsorPdfBlockedForExecutionMode` already blocks external PDF for Simulator/Fallback/Mixed.
 
 **Approach:**
@@ -27897,7 +27919,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 1. Hide or collapse `OperatorHomeWorkspaceMetricsSummary` KPI zeros until ?1 review exists (keep one-line ?Metrics appear after your first review? if useful).
 2. Hide `SidebarRecentActivityCard` / median-delta sidebar variant until ?1 finalized review with real delta inputs.
-3. Hide `OperatorHomeExecutiveRoiStrip` (and similar savings lines) until ?1 committed package with real savings data ? do not show empty estimate copy.
+3. Hide `OperatorHomeSponsorRoiStrip` (and similar savings lines) until ?1 committed package with real savings data ? do not show empty estimate copy.
 4. Vitest for each gate.
 
 **Acceptance:** Empty workspace Overview + sidebar show no zero KPI theater and no savings/median-delta chrome; after real data, surfaces return.
@@ -29122,7 +29144,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Approach:**
 
-1. Author `docs/library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md` (or a PA appendix under [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#sponsor-paid-pilot-proof-packet-assembly--mock-procurement-review) + [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md)) with tables:
+1. Author `docs/library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md` (or a PA appendix under [`SPONSOR_PAID_PILOT_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#sponsor-paid-pilot-proof-packet-assembly--mock-procurement-review) + [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md)) with tables:
    - **Include (minimum bar):** six-element Real SEND sponsor packet + labeled self-attested assurance substitutes (Trust Center honesty, SOC self-assessment, owner-conducted pen-style summary per V1 **TB-005** posture ? not CPA/3P).
    - **Drop / defer from single-pilot bar:** CPA-issued SOC 2 report; published third-party pen test; Stage 1 ?evidence-backed selling?; G4 ?3 pilots as a first-pilot gate.
    - **Mock-review PASS:** deferred `(B)` procurement realism items (CPA/3P) accepted as scope when the include matrix is complete.
@@ -32454,7 +32476,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Priority:** P0.
 
-**Source:** Owner WH review 2026-07-26 ? H1 **Why ArchLucid** collides with public `/why`; IA assessment IA-014 (fold/remove/orphan). `EXECUTIVE_SPONSOR_BRIEF` already distinguishes marketing vs operator telemetry.
+**Source:** Owner WH review 2026-07-26 ? H1 **Why ArchLucid** collides with public `/why`; IA assessment IA-014 (fold/remove/orphan). `SPONSOR_SPONSOR_BRIEF` already distinguishes marketing vs operator telemetry.
 
 **Problem:** Operators and agents cannot tell which ?Why? page is the competitive narrative vs the live instrumentation proof. Learning-section traffic on a hidden-in-buyer-shell route amplifies confusion.
 
@@ -34748,13 +34770,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Commercial / marketability.
 
-**Status:** **Done** (2026-08-12) ? `docs/library/ELEVATOR_PITCH_V1_CLAIM_AUDIT_CONTRACT.md`; reconciled `ELEVATOR_PITCH.md` alias + `EXECUTIVE_SPONSOR_BRIEF.md` ?4 Rule and persona hedges; pairs Done **TB-1368** / GTM **M-245**/**M-246**.
+**Status:** **Done** (2026-08-12) ? `docs/library/ELEVATOR_PITCH_V1_CLAIM_AUDIT_CONTRACT.md`; reconciled `ELEVATOR_PITCH.md` alias + `SPONSOR_SPONSOR_BRIEF.md` ?4 Rule and persona hedges; pairs Done **TB-1368** / GTM **M-245**/**M-246**.
 
 **Priority:** P1.
 
 **Source:** Owner / PA question 2026-07-26: *Audit my current elevator pitch against shipped V1 ? what claims should I cut, hedge, or prove with a committed-run artifact?*
 
-**Problem:** [`ELEVATOR_PITCH.md`](../go-to-market/ELEVATOR_PITCH.md) (**M-02** Done) and [`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) ?4 still carry buyer-facing claims that are stronger than the committed-run contract in [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) / [`V1_SCOPE.md`](V1_SCOPE.md). Highest risk: brief ?4 **?Reviews that took two weeks now take two hours?**; pitch ?every finding? explainability trace? + ?auditable and **replayable**?; GRC opener ?pre-commit governance gate?; CTO opener ?fraction of the time?; stale pitch Rule / WNTP connector deferral vs ?2.13??2.15 GA.
+**Problem:** [`ELEVATOR_PITCH.md`](../go-to-market/ELEVATOR_PITCH.md) (**M-02** Done) and [`SPONSOR_SPONSOR_BRIEF.md`](../go-to-market/SPONSOR_SPONSOR_BRIEF.md) ?4 still carry buyer-facing claims that are stronger than the committed-run contract in [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) / [`V1_SCOPE.md`](V1_SCOPE.md). Highest risk: brief ?4 **?Reviews that took two weeks now take two hours?**; pitch ?every finding? explainability trace? + ?auditable and **replayable**?; GRC opener ?pre-commit governance gate?; CTO opener ?fraction of the time?; stale pitch Rule / WNTP connector deferral vs ?2.13??2.15 GA.
 
 **Approach:**
 
@@ -34790,7 +34812,7 @@ Operators must read three intros before reaching the Trust Center link list.
 **Approach:**
 
 1. Extend `check_proof_summary_promise_language.py` (or sibling) to fail (or elevator-strict) on:
-   - `two weeks` + `two hours` co-claim (or equivalent week?hour compression) in `ELEVATOR_PITCH.md`, `EXECUTIVE_SPONSOR_BRIEF.md`, M-18 templates.
+   - `two weeks` + `two hours` co-claim (or equivalent week?hour compression) in `ELEVATOR_PITCH.md`, `SPONSOR_SPONSOR_BRIEF.md`, M-18 templates.
    - Unqualified ?every finding? + explainability/trace without ?sponsor-facing? / ?when present? hedge.
    - Unqualified ?always? / default-on ?pre-commit gate? as product promise without config caveat.
 2. Fail ?replayable? as absolute architecture-stability claim without compare/replay caveats (**TB-1025** peer).
@@ -36555,7 +36577,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Source:** Owner redundant-description pass 2026-07-27.
 
-**Problem:** Strip line (?ROI, remediation, and governance posture across committed reviews.?) restates `BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageLead` (?Track governance posture, remediation progress, estimated ROI??) immediately below.
+**Problem:** Strip line (?ROI, remediation, and governance posture across committed reviews.?) restates `BUYER_SPONSOR_SUMMARY_VOCABULARY.portfolioPageLead` (?Track governance posture, remediation progress, estimated ROI??) immediately below.
 
 **Approach:**
 
@@ -38645,7 +38667,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Source:** Owner review of `/sponsor/dashboard` 2026-07-27 (~44/100; traffic **EDA**). Done **TB-608** claimed page retired + nav ? `/dashboard`; current tree contradicts that.
 
-**Problem:** Permanent `next.config` redirect to `/dashboard` coexists with a live App Router page rendering `ExecutiveRoiDashboardPageView`. Engineers and Vitest disagree with runtime; sponsors never see sponsor chrome for ?Dashboard?.
+**Problem:** Permanent `next.config` redirect to `/dashboard` coexists with a live App Router page rendering `SponsorRoiDashboardPageView`. Engineers and Vitest disagree with runtime; sponsors never see sponsor chrome for ?Dashboard?.
 
 **Approach (pick one; document in acceptance):**
 
@@ -38656,7 +38678,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Depends on:** Coordinate **TB-1526**?**TB-1529**.
 
-**Out of scope:** Redesigning portfolio KPI tiles inside `ExecutiveRoiDashboardPageView`.
+**Out of scope:** Redesigning portfolio KPI tiles inside `SponsorRoiDashboardPageView`.
 
 **Size estimate:** S.
 
@@ -38666,11 +38688,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** **Done** (2026-08-10) ? `ExecutiveShellFrame` Dashboard nav + wordmark use `EXECUTIVE_DASHBOARD_HREF`; active state via `isExecutiveDashboardPath()`; Vitest in `ExecutiveShellFrame.test.tsx` + `sponsor-shell-dashboard-nav.test.ts`.
+**Status:** **Done** (2026-08-10) ? `SponsorShellFrame` Dashboard nav + wordmark use `SPONSOR_DASHBOARD_HREF`; active state via `isSponsorDashboardPath()`; Vitest in `SponsorShellFrame.test.tsx` + `sponsor-shell-dashboard-nav.test.ts`.
 
 **Priority:** P0.
 
-**Source:** Owner EDA review 2026-07-27 ? `ExecutiveShellFrame` links Dashboard to `/sponsor/dashboard` and highlights `pathname.startsWith("/sponsor/dashboard")`; Vitest expects that href.
+**Source:** Owner EDA review 2026-07-27 ? `SponsorShellFrame` links Dashboard to `/sponsor/dashboard` and highlights `pathname.startsWith("/sponsor/dashboard")`; Vitest expects that href.
 
 **Problem:** After the permanent redirect, the nav label promises sponsor Dashboard but delivers operator `/dashboard` (or never activates highlight on the landing URL).
 
@@ -38749,11 +38771,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Trustworthiness.
 
-**Status:** **Done** (2026-08-10) ? `resolveSponsorExecutiveRedirectTarget` and scorecard empty-state tertiary CTA use `EXECUTIVE_DASHBOARD_HREF`; `ExecutiveShellFrame` Dashboard nav matches canonical active highlight; `sponsor-sponsor-dashboard-canonical-handoff.test.ts` guards sponsor handoff surfaces.
+**Status:** **Done** (2026-08-10) ? `resolveSponsorRedirectTarget` and scorecard empty-state tertiary CTA use `SPONSOR_DASHBOARD_HREF`; `SponsorShellFrame` Dashboard nav matches canonical active highlight; `sponsor-sponsor-dashboard-canonical-handoff.test.ts` guards sponsor handoff surfaces.
 
 **Priority:** P0.
 
-**Source:** Owner EDA review 2026-07-27 ? **TB-608** also touched `resolveSponsorExecutiveRedirectTarget`, scorecard empty-state tertiary actions, and shell Dashboard tab.
+**Source:** Owner EDA review 2026-07-27 ? **TB-608** also touched `resolveSponsorRedirectTarget`, scorecard empty-state tertiary actions, and shell Dashboard tab.
 
 **Problem:** Mixed `/sponsor/dashboard` vs `/dashboard` targets bounce sponsors between shells or miss sponsor chrome.
 
@@ -38838,7 +38860,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** **Done** (2026-08-11) ? `ExecutiveDashboardLoadingSkeleton` on `/architecture/sponsor-dashboard` while ROI summary loads; ROI trend loading skeleton; Vitest `sponsor-dashboard-loading-skeleton`.
+**Status:** **Done** (2026-08-11) ? `SponsorDashboardLoadingSkeleton` on `/architecture/sponsor-dashboard` while ROI summary loads; ROI trend loading skeleton; Vitest `sponsor-dashboard-loading-skeleton`.
 
 **Priority:** P0.
 
@@ -38865,7 +38887,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Trustworthiness.
 
-**Status:** **Done** (2026-08-10) ? Retired `/sponsor/scorecard` successor on `/architecture/sponsor-dashboard`: sponsor-safe lead via `executiveDashboardPageSubtitle()` (no env gate); ROI trend window help uses `BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP`; endpoint jargon removed from default trend copy; `sponsor-dashboard-buyer-safe-copy.test.ts`.
+**Status:** **Done** (2026-08-10) ? Retired `/sponsor/scorecard` successor on `/architecture/sponsor-dashboard`: sponsor-safe lead via `executiveDashboardPageSubtitle()` (no env gate); ROI trend window help uses `BUYER_SPONSOR_SCORECARD_WINDOW_HELP`; endpoint jargon removed from default trend copy; `sponsor-dashboard-buyer-safe-copy.test.ts`.
 
 **Priority:** P0.
 
@@ -38875,7 +38897,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Approach:**
 
-1. Use `BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP` (or equivalent) unconditionally on this sponsor route.
+1. Use `BUYER_SPONSOR_SCORECARD_WINDOW_HELP` (or equivalent) unconditionally on this sponsor route.
 2. Rewrite page lead to scope/value language without endpoint names.
 3. Vitest: scorecard source/copy excludes `toUtc exclusive` / `drift endpoints` in default render.
 
@@ -38949,7 +38971,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** **Done** (2026-08-11) ? Shared `ExecutiveTimeRangeSelect` (Radix Select); `ExecutiveScorecardEmptyState` preview behind disclosure; Vitest.
+**Status:** **Done** (2026-08-11) ? Shared `SponsorTimeRangeSelect` (Radix Select); `SponsorScorecardEmptyState` preview behind disclosure; Vitest.
 
 **Priority:** P0.
 
@@ -41821,9 +41843,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Registry title/summary say Sponsor summary / sponsor ROI, but `sourcePaths` loads full `docs/library/customer-facing/FAQ.md` ? wrong document for the job.
 
-**Shipped:** Canonical slug `sponsor-report`; registry `sourcePaths` on `EXECUTIVE_SPONSOR_BRIEF.md` + `PILOT_SUCCESS_SCORECARD.md` with `sectionAnchors`; `HelpTopicSponsorSummary.test.tsx` asserts no FAQ leakage and sponsor framing.
+**Shipped:** Canonical slug `sponsor-report`; registry `sourcePaths` on `SPONSOR_SPONSOR_BRIEF.md` + `PILOT_SUCCESS_SCORECARD.md` with `sectionAnchors`; `HelpTopicSponsorSummary.test.tsx` asserts no FAQ leakage and sponsor framing.
 
-**Approach:** Point at `docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md` (sectionAnchors as needed) or a short buyer sponsor fragment; remove FAQ as body. Vitest: no ?Frequently asked questions? H1; contains sponsor/ROI framing. Pairs **TB-1414**.
+**Approach:** Point at `docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md` (sectionAnchors as needed) or a short buyer sponsor fragment; remove FAQ as body. Vitest: no ?Frequently asked questions? H1; contains sponsor/ROI framing. Pairs **TB-1414**.
 
 **Acceptance:** Body matches Sponsor summary job. **Size estimate:** M.
 
@@ -41849,7 +41871,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Current FAQ body exposes day-one-developer, SECURITY.md, MULTI_TENANT_RLS, V1_SCOPE, ArchLucid.Contracts, TB IDs ? contributor framing on a buyer Help Center product topic.
 
-**Shipped:** `stripExecutiveSummaryContributorLeakage()` in `help-markdown-presentation.ts` (gated by `helpTopicSlug: sponsor-summary` + FAQ source); `helpTopicSlug` plumbed through `HelpTopicMarkdownView` / `MarketingAccessibilityMarkdownFragment`; Vitest in `help-markdown-presentation.test.tsx` and `HelpTopicExecutiveSummary.test.tsx`.
+**Shipped:** `stripSponsorSummaryContributorLeakage()` in `help-markdown-presentation.ts` (gated by `helpTopicSlug: sponsor-summary` + FAQ source); `helpTopicSlug` plumbed through `HelpTopicMarkdownView` / `MarketingAccessibilityMarkdownFragment`; Vitest in `help-markdown-presentation.test.tsx` and `HelpTopicSponsorSummary.test.tsx`.
 
 **Acceptance:** No contributor FAQ leakage on this route. **Size estimate:** S.
 
@@ -41861,7 +41883,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** `in-app-doc-href.ts` maps procurement-pack how-to, pricing philosophy, per-tenant cost model, competitive comparison, order form, custom policy SoW, etc. ? `sponsor-summary` ? wrong landing for those jobs (also noted under **TB-1253**).
 
-**Shipped:** Procurement/pricing/order-form paths map to `procurement`; sponsor brief aliases (`EXECUTIVE_SPONSOR_BRIEF.md`, `SPONSOR_SPONSOR_BRIEF.md`) map to `sponsor-report`; ROI/cost-model paths map to `#pilot-roi-measurement`; `in-app-doc-href.test.ts` TB-1689 matrix.
+**Shipped:** Procurement/pricing/order-form paths map to `procurement`; sponsor brief aliases (`SPONSOR_SPONSOR_BRIEF.md`, `SPONSOR_SPONSOR_BRIEF.md`) map to `sponsor-report`; ROI/cost-model paths map to `#pilot-roi-measurement`; `in-app-doc-href.test.ts` TB-1689 matrix.
 
 **Approach:** Remap each doc to the correct help/marketing slug (procurement, pricing, product-overview, etc.); EXE only for sponsor-brief equivalents. Vitest: inventory assert no catch-all. Pairs **TB-1253**.
 
@@ -42165,7 +42187,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Trustworthiness. **Status:** **Done** 2026-07-30. **Priority:** P0.
 
-**Problem:** Body links FIRST_PILOT_OPERATOR_PATH, EXECUTIVE_SPONSOR_BRIEF, DIFFERENTIATION_PROOF_PACKET, PROCUREMENT_PACK_INDEX, V1_DEFERRED, artifact `.md` filenames, `artifacts/first-pilot-proof/`.
+**Problem:** Body links FIRST_PILOT_OPERATOR_PATH, SPONSOR_SPONSOR_BRIEF, DIFFERENTIATION_PROOF_PACKET, PROCUREMENT_PACK_INDEX, V1_DEFERRED, artifact `.md` filenames, `artifacts/first-pilot-proof/`.
 
 **Shipped:** `stripPathChooserContributorLeakage()` in `help-markdown-presentation.ts` (gated by `helpTopicSlug: path-chooser`); Vitest in `help-markdown-presentation.test.tsx` and `HelpTopicPathChooser.test.tsx`.
 
@@ -42671,13 +42693,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1751 ? `/help/subprocessors` specialty buyer register + Trust CTA (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** 2026-08-13. **Priority:** P0.
 
 **Source:** Owner HSU ~44/100 2026-07-27.
 
 **Problem:** Useful register still falls through to generic markdown ? Print/PDF, no specialty hero, no primary Open Trust / DPA CTA.
 
-**Approach:** Specialty companion (pair **TB-1414**): subprocessors lead + 30-day notice; primary Open Trust ? `/trust`; secondary DPA template. Vitest: specialty testid + Button.
+**Shipped:** `HelpSubprocessorsGuideView` with primary **Open Trust Center** ? `/trust`, DPA + Security and trust secondary CTAs, register table markdown, orientation strip; wired in `[...topic]/page.tsx`; Vitest `HelpTopicSubprocessors.test.tsx`.
 
 **Acceptance:** First job is diligence navigation + readable table. **Size estimate:** M.
 
@@ -42699,11 +42721,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1753 ? Subprocessors help ? IA dual with DPA / Trust (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** 2026-08-13. **Priority:** P0.
 
 **Problem:** DPA template (**TB-1676**) and Trust Center also list subprocessors schedule ? three diligence surfaces without a split.
 
-**Approach:** Job split: this page = live subprocessor table; DPA = contractual template; Trust = pack index. Mutual Related once. Do not reopen **TB-1676**/**TB-1679**. Vitest: distinct lead + cross-links.
+**Shipped:** `subprocessors-help-ia-dual.ts` job matrix (register vs DPA vs Trust Center) + Related cross-links; Vitest job-matrix current marker.
 
 **Acceptance:** Clear table vs contract vs Trust index. **Size estimate:** S.
 
@@ -42711,11 +42733,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1754 ? Subprocessors help ? title + Help Center discovery (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** 2026-08-13. **Priority:** P0.
 
 **Problem:** Markdown H1 ?ArchLucid ? Subprocessors? vs registry ?Subprocessors?; slug missing from `HELP_CENTER_TIER_BY_SLUG`.
 
-**Approach:** Single H1; add product-tier Help Center entry. Vitest: one h1; catalog includes `subprocessors`.
+**Shipped:** `SUBPROCESSORS_HELP_PAGE_TITLE` on specialty `OperatorPageHeader`; product-tier Help Center entry verified in `help-center-catalog`; Vitest single-h1 + catalog tier guard.
 
 **Acceptance:** Discoverable titled register. **Size estimate:** S.
 
@@ -45422,7 +45444,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Page `metadata.title` uses ?Sponsor summary?; H1 uses `BUYER_VALUE_REPORT_PAGE_TITLE` (?Sponsor value report?).
 
-**Shipped:** `EXECUTIVE_SUMMARY_PAGE_TITLE` in `sponsor-report-navigation.ts`; metadata, outcomes tab, route static title, breadcrumb, and reports nav label aligned; Vitest `sponsor-report-sponsor-summary-vocabulary.test.ts`.
+**Shipped:** `SPONSOR_SUMMARY_PAGE_TITLE` in `sponsor-report-navigation.ts`; metadata, outcomes tab, route static title, breadcrumb, and reports nav label aligned; Vitest `sponsor-report-sponsor-summary-vocabulary.test.ts`.
 
 **Acceptance:** Title chrome agrees across metadata/H1/nav. **Size estimate:** S.
 
@@ -45434,7 +45456,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Command palette and troubleshooting still href `/value-report` while canonical is SPE.
 
-**Shipped:** `command-palette-actions.ts` + `troubleshooting-help-guide-content.ts` use `SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH`; Vitest guards in `command-palette-actions.test.ts` and `troubleshooting-help-guide-content.test.ts`. Legacy `/value-report` redirect unchanged.
+**Shipped:** `command-palette-actions.ts` + `troubleshooting-help-guide-content.ts` use `SPONSOR_REPORT_SPONSOR_SUMMARY_PATH`; Vitest guards in `command-palette-actions.test.ts` and `troubleshooting-help-guide-content.test.ts`. Legacy `/value-report` redirect unchanged.
 
 **Acceptance:** Primary deep-links open SPE without relying on redirect. **Size estimate:** S.
 
@@ -47161,7 +47183,7 @@ Operators must read three intros before reaching the Trust Center link list.
 **Shipped:**
 
 1. `IRunDetailQueryService.GetRunDetailForRoiAsync` ? rollup projection (`GetRunDetailForRollupAsync`) plus finding mute flags when `FindingsSnapshotId` exists.
-2. `ExecutiveRoiSummaryService` and `ExecutiveRoiTrailing30DayMetricsCalculator` call `GetRunDetailForRoiAsync` instead of N? fat `GetRunDetailAsync`.
+2. `SponsorRoiSummaryService` and `SponsorRoiTrailing30DayMetricsCalculator` call `GetRunDetailForRoiAsync` instead of N? fat `GetRunDetailAsync`.
 3. Api/Application unit tests + ROI wiring guard (never calls fat path).
 
 **Priority:** P0.
@@ -48211,7 +48233,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Shipped:**
 
-1. Unmounted shell breadcrumbs from `AppShellMainAffordances` and `ExecutiveShellFrame`.
+1. Unmounted shell breadcrumbs from `AppShellMainAffordances` and `SponsorShellFrame`.
 2. Deleted `Breadcrumbs.tsx`, `breadcrumb-map.ts`, `breadcrumb-visibility.ts` (+ tests).
 3. Finding/manifest page-local trails ? explicit back links; buyer operate-back-link no longer keys off shell crumbs; deep approval/policy/showcase hierarchy routes suppress the showcase strip link.
 4. Updated Vitest/Playwright + `NAV_CONFIG_CONTRACT` breadcrumb section.
@@ -48332,7 +48354,7 @@ Operators must read three intros before reaching the Trust Center link list.
 - Buyer-polished + unit tests updated; regression guard prevents reintroduction.
 - Help specialty guides: same rule ? fold critical one-liners into the guide header; no About collapsible for scope.
 
-**Affected files:** `PlanningPageView.tsx`, `OperatorHomePageView.tsx`, `ExecutiveRoiDashboardPageView.tsx`, `AlertRulesHubClient.tsx`, `PolicyPacksPageView.tsx`, `IdentityProvidersSettingsShell.tsx`, `EvolutionReviewPageView.tsx`, `WebhooksAboutPanel.tsx`, `SlackIntegrationAside.tsx`, `ExplainThisViewBanner.tsx`, `*SCOPE_DETAILS_TRIGGER` copy modules, related Vitest.
+**Affected files:** `PlanningPageView.tsx`, `OperatorHomePageView.tsx`, `SponsorRoiDashboardPageView.tsx`, `AlertRulesHubClient.tsx`, `PolicyPacksPageView.tsx`, `IdentityProvidersSettingsShell.tsx`, `EvolutionReviewPageView.tsx`, `WebhooksAboutPanel.tsx`, `SlackIntegrationAside.tsx`, `ExplainThisViewBanner.tsx`, `*SCOPE_DETAILS_TRIGGER` copy modules, related Vitest.
 
 **Depends on:** None; pairs with **TB-2092** (Sources strips) when both chrome bands appear on the same page.
 
@@ -50308,7 +50330,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 ? Accessibility.
 
-**Status:** Done 2026-08-13 â€” **batch 1 Done** 2026-08-12 (AlertRoutingCriteriaFields + PolicyPacksLifecycleSection); **batch 2 Done** 2026-08-12 (audit search/export visible hints + aria-label; ColorMode/Governance toggles; baseline 90â†’85 files); **batch 3 Done** 2026-08-12 (operator page-header freshness metadata â€” visible clock + `<time>`; AuthorityThemeToggle aria-only; baseline 85â†’74 files); **batch 4 Done** 2026-08-12 (`RunAgentForensicsSection` fake tooltips â†’ `FieldHelpTooltip`; `RunRetrievalGroundingPanel` truncation â†’ `break-all` full IDs; `AgentEvidenceFaithfulnessBadge` â†’ `FieldHelpTooltip`; dropped false-positive help header baseline entries; baseline 74â†’68 files); **batch 5 Done** 2026-08-12 (alerts inbox summary, routing destination list, simulation/tuning run controls, composite rules disabled hints; removed clean alert baseline entries; baseline 68â†’60 files); **batch 6 Done** 2026-08-13 (sidebar nav links, cluster headings, administration/governance disclosure, layout settings checkboxes; removed false-positive finding badge baseline entries; baseline 60â†’52 files); **batch 7 Done** 2026-08-13 (deployment fingerprint strip, tenant boundary badge, scope switcher footer, sponsor trust posture badges; baseline 52â†’48 files); **batch 8 Done** 2026-08-13 (`RunTraceViewerLink` aria-label; `RunToolInvocationForensicsRawCell` visible restricted + aria-label; `RunRetrievalExemplarStylePriorStrip` break-all document IDs; `RunsListProofHeadline` + `ReviewAgentExecutionLogSection` â†’ `FieldHelpTooltip`; `ReviewSealedIndicatorChip` redundant title removed; corrected `RunFindingExplainabilityTable` baseline path; baseline 48â†’42 files); **batch 9 Done** 2026-08-13 (`RunFindingExplainabilityTable` finding titles `break-words`; trace gaps `FieldHelpTooltip` when summary truncates; baseline 42â†’41 files); **batch 10 Done** 2026-08-13 (policy-packs generator, inspect, registered list, authoring wizard â†’ visible `WhyDisabledCtaHint` / reader notes; baseline 41â†’37 files); **batch 11 Done** 2026-08-13 (`ReviewsHubResumeDrafts` visible `<time>` + link `aria-label`; `AlertRulesHubClient` drops redundant tab `title`; audit timeline/appendix full trace ids with `break-all`; baseline 37â†’33 files); **batch 12 Done** 2026-08-13 (`AiUsageDailyUsagePanel` bar `aria-label` only; `OperatorBillingWalletPanel` wallet mutate `aria-describedby`; sponsor ROI environment pie `aria-hidden` + legend; `ExecutiveRoiTrendSection` critical bars focusable `aria-label`; baseline 33â†’29 files); **batch 13 Done** 2026-08-13 (`EvidenceTrailBuyerTraceTable` `break-words`; `GraphPageControls` visible mode helper; `SlackDestinationForm` `WhyDisabledCtaHint`; `TrialFunnelOpsPageClient` stage `FieldHelpTooltip`; baseline 29â†’25 files); **batch 14 Done** 2026-08-13 (`ArchitectureDraftListClient` `<time>` metadata; `ArtifactIntegrityTechnicalDetails` full hash `break-all`; `ArtifactListTable` redundant format `title` removed; `BeforeAfterDeltaTopPanel` median LLM `FieldHelpTooltip`; dropped clean `BulkEvidenceUpload` baseline entry; baseline 25â†’20 files); **batch 15 Done** 2026-08-13 (`BuyerCtoDemoTourOverlay` journey chip `aria-label`; `ComplianceDriftOpenResolvedChart` bar `aria-label` + focus; `CtoDemoSimulatorTrustBadge` + `CtoDemoStorySelector` `FieldHelpTooltip`; dropped clean `DigestSubscriptionCreateForm` baseline entry; baseline 20â†’15 files); **batch 16 Done** 2026-08-13 (`EmailRunToSponsorBanner` visible sent timestamp + PDF `aria-describedby`; `EstimatedLlmCostBarChart` bar `aria-label`; `ExplanationEvidenceBasisBadges` `FieldHelpTooltip`; `FindingExplainabilityDialog` full title `break-words`; dropped clean `FindingsWhatIfAnalysisPanel` baseline entry; baseline 15â†’10 files); **batch 17 Done** 2026-08-13 (`GovernanceApprovalInspectorPreview` semantic `<time>`; `InspectorPanel` drops redundant `title`; `LayerContextStrip` journey chip `aria-label`; `LayerHeader` redundant scope-help `title` removed; `CtaButton` drops `title` prop â€” disclosure via `aria-describedby`; baseline 10â†’5 files); **batch 18 Done** 2026-08-13 (`ProvenanceReferenceLink` full reference `break-all` + link `aria-label`; `RoiTelemetryCard` visible rate basis + blocks `FieldHelpTooltip`; `TabsTrigger` drops `title` prop; `WizardEvidenceUploadZone` attachment `break-all`; dropped clean `ProvenancePageWorkspace` baseline entry; deleted `title-attribute-legacy-surfaces.mjs` and ESLint override â€” **0** baselined files remain).
+**Status:** Done 2026-08-13 â€” **batch 1 Done** 2026-08-12 (AlertRoutingCriteriaFields + PolicyPacksLifecycleSection); **batch 2 Done** 2026-08-12 (audit search/export visible hints + aria-label; ColorMode/Governance toggles; baseline 90â†’85 files); **batch 3 Done** 2026-08-12 (operator page-header freshness metadata â€” visible clock + `<time>`; AuthorityThemeToggle aria-only; baseline 85â†’74 files); **batch 4 Done** 2026-08-12 (`RunAgentForensicsSection` fake tooltips â†’ `FieldHelpTooltip`; `RunRetrievalGroundingPanel` truncation â†’ `break-all` full IDs; `AgentEvidenceFaithfulnessBadge` â†’ `FieldHelpTooltip`; dropped false-positive help header baseline entries; baseline 74â†’68 files); **batch 5 Done** 2026-08-12 (alerts inbox summary, routing destination list, simulation/tuning run controls, composite rules disabled hints; removed clean alert baseline entries; baseline 68â†’60 files); **batch 6 Done** 2026-08-13 (sidebar nav links, cluster headings, administration/governance disclosure, layout settings checkboxes; removed false-positive finding badge baseline entries; baseline 60â†’52 files); **batch 7 Done** 2026-08-13 (deployment fingerprint strip, tenant boundary badge, scope switcher footer, sponsor trust posture badges; baseline 52â†’48 files); **batch 8 Done** 2026-08-13 (`RunTraceViewerLink` aria-label; `RunToolInvocationForensicsRawCell` visible restricted + aria-label; `RunRetrievalExemplarStylePriorStrip` break-all document IDs; `RunsListProofHeadline` + `ReviewAgentExecutionLogSection` â†’ `FieldHelpTooltip`; `ReviewSealedIndicatorChip` redundant title removed; corrected `RunFindingExplainabilityTable` baseline path; baseline 48â†’42 files); **batch 9 Done** 2026-08-13 (`RunFindingExplainabilityTable` finding titles `break-words`; trace gaps `FieldHelpTooltip` when summary truncates; baseline 42â†’41 files); **batch 10 Done** 2026-08-13 (policy-packs generator, inspect, registered list, authoring wizard â†’ visible `WhyDisabledCtaHint` / reader notes; baseline 41â†’37 files); **batch 11 Done** 2026-08-13 (`ReviewsHubResumeDrafts` visible `<time>` + link `aria-label`; `AlertRulesHubClient` drops redundant tab `title`; audit timeline/appendix full trace ids with `break-all`; baseline 37â†’33 files); **batch 12 Done** 2026-08-13 (`AiUsageDailyUsagePanel` bar `aria-label` only; `OperatorBillingWalletPanel` wallet mutate `aria-describedby`; sponsor ROI environment pie `aria-hidden` + legend; `SponsorRoiTrendSection` critical bars focusable `aria-label`; baseline 33â†’29 files); **batch 13 Done** 2026-08-13 (`EvidenceTrailBuyerTraceTable` `break-words`; `GraphPageControls` visible mode helper; `SlackDestinationForm` `WhyDisabledCtaHint`; `TrialFunnelOpsPageClient` stage `FieldHelpTooltip`; baseline 29â†’25 files); **batch 14 Done** 2026-08-13 (`ArchitectureDraftListClient` `<time>` metadata; `ArtifactIntegrityTechnicalDetails` full hash `break-all`; `ArtifactListTable` redundant format `title` removed; `BeforeAfterDeltaTopPanel` median LLM `FieldHelpTooltip`; dropped clean `BulkEvidenceUpload` baseline entry; baseline 25â†’20 files); **batch 15 Done** 2026-08-13 (`BuyerCtoDemoTourOverlay` journey chip `aria-label`; `ComplianceDriftOpenResolvedChart` bar `aria-label` + focus; `CtoDemoSimulatorTrustBadge` + `CtoDemoStorySelector` `FieldHelpTooltip`; dropped clean `DigestSubscriptionCreateForm` baseline entry; baseline 20â†’15 files); **batch 16 Done** 2026-08-13 (`EmailRunToSponsorBanner` visible sent timestamp + PDF `aria-describedby`; `EstimatedLlmCostBarChart` bar `aria-label`; `ExplanationEvidenceBasisBadges` `FieldHelpTooltip`; `FindingExplainabilityDialog` full title `break-words`; dropped clean `FindingsWhatIfAnalysisPanel` baseline entry; baseline 15â†’10 files); **batch 17 Done** 2026-08-13 (`GovernanceApprovalInspectorPreview` semantic `<time>`; `InspectorPanel` drops redundant `title`; `LayerContextStrip` journey chip `aria-label`; `LayerHeader` redundant scope-help `title` removed; `CtaButton` drops `title` prop â€” disclosure via `aria-describedby`; baseline 10â†’5 files); **batch 18 Done** 2026-08-13 (`ProvenanceReferenceLink` full reference `break-all` + link `aria-label`; `RoiTelemetryCard` visible rate basis + blocks `FieldHelpTooltip`; `TabsTrigger` drops `title` prop; `WizardEvidenceUploadZone` attachment `break-all`; dropped clean `ProvenancePageWorkspace` baseline entry; deleted `title-attribute-legacy-surfaces.mjs` and ESLint override â€” **0** baselined files remain).
 
 **Priority:** P1.
 
@@ -50897,927 +50919,345 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Source:** Owner perf wave 7 2026-08-09; verified ? `archlucid-ui/src/lib/query/operator-query-client.ts` and `OperatorQueryProvider.tsx` create an in-memory client with no persister.
 
-**Closure (2026-08-10):** `@tanstack/react-query-persist-client` + `sessionStorage` persister keyed by build commit (`buster` + storage key), JWT `sub`, and operator scope snapshot; allowlist persists tenant/alerts/runs/digests/governance list reads only; `maxAge` aligned to query `gcTime` (5 min); Vitest for allowlist, scope isolation, persistence throttle, and provider wiring.
-
-**Why:** Done **TB-2123**/**TB-2144** moved operator reads onto Query, but the cache dies on reload and on any full document navigation, so back/forward and refresh refetch from zero even when data is seconds old. Persistence is the missing half of the migration already paid for.
-
-**Quantified target:** **?1 to ?3** round trips per navigation, worth **?100 to ?400 ms** (estimate) ? the same order Done **TB-2144** credited for removing RTTs on the alerts badge and billing banner.
-
-**Approach:**
-
-1. Add `persistQueryClient` with a `sessionStorage` persister, scoped by tenant and user so a session switch cannot surface another scope's cached reads.
-2. Set a conservative `maxAge` and a cache buster keyed to build ID so a deploy cannot rehydrate stale-shaped payloads.
-3. Exclude sensitive or authority-critical queries from persistence by key allowlist ? persist list and summary reads, never signed-record or authority-decision payloads.
-4. Vitest: reload restores cached list data without a network call; tenant switch and build-ID change both discard the cache.
-
-**Acceptance:** Reload and back-navigation serve from the persisted cache with a background revalidate; scope isolation and build-buster verified by tests; no persisted authority payloads.
-
-**Affected files:** `archlucid-ui/src/lib/query/operator-query-client.ts`, `OperatorQueryProvider.tsx`, key allowlist module, tests.
-
-**Peers:** Done **TB-562**/**TB-2123**/**TB-2144**/**TB-935**; [`DATA_FLOW_AND_STATE.md`](../../archlucid-ui/docs/DATA_FLOW_AND_STATE.md).
-
-**Out of scope:** Server-side or cross-device cache; offline mode.
-
-**Size estimate:** S.
+**Closure (2026-08-10):** `@tanstack/react-query-persist-client` + `sessionStorage` persister wired in `OperatorQueryProvider`; Vitest coverage in `operator-query-persistence.test.ts`.
 
 ---
 
-## TB-2166 ? Web Worker offload for INP on evidence graph + compare views (P0)
+## TB-2244 — RunStarterTaskFactory cloud-aware policy refs + service catalogs (P0)
 
-**Window:** V1 ? Performance.
+**Window:** V1 — multi-cloud **customer-target** parity (**TB-2244**–**TB-2263** cluster).
 
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Source:** Owner perf wave 7 2026-08-09; residual dimension after Done **TB-2031** (field Web Vitals triage gate).
-
-**Closure (2026-08-10):** Typed INP offload worker (`inp-offload-contract.ts`, `inp-offload.worker.ts`, `inp-offload-client.ts`) with sync fallback; tasks for provenance layout, finding evidence graph prep, compare governance diff, manifest line diff, and React Flow map; wired into `ProvenanceGraphViewport`, `FindingEvidenceGraph`, `GraphViewer`, `useCompareGovernanceDiff`, and `ArchitectureManifestUnifiedDiffView`; evidence-graph type filter uses `startTransition` + `useDeferredValue`; Vitest contract/task/client coverage; INP regression note in [`PERFORMANCE_BASELINES.md`](PERFORMANCE_BASELINES.md).
-
-**Why:** Every wave so far cut **bundle size**, which moves LCP and total blocking time. INP is a different axis: it is set by long tasks during interaction, and `reactflow` graph layout plus large compare/diff rendering still run on the main thread. A route can pass its First Load JS budget and still feel unresponsive on click.
-
-**Quantified target:** **?100 to ?300 ms INP** on the evidence-graph and compare surfaces (estimate), by moving layout and diff computation off the main thread so no interaction task exceeds the **200 ms** long-task threshold.
+**Why:** `RunStarterTaskFactory.BuildPolicyRefs` always adds `policy-pack:azure-security-baseline` regardless of `ArchitectureRequest.CloudProvider`. `BuildServiceCatalogRefs` always seeds `catalog:azure-core-services` and `catalog:azure-sql`. Aws/Gcp target reviews inherit Azure policy and catalog refs at agent task creation.
 
 **Approach:**
 
-1. Use the **TB-2031** field Web Vitals data to confirm which surfaces actually show poor INP before writing any worker ? measure first, do not assume the graph is worst.
-2. Move graph layout computation and compare/diff derivation into a Web Worker with a typed message contract; keep the render pass on the main thread.
-3. Where a worker is overkill, prefer `useDeferredValue` / `startTransition` for filter and search input so typing does not block.
-4. Vitest for worker message contracts plus an INP regression note in the performance baseline docs.
+1. Resolve effective `CloudProvider` from the request (including `None` → cloud-neutral refs only).
+2. Map cloud-specific policy pack refs (AWS/GCP security baseline packs already exist in bundled catalog per **TB-701**–**TB-719**).
+3. Map cloud-specific service catalog refs or omit Azure SQL/AI Search catalogs when target is Aws/Gcp.
+4. Unit tests: Aws/Gcp requests must not contain `azure-security-baseline` or `catalog:azure-*` unless ledger/evidence explicitly requires Azure artifacts.
 
-**Acceptance:** Targeted surfaces show measured INP improvement in field data; no long task over 200 ms during graph interaction in a local trace; worker contract tested.
+**Acceptance:** Golden run-start fixtures for `CloudProvider.Aws` and `CloudProvider.Gcp` show no Azure-only `PolicyRefs` or `ServiceCatalogRefs`.
 
-**Affected files:** `FindingEvidenceGraph` and its layout module, compare/diff derivation, new worker module + typed contract, tests, [`PERFORMANCE_BASELINES.md`](PERFORMANCE_BASELINES.md).
+**Affected files:** `ArchLucid.Application/Runs/Coordination/RunStarterTaskFactory.cs`, related coordination tests.
 
-**Peers:** Done **TB-561** (`reactflow` dynamic import), **TB-2031** (CWV triage), **TB-694**/**TB-695** (virtualization); GTM **G-QA-06**/**G-QA-07**.
-
-**Out of scope:** Replacing `reactflow`; server-side graph layout.
+**Peers:** **TB-2249** (policy baseline UX), Done **TB-701**–**TB-719**.
 
 **Size estimate:** M.
 
 ---
 
-## TB-2167 ? Leader election for hosted background services (P0)
+## TB-2245 — Multi-cloud inventory evidence-bundle merge at run create (P0)
 
-**Window:** V1 ? Performance / Reliability.
+**Window:** V1.
 
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Source:** Owner perf wave 7 2026-08-09; blocker named explicitly in the Done **TB-2124** paid-lever matrix ? "duplicate hosted background work if raised without worker split / leader election".
-
-**Closure (2026-08-10):** `HostLeaderElectionCoordinator` + `SqlHostLeaderLeaseRepository` gate singleton hosted loops (outbox drains, stuck-job watchdog, reconciliation, orphan probes, archival, advisory scan, extractors, and related workers). `GET /v1/admin/diagnostics/leases` exposes holders and expiry. Final gaps closed: `BackgroundJobStuckRunningWatchdogHostedService`, `DataConsistencyOrphanProbeHostedService`, `RequiredAuditTrailOrphanProbeHostedService`. Contention tests in `HostLeaderElectionCoordinatorTests` and `SqlHostLeaderLeaseRepositorySqlIntegrationTests`. Decision-pack note in [`PERFORMANCE_COLD_START_AND_TRIMMING.md`](PERFORMANCE_COLD_START_AND_TRIMMING.md); Terraform README updated. **`api_min_replicas` raise remains owner-gated under TB-2146**.
-
-**Why:** The `min_replicas` levers are blocked on this, not on cost: raising replicas today duplicates outbox drains, the stuck-job watchdog, cache warmups, and reconciliation probes across every replica. That is wasted SQL polling at steady state **and** a correctness smell (N pollers contending on the same rows), and it makes the **?5 to ?20 s** warm-path deploy improvement unavailable.
-
-**Quantified target:** Removes **(N?1)?** duplicate background SQL polling at N replicas ? at N=3 that is **~67%** of background poll load ? and unblocks the **?5 to ?20 s** user-visible warm-path deploy lever plus the **?30 to ?90 s** idle lever from the **TB-2124** matrix (estimates; matrix figures).
+**Why:** `ArchitectureRunAuthorityCoordination` and `AuthorityPipelineWorkProcessor` merge provenance only from `IAzureExtractorPackageRepository` via `AzureExtractorEvidenceBundleMerger`. AWS/GCP Tier 1 ZIP ingest (**TB-876** Done) and Tier 2 polling (**TB-402**/**TB-403**) persist to `ICloudInventoryExtractorPackageRepository` but do not enrich the evidence bundle at run start. Agents and cost citation paths that key off extractor metadata miss Aws/Gcp inventory.
 
 **Approach:**
 
-1. Inventory `ArchLucid.Host.Core/Hosted/*HostedService.cs` and classify each as singleton-required (outbox drains, watchdog, reconciliation) versus safe-per-replica (metrics, local warmups).
-2. Add SQL-backed lease leader election (reuse the existing distributed-lock primitive in `ArchLucid.Persistence/Concurrency/` rather than introducing a new mechanism) with lease renewal, fencing, and clean handover on shutdown.
-3. Gate singleton services behind lease ownership; expose current leader plus lease age in health/diagnostics so ops can see failover.
-4. Tests: two hosts contending yield exactly one active runner; lease expiry promotes the survivor; lost lease stops work without partial-batch corruption. Then re-evaluate `api_min_replicas` with a fresh baseline.
+1. Generalize merge helper (or add Aws/Gcp merge) using `ICloudInventoryExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync`.
+2. Merge cost-citation and metadata keys analogous to Azure (`MetadataPackageIdKey`, `MetadataCostCitationKey`) with provider-specific citation prefixes.
+3. Extend `PilotsController` and `SponsorRoiSummaryService` freshness/package probes to consider cloud inventory repo when target cloud is Aws/Gcp.
+4. Integration tests: Aws/Gcp ZIP upload associated with run → evidence bundle contains inventory metadata after coordination.
 
-**Acceptance:** Singleton hosted services run on exactly one replica with observable leadership and tested failover; `min_replicas` lever re-evaluated with a cost note in the decision pack.
+**Acceptance:** Run create with linked Aws or Gcp inventory package merges provenance into `EvidenceBundle` the same way Azure extractor packages do today.
 
-**Affected files:** `ArchLucid.Host.Core/Hosted/*`, lease/leader-election module reusing `ArchLucid.Persistence/Concurrency/*`, `ArchLucid.Host.Composition` registration, health diagnostics, [`PERFORMANCE_COLD_START_AND_TRIMMING.md`](PERFORMANCE_COLD_START_AND_TRIMMING.md), `infra/terraform-container-apps`.
+**Affected files:** `AzureExtractorEvidenceBundleMerger.cs` (generalize), `ArchitectureRunAuthorityCoordination.cs`, `AuthorityPipelineWorkProcessor.cs`, `PilotsController.cs`, `SponsorRoiSummaryService.cs`.
 
-**Peers:** Done **TB-2122** (adaptive outbox poll), **TB-2056**/**TB-586** (outbox batching), **TB-2124** (matrix); **TB-2141** (replica scale-out), **TB-915**/**TB-946**/**TB-947** (scale posture).
+**Peers:** **TB-2252**, Done **TB-876**.
 
-**Out of scope:** Splitting the worker into a separate deployment (V1.1); raising `min_replicas` in this row ? that stays owner-gated under **TB-2146**.
+**Size estimate:** M.
+
+---
+
+## TB-2246 — Wizard pending inventory upload — cloud-aware provider routing (P0)
+
+**Window:** V1.
+
+**Why:** `use-new-run-wizard-pending-evidence.ts` calls `uploadWizardPendingAzureEvidence` for every pending inventory file and `onAzureFileSelected` forces `cloudProvider: "Azure"`. Selecting an Aws/Gcp inventory ZIP in the guided wizard mislabels the review and posts to the Azure extractor endpoint.
+
+**Approach:**
+
+1. Rename/generalize upload helper to route by detected platform (`azure` → existing Azure upload; `aws`/`gcp` → `POST /v1/extractor/{aws,gcp}/upload`).
+2. Set `cloudProvider` from selected evidence source / ZIP manifest validation (`readTier1InventoryPackageZipFromFile`).
+3. Vitest: Aws/Gcp ZIP selection sets `cloudProvider` and calls correct upload client.
+
+**Acceptance:** E2E or unit coverage proves Aws/Gcp inventory ZIP from wizard evidence step uploads to the correct API and does not force Azure.
+
+**Affected files:** `use-new-run-wizard-pending-evidence.ts`, `wizard-pending-evidence-upload.ts`, `NewRunWizardClient.tsx`, `WizardStepEvidenceUpload.tsx`.
+
+**Peers:** **TB-2247**, Done **TB-876**.
+
+**Size estimate:** M.
+
+---
+
+## TB-2247 — Wizard optional enrichment — Tier 1 ZIP upload panel for Aws/Gcp (P1)
+
+**Window:** V1.
+
+**Why:** `WizardStepAzureContext` renders `AzureExtractorPackageZipField` only when `cloudProvider === "Azure"`. Aws/Gcp targets see command panel only — no in-step ZIP attach despite `Tier1InventoryZipUploadPanel` supporting all platforms on the evidence step.
+
+**Approach:** When `cloudProvider` is Aws or Gcp, render `Tier1InventoryZipUploadPanel` (or shared multi-cloud ZIP field) instead of hiding upload behind Azure-only branch.
+
+**Acceptance:** Optional enrichment step supports ZIP attach for all three clouds with client-side validation.
+
+**Affected files:** `WizardStepAzureContext.tsx`, tests.
+
+**Peers:** **TB-2246**, **TB-2259** (rename).
+
+**Size estimate:** S.
+
+---
+
+## TB-2248 — Graph ↔ AWS/GCP inventory reconciliation finding engines (P1)
+
+**Window:** V1.
+
+**Why:** Done **TB-2216** ships `GraphAzureInventoryReconciliationFindingEngine` only. Aws/Gcp inventory-backed reviews lack topology ↔ inventory mismatch findings.
+
+**Approach:**
+
+1. Add `GraphAwsInventoryReconciliationFindingEngine` and `GraphGcpInventoryReconciliationFindingEngine` (or parameterized engine) reading from `ICloudInventoryExtractorPackageRepository`.
+2. Reuse `InventoryCollectionFreshnessGate` (**TB-2219** Done).
+3. ARM vs ARN vs GCP resource ID normalization in analyzer layer.
+4. Register in `ServiceCollectionExtensions.Decisioning.cs`.
+
+**Acceptance:** Integration test with Aws/Gcp `resources.json` + graph snapshot emits reconciliation finding when IDs diverge.
+
+**Peers:** Done **TB-2216**, **TB-2218**, **TB-2220**.
 
 **Size estimate:** L.
 
 ---
 
-## TB-2168 ? Visible-boundary `Button` contract ? remove ghost/link variants (P0)
+## TB-2249 — Standard baseline badge + rule-id prefixes per cloud target (P1)
 
-**Window:** V1 ? Adoption friction.
+**Window:** V1.
 
-**Status:** **Done** (2026-08-10).
-
-**Closed:** Removed `ghost` and `link` from `buttonVariants`; documented visible-boundary contract + borderless-fill rationale in `UI_DESIGN_SYSTEM.md` ? Tabs vs buttons; updated `UI-Enterprise-Design-Standard.mdc`; `button.test.tsx` guards variant keys; mechanical migration of all `variant="ghost"`/`link` call sites to `outline` (shared wrappers updated). **TB-2174** (ESLint drift guard) and **TB-1671**?**TB-1675** (`asChild` link carve-outs) remain open.
-
-**Priority:** P0.
-
-**Source:** Owner button-affordance ask 2026-08-09; scope narrowed the same day from "border on every button" to the visible-boundary contract below. Inventory: **102** `variant="ghost"` render sites in **72** files plus **4** `variant="link"`.
-
-**Why:** Ghost and link `Button` variants render with **neither border nor fill** ? they are indistinguishable from body copy on a dense governance surface. The 102-site proliferation also proves a judgment-based rule ("use ghost sparingly for dense tertiary actions") does not survive agent-written code; the contract must be mechanically enforceable by CI.
-
-**Contract:** every `Button` has a **visible boundary**, where a boundary is **a border _or_ a solid fill**. `outline` supplies the border; `default` / `secondary` / `primary` / `destructive` supply the fill. Ghost and `link` supply neither and are banned.
-
-**Explicitly rejected (owner decision 2026-08-09) ? do not refile:** adding borders to filled variants (**342** explicit usages). Rationale: (a) a neutral ring on teal `--al-primary-action-bg` (`#0f766e`) or red `destructive` reads as a halo, not an affordance; (b) doing it correctly needs per-variant border tokens across **four** theme permutations (`:root`, `.dark`, `[data-al-authority-theme="charcoal"]`, `charcoal.dark`) plus hover/active/disabled states, each meeting WCAG 1.4.11 3:1 against both its own fill and the page surface ? and `disabled:opacity-50` would fade the border below that floor; (c) it contradicts the normative rule in `UI_DESIGN_SYSTEM.md` ? Color and surface that *borders should communicate state, not decorate*; (d) it moves further from IBM Carbon, the named primary reference, whose Primary/Secondary/Danger buttons are borderless fills; (e) it converges button chrome with `Tabs variant="pill"` and `FilterChip`, partially undoing **TB-665** / **TB-1661**; (f) it would box ~**75** `h-7` and many of ~**897** `size="sm"` row-level micro-actions inside `EnterpriseTable`, producing the nested-rectangle look the design doc warns against.
+**Why:** `policy-pack-standard-baseline.ts` hardcodes Azure WAF + CIS Azure names. `StandardBaselinePolicyRuleIdPrefixes` only lists `waf-az-`, `cis-az-`, etc. Aws/Gcp standard baseline packs exist in `DefaultPolicyPackCatalog` but UI badges and enforcement tiers treat them as non-baseline. Help assessment §14 forbids tri-cloud peer copy until this ships (**TB-2263**).
 
 **Approach:**
 
-1. Update `archlucid-ui/src/components/ui/button.tsx`: remove `ghost` and `link` from `buttonVariants`. Leave fill semantics on remaining variants unchanged; leave `outline`'s existing `border border-neutral-300` / `dark:border-neutral-600` unchanged.
-2. Document the **visible boundary** contract in `docs/library/UI_DESIGN_SYSTEM.md` ? *Tabs vs buttons vs filter chips vs segmented controls* ? tertiary/dismiss/cancel actions use `outline`, never ghost; text-styled navigation uses `OPERATOR_LINK` / `<Link>`, not `Button variant="link"`. Record the borderless-fill rationale so the decision is not relitigated.
-3. Update `.cursor/rules/UI-Enterprise-Design-Standard.mdc` so agents stop introducing ghost.
-4. Fix compile breaks from the removed variants in **TB-2169**?**TB-2173**.
+1. Drive UI baseline set from `DefaultPolicyPackCatalog.ResolveStandardBaselineDisplayNames(cloudProvider)` (or mirrored constant shared with backend).
+2. Extend `StandardBaselinePolicyRuleIdPrefixes` with `waf-aws-`, `cis-aws-`, `waf-gcp-`, `cis-gcp-`, etc.
+3. Vitest drift guard: bundled Aws/Gcp baseline pack rule prefixes recognized.
 
-**Acceptance:** `buttonVariants` exports no `ghost` or `link` key; every remaining variant carries a border or a solid fill; design-system doc states the contract **and** the borderless-fill rationale; unit test asserts the variant key set.
+**Acceptance:** Policy packs page shows correct standard-baseline badge for Aws/Gcp WAF/CIS packs when workspace targets that cloud; `FindingEnforcementTierClassifier` treats Aws/Gcp baseline rules as standard.
 
-**Affected files:** `archlucid-ui/src/components/ui/button.tsx`, `docs/library/UI_DESIGN_SYSTEM.md`, `.cursor/rules/UI-Enterprise-Design-Standard.mdc`.
+**Affected files:** `policy-pack-standard-baseline.ts`, `StandardBaselinePolicyRuleIdPrefixes.cs`, policy pack UI sections, tests.
 
-**Peers:** **TB-2169**?**TB-2174**; open **TB-1127** (disposition affordance), **TB-1671**?**TB-1675** (receives the `asChild` carve-out).
+**Peers:** **TB-2263**, `DefaultPolicyPackCloudBaselineApplicator` (already cloud-aware).
 
-**Out of scope:** Borders on filled variants (rejected above); `FilterChip`, `Tabs`, segmented controls; `Button asChild` ghost link wrappers (**TB-1671**?**TB-1675**).
+**Size estimate:** M.
+
+---
+
+## TB-2250 — Chat intake parser — allow Aws/Gcp `cloudProvider` (P1)
+
+**Window:** V1.
+
+**Why:** `ChatIntakeParserService` system prompt restricts `cloudProvider` to `"None"` or `"Azure"` only. AWS/GCP-primary briefs are parsed as evidence-only (`None`), losing target-cloud context for downstream packs and agents.
+
+**Approach:** Extend prompt + response validation to allow `"Aws"` and `"Gcp"` when text clearly names those platforms; add parser tests.
+
+**Acceptance:** Brief mentioning AWS primary region sets `CloudProvider.Aws`; ambiguous text stays `None`.
+
+**Affected files:** `ChatIntakeParserService.cs`, `ChatIntakeParserServiceTests.cs`.
 
 **Size estimate:** S.
 
 ---
 
-## TB-2169 ? Shared button wrappers ? eliminate ghost defaults (P0)
+## TB-2251 — Sponsor orphan-candidate KPI — AWS/GCP finding markers (P1)
 
-**Window:** V1 ? Adoption friction.
+**Window:** V1.
 
-**Status:** **Done** (2026-08-10).
+**Why:** `OrphanCandidateFindingClassifier` only recognizes `OrphanedAzureResource` markers and Azure-specific legacy message heuristics (`Unattached managed disk`, etc.). Done **TB-2218** orphan engines emit `OrphanedAwsResource` / `OrphanedGcpResource` but sponsor KPI ignores them.
 
-**Closed:** Wrapper defaults and runtime branches migrated with **TB-2168** (`DismissControl` outline default; `HelpTopicPdfDownloadButton` always outline; `OptInTourLauncher` outline-only; conditional branches in `HelpTopicMarkdownView`, `ScopeSwitcherProjectOptionButton`, `ProductLearningFeedbackControls`, `AskThreadHistoryPanel`, `PolicyPacksRefreshToolbar`, `CompareSampleComparisonAction`). Added `shared-button-wrapper-visible-boundary.test.ts` + bordered default assertions in `DismissControl.test.tsx`.
+**Approach:** Add structured markers for Aws/Gcp finding types and engines; extend legacy heuristics only where safe.
 
-**Priority:** P0.
+**Acceptance:** Sponsor summary orphan count includes Aws/Gcp orphan findings from committed reviews.
 
-**Source:** Owner button-affordance ask 2026-08-09; shared abstractions propagate ghost after **TB-2168** removes the variant.
+**Affected files:** `OrphanCandidateFindingClassifier.cs`, `OrphanCandidateFindingMarkers.cs`, `ApplicationPackageCoverageBatch15Tests.cs`, ROI tests.
 
-**Why:** Even after call-site sweeps, wrappers that default to `ghost` reintroduce borderless buttons: `DismissControl` (~**21** production mounts), `HelpTopicPdfDownloadButton` (`variant?: "outline" | "ghost"`), `OptInTourLauncher` (`buttonVariant?: "outline" | "ghost"`), and runtime branches in `HelpTopicMarkdownView`, `ScopeSwitcherProjectOptionButton`, `ProductLearningFeedbackControls`, `AskThreadHistoryPanel`, `PolicyPacksRefreshToolbar`.
-
-**Approach:**
-
-1. `DismissControl`: default `variant` ? `outline`; remove `ghost` from the prop union; update `DismissControl.test.tsx`.
-2. `HelpTopicPdfDownloadButton`: drop `ghost` from props; always `outline`.
-3. `OptInTourLauncher` / `CompareSampleComparisonAction`: drop `ghost` option; document `outline` as the tertiary tour launcher.
-4. Replace conditional ghost branches listed above with `outline` or `secondary` per surface density.
-5. Vitest: no `ghost` string in these modules; dismiss controls render bordered.
-
-**Acceptance:** Shared wrappers cannot emit ghost; conditional branches updated; tests green.
-
-**Affected files:** `DismissControl.tsx`, `HelpTopicPdfDownloadButton.tsx`, `OptInTourLauncher.tsx`, `HelpTopicMarkdownView.tsx`, `ScopeSwitcherProjectOptionButton.tsx`, `ProductLearningFeedbackControls.tsx`, `AskThreadHistoryPanel.tsx`, `PolicyPacksRefreshToolbar.tsx`, related tests.
-
-**Peers:** **TB-2168** (prerequisite), **TB-2174** (guard).
+**Peers:** Done **TB-2218**, **TB-103**.
 
 **Size estimate:** S.
 
 ---
 
-## TB-2170 ? Shell / auth / marketing ghost-button sweep (P0)
+## TB-2252 — ROI cost-evidence freshness — AWS/GCP inventory packages (P1)
 
-**Window:** V1 ? Adoption friction.
+**Window:** V1.
 
-**Status:** **Done** (2026-08-10).
+**Why:** `RoiCostEvidenceFreshnessEvaluator` queries only `IAzureExtractorPackageRepository`. Aws/Gcp inventory collections do not affect freshness labels on sponsor ROI surfaces.
 
-**Closed:** Ghost?`outline` migration landed with **TB-2168** across listed shell/auth/marketing modules. Added `shell-auth-marketing-button-visible-boundary.test.ts` (17 paths) and shared `button-visible-boundary-source-patterns.ts`. Wordmark/navigation `Button asChild` wrappers still use bordered `outline` interim styling ? reclassification to `OPERATOR_LINK` / `MARKETING_SURFACES.inlineLink` remains **TB-1671**?**TB-1675**.
+**Approach:** When scope has Aws/Gcp inventory packages, read latest collection timestamp from `ICloudInventoryExtractorPackageRepository`; unify snapshot shape.
 
-**Priority:** P0.
+**Acceptance:** Freshness status reflects newest inventory among Azure + Aws + Gcp packages in scope.
 
-**Source:** Owner button-affordance ask 2026-08-09; **~25** ghost sites across shell chrome and entry/auth/marketing surfaces.
+**Affected files:** `RoiCostEvidenceFreshnessEvaluator.cs`, `SponsorRoiSummaryService.cs`, tests.
 
-**Why:** First-impression surfaces (shell top bar, mobile nav, sign-in steps, welcome modal, marketing header/CTAs) still use ghost for logo-adjacent links, back/cancel, and secondary CTAs ? the highest-traffic violation of the visible-boundary contract. This group also holds the **densest concentration of `Button asChild` ghost link wrappers**, which must be routed out rather than bordered.
-
-**Approach:**
-
-1. **Classify each site first.** A ghost `Button asChild` wrapping a `<Link>` for navigation (notably the `OperatorShellTopBar` logo at `className="h-auto p-0"` and `MarketingPublicHeader`) is a **link**, not a button ? hand it to **TB-1671**?**TB-1675** for `OPERATOR_LINK` / `MARKETING_SURFACES.inlineLink` styling. Do **not** put a border around the wordmark. Only genuine actions continue in this row.
-2. Replace remaining action-ghost in: `ExecutiveShellFrame`, `AppShellClient`, `OperatorShellTopBar`, `OperatorShellTopBarMoreMenu`, `MobileNavDrawer`, `ScopeSwitcher`, `AccountSettingsMenu`, `MarketingPublicHeader`, `SidebarNavLayoutSettingsPanel`, `NavPinnedLinksPanel`, `SignInEmailStep`, `SignInCodeStep`, `SignInSsoRequiredStep`, `AuthCallbackAccessPanel`, `welcome-modal`, `HeroEarlyAccessCta`, `LiveDemoConversionCta`.
-3. Map cancel/back ? `outline`; dense icon-only shell controls ? `outline` with `size="icon"`; marketing secondary CTAs ? `outline`.
-4. Vitest/a11y: existing stable selectors preserved; axe on sign-in + welcome smoke paths.
-
-**Acceptance:** Zero `variant="ghost"` in the listed files; every remaining control has a border or fill; sites reclassified as links are listed in the PR description with their **TB-1671**?**TB-1675** destination.
-
-**Affected files:** shell components above, auth sign-in/callback routes, marketing CTAs, related tests.
-
-**Peers:** **TB-2168**, **TB-2174**; **TB-1671**?**TB-1675** (receives reclassified link wrappers).
-
-**Out of scope:** Restyling the reclassified link wrappers ? that is **TB-1672**/**TB-1674** work; this row only removes the ghost `Button` and hands off.
+**Peers:** **TB-2245**.
 
 **Size estimate:** M.
 
 ---
 
-## TB-2171 ? CTO demo & tour overlay ghost-button sweep (P0)
+## TB-2253 — AgentUserPromptStaticPrefix — AWS/GCP Important guidance blocks (P2)
 
-**Window:** V1 ? Adoption friction.
+**Window:** V1.
 
-**Status:** **Done** (2026-08-10).
+**Why:** Done **TB-875** adds cloud override addenda in `CloudProviderAgentPromptComposer`, but `AgentUserPromptStaticPrefix` only appends detailed Important guidance for Azure and cloud-neutral — not Aws/Gcp. Critic/compliance/cost agents get thinner instructions for non-Azure targets.
 
-**Closed:** Ghost?`outline` migration landed with **TB-2168** in `BuyerCtoDemoTourOverlay`, `OnboardingTour`, `CtoDemoHowItWorksTrigger`, `CtoDemoSoftRestartButton`, and opt-in tour modules. Added `cto-demo-tour-button-visible-boundary.test.ts`. `CtoDemoHowItWorksTrigger` retains `variant="link"` as a **component prop** (plain text trigger), not a banned `Button` variant.
+**Approach:** Add Aws/Gcp branches mirroring Azure block structure (or delegate to shared composer) for Topology, Compliance, Cost, Critic.
 
-**Priority:** P0.
+**Acceptance:** `AgentUserPromptCloudTargetTests` (or new tests) assert Aws/Gcp static prefix contains provider-specific Important guidance.
 
-**Source:** Owner button-affordance ask 2026-08-09; `BuyerCtoDemoTourOverlay` alone ships **10** ghost buttons plus `OnboardingTour`, `CtoDemoHowItWorksTrigger`, `CtoDemoSoftRestartButton`.
+**Peers:** Done **TB-875**.
 
-**Why:** Buyer-polished demo/tour chrome is a golden-path surface; ghost dismiss/toggle controls read as inactive text during live sponsor walkthroughs.
+**Size estimate:** M.
 
-**Approach:**
+---
 
-1. Replace all ghost variants in `BuyerCtoDemoTourOverlay.tsx`, `OnboardingTour.tsx`, `CtoDemoHowItWorksTrigger.tsx`, `CtoDemoSoftRestartButton.tsx`.
-2. Presenter-layer toggles and tour dismiss ? `outline` `size="sm"`; end-tour ? `outline` with explicit label (not text-only).
-3. Update `cto-demo` Vitest stable selectors if class names shift.
+## TB-2254 — Request templates + wizard presets — non-Azure target examples (P2)
 
-**Acceptance:** Zero ghost in demo/tour modules; tour e2e/mock specs pass.
+**Window:** V1.
 
-**Affected files:** `BuyerCtoDemoTourOverlay.tsx`, `OnboardingTour.tsx`, `cto-demo/*`, related tests.
+**Why:** `ArchitectureRequestTemplates`, `docs-architecture-request-presets.ts`, and wizard starter presets all use `CloudProvider.Azure`. Aws/Gcp-primary buyers see no template parity.
 
-**Peers:** **TB-2168**, Done **TB-1323** (demo CTA honesty).
+**Approach:** Add at least one Aws and one Gcp template/preset (can mirror existing scenarios with provider-appropriate service names); document in template catalog.
+
+**Acceptance:** Wizard preset picker includes non-Azure examples; API template endpoints return Aws/Gcp variants.
+
+**Size estimate:** M.
+
+---
+
+## TB-2255 — Demo/zero-config paths — respect Aws/Gcp cloud target (P2)
+
+**Window:** V1.
+
+**Why:** `zero-config-demo-mode.ts`, `second-run-paste.ts`, `CtoDemoFastCreatePanel`, and `markCloudProviderAzure` on any file selection force Azure even when user selected Aws/Gcp evidence source.
+
+**Approach:** Only set Azure when Azure evidence is chosen; preserve Aws/Gcp from evidence source or manifest.
+
+**Acceptance:** Demo try with Aws inventory evidence source leaves `cloudProvider: Aws`.
 
 **Size estimate:** S.
 
 ---
 
-## TB-2172 ? Governance / reviews / insights ghost-button sweep (P0)
+## TB-2256 — AWS/GCP Tier 1 chunked ZIP upload parity (P2)
 
-**Window:** V1 ? Adoption friction.
+**Window:** V1.
 
-**Status:** **Done** (2026-08-10).
+**Why:** Azure extractor supports chunked upload (`AzureExtractorChunkUploadController`, session store). Large Aws/Gcp ZIPs hit single-request limits.
 
-**Closed:** Ghost?`outline` migration landed with **TB-2168** across listed governance, review-detail, and insights modules. Added `governance-reviews-insights-button-visible-boundary.test.ts` (20 paths). `Button asChild` navigation wrappers use bordered `outline` interim styling ? reclassification to `OPERATOR_LINK` remains **TB-1671**?**TB-1675**.
+**Approach:** Generalize chunk session store + upload controller for `CloudProvider.Aws` and `CloudProvider.Gcp`, or document size limits honestly until chunked path exists.
 
-**Priority:** P0.
+**Acceptance:** Parity upload limits documented; chunked path available for all three providers OR explicit max-size parity with UI copy.
 
-**Source:** Owner button-affordance ask 2026-08-09; **~30** ghost sites on governance, review detail, and insights routes.
-
-**Why:** High-stakes operator workflows (audit filters, signed records, findings explainability, export modals, evidence graph errors, compare/ask panels) hide tertiary actions as ghost ? undermining trust next to commit buttons.
-
-**Approach:**
-
-1. Sweep ghost in: `AuditPageView`, `AuditActiveFilterChips`, `SignedRecordsListClient`, `GovernanceFindingsFilterBar`, `ReviewPackageSponsorHandoffStrip`, `RunDetailArtifactsExportsSection`, `RunFindingExplainabilityTable`, `GenerateAdrFromRunModal`, `TechnologyBaselinePanel`, `ReviewBoardWhitelabelConsultingExportButton`, `EvidenceTrailBuyerTraceTable`, `GraphBuyerEvidenceTrailError`, `AskThreadHistoryPanel`, `AskCompareReviewsCollapsible`, `RunTraceViewerLink`, `ReasoningTraceReadMore`, internal ops tables (`PricingQuoteAgingPageView`, `TrialFunnelOpsPageClient`, `IntegrationEventsDlqPageClient`, `RecommendationLearningOpsPageClient`).
-2. Clear-filter / cancel-in-dialog / ?more? menus ? `outline`; table row micro-actions ? `outline` `size="sm"`.
-3. **Carve out `asChild` link wrappers** (present in `ReviewPackageSponsorHandoffStrip`, `RunFindingExplainabilityTable`, `EvidenceTrailBuyerTraceTable`, `GraphBuyerEvidenceTrailError`, `AskCompareReviewsCollapsible`, `PricingQuoteAgingPageView`) ? route to **TB-1671**?**TB-1675** as links rather than bordering them.
-4. Vitest on affected buyer-polished fixtures.
-
-**Acceptance:** Zero ghost in listed governance/reviews/insights modules; reclassified link wrappers listed in the PR description.
-
-**Affected files:** modules above + tests.
-
-**Peers:** **TB-2168**, **TB-2169**, **TB-1671**?**TB-1675**; Done **TB-2148** (mutation dialogs ? bordered `outline` cancel consistently).
-
-**Note on density:** these are the surfaces where boxing every row-level micro-action is most likely to look wrong. Prefer consolidating repeated per-row actions into an overflow menu over emitting three bordered chips per row.
-
-**Size estimate:** M.
-
----
-
-## TB-2173 ? Administration / help / integrations / dense tertiary ghost-button sweep (P0)
-
-**Window:** V1 ? Adoption friction.
-
-**Status:** **Done** (2026-08-10).
-
-**Closed:** Ghost?`outline` migration landed with **TB-2168** across listed administration, help, integrations, wizard, and usability-dense modules. Added `administration-help-integrations-button-visible-boundary.test.ts` (31 paths). `HelpTopicAuthentication.test.tsx` already asserts a bordered export control. `Button asChild` navigation wrappers use bordered `outline` interim styling ? reclassification to `OPERATOR_LINK` remains **TB-1671**?**TB-1675**.
-
-**Priority:** P0.
-
-**Source:** Owner button-affordance ask 2026-08-09; **~35** ghost sites across administration, help, integrations, wizard, and usability-dense controls.
-
-**Why:** Settings/admin routes and help surfaces still use ghost for remove/clear/help/export/copy-id affordances ? the same no-border-no-fill pattern the visible-boundary contract bans.
-
-**Approach:**
-
-1. Sweep ghost in: `AuthDomainsPageClient`, `SettingsRolesInvitePanel`, `InviteReviewerPageView`, `SettingsRolesMatrixSection`, `PendingInvitationsPanel`, `AccountSecurityPageClient`, `ModelGovernanceSettingsCard`, `TenantQualityGatesCard`, `TeamsNotificationsSelector`, `SlackDestinationsPanel`, `AlertRoutingContent`, `HelpSearchPanel`, `HelpMarkdownCodeBlock`, `HelpSpecialtyWalkthroughTemplatesClient`, `PageContextualHelpButton`, `PageScopedContextualHelpPanel`, `TechnicalIdDisclosure`, `ProductConceptsGlossaryDialog`, `UsabilityFeedbackWidget`, `RunsListCompareSelectionBar`, `OperatorHomeDisclosureSection`, `OperatorHomeWorkspaceContextDisclosure`, `AdvancedOptionsAccordion`, `CopyIdButton`, `InspectorPanel`, `OperatorRouteDiagnosticsPanel`, `PilotBaselineWizard`, `PilotModePolicyPackToggle`, `WizardStepConstraints`, `WizardStepAdvanced`, `ArchitectureDiagramEditor`.
-2. Help copy/export/remove ? `outline`; wizard optional rows ? `outline` or `secondary`.
-3. **Carve out `asChild` link wrappers** (present in `PageScopedContextualHelpPanel`, `PageContextualHelpButton`, `SettingsRolesInvitePanel`, `InviteReviewerPageView`, `OperatorHomeWorkspaceContextDisclosure`, `AdvancedOptionsAccordion`, `UsabilityFeedbackWidget`, `OperatorRouteDiagnosticsPanel`) ? route to **TB-1671**?**TB-1675**.
-4. Update `HelpTopicAuthentication.test.tsx`, whose assertion currently expects "a single ghost export control".
-
-**Acceptance:** Zero ghost in listed administration/help/integrations/usability modules; reclassified link wrappers listed in the PR description.
-
-**Affected files:** modules above + tests.
-
-**Peers:** **TB-2168**, **TB-2169**, **TB-1671**?**TB-1675**, Done **TB-143**?**TB-148** (help presentation).
-
-**Size estimate:** M.
-
----
-
-## TB-2174 ? CI drift guard ? forbid ghost/link `Button` variants (P0)
-
-**Window:** V1 ? Adoption friction.
-
-**Status:** **Done** (2026-08-10).
-
-**Closed:** Added `button-visible-boundary-drift-guard.test.ts` scanning all `archlucid-ui/src/**/*.{ts,tsx}` via `findButtonVisibleBoundaryViolations` (empty allowlist; excludes pattern-definition module only). Failure message cites `UI_DESIGN_SYSTEM.md` and **TB-2168** with `outline` / `OPERATOR_LINK` remedy. Extended `button.test.tsx` with variant-key inventory and filled-variant no-border negative assertion. Non-`Button` props (e.g. `CtoDemoHowItWorksTrigger variant="link"`) remain out of scope.
-
-**Priority:** P0.
-
-**Source:** Owner button-affordance ask 2026-08-09; prevent regression after **TB-2168**?**TB-2173**.
-
-**Why:** Without a guard, agents and contributors reintroduce `variant="ghost"` out of shadcn habit ? that is precisely how the codebase reached **102** sites in **72** files. The guard, not the prose rule, is what makes the visible-boundary contract durable.
-
-**Approach:**
-
-1. Add an ESLint rule or `scripts/` Vitest inventory matching `variant="ghost"`, `variant="link"`, and `buttonVariants({ variant: "ghost" })` scoped to `archlucid-ui/src/**/*.{ts,tsx}`, with the allowlist empty once **TB-2170**?**TB-2173** land.
-2. Fail CI when the count exceeds **0**; the failure message must cite `UI_DESIGN_SYSTEM.md` and **TB-2168**, and state the remedy (`outline` for tertiary actions, `OPERATOR_LINK` for navigation).
-3. Extend a `button.test.tsx` unit test asserting the `buttonVariants` key set excludes `ghost` and `link`.
-4. Also assert the **negative**: the guard must **not** require a `border` class on filled variants ? a future contributor reading only the guard should not infer that filled buttons need borders (see **TB-2168** rejected scope).
-
-**Acceptance:** CI fails on new ghost/link button usage; repo reaches **0** violations before marking **Done**; guard does not force borders onto filled variants.
-
-**Affected files:** new drift guard test/script, `package.json` CI script hook if needed, `button.test.tsx`.
-
-**Peers:** **TB-2168**?**TB-2173** (execute after sweeps); **TB-1675** (sibling bare-link allowlist guard ? keep the two inventories separate so a link reclassified out of **TB-2170** is not double-counted).
-
-**Size estimate:** S.
-
----
-
-## TB-2175 ? Review-scoped Do-this-next strip (P0)
-
-**Window:** V1 ? Adoption friction.
-
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Source:** Owner easier-to-use / easier-to-understand ask 2026-08-10 (lever 1); residual after Done **TB-1036**?**TB-1039** (Overview home next-best-action only).
-
-**Shipped:** `resolve-review-package-do-this-next.ts` + `ReviewPackageDoThisNextStrip` above-fold on create-home and full review detail (`RunDetailPageView`); Vitest lifecycle fixture matrix (pre-execute, in-progress, ready-to-finalize, post-finalize, sponsor-handoff).
-
-**Why:** Home already resolves a next-best action, but architecture package detail still leaves operators to invent the sequence (evidence to findings to blockers to finalize to sponsor send). Returning mid-lifecycle users re-discover the path every visit.
-
-**Approach:**
-
-1. Add a pure resolver resolve-review-package-do-this-next.ts from package/run status, evidence readiness, open clarifications, undisposed findings, finalize eligibility, and sponsor-handoff state.
-2. Render a single above-fold strip on review detail (buyer + full workspace) with one sentence + one primary CTA; demote competing CTAs when the strip owns the next step.
-3. Reuse product nouns from Done **TB-2131**/**TB-2134**; no eng pipeline stage names.
-4. Vitest: fixture matrix covering pre-execute, in-progress, ready-to-finalize, post-finalize, and sponsor-handoff states.
-
-**Acceptance:** On every architecture package detail view, the operator sees exactly one current next step with a working CTA derived from that package's state ? not a generic home recommendation.
-
-**Affected files:** RunDetailPageView / review workspace chrome, new resolver + strip component, Vitest.
-
-**Peers:** Done **TB-1036**?**TB-1039**, **TB-2132** (sponsor handoff), **TB-2156** (admin readiness ? do not conflate).
-
-**Out of scope:** Replacing home Overview next-best-action; multi-step wizards.
-
-**Size estimate:** M.
-
----
-
-## TB-2176 ? Brief understanding check before execute (P0)
-
-**Window:** V1 ? Adoption friction.
-
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Source:** Owner easier-to-use / easier-to-understand ask 2026-08-10 (lever 2); first-session **H4**/**H7** in [FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md](../go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md).
-
-**Shipped:** `architecture-scope-understanding-check.ts` + `ArchitectureScopeUnderstandingCheckPanel`; execute gated on confirm or explicit ?I accept inferred scope? on quick start (`FirstPilotIntakeWizard`), guided intake (`SocraticIntakeWizard`), and architecture draft start (`ArchitectureDraftWorkspace`); scope bullets merged into intake brief via `mergeScopeBulletsIntoBrief`; Vitest.
-
-**Why:** Operators commit a long Real-mode execute without seeing what ArchLucid inferred as in-scope systems, constraints, and non-goals. Misread briefs waste time and drive competitive dismissal against ChatGPT.
-
-**Approach:**
-
-1. Before execute (quick start + guided intake + create-home), show "What ArchLucid will treat as in-scope" as editable bullets derived from the brief / missing-items model.
-2. Allow inline edit/remove/add; persist corrections into the intake payload (or clarifications) before start.
-3. Gate primary Execute until the operator confirms or explicitly skips with an honest "I accept inferred scope" control.
-4. Vitest: bullets render from fixture brief; edits flow into start payload; skip path is explicit.
-
-**Acceptance:** An operator can correct scope misunderstanding before execute without restarting intake; execute never starts from an invisible inference.
-
-**Affected files:** intake / new-review start surfaces, architecture created overview/clarifications, execute gate copy, Vitest.
-
-**Peers:** Done **TB-2151** (specimen preview ? complementary, not duplicate); open clarifications cluster.
-
-**Out of scope:** Changing agent prompt construction beyond wiring corrected scope fields the API already accepts.
-
-**Size estimate:** M.
-
----
-
-## TB-2177 ? Evidence gap forecast before execute (P0)
-
-**Window:** V1 ? Trustworthiness.
-
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Source:** Owner easier-to-use / easier-to-understand ask 2026-08-10 (lever 3); complements existing trust evidence readiness chrome.
-
-**Shipped:** `evidence-gap-forecast.ts` + `EvidenceGapForecastPanel` beside pre-execute evidence on quick start, create-home evidence tab, and review detail capture; directional buyer-safe copy only (no invented scores); does not block execute; Vitest per missing class + jargon guard.
-
-**Why:** Readiness verdicts say whether evidence is enough to start but not what quality story to expect. Operators start thin packages and later blame the product for weak cost/resilience/decision findings.
-
-**Approach:**
-
-1. Define a deterministic forecast map: missing evidence class to expected thinner finding domains (cost, resilience, security, decisions) with buyer-safe copy ? no invented scores.
-2. Surface the forecast beside pre-execute evidence upload / readiness (create-home + review detail capture).
-3. Keep honest: forecast is directional coverage expectation, not a guarantee of finding counts.
-4. Vitest: each missing class maps to expected domains; copy excludes eng jargon.
-
-**Acceptance:** Before execute, an operator with missing evidence classes sees which finding domains will likely be thinner, with a path to add that evidence.
-
-**Affected files:** evidence readiness / bulk upload surfaces, new evidence-gap-forecast.ts, Vitest.
-
-**Peers:** trust evidence readiness helpers; Done **TB-2155** (error recovery ? do not conflate).
-
-**Out of scope:** Blocking execute solely on forecast; new evidence connectors.
-
-**Size estimate:** M.
-
----
-
-## TB-2178 ? Sponsor-lens compare summary (P0)
-
-**Window:** V1 ? Explainability.
-
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Shipped:** `build-sponsor-lens-compare-summary.ts` SoT (max 3 sponsor bullets from golden compare + governance diff + execution-mode honesty); `SponsorLensCompareSummaryPanel` on compare results after trust banner; insufficient-data honest path; Vitest.
-
-**Source:** Owner easier-to-use / easier-to-understand ask 2026-08-10 (lever 4); residual after Done **TB-2135** / **TB-2063**?**TB-2071** (technical trust + fingerprint compare).
-
-**Why:** Compare-two-reviews is fingerprint/correlation accurate for architects but still does not answer what a sponsor would notice in three plain bullets (risk direction, decisions changed, packet readiness).
-
-**Approach:**
-
-1. Add build-sponsor-lens-compare-summary.ts producing at most 3 bullets from existing compare model (governance diff, decision delta, trust/execution-mode asymmetry, finalize/export readiness) ? reuse Done trust presentation; no new correlation algorithm.
-2. Render above technical deltas on compare results with explicit "sponsor lens" labeling so it is not confused with ADR 0063 fingerprint truth.
-3. When data is insufficient, say so honestly rather than inventing a narrative.
-4. Vitest: fixture pairs produce stable bullets; insufficient-data path.
-
-**Acceptance:** Compare results lead with a sponsor-comprehensible summary that never contradicts trust/fingerprint labels from Done **TB-2135**.
-
-**Affected files:** compare results / governance diff sections, compare verdict peers, Vitest.
-
-**Peers:** Done **TB-2135**, **TB-2071**.
-
-**Out of scope:** Replacing fingerprint correlation; PDF export redesign.
-
-**Size estimate:** M.
-
----
-
-## TB-2179 ? Finding views by job (P0)
-
-**Window:** V1 ? Adoption friction.
-
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Shipped:** `finding-job-view.ts` SoT (Needs my decision / Needs governance / Ready for sponsor packet / Deferred ? single primary job per finding); `FindingJobViewToggleBar` on review findings toolbar + governance queue filter bar; default **Needs my decision**; Vitest parity.
-
-**Source:** Owner easier-to-use / easier-to-understand ask 2026-08-10 (lever 5); residual after Done **TB-2139** (role-shaped nav density only).
-
-**Why:** Findings lists are filtered by severity/status enums. Operators thinking in jobs (needs my decision, needs governance, ready for sponsor packet) must mentally translate every row.
-
-**Approach:**
-
-1. Add job-shaped view toggles on review findings + governance queue: **Needs my decision** / **Needs governance** / **Ready for sponsor packet** / **Deferred** ? pure client filter over existing disposition + export-inclusion fields.
-2. Default to **Needs my decision** for architect persona; preserve existing severity filters as secondary.
-3. Document mapping in SoT module; Vitest parity across review + governance surfaces.
-4. Do not invent new disposition enums ? map from shipped fields only.
-
-**Acceptance:** An architect can clear their decision queue without reading severity enums; the same finding cannot appear in contradictory job views without an explicit multi-tag rule documented in SoT.
-
-**Affected files:** findings workspace filters, governance queue filters, new finding-job-view.ts, Vitest.
-
-**Peers:** Done **TB-2139**, **TB-2152** (count parity ? job counts must stay self-describing).
-
-**Out of scope:** New backend disposition states; ITSM sync changes.
-
-**Size estimate:** M.
-
----
-
-## TB-2180 ? Diagram Why-is-this-here provenance (P0)
-
-**Window:** V1 ? Explainability.
-
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Shipped:** Extended `architecture-diagram-provenance.ts` (evidence-backed / inferred / user-drawn element detail + source href); `ArchitectureDiagramProvenancePanel` on diagram panel with node/edge selection; Vitest (inferred cannot render evidence-backed chip).
-
-**Source:** Owner easier-to-use / easier-to-understand ask 2026-08-10 (lever 6); architecture diagram provenance UX.
-
-**Why:** Diagram model may carry inferred vs evidence-backed vs user-drawn provenance, but operators cannot click a node/edge and get one honest sentence plus a source deep link ? so diagrams still feel like black-box drawings.
-
-**Approach:**
-
-1. On diagram viewer/editor select, show a compact provenance panel: **evidence-backed** / **inferred** / **user-drawn** (StatusTag + one sentence) + link to evidence/finding/source when available.
-2. Reuse architecture-diagram-provenance SoT; never label inferred nodes as evidence-backed.
-3. Buyer shell: keep Mermaid/source disclosure honesty; panel copy stays buyer-noun.
-4. Vitest: selection fixtures for each provenance class; inferred cannot render evidence-backed chip.
-
-**Acceptance:** Clicking any node or edge explains why it is present and, when sourced, navigates to that source.
-
-**Affected files:** ArchitectureDiagramViewer / ArchitectureDiagramPanel / inferred panel, provenance helpers, Vitest.
-
-**Peers:** diagram provenance modules in tree; Done **TB-2154** (finding derivation ? different object).
-
-**Out of scope:** Auto-layout redesign; new diagram generation models.
-
-**Size estimate:** M.
-
----
-
-## TB-2181 ? Cold shared-link unpack panel (P0)
-
-**Window:** V1 ? Adoption friction.
-
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Shipped:** `cold-shared-link-unpack.ts` SoT (`readOnly` / `shared` / invitation-token entry signals); `ColdSharedLinkUnpackPanel` on review detail via `RunDetailColdOpenOrientationClient`; `cold-unpack:{runId}` watermark in `last-visited-watermark.ts`; Vitest.
-
----
-
-## TB-2182 ? Invitee-first orientation (P0)
-
-**Window:** V1 ? Adoption friction.
-
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Shipped:** `invitee-first-orientation.ts` SoT + `InviteeFirstOrientationPanel`; home command center swaps creator golden walkthrough for invitee copy; review detail orientation; `FirstWeekRouteGuidance` + `GoldenSponsorPackageWalkthroughDestination` gated for Reader/Auditor; Vitest.
-
----
-
-## TB-2183 ? Live sponsor synopsis while disposing (P0)
-
-**Window:** V1 ? Adoption friction.
-
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Shipped:** `sponsor-story-synopsis.ts` deterministic working-paragraph builder; `SponsorStorySynopsisPanel` on governance findings queue + finding inspect disposition region; labeled as working synopsis with sponsor-handoff link; Vitest.
-
----
-
-## TB-2184 ? Disposition impact preview (P0)
-
-**Window:** V1 ? Trustworthiness.
-
-**Status:** **Done** (2026-08-10).
-
-**Priority:** P0.
-
-**Shipped:** `disposition-export-impact.ts` SoT (signed review record unchanged; sponsor packet ROI basis buckets; audit trail append); `DispositionExportImpactNotice` on bulk + single-finding confirm dialogs alongside TB-2148 reversibility; Vitest + ExecutiveReviewPacketComposer drift guard.
-
----
-
-## TB-2191 ï¿½ Wire the stickiness cockpit onto operator home (P1)
-
-**Window:** V1 ï¿½ Stickiness.
-
-**Status:** **Done** (2026-08-12) - `OperatorHomeStickinessCockpit` composes `OperatorNextActionsCard` + `OperatorStickinessSnapshotCard` and renders above recent reviews in both home bodies, loaded through `OperatorHomeStickinessCockpitDeferred` (`ssr: false`) so it stays off the synchronous `/` First Load JS budget. **health-score decision:** `GET /v1/tenant/customer-success/health-score` stays **internal-only**; `TenantHealthScoreResponse` answers `IsCalculated = false` with every numeric field at its default until the scoring worker materializes a row, so surfacing `CompositeScore` would render an authoritative-looking zero with no basis. Wiring the cards also exposed banned product language that no guard had reached because the components had no import site: "First-value milestones" (matched `/first-value/i` in `OperatorHomePageView.overview-vocabulary.test.tsx`) became "Adoption milestones", and "No latest run in scope." became "No recent review in scope." The vocabulary guard now renders the real cockpit rather than a stub. Verified: `tsc --noEmit` clean; 35 tests across `_sections/`, the new `OperatorHomeStickinessCockpit.test.tsx`, and `operator-shell-status-queries.test.ts`. **First Load JS not re-measured** - the chunk is `ssr: false` and adds no synchronous import, but `npm run check:first-load-js` was not run in this pass.
-
-**Priority:** P1.
-
-**Source:** Owner stickiness ask 2026-08-12 (lever 1); verified absent ï¿½ `OperatorStickinessSnapshotCard.tsx` and `OperatorNextActionsCard.tsx` have no import sites anywhere under `archlucid-ui/src`, and `EngagementScore` / `health-score` return zero grep hits in the UI.
-
-**Why:** The backend is already built and maintained: `TenantCustomerSuccessController` serves `health-score`, `next-actions`, `funnel-snapshot`, and `stickiness-snapshot`, and both cards were migrated to shared react-query hooks as recently as **TB-2144**. Nothing renders them, so every operator login lands on a runs list rather than "here is what changed and what to do next" ï¿½ the highest-leverage surface for a return visit is dark code.
-
-**Approach:**
-
-1. Render `OperatorNextActionsCard` and `OperatorStickinessSnapshotCard` in `OperatorHomeRunsDashboardAsync`, above the runs table, behind the existing first-run gate so a zero-review tenant still sees the activation spine (the card already self-suppresses when `totalRunsInScope === 0`).
-2. Decide the tenant-facing treatment of `health-score` ï¿½ either surface `CompositeScore` with honest "not yet calculated" copy when `IsCalculated` is false, or explicitly scope it to internal only and record that decision. Do not ship an uncalculated score as a zero.
-3. Respect `isBuyerPolishedOperatorShellEnv()` copy branches already present in the card.
-4. Confirm First Load JS impact against the `/` baseline (**TB-2145**); defer below-fold panels if the budget moves.
-5. Vitest: home renders both cards for a tenant with runs; suppresses the snapshot for a zero-run tenant; renders the honest uncalculated state.
-
-**Acceptance:** Operator home shows next actions and the pilot/repeat-usage snapshot from live API data; a zero-review tenant sees no empty theater; `/` First Load JS stays within baseline or the baseline is refreshed with a recorded delta.
-
-**Affected files:** `archlucid-ui/src/app/(operator)/_sections/OperatorHomeRunsDashboardAsync.tsx`, `OperatorStickinessSnapshotCard.tsx`, `OperatorNextActionsCard.tsx`, `use-operator-stickiness-snapshot-query.ts`, `performance/first-load-js-baseline.v1.json`, tests.
-
-**Peers:** Done **TB-228** (tenant health scoring), **TB-2144** (query migration), **TB-345**ï¿½**TB-353** (first-run home UX). Does not duplicate `/internal/tenant-health`, which stays internal-only.
-
-**Out of scope:** New metrics or a new customer-facing adoption dashboard ï¿½ this wires what exists.
-
-**Size estimate:** S.
-
----
-
-## TB-2192 ï¿½ Recurrence scheduling defaults to enabled at commit (P1)
-
-**Window:** V1 ï¿½ Stickiness.
-
-**Status:** **Done** (2026-08-12) - **Two premises in the original row were wrong and are corrected here.** (1) The card was **already open** after commit: both mount sites pass `hasStickinessPrompt={Boolean(m.manifestId)}`, which seeds `useState`, so "collapsed opt-in accordion" did not describe the shipped behavior. The real gap was that **Save schedule (paused)** was the only alternative to enabling, and that still **creates** a schedule - there was no way to decline. (2) Step 3 asked to "confirm the proposal respects customer notification channel preferences". It does **not**: `RecurrenceCompletionNotificationService` gates only on the global `RecurrenceCompletionNotificationOptions.Enabled`, and `DapperExecutiveSummaryRecipientLookup` returns **every** active Admin / Sponsor / WorkspaceAdmin mailbox (plus a trial-admin fallback) with **no per-recipient opt-out**. Making enablement easier without saying so would have manufactured exactly the unexpected admin email the row warned about. Shipped instead: proposal framing (`RECURRENCE_PROPOSAL_LEAD`), a **Not now** decline beside **Save schedule (paused)** that writes no schedule and records the choice in `recurrence-proposal-decline.ts` (tenant + workspace + run scoped `localStorage`, resolved in `useEffect` because both mount sites allow SSR), a reconsider path so the decline is not a trap, and `RECURRENCE_COMPLETION_RECIPIENTS_DISCLOSURE` stating who is emailed and that opt-out does not exist yet. Cron stays inline and editable. Verified: 173 tests pass across 47 `components/governance` + `lib/governance` files. **Open residual (needs a tracked row):** per-recipient notification preferences / opt-out for recurrence completion email - disclosed in the UI, not implemented.
-
-**Priority:** P1.
-
-**Source:** Owner stickiness ask 2026-08-12 (lever 2); `RecurrenceSchedulePostCommitCard` is a `Collapsible` opened only when `hasStickinessPrompt`, pre-filled with `0 8 * * 1` / "Weekly architecture review", requiring an explicit **Enable recurring** click.
-
-**Why:** The post-commit moment is when the operator has just received value and is most willing to commit to a cadence, and defaults dominate behavior. A collapsed accordion behind a "Show" toggle converts far worse than a proposed schedule with a visible decline. This is the cheapest available lever on second-review rate and it changes no backend contract.
-
-**Approach:**
-
-1. Open the card by default after a successful commit and present the pre-filled schedule as the proposed action, with **Enable recurring** as the single primary CTA and an explicit, equally discoverable decline / **Save paused** path (no dark pattern).
-2. Keep cron editable in place; do not hide the cadence behind a second click.
-3. Confirm the proposal respects customer notification channel preferences so enabling a schedule cannot produce unexpected email.
-4. Rely on **TB-262** schedule-failure health and auto-disable so a defaulted schedule cannot silently burn compute on repeated failure.
-5. Vitest: card is open post-commit; decline path records no schedule; enable path posts the pre-filled cron; existing-schedule branch is unchanged.
-
-**Acceptance:** After a commit the operator sees a concrete proposed cadence with one click to accept and an obvious way to decline; declining is recorded without creating a schedule; no schedule is created without an explicit user action.
-
-**Affected files:** `archlucid-ui/src/components/governance/RecurrenceSchedulePostCommitCard.tsx`, `RecurrenceScheduleActivationActions.tsx`, commit-path callers, tests.
-
-**Peers:** Done **TB-222** (post-commit recurrence UI), **TB-261** (completion notification + drift delta), **TB-262** (schedule health). Cost posture inherits the existing recurrence execution path.
-
-**Out of scope:** Auto-creating schedules without user consent; changing cron semantics or the recurrence hosted service.
-
-**Size estimate:** S.
-
----
-
-## TB-2193 ï¿½ Waiver / risk-exception expiry hosted service (P1)
-
-**Window:** V1 ï¿½ Stickiness.
-
-**Status:** Done 2026-08-13 â€” `WaiverExpiryNotificationHostedService` (leader-elected daily pass via **TB-2167**); `WaiverExpiryNotificationService` calls `ListActiveAsync` so expiry stays authoritative; escalating email at `GovernanceWaiverExpiryWindow.AlertDayBoundaries` (30/14/7/0); idempotency via `WaiverExpiryReminderIdempotency` + `dbo.SentEmails`; audit `RiskExceptionExpiryReminderSent`. Email-only residual (Teams/webhook URLs not in SQL). Commit `cb46b63bb`.
-
-**Priority:** P1.
-
-**Source:** Owner stickiness ask 2026-08-12 (lever 3); `RiskExceptionService` sets `ExpiresAtUtc` and calls `MarkExpiredAsync` from `ListActiveAsync`, so expiry is only processed when a human already opened the page.
-
-**Why:** Expiring waivers are the one governance object with a hard deadline attached, and today the reminder path depends on the user showing up ï¿½ in-app via `DecisionsNeededSummaryCard` and in the exec digest via `GovernanceDigestDecisionNeededComposer` 30/14/7/0-day buckets. A tenant that stops signing in is never pulled back, and accepted risk silently lapses, which is also a governance-correctness problem, not only a retention one. A scheduled scanner is a time-based return trigger independent of user initiative.
-
-**Approach:**
-
-1. Add a leader-elected `IHostedService` following `SamlCertExpiryNotificationHostedService`, using the **TB-2167** leader-election primitive so it runs once per fleet.
-2. Transition exceptions to expired on schedule rather than on read; keep `MarkExpiredAsync` for read-path safety but stop relying on it as the sole trigger.
-3. Emit escalating notifications at the existing 30/14/7/0-day boundaries through the customer notification channel preferences (email / Teams / webhook) already used by the digest path, addressed to the exception owner and the governance approver.
-4. Make notifications idempotent per exception per boundary so a restart cannot re-notify; record the send in the audit trail.
-5. Tests: boundary crossing emits exactly once; restart does not duplicate; revoked/renewed exceptions stop notifying.
-
-**Acceptance:** An exception approaching expiry notifies its owner without anyone opening the app; expiry state is authoritative from the scanner; no duplicate notification across restarts or replicas.
-
-**Affected files:** new hosted service under `ArchLucid.Host.Core/Hosted/`, `ArchLucid.Application/Governance/RiskExceptionService.cs`, notification dispatch, migration for last-notified boundary, tests.
-
-**Peers:** Done **TB-226** (risk exceptions), **TB-2167** (leader election), **TB-061** (decision-needed digest). Complements, does not replace, the in-app tile.
-
-**Out of scope:** Auto-renewal or auto-revocation of expired exceptions ï¿½ expiry still requires a human decision.
-
-**Size estimate:** M.
-
----
-
-## TB-2194 ï¿½ Verified-resolved finding lifecycle across reviews (P1)
-
-**Window:** V1 ï¿½ Stickiness.
-
-**Status:** Done (2026-08-13).
-
-**Shipped:** `CrossReviewFindingLifecycleService` derives per-finding state from correlation + disposition trail. Surfaces: compare-two-reviews aggregate + per-finding table, finding inspect hint, governance queue link, recurrence completion email canonical compare URL with lifecycle anchor. Tests: Application Findings suite + UI Vitest.
-
-**Priority:** P1.
-
-**Source:** Owner stickiness ask 2026-08-12 (lever 4); `CrossReviewFindingCorrelationService` already matches on `{policyRuleId}:{normalizedFindingFingerprint}` with a fuzzy fallback, and `AgentResultDiffService` uses it for added/removed sets, but `CompareFindingCorrelationPanel` shows only match counts and method.
-
-**Why:** This is the payoff that justifies the second review. Today recurrence produces another report; with per-finding resolution state it produces evidence of remediation the customer cannot generate any other way ï¿½ the artifact an architect forwards to a sponsor and the concrete basis for the ROI numbers already on the sponsor dashboard. The correlation engine exists, so the gap is a resolved-state model and its surfacing, not new analysis.
-
-**Approach:**
-
-1. Define finding resolution state derived from correlation across the prior committed review and the current one: previously identified and still present, previously identified and no longer present (candidate resolved), and newly identified.
-2. Treat "no longer present" as **candidate** resolved, not proven fixed ï¿½ evidence coverage may have changed between reviews. Surface the basis honestly (correlation method, evidence-coverage caveat) per the claim-honesty posture; do not assert remediation the evidence does not support.
-3. Cross-link resolution state to the disposition history from `GovernanceStickinessController` so a finding dispositioned as remediated and then absent reads as confirmed, while an absent finding with no disposition reads as unverified.
-4. Surface on finding inspect, the governance findings queue, and the recurrence completion email (which already reports `ResolvedFindingCount`).
-5. Tests: correlation state matrix; honest downgrade when evidence coverage shrinks; disposition-plus-absence promotes to confirmed.
-
-**Acceptance:** An operator can see, per finding, whether it was raised in a prior review and whether it is still present, with an honest statement of the basis; the recurrence completion path links to that view.
-
-**Affected files:** `ArchLucid.Application/.../CrossReviewFindingCorrelationService.cs`, findings read contracts, `CompareFindingCorrelationPanel.tsx`, finding inspect panels, `RecurrenceCompletion.cshtml`, tests.
-
-**Peers:** Done **TB-224** (compare narrative), **TB-261** (completion delta), **TB-2135** (finding trust presentation), **TB-058** (disposition workflow). Does not duplicate compare's aggregate diff.
-
-**Out of scope:** Re-scanning to prove a fix, or any claim of verified remediation beyond what correlation plus disposition supports.
-
-**Size estimate:** M.
-
----
-
-## TB-2195 ï¿½ Personal assigned-to-me findings queue (P1)
-
-**Window:** V1 ï¿½ Stickiness.
-
-**Status:** **Done** (2026-08-13) — server-side `assignedToMe` risk-register filter, `/governance/findings/assigned-to-me` route + nav, assignment email notification, operator-home assigned count; Application + API + UI tests.
-
-**Priority:** P1.
-
-**Source:** Owner stickiness ask 2026-08-12 (lever 5); `Finding.AssignedToUserId` and `v1/findings/{findingId}/remediation-assignment` ship today, and `GovernanceFindingsQueueClient` has an owner column plus a `no-owner` filter, but there is no per-user route, API filter, or notification.
-
-**Why:** A workspace realistically has one habitual user; everyone else receives exports. Assignment exists as data but not as a personal work surface, so an assignee has no reason to sign in and no place to see their own queue. Seat breadth is what makes a subscription hard to cancel, and this converts passive stakeholders into logged-in users using a field the product already stores.
-
-**Approach:**
-
-1. Add an assigned-to-me filter to the findings queue query (server-side, scope-checked against the caller identity ï¿½ not a client-side filter over a tenant-wide payload).
-2. Add a personal work route plus a nav entry, reusing `EnterpriseTable` and the existing queue row contract rather than a parallel list component.
-3. Notify on assignment and on a periodic open-assignment reminder through the existing notification channel preferences; link straight to the finding.
-4. Surface an assigned-to-me count on operator home alongside **TB-2191** next actions.
-5. Vitest + API tests: filter returns only the caller's findings; cross-tenant and cross-user leakage guarded; unassigned findings excluded.
-
-**Acceptance:** An assignee signs in and sees only their own open findings; assignment produces a notification; counts agree with the tenant-wide queue filtered by owner.
-
-**Affected files:** findings query service + controller, `governance-finding-queue-row.ts`, `GovernanceFindingsQueueClient.tsx`, new route under `(operator)/governance/`, `nav-config.ts`, notification dispatch, tests.
-
-**Peers:** Done **TB-263** (reviews awaiting action ï¿½ tenant-scoped, different object), **TB-057**ï¿½**TB-058** (risk register + disposition). Related gap worth folding in if cheap: findings carry disposition rationale and a one-shot approval comment but no threaded discussion, so multi-party back-and-forth happens off-product.
-
-**Out of scope:** Full threaded comments with mentions ï¿½ file separately if the discussion gap is picked up.
-
-**Size estimate:** M.
-
----
-
-## TB-2196 ï¿½ Tokenized read-only sponsor deep links from digest email (P2)
-
-**Window:** V1.1 ï¿½ Stickiness.
-
-**Status:** Not started.
-
-**Priority:** P2.
-
-**Source:** Owner stickiness ask 2026-08-12 (lever 6); `ExecDigest.cshtml`, `RecurrenceCompletion.cshtml`, and `WeeklyExecutiveSummary.cshtml` all point at operator routes requiring sign-in; the only anonymous paths are the tokenized `ExecDigestUnsubscribeController` and `/showcase/{runId}`, which `showcase-quick-nav-contract.ts` restricts to demo/static modes.
-
-**Why:** The sponsor sponsor is the renewal decision-maker and the intended audience of the weekly value narrative, but the CTA lands on an SSO wall and the click is lost. The product already proves it can issue a scoped, tokenized, no-login endpoint for unsubscribe; the same primitive applied to a single signed review record turns a bounced email into a viewed outcome.
-
-**Approach:**
-
-1. Design a short-lived, single-record, revocable signed token ï¿½ audience-bound to the recipient address, scoped to one signed review record, non-enumerable, with an explicit expiry shorter than the digest cadence.
-2. Render a read-only sponsor view: outcome narrative, severity rollup, and decision summary. Do **not** expose raw evidence, uploaded architecture content, or any cross-record navigation.
-3. Audit every token issue and redemption; give workspace admins a revoke-all control and a per-token listing.
-4. Fail closed: an invalid, expired, or revoked token returns a neutral sign-in prompt, never a partial render.
-5. Tests: expiry, revocation, cross-record and cross-tenant refusal, audit emission, and no evidence-payload leakage in the response contract.
-
-**Security, and why it gates this row:** this deliberately creates an unauthenticated read path into tenant data, so it must be reviewed against `.cursor/rules/Tenant-Isolation-Defense-In-Depth.mdc` and INV-001 before implementation. If the review concludes the risk is not worth the conversion gain, an acceptable fallback is an authenticated deep link that preserves the target through sign-in ï¿½ record whichever decision is taken.
-
-**Acceptance:** A sponsor clicks a digest CTA and reaches a read-only outcome view without a full sign-in; the token expires and can be revoked; no evidence content is reachable; every issue and redemption is audited.
-
-**Affected files:** email templates under `ArchLucid.Notifications.Email.RazorLight/Templates/`, new tokenized read controller, token issue/revoke storage + migration, admin surface, `ArchLucid.Api.Tests`.
-
-**Peers:** Existing token pattern in `ExecDigestUnsubscribeController`; `ShareableReviewLinkButton` / `/showcase` remain demo-scoped and are **not** the mechanism here.
-
-**Out of scope:** Anonymous access to evidence, findings detail, or any mutation; reusing the `/showcase` static path for production tenants.
+**Peers:** Done **TB-876**, Azure chunk upload infra.
 
 **Size estimate:** L.
 
 ---
 
-## TB-2197 ï¿½ Two-way Teams governance actions + wider Slack action surface (P2)
+## TB-2257 — CLI `validate-zip` for AWS/GCP inventory packages (P3)
 
-**Window:** V1.1 ï¿½ Interoperability.
+**Window:** V1.
 
-**Status:** Not started.
+**Why:** `AzureValidateZipCommand` exists; no CLI validate for Aws/Gcp inventory ZIP schema.
 
-**Priority:** P2.
+**Approach:** Add `aws validate-zip` / `gcp validate-zip` (or unified `inventory validate-zip --provider`) using `CloudInventoryExtractorPackageZipValidator`.
 
-**Source:** Owner stickiness ask 2026-08-12 (lever 7); `SlackInteractivityController` already handles `governance_approve:` / `governance_reject:` `block_actions`, while [`MICROSOFT_TEAMS_NOTIFICATIONS.md`](../integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md) states notification-only for v1 and `teams-approval-adaptive-card.json` carries only `Action.OpenUrl`.
+**Acceptance:** CLI exits 0 on valid Aws/Gcp fixture ZIP; non-zero on corrupt manifest.
 
-**Why:** Governance loops stall on approvals from people who will not open the app, and in most enterprise accounts those people live in Teams. Every stalled approval is a review that never reaches a signed record, which suppresses both the value narrative and the next review. Slack already proves the pattern; Teams is the larger installed base.
-
-**Approach:**
-
-1. **Slack first (cheaper):** extend the existing interactivity endpoint to alert acknowledge and finding disposition, reusing the same action-id convention and the `AlertsController` action semantics. Verify request signatures and enforce the actor's authorization on every action ï¿½ chat identity must map to a product principal, never bypass policy.
-2. **Teams second:** add the inbound endpoint and adaptive-card submit actions. This needs a bot registration and Bot Framework plumbing, which is the bulk of the cost and the reason it is sequenced second.
-3. Record chat-originated actions in the audit trail with the originating channel and mapped principal, so a signed record can never contain an action of unknown provenance.
-4. Tests: signature verification, unauthorized actor refusal, identity-mapping failure closes rather than falls back, idempotent replay of the same action payload.
-
-**Acceptance:** An authorized approver can approve or reject from Teams and acknowledge an alert from Slack; every chat-originated action is authorized, audited, and attributed; unmapped chat identities are refused.
-
-**Affected files:** `SlackInteractivityController.cs`, new Teams inbound controller, `templates/integrations/governance-notification/teams-approval-adaptive-card.json`, chat identity mapping, `MICROSOFT_TEAMS_NOTIFICATIONS.md`, tests.
-
-**Peers:** Shipped Slack approve/reject; `ChatOpsIncomingWebhookBodies`; alert action API. Does not duplicate **TB-394**ï¿½**TB-396** (ITSM depth).
-
-**Out of scope:** Slash commands, conversational query, and any mutation that is not already an authorized product action.
-
-**Size estimate:** L.
+**Size estimate:** S.
 
 ---
 
-## TB-2198 ï¿½ GitHub App + Check Runs for pull-request architecture review (P2)
+## TB-2258 — Multi-cloud inventory demo scenario ZIPs (P2)
 
-**Window:** V1.1 ï¿½ Interoperability.
+**Window:** V1.
 
-**Status:** Not started.
+**Why:** `arch-lucid-azure-extractor-demo-scenarios` provides labeled Azure ZIPs only. Aws/Gcp demo path uses generic demo flag without inventory-shaped fixtures.
 
-**Priority:** P2.
+**Approach:** Add Aws/Gcp demo scenario ZIP builders parallel to Azure scenarios; wire wizard demo picker when Aws/Gcp evidence selected.
 
-**Source:** Owner stickiness ask 2026-08-12 (lever 8); verified absent ï¿½ no `ArchLucid.Integrations.GitHub*` project and no `check_run` / `octokit` / GitHub App references. GitHub support today is client-side only: `integrations/github-action-manifest-delta*` and `examples/github-actions/archlucid-architecture-review.yml` POST to `/v1/architecture/request` and write a PR comment via `actions/github-script`. There is no inbound git webhook receiver at all ï¿½ inbound endpoints are ITSM, billing, and Slack only.
-
-**Why:** This is the only lever on the list that changes usage *frequency* by an order of magnitude, moving the trigger from a human deciding to run a quarterly review to a repository event. Azure DevOps already has the server-side equivalent in `AzureDevOpsPullRequestDecorator`, so GitHub customers get a materially weaker integration.
-
-**Approach:**
-
-1. Add a GitHub App with installation flow and per-installation token management; store installation credentials with the same posture as other integration secrets.
-2. Add an inbound webhook receiver for `pull_request` events with signature verification and replay protection ï¿½ this is the first git webhook receiver in the tree, so the seam needs to be designed, not bolted onto an existing controller.
-3. Report through the Check Runs API rather than PR comments, so results appear as a first-class status with annotations.
-4. **Cost is the gating constraint:** a per-PR full review is not viable. Define a scoped incremental analysis mode seeded from the existing manifest-delta action, and enforce per-installation rate and spend limits through the existing LLM budget chokepoint. Record the expected per-PR cost before enabling.
-5. Reliability: webhook delivery must be idempotent and must degrade to a neutral check when analysis cannot complete, never to a false pass.
-6. Tests: signature verification, replay, incremental scope selection, budget refusal path, neutral-on-failure.
-
-**Acceptance:** A pull request in an installed repository produces a Check Run with scoped architecture findings within the agreed latency and cost envelope; failures produce a neutral check with a reason; spend is bounded per installation.
-
-**Affected files:** new `ArchLucid.Integrations.GitHub` project, inbound webhook controller, installation/token storage + migration, incremental analysis mode, `docs/integrations/CICD_INTEGRATION.md`, tests.
-
-**Peers:** `AzureDevOpsPullRequestDecorator` (server-side precedent), existing GitHub Actions (client-side, retained for customers who prefer pipeline-owned execution), `TerraformGitHubPrService` (outbound REST precedent).
-
-**Out of scope:** Full-fidelity review on every PR; GitHub Enterprise Server; non-PR events.
-
-**Size estimate:** L.
-
----
-
-## TB-2199 ï¿½ Tenant-authored approved-architecture registry (P2)
-
-**Window:** V1.1 ï¿½ Stickiness.
-
-**Status:** Not started.
-
-**Priority:** P2.
-
-**Source:** Owner stickiness ask 2026-08-12 (lever 9); policy packs are fully tenant-authorable (`PolicyPacksController` create/publish/assign + `PolicyPacksAuthoringTabSection`), but `/governance/standards-and-rules` is a read-only resolution view, the pattern library is a built-in catalog plus anonymized cross-tenant aggregates with no create path, and `TechnologyLedgerController` is run-scoped.
-
-**Why:** This is the strongest switching-cost lever available. Policy packs prove tenants will author content; what is missing is a durable, org-owned registry of approved patterns, golden paths, and sanctioned technologies that persists across reviews and that findings reference. Churning then means abandoning the customer's own standards library, and the product shifts from a periodic assessment tool to the system of record for how the organization builds.
-
-**Approach:**
-
-1. Model a workspace-scoped registry of approved patterns and technologies with lifecycle (draft / approved / deprecated), owner, and rationale ï¿½ reusing the policy-pack authoring and publish primitives rather than inventing a second authoring stack.
-2. Promote run-scoped technology ledger entries into the registry as an explicit action, so the registry is populated as a by-product of reviews already being run.
-3. Reference the registry from findings and from the standards-and-rules resolution view so an unsanctioned technology reads as a deviation from the tenant's own standard, not only from a bundled pack.
-4. Keep tenant-authored content strictly tenant-scoped and out of the anonymized cross-tenant aggregate unless the tenant opts in.
-5. Export path so the customer can take their registry with them ï¿½ do not make the moat a hostage.
-6. Tests: authoring lifecycle, tenant isolation, finding-to-registry reference resolution, export fidelity.
-
-**Acceptance:** A workspace can author, approve, and deprecate its own patterns and approved technologies; findings reference them; the registry survives across reviews and is exportable.
-
-**Affected files:** new registry contracts/service/repository + migration, `PolicyPacksController` patterns for reuse, `TechnologyLedgerController` promotion action, `GovernanceResolutionPageView.tsx`, `PatternLibraryPageClient.tsx`, tests.
-
-**Peers:** Shipped policy-pack authoring; `pattern-library-catalog.ts` and the `PATTERN_LIBRARY_MINIMUM_TENANT_THRESHOLD` aggregate remain separate and built-in.
-
-**Out of scope:** Cross-tenant sharing or marketplace distribution of tenant-authored registries.
-
-**Size estimate:** L.
-
----
-
-## TB-2200 ï¿½ Workspace-scoped Ask across all reviews (P2)
-
-**Window:** V1.1 ï¿½ Stickiness.
-
-**Status:** Not started.
-
-**Priority:** P2.
-
-**Source:** Owner stickiness ask 2026-08-12 (lever 10); `AskController` validation requires a `runId` for new threads, while `RetrievalController` search is workspace-wide by default with an optional `runId` filter and `search-page-copy.ts` already says "All reviews".
-
-**Why:** The questions that create dependence ï¿½ which of our systems share this weakness, what did we decide about this last time ï¿½ are unanswerable within a single review by definition, and they get better as the review corpus grows. That compounding is the definition of stickiness, and it also makes the asymmetry visible today: search already spans the workspace while Ask does not.
-
-**Approach:**
-
-1. Make `runId` optional on Ask thread creation, defaulting to the active workspace scope and reusing the tenant/workspace/project scoping already enforced in `RetrievalController`.
-2. Extend the citation model so an answer can cite evidence from multiple reviews, with the source review named on every citation ï¿½ cross-review answers must remain traceable to a specific run.
-3. Bound retrieval breadth and token cost explicitly; a workspace-wide question must not become an unbounded scan as the corpus grows. Define the cap and surface honest truncation rather than silently sampling.
-4. Update Ask UI scope selection to mirror the search page ("All reviews" with optional narrowing) so the two surfaces stop disagreeing.
-5. Tests: scope enforcement across tenant and workspace, multi-run citation integrity, truncation honesty, single-run behavior unchanged.
-
-**Acceptance:** An operator can ask a question across every review in the workspace and receive an answer whose citations name their source reviews; scope enforcement and cost bounds hold as the corpus grows; existing single-review threads are unaffected.
-
-**Affected files:** `AskController.cs`, `AskRequest.cs`, retrieval scoping shared with `RetrievalController.cs`, `AskPageContent.tsx`, `search-surface-disambiguation.ts`, tests.
-
-**Peers:** Workspace-wide retrieval search (shipped); does not duplicate compare (`baseRunId`/`targetRunId`), which answers a different question.
-
-**Out of scope:** Cross-workspace or cross-tenant Ask; changing the retrieval index model.
+**Acceptance:** Demo mode can attach valid Aws/Gcp inventory ZIP without manual scripting.
 
 **Size estimate:** M.
 
 ---
 
-## TB-2243 — Retire progressive nav disclosure plumbing (P0)
+## TB-2259 — Rename Azure-prefixed multi-cloud wizard/shell components (P3)
 
-**Window:** V1 — Adoption friction.
+**Window:** V1.
 
-**Status:** **Done** 2026-08-13 — removed retired `showExtended` / `showAdvanced` / `applyCollapsedSidebarPilotFilter` params from `nav-shell-visibility.ts`; deleted `useNavProgressiveDisclosure`, unlock panels, and dead sidebar settings UI; **`RoleNavDensityExpandControl`** is the sole sidebar escape hatch on desktop **`SidebarNav`** and mobile **`MobileNavDrawer`**; Vitest parity guard in **`workspace-navigation-help-alignment.test.ts`**; docs in **`NAV_CONFIG_CONTRACT.md`** and **`WORKSPACE_NAVIGATION_GUIDE.md`**.
+**Why:** `WizardStepAzureContext`, `AzureExtractorZipDropZone` (used for all clouds in `Tier1InventoryZipUploadPanel`), and similar names imply Azure-only UX though multi-cloud paths exist (**TB-337** partial).
 
-**Priority:** P0.
+**Approach:** Rename to cloud-neutral names (`WizardStepCloudInventoryContext`, `InventoryZipDropZone`); update imports, tests, traffic notes; keep re-export aliases one release if needed.
 
-**Source:** Owner easier-to-use audit 2026-08-13 (usability item #4); partial delivery toward **TB-2233**.
+**Acceptance:** No user-facing copy says "Azure" when platform-agnostic; file names match behavior.
 
-**Why:** Progressive disclosure tiers, collapsed-pilot “Show all features,” and parallel unlock UI duplicated **`RoleNavDensityExpandControl`** without adding authority signal. Retiring the plumbing reduces nav filter complexity and desktop/mobile divergence.
-
-**Approach:**
-
-1. Drop ignored disclosure parameters and always-zero counter helpers from **`nav-shell-visibility.ts`** and all call sites.
-2. Delete **`useNavProgressiveDisclosure`** and unmounted unlock / sidebar settings components.
-3. Mount **`RoleNavDensityExpandControl`** in **`MobileNavDrawer`** for density parity with desktop.
-4. Update hint copy to **`SHOW_ALL_DESTINATIONS`**; keep **`NAV_DISCLOSURE`** constants only where tests still reference tier metadata.
-5. Vitest: authority seam, nav-shell visibility, sidebar nav, workspace-navigation-help alignment.
-
-**Acceptance:** No production code path reads progressive disclosure flags; sidebar density control works on desktop and mobile; nav/help docs describe **`Show all sidebar links`** as the only reveal affordance.
-
-**Affected files:** `nav-shell-visibility.ts`, `useOperatorShellNavRows.ts`, `MobileNavDrawer.tsx`, `CommandPalette.tsx`, deleted disclosure hooks/components, `NAV_CONFIG_CONTRACT.md`, customer nav guide, hint components, Vitest.
-
-**Peers:** Done **TB-2139** (role-shaped density); open **TB-2233** (full authority + lifecycle + shell-preset model).
-
-**Out of scope:** Removing **`tier`** metadata from nav config; demo/buyer shell preset refactor (**TB-2233**).
+**Peers:** **TB-337**–**TB-344**.
 
 **Size estimate:** M.
 
 ---
+
+## TB-2260 — Remove stale `FORTHCOMING_CLOUD_PROVIDER_ROWS` admin copy (P3)
+
+**Window:** V1.
+
+**Why:** `forthcoming-cloud-provider-rows.ts` still describes AWS/GCP as forthcoming while Tier 2 connection UI shipped (**TB-402**/**TB-403**).
+
+**Approach:** Delete or replace with pointers to `/integrations/cloud-connections`; update any admin diagnostics consumers.
+
+**Acceptance:** No "forthcoming" AWS/GCP rows in operator/admin surfaces.
+
+**Size estimate:** S.
+
+---
+
+## TB-2261 — Quick Scan `PrimaryEnvironment` — Aws/Gcp options (P2)
+
+**Window:** V1.
+
+**Why:** `QuickScanSampleResultProvider` and marketing quick scan default `PrimaryEnvironment.Azure` only; no Aws/Gcp primary environment selection.
+
+**Approach:** Extend `QuickScanPrimaryEnvironment` normalization + UI/marketing form options; sample copy stays honest (illustrative, not live inventory).
+
+**Acceptance:** Quick scan request accepts Aws/Gcp primary environment labels where product exposes the field.
+
+**Size estimate:** S.
+
+---
+
+## TB-2262 — Inventory-backed security baseline validation for AWS/GCP (P2)
+
+**Window:** V1.1.
+
+**Why:** Open **TB-2210** scopes inventory-backed security baseline validation to Azure extractor ZIP only.
+
+**Approach:** Extend engines to read Aws/Gcp `resources.json` with provider-appropriate control checks.
+
+**Peers:** **TB-2210**, **TB-2248**.
+
+**Size estimate:** L.
+
+---
+
+## TB-2263 — Help/governance copy — no tri-cloud peer claims until baseline UX ships (P2)
+
+**Window:** V1.
+
+**Why:** `help_review_and_architecture_guidance_assessment.md` §14: pack catalog is tri-cloud but default baseline UX is Azure-shaped; help must not claim Azure/AWS/GCP peer framing at default-selection layer until **TB-2249** ships.
+
+**Approach:** Audit help/governance/review-guide copy; add CI or Vitest banned-phrase guard for "provider-neutral baseline" / equal default packs claims; update copy when **TB-2249** closes.
+
+**Peers:** **TB-2249**, **TB-344** (drift guard pattern).
+
+**Size estimate:** S.
