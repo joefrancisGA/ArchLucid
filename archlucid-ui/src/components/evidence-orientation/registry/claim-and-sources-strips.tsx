@@ -59,9 +59,6 @@ import {
   CONNECT_AZURE_SECURELY_SOURCES_INTRO,
 } from "@/lib/connect-azure-securely-help-content";
 import {
-  CLOUD_CONNECTIONS_CLAIM_DISCIPLINE,
-  CLOUD_CONNECTIONS_CLAIM_DISCIPLINE_HEADING,
-  CLOUD_CONNECTIONS_CLAIM_HEADING_ID,
   CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE,
   CLOUD_CONNECTIONS_SOURCES,
   CLOUD_CONNECTIONS_SOURCES_INTRO,
@@ -103,9 +100,6 @@ import {
 } from "@/lib/baseline-settings-help-evidence-copy";
 import { BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID } from "@/lib/baseline-settings-help-guide-content";
 import {
-  BASELINE_SETTINGS_CLAIM_DISCIPLINE,
-  BASELINE_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  BASELINE_SETTINGS_CLAIM_HEADING_ID,
   BASELINE_SETTINGS_FOLLOW_UPS_TITLE,
   BASELINE_SETTINGS_SOURCES,
   BASELINE_SETTINGS_SOURCES_INTRO,
@@ -119,9 +113,6 @@ import {
 } from "@/lib/api-keys-help-evidence-copy";
 import { API_KEYS_HELP_CLAIM_HEADING_ID } from "@/lib/api-keys-help-guide-content";
 import {
-  API_KEYS_SETTINGS_CLAIM_DISCIPLINE,
-  API_KEYS_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  API_KEYS_SETTINGS_CLAIM_HEADING_ID,
   API_KEYS_SETTINGS_FOLLOW_UPS_TITLE,
   API_KEYS_SETTINGS_SOURCES,
   API_KEYS_SETTINGS_SOURCES_INTRO,
@@ -135,9 +126,6 @@ import {
   ACCOUNT_SECURITY_SETTINGS_SOURCES_INTRO,
 } from "@/lib/account-security-settings-evidence-copy";
 import {
-  AI_USAGE_SETTINGS_CLAIM_DISCIPLINE,
-  AI_USAGE_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  AI_USAGE_SETTINGS_CLAIM_HEADING_ID,
   AI_USAGE_SETTINGS_FOLLOW_UPS_TITLE,
   AI_USAGE_SETTINGS_SOURCES,
   AI_USAGE_SETTINGS_SOURCES_INTRO,
@@ -207,9 +195,6 @@ import {
 } from "@/lib/evidence-graph-help-evidence-copy";
 import { EVIDENCE_GRAPH_HELP_CLAIM_HEADING_ID } from "@/lib/evidence-graph-help-guide-content";
 import {
-  EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE,
-  EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE_HEADING,
-  EVIDENCE_PROPOSALS_CLAIM_HEADING_ID,
   EVIDENCE_PROPOSALS_FOLLOW_UPS_TITLE,
   EVIDENCE_PROPOSALS_SOURCES,
   EVIDENCE_PROPOSALS_SOURCES_INTRO,
@@ -231,9 +216,6 @@ import {
 } from "@/lib/search-review-evidence-help-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID } from "@/lib/search-review-evidence-help-guide-content";
 import {
-  AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE,
-  AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
-  AZURE_BOARDS_INTEGRATION_CLAIM_HEADING_ID,
   AZURE_BOARDS_INTEGRATION_FOLLOW_UPS_TITLE,
   AZURE_BOARDS_INTEGRATION_SOURCES,
   AZURE_BOARDS_INTEGRATION_SOURCES_INTRO,
@@ -247,17 +229,11 @@ import {
 } from "@/lib/jira-integration-help-evidence-copy";
 import { JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/jira-integration-help-guide-content";
 import {
-  JIRA_INTEGRATION_CLAIM_DISCIPLINE,
-  JIRA_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
-  JIRA_INTEGRATION_CLAIM_HEADING_ID,
   JIRA_INTEGRATION_FOLLOW_UPS_TITLE,
   JIRA_INTEGRATION_SOURCES,
   JIRA_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/jira-integration-evidence-copy";
 import {
-  MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE,
-  MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  MODEL_GOVERNANCE_SETTINGS_CLAIM_HEADING_ID,
   MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE,
   MODEL_GOVERNANCE_SETTINGS_SOURCES,
   MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO,
@@ -271,9 +247,6 @@ import {
 } from "@/lib/model-governance-help-evidence-copy";
 import { MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID } from "@/lib/model-governance-help-guide-content";
 import {
-  SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE,
-  SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
-  SERVICENOW_INTEGRATION_CLAIM_HEADING_ID,
   SERVICENOW_INTEGRATION_FOLLOW_UPS_TITLE,
   SERVICENOW_INTEGRATION_SOURCES,
   SERVICENOW_INTEGRATION_SOURCES_INTRO,
@@ -318,9 +291,6 @@ import {
   CONNECTION_STATUS_HELP_SOURCES_INTRO,
 } from "@/lib/connection-status-help-evidence-copy";
 import {
-  CONNECTION_STATUS_CLAIM_DISCIPLINE,
-  CONNECTION_STATUS_CLAIM_DISCIPLINE_HEADING,
-  CONNECTION_STATUS_CLAIM_HEADING_ID,
   CONNECTION_STATUS_FOLLOW_UPS_TITLE,
   CONNECTION_STATUS_SOURCES,
   CONNECTION_STATUS_SOURCES_INTRO,
@@ -342,38 +312,31 @@ import {
   ADMIN_ITSM_CONNECTORS_SOURCES_INTRO,
 } from "@/lib/admin-itsm-connectors-evidence-copy";
 import {
+  AGENT_MODEL_CATALOG_FOLLOW_UPS_TITLE,
+  AGENT_MODEL_CATALOG_SOURCES,
+  AGENT_MODEL_CATALOG_SOURCES_INTRO,
+} from "@/lib/agent-model-catalog-evidence-copy";
+import {
   ADMIN_TENANTS_FOLLOW_UPS_TITLE,
   ADMIN_TENANTS_SOURCES,
   ADMIN_TENANTS_SOURCES_INTRO,
 } from "@/lib/admin-tenants-evidence-copy";
 import {
-  DEMO_READINESS_CLAIM_DISCIPLINE,
-  DEMO_READINESS_CLAIM_DISCIPLINE_HEADING,
-  DEMO_READINESS_CLAIM_HEADING_ID,
   DEMO_READINESS_FOLLOW_UPS_TITLE,
   DEMO_READINESS_SOURCES,
   DEMO_READINESS_SOURCES_INTRO,
 } from "@/lib/demo-readiness-evidence-copy";
 import {
-  DEPLOYMENT_STATUS_CLAIM_DISCIPLINE,
-  DEPLOYMENT_STATUS_CLAIM_DISCIPLINE_HEADING,
-  DEPLOYMENT_STATUS_CLAIM_HEADING_ID,
   DEPLOYMENT_STATUS_FOLLOW_UPS_TITLE,
   DEPLOYMENT_STATUS_SOURCES,
   DEPLOYMENT_STATUS_SOURCES_INTRO,
 } from "@/lib/deployment-status-evidence-copy";
 import {
-  EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE,
-  EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  EXTRACT_UPLOAD_SETTINGS_CLAIM_HEADING_ID,
   EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE,
   EXTRACT_UPLOAD_SETTINGS_SOURCES,
   EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO,
 } from "@/lib/extract-upload-settings-evidence-copy";
 import {
-  FLEET_LLM_COGS_CLAIM_DISCIPLINE,
-  FLEET_LLM_COGS_CLAIM_DISCIPLINE_HEADING,
-  FLEET_LLM_COGS_CLAIM_HEADING_ID,
   FLEET_LLM_COGS_FOLLOW_UPS_TITLE,
   FLEET_LLM_COGS_SOURCES,
   FLEET_LLM_COGS_SOURCES_INTRO,
@@ -422,9 +385,6 @@ import {
 } from "@/lib/slack-integration-help-evidence-copy";
 import { SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/slack-integration-help-guide-content";
 import {
-  SLACK_INTEGRATION_CLAIM_DISCIPLINE,
-  SLACK_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
-  SLACK_INTEGRATION_CLAIM_HEADING_ID,
   SLACK_INTEGRATION_FOLLOW_UPS_TITLE,
   SLACK_INTEGRATION_SOURCES,
   SLACK_INTEGRATION_SOURCES_INTRO,
@@ -499,9 +459,6 @@ import {
   POLICY_PACKS_HELP_SOURCES_INTRO,
 } from "@/lib/policy/policy-packs-help-evidence-copy";
 import {
-  PRICING_QUOTE_AGING_CLAIM_DISCIPLINE,
-  PRICING_QUOTE_AGING_CLAIM_DISCIPLINE_HEADING,
-  PRICING_QUOTE_AGING_CLAIM_HEADING_ID,
   PRICING_QUOTE_AGING_FOLLOW_UPS_TITLE,
   PRICING_QUOTE_AGING_SOURCES,
   PRICING_QUOTE_AGING_SOURCES_INTRO,
@@ -512,17 +469,11 @@ import {
   PRODUCT_LEARNING_SOURCES_INTRO,
 } from "@/lib/product-learning-evidence-copy";
 import {
-  OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE,
-  OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  OPERATOR_BILLING_SETTINGS_CLAIM_HEADING_ID,
   OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE,
   OPERATOR_BILLING_SETTINGS_SOURCES,
   OPERATOR_BILLING_SETTINGS_SOURCES_INTRO,
 } from "@/lib/operator/operator-billing-settings-evidence-copy";
 import {
-  RAG_HEALTH_CLAIM_DISCIPLINE,
-  RAG_HEALTH_CLAIM_DISCIPLINE_HEADING,
-  RAG_HEALTH_CLAIM_HEADING_ID,
   RAG_HEALTH_FOLLOW_UPS_TITLE,
   RAG_HEALTH_SOURCES,
   RAG_HEALTH_SOURCES_INTRO,
@@ -538,57 +489,36 @@ import {
   REPLAY_SOURCES_INTRO,
 } from "@/lib/replay-evidence-copy";
 import {
-  IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE,
-  IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE_HEADING,
-  IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_HEADING_ID,
   IDENTITY_PROVIDERS_DIAGNOSTICS_FOLLOW_UPS_TITLE,
   IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES,
   IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES_INTRO,
 } from "@/lib/identity-providers-diagnostics-evidence-copy";
 import {
-  IDENTITY_PROVIDERS_OIDC_CLAIM_DISCIPLINE,
-  IDENTITY_PROVIDERS_OIDC_CLAIM_DISCIPLINE_HEADING,
-  IDENTITY_PROVIDERS_OIDC_CLAIM_HEADING_ID,
   IDENTITY_PROVIDERS_OIDC_FOLLOW_UPS_TITLE,
   IDENTITY_PROVIDERS_OIDC_SOURCES,
   IDENTITY_PROVIDERS_OIDC_SOURCES_INTRO,
 } from "@/lib/identity-providers-oidc-evidence-copy";
 import {
-  IDENTITY_PROVIDERS_SAML_CLAIM_DISCIPLINE,
-  IDENTITY_PROVIDERS_SAML_CLAIM_DISCIPLINE_HEADING,
-  IDENTITY_PROVIDERS_SAML_CLAIM_HEADING_ID,
   IDENTITY_PROVIDERS_SAML_FOLLOW_UPS_TITLE,
   IDENTITY_PROVIDERS_SAML_SOURCES,
   IDENTITY_PROVIDERS_SAML_SOURCES_INTRO,
 } from "@/lib/identity-providers-saml-evidence-copy";
 import {
-  IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE,
-  IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  IDENTITY_PROVIDERS_SETTINGS_CLAIM_HEADING_ID,
   IDENTITY_PROVIDERS_SETTINGS_FOLLOW_UPS_TITLE,
   IDENTITY_PROVIDERS_SETTINGS_SOURCES,
   IDENTITY_PROVIDERS_SETTINGS_SOURCES_INTRO,
 } from "@/lib/identity-providers-settings-evidence-copy";
 import {
-  ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE,
-  ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  ROLE_MAPPING_SETTINGS_CLAIM_HEADING_ID,
   ROLE_MAPPING_SETTINGS_FOLLOW_UPS_TITLE,
   ROLE_MAPPING_SETTINGS_SOURCES,
   ROLE_MAPPING_SETTINGS_SOURCES_INTRO,
 } from "@/lib/role-mapping-settings-evidence-copy";
 import {
-  SCIM_PROVISIONING_CLAIM_DISCIPLINE,
-  SCIM_PROVISIONING_CLAIM_DISCIPLINE_HEADING,
-  SCIM_PROVISIONING_CLAIM_HEADING_ID,
   SCIM_PROVISIONING_FOLLOW_UPS_TITLE,
   SCIM_PROVISIONING_SOURCES,
   SCIM_PROVISIONING_SOURCES_INTRO,
 } from "@/lib/scim-provisioning-evidence-copy";
 import {
-  SSO_WIZARD_CLAIM_DISCIPLINE,
-  SSO_WIZARD_CLAIM_DISCIPLINE_HEADING,
-  SSO_WIZARD_CLAIM_HEADING_ID,
   SSO_WIZARD_FOLLOW_UPS_TITLE,
   SSO_WIZARD_SOURCES,
   SSO_WIZARD_SOURCES_INTRO,
@@ -637,33 +567,21 @@ import {
 } from "@/lib/teams-integration-help-evidence-copy";
 import { TEAMS_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/teams-integration-help-guide-content";
 import {
-  TEAMS_INTEGRATION_CLAIM_DISCIPLINE,
-  TEAMS_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
-  TEAMS_INTEGRATION_CLAIM_HEADING_ID,
   TEAMS_INTEGRATION_FOLLOW_UPS_TITLE,
   TEAMS_INTEGRATION_SOURCES,
   TEAMS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/teams-integration-evidence-copy";
 import {
-  TRIAL_FUNNEL_CLAIM_DISCIPLINE,
-  TRIAL_FUNNEL_CLAIM_DISCIPLINE_HEADING,
-  TRIAL_FUNNEL_CLAIM_HEADING_ID,
   TRIAL_FUNNEL_FOLLOW_UPS_TITLE,
   TRIAL_FUNNEL_SOURCES,
   TRIAL_FUNNEL_SOURCES_INTRO,
 } from "@/lib/trial-funnel-evidence-copy";
 import {
-  TENANT_SETTINGS_CLAIM_DISCIPLINE,
-  TENANT_SETTINGS_CLAIM_DISCIPLINE_HEADING,
-  TENANT_SETTINGS_CLAIM_HEADING_ID,
   TENANT_SETTINGS_FOLLOW_UPS_TITLE,
   TENANT_SETTINGS_SOURCES,
   TENANT_SETTINGS_SOURCES_INTRO,
 } from "@/lib/tenant-settings-evidence-copy";
 import {
-  TENANT_HEALTH_CLAIM_DISCIPLINE,
-  TENANT_HEALTH_CLAIM_DISCIPLINE_HEADING,
-  TENANT_HEALTH_CLAIM_HEADING_ID,
   TENANT_HEALTH_FOLLOW_UPS_TITLE,
   TENANT_HEALTH_SOURCES,
   TENANT_HEALTH_SOURCES_INTRO,
@@ -680,17 +598,11 @@ import {
   WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID,
 } from "@/lib/webhooks-integration-help-guide-content";
 import {
-  WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE,
-  WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
-  WEBHOOKS_INTEGRATION_CLAIM_HEADING_ID,
   WEBHOOKS_INTEGRATION_FOLLOW_UPS_TITLE,
   WEBHOOKS_INTEGRATION_SOURCES,
   WEBHOOKS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/webhooks-integration-evidence-copy";
 import {
-  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE,
-  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING,
-  ITSM_OAUTH_CALLBACK_CLAIM_HEADING_ID,
   ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE,
   ITSM_OAUTH_CALLBACK_SOURCES,
   ITSM_OAUTH_CALLBACK_SOURCES_INTRO,
@@ -704,7 +616,6 @@ export function AuditTrailHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE}
       claimHeading={AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={AUDIT_TRAIL_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={AUDIT_TRAIL_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={AUDIT_TRAIL_HELP_SOURCES_INTRO}
@@ -724,7 +635,6 @@ export function AlertsHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={ALERTS_HELP_CLAIM_DISCIPLINE}
       claimHeading={ALERTS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ALERTS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ALERTS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ALERTS_HELP_SOURCES_INTRO}
@@ -743,7 +653,6 @@ export function AuthenticationSignInHelpEvidenceOrientationStrip(): React.JSX.El
       claim={AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE}
       claimHeading={AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={AUTHENTICATION_SIGN_IN_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={AUTHENTICATION_SIGN_IN_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={AUTHENTICATION_SIGN_IN_HELP_SOURCES_INTRO}
@@ -763,7 +672,6 @@ export function BillingAndPlansHelpEvidenceOrientationStrip(): React.JSX.Element
       claim={BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE}
       claimHeading={BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={BILLING_AND_PLANS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={BILLING_AND_PLANS_HELP_SOURCES_INTRO}
@@ -783,7 +691,6 @@ export function ComparisonReplayHelpEvidenceOrientationStrip(): React.JSX.Elemen
       claim={COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE}
       claimHeading={COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={COMPARISON_REPLAY_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={COMPARISON_REPLAY_HELP_SOURCES_INTRO}
@@ -802,7 +709,6 @@ export function ConnectAwsSecurelyHelpEvidenceOrientationStrip(): React.JSX.Elem
       claim={CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE}
       claimHeading={CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={CONNECT_AWS_SECURELY_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECT_AWS_SECURELY_SOURCES_INTRO}
@@ -821,7 +727,6 @@ export function ConnectAzureSecurelyHelpEvidenceOrientationStrip(): React.JSX.El
       claim={CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE}
       claimHeading={CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={CONNECT_AZURE_SECURELY_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={CONNECT_AZURE_SECURELY_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECT_AZURE_SECURELY_SOURCES_INTRO}
@@ -840,7 +745,6 @@ export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={DIGESTS_HELP_CLAIM_DISCIPLINE}
       claimHeading={DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={DIGESTS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={DIGESTS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={DIGESTS_HELP_SOURCES_INTRO}
@@ -859,7 +763,6 @@ export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Ele
       claim={RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE}
       claimHeading={RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO}
@@ -884,7 +787,6 @@ export function RoiSummaryHelpEvidenceOrientationStrip(
       claim={ROI_SUMMARY_HELP_CLAIM_DISCIPLINE}
       claimHeading={ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ROI_SUMMARY_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ROI_SUMMARY_HELP_SOURCES_INTRO}
@@ -905,7 +807,6 @@ export function ArchitectureScorecardHelpEvidenceOrientationStrip(): React.JSX.E
       claim={ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE}
       claimHeading={ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ARCHITECTURE_SCORECARD_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE}
       sourcesIntro={ARCHITECTURE_SCORECARD_HELP_SOURCES_INTRO}
@@ -930,7 +831,6 @@ export function ConnectionStatusHelpEvidenceOrientationStrip(
       claim={CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE}
       claimHeading={CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={CONNECTION_STATUS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={CONNECTION_STATUS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECTION_STATUS_HELP_SOURCES_INTRO}
@@ -947,10 +847,6 @@ export function ConnectionStatusEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="connection-status"
-      claim={CONNECTION_STATUS_CLAIM_DISCIPLINE}
-      claimHeading={CONNECTION_STATUS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={CONNECTION_STATUS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={CONNECTION_STATUS_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECTION_STATUS_SOURCES_INTRO}
@@ -1037,14 +933,25 @@ export function AdminTenantsEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
+export function AgentModelCatalogEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="agent-model-catalog"
+      claimElement="div"
+      sourcesTitle={AGENT_MODEL_CATALOG_FOLLOW_UPS_TITLE}
+      sourcesIntro={AGENT_MODEL_CATALOG_SOURCES_INTRO}
+      sources={AGENT_MODEL_CATALOG_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
 export function DemoReadinessEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="demo-readiness"
-      claim={DEMO_READINESS_CLAIM_DISCIPLINE}
-      claimHeading={DEMO_READINESS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={DEMO_READINESS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={DEMO_READINESS_FOLLOW_UPS_TITLE}
       sourcesIntro={DEMO_READINESS_SOURCES_INTRO}
@@ -1060,10 +967,6 @@ export function DeploymentStatusEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="deployment-status"
-      claim={DEPLOYMENT_STATUS_CLAIM_DISCIPLINE}
-      claimHeading={DEPLOYMENT_STATUS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={DEPLOYMENT_STATUS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={DEPLOYMENT_STATUS_FOLLOW_UPS_TITLE}
       sourcesIntro={DEPLOYMENT_STATUS_SOURCES_INTRO}
@@ -1079,10 +982,6 @@ export function EvidenceProposalsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="evidence-proposals"
-      claim={EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE}
-      claimHeading={EVIDENCE_PROPOSALS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={EVIDENCE_PROPOSALS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={EVIDENCE_PROPOSALS_FOLLOW_UPS_TITLE}
       sourcesIntro={EVIDENCE_PROPOSALS_SOURCES_INTRO}
@@ -1098,10 +997,6 @@ export function FleetLlmCogsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="fleet-llm-cogs"
-      claim={FLEET_LLM_COGS_CLAIM_DISCIPLINE}
-      claimHeading={FLEET_LLM_COGS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={FLEET_LLM_COGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={FLEET_LLM_COGS_FOLLOW_UPS_TITLE}
       sourcesIntro={FLEET_LLM_COGS_SOURCES_INTRO}
@@ -1117,10 +1012,6 @@ export function PricingQuoteAgingEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="pricing-quote-aging"
-      claim={PRICING_QUOTE_AGING_CLAIM_DISCIPLINE}
-      claimHeading={PRICING_QUOTE_AGING_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={PRICING_QUOTE_AGING_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={PRICING_QUOTE_AGING_FOLLOW_UPS_TITLE}
       sourcesIntro={PRICING_QUOTE_AGING_SOURCES_INTRO}
@@ -1151,10 +1042,6 @@ export function RagHealthEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="rag-health"
-      claim={RAG_HEALTH_CLAIM_DISCIPLINE}
-      claimHeading={RAG_HEALTH_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={RAG_HEALTH_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={RAG_HEALTH_FOLLOW_UPS_TITLE}
       sourcesIntro={RAG_HEALTH_SOURCES_INTRO}
@@ -1200,10 +1087,6 @@ export function TrialFunnelEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="trial-funnel"
-      claim={TRIAL_FUNNEL_CLAIM_DISCIPLINE}
-      claimHeading={TRIAL_FUNNEL_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={TRIAL_FUNNEL_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={TRIAL_FUNNEL_FOLLOW_UPS_TITLE}
       sourcesIntro={TRIAL_FUNNEL_SOURCES_INTRO}
@@ -1219,10 +1102,6 @@ export function TenantHealthEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="tenant-health"
-      claim={TENANT_HEALTH_CLAIM_DISCIPLINE}
-      claimHeading={TENANT_HEALTH_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={TENANT_HEALTH_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={TENANT_HEALTH_FOLLOW_UPS_TITLE}
       sourcesIntro={TENANT_HEALTH_SOURCES_INTRO}
@@ -1253,7 +1132,6 @@ export function StandardsRulesHelpEvidenceOrientationStrip(
       claim={STANDARDS_RULES_HELP_CLAIM_DISCIPLINE}
       claimHeading={STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={STANDARDS_RULES_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={STANDARDS_RULES_HELP_SOURCES_INTRO}
@@ -1275,10 +1153,6 @@ export function BaselineSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="baseline-settings"
-      claim={BASELINE_SETTINGS_CLAIM_DISCIPLINE}
-      claimHeading={BASELINE_SETTINGS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={BASELINE_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={BASELINE_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={BASELINE_SETTINGS_SOURCES_INTRO}
@@ -1294,10 +1168,6 @@ export function ExtractUploadSettingsEvidenceOrientationStrip(): React.JSX.Eleme
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="extract-upload-settings"
-      claim={EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE}
-      claimHeading={EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={EXTRACT_UPLOAD_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO}
@@ -1313,10 +1183,6 @@ export function OperatorBillingSettingsEvidenceOrientationStrip(): React.JSX.Ele
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="operator-billing-settings"
-      claim={OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE}
-      claimHeading={OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={OPERATOR_BILLING_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={OPERATOR_BILLING_SETTINGS_SOURCES_INTRO}
@@ -1335,7 +1201,6 @@ export function PreferencesSettingsEvidenceOrientationStrip(): React.JSX.Element
       claim={PREFERENCES_SETTINGS_CLAIM_DISCIPLINE}
       claimHeading={PREFERENCES_SETTINGS_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={PREFERENCES_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={PREFERENCES_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={PREFERENCES_SETTINGS_SOURCES_INTRO}
@@ -1351,10 +1216,6 @@ export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="role-mapping-settings"
-      claim={ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE}
-      claimHeading={ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={ROLE_MAPPING_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ROLE_MAPPING_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={ROLE_MAPPING_SETTINGS_SOURCES_INTRO}
@@ -1373,7 +1234,6 @@ export function AccountSecuritySettingsEvidenceOrientationStrip(): React.JSX.Ele
       claim={ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE}
       claimHeading={ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ACCOUNT_SECURITY_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ACCOUNT_SECURITY_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={ACCOUNT_SECURITY_SETTINGS_SOURCES_INTRO}
@@ -1392,7 +1252,6 @@ export function AuthDomainsSettingsEvidenceOrientationStrip(): React.JSX.Element
       claim={AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE}
       claimHeading={AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={AUTH_DOMAINS_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={AUTH_DOMAINS_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={AUTH_DOMAINS_SETTINGS_SOURCES_INTRO}
@@ -1408,10 +1267,6 @@ export function ModelGovernanceSettingsEvidenceOrientationStrip(): React.JSX.Ele
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="model-governance-settings"
-      claim={MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE}
-      claimHeading={MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={MODEL_GOVERNANCE_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO}
@@ -1427,10 +1282,6 @@ export function AiUsageSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="ai-usage-settings"
-      claim={AI_USAGE_SETTINGS_CLAIM_DISCIPLINE}
-      claimHeading={AI_USAGE_SETTINGS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={AI_USAGE_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={AI_USAGE_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={AI_USAGE_SETTINGS_SOURCES_INTRO}
@@ -1446,10 +1297,6 @@ export function IdentityProvidersSettingsEvidenceOrientationStrip(): React.JSX.E
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-settings"
-      claim={IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE}
-      claimHeading={IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={IDENTITY_PROVIDERS_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={IDENTITY_PROVIDERS_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_SETTINGS_SOURCES_INTRO}
@@ -1465,10 +1312,6 @@ export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(): React.J
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-oidc-settings"
-      claim={IDENTITY_PROVIDERS_OIDC_CLAIM_DISCIPLINE}
-      claimHeading={IDENTITY_PROVIDERS_OIDC_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={IDENTITY_PROVIDERS_OIDC_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={IDENTITY_PROVIDERS_OIDC_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_OIDC_SOURCES_INTRO}
@@ -1484,10 +1327,6 @@ export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(): React.J
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-saml-settings"
-      claim={IDENTITY_PROVIDERS_SAML_CLAIM_DISCIPLINE}
-      claimHeading={IDENTITY_PROVIDERS_SAML_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={IDENTITY_PROVIDERS_SAML_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={IDENTITY_PROVIDERS_SAML_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_SAML_SOURCES_INTRO}
@@ -1503,10 +1342,6 @@ export function IdentityProvidersDiagnosticsSettingsEvidenceOrientationStrip(): 
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-diagnostics-settings"
-      claim={IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE}
-      claimHeading={IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={IDENTITY_PROVIDERS_DIAGNOSTICS_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES_INTRO}
@@ -1522,10 +1357,6 @@ export function ScimProvisioningSettingsEvidenceOrientationStrip(): React.JSX.El
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="scim-provisioning-settings"
-      claim={SCIM_PROVISIONING_CLAIM_DISCIPLINE}
-      claimHeading={SCIM_PROVISIONING_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={SCIM_PROVISIONING_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SCIM_PROVISIONING_FOLLOW_UPS_TITLE}
       sourcesIntro={SCIM_PROVISIONING_SOURCES_INTRO}
@@ -1541,10 +1372,6 @@ export function SsoWizardSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="sso-wizard-settings"
-      claim={SSO_WIZARD_CLAIM_DISCIPLINE}
-      claimHeading={SSO_WIZARD_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={SSO_WIZARD_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SSO_WIZARD_FOLLOW_UPS_TITLE}
       sourcesIntro={SSO_WIZARD_SOURCES_INTRO}
@@ -1560,10 +1387,6 @@ export function TenantSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="tenant-settings"
-      claim={TENANT_SETTINGS_CLAIM_DISCIPLINE}
-      claimHeading={TENANT_SETTINGS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={TENANT_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={TENANT_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={TENANT_SETTINGS_SOURCES_INTRO}
@@ -1584,7 +1407,6 @@ export function BaselineSettingsHelpEvidenceOrientationStrip(
       claim={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE}
       claimHeading={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={BASELINE_SETTINGS_HELP_SOURCES_INTRO}
@@ -1604,7 +1426,6 @@ export function ApiKeysHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={API_KEYS_HELP_CLAIM_DISCIPLINE}
       claimHeading={API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={API_KEYS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={API_KEYS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={API_KEYS_HELP_SOURCES_INTRO}
@@ -1619,10 +1440,6 @@ export function ApiKeysSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="api-keys-settings"
-      claim={API_KEYS_SETTINGS_CLAIM_DISCIPLINE}
-      claimHeading={API_KEYS_SETTINGS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={API_KEYS_SETTINGS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={API_KEYS_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={API_KEYS_SETTINGS_SOURCES_INTRO}
@@ -1641,7 +1458,6 @@ export function SystemHealthHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE}
       claimHeading={SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SYSTEM_HEALTH_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SYSTEM_HEALTH_HELP_SOURCES_INTRO}
@@ -1661,7 +1477,6 @@ export function AiUsageHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={AI_USAGE_HELP_CLAIM_DISCIPLINE}
       claimHeading={AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={AI_USAGE_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={AI_USAGE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={AI_USAGE_HELP_SOURCES_INTRO}
@@ -1685,7 +1500,6 @@ export function PreferencesHelpEvidenceOrientationStrip(
       claim={PREFERENCES_HELP_CLAIM_DISCIPLINE}
       claimHeading={PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={PREFERENCES_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={PREFERENCES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={PREFERENCES_HELP_SOURCES_INTRO}
@@ -1711,7 +1525,6 @@ export function NotificationsHelpEvidenceOrientationStrip(
       claim={NOTIFICATIONS_HELP_CLAIM_DISCIPLINE}
       claimHeading={NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={NOTIFICATIONS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={NOTIFICATIONS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={NOTIFICATIONS_HELP_SOURCES_INTRO}
@@ -1763,7 +1576,6 @@ export function SlackIntegrationHelpEvidenceOrientationStrip(
       claim={SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE}
       claimHeading={SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SLACK_INTEGRATION_HELP_SOURCES_INTRO}
@@ -1780,10 +1592,6 @@ export function SlackIntegrationEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="slack-integration"
-      claim={SLACK_INTEGRATION_CLAIM_DISCIPLINE}
-      claimHeading={SLACK_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={SLACK_INTEGRATION_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SLACK_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={SLACK_INTEGRATION_SOURCES_INTRO}
@@ -1866,7 +1674,6 @@ export function WebhooksIntegrationHelpEvidenceOrientationStrip(
       claim={WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE}
       claimHeading={WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={WEBHOOKS_INTEGRATION_HELP_SOURCES_INTRO}
@@ -1884,10 +1691,6 @@ export function WebhooksIntegrationEvidenceOrientationStrip(): React.JSX.Element
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="webhooks-integration"
-      claim={WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE}
-      claimHeading={WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={WEBHOOKS_INTEGRATION_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={WEBHOOKS_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={WEBHOOKS_INTEGRATION_SOURCES_INTRO}
@@ -1906,7 +1709,6 @@ export function EnterpriseOnboardingHelpEvidenceOrientationStrip(): React.JSX.El
       claim={ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE}
       claimHeading={ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ENTERPRISE_ONBOARDING_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ENTERPRISE_ONBOARDING_HELP_SOURCES_INTRO}
@@ -1926,7 +1728,6 @@ export function GovernanceApprovalHelpEvidenceOrientationStrip(): React.JSX.Elem
       claim={GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE}
       claimHeading={GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={GOVERNANCE_APPROVAL_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={GOVERNANCE_APPROVAL_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={GOVERNANCE_APPROVAL_HELP_SOURCES_INTRO}
@@ -1946,7 +1747,6 @@ export function FindingsHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={FINDINGS_HELP_CLAIM_DISCIPLINE}
       claimHeading={FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={FINDINGS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={FINDINGS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={FINDINGS_HELP_SOURCES_INTRO}
@@ -1965,7 +1765,6 @@ export function IntegrationReadinessHelpEvidenceOrientationStrip(): React.JSX.El
       claim={INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE}
       claimHeading={INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={INTEGRATION_READINESS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={INTEGRATION_READINESS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={INTEGRATION_READINESS_HELP_SOURCES_INTRO}
@@ -1984,7 +1783,6 @@ export function PilotFeedbackHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE}
       claimHeading={PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={PILOT_FEEDBACK_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={PILOT_FEEDBACK_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={PILOT_FEEDBACK_HELP_SOURCES_INTRO}
@@ -2003,7 +1801,6 @@ export function PriorManifestRetrievalHelpEvidenceOrientationStrip(): React.JSX.
       claim={PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE}
       claimHeading={PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={PRIOR_MANIFEST_RETRIEVAL_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES_INTRO}
@@ -2022,7 +1819,6 @@ export function PolicyPacksHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={POLICY_PACKS_HELP_CLAIM_DISCIPLINE}
       claimHeading={POLICY_PACKS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={POLICY_PACKS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={POLICY_PACKS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={POLICY_PACKS_HELP_SOURCES_INTRO}
@@ -2041,7 +1837,6 @@ export function RepeatReviewLoopHelpEvidenceOrientationStrip(): React.JSX.Elemen
       claim={REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE}
       claimHeading={REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={REPEAT_REVIEW_LOOP_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO}
@@ -2060,7 +1855,6 @@ export function ReportProblemHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE}
       claimHeading={REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={REPORT_A_PROBLEM_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={REPORT_A_PROBLEM_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={REPORT_A_PROBLEM_HELP_SOURCES_INTRO}
@@ -2079,7 +1873,6 @@ export function SecurityTrustHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={SECURITY_TRUST_HELP_CLAIM_DISCIPLINE}
       claimHeading={SECURITY_TRUST_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SECURITY_TRUST_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SECURITY_TRUST_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SECURITY_TRUST_HELP_SOURCES_INTRO}
@@ -2098,7 +1891,6 @@ export function SubprocessorsHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={SUBPROCESSORS_HELP_CLAIM_DISCIPLINE}
       claimHeading={SUBPROCESSORS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SUBPROCESSORS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SUBPROCESSORS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SUBPROCESSORS_HELP_SOURCES_INTRO}
@@ -2114,10 +1906,6 @@ export function TeamsIntegrationEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="teams-integration"
-      claim={TEAMS_INTEGRATION_CLAIM_DISCIPLINE}
-      claimHeading={TEAMS_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={TEAMS_INTEGRATION_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={TEAMS_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={TEAMS_INTEGRATION_SOURCES_INTRO}
@@ -2136,7 +1924,6 @@ export function EvidenceGraphHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE}
       claimHeading={EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={EVIDENCE_GRAPH_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={EVIDENCE_GRAPH_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={EVIDENCE_GRAPH_HELP_SOURCES_INTRO}
@@ -2156,7 +1943,6 @@ export function SearchReviewEvidenceHelpEvidenceOrientationStrip(): React.JSX.El
       claim={SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE}
       claimHeading={SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SEARCH_REVIEW_EVIDENCE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES_INTRO}
@@ -2176,7 +1962,6 @@ export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(): React.JS
       claim={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE}
       claimHeading={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ARCHITECTURE_INTELLIGENCE_HELP_SOURCES_INTRO}
@@ -2201,12 +1986,11 @@ export function SponsorDashboardHelpEvidenceOrientationStrip(
       claim={SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE}
       claimHeading={SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SPONSOR_DASHBOARD_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SPONSOR_DASHBOARD_HELP_SOURCES_INTRO}
       sources={SPONSOR_DASHBOARD_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorNeutral}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
@@ -2221,7 +2005,6 @@ export function ArchitectureDraftsHelpEvidenceOrientationStrip(): React.JSX.Elem
       claim={ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE}
       claimHeading={ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ARCHITECTURE_DRAFTS_HELP_SOURCES_INTRO}
@@ -2245,7 +2028,6 @@ export function ModelGovernanceHelpEvidenceOrientationStrip(
       claim={MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE}
       claimHeading={MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={MODEL_GOVERNANCE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={MODEL_GOVERNANCE_HELP_SOURCES_INTRO}
@@ -2262,10 +2044,6 @@ export function AzureBoardsIntegrationEvidenceOrientationStrip(): React.JSX.Elem
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="azure-boards-integration"
-      claim={AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE}
-      claimHeading={AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={AZURE_BOARDS_INTEGRATION_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={AZURE_BOARDS_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={AZURE_BOARDS_INTEGRATION_SOURCES_INTRO}
@@ -2281,10 +2059,6 @@ export function CloudConnectionsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="cloud-connections"
-      claim={CLOUD_CONNECTIONS_CLAIM_DISCIPLINE}
-      claimHeading={CLOUD_CONNECTIONS_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={CLOUD_CONNECTIONS_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE}
       sourcesIntro={CLOUD_CONNECTIONS_SOURCES_INTRO}
@@ -2309,7 +2083,6 @@ export function JiraIntegrationHelpEvidenceOrientationStrip(
       claim={JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE}
       claimHeading={JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={JIRA_INTEGRATION_HELP_SOURCES_INTRO}
@@ -2326,10 +2099,6 @@ export function JiraIntegrationEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="jira-integration"
-      claim={JIRA_INTEGRATION_CLAIM_DISCIPLINE}
-      claimHeading={JIRA_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={JIRA_INTEGRATION_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={JIRA_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={JIRA_INTEGRATION_SOURCES_INTRO}
@@ -2345,10 +2114,6 @@ export function ServiceNowIntegrationEvidenceOrientationStrip(): React.JSX.Eleme
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="servicenow-integration"
-      claim={SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE}
-      claimHeading={SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={SERVICENOW_INTEGRATION_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SERVICENOW_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={SERVICENOW_INTEGRATION_SOURCES_INTRO}
@@ -2390,10 +2155,6 @@ export function ItsmOAuthCallbackEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="itsm-oauth-callback"
-      claim={ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE}
-      claimHeading={ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={ITSM_OAUTH_CALLBACK_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE}
       sourcesIntro={ITSM_OAUTH_CALLBACK_SOURCES_INTRO}
@@ -2418,7 +2179,6 @@ export function DecisionRegisterHelpEvidenceOrientationStrip(
       claim={DECISION_REGISTER_HELP_CLAIM_DISCIPLINE}
       claimHeading={DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={DECISION_REGISTER_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={DECISION_REGISTER_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={DECISION_REGISTER_HELP_SOURCES_INTRO}
@@ -2444,7 +2204,6 @@ export function ImprovementPlanningHelpEvidenceOrientationStrip(
       claim={IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE}
       claimHeading={IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={IMPROVEMENT_PLANNING_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={IMPROVEMENT_PLANNING_HELP_SOURCES_INTRO}
@@ -2470,7 +2229,6 @@ export function ImpactPreviewHelpEvidenceOrientationStrip(
       claim={IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE}
       claimHeading={IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={IMPACT_PREVIEW_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={IMPACT_PREVIEW_HELP_SOURCES_INTRO}
@@ -2490,7 +2248,6 @@ export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE}
       claimHeading={ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ADVISORY_SCANS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ADVISORY_SCANS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ADVISORY_SCANS_HELP_SOURCES_INTRO}

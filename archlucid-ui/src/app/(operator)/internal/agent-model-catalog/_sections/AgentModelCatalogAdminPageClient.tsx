@@ -17,8 +17,10 @@ import {
 } from "@/components/ui/enterprise-table";
 import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { AgentModelCatalogEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   fetchAdminAgentModelCatalog,
@@ -112,8 +114,15 @@ export function AgentModelCatalogAdminPageClient() {
         headingLevel="h1"
         title={AGENT_MODEL_CATALOG_PAGE_TITLE}
         subtitle={AGENT_MODEL_CATALOG_PAGE_LEAD}
-        actions={<RefreshButton busy={loading} onClick={() => void refresh()} />}
+        actions={
+          <>
+            <RefreshButton busy={loading} onClick={() => void refresh()} />
+            <PageContextualHelpButton />
+          </>
+        }
       />
+
+      <AgentModelCatalogEvidenceOrientationStrip />
 
       {error ? (
         <OperatorSectionLoadFailure
