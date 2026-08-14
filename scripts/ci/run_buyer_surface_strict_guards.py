@@ -242,6 +242,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "live-demo see-it ladder honesty",
+        ("python", "scripts/ci/check_live_demo_see_it_ladder_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "comparison replay drift honesty",
         ("python", "scripts/ci/check_comparison_replay_drift_honesty.py"),
         None,

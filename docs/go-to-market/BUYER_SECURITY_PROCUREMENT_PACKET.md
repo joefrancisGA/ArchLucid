@@ -2806,7 +2806,7 @@ Former standalone body: `docs/go-to-market/LIVE_DEMO_SEE_IT_LADDER_PA_ONE_PAGER.
 
 **Audience:** Principal architects, SE facilitators, and marketing reviewers of public proof CTAs.
 
-**Decision / verdict today:** `/live-demo` title honesty is **shipped** (**TB-1265** Done — H1/metadata/Resources use “Guided sample walkthrough”), but the page remains **conditionally hurting** when mode chip is absent, offline fallback is narrated as a live API session, ladder UI between `/see-it` and `/live-demo` is missing (**TB-1267** / **TB-1282**), or Contoso payload sits under Claims chrome. Keep it as rung 2 of a labeled see-it ladder with universe/mode pins.
+**Decision / verdict today:** `/live-demo` title honesty is **shipped** (**TB-1265** Done — H1/metadata/Resources use “Guided sample walkthrough”), ladder UI between `/see-it` and `/live-demo` is **shipped** (**TB-1267** / **TB-1282** Done), but the page remains **conditionally hurting** when mode chip is absent, offline fallback is narrated as a live API session, or Contoso payload sits under Claims chrome. Keep it as rung 2 of a labeled see-it ladder with universe/mode pins.
 
 ### 3-rung ladder (buyer-safe)
 
@@ -2829,7 +2829,7 @@ Former standalone body: `docs/go-to-market/LIVE_DEMO_SEE_IT_LADDER_PA_ONE_PAGER.
 1. Ask which rung the buyer will open and whether ladder UI labels the `/see-it` ↔ `/live-demo` relationship (**TB-1267** / **TB-1282**).
 2. Confirm offline curated fallback is not narrated as a live API session.
 3. Confirm Contoso payload is not under Claims chrome.
-4. Treat “ladder done” while **TB-1267** / **TB-1282** / **TB-1029** remain open as a review finding.
+4. Treat “ladder done” while **TB-1029** or mode-chip / hero-budget rows remain open as a review finding.
 
 ### Claim boundary
 
@@ -2838,7 +2838,7 @@ Do not sell `/live-demo` as a live product/tenant demo, treat offline curated fa
 ### Residuals (honest)
 
 - **TB-1427** **Done** (2026-08-09) — fused ladder + claim-honesty contract published in [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md).
-- **TB-1428** owns anti-live-demo-as-live / ladder-closed language guards (depends on **TB-1427**).
+- **TB-1428** **Done** (2026-08-14) — anti-live-demo-as-live / ladder-closed language guard CI (`scripts/ci/check_live_demo_see_it_ladder_honesty.py`; depends on **TB-1427**).
 - UI ship remains on **TB-1266**–**TB-1269** / **TB-1281**–**TB-1282**; title-honesty rows **TB-1265** / **TB-1280** / **TB-1283** are Done.
 - Does not reopen Done **M-107** / **TB-1028** / **TB-1279**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
