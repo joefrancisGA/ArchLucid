@@ -80,4 +80,48 @@ public sealed class TopologyWaveFindingEngineTests
         payload.Should().NotBeNull();
         payload!.MissingCategories.Should().NotBeEmpty();
     }
+
+    [Fact]
+    public async Task SecurityBaselineCompletenessFindingEngine_WhenFamiliesMissing_EmitsFinding()
+    {
+        GraphCoverageAnalyzer analyzer = new();
+        SecurityBaselineCompletenessFindingEngine engine = new(analyzer);
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "ctx-1",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "scope",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [ContextGraphPropertyKeys.RequiredCapabilities] = "identity|sso"
+                    }
+                },
+                new GraphNode
+                {
+                    NodeId = "cmp-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "api",
+                    Category = GraphTopologyCategories.Compute,
+                    Properties = new()
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].EngineType.Should().Be("security-baseline-completeness");
+        SecurityBaselineCompletenessFindingPayload? payload =
+            findings[0].Payload as SecurityBaselineCompletenessFindingPayload;
+        payload.Should().NotBeNull();
+        payload!.MissingControlFamilies.Should().Contain(SecurityControlFamilies.IdentityAccess);
+        payload.CompletenessMatrix.Should().Contain(row =>
+            row.ControlFamily == SecurityControlFamilies.IdentityAccess
+            && row.Expected
+            && !row.Present);
+    }
 }

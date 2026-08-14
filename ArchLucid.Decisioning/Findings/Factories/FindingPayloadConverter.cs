@@ -198,6 +198,11 @@ public static class FindingPayloadConverter
         return ConvertPayload<SecurityBaselineExpectationFindingPayload>(finding);
     }
 
+    public static SecurityBaselineCompletenessFindingPayload? ToSecurityBaselineCompletenessPayload(Finding finding)
+    {
+        return ConvertPayload<SecurityBaselineCompletenessFindingPayload>(finding);
+    }
+
     /// <summary>Converts the payload to <see cref="ComplianceFindingPayload" />.</summary>
     public static ComplianceFindingPayload? ToCompliancePayload(Finding finding)
     {

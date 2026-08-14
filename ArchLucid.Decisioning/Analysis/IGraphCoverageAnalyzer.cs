@@ -15,4 +15,6 @@ public interface IGraphCoverageAnalyzer
     RequirementExpectationResult AnalyzeRequirementExpectations(GraphSnapshot graphSnapshot);
 
     SecurityBaselineCategoryExpectationResult AnalyzeSecurityBaselineExpectations(GraphSnapshot graphSnapshot);
+
+    SecurityBaselineCompletenessResult AnalyzeSecurityBaselineCompleteness(GraphSnapshot graphSnapshot);
 }

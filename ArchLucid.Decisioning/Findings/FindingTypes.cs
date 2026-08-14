@@ -23,5 +23,6 @@ public static class FindingTypes
     public const string RequirementExpectationFinding = "RequirementExpectationFinding";
     public const string RequirementGap = "RequirementGap";
     public const string SecurityBaselineExpectationFinding = "SecurityBaselineExpectationFinding";
+    public const string SecurityBaselineCompletenessFinding = "SecurityBaselineCompletenessFinding";
     public const string SecurityGap = "SecurityGap";
 }

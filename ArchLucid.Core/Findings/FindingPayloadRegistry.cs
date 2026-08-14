@@ -19,6 +19,7 @@ public static class FindingPayloadRegistry
         [nameof(RequirementCoverageFindingPayload)] = typeof(RequirementCoverageFindingPayload),
         [nameof(RequirementExpectationFindingPayload)] = typeof(RequirementExpectationFindingPayload),
         [nameof(SecurityBaselineExpectationFindingPayload)] = typeof(SecurityBaselineExpectationFindingPayload),
+        [nameof(SecurityBaselineCompletenessFindingPayload)] = typeof(SecurityBaselineCompletenessFindingPayload),
         [nameof(ComplianceFindingPayload)] = typeof(ComplianceFindingPayload)
     };
 

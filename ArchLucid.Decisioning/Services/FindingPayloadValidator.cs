@@ -93,6 +93,11 @@ public class FindingPayloadValidator : IFindingPayloadValidator
             _ = FindingPayloadConverter.ToSecurityBaselineExpectationPayload(finding) ??
                 throw new InvalidOperationException("SecurityBaselineExpectationFinding payload is invalid.");
 
+        if (finding.FindingType.Equals(FindingTypes.SecurityBaselineCompletenessFinding, StringComparison.OrdinalIgnoreCase))
+
+            _ = FindingPayloadConverter.ToSecurityBaselineCompletenessPayload(finding) ??
+                throw new InvalidOperationException("SecurityBaselineCompletenessFinding payload is invalid.");
+
         if (!finding.FindingType.Equals(FindingTypes.ComplianceFinding, StringComparison.OrdinalIgnoreCase))
             return;
 

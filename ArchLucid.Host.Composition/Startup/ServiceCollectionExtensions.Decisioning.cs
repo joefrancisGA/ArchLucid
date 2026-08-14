@@ -53,6 +53,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.TopologyAntiPatternFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityBaselineFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityBaselineExpectationFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.SecurityBaselineCompletenessFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityGapFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyApplicabilityFindingEngine>();
