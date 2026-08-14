@@ -351,7 +351,7 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(within(status).getByText("Connection issue")).toBeInTheDocument();
   });
 
-  it("keeps connection fields when settings load fails (TB-1152)", async () => {
+  it("TB-1760: keeps connection fields when one Promise.all slice fails (TB-1152)", async () => {
     mockFetchAzureSettings.mockRejectedValue(new Error("Database Query Failed"));
     mockFetchConnection.mockResolvedValue(
       baseConnection({
@@ -371,7 +371,7 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(screen.getByTestId("azure-boards-credential-status")).toHaveTextContent("Secure reference saved");
   });
 
-  it("never shows Database Query Failed as connection status explanation (TB-1153)", async () => {
+  it("TB-1760: never shows Database Query Failed as connection status explanation (TB-1153)", async () => {
     mockFetchAzureSettings.mockRejectedValue(
       new Error("Database Query Failed: The database rejected the query due to a programming error"),
     );
