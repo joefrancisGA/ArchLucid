@@ -14,7 +14,7 @@ import {
   listArchitectureReviewRecurrenceSchedules,
   type ArchitectureReviewRecurrenceSchedule,
 } from "@/lib/api/governance-stickiness-api";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { RecurrenceLocalTimeDisplay } from "@/components/governance/RecurrenceLocalTimeDisplay";
 import {
   formatRecurrenceInstantLocalFirst,
@@ -168,10 +168,7 @@ export function RecurrenceSchedulePostCommitCard({
             </div>
             <Link
               href={RECURRENCE_SCHEDULES_MANAGE_PATH}
-              className={cn(
-                "font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
               data-testid="recurrence-schedule-manage-link"
             >
               Manage all recurrence schedules
@@ -183,10 +180,7 @@ export function RecurrenceSchedulePostCommitCard({
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{RECURRENCE_DECLINED_STATUS}</p>
             <button
               type="button"
-              className={cn(
-                "font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
+              className={cn(OPERATOR_BODY_INLINE_LINK_CLASS, "cursor-pointer bg-transparent p-0 text-left")}
               onClick={reconsiderProposal}
               data-testid="recurrence-reconsider-proposal"
             >

@@ -8,7 +8,7 @@ import { ReportProblemDialogHelpHubVocabularyRail } from "@/components/ReportPro
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { HelpTourTrigger } from "./HelpTourTrigger";
 import { HelpProductGuide } from "./HelpProductGuide";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
 export const metadata: Metadata = {
   title: "Help",
@@ -25,17 +25,17 @@ export default function HelpPage() {
           <>
             Start with the guides below for review workflows and cloud connections. See{" "}
             <Link
-              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
               href="/help/getting-started#how-archlucid-works"
             >
               How ArchLucid works
             </Link>{" "}
             for the workflow, the{" "}
-            <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/faq">
+            <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/faq">
               Product FAQ
             </Link>{" "}
             for evaluation and pricing answers, and{" "}
-            <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/help/data-handling">
+            <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/help/data-handling">
               data handling
             </Link>{" "}
             for security posture.

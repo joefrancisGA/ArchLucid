@@ -15,7 +15,7 @@ import {
 } from "@/lib/runs/run-detail-first-screen-proof-status";
 import type { PilotRunDeltasProofSummaryJson } from "@/lib/pilot-proof-readiness";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { RunDetailFirstScreenProofStatus } from "./RunDetailFirstScreenProofStatus";
 
@@ -112,7 +112,7 @@ export function RunDetailFirstScreenProofStatusClient(
           </Button>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {RUN_DETAIL_PROOF_STATUS_UNAVAILABLE_RETRY_HINT}{" "}
-            <Link href={buildReviewDetailTabHref(props.runId, "activity")} className="underline underline-offset-2">
+            <Link href={buildReviewDetailTabHref(props.runId, "activity")} className={OPERATOR_LINK.optional}>
               Open Activity tab
             </Link>
           </p>

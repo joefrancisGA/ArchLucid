@@ -81,7 +81,7 @@ import {
 import { latestAlertRulesConfigChange } from "@/lib/alert-rules-config-change";
 import { ALERT_RULES_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import {
   alertRulesCreateButtonLabelReaderRank,
@@ -253,7 +253,7 @@ export function AlertRulesContent() {
         {externalNotificationsUnconfigured ? (
           <p className="m-0 mt-2">
             {ALERT_RULES_NOTIFICATION_EXTERNAL_NOT_CONFIGURED}{" "}
-            <Link href={governanceAlertRulesTabHref("notifications")} className="font-medium underline underline-offset-2">
+            <Link href={governanceAlertRulesTabHref("notifications")} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
               {ALERT_RULES_NOTIFICATIONS_TAB_LINK_LABEL}
             </Link>
           </p>
@@ -284,7 +284,7 @@ export function AlertRulesContent() {
           className={cn("mb-4", DESIGN_TOKENS.callout.warn, "p-4")}
         >
           <p className={cn("mb-2", OPERATOR_TYPOGRAPHY.body)}>{ALERT_RULES_SAMPLE_MODE_BANNER}</p>
-          <Link href={ALERT_RULES_SAMPLE_MODE_CTA_HREF} className="font-medium underline underline-offset-2">
+          <Link href={ALERT_RULES_SAMPLE_MODE_CTA_HREF} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             {ALERT_RULES_SAMPLE_MODE_CTA_LABEL}
           </Link>
         </div>

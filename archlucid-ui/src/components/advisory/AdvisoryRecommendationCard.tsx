@@ -23,7 +23,7 @@ import {
   ADVISORY_SCANS_DISPOSITION_REJECT_HINT,
 } from "@/lib/advisory-copy";
 import { advisoryDispositionButtonVariant } from "@/lib/advisory-disposition-button-variant";
-import { OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildRecommendationEvidenceLinkViews } from "@/lib/recommendation-source-evidence-links";
 import type { RecommendationRecord } from "@/types/advisory";
 
@@ -108,7 +108,7 @@ export function AdvisoryRecommendationCard(props: AdvisoryRecommendationCardProp
         <ul className={cn("m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {evidenceLinks.map((link) => (
             <li key={`${link.href}-${link.label}`}>
-              <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href={link.href}>
+              <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={link.href}>
                 {link.label}
               </Link>
             </li>

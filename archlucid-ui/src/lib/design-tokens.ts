@@ -268,6 +268,9 @@ export const OPERATOR_LINK = {
   ),
 } as const;
 
+/** Body-scale inline links in operator tables, banners, and list rows (TB-1671). */
+export const OPERATOR_BODY_INLINE_LINK_CLASS = cn(OPERATOR_TYPE_SCALE.body, OPERATOR_LINK.inline);
+
 /**
  * Form field caption — `<Label>` and `<legend>` on operator forms (TB-2111).
  * Never compose with {@link OPERATOR_TYPOGRAPHY.body}: it carries `font-normal`, which wins in Tailwind merge.

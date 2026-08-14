@@ -22,7 +22,7 @@ import { GOVERNANCE_BYPASS_INVOKED_EVENT_TYPE, parseGovernanceBypassAuditPayload
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { listRecentGovernanceBypassAuditEvents } from "@/lib/list-recent-governance-bypass-audit-events";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function resolveAuditActorLabel(event: AuditEvent): string {
   const name = event.actorUserName?.trim();
@@ -86,7 +86,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
               )}
             </p>
           </div>
-          <Link href={auditHref} className={cn("font-medium text-teal-700 underline dark:text-teal-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link href={auditHref} className={OPERATOR_LINK.optional}>
             Open audit log
           </Link>
         </div>
@@ -134,7 +134,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
                       {runId.length > 0 ? (
                         <Link
                           href={`/architecture/reviews/${encodeURIComponent(runId)}`}
-                          className="text-teal-700 underline dark:text-teal-400"
+                          className={OPERATOR_LINK.nav}
                         >
                           {runId}
                         </Link>
