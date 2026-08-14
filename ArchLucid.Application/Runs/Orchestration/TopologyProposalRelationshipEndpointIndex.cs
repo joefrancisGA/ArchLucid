@@ -522,7 +522,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("pinecone", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("mongo_cluster", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("elastic_cloud", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("neptune_cluster", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("neptune_cluster", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("oracle_cloud", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -583,7 +584,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("stack_hci", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("voice_services", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("workloads_sap", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("palo_alto", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("palo_alto", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("verifiedaccess", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
