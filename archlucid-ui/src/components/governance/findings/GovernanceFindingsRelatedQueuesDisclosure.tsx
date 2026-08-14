@@ -23,7 +23,7 @@ export function GovernanceFindingsRelatedQueuesDisclosure(
   return (
     <details
       className={cn(
-        "mb-4 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30",
+        "mb-4 rounded-md border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30",
         props.className,
       )}
       data-testid="governance-findings-related-queues-disclosure"

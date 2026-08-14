@@ -69,7 +69,6 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
-import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
   matchesFindingsNaturalLanguageFacets,
@@ -116,14 +115,7 @@ export default function GovernanceFindingsQueueClient({
   const isAssignedToMe = mode === "assigned-to-me";
   const { currentPrincipal } = useOperatorNavAuthority();
   const scopeKey = useOperatorScopeQueryKey();
-  const assignedToMeWorkspaceLabel = useMemo(() => {
-    const record = readOperatorScopeFromStorage();
-
-    return resolveGovernanceAssignedToMeWorkspaceLabel(
-      record?.workspaceLabel,
-      record?.workspaceId ?? scopeKey.workspaceId,
-    );
-  }, [scopeKey.workspaceId]);
+  const assignedToMeWorkspaceLabel = useMemo(() => resolveGovernanceAssignedToMeWorkspaceLabel(), [scopeKey.workspaceId]);
   const tenantQuery = useGovernanceFindingsQuery(!isAssignedToMe);
   const assignedToMeQuery = useAssignedToMeFindingsQuery(isAssignedToMe);
   const activeQuery = isAssignedToMe ? assignedToMeQuery : tenantQuery;
@@ -267,7 +259,7 @@ export default function GovernanceFindingsQueueClient({
     hasGovernanceApprovalProvenance(governanceApprovalProvenance);
 
   return (
-    <div className={cn("w-full", isAssignedToMe ? "max-w-3xl" : "max-w-[1440px]")}>
+    <div className="w-full max-w-[1440px]">
       {showGovernanceApprovalBanner ? (
         <GovernanceApprovalStatusBanner
           className="mb-4"
@@ -491,7 +483,6 @@ export default function GovernanceFindingsQueueClient({
               isAssignedToMe
                 ? buildGovernanceAssignedToMeEmptyDescription({
                     assigneeDisplayName: currentPrincipal.name ?? "",
-                    workspaceName: assignedToMeWorkspaceLabel,
                     checkedAt: assignedToMeCheckedAt,
                   })
                 : buyerPolishedShell
@@ -500,7 +491,7 @@ export default function GovernanceFindingsQueueClient({
             }
             actions={
               isAssignedToMe
-                ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT.actions
+                ? undefined
                 : [
                     { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
                     {
@@ -513,18 +504,18 @@ export default function GovernanceFindingsQueueClient({
             footer={
               isAssignedToMe ? (
                 <div className="flex flex-wrap items-center gap-2">
+                  <Button asChild size="sm" variant="primary">
+                    <Link href={GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF}>
+                      {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}
+                    </Link>
+                  </Button>
                   <RefreshButton
-                    variant="primary"
+                    variant="outline"
                     busy={assignedToMeQuery.refreshing}
                     onClick={() => {
                       refresh();
                     }}
                   />
-                  <Button asChild size="sm" variant="outline">
-                    <Link href={GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF}>
-                      {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}
-                    </Link>
-                  </Button>
                 </div>
               ) : !buyerPolishedShell ? (
                 <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>

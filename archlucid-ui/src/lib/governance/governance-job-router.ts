@@ -60,7 +60,7 @@ export type GovernanceJobRouter = {
 
 /** Chooser heading - steers operators before they open the wrong governance home. */
 
-export const GOVERNANCE_JOB_ROUTER_HEADING = "Which job am I doing?" as const;
+export const GOVERNANCE_JOB_ROUTER_HEADING = "Which governance queue am I in?" as const;
 
 
 
@@ -88,7 +88,7 @@ export const GOVERNANCE_JOB_TRIAGE_FINDINGS: GovernanceJobRouterOption = {
 
   whenToUse:
 
-    "Use the findings queue to disposition risks, assign owners, and clear open governance items.",
+    "Use the findings queue to disposition findings, assign owners, and clear open governance items.",
 
   href: GOVERNANCE_FINDINGS_CANONICAL_PATH,
 

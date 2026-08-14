@@ -103,9 +103,8 @@ describe("GovernanceJobRouterStrip (TB-2199 / TB-2230)", () => {
 
     const strip = screen.getByTestId("governance-job-router");
     expect(strip).toHaveAttribute("data-layout", "compact");
-    expect(strip).toHaveClass("max-w-3xl");
     expect(screen.queryByTestId("governance-job-router-option-assigned-to-me-findings")).not.toBeInTheDocument();
-    expect(screen.getByText("Other governance jobs")).toBeInTheDocument();
+    expect(screen.getByText("Other governance queues")).toBeInTheDocument();
 
     const list = screen.getByRole("list");
     expect(within(list).getAllByRole("link")).toHaveLength(3);

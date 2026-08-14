@@ -6,6 +6,7 @@ import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvid
 import * as demoUiEnv from "@/lib/demo-ui-env";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import * as facetsStorage from "@/lib/governance/governance-findings-queue-facets-storage";
+import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
 import { ApiRequestError } from "@/lib/api-request-error";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
@@ -122,13 +123,13 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
 
   return {
     ...actual,
-    readOperatorScopeFromStorage: () => ({
+    readOperatorScopeFromStorage: vi.fn(() => ({
       tenantId: "tenant-1",
       workspaceId: "ws-1",
       projectId: "proj-1",
       workspaceLabel: "Claims Intake Demo",
       projectLabel: "Default",
-    }),
+    })),
   };
 });
 
@@ -320,6 +321,13 @@ describe("GovernanceFindingsQueueClient", () => {
 
 describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
   beforeEach(() => {
+    vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue({
+      tenantId: "tenant-1",
+      workspaceId: "ws-1",
+      projectId: "proj-1",
+      workspaceLabel: "Claims Intake Demo",
+      projectLabel: "Default",
+    });
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
     vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(false);
@@ -352,8 +360,23 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(within(empty).getByText(/Claims Intake Demo/)).toBeInTheDocument();
     expect(screen.getByTestId("governance-assigned-to-me-empty-checked-at")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open findings queue" })).toHaveAttribute("href", "/governance/findings");
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Open reviews" })).not.toBeInTheDocument();
+  });
+
+  it("does not render raw workspace ids when operator scope storage is empty", async () => {
+    vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue(null);
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+    const workspace = await screen.findByTestId("governance-assigned-to-me-workspace");
+    const checkedAt = await screen.findByTestId("governance-assigned-to-me-empty-checked-at");
+
+    expect(workspace.textContent ?? "").not.toMatch(uuidPattern);
+    expect(checkedAt.textContent ?? "").not.toMatch(uuidPattern);
+    expect(workspace).toHaveTextContent("Claims Intake Demo");
   });
 
   it("renders job router and tenant findings queue link", async () => {

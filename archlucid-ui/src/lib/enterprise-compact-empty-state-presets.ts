@@ -326,7 +326,6 @@ export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT: EnterpriseCompact
   title: "No findings assigned to you",
   description:
     "When findings are assigned to you for remediation, they appear here across reviews in this workspace.",
-  actions: [{ label: "Open reviews", href: "/architecture/reviews", variant: "outline" }],
 };
 
 /** Assigned-to-me findings queue when filters hide every row. */

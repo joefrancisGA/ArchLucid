@@ -86,18 +86,18 @@ export function GovernanceJobRouterStrip(props: GovernanceJobRouterStripProps): 
     <section
       className={cn(
         isCompact
-          ? "mb-3 max-w-3xl space-y-2 rounded-md border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30"
+          ? "mb-3 space-y-2 rounded-md border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30"
           : "mb-4 space-y-2 rounded-md border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30",
         props.className,
       )}
       aria-labelledby={isCompact ? undefined : "governance-job-router-heading"}
-      aria-label={isCompact ? "Other governance jobs" : undefined}
+      aria-label={isCompact ? "Other governance queues" : undefined}
       data-testid="governance-job-router"
       data-current-job={props.currentJobId}
       data-layout={layout}
     >
       {isCompact ? (
-        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "m-0 text-al-text-secondary")}>Other governance jobs</p>
+        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "m-0 text-al-text-secondary")}>Other governance queues</p>
       ) : (
         <h2
           id="governance-job-router-heading"
