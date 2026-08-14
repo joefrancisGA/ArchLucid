@@ -45018,9 +45018,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1920 ? Role mapping tab ? Vitest hub honesty + StatusTag + CTAs (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
-**Approach:** Vitest covers **TB-1916**?**TB-1919**.
+**Shipped:** `identity-providers-role-mapping-band.test.ts` inventories sibling guards for **TB-1916**?**TB-1919** and asserts status-hub copy, illustrative examples, and protocol-aware primary CTA routing.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
@@ -45086,9 +45086,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1925 ? SAML tab ? Vitest fetch label + confirm + shell (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
-**Approach:** Extend `SamlSpConfigurationForm.test.tsx` for **TB-1921**?**TB-1924**.
+**Shipped:** `identity-providers-saml-band.test.ts` inventories sibling guards for **TB-1921**?**TB-1924** and asserts Fetch IdP metadata label honesty and distinct SAML shell subtitle copy.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
@@ -45148,9 +45148,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1930 ? Model governance ? Vitest error honesty + labels + chrome (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
-**Approach:** Extend `ModelGovernanceSettingsCard.test.tsx` for **TB-1926**?**TB-1929**.
+**Shipped:** `model-governance-band.test.ts` inventories sibling guards for **TB-1926**?**TB-1929** and asserts buyer-safe blocked copy, humanized agent labels, and page chrome Vitest presence.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
@@ -45216,9 +45216,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1935 ? Users API keys tab ? Vitest SEU deep-link + CTA + empty (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
-**Approach:** Vitest covers `?tab=keys` + **TB-1931**?**TB-1934**.
+**Shipped:** `settings-users-keys-tab-band.test.ts` inventories sibling guards for **TB-1931**?**TB-1934** and asserts `?tab=keys` deep link, role-assignment copy, and primary Open CLI usage help CTA label.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
