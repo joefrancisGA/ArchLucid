@@ -164,44 +164,26 @@ public sealed class GovernanceWorkflowService(
         }
 
         DateTime reviewedUtc = TimeProvider.System.UtcNowDateTime();
-        bool transitioned = await approvalRepo.TryTransitionFromReviewableAsync(approvalRequestId, GovernanceApprovalStatus.Approved, reviewedBy,
-            reviewedByActorKey, reviewComment, reviewedUtc, cancellationToken);
-
-        if (!transitioned)
-        {
-            GovernanceApprovalRequest? fresh = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
-
-            if (fresh is null)
-                throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
-
-            throw new GovernanceApprovalReviewConflictException(approvalRequestId, "approve", fresh.Status);
-        }
-
-        request.Status = GovernanceApprovalStatus.Approved;
-        request.ReviewedBy = reviewedBy;
-        request.ReviewedByActorKey = reviewedByActorKey;
-        request.ReviewComment = reviewComment;
-        request.ReviewedUtc = reviewedUtc;
-        await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Governance.ApprovalRequestApproved, reviewedBy, approvalRequestId,
-            $"Status={GovernanceApprovalStatus.Approved}", cancellationToken);
-        Guid? approvedRunId = Guid.TryParse(request.RunId, out Guid approvedRunGuid) ? approvedRunGuid : null;
-        ScopeContext durableScope = scopeContextProvider.GetCurrentScope();
-        AuditEvent governanceApproved = durableScope.CreateAuditEvent(
+        AuditEvent governanceApproved = BuildGovernanceReviewAuditEvent(
+            request,
             AuditEventTypes.GovernanceApprovalApproved,
             reviewedBy,
+            reviewComment);
+
+        await ExecuteGovernanceReviewDispositionAsync(
+            approvalRequestId,
+            request,
+            GovernanceApprovalStatus.Approved,
             reviewedBy,
-            JsonSerializer.Serialize(
-                new
-                {
-                    approvalRequestId = request.ApprovalRequestId,
-                    runId = request.RunId,
-                    reviewedBy,
-                    reviewComment = request.ReviewComment
-                },
-                AuditJsonSerializationOptions.Instance));
-        governanceApproved.RunId = approvedRunId;
-        await LogGovernanceDurableWithRetryAsync(governanceApproved,
-            $"GovernanceApprovalApproved:{LogSanitizer.Sanitize(approvalRequestId)}", cancellationToken);
+            reviewedByActorKey,
+            reviewComment,
+            reviewedUtc,
+            governanceApproved,
+            $"GovernanceApprovalApproved:{LogSanitizer.Sanitize(approvalRequestId)}",
+            AuditEventTypes.Baseline.Governance.ApprovalRequestApproved,
+            $"Status={GovernanceApprovalStatus.Approved}",
+            cancellationToken);
+
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Governance approval request approved: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 LogSanitizer.Sanitize(request.ApprovalRequestId), LogSanitizer.Sanitize(reviewedBy));
@@ -228,44 +210,26 @@ public sealed class GovernanceWorkflowService(
         }
 
         DateTime reviewedUtc = TimeProvider.System.UtcNowDateTime();
-        bool transitioned = await approvalRepo.TryTransitionFromReviewableAsync(approvalRequestId, GovernanceApprovalStatus.Rejected, reviewedBy,
-            reviewedByActorKey, reviewComment, reviewedUtc, cancellationToken);
-
-        if (!transitioned)
-        {
-            GovernanceApprovalRequest? fresh = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
-
-            if (fresh is null)
-                throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
-
-            throw new GovernanceApprovalReviewConflictException(approvalRequestId, "reject", fresh.Status);
-        }
-
-        request.Status = GovernanceApprovalStatus.Rejected;
-        request.ReviewedBy = reviewedBy;
-        request.ReviewedByActorKey = reviewedByActorKey;
-        request.ReviewComment = reviewComment;
-        request.ReviewedUtc = reviewedUtc;
-        await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Governance.ApprovalRequestRejected, reviewedBy, approvalRequestId,
-            $"Status={GovernanceApprovalStatus.Rejected}", cancellationToken);
-        Guid? rejectedRunId = Guid.TryParse(request.RunId, out Guid rejectedRunGuid) ? rejectedRunGuid : null;
-        ScopeContext durableScope = scopeContextProvider.GetCurrentScope();
-        AuditEvent governanceRejected = durableScope.CreateAuditEvent(
+        AuditEvent governanceRejected = BuildGovernanceReviewAuditEvent(
+            request,
             AuditEventTypes.GovernanceApprovalRejected,
             reviewedBy,
+            reviewComment);
+
+        await ExecuteGovernanceReviewDispositionAsync(
+            approvalRequestId,
+            request,
+            GovernanceApprovalStatus.Rejected,
             reviewedBy,
-            JsonSerializer.Serialize(
-                new
-                {
-                    approvalRequestId = request.ApprovalRequestId,
-                    runId = request.RunId,
-                    reviewedBy,
-                    reviewComment = request.ReviewComment
-                },
-                AuditJsonSerializationOptions.Instance));
-        governanceRejected.RunId = rejectedRunId;
-        await LogGovernanceDurableWithRetryAsync(governanceRejected,
-            $"GovernanceApprovalRejected:{LogSanitizer.Sanitize(approvalRequestId)}", cancellationToken);
+            reviewedByActorKey,
+            reviewComment,
+            reviewedUtc,
+            governanceRejected,
+            $"GovernanceApprovalRejected:{LogSanitizer.Sanitize(approvalRequestId)}",
+            AuditEventTypes.Baseline.Governance.ApprovalRequestRejected,
+            $"Status={GovernanceApprovalStatus.Rejected}",
+            cancellationToken);
+
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Governance approval request rejected: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 LogSanitizer.Sanitize(request.ApprovalRequestId), LogSanitizer.Sanitize(reviewedBy));
@@ -591,7 +555,7 @@ public sealed class GovernanceWorkflowService(
 
     /// <summary>
     ///     Governance disposition audit rows use bounded retries and fail closed when the durable write cannot complete.
-    ///     State may already be persisted before this runs; a failure surfaces as 500 until <c>TB-956</c> same-TX/outbox hardening.
+    ///     Approve/reject co-commit domain + Required audit in one SQL transaction when the UoW supports it (<c>TB-956</c>).
     /// </summary>
     private async Task LogGovernanceDurableWithRetryAsync(AuditEvent auditEvent, string operationLabel, CancellationToken cancellationToken)
     {
@@ -601,6 +565,134 @@ public sealed class GovernanceWorkflowService(
             operationLabel,
             cancellationToken,
             auditEventTypeForMetrics: auditEvent.EventType);
+    }
+
+    private async Task LogGovernanceDurableWithRetryInUnitOfWorkAsync(
+        AuditEvent auditEvent,
+        string operationLabel,
+        IArchLucidUnitOfWork unitOfWork,
+        CancellationToken cancellationToken)
+    {
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            ct => auditService.LogAsync(auditEvent, unitOfWork, ct),
+            logger,
+            operationLabel,
+            cancellationToken,
+            auditEventTypeForMetrics: auditEvent.EventType);
+    }
+
+    private AuditEvent BuildGovernanceReviewAuditEvent(
+        GovernanceApprovalRequest request,
+        string eventType,
+        string reviewedBy,
+        string? reviewComment)
+    {
+        Guid? auditRunId = Guid.TryParse(request.RunId, out Guid runGuid) ? runGuid : null;
+        ScopeContext durableScope = scopeContextProvider.GetCurrentScope();
+        AuditEvent auditEvent = durableScope.CreateAuditEvent(
+            eventType,
+            reviewedBy,
+            reviewedBy,
+            JsonSerializer.Serialize(
+                new
+                {
+                    approvalRequestId = request.ApprovalRequestId,
+                    runId = request.RunId,
+                    reviewedBy,
+                    reviewComment
+                },
+                AuditJsonSerializationOptions.Instance));
+        auditEvent.RunId = auditRunId;
+
+        return auditEvent;
+    }
+
+    private async Task ExecuteGovernanceReviewDispositionAsync(
+        string approvalRequestId,
+        GovernanceApprovalRequest request,
+        string newStatus,
+        string reviewedBy,
+        string reviewedByActorKey,
+        string? reviewComment,
+        DateTime reviewedUtc,
+        AuditEvent durableAuditEvent,
+        string durableAuditOperationLabel,
+        string baselineEventType,
+        string baselineDetail,
+        CancellationToken cancellationToken)
+    {
+        string reviewVerb = string.Equals(newStatus, GovernanceApprovalStatus.Approved, StringComparison.Ordinal) ? "approve" : "reject";
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
+
+        if (uow.SupportsExternalTransaction)
+        {
+            try
+            {
+                bool transitioned = await approvalRepo.TryTransitionFromReviewableAsync(
+                    approvalRequestId,
+                    newStatus,
+                    reviewedBy,
+                    reviewedByActorKey,
+                    reviewComment,
+                    reviewedUtc,
+                    cancellationToken,
+                    uow.Connection,
+                    uow.Transaction);
+
+                if (!transitioned)
+                {
+                    await uow.RollbackAsync(cancellationToken);
+                    await ThrowGovernanceReviewConflictAsync(approvalRequestId, reviewVerb, cancellationToken);
+
+                    return;
+                }
+
+                await LogGovernanceDurableWithRetryInUnitOfWorkAsync(
+                    durableAuditEvent,
+                    durableAuditOperationLabel,
+                    uow,
+                    cancellationToken);
+                await uow.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await uow.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
+        else
+        {
+            bool transitioned = await approvalRepo.TryTransitionFromReviewableAsync(
+                approvalRequestId,
+                newStatus,
+                reviewedBy,
+                reviewedByActorKey,
+                reviewComment,
+                reviewedUtc,
+                cancellationToken);
+
+            if (!transitioned)
+                await ThrowGovernanceReviewConflictAsync(approvalRequestId, reviewVerb, cancellationToken);
+
+            await LogGovernanceDurableWithRetryAsync(durableAuditEvent, durableAuditOperationLabel, cancellationToken);
+        }
+
+        request.Status = newStatus;
+        request.ReviewedBy = reviewedBy;
+        request.ReviewedByActorKey = reviewedByActorKey;
+        request.ReviewComment = reviewComment;
+        request.ReviewedUtc = reviewedUtc;
+        await baselineMutationAudit.RecordAsync(baselineEventType, reviewedBy, approvalRequestId, baselineDetail, cancellationToken);
+    }
+
+    private async Task ThrowGovernanceReviewConflictAsync(string approvalRequestId, string reviewVerb, CancellationToken cancellationToken)
+    {
+        GovernanceApprovalRequest? fresh = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
+
+        if (fresh is null)
+            throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+
+        throw new GovernanceApprovalReviewConflictException(approvalRequestId, reviewVerb, fresh.Status);
     }
 
     private Task TryPublishGovernanceApprovalSubmittedAsync(GovernanceApprovalRequest request, CancellationToken cancellationToken)

@@ -45,7 +45,9 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         string? reviewedByActorKey,
         string? reviewComment,
         DateTime reviewedUtc,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
         ArgumentException.ThrowIfNullOrWhiteSpace(newStatus);

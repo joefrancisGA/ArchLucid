@@ -34,7 +34,9 @@ public interface IGovernanceApprovalRequestRepository
         string? reviewedByActorKey,
         string? reviewComment,
         DateTime reviewedUtc,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     ///     Replaces the stored approval request with <paramref name="item" />.

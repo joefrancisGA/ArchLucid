@@ -27,8 +27,9 @@ describe("samples/registry", () => {
     expect(resolveSampleScenarioBySlug("customer-intake")).toBe(CUSTOMER_INTAKE_SAMPLE_DEFINITION);
   });
 
-  it("keeps claims-intake registered as the regulated-depth secondary scenario", () => {
-    expect(listRegisteredSampleScenarios()).toHaveLength(2);
+  it("registers three sample scenarios including AI Knowledge Assistant (TB-982)", () => {
+    expect(listRegisteredSampleScenarios()).toHaveLength(3);
+    expect(resolveSampleScenarioBySlug("ai-knowledge-assistant")).toBeDefined();
     expect(resolveSampleScenarioBySlug("claims-intake")).toBe(CLAIMS_INTAKE_SAMPLE_DEFINITION);
     expect(resolveSampleScenarioByRunId(CLAIMS_INTAKE_SAMPLE_RUN_ID)).toBe(CLAIMS_INTAKE_SAMPLE_DEFINITION);
     expect(getActiveSampleScenario()).not.toBe(CLAIMS_INTAKE_SAMPLE_DEFINITION);

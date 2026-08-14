@@ -65,6 +65,12 @@ export const WHY_PROOF_LADDER_WALKTHROUGH_HREF = "/get-started" as const;
 
 export const WHY_PROOF_LADDER_WALKTHROUGH_LABEL = "Ready to start your evaluation?";
 
-export const WHY_CONTOSO_PREVIEW_HREF = CANONICAL_ANONYMOUS_PROOF_HREF;
+export const WHY_RETAIL_SAMPLE_PREVIEW_HREF = CANONICAL_ANONYMOUS_PROOF_HREF;
 
-export const WHY_CONTOSO_PREVIEW_LABEL = "Retail Contoso sample (longer preview)";
+/** @deprecated Use {@link WHY_RETAIL_SAMPLE_PREVIEW_HREF} — kept for stable test imports. */
+export const WHY_CONTOSO_PREVIEW_HREF = WHY_RETAIL_SAMPLE_PREVIEW_HREF;
+
+export const WHY_RETAIL_SAMPLE_PREVIEW_LABEL = "Enterprise retail sample (longer preview)";
+
+/** @deprecated Use {@link WHY_RETAIL_SAMPLE_PREVIEW_LABEL} — kept for stable test imports. */
+export const WHY_CONTOSO_PREVIEW_LABEL = WHY_RETAIL_SAMPLE_PREVIEW_LABEL;

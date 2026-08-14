@@ -26,6 +26,12 @@ import {
   CUSTOMER_INTAKE_SAMPLE_RUN_ID,
 } from "@/lib/samples/customer-intake-modernization/definition";
 import {
+  buildAiKnowledgeAssistantShowcaseStaticPayload,
+} from "@/lib/samples/ai-knowledge-assistant/static-showcase-payload";
+import {
+  AI_KNOWLEDGE_ASSISTANT_SAMPLE_DEFINITION,
+} from "@/lib/samples/ai-knowledge-assistant/definition";
+import {
   buildCustomerIntakeShowcaseStaticPayload,
   CUSTOMER_INTAKE_SHOWCASE_DECISION_ITEMS,
   CUSTOMER_INTAKE_SHOWCASE_DECISION_SYNOPSES,
@@ -257,6 +263,10 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
 
   if (scenario?.slug === CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug) {
     return buildCustomerIntakeShowcaseStaticPayload(runId);
+  }
+
+  if (scenario?.slug === AI_KNOWLEDGE_ASSISTANT_SAMPLE_DEFINITION.slug) {
+    return buildAiKnowledgeAssistantShowcaseStaticPayload(runId);
   }
 
   return buildClaimsIntakeShowcaseStaticPayload(runId);
