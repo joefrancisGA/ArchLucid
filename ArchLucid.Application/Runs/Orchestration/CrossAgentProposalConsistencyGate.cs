@@ -17,8 +17,8 @@ public static class CrossAgentProposalConsistencyGate
             .OrderBy(static result => GetMergeOrder(result.AgentType))
             .ToList();
 
-        HashSet<string> claimedServiceNames = new(StringComparer.OrdinalIgnoreCase);
-        HashSet<string> claimedDatastoreNames = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> claimedServiceEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> claimedDatastoreEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> claimedRequiredControls = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (AgentResult result in ordered)
@@ -28,8 +28,8 @@ public static class CrossAgentProposalConsistencyGate
             if (proposal is null)
                 continue;
 
-            proposal.AddedServices = ClaimServices(proposal.AddedServices, claimedServiceNames);
-            proposal.AddedDatastores = ClaimDatastores(proposal.AddedDatastores, claimedDatastoreNames);
+            proposal.AddedServices = ClaimServices(proposal.AddedServices, claimedServiceEndpointKeys);
+            proposal.AddedDatastores = ClaimDatastores(proposal.AddedDatastores, claimedDatastoreEndpointKeys);
             proposal.RequiredControls = ClaimRequiredControls(proposal.RequiredControls, claimedRequiredControls);
             proposal.AddedRelationships = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
                 proposal.AddedServices,
@@ -50,7 +50,7 @@ public static class CrossAgentProposalConsistencyGate
 
     private static List<ManifestService> ClaimServices(
         IReadOnlyList<ManifestService>? services,
-        HashSet<string> claimedServiceNames)
+        HashSet<string> claimedServiceEndpointKeys)
     {
         if (services is null || services.Count == 0)
             return [];
@@ -59,10 +59,7 @@ public static class CrossAgentProposalConsistencyGate
 
         foreach (ManifestService service in services)
         {
-            if (string.IsNullOrWhiteSpace(service.ServiceName))
-                continue;
-
-            if (!claimedServiceNames.Add(service.ServiceName))
+            if (!TopologyProposalRelationshipEndpointIndex.TryClaimService(service, claimedServiceEndpointKeys))
                 continue;
 
             accepted.Add(service);
@@ -73,7 +70,7 @@ public static class CrossAgentProposalConsistencyGate
 
     private static List<ManifestDatastore> ClaimDatastores(
         IReadOnlyList<ManifestDatastore>? datastores,
-        HashSet<string> claimedDatastoreNames)
+        HashSet<string> claimedDatastoreEndpointKeys)
     {
         if (datastores is null || datastores.Count == 0)
             return [];
@@ -82,10 +79,7 @@ public static class CrossAgentProposalConsistencyGate
 
         foreach (ManifestDatastore datastore in datastores)
         {
-            if (string.IsNullOrWhiteSpace(datastore.DatastoreName))
-                continue;
-
-            if (!claimedDatastoreNames.Add(datastore.DatastoreName))
+            if (!TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(datastore, claimedDatastoreEndpointKeys))
                 continue;
 
             accepted.Add(datastore);

@@ -135,4 +135,58 @@ public sealed class CrossAgentProposalConsistencyGateTests
         topology.ProposedChanges!.AddedRelationships.Should().ContainSingle();
         topology.ProposedChanges.AddedRelationships[0].SourceId.Should().Be("svc-1");
     }
+
+    [Fact]
+    public void ApplyToResults_strips_duplicate_service_ids_from_later_agents()
+    {
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.Functions,
+                    },
+                    new ManifestService
+                    {
+                        ServiceName = "worker",
+                        ServiceId = "svc-2",
+                        ServiceType = ServiceType.Worker,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([cost, topology]);
+
+        cost.ProposedChanges!.AddedServices.Should().ContainSingle();
+        cost.ProposedChanges.AddedServices[0].ServiceName.Should().Be("worker");
+    }
 }

@@ -91,9 +91,11 @@ public static class AgentTopologyProposalMergeGate
             .Where(d => MatchesInventoriedIdentifier(d.DatastoreName, d.DatastoreId, inventoriedIdentifiers))
             .ToList() ?? [];
 
-        List<ManifestRelationship> relationships = proposal.AddedRelationships?
-            .Where(r => inventoriedIdentifiers.Contains(r.SourceId) && inventoriedIdentifiers.Contains(r.TargetId))
-            .ToList() ?? [];
+        List<ManifestRelationship> relationships = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            inventoriedIdentifiers,
+            services,
+            datastores,
+            proposal.AddedRelationships);
 
         return new AgentTopologyProposal
         {
