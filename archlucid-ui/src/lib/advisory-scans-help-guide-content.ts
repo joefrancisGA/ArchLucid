@@ -1,5 +1,6 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { ADVISORY_SCANS_CANONICAL_PATH } from "@/lib/advisory-scans-evidence-copy";
+import { ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/advisory-scans-help-evidence-copy";
 import { ADVISORY_SCANS_HELP_TOPIC_LABEL } from "@/lib/advisory-scans-help-evidence-copy";
 import { ADVISORY_SCANS_SCANS_HREF, ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
@@ -11,11 +12,15 @@ export const ADVISORY_SCANS_HELP_PAGE_SUBTITLE =
   "Generate prioritized follow-up recommendations from finalized architecture reviews.";
 
 export const ADVISORY_SCANS_HELP_OVERVIEW =
-  "Advisory scans surface follow-up work from finalized reviews. They prioritize architect attention — not a signed-review diligence Sources package.";
+  "Advisory scans surface follow-up work from finalized reviews and prioritize architect attention on follow-up recommendations.";
 
-/** Matches AdvisoryHubClient reader-rank precondition copy (schedules tab + scan generation). */
+/** Hub screen-reader hint on Schedules tab when the caller cannot mutate advisory schedules. */
 export const ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION =
-  "View schedules and executions; creating schedules and running scans now requires a management role.";
+  "View schedules and prior scan results; creating schedules and generating scans requires execute access or a management role.";
+
+/** Help Start here card — role-neutral; not the hub tab screen-reader constant. */
+export const ADVISORY_SCANS_HELP_ROLE_PRECONDITION =
+  "View schedules and prior scan results with workspace read access; creating schedules and generating scans requires execute access or a management role.";
 
 export const ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE = "Start here";
 
@@ -38,13 +43,19 @@ export type AdvisoryScansHelpTileItem = {
 export const ADVISORY_SCANS_HELP_TILE_ITEMS: readonly AdvisoryScansHelpTileItem[] = [
   {
     label: "Scan generation",
-    detail: "Run a scan from a finalized review to produce prioritized follow-up recommendations.",
+    detail: "Generate a scan from a finalized review to produce prioritized follow-up recommendations.",
     href: ADVISORY_SCANS_SCANS_HREF,
   },
   {
     label: "Schedules",
     detail: "Open the Schedules tab when recurring advisory scans should run on a cadence.",
     href: ADVISORY_SCANS_SCHEDULES_HREF,
+  },
+  {
+    label: "Explainability trail",
+    detail:
+      "Each recommendation can link to persisted trace fields — graph nodes examined, rules applied, decisions taken, and alternative paths considered when finding engines populate them.",
+    href: GOVERNANCE_FINDINGS_PATH,
   },
   {
     label: "Findings triage",
@@ -64,8 +75,21 @@ export const ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS = [
   "Open findings or audit when a recommendation needs governed triage.",
 ] as const;
 
+export const ADVISORY_SCANS_HELP_CLAIM_HEADING_ID = "help-advisory-scans-claim-discipline-heading" as const;
+
 export const ADVISORY_SCANS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-advisory-scans-show", title: "What advisory scans show" },
   { level: 2, id: "how-advisory-scans-work", title: ADVISORY_SCANS_HELP_TOPIC_LABEL },
+  {
+    level: 2,
+    id: ADVISORY_SCANS_HELP_CLAIM_HEADING_ID,
+    title: ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
+
+/** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
+export const ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS = {
+  overviewMustNotContain: ["not a signed-review diligence Sources package", "not a diligence Sources package"],
+  claimMustContain: "not a signed-review diligence Sources package",
+} as const;

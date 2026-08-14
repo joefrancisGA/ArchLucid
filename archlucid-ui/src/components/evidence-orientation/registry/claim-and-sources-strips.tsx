@@ -178,6 +178,8 @@ import {
   ADVISORY_SCANS_HELP_SOURCES,
   ADVISORY_SCANS_HELP_SOURCES_INTRO,
 } from "@/lib/advisory-scans-help-evidence-copy";
+import { ADVISORY_SCANS_HELP_CLAIM_HEADING_ID } from "@/lib/advisory-scans-help-guide-content";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
@@ -901,6 +903,7 @@ export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
       slug="help-advisory-scans"
       claim={ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE}
       claimHeading={ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={ADVISORY_SCANS_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ADVISORY_SCANS_HELP_FOLLOW_UPS_TITLE}
@@ -908,6 +911,8 @@ export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
       sources={ADVISORY_SCANS_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }

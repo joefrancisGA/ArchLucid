@@ -11,11 +11,28 @@ export const ADVISORY_SCANS_CLAIM_DISCIPLINE =
   "Advisory scan output prioritizes follow-up work from finalized reviews. It is not a signed-review diligence Sources package — open Findings or Audit when you need a governed trail.";
 
 export const ADVISORY_SCANS_SOURCES_INTRO =
-  "Use these follow-ups when a scan needs an architecture review, governed audit trail, or product orientation.";
+  "Follow-ups for review intake, governed trails, AI spend signals, or product orientation.";
 
 /** Operator Sources — no self-href to the default advisory-scans hub path or tile-covered destinations. */
 export const ADVISORY_SCANS_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
-  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
+  {
+    label: "Architecture reviews",
+    href: "/architecture/reviews",
+    when: "Finalize a review before generating follow-up recommendations",
+  },
+  {
+    label: "Audit",
+    href: GOVERNANCE_AUDIT_PATH,
+    when: "Open governed audit trails when scan output needs assurance cites",
+  },
+  {
+    label: "AI usage help",
+    href: inAppHelpHref("ai-usage"),
+    when: "Monitor estimated AI spend when scan generation adds model activity",
+  },
+  {
+    label: "How ArchLucid works",
+    href: inAppHelpHref("getting-started", "how-archlucid-works"),
+    when: "Product orientation for architects new to advisory scans",
+  },
 ] as const;

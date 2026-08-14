@@ -30,6 +30,8 @@ export type EvidenceOrientationClaimCalloutProps = {
   /** `aside` where the band is a complementary region; `div` where an ancestor already owns that role. */
   readonly element?: "aside" | "div";
   readonly heading?: EvidenceOrientationCalloutHeading;
+  /** Optional body scale override — help strips pass {@link HELP_PAGE_LAYOUT.readingBody} for strip parity. */
+  readonly bodyClassName?: string;
   /** Additional content below the body inside the callout, such as a "not this" bullet list. */
   readonly children?: ReactNode;
 };
@@ -41,6 +43,7 @@ export function EvidenceOrientationClaimCallout({
   style = EVIDENCE_CLAIM_STYLE.operatorWarn,
   element = "aside",
   heading,
+  bodyClassName,
   children,
 }: EvidenceOrientationClaimCalloutProps): React.JSX.Element {
   const CalloutElement = element;
@@ -61,7 +64,7 @@ export function EvidenceOrientationClaimCallout({
           "m-0",
           hasVisibleHeading ? "mt-2" : undefined,
           style.body,
-          OPERATOR_TYPOGRAPHY.body,
+          bodyClassName ?? OPERATOR_TYPOGRAPHY.body,
         )}
       >
         {body}

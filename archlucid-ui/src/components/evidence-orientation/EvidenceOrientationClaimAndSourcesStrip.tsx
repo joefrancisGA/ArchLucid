@@ -7,6 +7,7 @@ import type {
 } from "@/components/evidence-orientation/evidence-orientation-styles";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
+import type { EvidenceOrientationSourcesLayout } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 
 export type EvidenceOrientationClaimAndSourcesStripProps = {
   /**
@@ -28,6 +29,9 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
   readonly sourcesStyle?: EvidenceOrientationSourcesStyle;
   readonly sourcesHeadingId?: string;
   readonly sourcesTestId?: string;
+  readonly sourcesLayout?: EvidenceOrientationSourcesLayout;
+  /** Optional body scale for claim + sources list — help specialty guides pass readingBody. */
+  readonly readingBodyClassName?: string;
   readonly stripTestId?: string;
 };
 
@@ -50,6 +54,8 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   sourcesStyle,
   sourcesHeadingId,
   sourcesTestId,
+  sourcesLayout,
+  readingBodyClassName,
   stripTestId,
 }: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element {
   return (
@@ -59,6 +65,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         body={claim}
         style={claimStyle}
         element={claimElement}
+        bodyClassName={readingBodyClassName}
         heading={
           claimHeading === undefined
             ? undefined
@@ -76,6 +83,8 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         intro={sourcesIntro}
         links={sources}
         style={sourcesStyle}
+        layout={sourcesLayout}
+        listClassName={readingBodyClassName}
       />
     </EvidenceOrientationStripShell>
   );

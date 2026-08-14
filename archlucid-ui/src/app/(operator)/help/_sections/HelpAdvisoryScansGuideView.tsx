@@ -16,9 +16,9 @@ import {
   ADVISORY_SCANS_HELP_PAGE_SUBTITLE,
   ADVISORY_SCANS_HELP_PAGE_TITLE,
   ADVISORY_SCANS_HELP_PRIMARY_ACTION,
+  ADVISORY_SCANS_HELP_ROLE_PRECONDITION,
   ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE,
   ADVISORY_SCANS_HELP_TILE_ITEMS,
-  ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION,
 } from "@/lib/advisory-scans-help-guide-content";
 import { ADVISORY_SCANS_HELP_CANONICAL_PATH } from "@/lib/advisory-scans-help-evidence-copy";
 import {
@@ -40,7 +40,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   return (
     <h2
       id={props.id}
-      className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY.sectionTitle, "m-0 scroll-mt-24")}
+      className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY.cardTitle, "m-0 scroll-mt-24")}
     >
       {props.children}
     </h2>
@@ -51,6 +51,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProps): React.ReactElement {
   const { entry } = props;
   const contentGridClass = resolveHelpPageContentGridClass(ADVISORY_SCANS_HELP_GUIDE_HEADINGS.length);
+  const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
@@ -72,7 +73,7 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-advisory-scans-overview">
+          <p className={readingBodyClass} data-testid="help-advisory-scans-overview">
             {ADVISORY_SCANS_HELP_OVERVIEW}
           </p>
 
@@ -87,7 +88,7 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="help-advisory-scans-role-precondition"
               >
-                {ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION}
+                {ADVISORY_SCANS_HELP_ROLE_PRECONDITION}
               </p>
               <div className="flex flex-wrap items-center gap-2">
                 <Button asChild size="sm" variant="primary">
@@ -103,7 +104,7 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
           >
             <HelpSectionHeading id="what-advisory-scans-show">What advisory scans show</HelpSectionHeading>
             <dl
-              className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-advisory-scans-tile-items"
             >
               {ADVISORY_SCANS_HELP_TILE_ITEMS.map((item) => (
@@ -125,7 +126,7 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
           >
             <HelpSectionHeading id="how-advisory-scans-work">How advisory scans work</HelpSectionHeading>
             <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-advisory-scans-how-stepper"
             >
               <li>
@@ -140,7 +141,9 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
             </ol>
           </section>
 
-          <AdvisoryScansHelpEvidenceOrientationStrip />
+          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+            <AdvisoryScansHelpEvidenceOrientationStrip />
+          </div>
         </div>
 
         <HelpTopicTableOfContents headings={ADVISORY_SCANS_HELP_GUIDE_HEADINGS} />

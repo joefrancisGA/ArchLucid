@@ -25,6 +25,8 @@ export type EvidenceOrientationSourcesSectionProps = {
   readonly links: readonly EvidenceOrientationLink[];
   readonly style?: EvidenceOrientationSourcesStyle;
   readonly layout?: EvidenceOrientationSourcesLayout;
+  /** Optional list scale override — help strips pass {@link HELP_PAGE_LAYOUT.readingBody} for strip parity. */
+  readonly listClassName?: string;
 };
 
 /** Sources / follow-up index band shared by every evidence orientation strip. */
@@ -36,6 +38,7 @@ export function EvidenceOrientationSourcesSection({
   links,
   style = EVIDENCE_SOURCES_STYLE.operatorMuted,
   layout = "wrap",
+  listClassName,
 }: EvidenceOrientationSourcesSectionProps): React.JSX.Element {
   return (
     <section className={style.panel} aria-labelledby={headingId} data-testid={testId}>
@@ -43,7 +46,7 @@ export function EvidenceOrientationSourcesSection({
         {title}
       </h2>
       <p className={style.intro}>{intro}</p>
-      <ul className={cn(SOURCES_LIST_CLASS[layout], OPERATOR_TYPOGRAPHY.body)}>
+      <ul className={cn(SOURCES_LIST_CLASS[layout], listClassName ?? OPERATOR_TYPOGRAPHY.body)}>
         {links.map((link) => (
           <li key={`${link.href}-${link.label}`}>
             <Link className={style.link} href={link.href}>
