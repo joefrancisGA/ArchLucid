@@ -2483,7 +2483,7 @@ Former standalone body: `docs/go-to-market/OWNER_SCREENSHOT_BELOW_50_SPECIALTY_H
 | ~42 | `/help/sponsor-report` (pilot ROI depth) | **TB-1389**–**TB-1393** **Done** |
 | ~49 | `/help/procurement` | **TB-1253**–**TB-1257** **Done** |
 
-Retired alias folds (not live inventory): `/help/evaluator-workbook` → `/help/choose-your-next-step` (**TB-1345**–**TB-1349**); `/help/first-hour-operator-path` → `/help/first-architecture-review` (**TB-1374**).
+Retired alias folds (not live inventory; redirects removed 2026-08-13): `/help/evaluator-workbook` folded into `/help/choose-your-next-step` (**TB-1345**–**TB-1349**); `/help/first-hour-operator-path` folded into `/help/first-architecture-review` (**TB-1374**).
 
 Reuse exemplars: `HelpCorePilotGuideView`, Azure connect specialty. Generic markdown remains fallback only for true internal docs after gate.
 

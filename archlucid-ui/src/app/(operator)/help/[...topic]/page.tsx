@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { headers } from "next/headers";
-import { permanentRedirect } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
@@ -31,9 +30,7 @@ import {
   getProductDocumentationEntry,
   listProductDocumentationEntries,
 } from "@/lib/product-documentation-registry";
-import { HELP_TOPIC_PERMANENT_REDIRECTS } from "@/lib/help/help-topic-permanent-redirects";
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import { assertHelpTopicCatchAllFallthroughAllowed } from "@/lib/help/help-topic-catch-all-fallthrough";
 import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
 
@@ -335,11 +332,8 @@ export async function generateStaticParams(): Promise<Array<{ topic: string[] }>
   const cloudHelpParams = CLOUD_CONNECTIONS_HELP_SLASH_TOPIC_SEGMENTS.map((segment) => ({
     topic: segment.split("/"),
   }));
-  const retiredSlugParams = Object.keys(HELP_TOPIC_PERMANENT_REDIRECTS).map((slug) => ({
-    topic: slug.split("/"),
-  }));
 
-  return [...registryParams, ...cloudHelpParams, ...retiredSlugParams];
+  return [...registryParams, ...cloudHelpParams];
 }
 
 function renderHelpTopicView(
@@ -786,12 +780,6 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
   const { topic } = await props.params;
   const resolvedSearchParams = props.searchParams !== undefined ? await props.searchParams : undefined;
   const slug = helpSlugFromTopicSegments(topic);
-  const permanentRedirectTarget = resolveHelpTopicPermanentRedirect(slug);
-
-  if (permanentRedirectTarget !== null) {
-    permanentRedirect(permanentRedirectTarget);
-  }
-
   const entry = getProductDocumentationEntry(slug);
 
   if (entry === null) {

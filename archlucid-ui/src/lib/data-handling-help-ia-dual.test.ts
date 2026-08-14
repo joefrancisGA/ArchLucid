@@ -26,8 +26,8 @@ describe("data-handling help IA dual (TB-1652)", () => {
     expect(DATA_HANDLING_HELP_IA_DUAL_INBOUND_LABEL).toBe(DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE);
   });
 
-  it("canonicalizes retired data-handling-tenant-isolation to data-handling", () => {
-    expect(HELP_TOPIC_PERMANENT_REDIRECTS[DATA_HANDLING_TENANT_ISOLATION_RETIRED_SLUG]).toBe("/help/data-handling");
-    expect(resolveHelpTopicPermanentRedirect(DATA_HANDLING_TENANT_ISOLATION_RETIRED_SLUG)).toBe("/help/data-handling");
+  it("omits retired data-handling-tenant-isolation from the registry without redirects", () => {
+    expect(resolveHelpTopicPermanentRedirect(DATA_HANDLING_TENANT_ISOLATION_RETIRED_SLUG)).toBeNull();
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS[DATA_HANDLING_TENANT_ISOLATION_RETIRED_SLUG]).toBeUndefined();
   });
 });

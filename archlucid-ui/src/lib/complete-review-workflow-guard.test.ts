@@ -40,8 +40,8 @@ describe("complete review workflow → Core Pilot (TB-1379)", () => {
   const retiredAliasSlug = "first-pilot-path";
   const canonicalSlug = "first-architecture-review";
 
-  it("resolves the first-pilot-path bookmark alias onto first-architecture-review (TB-1380)", () => {
-    expect(resolveHelpTopicPermanentRedirect(retiredAliasSlug)).toBe(`/help/${canonicalSlug}`);
+  it("omits the first-pilot-path bookmark alias from the registry (TB-1380)", () => {
+    expect(resolveHelpTopicPermanentRedirect(retiredAliasSlug)).toBeNull();
     expect(getProductDocumentationEntry(retiredAliasSlug)).toBeNull();
 
     const entry = getProductDocumentationEntry(canonicalSlug);
@@ -50,7 +50,7 @@ describe("complete review workflow → Core Pilot (TB-1379)", () => {
     expect(entry?.title).toBe(FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE);
     expect(entry?.audience).toBe("buyer");
     expect(entry?.sourcePaths).toEqual(["docs/CORE_PILOT.md"]);
-    expect(inAppHelpHref(retiredAliasSlug)).toBe(`/help/${canonicalSlug}`);
+    expect(inAppHelpHref(retiredAliasSlug)).toBe(`/help/${retiredAliasSlug}`);
     expect(inAppHelpHref(canonicalSlug)).toBe(`/help/${canonicalSlug}`);
   });
 

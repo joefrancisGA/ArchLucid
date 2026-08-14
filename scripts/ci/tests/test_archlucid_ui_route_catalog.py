@@ -60,21 +60,36 @@ def test_discover_help_paths_includes_cloud_connections_slash_canonicals() -> No
     assert "/help/cloud-connections/aws" in alias_paths
 
 
-def test_migrate_workbook_path_maps_legacy_core_pilot_help_slug() -> None:
-    assert migrate_workbook_path("/help/core-pilot") == "/help/first-architecture-review"
+RETIRED_HELP_BOOKMARK_PATHS = (
+    "/help/cloud-connections-azure",
+    "/help/cloud-connections-aws",
+    "/help/cloud-connections-gcp",
+    "/help/core-pilot",
+    "/help/governance-api-contracts",
+    "/help/creating-runs",
+    "/help/data-handling-tenant-isolation",
+    "/help/evidence-only-review",
+    "/help/how-it-works",
+    "/help/integrations/azure-boards",
+    "/help/product-overview",
+    "/help/starting-reviews",
+    "/help/evaluator-workbook",
+    "/help/path-chooser",
+    "/help/first-hour-operator-path",
+    "/help/first-pilot-path",
+    "/help/operator-auth-roles",
+    "/help/pilot-nav-profile",
+    "/help/first-review",
+    "/help/first-value-20-minutes",
+    "/help/pilot-roi-model",
+    "/help/developer-troubleshooting",
+)
 
 
-def test_migrate_workbook_path_maps_tb2050_retired_help_aliases() -> None:
-    assert migrate_workbook_path("/help/governance-api-contracts") == "/help/api-contracts"
-    assert migrate_workbook_path("/help/evaluator-workbook") == "/help/choose-your-next-step"
-    assert migrate_workbook_path("/help/path-chooser") == "/help/choose-your-next-step"
-    assert migrate_workbook_path("/help/first-hour-operator-path") == "/help/first-architecture-review"
-    assert migrate_workbook_path("/help/operator-auth-roles") == "/help/users-and-roles"
-    # Section anchors stay out of workbook targets: rows must be catalog routes.
-    assert migrate_workbook_path("/help/first-review") == "/help/first-architecture-review"
-    assert migrate_workbook_path("/help/first-value-20-minutes") == "/help/first-architecture-review"
-    assert migrate_workbook_path("/help/pilot-roi-model") == "/help/sponsor-report"
-    assert migrate_workbook_path("/help/developer-troubleshooting") == "/help/engineering-troubleshooting"
+def test_migrate_workbook_path_no_longer_maps_retired_help_bookmarks() -> None:
+    for legacy_path in RETIRED_HELP_BOOKMARK_PATHS:
+        assert migrate_workbook_path(legacy_path) == legacy_path
+
     assert migrate_workbook_path("/help/policy-pack-delta-demo") == "/help/policy-packs#policy-pack-delta-demo"
 
 
@@ -91,6 +106,17 @@ def test_build_catalog_keeps_tb2050_retired_aliases_out() -> None:
     assert "/help/api-contracts" in catalog
     assert "/help/choose-your-next-step" in catalog
     assert "/help/users-and-roles" in catalog
+    assert "/help/data-handling-tenant-isolation" not in catalog
+    assert "/help/integrations/azure-boards" not in catalog
+    assert "/help/starting-reviews" not in catalog
+    assert "/help/evidence-only-review" not in catalog
+    assert "/help/product-overview" not in catalog
+    assert "/help/how-it-works" not in catalog
+    assert "/help/data-handling" in catalog
+    assert "/help/azure-boards" in catalog
+    assert "/help/review-guide" in catalog
+    assert "/help/sponsor-report" in catalog
+    assert "/help/getting-started" in catalog
 
 
 def test_build_catalog_excludes_redirect_only_legacy_paths() -> None:
@@ -137,59 +163,6 @@ def test_build_catalog_does_not_track_legacy_tenant_settings_redirects() -> None
     assert "/administration/tenant/recycle-bin" not in catalog
     assert "/administration/workspace-settings" in catalog
 
-
-def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> None:
-    assert migrate_workbook_path("/help/cloud-connections-azure") == "/help/cloud-connections/azure"
-    assert migrate_workbook_path("/help/cloud-connections-aws") == "/help/cloud-connections/aws"
-    assert migrate_workbook_path("/help/cloud-connections-gcp") == "/help/cloud-connections/gcp"
-
-
-def test_migrate_workbook_path_maps_retired_api_contracts_help_alias() -> None:
-    assert migrate_workbook_path("/help/governance-api-contracts") == "/help/api-contracts"
-
-
-def test_migrate_workbook_path_maps_retired_creating_runs_help_alias() -> None:
-    assert migrate_workbook_path("/help/creating-runs") == "/help/review-guide"
-
-
-def test_migrate_workbook_path_maps_batch_b_retired_help_aliases() -> None:
-    assert migrate_workbook_path("/help/data-handling-tenant-isolation") == "/help/data-handling"
-    assert migrate_workbook_path("/help/integrations/azure-boards") == "/help/azure-boards"
-
-
-def test_build_catalog_keeps_batch_b_retired_help_aliases_out() -> None:
-    catalog = build_catalog()
-    assert "/help/data-handling-tenant-isolation" not in catalog
-    assert "/help/integrations/azure-boards" not in catalog
-    assert "/help/data-handling" in catalog
-    assert "/help/azure-boards" in catalog
-
-
-def test_migrate_workbook_path_maps_batch_a_retired_help_aliases() -> None:
-    assert migrate_workbook_path("/help/starting-reviews") == "/help/review-guide"
-    assert migrate_workbook_path("/help/evidence-only-review") == "/help/first-architecture-review"
-    assert migrate_workbook_path("/help/product-overview") == "/help/sponsor-report"
-    assert migrate_workbook_path("/help/how-it-works") == "/help/getting-started"
-
-
-def test_build_catalog_keeps_batch_a_retired_help_aliases_out() -> None:
-    catalog = build_catalog()
-    assert "/help/starting-reviews" not in catalog
-    assert "/help/evidence-only-review" not in catalog
-    assert "/help/product-overview" not in catalog
-    assert "/help/how-it-works" not in catalog
-    assert "/help/review-guide" in catalog
-    assert "/help/first-architecture-review" in catalog
-    assert "/help/sponsor-report" in catalog
-    assert "/help/getting-started" in catalog
-
-
-def test_migrate_workbook_path_maps_batch_c_retired_help_aliases() -> None:
-    assert migrate_workbook_path("/help/first-pilot-path") == "/help/first-architecture-review"
-
-
-def test_migrate_workbook_path_maps_pilot_nav_profile_fold_into_pilot_guide() -> None:
-    assert migrate_workbook_path("/help/pilot-nav-profile") == "/help/pilot-guide"
 
 
 def test_migrate_workbook_path_maps_legacy_alerts() -> None:

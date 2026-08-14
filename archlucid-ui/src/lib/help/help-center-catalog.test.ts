@@ -132,10 +132,10 @@ describe("help topic slug aliases", () => {
     expect(getProductDocumentationEntry("first-hour-operator-path")).toBeNull();
     expect(getProductDocumentationEntry("first-pilot-path")).toBeNull();
     expect(getProductDocumentationEntry("pilot-nav-profile")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("first-pilot-path")).toBe("/help/first-architecture-review");
-    expect(resolveHelpTopicPermanentRedirect("pilot-nav-profile")).toBe("/help/pilot-guide");
-    expect(inAppHelpHref("first-pilot-path")).toBe("/help/first-architecture-review");
-    expect(inAppHelpHref("pilot-nav-profile")).toBe("/help/pilot-guide");
+    expect(resolveHelpTopicPermanentRedirect("first-pilot-path")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("pilot-nav-profile")).toBeNull();
+    expect(inAppHelpHref("first-pilot-path")).toBe("/help/first-pilot-path");
+    expect(inAppHelpHref("pilot-nav-profile")).toBe("/help/pilot-nav-profile");
   });
 });
 
@@ -157,7 +157,7 @@ describe("help center tiers", () => {
     expect(entry?.audience).toBe("buyer");
     expect(getHelpCenterTier(entry!)).toBe("product");
     expect(getProductDocumentationEntry("evaluator-workbook")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/choose-your-next-step");
+    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBeNull();
   });
 
   it("classifies engineering runbooks as internal", () => {

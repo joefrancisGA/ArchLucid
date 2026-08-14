@@ -11,7 +11,6 @@ import {
   sourceDeclaresHelpCorePilotSpecialtyCompanion,
   sourceDispatchesFirstArchitectureReviewSpecialtyCompanion,
 } from "@/lib/first-pilot-path-help-specialty-guard-surfaces";
-import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 
 function readSpecialtyGuardSource(relativePath: string): string {
@@ -27,10 +26,8 @@ describe("first-pilot-path specialty companion guard (TB-1379)", () => {
     expect(sourceDispatchesFirstArchitectureReviewSpecialtyCompanion(topicPageSource)).toBe(true);
   });
 
-  it("retires first-pilot-path bookmarks onto the canonical specialty route", () => {
-    expect(resolveHelpTopicPermanentRedirect(FIRST_PILOT_PATH_RETIRED_ALIAS_SLUG)).toBe(
-      FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
-    );
+  it("retires first-pilot-path bookmarks without HTTP redirects", () => {
+    expect(resolveHelpTopicPermanentRedirect(FIRST_PILOT_PATH_RETIRED_ALIAS_SLUG)).toBeNull();
   });
 
   it("documents specialty root and primary Start CTA test ids for reviewers", () => {

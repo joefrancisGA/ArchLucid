@@ -8,36 +8,25 @@ import {
 } from "./help-topic-permanent-redirect-cases";
 
 describe("help-topic-permanent-redirect-cases (Batch S)", () => {
-  it("mirrors every HELP_TOPIC_PERMANENT_REDIRECTS slug", () => {
-    const cases = buildHelpTopicPermanentRedirectCases();
-
-    expect(cases.map((entry) => entry.slug).sort()).toEqual(Object.keys(HELP_TOPIC_PERMANENT_REDIRECTS).sort());
-  });
-
-  it("parses hash targets for how-it-works and product-overview bookmarks", () => {
-    const cases = buildHelpTopicPermanentRedirectCases();
-    const howItWorks = cases.find((entry) => entry.slug === "how-it-works");
-    const productOverview = cases.find((entry) => entry.slug === "product-overview");
-
-    expect(howItWorks?.targetPath).toBe("/help/getting-started");
-    expect(howItWorks?.targetHash).toBe("#how-archlucid-works");
-    expect(productOverview?.targetPath).toBe("/help/sponsor-report");
-    expect(productOverview?.targetHash).toBe("#what-archlucid-is");
+  it("mirrors empty HELP_TOPIC_PERMANENT_REDIRECTS", () => {
+    expect(HELP_TOPIC_PERMANENT_REDIRECTS).toEqual({});
+    expect(buildHelpTopicPermanentRedirectCases()).toEqual([]);
   });
 
   it("matches pathname and hash in redirect URL helper", () => {
-    const howItWorks = buildHelpTopicPermanentRedirectCases().find((entry) => entry.slug === "how-it-works");
-
-    expect(howItWorks).toBeDefined();
+    const sample = {
+      slug: "how-it-works",
+      retiredPath: "/help/how-it-works",
+      targetPath: "/help/getting-started",
+      targetHash: "#how-archlucid-works",
+    };
 
     expect(
       helpTopicRedirectUrlMatches(
         "http://127.0.0.1:3000/help/getting-started#how-archlucid-works",
-        howItWorks!,
+        sample,
       ),
     ).toBe(true);
-    expect(
-      helpTopicRedirectUrlMatches("http://127.0.0.1:3000/help/getting-started", howItWorks!),
-    ).toBe(false);
+    expect(helpTopicRedirectUrlMatches("http://127.0.0.1:3000/help/getting-started", sample)).toBe(false);
   });
 });

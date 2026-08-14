@@ -12,7 +12,7 @@ export type SpecialtyHelpChromeRetiredBelow50InventoryEntry = {
 
 /**
  * Historical scoreboard aliases only — not live inventory rows.
- * Traffic is scored on `canonicalHelpPath`; bookmarks may still hit `retiredHelpPath`.
+ * Traffic is scored on `canonicalHelpPath`. Retired bookmark paths no longer redirect (2026-08-13).
  */
 export const SPECIALTY_HELP_CHROME_RETIRED_BELOW_50_INVENTORY: readonly SpecialtyHelpChromeRetiredBelow50InventoryEntry[] =
   [

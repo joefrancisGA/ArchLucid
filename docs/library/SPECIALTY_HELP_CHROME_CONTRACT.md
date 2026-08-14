@@ -16,7 +16,7 @@ Eight original help routes scored **≤~50/100** for the **same** presentation d
 
 Fix specialty chrome **once**, then apply per slug via existing TB clusters. Do **not** invent a second presentation system per help route.
 
-**2026-08-13 inventory pass:** all six **live** ≤~50 routes are `clusterDone`. Two retired bookmark aliases (`evaluator-workbook`, `first-hour-operator-path`) moved to [`specialty-help-chrome-retired-below-50-inventory.ts`](../archlucid-ui/src/lib/specialty-help-chrome-retired-below-50-inventory.ts).
+**2026-08-13 inventory pass:** all six **live** ≤~50 routes are `clusterDone`. Two retired bookmark aliases (`evaluator-workbook`, `first-hour-operator-path`) moved to [`specialty-help-chrome-retired-below-50-inventory.ts`](../archlucid-ui/src/lib/specialty-help-chrome-retired-below-50-inventory.ts). Permanent redirects for those slugs were removed the same day — legacy bookmarks 404; use canonical targets below.
 
 ---
 

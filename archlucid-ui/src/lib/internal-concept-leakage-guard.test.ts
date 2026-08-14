@@ -39,14 +39,14 @@ describe("internal concept leakage guard (IA-013)", () => {
     expect(BUYER_SALES_LED_PRICING_NOTE).toContain("guided evaluation");
   });
 
-  it("maps folded help topic aliases to canonical slugs (TB-1258 / TB-1739 / Batch A)", () => {
-    expect(resolveHelpTopicPermanentRedirect("creating-runs")).toBe("/help/review-guide");
-    expect(resolveHelpTopicPermanentRedirect("starting-reviews")).toBe("/help/review-guide");
+  it("omits retired help aliases from the registry without redirects", () => {
+    expect(resolveHelpTopicPermanentRedirect("creating-runs")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("starting-reviews")).toBeNull();
     expect(getProductDocumentationEntry("review-guide")?.title).toBe("Review guide");
     expect(getProductDocumentationEntry("creating-runs")).toBeNull();
     expect(getProductDocumentationEntry("starting-reviews")).toBeNull();
     expect(inAppHelpHref("review-guide")).toBe("/help/review-guide");
-    expect(inAppHelpHref("starting-reviews")).toBe("/help/review-guide");
+    expect(inAppHelpHref("starting-reviews")).toBe("/help/starting-reviews");
   });
 
   it("points runs empty-state help at the canonical review-guide slug", () => {

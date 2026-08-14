@@ -13,7 +13,6 @@ import {
   resolveProductDocumentationContentKind,
   type ProductDocumentationContentKind,
 } from "@/lib/product-documentation-content-kinds";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import {
   cloudConnectionsHelpPathSegmentForRegistrySlug,
   normalizeCloudConnectionsSlashHelpTopicSlug,
@@ -863,9 +862,7 @@ function preferredHelpPathSegmentForSlug(slug: string): string {
 
 export function inAppHelpHref(slug: string, hashFragment?: string): string {
   const trimmed = slug.trim().toLowerCase();
-  const permanentRedirect = resolveHelpTopicPermanentRedirect(trimmed);
-  const base =
-    permanentRedirect ?? `/help/${preferredHelpPathSegmentForSlug(trimmed).trim().toLowerCase()}`;
+  const base = `/help/${preferredHelpPathSegmentForSlug(trimmed).trim().toLowerCase()}`;
   const hash = hashFragment?.trim().replace(/^#/, "");
 
   if (hash === undefined || hash.length === 0) {

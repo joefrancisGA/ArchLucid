@@ -171,7 +171,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
       "src/lib/usability/page-help-topic-map.ts",
-      "src/app/(operator)/help/_sections/HelpSponsorReportGuideView.tsx",
+      "src/app/(operator)/help/_sections/HelpSponsorSummaryGuideView.tsx",
     ],
   },
   {

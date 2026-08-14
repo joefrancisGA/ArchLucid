@@ -64,9 +64,9 @@ describe("HelpUsersAndRolesGuideView", () => {
   it("registers the users and roles help entry", () => {
     expect(entry?.slug).toBe("users-and-roles");
     expect(entry?.title).toBe(USERS_AND_ROLES_PAGE_TITLE);
-    // Legacy slug redirects before registry lookup (TB-1707); catalog keeps alias retired (TB-2050).
+    // Legacy slug omitted from registry (TB-1707 / TB-2050); no HTTP redirect.
     expect(getProductDocumentationEntry("operator-auth-roles")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("operator-auth-roles")).toBe(USERS_AND_ROLES_HELP_CANONICAL_PATH);
+    expect(resolveHelpTopicPermanentRedirect("operator-auth-roles")).toBeNull();
   });
 
   it("renders one H1 TOC rail and customer intro without internal engineering sections", () => {

@@ -546,10 +546,12 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Before you share externally" })).toBeInTheDocument();
   });
 
-  it("canonicalizes first-hour-operator-path into specialty first-review chrome (TB-1374)", () => {
-    expect(resolveHelpTopicPermanentRedirect("first-hour-operator-path")).toBe(FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
+  it("does not resolve retired first-hour-operator-path bookmark", () => {
+    expect(resolveHelpTopicPermanentRedirect("first-hour-operator-path")).toBeNull();
     expect(getProductDocumentationEntry("first-hour-operator-path")).toBeNull();
+  });
 
+  it("renders specialty first-review chrome on canonical slug (TB-1374)", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }

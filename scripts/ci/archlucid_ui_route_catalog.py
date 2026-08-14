@@ -71,31 +71,6 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/search": "/insights/search-review-evidence",
     "/compare": "/insights/compare-two-reviews",
     "/scorecard": "/insights/architecture-scorecard",
-    "/help/cloud-connections-azure": "/help/cloud-connections/azure",
-    "/help/cloud-connections-aws": "/help/cloud-connections/aws",
-    "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
-    # TB-2050 / Batch C retired help aliases — fold Hit% into canons.
-    "/help/governance-api-contracts": "/help/api-contracts",
-    "/help/creating-runs": "/help/review-guide",
-    "/help/data-handling-tenant-isolation": "/help/data-handling",
-    "/help/evidence-only-review": "/help/first-architecture-review",
-    "/help/how-it-works": "/help/getting-started",
-    "/help/integrations/azure-boards": "/help/azure-boards",
-    "/help/product-overview": "/help/sponsor-report",
-    "/help/starting-reviews": "/help/review-guide",
-    "/help/evaluator-workbook": "/help/choose-your-next-step",
-    "/help/path-chooser": "/help/choose-your-next-step",
-    "/help/first-hour-operator-path": "/help/first-architecture-review",
-    "/help/first-pilot-path": "/help/first-architecture-review",
-    "/help/operator-auth-roles": "/help/users-and-roles",
-    "/help/pilot-nav-profile": "/help/pilot-guide",
-    # Workbook rows are catalog routes, so these fold to the destination page even when the
-    # browser redirect lands on a section anchor — build_catalog() never emits "#fragment" paths
-    # and assert_ui_route_traffic_workbook_canonical rejects rows outside the catalog.
-    "/help/first-review": "/help/first-architecture-review",
-    "/help/first-value-20-minutes": "/help/first-architecture-review",
-    "/help/pilot-roi-model": "/help/sponsor-report",
-    "/help/developer-troubleshooting": "/help/engineering-troubleshooting",
     # Legacy key: /help/policy-pack-delta-demo is a live registry topic again, so this entry only
     # keeps the route out of the traffic catalog. Dropping it needs a workbook sync for the new row.
     "/help/policy-pack-delta-demo": "/help/policy-packs#policy-pack-delta-demo",
@@ -139,8 +114,6 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/architecture/digests?tab=browse": "/architecture/digests?tab=get-started",
     "/digests?tab=browse": "/architecture/digests?tab=get-started",
     "/health": "/administration/system-health",
-    # Batch A retired help aliases (permanent redirect only) — migrate out of workbook/catalog.
-    "/help/core-pilot": "/help/first-architecture-review",
     "/dashboard": "/architecture/sponsor-dashboard",
     "/sponsor/dashboard": "/architecture/sponsor-dashboard",
     "/portfolio": "/architecture/sponsor-dashboard",
