@@ -18,9 +18,9 @@ public static class AgentTopologyProposalMergeGate
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(results);
 
-        HashSet<string> inventoriedLabels = ResolveInventoriedLabels(graph);
+        HashSet<string> inventoriedIdentifiers = ResolveInventoriedIdentifiers(graph);
 
-        if (inventoriedLabels.Count == 0)
+        if (inventoriedIdentifiers.Count == 0)
             return results;
 
         List<AgentResult> filtered = [];
@@ -33,7 +33,7 @@ public static class AgentTopologyProposalMergeGate
                 continue;
             }
 
-            AgentTopologyProposal sanitized = SanitizeProposal(result.ProposedChanges, inventoriedLabels);
+            AgentTopologyProposal sanitized = SanitizeProposal(result.ProposedChanges, inventoriedIdentifiers);
 
             if (ProposalIsEmpty(sanitized))
                 continue;
@@ -47,13 +47,31 @@ public static class AgentTopologyProposalMergeGate
     private static bool RequiresInventoryOverlayValidation(AgentType agentType) =>
         agentType is AgentType.Topology or AgentType.Cost or AgentType.Compliance or AgentType.Critic;
 
-    private static HashSet<string> ResolveInventoriedLabels(GraphSnapshot graph) =>
-        graph.Nodes
-            .Where(static n => string.Equals(n.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
-            .Where(static n => !IsAgentProposedNode(n))
-            .Select(static n => n.Label)
-            .Where(static l => !string.IsNullOrWhiteSpace(l))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    private static HashSet<string> ResolveInventoriedIdentifiers(GraphSnapshot graph)
+    {
+        HashSet<string> identifiers = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (GraphNode node in graph.Nodes)
+        {
+            if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (IsAgentProposedNode(node))
+                continue;
+
+            AddIdentifier(identifiers, node.Label);
+            AddIdentifier(identifiers, node.NodeId);
+            AddIdentifier(identifiers, node.SourceId);
+        }
+
+        return identifiers;
+    }
+
+    private static void AddIdentifier(HashSet<string> identifiers, string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+            identifiers.Add(value);
+    }
 
     private static bool IsAgentProposedNode(GraphNode node) =>
         string.Equals(node.SourceType, nameof(AgentType.Topology), StringComparison.OrdinalIgnoreCase)
@@ -61,20 +79,20 @@ public static class AgentTopologyProposalMergeGate
 
     private static AgentTopologyProposal SanitizeProposal(
         AgentTopologyProposal proposal,
-        HashSet<string> inventoriedLabels)
+        HashSet<string> inventoriedIdentifiers)
     {
         List<ManifestService> services = proposal.AddedServices?
             .Where(s => !string.IsNullOrWhiteSpace(s.ServiceName))
-            .Where(s => inventoriedLabels.Contains(s.ServiceName))
+            .Where(s => inventoriedIdentifiers.Contains(s.ServiceName))
             .ToList() ?? [];
 
         List<ManifestDatastore> datastores = proposal.AddedDatastores?
             .Where(d => !string.IsNullOrWhiteSpace(d.DatastoreName))
-            .Where(d => inventoriedLabels.Contains(d.DatastoreName))
+            .Where(d => inventoriedIdentifiers.Contains(d.DatastoreName))
             .ToList() ?? [];
 
         List<ManifestRelationship> relationships = proposal.AddedRelationships?
-            .Where(r => inventoriedLabels.Contains(r.SourceId) && inventoriedLabels.Contains(r.TargetId))
+            .Where(r => inventoriedIdentifiers.Contains(r.SourceId) && inventoriedIdentifiers.Contains(r.TargetId))
             .ToList() ?? [];
 
         return new AgentTopologyProposal

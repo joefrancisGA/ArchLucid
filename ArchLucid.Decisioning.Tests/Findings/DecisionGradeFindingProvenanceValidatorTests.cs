@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Decisioning.Findings;
 
 using FluentAssertions;
@@ -63,6 +64,61 @@ public sealed class DecisionGradeFindingProvenanceValidatorTests
                     Category = "Topology",
                     RelatedNodeIds = ["node-1"],
                     Trace = new ExplainabilityTrace { RulesApplied = ["topology-gap-rule"] },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetViolations_allows_inventory_only_reconciliation_with_rules_and_payload_ids()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "inv-1",
+                    FindingType = "InventoryReconciliationFinding",
+                    EngineType = "azure-inventory-reconciliation",
+                    Category = "Correctness",
+                    Payload = new InventoryReconciliationFindingPayload
+                    {
+                        InventoryOnlyResourceIds =
+                        [
+                            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.compute/virtualmachines/vm1"
+                        ]
+                    },
+                    Trace = new ExplainabilityTrace { RulesApplied = ["graph-azure-inventory-reconciliation"] },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetViolations_allows_orphan_resource_with_rules_and_requirement_payload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "orphan-1",
+                    FindingType = "OrphanedAzureResource",
+                    EngineType = "orphaned-azure-resource",
+                    Category = "CostOptimization",
+                    Payload = new RequirementFindingPayload
+                    {
+                        RequirementName =
+                            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.compute/disks/disk1",
+                        RequirementText = "Unattached disk",
+                    },
+                    Trace = new ExplainabilityTrace { RulesApplied = ["orphaned-azure-resource-classifier"] },
                 },
             ],
         };
