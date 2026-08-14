@@ -12,6 +12,7 @@ import {
   IMPROVEMENT_PLANNING_HELP_SOURCES,
 } from "@/lib/improvement-planning-help-evidence-copy";
 import {
+  IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID,
   IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION,
   IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION_TAG,
   IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS,
@@ -51,7 +52,10 @@ describe("HelpImprovementPlanningGuideView", () => {
     expect(screen.getByTestId("help-improvement-planning-claim-discipline").textContent).toContain(
       IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByRole("heading", { name: IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByTestId("help-improvement-planning-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-improvement-planning-overview").textContent?.toLowerCase()).not.toContain(
       "sources package",

@@ -168,6 +168,7 @@ import {
   IMPROVEMENT_PLANNING_HELP_SOURCES,
   IMPROVEMENT_PLANNING_HELP_SOURCES_INTRO,
 } from "@/lib/improvement-planning-help-evidence-copy";
+import { IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID } from "@/lib/improvement-planning-help-guide-content";
 import {
   IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
   IMPACT_PREVIEW_HELP_FOLLOW_UPS_TITLE,
@@ -909,6 +910,7 @@ export function ImprovementPlanningHelpEvidenceOrientationStrip(
       slug="help-improvement-planning"
       claim={IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE}
       claimHeading={IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={IMPROVEMENT_PLANNING_HELP_FOLLOW_UPS_TITLE}

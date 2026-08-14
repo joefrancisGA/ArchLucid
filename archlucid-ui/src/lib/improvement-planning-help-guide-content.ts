@@ -1,6 +1,9 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
-import { IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL } from "@/lib/improvement-planning-help-evidence-copy";
+import {
+  IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING,
+  IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL,
+} from "@/lib/improvement-planning-help-evidence-copy";
 import {
   IMPROVEMENT_PLANNING_DOWNLOAD_REPORT_CTA,
   IMPROVEMENT_PLANNING_EXPORT_DATA_CTA,
@@ -93,10 +96,17 @@ export const IMPROVEMENT_PLANNING_HELP_HOW_TO_READ_STEPS = [
   "Return to reviews or findings when a plan needs execution or governance follow-up.",
 ] as const;
 
+export const IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID = "help-improvement-planning-claim-discipline-heading" as const;
+
 export const IMPROVEMENT_PLANNING_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-improvement-planning-shows", title: "What improvement planning shows" },
   { level: 2, id: "what-planning-returns", title: "What planning returns" },
   { level: 2, id: "how-improvement-planning-works", title: IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL },
+  {
+    level: 2,
+    id: IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID,
+    title: IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 
