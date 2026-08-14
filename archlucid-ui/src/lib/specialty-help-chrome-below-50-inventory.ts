@@ -62,7 +62,7 @@ export const SPECIALTY_HELP_CHROME_BELOW_50_INVENTORY: readonly SpecialtyHelpChr
     helpPath: "/help/procurement",
     slug: "procurement",
     owningClusterId: "TB-1253",
-    clusterDone: false,
+    clusterDone: true,
   },
 ] as const;
 

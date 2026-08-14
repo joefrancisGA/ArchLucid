@@ -18,7 +18,6 @@ export const SPECIALTY_HELP_CHROME_HONESTY_SCAN_FILES: readonly string[] = [
 export const SPECIALTY_HELP_CHROME_INVENTORY_DRIFT_GUARD_SLUGS: readonly string[] = [
   "evaluator-workbook",
   "first-hour-operator-path",
-  "procurement",
 ] as const;
 
 /** Lowercase phrases that must not appear affirmatively in buyer copy (TB-1415). */
