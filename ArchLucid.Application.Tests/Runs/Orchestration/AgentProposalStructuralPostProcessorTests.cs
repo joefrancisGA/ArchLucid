@@ -31,6 +31,29 @@ public sealed class AgentProposalStructuralPostProcessorTests
     }
 
     [Fact]
+    public void ApplyToProposal_preserves_relationship_only_proposals_for_commit_merge_gate_validation()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-1",
+                    TargetId = "ds-1",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedRelationships.Should().ContainSingle();
+        proposal.AddedRelationships![0].SourceId.Should().Be("svc-1");
+    }
+
+    [Fact]
     public void ApplyToProposal_strips_relationships_without_known_endpoints()
     {
         AgentTopologyProposal proposal = new()

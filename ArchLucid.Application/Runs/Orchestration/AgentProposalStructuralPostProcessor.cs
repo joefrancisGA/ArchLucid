@@ -29,14 +29,30 @@ public static class AgentProposalStructuralPostProcessor
         proposal.SourceAgent = agentType;
         proposal.AddedServices = DedupeServices(proposal.AddedServices);
         proposal.AddedDatastores = DedupeDatastores(proposal.AddedDatastores);
-        proposal.AddedRelationships = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
-            proposal.AddedServices,
-            proposal.AddedDatastores,
-            proposal.AddedRelationships);
+        proposal.AddedRelationships = FilterRelationships(proposal);
 
         if (agentType is AgentType.Compliance or AgentType.Critic)
             proposal.RequiredControls = DedupeRequiredControls(proposal.RequiredControls);
     }
+
+    private static List<ManifestRelationship> FilterRelationships(AgentTopologyProposal proposal)
+    {
+        IReadOnlyList<ManifestRelationship>? relationships = proposal.AddedRelationships;
+
+        if (relationships is null || relationships.Count == 0)
+            return [];
+
+        if (!ProposalDeclaresEndpoints(proposal))
+            return [.. relationships];
+
+        return TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            proposal.AddedServices,
+            proposal.AddedDatastores,
+            relationships);
+    }
+
+    private static bool ProposalDeclaresEndpoints(AgentTopologyProposal proposal) =>
+        (proposal.AddedServices?.Count ?? 0) > 0 || (proposal.AddedDatastores?.Count ?? 0) > 0;
 
     private static List<ManifestService> DedupeServices(IReadOnlyList<ManifestService>? services)
     {

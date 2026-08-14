@@ -11,6 +11,62 @@ namespace ArchLucid.Application.Tests.Runs.Orchestration;
 public sealed class CrossAgentProposalConsistencyGateTests
 {
     [Fact]
+    public void ApplyToResults_preserves_relationship_only_proposals_referencing_prior_agent_endpoints()
+    {
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-1",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+            },
+        };
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology, cost]);
+
+        cost.ProposedChanges!.AddedRelationships.Should().ContainSingle();
+        cost.ProposedChanges.AddedRelationships![0].TargetId.Should().Be("sql");
+    }
+
+    [Fact]
     public void ApplyToResults_strips_duplicate_service_names_from_later_agents()
     {
         AgentResult topology = new()

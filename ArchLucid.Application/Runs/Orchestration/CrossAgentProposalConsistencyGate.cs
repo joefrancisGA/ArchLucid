@@ -31,10 +31,10 @@ public static class CrossAgentProposalConsistencyGate
             proposal.AddedServices = ClaimServices(proposal.AddedServices, claimedServiceEndpointKeys);
             proposal.AddedDatastores = ClaimDatastores(proposal.AddedDatastores, claimedDatastoreEndpointKeys);
             proposal.RequiredControls = ClaimRequiredControls(proposal.RequiredControls, claimedRequiredControls);
-            proposal.AddedRelationships = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
-                proposal.AddedServices,
-                proposal.AddedDatastores,
-                proposal.AddedRelationships);
+            proposal.AddedRelationships = FilterRelationships(
+                claimedServiceEndpointKeys,
+                claimedDatastoreEndpointKeys,
+                proposal);
         }
     }
 
@@ -87,6 +87,40 @@ public static class CrossAgentProposalConsistencyGate
 
         return accepted;
     }
+
+    private static List<ManifestRelationship> FilterRelationships(
+        HashSet<string> claimedServiceEndpointKeys,
+        HashSet<string> claimedDatastoreEndpointKeys,
+        AgentTopologyProposal proposal)
+    {
+        IReadOnlyList<ManifestRelationship>? relationships = proposal.AddedRelationships;
+
+        if (relationships is null || relationships.Count == 0)
+            return [];
+
+        IEnumerable<string> priorClaimedEndpointKeys = claimedServiceEndpointKeys.Concat(claimedDatastoreEndpointKeys);
+
+        if (!ProposalDeclaresEndpoints(proposal))
+        {
+            if (!priorClaimedEndpointKeys.Any())
+                return [.. relationships];
+
+            return TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+                priorClaimedEndpointKeys,
+                proposal.AddedServices ?? [],
+                proposal.AddedDatastores ?? [],
+                relationships);
+        }
+
+        return TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            priorClaimedEndpointKeys,
+            proposal.AddedServices,
+            proposal.AddedDatastores,
+            relationships);
+    }
+
+    private static bool ProposalDeclaresEndpoints(AgentTopologyProposal proposal) =>
+        (proposal.AddedServices?.Count ?? 0) > 0 || (proposal.AddedDatastores?.Count ?? 0) > 0;
 
     private static List<string> ClaimRequiredControls(
         IReadOnlyList<string>? requiredControls,
