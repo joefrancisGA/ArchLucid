@@ -1409,4 +1409,76 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().HaveCount(2);
         filtered.Should().ContainSingle(r => r.ResultId == "cost-1" && r.ProposedChanges!.AddedRelationships!.Count == 1);
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_AllowsTopologyRelationshipOnlyFollowUpReferencingPriorTopologyRenameAliasWhenFollowUpAppearsFirst()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes = []
+        };
+
+        AgentResult firstTopology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    },
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ]
+            }
+        };
+
+        AgentResult followUpTopology = new()
+        {
+            ResultId = "topology-2",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [followUpTopology, firstTopology]);
+
+        filtered.Should().HaveCount(2);
+        filtered.Should().ContainSingle(r =>
+            r.ResultId == "topology-2" && r.ProposedChanges!.AddedRelationships!.Count == 1);
+    }
 }

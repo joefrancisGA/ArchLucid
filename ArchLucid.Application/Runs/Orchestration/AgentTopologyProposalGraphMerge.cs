@@ -85,49 +85,43 @@ public static class AgentTopologyProposalGraphMerge
                 }
             }
 
-            if (proposal.AddedDatastores is not { Count: > 0 })
+            if (proposal.AddedDatastores is { Count: > 0 })
             {
-                if (proposal.AddedRelationships is { Count: > 0 })
+                foreach (ManifestDatastore ds in proposal.AddedDatastores)
                 {
-                    AppendUniqueEdges(
-                        addedEdges,
-                        seenDirectedEdgeKeys,
-                        TopologyProposalRelationshipEdgeMapper.MapRelationships(
-                            [.. graph.Nodes, .. added],
-                            proposal.AddedRelationships,
-                            CombineEndpointAliases(accumulatedEndpointAliases, endpointAliases)));
+                    if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(ds, seenTopologyKeys))
+                    {
+                        added.Add(TopologyDatastoreNode(ds, reasoning));
+                        continue;
+                    }
+
+                    TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointAliases(
+                        endpointAliases,
+                        ds,
+                        [.. graph.Nodes, .. added]);
                 }
-
-                MergeEndpointAliasesInto(accumulatedEndpointAliases, endpointAliases);
-                continue;
-            }
-
-            foreach (ManifestDatastore ds in proposal.AddedDatastores)
-            {
-                if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(ds, seenTopologyKeys))
-                {
-                    added.Add(TopologyDatastoreNode(ds, reasoning));
-                    continue;
-                }
-
-                TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointAliases(
-                    endpointAliases,
-                    ds,
-                    [.. graph.Nodes, .. added]);
-            }
-
-            if (proposal.AddedRelationships is { Count: > 0 })
-            {
-                AppendUniqueEdges(
-                    addedEdges,
-                    seenDirectedEdgeKeys,
-                    TopologyProposalRelationshipEdgeMapper.MapRelationships(
-                        [.. graph.Nodes, .. added],
-                        proposal.AddedRelationships,
-                        CombineEndpointAliases(accumulatedEndpointAliases, endpointAliases)));
             }
 
             MergeEndpointAliasesInto(accumulatedEndpointAliases, endpointAliases);
+        }
+
+        foreach (AgentResult result in validatedResults)
+        {
+            if (result.AgentType != AgentType.Topology)
+                continue;
+
+            AgentTopologyProposal? proposal = result.ProposedChanges;
+
+            if (proposal is null || proposal.AddedRelationships is not { Count: > 0 })
+                continue;
+
+            AppendUniqueEdges(
+                addedEdges,
+                seenDirectedEdgeKeys,
+                TopologyProposalRelationshipEdgeMapper.MapRelationships(
+                    [.. graph.Nodes, .. added],
+                    proposal.AddedRelationships,
+                    accumulatedEndpointAliases));
         }
 
         if (added.Count == 0 && addedEdges.Count == 0)
@@ -214,20 +208,6 @@ public static class AgentTopologyProposalGraphMerge
 
     private static string BuildDirectedEdgeKey(string fromNodeId, string toNodeId, string edgeType) =>
         $"{fromNodeId}|{toNodeId}|{edgeType}";
-
-    private static Dictionary<string, string> CombineEndpointAliases(
-        IReadOnlyDictionary<string, string> accumulated,
-        IReadOnlyDictionary<string, string> current)
-    {
-        Dictionary<string, string> combined = new(accumulated, StringComparer.OrdinalIgnoreCase);
-
-        foreach (KeyValuePair<string, string> alias in current)
-        {
-            combined.TryAdd(alias.Key, alias.Value);
-        }
-
-        return combined;
-    }
 
     private static void MergeEndpointAliasesInto(
         Dictionary<string, string> target,

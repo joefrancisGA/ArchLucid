@@ -34,6 +34,17 @@ public static class AgentTopologyProposalMergeGate
         foreach (AgentResult result in orderedResults)
         {
             if (!RequiresInventoryOverlayValidation(result.AgentType) || result.ProposedChanges is null)
+                continue;
+
+            PreRegisterDeclaredProposalEndpointKeys(
+                result.ProposedChanges,
+                accumulatedEndpointKeys,
+                greenfield: false);
+        }
+
+        foreach (AgentResult result in orderedResults)
+        {
+            if (!RequiresInventoryOverlayValidation(result.AgentType) || result.ProposedChanges is null)
             {
                 sanitizedResultsById[result.ResultId] = result;
                 continue;
@@ -71,6 +82,17 @@ public static class AgentTopologyProposalMergeGate
             .ToList();
 
         Dictionary<string, AgentResult> sanitizedResultsById = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (AgentResult result in orderedResults)
+        {
+            if (!RequiresInventoryOverlayValidation(result.AgentType) || result.ProposedChanges is null)
+                continue;
+
+            PreRegisterDeclaredProposalEndpointKeys(
+                result.ProposedChanges,
+                accumulatedEndpointKeys,
+                greenfield: true);
+        }
 
         foreach (AgentResult result in orderedResults)
         {
@@ -169,6 +191,40 @@ public static class AgentTopologyProposalMergeGate
         {
             foreach (ManifestDatastore datastore in proposal.AddedDatastores)
             {
+                TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(endpointKeys, datastore);
+            }
+        }
+    }
+
+    private static void PreRegisterDeclaredProposalEndpointKeys(
+        AgentTopologyProposal proposal,
+        HashSet<string> endpointKeys,
+        bool greenfield)
+    {
+        if (proposal.AddedServices is { Count: > 0 })
+        {
+            foreach (ManifestService service in proposal.AddedServices)
+            {
+                if (!greenfield
+                    && !MatchesInventoriedIdentifier(service.ServiceName, service.ServiceId, endpointKeys))
+                {
+                    continue;
+                }
+
+                TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(endpointKeys, service);
+            }
+        }
+
+        if (proposal.AddedDatastores is { Count: > 0 })
+        {
+            foreach (ManifestDatastore datastore in proposal.AddedDatastores)
+            {
+                if (!greenfield
+                    && !MatchesInventoriedIdentifier(datastore.DatastoreName, datastore.DatastoreId, endpointKeys))
+                {
+                    continue;
+                }
+
                 TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(endpointKeys, datastore);
             }
         }
