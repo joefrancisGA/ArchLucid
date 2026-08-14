@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/toast", () => ({
@@ -36,6 +36,7 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
 
 import { resetCloudPlatformScopeSessionStateForTests } from "@/lib/cloud-platform-scope-storage";
 import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
+import { CLOUD_CONNECTIONS_SOURCES } from "@/lib/cloud-connections-evidence-copy";
 
 import { CloudConnectionsPageClient } from "./CloudConnectionsPageClient";
 
@@ -57,8 +58,6 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Cloud connections" })).toBeInTheDocument();
     expect(screen.getByText(/Cloud connectors are optional/i)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("cloud-connections-sources")).toBeNull();
-    expect(screen.queryByTestId("cloud-connections-claim-discipline")).toBeNull();
     expect(screen.getByTestId("cloud-platform-scope-panel")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
@@ -84,6 +83,20 @@ describe("CloudConnectionsPageClient", () => {
       expect(card).not.toHaveTextContent("Not validated yet");
       expect(card).not.toHaveTextContent("No packages collected");
     }
+  });
+
+  it("renders the cloud connections Sources and claim-discipline strip", async () => {
+    render(<CloudConnectionsPageClient />);
+
+    await screen.findByTestId("cloud-connections-orientation");
+
+    const sources = screen.getByTestId("cloud-connections-sources");
+
+    for (const link of CLOUD_CONNECTIONS_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    expect(screen.getByTestId("cloud-connections-claim-discipline")).toBeInTheDocument();
   });
 
   it("suppresses zero-theater rows on unconfigured provider cards (TB-1143)", async () => {

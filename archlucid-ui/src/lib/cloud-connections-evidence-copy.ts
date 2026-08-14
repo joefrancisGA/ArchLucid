@@ -5,8 +5,14 @@ export const CLOUD_CONNECTIONS_CANONICAL_PATH = "/integrations/cloud-connections
 
 export const CLOUD_CONNECTIONS_HELP_TOPIC_LABEL = "How cloud connections work" as const;
 
+export const CLOUD_CONNECTIONS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
 export const CLOUD_CONNECTIONS_CLAIM_DISCIPLINE =
-  "Provider status tiles and evidence-only upload summarize connection readiness for read-only collection — they are not a sealed-review diligence Sources package by themselves. Open Connection status or a provider guide before treating inventory as authoritative.";
+  "This page explains how provider status tiles and evidence-only upload summarize connection readiness for read-only collection — open Connection status, a provider guide, or How ArchLucid works when you need orientation before treating inventory as authoritative.";
+
+export const CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const CLOUD_CONNECTIONS_CLAIM_HEADING_ID = "cloud-connections-claim-discipline-heading" as const;
 
 export const CLOUD_CONNECTIONS_SOURCES_INTRO =
   "Pick a cloud provider or evidence-only upload below, then use Connection status, provider help, or How ArchLucid works when you need orientation before production collection.";

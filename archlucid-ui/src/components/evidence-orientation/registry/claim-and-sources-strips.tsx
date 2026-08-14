@@ -58,6 +58,14 @@ import {
   CONNECT_AZURE_SECURELY_SOURCES_INTRO,
 } from "@/lib/connect-azure-securely-help-content";
 import {
+  CLOUD_CONNECTIONS_CLAIM_DISCIPLINE,
+  CLOUD_CONNECTIONS_CLAIM_DISCIPLINE_HEADING,
+  CLOUD_CONNECTIONS_CLAIM_HEADING_ID,
+  CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE,
+  CLOUD_CONNECTIONS_SOURCES,
+  CLOUD_CONNECTIONS_SOURCES_INTRO,
+} from "@/lib/cloud-connections-evidence-copy";
+import {
   EVIDENCE_CLAIM_STYLE,
   EVIDENCE_SOURCES_STYLE,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
@@ -1351,6 +1359,25 @@ export function AzureBoardsIntegrationEvidenceOrientationStrip(): React.JSX.Elem
       sourcesTitle={AZURE_BOARDS_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={AZURE_BOARDS_INTEGRATION_SOURCES_INTRO}
       sources={AZURE_BOARDS_INTEGRATION_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function CloudConnectionsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="cloud-connections"
+      claim={CLOUD_CONNECTIONS_CLAIM_DISCIPLINE}
+      claimHeading={CLOUD_CONNECTIONS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={CLOUD_CONNECTIONS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE}
+      sourcesIntro={CLOUD_CONNECTIONS_SOURCES_INTRO}
+      sources={CLOUD_CONNECTIONS_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
