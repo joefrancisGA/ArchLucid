@@ -262,6 +262,14 @@ import {
 } from "@/lib/connection-status-evidence-copy";
 import { CONNECTION_STATUS_HELP_CLAIM_HEADING_ID } from "@/lib/connection-status-help-guide-content";
 import {
+  DEMO_READINESS_CLAIM_DISCIPLINE,
+  DEMO_READINESS_CLAIM_DISCIPLINE_HEADING,
+  DEMO_READINESS_CLAIM_HEADING_ID,
+  DEMO_READINESS_FOLLOW_UPS_TITLE,
+  DEMO_READINESS_SOURCES,
+  DEMO_READINESS_SOURCES_INTRO,
+} from "@/lib/demo-readiness-evidence-copy";
+import {
   DEPLOYMENT_STATUS_CLAIM_DISCIPLINE,
   DEPLOYMENT_STATUS_CLAIM_DISCIPLINE_HEADING,
   DEPLOYMENT_STATUS_CLAIM_HEADING_ID,
@@ -714,6 +722,25 @@ export function ConnectionStatusEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={CONNECTION_STATUS_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECTION_STATUS_SOURCES_INTRO}
       sources={CONNECTION_STATUS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function DemoReadinessEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="demo-readiness"
+      claim={DEMO_READINESS_CLAIM_DISCIPLINE}
+      claimHeading={DEMO_READINESS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={DEMO_READINESS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={DEMO_READINESS_FOLLOW_UPS_TITLE}
+      sourcesIntro={DEMO_READINESS_SOURCES_INTRO}
+      sources={DEMO_READINESS_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
