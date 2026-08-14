@@ -21,7 +21,7 @@ public static class AgentTopologyProposalMergeGate
         HashSet<string> inventoriedIdentifiers = ResolveInventoriedIdentifiers(graph);
         HashSet<string> relationshipEndpointKeys = ResolveRelationshipEndpointKeys(graph, inventoriedIdentifiers);
 
-        if (inventoriedIdentifiers.Count == 0)
+        if (relationshipEndpointKeys.Count == 0)
             return results;
 
         HashSet<string> accumulatedEndpointKeys = new(relationshipEndpointKeys, StringComparer.OrdinalIgnoreCase);

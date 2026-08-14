@@ -1034,4 +1034,109 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().HaveCount(2);
         filtered.Should().ContainSingle(r => r.ResultId == "cost-1" && r.ProposedChanges!.AddedRelationships!.Count == 1);
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenOnlyAgentProposedTopologyExists_RejectsRelationshipToUnknownEndpoint()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "svc-worker",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "worker",
+                    Category = GraphTopologyCategories.Compute,
+                    SourceType = nameof(AgentType.Topology),
+                    SourceId = "ProposedChanges"
+                },
+                new GraphNode
+                {
+                    NodeId = "ds-cache",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "cache",
+                    Category = GraphTopologyCategories.Data,
+                    SourceType = nameof(AgentType.Topology),
+                    SourceId = "ProposedChanges"
+                }
+            ]
+        };
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "worker",
+                        TargetId = "phantom",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenOnlyAgentProposedTopologyExists_AllowsRelationshipBetweenAgentProposedEndpoints()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "svc-worker",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "worker",
+                    Category = GraphTopologyCategories.Compute,
+                    SourceType = nameof(AgentType.Topology),
+                    SourceId = "ProposedChanges"
+                },
+                new GraphNode
+                {
+                    NodeId = "ds-cache",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "cache",
+                    Category = GraphTopologyCategories.Data,
+                    SourceType = nameof(AgentType.Topology),
+                    SourceId = "ProposedChanges"
+                }
+            ]
+        };
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "worker",
+                        TargetId = "cache",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
 }
