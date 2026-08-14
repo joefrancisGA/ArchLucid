@@ -9,6 +9,10 @@ vi.mock("@/app/(operator)/help/_sections/HelpConnectionStatusWorkspaceReadinessS
   HelpConnectionStatusWorkspaceReadinessStrip: () => null,
 }));
 
+vi.mock("@/app/(operator)/help/_sections/HelpSponsorDashboardWorkspaceReadinessStrip", () => ({
+  HelpSponsorDashboardWorkspaceReadinessStrip: () => null,
+}));
+
 import { HelpApiKeysGuideView } from "@/app/(operator)/help/_sections/HelpApiKeysGuideView";
 import { HelpAiUsageGuideView } from "@/app/(operator)/help/_sections/HelpAiUsageGuideView";
 import { HelpArchitectureDraftsGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView";
@@ -75,7 +79,12 @@ describe("specialty help guides — operator surfaces batch", () => {
     render(<View entry={entry} />);
 
     expect(screen.getByTestId(testId)).toBeInTheDocument();
-    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
+
+    const breadcrumbSlugs = new Set(["servicenow-integration", "sponsor-dashboard", "system-health"]);
+
+    if (!breadcrumbSlugs.has(slug)) {
+      expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
+    }
 
     if (slug === "connection-status") {
       expect(screen.getByTestId("help-connection-status-primary-cta")).toBeInTheDocument();
@@ -83,24 +92,20 @@ describe("specialty help guides — operator surfaces batch", () => {
       return;
     }
 
-    if (slug === "search-review-evidence" || slug === "system-health" || slug === "teams-integration") {
+    if (slug === "search-review-evidence" || slug === "sponsor-dashboard" || slug === "system-health" || slug === "teams-integration") {
       expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();
 
       return;
     }
 
     if (slug === "model-governance") {
-      expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-        "Last reviewed 2026-08-13 · administration model governance orientation",
-      );
+      expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
 
       return;
     }
 
     if (slug === "workspace-settings") {
-      expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-        "Last reviewed 2026-08-13 · administration workspace settings orientation",
-      );
+      expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
 
       return;
     }

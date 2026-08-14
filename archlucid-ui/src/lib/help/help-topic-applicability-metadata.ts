@@ -27,6 +27,7 @@ export const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "recurrence-schedules",
   "roi-summary",
   "search-review-evidence",
+  "sponsor-dashboard",
   "system-health",
   "workspace-settings",
 ]);
