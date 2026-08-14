@@ -2,8 +2,8 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { BASELINE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/baseline-settings-evidence-copy";
 import {
   BASELINE_SETTINGS_CONSERVATIVE_DEFAULTS_NOTE,
-  BASELINE_SETTINGS_PAGE_SUBTITLE,
   BASELINE_SETTINGS_PAGE_TITLE,
+  BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER,
   BASELINE_SETTINGS_USED_IN_SURFACES,
 } from "@/lib/baseline-settings-present";
 import {
@@ -11,9 +11,12 @@ import {
   BASELINE_ROI_WHY_TWO,
 } from "@/lib/vocabulary/baseline-roi-vocabulary";
 
+export const BASELINE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE = "Baseline settings";
+
 export const BASELINE_SETTINGS_HELP_PAGE_TITLE = BASELINE_SETTINGS_PAGE_TITLE;
 
-export const BASELINE_SETTINGS_HELP_PAGE_SUBTITLE = BASELINE_SETTINGS_PAGE_SUBTITLE;
+export const BASELINE_SETTINGS_HELP_PAGE_SUBTITLE =
+  "How workspace ROI measurement anchors feed architecture scorecard and sponsor-report value estimates.";
 
 export const BASELINE_SETTINGS_HELP_OVERVIEW =
   "Baseline settings capture workspace ROI measurement anchors — review-cycle hours, prep time, and people per review. Reports use these inputs (or conservative defaults) when estimating time saved — they are not financial reporting by themselves.";
@@ -22,6 +25,13 @@ export const BASELINE_SETTINGS_HELP_PRIMARY_ACTION = {
   label: "Open baseline settings",
   href: "/administration/baseline",
 } as const;
+
+export const BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE = "Start here";
+
+export const BASELINE_SETTINGS_HELP_ROLE_PRECONDITION =
+  "Saving baseline anchors needs Execute authority in this workspace.";
+
+export const BASELINE_SETTINGS_HELP_ROLE_PRECONDITION_TAG = "Execute";
 
 export type BaselineSettingsHelpItem = {
   readonly label: string;
@@ -49,7 +59,7 @@ export const BASELINE_SETTINGS_HELP_ANCHOR_ITEMS: readonly BaselineSettingsHelpI
 
 export const BASELINE_SETTINGS_HELP_HOW_TO_READ_STEPS = [
   "Enter anchors that match your pilot charter or procurement discussion — blank fields keep conservative modeled defaults.",
-  "Save when Execute authority is available; saved baselines stay until you update the values.",
+  BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER,
   "Open ROI summary or architecture scorecard when you need portfolio framing beyond measurement inputs.",
 ] as const;
 

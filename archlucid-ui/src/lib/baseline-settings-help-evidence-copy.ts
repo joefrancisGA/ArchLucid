@@ -1,9 +1,9 @@
-import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
 import {
-  BASELINE_SETTINGS_CANONICAL_PATH,
   BASELINE_SETTINGS_CLAIM_DISCIPLINE,
   BASELINE_SETTINGS_SOURCES_INTRO,
 } from "@/lib/baseline-settings-evidence-copy";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const BASELINE_SETTINGS_HELP_CANONICAL_PATH = "/help/baseline-settings" as const;
 
@@ -14,13 +14,28 @@ export const BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const BASELINE_SETTINGS_HELP_SOURCES_INTRO = BASELINE_SETTINGS_SOURCES_INTRO;
 
-export const BASELINE_SETTINGS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Baseline settings", href: BASELINE_SETTINGS_CANONICAL_PATH },
-  { label: "ROI summary", href: "/insights/roi-summary" },
-  { label: "Architecture scorecard", href: "/insights/architecture-scorecard" },
-  { label: "Pilot ROI measurement methodology", href: "/help/sponsor-report#pilot-roi-measurement" },
-  { label: "ROI summary help", href: "/help/roi-summary" },
-  { label: "Assurance status", href: "/security-trust" },
+/** Help follow-ups — no self-href, no assurance status, no duplicate ROI destinations. */
+export const BASELINE_SETTINGS_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Pilot ROI measurement",
+    href: inAppHelpHref("sponsor-report", "pilot-roi-measurement"),
+    when: "Read methodology when anchors need procurement-safe assumptions",
+  },
+  {
+    label: "Architecture scorecard",
+    href: "/insights/architecture-scorecard",
+    when: "Open scorecard when portfolio framing goes beyond measurement inputs",
+  },
+  {
+    label: "ROI summary help",
+    href: inAppHelpHref("roi-summary"),
+    when: "Follow savings framing when sponsors ask how anchors translate to outcomes",
+  },
+  {
+    label: "Sponsor report",
+    href: "/insights/sponsor-report",
+    when: "Open value report when baseline anchors feed sponsor-facing outcomes",
+  },
 ] as const;
 
 export const BASELINE_SETTINGS_HELP_OPERATOR_CLAIM = BASELINE_SETTINGS_CLAIM_DISCIPLINE;

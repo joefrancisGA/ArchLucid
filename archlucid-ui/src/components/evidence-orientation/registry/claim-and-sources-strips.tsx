@@ -417,7 +417,13 @@ export function StandardsRulesHelpEvidenceOrientationStrip(): React.JSX.Element 
   );
 }
 
-export function BaselineSettingsHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type BaselineSettingsHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function BaselineSettingsHelpEvidenceOrientationStrip(
+  props: BaselineSettingsHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-baseline-settings"
@@ -429,6 +435,8 @@ export function BaselineSettingsHelpEvidenceOrientationStrip(): React.JSX.Elemen
       sources={BASELINE_SETTINGS_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
