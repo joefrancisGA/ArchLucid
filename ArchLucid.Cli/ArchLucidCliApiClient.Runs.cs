@@ -32,7 +32,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.Body45? body = MapToOpenApiRequestBody<Gen.Body45>(MapToGenerated(request), GenNumericEnumBridgeJson);
+            Gen.Body46? body = MapToOpenApiRequestBody<Gen.Body46>(MapToGenerated(request), GenNumericEnumBridgeJson);
 
             if (body is null)
                 return CreateRunResult.Fail(null, "Invalid architecture request payload.");
@@ -101,7 +101,7 @@ public sealed partial class ArchLucidApiClient
                 return new SubmitResultResult(false, null, "Invalid agent result payload.");
 
             Gen.SubmitAgentResultRequest req = new() { Result = genResult };
-            Gen.Body63? body = MapToOpenApiRequestBody<Gen.Body63>(req, GenNumericEnumBridgeJson);
+            Gen.Body64? body = MapToOpenApiRequestBody<Gen.Body64>(req, GenNumericEnumBridgeJson);
             Gen.SubmitAgentResultResponse parsed = await _api.ResultAsync(runId, body, ct);
 
             return new SubmitResultResult(true, parsed.ResultId, null);
