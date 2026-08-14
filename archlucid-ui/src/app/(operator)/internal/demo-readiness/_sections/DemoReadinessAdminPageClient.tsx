@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 
 import { DemoReadinessAdminPageLoadingSkeleton } from "@/app/(operator)/internal/demo-readiness/_sections/DemoReadinessAdminPageLoadingSkeleton";
 import { DemoReadinessToolingDisabledEmptyState } from "@/app/(operator)/internal/demo-readiness/_sections/DemoReadinessToolingDisabledEmptyState";
+import { DemoReadinessEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import {
   BuyerCtoDemoReadinessPanel,
@@ -108,6 +109,7 @@ export function DemoReadinessAdminPageClient(): React.JSX.Element {
           </Link>
         ) : null}
       </PageHeading>
+      <DemoReadinessEvidenceOrientationStrip />
       <TrialFunnelDemoReadinessVocabularyRail currentSurfaceId="demo-readiness" />
       {demoOperatorToolingEnabled ? (
         <BuyerCtoDemoReadinessPanel
