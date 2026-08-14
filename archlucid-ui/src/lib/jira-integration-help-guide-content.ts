@@ -7,6 +7,7 @@ import {
   JIRA_CONNECT_WITH_ATLASSIAN_LABEL,
   JIRA_WORKSPACE_ROUTING_UNAVAILABLE_LEAD,
 } from "@/lib/jira-integration-page-copy";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const JIRA_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE = "Jira integration";
 
@@ -32,7 +33,10 @@ export const JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION = JIRA_WORKSPACE_ROUT
 export type JiraIntegrationHelpItem = {
   readonly label: string;
   readonly detail: string;
+  readonly href?: string;
 };
+
+export const JIRA_INTEGRATION_HELP_INTEGRATION_READINESS_HREF = inAppHelpHref("integration-readiness");
 
 export const JIRA_INTEGRATION_HELP_FEATURE_ITEMS: readonly JiraIntegrationHelpItem[] = [
   {
@@ -50,6 +54,7 @@ export const JIRA_INTEGRATION_HELP_FEATURE_ITEMS: readonly JiraIntegrationHelpIt
   {
     label: "Integration readiness",
     detail: "Open integration readiness when multiple connectors need procurement-oriented setup guidance.",
+    href: JIRA_INTEGRATION_HELP_INTEGRATION_READINESS_HREF,
   },
 ] as const;
 
@@ -66,7 +71,7 @@ export const JIRA_INTEGRATION_HELP_BEFORE_YOU_START_BODY =
 
 export const JIRA_INTEGRATION_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-jira-integration-does", title: "What Jira integration does" },
-  { level: 2, id: "how-jira-integration-works", title: JIRA_INTEGRATION_HELP_TOPIC_LABEL },
   { level: 2, id: "before-you-start", title: JIRA_INTEGRATION_HELP_BEFORE_YOU_START_TITLE },
+  { level: 2, id: "how-jira-integration-works", title: JIRA_INTEGRATION_HELP_TOPIC_LABEL },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

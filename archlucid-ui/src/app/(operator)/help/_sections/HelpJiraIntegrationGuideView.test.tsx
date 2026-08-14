@@ -10,6 +10,7 @@ import {
   JIRA_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
   JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION,
   JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION_TAG,
+  JIRA_INTEGRATION_HELP_INTEGRATION_READINESS_HREF,
   JIRA_INTEGRATION_HELP_PRIMARY_ACTION,
   JIRA_INTEGRATION_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/jira-integration-help-guide-content";
@@ -73,8 +74,11 @@ describe("HelpJiraIntegrationGuideView", () => {
     }
 
     expect(screen.getAllByRole("link", { name: "Integration readiness help" })).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "Integration readiness" })).toHaveAttribute(
+      "href",
+      JIRA_INTEGRATION_HELP_INTEGRATION_READINESS_HREF,
+    );
     expect(screen.getAllByRole("link", { name: "ServiceNow integration" })).toHaveLength(1);
     expect(screen.queryByRole("link", { name: "Jira integration" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /integration readiness$/i })).not.toBeInTheDocument();
   });
 });

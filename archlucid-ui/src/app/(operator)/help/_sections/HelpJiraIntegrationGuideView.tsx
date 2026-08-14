@@ -12,6 +12,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -119,11 +120,29 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
             >
               {JIRA_INTEGRATION_HELP_FEATURE_ITEMS.map((item) => (
                 <div key={item.label}>
-                  <dt className="font-medium text-al-text-primary">{item.label}</dt>
+                  <dt className="font-medium text-al-text-primary">
+                    {item.href === undefined ? (
+                      item.label
+                    ) : (
+                      <Link className={OPERATOR_LINK.nav} href={item.href}>
+                        {item.label}
+                      </Link>
+                    )}
+                  </dt>
                   <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
                 </div>
               ))}
             </dl>
+          </section>
+
+          <section
+            aria-labelledby="before-you-start"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id="before-you-start">Before you start</HelpSectionHeading>
+            <p className={readingBodyClass} data-testid="help-jira-integration-before-you-start">
+              {JIRA_INTEGRATION_HELP_BEFORE_YOU_START_BODY}
+            </p>
           </section>
 
           <section
@@ -139,16 +158,6 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
                 <li key={step}>{step}</li>
               ))}
             </ol>
-          </section>
-
-          <section
-            aria-labelledby="before-you-start"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-          >
-            <HelpSectionHeading id="before-you-start">Before you start</HelpSectionHeading>
-            <p className={readingBodyClass} data-testid="help-jira-integration-before-you-start">
-              {JIRA_INTEGRATION_HELP_BEFORE_YOU_START_BODY}
-            </p>
           </section>
 
           <JiraIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
