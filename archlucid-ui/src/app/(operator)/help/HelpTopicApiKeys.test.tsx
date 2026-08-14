@@ -9,6 +9,7 @@ import { HelpApiKeysGuideView } from "@/app/(operator)/help/_sections/HelpApiKey
 import {
   API_KEYS_HELP_ACTION_PANEL_INTRO,
   API_KEYS_HELP_ACTION_PANEL_TITLE,
+  API_KEYS_HELP_CLAIM_HEADING_ID,
   API_KEYS_HELP_INSTEAD_SECTION_TITLE,
   API_KEYS_HELP_OVERVIEW,
   API_KEYS_HELP_PAGE_SUBTITLE,
@@ -94,7 +95,10 @@ describe("HelpApiKeysGuideView", () => {
     expect(screen.getByTestId("help-api-keys-how-stepper")).toBeInTheDocument();
     expect(screen.queryByTestId("help-api-keys-step-follow-ups")).toBeNull();
 
-    expect(screen.getByRole("heading", { name: API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      API_KEYS_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByTestId("help-api-keys-claim-discipline")).toHaveTextContent(API_KEYS_HELP_CLAIM_DISCIPLINE);
     expect(screen.getByTestId("help-api-keys-claim-discipline").textContent?.toLowerCase()).not.toContain(
       "not available",
@@ -114,7 +118,7 @@ describe("HelpApiKeysGuideView", () => {
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_PRIMARY_ACTIONS.audit.label })).toHaveLength(1);
   });
 
-  it("renders a sticky TOC with four on-page sections including unavailability", () => {
+  it("renders a sticky TOC with five on-page sections including claim discipline", () => {
     if (entry === undefined) {
       throw new Error("Expected api-keys documentation entry.");
     }
@@ -125,6 +129,7 @@ describe("HelpApiKeysGuideView", () => {
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_ACTION_PANEL_TITLE })).not.toHaveLength(0);
     expect(screen.getAllByRole("link", { name: "What API keys are for" })).not.toHaveLength(0);
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_INSTEAD_SECTION_TITLE })).not.toHaveLength(0);
+    expect(screen.getAllByRole("link", { name: API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING })).not.toHaveLength(0);
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_FOLLOW_UPS_TITLE })).not.toHaveLength(0);
     expect(screen.getByTestId("help-api-keys-page-title").closest("[data-nav-href]")).toHaveAttribute(
       "data-nav-href",

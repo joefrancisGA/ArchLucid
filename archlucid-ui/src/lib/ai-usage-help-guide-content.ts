@@ -1,4 +1,7 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import {
+  AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING,
+} from "@/lib/ai-usage-help-evidence-copy";
 import { AI_USAGE_SETTINGS_CANONICAL_PATH } from "@/lib/ai-usage-settings-evidence-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -65,8 +68,15 @@ export const AI_USAGE_HELP_HOW_TO_READ_STEPS = [
   "Open Billing and plans or model governance when spend questions turn into plan or execution-profile changes.",
 ] as const;
 
+export const AI_USAGE_HELP_CLAIM_HEADING_ID = "help-ai-usage-claim-discipline-heading" as const;
+
 export const AI_USAGE_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-ai-usage-shows", title: "What AI usage shows" },
   { level: 2, id: "how-ai-usage-works", title: AI_USAGE_HELP_HOW_IT_WORKS_SECTION_TITLE },
+  {
+    level: 2,
+    id: AI_USAGE_HELP_CLAIM_HEADING_ID,
+    title: AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

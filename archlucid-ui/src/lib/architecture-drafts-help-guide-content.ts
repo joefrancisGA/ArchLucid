@@ -3,6 +3,7 @@ import {
   ARCHITECTURE_DRAFTS_CANONICAL_PATH,
   ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL,
 } from "@/lib/architecture-drafts-evidence-copy";
+import { ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/architecture-drafts-help-evidence-copy";
 import {
   ARCHITECTURE_DRAFTS_LIST_LABEL,
   CREATE_ARCHITECTURE_LABEL,
@@ -61,8 +62,15 @@ export const ARCHITECTURE_DRAFTS_HELP_FIRST_REVIEW_HREF = "/help/first-architect
 
 export const ARCHITECTURE_DRAFTS_HELP_CREATE_HREF = "/architecture/architectures/new";
 
+export const ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID = "help-architecture-drafts-claim-discipline-heading" as const;
+
 export const ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-architecture-drafts-do", title: "What architecture drafts do" },
   { level: 2, id: "how-architecture-drafts-work", title: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL },
+  {
+    level: 2,
+    id: ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID,
+    title: ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

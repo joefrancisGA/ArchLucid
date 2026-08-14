@@ -8,6 +8,8 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 import { HelpAiUsageGuideView } from "@/app/(operator)/help/_sections/HelpAiUsageGuideView";
 import {
   AI_USAGE_HELP_ACCESS_PRECONDITION,
+  AI_USAGE_HELP_CLAIM_HEADING_ID,
+  AI_USAGE_HELP_GUIDE_HEADINGS,
   AI_USAGE_HELP_HOW_IT_WORKS_SECTION_TITLE,
   AI_USAGE_HELP_PRIMARY_ACTION,
 } from "@/lib/ai-usage-help-guide-content";
@@ -37,7 +39,10 @@ describe("HelpAiUsageGuideView", () => {
     expect(screen.getByTestId("help-ai-usage-access-precondition")).toHaveTextContent(
       AI_USAGE_HELP_ACCESS_PRECONDITION,
     );
-    expect(screen.getByRole("heading", { name: AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      AI_USAGE_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByTestId("help-ai-usage-claim-discipline").textContent).toContain(
       AI_USAGE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
@@ -57,5 +62,9 @@ describe("HelpAiUsageGuideView", () => {
       "/administration/ai-usage#ai-usage-filters-bar",
     );
     expect(screen.queryByRole("link", { name: "Read billing and plans help →" })).toBeNull();
+
+    for (const heading of AI_USAGE_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
   });
 });

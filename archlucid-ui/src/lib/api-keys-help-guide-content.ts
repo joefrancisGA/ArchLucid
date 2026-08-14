@@ -1,5 +1,6 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { CLI_USAGE_HELP_PATH } from "@/lib/cli-usage-help-route";
+import { API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/api-keys-help-evidence-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const API_KEYS_HELP_PAGE_TITLE = "API keys";
@@ -84,9 +85,16 @@ export const API_KEYS_HELP_HOW_TO_READ_STEPS = [
   "Record credential or access changes in Audit when assurance follow-up is required.",
 ] as const;
 
+export const API_KEYS_HELP_CLAIM_HEADING_ID = "help-api-keys-claim-discipline-heading" as const;
+
 export const API_KEYS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: API_KEYS_HELP_ACTION_PANEL_ID, title: API_KEYS_HELP_ACTION_PANEL_TITLE },
   { level: 2, id: "what-api-keys-are-for", title: "What API keys are for" },
   { level: 2, id: API_KEYS_HELP_INSTEAD_SECTION_ID, title: API_KEYS_HELP_INSTEAD_SECTION_TITLE },
+  {
+    level: 2,
+    id: API_KEYS_HELP_CLAIM_HEADING_ID,
+    title: API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

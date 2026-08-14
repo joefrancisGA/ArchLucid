@@ -63,6 +63,7 @@ import {
   API_KEYS_HELP_SOURCES,
   API_KEYS_HELP_SOURCES_INTRO,
 } from "@/lib/api-keys-help-evidence-copy";
+import { API_KEYS_HELP_CLAIM_HEADING_ID } from "@/lib/api-keys-help-guide-content";
 import {
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE,
   SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE,
@@ -76,6 +77,7 @@ import {
   AI_USAGE_HELP_SOURCES,
   AI_USAGE_HELP_SOURCES_INTRO,
 } from "@/lib/ai-usage-help-evidence-copy";
+import { AI_USAGE_HELP_CLAIM_HEADING_ID } from "@/lib/ai-usage-help-guide-content";
 import {
   PREFERENCES_HELP_CLAIM_DISCIPLINE,
   PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -99,6 +101,7 @@ import {
   ARCHITECTURE_DRAFTS_HELP_SOURCES,
   ARCHITECTURE_DRAFTS_HELP_SOURCES_INTRO,
 } from "@/lib/architecture-drafts-help-evidence-copy";
+import { ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID } from "@/lib/architecture-drafts-help-guide-content";
 import {
   EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE,
   EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -474,6 +477,7 @@ export function ApiKeysHelpEvidenceOrientationStrip(): React.JSX.Element {
       slug="help-api-keys"
       claim={API_KEYS_HELP_CLAIM_DISCIPLINE}
       claimHeading={API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={API_KEYS_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={API_KEYS_HELP_FOLLOW_UPS_TITLE}
@@ -507,6 +511,7 @@ export function AiUsageHelpEvidenceOrientationStrip(): React.JSX.Element {
       slug="help-ai-usage"
       claim={AI_USAGE_HELP_CLAIM_DISCIPLINE}
       claimHeading={AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={AI_USAGE_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={AI_USAGE_HELP_FOLLOW_UPS_TITLE}
@@ -851,6 +856,7 @@ export function ArchitectureDraftsHelpEvidenceOrientationStrip(): React.JSX.Elem
       slug="help-architecture-drafts"
       claim={ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE}
       claimHeading={ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE}
