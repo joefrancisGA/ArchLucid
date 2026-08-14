@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
-import { StatusPill } from "@/components/StatusPill";
+import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { Button } from "@/components/ui/button";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
@@ -45,7 +45,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
         testId="governance-approval-inspector-secondary-view-strip"
       />
       <div className="flex flex-wrap items-center gap-2">
-        <StatusPill status={request.status} domain="governance" ariaLabel={`Governance status: ${request.status}`} />
+        <GovernanceStatusTag status={request.status} aria-label={`Governance status: ${request.status}`} />
       </div>
 
       <dl className="m-0 grid gap-2 sm:grid-cols-[minmax(5rem,auto)_1fr] sm:gap-x-3">

@@ -33,6 +33,12 @@ describe("resolveEnterpriseStatusKind (TB-2285)", () => {
       ["Promoted", "approved"],
       ["Activated", "ready"],
       ["Approved with monitoring", "approved-with-monitoring"],
+      ["Pending architecture review", "in-progress"],
+      ["Passed", "approved"],
+      ["Failed", "blocked"],
+      ["Not required", "neutral"],
+      ["Withdrawn", "neutral"],
+      ["No governance decision recorded", "neutral"],
     ] as const)("maps governance label %s → %s", (label, kind) => {
       expect(resolveEnterpriseStatusKind(label, "governance")).toBe(kind);
     });

@@ -9,7 +9,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { StatusTag } from "@/components/ui/status-tag";
-import { StatusPill } from "@/components/StatusPill";
+import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
@@ -284,10 +284,8 @@ export function RunDetailPageHeader({
                   <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>
                     {approvalStatusLabel}
                   </p>
-                  <StatusPill
+                  <GovernanceStatusTag
                     status={buyerGovernanceApprovalLabel.trim()}
-                    domain="governance"
-                    uppercase={false}
                     className={cn("font-semibold normal-case tracking-normal", OPERATOR_TYPOGRAPHY.helper)}
                   />
                 </div>

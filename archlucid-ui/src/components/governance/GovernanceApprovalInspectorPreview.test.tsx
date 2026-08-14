@@ -30,7 +30,7 @@ describe("approvalRequestPrimaryLabel", () => {
 });
 
 describe("GovernanceApprovalInspectorPreview", () => {
-  it("renders governance StatusPill, secondary-view strip, and run link", () => {
+  it("renders governance StatusTag, secondary-view strip, and run link", () => {
     render(<GovernanceApprovalInspectorPreview request={sample} />);
     const root = screen.getByTestId("governance-approval-inspector-preview");
 

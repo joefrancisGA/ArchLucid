@@ -50,13 +50,19 @@ function resolveGovernanceStatusKind(display: string): EnterpriseStatusKind | nu
       return "approved-with-monitoring";
 
     case "submitted":
+    case "pending":
+    case "pending architecture review":
+    case "in review":
+    case "inreview":
       return "in-progress";
 
     case "approved":
+    case "passed":
       return "approved";
 
     case "failed":
     case "rejected":
+    case "denied":
       return "blocked";
 
     case "promoted":
@@ -67,6 +73,11 @@ function resolveGovernanceStatusKind(display: string): EnterpriseStatusKind | nu
 
     case "draft":
       return "draft";
+
+    case "withdrawn":
+    case "not required":
+    case "no governance decision recorded":
+      return "neutral";
 
     default:
       return null;

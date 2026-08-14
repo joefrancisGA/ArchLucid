@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
-import { StatusPill } from "@/components/StatusPill";
+import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER } from "@/lib/buyer/buyer-polish-copy";
@@ -400,12 +400,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
         <p className={stripSegmentLabelClass()}>Approval status</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           {gate !== "—" ? (
-            <StatusPill
-              status={gate}
-              domain="governance"
-              uppercase={false}
-              ariaLabel={`${approvalStatusLabel}: ${gate}`}
-            />
+            <GovernanceStatusTag status={gate} aria-label={`${approvalStatusLabel}: ${gate}`} />
           ) : (
             <p className={cn(valueClass, "mt-0")}>{gate}</p>
           )}
