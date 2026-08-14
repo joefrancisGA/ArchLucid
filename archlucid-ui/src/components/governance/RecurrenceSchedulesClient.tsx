@@ -38,7 +38,7 @@ import {
   updateArchitectureReviewRecurrenceSchedule,
   type ArchitectureReviewRecurrenceSchedule,
 } from "@/lib/api/governance-stickiness-api";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reversibleControlLabel, reversibleControlStateLabel } from "@/lib/reversible-control-verbs";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { RecurrenceLocalTimeDisplay } from "@/components/governance/RecurrenceLocalTimeDisplay";
@@ -470,7 +470,7 @@ export default function RecurrenceSchedulesClient() {
                         <Link
                           href={`/architecture/reviews/${schedule.sourceRunId}`}
                           className={cn(
-                            "text-teal-800 underline underline-offset-2 dark:text-teal-300",
+                            OPERATOR_BODY_INLINE_LINK_CLASS,
                             OPERATOR_TYPOGRAPHY.body,
                           )}
                           title={`Architecture review ${truncateRunId(schedule.sourceRunId)}`}

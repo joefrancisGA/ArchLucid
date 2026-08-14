@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -56,7 +56,7 @@ export function LlmUsageBandHint() {
       >
         <p className="m-0 font-semibold leading-snug">{formatBuyerLlmUsageExhaustedCopy()}</p>
         <p className={cn("m-0 mt-1 leading-snug", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link href="/pricing#pricing-quote-request" className="font-medium underline underline-offset-2">
+          <Link href="/pricing#pricing-quote-request" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             View pricing and request a quote
           </Link>
           {" · "}
@@ -81,7 +81,7 @@ export function LlmUsageBandHint() {
     >
       <p className="m-0 leading-snug">{formatBuyerLlmUsageApproachingCopy(remainingPercent)}</p>
       <p className={cn("m-0 mt-1 leading-snug", OPERATOR_TYPOGRAPHY.helper)}>
-        <Link href="/pricing#pricing-quote-request" className="font-medium underline underline-offset-2">
+        <Link href="/pricing#pricing-quote-request" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
           Talk to us about upgrading
         </Link>
       </p>

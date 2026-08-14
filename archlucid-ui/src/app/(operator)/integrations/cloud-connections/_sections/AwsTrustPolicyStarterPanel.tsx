@@ -14,7 +14,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   AWS_TRUST_STARTER_FEDERATION_HEADING,
   AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS,
@@ -53,11 +53,11 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
         <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{AWS_TRUST_STARTER_FEDERATION_HEADING}</h3>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD}{" "}
-          <Link href={CONNECTION_STATUS_CANONICAL_PATH} className="text-teal-700 underline dark:text-teal-400">
+          <Link href={CONNECTION_STATUS_CANONICAL_PATH} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Connection status
           </Link>{" "}
           {AWS_TRUST_STARTER_FEDERATION_INTRO_MID}{" "}
-          <Link href={awsHelpHref} className="text-teal-700 underline dark:text-teal-400">
+          <Link href={awsHelpHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Connect AWS securely
           </Link>{" "}
           {AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL}

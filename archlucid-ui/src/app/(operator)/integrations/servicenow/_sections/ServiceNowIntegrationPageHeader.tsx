@@ -56,7 +56,7 @@ export function ServiceNowIntegrationPageHeader(
           />
           <Link
             href={INTEGRATIONS_READINESS_PATH}
-            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+            className={OPERATOR_LINK.optional}
             data-testid="servicenow-readiness-link"
           >
             {SERVICENOW_READINESS_LINK_LABEL}

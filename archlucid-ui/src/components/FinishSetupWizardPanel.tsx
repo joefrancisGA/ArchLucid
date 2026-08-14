@@ -12,7 +12,7 @@ import {
   ONBOARDING_OPTIONAL_SETUP_DISMISS_DETAIL,
   ONBOARDING_OPTIONAL_SETUP_DISMISS_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   areFinishSetupRequiredStepsComplete,
   resolveFinishSetupWizardSteps,
@@ -104,7 +104,7 @@ export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps 
                     )}
                   </div>
                   <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">{step.description}</p>
-                  <Link href={step.href} className={cn("mt-1 inline-block font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
+                  <Link href={step.href} className={cn("mt-1 inline-block", OPERATOR_BODY_INLINE_LINK_CLASS)}>
                     {step.cta} →
                   </Link>
                 </li>

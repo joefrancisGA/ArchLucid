@@ -12,7 +12,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
@@ -186,7 +186,7 @@ function AzureConnectionDetailBody() {
 
           ArchLucid&apos;s managed identity. Use the setup script in Connection details or deploy the{" "}
 
-          <Link href={TIER2_WIZARD_HELP_HREFS.connectAzureSecurely} className="text-teal-700 underline dark:text-teal-400">
+          <Link href={TIER2_WIZARD_HELP_HREFS.connectAzureSecurely} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
 
             infrastructure templates
 
@@ -218,7 +218,7 @@ function AzureConnectionDetailBody() {
 
           <p>
 
-            <Link href={inAppHelpHref("cloud-connections-azure")} className="text-teal-700 underline dark:text-teal-400">
+            <Link href={inAppHelpHref("cloud-connections-azure")} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
 
               View setup guide
 

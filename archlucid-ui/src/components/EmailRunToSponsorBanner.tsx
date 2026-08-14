@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -369,7 +369,7 @@ export function EmailRunToSponsorBanner({
       <p className={cn("m-0 mt-2 leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         Sponsor narrative aligns with the{" "}
         <a
-          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
           href={executiveBriefHref}
           rel="noopener noreferrer"
           target="_blank"
@@ -378,7 +378,7 @@ export function EmailRunToSponsorBanner({
         </a>{" "}
         and conservative ROI framing in the{" "}
         <a
-          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
           href={pilotRoiModelHref}
           rel="noopener noreferrer"
           target="_blank"
@@ -435,7 +435,7 @@ export function EmailRunToSponsorBanner({
           <p className="m-0 font-semibold">Projected dollar claims not sponsor-safe</p>
           <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
             ROI baseline fields are defaulted or incomplete. Capture buyer-provided baselines on{" "}
-            <Link className="font-medium text-teal-900 underline underline-offset-2 dark:text-teal-200" href="/insights/architecture-scorecard#roi-baselines">
+            <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/insights/architecture-scorecard#roi-baselines">
               the scorecard
             </Link>{" "}
             before downloading a sponsor PDF with dollar-led readouts.
@@ -453,7 +453,7 @@ export function EmailRunToSponsorBanner({
           <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
             The sponsor PDF assumes captured review-cycle and manual-prep anchors from{" "}
             <a
-              className="font-medium text-teal-900 underline underline-offset-2 dark:text-teal-200"
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
               href={pilotRoiModelHref}
               rel="noopener noreferrer"
               target="_blank"
@@ -474,7 +474,7 @@ export function EmailRunToSponsorBanner({
               Guided baseline wizard
             </Button>
             <Link
-              className={cn("font-semibold text-teal-900 underline underline-offset-2 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}
+              className={cn(OPERATOR_LINK.optional, "font-semibold")}
               href="/administration/baseline"
             >
               Baseline settings
@@ -664,7 +664,7 @@ export function EmailRunToSponsorBanner({
       <ul className={cn("m-0 mt-3 list-none space-y-1.5 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         <li>
           <a
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
             href={SponsorReviewPacketHref}
             download={`archlucid-sponsor-review-packet-${runId}.md`}
             data-testid="email-run-to-sponsor-sponsor-review-packet"
@@ -674,7 +674,7 @@ export function EmailRunToSponsorBanner({
         </li>
         <li>
           <a
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
             href={markdownHref}
             download={`archlucid-first-value-report-${runId}.md`}
           >
@@ -683,7 +683,7 @@ export function EmailRunToSponsorBanner({
         </li>
         <li>
           <a
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
             href={getArchitecturePackageDocxUrl(runId)}
           >
             Architecture decision package (DOCX)
@@ -691,14 +691,14 @@ export function EmailRunToSponsorBanner({
         </li>
         <li>
           <a
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
             href={getBundleDownloadUrl(manifestId)}
           >
             Review bundle (ZIP)
           </a>
           {" · "}
           <a
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
             href={getRunExportDownloadUrl(runId)}
           >
             {buyerPolishedShell ? "Audit-ready review export (ZIP)" : "Architecture review export (ZIP)"}
@@ -706,13 +706,13 @@ export function EmailRunToSponsorBanner({
           {" · "}
           {buyerPolishedShell ? null : (
             <>
-              <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/insights/architecture-scorecard">
+              <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/insights/architecture-scorecard">
                 In-product pilot scorecard
               </Link>
               {" · "}
             </>
           )}
-          <a className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="#artifacts-exports">
+          <a className={OPERATOR_BODY_INLINE_LINK_CLASS} href="#artifacts-exports">
             {buyerPolishedShell ? "More export options on this review page" : "Artifacts &amp; exports on this page"}
           </a>
         </li>

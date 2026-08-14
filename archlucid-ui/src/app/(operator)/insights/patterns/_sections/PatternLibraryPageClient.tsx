@@ -12,7 +12,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { PatternLibraryFiltersPanel } from "./PatternLibraryFiltersPanel";
 import { PatternLibraryPatternCard } from "./PatternLibraryPatternCard";
 import { PatternLibrarySummaryRow } from "./PatternLibrarySummaryRow";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   PATTERN_LIBRARY_EMPTY_BUILDING_BODY,
   PATTERN_LIBRARY_EMPTY_BUILDING_TITLE,
@@ -115,7 +115,7 @@ export function PatternLibraryPageClient(): React.JSX.Element {
 
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         Need a guided first review?{" "}
-        <Link href="/help/getting-started" className="font-medium text-teal-700 underline dark:text-teal-400">
+        <Link href="/help/getting-started" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
           Open Getting started
         </Link>
       </p>

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import {
@@ -99,7 +99,7 @@ export function GovernanceConflictsTable(props: GovernanceConflictsTableProps) {
                         </div>
                         <Link
                           href={policyPacksEditHref(loser.policyPackId)}
-                          className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
+                          className={OPERATOR_BODY_INLINE_LINK_CLASS}
                         >
                           {props.canEditPolicyPacks ? "Edit assignment" : "View pack"}
                         </Link>

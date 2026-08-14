@@ -64,7 +64,7 @@ function AlertsHubChromeInner({
             {showHeaderConfigureLink ? (
               <Link
                 href={governanceAlertRulesTabHref("rules")}
-                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+                className={OPERATOR_LINK.optional}
                 data-testid="alerts-configure-rules-link"
               >
                 {ALERTS_CONFIGURE_RULES_LINK_LABEL}

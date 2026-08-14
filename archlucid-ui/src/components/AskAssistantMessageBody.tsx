@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
@@ -39,7 +39,7 @@ function renderTextWithUuidReviewLinks(body: string, buyerPolishedLinks: boolean
       <Link
         key={`id-${m.index}-${id}`}
         href={`/architecture/reviews/${encodeURIComponent(id)}`}
-        className="font-medium text-teal-800 underline decoration-teal-300/60 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-700 dark:hover:text-teal-200"
+        className={OPERATOR_BODY_INLINE_LINK_CLASS}
         aria-label={buyerPolishedLinks ? `Open linked review ${id}` : undefined}
         title={
           buyerPolishedLinks
@@ -84,7 +84,7 @@ function GroundingLinksFooter(props: {
           <li key={link.href}>
             <Link
               href={link.href}
-              className="font-medium text-teal-800 underline decoration-teal-300/60 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-700 dark:hover:text-teal-200"
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               {link.label}
             </Link>
@@ -101,7 +101,7 @@ function GroundingLinksFooter(props: {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="font-medium text-teal-800 underline decoration-teal-300/60 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-700 dark:hover:text-teal-200"
+                  className={OPERATOR_BODY_INLINE_LINK_CLASS}
                 >
                   {link.label}
                 </Link>

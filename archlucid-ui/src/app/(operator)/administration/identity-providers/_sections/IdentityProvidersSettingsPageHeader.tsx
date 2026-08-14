@@ -98,7 +98,7 @@ export function IdentityProvidersSettingsPageHeader(
           {showDiagnosticsLink ? (
             <Link
               href={IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF}
-              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+              className={OPERATOR_LINK.optional}
               data-testid="identity-providers-diagnostics-link"
             >
               {IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_LABEL}

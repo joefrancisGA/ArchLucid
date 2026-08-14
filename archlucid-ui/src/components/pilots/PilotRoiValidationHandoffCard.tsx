@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -149,12 +149,12 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
             Clipboard unavailable — copy manually from the runbook.
           </span>
         ) : null}
-        <Link href={firstRunHelpHref} className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
+        <Link href={firstRunHelpHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
           First-run help
         </Link>
         <a
           href={validationSessionHref}
-          className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
           rel="noopener noreferrer"
           target="_blank"
         >

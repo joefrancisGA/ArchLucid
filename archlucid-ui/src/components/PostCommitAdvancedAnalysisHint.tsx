@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -94,19 +94,19 @@ export function PostCommitAdvancedAnalysisHint({
       <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
         <li>
           <Link
-            className="text-teal-800 underline dark:text-teal-300"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
             href={compareHrefForLinks ?? comparePageHrefAdaptive(runId)}
           >
             Compare
           </Link>
         </li>
         <li>
-          <Link className="text-teal-800 underline dark:text-teal-300" href={`/insights/evidence-graph?runId=${encoded}`}>
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={`/insights/evidence-graph?runId=${encoded}`}>
             Graph
           </Link>
         </li>
         <li>
-          <Link className="text-teal-800 underline dark:text-teal-300" href={`/insights/ask-review-questions?runId=${encoded}`}>
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={`/insights/ask-review-questions?runId=${encoded}`}>
             Ask
           </Link>
         </li>

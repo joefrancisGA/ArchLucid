@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import type { ReactElement } from "react";
@@ -79,7 +79,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
             {data.latestRunId ? (
               <p className="m-0">
                 Latest:{" "}
-                <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/architecture/reviews/${data.latestRunId}`}>
+                <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${data.latestRunId}`}>
                   open review
                 </Link>
               </p>
@@ -120,14 +120,11 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
             <p className="m-0 tabular-nums">
               Assigned to you: <span className="font-medium">{assignedToMeCount}</span>
             </p>
-            <Link className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)} href="/governance/approval-queue">
+            <Link className={OPERATOR_LINK.optional} href="/governance/approval-queue">
               {buyerPolishedShell ? "View governance approval" : "Open governance workflow"}
             </Link>
             {assignedToMeCount > 0 ? (
-              <Link
-                className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
-                href={GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}
-              >
+              <Link className={OPERATOR_LINK.optional} href={GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}>
                 Open assigned findings
               </Link>
             ) : null}

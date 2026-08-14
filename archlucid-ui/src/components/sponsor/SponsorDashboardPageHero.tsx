@@ -70,7 +70,7 @@ export function SponsorDashboardPageHero({
             ) : (
               <Link
                 href={v.portfolioPageLearnMoreHref}
-                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+                className={OPERATOR_LINK.optional}
                 data-testid="sponsor-dashboard-hero-learn-more"
               >
                 {v.portfolioPageLearnMoreLabel}

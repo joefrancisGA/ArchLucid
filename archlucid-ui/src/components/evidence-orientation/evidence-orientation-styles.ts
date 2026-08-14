@@ -27,11 +27,7 @@ const SOURCES_INTRO_BODY = cn(SOURCES_INTRO_BASE, OPERATOR_TYPOGRAPHY.body);
 /** Operator Sources links keep a 24px pointer target without inflating the chip row. */
 const SOURCES_LINK_OPERATOR = cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium");
 
-/**
- * Pre-token teal link styling still baked into evaluation surfaces and their snapshots.
- * @deprecated New surfaces use {@link MARKETING_SURFACES.inlineLink}; this exists to keep published DOM stable.
- */
-const SOURCES_LINK_LEGACY_TEAL = "font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300";
+const SOURCES_LINK_LEGACY_TEAL = MARKETING_SURFACES.inlineLink;
 
 export const EVIDENCE_SOURCES_STYLE = {
   /** Operator help surfaces: muted panel, helper-scale intro, tokenised inline link. */

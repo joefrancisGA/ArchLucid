@@ -34,7 +34,7 @@ import {
 
 } from "@/lib/api/cloud-connections-api";
 
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
@@ -683,7 +683,7 @@ export function Tier2ConnectionWizard({
 
                 href={TIER2_WIZARD_HELP_HREFS.connectAzureSecurely}
 
-                className="text-teal-700 underline dark:text-teal-400"
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
 
               >
 
@@ -693,7 +693,7 @@ export function Tier2ConnectionWizard({
 
               in your tenant. {TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT} See the{" "}
 
-              <Link href={TIER2_WIZARD_HELP_HREFS.azurePermissions} className="text-teal-700 underline dark:text-teal-400">
+              <Link href={TIER2_WIZARD_HELP_HREFS.azurePermissions} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
 
                 Azure permissions guide
 
@@ -1137,7 +1137,7 @@ export function Tier2ConnectionWizard({
 
               href={TIER2_WIZARD_HELP_HREFS.securityTrust}
 
-              className="text-teal-700 underline dark:text-teal-400"
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
 
             >
 

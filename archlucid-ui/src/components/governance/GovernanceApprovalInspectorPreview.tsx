@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -55,7 +55,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
         <dd className="m-0 min-w-0">
           <Link
             href={`/architecture/reviews/${encodeURIComponent(request.runId)}`}
-            className={cn("break-all font-mono font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("break-all font-mono", OPERATOR_LINK.optional)}
           >
             {request.runId}
           </Link>

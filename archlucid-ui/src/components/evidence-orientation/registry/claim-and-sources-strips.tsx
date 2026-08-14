@@ -342,6 +342,11 @@ import {
   ADMIN_ITSM_CONNECTORS_SOURCES_INTRO,
 } from "@/lib/admin-itsm-connectors-evidence-copy";
 import {
+  ADMIN_TENANTS_FOLLOW_UPS_TITLE,
+  ADMIN_TENANTS_SOURCES,
+  ADMIN_TENANTS_SOURCES_INTRO,
+} from "@/lib/admin-tenants-evidence-copy";
+import {
   DEMO_READINESS_CLAIM_DISCIPLINE,
   DEMO_READINESS_CLAIM_DISCIPLINE_HEADING,
   DEMO_READINESS_CLAIM_HEADING_ID,
@@ -1010,6 +1015,21 @@ export function AdminItsmConnectorsEvidenceOrientationStrip(): React.JSX.Element
       sourcesTitle={ADMIN_ITSM_CONNECTORS_FOLLOW_UPS_TITLE}
       sourcesIntro={ADMIN_ITSM_CONNECTORS_SOURCES_INTRO}
       sources={ADMIN_ITSM_CONNECTORS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function AdminTenantsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="admin-tenants"
+      claimElement="div"
+      sourcesTitle={ADMIN_TENANTS_FOLLOW_UPS_TITLE}
+      sourcesIntro={ADMIN_TENANTS_SOURCES_INTRO}
+      sources={ADMIN_TENANTS_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"

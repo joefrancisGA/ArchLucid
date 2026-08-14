@@ -40,7 +40,7 @@ export function SponsorWorkspaceHealthPageHero({
           <PageContextualHelpButton />
           <Link
             href="/governance/approval-queue"
-            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+                className={OPERATOR_LINK.optional}
             data-testid="sponsor-workspace-health-workflow-link"
           >
             {SPONSOR_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL}

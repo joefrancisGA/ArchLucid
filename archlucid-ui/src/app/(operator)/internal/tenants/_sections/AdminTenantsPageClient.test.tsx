@@ -44,6 +44,9 @@ describe("AdminTenantsPageClient", () => {
 
     render(<AdminTenantsPageClient />);
 
+    expect(screen.getByTestId("admin-tenants-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("admin-tenants-claim-discipline")).not.toBeInTheDocument();
+
     fireEvent.click(await screen.findByTestId("admin-tenants-shut-off-tenant-1"));
 
     expect(screen.getByRole("heading", { name: /Shut off tenant/i })).toBeInTheDocument();

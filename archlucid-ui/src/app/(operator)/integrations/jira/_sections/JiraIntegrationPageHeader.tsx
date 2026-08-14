@@ -73,7 +73,7 @@ export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps)
             />
             <Link
               href={INTEGRATIONS_READINESS_PATH}
-              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+              className={OPERATOR_LINK.optional}
               data-testid="jira-readiness-link"
             >
               {JIRA_READINESS_LINK_LABEL}
