@@ -1,4 +1,4 @@
-import { getEffectivePolicyPacks, listAlertRoutingSubscriptions } from "@/lib/api";
+import { fetchGovernanceSetupGuideBundle } from "@/lib/api/policy-governance-api";
 
 import {
   GOVERNANCE_SETUP_FOUNDATION_INDICATORS,
@@ -18,20 +18,20 @@ function initialStepStatuses(): GovernanceSetupStepStatus[] {
 export async function resolveGovernanceSetupGuideViewModel(): Promise<GovernanceSetupGuideViewModel> {
   const stepStatuses = initialStepStatuses();
 
-  // Independent GETs — allSettled so one failure cannot blank the other slice (TB-2027).
-  const [policySettled, routingSettled] = await Promise.allSettled([
-    getEffectivePolicyPacks(),
-    listAlertRoutingSubscriptions(),
-  ]);
+  try {
+    const bundle = await fetchGovernanceSetupGuideBundle();
 
-  if (policySettled.status === "fulfilled" && policySettled.value.packs.length > 0) {
-    stepStatuses[0] = "complete";
-  }
+    if (bundle.effectivePolicyPacks.packs.length > 0) {
+      stepStatuses[0] = "complete";
+    }
 
-  // TODO: Connect threshold dry-run completion when a workspace signal is exposed for step 2.
+    // TODO: Connect threshold dry-run completion when a workspace signal is exposed for step 2.
 
-  if (routingSettled.status === "fulfilled" && routingSettled.value.length > 0) {
-    stepStatuses[2] = "complete";
+    if (bundle.alertRoutingSubscriptions.length > 0) {
+      stepStatuses[2] = "complete";
+    }
+  } catch {
+    // Leave step statuses not-started when the bundle cannot be loaded.
   }
 
   // TODO: Connect approval-path / SLA configuration signal when available for step 4.

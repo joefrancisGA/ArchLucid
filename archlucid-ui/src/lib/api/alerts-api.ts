@@ -133,6 +133,14 @@ export async function listAlertRoutingSubscriptions(): Promise<AlertRoutingSubsc
   return apiGet<AlertRoutingSubscription[]>("/v1/alert-routing-subscriptions");
 }
 
+/** Workspace readiness for alerts inbox empty states. */
+export async function fetchAlertsInboxWorkspaceContext(): Promise<{
+  hasAlertRules: boolean;
+  hasReviews: boolean;
+}> {
+  return apiGet(`/${ApiV1Routes.alerts}/inbox/workspace-context`);
+}
+
 export type AlertRoutingCriteriaInput = {
   severities?: string[];
   findingTypes?: string[];

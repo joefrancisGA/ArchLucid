@@ -12,9 +12,12 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -43,11 +46,19 @@ namespace ArchLucid.Api.Controllers.Alerts;
 public sealed class AlertsController(
     IScopeContextProvider scopeProvider,
     IAlertRecordRepository alertRepository,
+    IAlertRuleRepository alertRuleRepository,
+    IAuthorityQueryService authorityQueryService,
     IAlertService alertService,
     IAlertActionLoopReader actionLoopReader,
     IAuditService auditService)
     : ControllerBase
 {
+    private readonly IAlertRuleRepository _alertRuleRepository =
+        alertRuleRepository ?? throw new ArgumentNullException(nameof(alertRuleRepository));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
     private readonly IAlertActionLoopReader _actionLoopReader =
         actionLoopReader ?? throw new ArgumentNullException(nameof(actionLoopReader));
 
@@ -76,6 +87,43 @@ public sealed class AlertsController(
             fingerprint);
 
         return this.OkWithConditionalEtag(summary, etag);
+    }
+
+    /// <summary>Workspace readiness signals for alerts inbox empty states (rules + reviews presence).</summary>
+    [HttpGet("inbox/workspace-context")]
+    [ProducesResponseType(typeof(AlertsInboxWorkspaceContextResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetInboxWorkspaceContext(CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        Task<IReadOnlyList<AlertRule>> rulesTask = _alertRuleRepository.ListByScopeAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            cancellationToken);
+
+        Task<(IReadOnlyList<RunSummaryDto> Items, bool HasMore)> runsTask =
+            _authorityQueryService.ListRunsByProjectKeysetAsync(
+                scope,
+                "default",
+                cursorCreatedUtc: null,
+                cursorRunId: null,
+                take: 1,
+                cancellationToken);
+
+        await Task.WhenAll(rulesTask, runsTask).ConfigureAwait(false);
+
+        IReadOnlyList<AlertRule> rules = await rulesTask.ConfigureAwait(false);
+        (IReadOnlyList<RunSummaryDto> runItems, bool hasMoreRuns) =
+            await runsTask.ConfigureAwait(false);
+
+        AlertsInboxWorkspaceContextResponse body = new()
+        {
+            HasAlertRules = rules.Count > 0,
+            HasReviews = runItems.Count > 0 || hasMoreRuns,
+        };
+
+        return Ok(body);
     }
 
     /// <summary>Lists recent alerts for the current scope, optionally filtered by status.</summary>

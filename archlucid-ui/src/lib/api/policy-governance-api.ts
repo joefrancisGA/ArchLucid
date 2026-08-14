@@ -30,7 +30,10 @@ import type {
   PlatformBundledPolicyPackRegistryEntry,
   PolicyPackWorkspaceSelectionItem,
 } from "@/types/policy-packs";
+import type { AlertRoutingSubscription } from "@/types/alert-routing";
 import { apiGet, apiPostJson, apiPutJson, apiPutNoContent } from "./http";
+
+const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
 export async function listPolicyPacks(): Promise<PolicyPack[]> {
   return apiGet<PolicyPack[]>(`/${ApiV1Routes.policyPacks}`);
@@ -81,6 +84,14 @@ export async function getEffectivePolicyPacks(): Promise<EffectivePolicyPackSet>
   return apiGet<EffectivePolicyPackSet>(`/${ApiV1Routes.policyPacks}/effective`);
 }
 
+/** Governance setup guide: effective policy packs and alert routing subscriptions. */
+export async function fetchGovernanceSetupGuideBundle(): Promise<{
+  effectivePolicyPacks: EffectivePolicyPackSet;
+  alertRoutingSubscriptions: AlertRoutingSubscription[];
+}> {
+  return apiGet(`${governanceBase()}/setup-guide-bundle`);
+}
+
 /** Fetches the merged content document from all effective policy packs. */
 export async function getEffectivePolicyContent(): Promise<PolicyPackContentDocument> {
   return apiGet<PolicyPackContentDocument>(`/${ApiV1Routes.policyPacks}/effective-content`);
@@ -90,8 +101,6 @@ export async function getEffectivePolicyContent(): Promise<PolicyPackContentDocu
 export async function getGovernanceResolution(): Promise<EffectiveGovernanceResolutionResult> {
   return apiGet<EffectiveGovernanceResolutionResult>(`/${ApiV1Routes.governanceResolution}`);
 }
-
-const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
 /** Cross-run governance dashboard: pending approvals, recent decisions, tenant policy change log. */
 export async function getGovernanceDashboard(

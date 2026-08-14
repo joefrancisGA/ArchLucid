@@ -1,16 +1,12 @@
 import {
+  fetchAlertsInboxWorkspaceContext as fetchAlertsInboxWorkspaceContextApi,
   getAlertsInboxSummary,
-  listAlertRules,
   listAlertsCursor,
 } from "@/lib/api";
-import { listRunsByProjectPaged } from "@/lib/api/architecture-runs";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AlertsInboxSummaryCounts } from "@/lib/alerts-inbox-summary";
-import {
-  ALERTS_INBOX_DEFAULT_PROJECT_ID,
-  type AlertsInboxWorkspaceContext,
-} from "@/lib/alerts-inbox-workspace-context";
+import type { AlertsInboxWorkspaceContext } from "@/lib/alerts-inbox-workspace-context";
 import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator/operator-static-demo";
 import {
   ALERTS_INBOX_PAGE_SIZE,
@@ -84,14 +80,11 @@ export async function fetchAlertsInboxSummary(): Promise<AlertsInboxSummaryCount
 
 export async function fetchAlertsInboxWorkspaceContext(): Promise<AlertsInboxWorkspaceContext> {
   try {
-    const [rules, runs] = await Promise.all([
-      listAlertRules(),
-      listRunsByProjectPaged(ALERTS_INBOX_DEFAULT_PROJECT_ID, 1, 1),
-    ]);
+    const context = await fetchAlertsInboxWorkspaceContextApi();
 
     return {
-      hasReviews: runs.totalCount > 0,
-      hasAlertRules: rules.length > 0,
+      hasReviews: context.hasReviews,
+      hasAlertRules: context.hasAlertRules,
       loading: false,
     };
   } catch {

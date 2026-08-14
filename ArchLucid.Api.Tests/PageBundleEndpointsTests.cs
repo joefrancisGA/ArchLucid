@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 
+using ArchLucid.Contracts.Alerts;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Contracts.Roi;
@@ -96,5 +97,52 @@ public sealed class PageBundleEndpointsTests(ArchLucidApiFactory factory) : Inte
         HttpResponseMessage response = await Client.GetAsync("/v1/integrations/itsm/health");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [SkippableFact]
+    public async Task GetIdentityProvidersPageBundle_ReturnsOk_WithDiagnosticsSlices()
+    {
+        HttpResponseMessage response =
+            await Client.GetAsync("/v1/admin/diagnostics/identity-providers-page-bundle");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        ArchLucid.Api.Models.Admin.AdminIdentityProvidersPageBundleResponse? body =
+            await response.Content.ReadFromJsonAsync<ArchLucid.Api.Models.Admin.AdminIdentityProvidersPageBundleResponse>(
+                JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.IdentityProviderDiagnostics.Should().NotBeNull();
+        body.AuthConfigurationDiagnostics.Should().NotBeNull();
+        body.OidcDiagnostics.Should().NotBeNull();
+        body.SamlOperationalHealth.Should().NotBeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetGovernanceSetupGuideBundle_ReturnsOk_WithSlices()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/governance/setup-guide-bundle");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        GovernanceSetupGuideBundleResponse? body =
+            await response.Content.ReadFromJsonAsync<GovernanceSetupGuideBundleResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.EffectivePolicyPacks.Should().NotBeNull();
+        body.AlertRoutingSubscriptions.Should().NotBeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetAlertsInboxWorkspaceContext_ReturnsOk_WithSignals()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/alerts/inbox/workspace-context");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        AlertsInboxWorkspaceContextResponse? body =
+            await response.Content.ReadFromJsonAsync<AlertsInboxWorkspaceContextResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
     }
 }
