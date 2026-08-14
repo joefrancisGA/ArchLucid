@@ -42,7 +42,7 @@ describe("HelpAdvisoryScansGuideView", () => {
     expect(screen.getByTestId("help-advisory-scans-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-heading-eyebrow")).toHaveTextContent(ADVISORY_SCANS_HELP_PAGE_EYEBROW);
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-advisory-scans-start-here-scope-note")).toHaveTextContent(
       ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE,
     );

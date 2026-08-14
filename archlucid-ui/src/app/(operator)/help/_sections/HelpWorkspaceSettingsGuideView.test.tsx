@@ -44,7 +44,7 @@ describe("HelpWorkspaceSettingsGuideView", () => {
     expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
       WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
     );
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Administration · Workspace settings orientation",
     );

@@ -48,7 +48,7 @@ describe("HelpConnectionStatusGuideView (HCO)", () => {
     expect(screen.getByText("Ready")).toBeInTheDocument();
     expect(screen.getByText("Needs attention")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-12 · administration connection status orientation",
+      "Guide last reviewed 2026-08-12 · administration connection status orientation",
     );
     expect(screen.queryByText(/Sources package/i)).toBeNull();
     expect(screen.getByTestId("help-connection-status-claim-discipline").textContent).toContain(

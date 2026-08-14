@@ -44,7 +44,7 @@ describe("HelpArchitectureScorecardGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: ARCHITECTURE_SCORECARD_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(ARCHITECTURE_SCORECARD_HELP_PAGE_TITLE).toBe(REVIEW_SCORECARD_PAGE_TITLE);
     expect(screen.getByText(ARCHITECTURE_SCORECARD_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-12");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-12");
   });
 
   it("shows overview, tiles, worked example, and sibling reports without duplicate where-to-go-next headings", () => {

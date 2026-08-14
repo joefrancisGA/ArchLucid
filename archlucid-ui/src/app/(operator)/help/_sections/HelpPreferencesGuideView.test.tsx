@@ -40,7 +40,7 @@ describe("HelpPreferencesGuideView", () => {
     expect(screen.getByTestId("help-preferences-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · Scope: personal account settings · Audience: all signed-in users",
+      "Guide last reviewed 2026-08-13 · Scope: personal account settings · Audience: all signed-in users",
     );
     expect(screen.getByTestId("help-preferences-start-here-helper")).toHaveTextContent(
       PREFERENCES_HELP_START_HERE_HELPER,

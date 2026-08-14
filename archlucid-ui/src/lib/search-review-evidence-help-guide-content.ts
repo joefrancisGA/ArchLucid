@@ -19,7 +19,7 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE =
 export const SEARCH_REVIEW_EVIDENCE_HELP_OVERVIEW =
   "Enter a phrase to scan finalized review evidence in this workspace. Each hit opens the cited finding, decision, or sealed review record so you can follow the evidence trail before briefing sponsors.";
 
-export const SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE = "Start here";
+export const SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE = "Open search review evidence";
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_PRECONDITION =
   "Requires at least one finalized architecture review in this workspace.";

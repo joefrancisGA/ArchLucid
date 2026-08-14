@@ -34,7 +34,7 @@ describe("HelpBaselineSettingsGuideView", () => {
     expect(screen.getByTestId("help-baseline-settings-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · administration baseline settings orientation",
+      "Guide last reviewed 2026-08-13 · administration baseline settings orientation",
     );
     expect(screen.getByTestId("help-baseline-settings-saved-baseline-warn")).toHaveTextContent(
       BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER,

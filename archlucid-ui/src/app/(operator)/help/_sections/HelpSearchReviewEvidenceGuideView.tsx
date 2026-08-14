@@ -8,7 +8,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
@@ -78,7 +77,6 @@ export function HelpSearchReviewEvidenceGuideView(
         headingLevel="h1"
         breadcrumb={<HelpTopicBreadcrumb topicTitle={SEARCH_REVIEW_EVIDENCE_HELP_BREADCRUMB_TOPIC_TITLE} />}
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
       />
 
       <div className={contentGridClass}>
@@ -89,7 +87,7 @@ export function HelpSearchReviewEvidenceGuideView(
 
           <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-search-review-evidence-action-panel">
             <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE}
               </CardTitle>
             </CardHeader>
@@ -100,7 +98,7 @@ export function HelpSearchReviewEvidenceGuideView(
                 </Link>
               </Button>
               <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
                 data-testid="help-search-review-evidence-precondition"
               >
                 {SEARCH_REVIEW_EVIDENCE_HELP_PRECONDITION}

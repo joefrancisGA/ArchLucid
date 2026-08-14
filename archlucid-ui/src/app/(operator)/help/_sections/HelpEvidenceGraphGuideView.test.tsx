@@ -34,7 +34,7 @@ describe("HelpEvidenceGraphGuideView", () => {
     expect(screen.getByTestId("help-evidence-graph-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
 expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · insights evidence graph orientation",
+      "Guide last reviewed 2026-08-13 · insights evidence graph orientation",
     );
     expect(screen.queryByTestId("help-evidence-graph-role-precondition-tag")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-evidence-graph-role-precondition")).not.toBeInTheDocument();

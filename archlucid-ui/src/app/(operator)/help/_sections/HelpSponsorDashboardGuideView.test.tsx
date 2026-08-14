@@ -44,7 +44,7 @@ describe("HelpSponsorDashboardGuideView", () => {
     expect(screen.getByTestId("help-sponsor-dashboard-guide")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(SPONSOR_DASHBOARD_HELP_BREADCRUMB_TOPIC_TITLE);
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-sponsor-dashboard-scope-precondition")).toHaveTextContent(
       SPONSOR_DASHBOARD_HELP_SCOPE_PRECONDITION,
     );

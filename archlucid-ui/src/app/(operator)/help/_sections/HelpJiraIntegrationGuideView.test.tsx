@@ -35,7 +35,7 @@ describe("HelpJiraIntegrationGuideView", () => {
 
     expect(screen.getByTestId("help-jira-integration-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-jira-integration-connection-precondition")).toHaveTextContent(
       JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION,
     );

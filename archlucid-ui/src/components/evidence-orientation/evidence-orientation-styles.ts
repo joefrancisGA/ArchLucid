@@ -24,8 +24,8 @@ const SOURCES_INTRO_HELPER = cn(SOURCES_INTRO_BASE, OPERATOR_TYPOGRAPHY.helper);
 
 const SOURCES_INTRO_BODY = cn(SOURCES_INTRO_BASE, OPERATOR_TYPOGRAPHY.body);
 
-/** Operator Sources links keep a 24px pointer target without inflating the chip row. */
-const SOURCES_LINK_OPERATOR = cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium");
+/** Operator Sources links keep a 32px pointer target without inflating the chip row. */
+const SOURCES_LINK_OPERATOR = cn(OPERATOR_LINK.inline, "inline-flex min-h-8 items-center py-1 font-medium");
 
 const SOURCES_LINK_LEGACY_TEAL = MARKETING_SURFACES.inlineLink;
 

@@ -38,7 +38,7 @@ describe("HelpImpactPreviewGuideView", () => {
     expect(screen.getByTestId("help-impact-preview-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
 expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · insights impact preview orientation",
+      "Guide last reviewed 2026-08-13 · insights impact preview orientation",
     );
     expect(screen.getByTestId("help-impact-preview-baseline-precondition")).toHaveTextContent(
       IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION,

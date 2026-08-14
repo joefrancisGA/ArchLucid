@@ -46,7 +46,7 @@ describe("HelpSlackIntegrationGuideView", () => {
 
     expect(screen.getByTestId("help-slack-integration-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-topic-registry-provenance")).not.toHaveTextContent(
       "integrations slack notifications orientation",
     );

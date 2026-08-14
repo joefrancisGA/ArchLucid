@@ -40,7 +40,7 @@ describe("HelpSystemHealthGuideView", () => {
     expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
       SYSTEM_HEALTH_HELP_BREADCRUMB_TOPIC_TITLE,
     );
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-system-health-readiness-helper")).toHaveTextContent(
       SYSTEM_HEALTH_HELP_READINESS_HELPER,
     );

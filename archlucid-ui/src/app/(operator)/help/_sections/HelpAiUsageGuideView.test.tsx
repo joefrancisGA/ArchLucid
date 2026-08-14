@@ -32,7 +32,7 @@ describe("HelpAiUsageGuideView", () => {
     expect(screen.getByTestId("help-ai-usage-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · Administration · AI usage orientation",
+      "Guide last reviewed 2026-08-13 · Administration · AI usage orientation",
     );
     expect(screen.getByTestId("help-ai-usage-access-precondition")).toHaveTextContent(
       AI_USAGE_HELP_ACCESS_PRECONDITION,

@@ -41,7 +41,7 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
     expect(screen.getByTestId("help-architecture-intelligence-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · architecture intelligence orientation",
+      "Guide last reviewed 2026-08-13 · architecture intelligence orientation",
     );
     expect(screen.getByTestId("help-architecture-intelligence-start-here-scope-note")).toHaveTextContent(
       ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE,

@@ -48,7 +48,7 @@ describe("HelpSearchReviewEvidenceGuideView", () => {
       SEARCH_REVIEW_EVIDENCE_HELP_BREADCRUMB_TOPIC_TITLE,
     );
     expect(screen.getByTestId("page-heading-eyebrow")).toHaveTextContent(SEARCH_REVIEW_EVIDENCE_HELP_PAGE_EYEBROW);
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-search-review-evidence-precondition")).toHaveTextContent(
       SEARCH_REVIEW_EVIDENCE_HELP_PRECONDITION,
     );
@@ -77,9 +77,9 @@ describe("HelpSearchReviewEvidenceGuideView", () => {
       SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.href,
     );
     expect(screen.getAllByRole("link", { name: SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
-    expect(
-      screen.getByRole("heading", { level: 2, name: SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("help-search-review-evidence-action-panel")).toHaveTextContent(
+      SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE,
+    );
     expect(screen.getByRole("heading", { name: SEARCH_REVIEW_EVIDENCE_HELP_WHAT_IS_INDEXED_TITLE })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL })).toBeInTheDocument();
     expect(screen.getByTestId("help-search-review-evidence-how-stepper").textContent).toContain(

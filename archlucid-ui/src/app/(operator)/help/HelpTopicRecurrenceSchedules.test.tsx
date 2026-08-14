@@ -62,7 +62,7 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: RECURRENCE_SCHEDULES_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-12 · governance recurrence schedule orientation",
+      "Guide last reviewed 2026-08-12 · governance recurrence schedule orientation",
     );
 
     const overview = screen.getByTestId("help-recurrence-schedules-overview");

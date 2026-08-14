@@ -37,7 +37,7 @@ describe("HelpImprovementPlanningGuideView", () => {
     expect(screen.getByTestId("help-improvement-planning-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
 expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · insights improvement planning orientation",
+      "Guide last reviewed 2026-08-13 · insights improvement planning orientation",
     );
     expect(screen.getByTestId("help-improvement-planning-feedback-precondition")).toHaveTextContent(
       IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION,

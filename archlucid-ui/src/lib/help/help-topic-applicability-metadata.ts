@@ -60,11 +60,11 @@ function formatGuideReviewProvenance(entry: ProductDocumentationEntry): string |
   }
 
   if (lastReviewed.length > 0 && applicability.length > 0) {
-    return `Last reviewed ${lastReviewed} · ${applicability}`;
+    return `Guide last reviewed ${lastReviewed} · ${applicability}`;
   }
 
   if (lastReviewed.length > 0) {
-    return `Last reviewed ${lastReviewed}`;
+    return `Guide last reviewed ${lastReviewed}`;
   }
 
   return applicability;

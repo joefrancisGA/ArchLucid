@@ -85,6 +85,7 @@ describe("specialty help guides — operator surfaces batch", () => {
       "servicenow-integration",
       "sponsor-dashboard",
       "system-health",
+      "workspace-settings",
     ]);
 
     if (!breadcrumbSlugs.has(slug)) {
@@ -104,13 +105,13 @@ describe("specialty help guides — operator surfaces batch", () => {
     }
 
     if (slug === "model-governance") {
-      expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+      expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
 
       return;
     }
 
     if (slug === "workspace-settings") {
-      expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+      expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
 
       return;
     }

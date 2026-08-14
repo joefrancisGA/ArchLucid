@@ -84,7 +84,7 @@ describe("HelpTeamsIntegrationGuideView", () => {
 
     expect(screen.getByTestId("page-heading-eyebrow")).toHaveTextContent(TEAMS_INTEGRATION_HELP_PAGE_EYEBROW);
 
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
 
     expect(screen.getByTestId("help-teams-integration-webhook-precondition")).toHaveTextContent(
 

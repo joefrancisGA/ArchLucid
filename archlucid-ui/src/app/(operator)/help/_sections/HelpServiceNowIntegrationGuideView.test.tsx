@@ -42,7 +42,7 @@ describe("HelpServiceNowIntegrationGuideView", () => {
     expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
       SERVICENOW_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
     );
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-topic-registry-provenance")).not.toHaveTextContent(
       "integrations servicenow orientation",
     );

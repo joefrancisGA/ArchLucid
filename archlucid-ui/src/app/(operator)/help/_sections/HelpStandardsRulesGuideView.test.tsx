@@ -38,7 +38,7 @@ describe("HelpStandardsRulesGuideView", () => {
     expect(screen.getByTestId("help-standards-rules-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · Governance policy resolution, enforced rules, and diagnostic export",
+      "Guide last reviewed 2026-08-13 · Governance policy resolution, enforced rules, and diagnostic export",
     );
     expect(STANDARDS_RULES_HELP_PAGE_SUBTITLE).not.toBe(STANDARDS_RULES_PAGE_SUBTITLE);
     expect(STANDARDS_RULES_HELP_OVERVIEW.toLowerCase()).not.toContain("this review");

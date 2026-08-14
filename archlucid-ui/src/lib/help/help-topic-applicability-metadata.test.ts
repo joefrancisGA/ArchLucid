@@ -43,7 +43,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "sponsor architecture scorecard orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-12");
+    ).toBe("Guide last reviewed 2026-08-12");
   });
 
   it("formats advisory scans help review provenance", () => {
@@ -55,7 +55,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "governance advisory scans orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats baseline settings help review provenance", () => {
@@ -67,7 +67,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "administration baseline settings orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats decision register help review provenance", () => {
@@ -79,7 +79,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "governance decision register orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats evidence graph help review provenance", () => {
@@ -91,7 +91,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "insights evidence graph orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats impact preview help review provenance", () => {
@@ -103,7 +103,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "insights impact preview orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats improvement planning help review provenance", () => {
@@ -115,7 +115,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "insights improvement planning orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats jira integration help review provenance", () => {
@@ -127,7 +127,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "integrations jira orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats slack integration help review provenance", () => {
@@ -139,7 +139,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "integrations slack notifications orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats teams integration help review provenance", () => {
@@ -151,7 +151,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "integrations teams notifications orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats standards and rules help review provenance", () => {
@@ -164,7 +164,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
         }),
       ),
     ).toBe(
-      "Last reviewed 2026-08-13 · Governance policy resolution, enforced rules, and diagnostic export",
+      "Guide last reviewed 2026-08-13 · Governance policy resolution, enforced rules, and diagnostic export",
     );
   });
 
@@ -177,7 +177,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "administration model governance orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats notifications help review provenance", () => {
@@ -189,7 +189,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "administration notifications orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats ai usage help review provenance", () => {
@@ -201,7 +201,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "Administration · AI usage orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13 · Administration · AI usage orientation");
+    ).toBe("Guide last reviewed 2026-08-13 · Administration · AI usage orientation");
   });
 
   it("formats architecture intelligence help review provenance", () => {
@@ -213,7 +213,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "architecture intelligence orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats architecture drafts help review provenance", () => {
@@ -225,7 +225,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "architecture drafts orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("formats connection status help review provenance", () => {
@@ -237,7 +237,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "administration connection status orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-12");
+    ).toBe("Guide last reviewed 2026-08-12");
   });
 
   it("formats contact support help review provenance", () => {
@@ -249,7 +249,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "in-product support discovery and escalation paths",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13 · in-product support discovery and escalation paths");
+    ).toBe("Guide last reviewed 2026-08-13 · in-product support discovery and escalation paths");
   });
 
   it("formats workspace settings help review provenance with humanized applicability", () => {
@@ -261,7 +261,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "Administration · Workspace settings orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13 · Administration · Workspace settings orientation");
+    ).toBe("Guide last reviewed 2026-08-13 · Administration · Workspace settings orientation");
   });
 
   it("returns null when report-a-problem registry metadata is absent", () => {
@@ -301,7 +301,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "Integrations · ServiceNow orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13 · Integrations · ServiceNow orientation");
+    ).toBe("Guide last reviewed 2026-08-13 · Integrations · ServiceNow orientation");
   });
 
   it("omits raw internal taxonomy tokens from guide review provenance", () => {
@@ -315,7 +315,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
           releaseApplicability: "integrations servicenow orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Guide last reviewed 2026-08-13");
   });
 
   it("never surfaces raw internal taxonomy tokens for guide review provenance slugs", () => {

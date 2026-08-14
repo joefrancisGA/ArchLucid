@@ -38,7 +38,7 @@ describe("HelpNotificationsGuideView", () => {
 
     expect(screen.getByTestId("help-notifications-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
     expect(screen.getByTestId("help-notifications-page-title")).toHaveTextContent(
       NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE,
     );
