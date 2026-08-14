@@ -76,4 +76,26 @@ describe("PatternLibraryDetailClient (TB-1811 / TB-1812 / TB-1813)", () => {
     expect(peerLink).toHaveAttribute("href", "/insights/patterns/three-tier-app-modernization");
     expect(screen.queryByRole("link", { name: /^Compare peer pattern$/i })).not.toBeInTheDocument();
   });
+
+  it("keeps one primary Use in review action in the header", async () => {
+    mockInsightCardsFetch([]);
+
+    renderWithQueryClient(<PatternLibraryDetailClient patternKey="private-endpoints-paas" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Use in review" })).toBeInTheDocument();
+    });
+
+    const primaryLinks = screen
+      .getAllByRole("link")
+      .filter((link) => link.className.includes("bg-[var(--al-primary-action-bg)]"));
+
+    expect(primaryLinks).toHaveLength(1);
+    expect(primaryLinks[0]).toHaveAccessibleName("Use in review");
+
+    const footerUseLink = screen.getByRole("link", { name: "Use this pattern in a new review" });
+
+    expect(footerUseLink.className).toContain("border-neutral-300");
+    expect(footerUseLink.className).not.toContain("bg-[var(--al-primary-action-bg)]");
+  });
 });

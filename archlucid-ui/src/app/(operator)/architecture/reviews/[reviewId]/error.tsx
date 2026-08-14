@@ -61,7 +61,7 @@ export default function RunDetailSegmentError({
           ) : null}
         </OperatorErrorCallout>
         <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" variant="primary" asChild>
+          <Button type="button" variant="outline" asChild>
             <Link href={signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}>
               Open sample review
             </Link>

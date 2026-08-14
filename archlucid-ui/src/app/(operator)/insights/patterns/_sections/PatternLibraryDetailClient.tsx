@@ -161,7 +161,7 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
             Use this pattern as a starting point for a new architecture review or compare it with peer patterns in the library.
           </p>
           <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm" variant="primary">
+            <Button asChild size="sm" variant="outline">
               <Link href={`/architecture/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}>
                 Use this pattern in a new review
               </Link>

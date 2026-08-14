@@ -23,5 +23,7 @@ describe("GoldenSponsorPackageWalkthroughPanel", () => {
 
     expect(primary).toHaveTextContent(GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA);
     expect(primary).toHaveAttribute("href", buildGoldenSponsorPackageWalkthroughHref());
+    expect(primary.className).toContain("border-neutral-300");
+    expect(primary.className).not.toContain("bg-[var(--al-primary-action-bg)]");
   });
 });
