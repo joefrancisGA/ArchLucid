@@ -367,6 +367,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "rest+cli breaking-change compatibility honesty",
+        ("python", "scripts/ci/check_rest_cli_breaking_change_compat_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "worker rolling deploy drain handoff honesty",
         ("python", "scripts/ci/check_worker_rolling_deploy_drain_handoff_honesty.py"),
         None,

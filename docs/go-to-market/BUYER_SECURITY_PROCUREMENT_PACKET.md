@@ -1753,7 +1753,7 @@ Former standalone body: `docs/go-to-market/REST_CLI_BREAKING_CHANGE_COMPATIBILIT
 
 ### Residuals (honest)
 
-- **TB-1560** owns honesty CI for CI-guarantees-compat / Sunset-always-on overclaims.
+- **TB-1560** **Done** — honesty CI (`check_rest_cli_breaking_change_compat_honesty.py`) guards CI-guarantees-compat / Sunset-always-on overclaims.
 - Optional product follow-ons: `oasdiff`, CLI surface snapshot, enable Sunset in prod — not claimed as shipped.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
