@@ -25,6 +25,7 @@ const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "notifications",
   "preferences",
   "recurrence-schedules",
+  "roi-summary",
   "search-review-evidence",
   "system-health",
   "workspace-settings",

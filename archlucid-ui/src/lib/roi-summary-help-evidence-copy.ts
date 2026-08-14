@@ -1,9 +1,5 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor/sponsor-report-pilot-roi-measurement-help";
-import {
-  SPONSOR_REPORT_PATH,
-  SPONSOR_REPORT_PAGE_TITLE,
-} from "@/lib/sponsor-report-navigation";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ROI_SUMMARY_HELP_CANONICAL_PATH = "/help/roi-summary" as const;
 
@@ -21,9 +17,8 @@ export const ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 export const ROI_SUMMARY_HELP_SOURCES_INTRO =
   "Use these follow-ups when reporting windows, cost basis, or methodology assumptions still need attention.";
 
+/** Help follow-ups — methodology and sponsor report product links live elsewhere on this guide. */
 export const ROI_SUMMARY_HELP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Pilot ROI measurement methodology", href: SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF },
-  { label: "Sponsor report help", href: "/help/sponsor-report" },
-  { label: "Baseline settings help", href: "/help/baseline-settings" },
-  { label: SPONSOR_REPORT_PAGE_TITLE, href: SPONSOR_REPORT_PATH },
+  { label: "Sponsor report help", href: inAppHelpHref("sponsor-report") },
+  { label: "Baseline settings help", href: inAppHelpHref("baseline-settings") },
 ] as const;
