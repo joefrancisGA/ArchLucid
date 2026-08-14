@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 
-import { PolicyPackDetailHubVocabularyRail } from "@/components/policy/PolicyPackDetailHubVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 
 type PolicyPackDetailEvidenceChromeProps = {
@@ -15,11 +14,10 @@ export function PolicyPackDetailEvidenceChrome(
 ): React.JSX.Element {
   return (
     <div data-testid="policy-pack-detail-evidence-chrome">
-      <div className="mx-auto w-full max-w-[1200px] space-y-3 px-4 pt-4">
+      <div className="mx-auto w-full max-w-[1200px] px-4 pt-4">
         <div className="flex justify-end">
           <PageContextualHelpButton />
         </div>
-        <PolicyPackDetailHubVocabularyRail currentSurfaceId="pack-detail" />
       </div>
       {props.children}
     </div>

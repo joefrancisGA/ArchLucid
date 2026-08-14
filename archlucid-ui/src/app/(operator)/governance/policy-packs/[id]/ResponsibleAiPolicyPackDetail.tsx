@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+import { GovernancePolicyPackBreadcrumb } from "@/components/governance/GovernancePolicyPackBreadcrumb";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   EnterpriseTable,
@@ -16,29 +16,40 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
+import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
-import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
-import type { PolicyPack } from "@/types/policy-packs";
+import {
+  policyPacksEditHref,
+  reviewsNewWithPackHref,
+} from "@/lib/policy/policy-packs-deep-link";
+import { resolveResponsibleAiPolicyRuleRows } from "@/lib/policy/responsible-ai-policy-pack-rules";
+import type { PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
 import {
-  RESPONSIBLE_AI_ACTION_APPLY_TO_REVIEW,
+  RESPONSIBLE_AI_ACTION_ASSIGN_TO_WORKSPACE,
   RESPONSIBLE_AI_ACTION_GOVERNANCE,
   RESPONSIBLE_AI_ACTION_OPEN_LIBRARY,
   RESPONSIBLE_AI_ACTION_START_REVIEW,
   RESPONSIBLE_AI_EVIDENCE_REQUIRED_ITEMS,
   RESPONSIBLE_AI_POLICY_PACK_APPLICABILITY,
   RESPONSIBLE_AI_POLICY_PACK_APPLIES_TO,
-  RESPONSIBLE_AI_POLICY_PACK_DEFAULT_VERSION,
+  RESPONSIBLE_AI_POLICY_PACK_BASELINE_VERSION,
+  RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL,
   RESPONSIBLE_AI_POLICY_PACK_DESCRIPTION,
-  RESPONSIBLE_AI_POLICY_PACK_DISPLAY_NAME,
   RESPONSIBLE_AI_POLICY_PACK_GOVERNANCE_WORKFLOW,
-  RESPONSIBLE_AI_POLICY_PACK_LAST_UPDATED_LABEL,
+  RESPONSIBLE_AI_POLICY_PACK_NOT_PUBLISHED_QUALIFIER,
   RESPONSIBLE_AI_POLICY_PACK_OVERVIEW,
   RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE,
   RESPONSIBLE_AI_POLICY_PACK_SUBTITLE,
-  RESPONSIBLE_AI_POLICY_RULE_ROWS,
+  RESPONSIBLE_AI_RULES_TABLE_INTRO,
   RESPONSIBLE_AI_TECHNICAL_DETAILS_TITLE,
   RESPONSIBLE_AI_VIEW_TECHNICAL_DETAILS,
 } from "@/lib/responsible-ai-policy-pack-detail-content";
@@ -46,68 +57,150 @@ import {
 type ResponsibleAiPolicyPackDetailProps = {
   readonly policyPackId: string;
   readonly packRecord: PolicyPack | null;
+  readonly packContent: PolicyPackContentDocument | null;
   readonly isSample: boolean;
+  readonly isEnabled: boolean;
+  readonly isGloballyActive: boolean;
 };
 
-function formatLastUpdated(packRecord: PolicyPack | null): string {
-  const activated = packRecord?.activatedUtc?.trim() ?? "";
-  const created = packRecord?.createdUtc?.trim() ?? "";
+type SummaryMetricValue = {
+  readonly value: string;
+  readonly qualifier?: string;
+};
 
-  if (activated.length > 0) {
-    const ms = Date.parse(activated);
+function formatPackTimestamp(value: string | null | undefined): string | null {
+  const raw = value?.trim() ?? "";
 
-    if (!Number.isNaN(ms)) {
-      return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(ms));
-    }
+  if (raw.length === 0) {
+    return null;
   }
 
-  if (created.length > 0) {
-    const ms = Date.parse(created);
+  const ms = Date.parse(raw);
 
-    if (!Number.isNaN(ms)) {
-      return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(ms));
-    }
+  if (Number.isNaN(ms)) {
+    return raw;
   }
 
-  return RESPONSIBLE_AI_POLICY_PACK_LAST_UPDATED_LABEL;
+  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(ms));
 }
 
-function resolveStatusLabel(packRecord: PolicyPack | null, isSample: boolean): string {
-  if (isSample) {
-    return "Sample";
+function resolveVersionMetric(packRecord: PolicyPack | null): SummaryMetricValue {
+  const version = packRecord?.currentVersion?.trim() ?? "";
+
+  if (version.length > 0) {
+    return { value: version };
   }
 
+  return { value: "—", qualifier: RESPONSIBLE_AI_POLICY_PACK_NOT_PUBLISHED_QUALIFIER };
+}
+
+function resolveLastUpdatedMetric(packRecord: PolicyPack | null): SummaryMetricValue {
+  const formatted =
+    formatPackTimestamp(packRecord?.activatedUtc) ?? formatPackTimestamp(packRecord?.createdUtc);
+
+  if (formatted !== null) {
+    return { value: formatted };
+  }
+
+  return { value: "Unavailable", qualifier: RESPONSIBLE_AI_POLICY_PACK_NOT_PUBLISHED_QUALIFIER };
+}
+
+function resolveLifecycleStatusLabel(packRecord: PolicyPack | null): string {
   const status = packRecord?.status?.trim() ?? "";
 
   if (status.length === 0) {
-    return "Active";
+    return "Unavailable";
   }
 
-  if (status.toLowerCase() === "draft") {
+  const normalized = status.toLowerCase();
+
+  if (normalized === "draft") {
     return "Draft";
   }
 
-  if (status.toLowerCase() === "disabled" || status.toLowerCase() === "inactive") {
+  if (normalized === "disabled" || normalized === "inactive") {
     return "Not enabled";
   }
 
-  return "Active";
+  if (normalized === "active") {
+    return "Active";
+  }
+
+  return status;
 }
 
-function SummaryMetric(props: { readonly label: string; readonly value: string }): React.JSX.Element {
+function resolveLifecycleStatusTagKind(packRecord: PolicyPack | null): "ready" | "neutral" | "warning" {
+  const label = resolveLifecycleStatusLabel(packRecord).toLowerCase();
+
+  if (label === "active") {
+    return "ready";
+  }
+
+  if (label === "draft") {
+    return "warning";
+  }
+
+  return "neutral";
+}
+
+function resolveAssignedScopesLabel(isEnabled: boolean, isGloballyActive: boolean): string {
+  if (isEnabled) {
+    return "Workspace";
+  }
+
+  if (isGloballyActive) {
+    return "Available globally";
+  }
+
+  return "Not assigned";
+}
+
+function SummaryMetric(props: {
+  readonly label: string;
+  readonly value: string;
+  readonly qualifier?: string;
+}): React.JSX.Element {
   return (
     <div className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800">
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.label}</p>
-      <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{props.value}</p>
+      <dl className="m-0">
+        <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.label}</dt>
+        <dd className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{props.value}</dd>
+        {props.qualifier !== undefined ? (
+          <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.qualifier}</dd>
+        ) : null}
+      </dl>
     </div>
   );
 }
 
 export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDetailProps): React.JSX.Element {
-  const { policyPackId, packRecord, isSample } = props;
-  const version = packRecord?.currentVersion?.trim() || RESPONSIBLE_AI_POLICY_PACK_DEFAULT_VERSION;
-  const statusLabel = resolveStatusLabel(packRecord, isSample);
-  const ruleCount = RESPONSIBLE_AI_POLICY_RULE_ROWS.length;
+  const { policyPackId, packRecord, packContent, isSample, isEnabled, isGloballyActive } = props;
+  const versionMetric = resolveVersionMetric(packRecord);
+  const lastUpdatedMetric = resolveLastUpdatedMetric(packRecord);
+  const rulesResolution = resolveResponsibleAiPolicyRuleRows(packContent, {
+    isSample,
+    hasPackRecord: packRecord !== null,
+  });
+  const ruleCount = rulesResolution.rows.length;
+  const technicalVersion =
+    packRecord?.currentVersion?.trim() || RESPONSIBLE_AI_POLICY_PACK_BASELINE_VERSION;
+  const lifecycleStatusLabel = resolveLifecycleStatusLabel(packRecord);
+  const headerActions = (
+    <>
+      <Button asChild variant="default" size="sm" data-testid="policy-pack-primary-action">
+        <Link href={policyPacksEditHref(policyPackId)}>{RESPONSIBLE_AI_ACTION_ASSIGN_TO_WORKSPACE}</Link>
+      </Button>
+      <Button asChild variant="outline" size="sm">
+        <Link href={reviewsNewWithPackHref(policyPackId)}>{RESPONSIBLE_AI_ACTION_START_REVIEW}</Link>
+      </Button>
+      <Button asChild variant="outline" size="sm">
+        <Link href={GOVERNANCE_POLICY_PACKS_PATH}>{RESPONSIBLE_AI_ACTION_OPEN_LIBRARY}</Link>
+      </Button>
+      <Button asChild variant="outline" size="sm">
+        <Link href="/governance/approval-queue">{RESPONSIBLE_AI_ACTION_GOVERNANCE}</Link>
+      </Button>
+    </>
+  );
 
   return (
     <div className={cn("w-full max-w-[1200px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="responsible-ai-policy-pack-detail">
@@ -116,22 +209,27 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
         title={RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE}
         subtitle={RESPONSIBLE_AI_POLICY_PACK_SUBTITLE}
         titleTestId="policy-pack-detail-title"
+        breadcrumb={<GovernancePolicyPackBreadcrumb packLabel={RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL} />}
+        statusBadge={
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusTag
+              kind={resolveLifecycleStatusTagKind(packRecord)}
+              label={lifecycleStatusLabel}
+              data-testid="policy-pack-status-badge"
+            />
+            {isSample ? (
+              <StatusTag kind="neutral" label="Sample policy pack" data-testid="policy-pack-sample-tag" />
+            ) : null}
+          </div>
+        }
+        actions={headerActions}
       />
 
       <Card data-testid="policy-pack-summary-card">
-        <CardHeader className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{RESPONSIBLE_AI_POLICY_PACK_DISPLAY_NAME}</CardTitle>
-            <Badge variant={isSample ? "outline" : "secondary"} data-testid="policy-pack-status-badge">
-              {statusLabel}
-            </Badge>
-            {isSample ? (
-              <Badge variant="outline" data-testid="policy-pack-sample-badge">
-                Sample policy pack
-              </Badge>
-            ) : null}
-          </div>
-          <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{RESPONSIBLE_AI_POLICY_PACK_DESCRIPTION}</p>
+        <CardHeader>
+          <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {RESPONSIBLE_AI_POLICY_PACK_DESCRIPTION}
+          </p>
         </CardHeader>
         <CardContent>
           <section
@@ -139,12 +237,29 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
             aria-label="Policy pack summary"
             data-testid="policy-pack-summary-row"
           >
-            <SummaryMetric label="Policy pack name" value={RESPONSIBLE_AI_POLICY_PACK_DISPLAY_NAME} />
-            <SummaryMetric label="Status" value={statusLabel} />
-            <SummaryMetric label="Version" value={version} />
-            <SummaryMetric label="Last updated" value={formatLastUpdated(packRecord)} />
+            <SummaryMetric
+              label="Enabled in workspace"
+              value={isEnabled ? "Enabled" : "Not enabled"}
+            />
+            <SummaryMetric label="Assigned scopes" value={resolveAssignedScopesLabel(isEnabled, isGloballyActive)} />
+            <div className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800">
+              <dl className="m-0">
+                <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Open findings</dt>
+                <dd className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  <Link className={OPERATOR_LINK.nav} href={GOVERNANCE_FINDINGS_PATH} data-testid="policy-pack-open-findings-link">
+                    View queue
+                  </Link>
+                </dd>
+              </dl>
+            </div>
+            <SummaryMetric label="Version" value={versionMetric.value} qualifier={versionMetric.qualifier} />
             <SummaryMetric label="Rules" value={finiteIntegerCountDisplay(ruleCount)} />
           </section>
+          <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Last updated:{" "}
+            <span className="font-medium text-al-text-primary">{lastUpdatedMetric.value}</span>
+            {lastUpdatedMetric.qualifier !== undefined ? ` · ${lastUpdatedMetric.qualifier}` : null}
+          </p>
           <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Applies to: <span className="font-medium text-al-text-primary">{RESPONSIBLE_AI_POLICY_PACK_APPLIES_TO}</span>
           </p>
@@ -159,9 +274,19 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
       </section>
 
       <section className="space-y-3" aria-labelledby="policy-pack-rules-heading">
-        <h3 id="policy-pack-rules-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-          Rules and controls
-        </h3>
+        <div className="space-y-1">
+          <h3 id="policy-pack-rules-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+            Rules and controls
+          </h3>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-rules-intro">
+            {RESPONSIBLE_AI_RULES_TABLE_INTRO}
+          </p>
+          {rulesResolution.rulesSourceQualifier !== null ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-rules-source-qualifier">
+              {rulesResolution.rulesSourceQualifier}
+            </p>
+          ) : null}
+        </div>
         <EnterpriseTable ariaLabel="Responsible AI policy rules" data-testid="policy-pack-rules-table">
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
@@ -169,17 +294,17 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
               <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Requirement</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell>Evidence expected</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
             </EnterpriseTableHeadRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>
-            {RESPONSIBLE_AI_POLICY_RULE_ROWS.map((row) => (
-              <EnterpriseTableRow key={row.ruleName}>
+            {rulesResolution.rows.map((row) => (
+              <EnterpriseTableRow key={row.ruleKey}>
                 <EnterpriseTableCell>{row.ruleName}</EnterpriseTableCell>
-                <EnterpriseTableCell>{row.severity}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <SeverityTag severity={row.severity} />
+                </EnterpriseTableCell>
                 <EnterpriseTableCell>{row.requirement}</EnterpriseTableCell>
                 <EnterpriseTableCell>{row.evidenceExpected}</EnterpriseTableCell>
-                <EnterpriseTableCell>{row.status}</EnterpriseTableCell>
               </EnterpriseTableRow>
             ))}
           </EnterpriseTableBody>
@@ -211,21 +336,6 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{RESPONSIBLE_AI_POLICY_PACK_GOVERNANCE_WORKFLOW}</p>
       </section>
 
-      <section className="flex flex-wrap gap-3" data-testid="policy-pack-detail-actions">
-        <Button asChild variant="default" size="sm">
-          <Link href={policyPacksEditHref(policyPackId)}>{RESPONSIBLE_AI_ACTION_APPLY_TO_REVIEW}</Link>
-        </Button>
-        <Button asChild variant="outline" size="sm">
-          <Link href={GOVERNANCE_POLICY_PACKS_PATH}>{RESPONSIBLE_AI_ACTION_OPEN_LIBRARY}</Link>
-        </Button>
-        <Button asChild variant="outline" size="sm">
-          <Link href="/architecture/reviews/new">{RESPONSIBLE_AI_ACTION_START_REVIEW}</Link>
-        </Button>
-        <Button asChild variant="outline" size="sm">
-          <Link href="/governance/approval-queue">{RESPONSIBLE_AI_ACTION_GOVERNANCE}</Link>
-        </Button>
-      </section>
-
       <Collapsible>
         <CollapsibleTrigger className={cn(OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.optional)} data-testid="policy-pack-technical-details-trigger">
           {RESPONSIBLE_AI_VIEW_TECHNICAL_DETAILS}
@@ -247,7 +357,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
             </div>
             <div>
               <dt className="text-al-text-secondary">Version history</dt>
-              <dd className="m-0 text-al-text-primary">{version} · platform default baseline</dd>
+              <dd className="m-0 text-al-text-primary">{technicalVersion} · platform default baseline</dd>
             </div>
           </dl>
           <div className="mt-3">

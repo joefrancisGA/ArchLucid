@@ -101,7 +101,7 @@ className="mb-3"
 
       <PolicyPacksStandardsVocabularyRail currentSurfaceId="policy-packs" />
       <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="policy-packs" />
-      <PolicyPackDetailHubVocabularyRail currentSurfaceId="policy-packs" />
+      <PolicyPackDetailHubVocabularyRail currentSurfaceId="policy-packs" policyPackId={m.selectedPackId} />
       <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="policy-packs" />
 
       {m.publishSuccessMessage !== null ? (

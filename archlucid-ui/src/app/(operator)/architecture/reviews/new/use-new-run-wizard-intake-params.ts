@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
+import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator/operator-home-example-request";
 import { resolveSpecialtyReviewCloudFromSearchParam } from "@/lib/specialty-review-templates";
 import {
@@ -67,6 +68,15 @@ export function useNewRunWizardIntakeParams() {
     () => resolveWizardPresetIdFromDeeplink(searchParams?.get("preset")),
     [searchParams],
   );
+  const deeplinkPolicyPackId = useMemo(() => {
+    const raw = searchParams?.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
+
+    if (raw.length === 0) {
+      return null;
+    }
+
+    return raw;
+  }, [searchParams]);
 
   return {
     featuredSampleRunId,
@@ -79,5 +89,6 @@ export function useNewRunWizardIntakeParams() {
     reviewIntakeCloudProvider,
     presetDeeplinkToken,
     presetDeeplinkPresetId,
+    deeplinkPolicyPackId,
   };
 }

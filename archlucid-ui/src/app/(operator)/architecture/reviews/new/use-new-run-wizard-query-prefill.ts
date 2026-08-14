@@ -47,6 +47,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   const {
     acceleratorPackId,
     baselineFirst,
+    deeplinkPolicyPackId,
     exampleTemplate,
     presetDeeplinkPresetId,
     presetDeeplinkToken,
@@ -57,6 +58,16 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
 
   const zeroConfigAppliedRef = useRef(false);
   const exampleTemplatePrefillAppliedRef = useRef(false);
+  const policyPackPrefillAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (deeplinkPolicyPackId === null || policyPackPrefillAppliedRef.current) {
+      return;
+    }
+
+    policyPackPrefillAppliedRef.current = true;
+    setValue("policyReferences", [deeplinkPolicyPackId], { shouldValidate: true, shouldDirty: true });
+  }, [deeplinkPolicyPackId, setValue]);
 
   useEffect(() => {
     if (acceleratorPackId === null) {
