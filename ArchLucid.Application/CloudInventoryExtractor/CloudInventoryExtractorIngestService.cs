@@ -115,6 +115,33 @@ public sealed class CloudInventoryExtractorIngestService(
         return await IngestPreparedZipAsync(zipBytes, safeName, cloudProvider, runId, correlationId, MaxUploadedZipBytes, ct);
     }
 
+    public Task<CloudInventoryExtractorIngestResult> IngestZipBytesAsync(
+        CloudProvider cloudProvider,
+        byte[] zipBytes,
+        string originalFileName,
+        Guid? runId,
+        CancellationToken ct,
+        string? correlationId = null,
+        long? maxAcceptedZipBytes = null)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        if (cloudProvider is not (CloudProvider.Aws or CloudProvider.Gcp))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(cloudProvider),
+                cloudProvider,
+                "Only Aws and Gcp inventory uploads are supported.");
+        }
+
+        ArgumentNullException.ThrowIfNull(zipBytes);
+
+        string safeName = NormalizeZipFileName(originalFileName);
+        long cap = maxAcceptedZipBytes ?? MaxUploadedZipBytes;
+
+        return IngestPreparedZipAsync(zipBytes, safeName, cloudProvider, runId, correlationId, cap, ct);
+    }
+
     private async Task<CloudInventoryExtractorIngestResult> IngestPreparedZipAsync(
         byte[] zipBytes,
         string safeName,

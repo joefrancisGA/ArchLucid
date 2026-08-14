@@ -1358,10 +1358,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2253 | AgentUserPromptStaticPrefix — AWS/GCP Important guidance blocks; see ## TB-2253 below | AI/Agent readiness P2 — **V1**; multi-cloud target parity 2026-08-13; extends Done **TB-875** user addenda | M |
 | TB-2254 | Request templates + wizard presets — non-Azure target examples; see ## TB-2254 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; all presets `CloudProvider.Azure` | M |
 | TB-2255 | Demo/zero-config paths — respect Aws/Gcp cloud target; see ## TB-2255 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; force Azure on file select | S |
-| TB-2256 | AWS/GCP Tier 1 chunked ZIP upload parity; see ## TB-2256 below | Interoperability P2 — **V1**; multi-cloud target parity 2026-08-13; Azure-only chunk session store | L |
-| TB-2257 | CLI `validate-zip` for AWS/GCP inventory packages; see ## TB-2257 below | Code hygiene P3 — **V1**; multi-cloud target parity 2026-08-13; Azure-only `AzureValidateZipCommand` | S |
-| TB-2258 | Multi-cloud inventory demo scenario ZIPs; see ## TB-2258 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; Azure-only `arch-lucid-azure-extractor-demo-scenarios` | M |
-| TB-2259 | Rename Azure-prefixed multi-cloud wizard/shell components; see ## TB-2259 below | Maintainability P3 — **V1**; multi-cloud target parity 2026-08-13; `WizardStepAzureContext`, `AzureExtractorZipDropZone` | M |
+| TB-2256 | ~~AWS/GCP Tier 1 chunked ZIP upload parity~~ **Done** 2026-08-14 — `CloudInventoryExtractorChunkedUploadService` + aws/gcp upload-session routes; see ## TB-2256 below | Interoperability P2 — **V1**; multi-cloud target parity 2026-08-13; Azure-only chunk session store | L |
+| TB-2257 | ~~CLI `validate-zip` for AWS/GCP inventory packages~~ **Done** 2026-08-14 — `archlucid aws|gcp validate-zip`; see ## TB-2257 below | Code hygiene P3 — **V1**; multi-cloud target parity 2026-08-13; Azure-only `AzureValidateZipCommand` | S |
+| TB-2258 | ~~Multi-cloud inventory demo scenario ZIPs~~ **Done** 2026-08-14 — Aws/Gcp demo scenario builders + wizard wiring; see ## TB-2258 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; Azure-only `arch-lucid-azure-extractor-demo-scenarios` | M |
+| TB-2259 | ~~Rename Azure-prefixed multi-cloud wizard/shell components~~ **Done** 2026-08-14 — `InventoryZipDropZone`, `WizardStepCloudInventoryContext`, `InventoryDemoScenarioPicker`; see ## TB-2259 below | Maintainability P3 — **V1**; multi-cloud target parity 2026-08-13; `WizardStepAzureContext`, `AzureExtractorZipDropZone` | M |
 | TB-2260 | Remove stale `FORTHCOMING_CLOUD_PROVIDER_ROWS` admin copy; see ## TB-2260 below | Adoption friction P3 — **V1**; multi-cloud target parity 2026-08-13; AWS/GCP Tier 2 shipped | S |
 | TB-2261 | Quick Scan `PrimaryEnvironment` — Aws/Gcp options; see ## TB-2261 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; sample/default Azure-only | S |
 | TB-2262 | Inventory-backed security baseline validation for AWS/GCP; see ## TB-2262 below | Correctness P2 — **V1.1**; multi-cloud target parity 2026-08-13; extends open **TB-2210** (Azure-only) | L |
@@ -51229,6 +51229,8 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1.
 
+**Status:** **Done** 2026-08-14 — `CloudInventoryExtractorChunkedUploadService` reuses Azure chunk session store; `CloudInventoryExtractorUploadController` adds `aws/gcp` upload-session, chunk, and complete routes; `CloudInventoryExtractorChunkedUploadEndpointTests`.
+
 **Why:** Azure extractor supports chunked upload (`AzureExtractorChunkUploadController`, session store). Large Aws/Gcp ZIPs hit single-request limits.
 
 **Approach:** Generalize chunk session store + upload controller for `CloudProvider.Aws` and `CloudProvider.Gcp`, or document size limits honestly until chunked path exists.
@@ -51245,6 +51247,8 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1.
 
+**Status:** **Done** 2026-08-14 — `CloudInventoryValidateZipCommand` (`archlucid aws validate-zip` / `gcp validate-zip`); `CloudInventoryValidateZipCommandTests`.
+
 **Why:** `AzureValidateZipCommand` exists; no CLI validate for Aws/Gcp inventory ZIP schema.
 
 **Approach:** Add `aws validate-zip` / `gcp validate-zip` (or unified `inventory validate-zip --provider`) using `CloudInventoryExtractorPackageZipValidator`.
@@ -51259,6 +51263,8 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1.
 
+**Status:** **Done** 2026-08-14 — `arch-lucid-aws-inventory-demo-scenarios.ts`, `arch-lucid-gcp-inventory-demo-scenarios.ts`, unified `arch-lucid-inventory-demo-scenarios.ts`; wizard evidence upload + enrichment panels wire demo picker for Aws/Gcp.
+
 **Why:** `arch-lucid-azure-extractor-demo-scenarios` provides labeled Azure ZIPs only. Aws/Gcp demo path uses generic demo flag without inventory-shaped fixtures.
 
 **Approach:** Add Aws/Gcp demo scenario ZIP builders parallel to Azure scenarios; wire wizard demo picker when Aws/Gcp evidence selected.
@@ -51272,6 +51278,8 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 ## TB-2259 — Rename Azure-prefixed multi-cloud wizard/shell components (P3)
 
 **Window:** V1.
+
+**Status:** **Done** 2026-08-14 — Canonical `InventoryZipDropZone`, `InventoryDemoScenarioPicker`, `WizardStepCloudInventoryContext`; legacy Azure-prefixed modules re-export for one release.
 
 **Why:** `WizardStepAzureContext`, `AzureExtractorZipDropZone` (used for all clouds in `Tier1InventoryZipUploadPanel`), and similar names imply Azure-only UX though multi-cloud paths exist (**TB-337** partial).
 

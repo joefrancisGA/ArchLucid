@@ -11,6 +11,7 @@ public static partial class ServiceCollectionExtensions
     public static IServiceCollection AddCloudInventoryExtractorIngestServices(this IServiceCollection services)
     {
         services.AddScoped<ICloudInventoryExtractorIngestService, CloudInventoryExtractorIngestService>();
+        services.AddScoped<CloudInventoryExtractorChunkedUploadService>();
         return services;
     }
 }

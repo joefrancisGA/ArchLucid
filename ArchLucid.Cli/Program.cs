@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Cli.Commands;
+using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Cli;
 
@@ -292,6 +293,38 @@ public static class Program
                         Console.WriteLine("       archlucid azure validate-zip --path <file.zip>");
                         Console.WriteLine("       archlucid azure extract-and-upload --subscription <id>");
                     }
+
+                    return CliExitCode.UsageError;
+
+                case "aws":
+                    if (normalized.Length > 2
+                        && string.Equals(normalized[1], "validate-zip", StringComparison.OrdinalIgnoreCase))
+                        return await CloudInventoryValidateZipCommand.RunAsync(CloudProvider.Aws, normalized.Skip(2).ToArray());
+
+                    if (CliExecutionContext.JsonOutput)
+                        CliJson.WriteFailureLine(
+                            Console.Error,
+                            CliExitCode.UsageError,
+                            "usage",
+                            "Expected: archlucid aws validate-zip --path <file.zip>");
+                    else
+                        Console.WriteLine("Usage: archlucid aws validate-zip --path <file.zip>");
+
+                    return CliExitCode.UsageError;
+
+                case "gcp":
+                    if (normalized.Length > 2
+                        && string.Equals(normalized[1], "validate-zip", StringComparison.OrdinalIgnoreCase))
+                        return await CloudInventoryValidateZipCommand.RunAsync(CloudProvider.Gcp, normalized.Skip(2).ToArray());
+
+                    if (CliExecutionContext.JsonOutput)
+                        CliJson.WriteFailureLine(
+                            Console.Error,
+                            CliExitCode.UsageError,
+                            "usage",
+                            "Expected: archlucid gcp validate-zip --path <file.zip>");
+                    else
+                        Console.WriteLine("Usage: archlucid gcp validate-zip --path <file.zip>");
 
                     return CliExitCode.UsageError;
 

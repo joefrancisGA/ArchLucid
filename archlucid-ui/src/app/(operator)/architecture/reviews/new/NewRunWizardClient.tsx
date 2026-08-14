@@ -71,7 +71,7 @@ import {
   SimplifiedPilotWizard,
   WizardPostCreateEvidenceUploadPanel,
   WizardStepAdvanced,
-  WizardStepAzureContext,
+  WizardStepCloudInventoryContext,
   WizardStepBaselineMetrics,
   WizardStepBaselineZip,
   WizardStepTrack,
@@ -609,7 +609,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
           ) : null}
           {stepIndex === 3 ? <WizardStepConstraints /> : null}
           {stepIndex === 4 ? (
-            <WizardStepAzureContext
+            <WizardStepCloudInventoryContext
               pendingFile={evidence.pendingEvidenceFile}
               onPendingFileChange={evidence.handlePendingEvidenceFileChange}
             />

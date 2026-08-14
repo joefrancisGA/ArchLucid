@@ -251,6 +251,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
               platform={inventoryPlatform}
               pendingFile={pendingFile}
               onPendingFileChange={onPendingFileChange}
+              showDemoScenarios={inventoryPlatform === "aws" || inventoryPlatform === "gcp"}
             />
           </div>
         ) : null}

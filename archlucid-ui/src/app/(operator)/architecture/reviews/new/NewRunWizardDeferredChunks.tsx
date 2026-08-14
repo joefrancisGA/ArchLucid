@@ -7,11 +7,16 @@ export const WizardStepAdvanced = dynamic(
   { loading: () => null },
 );
 
-export const WizardStepAzureContext = dynamic(
+export const WizardStepCloudInventoryContext = dynamic(
   () =>
-    import("@/components/wizard/steps/WizardStepAzureContext").then((module) => module.WizardStepAzureContext),
+    import("@/components/wizard/steps/WizardStepCloudInventoryContext").then(
+      (module) => module.WizardStepCloudInventoryContext,
+    ),
   { loading: () => null },
 );
+
+/** @deprecated Prefer {@link WizardStepCloudInventoryContext}. */
+export const WizardStepAzureContext = WizardStepCloudInventoryContext;
 
 export const WizardStepBaselineZip = dynamic(
   () => import("@/components/wizard/steps/WizardStepBaselineZip").then((module) => module.WizardStepBaselineZip),

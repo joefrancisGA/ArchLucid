@@ -12,4 +12,13 @@ public interface ICloudInventoryExtractorIngestService
         Guid? runId,
         CancellationToken cancellationToken,
         string? correlationId = null);
+
+    Task<CloudInventoryExtractorIngestResult> IngestZipBytesAsync(
+        CloudProvider cloudProvider,
+        byte[] zipBytes,
+        string originalFileName,
+        Guid? runId,
+        CancellationToken cancellationToken,
+        string? correlationId = null,
+        long? maxAcceptedZipBytes = null);
 }
