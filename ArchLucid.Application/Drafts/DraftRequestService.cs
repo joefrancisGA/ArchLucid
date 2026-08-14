@@ -372,6 +372,7 @@ public sealed class DraftRequestService(
             throw new InvalidOperationException($"Draft '{draftId}' cannot be submitted from status '{existing.Status}'.");
 
         EnsureMustQuestionsAnswered(existing.Document);
+        ArchitectureDraftReviewReadinessValidator.EnsureReviewReady(existing.Document);
 
         ArchitectureRequest architectureRequest = _projector.Project(existing.Document, draftId);
 
@@ -620,6 +621,44 @@ public sealed class DraftRequestService(
 
         if (patch.WorkflowIntent is not null)
             document.WorkflowIntent = NormalizeWorkflowIntent(patch.WorkflowIntent);
+
+        if (patch.StructuredBrief is not null)
+            ApplyStructuredBriefPatch(document.StructuredBrief, patch.StructuredBrief);
+    }
+
+    private static void ApplyStructuredBriefPatch(
+        ArchitectureDraftStructuredBrief target,
+        ArchitectureDraftStructuredBrief patch)
+    {
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(patch);
+
+        target.ConfirmedConstraints = CopyTrimmedList(patch.ConfirmedConstraints);
+        target.ConfirmedAssumptions = CopyTrimmedList(patch.ConfirmedAssumptions);
+        target.ConfirmedRequiredCapabilities = CopyTrimmedList(patch.ConfirmedRequiredCapabilities);
+        target.SuggestedConstraints = CopyTrimmedList(patch.SuggestedConstraints);
+        target.SuggestedAssumptions = CopyTrimmedList(patch.SuggestedAssumptions);
+        target.SuggestedRequiredCapabilities = CopyTrimmedList(patch.SuggestedRequiredCapabilities);
+        target.QualityAttribute = patch.QualityAttribute?.Trim();
+        target.FailureModeNote = patch.FailureModeNote?.Trim();
+        target.OperationalOwner = patch.OperationalOwner?.Trim();
+    }
+
+    private static List<string> CopyTrimmedList(IReadOnlyList<string> items)
+    {
+        List<string> copied = [];
+
+        foreach (string item in items)
+        {
+            string trimmed = item.Trim();
+
+            if (trimmed.Length == 0)
+                continue;
+
+            copied.Add(trimmed);
+        }
+
+        return copied;
     }
 
     private static void SyncTransparencyFromDocument(DraftRequestDocument document)

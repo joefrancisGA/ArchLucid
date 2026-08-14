@@ -114,4 +114,12 @@ public sealed class DraftRequestDocument
         get;
         set;
     }
+
+    /// <summary>Confirmable structured brief lists and quality notes (TB-2282).</summary>
+    [JsonPropertyName("structuredBrief")]
+    public ArchitectureDraftStructuredBrief StructuredBrief
+    {
+        get;
+        set;
+    } = new();
 }

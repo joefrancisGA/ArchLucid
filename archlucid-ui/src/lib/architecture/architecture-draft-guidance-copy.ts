@@ -9,7 +9,7 @@ export const ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_LEAD = GUIDED_INTAKE_CREATIO
 
 /** Resumable draft behavior and the explicit review start action. */
 export const ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_DETAIL =
-  `Save and return anytime from ${ARCHITECTURE_DRAFTS_LIST_LABEL}. Starting an architecture review is a separate step — use Start architecture review when the draft is ready.` as const;
+  `Save and return anytime from ${ARCHITECTURE_DRAFTS_LIST_LABEL}. Starting an architecture review is a separate step — use Start architecture review when the draft includes confirmed constraints, assumptions, a quality target, and actors a junior architect could reconstruct the system from.` as const;
 
 /** Permanent dismiss for veterans who no longer need the draft-vs-review explanation. */
 export const ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_LABEL = "Hide this tip" as const;

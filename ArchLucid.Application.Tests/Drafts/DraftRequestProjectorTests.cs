@@ -78,6 +78,31 @@ public sealed class DraftRequestProjectorTests
         request.CloudProvider.Should().Be(CloudProvider.None);
     }
 
+    [Fact]
+    public void Project_CopiesStructuredBriefOntoArchitectureRequest()
+    {
+        DraftRequestDocument document = CreateDocument();
+        document.WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture;
+        document.StructuredBrief = new ArchitectureDraftStructuredBrief
+        {
+            ConfirmedConstraints = ["EU data residency"],
+            ConfirmedAssumptions = ["Team has landing zone access"],
+            ConfirmedRequiredCapabilities = ["Managed identity"],
+            QualityAttribute = "RTO 4h",
+            FailureModeNote = "Queue backlog delays intake",
+            OperationalOwner = "Platform operations",
+        };
+
+        Contracts.Requests.ArchitectureRequest request = _projector.Project(document, Guid.NewGuid());
+
+        request.Constraints.Should().ContainSingle("EU data residency");
+        request.RequiredCapabilities.Should().ContainSingle("Managed identity");
+        request.Assumptions.Should().Contain(a => a.Contains("Team has landing zone access", StringComparison.Ordinal));
+        request.InlineRequirements.Should().Contain("Quality attribute: RTO 4h");
+        request.InlineRequirements.Should().Contain("Failure mode / continuity: Queue backlog delays intake");
+        request.InlineRequirements.Should().Contain("Operational owner: Platform operations");
+    }
+
     private static DraftRequestDocument CreateDocument() => new()
     {
         FreeTextIntent = "Modernize the claims intake workflow with nightly batch API integration.",

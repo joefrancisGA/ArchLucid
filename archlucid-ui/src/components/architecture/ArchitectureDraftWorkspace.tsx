@@ -54,7 +54,9 @@ import {
 import {
   hasArchitectureDraftSaveableContent,
   validateArchitectureReviewReadiness,
+  type ArchitectureDraftFieldState,
 } from "@/lib/architecture/architecture-draft-readiness";
+import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import {
   ARCHITECTURES_LIST_PATH,
   architectureDraftPath,
@@ -97,6 +99,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     freeTextIntent: "",
     businessOutcome: "",
     systemName: "",
+    structuredBrief: emptyArchitectureDraftStructuredBrief(),
   });
   const [actorSet, setActorSet] = useState<ActorSet>(() => architectureCreationDefaultActorSet());
   const [exitPending, setExitPending] = useState(false);
@@ -146,7 +149,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, []);
 
   const acceptServerBaselineRef = useRef<
-    (fields: { freeTextIntent: string; businessOutcome: string; systemName: string }, serverUpdatedUtc: string) => void
+    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string) => void
   >(() => undefined);
 
   const handleDraftLoaded = useCallback(
@@ -185,7 +188,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     ? ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD
     : ARCHITECTURE_DRAFT_WORKSPACE_LEAD;
 
-  const reviewReadiness = useMemo(() => validateArchitectureReviewReadiness(fields), [fields]);
+  const reviewReadiness = useMemo(
+    () => validateArchitectureReviewReadiness(fields, actorSet.actors),
+    [actorSet.actors, fields],
+  );
   const needsPersistedDraftBeforeStart = isNewDraft && !hasPersistedDraft;
   const canStartReview =
     reviewReadiness.isValid && scopeGateOpen && !needsPersistedDraftBeforeStart && saveState !== "saving";

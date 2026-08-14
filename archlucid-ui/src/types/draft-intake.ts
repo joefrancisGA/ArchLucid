@@ -41,6 +41,17 @@ export type DraftRequestDocument = {
   actorSet: ActorSet;
   parentDraftId?: string;
   workflowIntent?: "create-architecture" | "start-review";
+  structuredBrief?: {
+    confirmedConstraints?: string[];
+    confirmedAssumptions?: string[];
+    confirmedRequiredCapabilities?: string[];
+    suggestedConstraints?: string[];
+    suggestedAssumptions?: string[];
+    suggestedRequiredCapabilities?: string[];
+    qualityAttribute?: string;
+    failureModeNote?: string;
+    operationalOwner?: string;
+  };
 };
 
 export type BranchDraftRequest = {

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { architectureCreationDefaultActorSet } from "@/lib/architecture/architecture-creation-init";
+import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import { ARCHITECTURE_DRAFT_ALTERNATIVES_HINT } from "@/lib/create-vs-review-intake-copy";
 import { GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_MIN_HELPER } from "@/lib/guided-intake-copy";
 
@@ -11,10 +12,19 @@ vi.mock("@/components/draft-intake/DraftIntakeActorEditor", () => ({
   DraftIntakeActorEditor: () => <div data-testid="draft-intake-actor-editor" />,
 }));
 
+vi.mock("@/components/architecture/ArchitectureDraftStructuredBriefFields", () => ({
+  ArchitectureDraftStructuredBriefFields: () => <div data-testid="architecture-draft-structured-brief-stub" />,
+}));
+
 function renderFields(overview: string): void {
   render(
     <ArchitectureDraftFormFields
-      fields={{ freeTextIntent: overview, businessOutcome: "", systemName: "" }}
+      fields={{
+        freeTextIntent: overview,
+        businessOutcome: "",
+        systemName: "",
+        structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      }}
       actorSet={architectureCreationDefaultActorSet()}
       onFieldsChange={() => undefined}
       onActorSetChange={() => undefined}

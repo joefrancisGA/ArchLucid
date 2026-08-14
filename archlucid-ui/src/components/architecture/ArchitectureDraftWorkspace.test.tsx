@@ -105,10 +105,23 @@ import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
 import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE, ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
+import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { showError } from "@/lib/toast";
+
+const readyStructuredBriefDocument = {
+  confirmedConstraints: ["Private endpoints required"],
+  confirmedAssumptions: ["Team operates in a single region"],
+  confirmedRequiredCapabilities: [],
+  suggestedConstraints: [],
+  suggestedAssumptions: [],
+  suggestedRequiredCapabilities: [],
+  qualityAttribute: "RTO 4 hours",
+  failureModeNote: "",
+  operationalOwner: "",
+};
 
 const spawnedDraft = {
   draftId: "arch-001",
@@ -440,11 +453,11 @@ describe("ArchitectureDraftWorkspace", () => {
 
     expect(screen.getByTestId("architecture-draft-outcome")).toHaveValue("Reduce manual routing");
     expect(acceptServerBaseline).toHaveBeenCalledWith(
-      {
+      expect.objectContaining({
         freeTextIntent: "Claims intake modernization",
         businessOutcome: "Reduce manual routing",
         systemName: "Claims intake",
-      },
+      }),
       spawnedDraft.updatedUtc,
     );
   });
@@ -562,7 +575,7 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.getByTestId("architecture-draft-review-readiness")).toHaveTextContent(
-      /Add architecture overview and business outcome before starting a review/i,
+      /Add architecture overview and business outcome/i,
     );
     expect(screen.getByTestId("architecture-draft-intent")).toHaveAttribute("aria-invalid", "true");
     expect(screen.getByTestId("architecture-draft-outcome")).toHaveAttribute("aria-invalid", "true");
@@ -585,6 +598,19 @@ describe("ArchitectureDraftWorkspace", () => {
         freeTextIntent: longOverview,
         businessOutcome: "Reduce manual routing",
         workflowIntent: "create-architecture",
+        structuredBrief: readyStructuredBriefDocument,
+        actorSet: {
+          actors: [
+            {
+              label: "Primary operator",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
       },
     });
 
@@ -635,6 +661,19 @@ describe("ArchitectureDraftWorkspace", () => {
         freeTextIntent: longOverview,
         businessOutcome: "Reduce manual routing",
         workflowIntent: "create-architecture",
+        structuredBrief: readyStructuredBriefDocument,
+        actorSet: {
+          actors: [
+            {
+              label: "Primary operator",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
       },
     });
 
