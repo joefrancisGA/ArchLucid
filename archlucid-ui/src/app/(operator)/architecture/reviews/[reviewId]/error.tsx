@@ -18,7 +18,7 @@ import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 /**
- * Segment error boundary for `/architecture/reviews/[runId]` so review detail client failures show buyer-safe recovery
+ * Segment error boundary for `/architecture/reviews/[reviewId]` so review detail client failures show buyer-safe recovery
  * (not the parent `/runs` “reviews list” error segment).
  */
 export default function RunDetailSegmentError({

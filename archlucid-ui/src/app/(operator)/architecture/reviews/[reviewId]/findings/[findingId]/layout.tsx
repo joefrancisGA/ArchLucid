@@ -8,9 +8,9 @@ export default async function RunFindingLayout({
   params,
 }: {
   children: ReactNode;
-  params: Promise<{ runId: string; findingId: string }>;
+  params: Promise<{ reviewId: string; findingId: string }>;
 }) {
-  const { runId, findingId } = await params;
+  const { reviewId: runId, findingId } = await params;
 
   if (isInvalidGuidOrSlugRouteToken(runId) || isInvalidDynamicRouteToken(findingId)) {
     notFound();

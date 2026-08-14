@@ -12,6 +12,7 @@ import {
   TRY_CLI_DEMO_REQUIREMENTS,
   buildTryCliDemoCommand,
 } from "@/components/try-cli-demo-copy";
+import { MARKETING_CANONICAL_DEMO_PATH } from "@/lib/marketing/marketing-entry-spine";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
@@ -47,7 +48,7 @@ export function TryCliDemoCard(): React.JSX.Element {
           Preview a committed review record in the product UI before trying a local CLI run.
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <Link href="/demo/preview" className={OPERATOR_LINK.nav}>
+          <Link href={MARKETING_CANONICAL_DEMO_PATH} className={OPERATOR_LINK.nav}>
             Preview in browser
           </Link>
           <Link

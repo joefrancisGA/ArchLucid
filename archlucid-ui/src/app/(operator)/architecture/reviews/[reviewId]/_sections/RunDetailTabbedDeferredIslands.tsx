@@ -2,12 +2,12 @@ import { Suspense } from "react";
 
 import dynamic from "next/dynamic";
 
-import { loadRunDetailBelowFoldProjectContextModel } from "@/app/(operator)/architecture/reviews/[runId]/_sections/load-run-detail-deferred-model";
+import { loadRunDetailBelowFoldProjectContextModel } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/load-run-detail-deferred-model";
 import type {
   RunDetailDeferredSectionContext,
   RunDetailPageModel,
-} from "@/app/(operator)/architecture/reviews/[runId]/_sections/run-detail-page-model";
-import { RunDetailBelowFoldProjectContextSkeleton } from "@/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailDeferredSkeleton";
+} from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-page-model";
+import { RunDetailBelowFoldProjectContextSkeleton } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailDeferredSkeleton";
 
 const PostCommitHabitLoopCard = dynamic(
   () => import("@/components/PostCommitHabitLoopCard").then((module) => module.PostCommitHabitLoopCard),
@@ -16,7 +16,7 @@ const PostCommitHabitLoopCard = dynamic(
 
 const RunDetailArchitectureGraphSection = dynamic(
   () =>
-    import("@/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailArchitectureGraphSection").then(
+    import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArchitectureGraphSection").then(
       (module) => module.RunDetailArchitectureGraphSection,
     ),
   {

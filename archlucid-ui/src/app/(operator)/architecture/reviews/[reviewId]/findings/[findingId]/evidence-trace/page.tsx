@@ -12,9 +12,9 @@ import { FindingInspectView } from "../FindingInspectView";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ runId: string; findingId: string }>;
+  params: Promise<{ reviewId: string; findingId: string }>;
 }): Promise<Metadata> {
-  const { runId, findingId } = await params;
+  const { reviewId: runId, findingId } = await params;
 
   return metadataForFindingEvidenceTraceRoute(runId, findingId);
 }
@@ -26,9 +26,9 @@ export async function generateMetadata({
 export default async function FindingEvidenceTracePage({
   params,
 }: {
-  params: Promise<{ runId: string; findingId: string }>;
+  params: Promise<{ reviewId: string; findingId: string }>;
 }) {
-  const { runId, findingId } = await params;
+  const { reviewId: runId, findingId } = await params;
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();

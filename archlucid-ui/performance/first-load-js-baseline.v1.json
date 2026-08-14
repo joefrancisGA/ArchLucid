@@ -21,7 +21,7 @@
     "/architecture/reviews": {
       "firstLoadJsKb": 1268.7
     },
-    "/architecture/reviews/[runId]": {
+    "/architecture/reviews/[reviewId]": {
       "firstLoadJsKb": 1883.4
     },
     "/architecture/sponsor-dashboard": {

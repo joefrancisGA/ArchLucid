@@ -21,7 +21,7 @@
     ]
   },
   {
-    "route": "/architecture/reviews/[runId]",
+    "route": "/architecture/reviews/[reviewId]",
     "firstLoadUncompressedJsBytes": 1928602,
     "firstLoadChunkPaths": [
       ".next/static/chunks/run-detail.js"

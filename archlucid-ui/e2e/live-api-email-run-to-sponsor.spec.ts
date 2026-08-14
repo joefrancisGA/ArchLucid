@@ -3,7 +3,7 @@
  * Default `playwright.config.ts` is live-backed; run `npx playwright test` (or mock: `-c playwright.mock.config.ts`).
  * Set `LIVE_API_URL` if the API is not on http://127.0.0.1:5128.
  *
- * Covers the post-commit sponsor deliverables banner on `/runs/[runId]`:
+ * Covers the post-commit sponsor deliverables banner on `/runs/[reviewId]`:
  *   - Drive a full create → execute → commit cycle so the run-detail page renders the post-commit
  *     `EmailRunToSponsorBanner`.
  *   - Click the banner's primary action and assert the browser receives an `application/pdf` download
@@ -51,7 +51,7 @@ test.describe("live-api-email-run-to-sponsor", () => {
     const createBody = {
       requestId: `E2E-EMAIL-SPONSOR-${Date.now()}`,
       description: liveE2eArchitectureDescription(
-        "Live E2E: drive a committed run so the sponsor PDF CTA renders on /runs/[runId].",
+        "Live E2E: drive a committed run so the sponsor PDF CTA renders on /runs/[reviewId].",
       ),
       systemName: "EmailSponsorPdf",
       environment: "prod",

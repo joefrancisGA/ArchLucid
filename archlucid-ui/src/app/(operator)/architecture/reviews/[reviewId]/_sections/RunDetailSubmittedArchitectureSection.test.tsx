@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { RunDetailSubmittedArchitectureSection } from "@/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailSubmittedArchitectureSection";
+import { RunDetailSubmittedArchitectureSection } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSubmittedArchitectureSection";
 
 const markdownBrief = `## Sponsor report
 

@@ -12,7 +12,7 @@ function readUiSource(relativePath: string): string {
 describe("TB-2027 operator loader parallelism", () => {
   it("parallelizes run-detail mid-deferred and pipeline/stage timelines", () => {
     const source = readUiSource(
-      "src/app/(operator)/architecture/reviews/[runId]/_sections/load-run-detail-deferred-model.ts",
+      "src/app/(operator)/architecture/reviews/[reviewId]/_sections/load-run-detail-deferred-model.ts",
     );
 
     expect(source).toContain("loadRunDetailMidDeferredModel");
@@ -41,7 +41,7 @@ describe("TB-2027 operator loader parallelism", () => {
 
   it("parallelizes finding detail inspect + run footnote", () => {
     const source = readUiSource(
-      "src/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/_sections/load-finding-detail-page-model.ts",
+      "src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/load-finding-detail-page-model.ts",
     );
 
     expect(source).toMatch(

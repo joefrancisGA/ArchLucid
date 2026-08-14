@@ -4,7 +4,7 @@
  * Why two surfaces exist:
  * - Signed review records (`/governance/signed-records`) is the *inventory* of
  *   finalized signed review records for diligence and governance follow-up.
- * - Review detail (`/architecture/reviews/[runId]`) is the *architecture
+ * - Review detail (`/architecture/reviews/[reviewId]`) is the *architecture
  *   package* workspace for one review — findings, evidence, and finalize.
  *
  * They stay separate because browsing signed records is not the same task as

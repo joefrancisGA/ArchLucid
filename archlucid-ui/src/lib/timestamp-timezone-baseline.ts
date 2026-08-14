@@ -13,7 +13,7 @@ export const TIMESTAMP_TIMEZONE_BASELINE: readonly string[] = [
   "app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiEnvironmentSavingsSection.tsx",
   "app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiSavingsTrendSvgChart.tsx",
   "app/(operator)/architecture/reviews/RunsListClient.tsx",
-  "app/(operator)/architecture/reviews/[runId]/findings/[findingId]/_sections/finding-detail-route-display.ts",
+  "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/finding-detail-route-display.ts",
   "app/(operator)/architecture/reviews/_sections/ReviewsHubResumeDrafts.tsx",
   "app/(operator)/architecture/reviews/_sections/reviews-hub-package-display.ts",
   "app/(operator)/governance/_sections/governance-workflow-helpers.ts",

@@ -14,9 +14,9 @@ export const metadata: Metadata = {
 export default async function PackagePrintPage({
   params,
 }: {
-  params: Promise<{ runId: string }>;
+  params: Promise<{ reviewId: string }>;
 }): Promise<React.JSX.Element> {
-  const { runId } = await params;
+  const { reviewId: runId } = await params;
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();

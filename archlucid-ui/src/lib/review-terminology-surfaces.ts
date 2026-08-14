@@ -289,9 +289,9 @@ export const REVIEW_TERMINOLOGY_GOLDEN_PATH_SURFACE_PATHS = [
   "src/lib/invite-reviewer-evidence-copy.ts",
   "src/lib/operator/operator-home-evidence-copy.ts",
   "src/components/operator-home/OperatorHomeGlossarySections.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPreFinalizedEmptyState.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPreFinalizedEmptyState.tsx",
   "src/app/(operator)/architecture/reviews/new/ReviewsNewMoreWaysToStart.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/resolve-review-package-attention-line.ts",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/resolve-review-package-attention-line.ts",
 ] as const;
 
 /** Lowercase phrase fragments banned on golden-path primary chrome (TB-2131). */
@@ -315,14 +315,14 @@ export const REVIEW_TERMINOLOGY_GOLDEN_PATH_BANNED_PATTERNS = [
 ] as const;
 
 export const REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS = [
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/ReviewPackageSummaryHeader.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/ReviewPackagePrimaryAction.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/resolve-review-package-attention-line.ts",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailSponsorReportCtaCard.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailGovernanceCta.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailCaptureEvidenceSection.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailSponsorBottomLine.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageView.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackageSummaryHeader.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackagePrimaryAction.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/resolve-review-package-attention-line.ts",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSponsorReportCtaCard.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailGovernanceCta.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCaptureEvidenceSection.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSponsorBottomLine.tsx",
   "src/components/runs/RunDetailOutcomeCards.tsx",
   "src/components/usability/ReviewPackagePlainSummary.tsx",
   "src/components/usability/ReviewPackageEvidenceDensityStrip.tsx",

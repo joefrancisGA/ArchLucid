@@ -2,14 +2,14 @@
 
 import type { ReactElement } from "react";
 
-import { RunDetailOperatorTechnicalDisclosure } from "@/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailOperatorTechnicalDisclosure";
+import { RunDetailOperatorTechnicalDisclosure } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailOperatorTechnicalDisclosure";
 import {
   RunDetailAgentResultsSummaryCardDeferred,
   RunDetailEstimatedLlmCostCardDeferred,
   RunDetailRetrievalGroundingSummaryCardDeferred,
   RunDetailReviewAgentExecutionLogSectionDeferred,
   RunDetailRunMetadataSectionDeferred,
-} from "@/app/(operator)/architecture/reviews/[runId]/_sections/run-detail-page-view-deferred-chunks";
+} from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-page-view-deferred-chunks";
 import type {
   RunDetailAgentResult,
   RunRetrievalGroundingSummary,

@@ -15,10 +15,10 @@ import { buildRunDetailCreateHomeEvidenceDiagramHref } from "@/lib/runs/run-deta
 const UI_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const CREATE_HOME_EVIDENCE_BAND_TEST_FILES = [
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailCreateHomeEvidencePanel.test.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailCreateHomeEvidenceCaptureRegion.test.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailCaptureEvidenceSection.test.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.create-home-evidence.test.ts",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeEvidencePanel.test.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeEvidenceCaptureRegion.test.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCaptureEvidenceSection.test.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageView.create-home-evidence.test.ts",
   "src/lib/runs/run-detail-create-home-captured-evidence.test.ts",
   "src/lib/runs/run-detail-create-home-evidence-diagram-href.test.ts",
   "src/lib/bulk-evidence-upload-copy.test.ts",
@@ -42,7 +42,7 @@ describe("create-home evidence band regression (TB-1850)", () => {
     const ree = findUiRouteTrafficRow("REE");
 
     expect(ree).toBeDefined();
-    expect(ree?.path).toBe("/architecture/reviews/[runId]?archTab=evidence");
+    expect(ree?.path).toBe("/architecture/reviews/[reviewId]?archTab=evidence");
     expect(ree?.section).toBe("Tab surface");
 
     for (const phrase of REE_TRAFFIC_HONESTY_PHRASES) {

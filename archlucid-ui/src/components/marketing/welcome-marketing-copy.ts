@@ -66,9 +66,9 @@ export const WELCOME_PROOF_LADDER_SAMPLE_HREF = CANONICAL_ANONYMOUS_PROOF_HREF;
 
 export const WELCOME_PROOF_LADDER_SAMPLE_LABEL = "Healthcare Claims sample review";
 
-export const WELCOME_PROOF_LADDER_SECONDARY_WALKTHROUGH_HREF = "/live-demo" as const;
+export const WELCOME_PROOF_LADDER_SECONDARY_WALKTHROUGH_HREF = "/get-started" as const;
 
-export const WELCOME_PROOF_LADDER_SECONDARY_WALKTHROUGH_LABEL = "Prefer a longer walkthrough?";
+export const WELCOME_PROOF_LADDER_SECONDARY_WALKTHROUGH_LABEL = "Ready to start your evaluation?";
 
 export const WELCOME_CONTOSO_ROI_PDF_HREF = "/WORKED_EXAMPLE_ROI.pdf" as const;
 

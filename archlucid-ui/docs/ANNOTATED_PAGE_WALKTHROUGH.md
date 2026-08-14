@@ -313,7 +313,7 @@ In JavaScript, `.map()` transforms each element of an array into something else 
 
 ---
 
-## Run detail page — Explanation section (`src/app/runs/[runId]/page.tsx`)
+## Run detail page — Explanation section (`src/app/runs/[reviewId]/page.tsx`)
 
 When the run has a **`goldenManifestId`**, the server also calls **`getRunExplanationSummary(runId)`** → **`GET /v1/explain/runs/{runId}/aggregate`** (after manifest summary loads, before artifacts). The **Explanation** `<section>` renders **`RunExplanationSection`** (`src/components/RunExplanationSection.tsx`).
 

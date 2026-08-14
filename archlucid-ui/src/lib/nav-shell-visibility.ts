@@ -5,104 +5,11 @@ import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-commi
 import { applyCommittedArchitectureReviewNavPromotions } from "@/lib/nav-committed-architecture-review-promotion";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
-import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
-import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
-import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import {
-  GOVERNANCE_APPROVAL_QUEUE_PATH,
-  GOVERNANCE_AUDIT_PATH,
-  GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance/governance-route-paths";
-import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
-
-/**
- * Buyer-polished shell nav omissions. Empty: Compare (and other advanced destinations) stay reachable
- * inside their collapsed groups so buyers keep full product depth (route-level demo gating is separate).
- */
-const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/administration/api-keys"]);
-
-/** In buyer-polished operator builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
-const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
-  "/insights/improvement-planning",
-  "/internal/product-learning",
-  "/internal/recommendation-learning",
-  IMPACT_PREVIEW_PATH,
-  "/internal/validate-route",
-  "/insights/search-review-evidence",
-  COMPARE_TWO_REVIEWS_PATH,
-  "/governance/advisory-scans",
-  "/demo/explain",
-  "/internal/health",
-  "/internal/configuration",
-  "/administration/support",
-  "/administration/users",
-  "/administration/security-trust",
-  "/governance/alerts",
-  "/governance/alert-rules",
-  "/governance/policy-packs",
-  GOVERNANCE_STANDARDS_AND_RULES_PATH,
-  "/governance/audit",
-  GOVERNANCE_APPROVAL_QUEUE_PATH,
-  "/governance/setup",
-  "/administration/connection-status",
-  "/integrations/cloud-connections",
-  "/integrations/webhooks",
-  DIGESTS_HUB_PATH,
-  // The Settings hub is the nav target for Administration (IA-016). Omitted here so buyer-polished shells keep
-  // the pre-hub-first behavior of showing no Settings entry, rather than surfacing an index of omitted routes.
-  "/administration",
-  "/administration/workspace-settings",
-  "/administration/workspace-settings/recycle-bin",
-  "/administration/baseline",
-  "/administration/api-keys",
-  "/administration/ai-usage",
-  "/insights/executive-summary",
-  "/insights/roi-summary",
-]);
-
-function isPublicDemoThinNavSurface(): boolean {
-  if (isNextPublicDemoMode()) {
-    return true;
-  }
-
-  return (
-    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true" ||
-    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1"
-  );
-}
-
-function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {
-  if (isBuyerPolishedOperatorShellEnv()) {
-    return links;
-  }
-
-  if (!isPublicDemoThinNavSurface()) {
-    return links;
-  }
-
-  const keepExpandedDemoSpine = isCtoDemoNavExpandedEnv();
-
-  return links.filter((l) => {
-    if (
-      keepExpandedDemoSpine
-      && (l.href === "/insights/evidence-graph" || l.href === GOVERNANCE_APPROVAL_QUEUE_PATH || l.href === GOVERNANCE_AUDIT_PATH)
-    ) {
-      return true;
-    }
-
-    return !DEMO_MODE_OMIT_OPERATOR_HREFS.has(l.href);
-  });
-}
-
-function omitBuyerPolishedShellNonGoldenNavLinks(links: NavLinkItem[]): NavLinkItem[] {
-  if (!isBuyerPolishedOperatorShellEnv()) {
-    return links;
-  }
-
-  return links.filter((l) => !BUYER_POLISHED_SHELL_OMIT_NAV_HREFS.has(l.href));
-}
+  applyNavShellPresetPackagingFilter,
+  isSystemAdministrationNavGroupVisible,
+  resolveNavShellPresetId,
+} from "@/lib/nav-shell-preset";
 
 function omitApiKeysSettingsWhenSurfaceDisabled(links: NavLinkItem[]): NavLinkItem[] {
   if (isApiKeysSettingsSurfaceEnabled()) {
@@ -129,8 +36,8 @@ export type NavGroupWithVisibleLinks = {
  *
  * Within each **`NAV_GROUPS`** block from **`nav-config.ts`**: **Pre-commit** (`filterNavLinksByCommittedArchitectureReviewGate`)
  * runs first so Operate/diagnostics stay off the default spine until **`hasCommittedArchitectureReview`**. **Authority**
- * (`filterNavLinksByAuthority`) runs after promotion metadata. Demo/buyer packaging omissions and system-admin feature
- * flags still apply. **Packaging map:**
+ * (`filterNavLinksByAuthority`) runs after promotion metadata. Demo/buyer packaging omissions use an explicit shell preset
+ * ({@link resolveNavShellPresetId} / {@link applyNavShellPresetPackagingFilter} — TB-2233). **Packaging map:**
  * **docs/PRODUCT_PACKAGING.md** §3 *Code seams* table (**`NAV_GROUPS[].id`** → layer).
  *
  * Pass **`useNavCallerAuthorityRank()`** (or **`CurrentPrincipal.authorityRank`**) and **`useNavCommittedArchitectureReview()`**
@@ -167,8 +74,7 @@ export function filterNavLinksForOperatorShell(
 
   let visible: NavLinkItem[] = filterNavLinksByAuthority(promoted, callerAuthorityRank);
 
-  visible = omitThinRoutesInPublicDemoMode(visible);
-  visible = omitBuyerPolishedShellNonGoldenNavLinks(visible);
+  visible = applyNavShellPresetPackagingFilter(visible, resolveNavShellPresetId());
   visible = omitApiKeysSettingsWhenSurfaceDisabled(visible);
 
   return visible;
@@ -184,19 +90,12 @@ export function listNavGroupsVisibleInOperatorShell(
   surfaceFilter: "all" | NavShellSurface = "all",
   hasCommittedArchitectureReview = true,
 ): NavGroupWithVisibleLinks[] {
+  const presetId = resolveNavShellPresetId();
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
     if (group.surface === "system-admin") {
-      if (!isShowSystemAdministrationNavEnabled()) {
-        continue;
-      }
-
-      if (isNextPublicDemoMode()) {
-        continue;
-      }
-
-      if (isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv()) {
+      if (!isSystemAdministrationNavGroupVisible(presetId)) {
         continue;
       }
     }

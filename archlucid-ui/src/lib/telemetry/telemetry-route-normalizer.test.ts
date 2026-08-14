@@ -8,7 +8,7 @@ describe("normalizeTelemetryRoute", () => {
       normalizeTelemetryRoute(
         "/architecture/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/findings?tab=open",
       ),
-    ).toBe("/architecture/reviews/[runId]/findings");
+    ).toBe("/architecture/reviews/[reviewId]/findings");
   });
 
   it("preserves static operator routes", () => {

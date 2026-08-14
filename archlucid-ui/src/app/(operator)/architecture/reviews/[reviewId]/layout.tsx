@@ -13,9 +13,9 @@ export default async function RunDetailLayout({
   params,
 }: {
   children: ReactNode;
-  params: Promise<{ runId: string }>;
+  params: Promise<{ reviewId: string }>;
 }) {
-  const { runId } = await params;
+  const { reviewId: runId } = await params;
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();

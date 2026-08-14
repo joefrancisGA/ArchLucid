@@ -59,7 +59,7 @@ function TrackPollingHarness({ runId }: { runId: string }) {
     const intervalId = window.setInterval(() => void tick(), 3000);
 
     return () => window.clearInterval(intervalId);
-  }, [runId]);
+  }, [reviewId]);
 
   return (
     <TooltipProvider delayDuration={0}>

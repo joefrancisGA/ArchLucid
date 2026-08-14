@@ -402,7 +402,7 @@ Renders the **aggregate** run explanation from `GET /v1/explain/runs/{runId}/agg
 }
 ```
 
-On **run detail** (`/runs/[runId]`), the server component fetches the summary when a golden manifest exists; failures use `OperatorApiProblem` above this component (warning variant), matching manifest summary / artifacts.
+On **run detail** (`/runs/[reviewId]`), the server component fetches the summary when a golden manifest exists; failures use `OperatorApiProblem` above this component (warning variant), matching manifest summary / artifacts.
 
 ### Exports
 

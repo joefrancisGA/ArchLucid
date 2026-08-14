@@ -84,7 +84,7 @@ archlucid-ui/
 │   │   │
 │   │   ├── architecture/reviews/
 │   │   │   ├── page.tsx      ← /architecture/reviews?projectId=…
-│   │   │   └── [runId]/
+│   │   │   └── [reviewId]/
 │   │   │       ├── page.tsx  ← /architecture/reviews/{runId}
 │   │   │       └── (no artifacts/[artifactId] — RER retired; Preview → GAR)
 │   │   │
@@ -130,7 +130,7 @@ archlucid-ui/
 
 ### Key rule: one route = one `page.tsx`
 
-In ASP.NET, you register routes in `Program.cs` or use `[Route]` attributes. In Next.js App Router, **the folder path IS the route**. A file at `src/app/runs/[runId]/page.tsx` handles `GET /runs/{any-guid}` — same idea as `[HttpGet("runs/{runId}")]` in a controller.
+In ASP.NET, you register routes in `Program.cs` or use `[Route]` attributes. In Next.js App Router, **the folder path IS the route**. A file at `src/app/runs/[reviewId]/page.tsx` handles `GET /runs/{any-guid}` — same idea as `[HttpGet("runs/{runId}")]` in a controller.
 
 ---
 
@@ -142,10 +142,10 @@ In ASP.NET, you register routes in `Program.cs` or use `[Route]` attributes. In 
 |-----------|-----|-------------------|
 | `app/page.tsx` | `/` | `[HttpGet("/")]` |
 | `app/runs/page.tsx` | `/runs` | `[HttpGet("runs")]` |
-| `app/runs/[runId]/page.tsx` | `/runs/{runId}` | `[HttpGet("runs/{runId:guid}")]` |
+| `app/runs/[reviewId]/page.tsx` | `/runs/{runId}` | `[HttpGet("runs/{runId:guid}")]` |
 | `app/api/proxy/[...path]/route.ts` | `/api/proxy/*` | Catch-all middleware / reverse proxy |
 
-Square brackets `[runId]` are route parameters (like `{runId}` in ASP.NET). The triple-dot `[...path]` is a catch-all (like `{**path}`).
+Square brackets `[reviewId]` are route parameters (like `{runId}` in ASP.NET). The triple-dot `[...path]` is a catch-all (like `{**path}`).
 
 ### What runs where
 
@@ -456,7 +456,7 @@ The order matters: **error → malformed → empty → data**. This is determini
 
 ### `/runs/{runId}` — Run detail
 
-**File:** `app/runs/[runId]/page.tsx` (server component)  
+**File:** `app/runs/[reviewId]/page.tsx` (server component)  
 **API calls (in order):**
 1. `getRunDetail(runId)` → `{ data: run envelope, traceId }` (trace id from **`X-Trace-Id`** on the same response)
 2. `getManifestSummary(manifestId)` → if manifest exists
@@ -654,7 +654,7 @@ Every route in the architect workspace has one:
 ```
 app/loading.tsx                          → "Loading."
 app/architecture/reviews/loading.tsx     → "Loading reviews."
-app/architecture/reviews/[runId]/loading.tsx → "Loading review detail."
+app/architecture/reviews/[reviewId]/loading.tsx → "Loading review detail."
 app/governance/signed-records/[manifestId]/loading.tsx → "Loading signed review record."
 app/governance/signed-records/.../artifacts/.../loading.tsx → "Loading artifact review."
 app/insights/evidence-graph/loading.tsx  → "Loading evidence graph."

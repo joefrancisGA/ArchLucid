@@ -68,7 +68,7 @@ export const CORE_REVIEW_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for Finding detail. Owner backlog shorthand: RRF. */
   {
     rowId: "RRF",
-    path: "/architecture/reviews/[runId]/findings/[findingId]",
+    path: "/architecture/reviews/[reviewId]/findings/[findingId]",
     section: "Core review",
     note: "Finding detail (Core review) - FindingDetailPageView with PageContextualHelpButton (topic map findings; Category-1 path matcher), wayfinding, policy citation hero, operational actions, Evidence trace CTA. Sibling ERU = evidence-trace. Not a full signed-record diligence Sources trail alone. Score 72/100 (2026-08-08) - core finding disposition at ARE/GFN Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["cannot improve further toward 80"],
@@ -77,7 +77,7 @@ export const CORE_REVIEW_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for run provenance. Owner backlog shorthand: RRP. */
   {
     rowId: "RRP",
-    path: "/architecture/reviews/[runId]/provenance",
+    path: "/architecture/reviews/[reviewId]/provenance",
     section: "Core review",
     note: "Run provenance (Core review) - ProvenancePageWorkspace with PageContextualHelpButton (topic map evidence-trail; Category-1 registry via /provenance path match), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, graph/timeline/table views. Coordinator linkage for one run - not a full diligence Sources export alone. Score 68/100 (2026-08-08) - single-run provenance below RRE core band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["ProvenancePageWorkspace", "Score 68", "cannot improve further toward 80"],

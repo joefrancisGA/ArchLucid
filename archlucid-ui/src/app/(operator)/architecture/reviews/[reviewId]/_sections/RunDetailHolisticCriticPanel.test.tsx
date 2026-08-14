@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { RunDetailHolisticCriticPanel } from "@/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailHolisticCriticPanel";
+import { RunDetailHolisticCriticPanel } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailHolisticCriticPanel";
 
 vi.mock("@/lib/api/holistic-critic-api", () => ({
   generateHolisticCritique: vi.fn(),

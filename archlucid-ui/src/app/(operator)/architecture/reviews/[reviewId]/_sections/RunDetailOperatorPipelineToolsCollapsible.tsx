@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
-import { RunDetailAiRefinePanel } from "@/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailAiRefinePanel";
+import { RunDetailAiRefinePanel } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAiRefinePanel";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";

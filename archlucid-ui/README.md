@@ -227,7 +227,7 @@ For **`npm run screenshots`**, **`npm run screenshots:all`**, **`npm run screens
 |------|---------|
 | `/` | Overview — start here, workflow links |
 | `/runs?projectId=...` | List runs |
-| `/runs/[runId]` | Run detail, manifest summary, artifacts, compare/replay shortcuts, downloads |
+| `/runs/[reviewId]` | Run detail, manifest summary, artifacts, compare/replay shortcuts, downloads |
 | `/manifests/[manifestId]` | Manifest summary, artifact list, bundle download |
 | `/manifests/[manifestId]/artifacts/[artifactId]` | Artifact review (metadata + preview + siblings) |
 | `/insights/evidence-graph` | Provenance / architecture graph for a run |

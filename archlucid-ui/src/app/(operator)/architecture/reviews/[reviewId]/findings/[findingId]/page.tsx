@@ -10,9 +10,9 @@ import { loadFindingDetailPageModel } from "./_sections/load-finding-detail-page
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ runId: string; findingId: string }>;
+  params: Promise<{ reviewId: string; findingId: string }>;
 }): Promise<Metadata> {
-  const { runId, findingId } = await params;
+  const { reviewId: runId, findingId } = await params;
 
   return metadataForFindingDetailRoute(runId, findingId);
 }
@@ -24,10 +24,10 @@ export default async function RunFindingExplainPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ runId: string; findingId: string }>;
+  params: Promise<{ reviewId: string; findingId: string }>;
   searchParams: Promise<{ priorRunId?: string; laterRunId?: string }>;
 }) {
-  const { runId, findingId } = await params;
+  const { reviewId: runId, findingId } = await params;
   const { priorRunId, laterRunId } = await searchParams;
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {

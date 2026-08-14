@@ -7,7 +7,7 @@ export const REMOVED_RUN_ARTIFACT_PREVIEW_TRAFFIC_ROW_ID = "RER";
 
 /** Retired run-scoped Preview path — no App Router page; not scored. */
 export const RETIRED_RUN_ARTIFACT_PREVIEW_TRAFFIC_PATH =
-  "/architecture/reviews/[runId]/artifacts/[artifactId]" as const;
+  "/architecture/reviews/[reviewId]/artifacts/[artifactId]" as const;
 
 /** Canonical signed-record artifact preview scored on traffic row GAR. */
 export const CANONICAL_SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_PATH =

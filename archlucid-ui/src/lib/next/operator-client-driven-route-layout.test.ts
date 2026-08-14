@@ -40,7 +40,7 @@ const CLIENT_DRIVEN_LAYOUTS = [
 const CLIENT_DRIVEN_LAYOUTS_WITHOUT_FORCE_DYNAMIC = [
   ...CLIENT_DRIVEN_LAYOUTS,
   "src/app/(operator)/insights/improvement-planning/plans/[planId]/layout.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/layout.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/layout.tsx",
   "src/app/(operator)/governance/policy-packs/[id]/layout.tsx",
   "src/app/(operator)/governance/approval-requests/[id]/layout.tsx",
   "src/app/(operator)/governance/approval-requests/[id]/lineage/layout.tsx",

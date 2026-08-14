@@ -12,7 +12,7 @@ describe("run artifact preview route contract (TB-1821 / RER removed)", () => {
       "(operator)",
       "architecture",
       "reviews",
-      "[runId]",
+      "[reviewId]",
       "artifacts",
       "[artifactId]",
       "page.tsx",

@@ -150,8 +150,8 @@ The shell **does** shape navigation (and light Enterprise copy) using the authen
 |-------|-----------|--------------|----------------|
 | `/` | `HomePage` | Server | Static landing with quick links |
 | `/runs` | `RunsPage` | Server | List runs for a project, coerce + render table |
-| `/architecture/reviews/[runId]` | `RunDetailPage` | Server | Review metadata, authority chain, signed-record summary, artifact table, downloads |
-| `/architecture/reviews/[runId]/artifacts/[artifactId]` | *(retired RER — no page)* | — | Old bookmarks 404; Preview hrefs emit GAR only |
+| `/architecture/reviews/[reviewId]` | `RunDetailPage` | Server | Review metadata, authority chain, signed-record summary, artifact table, downloads |
+| `/architecture/reviews/[reviewId]/artifacts/[artifactId]` | *(retired RER — no page)* | — | Old bookmarks 404; Preview hrefs emit GAR only |
 | `/governance/signed-records/[manifestId]` | `SignedRecordDetailPage` | Server | Signed review record summary, artifact table, bundle download |
 | `/governance/signed-records/[manifestId]/artifacts/[artifactId]` | `SignedRecordArtifactPage` | Server | Artifact metadata, content preview (pretty + raw), sibling navigation (GAR SoT) |
 | `/graph` | `GraphPage` | Client | Run ID input, mode selector, graph loading, React Flow rendering |

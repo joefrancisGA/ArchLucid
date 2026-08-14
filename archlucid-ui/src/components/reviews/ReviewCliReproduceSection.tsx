@@ -6,7 +6,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[runId]/_sections/run-detail-section-heading";
+import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
 
 export type ReviewCliReproduceSectionProps = {
   readonly runId: string;

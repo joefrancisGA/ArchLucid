@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import nextConfig from "../../../next.config";
+import { BOOKMARK_PERMANENT_REDIRECTS } from "@/lib/next/bookmark-permanent-redirects";
 
 const OPERATOR_APP_ROOT = join(process.cwd(), "src", "app", "(operator)");
 
@@ -31,12 +32,12 @@ function operatorPageFiles(): string[] {
   return pages;
 }
 
-describe("next.config — no permanent bookmark redirects (IA batch 4)", () => {
-  it("does not ship next.config permanent redirects", async () => {
+describe("next.config — allowlisted permanent bookmark redirects (TB-2234 / TB-2236)", () => {
+  it("ships only the allowlisted next.config permanent redirects", async () => {
     const redirectRules = await nextConfig.redirects?.();
     const permanent = (redirectRules ?? []).filter((rule) => rule.permanent === true);
 
-    expect(permanent).toEqual([]);
+    expect(permanent).toEqual(BOOKMARK_PERMANENT_REDIRECTS);
   });
 
   it("does not ship App Router permanentRedirect bookmark shims under (operator)", () => {

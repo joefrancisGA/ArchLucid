@@ -50,7 +50,7 @@ export type BuildReportProblemContextInput = {
   readonly submittedAtUtc?: string | null;
 };
 
-const REVIEW_DETAIL_ROUTE_PATTERN = "/architecture/reviews/[runId]";
+const REVIEW_DETAIL_ROUTE_PATTERN = "/architecture/reviews/[reviewId]";
 
 export function extractReviewIdFromRoutePath(routePath: string): string | null {
   const normalized = normalizeRoutePath(routePath);

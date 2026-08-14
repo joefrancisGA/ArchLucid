@@ -1,8 +1,25 @@
+import { BOOKMARK_PERMANENT_REDIRECTS } from "@/lib/next/bookmark-permanent-redirects";
+
+function bookmarkRedirectSourcePathnames(): string[] {
+  const paths = new Set<string>();
+
+  for (const rule of BOOKMARK_PERMANENT_REDIRECTS) {
+    const base = rule.source.split("/:")[0]?.trim() ?? rule.source;
+
+    if (base.length > 0) {
+      paths.add(base);
+    }
+  }
+
+  return [...paths].sort((a, b) => a.localeCompare(b));
+}
+
 /**
- * Legacy bookmark paths that must not appear in product `href`s.
- * Permanent redirects were removed (IA batch 4) — orientation code canonicalizes these for help/readiness only.
+ * Legacy bookmark paths that must not appear in product `href`s (extra redirect hop for users).
+ * Sourced from {@link BOOKMARK_PERMANENT_REDIRECTS} (TB-2234 / TB-2236).
  */
-export const NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS: readonly string[] = [] as const;
+export const NEXT_CONFIG_PERMANENT_REDIRECT_SOURCE_PATHS: readonly string[] =
+  bookmarkRedirectSourcePathnames();
 
 export function hrefPathname(href: string): string {
   const trimmed = href.trim();

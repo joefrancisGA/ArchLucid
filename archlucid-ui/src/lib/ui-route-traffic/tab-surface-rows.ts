@@ -71,7 +71,7 @@ export const TAB_SURFACE_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for create-home Activity archTab. Owner backlog shorthand: REA. */
   {
     rowId: "REA",
-    path: "/architecture/reviews/[runId]?archTab=activity" as const,
+    path: "/architecture/reviews/[reviewId]?archTab=activity" as const,
     section: "Tab surface",
     note: "Create-home-only archTab (TB-1831) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed review record; ignored on committed ReviewDetailWorkspace (twin: reviewTab=activity on RRE hub chrome). above progress tracker / technology baseline / outcome cards (TB-1846 sibling band). Sibling REG = governance; RED = diagram; REE = evidence; REF = findings; REO = overview; REC = clarifications. Assessment progress only - not a signed-record Sources trail.tab-surface ceiling below parent hub Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["Create-home-only", "reviewTab=activity", "ignored on committed ReviewDetailWorkspace", "cannot improve further toward 80"],
@@ -79,7 +79,7 @@ export const TAB_SURFACE_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for create-home Clarifications archTab. Owner backlog shorthand: REC. */
   {
     rowId: "REC",
-    path: "/architecture/reviews/[runId]?archTab=clarifications" as const,
+    path: "/architecture/reviews/[reviewId]?archTab=clarifications" as const,
     section: "Tab surface",
     note: "Create-home-only archTab (TB-1836) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed review record; ignored on committed ReviewDetailWorkspace (committed packages use reviewTab only; no reviewTab twin for clarifications). above ArchitectureCreatedClarificationsPanel (missing items + open questions). Sibling REA = activity; REG = governance; RED = diagram; REE = evidence; REF = findings; REO = overview. Clarifications only - not a signed-record Sources trail.tab-surface ceiling below parent hub Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["Create-home-only", "ignored on committed ReviewDetailWorkspace", "reviewTab only", "cannot improve further toward 80"],
@@ -87,7 +87,7 @@ export const TAB_SURFACE_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for create-home Diagram archTab. Owner backlog shorthand: RED. */
   {
     rowId: "RED",
-    path: "/architecture/reviews/[runId]?archTab=diagram" as const,
+    path: "/architecture/reviews/[reviewId]?archTab=diagram" as const,
     section: "Tab surface",
     note: "Create-home-only archTab (TB-1841) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed review record; ignored on committed ReviewDetailWorkspace (twin: reviewTab=architecture on RRE hub chrome). above ArchitectureDiagramPanel (Mermaid generate/edit; not authoritative). Sibling REA = activity; REC = clarifications; REG = governance; REE = evidence; REF = findings; REO = overview. Illustrative diagram only - not a signed-record Sources trail.tab-surface ceiling below parent hub Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["Create-home-only", "ignored on committed ReviewDetailWorkspace", "reviewTab=architecture", "cannot improve further toward 80"],
@@ -95,7 +95,7 @@ export const TAB_SURFACE_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for create-home Evidence archTab. Owner backlog shorthand: REE. */
   {
     rowId: "REE",
-    path: "/architecture/reviews/[runId]?archTab=evidence" as const,
+    path: "/architecture/reviews/[reviewId]?archTab=evidence" as const,
     section: "Tab surface",
     note: "Create-home-only archTab (TB-1846) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed review record; ignored on committed ReviewDetailWorkspace (twin: reviewTab=evidence on RRE hub chrome). above RunDetailCaptureEvidenceSection / BulkEvidenceUpload. Sibling REA = activity; REC = clarifications; RED = diagram; REF = findings; REG = governance; REO = overview. Capture upload only - not a signed-record Sources trail.tab-surface ceiling below parent hub Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["Create-home-only", "ignored on committed ReviewDetailWorkspace", "reviewTab=evidence", "cannot improve further toward 80"],
@@ -103,7 +103,7 @@ export const TAB_SURFACE_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for create-home Findings archTab. Owner backlog shorthand: REF. */
   {
     rowId: "REF",
-    path: "/architecture/reviews/[runId]?archTab=findings" as const,
+    path: "/architecture/reviews/[reviewId]?archTab=findings" as const,
     section: "Tab surface",
     note: "Create-home-only archTab (TB-1851) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed review record; ignored on committed ReviewDetailWorkspace (twin: reviewTab=findings on RRE hub chrome). above create-home findings panel. Sibling REA = activity; REC = clarifications; RED = diagram; REE = evidence; REG = governance; REO = overview. Assessment findings only - not a signed-record Sources trail.tab-surface ceiling below parent hub Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["Create-home-only", "ignored on committed ReviewDetailWorkspace", "reviewTab=findings", "cannot improve further toward 80"],
@@ -111,7 +111,7 @@ export const TAB_SURFACE_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for create-home Governance archTab. Owner backlog shorthand: REG. */
   {
     rowId: "REG",
-    path: "/architecture/reviews/[runId]?archTab=governance",
+    path: "/architecture/reviews/[reviewId]?archTab=governance",
     section: "Tab surface",
     note: "Create-home-only archTab (TB-1856) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed review record; ignored on committed ReviewDetailWorkspace (twin: reviewTab=decisions-remediation). RunDetailGovernanceDecisionSection pre-commit honesty (TB-1857) with readiness dl (blocking findings, open exceptions, approval gate), governance-warning callout when needed, What happens next steps, finalize-readiness primary CTA to Activity finalize anchor, secondary activity text link, inline governance-approval and audit-trail help cites, info claim-discipline callout, governance loading skeleton, compact context-bar when tab active, and sponsor/work-item panels gated on manifestId (TB-1858). Not a live approval/audit surface. Score 60/100 (2026-08-08) - surface hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["Create-home-only", "decisions-remediation", "cannot improve further toward 80"],
@@ -119,7 +119,7 @@ export const TAB_SURFACE_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for create-home Overview archTab. Owner backlog shorthand: REO. */
   {
     rowId: "REO",
-    path: "/architecture/reviews/[runId]?archTab=overview" as const,
+    path: "/architecture/reviews/[reviewId]?archTab=overview" as const,
     section: "Tab surface",
     note: "Create-home-only archTab (TB-1861) - mounts on ArchitectureCreatedWorkspace when fromGeneration+create-architecture and no signed review record; ignored on committed ReviewDetailWorkspace (twin: reviewTab=overview on RRE hub chrome). above ArchitectureCreatedOverviewPanel (structured brief + missing items). Sibling REA = activity; REC = clarifications; RED = diagram; REE = evidence; REF = findings; REG = governance. Submitted brief only - not a signed-record Sources trail.tab-surface ceiling below parent hub Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["Create-home-only", "ignored on committed ReviewDetailWorkspace", "reviewTab=overview", "cannot improve further toward 80"],

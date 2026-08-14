@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
 import type { ManifestSummary } from "@/types/authority";
 
-/** Mirrors run detail page gating for {@link EmailRunToSponsorBanner} — keep rules in sync with `runs/[runId]/page.tsx`. */
+/** Mirrors run detail page gating for {@link EmailRunToSponsorBanner} — keep rules in sync with `runs/[reviewId]/page.tsx`. */
 function PilotScorecardPackageCtaGate(props: {
   readonly manifestId: string | null | undefined;
   readonly manifestSummary: ManifestSummary | null;

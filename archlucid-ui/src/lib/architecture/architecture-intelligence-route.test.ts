@@ -32,7 +32,7 @@ const ARCHITECTURE_INTELLIGENCE_APP_LAYOUT = join(
 const PRODUCT_ARCHITECTURE_INTELLIGENCE_SURFACES = [
   "archlucid-ui/src/lib/pilot-nav-group-builder.ts",
   "archlucid-ui/src/lib/architecture/architecture-intelligence-run-href.ts",
-  "archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailAiRefinePanel.tsx",
+  "archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAiRefinePanel.tsx",
   "archlucid-ui/src/components/governance/findings/governance-findings-queue-operational-actions.tsx",
 ] as const;
 

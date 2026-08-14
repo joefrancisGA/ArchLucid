@@ -20,10 +20,10 @@ export default async function RunDetailPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ runId: string }>;
+  params: Promise<{ reviewId: string }>;
   searchParams: Promise<{ fromGeneration?: string | string[]; intent?: string | string[] }>;
 }) {
-  const { runId } = await params;
+  const { reviewId: runId } = await params;
   const resolvedSearchParams = await searchParams;
   const fromGeneration = isFromGenerationSearchParam(resolvedSearchParams.fromGeneration);
   const intentParam = Array.isArray(resolvedSearchParams.intent)

@@ -18,7 +18,7 @@ export const OPERATOR_SIDE_RAIL_SURFACE_MODULE_BY_ID: Readonly<
     "components/digests/DigestsBrowseHistorySkeleton.tsx",
   ],
   "run-detail-workspace": [
-    "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailWorkspaceShell.tsx",
+    "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceShell.tsx",
   ],
   "help-topic-toc": ["components/help/HelpTopicTableOfContents.tsx"],
   "integrations-slack": [

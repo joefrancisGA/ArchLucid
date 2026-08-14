@@ -19,7 +19,7 @@ import {
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import type { RunDetailAgentResult } from "@/types/authority";
 
-import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[runId]/_sections/run-detail-section-heading";
+import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
 
 export type ReviewAgentExecutionLogSectionProps = {
   readonly results: readonly RunDetailAgentResult[] | null | undefined;

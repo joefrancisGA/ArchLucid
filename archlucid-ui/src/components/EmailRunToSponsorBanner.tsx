@@ -90,7 +90,7 @@ function computeUtcDayN(firstCommitIso: string, nowMs: number): number | null {
  * report DOCX via {@link getRunPackageExportUrl}, plus links to Markdown, architecture package DOCX, ZIP
  * exports, and the in-product scorecard — no duplicate generation logic on the client.
  *
- * Render only when the server has confirmed a **Committed** manifest summary (see `runs/[runId]/page.tsx`).
+ * Render only when the server has confirmed a **Committed** manifest summary (see `runs/[reviewId]/page.tsx`).
  */
 export function EmailRunToSponsorBanner({
   runId,
@@ -235,7 +235,7 @@ export function EmailRunToSponsorBanner({
     return () => {
       canceled = true;
     };
-  }, [runId]);
+  }, [reviewId]);
 
   useEffect(() => {
     if (proofGate.status !== "loading") {

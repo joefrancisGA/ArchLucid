@@ -1,4 +1,4 @@
-﻿import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -17,9 +17,9 @@ import Link from "next/link";
 export default async function RunProvenancePage({
   params,
 }: {
-  params: Promise<{ runId: string }>;
+  params: Promise<{ reviewId: string }>;
 }) {
-  const { runId } = await params;
+  const { reviewId: runId } = await params;
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();

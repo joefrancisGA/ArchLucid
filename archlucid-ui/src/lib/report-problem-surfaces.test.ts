@@ -31,8 +31,8 @@ describe("report-problem-surfaces (TB-782)", () => {
     expect(pathnameMatchesReportProblemRoute("/architecture/reviews", "/architecture/reviews")).toBe(true);
     expect(pathnameMatchesReportProblemRoute("/architecture/reviews", "/architecture/reviews/")).toBe(true);
     expect(pathnameMatchesReportProblemRoute("/architecture/reviews", "/architecture/reviews/abc-123")).toBe(false);
-    expect(pathnameMatchesReportProblemRoute("/architecture/reviews/[runId]", "/architecture/reviews/abc-123")).toBe(true);
-    expect(pathnameMatchesReportProblemRoute("/architecture/reviews/[runId]", "/architecture/reviews/new")).toBe(false);
+    expect(pathnameMatchesReportProblemRoute("/architecture/reviews/[reviewId]", "/architecture/reviews/abc-123")).toBe(true);
+    expect(pathnameMatchesReportProblemRoute("/architecture/reviews/[reviewId]", "/architecture/reviews/new")).toBe(false);
     expect(
       pathnameMatchesReportProblemRoute(
         "/insights/sponsor-report",

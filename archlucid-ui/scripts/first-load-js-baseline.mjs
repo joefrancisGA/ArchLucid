@@ -23,7 +23,7 @@ export const TRACKED_ROUTES = [
   "/",
   "/welcome",
   "/architecture/reviews",
-  "/architecture/reviews/[runId]",
+  "/architecture/reviews/[reviewId]",
   "/governance/approval-queue",
   "/governance/alerts",
   "/governance/alert-rules",
@@ -114,7 +114,7 @@ export function parseRouteBundleStatsFirstLoadJsKb(stats) {
 /** @deprecated Legacy baseline keys kept for one release so stale JSON still resolves. */
 const TRACKED_ROUTE_STATS_ALIASES = {
   "/reviews": "/architecture/reviews",
-  "/reviews/[runId]": "/architecture/reviews/[runId]",
+  "/reviews/[reviewId]": "/architecture/reviews/[reviewId]",
 };
 
 /**

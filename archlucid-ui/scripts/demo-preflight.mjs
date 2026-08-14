@@ -173,8 +173,8 @@ section("3. Key demo routes");
 const REQUIRED_ROUTES = [
   // operator shell
   "app/(operator)/page.tsx",
-  "app/(operator)/architecture/reviews/[runId]/page.tsx",
-  "app/(operator)/architecture/reviews/[runId]/error.tsx",
+  "app/(operator)/architecture/reviews/[reviewId]/page.tsx",
+  "app/(operator)/architecture/reviews/[reviewId]/error.tsx",
   "app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx",
   "app/(operator)/governance/alerts/page.tsx",
   "app/(operator)/governance/audit/page.tsx",

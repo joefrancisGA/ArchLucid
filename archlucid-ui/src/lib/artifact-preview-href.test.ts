@@ -29,7 +29,7 @@ describe("artifactPreviewHref (TB-1821 / TB-1822 / TB-1948)", () => {
       appRoot,
       "architecture",
       "reviews",
-      "[runId]",
+      "[reviewId]",
       "artifacts",
       "[artifactId]",
       "page.tsx",

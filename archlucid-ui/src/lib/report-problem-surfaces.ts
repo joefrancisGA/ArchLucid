@@ -42,8 +42,8 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
   {
     id: "review-detail-hard-load-failure",
     kind: "review-detail-fatal",
-    routePattern: "/architecture/reviews/[runId]",
-    componentPath: "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
+    routePattern: "/architecture/reviews/[reviewId]",
+    componentPath: "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageView.tsx",
     description: "Review detail page-level load failure.",
   },
   {
@@ -64,8 +64,8 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
   {
     id: "review-commit-export-page-failure",
     kind: "review-commit-export-fatal",
-    routePattern: "/architecture/reviews/[runId]",
-    componentPath: "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
+    routePattern: "/architecture/reviews/[reviewId]",
+    componentPath: "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageView.tsx",
     description: "Commit, seal, or export failure surfaced as page-level error on a review.",
   },
   {
@@ -91,9 +91,9 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
   },
 ] as const;
 
-/** Static App Router siblings that must not satisfy `[runId]`-style dynamic segments. */
+/** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */
 const REPORT_PROBLEM_RESERVED_DYNAMIC_SEGMENTS: Readonly<Record<string, readonly string[]>> = {
-  "/architecture/reviews/[runId]": ["new"],
+  "/architecture/reviews/[reviewId]": ["new"],
 };
 
 /**

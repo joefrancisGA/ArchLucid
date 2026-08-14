@@ -61,10 +61,10 @@ export const WHY_PROOF_LADDER_SAMPLE_HREF = CANONICAL_ANONYMOUS_PROOF_HREF;
 
 export const WHY_PROOF_LADDER_SAMPLE_LABEL = "Healthcare Claims sample review";
 
-export const WHY_PROOF_LADDER_WALKTHROUGH_HREF = "/live-demo" as const;
+export const WHY_PROOF_LADDER_WALKTHROUGH_HREF = "/get-started" as const;
 
-export const WHY_PROOF_LADDER_WALKTHROUGH_LABEL = "Prefer a longer walkthrough?";
+export const WHY_PROOF_LADDER_WALKTHROUGH_LABEL = "Ready to start your evaluation?";
 
-export const WHY_CONTOSO_PREVIEW_HREF = "/demo/preview" as const;
+export const WHY_CONTOSO_PREVIEW_HREF = CANONICAL_ANONYMOUS_PROOF_HREF;
 
 export const WHY_CONTOSO_PREVIEW_LABEL = "Retail Contoso sample (longer preview)";

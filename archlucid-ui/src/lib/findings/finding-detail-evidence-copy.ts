@@ -1,10 +1,10 @@
-﻿import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const FINDING_DETAIL_CANONICAL_PATH_PATTERN =
-  "/architecture/reviews/[runId]/findings/[findingId]" as const;
+  "/architecture/reviews/[reviewId]/findings/[findingId]" as const;
 
 export const FINDING_DETAIL_CLAIM_DISCIPLINE =
   "This page is the disposition-facing finding summary for one architecture review finding — it is not a complete signed-review diligence Sources package by itself. Open Evidence trace, review provenance, or a signed record when you need the broader package.";

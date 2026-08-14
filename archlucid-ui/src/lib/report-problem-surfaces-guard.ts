@@ -29,9 +29,9 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     requiredMarkers: ["review-detail-hard-load-failure"],
     additionalSourceRoots: [
       "components/ReviewPackageLoadFailureView.tsx",
-      "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageFetchErrorView.tsx",
-      "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageMalformedResponseView.tsx",
-      "app/(operator)/architecture/reviews/[runId]/error.tsx",
+      "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageFetchErrorView.tsx",
+      "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageMalformedResponseView.tsx",
+      "app/(operator)/architecture/reviews/[reviewId]/error.tsx",
     ],
   },
   {
@@ -46,7 +46,7 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
   {
     surfaceId: "review-commit-export-page-failure",
     requiredMarkers: ["OperatorApiProblem", "review-commit-export-page-failure"],
-    additionalSourceRoots: ["app/(operator)/architecture/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx"],
+    additionalSourceRoots: ["app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArtifactsExportsSection.tsx"],
   },
   {
     surfaceId: "operator-api-problem-high-stakes",

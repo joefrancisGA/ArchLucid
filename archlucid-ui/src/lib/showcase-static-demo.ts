@@ -248,7 +248,7 @@ export function getShowcaseDecisionItemsForRunId(runId: string): readonly Showca
 }
 
 /**
- * Read-only static payload for `/showcase/[runId]` when no preview API is configured,
+ * Read-only static payload for `/showcase/[reviewId]` when no preview API is configured,
  * or for mock API responses in E2E. `urlRunId` is echoed into `run.runId` so the URL and body stay aligned.
  */
 export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePreviewResponse {

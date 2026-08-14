@@ -6,7 +6,7 @@ export const EVIDENCE_TRACE_TRAFFIC_ROW_ID = "ERU";
 
 /** Canonical path tracked on the ERU workbook row. */
 export const EVIDENCE_TRACE_TRAFFIC_PATH =
- "/architecture/reviews/[runId]/findings/[findingId]/evidence-trace";
+ "/architecture/reviews/[reviewId]/findings/[findingId]/evidence-trace";
 
 /** Workbook Section column value. */
 export const EVIDENCE_TRACE_TRAFFIC_SECTION = "Core review";

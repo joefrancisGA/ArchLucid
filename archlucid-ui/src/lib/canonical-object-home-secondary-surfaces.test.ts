@@ -10,12 +10,12 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
 const GOLDEN_PATH_HOST_FILES: Record<string, string> = {
   "governance-findings-queue": "src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx",
-  "review-package-findings-tab": "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailFindingsWorkspace.tsx",
+  "review-package-findings-tab": "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailFindingsWorkspace.tsx",
   "review-package-governance-tab":
-    "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailGovernanceDecisionSection.tsx",
+    "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailGovernanceDecisionSection.tsx",
   "review-package-authority-chain":
-    "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailAuthorityChainSection.tsx",
-  "finding-evidence-trace": "src/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/FindingInspectView.tsx",
+    "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAuthorityChainSection.tsx",
+  "finding-evidence-trace": "src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectView.tsx",
   "governance-approval-inspector": "src/components/governance/GovernanceApprovalInspectorPreview.tsx",
 };
 

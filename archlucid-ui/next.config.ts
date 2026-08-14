@@ -1,6 +1,8 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
 import type { NextConfig } from "next";
 
+import { BOOKMARK_PERMANENT_REDIRECTS } from "./src/lib/next/bookmark-permanent-redirects";
+
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true" || process.env.ANALYZE === "1",
 });
@@ -116,9 +118,7 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
-    // IA batch 4: no permanent bookmark redirects — canonicalizeLegacyOperatorRoutePath and help
-    // link rewriting map retired paths; legacy bookmarks that are not updated 404.
-    return [];
+    return BOOKMARK_PERMANENT_REDIRECTS;
   },
   async rewrites() {
     return [];

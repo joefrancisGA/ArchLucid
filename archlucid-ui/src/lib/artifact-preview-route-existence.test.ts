@@ -18,7 +18,7 @@ describe("artifact preview App Router existence (TB-1825 / TB-1950 / GAR / RER)"
       appRoot,
       "architecture",
       "reviews",
-      "[runId]",
+      "[reviewId]",
       "artifacts",
       "[artifactId]",
       "page.tsx",

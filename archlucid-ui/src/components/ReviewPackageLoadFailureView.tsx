@@ -106,7 +106,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
     } catch {
       return false;
     }
-  }, [runId]);
+  }, [reviewId]);
 
   useEffect(() => {
     if (phase !== "pending") {
