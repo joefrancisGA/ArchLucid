@@ -78,10 +78,42 @@ public static class AgentTopologyProposalMergeGate
             if (IsUndeclaredRelationshipOnlyProposal(result.ProposedChanges))
                 continue;
 
-            filtered.Add(result);
+            AgentTopologyProposal sanitized = SanitizeGreenfieldProposal(result.ProposedChanges);
+
+            if (ProposalIsEmpty(sanitized))
+                continue;
+
+            filtered.Add(CloneWithProposal(result, sanitized));
         }
 
         return filtered;
+    }
+
+    private static AgentTopologyProposal SanitizeGreenfieldProposal(AgentTopologyProposal proposal)
+    {
+        List<ManifestService> services = proposal.AddedServices?
+            .Where(s => !string.IsNullOrWhiteSpace(s.ServiceName) || !string.IsNullOrWhiteSpace(s.ServiceId))
+            .ToList() ?? [];
+
+        List<ManifestDatastore> datastores = proposal.AddedDatastores?
+            .Where(d => !string.IsNullOrWhiteSpace(d.DatastoreName) || !string.IsNullOrWhiteSpace(d.DatastoreId))
+            .ToList() ?? [];
+
+        List<ManifestRelationship> relationships = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
+            services,
+            datastores,
+            proposal.AddedRelationships);
+
+        return new AgentTopologyProposal
+        {
+            ProposalId = proposal.ProposalId,
+            SourceAgent = proposal.SourceAgent,
+            AddedServices = services,
+            AddedDatastores = datastores,
+            AddedRelationships = relationships,
+            RequiredControls = proposal.RequiredControls,
+            Warnings = proposal.Warnings
+        };
     }
 
     private static bool IsUndeclaredRelationshipOnlyProposal(AgentTopologyProposal proposal) =>
