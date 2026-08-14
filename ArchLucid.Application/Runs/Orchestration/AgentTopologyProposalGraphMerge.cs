@@ -8,9 +8,9 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
-///     Merges Topology agent <see cref="AgentTopologyProposal" /> into the run's graph so authority commit
-///     can project <see cref="ManifestService" /> / <see cref="ManifestDatastore" /> after execute, when the
-///     graph from context ingestion had no <see cref="GraphNodeTypes.TopologyResource" /> nodes.
+///     Merges agent topology proposals into the run's graph so authority commit can project
+///     <see cref="ManifestService" /> / <see cref="ManifestDatastore" /> after execute. Topology agent
+///     proposals may add nodes; topology, cost, compliance, and critic proposals may add relationship edges.
 /// </summary>
 public static class AgentTopologyProposalGraphMerge
 {
@@ -107,7 +107,7 @@ public static class AgentTopologyProposalGraphMerge
 
         foreach (AgentResult result in validatedResults)
         {
-            if (result.AgentType != AgentType.Topology)
+            if (!MaterializesProposalRelationships(result.AgentType))
                 continue;
 
             AgentTopologyProposal? proposal = result.ProposedChanges;
@@ -177,6 +177,9 @@ public static class AgentTopologyProposalGraphMerge
     {
         return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [key1] = e1.ToString(), [key2] = e2.ToString() };
     }
+
+    private static bool MaterializesProposalRelationships(AgentType agentType) =>
+        agentType is AgentType.Topology or AgentType.Cost or AgentType.Compliance or AgentType.Critic;
 
     private static HashSet<string> CollectDirectedEdgeKeys(IReadOnlyList<GraphEdge> edges)
     {
