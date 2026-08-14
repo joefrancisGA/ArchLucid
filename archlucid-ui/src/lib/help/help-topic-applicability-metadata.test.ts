@@ -138,6 +138,30 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-13 · integrations slack notifications orientation");
   });
 
+  it("formats teams integration help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "teams-integration",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "integrations teams notifications orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · integrations teams notifications orientation");
+  });
+
+  it("formats sponsor dashboard help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "sponsor-dashboard",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "architecture sponsor dashboard orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · architecture sponsor dashboard orientation");
+  });
+
   it("formats model governance help review provenance", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
