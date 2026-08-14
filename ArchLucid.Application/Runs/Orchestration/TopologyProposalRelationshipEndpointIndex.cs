@@ -501,7 +501,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("managed_disk", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("stream_analytics", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("iothub", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("powerbi", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("powerbi", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("eventgrid", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -541,7 +542,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("dns_zone", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("bastion_host", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("nat_gateway", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("azuread", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("azuread", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("api_connection", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
