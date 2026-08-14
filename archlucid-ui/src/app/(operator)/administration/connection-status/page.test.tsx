@@ -19,7 +19,7 @@ describe("AdministrationConnectionStatusPage (ADC)", () => {
     render(<AdministrationConnectionStatusPage />);
 
     expect(
-      screen.getByRole("heading", { name: OPERATOR_NAV_LINK_LABELS.integrationReadiness }),
+      screen.getByRole("heading", { name: OPERATOR_NAV_LINK_LABELS.connectionStatus }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/See which integrations are ready, recommended, or optional for this workspace/i),

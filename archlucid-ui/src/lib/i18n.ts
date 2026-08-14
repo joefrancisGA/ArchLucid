@@ -133,7 +133,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   signedReviewRecords: "Signed review records",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
-  pilotBaselines: "ROI baselines",
+  /** Baseline settings (`/administration/baseline`) — sidebar short form; the page H1 keeps the "— ROI measurement" qualifier. */
+  baselineSettings: "Baseline settings",
   /** Architecture scorecard (`/insights/architecture-scorecard`). */
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alerts",
@@ -168,8 +169,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   evolutionCandidates: "Impact preview",
   pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
   roiReport: "ROI summary",
-  connectorOperations: "Integration readiness",
-  integrationReadiness: "Connection status",
+  /** Connection status (`/administration/connection-status`) — connector health and integration readiness. */
+  connectionStatus: "Connection status",
   jira: "Jira",
   azureBoards: "Azure Boards",
   itsm: "ITSM",
@@ -184,8 +185,11 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Notification preference hub (`/administration/notifications`) TB-2203. */
   notifications: "Notifications",
   digests: "Digests",
-  /** Settings hub (`/administration`); workspace entry often `/administration/workspace-settings`. */
-  settings: "Settings",
+  /**
+   * Settings hub (`/administration`) — the searchable index, not a leaf page. Named "All settings" so the
+   * sidebar row reads distinctly from the `workspaceSettings` leaf below it.
+   */
+  settings: "All settings",
   workspaceSettings: "Workspace settings",
   /** Users & roles hub (`/administration/users`) — ampersand matches Security & Trust nav spelling. */
   usersAndRoles: "Users & roles",

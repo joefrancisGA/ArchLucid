@@ -54,6 +54,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/administration",
 }));
 
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { SettingsPageView } from "./_sections/SettingsPageView";
@@ -68,7 +69,9 @@ describe("SettingsPageView", () => {
   it("renders master overview, search, and section navigation for read-tier users", () => {
     render(<SettingsPageView />);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Settings" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: OPERATOR_NAV_LINK_LABELS.settings }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("settings-master-overview-header")).toBeInTheDocument();
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
@@ -29,7 +30,7 @@ export function SettingsMasterOverviewHeader(props: SettingsMasterOverviewHeader
   return (
     <PageHeading
       navHref={SETTINGS_ROOT_PATH}
-      title="Settings"
+      title={OPERATOR_NAV_LINK_LABELS.settings}
       description="Manage workspace, governance, integration, security, billing, and support configuration."
       actions={<PageContextualHelpButton />}
       data-testid="settings-master-overview-header"

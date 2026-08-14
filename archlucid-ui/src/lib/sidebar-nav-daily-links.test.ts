@@ -60,6 +60,33 @@ describe("splitSidebarLinksDailyVsMore", () => {
     expect(split.more.map((row) => row.href)).toEqual(["/governance/audit"]);
   });
 
+  it("leads Administration with routine configuration rather than break-glass pages", () => {
+    const links = [
+      link("/administration", "All settings"),
+      link("/administration/users", "Users & roles"),
+      link("/administration/billing", "Billing & plans"),
+      link("/administration/system-health", "System health"),
+      link("/administration/support", "Support"),
+      link("/administration/notifications", "Notifications"),
+      link("/administration/workspace-settings", "Workspace settings"),
+      link("/administration/baseline", "Baseline settings"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("operator-admin", links, "/");
+
+    expect(split.daily.map((row) => row.href)).toEqual([
+      "/administration",
+      "/administration/workspace-settings",
+      "/administration/users",
+      "/administration/notifications",
+      "/administration/billing",
+      "/administration/system-health",
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual([
+      "/administration/support",
+      "/administration/baseline",
+    ]);
+  });
+
   it("promotes an active more-link into daily so the route stays visible", () => {
     const links = [
       link("/governance/approval-queue", "Approval"),

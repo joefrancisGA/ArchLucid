@@ -1,5 +1,10 @@
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import type { NavLinkItem } from "@/lib/nav-config.types";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
+import {
+  SETTINGS_NOTIFICATIONS_PATH,
+  SETTINGS_ROOT_PATH,
+  SETTINGS_WORKSPACE_SETTINGS_PATH,
+} from "@/lib/settings-admin-route-paths";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 /**
@@ -15,12 +20,15 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     "/governance/alerts",
     "/governance/alert-rules",
   ],
+  // Routine configuration leads; System health and Support are break-glass pages and Support is also
+  // published as an inline bundle card on the settings hub, so neither needs a first-viewport slot.
   "operator-admin": [
     SETTINGS_ROOT_PATH,
+    SETTINGS_WORKSPACE_SETTINGS_PATH,
     "/administration/users",
+    SETTINGS_NOTIFICATIONS_PATH,
     "/administration/billing",
-    "/administration/system-health",
-    "/administration/support",
+    ADMINISTRATION_SYSTEM_HEALTH_PATH,
   ],
 };
 
