@@ -17,7 +17,7 @@ export type FilterChipProps = {
 
 /**
  * Interactive filter/action chip — hover and focus affordance.
- * Do not use for read-only status; use StatusTag, SeverityTag, or StatusPill instead.
+ * Do not use for read-only status; use StatusTag, SeverityTag, or BooleanStatusChip instead.
  */
 export function FilterChip(props: FilterChipProps): ReactElement {
   const shell = cn(DESIGN_TOKENS.interactive.chip, DESIGN_TOKENS.accent.focusRing, props.className);

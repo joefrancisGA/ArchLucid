@@ -527,6 +527,36 @@ Done **TB-118** compact page density and **TB-2000** form breathing room address
 | `SeverityTag` | `archlucid-ui/src/components/ui/severity-tag.tsx` | Findings, governance queue |
 | `EnterpriseTable` | `archlucid-ui/src/components/ui/enterprise-table.tsx` | Reviews list, governance findings, operator audit |
 | `Tabs` / `EnterpriseTabs` | `archlucid-ui/src/components/ui/tabs.tsx` | Shared WAI-ARIA tabs (**TB-665**); **line-tab visual contract** (**TB-1661**); `line` is the default and normative; `variant="pill"` is legacy and guard-banned (**TB-1665**) |
+| `FilterChip` | `archlucid-ui/src/components/ui/filter-chip.tsx` | Interactive list filters and compact toggles (**TB-665**) |
+| `BooleanStatusChip` | `archlucid-ui/src/components/ui/boolean-status-chip.tsx` | Boolean Active/Inactive (and custom labels) in operator tables |
+
+### Metadata chip taxonomy (**TB-2284** — done 2026-08-14)
+
+Two parallel chip systems (`StatusTag` vs legacy `StatusPill`) and ad-hoc `rounded-full` pills produced inconsistent shapes, uppercase rules, and color sources on the same surfaces (for example review detail headers mixing `RunStatusBadge` with governance `StatusPill`). This section is the **only** taxonomy for status metadata vs interactive chips vs action badges.
+
+| Control | Path | Use when | ARIA / behavior | Do not use for |
+| --- | --- | --- | --- | --- |
+| **`StatusTag`** | `components/ui/status-tag.tsx` | Read-only run, governance, health, and workflow status on tables, headers, and cards | Non-interactive `span`; `EnterpriseStatusKind` → `--al-status-*` via `enterpriseStatusTagClass` | List filters; clickable toggles |
+| **`SeverityTag`** | `components/ui/severity-tag.tsx` | Read-only finding / alert severity | Same metadata shell as `StatusTag` | Generic workflow status (use `StatusTag`) |
+| **`BooleanStatusChip`** | `components/ui/boolean-status-chip.tsx` | Boolean on/off columns (Active/Inactive, Enabled/Disabled) | Wraps `StatusTag` with `ready` / `needs-attention` / `neutral` kinds | Multi-value or string-backed status |
+| **`FilterChip`** | `components/ui/filter-chip.tsx` | Optional filters, drill-down links, compact toggles outside a tab strip | `button` or `link`; `aria-pressed` when toggling | Read-only status metadata |
+| **`Badge`** (`default` / `secondary` / `outline` / `destructive`) | `components/ui/badge.tsx` | Action-oriented counts and compact labels with hover/focus affordance | Interactive or decorative badge chrome | Read-only status — use `StatusTag` / `SeverityTag` / `BooleanStatusChip` |
+| **`StatusPill`** (deprecated) | `components/StatusPill.tsx` | **Legacy call sites only** — do not add new imports | Same read-only metadata job as `StatusTag` | **Banned on new surfaces** — migrate under **TB-2286** / **TB-2287**; delete after **TB-2289** |
+
+**Color and shape rules**
+
+- Metadata labels (`StatusTag`, `SeverityTag`, `BooleanStatusChip`) use `METADATA_STATUS_TAG_SHELL` + semantic fills from `--al-status-*` in `design-tokens.ts` / `globals.css` — not raw Tailwind `blue-500/10`, `violet-500/12`, or hand-rolled `rounded-full` status pills (**TB-116** Done).
+- Informational / limitation / draft posture uses `--al-status-neutral-*` (**TB-2277** Done) — scope honesty, not configured, draft.
+- Operator inventory and master-detail lists default to `EnterpriseTable` + `StatusTag` for status columns (**TB-1646** Done).
+- `Badge variant="metadata"` is legacy neutral filler — prefer `StatusTag kind="neutral"` for new read-only labels.
+
+**Resolver and migration (out of scope for this row)**
+
+- Display-string → `EnterpriseStatusKind` consolidation: **TB-2285**.
+- Review/governance and health/ops `StatusPill` → `StatusTag` sweeps: **TB-2286** / **TB-2287**.
+- Ad-hoc pill inventory + Vitest drift guard: **TB-2288** / **TB-2289**.
+
+**Do not:** invent a new chip primitive; mix `StatusPill` and `StatusTag` in the same header band on new work; use `FilterChip` or filled `Button` chrome for read-only status.
 
 ### Operator line tabs — visual contract (**TB-1661** — done 2026-08-12)
 
@@ -645,5 +675,6 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; live pin policy **TB-1574** Done; hub inventory + about-aside demotion **TB-1575** Done (`operator-side-rail-inventory.ts`); Vitest allowlist **TB-1576**
 - Operator **primary CTA** contract: this file § *Operator primary CTA* (**TB-1539** Done) — one page job; ≤1 `variant="primary"` in first viewport; header order Help → Primary → outline utilities; hub inventory **TB-1543** Done (`operator-primary-cta-inventory.ts`); Vitest dual-primary guard **TB-1544**
 - Operator **empty states** contract: this file § *Operator empty states* (**TB-1552** Done) — name empty kind; default collection/hub-zone → `EnterpriseCompactEmptyState`; ban form+rail+empty stacks; presets in `enterprise-compact-empty-state-presets.ts`; migration inventory **TB-1554** (`operator-empty-state-migration-inventory.ts`)
+- Metadata **chip taxonomy**: this file § *Metadata chip taxonomy* (**TB-2284** Done) — `StatusTag` / `SeverityTag` / `BooleanStatusChip` vs `FilterChip` vs `Badge`; deprecate `StatusPill`; `--al-status-*` + neutral tokens (**TB-116**, **TB-2277**); list default **TB-1646**; migrations **TB-2285**–**TB-2289**
 - Operator **populated lists** contract: this file § *Operator populated lists* (**TB-1646** Done) — name list kind; default inventory/master-detail → `EnterpriseTable` + `StatusTag`; entity-summary cards only when justified; ≤2 visible row actions; ban parallel raw HTML tables; apply **TB-1647**–**TB-1650**
 - Operator **line tabs** visual contract: this file § *Operator line tabs — visual contract* (**TB-1661** Done) — Carbon line tabs only; ban pill/chip/segmented/folder overrides on `TabsList`/`TabsTrigger`; gold exemplars Digests / Settings roles / reviews new / review detail; code migration **TB-1662**–**TB-1665**
