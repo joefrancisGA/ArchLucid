@@ -37,10 +37,13 @@ describe("slack integration help drift guard", () => {
     expect(SLACK_INTEGRATION_HELP_OVERVIEW).not.toBe(SLACK_INTEGRATION_HELP_PAGE_SUBTITLE);
   });
 
-  it("lists four guide headings so the topic rail renders at xl", () => {
-    expect(SLACK_INTEGRATION_HELP_GUIDE_HEADINGS).toHaveLength(4);
+  it("lists five guide headings so the topic rail renders at xl", () => {
+    expect(SLACK_INTEGRATION_HELP_GUIDE_HEADINGS).toHaveLength(5);
     expect(SLACK_INTEGRATION_HELP_GUIDE_HEADINGS[1]?.id).toBe("set-up-slack-notifications");
-    expect(SLACK_INTEGRATION_HELP_GUIDE_HEADINGS[3]?.id).toBe("where-to-go-next");
+    expect(SLACK_INTEGRATION_HELP_GUIDE_HEADINGS[4]?.id).toBe("where-to-go-next");
+    expect(
+      SLACK_INTEGRATION_HELP_GUIDE_HEADINGS.some((heading) => heading.id === "help-slack-integration-claim-discipline-heading"),
+    ).toBe(true);
   });
 
   it("matches setup steps to Slack page copy exports", () => {

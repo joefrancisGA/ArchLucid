@@ -8,6 +8,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const JIRA_INTEGRATION_HELP_CANONICAL_PATH = "/help/jira-integration" as const;
 
+export const JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE =
   "This guide explains Jira outbound routing, connection health, and workspace mappings — use it to configure how findings create Jira work items, then open Integration readiness or Audit trail when procurement setup or governed activity needs follow-up.";
 

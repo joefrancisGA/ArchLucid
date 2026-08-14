@@ -10,6 +10,8 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import {
   SLACK_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
+  SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID,
+  SLACK_INTEGRATION_HELP_GUIDE_HEADINGS,
   SLACK_INTEGRATION_HELP_PRIMARY_ACTION,
   SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE,
   SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION,
@@ -17,6 +19,7 @@ import {
 } from "@/lib/slack-integration-help-guide-content";
 import {
   SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   SLACK_INTEGRATION_HELP_SOURCES,
 } from "@/lib/slack-integration-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -53,6 +56,10 @@ describe("HelpSlackIntegrationGuideView", () => {
     expect(screen.getByTestId("help-slack-integration-claim-discipline").textContent).toContain(
       SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.getByRole("heading", { name: SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByRole("link", { name: SLACK_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
       "href",
       SLACK_INTEGRATION_HELP_PRIMARY_ACTION.href,
@@ -83,5 +90,9 @@ describe("HelpSlackIntegrationGuideView", () => {
       integrationReadinessSource?.href,
     );
     expect(screen.queryByRole("link", { name: "Slack notifications" })).not.toBeInTheDocument();
+
+    for (const heading of SLACK_INTEGRATION_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
   });
 });

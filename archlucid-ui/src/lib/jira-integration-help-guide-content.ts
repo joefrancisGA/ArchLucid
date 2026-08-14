@@ -3,6 +3,7 @@ import {
   JIRA_INTEGRATION_CANONICAL_PATH,
   JIRA_INTEGRATION_HELP_TOPIC_LABEL,
 } from "@/lib/jira-integration-evidence-copy";
+import { JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/jira-integration-help-evidence-copy";
 import {
   JIRA_CONNECT_WITH_ATLASSIAN_LABEL,
   JIRA_WORKSPACE_ROUTING_UNAVAILABLE_LEAD,
@@ -69,9 +70,16 @@ export const JIRA_INTEGRATION_HELP_BEFORE_YOU_START_TITLE = "Before you start";
 export const JIRA_INTEGRATION_HELP_BEFORE_YOU_START_BODY =
   "Workspace administrators configure Jira outbound routing after Atlassian OAuth succeeds — connection health and credential setup come before project keys and severity mappings.";
 
+export const JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID = "help-jira-integration-claim-discipline-heading" as const;
+
 export const JIRA_INTEGRATION_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-jira-integration-does", title: "What Jira integration does" },
   { level: 2, id: "before-you-start", title: JIRA_INTEGRATION_HELP_BEFORE_YOU_START_TITLE },
   { level: 2, id: "how-jira-integration-works", title: JIRA_INTEGRATION_HELP_TOPIC_LABEL },
+  {
+    level: 2,
+    id: JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID,
+    title: JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

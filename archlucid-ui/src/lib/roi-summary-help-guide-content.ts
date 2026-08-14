@@ -17,6 +17,10 @@ import {
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
+import {
+  ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING,
+  ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
+} from "@/lib/roi-summary-help-evidence-copy";
 import { BASELINE_SETTINGS_CANONICAL_PATH } from "@/lib/baseline-settings-evidence-copy";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import {
@@ -139,5 +143,10 @@ export const ROI_SUMMARY_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
     title: ROI_SUMMARY_HELP_NEARBY_SURFACES_SECTION_TITLE,
   },
   { level: 2, id: "sibling-sponsor-reports", title: "Related sponsor reports" },
+  {
+    level: 2,
+    id: ROI_SUMMARY_HELP_CLAIM_HEADING_ID,
+    title: ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

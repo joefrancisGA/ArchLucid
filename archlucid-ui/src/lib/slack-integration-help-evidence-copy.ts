@@ -8,6 +8,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const SLACK_INTEGRATION_HELP_CANONICAL_PATH = "/help/slack-integration" as const;
 
+export const SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE =
   "This guide explains how Slack destinations route governance alerts — configure incoming webhooks, test delivery, then open Alert rules or Integration readiness when routing or procurement setup needs follow-up.";
 

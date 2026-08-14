@@ -3,6 +3,7 @@ import {
   SERVICENOW_INTEGRATION_CANONICAL_PATH,
   SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL,
 } from "@/lib/servicenow-integration-evidence-copy";
+import { SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/servicenow-integration-help-evidence-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const SERVICENOW_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE = "ServiceNow integration";
 
@@ -64,9 +65,16 @@ export const SERVICENOW_INTEGRATION_HELP_BEFORE_YOU_CONNECT_TITLE = "Before you 
 export const SERVICENOW_INTEGRATION_HELP_BEFORE_YOU_CONNECT_BODY =
   "Workspace administrators configure ServiceNow outbound routing after secure credential setup — connection health and instance URL come before incident routing and CMDB overrides.";
 
+export const SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID = "help-servicenow-integration-claim-discipline-heading" as const;
+
 export const SERVICENOW_INTEGRATION_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-servicenow-integration-does", title: "What ServiceNow integration does" },
   { level: 2, id: "before-you-connect", title: SERVICENOW_INTEGRATION_HELP_BEFORE_YOU_CONNECT_TITLE },
   { level: 2, id: "how-servicenow-integration-works", title: SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL },
+  {
+    level: 2,
+    id: SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID,
+    title: SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

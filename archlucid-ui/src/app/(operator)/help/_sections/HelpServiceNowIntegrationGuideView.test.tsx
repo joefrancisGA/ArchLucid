@@ -8,8 +8,10 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 import { HelpServiceNowIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpServiceNowIntegrationGuideView";
 import {
   SERVICENOW_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
+  SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID,
   SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION,
   SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION_TAG,
+  SERVICENOW_INTEGRATION_HELP_GUIDE_HEADINGS,
   SERVICENOW_INTEGRATION_HELP_INTEGRATION_READINESS_HREF,
   SERVICENOW_INTEGRATION_HELP_PAGE_TITLE,
   SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION,
@@ -17,6 +19,7 @@ import {
 } from "@/lib/servicenow-integration-help-guide-content";
 import {
   SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   SERVICENOW_INTEGRATION_HELP_SOURCES,
 } from "@/lib/servicenow-integration-help-evidence-copy";
 import { SERVICENOW_INTEGRATION_PAGE_TITLE } from "@/lib/servicenow-integration-page-copy";
@@ -65,6 +68,10 @@ describe("HelpServiceNowIntegrationGuideView", () => {
     expect(screen.getByTestId("help-servicenow-integration-claim-discipline").textContent).toContain(
       SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.getByRole("heading", { name: SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByRole("link", { name: SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
       "href",
       SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.href,
@@ -94,5 +101,9 @@ describe("HelpServiceNowIntegrationGuideView", () => {
     expect(screen.queryByRole("link", { name: "ServiceNow integration" })).not.toBeInTheDocument();
     expect(screen.queryByText(/Read integration readiness help →/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Open Jira integration →/)).not.toBeInTheDocument();
+
+    for (const heading of SERVICENOW_INTEGRATION_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
   });
 });

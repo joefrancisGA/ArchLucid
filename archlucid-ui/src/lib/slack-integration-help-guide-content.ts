@@ -1,4 +1,5 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/slack-integration-help-evidence-copy";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
 import {
   SLACK_INTEGRATION_HELP_SUMMARY,
@@ -70,10 +71,17 @@ export const SLACK_INTEGRATION_HELP_HOW_TO_READ_STEPS = [
   "Open Integration readiness when Slack is one of several connectors under procurement review.",
 ] as const;
 
+export const SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID = "help-slack-integration-claim-discipline-heading" as const;
+
 export const SLACK_INTEGRATION_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-slack-notifications-do", title: "What Slack notifications do" },
   { level: 2, id: "set-up-slack-notifications", title: SLACK_INTEGRATION_HELP_SETUP_SECTION_TITLE },
   { level: 2, id: "how-slack-notifications-work", title: SLACK_INTEGRATION_HELP_TOPIC_LABEL },
+  {
+    level: 2,
+    id: SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID,
+    title: SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 

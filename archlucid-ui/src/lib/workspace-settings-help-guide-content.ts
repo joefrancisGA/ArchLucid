@@ -1,5 +1,6 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/workspace-settings-help-evidence-copy";
 import {
   TENANT_SETTINGS_CANONICAL_PATH,
   WORKSPACE_SETTINGS_HELP_TOPIC_LABEL,
@@ -52,8 +53,15 @@ export const WORKSPACE_SETTINGS_HELP_SCOPE_HREF = "/help/scope";
 
 export const WORKSPACE_SETTINGS_HELP_RECYCLE_BIN_HREF = "/administration/workspace-settings/recycle-bin";
 
+export const WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID = "help-workspace-settings-claim-discipline-heading" as const;
+
 export const WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-workspace-settings-cover", title: "What workspace settings cover" },
   { level: 2, id: "how-workspace-settings-work", title: WORKSPACE_SETTINGS_HELP_TOPIC_LABEL },
+  {
+    level: 2,
+    id: WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID,
+    title: WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

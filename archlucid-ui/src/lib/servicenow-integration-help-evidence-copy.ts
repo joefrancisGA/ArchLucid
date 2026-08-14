@@ -8,6 +8,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const SERVICENOW_INTEGRATION_HELP_CANONICAL_PATH = "/help/servicenow-integration" as const;
 
+export const SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE =
   "This guide explains ServiceNow outbound routing, connection health, and CMDB behavior — use it to configure how findings create ServiceNow incidents, then open Integration readiness or Audit trail when procurement setup or governed activity needs follow-up.";
 
