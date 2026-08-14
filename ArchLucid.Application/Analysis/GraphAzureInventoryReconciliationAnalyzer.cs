@@ -63,11 +63,11 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         foreach (string key in new[] { "resourceId", "azureResourceId", "armResourceId", "id" })
         {
             if (node.Properties.TryGetValue(key, out string? value) && LooksLikeArmResourceId(value))
-                return value;
+                return value.Trim();
         }
 
         if (LooksLikeArmResourceId(node.SourceId))
-            return node.SourceId;
+            return node.SourceId!.Trim();
 
         return null;
     }
@@ -107,7 +107,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
     internal static bool LooksLikeArmResourceId(string? value)
     {
         return !string.IsNullOrWhiteSpace(value)
-               && value.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase);
+               && value.Trim().StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static string NormalizeArmResourceId(string resourceId)

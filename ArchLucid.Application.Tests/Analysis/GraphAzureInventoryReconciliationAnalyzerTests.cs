@@ -204,4 +204,44 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
         result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(graphResourceId.ToLowerInvariant());
         result.InventoryOnlyResourceIds.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Analyze_indexes_graph_resource_id_when_property_has_surrounding_whitespace()
+    {
+        const string graphResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph";
+        const string paddedGraphResourceId = $"  {graphResourceId}  ";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm-graph",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["resourceId"] = paddedGraphResourceId
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "resourceType": "Microsoft.Compute/virtualMachines",
+                "resourceId": "{{graphResourceId}}"
+              }
+            ]
+            """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
 }
