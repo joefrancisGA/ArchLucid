@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -395,12 +395,12 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         {!hideFieldHelper ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {emptyListHintText}{" "}
-            <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/architecture/reviews/new">
+            <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/architecture/reviews/new">
               Start a review
             </Link>{" "}
             or{" "}
             <Link
-              className="font-medium text-teal-800 underline dark:text-teal-300"
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
               href={`/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
             >
               {BUYER_EVIDENCE_GRAPH_SAMPLE_LINK_LABEL}

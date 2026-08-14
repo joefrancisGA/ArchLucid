@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useMemo } from "react";
@@ -102,7 +102,7 @@ export function InProductEvidenceChecklist() {
         </h3>
         <Link
           href={resolveInAppDocHref("/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")}
-          className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
+          className={OPERATOR_LINK.optional}
         >
           Open setup guide
         </Link>

@@ -50,7 +50,7 @@ export function PatternLibraryPatternCard(props: PatternLibraryPatternCardProps)
           <Button asChild size="sm" variant="outline">
             <Link href={`/architecture/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}>Use in review</Link>
           </Button>
-          <Link href={`${detailPath}#alternatives`} className={cn("self-center", OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}>
+          <Link href={`${detailPath}#alternatives`} className={cn("self-center", OPERATOR_LINK.optional)}>
             Compare peer patterns
           </Link>
         </div>

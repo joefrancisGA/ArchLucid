@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
@@ -81,7 +81,7 @@ export function ReviewDetailPolicyPackImpactCallout(
           {packHref !== null ? (
             <Link
               href={packHref}
-              className={cn("font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}
+              className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.cardTitle)}
               data-testid="review-detail-policy-pack-impact-view-pack"
             >
               View policy basis
@@ -89,14 +89,14 @@ export function ReviewDetailPolicyPackImpactCallout(
           ) : null}
           <Link
             href={authorHref}
-            className={cn("font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}
+            className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.cardTitle)}
             data-testid="review-detail-policy-pack-impact-edit-rules"
           >
             Edit pack rules
           </Link>
           <Link
             href={simulateHref}
-            className={cn("font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}
+            className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.cardTitle)}
             data-testid="review-detail-policy-pack-impact-simulate"
           >
             Simulate pack changes
@@ -104,7 +104,7 @@ export function ReviewDetailPolicyPackImpactCallout(
           {runId.length > 0 ? (
             <Link
               href={auditTrailNavHref(runId)}
-              className={cn("font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}
+              className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.cardTitle)}
               data-testid="review-detail-policy-pack-impact-audit"
             >
               Audit trail

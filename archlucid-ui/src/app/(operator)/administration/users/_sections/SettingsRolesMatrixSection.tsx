@@ -33,7 +33,7 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { roleClaimCaption, roleDisplayLabel } from "@/lib/role-display-labels";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SETTINGS_ROLES_MATRIX_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import { CUSTOM_ROLE_PERMISSION_GROUPS, ALL_MATRIX_PERMISSION_IDS } from "./custom-role-permission-groups";
@@ -691,7 +691,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                           {assignmentDisplay.linkable ? (
                             <Link
                               href={SETTINGS_USERS_USERS_TAB_PATH}
-                              className={cn("font-normal text-teal-700 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.micro)}
+                              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
                             >
                               {assignmentDisplay.text}
                             </Link>
@@ -708,7 +708,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                           {!role.isSystem ? (
                             <Link
                               href={GOVERNANCE_AUDIT_PATH}
-                              className={cn("font-normal text-teal-700 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.micro)}
+                              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
                             >
                               View audit trail
                             </Link>

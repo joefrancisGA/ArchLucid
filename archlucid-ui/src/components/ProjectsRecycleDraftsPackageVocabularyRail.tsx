@@ -124,7 +124,7 @@ export function ProjectsRecycleDraftsPackageVocabularyRail(
             >
               <Link
                 href={job.href}
-                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper, "font-medium")}
+                className={cn(OPERATOR_LINK.optional, "font-medium")}
                 data-testid={`projects-recycle-drafts-package-vocabulary-peer-${job.id}`}
               >
                 {job.label}

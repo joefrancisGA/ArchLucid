@@ -45,6 +45,7 @@ import {
   pathMatchesGovernancePolicyPacks,
 } from "@/lib/governance/governance-route-paths";
 import {
+  OPERATOR_LINK,
   OPERATOR_SHELL_BODY_ROW_CLASS,
   OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
   OPERATOR_SHELL_MAIN_PADDING_CLASS,
@@ -337,7 +338,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                       </h1>
                       <Link
                         href="/architecture/reviews"
-                        className={cn("font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.cardTitle)}
+                        className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.cardTitle)}
                       >
                         Reviews
                       </Link>

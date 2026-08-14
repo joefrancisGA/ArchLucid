@@ -1,6 +1,10 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 
 import { InlineGuidance } from "@/components/InlineGuidance";
 import Link from "next/link";
@@ -278,19 +282,19 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         </p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           <Link
-            className={cn("inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
+            className={OPERATOR_LINK.stepPill}
             href="/insights/compare-two-reviews"
           >
             Compare
           </Link>
           <Link
-            className={cn("inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
+            className={OPERATOR_LINK.stepPill}
             href="/internal/validate-route"
           >
             Replay
           </Link>
           <Link
-            className={cn("inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
+            className={OPERATOR_LINK.stepPill}
             href="/insights/evidence-graph"
           >
             Graph
@@ -299,7 +303,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         <button
           type="button"
           onClick={revisitChecklist}
-          className={cn("auth-panel-focus mt-2 cursor-pointer font-semibold text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("auth-panel-focus mt-2 cursor-pointer", OPERATOR_LINK.optional)}
         >
           Revisit checklist
         </button>
@@ -368,24 +372,18 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 walkthrough. The checklist below is optional.
               </p>
               <p className={cn("m-0 mt-2 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-                <Link
-                  className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                  href={getShowcaseManifestHref()}
-                >
+                <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={getShowcaseManifestHref()}>
                   View sealed record summary
                 </Link>{" "}
                 ·{" "}
                 <Link
-                  className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                  className={OPERATOR_BODY_INLINE_LINK_CLASS}
                   href={`/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
                 >
                   Open review detail
                 </Link>{" "}
                 ·{" "}
-                <Link
-                  className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                  href={getShowcaseWalkthroughHref()}
-                >
+                <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={getShowcaseWalkthroughHref()}>
                   Read-only walkthrough
                 </Link>
               </p>
@@ -411,7 +409,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 Guided first review:{" "}
                 <Link
                   href={BUYER_FIRST_REVIEW_HELP_HREF}
-                  className="font-medium text-teal-800 underline decoration-teal-300/50 underline-offset-2 dark:text-teal-300"
+                  className={OPERATOR_LINK.optional}
                   data-testid="first-review-90min-help-link"
                 >
                   Your first architecture review
@@ -452,7 +450,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           </p>
           <Link
             href="#core-pilot-checklist-anchor"
-            className={cn("shrink-0 font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("shrink-0", OPERATOR_LINK.optional)}
           >
             Continue checklist ↓
           </Link>

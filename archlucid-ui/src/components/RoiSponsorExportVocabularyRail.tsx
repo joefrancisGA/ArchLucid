@@ -101,7 +101,7 @@ export function RoiSponsorExportVocabularyRail(
         </span>
         <Link
           href={peerHref}
-          className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+          className={OPERATOR_LINK.optional}
           data-testid="roi-sponsor-export-vocabulary-peer-link"
         >
           {peer.label}

@@ -230,7 +230,7 @@ export function HelpAcceleratorChooserGuideView(
                 >
                   <span className="font-semibold text-al-text-primary">{step.title}. </span>
                   {step.description}{" "}
-                  <Link href={step.href} className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}>
+                  <Link href={step.href} className={OPERATOR_LINK.optional}>
                     {step.ctaLabel}
                   </Link>
                 </li>

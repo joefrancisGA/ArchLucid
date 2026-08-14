@@ -36,7 +36,7 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
             subtitle="Derived improvement plan from captured review feedback."
             actions={<PageContextualHelpButton />}
             metadata={
-              <Link className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)} href={PLANNING_PATH}>
+              <Link className={OPERATOR_LINK.optional} href={PLANNING_PATH}>
                 Back to Improvement planning
               </Link>
             }

@@ -92,7 +92,7 @@ export function ReportProblemAuditVocabularyRail(
         </span>
         <Link
           href={peer.href}
-          className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+          className={OPERATOR_LINK.optional}
           data-testid="report-problem-audit-vocabulary-peer-link"
         >
           {peer.label}

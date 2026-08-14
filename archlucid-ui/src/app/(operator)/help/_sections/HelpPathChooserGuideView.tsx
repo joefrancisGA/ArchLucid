@@ -160,7 +160,7 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
                     <Link href={branch.primary.href}>{branch.primary.label}</Link>
                   </Button>
                   <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Or</span>
-                  <Link className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)} href={branch.fallback.href}>
+                  <Link className={OPERATOR_LINK.optional} href={branch.fallback.href}>
                     {branch.fallback.label}
                   </Link>
                 </div>
