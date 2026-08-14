@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { IMPACT_PREVIEW_SOURCES } from "@/lib/impact-preview-evidence-copy";
 import { IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE } from "@/lib/impact-preview-help-evidence-copy";
 import {
+  IMPACT_PREVIEW_HELP_GUIDE_HEADINGS,
   IMPACT_PREVIEW_HELP_INPUT_TILE_ITEMS,
   IMPACT_PREVIEW_HELP_NEGATION_DRIFT_MARKERS,
   IMPACT_PREVIEW_HELP_OUTPUT_TILE_ITEMS,
@@ -79,6 +80,13 @@ describe("impact-preview help negation drift guard", () => {
 
     expect(new Set(inputHrefs).size).toBe(inputHrefs.length);
     expect(new Set(outputHrefs).size).toBe(outputHrefs.length);
+  });
+
+  it("lists five guide headings so the topic rail renders at xl", () => {
+    expect(IMPACT_PREVIEW_HELP_GUIDE_HEADINGS).toHaveLength(5);
+    expect(IMPACT_PREVIEW_HELP_GUIDE_HEADINGS.some((heading) => heading.id === "help-impact-preview-claim-discipline-heading")).toBe(
+      true,
+    );
   });
 
   it("links the primary action and simulation results tile to impact preview", () => {

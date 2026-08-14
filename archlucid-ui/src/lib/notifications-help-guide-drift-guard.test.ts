@@ -49,9 +49,12 @@ describe("notifications help drift guard", () => {
     expect(NOTIFICATIONS_HELP_OVERVIEW).not.toBe(NOTIFICATIONS_HELP_PAGE_SUBTITLE);
   });
 
-  it("lists four guide headings so the topic rail renders at xl", () => {
-    expect(NOTIFICATIONS_HELP_GUIDE_HEADINGS).toHaveLength(4);
+  it("lists five guide headings so the topic rail renders at xl", () => {
+    expect(NOTIFICATIONS_HELP_GUIDE_HEADINGS).toHaveLength(5);
     expect(NOTIFICATIONS_HELP_GUIDE_HEADINGS[2]?.id).toBe("notification-worked-examples");
+    expect(
+      NOTIFICATIONS_HELP_GUIDE_HEADINGS.some((heading) => heading.id === "help-notifications-claim-discipline-heading"),
+    ).toBe(true);
   });
 
   it("matches tile count and hrefs to notification preference channels", () => {

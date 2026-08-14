@@ -3,7 +3,11 @@ import {
   NOTIFICATION_PREFERENCE_CENTER_PATH,
   NOTIFICATION_PREFERENCE_CHANNELS,
 } from "@/lib/notification-preference-center";
-import { NOTIFICATIONS_HELP_TOPIC_LABEL } from "@/lib/notifications-help-evidence-copy";
+import {
+  NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING,
+  NOTIFICATIONS_HELP_CLAIM_HEADING_ID,
+  NOTIFICATIONS_HELP_TOPIC_LABEL,
+} from "@/lib/notifications-help-evidence-copy";
 
 export const NOTIFICATIONS_HELP_BREADCRUMB_TOPIC_TITLE = "Notifications";
 
@@ -84,6 +88,11 @@ export const NOTIFICATIONS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] =
   { level: 2, id: "what-notifications-cover", title: "What notifications cover" },
   { level: 2, id: "how-notifications-work", title: NOTIFICATIONS_HELP_TOPIC_LABEL },
   { level: 2, id: "notification-worked-examples", title: NOTIFICATIONS_HELP_WORKED_EXAMPLES_TITLE },
+  {
+    level: 2,
+    id: NOTIFICATIONS_HELP_CLAIM_HEADING_ID,
+    title: NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 

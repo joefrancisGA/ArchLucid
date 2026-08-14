@@ -8,11 +8,14 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 import { HelpImpactPreviewGuideView } from "@/app/(operator)/help/_sections/HelpImpactPreviewGuideView";
 import {
   IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
+  IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING,
   IMPACT_PREVIEW_HELP_SOURCES,
 } from "@/lib/impact-preview-help-evidence-copy";
 import {
   IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION,
   IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION_TAG,
+  IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID,
+  IMPACT_PREVIEW_HELP_GUIDE_HEADINGS,
   IMPACT_PREVIEW_HELP_INPUT_TILE_ITEMS,
   IMPACT_PREVIEW_HELP_OUTPUT_TILE_ITEMS,
   IMPACT_PREVIEW_HELP_PRIMARY_ACTION,
@@ -50,6 +53,10 @@ describe("HelpImpactPreviewGuideView", () => {
     expect(screen.getByTestId("help-impact-preview-claim-discipline").textContent).toContain(
       IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.getByRole("heading", { name: IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID,
+    );
     expect(screen.getByTestId("help-impact-preview-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-impact-preview-overview").textContent?.toLowerCase()).not.toContain(
       "sources package",
@@ -77,6 +84,10 @@ describe("HelpImpactPreviewGuideView", () => {
 
     for (const source of IMPACT_PREVIEW_HELP_SOURCES) {
       expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+    }
+
+    for (const heading of IMPACT_PREVIEW_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
   });
 });

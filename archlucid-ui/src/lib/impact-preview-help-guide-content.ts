@@ -1,6 +1,9 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { IMPACT_PREVIEW_CANONICAL_PATH } from "@/lib/impact-preview-evidence-copy";
-import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evidence-copy";
+import {
+  IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING,
+  IMPACT_PREVIEW_HELP_TOPIC_LABEL,
+} from "@/lib/impact-preview-help-evidence-copy";
 import {
   IMPACT_PREVIEW_PLANNING_HREF,
   IMPACT_PREVIEW_REVIEWS_HREF,
@@ -65,10 +68,17 @@ export const IMPACT_PREVIEW_HELP_HOW_TO_READ_STEPS = [
   "Open reviews, planning, or compare when the simulation needs governed follow-up.",
 ] as const;
 
+export const IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID = "help-impact-preview-claim-discipline-heading" as const;
+
 export const IMPACT_PREVIEW_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-you-provide", title: "What you provide" },
   { level: 2, id: "what-impact-preview-returns", title: "What impact preview returns" },
   { level: 2, id: "how-impact-preview-works", title: IMPACT_PREVIEW_HELP_TOPIC_LABEL },
+  {
+    level: 2,
+    id: IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID,
+    title: IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 

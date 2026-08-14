@@ -179,10 +179,12 @@ import {
 import { IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID } from "@/lib/improvement-planning-help-guide-content";
 import {
   IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE,
+  IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING,
   IMPACT_PREVIEW_HELP_FOLLOW_UPS_TITLE,
   IMPACT_PREVIEW_HELP_SOURCES,
   IMPACT_PREVIEW_HELP_SOURCES_INTRO,
 } from "@/lib/impact-preview-help-evidence-copy";
+import { IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID } from "@/lib/impact-preview-help-guide-content";
 import {
   ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE,
   ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -983,6 +985,8 @@ export function ImpactPreviewHelpEvidenceOrientationStrip(
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-impact-preview"
       claim={IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE}
+      claimHeading={IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={IMPACT_PREVIEW_HELP_FOLLOW_UPS_TITLE}
