@@ -16,10 +16,13 @@ const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "impact-preview",
   "improvement-planning",
   "jira-integration",
+  "servicenow-integration",
+  "slack-integration",
   "model-governance",
   "notifications",
   "preferences",
   "recurrence-schedules",
+  "search-review-evidence",
 ]);
 
 function formatGuideReviewProvenance(entry: ProductDocumentationEntry): string | null {

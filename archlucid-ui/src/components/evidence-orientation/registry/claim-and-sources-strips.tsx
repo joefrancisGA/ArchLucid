@@ -586,7 +586,13 @@ export function WorkspaceSettingsHelpEvidenceOrientationStrip(): React.JSX.Eleme
   );
 }
 
-export function SlackIntegrationHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type SlackIntegrationHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function SlackIntegrationHelpEvidenceOrientationStrip(
+  props: SlackIntegrationHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-slack-integration"
@@ -598,6 +604,8 @@ export function SlackIntegrationHelpEvidenceOrientationStrip(): React.JSX.Elemen
       sources={SLACK_INTEGRATION_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
@@ -904,7 +912,13 @@ export function JiraIntegrationHelpEvidenceOrientationStrip(
   );
 }
 
-export function ServiceNowIntegrationHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type ServiceNowIntegrationHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function ServiceNowIntegrationHelpEvidenceOrientationStrip(
+  props: ServiceNowIntegrationHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-servicenow-integration"
@@ -916,6 +930,8 @@ export function ServiceNowIntegrationHelpEvidenceOrientationStrip(): React.JSX.E
       sources={SERVICENOW_INTEGRATION_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
