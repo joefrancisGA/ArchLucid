@@ -53,6 +53,7 @@ public static class AgentTopologyProposalGraphMerge
         List<GraphNode> added = [];
         List<GraphEdge> addedEdges = [];
         HashSet<string> seenDirectedEdgeKeys = CollectDirectedEdgeKeys(graph.Edges);
+        Dictionary<string, string> accumulatedEndpointAliases = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (AgentResult result in validatedResults)
         {
@@ -94,9 +95,10 @@ public static class AgentTopologyProposalGraphMerge
                         TopologyProposalRelationshipEdgeMapper.MapRelationships(
                             [.. graph.Nodes, .. added],
                             proposal.AddedRelationships,
-                            endpointAliases));
+                            CombineEndpointAliases(accumulatedEndpointAliases, endpointAliases)));
                 }
 
+                MergeEndpointAliasesInto(accumulatedEndpointAliases, endpointAliases);
                 continue;
             }
 
@@ -122,8 +124,10 @@ public static class AgentTopologyProposalGraphMerge
                     TopologyProposalRelationshipEdgeMapper.MapRelationships(
                         [.. graph.Nodes, .. added],
                         proposal.AddedRelationships,
-                        endpointAliases));
+                        CombineEndpointAliases(accumulatedEndpointAliases, endpointAliases)));
             }
+
+            MergeEndpointAliasesInto(accumulatedEndpointAliases, endpointAliases);
         }
 
         if (added.Count == 0 && addedEdges.Count == 0)
@@ -210,4 +214,28 @@ public static class AgentTopologyProposalGraphMerge
 
     private static string BuildDirectedEdgeKey(string fromNodeId, string toNodeId, string edgeType) =>
         $"{fromNodeId}|{toNodeId}|{edgeType}";
+
+    private static Dictionary<string, string> CombineEndpointAliases(
+        IReadOnlyDictionary<string, string> accumulated,
+        IReadOnlyDictionary<string, string> current)
+    {
+        Dictionary<string, string> combined = new(accumulated, StringComparer.OrdinalIgnoreCase);
+
+        foreach (KeyValuePair<string, string> alias in current)
+        {
+            combined.TryAdd(alias.Key, alias.Value);
+        }
+
+        return combined;
+    }
+
+    private static void MergeEndpointAliasesInto(
+        Dictionary<string, string> target,
+        IReadOnlyDictionary<string, string> source)
+    {
+        foreach (KeyValuePair<string, string> alias in source)
+        {
+            target.TryAdd(alias.Key, alias.Value);
+        }
+    }
 }
