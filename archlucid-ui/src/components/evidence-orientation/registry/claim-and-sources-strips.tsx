@@ -126,6 +126,30 @@ import {
   API_KEYS_SETTINGS_SOURCES_INTRO,
 } from "@/lib/api-keys-settings-evidence-copy";
 import {
+  ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE,
+  ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  ACCOUNT_SECURITY_SETTINGS_CLAIM_HEADING_ID,
+  ACCOUNT_SECURITY_SETTINGS_FOLLOW_UPS_TITLE,
+  ACCOUNT_SECURITY_SETTINGS_SOURCES,
+  ACCOUNT_SECURITY_SETTINGS_SOURCES_INTRO,
+} from "@/lib/account-security-settings-evidence-copy";
+import {
+  AI_USAGE_SETTINGS_CLAIM_DISCIPLINE,
+  AI_USAGE_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  AI_USAGE_SETTINGS_CLAIM_HEADING_ID,
+  AI_USAGE_SETTINGS_FOLLOW_UPS_TITLE,
+  AI_USAGE_SETTINGS_SOURCES,
+  AI_USAGE_SETTINGS_SOURCES_INTRO,
+} from "@/lib/ai-usage-settings-evidence-copy";
+import {
+  AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
+  AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  AUTH_DOMAINS_SETTINGS_CLAIM_HEADING_ID,
+  AUTH_DOMAINS_SETTINGS_FOLLOW_UPS_TITLE,
+  AUTH_DOMAINS_SETTINGS_SOURCES,
+  AUTH_DOMAINS_SETTINGS_SOURCES_INTRO,
+} from "@/lib/auth-domains-settings-evidence-copy";
+import {
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE,
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE_HEADING,
   SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE,
@@ -229,6 +253,14 @@ import {
   JIRA_INTEGRATION_SOURCES,
   JIRA_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/jira-integration-evidence-copy";
+import {
+  MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE,
+  MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  MODEL_GOVERNANCE_SETTINGS_CLAIM_HEADING_ID,
+  MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE,
+  MODEL_GOVERNANCE_SETTINGS_SOURCES,
+  MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO,
+} from "@/lib/model-governance-settings-evidence-copy";
 import {
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE,
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -358,7 +390,8 @@ import {
 } from "@/lib/advisory-scans-help-evidence-copy";
 import { ADVISORY_SCANS_HELP_CLAIM_HEADING_ID } from "@/lib/advisory-scans-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -464,6 +497,38 @@ import {
   RAG_HEALTH_SOURCES_INTRO,
 } from "@/lib/rag-health-evidence-copy";
 import {
+  IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE_HEADING,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_HEADING_ID,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_FOLLOW_UPS_TITLE,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES,
+  IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES_INTRO,
+} from "@/lib/identity-providers-diagnostics-evidence-copy";
+import {
+  IDENTITY_PROVIDERS_OIDC_CLAIM_DISCIPLINE,
+  IDENTITY_PROVIDERS_OIDC_CLAIM_DISCIPLINE_HEADING,
+  IDENTITY_PROVIDERS_OIDC_CLAIM_HEADING_ID,
+  IDENTITY_PROVIDERS_OIDC_FOLLOW_UPS_TITLE,
+  IDENTITY_PROVIDERS_OIDC_SOURCES,
+  IDENTITY_PROVIDERS_OIDC_SOURCES_INTRO,
+} from "@/lib/identity-providers-oidc-evidence-copy";
+import {
+  IDENTITY_PROVIDERS_SAML_CLAIM_DISCIPLINE,
+  IDENTITY_PROVIDERS_SAML_CLAIM_DISCIPLINE_HEADING,
+  IDENTITY_PROVIDERS_SAML_CLAIM_HEADING_ID,
+  IDENTITY_PROVIDERS_SAML_FOLLOW_UPS_TITLE,
+  IDENTITY_PROVIDERS_SAML_SOURCES,
+  IDENTITY_PROVIDERS_SAML_SOURCES_INTRO,
+} from "@/lib/identity-providers-saml-evidence-copy";
+import {
+  IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE,
+  IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  IDENTITY_PROVIDERS_SETTINGS_CLAIM_HEADING_ID,
+  IDENTITY_PROVIDERS_SETTINGS_FOLLOW_UPS_TITLE,
+  IDENTITY_PROVIDERS_SETTINGS_SOURCES,
+  IDENTITY_PROVIDERS_SETTINGS_SOURCES_INTRO,
+} from "@/lib/identity-providers-settings-evidence-copy";
+import {
   ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE,
   ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE_HEADING,
   ROLE_MAPPING_SETTINGS_CLAIM_HEADING_ID,
@@ -471,6 +536,22 @@ import {
   ROLE_MAPPING_SETTINGS_SOURCES,
   ROLE_MAPPING_SETTINGS_SOURCES_INTRO,
 } from "@/lib/role-mapping-settings-evidence-copy";
+import {
+  SCIM_PROVISIONING_CLAIM_DISCIPLINE,
+  SCIM_PROVISIONING_CLAIM_DISCIPLINE_HEADING,
+  SCIM_PROVISIONING_CLAIM_HEADING_ID,
+  SCIM_PROVISIONING_FOLLOW_UPS_TITLE,
+  SCIM_PROVISIONING_SOURCES,
+  SCIM_PROVISIONING_SOURCES_INTRO,
+} from "@/lib/scim-provisioning-evidence-copy";
+import {
+  SSO_WIZARD_CLAIM_DISCIPLINE,
+  SSO_WIZARD_CLAIM_DISCIPLINE_HEADING,
+  SSO_WIZARD_CLAIM_HEADING_ID,
+  SSO_WIZARD_FOLLOW_UPS_TITLE,
+  SSO_WIZARD_SOURCES,
+  SSO_WIZARD_SOURCES_INTRO,
+} from "@/lib/sso-wizard-evidence-copy";
 import {
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE,
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -993,6 +1074,12 @@ export type StandardsRulesHelpEvidenceOrientationStripProps = {
 export function StandardsRulesHelpEvidenceOrientationStrip(
   props: StandardsRulesHelpEvidenceOrientationStripProps = {},
 ): React.JSX.Element {
+  const sectionHeadingClass = cn(
+    OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+    OPERATOR_TYPOGRAPHY.sectionTitle,
+    "m-0 scroll-mt-24",
+  );
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-standards-rules"
@@ -1008,6 +1095,7 @@ export function StandardsRulesHelpEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+      headingClassName={sectionHeadingClass}
     />
   );
 }
@@ -1104,6 +1192,196 @@ export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element
       sourcesTitle={ROLE_MAPPING_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={ROLE_MAPPING_SETTINGS_SOURCES_INTRO}
       sources={ROLE_MAPPING_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function AccountSecuritySettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="account-security-settings"
+      claim={ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={ACCOUNT_SECURITY_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ACCOUNT_SECURITY_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={ACCOUNT_SECURITY_SETTINGS_SOURCES_INTRO}
+      sources={ACCOUNT_SECURITY_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function AuthDomainsSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="auth-domains-settings"
+      claim={AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={AUTH_DOMAINS_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={AUTH_DOMAINS_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={AUTH_DOMAINS_SETTINGS_SOURCES_INTRO}
+      sources={AUTH_DOMAINS_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function ModelGovernanceSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="model-governance-settings"
+      claim={MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={MODEL_GOVERNANCE_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO}
+      sources={MODEL_GOVERNANCE_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function AiUsageSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="ai-usage-settings"
+      claim={AI_USAGE_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={AI_USAGE_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={AI_USAGE_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={AI_USAGE_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={AI_USAGE_SETTINGS_SOURCES_INTRO}
+      sources={AI_USAGE_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function IdentityProvidersSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="identity-providers-settings"
+      claim={IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={IDENTITY_PROVIDERS_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={IDENTITY_PROVIDERS_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={IDENTITY_PROVIDERS_SETTINGS_SOURCES_INTRO}
+      sources={IDENTITY_PROVIDERS_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="identity-providers-oidc-settings"
+      claim={IDENTITY_PROVIDERS_OIDC_CLAIM_DISCIPLINE}
+      claimHeading={IDENTITY_PROVIDERS_OIDC_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={IDENTITY_PROVIDERS_OIDC_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={IDENTITY_PROVIDERS_OIDC_FOLLOW_UPS_TITLE}
+      sourcesIntro={IDENTITY_PROVIDERS_OIDC_SOURCES_INTRO}
+      sources={IDENTITY_PROVIDERS_OIDC_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="identity-providers-saml-settings"
+      claim={IDENTITY_PROVIDERS_SAML_CLAIM_DISCIPLINE}
+      claimHeading={IDENTITY_PROVIDERS_SAML_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={IDENTITY_PROVIDERS_SAML_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={IDENTITY_PROVIDERS_SAML_FOLLOW_UPS_TITLE}
+      sourcesIntro={IDENTITY_PROVIDERS_SAML_SOURCES_INTRO}
+      sources={IDENTITY_PROVIDERS_SAML_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function IdentityProvidersDiagnosticsSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="identity-providers-diagnostics-settings"
+      claim={IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE}
+      claimHeading={IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={IDENTITY_PROVIDERS_DIAGNOSTICS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={IDENTITY_PROVIDERS_DIAGNOSTICS_FOLLOW_UPS_TITLE}
+      sourcesIntro={IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES_INTRO}
+      sources={IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function ScimProvisioningSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="scim-provisioning-settings"
+      claim={SCIM_PROVISIONING_CLAIM_DISCIPLINE}
+      claimHeading={SCIM_PROVISIONING_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={SCIM_PROVISIONING_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={SCIM_PROVISIONING_FOLLOW_UPS_TITLE}
+      sourcesIntro={SCIM_PROVISIONING_SOURCES_INTRO}
+      sources={SCIM_PROVISIONING_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function SsoWizardSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="sso-wizard-settings"
+      claim={SSO_WIZARD_CLAIM_DISCIPLINE}
+      claimHeading={SSO_WIZARD_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={SSO_WIZARD_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={SSO_WIZARD_FOLLOW_UPS_TITLE}
+      sourcesIntro={SSO_WIZARD_SOURCES_INTRO}
+      sources={SSO_WIZARD_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"

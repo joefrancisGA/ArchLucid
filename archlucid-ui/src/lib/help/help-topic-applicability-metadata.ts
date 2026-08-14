@@ -2,7 +2,7 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 
 const HELP_TOPIC_REGISTRY_PROVENANCE_SLUGS = new Set(["report-a-problem"]);
 
-const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
+export const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "architecture-drafts",
   "architecture-intelligence",
   "architecture-scorecard",
@@ -31,9 +31,28 @@ const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "workspace-settings",
 ]);
 
+/** Registry taxonomy tokens (e.g. `integrations servicenow orientation`) are not buyer-facing prose. */
+export function isRawInternalGuideReviewApplicability(applicability: string): boolean {
+  const trimmed = applicability.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  if (/[A-Z]/.test(trimmed)) {
+    return false;
+  }
+
+  return /\borientation\b/.test(trimmed);
+}
+
 function formatGuideReviewProvenance(entry: ProductDocumentationEntry): string | null {
   const lastReviewed = entry.lastReviewed?.trim() ?? "";
-  const applicability = entry.releaseApplicability?.trim() ?? "";
+  const applicabilityRaw = entry.releaseApplicability?.trim() ?? "";
+  const applicability =
+    applicabilityRaw.length > 0 && isRawInternalGuideReviewApplicability(applicabilityRaw)
+      ? ""
+      : applicabilityRaw;
 
   if (lastReviewed.length === 0 && applicability.length === 0) {
     return null;

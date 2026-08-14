@@ -87,6 +87,11 @@ export const EVIDENCE_CLAIM_STYLE = {
   operatorWarn: { panel: cn(DESIGN_TOKENS.callout.warn, "p-3") },
   operatorInfo: { panel: cn(DESIGN_TOKENS.callout.info, "p-3") },
   operatorNeutral: { panel: cn(DESIGN_TOKENS.callout.neutral, "p-3") },
+  /** Inline disclaimer on help guides — no peer card chrome beside Start here panels. */
+  operatorInlineNote: {
+    panel: "border-l-2 border-neutral-300 pl-3 dark:border-neutral-700",
+    body: "text-al-text-secondary",
+  },
   evaluationCaution: { panel: CLAIM_PANEL_EVALUATION_CAUTION },
   evaluationNeutral: { panel: CLAIM_PANEL_EVALUATION_NEUTRAL, body: "text-al-text-secondary" },
 } as const satisfies Record<string, EvidenceOrientationClaimStyle>;

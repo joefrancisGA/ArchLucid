@@ -7,7 +7,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
@@ -29,7 +28,6 @@ import {
   TEAMS_INTEGRATION_HELP_SETUP_STEPS,
   TEAMS_INTEGRATION_HELP_START_HERE_CARD_TITLE,
   TEAMS_INTEGRATION_HELP_WEBHOOK_PRECONDITION,
-  TEAMS_INTEGRATION_HELP_WEBHOOK_PRECONDITION_TAG,
 } from "@/lib/teams-integration-help-guide-content";
 import { TEAMS_INTEGRATION_HELP_CANONICAL_PATH } from "@/lib/teams-integration-help-evidence-copy";
 import { TEAMS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/teams-integration-evidence-copy";
@@ -86,22 +84,16 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={TEAMS_INTEGRATION_HELP_PRIMARY_ACTION.href}>
-                    {TEAMS_INTEGRATION_HELP_PRIMARY_ACTION.label}
-                  </Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={TEAMS_INTEGRATION_HELP_WEBHOOK_PRECONDITION_TAG}
-                  data-testid="help-teams-integration-webhook-precondition-tag"
-                />
-              </div>
+              <Button asChild size="sm" variant="primary">
+                <Link href={TEAMS_INTEGRATION_HELP_PRIMARY_ACTION.href}>
+                  {TEAMS_INTEGRATION_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="help-teams-integration-webhook-precondition"
               >
+                <span className="font-medium text-al-text-primary">Incoming webhook.</span>{" "}
                 {TEAMS_INTEGRATION_HELP_WEBHOOK_PRECONDITION}
               </p>
             </CardContent>

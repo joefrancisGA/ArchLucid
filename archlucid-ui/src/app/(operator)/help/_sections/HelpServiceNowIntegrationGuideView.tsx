@@ -2,16 +2,16 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ServiceNowIntegrationHelpEvidenceOrientationStrip } from "@/components/help/ServiceNowIntegrationHelpEvidenceOrientationStrip";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -21,7 +21,6 @@ import {
   SERVICENOW_INTEGRATION_HELP_BEFORE_YOU_CONNECT_BODY,
   SERVICENOW_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
   SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION,
-  SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION_TAG,
   SERVICENOW_INTEGRATION_HELP_FEATURE_ITEMS,
   SERVICENOW_INTEGRATION_HELP_GUIDE_HEADINGS,
   SERVICENOW_INTEGRATION_HELP_HOW_TO_READ_STEPS,
@@ -73,6 +72,7 @@ export function HelpServiceNowIntegrationGuideView(
         subtitle={SERVICENOW_INTEGRATION_HELP_PAGE_SUBTITLE}
         navHref={SERVICENOW_INTEGRATION_CANONICAL_PATH}
         headingLevel="h1"
+        breadcrumb={<HelpTopicBreadcrumb topicTitle={SERVICENOW_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE} />}
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />
@@ -93,23 +93,16 @@ export function HelpServiceNowIntegrationGuideView(
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Link
-                  className={OPERATOR_LINK.nav}
-                  href={SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.href}
-                >
+              <Button asChild size="sm" variant="primary">
+                <Link href={SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.href}>
                   {SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.label}
                 </Link>
-                <StatusTag
-                  kind="neutral"
-                  label={SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION_TAG}
-                  data-testid="help-servicenow-integration-connection-precondition-tag"
-                />
-              </div>
+              </Button>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="help-servicenow-integration-connection-precondition"
               >
+                <span className="font-medium text-al-text-primary">ServiceNow connection.</span>{" "}
                 {SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION}
               </p>
             </CardContent>
@@ -126,15 +119,7 @@ export function HelpServiceNowIntegrationGuideView(
             >
               {SERVICENOW_INTEGRATION_HELP_FEATURE_ITEMS.map((item) => (
                 <div key={item.label}>
-                  <dt className="font-medium text-al-text-primary">
-                    {item.href === undefined ? (
-                      item.label
-                    ) : (
-                      <Link className={OPERATOR_LINK.nav} href={item.href}>
-                        {item.label}
-                      </Link>
-                    )}
-                  </dt>
+                  <dt className="font-medium text-al-text-primary">{item.label}</dt>
                   <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
                 </div>
               ))}

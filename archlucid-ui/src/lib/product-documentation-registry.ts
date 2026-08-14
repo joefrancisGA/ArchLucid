@@ -631,7 +631,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",
-    releaseApplicability: "governance standards and rules orientation",
+    releaseApplicability: "Governance policy resolution, enforced rules, and diagnostic export",
   },
   {
     slug: "baseline-settings",
@@ -793,7 +793,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",
-    releaseApplicability: "integrations servicenow orientation",
+    releaseApplicability: "Integrations · ServiceNow orientation",
   },
   {
     slug: "alerts",

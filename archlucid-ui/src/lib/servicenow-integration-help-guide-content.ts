@@ -22,8 +22,6 @@ export const SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION = {
 
 export const SERVICENOW_INTEGRATION_HELP_START_HERE_CARD_TITLE = "Start here";
 
-export const SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION_TAG = "ServiceNow connection";
-
 export const SERVICENOW_INTEGRATION_HELP_CONNECTION_PRECONDITION =
   "Configure the ServiceNow instance URL and credentials on the integration page before tuning incident routing or CMDB overrides.";
 export type ServiceNowIntegrationHelpItem = {
@@ -46,11 +44,6 @@ export const SERVICENOW_INTEGRATION_HELP_FEATURE_ITEMS: readonly ServiceNowInteg
   {
     label: "CMDB overrides",
     detail: "Adjust CMDB auto-create behavior when operational records need custom handling.",
-  },
-  {
-    label: "Integration readiness",
-    detail: "Open integration readiness when multiple connectors need procurement-oriented setup guidance.",
-    href: SERVICENOW_INTEGRATION_HELP_INTEGRATION_READINESS_HREF,
   },
 ] as const;
 

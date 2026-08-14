@@ -7,7 +7,6 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
@@ -21,7 +20,6 @@ import {
   JIRA_INTEGRATION_HELP_BEFORE_YOU_START_BODY,
   JIRA_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
   JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION,
-  JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION_TAG,
   JIRA_INTEGRATION_HELP_FEATURE_ITEMS,
   JIRA_INTEGRATION_HELP_GUIDE_HEADINGS,
   JIRA_INTEGRATION_HELP_HOW_TO_READ_STEPS,
@@ -87,22 +85,16 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={JIRA_INTEGRATION_HELP_PRIMARY_ACTION.href}>
-                    {JIRA_INTEGRATION_HELP_PRIMARY_ACTION.label}
-                  </Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION_TAG}
-                  data-testid="help-jira-integration-connection-precondition-tag"
-                />
-              </div>
+              <Button asChild size="sm" variant="primary">
+                <Link href={JIRA_INTEGRATION_HELP_PRIMARY_ACTION.href}>
+                  {JIRA_INTEGRATION_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="help-jira-integration-connection-precondition"
               >
+                <span className="font-medium text-al-text-primary">Atlassian connection.</span>{" "}
                 {JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION}
               </p>
             </CardContent>
