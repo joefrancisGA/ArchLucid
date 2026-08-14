@@ -59,7 +59,7 @@ export const HELP_PAGE_MIN_TOC_HEADINGS = 4;
 /** Single-column layout when the TOC rail is hidden (fewer than four headings). */
 export function resolveHelpPageContentGridClass(headingCount: number): string {
   if (headingCount < HELP_PAGE_MIN_TOC_HEADINGS) {
-    return "min-w-0 space-y-6";
+    return cn("min-w-0 space-y-6 w-full max-w-none lg:max-w-[52rem]");
   }
 
   return HELP_PAGE_LAYOUT.contentGrid;
