@@ -1,6 +1,7 @@
 import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
 import {
   fetchGovernanceFindingsRegistersBundle,
+  getArchitectureRiskRegister,
 } from "@/lib/api/governance-stickiness-api";
 import type { RunSummary } from "@/types/authority";
 
