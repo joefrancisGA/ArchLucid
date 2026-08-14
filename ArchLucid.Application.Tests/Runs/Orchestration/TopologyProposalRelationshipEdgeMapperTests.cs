@@ -342,4 +342,46 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
             e.ToNodeId == "ds-1" &&
             e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
+
+    [Fact]
+    public void MapRelationships_resolves_synthetic_datastore_id_when_graph_node_has_compute_category_but_terraform_datastore_source_id()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "api",
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
 }

@@ -50,7 +50,7 @@ public static class TopologyProposalRelationshipEndpointIndex
         AddEndpointKey(endpointKeys, node.NodeId);
         AddEndpointKey(endpointKeys, node.SourceId);
         AddArmResourceIdEndpointKeys(endpointKeys, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node));
-        AddGraphNodeSyntheticLabelEndpointKeys(endpointKeys, node.Label, node.Category);
+        AddGraphNodeSyntheticLabelEndpointKeys(endpointKeys, node.Label, node.Category, node.SourceId);
     }
 
     public static void AddGraphNodeResolutionKeys(Dictionary<string, string> endpointKeyToNodeId, GraphNode node)
@@ -59,7 +59,7 @@ public static class TopologyProposalRelationshipEndpointIndex
         AddResolutionAlias(endpointKeyToNodeId, node.Label, node.NodeId);
         AddResolutionAlias(endpointKeyToNodeId, node.SourceId, node.NodeId);
         AddArmResourceIdResolutionAliases(endpointKeyToNodeId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node), node.NodeId);
-        AddGraphNodeSyntheticLabelResolutionAliases(endpointKeyToNodeId, node.Label, node.Category, node.NodeId);
+        AddGraphNodeSyntheticLabelResolutionAliases(endpointKeyToNodeId, node.Label, node.Category, node.SourceId, node.NodeId);
     }
 
     public static void AddManifestServiceEndpointAliases(
@@ -399,7 +399,11 @@ public static class TopologyProposalRelationshipEndpointIndex
         AddResolutionAlias(aliasToNodeId, GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(resourceId!), nodeId);
     }
 
-    private static void AddGraphNodeSyntheticLabelEndpointKeys(HashSet<string> endpointKeys, string? label, string? category)
+    private static void AddGraphNodeSyntheticLabelEndpointKeys(
+        HashSet<string> endpointKeys,
+        string? label,
+        string? category,
+        string? sourceId)
     {
         if (string.IsNullOrWhiteSpace(label))
             return;
@@ -419,12 +423,16 @@ public static class TopologyProposalRelationshipEndpointIndex
         }
 
         AddSyntheticServiceEndpointKey(endpointKeys, label);
+
+        if (LooksLikeTerraformDatastoreSourceId(sourceId))
+            AddSyntheticDatastoreEndpointKey(endpointKeys, label);
     }
 
     private static void AddGraphNodeSyntheticLabelResolutionAliases(
         Dictionary<string, string> aliasToNodeId,
         string? label,
         string? category,
+        string? sourceId,
         string nodeId)
     {
         if (string.IsNullOrWhiteSpace(label))
@@ -444,6 +452,25 @@ public static class TopologyProposalRelationshipEndpointIndex
         }
 
         AddResolutionAlias(aliasToNodeId, BuildSyntheticServiceNodeId(label), nodeId);
+
+        if (LooksLikeTerraformDatastoreSourceId(sourceId))
+            AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(label), nodeId);
+    }
+
+    private static bool LooksLikeTerraformDatastoreSourceId(string? sourceId)
+    {
+        if (string.IsNullOrWhiteSpace(sourceId))
+            return false;
+
+        string normalized = sourceId.Trim();
+
+        return normalized.Contains("mssql", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage_account", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cosmosdb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("postgresql", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("mysql", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("redis_cache", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("sql_database", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
