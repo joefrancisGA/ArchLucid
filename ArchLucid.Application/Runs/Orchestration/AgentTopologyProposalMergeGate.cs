@@ -22,7 +22,7 @@ public static class AgentTopologyProposalMergeGate
         HashSet<string> relationshipEndpointKeys = ResolveRelationshipEndpointKeys(graph, inventoriedIdentifiers);
 
         if (relationshipEndpointKeys.Count == 0)
-            return results;
+            return FilterGreenfieldProposals(results);
 
         HashSet<string> accumulatedEndpointKeys = new(relationshipEndpointKeys, StringComparer.OrdinalIgnoreCase);
         List<AgentResult> orderedResults = results
@@ -62,6 +62,33 @@ public static class AgentTopologyProposalMergeGate
 
         return filtered;
     }
+
+    private static IReadOnlyList<AgentResult> FilterGreenfieldProposals(IReadOnlyList<AgentResult> results)
+    {
+        List<AgentResult> filtered = [];
+
+        foreach (AgentResult result in results)
+        {
+            if (!RequiresInventoryOverlayValidation(result.AgentType) || result.ProposedChanges is null)
+            {
+                filtered.Add(result);
+                continue;
+            }
+
+            if (IsUndeclaredRelationshipOnlyProposal(result.ProposedChanges))
+                continue;
+
+            filtered.Add(result);
+        }
+
+        return filtered;
+    }
+
+    private static bool IsUndeclaredRelationshipOnlyProposal(AgentTopologyProposal proposal) =>
+        (proposal.AddedServices?.Count ?? 0) == 0
+        && (proposal.AddedDatastores?.Count ?? 0) == 0
+        && (proposal.AddedRelationships?.Count ?? 0) > 0
+        && (proposal.RequiredControls?.Count ?? 0) == 0;
 
     private static int GetMergeOrder(AgentType agentType) =>
         agentType switch
