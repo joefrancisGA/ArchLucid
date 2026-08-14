@@ -304,7 +304,8 @@ def test_migrate_workbook_path_maps_legacy_sponsor_report_to_insights() -> None:
 
 
 def test_migrate_workbook_path_maps_legacy_replay_and_signed_records() -> None:
-    assert migrate_workbook_path("/replay") == "/internal/replay"
+    assert migrate_workbook_path("/replay") == "/internal/validate-route"
+    assert migrate_workbook_path("/internal/replay") == "/internal/validate-route"
     assert migrate_workbook_path("/signed-records") == "/governance/signed-records"
     assert (
         migrate_workbook_path("/signed-records/[manifestId]")
@@ -319,7 +320,7 @@ def test_migrate_workbook_path_maps_legacy_replay_and_signed_records() -> None:
 def test_infer_section_maps_internal_and_insights_sponsor_paths() -> None:
     catalog = build_catalog()
     assert catalog["/internal/health"].section == "Admin"
-    assert catalog["/internal/replay"].section == "Marketing"
+    assert catalog["/internal/validate-route"].section == "Marketing"
     assert catalog["/internal/product-learning"].section == "Onboarding"
     assert catalog["/internal/integration-events/dlq"].section == "Advisory"
     assert catalog["/insights/roi-summary"].section == "Sponsor report"

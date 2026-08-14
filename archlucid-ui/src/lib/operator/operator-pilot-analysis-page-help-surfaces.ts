@@ -46,8 +46,8 @@ export const OPERATOR_PILOT_ANALYSIS_PAGE_HELP_TB1667_SURFACES: readonly Operato
     },
     {
       id: "internal-replay",
-      pathname: "/internal/replay",
-      modulePath: "app/(operator)/internal/replay/_sections/ReplayFormView.tsx",
+      pathname: "/internal/validate-route",
+      modulePath: "app/(operator)/internal/validate-route/_sections/ReplayFormView.tsx",
       notes: "Validate review replay — comparison-replay help topic.",
     },
     {

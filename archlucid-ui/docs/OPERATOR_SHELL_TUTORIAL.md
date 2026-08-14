@@ -169,7 +169,7 @@ Only when the page needs **browser interactivity**: button clicks that change wh
 In this codebase, these are client pages:
 - `/graph` — user types a run ID, picks a mode, clicks "Load graph"
 - `/compare` — user types two run IDs, clicks "Compare"
-- `/internal/replay` — user types a run ID, clicks "Replay"
+- `/internal/validate-route` — user types a run ID, clicks "Replay"
 
 Everything else (runs list, run detail, manifest, artifact review) is **server-rendered**.
 
@@ -502,7 +502,7 @@ See [Section 14](#14-graph-viewer).
 **File:** `app/compare/page.tsx` (**client component**)  
 See [Section 13](#13-compare--replay-flow).
 
-### `/internal/replay` — Authority replay
+### `/internal/validate-route` — Authority replay
 
 **File:** `app/replay/page.tsx` (**client component**)  
 See [Section 13](#13-compare--replay-flow).
@@ -600,7 +600,7 @@ This is a **client component** because the operator types two run IDs and clicks
    - `LegacyRunComparisonView` — run-level + manifest flat diffs
    - `AiComparisonExplanationView` — summary, major changes, tradeoffs, narrative
 
-### Replay (`/internal/replay`)
+### Replay (`/internal/validate-route`)
 
 Another **client component**. Operator enters a run ID, picks a mode, clicks **Replay**.
 
@@ -659,7 +659,7 @@ app/governance/signed-records/[manifestId]/loading.tsx → "Loading signed revie
 app/governance/signed-records/.../artifacts/.../loading.tsx → "Loading artifact review."
 app/insights/evidence-graph/loading.tsx  → "Loading evidence graph."
 app/insights/compare-two-reviews/loading.tsx → "Loading compare."
-app/internal/replay/loading.tsx          → "Loading replay."
+app/internal/validate-route/loading.tsx          → "Loading replay."
 ```
 
 They all use `OperatorLoadingNotice` — a calm, borderless status card with no spinner or animation.

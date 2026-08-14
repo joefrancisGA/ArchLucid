@@ -42,6 +42,6 @@ describe("comparison-replay help inbound labels and Related density (TB-1640)", 
     expect(guides).toEqual([...COMPARISON_REPLAY_HELP_RELATED_GUIDES]);
     expect(guides.length).toBeLessThanOrEqual(3);
     expect(guides.some((guide) => guide.href.includes("/insights/compare-two-reviews"))).toBe(false);
-    expect(guides.some((guide) => guide.href.includes("/internal/replay"))).toBe(false);
+    expect(guides.some((guide) => guide.href.includes("/internal/validate-route"))).toBe(false);
   });
 });

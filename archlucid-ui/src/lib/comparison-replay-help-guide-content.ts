@@ -2,7 +2,7 @@ import { findBlockedRouteEntry } from "@/lib/cto-demo-blocked-route-registry";
 import { isDemoStrictNavigationRedirectsActive } from "@/lib/demo-ui-env";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
-export const COMPARISON_REPLAY_VALIDATE_REVIEW_PATH = "/internal/replay" as const;
+export const COMPARISON_REPLAY_VALIDATE_REVIEW_PATH = "/internal/validate-route" as const;
 
 export const COMPARISON_REPLAY_HELP_COMPARE_ACTION = {
   label: "Open Compare two reviews",

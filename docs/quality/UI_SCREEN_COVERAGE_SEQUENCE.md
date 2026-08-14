@@ -182,7 +182,7 @@ Requires host / `features.showSystemAdministrationNav`. Walk once empty, once af
 | [ ] | [ ] | `/internal/configuration` |
 | [ ] | [ ] | `/internal/integration-events/dlq` |
 | [ ] | [ ] | `/internal/evidence-proposals` |
-| [ ] | [ ] | `/internal/replay` |
+| [ ] | [ ] | `/internal/validate-route` |
 | [ ] | [ ] | `/internal/recommendation-learning` |
 | [ ] | [ ] | `/internal/product-learning` |
 | [ ] | [ ] | `/internal/demo-readiness` |

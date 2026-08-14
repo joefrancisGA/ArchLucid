@@ -6,6 +6,7 @@ export const COMPARISON_REPLAY_HELP_INBOUND_PATH_LABELS: Readonly<Record<string,
   "/insights/compare-two-reviews": COMPARISON_REPLAY_HELP_TOPIC_LABEL,
   "/replay": COMPARISON_REPLAY_HELP_TOPIC_LABEL,
   "/internal/replay": COMPARISON_REPLAY_HELP_TOPIC_LABEL,
+  "/internal/validate-route": COMPARISON_REPLAY_HELP_TOPIC_LABEL,
 } as const;
 
 export const COMPARISON_REPLAY_HELP_INBOUND_LABEL_SOURCE_FILES: readonly string[] = [

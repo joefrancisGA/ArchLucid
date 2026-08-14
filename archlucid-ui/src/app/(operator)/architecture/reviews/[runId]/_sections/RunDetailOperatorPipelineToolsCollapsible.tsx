@@ -8,6 +8,7 @@ import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice"
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import { cn } from "@/lib/utils";
 
 type RunDetailOperatorPipelineToolsCollapsibleProps = {
@@ -40,7 +41,7 @@ export function RunDetailOperatorPipelineToolsCollapsible(
 
         <div className="flex flex-wrap gap-3">
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/replay?runId=${encodeURIComponent(runId)}`}>Validate review</Link>
+            <Link href={`${INTERNAL_REPLAY_PATH}?runId=${encodeURIComponent(runId)}`}>Validate review</Link>
           </Button>
         </div>
       </div>

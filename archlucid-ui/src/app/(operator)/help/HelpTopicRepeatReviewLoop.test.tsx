@@ -142,7 +142,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.queryByTestId("help-repeat-review-loop-refresh-button")).toBeNull();
     expect(screen.getAllByText(/Prerequisite:/i)).toHaveLength(1);
-    expect(screen.getByTestId("repeat-review-loop-step-2-cta")).toHaveAttribute("href", "/internal/replay");
+    expect(screen.getByTestId("repeat-review-loop-step-2-cta")).toHaveAttribute("href", "/internal/validate-route");
   });
 
   it("renders loop-step deep-link CTAs for compare and governance actions (TB-1398)", () => {

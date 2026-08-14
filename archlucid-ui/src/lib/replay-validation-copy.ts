@@ -1,4 +1,4 @@
-/** Operator copy for the validate review workflow (`/internal/replay`). */
+/** Operator copy for the validate review workflow (`/internal/validate-route`). */
 
 export const REPLAY_PAGE_INTRO =
   "Confirm that a finalized review, its findings, evidence links, decisions, and signed record remain reproducible and internally consistent.";

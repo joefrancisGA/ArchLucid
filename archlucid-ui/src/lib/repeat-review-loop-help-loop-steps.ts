@@ -27,7 +27,7 @@ export const REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS: readonly RepeatReviewLoopHelpLo
     stepNumber: 2,
     title: "Replay",
     description: "Reconstruct authority when investigating regressions on a finalized review.",
-    href: "/internal/replay",
+    href: "/internal/validate-route",
     ctaLabel: "Validate review",
   },
   {

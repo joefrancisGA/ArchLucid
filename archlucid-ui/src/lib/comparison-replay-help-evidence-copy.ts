@@ -13,7 +13,7 @@ export const COMPARISON_REPLAY_HELP_SOURCES_INTRO =
 /** Operator Sources — no self-href to `/help/comparison-replay`. */
 export const COMPARISON_REPLAY_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
-  { label: "Validate review", href: "/internal/replay" },
+  { label: "Validate review", href: "/internal/validate-route" },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Evidence trail", href: "/insights/evidence-graph" },
 ] as const;

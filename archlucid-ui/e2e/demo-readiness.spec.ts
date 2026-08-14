@@ -200,7 +200,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/insights/compare-two-reviews",
       "/governance/approval-queue",
       "/governance/advisory-scans",
-      "/internal/replay",
+      "/internal/validate-route",
       "/insights/search-review-evidence",
       "/governance/policy-packs",
     ] as const;

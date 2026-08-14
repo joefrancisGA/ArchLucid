@@ -25,7 +25,7 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF)).toBe(
       OPERATOR_NAV_LINK_LABELS.workspaceHealth,
     );
-    expect(getRouteTitle("/internal/replay")).toBe(OPERATOR_NAV_LINK_LABELS.replayReview);
+    expect(getRouteTitle("/internal/validate-route")).toBe(OPERATOR_NAV_LINK_LABELS.replayReview);
     expect(getRouteTitle("/insights/ask-review-questions")).toBe("Ask review questions");
     expect(getRouteTitle("/insights/search-review-evidence")).toBe("Search review evidence");
   });

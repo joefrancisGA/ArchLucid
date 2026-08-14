@@ -103,7 +103,7 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for Validate review / replay. Owner backlog shorthand: REP. */
   {
     rowId: "REP",
-    path: "/internal/replay",
+    path: "/internal/validate-route",
     section: "Marketing",
     note: "Validate review (Marketing catalog; operator Execute) - ReplayFormView with OperatorPageHeader PageContextualHelpButton (topic map comparison-replay; Category-1 registry), Learn more / claim-discipline orientation strip (Sources follow-up removed TB-2092), package picker + validation modes. Package re-validation hub - not a signed-record Sources trail. Sibling CXX = compare-two-reviews. Score 68/100 (2026-08-08) - validation-action hub at CXX Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["ReplayFormView", "Sources", "cannot improve further toward 80"],

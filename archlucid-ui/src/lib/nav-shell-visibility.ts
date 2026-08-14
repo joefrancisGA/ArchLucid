@@ -29,7 +29,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/internal/product-learning",
   "/internal/recommendation-learning",
   IMPACT_PREVIEW_PATH,
-  "/internal/replay",
+  "/internal/validate-route",
   "/insights/search-review-evidence",
   COMPARE_TWO_REVIEWS_PATH,
   "/governance/advisory-scans",

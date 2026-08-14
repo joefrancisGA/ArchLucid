@@ -96,7 +96,7 @@ Shell and page-local **breadcrumb trails are removed** (**TB-2090**). Primary wa
 - **`OperateCapabilityHints.authority.test.tsx`** — rank-gated Operate sidebar/page cues share the same **`ExecuteAuthority`** numeric floor as **`useOperateCapability`** (governance resolution, audit log, **Alerts inbox**, **governance dashboard** reader cue, alert tooling).
 - **`authority-execute-floor-regression.test.ts`** — same **boolean** for a synthetic **`ExecuteAuthority`** row vs **`operateCapabilityFromRank`**.
 - **`authority-shaped-ui-regression.test.ts`** — every catalog **`ExecuteAuthority`** link hidden at Read / visible at Execute (new rows cannot drift untested); **`operate-governance`** monotonicity Reader→Admin.
-- **`nav-shell-visibility.test.ts`** — Analysis extended **Execute** links (e.g. **`/internal/replay`**) gate on rank alone; empty groups are dropped after authority filtering.
+- **`nav-shell-visibility.test.ts`** — Analysis extended **Execute** links (e.g. **`/internal/validate-route`**) gate on rank alone; empty groups are dropped after authority filtering.
 - **`workspace-navigation-help-alignment.test.ts`** — desktop **`SidebarNav`** and mobile **`MobileNavDrawer`** both mount **`RoleNavDensityExpandControl`** (density parity guard).
 - **`current-principal.test.ts`** — **`maxAuthority`** vs **`requiredAuthorityFromRank`** and **`hasEnterpriseOperatorSurfaces`** vs mutation capability.
 - **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Pilot** essentials omit **`requiredAuthority`**; **Operate** **`ExecuteAuthority`** links must not use **`essential`** tier (rank + packaging story).

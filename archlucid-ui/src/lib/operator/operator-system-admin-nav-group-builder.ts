@@ -302,7 +302,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: INTERNAL_REPLAY_PATH,
+          href: INTERNAL_REPLAY_PATH as typeof INTERNAL_REPLAY_PATH & "/internal/validate-route",
 
           label: OPERATOR_NAV_LINK_LABELS.replayReview,
 

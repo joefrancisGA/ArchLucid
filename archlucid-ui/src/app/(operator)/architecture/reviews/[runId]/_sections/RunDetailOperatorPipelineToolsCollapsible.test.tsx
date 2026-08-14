@@ -58,7 +58,7 @@ describe("RunDetailOperatorPipelineToolsCollapsible", () => {
 
     expect(screen.getByRole("link", { name: "Validate review" })).toHaveAttribute(
       "href",
-      "/replay?runId=run-abc",
+      "/internal/validate-route?runId=run-abc",
     );
   });
 });

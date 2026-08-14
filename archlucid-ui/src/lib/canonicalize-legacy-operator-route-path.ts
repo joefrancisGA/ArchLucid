@@ -56,7 +56,8 @@ import {
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   LEGACY_SPONSOR_REPORT_ROOT_PATH,
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  RETIRED_ROI_SUMMARY_PATH,
+  SPONSOR_REPORT_SPONSOR_SUMMARY_PATH,
   SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
@@ -95,6 +96,8 @@ const LEGACY_ADMIN_ROOT_PATH = "/admin";
 const LEGACY_INTERNAL_OPERATIONS_ROOT_PATH = "/internal-operations";
 const LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH = "/operate/integration-events/dlq";
 const LEGACY_REPLAY_PATH = "/replay";
+const LEGACY_INTERNAL_REPLAY_PATH = "/internal/replay";
+const LEGACY_INSIGHTS_SPONSOR_SUMMARY_PATH = "/insights/sponsor-summary";
 const LEGACY_INSIGHTS_EXECUTIVE_SUMMARY_PATH = "/insights/executive-summary";
 const LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH = "/architecture/executive-dashboard";
 const LEGACY_EXECUTIVE_DASHBOARD_PATH = "/executive/dashboard";
@@ -245,7 +248,11 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
     return CANONICAL_GRAPH_PATH;
   }
 
-  if (normalized === LEGACY_INSIGHTS_EXECUTIVE_SUMMARY_PATH || normalized === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH) {
+  if (
+    normalized === LEGACY_INSIGHTS_SPONSOR_SUMMARY_PATH
+    || normalized === LEGACY_INSIGHTS_EXECUTIVE_SUMMARY_PATH
+    || normalized === SPONSOR_REPORT_SPONSOR_SUMMARY_PATH
+  ) {
     return SPONSOR_REPORT_PATH;
   }
 
@@ -272,7 +279,7 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
     return SPONSOR_DASHBOARD_HREF;
   }
 
-  if (normalized === LEGACY_SPONSOR_REPORT_ROI_SUMMARY_PATH) {
+  if (normalized === LEGACY_SPONSOR_REPORT_ROI_SUMMARY_PATH || normalized === RETIRED_ROI_SUMMARY_PATH) {
     return SPONSOR_REPORT_ROI_SUMMARY_PATH;
   }
 
@@ -282,6 +289,10 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
 
   if (normalized === LEGACY_REPLAY_PATH || normalized.startsWith(`${LEGACY_REPLAY_PATH}/`)) {
     return normalized.replace(LEGACY_REPLAY_PATH, INTERNAL_REPLAY_PATH);
+  }
+
+  if (normalized === LEGACY_INTERNAL_REPLAY_PATH || normalized.startsWith(`${LEGACY_INTERNAL_REPLAY_PATH}/`)) {
+    return normalized.replace(LEGACY_INTERNAL_REPLAY_PATH, INTERNAL_REPLAY_PATH);
   }
 
   if (normalized === LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH) {

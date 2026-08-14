@@ -84,8 +84,8 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/insights/ask-review-questions")?.slug).toBe("prior-manifest-retrieval");
     expect(pageHelpTopicForPathname("/insights/patterns")?.slug).toBe("repeat-review-loop");
     expect(pageHelpTopicForPathname("/insights/patterns/private-endpoints-paas")?.slug).toBe("repeat-review-loop");
-    expect(pageHelpTopicForPathname("/internal/replay")?.slug).toBe("comparison-replay");
-    expect(pageHelpTopicForPathname("/internal/replay")?.label).toBe(COMPARISON_REPLAY_HELP_TOPIC_LABEL);
+    expect(pageHelpTopicForPathname("/internal/validate-route")?.slug).toBe("comparison-replay");
+    expect(pageHelpTopicForPathname("/internal/validate-route")?.label).toBe(COMPARISON_REPLAY_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/insights/compare-two-reviews")?.label).toBe(COMPARISON_REPLAY_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/help/data-handling")?.slug).toBe("data-handling");
     expect(pageHelpTopicForPathname("/help/data-handling")?.label).toBe(DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL);

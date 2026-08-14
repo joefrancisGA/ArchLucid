@@ -27,7 +27,7 @@ describe("validate-compare-vocabulary (TB-2240)", () => {
     expect(model.validateLink).toEqual(VALIDATE_COMPARE_VALIDATE_LINK);
     expect(model.validateLink.href).toBe(INTERNAL_REPLAY_PATH);
     expect(model.validateLink.href).toBe(REPLAY_CANONICAL_PATH);
-    expect(model.validateLink.href).toBe("/internal/replay");
+    expect(model.validateLink.href).toBe("/internal/validate-route");
 
     expect(model.compareLink).toEqual(VALIDATE_COMPARE_COMPARE_LINK);
     expect(model.compareLink.href).toBe(COMPARE_TWO_REVIEWS_PATH);

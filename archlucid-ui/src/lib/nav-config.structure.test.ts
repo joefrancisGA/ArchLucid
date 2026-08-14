@@ -216,7 +216,7 @@ describe("nav-config structure", () => {
     ]);
     expect(systemAdminHrefs).toContain("/internal/rag-health");
     expect(systemAdminHrefs).toContain("/internal/deployment-status");
-    expect(systemAdminHrefs).toContain("/internal/replay");
+    expect(systemAdminHrefs).toContain("/internal/validate-route");
     expect(systemAdminHrefs).not.toContain("/health");
     expect(systemAdminHrefs).not.toContain("/governance/advisory-scans");
     expect(systemAdminHrefs).not.toContain("/administration/workspace-settings");

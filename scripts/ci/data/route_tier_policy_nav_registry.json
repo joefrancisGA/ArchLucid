@@ -1579,7 +1579,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/internal/replay"
+      "nav_operator_href": "/internal/validate-route"
     },
     {
       "controller_file": "Planning/ConversationController.cs",
@@ -1849,7 +1849,7 @@
       "commercial_tier": "none",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/insights/pilot-outcomes"
+      "nav_operator_href": "/insights/sponsor-report"
     },
     {
       "controller_file": "Tenancy/TenantTrialController.cs",

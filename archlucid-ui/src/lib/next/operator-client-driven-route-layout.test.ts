@@ -23,7 +23,7 @@ const CLIENT_DRIVEN_LAYOUTS = [
   "src/app/(operator)/administration/system-health/layout.tsx",
   "src/app/(operator)/demo/layout.tsx",
   "src/app/(operator)/internal/layout.tsx",
-  "src/app/(operator)/internal/replay/layout.tsx",
+  "src/app/(operator)/internal/validate-route/layout.tsx",
   "src/app/(operator)/internal/product-learning/layout.tsx",
   "src/app/(operator)/internal/fleet-llm-cogs/layout.tsx",
   "src/app/(operator)/integrations/layout.tsx",

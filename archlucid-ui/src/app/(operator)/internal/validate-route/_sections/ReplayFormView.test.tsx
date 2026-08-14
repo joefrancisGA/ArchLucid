@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ReplayFormView } from "@/app/(operator)/internal/replay/_sections/ReplayFormView";
-import type { ReplayFormViewModel } from "@/app/(operator)/internal/replay/_sections/replay-form-view-model";
+import { ReplayFormView } from "@/app/(operator)/internal/validate-route/_sections/ReplayFormView";
+import type { ReplayFormViewModel } from "@/app/(operator)/internal/validate-route/_sections/replay-form-view-model";
 import { REPLAY_AI_BUDGET_VARIANCE_NOTE, REPLAY_PAGE_INTRO } from "@/lib/replay-validation-copy";
 
 function buildModel(overrides: Partial<ReplayFormViewModel> = {}): ReplayFormViewModel {

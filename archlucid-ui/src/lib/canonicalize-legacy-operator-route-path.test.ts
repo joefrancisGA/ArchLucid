@@ -78,4 +78,11 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
       "/insights/evidence-graph",
     );
   });
+
+  it("maps legacy replay bookmarks to validate-route", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/replay")).toBe("/internal/validate-route");
+    expect(canonicalizeLegacyOperatorRoutePath("/replay/extra")).toBe("/internal/validate-route/extra");
+    expect(canonicalizeLegacyOperatorRoutePath("/internal/replay")).toBe("/internal/validate-route");
+    expect(canonicalizeLegacyOperatorRoutePath("/internal/validate-route")).toBe("/internal/validate-route");
+  });
 });

@@ -23,7 +23,7 @@ export const EVIDENCE_TRAIL_HELP_SOURCES_INTRO =
 export const EVIDENCE_TRAIL_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Evidence graph", href: EVIDENCE_GRAPH_PATH },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
-  { label: "Validate review", href: "/internal/replay" },
+  { label: "Validate review", href: "/internal/validate-route" },
   { label: "Findings help", href: inAppHelpHref("findings") },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
   { label: "Demo explain", href: "/demo/explain" },

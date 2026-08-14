@@ -229,7 +229,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Pilots/PilotsController.cs` | `/v1/pilots` | none | ReadAuthority | /architecture/reviews |  |
 | `Planning/AskController.cs` | `/v1/ask` | standard | ReadAuthority | /insights/ask-review-questions |  |
 | `Planning/ComparisonController.cs` | `/v1/compare` | standard | ReadAuthority | /insights/compare-two-reviews |  |
-| `Planning/ComparisonsController.cs` | `/v1/architecture` | standard | ReadAuthority | /internal/replay |  |
+| `Planning/ComparisonsController.cs` | `/v1/architecture` | standard | ReadAuthority | /internal/validate-route |  |
 | `Planning/ConversationController.cs` | `/v1/conversations` | standard | ReadAuthority |  |  |
 | `Planning/ExplanationController.cs` | `/v1/explain` | standard | ReadAuthority |  |  |
 | `Planning/FindingFeedbackController.cs` | `/v1/explain` | standard | ExecuteAuthority |  |  |

@@ -65,7 +65,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/governance/advisory-scans": OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
   "/governance/recurrence-schedules": OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
   "/governance/setup": OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
-  "/internal/replay": OPERATOR_NAV_LINK_LABELS.replayReview,
+  "/internal/validate-route": OPERATOR_NAV_LINK_LABELS.replayReview,
   "/administration/system-health": OPERATOR_NAV_LINK_LABELS.systemHealth,
   [PLANNING_PATH]: OPERATOR_NAV_LINK_LABELS.planning,
   "/architecture/first-review-guide": OPERATOR_NAV_LINK_LABELS.onboarding,

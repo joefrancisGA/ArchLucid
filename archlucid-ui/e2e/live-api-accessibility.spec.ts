@@ -86,7 +86,7 @@ const PAGES = [
   { name: "Settings support", path: "/administration/support" },
   { name: "Admin health", path: "/internal/health" },
   { name: "Admin configuration", path: "/internal/configuration" },
-  { name: "Replay (pre-filled runId)", path: `/replay?runId=${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}` },
+  { name: "Replay (pre-filled runId)", path: `/internal/validate-route?runId=${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}` },
   {
     name: "Compare (fixture left/right)",
     path: `/insights/compare-two-reviews?leftRunId=${encodeURIComponent(FIXTURE_LEFT_RUN_ID)}&rightRunId=${encodeURIComponent(FIXTURE_RIGHT_RUN_ID)}`,

@@ -30,6 +30,7 @@ import {
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import {
   INLINE_METADATA_LABEL_CLASS,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
@@ -88,7 +89,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       : formatInstantForLocale(run.createdUtc);
   const compareHref = comparePageHrefAdaptive(run.runId);
   const graphEvidenceHref = `/insights/evidence-graph?runId=${encodeURIComponent(run.runId)}`;
-  const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
+  const replayHref = `${INTERNAL_REPLAY_PATH}?runId=${encodeURIComponent(run.runId)}`;
   const manifestHref = signedManifestExplore.href;
   const findingHref = showcaseStory
     ? showcaseUseWorkspaceQuickLinks

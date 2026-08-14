@@ -127,7 +127,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(page.getByTestId("advisory-hub")).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
-    await page.goto("/internal/replay");
+    await page.goto("/internal/validate-route");
     await expect(page.getByRole("heading", { name: /^Validate review$/i })).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 

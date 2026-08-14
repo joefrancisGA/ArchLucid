@@ -2,7 +2,7 @@
  * TB-2240 — Validate ≠ Compare vocabulary rail.
  *
  * Why two review surfaces exist:
- * - Validate review / replay (`/internal/replay`) re-checks a *single* finalized
+ * - Validate review / replay (`/internal/validate-route`) re-checks a *single* finalized
  *   architecture package (reconstruct, rebuild, or regenerate).
  * - Compare two reviews (`/insights/compare-two-reviews`) diffs *two* packages
  *   side by side.

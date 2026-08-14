@@ -152,7 +152,7 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     );
     expect(screen.getByRole("link", { name: COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label })).toHaveAttribute(
       "href",
-      "/internal/replay",
+      "/internal/validate-route",
     );
 
     expect(screen.getByRole("heading", { name: "When to compare" })).toBeInTheDocument();

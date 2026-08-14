@@ -325,7 +325,7 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "HRX",
     path: "/help/repeat-review-loop",
     section: "Help topic",
-    note: "Repeat-review loop help (Help topic) - HelpRepeatReviewLoopGuideView with PageContextualHelpButton (topic map repeat-review-loop; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, start-loop CTAs, prepared SECOND_RUN / REPEAT_REVIEW_LOOP markdown. Sibling CXX = compare-two-reviews; REP = /replay; COR = first-architecture-review. Score 58/100 (2026-08-05) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    note: "Repeat-review loop help (Help topic) - HelpRepeatReviewLoopGuideView with PageContextualHelpButton (topic map repeat-review-loop; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, start-loop CTAs, prepared SECOND_RUN / REPEAT_REVIEW_LOOP markdown. Sibling CXX = compare-two-reviews; REP = /internal/validate-route; COR = first-architecture-review. Score 58/100 (2026-08-05) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["HelpRepeatReviewLoopGuideView", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Specialty walkthroughs help. Owner backlog shorthand: HS. */

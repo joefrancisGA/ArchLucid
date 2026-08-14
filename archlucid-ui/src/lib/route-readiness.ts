@@ -34,7 +34,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/insights/roi-summary": "advanced-only",
   [EVIDENCE_GRAPH_PATH]: "advanced-only",
   [COMPARE_TWO_REVIEWS_PATH]: "advanced-only",
-  "/internal/replay": "advanced-only",
+  "/internal/validate-route": "advanced-only",
   "/governance/advisory-scans": "advanced-only",
   [PLANNING_PATH]: "advanced-only",
   [DIGESTS_HUB_PATH]: "advanced-only",

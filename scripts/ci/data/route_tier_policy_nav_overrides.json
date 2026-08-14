@@ -75,7 +75,7 @@
     "Authority/GcpTier2ConnectionController.cs": "/integrations/cloud-connections",
     "Admin/HostedAwsExtractorRunController.cs": "/integrations/cloud-connections",
     "Admin/HostedGcpExtractorRunController.cs": "/integrations/cloud-connections",
-    "Planning/ComparisonsController.cs": "/internal/replay",
+    "Planning/ComparisonsController.cs": "/internal/validate-route",
     "Planning/GraphController.cs": "/insights/evidence-graph",
     "Planning/RetrievalController.cs": "/insights/search-review-evidence",
     "Roi/RoiController.cs": "/architecture/sponsor-dashboard",

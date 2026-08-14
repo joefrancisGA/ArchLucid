@@ -19,6 +19,7 @@ DEFAULT_NEW_HIT_PCT = "0.02%"
 # falls back to suggest_row_id(). Add an entry only to keep an ID stable across a path rename, and keep
 # values unique 3-letter uppercase IDs (guarded by tests/test_archlucid_ui_route_catalog.py).
 PREFERRED_NEW_ROW_IDS: dict[str, str] = {
+    "/internal/validate-route": "REP",
     "/shell/contextual-help-drawer": "HCD",
     "/help/choose-your-next-step": "HPX",
     "/login": "LOG",
@@ -186,7 +187,8 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/value-report/pilot": "/insights/sponsor-report",
     "/insights/pilot-outcomes": "/insights/sponsor-report",
     # Validate review (replay) under Internal Operations.
-    "/replay": "/internal/replay",
+    "/replay": "/internal/validate-route",
+    "/internal/replay": "/internal/validate-route",
     # Legacy internal-ops path segments.
     "/internal-operations/recommendation-learning": "/internal/recommendation-learning",
     "/operate/integration-events/dlq": "/internal/integration-events/dlq",
@@ -212,6 +214,7 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
         "/administration/tenant/recycle-bin",
         "/architecture/reviews/[runId]/artifacts/[artifactId]",
         "/demo",
+        "/internal/replay",
     }
 )
 
@@ -414,7 +417,7 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
             return "Advisory"
         if path == "/internal/product-learning":
             return "Onboarding"
-        if path == "/internal/replay":
+        if path == "/internal/validate-route":
             return "Marketing"
         return "Admin"
     if path.startswith("/admin"):

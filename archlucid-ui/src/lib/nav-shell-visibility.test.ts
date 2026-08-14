@@ -97,11 +97,11 @@ describe("filterNavLinksForOperatorShell", () => {
 
     const extendedOff = filterNavLinksForOperatorShell(systemAdmin!.links, AUTHORITY_RANK.AdminAuthority, true);
 
-    expect(extendedOff.some((l) => l.href === "/internal/replay")).toBe(true);
+    expect(extendedOff.some((l) => l.href === "/internal/validate-route")).toBe(true);
 
     const extendedOn = filterNavLinksForOperatorShell(systemAdmin!.links, AUTHORITY_RANK.AdminAuthority, true);
 
-    expect(extendedOn.some((l) => l.href === "/internal/replay")).toBe(true);
+    expect(extendedOn.some((l) => l.href === "/internal/validate-route")).toBe(true);
   });
 });
 
@@ -325,7 +325,7 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/internal/pricing-quote-aging");
     expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/internal/rag-health");
     expect(visible[0]!.visibleLinks.map((l) => l.label)).toContain("Knowledge index health");
-    expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/internal/replay");
+    expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/internal/validate-route");
   });
 
   it("omits internal operations in public demo mode even when internal operator flag is set", () => {

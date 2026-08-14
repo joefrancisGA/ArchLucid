@@ -1,9 +1,8 @@
-import { ReplayPageClient } from "./_sections/ReplayPageClient";
-import { loadReplayPageData } from "./_sections/load-replay-page-data";
+import { permanentRedirect } from "next/navigation";
 
-/** Replay page entry: server chooses demo shell vs live path; live branch wraps URL-hydrated form in `Suspense`. */
-export default async function ReplayPage() {
-  const loaded = await loadReplayPageData();
+import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 
-  return <ReplayPageClient loaded={loaded} />;
+/** Retired IA path — canonical surface is `/internal/validate-route`. */
+export default function LegacyInternalReplayPage(): never {
+  permanentRedirect(INTERNAL_REPLAY_PATH);
 }

@@ -42,7 +42,7 @@ const CANONICAL_OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/help",
   "/why-archlucid",
   COMPARE_TWO_REVIEWS_PATH,
-  "/internal/replay",
+  "/internal/validate-route",
   "/sponsor",
   EVIDENCE_GRAPH_PATH,
   PATTERN_LIBRARY_PATH,

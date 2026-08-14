@@ -89,7 +89,7 @@ const ALLOWLIST: readonly {
   {
     pathname: "/help/comparison-replay",
     nextHref: "/insights/compare-two-reviews",
-    configureHref: "/internal/replay",
+    configureHref: "/internal/validate-route",
   },
   {
     pathname: "/governance/approval-requests/sample/lineage",
