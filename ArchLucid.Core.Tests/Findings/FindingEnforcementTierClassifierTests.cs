@@ -23,6 +23,34 @@ public sealed class FindingEnforcementTierClassifierTests
     }
 
     [Fact]
+    public void ClassifyArchitectureFinding_marks_aws_standard_baseline_policy_rule_as_advisory()
+    {
+        ArchitectureFinding finding = new()
+        {
+            Message = "AWS reliability baseline gap.",
+            PolicyRuleId = "waf-aws-001",
+        };
+
+        FindingEnforcementTierClassifier.ClassifyArchitectureFinding(finding)
+            .Should()
+            .Be(FindingEnforcementTier.Advisory);
+    }
+
+    [Fact]
+    public void ClassifyArchitectureFinding_marks_gcp_standard_baseline_policy_rule_as_advisory()
+    {
+        ArchitectureFinding finding = new()
+        {
+            Message = "GCP CIS baseline gap.",
+            PolicyRuleId = "cis-gcp-001",
+        };
+
+        FindingEnforcementTierClassifier.ClassifyArchitectureFinding(finding)
+            .Should()
+            .Be(FindingEnforcementTier.Advisory);
+    }
+
+    [Fact]
     public void ClassifyArchitectureFinding_marks_obvious_generic_advice_as_advisory()
     {
         ArchitectureFinding finding = new()

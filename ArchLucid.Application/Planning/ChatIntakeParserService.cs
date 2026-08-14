@@ -16,10 +16,12 @@ public sealed class ChatIntakeParserService(IAgentCompletionClient completionCli
         "Given unstructured text, extract a structured architecture review request. " +
         "Return ONLY valid JSON with keys: " +
         "description (string, min 10 chars), systemName (string, PascalCase slug), environment (string, e.g. prod/staging/dev), " +
-        "cloudProvider (\"None\" or \"Azure\" only), constraints (string[]), requiredCapabilities (string[]), " +
+        "cloudProvider (\"None\", \"Azure\", \"Aws\", or \"Gcp\"), constraints (string[]), requiredCapabilities (string[]), " +
         "assumptions (string[]), inlineRequirements (string[]), policyReferences (string[]), " +
         "topologyHints (string[]), securityBaselineHints (string[]). " +
-        "Use cloudProvider Azure only when the text clearly targets Microsoft Azure. Otherwise use None. " +
+        "Use cloudProvider Azure only when the text clearly targets Microsoft Azure. " +
+        "Use Aws when the text clearly targets Amazon Web Services. " +
+        "Use Gcp when the text clearly targets Google Cloud Platform. Otherwise use None. " +
         "Be specific; do not invent evidence documents or IaC.";
 
     private static readonly JsonSerializerOptions JsonOptions = new()

@@ -608,7 +608,12 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
             </div>
           ) : null}
           {stepIndex === 3 ? <WizardStepConstraints /> : null}
-          {stepIndex === 4 ? <WizardStepAzureContext /> : null}
+          {stepIndex === 4 ? (
+            <WizardStepAzureContext
+              pendingFile={evidence.pendingEvidenceFile}
+              onPendingFileChange={evidence.handlePendingEvidenceFileChange}
+            />
+          ) : null}
           {stepIndex === 5 ? <WizardStepAdvanced /> : null}
           {stepIndex === FULL_WIZARD_BASELINE_METRICS_STEP_INDEX ? (
             <WizardStepBaselineMetrics

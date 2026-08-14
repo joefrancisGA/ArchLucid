@@ -8,9 +8,22 @@ public static class StandardBaselinePolicyRuleIdPrefixes
     private static readonly string[] Prefixes =
     [
         "waf-az-",
+        "waf-aws-",
+        "waf-gcp-",
         "sec-base-",
+        "rel-base-",
+        "perf-base-",
+        "ops-base-",
+        "sust-base-",
+        "cost-opt-",
         "ai-gov-",
         "cis-az-",
+        "cis-aws-",
+        "cis-gcp-",
+        "iam-aws-",
+        "iam-gcp-",
+        "lz-aws-",
+        "lz-gcp-",
         "zta-",
         "finops-",
     ];

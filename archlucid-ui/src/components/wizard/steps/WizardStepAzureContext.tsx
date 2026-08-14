@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CloudInventoryExtractorCommandPanel } from "@/components/wizard/CloudInventoryExtractorCommandPanel";
+import { Tier1InventoryZipUploadPanel } from "@/components/wizard/Tier1InventoryZipUploadPanel";
 import { AzureExtractorPackageZipField } from "@/components/wizard/steps/AzureExtractorPackageZipField";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import {
@@ -47,6 +47,11 @@ function resolveInventoryPlatform(
   return null;
 }
 
+export type WizardStepAzureContextProps = {
+  pendingFile: File | null;
+  onPendingFileChange: (file: File | null) => void;
+};
+
 /**
  * Optional cloud inventory packaging step.
  *
@@ -54,7 +59,7 @@ function resolveInventoryPlatform(
  * enrichment. The ZIP upload and packager command are collapsed by default so users with a
  * pasted brief can proceed without being prompted to upload anything.
  */
-export function WizardStepAzureContext() {
+export function WizardStepAzureContext({ pendingFile, onPendingFileChange }: WizardStepAzureContextProps) {
   const { watch, control, clearErrors } = useFormContext<WizardFormValues>();
   const cloudProvider = watch("cloudProvider");
   const inventoryPlatform = resolveInventoryPlatform(cloudProvider);
@@ -138,12 +143,20 @@ export function WizardStepAzureContext() {
                 fields.
               </p>
 
-              {cloudProvider === "Azure" ? <AzureExtractorPackageZipField variant="ingest" /> : null}
-
-              <CloudInventoryExtractorCommandPanel
-                platform={inventoryPlatform}
-                testIdPrefix="wizard-cloud-inventory-ingest"
-              />
+              {cloudProvider === "Azure" ? (
+                <AzureExtractorPackageZipField
+                  variant="ingest"
+                  onPendingZipFileChange={onPendingFileChange}
+                />
+              ) : (
+                <Tier1InventoryZipUploadPanel
+                  platform={inventoryPlatform}
+                  pendingFile={pendingFile}
+                  onPendingFileChange={onPendingFileChange}
+                  dropzoneTestId="wizard-enrichment-upload-dropzone"
+                  commandTestIdPrefix="wizard-cloud-inventory-ingest"
+                />
+              )}
             </>
           )}
         </CollapsibleContent>

@@ -139,6 +139,8 @@ public sealed class CorePackageCoverageBatchRc28fTests
 
     [Theory]
     [InlineData("waf-az-001", true)]
+    [InlineData("waf-aws-001", true)]
+    [InlineData("cis-gcp-001", true)]
     [InlineData("SEC-BASE-42", true)]
     [InlineData("finops-overrun", true)]
     [InlineData("custom-rule-1", false)]

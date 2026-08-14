@@ -100,6 +100,8 @@ public static class DecisionGradeFindingProvenanceValidator
 
     private static bool IsInventoryDrivenEngine(string? engineType) =>
         string.Equals(engineType, "azure-inventory-reconciliation", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "aws-inventory-reconciliation", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "gcp-inventory-reconciliation", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "orphaned-azure-resource", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "orphaned-aws-resource", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "orphaned-gcp-resource", StringComparison.OrdinalIgnoreCase);
