@@ -9,7 +9,7 @@ export type HelpTopicGuidePageHeaderProps = OperatorPageHeaderProps & {
   readonly topicTitle: string;
 };
 
-/** OperatorPageHeader with the shared Help & support → topic breadcrumb trail. */
+/** OperatorPageHeader with the shared Help & Support → topic breadcrumb trail. */
 export function HelpTopicGuidePageHeader(props: HelpTopicGuidePageHeaderProps): React.JSX.Element {
   const { topicTitle, ...headerProps } = props;
 

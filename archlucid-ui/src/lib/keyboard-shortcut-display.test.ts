@@ -42,7 +42,7 @@ describe("keyboard-shortcut-display", () => {
   });
 
   it("exposes operator help aria label and shortcuts", () => {
-    expect(OPERATOR_HELP_ARIA_LABEL).toBe("Help and support (F1)");
+    expect(OPERATOR_HELP_ARIA_LABEL).toBe("Help & Support (F1)");
     expect(OPERATOR_HELP_ARIA_KEYSHORTCUTS).toContain("F1");
   });
 });

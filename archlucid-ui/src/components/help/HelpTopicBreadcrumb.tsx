@@ -8,7 +8,7 @@ export type HelpTopicBreadcrumbProps = {
   readonly topicTitle: string;
 };
 
-/** Ancestor trail for in-app help topics: Help & support → current topic. */
+/** Ancestor trail for in-app help topics: Help & Support → current topic. */
 export function HelpTopicBreadcrumb(props: HelpTopicBreadcrumbProps): React.JSX.Element {
   return (
     <OperatorPageBreadcrumb
