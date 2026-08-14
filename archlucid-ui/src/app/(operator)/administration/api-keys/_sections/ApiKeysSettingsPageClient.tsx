@@ -48,6 +48,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
   PageContextualHelpButton,
 } from "@/components/usability/PageContextualHelpButton";
+import { ApiKeysSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ApiKeyActionConfirmDialog } from "./ApiKeyActionConfirmDialog";
@@ -274,6 +275,7 @@ export function ApiKeysSettingsPageClient() {
         <WebhooksApiKeysVocabularyRail currentSurfaceId="api-keys" />
         <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="api-keys" />
       </OperatorPageHeader>
+      <ApiKeysSettingsEvidenceOrientationStrip />
 {state.status === "loading" ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading API key status…</p>
       ) : null}

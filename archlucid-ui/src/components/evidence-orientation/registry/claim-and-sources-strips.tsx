@@ -110,6 +110,14 @@ import {
 } from "@/lib/api-keys-help-evidence-copy";
 import { API_KEYS_HELP_CLAIM_HEADING_ID } from "@/lib/api-keys-help-guide-content";
 import {
+  API_KEYS_SETTINGS_CLAIM_DISCIPLINE,
+  API_KEYS_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  API_KEYS_SETTINGS_CLAIM_HEADING_ID,
+  API_KEYS_SETTINGS_FOLLOW_UPS_TITLE,
+  API_KEYS_SETTINGS_SOURCES,
+  API_KEYS_SETTINGS_SOURCES_INTRO,
+} from "@/lib/api-keys-settings-evidence-copy";
+import {
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE,
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE_HEADING,
   SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE,
@@ -996,6 +1004,25 @@ export function ApiKeysHelpEvidenceOrientationStrip(): React.JSX.Element {
       sources={API_KEYS_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ApiKeysSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="api-keys-settings"
+      claim={API_KEYS_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={API_KEYS_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={API_KEYS_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={API_KEYS_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={API_KEYS_SETTINGS_SOURCES_INTRO}
+      sources={API_KEYS_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
