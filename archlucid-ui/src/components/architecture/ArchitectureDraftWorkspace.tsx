@@ -476,12 +476,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             ) : null}
           </div>
         </div>
-        <ArchitectureDraftSaveStatus
-          saveState={saveState}
-          lastSavedUtc={lastSavedUtc}
-          autosaveActive={!handoffEditorLocked}
-          hasPersistedDraft={hasPersistedDraft}
-        />
+        <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
+          {isNewDraft ? null : <PageContextualHelpButton />}
+          <ArchitectureDraftSaveStatus
+            saveState={saveState}
+            lastSavedUtc={lastSavedUtc}
+            autosaveActive={!handoffEditorLocked}
+            hasPersistedDraft={hasPersistedDraft}
+          />
+        </div>
       </div>
 
       {linkedReviewId !== null ? (
@@ -493,10 +496,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         />
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <ArchitectureDraftGuidanceDisclosure className="flex-1" />
-        {isNewDraft ? null : <PageContextualHelpButton />}
-      </div>
+      <ArchitectureDraftGuidanceDisclosure />
 
       {conflictMessage !== null ? (
         <div className="space-y-2" data-testid="architecture-draft-conflict">

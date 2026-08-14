@@ -89,6 +89,18 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
+// Stubbed so header placement is asserted independently of help-topic resolution for the draft route.
+vi.mock("@/components/usability/PageContextualHelpButton", async () => {
+  const actual = await vi.importActual<typeof import("@/components/usability/PageContextualHelpButton")>(
+    "@/components/usability/PageContextualHelpButton",
+  );
+
+  return {
+    ...actual,
+    PageContextualHelpButton: () => <span data-testid="page-contextual-help-stub" />,
+  };
+});
+
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
 import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE, ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
@@ -142,6 +154,29 @@ beforeEach(() => {
 });
 
 describe("ArchitectureDraftWorkspace", () => {
+  it("anchors page help in the header rail above save status, outside the dismissible tip", async () => {
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-workspace-title")).toBeInTheDocument();
+    });
+
+    const help = screen.getByTestId("page-contextual-help-stub");
+    const saveStatus = screen.getByTestId("architecture-draft-save-status");
+
+    expect(help.parentElement).toBe(saveStatus.parentElement);
+    // Help preceding save status keeps the affordance at the top of the right-hand rail.
+    expect(help.compareDocumentPosition(saveStatus) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    const disclosure = await screen.findByTestId("architecture-draft-guidance-disclosure");
+    expect(disclosure).not.toContainElement(help);
+
+    fireEvent.click(screen.getByTestId("architecture-draft-guidance-dismiss"));
+
+    expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-stub")).toBeInTheDocument();
+  });
+
   it("opens the empty workspace immediately on /new without fetching a draft", async () => {
     vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
       saveState: "idle",
