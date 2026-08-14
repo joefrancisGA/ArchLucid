@@ -66,7 +66,10 @@ public static class CrossAgentProposalConsistencyGate
             }
 
             if (TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(service, accepted))
+            {
                 accepted.Add(service);
+                TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(claimedServiceEndpointKeys, service);
+            }
         }
 
         return accepted;
@@ -90,7 +93,10 @@ public static class CrossAgentProposalConsistencyGate
             }
 
             if (TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(datastore, accepted))
+            {
                 accepted.Add(datastore);
+                TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(claimedDatastoreEndpointKeys, datastore);
+            }
         }
 
         return accepted;

@@ -19,19 +19,29 @@ public static class TopologyProposalRelationshipEndpointIndex
 
         foreach (ManifestService service in services)
         {
-            AddEndpointKey(knownEndpointKeys, service.ServiceName);
-            AddEndpointKey(knownEndpointKeys, service.ServiceId);
-            AddSyntheticServiceEndpointKey(knownEndpointKeys, service.ServiceName);
+            AddManifestServiceEndpointKeys(knownEndpointKeys, service);
         }
 
         foreach (ManifestDatastore datastore in datastores)
         {
-            AddEndpointKey(knownEndpointKeys, datastore.DatastoreName);
-            AddEndpointKey(knownEndpointKeys, datastore.DatastoreId);
-            AddSyntheticDatastoreEndpointKey(knownEndpointKeys, datastore.DatastoreName);
+            AddManifestDatastoreEndpointKeys(knownEndpointKeys, datastore);
         }
 
         return knownEndpointKeys;
+    }
+
+    public static void AddManifestServiceEndpointKeys(HashSet<string> endpointKeys, ManifestService service)
+    {
+        AddEndpointKey(endpointKeys, service.ServiceName);
+        AddEndpointKey(endpointKeys, service.ServiceId);
+        AddSyntheticServiceEndpointKey(endpointKeys, service.ServiceName);
+    }
+
+    public static void AddManifestDatastoreEndpointKeys(HashSet<string> endpointKeys, ManifestDatastore datastore)
+    {
+        AddEndpointKey(endpointKeys, datastore.DatastoreName);
+        AddEndpointKey(endpointKeys, datastore.DatastoreId);
+        AddSyntheticDatastoreEndpointKey(endpointKeys, datastore.DatastoreName);
     }
 
     public static void AddGraphNodeEndpointKeys(HashSet<string> endpointKeys, GraphNode node)
