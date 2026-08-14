@@ -54,8 +54,8 @@ export const ARCHITECTURE_DRAFTS_HELP_FEATURE_ITEMS: readonly ArchitectureDrafts
 
 export const ARCHITECTURE_DRAFTS_HELP_HOW_TO_READ_STEPS = [
   "Open a saved draft or create a new architecture when you need a fresh brief.",
-  "Refine draft fields and save — listing and editing drafts does not start a review.",
-  "Open Start a review when the brief is ready for evidence intake and governance analysis.",
+  "Refine draft fields, confirm constraints and assumptions, and save — listing and editing drafts does not start a review.",
+  "Open Start a review when the structured brief is ready for evidence intake and governance analysis.",
 ] as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_FIRST_REVIEW_HREF = "/help/first-architecture-review";
