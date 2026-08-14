@@ -69,7 +69,7 @@ test.describe("Fresh tenant onboarding — mocked API", () => {
 
     await expect(page.getByTestId("identity-providers-overview-summary")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("identity-providers-settings-nav")).toBeVisible();
-    await expect(page.getByTestId("identity-providers-recommended-next-card")).toBeVisible();
+    await expect(page.getByTestId("identity-providers-primary-next-step")).toBeVisible();
 
     await expect(page.getByTestId("identity-providers-table")).toHaveCount(0);
   });

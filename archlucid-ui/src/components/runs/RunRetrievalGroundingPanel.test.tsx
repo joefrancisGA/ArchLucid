@@ -39,7 +39,7 @@ describe("RunRetrievalGroundingPanel", () => {
     expect(screen.getByText("Retrieval grounding (diagnostics)")).toBeInTheDocument();
     expect(screen.getByText("Compliance")).toBeInTheDocument();
     expect(screen.getByText("PolicyPack")).toBeInTheDocument();
-    expect(screen.getByText("chunk-a, chunk-b, chunk-c +1")).toBeInTheDocument();
+    expect(screen.getByText("chunk-a, chunk-b, chunk-c, chunk-d")).toBeInTheDocument();
     expect(screen.getByText("doc-a, doc-b")).toBeInTheDocument();
     expect(screen.getByText("chunk-a: 0.9123")).toBeInTheDocument();
     expect(screen.getByText("75%")).toBeInTheDocument();

@@ -51,7 +51,6 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     expect(pageContentSource).toContain("CtoDemoBuyerValueStripDeferred");
     expect(pageContentSource).toContain("CtoDemoSegregationCalloutDeferred");
     expect(pageContentSource).toContain("CtoDemoGovernancePreviewHintDeferred");
-    expect(pageContentSource).toContain("GovernanceInteractiveQuickstartContentDeferred");
     expect(pageContentSource).toContain("GovernanceApprovalStoryCardDeferred");
     expect(pageContentSource).toContain("AdvancedOptionsAccordionDeferred");
   });

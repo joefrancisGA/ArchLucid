@@ -70,7 +70,7 @@ describe("EvolutionReviewPageView buyer-polished shell", () => {
     expect(screen.queryByText(IMPACT_PREVIEW_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("impact-preview-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
+    expect(screen.getByTestId("impact-preview-last-refreshed")).toHaveTextContent(/Not refreshed yet/i);
     expect(screen.queryByText(IMPACT_PREVIEW_SCOPE_DETAILS_TRIGGER)).toBeNull(); // TB-2093
     expect(screen.getByText(IMPACT_PREVIEW_TRUST_NOTICE)).toBeInTheDocument();
     expect(screen.queryByText(/How impact preview works/i)).not.toBeInTheDocument();

@@ -182,7 +182,7 @@ describe("RunTrustEvidenceCardSection", () => {
     expect(within(proofChain).queryByText(/db2fd94d-33df-4737-ac0e-fc38a96a2620/)).not.toBeInTheDocument();
     expect(within(proofChain).queryByText(/2026-08-09T17:18:02/)).not.toBeInTheDocument();
     expect(within(proofChain).getByText(/committed 9 Aug 2026, 17:18 UTC/)).toBeInTheDocument();
-    expect(within(proofChain).getByText("Artifact bundle")).toBeInTheDocument();
+    expect(within(proofChain).getByTestId("proof-chain-step-4")).toHaveTextContent(/Step 4: Artifact/);
 
     const technical = screen.getByTestId("trust-evidence-technical-details");
 

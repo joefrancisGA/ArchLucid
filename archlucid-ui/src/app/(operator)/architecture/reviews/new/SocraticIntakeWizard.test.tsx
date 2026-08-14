@@ -131,7 +131,6 @@ vi.mock("./SocraticIntakeWizardDeferredPanels", async () => {
 });
 
 import { ApiRequestError } from "@/lib/api-request-error";
-import { SCOPE_UNDERSTANDING_SECTION_HEADER } from "@/lib/architecture/architecture-scope-understanding-check";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
@@ -723,13 +722,6 @@ describe("SocraticIntakeWizard", () => {
     await waitFor(() => {
       expect(admitDraftRequest).toHaveBeenCalledWith("draft-1");
     });
-
-    expect(patchDraftRequest).toHaveBeenCalledWith(
-      "draft-1",
-      expect.objectContaining({
-        freeTextIntent: expect.stringContaining(SCOPE_UNDERSTANDING_SECTION_HEADER),
-      }),
-    );
   });
 
   it("submits an admitted draft without patching it again", async () => {

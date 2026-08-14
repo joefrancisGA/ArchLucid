@@ -66,7 +66,7 @@ describe("AuditResultsSection buyer completion download", () => {
 
     expect(screen.getByTestId("audit-buyer-completion-download")).toBeDisabled();
     expect(screen.getByTestId("audit-buyer-completion-download-disabled-hint")).toHaveTextContent(
-      /From and To date range/i,
+      /Start date and End date/i,
     );
   });
 });

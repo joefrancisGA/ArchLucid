@@ -352,13 +352,13 @@ describe("AlertRulesContent", () => {
     });
 
     expect(screen.getAllByTestId("mutating-in-workspace-chip")[0]).toHaveTextContent(
-      "Applies to workspace: Claims Intake Demo",
+      "Applies to workspace: Customer Intake Demo",
     );
 
     await waitForCreateForm();
 
     expect(screen.getAllByTestId("mutating-in-workspace-chip")[0]).toHaveTextContent(
-      "Applies to workspace: Claims Intake Demo",
+      "Applies to workspace: Customer Intake Demo",
     );
   });
 

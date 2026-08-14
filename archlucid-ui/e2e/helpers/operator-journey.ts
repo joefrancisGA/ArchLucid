@@ -484,7 +484,11 @@ export async function expectQuickDecisionSeverityVisible(
 
 /** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
 export function reviewOutcomeSummaryStrip(page: Page): Locator {
-  return getAppMain(page).locator('section[aria-label="Review outcome summary"]').first();
+  return getAppMain(page)
+    .locator(
+      'section[aria-label="Review outcome summary"], section[aria-label="Review status summary"]',
+    )
+    .first();
 }
 
 function reviewDetailWorkspacePanel(page: Page, tab: ReviewDetailTabId): Locator {

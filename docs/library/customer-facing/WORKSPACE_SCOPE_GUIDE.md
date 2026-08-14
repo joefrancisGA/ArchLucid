@@ -16,7 +16,7 @@ When you switch workspace or project, lists and reviews refresh to match the new
 
 ## Using the scope switcher
 
-1. Open the workspace label in the top bar (for example **Claims Intake Demo** in a sample session, or **Workspace: {name} — {project}** when connected).
+1. Open the workspace label in the top bar (for example **Customer Intake Demo** in a sample session, or **Workspace: {name} — {project}** when connected).
 2. In a **connected tenant**, choose a workspace and project from the list.
 3. Confirm Overview and **Reviews** show the expected content for that scope.
 
@@ -24,7 +24,7 @@ If switching is disabled, you are in a local demo or sandbox with a fixed sample
 
 ## Sample workspace
 
-In demo mode, the top bar shows the compact label **Claims Intake Demo**. Open that label to see the **Sample** badge, the full sample workspace title, and confirmation that the data is for demonstration only — it is not your real tenant data. Workspace switching is disabled in demo mode so evaluators can explore without affecting a real tenant.
+In demo mode, the top bar shows the compact label **Customer Intake Demo**. Open that label to see the **Sample** badge, the full sample workspace title, and confirmation that the data is for demonstration only — it is not your real tenant data. Workspace switching is disabled in demo mode so evaluators can explore without affecting a real tenant.
 
 To work in your tenant scope, sign in to a connected environment. If you don't have access, ask your tenant admin for the correct workspace assignment.
 

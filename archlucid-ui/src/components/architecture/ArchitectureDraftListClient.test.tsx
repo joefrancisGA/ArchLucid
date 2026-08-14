@@ -83,7 +83,7 @@ describe("ArchitectureDraftListClient", () => {
 
     const updated = within(row).getByText(/Updated/i);
 
-    expect(updated.getAttribute("title")).toMatch(/2026/);
+    expect(updated.closest("time")?.getAttribute("dateTime")).toBe("2026-07-12T23:42:05.000Z");
     expect(updated.textContent ?? "").toMatch(/Updated .+ · /);
   });
 

@@ -1,10 +1,11 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
@@ -123,6 +124,7 @@ const loadedRiskRow = {
 
 describe("GovernanceFindingsQueueClient", () => {
   beforeEach(() => {
+    resetOperatorQueryClientForTests();
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
   });
@@ -207,16 +209,25 @@ describe("GovernanceFindingsQueueClient", () => {
   });
 
   it("retries the risk register load from the failure state", async () => {
-    vi.mocked(governanceApi.getArchitectureRiskRegister)
-      .mockRejectedValueOnce(new Error("network"))
-      .mockResolvedValueOnce({ entries: [loadedRiskRow] });
+    let riskRegisterCalls = 0;
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockImplementation(async () => {
+      riskRegisterCalls += 1;
+
+      if (riskRegisterCalls === 1) {
+        throw new Error("network");
+      }
+
+      return { entries: [loadedRiskRow] };
+    });
 
     renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("governance-findings-retry-load")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("governance-findings-retry-load"));
 
-    expect(await screen.findByTestId("architecture-risk-register-filters")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-risk-register-filters")).toBeInTheDocument();
+    });
     expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
   });
 
