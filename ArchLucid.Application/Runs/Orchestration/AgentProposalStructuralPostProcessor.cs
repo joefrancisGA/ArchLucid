@@ -45,10 +45,34 @@ public static class AgentProposalStructuralPostProcessor
         if (!ProposalDeclaresEndpoints(proposal))
             return [.. relationships];
 
-        return TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
-            proposal.AddedServices,
-            proposal.AddedDatastores,
-            relationships);
+        HashSet<string> declaredEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+            proposal.AddedServices ?? [],
+            proposal.AddedDatastores ?? []);
+
+        List<ManifestRelationship> retained = [];
+
+        foreach (ManifestRelationship relationship in relationships)
+        {
+            if (ShouldRetainDeclaredProposalRelationship(relationship, declaredEndpointKeys))
+                retained.Add(relationship);
+        }
+
+        return retained;
+    }
+
+    private static bool ShouldRetainDeclaredProposalRelationship(
+        ManifestRelationship relationship,
+        HashSet<string> declaredEndpointKeys)
+    {
+        bool sourceDeclared = declaredEndpointKeys.Contains(relationship.SourceId);
+        bool targetDeclared = declaredEndpointKeys.Contains(relationship.TargetId);
+
+        if (!sourceDeclared || !targetDeclared)
+            return true;
+
+        return TopologyProposalRelationshipEndpointIndex.RelationshipEndpointsAreKnown(
+            relationship,
+            declaredEndpointKeys);
     }
 
     private static bool ProposalDeclaresEndpoints(AgentTopologyProposal proposal) =>

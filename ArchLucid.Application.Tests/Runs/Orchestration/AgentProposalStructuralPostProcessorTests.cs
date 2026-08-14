@@ -54,7 +54,40 @@ public sealed class AgentProposalStructuralPostProcessorTests
     }
 
     [Fact]
-    public void ApplyToProposal_strips_relationships_without_known_endpoints()
+    public void ApplyToProposal_preserves_renamed_service_relationships_to_undeclared_graph_endpoints()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "renamed-api",
+                    ServiceId = "svc-1",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "renamed-api",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedRelationships.Should().ContainSingle();
+        proposal.AddedRelationships![0].TargetId.Should().Be("sql");
+    }
+
+    [Fact]
+    public void ApplyToProposal_defers_relationships_with_undeclared_endpoints_to_commit_merge_gate_validation()
     {
         AgentTopologyProposal proposal = new()
         {
@@ -76,8 +109,9 @@ public sealed class AgentProposalStructuralPostProcessorTests
 
         AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
 
-        proposal.AddedRelationships.Should().ContainSingle();
-        proposal.AddedRelationships[0].TargetId.Should().Be("db");
+        proposal.AddedRelationships.Should().HaveCount(2);
+        proposal.AddedRelationships.Should().Contain(r => r.TargetId == "db");
+        proposal.AddedRelationships.Should().Contain(r => r.TargetId == "missing");
     }
 
     [Fact]
