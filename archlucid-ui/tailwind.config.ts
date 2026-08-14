@@ -3,7 +3,6 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   darkMode: "class",
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
-  safelist: ["bg-teal-800", "hover:bg-teal-900", "dark:bg-teal-800", "dark:hover:bg-teal-900"],
   theme: {
     extend: {
       colors: {

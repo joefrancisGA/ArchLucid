@@ -2,7 +2,7 @@ import {
   LIVE_DEMO_EVIDENCE_CHAIN_HEADING,
   LIVE_DEMO_EVIDENCE_CHAIN_INTRO,
 } from "@/lib/live-demo-page-copy";
-import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_PRIMARY_FILL_CLASS, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { cn } from "@/lib/utils";
 
@@ -49,7 +49,10 @@ export function LiveDemoEvidenceChainPreview(props: LiveDemoEvidenceChainPreview
         {chain.map((node, index) => (
           <li key={`${index}-${node}`} className="flex items-start gap-3">
             <span
-              className="mt-1.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-800 text-xs font-semibold text-white dark:bg-teal-600"
+              className={cn(
+                "mt-1.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                MARKETING_PRIMARY_FILL_CLASS,
+              )}
               aria-hidden
             >
               {index + 1}

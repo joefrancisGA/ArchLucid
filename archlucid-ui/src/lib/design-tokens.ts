@@ -497,9 +497,17 @@ export const CTA_WIDTH = {
 export const MARKETING_HERO_SECONDARY_CTA_CLASS =
   `h-11 min-h-11 ${CTA_WIDTH.content} border-neutral-300 bg-white px-8 text-neutral-900 shadow-sm hover:bg-neutral-100 sm:min-w-[12rem] dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800`;
 
-/** Primary marketing CTA — white on teal-800 meets WCAG 2.2 AA 4.5:1 at 14px (`text-sm`) in light and dark. */
-export const MARKETING_PRIMARY_CTA_CLASS =
-  "inline-flex rounded-md bg-teal-800 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-900 dark:bg-teal-800 dark:hover:bg-teal-900";
+/** Filled primary shell for marketing badges/step indicators — mirrors operator `Button` variant `primary` fill. */
+export const MARKETING_PRIMARY_FILL_CLASS =
+  "bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)]";
+
+/** Primary marketing CTA anchor — shares `--al-primary-action-*` with operator `Button` variant `primary` (**TB-2292**). */
+export const MARKETING_PRIMARY_CTA_CLASS = cn(
+  "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium no-underline",
+  "hover:bg-[var(--al-primary-action-bg-hover)]",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-primary-action-ring)] focus-visible:ring-offset-2",
+  MARKETING_PRIMARY_FILL_CLASS,
+);
 
 /** Secondary caption on marketing/demo surfaces — passes 4.5:1 on `--al-surface-base` (avoid `text-neutral-500` at 11–12px). */
 export const MARKETING_CAPTION_TEXT_CLASS = "text-neutral-600 dark:text-neutral-400";

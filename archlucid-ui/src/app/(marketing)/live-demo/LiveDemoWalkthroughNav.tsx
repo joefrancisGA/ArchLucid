@@ -19,7 +19,7 @@ import {
   type LiveDemoWalkthroughStepId,
 } from "@/lib/live-demo-walkthrough-steps";
 import { trackLiveDemoStepViewed, trackLiveDemoWalkthroughStarted } from "@/lib/live-demo-telemetry";
-import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_PRIMARY_FILL_CLASS, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { LiveDemoSampleStatusLine } from "./LiveDemoPageHeader";
@@ -142,7 +142,7 @@ export function LiveDemoWalkthroughNav(props: LiveDemoWalkthroughNavProps): Reac
                     className={cn(
                       "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
                       isActive
-                        ? "bg-teal-700 text-white dark:bg-teal-500"
+                        ? MARKETING_PRIMARY_FILL_CLASS
                         : "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
                     )}
                     aria-hidden

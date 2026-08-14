@@ -19,6 +19,7 @@ export const OPERATOR_INLINE_LINK_AFFORDANCE_TOKENS = [
   "workflow-inline-link",
   "shell-nav-link",
   "MARKETING_PRIMARY_CTA_CLASS",
+  "MARKETING_PRIMARY_FILL_CLASS",
   "MARKETING_HERO_SECONDARY_CTA_CLASS",
   // Cross-module link tokens whose definitions carry a resting underline.
   "TOOLTIP_TYPOGRAPHY.link",

@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 
 import { ShowcaseFunnelTelemetryAnchor } from "@/lib/marketing/showcase-funnel-telemetry-anchor";
 import { type ShowcaseRenderMode } from "@/lib/marketing/showcase-telemetry";
+import { MARKETING_PRIMARY_CTA_CLASS } from "@/lib/design-tokens";
 
 type ShowcaseBottomCTAProps = {
   readonly scenario: string;
@@ -12,8 +13,6 @@ type ShowcaseBottomCTAProps = {
 
 /** Bottom conversion — public marketing surface; deep-links to trial and sign-in. */
 export function ShowcaseBottomCTA({ scenario, renderMode }: ShowcaseBottomCTAProps): ReactElement {
-  const primaryClass =
-    "inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500";
   const secondaryClass =
     "inline-flex rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800";
 
@@ -32,7 +31,7 @@ export function ShowcaseBottomCTA({ scenario, renderMode }: ShowcaseBottomCTAPro
       <div className="mt-4 flex flex-wrap gap-3">
         <ShowcaseFunnelTelemetryAnchor
           href="/get-started"
-          className={primaryClass}
+          className={MARKETING_PRIMARY_CTA_CLASS}
           scenario={scenario}
           renderMode={renderMode}
           funnelAction="demo_request_cta"

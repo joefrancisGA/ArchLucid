@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { MARKETING_PRIMARY_CTA_CLASS } from "@/lib/design-tokens";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 
 /**
@@ -22,7 +23,7 @@ export function DemoPreviewFriendlyUnavailable() {
       <div className="mt-4 flex flex-wrap gap-3">
         <Link
           href={CANONICAL_ANONYMOUS_PROOF_HREF}
-          className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          className={MARKETING_PRIMARY_CTA_CLASS}
         >
           View example output
         </Link>
@@ -51,7 +52,7 @@ export function DemoPreviewNotAvailable() {
       <div className="mt-4 flex flex-wrap gap-3">
         <Link
           href={CANONICAL_ANONYMOUS_PROOF_HREF}
-          className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          className={MARKETING_PRIMARY_CTA_CLASS}
         >
           View example output
         </Link>
