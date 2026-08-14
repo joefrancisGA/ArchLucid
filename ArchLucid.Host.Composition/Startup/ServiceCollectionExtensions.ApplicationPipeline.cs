@@ -305,6 +305,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ICustomRoleService, CustomRoleService>();
         services.AddScoped<ICustomRolePermissionEvaluator, CustomRolePermissionEvaluator>();
         services.AddScoped<SponsorRoiTenantPricingContextResolver>();
+        services.AddScoped<RoiCostEvidenceCollectionResolver>();
         services.AddScoped<RoiCostEvidenceFreshnessEvaluator>();
         services.AddScoped<SponsorRoiSummaryService>();
         services.AddScoped<ISponsorRoiSummaryService>(static sp =>

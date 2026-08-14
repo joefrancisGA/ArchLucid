@@ -95,6 +95,12 @@ internal static class SponsorRoiSummaryServiceTestSupport
                 It.IsAny<ArchLucid.Contracts.Common.CloudProvider>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((DateTime?)null);
+        cloudInventoryRepository
+            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(
+                resolvedScope,
+                It.IsAny<ArchLucid.Contracts.Common.CloudProvider>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Persistence.Models.CloudInventoryExtractorPackageDownloadRecord?)null);
 
         RoiCostEvidenceFreshnessEvaluator freshnessEvaluator = new(
             packageRepository.Object,
@@ -102,6 +108,10 @@ internal static class SponsorRoiSummaryServiceTestSupport
             scopeProvider.Object,
             clock ?? TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions()));
+
+        RoiCostEvidenceCollectionResolver collectionResolver = new(
+            packageRepository.Object,
+            cloudInventoryRepository.Object);
 
         Mock<IFindingsSnapshotRepository> findingsSnapshots = new();
         findingsSnapshots
@@ -122,7 +132,7 @@ internal static class SponsorRoiSummaryServiceTestSupport
             scimUserRepository ?? Mock.Of<IScimUserRepository>(),
             pricingContextResolver ?? CreateDefaultPricingContextResolver(resolvedScope),
             freshnessEvaluator,
-            packageRepository.Object,
+            collectionResolver,
             scopeProvider.Object,
             findingReviewTrailRepository ?? reviewTrail.Object,
             riskExceptions.Object,

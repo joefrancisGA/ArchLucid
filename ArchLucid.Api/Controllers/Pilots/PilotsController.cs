@@ -46,7 +46,7 @@ public sealed class PilotsController(
     PilotScorecardBuilder pilotScorecardBuilder,
     IPilotInProductScorecardService pilotInProductScorecardService,
     PilotOutcomeSummaryService pilotOutcomeSummaryService,
-    IAzureExtractorPackageRepository azureExtractorPackageRepository,
+    RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
     IPilotReportCardService pilotReportCardService,
     SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
     IWhyArchLucidSnapshotService whyArchLucidSnapshotService,
@@ -282,7 +282,7 @@ public sealed class PilotsController(
         ValueReportSnapshot snapshot =
             await valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, start, end, cancellationToken);
 
-        DateTime? extractorCollectionTimestampUtc = await TryResolveExtractorCollectionTimestampUtcAsync(
+        DateTime? extractorCollectionTimestampUtc = await roiCostEvidenceCollectionResolver.TryResolveLatestCollectionTimestampUtcAsync(
             scope,
             detail.Run.RunId,
             cancellationToken);
@@ -571,23 +571,6 @@ public sealed class PilotsController(
         };
 
         return Ok(response);
-    }
-
-    private async Task<DateTime?> TryResolveExtractorCollectionTimestampUtcAsync(
-        ScopeContext scope,
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        if (Guid.TryParse(runId, out Guid runGuid))
-        {
-            AzureExtractorPackageProvenance? provenance =
-                await azureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync(scope, runGuid, cancellationToken);
-
-            if (provenance?.CollectionTimestampUtc is not null)
-                return provenance.CollectionTimestampUtc;
-        }
-
-        return await azureExtractorPackageRepository.TryGetLatestCollectionTimestampUtcInScopeAsync(scope, cancellationToken);
     }
 
     /// <summary>

@@ -31,7 +31,7 @@ public sealed class SponsorRoiSummaryService(
     IScimUserRepository scimUserRepository,
     SponsorRoiTenantPricingContextResolver SponsorRoiTenantPricingContextResolver,
     RoiCostEvidenceFreshnessEvaluator roiCostEvidenceFreshnessEvaluator,
-    IAzureExtractorPackageRepository azureExtractorPackageRepository,
+    RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
     IScopeContextProvider scopeContextProvider,
     IFindingReviewTrailRepository findingReviewTrailRepository,
     IRiskExceptionService riskExceptionService,
@@ -71,8 +71,8 @@ public sealed class SponsorRoiSummaryService(
     private readonly RoiCostEvidenceFreshnessEvaluator _roiCostEvidenceFreshnessEvaluator =
         roiCostEvidenceFreshnessEvaluator ?? throw new ArgumentNullException(nameof(roiCostEvidenceFreshnessEvaluator));
 
-    private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository =
-        azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
+    private readonly RoiCostEvidenceCollectionResolver _roiCostEvidenceCollectionResolver =
+        roiCostEvidenceCollectionResolver ?? throw new ArgumentNullException(nameof(roiCostEvidenceCollectionResolver));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -600,8 +600,8 @@ public sealed class SponsorRoiSummaryService(
             SponsorRoiCostFindingPricingSignalScanner.Scan(latestDetails);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        bool hasExtractorPackages = await _azureExtractorPackageRepository
-            .HasAnyInWorkspaceAsync(scope, cancellationToken)
+        bool hasExtractorPackages = await _roiCostEvidenceCollectionResolver
+            .HasAnyUploadedInventoryPackagesAsync(scope, cancellationToken)
             .ConfigureAwait(false);
 
         bool hasUploadedCostEvidence = hasExtractorPackages || signals.HasUploadedExtractorEvidence;
