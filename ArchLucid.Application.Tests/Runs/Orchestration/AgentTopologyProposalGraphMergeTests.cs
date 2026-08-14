@@ -3700,4 +3700,64 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.FromNodeId == "svc-1" &&
             e.ToNodeId == "kv-1");
     }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_service_plan_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "plan-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "hosting",
+                    Category = GraphTopologyCategories.Data,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_service_plan.main"
+                },
+                new GraphNode
+                {
+                    NodeId = "ds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql",
+                    Category = GraphTopologyCategories.Data,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_mssql_server.main"
+                }
+            ],
+            Edges = [],
+            Warnings = []
+        };
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-hosting",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "plan-1" &&
+            e.ToNodeId == "ds-1");
+    }
 }
