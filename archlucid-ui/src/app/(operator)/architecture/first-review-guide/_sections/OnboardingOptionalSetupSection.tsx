@@ -18,6 +18,7 @@ import {
   ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
   isOnboardingOptionalSetupDeepLinkHash,
 } from "@/lib/first-review-guide-route";
+import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 
 import {
   OptionalWorkspaceSetupDismissButton,
@@ -64,6 +65,14 @@ export function OnboardingOptionalSetupSection() {
       window.removeEventListener("hashchange", syncDeepLink);
     };
   }, []);
+
+  useEffect(() => {
+    if (!deepLinkActive) {
+      return;
+    }
+
+    scheduleScrollDeepLinkTargetIntoView(ONBOARDING_OPTIONAL_SETUP_HEADING_ID);
+  }, [deepLinkActive, phase, context]);
 
   const onDismiss = useCallback(() => {
     try {

@@ -14,6 +14,7 @@ import {
   writeOperatorHomeDisclosureExpanded,
 } from "@/lib/operator/operator-home-disclosure-storage";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 
 type OperatorHomeDisclosureSectionProps = {
   title: string;
@@ -66,8 +67,17 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
   const [hydrated, setHydrated] = useState(false);
   const [expanded, setExpanded] = useState(defaultExpanded);
 
+  const scrollToDeepLinkTarget = useCallback(() => {
+    if (!autoExpandOnHashMatch || titleIdProp === undefined || titleIdProp.trim() === "") {
+      return;
+    }
+
+    scheduleScrollDeepLinkTargetIntoView(titleIdProp);
+  }, [autoExpandOnHashMatch, titleIdProp]);
+
   useLayoutEffect(() => {
     let nextExpanded = readOperatorHomeDisclosureExpanded(storageKey, defaultExpanded, legacyStorageKeys);
+    let shouldScrollToHashTarget = false;
 
     if (autoExpandOnHashMatch && titleIdProp !== undefined && titleIdProp.trim() !== "") {
       const hashId =
@@ -76,12 +86,17 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
       if (hashId === titleIdProp) {
         nextExpanded = true;
         writeOperatorHomeDisclosureExpanded(storageKey, true);
+        shouldScrollToHashTarget = true;
       }
     }
 
     setExpanded(nextExpanded);
     setHydrated(true);
-  }, [autoExpandOnHashMatch, defaultExpanded, legacyStorageKeys, storageKey, titleIdProp]);
+
+    if (shouldScrollToHashTarget) {
+      scrollToDeepLinkTarget();
+    }
+  }, [autoExpandOnHashMatch, defaultExpanded, legacyStorageKeys, scrollToDeepLinkTarget, storageKey, titleIdProp]);
 
   const persistExpanded = useCallback(
     (nextExpanded: boolean) => {
@@ -101,6 +116,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
 
       if (hashId === titleIdProp) {
         persistExpanded(true);
+        scrollToDeepLinkTarget();
       }
     };
 
@@ -109,7 +125,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     return () => {
       window.removeEventListener("hashchange", onHashChange);
     };
-  }, [autoExpandOnHashMatch, persistExpanded, titleIdProp]);
+  }, [autoExpandOnHashMatch, persistExpanded, scrollToDeepLinkTarget, titleIdProp]);
 
   const toggleExpanded = useCallback(() => {
     persistExpanded(!expanded);

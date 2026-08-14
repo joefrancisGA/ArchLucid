@@ -8,10 +8,20 @@ import {
   ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
 } from "@/lib/buyer/buyer-polish-copy";
 import { ONBOARDING_OPTIONAL_SETUP_HEADING_ID } from "@/lib/first-review-guide-route";
+import * as scrollDeepLink from "@/lib/scroll-deep-link-target-into-view";
 
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 
 const useFinishSetupReadinessContext = vi.fn();
+
+vi.mock("@/lib/scroll-deep-link-target-into-view", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/scroll-deep-link-target-into-view")>();
+
+  return {
+    ...actual,
+    scheduleScrollDeepLinkTargetIntoView: vi.fn(actual.scheduleScrollDeepLinkTargetIntoView),
+  };
+});
 
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a>,
@@ -54,6 +64,7 @@ describe("OnboardingOptionalSetupSection", () => {
   beforeEach(() => {
     window.localStorage.clear();
     window.location.hash = "";
+    vi.mocked(scrollDeepLink.scheduleScrollDeepLinkTargetIntoView).mockClear();
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
       context: {
@@ -137,7 +148,9 @@ describe("OnboardingOptionalSetupSection", () => {
       "id",
       ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
     );
-    expect(screen.getByText("Loading workspace setup…")).toBeInTheDocument();
+    expect(scrollDeepLink.scheduleScrollDeepLinkTargetIntoView).toHaveBeenCalledWith(
+      ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+    );
     expect(screen.queryByTestId("onboarding-optional-setup")).not.toBeInTheDocument();
   });
 
