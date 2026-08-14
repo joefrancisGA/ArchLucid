@@ -15,6 +15,7 @@ import { StatusTag } from "@/components/StatusTag";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { ScimProvisioningSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ScimProvisioningCreateConfirmDialog } from "@/app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningCreateConfirmDialog";
 import { ScimProvisioningRevokeConfirmDialog } from "@/app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningRevokeConfirmDialog";
 import { Button } from "@/components/ui/button";
@@ -416,6 +417,7 @@ export function ScimProvisioningSettingsPageClient() {
         titleTestId="scim-provisioning-page-title"
         actions={<PageContextualHelpButton />}
       />
+      <ScimProvisioningSettingsEvidenceOrientationStrip />
       <ScimIdentityProvidersVocabularyRail currentSurfaceId="scim-provisioning" />
 
       <p

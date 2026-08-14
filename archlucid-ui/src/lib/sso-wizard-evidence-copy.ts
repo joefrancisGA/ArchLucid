@@ -5,6 +5,12 @@ export const SSO_WIZARD_CANONICAL_PATH = "/administration/identity/sso-wizard" a
 
 export const SSO_WIZARD_HELP_TOPIC_LABEL = "How the SSO wizard works" as const;
 
+export const SSO_WIZARD_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const SSO_WIZARD_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const SSO_WIZARD_CLAIM_HEADING_ID = "sso-wizard-settings-claim-discipline-heading" as const;
+
 export const SSO_WIZARD_CLAIM_DISCIPLINE =
   "This SSO wizard guides OIDC or SAML tenant activation - it is not a sealed-review diligence Sources package. Open SSO and identity, Role mapping, or Assurance status when you need hub setup, claim mapping, or trust cites.";
 

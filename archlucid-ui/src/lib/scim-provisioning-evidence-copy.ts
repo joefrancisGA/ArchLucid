@@ -5,6 +5,12 @@ export const SCIM_PROVISIONING_CANONICAL_PATH = "/administration/scim-provisioni
 
 export const SCIM_PROVISIONING_HELP_TOPIC_LABEL = "How SCIM provisioning works" as const;
 
+export const SCIM_PROVISIONING_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const SCIM_PROVISIONING_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const SCIM_PROVISIONING_CLAIM_HEADING_ID = "scim-provisioning-settings-claim-discipline-heading" as const;
+
 export const SCIM_PROVISIONING_CLAIM_DISCIPLINE =
   "This SCIM provisioning page manages inbound directory tokens for workspace user sync - it is not a sealed-review diligence Sources package. Open SSO and identity, SSO wizard, or Assurance status when you need federation setup or trust cites.";
 

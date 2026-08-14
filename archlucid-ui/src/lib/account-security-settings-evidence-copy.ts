@@ -7,6 +7,13 @@ export const ACCOUNT_SECURITY_SETTINGS_CANONICAL_PATH = SETTINGS_ACCOUNT_SECURIT
 
 export const ACCOUNT_SECURITY_SETTINGS_HELP_TOPIC_LABEL = "How sign-in methods work" as const;
 
+export const ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const ACCOUNT_SECURITY_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const ACCOUNT_SECURITY_SETTINGS_CLAIM_HEADING_ID =
+  "account-security-settings-claim-discipline-heading" as const;
+
 export const ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE =
   `This ${ACCOUNT_SECURITY_PAGE_TITLE} page manages your personal sign-in methods - it is not a sealed-review diligence Sources package. Open Security and trust help, Preferences, or Assurance status when you need trust cites, theme settings, or published diligence.`;
 

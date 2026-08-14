@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AuthDomainsIdentityProvidersVocabularyRail } from "@/components/AuthDomainsIdentityProvidersVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { AuthDomainsSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { Fingerprint } from "lucide-react";
@@ -51,7 +51,6 @@ import {
   AUTH_DOMAINS_MUTATION_RECOVERY,
   AUTH_DOMAINS_PAGE_SUBTITLE,
   AUTH_DOMAINS_PAGE_TITLE,
-  AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE,
   authDomainsAdminAuthorityPresentation,
   authDomainsJourneyStepAriaLabel,
   authDomainsTenantScopeLine,
@@ -62,11 +61,6 @@ import {
   successMessageForAuthDomainAction,
   type AuthDomainsJourneyStepId,
 } from "@/lib/auth-domains-page-copy";
-import {
-  AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
-  AUTH_DOMAINS_SETTINGS_SOURCES,
-  AUTH_DOMAINS_SETTINGS_SOURCES_INTRO,
-} from "@/lib/auth-domains-settings-evidence-copy";
 import { DESIGN_TOKENS, OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   addTenantAuthDomainRecoveryAdmin,
@@ -585,6 +579,8 @@ export function AuthDomainsPageClient() {
         }
       />
 
+      <AuthDomainsSettingsEvidenceOrientationStrip />
+
       {!loading && errorState === null ? (
         <>
           <div
@@ -1035,20 +1031,6 @@ export function AuthDomainsPageClient() {
           </CardContent>
         </Card>
       ) : null}
-
-      <details className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800" data-testid="auth-domains-sources-disclosure">
-        <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE}
-        </summary>
-        <div className="mt-4">
-          <EvidenceOrientationClaimAndSourcesStrip
-            slug="auth-domains-settings"
-            claim={AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE}
-            sourcesIntro={AUTH_DOMAINS_SETTINGS_SOURCES_INTRO}
-            sources={AUTH_DOMAINS_SETTINGS_SOURCES}
-          />
-        </div>
-      </details>
 
       <AuthDomainsActionConfirmDialog
         pending={pendingConfirm}

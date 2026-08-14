@@ -7,6 +7,12 @@ export const AI_USAGE_SETTINGS_CANONICAL_PATH = AI_USAGE_SETTINGS_PATH;
 
 export const AI_USAGE_HELP_TOPIC_LABEL = "How AI usage and cost work";
 
+export const AI_USAGE_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const AI_USAGE_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const AI_USAGE_SETTINGS_CLAIM_HEADING_ID = "ai-usage-settings-claim-discipline-heading" as const;
+
 export const AI_USAGE_SETTINGS_CLAIM_DISCIPLINE =
   "This AI usage and cost page shows estimated spend and budget signals for the workspace - it is not invoice-accurate financial reporting, a sealed-review diligence Sources package. Open Billing & plans, Pilot ROI model, or Audit when you need plan controls, methodology, or governed trails.";
 

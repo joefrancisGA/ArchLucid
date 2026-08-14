@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PRICING_QUOTE_AGING_CANONICAL_PATH = INTERNAL_PRICING_QUOTE_AGING_PATH;
 
+export const PRICING_QUOTE_AGING_HELP_TOPIC_LABEL = "Pricing quote follow-up" as const;
+
 export const PRICING_QUOTE_AGING_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
 
 export const PRICING_QUOTE_AGING_FOLLOW_UPS_TITLE = "Where to go next";

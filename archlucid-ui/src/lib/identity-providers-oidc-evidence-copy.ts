@@ -6,6 +6,13 @@ export const IDENTITY_PROVIDERS_OIDC_CANONICAL_PATH =
 
 export const IDENTITY_PROVIDERS_OIDC_HELP_TOPIC_LABEL = "How OIDC federation works" as const;
 
+export const IDENTITY_PROVIDERS_OIDC_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const IDENTITY_PROVIDERS_OIDC_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const IDENTITY_PROVIDERS_OIDC_CLAIM_HEADING_ID =
+  "identity-providers-oidc-settings-claim-discipline-heading" as const;
+
 export const IDENTITY_PROVIDERS_OIDC_CLAIM_DISCIPLINE =
   "This OIDC/JWT page reviews discovery, authority, and audience for workspace federation - it is not a sealed-review diligence Sources package. Open SSO and identity, Role mapping, or Assurance status when you need hub setup, claim mapping, or trust cites.";
 

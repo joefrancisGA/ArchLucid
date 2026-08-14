@@ -10,6 +10,7 @@ import { OperatorOutboxDiagnosticsCard } from "@/components/operator/OperatorOut
 import { PageHeading } from "@/components/PageHeading";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { AiUsageSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { AI_USAGE_HELP_TOPIC_LABEL } from "@/lib/ai-usage-settings-evidence-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { formatAiUsageEstimatesAsOfLabel } from "@/lib/ai-usage-dashboard-model";
@@ -113,6 +114,7 @@ export function CostReportingSettingsPageView(props: Props) {
         }
         actions={<PageContextualHelpButton triggerText={AI_USAGE_HELP_TOPIC_LABEL} />}
       />
+      <AiUsageSettingsEvidenceOrientationStrip />
       <AiUsageEstimateHonestyLine />
       <AiUsageBillingVocabularyRail currentSurfaceId="ai-usage" />
       <ModelGovernanceAiUsageVocabularyRail currentSurfaceId="ai-usage" />

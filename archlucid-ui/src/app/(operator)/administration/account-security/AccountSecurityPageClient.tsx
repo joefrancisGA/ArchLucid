@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { AccountSecuritySettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   ACCOUNT_SECURITY_DEMO_GATE_MESSAGE,
@@ -375,6 +376,7 @@ export function AccountSecurityPageClient() {
         titleTestId="account-security-page-title"
         actions={<PageContextualHelpButton />}
       />
+      <AccountSecuritySettingsEvidenceOrientationStrip />
       <AccountSecurityAuthDomainsVocabularyRail currentSurfaceId="account-security" />
       {showRecentAuthGateCallout && gateProblem !== null ? (
         <FeedbackCallout

@@ -6,6 +6,13 @@ export const MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH =
 
 export const MODEL_GOVERNANCE_HELP_TOPIC_LABEL = "How model governance works";
 
+export const MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const MODEL_GOVERNANCE_SETTINGS_CLAIM_HEADING_ID =
+  "model-governance-settings-claim-discipline-heading" as const;
+
 export const MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE =
   "This AI and model governance page manages workspace execution profiles and model aliases - it is not a sealed-review diligence Sources package. Open AI usage, Billing and plans, or Assurance status when you need spend signals, plan controls, or trust cites.";
 

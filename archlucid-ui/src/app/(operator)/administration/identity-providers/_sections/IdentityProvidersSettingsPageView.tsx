@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { AuthDomainsIdentityProvidersVocabularyRail } from "@/components/AuthDomainsIdentityProvidersVocabularyRail";
+import { IdentityProvidersSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { IdentityProvidersSsoWizardVocabularyRail } from "@/components/IdentityProvidersSsoWizardVocabularyRail";
 import { ScimIdentityProvidersVocabularyRail } from "@/components/ScimIdentityProvidersVocabularyRail";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,7 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
       diagnosticsDataUnavailable={model.diagnosticsDataUnavailable}
       onRefresh={() => void model.refresh()}
     >
+      <IdentityProvidersSettingsEvidenceOrientationStrip />
       {model.overviewStatusFailure !== null ? (
         <IdentityProvidersOverviewStatusFailureNotice
           failure={model.overviewStatusFailure}

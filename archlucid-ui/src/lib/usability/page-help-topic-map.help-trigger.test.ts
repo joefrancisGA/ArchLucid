@@ -8,6 +8,18 @@ import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE } from "@/lib/developer-settings-evidence-copy";
 import { GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
+import {
+  INTERNAL_DEMO_READINESS_PATH,
+  INTERNAL_DEPLOYMENT_STATUS_PATH,
+  INTERNAL_PRICING_QUOTE_AGING_PATH,
+  INTERNAL_TENANT_HEALTH_PATH,
+  INTERNAL_TRIAL_FUNNEL_PATH,
+} from "@/lib/internal-ops-route-paths";
+import { DEMO_READINESS_HELP_TOPIC_LABEL } from "@/lib/demo-readiness-evidence-copy";
+import { DEPLOYMENT_STATUS_HELP_TOPIC_LABEL } from "@/lib/deployment-status-evidence-copy";
+import { PRICING_QUOTE_AGING_HELP_TOPIC_LABEL } from "@/lib/pricing-quote-aging-evidence-copy";
+import { TENANT_HEALTH_HELP_TOPIC_LABEL } from "@/lib/tenant-health-evidence-copy";
+import { TRIAL_FUNNEL_HELP_TOPIC_LABEL } from "@/lib/trial-funnel-evidence-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 const SRC_ROOT = join(process.cwd(), "src");
@@ -71,4 +83,27 @@ describe("page-help-topic-map — help trigger label collisions (P0-5)", () => {
     expect(source).not.toContain("PAGE_HELP_SHORT_TRIGGER_TEXT");
     expect(pageHelpTopicForPathname("/")?.label).toBe(OPERATOR_HOME_PAGE_TITLE);
   });
+});
+
+const INTERNAL_OPS_CANONICAL_HELP_SURFACES: ReadonlyArray<{
+  readonly pathname: string;
+  readonly label: string;
+}> = [
+  { pathname: INTERNAL_TENANT_HEALTH_PATH, label: TENANT_HEALTH_HELP_TOPIC_LABEL },
+  { pathname: INTERNAL_TRIAL_FUNNEL_PATH, label: TRIAL_FUNNEL_HELP_TOPIC_LABEL },
+  { pathname: INTERNAL_DEMO_READINESS_PATH, label: DEMO_READINESS_HELP_TOPIC_LABEL },
+  { pathname: INTERNAL_DEPLOYMENT_STATUS_PATH, label: DEPLOYMENT_STATUS_HELP_TOPIC_LABEL },
+  { pathname: INTERNAL_PRICING_QUOTE_AGING_PATH, label: PRICING_QUOTE_AGING_HELP_TOPIC_LABEL },
+];
+
+describe("page-help-topic-map — canonical /internal/* operator ops routes", () => {
+  it.each(INTERNAL_OPS_CANONICAL_HELP_SURFACES)(
+    "$pathname resolves contextual help (not dead PageContextualHelpButton)",
+    ({ pathname, label }) => {
+      const topic = pageHelpTopicForPathname(pathname);
+
+      expect(topic).not.toBeNull();
+      expect(topic?.label).toBe(label);
+    },
+  );
 });

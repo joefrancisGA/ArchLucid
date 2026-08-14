@@ -47,7 +47,14 @@ import { EVIDENCE_PROPOSALS_HELP_TOPIC_LABEL } from "@/lib/evidence-proposals-ev
 import { EVIDENCE_TRAIL_HELP_TOPIC_LABEL } from "@/lib/evidence-trail-help-evidence-copy";
 import { GETTING_STARTED_HELP_TOPIC_LABEL } from "@/lib/getting-started-help-guide-content";
 import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evidence-copy";
-import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
+import {
+  INTERNAL_DEMO_READINESS_PATH,
+  INTERNAL_DEPLOYMENT_STATUS_PATH,
+  INTERNAL_PRICING_QUOTE_AGING_PATH,
+  INTERNAL_REPLAY_PATH,
+  INTERNAL_TENANT_HEALTH_PATH,
+  INTERNAL_TRIAL_FUNNEL_PATH,
+} from "@/lib/internal-ops-route-paths";
 import { IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL } from "@/lib/improvement-planning-help-evidence-copy";
 import { RAG_HEALTH_HELP_TOPIC_LABEL } from "@/lib/rag-health-evidence-copy";
 import { RECOMMENDATION_LEARNING_HELP_TOPIC_LABEL } from "@/lib/recommendation-learning-evidence-copy";
@@ -77,6 +84,7 @@ import { EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/extract-upload-s
 import { INVITE_REVIEWER_HELP_TOPIC_LABEL } from "@/lib/invite-reviewer-evidence-copy";
 import { OPERATOR_BILLING_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/operator/operator-billing-settings-evidence-copy";
 import { PILOT_FEEDBACK_HELP_TOPIC_LABEL } from "@/lib/pilot-feedback-help-evidence-copy";
+import { PRICING_QUOTE_AGING_HELP_TOPIC_LABEL } from "@/lib/pricing-quote-aging-evidence-copy";
 import { SECURITY_TRUST_HELP_TOPIC_LABEL } from "@/lib/security-trust-help-evidence-copy";
 import { SETTINGS_SECURITY_TRUST_HELP_TOPIC_LABEL } from "@/lib/settings-security-trust-evidence-copy";
 import { SETTINGS_USERS_HELP_TOPIC_LABEL } from "@/lib/settings-users-evidence-copy";
@@ -632,20 +640,40 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     topic: { slug: "ai-usage", label: FLEET_LLM_COGS_HELP_TOPIC_LABEL },
   },
   {
+    prefix: INTERNAL_TENANT_HEALTH_PATH,
+    topic: { slug: "troubleshooting", label: TENANT_HEALTH_HELP_TOPIC_LABEL },
+  },
+  {
     prefix: "/admin/tenant-health",
     topic: { slug: "troubleshooting", label: TENANT_HEALTH_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: INTERNAL_TRIAL_FUNNEL_PATH,
+    topic: { slug: "billing-and-plans", label: TRIAL_FUNNEL_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/admin/trial-funnel",
     topic: { slug: "billing-and-plans", label: TRIAL_FUNNEL_HELP_TOPIC_LABEL },
   },
   {
+    prefix: INTERNAL_DEMO_READINESS_PATH,
+    topic: { slug: "choose-your-next-step", label: DEMO_READINESS_HELP_TOPIC_LABEL },
+  },
+  {
     prefix: "/admin/demo-readiness",
     topic: { slug: "choose-your-next-step", label: DEMO_READINESS_HELP_TOPIC_LABEL },
   },
   {
+    prefix: INTERNAL_DEPLOYMENT_STATUS_PATH,
+    topic: { slug: "troubleshooting", label: DEPLOYMENT_STATUS_HELP_TOPIC_LABEL },
+  },
+  {
     prefix: "/admin/deployment-status",
     topic: { slug: "troubleshooting", label: DEPLOYMENT_STATUS_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: INTERNAL_PRICING_QUOTE_AGING_PATH,
+    topic: { slug: "billing-and-plans", label: PRICING_QUOTE_AGING_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/administration/identity-providers/role-mapping",

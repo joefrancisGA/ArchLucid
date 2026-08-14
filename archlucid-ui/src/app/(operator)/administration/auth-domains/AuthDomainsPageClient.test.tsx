@@ -24,7 +24,6 @@ import {
   AUTH_DOMAINS_EMPTY_TITLE,
   AUTH_DOMAINS_MUTATION_ERROR_SUMMARY,
   AUTH_DOMAINS_PAGE_TITLE,
-  AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE,
   AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_DETAIL,
   AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_LABEL,
   AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_TITLE,
@@ -135,12 +134,6 @@ describe("AuthDomainsPageClient", () => {
       "href",
       inAppHelpHref("authentication-sign-in"),
     );
-    expect(screen.getByTestId("auth-domains-sources-disclosure")).toHaveTextContent(
-      AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE,
-    );
-
-    fireEvent.click(screen.getByText(AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE));
-
     expect(screen.getByTestId("auth-domains-settings-claim-discipline")).toHaveTextContent(
       AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
     );

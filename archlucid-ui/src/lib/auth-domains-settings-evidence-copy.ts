@@ -5,6 +5,12 @@ export const AUTH_DOMAINS_SETTINGS_CANONICAL_PATH = "/administration/auth-domain
 
 export const AUTH_DOMAINS_SETTINGS_HELP_TOPIC_LABEL = "How sign-in domains work" as const;
 
+export const AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const AUTH_DOMAINS_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const AUTH_DOMAINS_SETTINGS_CLAIM_HEADING_ID = "auth-domains-settings-claim-discipline-heading" as const;
+
 export const AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE =
   "This Sign-in domains page verifies email domain ownership and SSO enforcement readiness — it is not a sealed-review diligence Sources package. Open SSO and identity, Users and roles help, or Assurance status when you need federation setup, membership, or trust cites.";
 
