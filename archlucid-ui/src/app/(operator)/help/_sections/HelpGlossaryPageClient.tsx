@@ -29,6 +29,7 @@ import {
   type CustomerGlossaryTerm,
 } from "@/lib/customer-glossary-manifest";
 import { GOLDEN_PATH_GLOSSARY_NOUN_IDS } from "@/lib/golden-path-glossary-nouns";
+import { LOAD_BEARING_GLOSSARY_NOUN_IDS } from "@/lib/load-bearing-glossary-nouns";
 import { OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";

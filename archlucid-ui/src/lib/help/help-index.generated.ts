@@ -13,104 +13,6 @@ export type HelpDocSearchRecord = {
 
 export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "",
-    "sectionHeading": "First-pilot troubleshooting decision tree — overview",
-    "excerpt": "Audience: Operators and pilot evaluators stuck during Core Pilot — not incident response, security coordination, or a full RCA guide."
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "quick-matrix-symptom-first-check",
-    "sectionHeading": "Quick matrix (symptom → first check)",
-    "excerpt": "Use this when you need a one-screen index. Numbered sections below add escalation artifacts."
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "1-api-not-ready-connection-refused",
-    "sectionHeading": "1. API not ready / connection refused",
-    "excerpt": "→ [`COMMON_ERRORS.md`](COMMON_ERRORS.md) · [`DEPLOYMENT_RUNBOOK.md`](../library/DEPLOYMENT_RUNBOOK.md)"
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "2-healthready-unhealthy",
-    "sectionHeading": "2. `/health/ready` unhealthy",
-    "excerpt": "→ [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) (opening readiness steps)"
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "3-sql-migration-failure-dbup-errors-at-startup",
-    "sectionHeading": "3. SQL migration failure / DbUp errors at startup",
-    "excerpt": "→ [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) · [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) (API startup)"
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "4-auth-401-403",
-    "sectionHeading": "4. Auth 401 / 403",
-    "excerpt": "→ [`GENERIC_OIDC_SETUP.md`](GENERIC_OIDC_SETUP.md) · [`API_KEY_ROTATION.md`](API_KEY_ROTATION.md) · Settings → Identity providers (OIDC discovery strip) · [`OPERATOR_ATLAS.md`](../library/OPERATOR_ATLAS.md) (403 scope)"
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "5-trial-402-entitlement",
-    "sectionHeading": "5. Trial 402 (entitlement)",
-    "excerpt": "→ [`TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md)"
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "6-azure-extractor-upload-422",
-    "sectionHeading": "6. Azure extractor upload 422",
-    "excerpt": "→ [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md)"
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "7-execute-stalls-review-not-ready-to-finalize",
-    "sectionHeading": "7. Execute stalls / review not Ready to finalize",
-    "excerpt": "→ [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) · [`CORE_PILOT.md`](../CORE_PILOT.md) (steps 2–3)"
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "8-real-mode-azure-openai-failures",
-    "sectionHeading": "8. Real-mode / Azure OpenAI failures",
-    "excerpt": "→ [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) · [`RESILIENCE_CONFIGURATION.md`](../library/RESILIENCE_CONFIGURATION.md) · [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)"
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "9-finalize-409-governance-pre-finalize-gate-blocked",
-    "sectionHeading": "9. Finalize 409 / governance pre-finalize gate blocked",
-    "excerpt": "→ [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md)"
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "10-missing-artifact-bundle-after-finalize",
-    "sectionHeading": "10. Missing artifact bundle after finalize",
-    "excerpt": "→ [`CORE_PILOT.md`](../CORE_PILOT.md) (step 4) · [`API_CONTRACTS.md`](../library/API_CONTRACTS.md)"
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "11-low-confidence-ai-output-disputed-finding",
-    "sectionHeading": "11. Low-confidence AI output / disputed finding",
-    "excerpt": "→ [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) · [`AGENT_TRACE_FORENSICS.md`](../library/AGENT_TRACE_FORENSICS.md)"
-  },
-  {
-    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
-    "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "support-bundle-any-symptom",
-    "sectionHeading": "Support bundle (any symptom)",
-    "excerpt": "Or `archlucid support-bundle --zip` when the tool is installed."
-  },
-  {
     "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
     "docTitle": "OPERATOR_ADMIN_DIAGNOSTICS",
     "sectionSlug": "start-here",
@@ -241,7 +143,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Your first architecture review",
     "sectionSlug": "complete-review-workflow",
     "sectionHeading": "Complete review lifecycle",
-    "excerpt": "Former complete review workflow depth for teams that need the full create → evidence → findings → decisions → finalize → export path (filename `COMPLETE_REVIEW_WORKFLOW.md` remains a path-stable alias)."
+    "excerpt": "Former complete review workflow depth for teams that need the full create → evidence → findings → decisions → finalize → export path (`COMPLETE_REVIEW_WORKFLOW.md` remains a path-stable contributor alias)."
   },
   {
     "docPath": "docs/CORE_PILOT.md",
@@ -941,7 +843,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "minimum-pilot-trust-packet-m-191",
     "sectionHeading": "Minimum pilot trust packet without CPA / 3P pen test (M-191)",
-    "excerpt": "Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-191 / TB-1112). Does not reopen Done TB-135/TB-136. Complements [Â§4 Assurance status](#4-assurance-status--explicit). Not an assurance attestation."
+    "excerpt": "Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-191 / TB-1112). Engineering SoT: [`../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md`](../library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRA…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1032,7 +934,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-16",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "Engineering SoT: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) (TB-1026 Done). Primary-object hierarchy, canonical `/architecture/reviews` spine, and collapse surfaces are published. Follow-on claim CI: TB-1027. Full vocab rewrite is out of scope."
+    "excerpt": "Engineering SoT: [`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md`](../library/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_CONTRACT.md) (TB-1026 Done). Primary-object hierarchy, canonical `/architecture/reviews` spine, and collapse surfaces are published. Claim CI: TB-1027 (`check_operator_primary_object_honesty.py`). Full vocab rewr…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1641,7 +1543,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-diligence-prompts-3",
     "sectionHeading": "PA diligence prompts",
-    "excerpt": "1. Ask who runs DDL (process startup, not CD SQL job) and as which identity (bootstrap MI vs wired runtime split). 2. Separate single-file DDL hygiene (Done TB-359) from rolling ZDT — expand/contract is discipline, not automatic. 3. For rollback questions, pair with [`MIGRATION_ROLLBACK.md`](../library/MIGRATION_ROL…"
+    "excerpt": "1. Ask who runs DDL (process startup, not CD SQL job) and as which identity (bootstrap MI vs wired runtime split). 2. Separate single-file DDL hygiene (Done TB-359) from rolling ZDT — expand/contract is discipline, not automatic. 3. For rollback questions, pair with [`MIGRATION_ROLLBACK.md`](../runbooks/MIGRATION_RO…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1942,7 +1844,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "elevator-pitch-v1-claim-audit-m-246",
     "sectionHeading": "Elevator pitch ArchLucid — cut / hedge / prove (M-246)",
-    "excerpt": "Former standalone body: `docs/go-to-market/ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-245 / M-246 / TB-1367). Complements [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md) and KEEP [`SPONSOR_SPONSOR_BRIEF.md`](SPONSOR_SPONSOR_BRIEF.md) Â§4 (not folded). N…"
+    "excerpt": "Former standalone body: `docs/go-to-market/ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-245 / M-246 / TB-1367). Complements [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md) and KEEP [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) Â§4 (not folded). N…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1970,7 +1872,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-36",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1367 / TB-1368 own the cut/hedge/prove contract and language guards. - Complements Done M-02 / M-138 / M-154 / M-174 / M-243 / M-239. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1367 Done / TB-1368 own the cut/hedge/prove contract and language guards. - Complements Done M-02 / M-138 / M-154 / M-174 / M-243 / M-239. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2061,7 +1963,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-38",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1196 / TB-1197 own the Real-variance isolation contract and honesty CI. - Cite `AgentTopologyProposalGraphMerge`, `RuleBasedDecisionEngine`, `DecisionMergeInputGate`, quality Enforce/Block. - Complements M-154, M-158/M-159, M-166/M-167, M-247/M-248; pairs claim-honesty M-203. - This handout does not claim CPA S…"
+    "excerpt": "- TB-1196 Done — [`AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md`](../library/AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md); TB-1197 Done — `scripts/ci/check_unvalidated_proposal_overlay_honesty.py` (wired in `run_buyer_surface_strict_guards.py`). - Cite `AgentTopologyProposalGraphMerg…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2117,7 +2019,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-39",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1172 Done — [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](../library/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md); TB-1173 owns anti-rubber-stamp CI. - Cite `tests/golden-cohort/README.md` lock ritual + TB-1156 Done dual-hasher contract. - Complements M-154, M-198/M-199, M-274; pairs claim-honesty M…"
+    "excerpt": "- TB-1172 Done — [`GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md`](../library/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md); TB-1173 Done — `scripts/ci/check_golden_cohort_relock_rubber_stamp_honesty.py` (wired in `run_buyer_surface_strict_guards.py`). - Cite `tests/golden-cohort/README.md` lock ritual + TB-1…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2285,7 +2187,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-42",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1228 / TB-1229 own the lane-split contract and honesty CI. - Shared defense-plane ownership is M-212 / TB-1230; structural provenance is M-207/M-208; FT decision-record fields are M-227/M-228 (do not fork). - Cite `AgentOutputQualityGate`, `AgentResultEvidenceFaithfulnessChecker`, `RetrievalFaithfulnessEvaluato…"
+    "excerpt": "- TB-1228 Done — [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](../library/FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md); TB-1229 honesty CI (open). - Shared defense-plane ownership is M-212 / TB-1230; structural provenance is M-207/M-208; FT decision-record fields are M-227/M…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2341,7 +2243,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "50-inventory-ranked",
     "sectionHeading": "â‰¤~50 inventory (ranked)",
-    "excerpt": "Reuse exemplars: `HelpCorePilotGuideView`, Azure connect specialty. Generic markdown remains fallback only for true internal docs after gate."
+    "excerpt": "Retired alias folds (not live inventory; redirects removed 2026-08-13): `/help/evaluator-workbook` folded into `/help/choose-your-next-step` (TB-1345–TB-1349); `/help/first-hour-operator-path` folded into `/help/first-architecture-review` (TB-1374)."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2362,7 +2264,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-44",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1414 / TB-1415 own the shared chrome contract and language guards. - Per-route clusters own shipping chrome for each row; this handout does not replace those P0s. - Out of scope: integration empty/not-configured theater (M-257/M-258). - This handout does not claim CPA SOC 2 or a published third-party penetratio…"
+    "excerpt": "- TB-1414 Done — engineering SoT [`SPECIALTY_HELP_CHROME_CONTRACT.md`](../library/SPECIALTY_HELP_CHROME_CONTRACT.md) + Vitest inventory; TB-1415 owns language guards. - Per-route clusters own shipping chrome for each row; this handout does not replace those P0s. - Out of scope: integration empty/not-configured theat…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3195,7 +3097,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-62",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1032 / TB-1033 own the design contract and language guards. - Measured evidence: owner G-SCALE-01 / G-SCALE-02; cite [`../architecture/LAUNCH_LOAD_DRILL.md`](../architecture/LAUNCH_LOAD_DRILL.md) + [`../library/DEGRADED_MODE.md`](../library/DEGRADED_MODE.md). - Complements M-229/M-230 (execute throttle) and M-2…"
+    "excerpt": "- TB-1032 Done — [`LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md`](../library/LAUNCH_LOAD_FAILURE_ORDER_DEGRADATION_CONTRACT.md); claim CI: TB-1033 (`check_launch_load_failure_order_honesty.py`). - Measured evidence: owner G-SCALE-01 / G-SCALE-02; cite [`../architecture/LAUNCH_LOAD_DRILL.md`](../architecture/LAU…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3286,7 +3188,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-64",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1034 / TB-1035 own strangler next-slice language guards. - Complements M-158/M-159 forbid matrix; does not reopen Done TB-919. - Cite [`../architecture/COORDINATOR_STRANGLER_INVENTORY.md`](../architecture/COORDINATOR_STRANGLER_INVENTORY.md), ADR 0030, ADR 0042. - This handout does not claim CPA SOC 2 or a publi…"
+    "excerpt": "- TB-1035 Done — strangler next-slice language guards: `scripts/ci/check_strangler_next_slice_honesty.py` (wired in `run_buyer_surface_strict_guards.py`). - Engineering SoT: [`../library/STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](../library/STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3342,7 +3244,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-65",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1204 / TB-1205 own residual-coupling / discipline-test retirement contract and honesty CI. - Cite ADR 0030/0042, `DualPipelineRegistrationDisciplineTests`, `CoordinatorStranglerCompletionArchitectureTests`, ceiling script. - Complements M-158/M-159, M-184/M-185; pairs claim-honesty M-205. - This handout does no…"
+    "excerpt": "- TB-1205 owns residual-coupling honesty CI. - Engineering SoT: [`../library/POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md`](../library/POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md) (TB-1204 Done). - Cite ADR 0030/0042, `DualPipelineRegistrationDisciplineT…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3461,7 +3363,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-67",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1072 / TB-1073 own Stage 0 allowlist language guards. - G4 evidence remains G-REAL-06 / G-REAL-07; does not substitute those runs. - Pilot-packet composition without CPA/3P is [M-191](#minimum-pilot-trust-packet-m-191). - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1072 / TB-1073 own Stage 0 allowlist language guards. - G3 residual: DiD erosion TB-1233 (honesty CI TB-1123 Done) — not “fully proven isolation.” - G4 evidence remains G-REAL-06 / G-REAL-07; does not substitute those runs. - Pilot-packet composition without CPA/3P is [M-191](#minimum-pilot-trust-packet-m-191).…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3552,7 +3454,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "claim-boundary-54",
     "sectionHeading": "Claim boundary",
-    "excerpt": "Do not promise that artifact-mode replay proves architecture is unchanged, or that a live mutable UI side-by-side equals verify. Say: persisted `ComparisonRecord` + committed reviews on both sides; use verify for buyer drift/stable claims; label artifact-only as stored-delta replay."
+    "excerpt": "Do not promise that artifact-mode replay proves architecture is unchanged, or that a live mutable UI side-by-side equals verify. Say: persisted `ComparisonRecord` + committed reviews on both sides; use verify mode (422) for buyer drift/stable claims; label artifact-only as stored-delta replay."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3573,7 +3475,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-69",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "Engineering SoT: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (TB-1024 Done). Minimal immutable snapshot set, replay modes, and illusion surfaces are published. Follow-on claim CI: TB-1025. Does not claim platform WORM on comparison rows (ADR 0040)…"
+    "excerpt": "Engineering SoT: [`COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md`](../library/COMPARISON_REPLAY_IMMUTABLE_SNAPSHOT_CONTRACT.md) (TB-1024 Done). Minimal immutable snapshot set, replay modes, and illusion surfaces are published. Claim CI: TB-1025 (`check_comparison_replay_drift_honesty.py`). Does not claim platform…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3643,7 +3545,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-70",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "Engineering SoT: [`../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) (TB-1030 Done). Must-complete set, package-spine IA unlock, minute-12 checkpoint, and narration-forcing residuals are published. Follow-on claim CI: TB-1031. Live validation remains M-44 / M-…"
+    "excerpt": "Engineering SoT: [`../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md`](../library/PA_FIRST_15_PACKAGE_SPINE_IA_CONTRACT.md) (TB-1030 Done). Must-complete set, package-spine IA unlock, minute-12 checkpoint, and narration-forcing residuals are published. Claim CI: TB-1031 (`check_first_15_package_spine_honesty.py`).…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4028,7 +3930,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-78",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1263 / TB-1264 own the breakdown-signal contract and honesty CI. - Cite [`../library/SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md), [`../library/JSON_FALLBACK_AUDIT.md`](../library/JSON_FALLBACK_AUDIT.md), `HotPathRelationalQueryShapes`, ADR 0011 / 0037 / 0039. - Complements M-154 / M-160 / M-198 / TB-931; pairs …"
+    "excerpt": "- TB-1264 owns breakdown-signal honesty CI. - Engineering SoT: [`../library/DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md`](../library/DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md) (TB-1263 Done). - Cite [`../library/SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md), [`../library/JSON_FALLBACK_AUDIT.md`](../lib…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4126,7 +4028,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "too-strong-vs-safe-20",
     "sectionHeading": "Too strong vs safe",
-    "excerpt": "Related: [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) Â· [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md)."
+    "excerpt": "Too strong vs safe"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "ci-anchors-for-tb-1121",
+    "sectionHeading": "CI anchors for TB-1121",
+    "excerpt": "Honesty CI TB-1121 Done — `scripts/ci/check_security_review_ready_without_musts_honesty.py` wired in `run_buyer_surface_strict_guards.py`. Fails stubs that claim first-review readiness with only M-114, require M-171 as a first-review must, equate readiness with CPA SOC 2 / published third-party pen test, or omit TB-…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4147,7 +4056,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "tenant-isolation-three-layers",
     "sectionHeading": "Three layers",
-    "excerpt": "- Layer 1 — Identity: Prefer Entra-issued JWTs with app roles; API keys are server-side secrets mapped to limited roles ([SECURITY.md](../library/contributor-reference/SECURITY.md)). - Layer 2 — Application: Controllers enforce policies; orchestration sets tenant / workspace / project scope before data access ([../s…"
+    "excerpt": "- Layer 1 — Identity: Prefer Entra-issued JWTs with app roles; API keys are server-side secrets mapped to limited roles ([SECURITY.md](../library/contributor-reference/SECURITY.md)). - Layer 2 — Application: Controllers enforce policies; orchestration sets tenant / workspace / project scope before data access ([`TEN…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4603,5 +4512,47 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "sectionSlug": "8-references",
     "sectionHeading": "8. References",
     "excerpt": "Former standalone script: `docs/go-to-market/PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md` → [falsification script](#principal-architect-falsification-script-m-113). Former standalone pre-read: `docs/go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md` → [Azure extractor InfoSec pre-read](#azure-extractor--infosec-pre-re…"
+  },
+  {
+    "docPath": "in-app:/help/troubleshooting",
+    "docTitle": "Troubleshooting",
+    "sectionSlug": "",
+    "sectionHeading": "Troubleshooting — overview",
+    "excerpt": "Find common issues, try the first fix, and collect support details when needed. Refresh the page, confirm workspace, check finalize status, open System health, or download a support bundle."
+  },
+  {
+    "docPath": "in-app:/help/troubleshooting",
+    "docTitle": "Troubleshooting",
+    "sectionSlug": "organization-sso-required",
+    "sectionHeading": "Organization sign-in required",
+    "excerpt": "You see a message that organization sign-in is required. Use your company SSO account or ask a workspace admin to grant access."
+  },
+  {
+    "docPath": "in-app:/help/troubleshooting",
+    "docTitle": "Troubleshooting",
+    "sectionSlug": "session-expired",
+    "sectionHeading": "Session expired or signed out",
+    "excerpt": "Your session ended. Sign in again and return to the review or workspace you were using."
+  },
+  {
+    "docPath": "in-app:/help/troubleshooting",
+    "docTitle": "Troubleshooting",
+    "sectionSlug": "review-not-ready",
+    "sectionHeading": "Review not ready or still processing",
+    "excerpt": "The architecture review is still starting or processing evidence. Wait for pipeline status to settle, then refresh the review detail page."
+  },
+  {
+    "docPath": "in-app:/help/troubleshooting",
+    "docTitle": "Troubleshooting",
+    "sectionSlug": "export-missing",
+    "sectionHeading": "Exports or sponsor report missing",
+    "excerpt": "Finalize the architecture review first. Open the sponsor report or deliverables bundle after finalize completes."
+  },
+  {
+    "docPath": "in-app:/help/troubleshooting",
+    "docTitle": "Troubleshooting",
+    "sectionSlug": "support-bundle",
+    "sectionHeading": "Collect support details",
+    "excerpt": "Download a support bundle or use Report a problem before contacting support so engineers can diagnose faster."
   }
 ] as const;

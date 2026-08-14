@@ -60,7 +60,7 @@ public sealed class RoiController(
     public async Task<IActionResult> GetSponsorDashboardBundleAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        DateTime toUtc = DateTime.UtcNow;
+        DateTime toUtc = TimeProvider.System.UtcNowDateTime();
         DateTime fromUtc = toUtc.AddDays(-30);
         TimeSpan bucketSize = TimeSpan.FromMinutes(1440);
 

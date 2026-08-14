@@ -27,11 +27,16 @@ describe("searchHelpDocumentation", () => {
     expect(hits.some((h) => h.docPath.toLowerCase().includes("api_contracts"))).toBe(false);
   });
 
-  it("returns architect troubleshooting paths for troubleshooting queries", () => {
+  it("returns architect troubleshooting paths for troubleshooting queries (TB-2237)", () => {
     const hits = searchHelpDocumentation("troubleshooting", 30);
 
-    expect(hits.some((h) => h.docPath.toLowerCase().includes("first_pilot_troubleshooting"))).toBe(true);
+    expect(hits.some((h) => h.docPath.toLowerCase().startsWith("in-app:/help/troubleshooting"))).toBe(true);
+    expect(hits.some((h) => h.docPath.toLowerCase().includes("first_pilot_troubleshooting"))).toBe(false);
     expect(hits.some((h) => h.docPath.toLowerCase() === "docs/runbooks/troubleshooting.md")).toBe(false);
+  });
+
+  it("omits all runbook paths from the generated customer help index (TB-2237)", () => {
+    expect(HELP_DOC_SEARCH_RECORDS.some((r) => r.docPath.toLowerCase().startsWith("docs/runbooks/"))).toBe(false);
   });
 
   it("omits engineering troubleshooting runbook from the generated product help index (TB-1247)", () => {

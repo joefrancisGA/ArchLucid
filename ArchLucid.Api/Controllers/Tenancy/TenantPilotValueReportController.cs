@@ -95,7 +95,7 @@ public sealed class TenantPilotValueReportController(
                 ProblemTypes.ValidationFailed);
         }
 
-        DateTime rollingToUtc = DateTime.UtcNow;
+        DateTime rollingToUtc = TimeProvider.System.UtcNowDateTime();
         DateTime rollingFromUtc = rollingToUtc.AddDays(-rollingDays);
 
         PilotValueReport? pilotToDate =

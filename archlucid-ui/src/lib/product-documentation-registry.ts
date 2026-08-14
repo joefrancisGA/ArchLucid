@@ -264,7 +264,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/CONTACT_SUPPORT.md"],
     pdfStatus: "customer",
     lastReviewed: "2026-08-13",
-    releaseApplicability: "Applies to in-product support discovery and escalation paths for all operator roles",
+    releaseApplicability: "Applies to in-product support discovery and escalation paths for all architect roles",
   },
   {
     slug: "data-handling",
@@ -508,7 +508,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "engineering-troubleshooting",
     title: "Engineering troubleshooting runbook",
     summary:
-      "Admin-only specialty guide for CLI, environment, and log triage. Operators should use Troubleshooting; customers never deep-link here.",
+      "Admin-only specialty guide for CLI, environment, and log triage. Architects should use Troubleshooting; customers never deep-link here.",
     audience: "developer",
     sourcePaths: ["docs/runbooks/TROUBLESHOOTING.md", "docs/runbooks/COMMON_ERRORS.md"],
     lastReviewed: "2026-08-09",
@@ -543,7 +543,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "digests",
     title: "Architecture digests",
     summary:
-      "Schedule summaries of review activity, governance signals, findings, and advisory scans for operators.",
+      "Schedule summaries of review activity, governance signals, findings, and advisory scans for architects.",
     audience: "operator",
     // App-rendered specialty (`HelpDigestsGuideView`) — TB-2049.
     sourcePaths: [],

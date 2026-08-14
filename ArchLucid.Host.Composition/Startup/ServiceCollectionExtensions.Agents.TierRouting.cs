@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
@@ -104,7 +104,6 @@ public static partial class ServiceCollectionExtensions
             sp.GetRequiredService<CatalogBackedAgentModelAliasRegistry>());
         services.AddSingleton<IAgentModelCatalogCacheInvalidator>(static sp =>
             sp.GetRequiredService<CatalogBackedAgentModelAliasRegistry>());
-        services.AddSingleton<AgentModelCatalogBootstrapper>();
         services.AddSingleton<IAgentModelAliasResolver, AgentModelAliasResolver>();
     }
 

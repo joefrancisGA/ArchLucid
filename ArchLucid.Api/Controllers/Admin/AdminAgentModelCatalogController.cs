@@ -112,6 +112,7 @@ public sealed class AdminAgentModelCatalogController(
     }
 
     [HttpPost("{aliasId}/evaluations/{taskType}/record")]
+    [MutatingAuditExcluded("Audit: AgentModelCatalogEvaluationRecorder logs ModelCatalogEvaluationRecorded via IAuditService.")]
     [ProducesResponseType(typeof(AgentModelCatalogRow), StatusCodes.Status200OK)]
     public async Task<IActionResult> RecordEvaluation(
         string aliasId,
@@ -145,6 +146,7 @@ public sealed class AdminAgentModelCatalogController(
     }
 
     [HttpPost("{aliasId}/evaluations/import-faithfulness-harness")]
+    [MutatingAuditExcluded("Audit: AgentModelCatalogFaithfulnessHarnessImporter records evaluation evidence via IAuditService.")]
     [ProducesResponseType(typeof(AgentModelCatalogRow), StatusCodes.Status200OK)]
     public async Task<IActionResult> ImportFaithfulnessHarness(string aliasId, CancellationToken cancellationToken)
     {

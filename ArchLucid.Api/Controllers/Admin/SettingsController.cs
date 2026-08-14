@@ -354,6 +354,7 @@ public sealed class SettingsController(
 
     /// <summary>Record workspace-admin regulated-evidence acknowledgment (TB-2109).</summary>
     [HttpPost("external-subprocessor-engine-acknowledgment")]
+    [MutatingAuditExcluded("Audit: ExternalSubprocessorEngineAcknowledgmentService logs WorkspaceExternalSubprocessorEngineAcknowledged via IAuditService.")]
     [ProducesResponseType(typeof(ExternalSubprocessorEngineAcknowledgmentResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<ExternalSubprocessorEngineAcknowledgmentResponse>> PostExternalSubprocessorAcknowledgment(
         CancellationToken cancellationToken)

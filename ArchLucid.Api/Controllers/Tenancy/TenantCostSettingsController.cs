@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
@@ -120,7 +120,7 @@ public sealed class TenantCostSettingsController(
                         architectHourlyRateUsd = record.ArchitectHourlyRateUsd,
                         averageIncidentCostUsd = record.AverageIncidentCostUsd,
                         eaDiscountMultiplier = record.EaDiscountMultiplier,
-                        savingsPricingBasis = ExecutiveRoiSavingsPricingBasis.Resolve(record.EaDiscountMultiplier),
+                        savingsPricingBasis = SponsorRoiSavingsPricingBasis.Resolve(record.EaDiscountMultiplier),
                         updatedUtc = updatedUtc,
                     }),
             },

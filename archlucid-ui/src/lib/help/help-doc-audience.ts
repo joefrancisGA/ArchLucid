@@ -42,6 +42,20 @@ function audienceFromHelpSlug(slug: string): ProductDocumentationAudience | "unk
 
 export function helpDocPathAudience(docPath: string): ProductDocumentationAudience | "unknown" {
   const key = normalizeDocPath(docPath);
+
+  // TB-2237 — runbooks are internal engineering corpus, never customer search.
+  if (key.startsWith("docs/runbooks/")) {
+    return "developer";
+  }
+
+  if (key.startsWith("in-app:/help/")) {
+    const slug = key.replace("in-app:/help/", "").split("#")[0] ?? "";
+
+    if (slug.length > 0) {
+      return audienceFromHelpSlug(slug);
+    }
+  }
+
   const direct = audienceByDocPath.get(key);
 
   if (direct !== undefined) {

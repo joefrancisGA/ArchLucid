@@ -7,21 +7,38 @@ import { useEffect, useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { TOOLTIP_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  getGoldenPathGlossaryNoun,
-  goldenPathGlossaryHelpHref,
+  getLoadBearingGlossaryNoun,
+  loadBearingGlossaryHelpHref,
+  loadBearingGlossarySeenStorageKey,
+  type LoadBearingGlossaryNounId,
+} from "@/lib/load-bearing-glossary-nouns";
+import {
   goldenPathGlossarySeenStorageKey,
   type GoldenPathGlossaryNounId,
 } from "@/lib/golden-path-glossary-nouns";
 
 export type InlineGlossaryChipProps = {
-  readonly nounId: GoldenPathGlossaryNounId;
+  readonly nounId: LoadBearingGlossaryNounId;
   readonly children: React.ReactNode;
   /** When false, skip first-encounter pulse on the term affordance. */
   readonly pulseOnFirstEncounter?: boolean;
 };
 
+function resolveSeenStorageKey(nounId: LoadBearingGlossaryNounId): string {
+  if (
+    nounId === "review-package" ||
+    nounId === "evidence-trail" ||
+    nounId === "governance-approval" ||
+    nounId === "signed-review-record"
+  ) {
+    return goldenPathGlossarySeenStorageKey(nounId as GoldenPathGlossaryNounId);
+  }
+
+  return loadBearingGlossarySeenStorageKey(nounId);
+}
+
 /**
- * Inline golden-path product noun with a dotted underline and short definition tooltip
+ * Inline load-bearing product noun with a dotted underline and short definition tooltip
  * sourced from `customer-glossary-manifest.ts`.
  */
 export function InlineGlossaryChip({
@@ -29,7 +46,7 @@ export function InlineGlossaryChip({
   children,
   pulseOnFirstEncounter = true,
 }: InlineGlossaryChipProps): React.JSX.Element {
-  const entry = getGoldenPathGlossaryNoun(nounId);
+  const entry = getLoadBearingGlossaryNoun(nounId);
   const [firstPulse, setFirstPulse] = useState(false);
 
   useEffect(() => {
@@ -37,7 +54,7 @@ export function InlineGlossaryChip({
       return;
     }
 
-    const storageKey = goldenPathGlossarySeenStorageKey(nounId);
+    const storageKey = resolveSeenStorageKey(nounId);
 
     if (localStorage.getItem(storageKey) === "1") {
       return;
@@ -56,7 +73,7 @@ export function InlineGlossaryChip({
       return;
     }
 
-    localStorage.setItem(goldenPathGlossarySeenStorageKey(nounId), "1");
+    localStorage.setItem(resolveSeenStorageKey(nounId), "1");
     setFirstPulse(false);
   };
 
@@ -77,7 +94,7 @@ export function InlineGlossaryChip({
         <p className={cn("m-0", TOOLTIP_TYPOGRAPHY.title)}>{entry.label}</p>
         <p className={cn("mb-0 mt-1.5 leading-snug", TOOLTIP_TYPOGRAPHY.body)}>{entry.definition}</p>
         <p className={cn("mb-0 mt-2", TOOLTIP_TYPOGRAPHY.body)}>
-          <Link className={TOOLTIP_TYPOGRAPHY.link} href={goldenPathGlossaryHelpHref(nounId)}>
+          <Link className={TOOLTIP_TYPOGRAPHY.link} href={loadBearingGlossaryHelpHref(nounId)}>
             Open glossary →
           </Link>
         </p>
