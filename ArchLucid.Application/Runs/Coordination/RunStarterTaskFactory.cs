@@ -1,4 +1,5 @@
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.CloudInventoryExtractor;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -27,6 +28,8 @@ public static class RunStarterTaskFactory
     private const string SourcePriorManifest = "prior-manifest";
     private const string SourcePricingProfile = "pricing-profile";
     private const string SourceAzureExtractorZip = "azure-extractor-zip";
+    private const string SourceAwsExtractorZip = "aws-extractor-zip";
+    private const string SourceGcpExtractorZip = "gcp-extractor-zip";
 
     /// <summary>Builds the evidence bundle injected into every starter agent task.</summary>
     public static EvidenceBundle BuildEvidenceBundle(ArchitectureRequest request)
@@ -127,8 +130,13 @@ public static class RunStarterTaskFactory
         List<string> sources = [SourceArchitectureRequest, SourcePricingProfile, SourceServiceCatalog, SourcePriorManifest];
 
         if (AzureExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle))
-
             sources.Add(SourceAzureExtractorZip);
+
+        if (CloudInventoryExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle, CloudProvider.Aws))
+            sources.Add(SourceAwsExtractorZip);
+
+        if (CloudInventoryExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle, CloudProvider.Gcp))
+            sources.Add(SourceGcpExtractorZip);
 
         return sources;
     }
@@ -183,12 +191,38 @@ public static class RunStarterTaskFactory
             $"Estimate cost posture and cost-sensitive design considerations for system '{request.SystemName}'. " +
             $"Required capabilities: {string.Join(", ", request.RequiredCapabilities)}";
 
-        if (!AzureExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle) ||
-            !evidenceBundle.Metadata.TryGetValue(AzureExtractorEvidenceBundleMerger.MetadataCostCitationKey, out string? cite) ||
-            string.IsNullOrWhiteSpace(cite))
+        string? cite = TryResolveInventoryCostCitation(evidenceBundle);
+
+        if (string.IsNullOrWhiteSpace(cite))
             return baseText;
 
         return baseText + " Inventory citation: " + cite;
+    }
+
+    private static string? TryResolveInventoryCostCitation(EvidenceBundle evidenceBundle)
+    {
+        if (AzureExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle)
+            && evidenceBundle.Metadata.TryGetValue(
+                AzureExtractorEvidenceBundleMerger.MetadataCostCitationKey,
+                out string? azureCite)
+            && !string.IsNullOrWhiteSpace(azureCite))
+            return azureCite;
+
+        if (CloudInventoryExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle, CloudProvider.Aws)
+            && evidenceBundle.Metadata.TryGetValue(
+                CloudInventoryExtractorEvidenceBundleMerger.MetadataCostCitationKey(CloudProvider.Aws),
+                out string? awsCite)
+            && !string.IsNullOrWhiteSpace(awsCite))
+            return awsCite;
+
+        if (CloudInventoryExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle, CloudProvider.Gcp)
+            && evidenceBundle.Metadata.TryGetValue(
+                CloudInventoryExtractorEvidenceBundleMerger.MetadataCostCitationKey(CloudProvider.Gcp),
+                out string? gcpCite)
+            && !string.IsNullOrWhiteSpace(gcpCite))
+            return gcpCite;
+
+        return null;
     }
 
     private static string BuildComplianceObjective(ArchitectureRequest request)

@@ -22,6 +22,29 @@ public static class CloudInventoryExtractorCitationFormatter
             manifest.ScopeId);
     }
 
+    /// <summary>
+    ///     Full persisted-package citation (includes <paramref name="packageId" />) for evidence bundles and cost traceability.
+    /// </summary>
+    public static string FormatStoredPackageCitation(
+        Guid packageId,
+        CloudProvider cloudProvider,
+        int schemaVersion,
+        DateTime collectionTimestampUtc,
+        string scopeId)
+    {
+        if (collectionTimestampUtc.Kind != DateTimeKind.Utc)
+            collectionTimestampUtc = collectionTimestampUtc.ToUniversalTime();
+
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "{0}InventoryZIP packageId={1:N}; schemaVersion={2}; collectionTimestampUtc={3:o}; scopeId={4}",
+            ProviderPrefix(cloudProvider),
+            packageId,
+            schemaVersion,
+            collectionTimestampUtc,
+            scopeId);
+    }
+
     private static string ProviderPrefix(CloudProvider provider) =>
         provider switch
         {

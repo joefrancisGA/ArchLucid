@@ -179,17 +179,19 @@ public sealed class AuthorityPipelineWorkProcessor(
         IAzureExtractorPackageRepository azureExtractorPackages =
             scope.ServiceProvider.GetRequiredService<IAzureExtractorPackageRepository>();
 
-        AzureExtractorPackageProvenance? deferredExtractorProvenance =
-            await azureExtractorPackages.TryGetLatestProvenanceByRunIdAsync(jobScope, entry.RunId, cancellationToken);
+        ICloudInventoryExtractorPackageRepository cloudInventoryExtractorPackages =
+            scope.ServiceProvider.GetRequiredService<ICloudInventoryExtractorPackageRepository>();
 
-        if (deferredExtractorProvenance is not null)
-
+        if (await RunStarterInventoryEvidenceBundleMerger.MergeLinkedInventoryPackagesAsync(
+            evidenceBundle,
+            architectureRequest,
+            jobScope,
+            entry.RunId,
+            azureExtractorPackages,
+            cloudInventoryExtractorPackages,
+            cancellationToken))
         {
-
-            AzureExtractorEvidenceBundleMerger.Merge(evidenceBundle, deferredExtractorProvenance);
-
             await evidenceBundleRepository.UpdateAsync(evidenceBundle, cancellationToken);
-
         }
 
         ScopeContext materializedScope = AmbientScopeContext.CurrentOverride ?? jobScope;

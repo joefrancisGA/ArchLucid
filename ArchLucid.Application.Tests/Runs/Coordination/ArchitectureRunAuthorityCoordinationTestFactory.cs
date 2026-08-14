@@ -26,6 +26,7 @@ internal static class ArchitectureRunAuthorityCoordinationTestFactory
         IRunRepository runRepository,
         IScopeContextProvider scopeContextProvider,
         IAzureExtractorPackageRepository? azureExtractorPackageRepository = null,
+        ICloudInventoryExtractorPackageRepository? cloudInventoryExtractorPackageRepository = null,
         InMemoryTechnologyLedgerRepository? ledgerRepository = null,
         IModelExecutionProfileResolver? modelExecutionProfileResolver = null,
         IAuditService? auditService = null)
@@ -40,6 +41,7 @@ internal static class ArchitectureRunAuthorityCoordinationTestFactory
             runRepository,
             scopeContextProvider,
             azureExtractorPackageRepository ?? new NoOpAzureExtractorPackageRepository(),
+            cloudInventoryExtractorPackageRepository ?? new NoOpCloudInventoryExtractorPackageRepository(),
             ledger,
             TechnologyLedgerSeederTestDoubles.CreateRequestSeeder(ledger),
             TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(ledger, scopeContextProvider),

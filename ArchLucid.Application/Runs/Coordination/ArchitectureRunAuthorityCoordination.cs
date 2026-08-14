@@ -1,5 +1,4 @@
 using ArchLucid.Application.Agents;
-using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Mapping;
@@ -34,6 +33,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
     IAzureExtractorPackageRepository azureExtractorPackageRepository,
+    ICloudInventoryExtractorPackageRepository cloudInventoryExtractorPackageRepository,
     ITechnologyLedgerRepository technologyLedgerRepository,
     TechnologyLedgerRequestSeeder technologyLedgerRequestSeeder,
     TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
@@ -49,6 +49,10 @@ public sealed class ArchitectureRunAuthorityCoordination(
 
     private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository =
         azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
+
+    private readonly ICloudInventoryExtractorPackageRepository _cloudInventoryExtractorPackageRepository =
+        cloudInventoryExtractorPackageRepository
+        ?? throw new ArgumentNullException(nameof(cloudInventoryExtractorPackageRepository));
 
     private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
         technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
@@ -104,10 +108,14 @@ public sealed class ArchitectureRunAuthorityCoordination(
             evidenceBundle.EvidenceBundleId,
             enlistUnitOfWork);
         ScopeContext scopeForExtractor = _scopeContextProvider.GetCurrentScope();
-        AzureExtractorPackageProvenance? extractorProvenance =
-            await _azureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync(scopeForExtractor, authorityRun.RunId, cancellationToken);
-        if (extractorProvenance is not null)
-            AzureExtractorEvidenceBundleMerger.Merge(evidenceBundle, extractorProvenance);
+        await RunStarterInventoryEvidenceBundleMerger.MergeLinkedInventoryPackagesAsync(
+            evidenceBundle,
+            request,
+            scopeForExtractor,
+            authorityRun.RunId,
+            _azureExtractorPackageRepository,
+            _cloudInventoryExtractorPackageRepository,
+            cancellationToken);
         bool deferred = authorityRun.ContextSnapshotId is null;
         string runId = authorityRun.RunId.ToString("N");
         ArchitectureRun run = BuildRunFromAuthority(authorityRun, request, deferred);
