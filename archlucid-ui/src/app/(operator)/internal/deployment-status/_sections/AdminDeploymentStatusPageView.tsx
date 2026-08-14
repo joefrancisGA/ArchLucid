@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { DeploymentStatusSystemHealthVocabularyRail } from "@/components/DeploymentStatusSystemHealthVocabularyRail";
+import { DeploymentStatusEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { PageHeading } from "@/components/PageHeading";
@@ -117,6 +118,8 @@ export function AdminDeploymentStatusPageView(props: Props) {
           </Link>
         </div>
       </PageHeading>
+
+      <DeploymentStatusEvidenceOrientationStrip />
 
       <DeploymentStatusSystemHealthVocabularyRail currentSurfaceId="deployment-status" />
 

@@ -262,6 +262,14 @@ import {
 } from "@/lib/connection-status-evidence-copy";
 import { CONNECTION_STATUS_HELP_CLAIM_HEADING_ID } from "@/lib/connection-status-help-guide-content";
 import {
+  DEPLOYMENT_STATUS_CLAIM_DISCIPLINE,
+  DEPLOYMENT_STATUS_CLAIM_DISCIPLINE_HEADING,
+  DEPLOYMENT_STATUS_CLAIM_HEADING_ID,
+  DEPLOYMENT_STATUS_FOLLOW_UPS_TITLE,
+  DEPLOYMENT_STATUS_SOURCES,
+  DEPLOYMENT_STATUS_SOURCES_INTRO,
+} from "@/lib/deployment-status-evidence-copy";
+import {
   DECISION_REGISTER_HELP_CLAIM_DISCIPLINE,
   DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING,
   DECISION_REGISTER_HELP_FOLLOW_UPS_TITLE,
@@ -706,6 +714,25 @@ export function ConnectionStatusEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={CONNECTION_STATUS_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECTION_STATUS_SOURCES_INTRO}
       sources={CONNECTION_STATUS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function DeploymentStatusEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="deployment-status"
+      claim={DEPLOYMENT_STATUS_CLAIM_DISCIPLINE}
+      claimHeading={DEPLOYMENT_STATUS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={DEPLOYMENT_STATUS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={DEPLOYMENT_STATUS_FOLLOW_UPS_TITLE}
+      sourcesIntro={DEPLOYMENT_STATUS_SOURCES_INTRO}
+      sources={DEPLOYMENT_STATUS_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"

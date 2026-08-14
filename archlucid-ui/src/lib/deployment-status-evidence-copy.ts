@@ -5,6 +5,12 @@ export const DEPLOYMENT_STATUS_CANONICAL_PATH = "/internal/deployment-status" as
 
 export const DEPLOYMENT_STATUS_HELP_TOPIC_LABEL = "How deployment status works" as const;
 
+export const DEPLOYMENT_STATUS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const DEPLOYMENT_STATUS_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const DEPLOYMENT_STATUS_CLAIM_HEADING_ID = "deployment-status-claim-discipline-heading" as const;
+
 /** Primary page lead — teaches release identity without BUILD_ID jargon in the first viewport (TB-1426). */
 export const ADMIN_DEPLOYMENT_STATUS_PAGE_TITLE = "Deployment status" as const;
 
