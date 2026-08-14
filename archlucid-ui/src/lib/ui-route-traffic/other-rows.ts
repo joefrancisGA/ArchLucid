@@ -13,11 +13,6 @@ import {
   LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_ROW_ID,
 } from "@/lib/ui-route-traffic-legacy-architecture-graph";
 import {
-  LEGACY_QUICK_START_TRAFFIC_NOTE,
-  LEGACY_QUICK_START_TRAFFIC_PATH,
-  LEGACY_QUICK_START_TRAFFIC_ROW_ID,
-} from "@/lib/ui-route-traffic-legacy-quick-start";
-import {
   LEGACY_LOGIN_TRAFFIC_NOTE,
   LEGACY_LOGIN_TRAFFIC_PATH,
   LEGACY_LOGIN_TRAFFIC_ROW_ID,
@@ -94,16 +89,6 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     noteMustContain: ["Legacy", "/insights/evidence-graph"],
     noteMustNotContainLower: ["live marketing", "pagecontextualhelp", "score 68"],
     sectionMustNotEqual: ["Planning", "Operate"],
-  },
-  /** Traffic workbook row ID for legacy `/quick-start` redirect shim. Owner backlog shorthand: QUI. */
-  {
-    rowId: LEGACY_QUICK_START_TRAFFIC_ROW_ID,
-    path: LEGACY_QUICK_START_TRAFFIC_PATH,
-    section: "Redirect shim",
-    note: LEGACY_QUICK_START_TRAFFIC_NOTE,
-    noteMustContain: ["Legacy", "/get-started"],
-    noteMustNotContainLower: ["live marketing", "pagecontextualhelp", "score 12"],
-    sectionMustNotEqual: ["Marketing"],
   },
   /** Traffic workbook row ID for post-auth bootstrap. Owner backlog shorthand: AUB. */
   {

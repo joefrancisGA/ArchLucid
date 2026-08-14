@@ -53,6 +53,10 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
 
   const funnel = data.pilotFunnel;
 
+  if (!funnel) {
+    return null;
+  }
+
   // Nothing meaningful to display until the tenant has at least one run.
   if (funnel.committedRunsInScope === 0 && funnel.totalRunsInScope === 0) {
     return null;

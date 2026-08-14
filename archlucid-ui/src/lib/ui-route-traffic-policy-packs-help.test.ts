@@ -20,6 +20,6 @@ describe("ui-route-traffic-policy-packs-help (HEO)", () => {
     expect(row?.notes).toBe(POLICY_PACKS_HELP_TRAFFIC_NOTE);
     expect(row?.notes).toMatch(/TB-2092|PageContextualHelp|Learn more|claim-discipline/i);
     expect(row?.notes).toContain("Score 58");
-    expect(rows.find((candidate) => candidate.id === "HPO")).toBeUndefined();
+    expect(rows.find((candidate) => candidate.id === "HPO")?.path).toBe("/help/pilot-outcomes");
   });
 });

@@ -9,20 +9,20 @@ import {
 } from "@/lib/ui-route-traffic-legacy-quick-start";
 
 describe("ui-route-traffic legacy quick-start (TB-1816)", () => {
-  it("tracks QUI as a redirect-only workbook row", () => {
+  it("does not track retired QUI; canonical /get-started stays on GXX", () => {
     const registryRow = findUiRouteTrafficRow(LEGACY_QUICK_START_TRAFFIC_ROW_ID);
-    const templateRow = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown()).find(
-      (row) => row.id === LEGACY_QUICK_START_TRAFFIC_ROW_ID,
-    );
+    const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
+    const quIRow = rows.find((row) => row.id === LEGACY_QUICK_START_TRAFFIC_ROW_ID);
+    const quickStartPathRow = rows.find((row) => row.path === LEGACY_QUICK_START_TRAFFIC_PATH);
+    const getStartedRow = rows.find((row) => row.id === "GXX");
 
-    expect(registryRow?.path).toBe(LEGACY_QUICK_START_TRAFFIC_PATH);
-    expect(registryRow?.section).toBe("Redirect shim");
-    expect(registryRow?.note).toBe(LEGACY_QUICK_START_TRAFFIC_NOTE);
-    expect(templateRow?.path).toBe(LEGACY_QUICK_START_TRAFFIC_PATH);
-    expect(templateRow?.section).toBe("Redirect shim");
-    expect(templateRow?.notes).toBe(LEGACY_QUICK_START_TRAFFIC_NOTE);
-    expect(templateRow?.notes.toLowerCase()).toContain("legacy");
-    expect(templateRow?.notes).toContain("/get-started");
-    expect(templateRow?.notes).not.toMatch(/pagecontextualhelp/i);
+    expect(registryRow).toBeUndefined();
+    expect(quIRow).toBeUndefined();
+    expect(quickStartPathRow).toBeUndefined();
+    expect(getStartedRow?.path).toBe("/get-started");
+    expect(getStartedRow?.notes.toLowerCase()).toContain("legacy /quick-start");
+    expect(LEGACY_QUICK_START_TRAFFIC_NOTE.toLowerCase()).toContain("legacy");
+    expect(LEGACY_QUICK_START_TRAFFIC_NOTE).toContain("/get-started");
+    expect(LEGACY_QUICK_START_TRAFFIC_NOTE).not.toMatch(/live marketing/i);
   });
 });
