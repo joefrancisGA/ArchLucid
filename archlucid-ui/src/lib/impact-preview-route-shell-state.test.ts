@@ -16,4 +16,11 @@ describe("impact-preview-route-shell-state", () => {
 
     setImpactPreviewShellPageState("unknown");
   });
+
+  it("suppresses the coach strip until the page reports ready", () => {
+    expect(routeViewExplanationForPathname(IMPACT_PREVIEW_PATH, { impactPreviewPageState: "unknown" })).toBeNull();
+    expect(
+      routeViewExplanationForPathname(IMPACT_PREVIEW_PATH, { impactPreviewPageState: "ready" })?.title,
+    ).toBe("Impact preview");
+  });
 });

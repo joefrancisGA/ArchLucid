@@ -46,10 +46,17 @@ function impactPreviewHeaderStatus(pageState: ImpactPreviewPageState): Enterpris
     case "no_baseline":
     case "no_candidates":
       return "needs-attention";
+
     case "permission_denied":
       return "blocked";
-    default:
+
+    case "ready":
       return null;
+
+    default: {
+      const exhaustive: never = pageState;
+      return exhaustive;
+    }
   }
 }
 
@@ -67,15 +74,6 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
   const planningReachable = useIsOperatorNavHrefReachable(IMPACT_PREVIEW_PLANNING_HREF);
   const baselineAvailability = useImpactPreviewBaselineAvailability();
 
-  if (m.isDemo) {
-    return (
-      <DemoWorkspaceCapabilityUnavailablePanel
-        capability={IMPACT_PREVIEW_PAGE_TITLE}
-        description="In a connected tenant, architects preview the estimated impact of a proposed architecture change with a before-and-after comparison."
-      />
-    );
-  }
-
   const pageState = resolveImpactPreviewPageState({
     candidateCount: m.candidates.length,
     listLoading: m.listLoading,
@@ -92,6 +90,15 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
       setImpactPreviewShellPageState("unknown");
     };
   }, [pageState]);
+
+  if (m.isDemo) {
+    return (
+      <DemoWorkspaceCapabilityUnavailablePanel
+        capability={IMPACT_PREVIEW_PAGE_TITLE}
+        description="In a connected tenant, architects preview the estimated impact of a proposed architecture change with a before-and-after comparison."
+      />
+    );
+  }
 
   const selectedRun =
     m.detail !== null

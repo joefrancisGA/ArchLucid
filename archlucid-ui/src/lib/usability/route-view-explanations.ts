@@ -251,12 +251,11 @@ export function routeViewExplanationForPathname(
         };
       }
 
-      if (row.prefix === IMPACT_PREVIEW_PATH) {
-        const impactPreviewPageState = options?.impactPreviewPageState ?? "unknown";
-
-        if (impactPreviewPageState !== "ready" && impactPreviewPageState !== "unknown") {
-          return null;
-        }
+      // Blocked impact-preview states render their own recovery card, and "unknown" means the page
+      // has not reported yet (SSR and first paint) — showing orientation there flashes guidance that
+      // contradicts the recovery CTA and then retracts it.
+      if (row.prefix === IMPACT_PREVIEW_PATH && (options?.impactPreviewPageState ?? "unknown") !== "ready") {
+        return null;
       }
 
       return row.explanation;

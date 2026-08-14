@@ -77,11 +77,12 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(billing?.title).toBe("Billing & plans");
     expect(billing?.summary.toLowerCase()).toContain("plan");
 
-    const impact = routeViewExplanationForPathname(IMPACT_PREVIEW_PATH);
+    const impact = routeViewExplanationForPathname(IMPACT_PREVIEW_PATH, { impactPreviewPageState: "ready" });
     expect(impact?.title).toBe("Impact preview");
     expect(impact?.summary.toLowerCase()).toContain("architecture");
 
     expect(routeViewExplanationForPathname(IMPACT_PREVIEW_PATH, { impactPreviewPageState: "no_baseline" })).toBeNull();
+    expect(routeViewExplanationForPathname(IMPACT_PREVIEW_PATH)).toBeNull();
 
     const architectures = routeViewExplanationForPathname(ARCHITECTURES_LIST_PATH);
     expect(architectures?.title).toBe("Architecture drafts");
