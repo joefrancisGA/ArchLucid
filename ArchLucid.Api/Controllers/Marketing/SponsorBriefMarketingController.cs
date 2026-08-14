@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 using ArchLucid.Api.Marketing;
 using ArchLucid.Api.ProblemDetails;
@@ -24,15 +24,15 @@ using ArchLucid.Api.Security;
 [AllowUnscopedRoute]
 public sealed class SponsorBriefMarketingController(
     IWebHostEnvironment hostEnvironment,
-    ExecutiveSponsorBriefPdfBuilder pdfBuilder) : ControllerBase
+    SponsorBriefPdfBuilder pdfBuilder) : ControllerBase
 {
     private readonly IWebHostEnvironment _hostEnvironment =
         hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
 
-    private readonly ExecutiveSponsorBriefPdfBuilder _pdfBuilder =
+    private readonly SponsorBriefPdfBuilder _pdfBuilder =
         pdfBuilder ?? throw new ArgumentNullException(nameof(pdfBuilder));
 
-    /// <summary>Returns the sponsor brief as PDF — content matches <c>docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md</c> on disk.</summary>
+    /// <summary>Returns the sponsor brief as PDF â€” content matches <c>docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md</c> on disk.</summary>
     [HttpGet("sponsor-brief.pdf")]
     [OutputCache(PolicyName = "MarketingArtifact")]
     [Produces("application/pdf")]

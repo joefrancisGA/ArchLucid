@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Pilots;
@@ -41,7 +41,7 @@ namespace ArchLucid.Api.Controllers.Pilots;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class PilotsController(
     FirstValueReportBuilder firstValueReportBuilder,
-    IExecutiveReviewPacketBuilder executiveReviewPacketBuilder,
+    ISponsorReviewPacketBuilder sponsorReviewPacketBuilder,
     FirstValueReportPdfBuilder firstValueReportPdfBuilder,
     PilotScorecardBuilder pilotScorecardBuilder,
     IPilotInProductScorecardService pilotInProductScorecardService,
@@ -189,7 +189,7 @@ public sealed class PilotsController(
     }
 
     /// <summary>
-    ///     Consolidated sponsor packet (manifest, findings, ROI basis by disposition, decisions) — one Markdown download.
+    ///     Consolidated sponsor packet (manifest, findings, ROI basis by disposition, decisions) â€” one Markdown download.
     /// </summary>
     [HttpGet("runs/{runId}/sponsor-review-packet")]
     [Produces("text/markdown")]
@@ -197,7 +197,7 @@ public sealed class PilotsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetExecutiveReviewPacket(string runId, CancellationToken cancellationToken)
     {
-        string? markdown = await executiveReviewPacketBuilder.BuildMarkdownAsync(runId, cancellationToken);
+        string? markdown = await sponsorReviewPacketBuilder.BuildMarkdownAsync(runId, cancellationToken);
 
         return markdown is null
             ? this.NotFoundProblem($"Sponsor review packet is not available for run '{runId}'.", ProblemTypes.RunNotFound)
@@ -320,7 +320,7 @@ public sealed class PilotsController(
     }
 
     /// <summary>
-    ///     PDF projection of the first-value-report Markdown — a one-shot sponsor email attachment for a committed run.
+    ///     PDF projection of the first-value-report Markdown â€” a one-shot sponsor email attachment for a committed run.
     ///     Mirrors the auth surface of <see cref="GetFirstValueReport" /> (ReadAuthority) so the operator-shell post-commit
     ///     CTA does not introduce a new commercial gate at the click site.
     /// </summary>
@@ -591,7 +591,7 @@ public sealed class PilotsController(
     }
 
     /// <summary>
-    ///     One-page sponsor PDF for a run (Standard tier) — headline timing plus 30-day pilot scorecard mix.
+    ///     One-page sponsor PDF for a run (Standard tier) â€” headline timing plus 30-day pilot scorecard mix.
     /// </summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/sponsor-one-pager")]
