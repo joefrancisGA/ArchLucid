@@ -17,7 +17,14 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_PAGE_SUBTITLE =
   "Run closed-loop architecture reasoning or repeatable baseline evaluation against a product review or free-form description.";
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_OVERVIEW =
-  "Architecture intelligence applies closed-loop reasoning or baseline evaluation to an architecture description, then lets you publish structured findings into the workspace evidence trail when output is ready.";
+  "Closed-loop reasoning produces structured findings and framing questions you can review before publishing anything to the workspace findings trail. Publishing is a governed follow-up — open Findings or start a review when output needs triage or an evidence-backed package.";
+
+/** Help Start here card — role-neutral access guidance for the reasoning surface. */
+export const ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION =
+  "View architecture intelligence with workspace read access; submitting descriptions, running closed-loop reasoning, and publishing findings requires execute access.";
+
+/** Compact access tag beside the Start here primary action. */
+export const ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION_TAG = "Read + execute";
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE = "Start here";
 
@@ -29,7 +36,8 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION = {
 export const ARCHITECTURE_INTELLIGENCE_HELP_REASONING_HREF =
   `${ARCHITECTURE_INTELLIGENCE_CANONICAL_PATH}#architecture-description` as const;
 
-export const ARCHITECTURE_INTELLIGENCE_HELP_BASELINE_EVALUATION_HREF = ARCHITECTURE_INTELLIGENCE_CANONICAL_PATH;
+export const ARCHITECTURE_INTELLIGENCE_HELP_BASELINE_EVALUATION_HREF =
+  `${ARCHITECTURE_INTELLIGENCE_CANONICAL_PATH}#baseline-evaluation` as const;
 
 export type ArchitectureIntelligenceHelpItem = {
   readonly label: string;
@@ -79,3 +87,10 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS: readonly HelpMarkdow
   },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
+
+/** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
+export const ARCHITECTURE_INTELLIGENCE_HELP_NEGATION_DRIFT_MARKERS = {
+  overviewMustNotContain: ["not a sealed-review diligence Sources package", "not a diligence Sources package"],
+  claimMustContain: "not a sealed-review diligence Sources package",
+  retentionMustAppearOnce: "retained under your workspace data-retention policy",
+} as const;

@@ -7,8 +7,13 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { ARCHITECTURE_INTELLIGENCE_HELP_CANONICAL_PATH } from "@/lib/architecture-intelligence-help-evidence-copy";
+import {
+  ARCHITECTURE_INTELLIGENCE_HELP_CANONICAL_PATH,
+  ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE,
+  ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK,
+} from "@/lib/architecture-intelligence-help-evidence-copy";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS,
   ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS,
@@ -17,6 +22,8 @@ import {
   ARCHITECTURE_INTELLIGENCE_HELP_PAGE_SUBTITLE,
   ARCHITECTURE_INTELLIGENCE_HELP_PAGE_TITLE,
   ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION,
+  ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION,
+  ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION_TAG,
   ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/architecture-intelligence-help-guide-content";
 import { ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-intelligence-evidence-copy";
@@ -87,12 +94,35 @@ export function HelpArchitectureIntelligenceGuideView(
                 {ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE}
               </CardTitle>
             </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.href}>
-                  {ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.label}
+            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button asChild size="sm" variant="primary">
+                  <Link href={ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.href}>
+                    {ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.label}
+                  </Link>
+                </Button>
+                <StatusTag
+                  kind="neutral"
+                  label={ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION_TAG}
+                  data-testid="help-architecture-intelligence-role-precondition-tag"
+                />
+              </div>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-architecture-intelligence-role-precondition"
+              >
+                {ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION}
+              </p>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-architecture-intelligence-data-handling"
+              >
+                {ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE}{" "}
+                <Link className={OPERATOR_LINK.nav} href={ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK.href}>
+                  {ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK.label}
                 </Link>
-              </Button>
+                .
+              </p>
             </CardContent>
           </Card>
 

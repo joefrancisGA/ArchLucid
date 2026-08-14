@@ -753,6 +753,7 @@ export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(): React.JS
       sources={ARCHITECTURE_INTELLIGENCE_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }

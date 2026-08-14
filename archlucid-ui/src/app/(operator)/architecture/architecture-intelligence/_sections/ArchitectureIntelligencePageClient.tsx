@@ -452,7 +452,7 @@ export function ArchitectureIntelligencePageClient() {
           testId="architecture-intelligence-budget-notice"
         />
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" id="baseline-evaluation">
           {canAnalyzeHydratedReview ? (
             <Button
               type="button"

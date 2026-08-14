@@ -9,11 +9,15 @@ import { HelpArchitectureIntelligenceGuideView } from "@/app/(operator)/help/_se
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING,
+  ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE,
+  ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK,
   ARCHITECTURE_INTELLIGENCE_HELP_SOURCES,
 } from "@/lib/architecture-intelligence-help-evidence-copy";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS,
   ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION,
+  ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION,
+  ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION_TAG,
   ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/architecture-intelligence-help-guide-content";
 import { ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-intelligence-evidence-copy";
@@ -40,11 +44,24 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Last reviewed 2026-08-13 · architecture intelligence orientation",
     );
+    expect(screen.getByTestId("help-architecture-intelligence-role-precondition")).toHaveTextContent(
+      ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION,
+    );
+    expect(screen.getByTestId("help-architecture-intelligence-role-precondition-tag")).toHaveTextContent(
+      ARCHITECTURE_INTELLIGENCE_HELP_ROLE_PRECONDITION_TAG,
+    );
+    expect(screen.getByTestId("help-architecture-intelligence-data-handling")).toHaveTextContent(
+      ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_CLAUSE,
+    );
+    expect(screen.getByRole("link", { name: ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK.label })).toHaveAttribute(
+      "href",
+      ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK.href,
+    );
     expect(screen.getByRole("heading", { name: ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("help-architecture-intelligence-claim-discipline").textContent).toContain(
       ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByTestId("help-architecture-intelligence-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-architecture-intelligence-claim-discipline").textContent).not.toContain(
       "tenant-scoped",
     );
     expect(screen.getByRole("heading", { name: ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE })).toBeInTheDocument();
@@ -57,6 +74,17 @@ describe("HelpArchitectureIntelligenceGuideView", () => {
 
     for (const item of ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS) {
       expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
+    }
+
+    const linkedHrefs = [
+      ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.href,
+      ...ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS.map((item) => item.href),
+    ];
+
+    expect(new Set(linkedHrefs).size).toBe(linkedHrefs.length);
+
+    for (const source of ARCHITECTURE_INTELLIGENCE_HELP_SOURCES) {
+      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
     }
 
     expect(screen.getByRole("link", { name: "Model governance help" })).toHaveAttribute(
