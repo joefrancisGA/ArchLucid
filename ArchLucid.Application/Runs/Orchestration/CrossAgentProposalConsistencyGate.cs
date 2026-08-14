@@ -21,6 +21,8 @@ public static class CrossAgentProposalConsistencyGate
         HashSet<string> claimedServiceEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> claimedDatastoreEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> claimedRequiredControls = new(StringComparer.OrdinalIgnoreCase);
+        List<ManifestService> acceptedBatchServices = [];
+        List<ManifestDatastore> acceptedBatchDatastores = [];
 
         foreach (AgentResult result in ordered)
         {
@@ -29,8 +31,14 @@ public static class CrossAgentProposalConsistencyGate
             if (proposal is null)
                 continue;
 
-            proposal.AddedServices = ClaimServices(proposal.AddedServices, claimedServiceEndpointKeys);
-            proposal.AddedDatastores = ClaimDatastores(proposal.AddedDatastores, claimedDatastoreEndpointKeys);
+            proposal.AddedServices = ClaimServices(
+                proposal.AddedServices,
+                claimedServiceEndpointKeys,
+                acceptedBatchServices);
+            proposal.AddedDatastores = ClaimDatastores(
+                proposal.AddedDatastores,
+                claimedDatastoreEndpointKeys,
+                acceptedBatchDatastores);
             proposal.RequiredControls = ClaimRequiredControls(proposal.RequiredControls, claimedRequiredControls);
             proposal.AddedRelationships = FilterRelationships(
                 declaredBatchEndpointKeys,
@@ -90,7 +98,8 @@ public static class CrossAgentProposalConsistencyGate
 
     private static List<ManifestService> ClaimServices(
         IReadOnlyList<ManifestService>? services,
-        HashSet<string> claimedServiceEndpointKeys)
+        HashSet<string> claimedServiceEndpointKeys,
+        List<ManifestService> acceptedBatchServices)
     {
         if (services is null || services.Count == 0)
             return [];
@@ -102,14 +111,12 @@ public static class CrossAgentProposalConsistencyGate
             if (TopologyProposalRelationshipEndpointIndex.TryClaimService(service, claimedServiceEndpointKeys))
             {
                 accepted.Add(service);
+                acceptedBatchServices.Add(service);
                 continue;
             }
 
-            if (TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(service, accepted))
-            {
-                accepted.Add(service);
-                TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(claimedServiceEndpointKeys, service);
-            }
+            if (TryAcceptRenameAliasService(service, accepted, acceptedBatchServices, claimedServiceEndpointKeys))
+                continue;
         }
 
         return accepted;
@@ -117,7 +124,8 @@ public static class CrossAgentProposalConsistencyGate
 
     private static List<ManifestDatastore> ClaimDatastores(
         IReadOnlyList<ManifestDatastore>? datastores,
-        HashSet<string> claimedDatastoreEndpointKeys)
+        HashSet<string> claimedDatastoreEndpointKeys,
+        List<ManifestDatastore> acceptedBatchDatastores)
     {
         if (datastores is null || datastores.Count == 0)
             return [];
@@ -129,17 +137,51 @@ public static class CrossAgentProposalConsistencyGate
             if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(datastore, claimedDatastoreEndpointKeys))
             {
                 accepted.Add(datastore);
+                acceptedBatchDatastores.Add(datastore);
                 continue;
             }
 
-            if (TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(datastore, accepted))
-            {
-                accepted.Add(datastore);
-                TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(claimedDatastoreEndpointKeys, datastore);
-            }
+            if (TryAcceptRenameAliasDatastore(datastore, accepted, acceptedBatchDatastores, claimedDatastoreEndpointKeys))
+                continue;
         }
 
         return accepted;
+    }
+
+    private static bool TryAcceptRenameAliasService(
+        ManifestService service,
+        List<ManifestService> accepted,
+        List<ManifestService> acceptedBatchServices,
+        HashSet<string> claimedServiceEndpointKeys)
+    {
+        if (!TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(service, accepted)
+            && !TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(service, acceptedBatchServices))
+        {
+            return false;
+        }
+
+        accepted.Add(service);
+        acceptedBatchServices.Add(service);
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(claimedServiceEndpointKeys, service);
+        return true;
+    }
+
+    private static bool TryAcceptRenameAliasDatastore(
+        ManifestDatastore datastore,
+        List<ManifestDatastore> accepted,
+        List<ManifestDatastore> acceptedBatchDatastores,
+        HashSet<string> claimedDatastoreEndpointKeys)
+    {
+        if (!TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(datastore, accepted)
+            && !TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(datastore, acceptedBatchDatastores))
+        {
+            return false;
+        }
+
+        accepted.Add(datastore);
+        acceptedBatchDatastores.Add(datastore);
+        TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(claimedDatastoreEndpointKeys, datastore);
+        return true;
     }
 
     private static List<ManifestRelationship> FilterRelationships(

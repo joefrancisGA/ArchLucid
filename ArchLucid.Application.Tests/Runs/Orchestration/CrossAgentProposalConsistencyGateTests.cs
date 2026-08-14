@@ -261,7 +261,7 @@ public sealed class CrossAgentProposalConsistencyGateTests
                 [
                     new ManifestService
                     {
-                        ServiceName = "renamed-api",
+                        ServiceName = "api",
                         ServiceId = "svc-1",
                         ServiceType = ServiceType.Api,
                         RuntimePlatform = RuntimePlatform.Functions,
@@ -690,5 +690,109 @@ public sealed class CrossAgentProposalConsistencyGateTests
         CrossAgentProposalConsistencyGate.ApplyToResults([followUp, declaration]);
 
         followUp.ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ApplyToResults_preserves_compliance_rename_alias_when_topology_claimed_same_service_id()
+    {
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult compliance = new()
+        {
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology, compliance]);
+
+        compliance.ProposedChanges!.AddedServices.Should().ContainSingle()
+            .Which.ServiceName.Should().Be("renamed-api");
+        compliance.ProposedChanges.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ApplyToResults_preserves_critic_rename_alias_when_topology_claimed_same_service_id()
+    {
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult critic = new()
+        {
+            AgentType = AgentType.Critic,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Critic,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology, critic]);
+
+        critic.ProposedChanges!.AddedServices.Should().ContainSingle()
+            .Which.ServiceName.Should().Be("renamed-api");
     }
 }
