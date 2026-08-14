@@ -66,10 +66,12 @@ import {
 import { API_KEYS_HELP_CLAIM_HEADING_ID } from "@/lib/api-keys-help-guide-content";
 import {
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE,
+  SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE_HEADING,
   SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE,
   SYSTEM_HEALTH_HELP_SOURCES,
   SYSTEM_HEALTH_HELP_SOURCES_INTRO,
 } from "@/lib/system-health-help-evidence-copy";
+import { SYSTEM_HEALTH_HELP_CLAIM_HEADING_ID } from "@/lib/system-health-help-guide-content";
 import {
   AI_USAGE_HELP_CLAIM_DISCIPLINE,
   AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -128,10 +130,12 @@ import {
 import { SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID } from "@/lib/search-review-evidence-help-guide-content";
 import {
   JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
   JIRA_INTEGRATION_HELP_SOURCES,
   JIRA_INTEGRATION_HELP_SOURCES_INTRO,
 } from "@/lib/jira-integration-help-evidence-copy";
+import { JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/jira-integration-help-guide-content";
 import {
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE,
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -142,10 +146,12 @@ import {
 import { MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID } from "@/lib/model-governance-help-guide-content";
 import {
   SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   SERVICENOW_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
   SERVICENOW_INTEGRATION_HELP_SOURCES,
   SERVICENOW_INTEGRATION_HELP_SOURCES_INTRO,
 } from "@/lib/servicenow-integration-help-evidence-copy";
+import { SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/servicenow-integration-help-guide-content";
 import {
   SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE,
   SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE,
@@ -154,10 +160,12 @@ import {
 } from "@/lib/sponsor-dashboard-help-evidence-copy";
 import {
   WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE,
+  WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING,
   WORKSPACE_SETTINGS_HELP_FOLLOW_UPS_TITLE,
   WORKSPACE_SETTINGS_HELP_SOURCES,
   WORKSPACE_SETTINGS_HELP_SOURCES_INTRO,
 } from "@/lib/workspace-settings-help-evidence-copy";
+import { WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID } from "@/lib/workspace-settings-help-guide-content";
 import {
   ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE,
   ARCHITECTURE_SCORECARD_HELP_SOURCES,
@@ -202,10 +210,12 @@ import { ADVISORY_SCANS_HELP_CLAIM_HEADING_ID } from "@/lib/advisory-scans-help-
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
   SLACK_INTEGRATION_HELP_SOURCES,
   SLACK_INTEGRATION_HELP_SOURCES_INTRO,
 } from "@/lib/slack-integration-help-evidence-copy";
+import { SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/slack-integration-help-guide-content";
 import {
   STANDARDS_RULES_HELP_CLAIM_DISCIPLINE,
   STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE,
@@ -494,6 +504,8 @@ export function SystemHealthHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-system-health"
       claim={SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE}
+      claimHeading={SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={SYSTEM_HEALTH_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE}
@@ -501,6 +513,8 @@ export function SystemHealthHelpEvidenceOrientationStrip(): React.JSX.Element {
       sources={SYSTEM_HEALTH_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
@@ -580,6 +594,8 @@ export function WorkspaceSettingsHelpEvidenceOrientationStrip(): React.JSX.Eleme
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-workspace-settings"
       claim={WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={WORKSPACE_SETTINGS_HELP_FOLLOW_UPS_TITLE}
@@ -602,6 +618,8 @@ export function SlackIntegrationHelpEvidenceOrientationStrip(
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-slack-integration"
       claim={SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE}
+      claimHeading={SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
@@ -905,6 +923,8 @@ export function JiraIntegrationHelpEvidenceOrientationStrip(
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-jira-integration"
       claim={JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE}
+      claimHeading={JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
@@ -929,6 +949,8 @@ export function ServiceNowIntegrationHelpEvidenceOrientationStrip(
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-servicenow-integration"
       claim={SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE}
+      claimHeading={SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SERVICENOW_INTEGRATION_HELP_FOLLOW_UPS_TITLE}

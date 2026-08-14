@@ -23,6 +23,7 @@ const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "preferences",
   "recurrence-schedules",
   "search-review-evidence",
+  "system-health",
 ]);
 
 function formatGuideReviewProvenance(entry: ProductDocumentationEntry): string | null {
