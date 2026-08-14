@@ -1,6 +1,7 @@
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
-import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { getActiveSampleScenario } from "@/lib/samples/registry";
+import { sampleScenarioPolicyPackLabel } from "@/lib/samples/policy-pack-presentation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
@@ -22,7 +23,7 @@ export type StandardsRuleRow = {
 
 type KnownRulePresentation = Omit<StandardsRuleRow, "ruleKey">;
 
-const primaryPackLabel = policyPackBuyerLabel("healthcare-claims-v3", "3.4.1");
+const primaryPackLabel = sampleScenarioPolicyPackLabel(getActiveSampleScenario());
 
 const KNOWN_RULE_PRESENTATION: Readonly<Record<string, KnownRulePresentation>> = {
   "phi.minimization.intake": {

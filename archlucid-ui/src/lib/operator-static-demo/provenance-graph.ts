@@ -1,6 +1,9 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
+import { sampleScenarioPolicyPackLabel } from "@/lib/samples/policy-pack-presentation";
+import { resolveSampleScenarioByRunId } from "@/lib/samples/registry";
 import {
   getShowcaseStaticDemoPayload,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -20,6 +23,15 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
   const rid = d.run.runId;
 
   const manifest = d.manifest;
+  const scenario = resolveSampleScenarioByRunId(rid);
+  const policyPackReferenceId =
+    scenario?.policyPackIdAliases[0] ?? (manifest.ruleSetId === "enterprise-privacy-v2"
+      ? "demo-enterprise-privacy-pack"
+      : "demo-healthcare-claims-pack");
+  const policyPackLabel =
+    scenario !== null
+      ? sampleScenarioPolicyPackLabel(scenario)
+      : policyPackBuyerLabel(manifest.ruleSetId ?? "healthcare-claims-v3", manifest.ruleSetVersion ?? CLAIMS_INTAKE_RULE_SET_VERSION);
 
   const chain = d.authorityChain;
 
@@ -90,9 +102,9 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         type: "PolicyPack",
 
-        referenceId: "demo-healthcare-claims-pack",
+        referenceId: policyPackReferenceId,
 
-        name: policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"),
+        name: policyPackLabel,
 
       },
 

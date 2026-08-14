@@ -19,6 +19,9 @@ export const CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE = "Enterprise Customer I
 
 export const CUSTOMER_INTAKE_POLICY_PACK_DETAIL_HREF = "/governance/policy-packs/demo-enterprise-privacy-pack";
 
+/** Pinned semver for the enterprise-privacy-v2 static demo spine. */
+export const CUSTOMER_INTAKE_RULE_SET_VERSION = "2.1.0";
+
 export const CUSTOMER_INTAKE_DEMO_TENANT_NAME = "Customer Intake Showcase";
 
 export const CUSTOMER_INTAKE_DEMO_TENANT_CATALOG_ID = "al-tenant-customer-intake-showcase";
@@ -43,6 +46,7 @@ export const CUSTOMER_INTAKE_SAMPLE_DEFINITION: SampleScenarioDefinition = {
   policyPackDetailHref: CUSTOMER_INTAKE_POLICY_PACK_DETAIL_HREF,
   policyPackIdAliases: ["demo-enterprise-privacy-pack", "enterprise-privacy-v2", "enterprise_privacy"],
   ruleSetId: "enterprise-privacy-v2",
+  ruleSetVersion: CUSTOMER_INTAKE_RULE_SET_VERSION,
   tenantName: CUSTOMER_INTAKE_DEMO_TENANT_NAME,
   tenantCatalogId: CUSTOMER_INTAKE_DEMO_TENANT_CATALOG_ID,
   workspaceLabel: "Customer Intake Demo",

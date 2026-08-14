@@ -1,6 +1,9 @@
 import { canonicalizeDemoRunId, isShowcaseCreatedStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { SHOWCASE_HOME_AHA_MOMENT } from "@/lib/showcase-home-aha-moment";
+import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
 import { resolveSampleScenarioByManifestId, resolveSampleScenarioByRunId } from "@/lib/samples/registry";
+import { sampleScenarioPolicyPackLabel } from "@/lib/samples/policy-pack-presentation";
 import {
   getShowcaseDecisionSynopsesForRunId,
   getShowcaseStaticDemoPayload,
@@ -460,7 +463,7 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
       ],
       auditRowId: "audit-customer-intake-privacy-001",
       runId: d.run.runId,
-      manifestVersion: "Enterprise Privacy Policy Pack v3.4.1",
+      manifestVersion: sampleScenarioPolicyPackLabel(scenario),
       confidenceLevel: "Medium",
       evaluationConfidenceScore: 0.78,
     };
@@ -507,7 +510,10 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
     ],
     auditRowId: "audit-claims-intake-phi-001",
     runId: d.run.runId,
-    manifestVersion: "Healthcare Claims Policy Pack v3.4.1",
+    manifestVersion:
+      scenario !== null
+        ? sampleScenarioPolicyPackLabel(scenario)
+        : policyPackBuyerLabel("healthcare-claims-v3", d.manifest.ruleSetVersion ?? CLAIMS_INTAKE_RULE_SET_VERSION),
     confidenceLevel: "Medium",
     evaluationConfidenceScore: 0.78,
   };

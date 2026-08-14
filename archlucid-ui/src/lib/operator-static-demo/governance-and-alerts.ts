@@ -1,5 +1,6 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { getActiveSampleScenario } from "@/lib/samples/registry";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -14,6 +15,10 @@ import {
   isStaticDemoPayloadFallbackActiveForRun,
   isStaticDemoPayloadFallbackEnabled,
 } from "./eligibility";
+
+function activeSampleRuleSetVersion(): string {
+  return getActiveSampleScenario().ruleSetVersion;
+}
 
 export function tryStaticDemoAlertInboxRow(): AlertRecord {
   return {
@@ -51,11 +56,13 @@ export function tryStaticDemoGovernanceApprovalRequests(runId: string): Governan
     return null;
   }
 
+  const activeRuleSetVersion = activeSampleRuleSetVersion();
+
   return [
     {
       approvalRequestId: "claims-intake-approval-001",
       runId: effectiveRunId,
-      manifestVersion: "3.4.1",
+      manifestVersion: activeRuleSetVersion,
       sourceEnvironment: "dev",
       targetEnvironment: "test",
       status: "Approved",
@@ -80,11 +87,13 @@ export function tryStaticDemoGovernancePromotions(runId: string): GovernanceProm
     return null;
   }
 
+  const activeRuleSetVersion = activeSampleRuleSetVersion();
+
   return [
     {
       promotionRecordId: "demo-promotion-claims-intake-001",
       runId: effectiveRunId,
-      manifestVersion: "3.4.1",
+      manifestVersion: activeRuleSetVersion,
       sourceEnvironment: "dev",
       targetEnvironment: "test",
       promotedBy: "Taylor Morgan",
@@ -115,6 +124,8 @@ export function tryStaticDemoGovernanceApprovalLineage(approvalRequestId: string
     return null;
   }
 
+  const activeRuleSetVersion = activeSampleRuleSetVersion();
+
   return {
     approvalRequest: approvals[0]!,
     run: {
@@ -122,10 +133,10 @@ export function tryStaticDemoGovernanceApprovalLineage(approvalRequestId: string
       status: "Finalized",
       createdUtc: "2026-01-12T10:00:00.000Z",
       completedUtc: "2026-01-14T22:00:00.000Z",
-      currentManifestVersion: "3.4.1",
+      currentManifestVersion: activeRuleSetVersion,
     },
     manifest: {
-      manifestVersion: "3.4.1",
+      manifestVersion: activeRuleSetVersion,
       decisionCount: 12,
       unresolvedIssueCount: 0,
       complianceGapCount: 0,

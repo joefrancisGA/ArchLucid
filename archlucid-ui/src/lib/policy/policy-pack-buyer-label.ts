@@ -1,4 +1,5 @@
-import { SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF } from "@/lib/showcase-static-demo";
+import { CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF } from "@/lib/samples/claims-intake/definition";
+import { CUSTOMER_INTAKE_POLICY_PACK_DETAIL_HREF } from "@/lib/samples/customer-intake-modernization/definition";
 import { RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL } from "@/lib/responsible-ai-policy-pack-detail-content";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 
@@ -11,6 +12,10 @@ export function policyPackBuyerLabel(ruleSetId: string, ruleSetVersion: string):
 
   if (id === "healthcare-claims-v3" && ver.length > 0) {
     return `Healthcare Claims Policy Pack v${ver}`;
+  }
+
+  if (id === "enterprise-privacy-v2" && ver.length > 0) {
+    return `Enterprise Privacy Policy Pack v${ver}`;
   }
 
   if (id.length > 0 && ver.length > 0) {
@@ -31,7 +36,11 @@ export function policyPackBuyerGovernanceDetailHref(ruleSetId: string): string |
   const id = ruleSetId.trim();
 
   if (id === "healthcare-claims-v3") {
-    return SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF;
+    return CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF;
+  }
+
+  if (id === "enterprise-privacy-v2") {
+    return CUSTOMER_INTAKE_POLICY_PACK_DETAIL_HREF;
   }
 
   if (id === "1" || id === "ai-governance-responsible-ai-v1") {

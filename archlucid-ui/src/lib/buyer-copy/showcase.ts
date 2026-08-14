@@ -4,6 +4,9 @@
  * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
+
 /** Residual-risk monitoring metadata for the Claims Intake showcase review. */
 export const BUYER_SHOWCASE_RESIDUAL_RISK_OWNER = "Request owner";
 
@@ -15,7 +18,10 @@ export const BUYER_SHOWCASE_APPROVER_ROLE = "Architecture approver";
 
 export const BUYER_SHOWCASE_REQUEST_OWNER_ROLE = "Request owner";
 
-export const BUYER_SHOWCASE_POLICY_PACK_LABEL = "Healthcare Claims Policy Pack v3.4.1";
+export const BUYER_SHOWCASE_POLICY_PACK_LABEL = policyPackBuyerLabel(
+  "healthcare-claims-v3",
+  CLAIMS_INTAKE_RULE_SET_VERSION,
+);
 
 export const BUYER_SHOWCASE_APPROVAL_UTC = "2026-01-14T22:05:00.000Z";
 

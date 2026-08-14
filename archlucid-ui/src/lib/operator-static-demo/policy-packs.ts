@@ -1,4 +1,10 @@
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import {
+  CLAIMS_INTAKE_RULE_SET_VERSION,
+} from "@/lib/samples/claims-intake/definition";
+import {
+  CUSTOMER_INTAKE_RULE_SET_VERSION,
+} from "@/lib/samples/customer-intake-modernization/definition";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import type { EffectivePolicyPackSet, PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
@@ -44,17 +50,30 @@ export function tryStaticDemoPolicyPacksList(options?: PolicyPacksStaticFallback
 
   return [
     {
+      policyPackId: "demo-enterprise-privacy-pack",
+      tenantId: "demo-tenant",
+      workspaceId: "demo-workspace",
+      projectId: "default",
+      name: policyPackBuyerLabel("enterprise-privacy-v2", CUSTOMER_INTAKE_RULE_SET_VERSION),
+      description: "Enterprise Privacy pack aligned with the Customer Intake modernization review.",
+      packType: "BuiltIn",
+      distributionScope: "Platform",
+      status: "Active",
+      createdUtc: "2026-01-08T12:00:00.000Z",
+      currentVersion: CUSTOMER_INTAKE_RULE_SET_VERSION,
+    },
+    {
       policyPackId: "demo-healthcare-claims-pack",
       tenantId: "demo-tenant",
       workspaceId: "demo-workspace",
       projectId: "default",
-      name: policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"),
+      name: policyPackBuyerLabel("healthcare-claims-v3", CLAIMS_INTAKE_RULE_SET_VERSION),
       description: "Healthcare Claims pack aligned with the Claims Intake review.",
       packType: "BuiltIn",
       distributionScope: "Platform",
       status: "Active",
       createdUtc: "2026-01-10T12:00:00.000Z",
-      currentVersion: "3.4.1",
+      currentVersion: CLAIMS_INTAKE_RULE_SET_VERSION,
     },
   ];
 }
@@ -75,9 +94,23 @@ export function tryStaticDemoEffectivePolicyPacks(
     projectId: pid,
     packs: [
       {
+        policyPackId: "demo-enterprise-privacy-pack",
+        name: policyPackBuyerLabel("enterprise-privacy-v2", CUSTOMER_INTAKE_RULE_SET_VERSION),
+        version: CUSTOMER_INTAKE_RULE_SET_VERSION,
+        packType: "BuiltIn",
+        contentJson: JSON.stringify({
+          complianceRuleIds: [],
+          complianceRuleKeys: ["privacy.minimization.intake"],
+          alertRuleIds: [],
+          compositeAlertRuleIds: [],
+          advisoryDefaults: {},
+          metadata: { vertical: "enterprise", ruleSetId: "enterprise-privacy-v2" },
+        }),
+      },
+      {
         policyPackId: "demo-healthcare-claims-pack",
-        name: policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"),
-        version: "3.4.1",
+        name: policyPackBuyerLabel("healthcare-claims-v3", CLAIMS_INTAKE_RULE_SET_VERSION),
+        version: CLAIMS_INTAKE_RULE_SET_VERSION,
         packType: "BuiltIn",
         contentJson: JSON.stringify({
           complianceRuleIds: [],

@@ -18,6 +18,8 @@ export type SampleScenarioDefinition = {
   readonly policyPackDetailHref: string;
   readonly policyPackIdAliases: readonly string[];
   readonly ruleSetId: string;
+  /** Semver pinned for static demo payloads — should align with the rule-set id major line. */
+  readonly ruleSetVersion: string;
   readonly tenantName: string;
   readonly tenantCatalogId: string;
   readonly workspaceLabel: string;
