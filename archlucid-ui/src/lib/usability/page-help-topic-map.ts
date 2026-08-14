@@ -41,6 +41,7 @@ import { SETTINGS_HUB_HELP_TOPIC_LABEL } from "@/lib/contextual-help/administrat
 import { REVIEW_ARTIFACTS_HELP_TOPIC_LABEL } from "@/lib/review-artifacts-evidence-copy";
 import { WHY_ARCHLUCID_HELP_TOPIC_LABEL } from "@/lib/why-archlucid-evidence-copy";
 import { DEPLOYMENT_STATUS_HELP_TOPIC_LABEL } from "@/lib/deployment-status-evidence-copy";
+import { FLEET_LLM_COGS_HELP_TOPIC_LABEL } from "@/lib/fleet-llm-cogs-evidence-copy";
 import { DPA_TEMPLATE_HELP_TOPIC_LABEL } from "@/lib/dpa-template-help-guide-content";
 import { EVIDENCE_TRAIL_HELP_TOPIC_LABEL } from "@/lib/evidence-trail-help-evidence-copy";
 import { GETTING_STARTED_HELP_TOPIC_LABEL } from "@/lib/getting-started-help-guide-content";
@@ -604,6 +605,14 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   { prefix: "/administration/system-health", topic: { slug: "system-health", label: SYSTEM_HEALTH_HELP_TOPIC_LABEL } },
   { prefix: "/internal/integrations/itsm", topic: { slug: "integration-readiness", label: ITSM_CONNECTORS_HELP_TOPIC_LABEL } },
+  {
+    prefix: "/internal/fleet-llm-cogs",
+    topic: { slug: "ai-usage", label: FLEET_LLM_COGS_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/admin/fleet-llm-cogs",
+    topic: { slug: "ai-usage", label: FLEET_LLM_COGS_HELP_TOPIC_LABEL },
+  },
   {
     prefix: "/admin/tenant-health",
     topic: { slug: "troubleshooting", label: TENANT_HEALTH_HELP_TOPIC_LABEL },

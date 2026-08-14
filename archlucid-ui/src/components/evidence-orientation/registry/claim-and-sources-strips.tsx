@@ -278,6 +278,14 @@ import {
   DEPLOYMENT_STATUS_SOURCES_INTRO,
 } from "@/lib/deployment-status-evidence-copy";
 import {
+  FLEET_LLM_COGS_CLAIM_DISCIPLINE,
+  FLEET_LLM_COGS_CLAIM_DISCIPLINE_HEADING,
+  FLEET_LLM_COGS_CLAIM_HEADING_ID,
+  FLEET_LLM_COGS_FOLLOW_UPS_TITLE,
+  FLEET_LLM_COGS_SOURCES,
+  FLEET_LLM_COGS_SOURCES_INTRO,
+} from "@/lib/fleet-llm-cogs-evidence-copy";
+import {
   DECISION_REGISTER_HELP_CLAIM_DISCIPLINE,
   DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING,
   DECISION_REGISTER_HELP_FOLLOW_UPS_TITLE,
@@ -310,6 +318,7 @@ import {
 } from "@/lib/advisory-scans-help-evidence-copy";
 import { ADVISORY_SCANS_HELP_CLAIM_HEADING_ID } from "@/lib/advisory-scans-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -684,6 +693,7 @@ export function RoiSummaryHelpEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+      headingClassName={OPERATOR_TYPOGRAPHY.sectionTitle}
     />
   );
 }
@@ -784,6 +794,25 @@ export function DeploymentStatusEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={DEPLOYMENT_STATUS_FOLLOW_UPS_TITLE}
       sourcesIntro={DEPLOYMENT_STATUS_SOURCES_INTRO}
       sources={DEPLOYMENT_STATUS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function FleetLlmCogsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="fleet-llm-cogs"
+      claim={FLEET_LLM_COGS_CLAIM_DISCIPLINE}
+      claimHeading={FLEET_LLM_COGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={FLEET_LLM_COGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={FLEET_LLM_COGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={FLEET_LLM_COGS_SOURCES_INTRO}
+      sources={FLEET_LLM_COGS_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
