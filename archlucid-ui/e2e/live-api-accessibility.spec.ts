@@ -67,7 +67,7 @@ const PAGES = [
   { name: "Planning", path: "/planning" },
   { name: "Digests", path: "/architecture/digests" },
   { name: "Digest subscriptions", path: "/architecture/digests?tab=subscriptions" },
-  { name: "Workspace settings", path: "/administration/tenant" },
+  { name: "Workspace settings", path: "/administration/workspace-settings" },
   { name: "Settings baseline", path: "/administration/baseline" },
   { name: "Digests schedule", path: "/architecture/digests?tab=schedule" },
   { name: "Review feedback", path: "/internal/product-learning" },

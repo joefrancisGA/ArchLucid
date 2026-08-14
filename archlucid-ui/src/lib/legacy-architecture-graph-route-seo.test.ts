@@ -12,7 +12,7 @@ describe("legacy-architecture-graph-route SEO inventory (TB-1807)", () => {
     expect(MARKETING_SITEMAP_PATHNAMES).not.toContain(`${LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH}/`);
   });
 
-  it("keeps /operate/architecture-graph in robots disallow prefixes while the redirect shim may exist", () => {
+  it("keeps /operate/architecture-graph in robots disallow prefixes after redirect shim removal", () => {
     expect(MARKETING_ROBOTS_DISALLOW_PREFIXES).toContain(LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH);
   });
 });

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 /**
- * Legacy `/operate/architecture-graph` is a redirect shim — not a second graph product page (TB-1807).
+ * Legacy `/operate/architecture-graph` bookmark — retired without HTTP redirect (IA batch 4).
  */
 export const LEGACY_ARCHITECTURE_GRAPH_ROUTE_METADATA: Metadata = {
   title: "Redirecting to architecture graph",

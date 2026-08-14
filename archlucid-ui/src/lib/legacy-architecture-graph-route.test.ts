@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -36,14 +36,8 @@ describe("legacy architecture-graph route (OPR / TB-1806 / TB-1808 / TB-1810)", 
     );
   });
 
-  it("ships a redirect-only App Router page that preserves query via buildGraphRedirectPath", () => {
-    expect(existsSync(LEGACY_OPERATE_ARCHITECTURE_GRAPH_PAGE)).toBe(true);
-
-    const source = readFileSync(LEGACY_OPERATE_ARCHITECTURE_GRAPH_PAGE, "utf8");
-
-    expect(source).toContain("buildGraphRedirectPath");
-    expect(source).toContain("permanentRedirect");
-    expect(source).not.toMatch(/ArchitectureGraphViewer|GraphPageContent|GraphViewer/);
+  it("does not ship an App Router redirect shim for the legacy operate bookmark", () => {
+    expect(existsSync(LEGACY_OPERATE_ARCHITECTURE_GRAPH_PAGE)).toBe(false);
   });
 
   it("does not ship a graph shell layout or duplicate pages outside the operator shim", () => {
