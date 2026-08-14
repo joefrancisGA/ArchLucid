@@ -9,6 +9,9 @@ import { PILOT_FEEDBACK_HELP_TOPIC_LABEL } from "@/lib/pilot-feedback-help-evide
 import { PILOT_GUIDE_HELP_TOPIC_LABEL } from "@/lib/pilot-guide-help-evidence-copy";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
+import {
+  IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL,
+} from "@/lib/improvement-planning-help-evidence-copy";
 
 export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
@@ -52,6 +55,25 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         "Pick the matching goal branch, open the primary cite, then use Sources before treating orientation as diligence.",
       whyEmpty: "Branches always appear when this help topic loads.",
       whereToConfigurePrerequisite: "Start or finalize a review when your goal needs product evidence, not just orientation.",
+    },
+  },
+  {
+    prefix: "/help/improvement-planning",
+    entry: {
+      whatIsThisPage: `Improvement planning — ${IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL.toLowerCase()} for themes, prioritized plans, and exportable summaries.`,
+      whatToDoNext:
+        "Capture review feedback, then open Improvement planning to review themes, plans, and export options.",
+      whyEmpty: "This guide is always available; themes appear after feedback is captured and analyzed.",
+      whereToConfigurePrerequisite:
+        "Planning insights respect the workspace and project selected in the header switcher.",
+      whatToDoNextAction: {
+        label: "Open improvement planning",
+        href: PLANNING_PATH,
+      },
+      whereToConfigureAction: {
+        label: "Open Pilot feedback",
+        href: PRODUCT_LEARNING_PATH,
+      },
     },
   },
   {

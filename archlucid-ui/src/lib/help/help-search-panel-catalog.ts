@@ -166,6 +166,16 @@ const REVIEW_WORK_TOPICS: readonly HelpSearchPanelTopic[] = [
   },
 ];
 
+const INSIGHTS_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "improvement-planning-help",
+    title: "Improvement planning",
+    description: "Convert review feedback into recurring themes, prioritized plans, and exportable summaries.",
+    keywords: ["improvement planning", "themes", "plans", "pilot feedback", "product triage", "export"],
+    action: { kind: "route", href: "/help/improvement-planning", helpSlug: "improvement-planning" },
+  },
+];
+
 const GOVERNANCE_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "governance-workflow",
@@ -348,6 +358,7 @@ export const HELP_SEARCH_PANEL_START_HERE_GROUP_ID = "start-here" as const;
 export const HELP_SEARCH_PANEL_GROUPS: readonly HelpSearchPanelGroup[] = [
   { id: HELP_SEARCH_PANEL_START_HERE_GROUP_ID, heading: "Start here", topics: START_HERE_TOPICS },
   { id: "review-work", heading: "Review work", topics: REVIEW_WORK_TOPICS },
+  { id: "insights", heading: "Insights", topics: INSIGHTS_TOPICS },
   { id: "governance", heading: "Governance", topics: GOVERNANCE_TOPICS },
   { id: "setup", heading: "Setup", topics: SETUP_TOPICS },
   { id: "troubleshooting", heading: "Troubleshooting and support", topics: TROUBLESHOOTING_TOPICS },
@@ -375,6 +386,7 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   pricing: ["product-faq"],
   procurement: ["choose-your-next-step", "security-trust-help"],
   pilot: ["choose-your-next-step", "first-review-guide", "create-first-review"],
+  planning: ["improvement-planning-help", "choose-your-next-step", "first-review-guide", "create-first-review"],
   "next step": ["choose-your-next-step"],
   shortcuts: ["keyboard-shortcuts"],
   isolation: ["data-handling-help"],

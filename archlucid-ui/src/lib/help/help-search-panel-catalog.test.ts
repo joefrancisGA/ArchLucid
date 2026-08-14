@@ -223,4 +223,19 @@ describe("help-search-panel-catalog", () => {
       helpSlug: "report-a-problem",
     });
   });
+
+  it("exposes improvement-planning help topic in the Insights group", () => {
+    const topic = listHelpSearchPanelTopics(false).find((topic) => topic.id === "improvement-planning-help");
+
+    expect(topic?.title).toBe("Improvement planning");
+    expect(topic?.action).toEqual({
+      kind: "route",
+      href: "/help/improvement-planning",
+      helpSlug: "improvement-planning",
+    });
+
+    const insightsGroup = listHelpSearchPanelGroups(false).find((group) => group.id === "insights");
+
+    expect(insightsGroup?.topics.map((row) => row.id)).toContain("improvement-planning-help");
+  });
 });
