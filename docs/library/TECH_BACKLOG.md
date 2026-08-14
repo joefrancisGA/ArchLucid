@@ -11,7 +11,7 @@ Regenerate after opening or closing summary-table rows:
 
 | Architectural quality | Open |
 | --- | ---: |
-| Correctness | 10 |
+| Correctness | 7 |
 | Testability | 42 |
 | Reliability | 6 |
 | Deployability | 3 |
@@ -24,16 +24,16 @@ Regenerate after opening or closing summary-table rows:
 | Trustworthiness | 9 |
 | Maintainability | 6 |
 | Interoperability | 5 |
-| Performance | 5 |
+| Performance | 4 |
 | Cost-effectiveness | 7 |
 | Code hygiene | 2 |
 | Stickiness | 4 |
 | Accessibility | 1 |
 | Differentiability | 4 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **166** |
+| **Total (unique open)** | **162** |
 
-**By priority band:** P0 **5** | P1 **37** | P2 **105** | P3 **12** | unlabeled **7**.
+**By priority band:** P0 **2** | P1 **36** | P2 **105** | P3 **12** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1246,7 +1246,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2138 | ~~One in-product golden walkthrough ending in sponsor-ready package~~ **Done** 2026-08-09 ? `golden-sponsor-package-walkthrough` + checklist panel; sample-only destination at `#sponsor-handoff`; Vitest; see ## TB-2138 below | Adoption friction P0 ? **V1**; owner easier-to-understand ask 2026-08-09; residual after **TB-174**/**TB-353** | L |
 | TB-2139 | ~~Role-shaped default nav density (architect / governance / admin)~~ **Done** 2026-08-09 ? `role-shaped-nav-density` + sidebar show-all + palette parity; Vitest; see ## TB-2139 below | Adoption friction P0 ? **V1**; owner easier-to-use ask 2026-08-09; persona shell presets residual | L |
 | TB-2140 | **Done** (2026-08-10) ? quality-gated Critic phase overlap + phase-1 admission cap; `StagedCriticOverlapPolicy`; `STAGED_CRITIC_WALL_TIME_CONTRACT.md` ?6; Vitest; see ## TB-2140 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2121** | M |
-| TB-2141 | Production Redis L2 + `ExpectedApiReplicaCount` beyond DEV ? staging/prod enablement; see ## TB-2141 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2120** (DEV-only) | M |
+| TB-2141 | **Done** (2026-08-14) — Production Redis L2 + `ExpectedApiReplicaCount` beyond DEV ? staging/prod enablement pack (guide, tfvars, ops scripts, CI drift guard); owner Azure apply per checklist | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2120** (DEV-only) | M |
 | TB-2142 | ~~Further `/architecture/reviews/[runId]` First Load JS cut~~ **Done** 2026-08-09 ? **2150.6 ? 1879.1 kB** (?271.5 kB); evidence/share/demo chrome deferrals; Vitest + baseline; see ## TB-2142 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; after **TB-2117** | M |
 | TB-2143 | ~~Narrow remaining operator `force-dynamic` layouts~~ **Done** 2026-08-09 ? insights group (**8** layouts) ? `OperatorClientDrivenRouteLayout`; **~29 ? ~22** remaining; Vitest + `UI_ARCHITECTURE_V1_1.md` ?4; see ## TB-2143 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2123** | M |
 | TB-2144 | ~~Alerts inbox + billing banners ? TanStack Query~~ **Done** 2026-08-09 ? billing past-due banner + alerts nav badge on Query (inbox controller already Query); Vitest hydration/remount guards; see ## TB-2144 below | Performance P0 ? **V1**; owner perf wave 6 2026-08-09; residual of Done **TB-2123** | S |
@@ -50174,7 +50174,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1 ? Performance / Operability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-14) ? staging/production enablement pack in-repo: `SCALE_TIER_CACHE_GUIDE.md` (TB-2120/TB-2141 apply order + rollback), `staging.tfvars.example` / `production.tfvars.example` + `infra/environments/*` Redis wiring comments, `scripts/ops/provision-hot-path-cache-managed-redis.ps1`, TB-2141 checklist + CI drift guard `test_tb2141_hot_path_cache_redis_enablement.py`. **Owner apply:** run checklist against staging then production (`hot_path_cache_redis_connection_string` + `terraform apply`).
 
 **Priority:** P0.
 
@@ -50191,6 +50191,8 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 3. Verify `/health/ready` + cache hit/miss metrics; document rollback in `SCALE_TIER_CACHE_GUIDE.md`.
 
 **Acceptance:** Staging (then prod) uses Redis L2 with replica count aligned to scale posture; hit-rate observed; Production appsettings/env no longer empty Redis when scaled.
+
+**Closure (2026-08-14):** Enablement pack shipped; hosted values injected via Container Apps env when `hot_path_cache_redis_connection_string` is set (committed appsettings keep safe single-replica defaults for local runs).
 
 **Affected files:** `appsettings.Production.json` (or env/KV), `infra/terraform-redis`, `infra/terraform-container-apps`, cache guide.
 

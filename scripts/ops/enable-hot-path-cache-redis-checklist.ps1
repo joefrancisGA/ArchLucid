@@ -1,9 +1,12 @@
 <#
 .SYNOPSIS
-  TB-2120 checklist: enable HotPathCache Redis L2 + ExpectedApiReplicaCount on staging/prod.
+  TB-2141 checklist: enable HotPathCache Redis L2 + ExpectedApiReplicaCount on staging/production.
 #>
 [CmdletBinding()]
 param(
+    [ValidateSet('staging', 'production', 'dev')]
+    [string] $Environment = 'staging',
+
     [string] $ApiBaseUrl = "",
     [switch] $SkipProbe
 )
@@ -11,12 +14,13 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-Write-Host 'TB-2120 - HotPathCache Redis L2 enablement checklist'
-Write-Host 'Guide: docs/library/SCALE_TIER_CACHE_GUIDE.md (TB-2120 section)'
+Write-Host 'TB-2141 - HotPathCache Redis L2 enablement checklist'
+Write-Host ('Target environment: {0}' -f $Environment)
+Write-Host 'Guide: docs/library/SCALE_TIER_CACHE_GUIDE.md (TB-2120 / TB-2141 section)'
 Write-Host ""
 
 $items = @(
-    'terraform-redis applied for the target environment (staging.tfvars)',
+    'terraform-redis applied OR provision-hot-path-cache-managed-redis.ps1 completed for the target environment',
     'Connection string stored in Key Vault (prod-like) or ready as sensitive tf var',
     'terraform-container-apps hot_path_cache_redis_connection_string is non-empty',
     'api_min_replicas >= 2 and api_max_replicas sized (TB-947 TPM checklist)',

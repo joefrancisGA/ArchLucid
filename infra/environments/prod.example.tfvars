@@ -27,3 +27,8 @@
 
 # terraform-monitoring
 # enable_monitoring_stack = true  # now the default (2026-07-20); still needs resource_group_name + alert_email_address set
+
+# terraform-redis + terraform-container-apps (TB-2141 HotPathCache L2)
+# enable_redis_cache = true   # in terraform-redis production.tfvars (private endpoint recommended)
+# hot_path_cache_redis_connection_string = "<sensitive>"   # in terraform-container-apps production.tfvars
+# See docs/library/SCALE_TIER_CACHE_GUIDE.md
