@@ -88,7 +88,7 @@ describe("preferences help negation drift guard", () => {
   });
 
   it("links the primary action to preferences settings", () => {
-    expect(PREFERENCES_HELP_PRIMARY_ACTION.href).toBe("/administration/preferences");
+    expect(PREFERENCES_HELP_PRIMARY_ACTION.href).toBe("/account/preferences");
   });
 
   it("lists stacked preference sources with real routes and no self-href", () => {
@@ -100,7 +100,7 @@ describe("preferences help negation drift guard", () => {
     expect(PREFERENCES_HELP_SOURCES.every((source) => source.when !== undefined && source.when.length > 0)).toBe(
       true,
     );
-    expect(sourceHrefs).not.toContain("/administration/preferences");
+    expect(sourceHrefs).not.toContain("/account/preferences");
     expect(sourceHrefs).not.toContain("/help/preferences");
     expect(sourceHrefs).not.toContain("/administration/users");
     expect(sourceLabels).not.toContain("Users and roles");

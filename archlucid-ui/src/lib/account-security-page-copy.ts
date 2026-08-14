@@ -1,4 +1,4 @@
-/** Operator-facing copy for `/administration/account-security` (TB-1881). */
+/** Operator-facing copy for `/account/security` (TB-1881). */
 
 export const ACCOUNT_SECURITY_PAGE_TITLE = "Sign-in methods" as const;
 

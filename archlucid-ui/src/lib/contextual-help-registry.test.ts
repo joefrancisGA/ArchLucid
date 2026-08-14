@@ -184,9 +184,9 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/identity-providers/role-mapping",
       "/administration/identity-providers/diagnostics",
       "/administration/api-keys",
-      "/administration/preferences",
+      "/account/preferences",
       "/administration/notifications",
-      "/administration/account-security",
+      "/account/security",
       "/administration/auth-domains",
       "/administration/extract-upload",
       "/administration/model-governance",
@@ -372,19 +372,19 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves Preferences settings Category-1 help (ADR)", () => {
-    expect(contextualHelpForPathname("/administration/preferences")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/account/preferences")?.whatIsThisPage).toContain(
       "Preferences",
     );
-    expect(contextualHelpForPathname("/administration/preferences")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/account/preferences")?.whatToDoNext).toContain(
       "theme",
     );
   });
 
   it("resolves Sign-in methods settings Category-1 help (ADS)", () => {
-    expect(contextualHelpForPathname("/administration/account-security")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/account/security")?.whatIsThisPage).toContain(
       "Sign-in methods",
     );
-    expect(contextualHelpForPathname("/administration/account-security")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/account/security")?.whatToDoNext).toContain(
       "one-time code",
     );
   });

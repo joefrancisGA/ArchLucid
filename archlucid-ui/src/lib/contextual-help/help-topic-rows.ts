@@ -228,7 +228,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       },
       whereToConfigureAction: {
         label: "Open Sign-in methods",
-        href: "/administration/account-security",
+        href: "/account/security",
       },
     },
   },

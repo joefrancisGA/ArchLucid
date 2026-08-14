@@ -1,7 +1,7 @@
 "use client";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { SETTINGS_PREFERENCES_PATH } from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PreferencesNotificationsVocabularyRail } from "@/components/PreferencesNotificationsVocabularyRail";
 import { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
@@ -17,7 +17,7 @@ export function PreferencesSettingsPageView() {
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="preferences-settings-page">
       <OperatorPageHeader
-        navHref={SETTINGS_PREFERENCES_PATH}
+        navHref={ACCOUNT_PREFERENCES_PATH}
         title="Preferences"
         subtitle="Personal settings saved to your account."
         titleTestId="preferences-settings-page-title"

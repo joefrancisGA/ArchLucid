@@ -18,7 +18,7 @@ import {
   ACCOUNT_SECURITY_INACTIVE_METHOD_HELPER,
   ACCOUNT_SECURITY_RECENT_AUTH_LIST_UNAVAILABLE,
 } from "@/lib/account-security-page-copy";
-import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
 import {
   SIGN_IN_METHOD_LAST_REMAINING_BLOCKED_REASON,
 } from "@/lib/sign-in-method-remove-blocked-copy";
@@ -93,7 +93,7 @@ describe("AccountSecurityPageClient", () => {
 
     expect(signInLink).toHaveAttribute(
       "href",
-      expect.stringContaining(`returnUrl=${encodeURIComponent(SETTINGS_ACCOUNT_SECURITY_PATH)}`),
+      expect.stringContaining(`returnUrl=${encodeURIComponent(ACCOUNT_SECURITY_PATH)}`),
     );
     expect(screen.queryByRole("link", { name: "Start an evaluation" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /signup/i })).not.toBeInTheDocument();
@@ -133,7 +133,7 @@ describe("AccountSecurityPageClient", () => {
 
     expect(signInAgainLink).toHaveAttribute(
       "href",
-      expect.stringContaining(`returnUrl=${encodeURIComponent(SETTINGS_ACCOUNT_SECURITY_PATH)}`),
+      expect.stringContaining(`returnUrl=${encodeURIComponent(ACCOUNT_SECURITY_PATH)}`),
     );
 
     expect(screen.getByTestId("sign-in-methods-recent-auth-unavailable")).toHaveTextContent(

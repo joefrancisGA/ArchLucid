@@ -29,7 +29,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   [SPONSOR_DASHBOARD_HREF]: "demo-ready",
   "/governance/findings": "advanced-only",
   "/administration/security-trust": "demo-ready",
-  "/administration/preferences": "demo-ready",
+  "/account/preferences": "demo-ready",
   "/insights/sponsor-report": "advanced-only",
   "/insights/roi-summary": "advanced-only",
   [EVIDENCE_GRAPH_PATH]: "advanced-only",

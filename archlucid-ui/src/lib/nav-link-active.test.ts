@@ -54,8 +54,8 @@ describe("isNavLinkActive", () => {
   });
 
   it("does not highlight settings hub for personal account-menu destinations", () => {
-    expect(isNavLinkActive("/administration/account-security", "/administration")).toBe(false);
-    expect(isNavLinkActive("/administration/preferences", "/administration")).toBe(false);
+    expect(isNavLinkActive("/account/security", "/administration")).toBe(false);
+    expect(isNavLinkActive("/account/preferences", "/administration")).toBe(false);
     expect(isNavLinkActive("/administration/notifications", "/administration")).toBe(false);
     expect(isNavLinkActive("/administration/workspace-settings/recycle-bin", "/administration")).toBe(false);
     expect(isNavLinkActive("/administration/workspace-settings", "/administration")).toBe(true);

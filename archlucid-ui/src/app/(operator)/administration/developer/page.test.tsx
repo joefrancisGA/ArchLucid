@@ -50,6 +50,6 @@ describe("DeveloperSettingsPage", () => {
 
     await DeveloperSettingsPage();
 
-    expect(redirect).toHaveBeenCalledWith("/administration/preferences");
+    expect(redirect).toHaveBeenCalledWith("/account/preferences");
   });
 });

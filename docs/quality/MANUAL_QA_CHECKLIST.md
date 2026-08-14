@@ -517,8 +517,8 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Settings hub** | `/administration/settings` | [ ] |
 | **Workspace settings** | `/administration/tenant` | [ ] |
 | **Projects recycle bin** | `/administration/tenant/recycle-bin` | [ ] |
-| **Personal preferences** (account menu) | `/administration/preferences` | [ ] |
-| **Account security** (account menu) | `/administration/account-security` | [ ] |
+| **Personal preferences** (account menu) | `/account/preferences` | [ ] |
+| **Account security** (account menu) | `/account/security` | [ ] |
 | **Billing & plans** | `/administration/billing` | [ ] |
 | **Baseline settings** | `/administration/baseline` | [ ] |
 | **Webhooks** | `/settings/webhooks` | [ ] |
@@ -764,8 +764,8 @@ Requires **Admin** or **Execute** authority per link. Expand **Admin** group.
 | Cost reporting | `/settings/cost-reporting` | **Admin → Cost reporting**. |
 | Settings hub | `/administration/settings` | **Admin → Settings** (searchable tenant-administration index; Read authority). |
 | Extract upload | `/administration/extract-upload` | **Ctrl+K** or workspace settings cross-links (not primary sidebar). |
-| Personal preferences | `/administration/preferences` | **Top-bar account menu → Preferences** (any signed-in user, no authority gate). |
-| Account security | `/administration/account-security` | **Top-bar account menu → Account security** (any signed-in user, no authority gate). |
+| Personal preferences | `/account/preferences` | **Top-bar account menu → Preferences** (any signed-in user, no authority gate). |
+| Account security | `/account/security` | **Top-bar account menu → Account security** (any signed-in user, no authority gate). |
 
 ---
 

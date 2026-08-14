@@ -76,7 +76,8 @@ import {
   INTEGRATION_EVENTS_DLQ_EMPTY_TITLE,
 } from "@/lib/integration-events-dlq-page-copy";
 import { WEBHOOKS_EMPTY_BODY, WEBHOOKS_EMPTY_TITLE } from "@/lib/webhooks-page-copy";
-import { SETTINGS_ACCOUNT_SECURITY_PATH, SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { API_KEYS_USERS_USERS_LINK } from "@/lib/vocabulary/api-keys-users-vocabulary";
 
 /** Reviews list when the project has zero reviews. */
@@ -519,7 +520,7 @@ export const ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT: EnterpriseCompactEmpt
     actions: [
       {
         label: "Sign in",
-        href: buildAuthSignInHref({ returnPath: SETTINGS_ACCOUNT_SECURITY_PATH }),
+        href: buildAuthSignInHref({ returnPath: ACCOUNT_SECURITY_PATH }),
         variant: "primary",
       },
     ],
