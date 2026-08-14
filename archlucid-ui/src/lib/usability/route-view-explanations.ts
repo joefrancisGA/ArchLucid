@@ -40,7 +40,26 @@ function explainViewDismissKey(pathname: string): string {
 
 export { IDENTITY_PROVIDERS_TAB_DISMISS_KEY, explainViewDismissKey };
 
-const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteViewExplanation }[] = [
+type RouteViewExplanationRow = {
+  readonly prefix: string;
+  /**
+   * When true only the exact path matches. Use for inventory or hub rows whose copy would be wrong
+   * on the detail routes beneath them (telling an open draft to "open a draft", for example).
+   */
+  readonly matchExact?: boolean;
+  readonly explanation: RouteViewExplanation;
+};
+
+/** True when this row owns orientation for the supplied path. */
+function routeMatchesExplanationRow(path: string, row: RouteViewExplanationRow): boolean {
+  if (row.matchExact === true) {
+    return path === row.prefix;
+  }
+
+  return path === row.prefix || path.startsWith(`${row.prefix}/`);
+}
+
+const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
   {
     prefix: "/insights/compare-two-reviews",
     explanation: {
@@ -108,6 +127,9 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
   },
   {
     prefix: ARCHITECTURES_LIST_PATH,
+    // The draft editor and the new-draft workspace own their own heading, lead, and status tag; the
+    // inventory next action is also already complete once a draft is open.
+    matchExact: true,
     explanation: {
       title: "Architecture drafts",
       summary:
@@ -218,7 +240,7 @@ export function routeViewExplanationForPathname(
   const sorted = [...ROUTE_VIEW_EXPLANATIONS].sort((left, right) => right.prefix.length - left.prefix.length);
 
   for (const row of sorted) {
-    if (path === row.prefix || path.startsWith(`${row.prefix}/`)) {
+    if (routeMatchesExplanationRow(path, row)) {
       if (row.prefix === AI_USAGE_SETTINGS_PATH && options?.isAiUsageQuietEmptyPeriod === true) {
         return {
           ...row.explanation,

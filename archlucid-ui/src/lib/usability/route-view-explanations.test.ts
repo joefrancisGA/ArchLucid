@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import {
+  ARCHITECTURES_LIST_PATH,
+  ARCHITECTURES_NEW_PATH,
+  architectureDraftPath,
+} from "@/lib/architecture/architecture-routes";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
@@ -94,6 +98,11 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
 
   it("does not treat nested paths as home", () => {
     expect(routeViewExplanationForPathname("/architecture/reviews")).toBeNull();
+  });
+
+  it("keeps drafts-inventory orientation off the draft editor and the new-draft workspace", () => {
+    expect(routeViewExplanationForPathname(architectureDraftPath("vertex"))).toBeNull();
+    expect(routeViewExplanationForPathname(ARCHITECTURES_NEW_PATH)).toBeNull();
   });
 
   it("shares explain-this-view dismiss keys across identity provider tabs", () => {
