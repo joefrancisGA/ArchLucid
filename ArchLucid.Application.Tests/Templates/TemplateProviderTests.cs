@@ -18,13 +18,15 @@ public sealed class TemplateProviderTests
 
         IReadOnlyList<ArchitectureRequestTemplateSummary> summaries = provider.GetSummaries();
 
-        summaries.Should().HaveCount(5);
+        summaries.Should().HaveCount(7);
         summaries.Select(s => s.Id).Should().OnlyHaveUniqueItems();
         summaries.Should().Contain(s => s.Id == "webapp-sql");
         summaries.Should().Contain(s => s.Id == "serverless-api");
         summaries.Should().Contain(s => s.Id == "microservices-aks");
         summaries.Should().Contain(s => s.Id == "hipaa-compliant-api");
         summaries.Should().Contain(s => s.Id == "pci-dss-payment-gateway");
+        summaries.Should().Contain(s => s.Id == "serverless-api-aws");
+        summaries.Should().Contain(s => s.Id == "microservices-gke");
 
         foreach (ArchitectureRequestTemplateSummary s in summaries)
         {
@@ -35,7 +37,8 @@ public sealed class TemplateProviderTests
 
         foreach (string id in new[]
                  {
-                     "webapp-sql", "serverless-api", "microservices-aks", "hipaa-compliant-api", "pci-dss-payment-gateway"
+                     "webapp-sql", "serverless-api", "microservices-aks", "hipaa-compliant-api", "pci-dss-payment-gateway",
+                     "serverless-api-aws", "microservices-gke",
                  })
         {
             bool found = provider.TryGetArchitectureRequest(id, out ArchitectureRequest? request);
@@ -46,7 +49,7 @@ public sealed class TemplateProviderTests
             request.Description.Length.Should().BeInRange(ArchitectureRequestFieldLimits.MinDescriptionLength, ArchitectureRequestFieldLimits.MaxDescriptionLength);
             request.SystemName.Should().NotBeNullOrWhiteSpace();
             request.Environment.Should().NotBeNullOrWhiteSpace();
-            request.CloudProvider.Should().Be(CloudProvider.Azure);
+            request.CloudProvider.Should().BeOneOf(CloudProvider.Azure, CloudProvider.Aws, CloudProvider.Gcp);
 
             request.Constraints.Should().NotBeNull();
             request.RequiredCapabilities.Should().NotBeNull();
@@ -82,5 +85,19 @@ public sealed class TemplateProviderTests
         restored.Should().NotBeNull();
         restored.RequestId.Should().Be(original.RequestId);
         restored.SystemName.Should().Be(original.SystemName);
+    }
+
+    [Fact]
+    public void Aws_and_Gcp_embedded_templates_use_expected_cloud_providers()
+    {
+        TemplateProvider provider = new();
+
+        provider.TryGetArchitectureRequest("serverless-api-aws", out ArchitectureRequest? aws).Should().BeTrue();
+        aws.Should().NotBeNull();
+        aws!.CloudProvider.Should().Be(CloudProvider.Aws);
+
+        provider.TryGetArchitectureRequest("microservices-gke", out ArchitectureRequest? gcp).Should().BeTrue();
+        gcp.Should().NotBeNull();
+        gcp!.CloudProvider.Should().Be(CloudProvider.Gcp);
     }
 }

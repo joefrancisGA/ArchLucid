@@ -1355,8 +1355,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2251 | ~~Sponsor orphan-candidate KPI — AWS/GCP finding markers~~ **Done** 2026-08-14 — `OrphanCandidateFindingMarkers` + `OrphanCandidateFindingClassifier` Aws/Gcp markers; Application.Tests; see ## TB-2251 below | Correctness P1 — **V1**; multi-cloud target parity 2026-08-13; `OrphanCandidateFindingClassifier` Azure-only | S |
 | TB-2252 | ~~ROI cost-evidence freshness — AWS/GCP inventory packages~~ **Done** 2026-08-14 — `RoiCostEvidenceCollectionResolver` + `RoiCostEvidenceFreshnessEvaluator` Aws/Gcp scope timestamps; sponsor ROI + pilot deltas; Application.Tests; see ## TB-2252 below | Correctness P1 — **V1**; multi-cloud target parity 2026-08-13 | M |
 | TB-2253 | AgentUserPromptStaticPrefix — AWS/GCP Important guidance blocks; see ## TB-2253 below | AI/Agent readiness P2 — **V1**; multi-cloud target parity 2026-08-13; extends Done **TB-875** user addenda | M |
-| TB-2254 | Request templates + wizard presets — non-Azure target examples; see ## TB-2254 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; all presets `CloudProvider.Azure` | M |
-| TB-2255 | Demo/zero-config paths — respect Aws/Gcp cloud target; see ## TB-2255 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; force Azure on file select | S |
+| TB-2254 | **Done** (2026-08-14) — Request templates + wizard presets — non-Azure target examples; see ## TB-2254 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; all presets `CloudProvider.Azure` | M |
+| TB-2255 | **Done** (2026-08-14) — Demo/zero-config paths — respect Aws/Gcp cloud target; see ## TB-2255 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; force Azure on file select | S |
 | TB-2256 | ~~AWS/GCP Tier 1 chunked ZIP upload parity~~ **Done** 2026-08-14 — `CloudInventoryExtractorChunkedUploadService` + aws/gcp upload-session routes; see ## TB-2256 below | Interoperability P2 — **V1**; multi-cloud target parity 2026-08-13; Azure-only chunk session store | L |
 | TB-2257 | ~~CLI `validate-zip` for AWS/GCP inventory packages~~ **Done** 2026-08-14 — `archlucid aws|gcp validate-zip`; see ## TB-2257 below | Code hygiene P3 — **V1**; multi-cloud target parity 2026-08-13; Azure-only `AzureValidateZipCommand` | S |
 | TB-2258 | ~~Multi-cloud inventory demo scenario ZIPs~~ **Done** 2026-08-14 — Aws/Gcp demo scenario builders + wizard wiring; see ## TB-2258 below | Adoption friction P2 — **V1**; multi-cloud target parity 2026-08-13; Azure-only `arch-lucid-azure-extractor-demo-scenarios` | M |
@@ -1370,7 +1370,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2278 | ~~Increase base vs raised surface contrast (`--al-surface-base` or raised hairline)~~ **Done** 2026-08-14 — `--al-surface-base` micro-shift + raised separation; `design-tokens.test.ts`; see ## TB-2278 below | Adoption friction P1 — **V1**; color token hierarchy 2026-08-13; help/action-panel layering | S |
 | TB-2279 | ~~Primary-fill usage contract — filled teal only for forward/irreversible workflow~~ **Done** 2026-08-14 — `UI_DESIGN_SYSTEM.md` primary-fill usage contract; see ## TB-2279 below | Adoption friction P1 — **V1**; color token hierarchy 2026-08-13; extends Done **TB-1539**/**TB-1671** | S |
 | TB-2280 | ~~Differentiate Approved with monitoring from Ready status palette~~ **Done** 2026-08-14 — `--al-status-approved-monitoring-*` cool gray-teal vs ready green; `design-tokens.test.ts`; see ## TB-2280 below | Trustworthiness P1 — **V1**; color token hierarchy 2026-08-13; governance table scanability | S |
-| TB-2281 | Pilot charcoal authority theme on sponsor/trust/signed-record surfaces; see ## TB-2281 below | Differentiability P2 — **V1**; color token hierarchy 2026-08-13; `ui-authority-theme.ts` | M |
+| TB-2281 | **Done** (2026-08-14) — Pilot charcoal authority theme on sponsor/trust/signed-record surfaces; see ## TB-2281 below | Differentiability P2 — **V1**; color token hierarchy 2026-08-13; `ui-authority-theme.ts` | M |
 | TB-932 | **Done** (2026-08-09) ? **Won't do** ? Offload large JSON payloads to blob storage; DEV LOB evidence max ~30 KB / 0% ?1 MB; see ## TB-932 below | Performance P0 ? **V1** (promoted P0 + V1 2026-08-08 with perf wave 5; evidence-gated; was P3 V2); after **TB-929**?**TB-931**; peers **TB-2119** | L |
 | TB-2103 | **Done** (2026-08-13) ? Operator-maintained model catalog ? DDL-backed `IAgentModelAliasRegistry` replacing `ConfigAgentModelAliasRegistry`; internal `/internal/agent-model-catalog` + admin API; lifecycle + audit on every mutation; see ## TB-2103 below | Maintainability P1 ? **V1.1**; ADR 0065 D2? | L |
 | TB-2104 | **Done** (2026-08-13) ? Structured-output capability ladder (`StrictJsonSchema` \| `JsonObject` \| `DegradedTextParse`) per catalog row + per-task minimum, fail-closed routing; see ## TB-2104 below | Correctness P1 ? **V1.1**; ADR 0065 D4? | M |
@@ -1667,7 +1667,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-938 | **Done** (2026-07-24) ? Selective agent re-execute ? `POST ?/execute/selective`, clear forced (+ Critic) results, TB-039 skip kept successes, UI Retry failed agents; see `## TB-938` below | Reliability P1 ? **V1**; after **TB-937**; extends **TB-039** (Done); owner discussion 2026-07-22 | M |
 | TB-939 | **Done** (2026-07-24) ? Run-scoped LLM budget reservation ? `AdmitBeforeAgentBatchAsync` before agent execute; in-memory + SQL store; MaxCost/MaxTokens + monthly headroom fail-closed; commit/release; `OPERATIONS_LLM_QUOTA.md`; see `## TB-939` below | Cost-effectiveness P1 ? **V1**; multi-step LLM resilience; complements per-call accounting + `MaxTokensPerRun`; owner discussion 2026-07-22 | L |
 | TB-940 | **Done** (2026-07-25) ? Completion-cache admission + poison bust ? defer set until schema commit; wire admit; key v2 prompt/schema versions; poison bust + `archlucid_llm_cache_poison_busts_total`; see `## TB-940` below | Reliability P1 ? **V1**; multi-step LLM resilience; ADR 0005 cache layer; owner discussion 2026-07-22 | M |
-| TB-941 | Bounded spend per logical agent step ? hard cap attempts ? Polly retries ? remediation per `(RunId, TaskId)`; distinct `failureClass`; see `## TB-941` below | Cost-effectiveness P2 ? **V1**; extends **TB-043** (Done); owner discussion 2026-07-22 | S |
+| TB-941 | **Done** (2026-08-11) — Bounded spend per logical agent step — hard cap attempts + Polly retries + remediation per `(RunId, TaskId)`; distinct `failureClass`; see `## TB-941` below | Cost-effectiveness P2 ? **V1**; extends **TB-043** (Done); owner discussion 2026-07-22 | S |
 | TB-942 | Downstream consistency gate after partial/re-execute ? stale Critic/merge blocks commit; re-queue dependents; see `## TB-942` below | AI/Agent readiness P2 ? **V1**; after **TB-937**/**TB-938**; owner discussion 2026-07-22 | M |
 | TB-943 | Zombie / interrupted execute reconciliation ? lease/heartbeat; resume or mark partial; never leave `TasksGenerated` with orphan results; see `## TB-943` below | Reliability P2 ? **V1**; multi-step LLM resilience; owner discussion 2026-07-22 | M |
 | TB-944 | Semantic-failure classification (non-transport) ? empty/schema/content-filter/4xx never retry, never trip breaker, never enter completion cache; triage catalog; see `## TB-944` below | AI/Agent readiness P2 ? **V1**; pairs **TB-940**; owner discussion 2026-07-22 | S |
@@ -25426,7 +25426,7 @@ Private-beta deploy P0 (**TB-928**): surface beta-blocking auth/email config in 
 
 **Window:** V1 ? Cost-effectiveness. Extends **TB-043** (Done).
 
-**Status:** Done (2026-08-11) ? canonical /administration/ai-usage; H1 + ROUTE_TITLES + nav label use OPERATOR_NAV_LINK_LABELS.aiUsage; breadcrumbs removed (TB-2090). Vitest title/nav parity.
+**Status:** **Done** (2026-08-11) — `AgentLogicalStepSpendCapOptions` + `AgentLogicalStepSpendCapPolicy`; `LlmCompletionAccountingClient` enforcement; `AgentLogicalStepSpendCapExceededException` + `failureClass`; OTel counter; `AgentLogicalStepSpendCapPolicyTests`.
 
 **Why:** `MaxCompletionAttempts ? (1 + LlmCallMaxRetryAttempts)` (plus remediation) can multiply billed calls for one `(RunId, TaskId)`. Transport resilience must not be unbounded FinOps.
 
@@ -51202,6 +51202,8 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 **Window:** V1.
 
+**Status:** **Done** 2026-08-14 — `ArchitectureRequestTemplates.AwsMicroservicesECommerce` + `GcpDataLakeAnalytics`; embedded `serverless-api-aws.json` + `microservices-gke.json`; wizard/doc presets in `docs-architecture-request-presets.ts`; Application + TemplateProvider tests.
+
 **Why:** `ArchitectureRequestTemplates`, `docs-architecture-request-presets.ts`, and wizard starter presets all use `CloudProvider.Azure`. Aws/Gcp-primary buyers see no template parity.
 
 **Approach:** Add at least one Aws and one Gcp template/preset (can mirror existing scenarios with provider-appropriate service names); document in template catalog.
@@ -51215,6 +51217,8 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 ## TB-2255 — Demo/zero-config paths — respect Aws/Gcp cloud target (P2)
 
 **Window:** V1.
+
+**Status:** **Done** 2026-08-14 — `zero-config-demo-mode.ts` multi-platform selection (`zeroConfig=aws|gcp`); `second-run-paste.ts` reads `cloud_provider`; inventory demo ZIP wiring; Vitest.
 
 **Why:** `zero-config-demo-mode.ts`, `second-run-paste.ts`, `CtoDemoFastCreatePanel`, and `markCloudProviderAzure` on any file selection force Azure even when user selected Aws/Gcp evidence source.
 
@@ -51487,6 +51491,8 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 ## TB-2281 — Pilot charcoal authority theme on sponsor/trust/signed-record surfaces (P2)
 
 **Window:** V1.
+
+**Status:** **Done** 2026-08-14 — `AuthorityThemePilotScope` + `ui-authority-theme-pilot.ts`; pilot layouts for sponsor dashboard/report, sealed records, marketing + operator security-trust; Vitest token smoke.
 
 **Source:** Owner al-ui-rate color follow-on 2026-08-13; `[data-al-authority-theme="charcoal"]` exists in `globals.css` + `ui-authority-theme.ts` but ships only behind dev eval toggle.
 

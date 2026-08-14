@@ -53,7 +53,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
     presetDeeplinkToken,
     reviewIntakeCloudProvider,
     zeroConfigDemo,
-    zeroConfigScenarioId,
+    zeroConfigSelection,
   } = params;
 
   const zeroConfigAppliedRef = useRef(false);
@@ -147,7 +147,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
     const applied = applyBundledSamplePackageToWizard(
       setValue,
       onPendingEvidenceFileChange,
-      zeroConfigScenarioId,
+      zeroConfigSelection,
     );
 
     if (!applied.ok) {
@@ -157,7 +157,13 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
     }
 
     goToStep(2);
-    showToast("ok", "Demo Azure package loaded — confirm identity and submit your review.");
+    const platformLabel =
+      zeroConfigSelection.platform === "aws"
+        ? "AWS"
+        : zeroConfigSelection.platform === "gcp"
+          ? "GCP"
+          : "Azure";
+    showToast("ok", `Demo ${platformLabel} package loaded — confirm identity and submit your review.`);
   }, [
     goToStep,
     onPendingEvidenceFileChange,
@@ -165,6 +171,6 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
     setValue,
     showToast,
     zeroConfigDemo,
-    zeroConfigScenarioId,
+    zeroConfigSelection,
   ]);
 }

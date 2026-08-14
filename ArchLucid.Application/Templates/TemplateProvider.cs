@@ -59,6 +59,18 @@ public sealed class TemplateProvider
             Description:
             "Front Door with WAF, Container Apps compute, and Key Vault for secrets—architecture framing for CDE scoping, edge protection, and key management under PCI DSS review.",
             ResourceName: "ArchLucid.Application.Templates.pci-dss-payment-gateway.json"),
+        new(
+            Id: "serverless-api-aws",
+            Name: "Serverless API with DynamoDB (AWS)",
+            Description:
+            "AWS Lambda for HTTP and async triggers with DynamoDB partitioning guidance, SQS dead-letter paths, and IAM least-privilege defaults.",
+            ResourceName: "ArchLucid.Application.Templates.serverless-api-aws.json"),
+        new(
+            Id: "microservices-gke",
+            Name: "Microservices on GKE with Pub/Sub",
+            Description:
+            "GKE microservices exchanging messages through Cloud Pub/Sub with ingress, Workload Identity, and observability integration expectations.",
+            ResourceName: "ArchLucid.Application.Templates.microservices-gke.json"),
     ];
 
     private readonly ArchitectureRequestTemplateSummary[] _summaries;

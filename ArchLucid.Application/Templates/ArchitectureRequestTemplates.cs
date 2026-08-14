@@ -401,6 +401,102 @@ public static class ArchitectureRequestTemplates
             ["purdue-segmentation", "no-flat-ot-corporate-network", "safety-critical-change-controlled", "encrypted-northbound-egress"]);
     }
 
+    public static ArchitectureRequest AwsMicroservicesECommerce(string? requestId = null)
+    {
+        return Build("aws-microservices-ecommerce", requestId, "AWS microservices e-commerce platform", """
+                Design a customer-facing e-commerce platform on AWS with independently deployable services behind an edge API layer.
+                North-south traffic terminates at an Application Load Balancer or API Gateway; core domains (catalog, cart, checkout, notifications)
+                communicate over private subnets with TLS everywhere. Document data ownership, event-driven integration (SQS/SNS or EventBridge),
+                RDS/Aurora persistence, ElastiCache for session/cache tiers, and operational guardrails (observability, secrets, least-privilege IAM).
+                """, "AwsCommerceMesh", "prod", CloudProvider.Aws,
+            [
+                "Workspace and project scope are taken from the signed-in operator session (default workspace and project).",
+                "EKS or ECS/Fargate is acceptable when container orchestration is required; serverless paths must document cold-start trade-offs.",
+                "Aurora PostgreSQL is the preferred system of record unless DynamoDB ownership is explicit per aggregate."
+            ],
+            [
+                "No public database endpoints — RDS and ElastiCache reachable only from approved VPC subnets or security groups.",
+                "At-least-once messaging with idempotent consumers and documented DLQ replay procedures."
+            ],
+            [
+                "API Gateway or ALB ingress with WAF where internet-facing",
+                "Catalog, cart, checkout, and notification services with clear bounded contexts",
+                "Aurora PostgreSQL and ElastiCache",
+                "SQS/SNS or EventBridge for async integration",
+                "IAM roles for service-to-service access — no long-lived access keys in application config"
+            ], [
+                ("Evidence — Edge and API layer", """
+                                             **Ingress:** ALB or API Gateway with TLS termination, request routing, and coarse rate limits.
+
+                                             **Security:** WAF managed rules where the storefront is public; JWT validation at the edge or service mesh boundary.
+                                             """),
+                ("Evidence — Domain services", """
+                                              **Services:** Catalog, cart, checkout, and notifications as independently deployable units with HTTPS-only APIs.
+
+                                              **Ownership:** Each service owns its schema or DynamoDB table; no cross-service database joins in runtime paths.
+                                              """),
+                ("Evidence — Data and cache", """
+                                             **Aurora:** Authoritative transactional state with automated backups and multi-AZ where policy requires.
+
+                                             **ElastiCache:** Session and hot-read cache — not a substitute for transactional guarantees on checkout.
+                                             """),
+                ("Evidence — Messaging and operations", """
+                                                     **Async:** SQS/SNS or EventBridge for integration events; poison-message handling and replay tooling documented.
+
+                                                     **Ops:** CloudWatch metrics, structured logs, and X-Ray or equivalent tracing across synchronous and async paths.
+                                                     """)
+            ], ["aws-microservices", "eks-or-ecs", "aurora-postgres", "elasticache", "sqs-sns", "tls-east-west"],
+            ["iam-least-privilege", "no-public-datastores", "waf-edge-where-public"]);
+    }
+
+    public static ArchitectureRequest GcpDataLakeAnalytics(string? requestId = null)
+    {
+        return Build("gcp-data-lake-analytics", requestId, "GCP data lake and analytics platform", """
+                Architect a governed analytics platform on Google Cloud for batch and near-real-time workloads. Ingest operational and partner
+                datasets into Cloud Storage landing zones, orchestrate transformations with Cloud Composer or Dataflow, and expose curated tables
+                through BigQuery with row-level security expectations. Cover encryption, VPC Service Controls or private Google Access patterns,
+                lineage from ingestion to consumption, and cost visibility across projects.
+                """, "GcpAnalyticsLakehouse", "prod", CloudProvider.Gcp,
+            [
+                "Workspace and project scope are taken from the signed-in operator session (default workspace and project).",
+                "BigQuery is the primary consumption plane; Dataproc or Spark on GKE is optional for heavy transformation.",
+                "PII classification drives column-level access and retention policies."
+            ],
+            [
+                "No public BigQuery datasets — authorized views and IAM conditions documented per consumer cohort.",
+                "Customer-managed encryption keys required where regulated data lands in Cloud Storage or BigQuery."
+            ],
+            [
+                "Cloud Storage raw and curated zones with lifecycle policies",
+                "BigQuery datasets with row-level security and authorized views",
+                "Cloud Composer or Dataflow orchestration with idempotent pipelines",
+                "Dataplex or equivalent metadata catalog for lineage",
+                "VPC Service Controls or private connectivity for sensitive ingestion paths"
+            ], [
+                ("Evidence — Ingestion and landing", """
+                                                     **Landing:** Cloud Storage buckets partitioned by source system and ingestion date; schema-on-read contracts versioned.
+
+                                                     **Quality:** Validation jobs quarantine bad files before curated promotion.
+                                                     """),
+                ("Evidence — Transformation", """
+                                             **Orchestration:** Composer DAGs or Dataflow jobs with checkpointed offsets and replay from last good partition.
+
+                                             **Cost:** Slot reservations or autoscaling policies documented for BigQuery-heavy stages.
+                                             """),
+                ("Evidence — Consumption", """
+                                          **BigQuery:** Curated datasets with RLS policies; authorized views for partner extracts without exposing raw PII.
+
+                                          **Governance:** Column descriptions, data stewards, and retention aligned to classification schedules.
+                                          """),
+                ("Evidence — Security and networking", """
+                                                     **Connectivity:** Private Google Access or VPC-SC perimeters for sensitive pipelines.
+
+                                                     **Keys:** CMEK for storage and BigQuery where policy mandates customer control.
+                                                     """)
+            ], ["gcp-data-lake", "bigquery-rls", "cloud-storage-zones", "composer-dataflow", "dataplex-lineage"],
+            ["vpc-sc-or-private-access", "cmek-where-required", "no-public-datasets"]);
+    }
+
     private static ArchitectureRequest Build(string templateId, string? requestId, string title, string descriptionBody, string systemName, string environment,
         CloudProvider cloudProvider, List<string> assumptions, List<string> constraints, List<string> requiredCapabilities,
         IReadOnlyList<(string Name, string Content)> evidenceDocuments, List<string> topologyHints, List<string> securityBaselineHints)

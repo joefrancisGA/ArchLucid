@@ -104,7 +104,7 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
 
     try {
       const applied = applyBundledDemoPackageToWizard(
-        selectedDemoScenarioId,
+        { platform: "azure", scenarioId: selectedDemoScenarioId },
         setValue,
         (file) => {
           if (file !== null) {
