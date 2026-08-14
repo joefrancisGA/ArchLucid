@@ -5,8 +5,10 @@ using System.Text.Json;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Http;
 using ArchLucid.Application.Http;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -33,7 +35,8 @@ public sealed class RoiController(
     ISponsorRoiSummaryService sponsorRoiSummaryService,
     ISponsorRoiBoardPackExporter boardPackExporter,
     IAuditService auditService,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    IComplianceDriftTrendService complianceDriftTrendService) : ControllerBase
 {
     private readonly ISponsorRoiSummaryService _sponsorRoiSummaryService =
         sponsorRoiSummaryService ?? throw new ArgumentNullException(nameof(sponsorRoiSummaryService));
@@ -46,6 +49,42 @@ public sealed class RoiController(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IComplianceDriftTrendService _complianceDriftTrendService =
+        complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
+
+    /// <summary>Sponsor dashboard bundle: ROI summary and 30-day compliance drift trend (daily buckets).</summary>
+    [HttpGet("sponsor-dashboard-bundle")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(SponsorDashboardBundleResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSponsorDashboardBundleAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        DateTime toUtc = DateTime.UtcNow;
+        DateTime fromUtc = toUtc.AddDays(-30);
+        TimeSpan bucketSize = TimeSpan.FromMinutes(1440);
+
+        Task<SponsorRoiSummaryResponse> sponsorTask =
+            _sponsorRoiSummaryService.BuildAsync(cancellationToken);
+
+        Task<IReadOnlyList<ComplianceDriftTrendPoint>> driftTask =
+            _complianceDriftTrendService.GetTrendAsync(
+                scope.TenantId,
+                fromUtc,
+                toUtc,
+                bucketSize,
+                cancellationToken);
+
+        await Task.WhenAll(sponsorTask, driftTask).ConfigureAwait(false);
+
+        SponsorDashboardBundleResponse body = new()
+        {
+            SponsorReport = await sponsorTask.ConfigureAwait(false),
+            ComplianceDriftTrend = await driftTask.ConfigureAwait(false)
+        };
+
+        return Ok(body);
+    }
 
     /// <summary>
     ///     Aggregates the latest committed run per system, sums estimated USD savings, and returns the top recurring

@@ -1,10 +1,6 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import {
-  getEffectivePolicyContent,
-  getEffectivePolicyPacks,
-  listPolicyPacks,
-} from "@/lib/api";
+import { fetchPolicyPacksPageBundle } from "@/lib/api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   mergePolicyPacksStateWithStaticDemo,
@@ -28,15 +24,18 @@ export async function loadPolicyPacksPageData(): Promise<PolicyPacksPageServerLo
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   try {
-    const [p, eff, doc] = await Promise.all([
-      listPolicyPacks(),
-      getEffectivePolicyPacks(),
-      getEffectivePolicyContent(),
-    ]);
-    const merged = mergePolicyPacksStateWithStaticDemo(p, eff, doc, "default", {
-      afterEmptyLiveResponse:
-        buyerPolishedShell || (p.length === 0 && (eff === null || eff.packs.length === 0)),
-    });
+    const bundle = await fetchPolicyPacksPageBundle();
+    const merged = mergePolicyPacksStateWithStaticDemo(
+      bundle.packs,
+      bundle.effective,
+      bundle.effectiveContent,
+      "default",
+      {
+        afterEmptyLiveResponse:
+          buyerPolishedShell ||
+          (bundle.packs.length === 0 && (bundle.effective === null || bundle.effective.packs.length === 0)),
+      },
+    );
 
     return {
       packs: merged.packs,

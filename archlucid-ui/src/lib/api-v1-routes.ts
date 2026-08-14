@@ -31,6 +31,7 @@ export const ApiV1Routes = {
   analyticsRoi: "v1/analytics/roi",
   /** Cross-run sponsor ROI summary (latest run per system, savings rollup, top issues). */
   roiSponsorReport: "v1/roi/sponsor-report",
+  roiSponsorDashboardBundle: "v1/roi/sponsor-dashboard-bundle",
   roiSponsorReportBoardPack: "v1/roi/sponsor-report/board-pack",
   /** Cross-tenant portfolio ROI summary (aggregates across all accessible tenants, enforces k-anonymity). */
   roiCrossTenantPortfolio: "v1/roi/cross-tenant-portfolio",
@@ -39,6 +40,7 @@ export const ApiV1Routes = {
   /** In-product pilot scorecard metrics + ROI baselines (`GET` / `PUT baselines`). */
   pilotsScorecard: "v1/pilots/scorecard",
   teamsIncomingWebhookConnections: "v1/integrations/teams/connections",
+  teamsIncomingWebhookPageBundle: "v1/integrations/teams/page-bundle",
   teamsNotificationTriggerCatalog: "v1/integrations/teams/triggers",
   integrationWebhooks: "v1/integrations/webhooks",
   webhookSubscriptions: "v1/webhooks/subscriptions",

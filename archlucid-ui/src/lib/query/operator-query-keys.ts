@@ -25,6 +25,7 @@ export const operatorQueryKeys = {
   llmMonthlyBudgetStatus: ["operator", "llm", "monthly-budget-status"] as const,
   adminAiUsageDashboard: ["operator", "admin", "ai-usage-dashboard"] as const,
   sponsorRoiSummary: ["operator", "roi", "sponsor-report"] as const,
+  sponsorDashboardBundle: ["operator", "roi", "sponsor-dashboard-bundle"] as const,
   // Prefix-matches sponsorRoiSummary so refreshDashboard invalidation also refreshes these.
   sponsorRoiSummaryHistory: ["operator", "roi", "sponsor-report", "history"] as const,
   sponsorRoiSummaryExport: ["operator", "roi", "sponsor-report", "export"] as const,

@@ -36,6 +36,15 @@ export async function listPolicyPacks(): Promise<PolicyPack[]> {
   return apiGet<PolicyPack[]>(`/${ApiV1Routes.policyPacks}`);
 }
 
+/** Policy packs hub: list, effective assignments, and merged content in one GET. */
+export async function fetchPolicyPacksPageBundle(): Promise<{
+  packs: PolicyPack[];
+  effective: EffectivePolicyPackSet;
+  effectiveContent: PolicyPackContentDocument;
+}> {
+  return apiGet(`/${ApiV1Routes.policyPacks}/page-bundle`);
+}
+
 /** Lists platform-promoted policy packs available to clone into the tenant. */
 export async function listPolicyPackCatalog(): Promise<PolicyPackCatalogListItem[]> {
   return apiGet<PolicyPackCatalogListItem[]>(`/${ApiV1Routes.policyPacks}/catalog`);

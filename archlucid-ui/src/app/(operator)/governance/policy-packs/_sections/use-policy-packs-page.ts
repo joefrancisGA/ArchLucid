@@ -8,6 +8,7 @@ import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import {
   assignPolicyPack,
   createPolicyPack,
+  fetchPolicyPacksPageBundle,
   getEffectivePolicyContent,
   getEffectivePolicyPacks,
   getPolicyPackCatalogEntry,
@@ -134,15 +135,18 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     setFailure(null);
 
     try {
-      const [p, eff, doc] = await Promise.all([
-        listPolicyPacks(),
-        getEffectivePolicyPacks(),
-        getEffectivePolicyContent(),
-      ]);
-      const merged = mergePolicyPacksStateWithStaticDemo(p, eff, doc, "default", {
-        afterEmptyLiveResponse:
-          buyerPolishedShell || (p.length === 0 && (eff === null || eff.packs.length === 0)),
-      });
+      const bundle = await fetchPolicyPacksPageBundle();
+      const merged = mergePolicyPacksStateWithStaticDemo(
+        bundle.packs,
+        bundle.effective,
+        bundle.effectiveContent,
+        "default",
+        {
+          afterEmptyLiveResponse:
+            buyerPolishedShell ||
+            (bundle.packs.length === 0 && (bundle.effective === null || bundle.effective.packs.length === 0)),
+        },
+      );
 
       setPacks(merged.packs);
       setEffective(merged.effective);

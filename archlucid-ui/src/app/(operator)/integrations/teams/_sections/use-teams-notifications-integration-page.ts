@@ -5,8 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   deleteTeamsIncomingWebhookConnection,
+  fetchTeamsIncomingWebhookPageBundle,
   getTeamsIncomingWebhookConnection,
-  getTeamsNotificationTriggerCatalog,
   testTeamsIncomingWebhookConnection,
   upsertTeamsIncomingWebhookConnection,
   validateTeamsIncomingWebhookSecret,
@@ -123,10 +123,9 @@ export function useTeamsNotificationsIntegrationPage(
     setFailure(null);
 
     try {
-      const [data, triggers] = await Promise.all([
-        getTeamsIncomingWebhookConnection(),
-        getTeamsNotificationTriggerCatalog(),
-      ]);
+      const bundle = await fetchTeamsIncomingWebhookPageBundle();
+      const data = bundle.connection;
+      const triggers = bundle.triggerCatalog;
 
       setConn(data);
       setSecretName(data.keyVaultSecretName ?? "");

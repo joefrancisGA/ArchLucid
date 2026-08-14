@@ -297,26 +297,42 @@ public sealed class PolicyPacksController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IReadOnlyList<PolicyPack> packs = await packRepository.ListByScopeAsync(
+        IReadOnlyList<PolicyPack> visiblePacks = await ListVisiblePacksAsync(scope, ct);
+
+        return Ok(visiblePacks);
+    }
+
+    /// <summary>Policy packs hub bundle: list, effective assignments, and merged content.</summary>
+    [HttpGet("page-bundle")]
+    [ProducesResponseType(typeof(PolicyPacksPageBundleResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPageBundle(CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        Task<IReadOnlyList<PolicyPack>> packsTask = ListVisiblePacksAsync(scope, ct);
+
+        Task<EffectivePolicyPackSet> effectiveTask = resolver.ResolveAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             ct);
 
-        List<PolicyPack> visiblePacks = [];
+        Task<PolicyPackContentDocument> contentTask = governanceLoader.LoadEffectiveContentAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            ct);
 
-        foreach (PolicyPack pack in packs)
+        await Task.WhenAll(packsTask, effectiveTask, contentTask).ConfigureAwait(false);
+
+        PolicyPacksPageBundleResponse body = new()
         {
-            if (pack.IsDeleted)
-                continue;
+            Packs = await packsTask.ConfigureAwait(false),
+            Effective = await effectiveTask.ConfigureAwait(false),
+            EffectiveContent = await contentTask.ConfigureAwait(false)
+        };
 
-            if (!await _platformAvailability.IsGloballyActiveAsync(pack, ct))
-                continue;
-
-            visiblePacks.Add(pack);
-        }
-
-        return Ok(visiblePacks);
+        return Ok(body);
     }
 
     /// <summary>Lists workspace policy packs with assignment ids for tenant opt-in/opt-out.</summary>
@@ -855,5 +871,29 @@ public sealed class PolicyPacksController(
             await _policyPackContentAuthoringValidationService.ValidateAsync(document, cancellationToken);
 
         return Ok(response);
+    }
+
+    private async Task<IReadOnlyList<PolicyPack>> ListVisiblePacksAsync(ScopeContext scope, CancellationToken ct)
+    {
+        IReadOnlyList<PolicyPack> packs = await packRepository.ListByScopeAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            ct);
+
+        List<PolicyPack> visiblePacks = [];
+
+        foreach (PolicyPack pack in packs)
+        {
+            if (pack.IsDeleted)
+                continue;
+
+            if (!await _platformAvailability.IsGloballyActiveAsync(pack, ct))
+                continue;
+
+            visiblePacks.Add(pack);
+        }
+
+        return visiblePacks;
     }
 }

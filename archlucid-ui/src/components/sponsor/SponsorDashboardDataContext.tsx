@@ -3,8 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { useComplianceDriftTrendQuery } from "@/hooks/use-compliance-drift-trend-query";
-import { useSponsorRoiSummaryQuery } from "@/hooks/use-sponsor-roi-summary-query";
+import { useSponsorDashboardBundleQuery } from "@/hooks/use-sponsor-dashboard-bundle-query";
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
@@ -23,50 +22,46 @@ export type SponsorDashboardData = {
 
 const SponsorDashboardDataContext = createContext<SponsorDashboardData | undefined>(undefined);
 
-/** Fetches sponsor-report and compliance-drift once; children read via `useSponsorDashboardData()`. */
+/** Loads sponsor dashboard bundle once; children read via `useSponsorDashboardData()`. */
 export function SponsorDashboardDataProvider({ children }: { children: ReactNode }): React.JSX.Element {
   const queryClient = useQueryClient();
-  const summaryQuery = useSponsorRoiSummaryQuery();
-  const driftQuery = useComplianceDriftTrendQuery();
+  const bundleQuery = useSponsorDashboardBundleQuery();
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
-  const summary = summaryQuery.data ?? null;
+  const summary = bundleQuery.data?.sponsorReport ?? null;
   const summaryLoading =
-    summaryQuery.isPending ||
-    (summary === null && !summaryQuery.isFetched);
+    bundleQuery.isPending ||
+    (summary === null && !bundleQuery.isFetched);
   const summaryError =
-    summaryQuery.isError
-      ? summaryQuery.error instanceof Error
-        ? summaryQuery.error.message
+    bundleQuery.isError
+      ? bundleQuery.error instanceof Error
+        ? bundleQuery.error.message
         : "Failed to load sponsor KPIs."
       : null;
 
-  const driftPoints = useMemo(() => driftQuery.data ?? [], [driftQuery.data]);
+  const driftPoints = useMemo(
+    () => bundleQuery.data?.complianceDriftTrend ?? [],
+    [bundleQuery.data?.complianceDriftTrend],
+  );
   const driftLoading =
-    driftQuery.isPending ||
-    driftQuery.isFetching ||
-    (driftPoints.length === 0 && !driftQuery.isFetched);
-  const driftError = driftQuery.isError;
+    bundleQuery.isPending ||
+    bundleQuery.isFetching ||
+    (driftPoints.length === 0 && !bundleQuery.isFetched);
+  const driftError = bundleQuery.isError;
 
   useEffect(() => {
-    if (summaryQuery.isFetched && driftQuery.isFetched && lastRefreshedAt === null) {
+    if (bundleQuery.isFetched && lastRefreshedAt === null) {
       setLastRefreshedAt(new Date());
     }
-  }, [summaryQuery.isFetched, driftQuery.isFetched, lastRefreshedAt]);
+  }, [bundleQuery.isFetched, lastRefreshedAt]);
 
   const refreshDashboard = useCallback(async () => {
     setRefreshing(true);
 
     try {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: operatorQueryKeys.sponsorRoiSummary }),
-        queryClient.invalidateQueries({ queryKey: operatorQueryKeys.complianceDriftTrend30d }),
-      ]);
-      await Promise.all([
-        queryClient.refetchQueries({ queryKey: operatorQueryKeys.sponsorRoiSummary }),
-        queryClient.refetchQueries({ queryKey: operatorQueryKeys.complianceDriftTrend30d }),
-      ]);
+      await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.sponsorDashboardBundle });
+      await queryClient.refetchQueries({ queryKey: operatorQueryKeys.sponsorDashboardBundle });
       setLastRefreshedAt(new Date());
     } finally {
       setRefreshing(false);

@@ -95,6 +95,14 @@ export async function saveExecDigestPreferences(
   return apiPostJson<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`, body);
 }
 
+/** Loads Teams incoming-webhook connection and trigger catalog in one GET. */
+export async function fetchTeamsIncomingWebhookPageBundle(): Promise<{
+  connection: TeamsIncomingWebhookConnectionResponse;
+  triggerCatalog: string[];
+}> {
+  return apiGet(`/${ApiV1Routes.teamsIncomingWebhookPageBundle}`);
+}
+
 /** Loads Teams incoming-webhook Key Vault reference for the current tenant (secret value never returned). */
 export async function getTeamsIncomingWebhookConnection(): Promise<TeamsIncomingWebhookConnectionResponse> {
   return apiGet<TeamsIncomingWebhookConnectionResponse>(`/${ApiV1Routes.teamsIncomingWebhookConnections}`);
