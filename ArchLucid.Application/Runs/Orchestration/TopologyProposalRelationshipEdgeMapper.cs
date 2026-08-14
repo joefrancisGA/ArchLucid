@@ -14,7 +14,8 @@ public static class TopologyProposalRelationshipEdgeMapper
 {
     public static IReadOnlyList<GraphEdge> MapRelationships(
         IReadOnlyList<GraphNode> topologyNodes,
-        IReadOnlyList<ManifestRelationship> relationships)
+        IReadOnlyList<ManifestRelationship> relationships,
+        IReadOnlyDictionary<string, string>? endpointAliases = null)
     {
         ArgumentNullException.ThrowIfNull(topologyNodes);
         ArgumentNullException.ThrowIfNull(relationships);
@@ -22,29 +23,16 @@ public static class TopologyProposalRelationshipEdgeMapper
         if (relationships.Count == 0)
             return [];
 
-        Dictionary<string, string> idByLabel = topologyNodes
-            .Where(static n => !string.IsNullOrWhiteSpace(n.Label))
-            .GroupBy(static n => n.Label, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(static g => g.Key, static g => g.First().NodeId, StringComparer.OrdinalIgnoreCase);
-
-        Dictionary<string, string> idByNodeId = topologyNodes
-            .ToDictionary(static n => n.NodeId, static n => n.NodeId, StringComparer.OrdinalIgnoreCase);
-
-        Dictionary<string, string> idBySourceId = topologyNodes
-            .Where(static n => !string.IsNullOrWhiteSpace(n.SourceId))
-            .GroupBy(static n => n.SourceId!, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(static g => g.Key, static g => g.First().NodeId, StringComparer.OrdinalIgnoreCase);
-
-        Dictionary<string, string> idByArmResourceId = BuildArmResourceIdIndex(topologyNodes);
+        Dictionary<string, string> endpointKeyToNodeId = BuildEndpointResolutionIndex(topologyNodes, endpointAliases);
 
         List<GraphEdge> edges = [];
 
         foreach (ManifestRelationship relationship in relationships)
         {
-            if (!TryResolveNodeId(relationship.SourceId, idByLabel, idByNodeId, idBySourceId, idByArmResourceId, out string? fromNodeId))
+            if (!TryResolveNodeId(relationship.SourceId, endpointKeyToNodeId, out string? fromNodeId))
                 continue;
 
-            if (!TryResolveNodeId(relationship.TargetId, idByLabel, idByNodeId, idBySourceId, idByArmResourceId, out string? toNodeId))
+            if (!TryResolveNodeId(relationship.TargetId, endpointKeyToNodeId, out string? toNodeId))
                 continue;
 
             string edgeType = MapRelationshipType(relationship.RelationshipType);
@@ -63,22 +51,26 @@ public static class TopologyProposalRelationshipEdgeMapper
         return edges;
     }
 
-    private static Dictionary<string, string> BuildArmResourceIdIndex(IReadOnlyList<GraphNode> topologyNodes)
+    private static Dictionary<string, string> BuildEndpointResolutionIndex(
+        IReadOnlyList<GraphNode> topologyNodes,
+        IReadOnlyDictionary<string, string>? endpointAliases)
     {
-        Dictionary<string, string> idByArmResourceId = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode node in topologyNodes)
         {
-            string? resourceId = GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node);
-
-            if (string.IsNullOrWhiteSpace(resourceId))
-                continue;
-
-            idByArmResourceId.TryAdd(resourceId, node.NodeId);
-            idByArmResourceId.TryAdd(GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(resourceId), node.NodeId);
+            TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
         }
 
-        return idByArmResourceId;
+        if (endpointAliases is null)
+            return endpointKeyToNodeId;
+
+        foreach (KeyValuePair<string, string> alias in endpointAliases)
+        {
+            endpointKeyToNodeId.TryAdd(alias.Key, alias.Value);
+        }
+
+        return endpointKeyToNodeId;
     }
 
     private static string MapRelationshipType(RelationshipType relationshipType) =>
@@ -88,31 +80,19 @@ public static class TopologyProposalRelationshipEdgeMapper
 
     private static bool TryResolveNodeId(
         string candidate,
-        Dictionary<string, string> idByLabel,
-        Dictionary<string, string> idByNodeId,
-        Dictionary<string, string> idBySourceId,
-        Dictionary<string, string> idByArmResourceId,
+        Dictionary<string, string> endpointKeyToNodeId,
         out string nodeId)
     {
-        if (idByNodeId.TryGetValue(candidate, out nodeId!))
-            return true;
-
-        if (idBySourceId.TryGetValue(candidate, out nodeId!))
-            return true;
-
-        if (idByArmResourceId.TryGetValue(candidate, out nodeId!))
+        if (endpointKeyToNodeId.TryGetValue(candidate, out nodeId!))
             return true;
 
         if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(candidate)
-            && idByArmResourceId.TryGetValue(
+            && endpointKeyToNodeId.TryGetValue(
                 GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(candidate),
                 out nodeId!))
         {
             return true;
         }
-
-        if (idByLabel.TryGetValue(candidate, out nodeId!))
-            return true;
 
         nodeId = string.Empty;
         return false;

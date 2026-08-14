@@ -1,5 +1,7 @@
 using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Application.Runs.Orchestration;
@@ -38,6 +40,42 @@ public static class TopologyProposalRelationshipEndpointIndex
         AddEndpointKey(endpointKeys, node.NodeId);
         AddEndpointKey(endpointKeys, node.SourceId);
         AddArmResourceIdEndpointKeys(endpointKeys, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node));
+        AddGraphNodeSyntheticLabelEndpointKeys(endpointKeys, node.Label, node.Category);
+    }
+
+    public static void AddGraphNodeResolutionKeys(Dictionary<string, string> endpointKeyToNodeId, GraphNode node)
+    {
+        AddResolutionAlias(endpointKeyToNodeId, node.NodeId, node.NodeId);
+        AddResolutionAlias(endpointKeyToNodeId, node.Label, node.NodeId);
+        AddResolutionAlias(endpointKeyToNodeId, node.SourceId, node.NodeId);
+        AddArmResourceIdResolutionAliases(endpointKeyToNodeId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node), node.NodeId);
+        AddGraphNodeSyntheticLabelResolutionAliases(endpointKeyToNodeId, node.Label, node.Category, node.NodeId);
+    }
+
+    public static void AddManifestServiceEndpointAliases(
+        Dictionary<string, string> aliasToNodeId,
+        ManifestService service,
+        IReadOnlyList<GraphNode> graphNodes)
+    {
+        if (!TryResolveInventoriedNodeIdForService(service, graphNodes, out string nodeId))
+            return;
+
+        AddResolutionAlias(aliasToNodeId, service.ServiceName, nodeId);
+        AddResolutionAlias(aliasToNodeId, service.ServiceId, nodeId);
+        AddResolutionAlias(aliasToNodeId, BuildSyntheticServiceNodeId(service.ServiceName), nodeId);
+    }
+
+    public static void AddManifestDatastoreEndpointAliases(
+        Dictionary<string, string> aliasToNodeId,
+        ManifestDatastore datastore,
+        IReadOnlyList<GraphNode> graphNodes)
+    {
+        if (!TryResolveInventoriedNodeIdForDatastore(datastore, graphNodes, out string nodeId))
+            return;
+
+        AddResolutionAlias(aliasToNodeId, datastore.DatastoreName, nodeId);
+        AddResolutionAlias(aliasToNodeId, datastore.DatastoreId, nodeId);
+        AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(datastore.DatastoreName), nodeId);
     }
 
     public static List<ManifestRelationship> FilterKnownRelationships(
@@ -128,10 +166,132 @@ public static class TopologyProposalRelationshipEndpointIndex
         knownEndpointKeys.Contains(relationship.SourceId)
         && knownEndpointKeys.Contains(relationship.TargetId);
 
+    public static bool TryResolveInventoriedNodeIdForService(
+        ManifestService service,
+        IReadOnlyList<GraphNode> graphNodes,
+        out string nodeId)
+    {
+        foreach (GraphNode node in graphNodes)
+        {
+            if (!IsInventoriedTopologyResource(node))
+                continue;
+
+            if (!NodeMatchesService(node, service))
+                continue;
+
+            nodeId = node.NodeId;
+            return true;
+        }
+
+        nodeId = string.Empty;
+        return false;
+    }
+
+    public static bool TryResolveInventoriedNodeIdForDatastore(
+        ManifestDatastore datastore,
+        IReadOnlyList<GraphNode> graphNodes,
+        out string nodeId)
+    {
+        foreach (GraphNode node in graphNodes)
+        {
+            if (!IsInventoriedTopologyResource(node))
+                continue;
+
+            if (!NodeMatchesDatastore(node, datastore))
+                continue;
+
+            nodeId = node.NodeId;
+            return true;
+        }
+
+        nodeId = string.Empty;
+        return false;
+    }
+
+    private static bool NodeMatchesService(GraphNode node, ManifestService service)
+    {
+        if (!string.IsNullOrWhiteSpace(service.ServiceId))
+        {
+            if (string.Equals(node.NodeId, service.ServiceId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.Equals(node.SourceId, service.ServiceId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (ArmResourceIdMatches(service.ServiceId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node)))
+                return true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(service.ServiceName))
+        {
+            if (string.Equals(node.Label, service.ServiceName, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.Equals(node.NodeId, BuildSyntheticServiceNodeId(service.ServiceName), StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool NodeMatchesDatastore(GraphNode node, ManifestDatastore datastore)
+    {
+        if (!string.IsNullOrWhiteSpace(datastore.DatastoreId))
+        {
+            if (string.Equals(node.NodeId, datastore.DatastoreId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.Equals(node.SourceId, datastore.DatastoreId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (ArmResourceIdMatches(datastore.DatastoreId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node)))
+                return true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(datastore.DatastoreName))
+        {
+            if (string.Equals(node.Label, datastore.DatastoreName, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.Equals(node.NodeId, BuildSyntheticDatastoreNodeId(datastore.DatastoreName), StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool ArmResourceIdMatches(string candidate, string? nodeResourceId)
+    {
+        if (!GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(candidate)
+            || !GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(nodeResourceId))
+        {
+            return false;
+        }
+
+        return string.Equals(
+            GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(candidate),
+            GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(nodeResourceId!),
+            StringComparison.Ordinal);
+    }
+
+    private static bool IsInventoriedTopologyResource(GraphNode node) =>
+        string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase)
+        && !IsAgentProposedTopologyNode(node);
+
+    private static bool IsAgentProposedTopologyNode(GraphNode node) =>
+        string.Equals(node.SourceType, nameof(AgentType.Topology), StringComparison.OrdinalIgnoreCase)
+        && string.Equals(node.SourceId, "ProposedChanges", StringComparison.OrdinalIgnoreCase);
+
     private static void AddEndpointKey(HashSet<string> knownEndpointKeys, string? value)
     {
         if (!string.IsNullOrWhiteSpace(value))
             knownEndpointKeys.Add(value);
+    }
+
+    private static void AddResolutionAlias(Dictionary<string, string> aliasToNodeId, string? endpointKey, string nodeId)
+    {
+        if (!string.IsNullOrWhiteSpace(endpointKey))
+            aliasToNodeId.TryAdd(endpointKey, nodeId);
     }
 
     private static void AddArmResourceIdEndpointKeys(HashSet<string> endpointKeys, string? resourceId)
@@ -142,6 +302,53 @@ public static class TopologyProposalRelationshipEndpointIndex
         AddEndpointKey(endpointKeys, resourceId);
         AddEndpointKey(endpointKeys, GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(resourceId!));
     }
+
+    private static void AddArmResourceIdResolutionAliases(
+        Dictionary<string, string> aliasToNodeId,
+        string? resourceId,
+        string nodeId)
+    {
+        if (!GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(resourceId))
+            return;
+
+        AddResolutionAlias(aliasToNodeId, resourceId, nodeId);
+        AddResolutionAlias(aliasToNodeId, GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(resourceId!), nodeId);
+    }
+
+    private static void AddGraphNodeSyntheticLabelEndpointKeys(HashSet<string> endpointKeys, string? label, string? category)
+    {
+        if (string.IsNullOrWhiteSpace(label))
+            return;
+
+        if (IsDatastoreCategory(category))
+        {
+            AddSyntheticDatastoreEndpointKey(endpointKeys, label);
+            return;
+        }
+
+        AddSyntheticServiceEndpointKey(endpointKeys, label);
+    }
+
+    private static void AddGraphNodeSyntheticLabelResolutionAliases(
+        Dictionary<string, string> aliasToNodeId,
+        string? label,
+        string? category,
+        string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(label))
+            return;
+
+        if (IsDatastoreCategory(category))
+        {
+            AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(label), nodeId);
+            return;
+        }
+
+        AddResolutionAlias(aliasToNodeId, BuildSyntheticServiceNodeId(label), nodeId);
+    }
+
+    private static bool IsDatastoreCategory(string? category) =>
+        string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase);
 
     private static void AddSyntheticServiceEndpointKey(HashSet<string> endpointKeys, string? serviceName)
     {

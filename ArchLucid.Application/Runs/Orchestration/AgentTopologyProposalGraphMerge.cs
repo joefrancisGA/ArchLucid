@@ -62,15 +62,22 @@ public static class AgentTopologyProposalGraphMerge
                 continue;
 
             string? reasoning = result.ReasoningTrace?.Trim();
+            Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
 
             if (proposal.AddedServices is { Count: > 0 })
             {
                 foreach (ManifestService svc in proposal.AddedServices)
                 {
-                    if (!TopologyProposalRelationshipEndpointIndex.TryClaimService(svc, seenTopologyKeys))
+                    if (TopologyProposalRelationshipEndpointIndex.TryClaimService(svc, seenTopologyKeys))
+                    {
+                        added.Add(TopologyServiceNode(svc, reasoning));
                         continue;
+                    }
 
-                    added.Add(TopologyServiceNode(svc, reasoning));
+                    TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases(
+                        endpointAliases,
+                        svc,
+                        graph.Nodes);
                 }
             }
 
@@ -83,7 +90,8 @@ public static class AgentTopologyProposalGraphMerge
                         seenDirectedEdgeKeys,
                         TopologyProposalRelationshipEdgeMapper.MapRelationships(
                             [.. graph.Nodes, .. added],
-                            proposal.AddedRelationships));
+                            proposal.AddedRelationships,
+                            endpointAliases));
                 }
 
                 continue;
@@ -91,10 +99,16 @@ public static class AgentTopologyProposalGraphMerge
 
             foreach (ManifestDatastore ds in proposal.AddedDatastores)
             {
-                if (!TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(ds, seenTopologyKeys))
+                if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(ds, seenTopologyKeys))
+                {
+                    added.Add(TopologyDatastoreNode(ds, reasoning));
                     continue;
+                }
 
-                added.Add(TopologyDatastoreNode(ds, reasoning));
+                TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointAliases(
+                    endpointAliases,
+                    ds,
+                    graph.Nodes);
             }
 
             if (proposal.AddedRelationships is { Count: > 0 })
@@ -104,7 +118,8 @@ public static class AgentTopologyProposalGraphMerge
                     seenDirectedEdgeKeys,
                     TopologyProposalRelationshipEdgeMapper.MapRelationships(
                         [.. graph.Nodes, .. added],
-                        proposal.AddedRelationships));
+                        proposal.AddedRelationships,
+                        endpointAliases));
             }
         }
 
