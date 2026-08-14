@@ -110,8 +110,6 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-workspace-metrics-secondary")).toBeInTheDocument();
       expect(screen.getByText("Evidence sources")).toBeInTheDocument();
-      expect(screen.getByText("Setup readiness")).toBeInTheDocument();
-      expect(screen.getByText("2 of 4 ready")).toBeInTheDocument();
       expect(screen.getByTestId("home-block-delta-panel")).toBeInTheDocument();
       expect(screen.getByTestId("home-block-workspace-status")).toBeInTheDocument();
     });
@@ -128,7 +126,11 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
 
     expect(within(summary).getByText("2 (1 committed · 1 active)")).toBeInTheDocument();
     expect(within(summary).getByText("6")).toBeInTheDocument();
-    expect(within(summary).queryByText("2 of 4 ready")).not.toBeInTheDocument();
+    expect(within(summary).getByText("2 of 4 ready")).toBeInTheDocument();
+    expect(within(summary).getByRole("link", { name: "2 of 4 ready" })).toHaveAttribute(
+      "href",
+      "/architecture/first-review-guide#onboarding-optional-setup-heading",
+    );
     expect(screen.queryByText(OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY)).not.toBeInTheDocument();
   });
 });

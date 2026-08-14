@@ -131,13 +131,8 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
   if (variant === "secondary") {
     return (
       <div data-testid="operator-home-workspace-metrics-secondary">
-        <dl className="m-0 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-2">
+        <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-2">
           <MetricItem label="Evidence sources" value={String(metrics.evidenceSources)} />
-          <MetricItem
-            label="Setup readiness"
-            value={setupReadinessValue}
-            href={OPERATOR_HOME_SETUP_READINESS_HREF}
-          />
         </dl>
       </div>
     );
@@ -145,7 +140,7 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
 
   return (
     <div data-testid="operator-home-workspace-metrics-summary">
-      <dl className="m-0 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
+      <dl className="m-0 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
         <MetricItem
           label="Reviews"
           value={buildReviewPackagesValue(metrics)}
@@ -165,6 +160,11 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
           label="Governance warnings"
           value={String(metrics.governanceWarnings)}
           href={OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF}
+        />
+        <MetricItem
+          label="Setup readiness"
+          value={setupReadinessValue}
+          href={OPERATOR_HOME_SETUP_READINESS_HREF}
         />
       </dl>
     </div>

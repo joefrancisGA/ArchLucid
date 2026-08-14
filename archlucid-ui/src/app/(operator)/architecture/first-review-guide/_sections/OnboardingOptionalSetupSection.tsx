@@ -80,8 +80,27 @@ export function OnboardingOptionalSetupSection() {
 
   const hideForDismiss = dismissed && !deepLinkActive;
 
-  if (phase === "loading" || hideForDismiss) {
+  if (hideForDismiss) {
     return null;
+  }
+
+  if (phase === "loading") {
+    if (!deepLinkActive) {
+      return null;
+    }
+
+    return (
+      <section
+        id={ONBOARDING_OPTIONAL_SETUP_HEADING_ID}
+        aria-labelledby={ONBOARDING_OPTIONAL_SETUP_HEADING_ID}
+        aria-busy="true"
+        className="scroll-mt-24 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800"
+        data-testid="onboarding-optional-setup-deep-link-loading"
+      >
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE}</h2>
+        <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>Loading workspace setup…</p>
+      </section>
+    );
   }
 
   if (context !== null && !context.principalAdmin) {

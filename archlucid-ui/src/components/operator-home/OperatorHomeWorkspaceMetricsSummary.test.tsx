@@ -70,14 +70,49 @@ describe("OperatorHomeWorkspaceMetricsSummary", () => {
     expect(screen.getByTestId("operator-home-workspace-metrics-empty-copy")).toBeInTheDocument();
   });
 
-  it("deep-links setup readiness in secondary metrics to optional workspace setup", () => {
+  it("renders evidence sources in secondary metrics when the workspace has reviews", () => {
+    const run: RunSummary = {
+      runId: "run-001",
+      projectId: "default",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+      findingCount: 2,
+    };
+
     render(
       <OperatorHomeWorkspaceMetricsSummary
-        runsDashboard={buildModel([])}
+        runsDashboard={buildModel([run])}
         setupReadyCount={1}
         setupTotalCount={3}
         setupReadinessLoading={false}
         variant="secondary"
+      />,
+    );
+
+    expect(screen.getByText("Evidence sources")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "1 of 3 ready" })).not.toBeInTheDocument();
+  });
+
+  it("deep-links setup readiness in primary metrics when the workspace has reviews", () => {
+    const run: RunSummary = {
+      runId: "run-001",
+      projectId: "default",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+      findingCount: 2,
+    };
+
+    render(
+      <OperatorHomeWorkspaceMetricsSummary
+        runsDashboard={buildModel([run])}
+        setupReadyCount={1}
+        setupTotalCount={3}
+        setupReadinessLoading={false}
+        variant="primary"
       />,
     );
 

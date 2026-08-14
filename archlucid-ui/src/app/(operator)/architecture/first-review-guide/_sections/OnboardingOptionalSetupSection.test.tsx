@@ -120,4 +120,37 @@ describe("OnboardingOptionalSetupSection", () => {
     expect(screen.queryByTestId("onboarding-optional-setup")).not.toBeInTheDocument();
     expect(screen.queryByTestId("onboarding-optional-setup-delegation")).not.toBeInTheDocument();
   });
+
+  it("renders a scroll anchor while loading when the finish-setup deep link hash is active", () => {
+    useFinishSetupReadinessContext.mockReturnValue({
+      phase: "loading",
+      context: null,
+      readyCount: 0,
+      totalCount: 0,
+    });
+    window.location.hash = `#${ONBOARDING_OPTIONAL_SETUP_HEADING_ID}`;
+
+    render(<OnboardingOptionalSetupSection />);
+
+    expect(screen.getByTestId("onboarding-optional-setup-deep-link-loading")).toBeInTheDocument();
+    expect(screen.getByTestId("onboarding-optional-setup-deep-link-loading")).toHaveAttribute(
+      "id",
+      ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+    );
+    expect(screen.getByText("Loading workspace setup…")).toBeInTheDocument();
+    expect(screen.queryByTestId("onboarding-optional-setup")).not.toBeInTheDocument();
+  });
+
+  it("stays hidden while loading when no finish-setup deep link is active", () => {
+    useFinishSetupReadinessContext.mockReturnValue({
+      phase: "loading",
+      context: null,
+      readyCount: 0,
+      totalCount: 0,
+    });
+
+    render(<OnboardingOptionalSetupSection />);
+
+    expect(screen.queryByTestId("onboarding-optional-setup-deep-link-loading")).not.toBeInTheDocument();
+  });
 });
