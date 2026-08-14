@@ -88,10 +88,14 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (ManifestService service in services)
         {
-            if (!TopologyProposalRelationshipEndpointIndex.TryClaimService(service, seenEndpointKeys))
+            if (TopologyProposalRelationshipEndpointIndex.TryClaimService(service, seenEndpointKeys))
+            {
+                deduped.Add(service);
                 continue;
+            }
 
-            deduped.Add(service);
+            if (TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(service, deduped))
+                deduped.Add(service);
         }
 
         return deduped;
@@ -107,10 +111,14 @@ public static class AgentProposalStructuralPostProcessor
 
         foreach (ManifestDatastore datastore in datastores)
         {
-            if (!TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(datastore, seenEndpointKeys))
+            if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(datastore, seenEndpointKeys))
+            {
+                deduped.Add(datastore);
                 continue;
+            }
 
-            deduped.Add(datastore);
+            if (TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(datastore, deduped))
+                deduped.Add(datastore);
         }
 
         return deduped;

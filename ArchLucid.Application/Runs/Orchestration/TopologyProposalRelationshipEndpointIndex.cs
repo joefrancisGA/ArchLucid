@@ -160,6 +160,38 @@ public static class TopologyProposalRelationshipEndpointIndex
         return true;
     }
 
+    public static bool IsRenameAliasService(ManifestService candidate, IReadOnlyList<ManifestService> acceptedServices)
+    {
+        if (string.IsNullOrWhiteSpace(candidate.ServiceId) || string.IsNullOrWhiteSpace(candidate.ServiceName))
+            return false;
+
+        foreach (ManifestService accepted in acceptedServices)
+        {
+            if (!string.Equals(accepted.ServiceId, candidate.ServiceId, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            return !string.Equals(accepted.ServiceName, candidate.ServiceName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        return false;
+    }
+
+    public static bool IsRenameAliasDatastore(ManifestDatastore candidate, IReadOnlyList<ManifestDatastore> acceptedDatastores)
+    {
+        if (string.IsNullOrWhiteSpace(candidate.DatastoreId) || string.IsNullOrWhiteSpace(candidate.DatastoreName))
+            return false;
+
+        foreach (ManifestDatastore accepted in acceptedDatastores)
+        {
+            if (!string.Equals(accepted.DatastoreId, candidate.DatastoreId, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            return !string.Equals(accepted.DatastoreName, candidate.DatastoreName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        return false;
+    }
+
     public static bool RelationshipEndpointsAreKnown(
         ManifestRelationship relationship,
         HashSet<string> knownEndpointKeys) =>
