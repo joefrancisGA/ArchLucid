@@ -6,9 +6,6 @@ import { useCallback, useEffect, useState } from "react";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { DismissControl } from "@/components/usability/DismissControl";
 import {
-  ARCHITECTURE_DRAFT_ALTERNATIVES_HINT,
-} from "@/lib/create-vs-review-intake-copy";
-import {
   ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_LABEL,
   ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_DETAIL,
   ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_LEAD,
@@ -74,9 +71,6 @@ export function ArchitectureDraftGuidanceDisclosure(
         >
           <p className="m-0">{ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_LEAD}</p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_DETAIL}</p>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-guidance-alternatives">
-            {ARCHITECTURE_DRAFT_ALTERNATIVES_HINT}
-          </p>
           {showGettingStartedHelpLink ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               <InAppHelpLink helpSlug="getting-started" label="Getting started guide" variant="text" />

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
+import { ARCHITECTURE_DRAFT_ALTERNATIVES_HINT } from "@/lib/create-vs-review-intake-copy";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
@@ -101,6 +102,12 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         />
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
           {guidedIntakeCreationArchitectureOverviewHelperText(intentTrimmedLength)}
+        </p>
+        <p
+          className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+          data-testid="architecture-draft-intent-alternatives-hint"
+        >
+          {ARCHITECTURE_DRAFT_ALTERNATIVES_HINT}
         </p>
       </div>
 

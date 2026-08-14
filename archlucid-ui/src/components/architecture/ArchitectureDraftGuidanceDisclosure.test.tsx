@@ -36,10 +36,20 @@ describe("ArchitectureDraftGuidanceDisclosure", () => {
     expect(disclosure.textContent ?? "").toContain(ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_SUMMARY);
     expect(disclosure.textContent ?? "").toContain(ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_LEAD);
     expect(disclosure.textContent ?? "").toContain(ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_DETAIL);
-    expect(screen.getByTestId("architecture-draft-guidance-alternatives")).toHaveTextContent(
+    expect(screen.queryByRole("link", { name: "Getting started guide" })).not.toBeInTheDocument();
+  });
+
+  it("leaves the tradeoff prompt to the Architecture overview field so dismissing the tip cannot hide it", async () => {
+    mockUsePathname.mockReturnValue("/architecture/architectures/draft-1");
+    render(<ArchitectureDraftGuidanceDisclosure />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-guidance-disclosure")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-draft-guidance-disclosure").textContent ?? "").not.toContain(
       ARCHITECTURE_DRAFT_ALTERNATIVES_HINT,
     );
-    expect(screen.queryByRole("link", { name: "Getting started guide" })).not.toBeInTheDocument();
   });
 
   it("keeps getting-started help when the header topic is first-architecture-review (/new)", async () => {

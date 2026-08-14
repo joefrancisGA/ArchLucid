@@ -10,9 +10,13 @@
 export const REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD =
   "Attach a diagram or document when you have one, or describe the architecture in enough detail if you are not uploading files.";
 
-/** Architecture draft workspace — iterative brief before review handoff (TB-1454: draft≠review boundary lives in guidance disclosure only). */
+/**
+ * Architecture draft workspace — iterative brief before review handoff (TB-1454: draft≠review boundary
+ * lives in guidance disclosure only). Names only what the draft form actually asks for: system name and
+ * architecture overview, business outcome, and people/systems. Do not promise fields the form omits.
+ */
 export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =
-  "Capture goals, constraints, and tradeoffs in this brief. Save and return anytime to keep refining.";
+  "Describe the system, the outcome it must deliver, and the people and systems it touches. Save and return anytime to keep refining.";
 
 /** `/architectures/new` page subtitle — subordinate to H1 {@link CREATE_ARCHITECTURE_LABEL} (TB-1461). */
 export const ARCHITECTURE_CREATION_PAGE_SUBTITLE =
@@ -57,6 +61,10 @@ export const ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE = "Resume an architect
 /** Section label when several recent drafts are previewed (TB-1461). */
 export const ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE = "Resume architecture drafts";
 
-/** Optional alternatives framing on the create path (not required to save). */
+/**
+ * Optional alternatives framing on the create path (not required to save). Renders as persistent helper
+ * text under Architecture overview rather than inside the dismissible guidance tip, so the tradeoff
+ * prompt survives both a dismissed tip and an overview long enough to hide its character-count helper.
+ */
 export const ARCHITECTURE_DRAFT_ALTERNATIVES_HINT =
   "Note alternatives or rejected options you considered — even brief tradeoff notes help reviewers understand your intent.";
