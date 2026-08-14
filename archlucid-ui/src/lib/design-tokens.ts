@@ -577,31 +577,61 @@ const STATUS_TAG_SHAPE =
   "border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70";
 
 export function enterpriseStatusTagClass(kind: EnterpriseStatusKind): string {
+  return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} ${enterpriseStatusMetadataFillClass(kind)} ${enterpriseStatusTagAccentBorderClass(kind)}`;
+}
+
+/** Flat metadata fills for legacy `StatusPill` — token-backed, no left-accent border. */
+export function enterpriseStatusMetadataFillClass(kind: EnterpriseStatusKind): string {
   switch (kind) {
     case "ready":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-emerald-600 bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)] dark:border-l-emerald-500`;
+      return "bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]";
 
     case "needs-attention":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-amber-600 bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)] dark:border-l-amber-500`;
+      return "bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]";
 
     case "blocked":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-rose-600 bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)] dark:border-l-rose-500`;
+      return "bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]";
 
     case "approved":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-emerald-600 bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)] dark:border-l-emerald-500`;
+      return "bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)]";
 
     case "approved-with-monitoring":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-cyan-800 bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)] dark:border-l-cyan-500`;
+      return "bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)]";
 
     case "in-progress":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-sky-700 bg-sky-100 text-sky-950 dark:border-l-sky-500 dark:bg-sky-950/60 dark:text-sky-100`;
+      return "bg-sky-100 text-sky-950 dark:bg-sky-950/60 dark:text-sky-100";
 
     case "draft":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-[var(--al-status-neutral-border)] bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)] dark:border-l-[var(--al-status-neutral-border)]`;
-
     case "neutral":
     default:
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-[var(--al-status-neutral-border)] bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)] dark:border-l-[var(--al-status-neutral-border)]`;
+      return "bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)]";
+  }
+}
+
+function enterpriseStatusTagAccentBorderClass(kind: EnterpriseStatusKind): string {
+  switch (kind) {
+    case "ready":
+      return "border-l-emerald-600 dark:border-l-emerald-500";
+
+    case "needs-attention":
+      return "border-l-amber-600 dark:border-l-amber-500";
+
+    case "blocked":
+      return "border-l-rose-600 dark:border-l-rose-500";
+
+    case "approved":
+      return "border-l-emerald-600 dark:border-l-emerald-500";
+
+    case "approved-with-monitoring":
+      return "border-l-cyan-800 dark:border-l-cyan-500";
+
+    case "in-progress":
+      return "border-l-sky-700 dark:border-l-sky-500";
+
+    case "draft":
+    case "neutral":
+    default:
+      return "border-l-[var(--al-status-neutral-border)] dark:border-l-[var(--al-status-neutral-border)]";
   }
 }
 

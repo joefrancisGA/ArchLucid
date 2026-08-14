@@ -552,7 +552,7 @@ Two parallel chip systems (`StatusTag` vs legacy `StatusPill`) and ad-hoc `round
 
 **Resolver and migration (out of scope for this row)**
 
-- Display-string → `EnterpriseStatusKind` consolidation: **TB-2285**.
+- Display-string → `EnterpriseStatusKind` resolver: **TB-2285** (**Done** 2026-08-14) — `resolveEnterpriseStatusKind` in `enterprise-status-kind-resolver.ts`; consumed by `StatusPill` fills and `run-pipeline-status-presentation`.
 - Review/governance and health/ops `StatusPill` → `StatusTag` sweeps: **TB-2286** / **TB-2287**.
 - Ad-hoc pill inventory + Vitest drift guard: **TB-2288** / **TB-2289**.
 
@@ -675,6 +675,6 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; live pin policy **TB-1574** Done; hub inventory + about-aside demotion **TB-1575** Done (`operator-side-rail-inventory.ts`); Vitest allowlist **TB-1576**
 - Operator **primary CTA** contract: this file § *Operator primary CTA* (**TB-1539** Done) — one page job; ≤1 `variant="primary"` in first viewport; header order Help → Primary → outline utilities; hub inventory **TB-1543** Done (`operator-primary-cta-inventory.ts`); Vitest dual-primary guard **TB-1544**
 - Operator **empty states** contract: this file § *Operator empty states* (**TB-1552** Done) — name empty kind; default collection/hub-zone → `EnterpriseCompactEmptyState`; ban form+rail+empty stacks; presets in `enterprise-compact-empty-state-presets.ts`; migration inventory **TB-1554** (`operator-empty-state-migration-inventory.ts`)
-- Metadata **chip taxonomy**: this file § *Metadata chip taxonomy* (**TB-2284** Done) — `StatusTag` / `SeverityTag` / `BooleanStatusChip` vs `FilterChip` vs `Badge`; deprecate `StatusPill`; `--al-status-*` + neutral tokens (**TB-116**, **TB-2277**); list default **TB-1646**; migrations **TB-2285**–**TB-2289**
+- Metadata **chip taxonomy**: this file § *Metadata chip taxonomy* (**TB-2284** Done) — `StatusTag` / `SeverityTag` / `BooleanStatusChip` vs `FilterChip` vs `Badge`; deprecate `StatusPill`; `--al-status-*` + neutral tokens (**TB-116**, **TB-2277**); list default **TB-1646**; shared resolver **TB-2285**; migrations **TB-2286**–**TB-2289**
 - Operator **populated lists** contract: this file § *Operator populated lists* (**TB-1646** Done) — name list kind; default inventory/master-detail → `EnterpriseTable` + `StatusTag`; entity-summary cards only when justified; ≤2 visible row actions; ban parallel raw HTML tables; apply **TB-1647**–**TB-1650**
 - Operator **line tabs** visual contract: this file § *Operator line tabs — visual contract* (**TB-1661** Done) — Carbon line tabs only; ban pill/chip/segmented/folder overrides on `TabsList`/`TabsTrigger`; gold exemplars Digests / Settings roles / reviews new / review detail; code migration **TB-1662**–**TB-1665**

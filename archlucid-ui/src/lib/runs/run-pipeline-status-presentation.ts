@@ -1,4 +1,5 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { resolveEnterpriseStatusKind } from "@/lib/enterprise-status-kind-resolver";
 import { PIPELINE_STATUS_LABELS, type RunPipelineInternalLabel } from "@/lib/pipeline-status-labels";
 import { resolvePipelineStatusDisplayLabel } from "@/lib/resolve-pipeline-status-display-label";
 import type { RunSummary } from "@/types/authority";
@@ -25,21 +26,7 @@ export function deriveRunListPipelineLabel(run: RunSummary): RunPipelineLabel {
 }
 
 export function runPipelineStatusTagKind(internal: RunPipelineInternalLabel): EnterpriseStatusKind {
-  switch (internal) {
-    case PIPELINE_STATUS_LABELS.finalized:
-      return "approved";
-    case PIPELINE_STATUS_LABELS.readyToFinalize:
-      return "needs-attention";
-    case PIPELINE_STATUS_LABELS.inPipeline:
-      return "in-progress";
-    case PIPELINE_STATUS_LABELS.starting:
-      return "neutral";
-    default: {
-      const exhaustiveCheck: never = internal;
-
-      return exhaustiveCheck;
-    }
-  }
+  return resolveEnterpriseStatusKind(internal, "pipeline");
 }
 
 export function resolveRunPipelineStatusPresentation(run: RunSummary): {
