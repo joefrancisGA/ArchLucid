@@ -14,6 +14,7 @@ from archlucid_ui_route_traffic_table import (  # noqa: E402
     OWNER_DOC,
     deficit,
     format_overall_weight_total,
+    is_buyer_facing_traffic_row,
     is_buyer_facing_ux_row,
     lowest_ux_buyer_rows,
     parse_rows,
@@ -165,3 +166,18 @@ def test_internal_section_rows_are_excluded_from_buyer_ux_ranking() -> None:
     }
 
     assert not is_buyer_facing_ux_row(row)
+
+
+def test_internal_platform_rows_are_excluded_from_overall_weight() -> None:
+    internal_row = {
+        "id": "ING",
+        "path": "/internal/agent-model-catalog",
+        "pct": "0.02%",
+        "score": "0,100",
+        "section": "Internal",
+        "notes": "Internal platform catalog",
+    }
+    buyer_row = {"pct": "3%", "score": "74,80", "path": "/", "section": "Core review"}
+
+    assert not is_buyer_facing_traffic_row(internal_row)
+    assert format_overall_weight_total([internal_row, buyer_row]) == format_overall_weight_total([buyer_row])

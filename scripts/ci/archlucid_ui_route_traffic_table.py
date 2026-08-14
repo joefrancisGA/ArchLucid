@@ -143,12 +143,20 @@ def is_internal_ux_section(section: str) -> bool:
     return section.strip().casefold() == "internal"
 
 
-def is_buyer_facing_ux_row(row: dict[str, str]) -> bool:
-    """Buyer-facing rows with a scored UX dimension (position 2 > 0)."""
+def is_buyer_facing_traffic_row(row: dict[str, str]) -> bool:
+    """Rows included in OVERALL WEIGHT/EVIDENCE rollups and buyer traffic weighting."""
     if is_internal_ux_ranking_path(row.get("path", "")):
         return False
 
     if is_internal_ux_section(row.get("section", "")):
+        return False
+
+    return True
+
+
+def is_buyer_facing_ux_row(row: dict[str, str]) -> bool:
+    """Buyer-facing rows with a scored UX dimension (position 2 > 0)."""
+    if not is_buyer_facing_traffic_row(row):
         return False
 
     return parse_ux_score(row) > 0
@@ -231,15 +239,15 @@ def format_deficit_value(row: dict[str, str]) -> str:
 
 
 def overall_weight_total(rows: list[dict[str, str]]) -> float:
-    return sum(weight(row) for row in rows)
+    return sum(weight(row) for row in rows if is_buyer_facing_traffic_row(row))
 
 
 def overall_evidence_total(rows: list[dict[str, str]]) -> float:
-    return sum(evidence_weight(row) for row in rows)
+    return sum(evidence_weight(row) for row in rows if is_buyer_facing_traffic_row(row))
 
 
 def overall_weight_maximum(rows: list[dict[str, str]]) -> float:
-    return sum(parse_hit_pct(row["pct"]) * 100 for row in rows)
+    return sum(parse_hit_pct(row["pct"]) * 100 for row in rows if is_buyer_facing_traffic_row(row))
 
 
 def _format_total_pct(actual: float, maximum: float) -> str:

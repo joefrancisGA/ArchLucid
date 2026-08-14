@@ -22,11 +22,23 @@ PREFERRED_NEW_ROW_IDS: dict[str, str] = {
     "/internal/validate-route": "REP",
     "/shell/contextual-help-drawer": "HCD",
     "/help/choose-your-next-step": "HPX",
-    "/login": "LOG",
     "/onboard": "OXX",
     "/onboarding/start": "OSX",
     "/operate/architecture-graph": "OAX",
     "/governance/advisory-scans?tab=scans": "ADT",
+    # App Router dynamic segment renamed [runId] → [reviewId]; keep stable workbook IDs on sync.
+    "/architecture/reviews/[reviewId]": "RRE",
+    "/architecture/reviews/[reviewId]/findings/[findingId]": "RRF",
+    "/architecture/reviews/[reviewId]/findings/[findingId]/evidence-trace": "ERU",
+    "/architecture/reviews/[reviewId]/provenance": "RRP",
+    "/architecture/reviews/[reviewId]/print": "APR",
+    "/architecture/reviews/[reviewId]?archTab=activity": "REA",
+    "/architecture/reviews/[reviewId]?archTab=clarifications": "REC",
+    "/architecture/reviews/[reviewId]?archTab=diagram": "RED",
+    "/architecture/reviews/[reviewId]?archTab=evidence": "REE",
+    "/architecture/reviews/[reviewId]?archTab=findings": "REF",
+    "/architecture/reviews/[reviewId]?archTab=governance": "REG",
+    "/architecture/reviews/[reviewId]?archTab=overview": "REO",
 }
 
 # When workbook path migrations collide, keep the canonical tab/hub row id (ADV hub retired → ADT).
@@ -41,6 +53,15 @@ INTERNAL_UX_RANKING_EXCLUDED_PATHS: frozenset[str] = frozenset(
     {
         "/help/configuration-reference",
         "/demo/explain",
+        "/internal/agent-model-catalog",
+        "/internal/platform-bundled-policy-packs",
+    }
+)
+
+# TB-2241 — canonical contextual-only operator paths (must match nav-contextual-only-operator-paths.ts).
+CONTEXTUAL_ONLY_OPERATOR_NAV_PATHS: frozenset[str] = frozenset(
+    {
+        "/architecture/architecture-intelligence",
     }
 )
 
@@ -125,13 +146,30 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     # Public architecture-prefixed reviews / architectures URLs (App Router still under /reviews).
     "/reviews": "/architecture/reviews",
     "/reviews/new": "/architecture/reviews/new",
-    "/reviews/[runId]": "/architecture/reviews/[runId]",
-    "/reviews/[runId]/findings/[findingId]": "/architecture/reviews/[runId]/findings/[findingId]",
-    "/reviews/[runId]/findings/[findingId]/inspect": "/architecture/reviews/[runId]/findings/[findingId]/inspect",
-    "/reviews/[runId]/findings/[findingId]/evidence-trace": "/architecture/reviews/[runId]/findings/[findingId]/evidence-trace",
-    "/reviews/[runId]/provenance": "/architecture/reviews/[runId]/provenance",
-    "/reviews/[runId]/signed-record": "/architecture/reviews/[runId]/signed-record",
-    "/reviews/[runId]?archTab=governance": "/architecture/reviews/[runId]?archTab=governance",
+    "/reviews/[runId]": "/architecture/reviews/[reviewId]",
+    "/reviews/[runId]/findings/[findingId]": "/architecture/reviews/[reviewId]/findings/[findingId]",
+    "/reviews/[runId]/findings/[findingId]/inspect": "/architecture/reviews/[reviewId]/findings/[findingId]/inspect",
+    "/reviews/[runId]/findings/[findingId]/evidence-trace": (
+        "/architecture/reviews/[reviewId]/findings/[findingId]/evidence-trace"
+    ),
+    "/reviews/[runId]/provenance": "/architecture/reviews/[reviewId]/provenance",
+    "/reviews/[runId]/signed-record": "/architecture/reviews/[reviewId]/signed-record",
+    "/reviews/[runId]?archTab=governance": "/architecture/reviews/[reviewId]?archTab=governance",
+    # Workbook rows that still use the old dynamic segment after /architecture/reviews/ prefix migration.
+    "/architecture/reviews/[runId]": "/architecture/reviews/[reviewId]",
+    "/architecture/reviews/[runId]/findings/[findingId]": "/architecture/reviews/[reviewId]/findings/[findingId]",
+    "/architecture/reviews/[runId]/findings/[findingId]/evidence-trace": (
+        "/architecture/reviews/[reviewId]/findings/[findingId]/evidence-trace"
+    ),
+    "/architecture/reviews/[runId]/provenance": "/architecture/reviews/[reviewId]/provenance",
+    "/architecture/reviews/[runId]/print": "/architecture/reviews/[reviewId]/print",
+    "/architecture/reviews/[runId]?archTab=activity": "/architecture/reviews/[reviewId]?archTab=activity",
+    "/architecture/reviews/[runId]?archTab=clarifications": "/architecture/reviews/[reviewId]?archTab=clarifications",
+    "/architecture/reviews/[runId]?archTab=diagram": "/architecture/reviews/[reviewId]?archTab=diagram",
+    "/architecture/reviews/[runId]?archTab=evidence": "/architecture/reviews/[reviewId]?archTab=evidence",
+    "/architecture/reviews/[runId]?archTab=findings": "/architecture/reviews/[reviewId]?archTab=findings",
+    "/architecture/reviews/[runId]?archTab=governance": "/architecture/reviews/[reviewId]?archTab=governance",
+    "/architecture/reviews/[runId]?archTab=overview": "/architecture/reviews/[reviewId]?archTab=overview",
     "/architectures": "/architecture/architectures",
     "/architectures/new": "/architecture/architectures/new",
     "/architectures/[architectureId]": "/architecture/architectures/[architectureId]",
@@ -191,7 +229,7 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
         "/alert-routing",
         "/administration/tenant",
         "/administration/tenant/recycle-bin",
-        "/architecture/reviews/[runId]/artifacts/[artifactId]",
+        "/architecture/reviews/[reviewId]/artifacts/[artifactId]",
         "/demo",
         "/internal/replay",
     }
@@ -201,10 +239,9 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # /settings/alerts retired from the workbook (SEA removed, TB-1886–TB-1890); migration still maps to SAX.
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
 # Batch C folded FIR `/help/first-pilot-path` into COR — permanent redirect only (no traffic-tracked bookmark).
-# TB-1794 / TB-1798 / TB-1801: legacy auth/onboarding bookmarks stay as redirect-shim workbook rows (LOG/OXX/OSX).
+# TB-1798 / TB-1801: legacy onboarding bookmarks stay as redirect-shim workbook rows (OXX/OSX).
 TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset(
     {
-        "/login",
         "/onboard",
         "/onboarding/start",
         "/operate/architecture-graph",
@@ -345,7 +382,7 @@ def discover_tab_paths() -> list[str]:
     for path_mode in ("quick-review", "guided-intake", "detailed"):
         paths.append(_tab_path("/architecture/reviews/new", "path", path_mode))
     for tab_id in arch_tabs:
-        paths.append(_tab_path("/architecture/reviews/[runId]", "archTab", tab_id))
+        paths.append(_tab_path("/architecture/reviews/[reviewId]", "archTab", tab_id))
     return sorted(set(paths))
 
 
