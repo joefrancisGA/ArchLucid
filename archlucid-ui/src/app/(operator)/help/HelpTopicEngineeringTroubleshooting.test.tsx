@@ -120,6 +120,14 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
 
     expect(screen.getByTestId("help-engineering-troubleshooting-escalation")).toBeInTheDocument();
 
+    expect(screen.getByTestId("help-engineering-troubleshooting-job-matrix")).toBeInTheDocument();
+
+    expect(screen.getByTestId("help-engineering-troubleshooting-job-matrix-current")).toHaveTextContent(
+      "Engineering troubleshooting runbook",
+    );
+
+    expect(screen.getByTestId("help-engineering-troubleshooting-related-help")).toBeInTheDocument();
+
     expect(screen.getByTestId("help-engineering-troubleshooting-markdown-sections")).toBeInTheDocument();
 
     expect(screen.getByTestId("help-topic-toc-mobile")).toBeInTheDocument();

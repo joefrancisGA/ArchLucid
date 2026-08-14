@@ -25,6 +25,16 @@ import {
   ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS,
 } from "@/lib/engineering-troubleshooting-help-guide-content";
 import {
+  ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX,
+  ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_HEADING,
+  ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_TEST_ID,
+} from "@/lib/engineering-troubleshooting-help-ia-dual";
+import {
+  ENGINEERING_TROUBLESHOOTING_HELP_RELATED_HEADING,
+  ENGINEERING_TROUBLESHOOTING_HELP_RELATED_TEST_ID,
+  engineeringTroubleshootingHelpRelatedGuides,
+} from "@/lib/engineering-troubleshooting-help-related-guides";
+import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -55,6 +65,7 @@ export function HelpEngineeringTroubleshootingGuideView(
   const majorSections = headings.filter((heading) => heading.level === 2);
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
   const showSectionNav = headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
+  const relatedGuides = engineeringTroubleshootingHelpRelatedGuides();
 
   return (
     <article
@@ -102,6 +113,38 @@ export function HelpEngineeringTroubleshootingGuideView(
       >
         <p className="m-0">{ENGINEERING_TROUBLESHOOTING_HELP_AUDIENCE_STRIP_BODY}</p>
       </OperatorSeverityCallout>
+
+      <section
+        aria-labelledby="help-engineering-troubleshooting-job-matrix-heading"
+        className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+        data-testid={ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_TEST_ID}
+      >
+        <h2
+          id="help-engineering-troubleshooting-job-matrix-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          {ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX_HEADING}
+        </h2>
+        <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
+          {ENGINEERING_TROUBLESHOOTING_HELP_JOB_MATRIX.map((row) => (
+            <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+              {row.isCurrent === true ? (
+                <span
+                  className="shrink-0 font-medium text-al-text-primary"
+                  data-testid="help-engineering-troubleshooting-job-matrix-current"
+                >
+                  {row.label}
+                </span>
+              ) : (
+                <Link className={cn(OPERATOR_LINK.inline, "shrink-0 font-medium")} href={row.href ?? "#"}>
+                  {row.label}
+                </Link>
+              )}
+              <span className="text-al-text-secondary">{row.when}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <div
         className={cn(DESIGN_TOKENS.callout.info, "space-y-2 p-3")}
@@ -191,6 +234,35 @@ export function HelpEngineeringTroubleshootingGuideView(
                 {ENGINEERING_TROUBLESHOOTING_HELP_PRIMARY_ACTIONS.openReportAProblem.label}
               </Link>
             </Button>
+          </section>
+
+          <section
+            aria-labelledby="help-engineering-troubleshooting-related-heading"
+            className="space-y-2 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            data-testid={ENGINEERING_TROUBLESHOOTING_HELP_RELATED_TEST_ID}
+          >
+            <h2
+              id="help-engineering-troubleshooting-related-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {ENGINEERING_TROUBLESHOOTING_HELP_RELATED_HEADING}
+            </h2>
+            <ul className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
+              {relatedGuides.map((guide) => (
+                <li key={guide.href}>
+                  <Link
+                    href={guide.href}
+                    className={cn(
+                      "underline-offset-2 hover:underline",
+                      DESIGN_TOKENS.accent.link,
+                      OPERATOR_LINK.inline,
+                    )}
+                  >
+                    {guide.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </section>
         </div>
 

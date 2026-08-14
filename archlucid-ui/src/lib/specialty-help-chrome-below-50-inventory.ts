@@ -10,10 +10,10 @@ export type SpecialtyHelpChromeBelow50InventoryEntry = {
 export const SPECIALTY_HELP_CHROME_BELOW_50_INVENTORY: readonly SpecialtyHelpChromeBelow50InventoryEntry[] = [
   {
     approximateScore: 32,
-    helpPath: "/help/developer-troubleshooting",
-    slug: "developer-troubleshooting",
+    helpPath: "/help/engineering-troubleshooting",
+    slug: "engineering-troubleshooting",
     owningClusterId: "TB-1246",
-    clusterDone: false,
+    clusterDone: true,
   },
   {
     approximateScore: 33,

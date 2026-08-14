@@ -29,7 +29,7 @@ describe("specialty help chrome contract (TB-1414)", () => {
     const slugs = SPECIALTY_HELP_CHROME_BELOW_50_INVENTORY.map((entry) => entry.slug);
 
     expect(new Set(slugs).size).toBe(slugs.length);
-    expect(slugs).toContain("developer-troubleshooting");
+    expect(slugs).toContain("engineering-troubleshooting");
     expect(slugs).toContain("procurement");
   });
 
