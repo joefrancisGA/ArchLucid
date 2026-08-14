@@ -77,8 +77,6 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/insights/roi-summary")?.hashFragment).toBeUndefined();
     expect(pageHelpTopicForPathname("/insights/roi-summary")?.label).toBe("How to read ROI summary");
     expect(pageHelpTopicForPathname("/help/roi-summary")?.slug).toBe("roi-summary");
-    expect(pageHelpTopicForPathname("/insights/pilot-outcomes")?.slug).toBe("pilot-outcomes");
-    expect(pageHelpTopicForPathname("/insights/pilot-outcomes")?.label).toBe("How pilot outcomes work");
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.slug).toBe("architecture-scorecard");
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.hashFragment).toBeUndefined();
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.label).toBe("How architecture scorecards work");

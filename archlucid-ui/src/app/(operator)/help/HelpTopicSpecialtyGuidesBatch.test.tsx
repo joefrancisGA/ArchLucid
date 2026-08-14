@@ -25,7 +25,6 @@ import { HelpSearchReviewEvidenceGuideView } from "@/app/(operator)/help/_sectio
 import { HelpJiraIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpJiraIntegrationGuideView";
 import { HelpModelGovernanceGuideView } from "@/app/(operator)/help/_sections/HelpModelGovernanceGuideView";
 import { HelpNotificationsGuideView } from "@/app/(operator)/help/_sections/HelpNotificationsGuideView";
-import { HelpPilotOutcomesGuideView } from "@/app/(operator)/help/_sections/HelpPilotOutcomesGuideView";
 import { HelpPreferencesGuideView } from "@/app/(operator)/help/_sections/HelpPreferencesGuideView";
 import { HelpServiceNowIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpServiceNowIntegrationGuideView";
 import { HelpSlackIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpSlackIntegrationGuideView";
@@ -39,7 +38,6 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 
 describe("specialty help guides — operator surfaces batch", () => {
   it.each([
-    ["pilot-outcomes", HelpPilotOutcomesGuideView, "help-pilot-outcomes-guide"],
     ["architecture-scorecard", HelpArchitectureScorecardGuideView, "help-architecture-scorecard-guide"],
     ["connection-status", HelpConnectionStatusGuideView, "help-connection-status-guide"],
     ["decision-register", HelpDecisionRegisterGuideView, "help-decision-register-guide"],

@@ -110,7 +110,6 @@ import {
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-scorecard-page-copy";
 import { CONNECTION_STATUS_HELP_TOPIC_LABEL } from "@/lib/connection-status-evidence-copy";
-import { PILOT_OUTCOMES_HELP_TOPIC_LABEL } from "@/lib/pilot-outcomes-evidence-copy";
 import { ROI_SUMMARY_HELP_TOPIC_LABEL } from "@/lib/roi-summary-help-evidence-copy";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
 import { RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL } from "@/lib/recurrence-schedules-help-evidence-copy";
@@ -339,18 +338,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     },
   },
   {
-    prefix: "/insights/pilot-outcomes",
-    topic: { slug: "pilot-outcomes", label: PILOT_OUTCOMES_HELP_TOPIC_LABEL },
-  },
-  {
     prefix: "/insights/sponsor-report",
     topic: { slug: "sponsor-report", label: SPONSOR_REPORT_HELP_TOPIC_LABEL },
   },
   // Legacy sponsor-report bookmarks canonicalize to /insights/* above; keep prefixes for direct lookups.
-  {
-    prefix: "/sponsor-report/pilot-outcomes",
-    topic: { slug: "pilot-outcomes", label: PILOT_OUTCOMES_HELP_TOPIC_LABEL },
-  },
   {
     prefix: "/sponsor-report/roi-summary",
     topic: { slug: "roi-summary", label: ROI_SUMMARY_HELP_TOPIC_LABEL },
@@ -367,10 +358,6 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/help/roi-summary",
     topic: { slug: "roi-summary", label: ROI_SUMMARY_HELP_TOPIC_LABEL },
-  },
-  {
-    prefix: "/help/pilot-outcomes",
-    topic: { slug: "pilot-outcomes", label: PILOT_OUTCOMES_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/architecture-scorecard",

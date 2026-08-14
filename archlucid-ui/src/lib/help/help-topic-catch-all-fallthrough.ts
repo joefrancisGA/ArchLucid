@@ -40,7 +40,6 @@ export const HELP_TOPIC_SPECIALTY_GUIDE_DISPATCH_SLUGS = [
   "notifications",
   "pilot-feedback",
   "pilot-guide",
-  "pilot-outcomes",
   "policy-pack-delta-demo",
   "policy-packs",
   "preferences",

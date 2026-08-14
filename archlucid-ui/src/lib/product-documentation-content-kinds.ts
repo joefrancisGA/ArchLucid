@@ -29,7 +29,6 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "advisory-scans": "product-help",
   "recurrence-schedules": "product-help",
   "roi-summary": "product-help",
-  "pilot-outcomes": "product-help",
   "architecture-scorecard": "product-help",
   "connection-status": "product-help",
   "standards-and-rules": "product-help",

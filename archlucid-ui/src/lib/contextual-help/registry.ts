@@ -37,7 +37,6 @@ import { COMPARISON_REPLAY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/co
 import { CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/connection-status-rows";
 import { NOTIFICATIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/notifications-rows";
 import { PATTERN_LIBRARY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/pattern-library-rows";
-import { PILOT_OUTCOMES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/pilot-outcomes-rows";
 import { PRIOR_MANIFEST_RETRIEVAL_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/prior-manifest-retrieval-rows";
 import { PREFERENCES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/preferences-rows";
 import { RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/recurrence-schedules-rows";
@@ -97,7 +96,6 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...NOTIFICATIONS_CONTEXTUAL_HELP_ROWS,
   ...PATTERN_LIBRARY_CONTEXTUAL_HELP_ROWS,
   ...PREFERENCES_CONTEXTUAL_HELP_ROWS,
-  ...PILOT_OUTCOMES_CONTEXTUAL_HELP_ROWS,
   ...PRIOR_MANIFEST_RETRIEVAL_CONTEXTUAL_HELP_ROWS,
   ...RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS,
   ...RISK_EXCEPTIONS_CONTEXTUAL_HELP_ROWS,

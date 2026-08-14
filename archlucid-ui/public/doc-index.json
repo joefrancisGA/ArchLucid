@@ -474,12 +474,6 @@
     "url": "/help"
   },
   {
-    "title": "Pilot outcomes",
-    "summary": "Pilot-period summary of review activity, findings, governance decisions, and measurable outcomes.",
-    "category": "Operations",
-    "url": "/help/pilot-outcomes"
-  },
-  {
     "title": "Policy packs",
     "summary": "See which pack and rules apply to reviews, and how ArchLucid resolves conflicts when packs disagree.",
     "category": "Operations",

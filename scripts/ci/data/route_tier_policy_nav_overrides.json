@@ -81,7 +81,7 @@
     "Roi/RoiController.cs": "/architecture/sponsor-dashboard",
     "Tenancy/CorePilotTeamChecklistController.cs": "/architecture/first-review-guide",
     "Tenancy/TenantMeasuredRoiController.cs": "/insights/roi-summary",
-    "Tenancy/TenantPilotValueReportController.cs": "/insights/pilot-outcomes",
+    "Tenancy/TenantPilotValueReportController.cs": "/insights/sponsor-report",
     "Tenancy/TenantTrialController.cs": "/administration/workspace-settings",
     "ValueReports/ValueReportController.cs": "/insights/sponsor-report"
   }

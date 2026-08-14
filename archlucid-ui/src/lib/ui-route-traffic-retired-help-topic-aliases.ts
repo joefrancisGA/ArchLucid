@@ -232,6 +232,19 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     ],
   },
   {
+    removedRowId: "HPI",
+    retiredPath: "/help/pilot-outcomes",
+    canonicalPath: "/help/sponsor-summary",
+    historicalNote:
+      "Deprecated pilot-outcomes help twin (Help topic) - folded into sponsor-report specialty (EXE); canon EXE = /help/sponsor-summary.",
+    bannedBuyerCopy: ["/help/pilot-outcomes"],
+    buyerSurfaceGuards: [
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/product-documentation-registry.ts",
+      "public/doc-index.json",
+    ],
+  },
+  {
     retiredPath: "/help/operator-auth-roles",
     canonicalPath: USERS_AND_ROLES_HELP_CANONICAL_PATH,
     bannedBuyerCopy: ["/help/operator-auth-roles", "operator-auth-roles", "Operator auth roles"],

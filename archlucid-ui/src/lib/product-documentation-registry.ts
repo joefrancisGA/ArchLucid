@@ -608,15 +608,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     releaseApplicability: "sponsor ROI summary orientation",
   },
   {
-    slug: "pilot-outcomes",
-    title: "Pilot outcomes",
-    summary: "Pilot-period summary of review activity, findings, governance decisions, and measurable outcomes.",
-    audience: "operator",
-    sourcePaths: [],
-    lastReviewed: "2026-08-12",
-    releaseApplicability: "sponsor pilot outcomes orientation",
-  },
-  {
     slug: "architecture-scorecard",
     title: "Architecture scorecard",
     summary: "Workspace throughput tiles and directional review-time savings for pilot discussions.",

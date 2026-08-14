@@ -77,9 +77,6 @@ const HelpRecurrenceSchedulesGuideView = dynamic(() =>
 const HelpRoiSummaryGuideView = dynamic(() =>
   import("../_sections/HelpRoiSummaryGuideView").then((module) => module.HelpRoiSummaryGuideView),
 );
-const HelpPilotOutcomesGuideView = dynamic(() =>
-  import("../_sections/HelpPilotOutcomesGuideView").then((module) => module.HelpPilotOutcomesGuideView),
-);
 const HelpArchitectureScorecardGuideView = dynamic(() =>
   import("../_sections/HelpArchitectureScorecardGuideView").then((module) => module.HelpArchitectureScorecardGuideView),
 );
@@ -395,10 +392,6 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "roi-summary") {
     return <HelpRoiSummaryGuideView entry={loaded.entry} />;
-  }
-
-  if (loaded.entry.slug === "pilot-outcomes") {
-    return <HelpPilotOutcomesGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "architecture-scorecard") {

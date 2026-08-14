@@ -104,9 +104,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/demo/explain",
       "/governance/advisory-scans",
       "/insights/sponsor-report",
-      "/insights/pilot-outcomes",
       "/insights/roi-summary",
-      "/sponsor-report/pilot-outcomes",
       "/sponsor-report/roi-summary",
       "/governance/alert-rules",
       "/governance/approval-queue",
@@ -143,7 +141,6 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/recurrence-schedules",
       "/help/prior-manifest-retrieval",
       "/help/roi-summary",
-      "/help/pilot-outcomes",
       "/help/policy-packs",
       "/help/architecture-intelligence",
       "/help/architecture-drafts",
@@ -687,14 +684,7 @@ describe("contextual-help-registry (TB-733)", () => {
     );
   });
 
-  // `/insights/pilot-outcomes` 404s after the merge; help copy still resolves for bookmarked deep links and must
-  // point readers at the surviving sponsor report.
-  it("resolves pilot outcomes Category-1 help (SPP) pointing at the merged sponsor report", () => {
-    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatIsThisPage).toContain("Pilot outcomes");
-    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatToDoNext).toContain("Sponsor report");
-    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatToDoNextAction?.href).toBe(
-      "/insights/sponsor-report",
-    );
+  it("resolves ROI summary Category-1 help (SPR)", () => {
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatIsThisPage).toContain("Portfolio KPI");
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatToDoNext).toContain("rolling 30-day");
   });

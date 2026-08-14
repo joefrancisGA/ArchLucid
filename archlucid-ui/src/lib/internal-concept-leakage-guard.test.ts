@@ -8,8 +8,6 @@ import {
   FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
-import { PILOT_OUTCOMES_PAGE_TITLE } from "@/lib/sponsor-report-navigation";
-import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import {
   INTERNAL_CONCEPT_LEAKAGE_BANNED_PATTERNS,
   INTERNAL_CONCEPT_LEAKAGE_SURFACES,
@@ -53,9 +51,5 @@ describe("internal concept leakage guard (IA-013)", () => {
 
   it("points runs empty-state help at the canonical review-guide slug", () => {
     expect(RUNS_EMPTY.helpTopicPath).toBe("review-guide");
-  });
-
-  it("labels sponsor report pilot outcomes via route title (not breadcrumbs)", () => {
-    expect(ROUTE_TITLES["/insights/pilot-outcomes"]).toBe(PILOT_OUTCOMES_PAGE_TITLE);
   });
 });

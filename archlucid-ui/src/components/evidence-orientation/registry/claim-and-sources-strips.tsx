@@ -49,12 +49,6 @@ import {
   ROI_SUMMARY_HELP_SOURCES_INTRO,
 } from "@/lib/roi-summary-help-evidence-copy";
 import {
-  PILOT_OUTCOMES_HELP_CLAIM_DISCIPLINE,
-  PILOT_OUTCOMES_HELP_FOLLOW_UPS_TITLE,
-  PILOT_OUTCOMES_HELP_SOURCES,
-  PILOT_OUTCOMES_HELP_SOURCES_INTRO,
-} from "@/lib/pilot-outcomes-evidence-copy";
-import {
   BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE,
   BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE,
   BASELINE_SETTINGS_HELP_SOURCES,
@@ -363,22 +357,6 @@ export function RoiSummaryHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ROI_SUMMARY_HELP_SOURCES_INTRO}
       sources={ROI_SUMMARY_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
-      sourcesHeadingId="where-to-go-next"
-    />
-  );
-}
-
-export function PilotOutcomesHelpEvidenceOrientationStrip(): React.JSX.Element {
-  return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="help-pilot-outcomes"
-      claim={PILOT_OUTCOMES_HELP_CLAIM_DISCIPLINE}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
-      claimElement="div"
-      sourcesTitle={PILOT_OUTCOMES_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={PILOT_OUTCOMES_HELP_SOURCES_INTRO}
-      sources={PILOT_OUTCOMES_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
     />
