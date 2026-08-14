@@ -56,10 +56,12 @@ export function AiUsageKpiRow(props: Props) {
 
   if (loading) {
     return (
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" data-testid="ai-usage-kpi-row-loading" aria-busy="true">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="h-24 animate-pulse rounded-lg bg-neutral-200 dark:bg-neutral-700" />
-        ))}
+      <div id="ai-usage-kpi-row">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" data-testid="ai-usage-kpi-row-loading" aria-busy="true">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="h-24 animate-pulse rounded-lg bg-neutral-200 dark:bg-neutral-700" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -70,7 +72,8 @@ export function AiUsageKpiRow(props: Props) {
       : `${kpi.changeVsPrior30DaysIsApproximate ? "Approx. " : ""}${kpi.changeVsPrior30DaysPercent >= 0 ? "+" : ""}${kpi.changeVsPrior30DaysPercent}% vs prior half of 30-day window`;
 
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" data-testid="ai-usage-kpi-row">
+    <div id="ai-usage-kpi-row">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" data-testid="ai-usage-kpi-row">
       <KpiCard
         label="Used this month"
         value={formatOptionalUsd(kpi.usedThisMonthUsd, kpi.currency)}
@@ -117,6 +120,7 @@ export function AiUsageKpiRow(props: Props) {
           testId="ai-usage-kpi-top-operation"
         />
       ) : null}
+      </div>
     </div>
   );
 }

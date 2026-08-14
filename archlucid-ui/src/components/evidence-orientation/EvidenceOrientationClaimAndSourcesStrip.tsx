@@ -15,6 +15,10 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
    */
   readonly slug: string;
   readonly claim: string;
+  /** Optional visible heading for the claim band (for example "What AI usage is not"). */
+  readonly claimHeading?: string;
+  /** Stable anchor id; defaults to `{slug}-claim-discipline-heading`. */
+  readonly claimHeadingId?: string;
   readonly sourcesIntro: string;
   readonly sources: readonly EvidenceOrientationLink[];
   readonly sourcesTitle?: string;
@@ -35,6 +39,8 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
 export function EvidenceOrientationClaimAndSourcesStrip({
   slug,
   claim,
+  claimHeading,
+  claimHeadingId,
   sourcesIntro,
   sources,
   sourcesTitle = HELP_DILIGENCE_ARTIFACT_INDEX_TITLE,
@@ -53,6 +59,14 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         body={claim}
         style={claimStyle}
         element={claimElement}
+        heading={
+          claimHeading === undefined
+            ? undefined
+            : {
+                text: claimHeading,
+                id: claimHeadingId ?? `${slug}-claim-discipline-heading`,
+              }
+        }
       />
 
       <EvidenceOrientationSourcesSection

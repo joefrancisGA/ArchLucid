@@ -54,6 +54,18 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-13 · governance advisory scans orientation");
   });
 
+  it("formats ai usage help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "ai-usage",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "Administration · AI usage orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · Administration · AI usage orientation");
+  });
+
   it("returns null when report-a-problem registry metadata is absent", () => {
     expect(formatHelpTopicApplicabilityMetadata(sampleEntry({ slug: "report-a-problem" }))).toBeNull();
   });

@@ -690,12 +690,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "ai-usage",
-    title: "AI usage and cost",
+    title: "AI usage",
     summary: "Estimated AI spend, budget signals, and workflow cost filters for the workspace.",
     audience: "operator",
-    sourcePaths: [],
+    sourcePaths: [
+      "archlucid-ui/src/lib/ai-usage-help-guide-content.ts",
+      "archlucid-ui/src/lib/ai-usage-help-evidence-copy.ts",
+    ],
     lastReviewed: "2026-08-13",
-    releaseApplicability: "administration ai usage orientation",
+    releaseApplicability: "Administration · AI usage orientation",
   },
   {
     slug: "preferences",

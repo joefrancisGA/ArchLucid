@@ -89,5 +89,11 @@ describe("specialty help guides — operator surfaces batch", () => {
 
       return;
     }
+
+    if (slug === "ai-usage") {
+      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+
+      return;
+    }
   });
 });

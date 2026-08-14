@@ -56,6 +56,7 @@ import {
 } from "@/lib/baseline-settings-help-evidence-copy";
 import {
   API_KEYS_HELP_CLAIM_DISCIPLINE,
+  API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING,
   API_KEYS_HELP_FOLLOW_UPS_TITLE,
   API_KEYS_HELP_SOURCES,
   API_KEYS_HELP_SOURCES_INTRO,
@@ -68,6 +69,7 @@ import {
 } from "@/lib/system-health-help-evidence-copy";
 import {
   AI_USAGE_HELP_CLAIM_DISCIPLINE,
+  AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING,
   AI_USAGE_HELP_FOLLOW_UPS_TITLE,
   AI_USAGE_HELP_SOURCES,
   AI_USAGE_HELP_SOURCES_INTRO,
@@ -169,6 +171,7 @@ import {
 } from "@/lib/impact-preview-help-evidence-copy";
 import {
   ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE,
+  ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING,
   ADVISORY_SCANS_HELP_FOLLOW_UPS_TITLE,
   ADVISORY_SCANS_HELP_SOURCES,
   ADVISORY_SCANS_HELP_SOURCES_INTRO,
@@ -431,6 +434,7 @@ export function ApiKeysHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-api-keys"
       claim={API_KEYS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={API_KEYS_HELP_FOLLOW_UPS_TITLE}
@@ -463,6 +467,7 @@ export function AiUsageHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-ai-usage"
       claim={AI_USAGE_HELP_CLAIM_DISCIPLINE}
+      claimHeading={AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={AI_USAGE_HELP_FOLLOW_UPS_TITLE}
@@ -891,6 +896,7 @@ export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-advisory-scans"
       claim={ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={ADVISORY_SCANS_HELP_FOLLOW_UPS_TITLE}

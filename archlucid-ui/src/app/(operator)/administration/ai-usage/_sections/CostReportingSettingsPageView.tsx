@@ -192,7 +192,18 @@ export function CostReportingSettingsPageView(props: Props) {
                 m.setFilters({ ...nextFilters, groupBy: m.filters.groupBy });
               }}
             />
-          ) : null}
+          ) : (
+            <section
+              id="ai-usage-filters-bar"
+              className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+              data-testid="ai-usage-filters-bar-restricted"
+              aria-label="AI usage filters"
+            >
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                Workflow filters require execute workspace access.
+              </p>
+            </section>
+          )}
 
           <AiUsageDailyUsagePanel
             daily={data?.daily ?? []}
