@@ -4,9 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { WizardEvidenceUploadTrackState } from "@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel";
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
+import { detectTier1InventoryPlatformFromFile } from "@/lib/read-tier1-inventory-package-zip";
 import {
-  uploadWizardPendingAzureEvidence,
   uploadWizardPendingDocumentEvidence,
+  uploadWizardPendingInventoryEvidence,
 } from "@/lib/wizard-pending-evidence-upload";
 
 type PendingEvidenceUploadFailure = {
@@ -19,7 +21,7 @@ type PendingEvidenceOptions = {
   readonly runId: string | null;
   /** Quick start uploads as soon as the review exists; the full wizard waits for the pipeline slide. */
   readonly autoUploadOnCreate: boolean;
-  readonly onAzureFileSelected: () => void;
+  readonly onInventoryFileSelected: (platform: CloudInventoryPlatform) => void;
 };
 
 /**
@@ -30,9 +32,10 @@ type PendingEvidenceOptions = {
  * selection.
  */
 export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) {
-  const { autoUploadOnCreate, onAzureFileSelected, runId } = options;
+  const { autoUploadOnCreate, onInventoryFileSelected, runId } = options;
 
   const [pendingEvidenceFile, setPendingEvidenceFile] = useState<File | null>(null);
+  const [pendingInventoryPlatform, setPendingInventoryPlatform] = useState<CloudInventoryPlatform | null>(null);
   const [pendingDocumentFiles, setPendingDocumentFiles] = useState<File[]>([]);
   const [evidenceUploadState, setEvidenceUploadState] = useState<WizardEvidenceUploadTrackState>("idle");
   const [evidenceUploadProgressPercent, setEvidenceUploadProgressPercent] = useState<number | null>(null);
@@ -42,26 +45,43 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
     (file: File | null) => {
       setPendingEvidenceFile(file);
 
-      if (file !== null) {
-        onAzureFileSelected();
+      if (file === null) {
+        setPendingInventoryPlatform(null);
+
+        return;
       }
+
+      void (async () => {
+        const platform = await detectTier1InventoryPlatformFromFile(file);
+
+        if (platform === null) {
+          setPendingInventoryPlatform(null);
+
+          return;
+        }
+
+        setPendingInventoryPlatform(platform);
+        onInventoryFileSelected(platform);
+      })();
     },
-    [onAzureFileSelected],
+    [onInventoryFileSelected],
   );
 
   const clearPendingEvidence = useCallback(() => {
     setPendingEvidenceFile(null);
+    setPendingInventoryPlatform(null);
     setPendingDocumentFiles([]);
   }, []);
 
   const uploadPendingEvidence = useCallback(
     async (runIdValue: string): Promise<void> => {
-      const azureFile = pendingEvidenceFile;
+      const inventoryFile = pendingEvidenceFile;
+      const inventoryPlatform = pendingInventoryPlatform;
       const documentFiles = pendingDocumentFiles;
-      const hasAzure = azureFile !== null;
+      const hasInventory = inventoryFile !== null && inventoryPlatform !== null;
       const hasDocuments = documentFiles.length > 0;
 
-      if (!hasAzure && !hasDocuments) {
+      if (!hasInventory && !hasDocuments) {
         return;
       }
 
@@ -69,26 +89,32 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
       setEvidenceUploadError(null);
       setEvidenceUploadProgressPercent(null);
 
-      if (hasAzure && azureFile !== null) {
-        const azureResult = await uploadWizardPendingAzureEvidence(runIdValue, azureFile, {
-          onUploadProgress: (percent) => {
-            setEvidenceUploadProgressPercent(percent);
+      if (hasInventory && inventoryFile !== null && inventoryPlatform !== null) {
+        const inventoryResult = await uploadWizardPendingInventoryEvidence(
+          runIdValue,
+          inventoryPlatform,
+          inventoryFile,
+          {
+            onUploadProgress: (percent) => {
+              setEvidenceUploadProgressPercent(percent);
+            },
           },
-        });
+        );
 
-        if (!azureResult.ok) {
+        if (!inventoryResult.ok) {
           setEvidenceUploadState("failed");
           setEvidenceUploadProgressPercent(null);
           setEvidenceUploadError({
-            message: azureResult.message,
-            problem: azureResult.problem,
-            correlationId: azureResult.correlationId,
+            message: inventoryResult.message,
+            problem: inventoryResult.problem,
+            correlationId: inventoryResult.correlationId,
           });
 
           return;
         }
 
         setPendingEvidenceFile(null);
+        setPendingInventoryPlatform(null);
       }
 
       if (documentFiles.length > 0) {
@@ -111,7 +137,7 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
       setEvidenceUploadState("success");
       setEvidenceUploadProgressPercent(null);
     },
-    [pendingDocumentFiles, pendingEvidenceFile],
+    [pendingDocumentFiles, pendingEvidenceFile, pendingInventoryPlatform],
   );
 
   const retryEvidenceUpload = useCallback(async () => {

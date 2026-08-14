@@ -168,6 +168,23 @@ export function readTier1InventoryPackageZipFromBytes(
   };
 }
 
+const TIER1_INVENTORY_PLATFORM_PROBE_ORDER: readonly CloudInventoryPlatform[] = ["azure", "aws", "gcp"];
+
+/** Infer cloud platform from a Tier-1 inventory ZIP when the wizard evidence source is unknown. */
+export async function detectTier1InventoryPlatformFromFile(
+  file: File,
+): Promise<CloudInventoryPlatform | null> {
+  for (const platform of TIER1_INVENTORY_PLATFORM_PROBE_ORDER) {
+    const result = await readTier1InventoryPackageZipFromFile(file, platform);
+
+    if (result.ok) {
+      return platform;
+    }
+  }
+
+  return null;
+}
+
 export async function readTier1InventoryPackageZipFromFile(
   file: File,
   platform: CloudInventoryPlatform,

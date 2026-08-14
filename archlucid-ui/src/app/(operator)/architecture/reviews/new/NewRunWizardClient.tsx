@@ -27,6 +27,7 @@ import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress"
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
+import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -170,14 +171,20 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
 
   const { trigger, getValues, setValue, reset, control } = form;
 
-  const markCloudProviderAzure = useCallback(() => {
-    setValue("cloudProvider", "Azure", { shouldValidate: true, shouldDirty: true });
-  }, [setValue]);
+  const markCloudProviderFromInventory = useCallback(
+    (platform: CloudInventoryPlatform) => {
+      const cloudProvider =
+        platform === "azure" ? "Azure" : platform === "aws" ? "Aws" : "Gcp";
+
+      setValue("cloudProvider", cloudProvider, { shouldValidate: true, shouldDirty: true });
+    },
+    [setValue],
+  );
 
   const evidence = useNewRunWizardPendingEvidence({
     runId,
     autoUploadOnCreate: wizardMode === "quick",
-    onAzureFileSelected: markCloudProviderAzure,
+    onInventoryFileSelected: markCloudProviderFromInventory,
   });
 
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
