@@ -24,6 +24,7 @@ public static class AgentTopologyProposalMergeGate
         if (inventoriedIdentifiers.Count == 0)
             return FilterGreenfieldProposals(results, relationshipEndpointKeys);
 
+        bool allowTopologyExtension = HasAgentProposedTopologyNodes(graph);
         HashSet<string> accumulatedEndpointKeys = new(relationshipEndpointKeys, StringComparer.OrdinalIgnoreCase);
         List<AgentResult> orderedResults = results
             .OrderBy(static result => GetMergeOrder(result.AgentType))
@@ -39,7 +40,8 @@ public static class AgentTopologyProposalMergeGate
             PreRegisterDeclaredProposalEndpointKeys(
                 result.ProposedChanges,
                 accumulatedEndpointKeys,
-                greenfield: false);
+                greenfield: false,
+                allowTopologyExtension);
         }
 
         foreach (AgentResult result in orderedResults)
@@ -52,7 +54,8 @@ public static class AgentTopologyProposalMergeGate
 
             AgentTopologyProposal sanitized = SanitizeProposal(
                 result.ProposedChanges,
-                accumulatedEndpointKeys);
+                accumulatedEndpointKeys,
+                allowTopologyExtension);
 
             if (ProposalIsEmpty(sanitized))
                 continue;
@@ -203,14 +206,20 @@ public static class AgentTopologyProposalMergeGate
     private static void PreRegisterDeclaredProposalEndpointKeys(
         AgentTopologyProposal proposal,
         HashSet<string> endpointKeys,
-        bool greenfield)
+        bool greenfield,
+        bool allowTopologyExtension = false)
     {
         if (proposal.AddedServices is { Count: > 0 })
         {
             foreach (ManifestService service in proposal.AddedServices)
             {
-                if (!greenfield
-                    && !MatchesInventoriedIdentifier(service.ServiceName, service.ServiceId, endpointKeys))
+                if (!ShouldPreRegisterDeclaredEndpoint(
+                        greenfield,
+                        allowTopologyExtension,
+                        proposal.SourceAgent,
+                        service.ServiceName,
+                        service.ServiceId,
+                        endpointKeys))
                 {
                     continue;
                 }
@@ -223,8 +232,13 @@ public static class AgentTopologyProposalMergeGate
         {
             foreach (ManifestDatastore datastore in proposal.AddedDatastores)
             {
-                if (!greenfield
-                    && !MatchesInventoriedIdentifier(datastore.DatastoreName, datastore.DatastoreId, endpointKeys))
+                if (!ShouldPreRegisterDeclaredEndpoint(
+                        greenfield,
+                        allowTopologyExtension,
+                        proposal.SourceAgent,
+                        datastore.DatastoreName,
+                        datastore.DatastoreId,
+                        endpointKeys))
                 {
                     continue;
                 }
@@ -232,6 +246,23 @@ public static class AgentTopologyProposalMergeGate
                 TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(endpointKeys, datastore);
             }
         }
+    }
+
+    private static bool ShouldPreRegisterDeclaredEndpoint(
+        bool greenfield,
+        bool allowTopologyExtension,
+        AgentType sourceAgent,
+        string? primaryName,
+        string? alternateId,
+        HashSet<string> endpointKeys)
+    {
+        if (greenfield)
+            return true;
+
+        if (MatchesInventoriedIdentifier(primaryName, alternateId, endpointKeys))
+            return true;
+
+        return allowTopologyExtension && sourceAgent == AgentType.Topology;
     }
 
     private static bool RequiresInventoryOverlayValidation(AgentType agentType) =>
@@ -279,18 +310,35 @@ public static class AgentTopologyProposalMergeGate
         string.Equals(node.SourceType, nameof(AgentType.Topology), StringComparison.OrdinalIgnoreCase)
         && string.Equals(node.SourceId, "ProposedChanges", StringComparison.OrdinalIgnoreCase);
 
+    private static bool HasAgentProposedTopologyNodes(GraphSnapshot graph)
+    {
+        foreach (GraphNode node in graph.Nodes)
+        {
+            if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (IsAgentProposedNode(node))
+                return true;
+        }
+
+        return false;
+    }
+
     private static AgentTopologyProposal SanitizeProposal(
         AgentTopologyProposal proposal,
-        HashSet<string> relationshipEndpointKeys)
+        HashSet<string> relationshipEndpointKeys,
+        bool allowTopologyExtension = false)
     {
         List<ManifestService> services = proposal.AddedServices?
             .Where(s => !string.IsNullOrWhiteSpace(s.ServiceName) || !string.IsNullOrWhiteSpace(s.ServiceId))
-            .Where(s => MatchesInventoriedIdentifier(s.ServiceName, s.ServiceId, relationshipEndpointKeys))
+            .Where(s => MatchesInventoriedIdentifier(s.ServiceName, s.ServiceId, relationshipEndpointKeys)
+                || (allowTopologyExtension && proposal.SourceAgent == AgentType.Topology))
             .ToList() ?? [];
 
         List<ManifestDatastore> datastores = proposal.AddedDatastores?
             .Where(d => !string.IsNullOrWhiteSpace(d.DatastoreName) || !string.IsNullOrWhiteSpace(d.DatastoreId))
-            .Where(d => MatchesInventoriedIdentifier(d.DatastoreName, d.DatastoreId, relationshipEndpointKeys))
+            .Where(d => MatchesInventoriedIdentifier(d.DatastoreName, d.DatastoreId, relationshipEndpointKeys)
+                || (allowTopologyExtension && proposal.SourceAgent == AgentType.Topology))
             .ToList() ?? [];
 
         List<ManifestRelationship> relationships = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
