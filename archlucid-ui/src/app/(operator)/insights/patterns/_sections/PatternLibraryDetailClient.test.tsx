@@ -31,7 +31,7 @@ function mockInsightCardsFetch(cards: unknown[]): void {
   );
 }
 
-describe("PatternLibraryDetailClient (TB-1811 / TB-1812 / TB-1813)", () => {
+describe("PatternLibraryDetailClient (TB-1811 / TB-1812 / TB-1813 / TB-1815)", () => {
   it("shows sample provenance notice on detail when live aggregate threshold is not met", async () => {
     mockInsightCardsFetch([]);
 
@@ -77,25 +77,25 @@ describe("PatternLibraryDetailClient (TB-1811 / TB-1812 / TB-1813)", () => {
     expect(screen.queryByRole("link", { name: /^Compare peer pattern$/i })).not.toBeInTheDocument();
   });
 
-  it("keeps one primary Use in review action in the header", async () => {
+  it("keeps one primary Use in review action in the header (TB-1815)", async () => {
     mockInsightCardsFetch([]);
 
     renderWithQueryClient(<PatternLibraryDetailClient patternKey="private-endpoints-paas" />);
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Use in review" })).toBeInTheDocument();
+      expect(screen.getByTestId("pattern-library-detail-primary-use-in-review")).toBeInTheDocument();
     });
 
-    const primaryLinks = screen
-      .getAllByRole("link")
-      .filter((link) => link.className.includes("bg-[var(--al-primary-action-bg)]"));
+    expect(screen.getByTestId("pattern-library-detail-primary-cta-cluster")).toBeInTheDocument();
+    expect(screen.getByTestId("pattern-library-detail-primary-use-in-review")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new?pattern=private-endpoints-paas",
+    );
 
-    expect(primaryLinks).toHaveLength(1);
-    expect(primaryLinks[0]).toHaveAccessibleName("Use in review");
-
-    const footerUseLink = screen.getByRole("link", { name: "Use this pattern in a new review" });
+    const footerUseLink = screen.getByTestId("pattern-library-detail-secondary-use-in-review");
 
     expect(footerUseLink.className).toContain("border-neutral-300");
     expect(footerUseLink.className).not.toContain("bg-[var(--al-primary-action-bg)]");
+    expect(screen.getByTestId("pattern-library-detail-next-steps")).toBeInTheDocument();
   });
 });

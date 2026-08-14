@@ -1855,13 +1855,13 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1796 | ~~`/onboard` Vitest multi-value searchParams (parity ONS)~~ **Done** 2026-08-14 ? `legacy-onboarding-redirect.test.ts` + `legacy-onboard-route.test.ts`; see ## TB-1796 below | Testability P2 ? **V1**; owner review ~12/100 2026-07-27; traffic **ON** | S |
 | TB-1805 | ~~`/onboarding/start` ? Vitest anti-reintro (redirect-only, no UI)~~ **Done** 2026-08-14 ? `legacy-onboarding-start-route.test.ts`; see ## TB-1805 below | Testability P2 ? **V1**; with **TB-1801** | S |
 | TB-1810 | `/operate/architecture-graph` ? Vitest anti-reintro (redirect-only + query); see ## TB-1810 below | Testability P2 ? **V1**; with **TB-1806** | S |
-| TB-1815 | `/patterns/[patternKey]` ? CTA hierarchy + Vitest anti-regress; see ## TB-1815 below | Adoption friction P2 ? **V1**; with **TB-1811** | S |
-| TB-1817 | Retire orphan `(marketing)/quick-start` page module (keep 301); see ## TB-1817 below | Maintainability P2 ? **V1**; with **TB-1816**; do not reopen **TB-736** | M |
-| TB-1820 | `/quick-start` ? Vitest anti-reintro (301 + no competing marketing UI); see ## TB-1820 below | Testability P2 ? **V1**; with **TB-1816** | S |
+| TB-1815 | **Done** (2026-08-14) ? `/insights/patterns/[patternKey]` CTA hierarchy + Vitest anti-regress; see ## TB-1815 below | Adoption friction P2 ? **V1**; with **TB-1811** | S |
+| TB-1817 | **Done** (2026-08-14) ? Retire orphan `(marketing)/quick-start` page module (keep redirect shim); see ## TB-1817 below | Maintainability P2 ? **V1**; with **TB-1816**; do not reopen **TB-736** | M |
+| TB-1820 | **Done** (2026-08-14) ? `/quick-start` Vitest anti-reintro (retired bookmark + no competing marketing UI); see ## TB-1820 below | Testability P2 ? **V1**; with **TB-1816** | S |
 | TB-1821 | **Done** (2026-08-02) ? Restore or redirect `/reviews/[runId]/artifacts/[artifactId]` preview (RER ? signed-records artifact page); Vitest; see ## TB-1821 below | Adoption friction P0 ? **V1**; owner review ~10/100 2026-07-27; traffic **RER**; after Done **TB-752** | L |
 | TB-1822 | **Done** (2026-08-03) ? `ArtifactListTable` Preview hrefs resolve via `artifactPreviewHref` to live App Router pages; Vitest; see ## TB-1822 below | Trustworthiness P0 ? **V1**; with **TB-1821** | M |
 | TB-1825 | ~~Artifact preview route ? Vitest/CI App Router existence guard~~ **Done** 2026-08-11 ? GAR present / RER absent | Testability P2 ? **V1**; with **TB-1821** | S |
-| TB-1830 | Evidence-trace Vitest anti-regress + pair **TB-987** stickiness honesty; see ## TB-1830 below | Testability P2 ? **V1**; with **TB-1826**; do not reopen **TB-986** | S |
+| TB-1830 | **Done** (2026-08-14) ? Evidence-trace Vitest anti-regress + pair **TB-987** stickiness honesty; see ## TB-1830 below | Testability P2 ? **V1**; with **TB-1826**; do not reopen **TB-986** | S |
 | TB-1835 | archTab Activity ? Vitest dual-param + panel orientation guards; see ## TB-1835 below | Testability P2 ? **V1**; with **TB-1831** | S |
 | TB-1838 | **Done** (2026-07-31) ? Clarifications tab badge counts open-question entities; Vitest; see `## TB-1838` below | Correctness P0 ? **V1**; with **TB-1836** | S |
 | TB-1840 | Clarifications tab ? Vitest CTA + badge + traffic honesty; see ## TB-1840 below | Testability P2 ? **V1**; with **TB-1836** | S |
@@ -43596,11 +43596,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1815 ? `/patterns/[patternKey]` ? CTA hierarchy + Vitest anti-regress (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-14) ? single primary **Use in review** cluster, neutral **Next steps** section (no decorative cards), `pattern-library-detail-cta-guard.test.ts` + `PatternLibraryDetailClient.test.tsx`. **Priority:** P0.
 
 **Problem:** Dual identical primary **Use in review** CTAs plus Card wrappers compete with section scan; easy to regress provenance hard-code.
 
 **Approach:** One primary CTA cluster; demote footer duplicate; keep architecture shape as section (not decorative Card) unless interaction needs a card; Vitest: single primary CTA testid + provenance not hard-coded `false`.
+
+**Shipped:** Header primary `data-testid="pattern-library-detail-primary-use-in-review"`; footer demoted to outline **Use this pattern in a new review**; architecture shape uses `DetailSection`; provenance stays on `usePatternLibraryProvenance()`.
 
 **Acceptance:** Clear CTA hierarchy; provenance hard-code cannot return silently. **Size estimate:** S.
 
@@ -43622,11 +43624,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1817 ? Retire orphan `(marketing)/quick-start` page module (keep 301) (P0)
 
-**Window:** V1 ? Maintainability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Maintainability. **Status:** **Done** (2026-08-14) ? no `(marketing)/quick-start/page.tsx` or `QuickStartClient.tsx`; legacy bookmark resolves via `canonicalizeLegacyOperatorRoutePath` + retired-shim registry; Vitest `legacy-quick-start-route.test.ts`. **Priority:** P0.
 
 **Problem:** `page.tsx` + `QuickStartClient.tsx` still ship a full no-sign-in simulator funnel behind the redirect ? dead weight and a reintro magnet.
 
 **Approach:** Delete or move behind non-routable `_archive` / tests-only fixture; keep `next.config` permanent redirect. Update `review-terminology-surfaces` paths. Do not reopen **TB-736**.
+
+**Shipped:** Marketing quick-start App Router module removed; QUI row retired in traffic shim registry; anti-reintro scans block funnel UI under the retired route path.
 
 **Acceptance:** No App Router page at `/quick-start`; 301 remains. **Size estimate:** M.
 
@@ -43662,11 +43666,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1820 ? `/quick-start` ? Vitest anti-reintro (301 + no competing marketing UI) (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14) ? `legacy-quick-start-route.test.ts` + `marketing-surface-hygiene.test.ts` guard retired bookmark + no competing marketing UI. **Priority:** P0.
 
 **Problem:** Future agents may re-add a marketing page and weaken the 301.
 
 **Approach:** Extend `marketing-surface-hygiene` (or peer): assert permanent redirect stays; assert no `(marketing)/quick-start/page.tsx` (or redirect-only stub). Keep sitemap exclusion.
+
+**Shipped:** Retired-shim registry + canonical get-started resolution; sitemap/robots guards; no `QuickStartClient` under `(marketing)/quick-start`.
 
 **Acceptance:** Competing Quick start marketing UI cannot return silently. **Size estimate:** S.
 
@@ -43798,11 +43804,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1830 ? Evidence-trace Vitest anti-regress + pair **TB-987** stickiness honesty (P0)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14) ? `evidence-trace-route-anti-regress.test.ts` bundles ERU workbook note + `FindingInspectView` source guards + TB-987 stickiness pairing. **Priority:** P0.
 
 **Problem:** Easy to reintroduce footer self-link / generic buyer H1; stickiness panel still needs concurrent-disposition honesty from open **TB-987**.
 
 **Approach:** Vitest covers **TB-1826**?**TB-1829** regressions; when implementing stickiness UX on this page, execute with **TB-987** (do not reopen **TB-986**).
+
+**Shipped:** Source-scan guard blocks `findingIdForInspectLink` footer self-link and `evidence-trace-orientation`; pairs existing `FindingInspectView.test.tsx` (TB-1826?1829) with `FindingInspectGovernanceStickinessPanel.test.tsx` (TB-987).
 
 **Acceptance:** Anti-regress tests green; stickiness work cites **TB-987**. **Size estimate:** S.
 
