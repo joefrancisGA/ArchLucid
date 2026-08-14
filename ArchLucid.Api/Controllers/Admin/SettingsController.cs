@@ -255,7 +255,12 @@ public sealed class SettingsController(
     private async Task<(DateTime? LastChangedAtUtc, string? LastChangedBy)> TryGetLastProfileChangeAsync(
         CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ScopeContext? scope = _scopeContextProvider.GetCurrentScope();
+
+        if (scope is null)
+        {
+            return (null, null);
+        }
 
         AuditEventFilter updatedFilter = new()
         {

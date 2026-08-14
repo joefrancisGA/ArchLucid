@@ -23,7 +23,11 @@ public sealed class SettingsControllerModelExecutionProfileTests
         Mock<IWorkspaceModelExecutionProfileService> profileService = new();
         Mock<IScopeContextProvider> scopeProvider = new();
         Mock<IAuditService> auditService = new();
+        Mock<IAuditRepository> auditRepository = new();
         Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        DateTime changedAt = new(2026, 1, 15, 12, 0, 0, DateTimeKind.Utc);
 
         profileService
             .Setup(s => s.GetAsync(It.IsAny<CancellationToken>()))
@@ -43,15 +47,45 @@ public sealed class SettingsControllerModelExecutionProfileTests
             new ScopeContext
             {
                 TenantId = tenantId,
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid()
+                WorkspaceId = workspaceId,
+                ProjectId = projectId
             });
+
+        auditRepository
+            .Setup(r => r.GetFilteredAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                It.Is<AuditEventFilter>(f => f.EventType == AuditEventTypes.WorkspaceModelExecutionProfileUpdated),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.WorkspaceModelExecutionProfileUpdated,
+                    OccurredUtc = changedAt,
+                    ActorUserId = "admin",
+                    ActorUserName = "admin@example.com",
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                }
+            ]);
+
+        auditRepository
+            .Setup(r => r.GetFilteredAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                It.Is<AuditEventFilter>(f => f.EventType == AuditEventTypes.WorkspaceModelExecutionProfileOverrideCleared),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         SettingsController controller = CreateController(
             profileService.Object,
             scopeProvider.Object,
             auditService.Object,
-            Mock.Of<IAuditRepository>());
+            auditRepository.Object);
 
         IActionResult result = await controller.PutModelExecutionProfile(
             new WorkspaceModelExecutionProfileUpdateRequest { Profile = "HighAssurance" },
@@ -62,8 +96,8 @@ public sealed class SettingsControllerModelExecutionProfileTests
 
         response.EffectiveProfile.Should().Be(nameof(AgentModelExecutionProfile.HighAssurance));
         response.WorkspaceDefaultProfile.Should().Be(nameof(AgentModelExecutionProfile.Balanced));
-        response.LastChangedAtUtc.Should().NotBeNull();
-        response.LastChangedBy.Should().NotBeNullOrWhiteSpace();
+        response.LastChangedAtUtc.Should().Be(changedAt);
+        response.LastChangedBy.Should().Be("admin@example.com");
 
         auditService.Verify(
             s => s.LogAsync(
