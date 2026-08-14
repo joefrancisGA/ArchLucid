@@ -1,6 +1,13 @@
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL } from "@/lib/architecture/architecture-draft-structured-brief";
 import type { CreateArchitectureRunRequestPayload } from "@/lib/api/architecture-runs";
+import {
+  encodeQuickStartPendingEvidenceFileNames,
+  QUICK_START_INTAKE_LIMITED_EVIDENCE_ANALYSIS_ACK_KEY,
+  QUICK_START_INTAKE_OPERATOR_BRIEF_CHARACTER_COUNT_KEY,
+  QUICK_START_INTAKE_PENDING_EVIDENCE_FILE_NAMES_KEY,
+  QUICK_START_LIMITED_EVIDENCE_ANALYSIS_ACK_VALUE,
+} from "@/lib/quick-start-intake-metadata-keys";
 import { UNIVERSAL_INTAKE_MUST_QUESTION_KEYS } from "@/lib/universal-intake-must-completeness";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
@@ -47,6 +54,11 @@ export function projectUniversalIntakeAnswersOntoCreateRunPayload(
   answers: Readonly<Record<string, string>>,
   skippedQuestionKeys: ReadonlySet<string>,
   intakeTransparencyTrail: TransparencyTrail,
+  options?: {
+    readonly pendingEvidenceFileNames?: readonly string[];
+    readonly limitedEvidenceAnalysisAcknowledged?: boolean;
+    readonly operatorBriefCharacterCount?: number;
+  },
 ): CreateArchitectureRunRequestPayload {
   const constraints = [...basePayload.constraints];
   const inlineRequirements = [...(basePayload.inlineRequirements ?? [])];
@@ -96,17 +108,36 @@ export function projectUniversalIntakeAnswersOntoCreateRunPayload(
     cloudProvider,
     constraints,
     inlineRequirements,
-    intakeQuestionAnswers: Object.fromEntries(
-      UNIVERSAL_INTAKE_MUST_QUESTION_KEYS.flatMap((questionKey) => {
-        const effectiveAnswer = resolveEffectiveAnswer(answers, skippedQuestionKeys, questionKey);
+    intakeQuestionAnswers: {
+      ...Object.fromEntries(
+        UNIVERSAL_INTAKE_MUST_QUESTION_KEYS.flatMap((questionKey) => {
+          const effectiveAnswer = resolveEffectiveAnswer(answers, skippedQuestionKeys, questionKey);
 
-        if (effectiveAnswer === null) {
-          return [];
-        }
+          if (effectiveAnswer === null) {
+            return [];
+          }
 
-        return [[questionKey, effectiveAnswer]];
-      }),
-    ),
+          return [[questionKey, effectiveAnswer]];
+        }),
+      ),
+      ...(options?.pendingEvidenceFileNames !== undefined && options.pendingEvidenceFileNames.length > 0
+        ? {
+            [QUICK_START_INTAKE_PENDING_EVIDENCE_FILE_NAMES_KEY]: encodeQuickStartPendingEvidenceFileNames(
+              options.pendingEvidenceFileNames,
+            ),
+          }
+        : {}),
+      ...(options?.limitedEvidenceAnalysisAcknowledged === true
+        ? {
+            [QUICK_START_INTAKE_LIMITED_EVIDENCE_ANALYSIS_ACK_KEY]: QUICK_START_LIMITED_EVIDENCE_ANALYSIS_ACK_VALUE,
+          }
+        : {}),
+      ...(options?.operatorBriefCharacterCount !== undefined
+        ? {
+            [QUICK_START_INTAKE_OPERATOR_BRIEF_CHARACTER_COUNT_KEY]: String(options.operatorBriefCharacterCount),
+          }
+        : {}),
+    },
     intakeTransparencyTrail,
     requestSource: "wizard",
     wizardPresetUsed: "quick-review",

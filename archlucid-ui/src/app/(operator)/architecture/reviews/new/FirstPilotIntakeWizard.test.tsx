@@ -46,15 +46,26 @@ vi.mock("@/components/architecture/ArchitectureScopeUnderstandingCheckPanel", as
 
 vi.mock("./QuickReviewWizardDeferredPanels", () => ({
   WizardEvidenceUploadZone: (props: { onFilesSelected?: (files: File[]) => void }) => (
-    <button
-      type="button"
-      data-testid="first-pilot-upload-stub"
-      onClick={() => {
-        props.onFilesSelected?.([new File(["diagram"], "network-topology.pdf", { type: "application/pdf" })]);
-      }}
-    >
-      Attach evidence stub
-    </button>
+    <>
+      <button
+        type="button"
+        data-testid="first-pilot-upload-stub"
+        onClick={() => {
+          props.onFilesSelected?.([new File(["diagram"], "network-topology.pdf", { type: "application/pdf" })]);
+        }}
+      >
+        Attach evidence stub
+      </button>
+      <button
+        type="button"
+        data-testid="first-pilot-upload-photo-stub"
+        onClick={() => {
+          props.onFilesSelected?.([new File(["image"], "photo.png", { type: "image/png" })]);
+        }}
+      >
+        Attach photo stub
+      </button>
+    </>
   ),
 }));
 
@@ -247,8 +258,30 @@ describe("FirstPilotIntakeWizard", () => {
     expect(body.policyReferences).toContain(FOCUSED_PILOT_MODE_POLICY_REFERENCE);
     expect(body.requestSource).toBe("wizard");
     expect(body.wizardPresetUsed).toBe("quick-review");
-    expect(Object.keys(body.intakeQuestionAnswers ?? {})).toHaveLength(7);
+    expect(body.intakeQuestionAnswers?.["intake.pending-evidence-file-names"]).toBe("network-topology.pdf");
+    expect(body.intakeQuestionAnswers?.["intake.operator-brief-character-count"]).toBe("0");
+    expect(Object.keys(body.intakeQuestionAnswers ?? {}).length).toBeGreaterThanOrEqual(7);
     expect(push).toHaveBeenCalledWith(buildReviewGenerationRedirect("first-pilot-run-1", "quick-review"));
+  });
+
+  it("does not enable start for title plus unrelated image without limited-evidence acknowledgment (TB-2296)", () => {
+    render(<FirstPilotIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("first-pilot-title"), {
+      target: { value: "Retail API review" },
+    });
+    fireEvent.click(screen.getByTestId("first-pilot-upload-photo-stub"));
+    satisfyAllQuickStartL0MustQuestions();
+    confirmScopeUnderstanding();
+
+    expect(screen.getByTestId("first-pilot-limited-evidence-ack")).toBeInTheDocument();
+    expect(screen.getByTestId("first-pilot-readiness")).toHaveTextContent(/analyzable architecture evidence/i);
+
+    fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
+    expect(createRun).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("first-pilot-limited-evidence-ack-checkbox"));
+    expect(screen.queryByTestId("first-pilot-readiness")).toBeNull();
   });
 
   it("shows loading feedback immediately after start is clicked", () => {

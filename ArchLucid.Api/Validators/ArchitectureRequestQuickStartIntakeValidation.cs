@@ -26,6 +26,9 @@ internal static class ArchitectureRequestQuickStartIntakeValidation
                     $"Required clarification '{missingKey}' must be answered or explicitly marked unknown before starting the review."));
         }
 
+        if (QuickStartAnalyzableEvidenceCompleteness.TryCollectFailures(request, failures))
+            return true;
+
         return missingKeys.Count > 0;
     }
 }

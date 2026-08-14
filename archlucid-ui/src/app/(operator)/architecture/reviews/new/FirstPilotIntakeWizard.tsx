@@ -15,6 +15,7 @@ import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimat
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { QuickStartL0MustQuestionsPanel } from "@/components/architecture/QuickStartL0MustQuestionsPanel";
 import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -62,6 +63,10 @@ import {
   isFirstPilotIntakeReady,
   normalizeFirstPilotReviewTitle,
 } from "@/lib/first-pilot-intake";
+import {
+  needsQuickStartLimitedEvidenceAcknowledgment,
+  type QuickStartAnalyzableEvidenceInput,
+} from "@/lib/first-pilot-analyzable-evidence";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator/operator-home-example-request";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
@@ -155,6 +160,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [runTitle, setRunTitle] = useState("");
   const [briefText, setBriefText] = useState("");
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
+  const [limitedEvidenceAnalysisAcknowledged, setLimitedEvidenceAnalysisAcknowledged] = useState(false);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [l0Answers, setL0Answers] = useState<Readonly<Record<string, string>>>({});
   const [l0SkippedQuestionKeys, setL0SkippedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
@@ -236,6 +242,20 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     return deriveEvidencePresenceFromFileNames(fileNames);
   }, [briefText, evidenceFiles]);
 
+  const evidenceFileNames = useMemo(() => evidenceFiles.map((file) => file.name), [evidenceFiles]);
+  const analyzableEvidenceInput = useMemo<QuickStartAnalyzableEvidenceInput>(
+    () => ({
+      operatorBrief: briefText,
+      evidenceFileNames,
+      limitedEvidenceAnalysisAcknowledged,
+    }),
+    [briefText, evidenceFileNames, limitedEvidenceAnalysisAcknowledged],
+  );
+  const showLimitedEvidenceAcknowledgment = useMemo(
+    () => needsQuickStartLimitedEvidenceAcknowledgment(analyzableEvidenceInput),
+    [analyzableEvidenceInput],
+  );
+
   /**
    * Readiness is judged on what the operator actually supplied. Passing {@link resolvedBrief} here would
    * always pass the minimum, because it synthesizes boilerplate long enough to clear the threshold on its own.
@@ -244,6 +264,8 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     title: runTitle,
     brief: briefText,
     evidenceFileCount: evidenceFiles.length,
+    evidenceFileNames,
+    limitedEvidenceAnalysisAcknowledged,
     l0Must: {
       answers: l0Answers,
       skippedQuestionKeys: l0SkippedQuestionKeys,
@@ -296,6 +318,11 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
         l0Answers,
         l0SkippedQuestionKeys,
         intakeTransparencyTrail,
+        {
+          pendingEvidenceFileNames: filesToUpload.map((file) => file.name),
+          limitedEvidenceAnalysisAcknowledged,
+          operatorBriefCharacterCount: briefText.trim().length,
+        },
       );
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
@@ -392,9 +419,39 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             attachmentSummarySuffix="or add architecture context below"
             onFilesSelected={(files) => {
               setEvidenceFiles(files);
+              setLimitedEvidenceAnalysisAcknowledged(false);
               setClientValidationMessage(null);
             }}
           />
+
+          {showLimitedEvidenceAcknowledgment ? (
+            <div
+              className="flex items-start gap-3 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+              data-testid="first-pilot-limited-evidence-ack"
+            >
+              <Checkbox
+                id="first-pilot-limited-evidence-ack"
+                checked={limitedEvidenceAnalysisAcknowledged}
+                onCheckedChange={(checked) => {
+                  setLimitedEvidenceAnalysisAcknowledged(checked === true);
+                  setClientValidationMessage(null);
+                }}
+                data-testid="first-pilot-limited-evidence-ack-checkbox"
+              />
+              <div className="space-y-1">
+                <Label
+                  htmlFor="first-pilot-limited-evidence-ack"
+                  className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
+                >
+                  Confirm limited evidence before starting
+                </Label>
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  Attached files are stored on the evidence trail but may not include analyzable architecture
+                  inventory, IaC, or a written brief. Check this only when you accept a thinner first pass.
+                </p>
+              </div>
+            </div>
+          ) : null}
 
           <div className="space-y-2">
             <IntakeFieldLabel htmlFor="first-pilot-brief" label="Architecture context" required={false} />

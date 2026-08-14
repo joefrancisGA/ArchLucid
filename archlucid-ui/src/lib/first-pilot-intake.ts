@@ -1,5 +1,10 @@
 import type { ActiveTenantContextView } from "@/lib/active-tenant-context-display";
 import {
+  describeQuickStartAnalyzableEvidenceGap,
+  hasQuickStartAnalyzableEvidenceClass,
+  type QuickStartAnalyzableEvidenceInput,
+} from "@/lib/first-pilot-analyzable-evidence";
+import {
   describeUniversalIntakeMustGap,
   isUniversalIntakeMustComplete,
   type UniversalIntakeMustCompletenessInput,
@@ -20,8 +25,18 @@ export type FirstPilotIntakeReadinessInput = {
    */
   readonly brief: string;
   readonly evidenceFileCount: number;
+  readonly evidenceFileNames: readonly string[];
+  readonly limitedEvidenceAnalysisAcknowledged: boolean;
   readonly l0Must: UniversalIntakeMustCompletenessInput;
 };
+
+function toAnalyzableEvidenceInput(input: FirstPilotIntakeReadinessInput): QuickStartAnalyzableEvidenceInput {
+  return {
+    operatorBrief: input.brief,
+    evidenceFileNames: input.evidenceFileNames,
+    limitedEvidenceAnalysisAcknowledged: input.limitedEvidenceAnalysisAcknowledged,
+  };
+}
 
 export function normalizeFirstPilotReviewTitle(title: string): string {
   const trimmed = title.trim();
@@ -62,8 +77,13 @@ export function isFirstPilotIntakeReady(input: FirstPilotIntakeReadinessInput): 
   const briefReady = input.brief.trim().length >= FIRST_PILOT_MIN_BRIEF_CHARS;
   const evidenceReady = input.evidenceFileCount > 0;
   const l0Ready = isUniversalIntakeMustComplete(input.l0Must);
+  const analyzableEvidenceReady = hasQuickStartAnalyzableEvidenceClass(toAnalyzableEvidenceInput(input));
 
-  return titleReady && (briefReady || evidenceReady) && l0Ready;
+  if (!titleReady || !l0Ready || !analyzableEvidenceReady) {
+    return false;
+  }
+
+  return briefReady || evidenceReady;
 }
 
 /**
@@ -94,6 +114,12 @@ export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInpu
 
   if (!evidenceReady && briefLength > 0 && briefLength < FIRST_PILOT_MIN_BRIEF_CHARS) {
     return `Architecture context needs at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters (${briefLength} so far), or attach evidence instead.`;
+  }
+
+  const analyzableGap = describeQuickStartAnalyzableEvidenceGap(toAnalyzableEvidenceInput(input));
+
+  if (analyzableGap !== null) {
+    return analyzableGap;
   }
 
   if (l0Gap !== null) {
