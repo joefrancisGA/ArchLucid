@@ -76,12 +76,16 @@ import {
 } from "@/lib/ai-usage-help-evidence-copy";
 import {
   PREFERENCES_HELP_CLAIM_DISCIPLINE,
+  PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING,
   PREFERENCES_HELP_FOLLOW_UPS_TITLE,
   PREFERENCES_HELP_SOURCES,
   PREFERENCES_HELP_SOURCES_INTRO,
 } from "@/lib/preferences-help-evidence-copy";
+import { PREFERENCES_HELP_CLAIM_HEADING_ID } from "@/lib/preferences-help-guide-content";
 import {
   NOTIFICATIONS_HELP_CLAIM_DISCIPLINE,
+  NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING,
+  NOTIFICATIONS_HELP_CLAIM_HEADING_ID,
   NOTIFICATIONS_HELP_FOLLOW_UPS_TITLE,
   NOTIFICATIONS_HELP_SOURCES,
   NOTIFICATIONS_HELP_SOURCES_INTRO,
@@ -497,11 +501,19 @@ export function AiUsageHelpEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function PreferencesHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type PreferencesHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function PreferencesHelpEvidenceOrientationStrip(
+  props: PreferencesHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-preferences"
       claim={PREFERENCES_HELP_CLAIM_DISCIPLINE}
+      claimHeading={PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={PREFERENCES_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={PREFERENCES_HELP_FOLLOW_UPS_TITLE}
@@ -509,15 +521,25 @@ export function PreferencesHelpEvidenceOrientationStrip(): React.JSX.Element {
       sources={PREFERENCES_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
 
-export function NotificationsHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type NotificationsHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function NotificationsHelpEvidenceOrientationStrip(
+  props: NotificationsHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-notifications"
       claim={NOTIFICATIONS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={NOTIFICATIONS_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={NOTIFICATIONS_HELP_FOLLOW_UPS_TITLE}
@@ -525,6 +547,8 @@ export function NotificationsHelpEvidenceOrientationStrip(): React.JSX.Element {
       sources={NOTIFICATIONS_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }

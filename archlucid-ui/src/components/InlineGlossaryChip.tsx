@@ -29,7 +29,7 @@ function resolveSeenStorageKey(nounId: LoadBearingGlossaryNounId): string {
     nounId === "review-package" ||
     nounId === "evidence-trail" ||
     nounId === "governance-approval" ||
-    nounId === "signed-review-record"
+    nounId === "sealed-review-record"
   ) {
     return goldenPathGlossarySeenStorageKey(nounId as GoldenPathGlossaryNounId);
   }

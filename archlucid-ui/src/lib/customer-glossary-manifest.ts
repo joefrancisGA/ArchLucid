@@ -74,7 +74,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     definition:
       "The durable record for one architecture review: findings, decisions, evidence links, sealed review record, governance records, and exportable deliverables.",
     category: "review-process",
-    relatedTermIds: ["review", "signed-review-record", "deliverable"],
+    relatedTermIds: ["review", "sealed-review-record", "deliverable"],
     detail:
       "Stakeholders open an architecture review to triage findings, finalize, export, compare, and audit outcomes. Finalize locks the sealed review record and sponsor-ready exports.",
     deprecatedAliases: ["Review package", "review package", "Architecture package", "architecture package", "Finalized review"],
@@ -217,7 +217,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     definition:
       "An exportable output aimed at a specific audience, such as an sponsor report, board packet, or diligence bundle.",
     category: "deliverables",
-    relatedTermIds: ["review-package", "signed-review-record"],
+    relatedTermIds: ["review-package", "sealed-review-record"],
     visibility: "customer",
   },
 ];

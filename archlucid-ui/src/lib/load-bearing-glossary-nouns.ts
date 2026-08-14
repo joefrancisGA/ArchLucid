@@ -11,7 +11,7 @@ export const LOAD_BEARING_GLOSSARY_NOUN_IDS = [
   "review-package",
   "evidence-trail",
   "governance-approval",
-  "signed-review-record",
+  "sealed-review-record",
   "finding",
   "decision",
   "deliverable",

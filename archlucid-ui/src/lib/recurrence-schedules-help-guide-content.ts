@@ -2,12 +2,16 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   RECURRENCE_SCHEDULE_EXAMPLES,
+  RECURRENCE_SCHEDULES_HELPER_NEXT_STEP,
   RECURRENCE_SCHEDULES_MANAGE_PATH,
   RECURRENCE_SCHEDULES_PAGE_SUBTITLE,
   RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF,
   RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
   RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
 } from "@/lib/recurrence-schedules-copy";
+import {
+  RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS_TITLE,
+} from "@/lib/recurrence-schedules-help-evidence-copy";
 import {
   DIGEST_RECURRENCE_SCHEDULE_HEADING,
   DIGEST_RECURRENCE_SCHEDULE_WHY_TWO,
@@ -24,6 +28,11 @@ export const RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION = {
   label: "Open recurrence schedules",
   href: RECURRENCE_SCHEDULES_MANAGE_PATH,
 } as const;
+
+export const RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION = RECURRENCE_SCHEDULES_HELPER_NEXT_STEP;
+
+/** Compact finalized-review tag beside the primary action. */
+export const RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION_TAG = "Finalized review";
 
 export const RECURRENCE_SCHEDULES_HELP_AUTOMATION_SECTION_TITLE = "What a schedule automates";
 
@@ -77,6 +86,11 @@ export const RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHead
     level: 2,
     id: "two-different-kinds-of-schedule",
     title: RECURRENCE_SCHEDULES_HELP_SCHEDULE_KIND_SECTION_TITLE,
+  },
+  {
+    level: 2,
+    id: "schedule-health-and-trust",
+    title: RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS_TITLE,
   },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

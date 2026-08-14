@@ -18,6 +18,8 @@ const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "jira-integration",
   "model-governance",
   "notifications",
+  "preferences",
+  "recurrence-schedules",
 ]);
 
 function formatGuideReviewProvenance(entry: ProductDocumentationEntry): string | null {

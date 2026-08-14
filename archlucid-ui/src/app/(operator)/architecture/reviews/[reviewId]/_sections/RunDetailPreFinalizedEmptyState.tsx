@@ -12,7 +12,7 @@ export function RunDetailPreFinalizedEmptyState(): ReactElement {
       description={
         <p className="m-0">
           This architecture review has not been finalized yet. After the pipeline completes and you finalize, the{" "}
-          <InlineGlossaryChip nounId="signed-review-record">{SIGNED_MANIFEST_LABEL.toLowerCase()}</InlineGlossaryChip>,{" "}
+          <InlineGlossaryChip nounId="sealed-review-record">{SIGNED_MANIFEST_LABEL.toLowerCase()}</InlineGlossaryChip>,{" "}
           <InlineGlossaryChip nounId="evidence-trail">evidence trail</InlineGlossaryChip>, and exports will appear here.
         </p>
       }

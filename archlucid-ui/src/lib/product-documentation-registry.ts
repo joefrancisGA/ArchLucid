@@ -704,9 +704,12 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "Preferences",
     summary: "Personal appearance settings saved to your signed-in account.",
     audience: "operator",
-    sourcePaths: [],
+    sourcePaths: [
+      "archlucid-ui/src/lib/preferences-help-guide-content.ts",
+      "archlucid-ui/src/lib/preferences-help-evidence-copy.ts",
+    ],
     lastReviewed: "2026-08-13",
-    releaseApplicability: "administration preferences orientation",
+    releaseApplicability: "Administration · preferences orientation",
   },
   {
     slug: "notifications",

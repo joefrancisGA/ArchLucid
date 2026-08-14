@@ -23,10 +23,10 @@ describe("InlineGlossaryChip", () => {
   });
 
   it("shows the customer-glossary definition in a tooltip on hover", async () => {
-    const entry = getGoldenPathGlossaryNoun("signed-review-record");
+    const entry = getGoldenPathGlossaryNoun("sealed-review-record");
 
     renderWithTooltip(
-      <InlineGlossaryChip nounId="signed-review-record" pulseOnFirstEncounter={false}>
+      <InlineGlossaryChip nounId="sealed-review-record" pulseOnFirstEncounter={false}>
         sealed review record
       </InlineGlossaryChip>,
     );

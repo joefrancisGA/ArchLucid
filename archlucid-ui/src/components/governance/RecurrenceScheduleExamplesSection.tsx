@@ -21,6 +21,8 @@ export type RecurrenceScheduleExamplesSectionProps = {
   readonly disabled?: boolean;
   /** TB-1133 - compact chooser under Create (not a fourth card column). */
   readonly variant?: "cards" | "compact";
+  /** Hide the internal section heading when an outer help H2 already labels the block. */
+  readonly suppressHeading?: boolean;
 };
 
 /**
@@ -97,7 +99,7 @@ function ExampleCadenceBody(props: {
 
 /** Static examples that explain when to use common recurrence cadences (TB-1132 / TB-1133). */
 export function RecurrenceScheduleExamplesSection(props: RecurrenceScheduleExamplesSectionProps) {
-  const { onApplyExample, disabled = false, variant = "cards" } = props;
+  const { onApplyExample, disabled = false, variant = "cards", suppressHeading = false } = props;
   const isInteractive = onApplyExample !== undefined && !disabled;
   const isCompact = variant === "compact";
   const heading = isCompact ? "Start from a common cadence" : RECURRENCE_SCHEDULES_EXAMPLES_HEADING;
@@ -113,14 +115,22 @@ export function RecurrenceScheduleExamplesSection(props: RecurrenceScheduleExamp
       data-testid="recurrence-schedule-examples"
       data-variant={variant}
     >
-      <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {heading}
-      </h3>
+      {suppressHeading ? null : (
+        <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {heading}
+        </h3>
+      )}
       <ul
         className={cn(
           "m-0 list-none p-0",
           OPERATOR_TYPOGRAPHY.body,
-          isCompact ? "mt-2 divide-y divide-neutral-200 dark:divide-neutral-700" : "mt-3 space-y-3",
+          suppressHeading
+            ? isCompact
+              ? "divide-y divide-neutral-200 dark:divide-neutral-700"
+              : "space-y-3"
+            : isCompact
+              ? "mt-2 divide-y divide-neutral-200 dark:divide-neutral-700"
+              : "mt-3 space-y-3",
         )}
       >
         {RECURRENCE_SCHEDULE_EXAMPLES.map((example) => {

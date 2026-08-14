@@ -12,7 +12,7 @@ export const GOLDEN_PATH_GLOSSARY_NOUN_IDS = [
   "review-package",
   "evidence-trail",
   "governance-approval",
-  "signed-review-record",
+  "sealed-review-record",
 ] as const satisfies readonly LoadBearingGlossaryNounId[];
 
 export type GoldenPathGlossaryNounId = (typeof GOLDEN_PATH_GLOSSARY_NOUN_IDS)[number];
