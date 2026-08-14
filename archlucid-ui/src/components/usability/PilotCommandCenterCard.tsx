@@ -48,6 +48,7 @@ import {
   buildGoldenSponsorPackageWalkthroughHref,
 } from "@/lib/golden-sponsor-package-walkthrough";
 import { resolveInviteeHomeOrientationCopy } from "@/lib/invitee-first-orientation";
+import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useInviteeReviewerContext } from "@/hooks/use-invitee-reviewer-context";
 
 const heroCtaButtonClass = "h-8";
@@ -114,6 +115,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   const hasWorkspaceReviews =
     (useSsrSeedCounts && props.hasWorkspaceReviews === true) || workspaceActivity.hasWorkspaceReviews;
   const commitQuery = useCorePilotCommitContextQuery();
+  const setupReadiness = useFinishSetupReadinessContext();
   const emptyNext = useOperatorHomeEmptyDoThisNextAction();
 
   const phaseSignals = useMemo(
@@ -210,9 +212,9 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
       {showHeroKpiStrip && runsDashboard !== undefined ? (
         <OperatorHomeWorkspaceMetricsSummary
           runsDashboard={runsDashboard}
-          setupReadyCount={0}
-          setupTotalCount={0}
-          setupReadinessLoading={false}
+          setupReadyCount={setupReadiness.readyCount}
+          setupTotalCount={setupReadiness.totalCount}
+          setupReadinessLoading={setupReadiness.phase === "loading"}
           variant="hero-inline"
         />
       ) : null}

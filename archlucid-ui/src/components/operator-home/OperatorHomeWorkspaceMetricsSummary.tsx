@@ -123,6 +123,11 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
             value={String(metrics.governanceWarnings)}
             href={OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF}
           />
+          <MetricItem
+            label="Setup readiness"
+            value={setupReadinessValue}
+            href={OPERATOR_HOME_SETUP_READINESS_HREF}
+          />
         </dl>
       </div>
     );

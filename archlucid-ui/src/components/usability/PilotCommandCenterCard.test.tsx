@@ -12,6 +12,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { OPERATOR_HOME_SETUP_READINESS_HREF } from "@/lib/operator/operator-home-metric-hrefs";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
 import { SHOWCASE_SAMPLE_REVIEW_REGISTRY } from "@/lib/showcase-sample-review-registry";
 
@@ -332,6 +333,10 @@ describe("PilotCommandCenterCard", () => {
     );
 
     expect(screen.getByTestId("operator-home-hero-kpi-strip")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "4 of 4 ready" })).toHaveAttribute(
+      "href",
+      OPERATOR_HOME_SETUP_READINESS_HREF,
+    );
     expect(screen.getByTestId("pilot-command-center-card")).toHaveAttribute(
       "data-workspace-phase",
       "active-reviews",

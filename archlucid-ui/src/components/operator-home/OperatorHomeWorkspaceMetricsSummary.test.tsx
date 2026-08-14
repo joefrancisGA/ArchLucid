@@ -53,6 +53,10 @@ describe("OperatorHomeWorkspaceMetricsSummary", () => {
       true,
     );
     expect(links.some((link) => link.getAttribute("href") === "/?warnings=1")).toBe(true);
+    expect(screen.getByRole("link", { name: "4 of 4 ready" })).toHaveAttribute(
+      "href",
+      OPERATOR_HOME_SETUP_READINESS_HREF,
+    );
   });
 
   it("keeps empty-state copy off the hero strip before the first review", () => {
