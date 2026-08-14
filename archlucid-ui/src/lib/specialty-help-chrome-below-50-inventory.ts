@@ -38,24 +38,10 @@ export const SPECIALTY_HELP_CHROME_BELOW_50_INVENTORY: readonly SpecialtyHelpChr
   },
   {
     approximateScore: 42,
-    helpPath: "/help/evaluator-workbook",
-    slug: "evaluator-workbook",
-    owningClusterId: "TB-1345",
-    clusterDone: false,
-  },
-  {
-    approximateScore: 42,
     helpPath: "/help/sponsor-report",
     slug: "sponsor-report",
     owningClusterId: "TB-1389",
     clusterDone: true,
-  },
-  {
-    approximateScore: 46,
-    helpPath: "/help/first-hour-operator-path",
-    slug: "first-hour-operator-path",
-    owningClusterId: "TB-1374",
-    clusterDone: false,
   },
   {
     approximateScore: 49,

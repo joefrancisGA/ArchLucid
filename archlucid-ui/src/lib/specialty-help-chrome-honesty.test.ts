@@ -42,6 +42,9 @@ describe("specialty help chrome honesty guard (TB-1415)", () => {
         true,
       );
     }
+
+    expect(SPECIALTY_HELP_CHROME_BELOW_50_INVENTORY.every((entry) => entry.clusterDone)).toBe(true);
+    expect(SPECIALTY_HELP_CHROME_INVENTORY_DRIFT_GUARD_SLUGS).toHaveLength(0);
   });
 
   it("buyer/docs scan targets do not affirmatively overclaim specialty chrome or TB-735 gating", () => {

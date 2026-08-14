@@ -13,12 +13,10 @@ export const SPECIALTY_HELP_CHROME_HONESTY_SCAN_FILES: readonly string[] = [
 
 /**
  * Slugs that must remain in the ≤~50 inventory until the owning cluster ships Done (TB-1415).
- * Remove a slug here only when `clusterDone` is true in `specialty-help-chrome-below-50-inventory.ts`.
+ * Empty when every active inventory row is `clusterDone` — retired alias folds live in
+ * `specialty-help-chrome-retired-below-50-inventory.ts`.
  */
-export const SPECIALTY_HELP_CHROME_INVENTORY_DRIFT_GUARD_SLUGS: readonly string[] = [
-  "evaluator-workbook",
-  "first-hour-operator-path",
-] as const;
+export const SPECIALTY_HELP_CHROME_INVENTORY_DRIFT_GUARD_SLUGS: readonly string[] = [] as const;
 
 /** Lowercase phrases that must not appear affirmatively in buyer copy (TB-1415). */
 export const BANNED_SPECIALTY_HELP_CHROME_CLAIM_PHRASES: readonly string[] = [

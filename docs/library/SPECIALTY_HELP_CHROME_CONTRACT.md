@@ -12,9 +12,11 @@
 
 ## 1. Purpose
 
-Eight recent help routes still score **≤~50/100** for the **same** presentation debt: generic `HelpTopicMarkdownView` dumps contributor markdown with Print/PDF, no specialty companion chrome, no primary in-app CTA, tier/`contentKind` honesty gaps, and residual engineering leakage.
+Eight original help routes scored **≤~50/100** for the **same** presentation debt: generic `HelpTopicMarkdownView` dumps contributor markdown with Print/PDF, no specialty companion chrome, no primary in-app CTA, tier/`contentKind` honesty gaps, and residual engineering leakage.
 
 Fix specialty chrome **once**, then apply per slug via existing TB clusters. Do **not** invent a second presentation system per help route.
+
+**2026-08-13 inventory pass:** all six **live** ≤~50 routes are `clusterDone`. Two retired bookmark aliases (`evaluator-workbook`, `first-hour-operator-path`) moved to [`specialty-help-chrome-retired-below-50-inventory.ts`](../archlucid-ui/src/lib/specialty-help-chrome-retired-below-50-inventory.ts).
 
 ---
 
@@ -47,18 +49,27 @@ Generic markdown remains fallback **only** for true internal docs **after** gate
 
 Machine-readable copy: [`archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts`](../archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts).
 
+### 4a. Live routes (all `clusterDone`)
+
 | Score (approx) | Route | Owning cluster | Status |
 | --- | --- | --- | --- |
-| ~32 | `/help/developer-troubleshooting` | **TB-1246**–**TB-1250** | Open |
-| ~33 | `/help/api-contracts` | **TB-1384**–**TB-1388** | Open |
-| ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** | Open |
+| ~32 | `/help/engineering-troubleshooting` | **TB-1246**–**TB-1250** | **Done** |
+| ~33 | `/help/api-contracts` | **TB-1384**–**TB-1388** | **Done** |
+| ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** | **Done** |
 | ~40 | `/help/repeat-review-loop` | **TB-1394**–**TB-1398** | **Done** |
-| ~42 | `/help/evaluator-workbook` | **TB-1345**–**TB-1349** | Open |
-| ~42 | `/help/sponsor-summary` (pilot ROI depth) | **TB-1389**–**TB-1393** | **Done** |
-| ~46 | `/help/first-hour-operator-path` | **TB-1374**–**TB-1378** | Open |
-| ~49 | `/help/procurement` | **TB-1253**–**TB-1257** | Open |
+| ~42 | `/help/sponsor-report` (pilot ROI depth) | **TB-1389**–**TB-1393** | **Done** |
+| ~49 | `/help/procurement` | **TB-1253**–**TB-1257** | **Done** |
 
-Do not open duplicate presentation TB rows — implement against the mapped cluster.
+### 4b. Retired alias folds (not live inventory)
+
+Machine-readable copy: [`archlucid-ui/src/lib/specialty-help-chrome-retired-below-50-inventory.ts`](../archlucid-ui/src/lib/specialty-help-chrome-retired-below-50-inventory.ts).
+
+| Score (approx) | Retired alias | Canonical target | Owning cluster |
+| --- | --- | --- | --- |
+| ~42 | `/help/evaluator-workbook` | `/help/choose-your-next-step` (HPX) | **TB-1345**–**TB-1349** **Done** |
+| ~46 | `/help/first-hour-operator-path` | `/help/first-architecture-review` (COR) | **TB-1374** fold **Done** |
+
+Do not open duplicate presentation TB rows — implement against the mapped cluster on the **canonical** route.
 
 ---
 

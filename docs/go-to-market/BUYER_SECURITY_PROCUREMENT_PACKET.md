@@ -2476,14 +2476,14 @@ Former standalone body: `docs/go-to-market/OWNER_SCREENSHOT_BELOW_50_SPECIALTY_H
 
 | Score (approx) | Route | Owning cluster |
 | --- | --- | --- |
-| ~32 | `/help/developer-troubleshooting` | **TB-1246**–**TB-1250** |
-| ~33 | `/help/api-contracts` | **TB-1384**–**TB-1388** |
-| ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** |
-| ~40 | `/help/repeat-review-loop` | **TB-1394**–**TB-1398** |
-| ~42 | `/help/evaluator-workbook` | **TB-1345**–**TB-1349** |
-| ~42 | `/help/sponsor-summary#pilot-roi-measurement` (folded from pilot-roi-model) | **TB-1389**–**TB-1393** **Done** |
-| ~46 | `/help/first-hour-operator-path` | **TB-1374**–**TB-1378** |
-| ~49 | `/help/procurement` | **TB-1253**–**TB-1257** |
+| ~32 | `/help/engineering-troubleshooting` | **TB-1246**–**TB-1250** **Done** |
+| ~33 | `/help/api-contracts` | **TB-1384**–**TB-1388** **Done** |
+| ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** **Done** |
+| ~40 | `/help/repeat-review-loop` | **TB-1394**–**TB-1398** **Done** |
+| ~42 | `/help/sponsor-report` (pilot ROI depth) | **TB-1389**–**TB-1393** **Done** |
+| ~49 | `/help/procurement` | **TB-1253**–**TB-1257** **Done** |
+
+Retired alias folds (not live inventory): `/help/evaluator-workbook` → `/help/choose-your-next-step` (**TB-1345**–**TB-1349**); `/help/first-hour-operator-path` → `/help/first-architecture-review` (**TB-1374**).
 
 Reuse exemplars: `HelpCorePilotGuideView`, Azure connect specialty. Generic markdown remains fallback only for true internal docs after gate.
 
