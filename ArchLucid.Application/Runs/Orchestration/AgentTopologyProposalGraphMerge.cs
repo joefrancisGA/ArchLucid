@@ -44,6 +44,9 @@ public static class AgentTopologyProposalGraphMerge
 
         foreach (GraphNode node in graph.Nodes)
         {
+            if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+                continue;
+
             TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(seenTopologyKeys, node);
         }
 
@@ -63,6 +66,7 @@ public static class AgentTopologyProposalGraphMerge
 
             string? reasoning = result.ReasoningTrace?.Trim();
             Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
+            GraphNode[] topologyNodesForAliasResolution = [.. graph.Nodes, .. added];
 
             if (proposal.AddedServices is { Count: > 0 })
             {
@@ -77,7 +81,7 @@ public static class AgentTopologyProposalGraphMerge
                     TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases(
                         endpointAliases,
                         svc,
-                        graph.Nodes);
+                        topologyNodesForAliasResolution);
                 }
             }
 
@@ -108,7 +112,7 @@ public static class AgentTopologyProposalGraphMerge
                 TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointAliases(
                     endpointAliases,
                     ds,
-                    graph.Nodes);
+                    topologyNodesForAliasResolution);
             }
 
             if (proposal.AddedRelationships is { Count: > 0 })
