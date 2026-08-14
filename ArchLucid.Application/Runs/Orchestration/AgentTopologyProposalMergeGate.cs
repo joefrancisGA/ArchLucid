@@ -36,7 +36,6 @@ public static class AgentTopologyProposalMergeGate
 
             AgentTopologyProposal sanitized = SanitizeProposal(
                 result.ProposedChanges,
-                inventoriedIdentifiers,
                 relationshipEndpointKeys);
 
             if (ProposalIsEmpty(sanitized))
@@ -95,17 +94,16 @@ public static class AgentTopologyProposalMergeGate
 
     private static AgentTopologyProposal SanitizeProposal(
         AgentTopologyProposal proposal,
-        HashSet<string> inventoriedIdentifiers,
         HashSet<string> relationshipEndpointKeys)
     {
         List<ManifestService> services = proposal.AddedServices?
             .Where(s => !string.IsNullOrWhiteSpace(s.ServiceName) || !string.IsNullOrWhiteSpace(s.ServiceId))
-            .Where(s => MatchesInventoriedIdentifier(s.ServiceName, s.ServiceId, inventoriedIdentifiers))
+            .Where(s => MatchesInventoriedIdentifier(s.ServiceName, s.ServiceId, relationshipEndpointKeys))
             .ToList() ?? [];
 
         List<ManifestDatastore> datastores = proposal.AddedDatastores?
             .Where(d => !string.IsNullOrWhiteSpace(d.DatastoreName) || !string.IsNullOrWhiteSpace(d.DatastoreId))
-            .Where(d => MatchesInventoriedIdentifier(d.DatastoreName, d.DatastoreId, inventoriedIdentifiers))
+            .Where(d => MatchesInventoriedIdentifier(d.DatastoreName, d.DatastoreId, relationshipEndpointKeys))
             .ToList() ?? [];
 
         List<ManifestRelationship> relationships = TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(

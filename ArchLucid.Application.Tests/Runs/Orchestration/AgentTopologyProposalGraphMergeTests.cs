@@ -1603,4 +1603,79 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.ToNodeId == "ds-1" &&
             e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
+
+    [SkippableFact]
+    public void WithMergedTopologyProposals_adds_edges_when_renamed_service_overlay_targets_agent_proposed_node_on_mixed_graph()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "svc-api",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "api",
+                    Category = GraphTopologyCategories.Compute,
+                    SourceType = nameof(AgentType.Topology),
+                    SourceId = "ProposedChanges"
+                },
+                new GraphNode
+                {
+                    NodeId = "ds-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql",
+                    Category = GraphTopologyCategories.Data,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_mssql_server.main"
+                }
+            ],
+            Edges = [],
+            Warnings = []
+        };
+
+        AgentResult topology = new()
+        {
+            ResultId = "r1",
+            TaskId = "t1",
+            RunId = "run-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            },
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-api" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
 }
