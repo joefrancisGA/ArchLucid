@@ -41,7 +41,7 @@ import type { RunSummary } from "@/types/authority";
 
 function showcaseRun(overrides: Partial<RunSummary> = {}): RunSummary {
   return {
-    runId: "claims-intake-modernization",
+    runId: "customer-intake-modernization",
     projectId: "default",
     description: "Claims Intake",
     createdUtc: "2026-01-15T12:00:00.000Z",
@@ -95,38 +95,38 @@ describe("RunInspectorPreview", () => {
     );
     expect(screen.getByRole("link", { name: "View evidence graph" })).toHaveAttribute(
       "href",
-      "/insights/evidence-graph?runId=claims-intake-modernization",
+      "/insights/evidence-graph?runId=customer-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "View governance approval" })).toHaveAttribute(
       "href",
-      "/governance/approval-queue?runId=claims-intake-modernization",
+      "/governance/approval-queue?runId=customer-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "View audit trail" })).toHaveAttribute(
       "href",
-      "/governance/audit?runId=claims-intake-modernization",
+      "/governance/audit?runId=customer-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Ask about this review" })).toHaveAttribute(
       "href",
-      "/insights/ask-review-questions?runId=claims-intake-modernization",
+      "/insights/ask-review-questions?runId=customer-intake-modernization",
     );
     fireEvent.click(screen.getByText("Open specific artifact"));
 
     expect(screen.getByRole("link", { name: "Executive summary" })).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization",
+      "/architecture/reviews/customer-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
       "href",
-      "/showcase/claims-intake-modernization",
+      "/showcase/customer-intake-modernization",
     );
     expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
     expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization#run-explanation",
+      "/architecture/reviews/customer-intake-modernization#run-explanation",
     );
     expect(screen.getByRole("link", { name: "Timeline" })).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization#pipeline-timeline",
+      "/architecture/reviews/customer-intake-modernization#pipeline-timeline",
     );
   });
 
@@ -138,11 +138,11 @@ describe("RunInspectorPreview", () => {
     fireEvent.click(screen.getByText("▸ More actions"));
     expect(screen.getByRole("link", { name: "Primary finding" })).toHaveAttribute(
       "href",
-      "/showcase/claims-intake-modernization",
+      "/showcase/customer-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Timeline (walkthrough)" })).toHaveAttribute(
       "href",
-      "/showcase/claims-intake-modernization",
+      "/showcase/customer-intake-modernization",
     );
   });
 });

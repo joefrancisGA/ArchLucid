@@ -37,7 +37,7 @@ export function fixtureManifestSummary(): ManifestSummary {
     runId: FIXTURE_RUN_ID,
     createdUtc: "2025-06-01T12:05:00.000Z",
     manifestHash: "sha256:claims_intake_manifest_demo_000000000000000001",
-    ruleSetId: "healthcare-claims-v3",
+    ruleSetId: "enterprise-privacy-v2",
     ruleSetVersion: "3.4.1",
     decisionCount: 3,
     warningCount: 0,
@@ -46,7 +46,7 @@ export function fixtureManifestSummary(): ManifestSummary {
     hasWarnings: false,
     hasUnresolvedIssues: false,
     operatorSummary:
-      "Finalized reviewed manifest for Claims Intake Modernization — integration boundaries, PHI handling posture, " +
+      "Finalized reviewed manifest for Enterprise Customer Intake Modernization — integration boundaries, PHI handling posture, " +
       "and sponsor-facing KPIs.",
   };
 }

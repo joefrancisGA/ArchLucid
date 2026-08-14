@@ -53,7 +53,7 @@ describe("ChangesSinceLastReviewBanner", () => {
       <Banner
         priorReviewDateLabel="May 9, 2026"
         priorRunId="claims-intake-run-v1"
-        currentRunId="claims-intake-modernization"
+        currentRunId="customer-intake-modernization"
         copy={{
           netChangeLine: "+1 new findings",
           severityShiftLine: null,
@@ -67,7 +67,7 @@ describe("ChangesSinceLastReviewBanner", () => {
 
     expect(link).toHaveAttribute(
       "href",
-      "/insights/compare-two-reviews?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-modernization",
+      "/insights/compare-two-reviews?priorRunId=claims-intake-run-v1&laterRunId=customer-intake-modernization",
     );
   });
 

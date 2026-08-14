@@ -5,7 +5,7 @@ import type { RunSummary } from "@/types/authority";
 
 function sampleSummary(overrides: Partial<RunSummary> = {}): RunSummary {
   return {
-    runId: "claims-intake-modernization",
+    runId: "customer-intake-modernization",
     projectId: "default",
     createdUtc: "2026-01-01T00:00:00.000Z",
     displayName: "Claims intake modernization",
@@ -22,7 +22,7 @@ describe("provenanceReviewContextFromSummary", () => {
   it("maps review title and pipeline outcome for the provenance header", () => {
     const context = provenanceReviewContextFromSummary(sampleSummary());
 
-    expect(context.reviewTitle).toBe("Claims Intake Modernization Review");
+    expect(context.reviewTitle).toBe("Enterprise Customer Intake Modernization Review");
     expect(context.statusLabel).toBe("Ready");
     expect(context.statusTagKind).toBe("approved");
   });

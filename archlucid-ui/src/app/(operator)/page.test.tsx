@@ -86,6 +86,7 @@ vi.mock("./_sections/operator-home-page-view-deferred-chunks", async () => {
         </Link>
       </section>
     ),
+    OperatorHomeStickinessCockpitDeferred: () => null,
     OperatorHomeGateDeferred: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
     CtoDemoExecutiveLandingRedirectDeferred: () => null,
   };
@@ -131,6 +132,7 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
         </Link>
       </section>
     ),
+    OperatorHomeStickinessCockpitDeferred: () => null,
     OperatorHomeGateDeferred: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
     CtoDemoExecutiveLandingRedirectDeferred: () => null,
   };

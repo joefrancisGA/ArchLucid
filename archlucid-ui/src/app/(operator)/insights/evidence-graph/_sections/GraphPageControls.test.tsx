@@ -78,7 +78,7 @@ describe("GraphPageControls buyer presentation tabs (TB-669)", () => {
     render(
       <GraphPageControls
         graphMainColumnMaxClass="max-w-3xl"
-        runId="claims-intake-modernization"
+        runId="customer-intake-modernization"
         onRunIdChange={() => undefined}
         mode="provenance-full"
         onModeChange={() => undefined}

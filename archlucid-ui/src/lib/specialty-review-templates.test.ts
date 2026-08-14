@@ -31,8 +31,8 @@ describe("specialty-review-templates", () => {
   });
 
   it("routes specialty pack citations to resolvable governance surfaces", () => {
-    expect(resolveSpecialtyReviewPolicyPackHref("demo-healthcare-claims-pack")).toBe(
-      "/governance/policy-packs/demo-healthcare-claims-pack",
+    expect(resolveSpecialtyReviewPolicyPackHref("demo-enterprise-privacy-pack")).toBe(
+      "/governance/policy-packs/demo-enterprise-privacy-pack",
     );
     expect(resolveSpecialtyReviewPolicyPackHref("1")).toBe("/governance/policy-packs/1");
     expect(resolveSpecialtyReviewPolicyPackHref("saas-security-controls")).toBe("/governance/policy-packs");

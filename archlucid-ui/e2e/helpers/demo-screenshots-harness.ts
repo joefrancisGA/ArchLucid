@@ -1,4 +1,4 @@
-ï»¿/**
+/**
  * Preflight, failure scanning, filenames, and report output for {@link ../live-api-demo-screenshots.spec.ts}.
  */
 import * as fs from "node:fs";
@@ -18,10 +18,10 @@ import {
   toRunGuidPathSegment,
 } from "./live-api-client";
 
-/** Substrings that indicate demo-unsafe or broken UI â€” case-sensitive match on visible text. */
+/** Substrings that indicate demo-unsafe or broken UI — case-sensitive match on visible text. */
 export const DEMO_SCREENSHOT_FAILURE_SUBSTRINGS: readonly string[] = [
   "This architecture review could not be loaded",
-  // Intentionally omitted: "No reviews in this workspace yet" â€” TB-1039 / empty Overview
+  // Intentionally omitted: "No reviews in this workspace yet" — TB-1039 / empty Overview
   // outcome line is valid when Recent reviews SSR list is empty (sample inject is client-only;
   // Do-this-next stays on). Catch broken packages via "This architecture review could not be loaded".
   "Loading graph viewer",
@@ -29,15 +29,15 @@ export const DEMO_SCREENSHOT_FAILURE_SUBSTRINGS: readonly string[] = [
   "Loading alerts",
   "Registered packs 0",
   "Effective layers 0",
-  "Selected pack â€”",
-  // Prefer exact empty-state titles â€” broad "No audit events" false-positives scorecard copy.
+  "Selected pack —",
+  // Prefer exact empty-state titles — broad "No audit events" false-positives scorecard copy.
   "No audit events found",
   "No audit events in this view",
   "Showing 0 events",
   "No matching alerts",
   "Platform services: Healthy on an error page",
   "NEXT_PUBLIC_",
-  // Intentionally omitted: "API-enforced" â€” used in shipped operator rank/capability copy
+  // Intentionally omitted: "API-enforced" — used in shipped operator rank/capability copy
   // (alerts inbox, alert tooling, finding explain thumbs). Catch real eng leakage via NEXT_PUBLIC_ / client-only bundle.
   "client-only bundle",
   "Open Policy packs registry",
@@ -53,13 +53,13 @@ export function demoScreenshotsOutputDir(timestamp: string): string {
   return path.join(demoScreenshotsRepoRoot(), "artifacts", "screenshots", timestamp);
 }
 
-/** Deterministic ordering â€” `/runs?projectId=default` is the supported reviews list URL (not `/runs/projectId/default`). */
+/** Deterministic ordering — `/runs?projectId=default` is the supported reviews list URL (not `/runs/projectId/default`). */
 export const DEMO_SCREENSHOT_ROUTES: readonly string[] = [
   "/",
   "/runs?projectId=default",
-  "/runs/claims-intake-modernization-run",
+  "/runs/customer-intake-modernization-run",
   "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
-  "/runs/claims-intake-modernization-run/findings/phi-minimization-risk",
+  "/runs/customer-intake-modernization-run/findings/sensitive-data-minimization-risk",
   "/insights/evidence-graph",
   "/insights/ask-review-questions",
   "/governance/approval-queue",
@@ -75,7 +75,7 @@ export type PreflightCheck = { name: string; ok: boolean; detail?: string };
 export type DemoPreflightResult = {
   ok: boolean;
   checks: PreflightCheck[];
-  /** Resolved architecture run id (GUID-shaped) used for graph probe â€” baseline seed default {@link TRUSTED_BASELINE_RUN_ID_N}. */
+  /** Resolved architecture run id (GUID-shaped) used for graph probe — baseline seed default {@link TRUSTED_BASELINE_RUN_ID_N}. */
   trustedBaselineRunIdN: string;
   graphRunSegment: string;
   alertsDemoReady: boolean;
@@ -83,20 +83,20 @@ export type DemoPreflightResult = {
 };
 
 /**
- * Canonical Claims Intake marketing / UI slug (`/runs/claims-intake-modernization-run`, manifests UUID, â€¦).
- * Live API accepts GUID-shaped architecture run ids only â€” use {@link TRUSTED_BASELINE_RUN_ID_N} for SQL-backed
+ * Canonical Customer Intake marketing / UI slug (`/runs/customer-intake-modernization-run`, manifests UUID, …).
+ * Live API accepts GUID-shaped architecture run ids only — use {@link TRUSTED_BASELINE_RUN_ID_N} for SQL-backed
  * preflight probes (Contoso Retail trusted baseline seed in docs/TRUSTED_BASELINE.md).
  */
-export const CLAIMS_INTAKE_CANONICAL_RUN_ID = "claims-intake-modernization";
+export const CLAIMS_INTAKE_CANONICAL_RUN_ID = "customer-intake-modernization";
 
 export const CLAIMS_INTAKE_MANIFEST_ID = "a1c2e3f4-a5b6-7890-abcd-ef1234567890";
 
-export const CLAIMS_INTAKE_FINDING_ID = "phi-minimization-risk";
+export const CLAIMS_INTAKE_FINDING_ID = "sensitive-data-minimization-risk";
 
 /** {@link ContosoRetailDemoIdentifiers.RunBaseline}: baseline demo row in `dbo.Runs` (single-catalog dev seed). */
 export const TRUSTED_BASELINE_RUN_ID_N = "6e8c4a102b1f4c9a9d3e10b2a4f0c501";
 
-/** Manifest version label on the Contoso baseline committed row (informational â€” preflight prefers authority manifest id from run detail). */
+/** Manifest version label on the Contoso baseline committed row (informational — preflight prefers authority manifest id from run detail). */
 export const TRUSTED_BASELINE_MANIFEST_VERSION = "contoso-baseline-v1";
 
 async function countAlertsApi(request: APIRequestContext): Promise<number> {
@@ -178,7 +178,7 @@ export async function runDemoScreenshotPreflight(
       push(
         "Trusted baseline golden manifest summary (authority)",
         false,
-        "skipped â€” run detail request failed",
+        "skipped — run detail request failed",
       );
     } else {
       const detail = (await runRes.json()) as RunDetailJson;
@@ -197,7 +197,7 @@ export async function runDemoScreenshotPreflight(
         push(
           "Trusted baseline golden manifest summary (authority)",
           false,
-          "skipped â€” run.runId missing",
+          "skipped — run.runId missing",
         );
       } else if (!goldenManifestId || goldenManifestId.length === 0) {
         push(
@@ -248,9 +248,9 @@ export async function runDemoScreenshotPreflight(
     const auditItems = await listRecentAudit(request, 200);
     const ok = auditItems.length >= 1;
 
-    push("Audit API (Ã¢â€°Â¥1 event)", ok, ok ? undefined : `count=${auditItems.length}`);
+    push("Audit API (â‰¥1 event)", ok, ok ? undefined : `count=${auditItems.length}`);
   } catch (e) {
-    push("Audit API (Ã¢â€°Â¥1 event)", false, (e as Error).message);
+    push("Audit API (â‰¥1 event)", false, (e as Error).message);
   }
 
   try {
@@ -305,7 +305,7 @@ export async function waitForShellReady(page: Page, timeoutMs: number): Promise<
 
 /** Best-effort: dynamic routes often show these loaders; wait before scanning/snapshotting. */
 export async function settleDemoRoute(page: Page, routePath: string): Promise<void> {
-  // Legacy bookmarks (`/audit`, `/alerts`) permanently redirect â€” settle against the landed URL.
+  // Legacy bookmarks (`/audit`, `/alerts`) permanently redirect — settle against the landed URL.
   await waitForScreenshotLegacyRedirects(page, routePath);
 
   const effectiveHref = screenshotEffectiveHref(page.url());
@@ -319,7 +319,7 @@ export async function settleDemoRoute(page: Page, routePath: string): Promise<vo
     return;
   }
 
-  // Must run before the `/governance` catch-all â€” `/governance/audit` is not the workflow hub.
+  // Must run before the `/governance` catch-all — `/governance/audit` is not the workflow hub.
   if (pathMatchesGovernanceAudit(p)) {
     await waitForAuditSearchSummaryNonEmpty(page, effectiveHref);
 
@@ -343,7 +343,7 @@ export async function settleDemoRoute(page: Page, routePath: string): Promise<vo
   }
 
   if (p === "/insights/ask-review-questions" || p.startsWith("/insights/ask-review-questions")) {
-    // Full-operator title is "Ask review questions"; buyer-polished uses Evidence-backedâ€¦
+    // Full-operator title is "Ask review questions"; buyer-polished uses Evidence-backed…
     await page
       .getByRole("heading", {
         level: 2,
@@ -402,7 +402,7 @@ export function writeDemoScreenshotsReports(outDir: string, report: DemoScreensh
     ...report.routes.map((r) => {
       const issues = r.issues.length > 0 ? r.issues.join("; ") : "";
 
-      return `| \`${r.route}\` | ${r.screenshotFile ?? "â€”"} | **${r.status}** | ${issues.replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} |`; // lgtm[js/incomplete-sanitization] markdown table pipe escape for e2e report only.
+      return `| \`${r.route}\` | ${r.screenshotFile ?? "—"} | **${r.status}** | ${issues.replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} |`; // lgtm[js/incomplete-sanitization] markdown table pipe escape for e2e report only.
     }),
     "",
     `**Failed routes (exit):** ${report.exitFailedRouteCount}`,

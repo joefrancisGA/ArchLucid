@@ -12,12 +12,12 @@ import type { RunSummary } from "@/types/authority";
 
 describe("demo-run-canonical", () => {
   it("maps legacy demo run URL aliases to the showcase id", () => {
-    expect(canonicalizeDemoRunId("claims-intake-modernization-run")).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+    expect(canonicalizeDemoRunId("customer-intake-modernization-run")).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
     expect(canonicalizeDemoRunId(` ${SHOWCASE_STATIC_DEMO_RUN_ID} `)).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
   });
 
   it("treats legacy showcase aliases as showcase ids via isShowcaseStaticDemoRunId", () => {
-    expect(isShowcaseStaticDemoRunId("claims-intake-modernization-run")).toBe(true);
+    expect(isShowcaseStaticDemoRunId("customer-intake-modernization-run")).toBe(true);
     expect(isShowcaseStaticDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(true);
     expect(isShowcaseStaticDemoRunId("claims-intake-run-v1")).toBe(false);
   });
@@ -27,14 +27,14 @@ describe("demo-run-canonical", () => {
   });
 
   it("demoRunUrlRequiresCanonicalRedirect is true only for known aliases", () => {
-    expect(demoRunUrlRequiresCanonicalRedirect("claims-intake-modernization-run")).toBe(true);
+    expect(demoRunUrlRequiresCanonicalRedirect("customer-intake-modernization-run")).toBe(true);
     expect(demoRunUrlRequiresCanonicalRedirect(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(false);
     expect(demoRunUrlRequiresCanonicalRedirect("claims-intake-run-v1")).toBe(false);
   });
 
   it("normalizeRunSummaryForDemoPicker updates runId when aliased", () => {
     const row: RunSummary = {
-      runId: "claims-intake-modernization-run",
+      runId: "customer-intake-modernization-run",
       projectId: "default",
       description: "x",
       createdUtc: "2026-01-01T00:00:00.000Z",
@@ -53,9 +53,9 @@ describe("demo-run-canonical", () => {
   it("dedupeRunSummariesByRunId collapses canonical + aliased showcase rows after normalization", () => {
     const baseUtc = "2026-01-01T00:00:00.000Z";
     const aliasRow: RunSummary = normalizeRunSummaryForDemoPicker({
-      runId: "claims-intake-modernization-run",
+      runId: "customer-intake-modernization-run",
       projectId: "default",
-      description: "Claims Intake Modernization Review",
+      description: "Enterprise Customer Intake Modernization Review",
       createdUtc: baseUtc,
       hasGoldenManifest: false,
       hasFindingsSnapshot: true,
@@ -63,7 +63,7 @@ describe("demo-run-canonical", () => {
     const canonRow: RunSummary = {
       runId: SHOWCASE_STATIC_DEMO_RUN_ID,
       projectId: "default",
-      description: "Claims Intake Modernization Review",
+      description: "Enterprise Customer Intake Modernization Review",
       createdUtc: baseUtc,
       hasGoldenManifest: true,
       hasFindingsSnapshot: true,

@@ -10,6 +10,7 @@ using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests.Demo;
@@ -63,7 +64,7 @@ public sealed class DemoViewerControllerTests
 
         using (IServiceScope scope = factory.Services.CreateScope())
         {
-            await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
+            await SeedDemoWithDeadlockRetryAsync(scope.ServiceProvider);
         }
 
         HttpResponseMessage response = await client.GetAsync("/v1/demo/viewer/runs");
@@ -90,13 +91,31 @@ public sealed class DemoViewerControllerTests
 
         using (IServiceScope scope = factory.Services.CreateScope())
         {
-            await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
+            await SeedDemoWithDeadlockRetryAsync(scope.ServiceProvider);
         }
 
         HttpResponseMessage response =
             await client.PostAsync("/v1/demo/viewer/runs", JsonContent.Create(new { }));
 
         response.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
+    }
+
+    private static async Task SeedDemoWithDeadlockRetryAsync(IServiceProvider services)
+    {
+        const int maxAttempts = 3;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                await services.GetRequiredService<IDemoSeedService>().SeedAsync();
+                return;
+            }
+            catch (SqlException ex) when (ex.Number == 1205 && attempt < maxAttempts)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(250 * attempt));
+            }
+        }
     }
 
     [SkippableFact]
@@ -112,7 +131,7 @@ public sealed class DemoViewerControllerTests
         using (IServiceScope scope = factory.Services.CreateScope())
         {
             tenantId = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>().GetCurrentScope().TenantId;
-            await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
+            await SeedDemoWithDeadlockRetryAsync(scope.ServiceProvider);
         }
 
         ContosoRetailDemoIds demo = ContosoRetailDemoIds.ForTenant(tenantId);

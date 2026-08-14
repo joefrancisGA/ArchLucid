@@ -50,6 +50,6 @@ describe("samples/registry", () => {
   it("matches enterprise privacy policy pack aliases from the active definition", () => {
     expect(isActiveSamplePolicyPackId("demo-enterprise-privacy-pack")).toBe(true);
     expect(isActiveSamplePolicyPackId("enterprise-privacy-v2")).toBe(true);
-    expect(isActiveSamplePolicyPackId("demo-healthcare-claims-pack")).toBe(false);
+    expect(isActiveSamplePolicyPackId("demo-enterprise-privacy-pack")).toBe(false);
   });
 });

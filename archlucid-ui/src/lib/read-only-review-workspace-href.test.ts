@@ -15,7 +15,7 @@ describe("read-only-review-workspace-href", () => {
     },
     {
       label: "showcase alias run id",
-      runId: "claims-intake-modernization-run",
+      runId: "customer-intake-modernization-run",
       destination: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     },
     {

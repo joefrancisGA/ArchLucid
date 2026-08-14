@@ -34,7 +34,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
 
   it("renders featured showcase proof metadata with medium metadata labels (TB-1997)", () => {
     const run: RunSummary = {
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       projectId: "default",
       description: "Claims Intake sample",
       createdUtc: "2026-01-15T12:00:00.000Z",
@@ -48,10 +48,10 @@ describe("OperatorHomeReviewSummaryCard", () => {
     render(
       <OperatorHomeReviewSummaryCard
         run={run}
-        href="/architecture/reviews/claims-intake-modernization"
+        href="/architecture/reviews/customer-intake-modernization"
         buyerPolishedShell
         variant="featured"
-        primaryAction={{ href: "/architecture/reviews/claims-intake-modernization", label: "Open review" }}
+        primaryAction={{ href: "/architecture/reviews/customer-intake-modernization", label: "Open review" }}
       />,
     );
 
@@ -70,7 +70,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
 
   it("states the governance verdict once, on the status tag", () => {
     const run: RunSummary = {
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       projectId: "default",
       description: "Claims Intake sample",
       createdUtc: "2026-01-15T12:00:00.000Z",
@@ -84,13 +84,13 @@ describe("OperatorHomeReviewSummaryCard", () => {
     render(
       <OperatorHomeReviewSummaryCard
         run={run}
-        href="/architecture/reviews/claims-intake-modernization"
+        href="/architecture/reviews/customer-intake-modernization"
         buyerPolishedShell
         variant="featured"
       />,
     );
 
-    expect(screen.getByTestId("run-home-status-tag-claims-intake-modernization")).toHaveTextContent(
+    expect(screen.getByTestId("run-home-status-tag-customer-intake-modernization")).toHaveTextContent(
       "Approved with monitoring",
     );
     expect(screen.getAllByText(/Approved with monitoring/)).toHaveLength(1);
@@ -98,7 +98,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
 
   it("labels package origin so it does not read as a second verdict", () => {
     const run: RunSummary = {
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       projectId: "default",
       description: "Claims Intake sample",
       createdUtc: "2026-01-15T12:00:00.000Z",
@@ -110,7 +110,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
     render(
       <OperatorHomeReviewSummaryCard
         run={run}
-        href="/architecture/reviews/claims-intake-modernization"
+        href="/architecture/reviews/customer-intake-modernization"
         buyerPolishedShell
       />,
     );

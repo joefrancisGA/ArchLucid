@@ -55,12 +55,10 @@ export function ReviewPipelineStopAnalysisButton({
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
       <Button
         type="button"
-        variant="outline"
+        variant="destructive"
         size="sm"
-        className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950"
         disabled={disabled || stopping || cancelRequested}
         data-testid="review-pipeline-stop-analysis"
-        title={REVIEW_PIPELINE_STOP_ANALYSIS_HELP}
         onClick={() => {
           void handleStop();
         }}

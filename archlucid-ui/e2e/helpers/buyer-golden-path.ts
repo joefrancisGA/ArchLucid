@@ -37,7 +37,7 @@ export const BUYER_GOLDEN_PATH_HREFS = {
   governanceApproval: `/governance/approval-queue?runId=${showcaseRunEnc}`,
   auditTrail: `/governance/audit?runId=${showcaseRunEnc}`,
   governanceFindings: "/governance/findings",
-  policyPackDetail: "/governance/policy-packs/demo-healthcare-claims-pack",
+  policyPackDetail: "/governance/policy-packs/demo-enterprise-privacy-pack",
   ask: `/insights/ask-review-questions?runId=${showcaseRunEnc}`,
   compare: `/insights/compare-two-reviews?${new URLSearchParams({
     leftRunId: SCREENSHOT_LEFT_RUN_ID,
@@ -56,7 +56,7 @@ export const BUYER_SHOWCASE_REVIEW_PACKAGE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACK
 
 /** Playwright-accessible name may include status chips inside the H1 flex row. */
 export const BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN =
-  /Claims Intake Modernization(?: Review(?: Package)?)?/i;
+  /Enterprise Customer Intake Modernization(?: Review(?: Package)?)?/i;
 
 export async function expectNoGenericErrorBoundary(page: Page): Promise<void> {
   await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);

@@ -3,7 +3,7 @@
 exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout snapshot for the demo tenant 1`] = `
 <div
   aria-busy="false"
-  class="w-full max-w-[1200px] space-y-8 p-4"
+  class="w-full max-w-[1200px] p-4 space-y-4"
   data-testid="why-archlucid-page"
 >
   <div
@@ -84,7 +84,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
                 <button
                   aria-expanded="false"
                   aria-haspopup="dialog"
-                  aria-label="Help: Architecture workflow"
+                  aria-label="Help: Home"
                   class="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-sm px-2 text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
                   data-state="closed"
                   data-testid="page-contextual-help-button"
@@ -118,14 +118,14 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
                   <span
                     class="text-xs font-normal leading-[18px] text-al-text-secondary"
                   >
-                    Architecture workflow
+                    Home
                   </span>
                 </button>
               </div>
             </div>
           </div>
           <div
-            class="m-0 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
+            class="m-0 text-[13px] font-normal leading-5 text-al-text-primary"
           >
             <span
               data-testid="why-archlucid-page-orientation"
@@ -491,7 +491,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
             <dt
               class="text-al-text-secondary"
             >
-              Wall to commit
+              Wall to finalize
             </dt>
             <dd
               class="font-mono tabular-nums text-al-text-primary"

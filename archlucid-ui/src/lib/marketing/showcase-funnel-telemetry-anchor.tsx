@@ -3,11 +3,13 @@
 import Link from "next/link";
 import type { MouseEvent, ReactElement, ReactNode } from "react";
 
+import { MARKETING_SURFACES } from "@/lib/design-tokens";
 import {
   recordShowcaseFunnelEvent,
   type ShowcaseFunnelAction,
   type ShowcaseRenderMode,
 } from "@/lib/marketing/showcase-telemetry";
+import { cn } from "@/lib/utils";
 
 type ShowcaseFunnelTelemetryAnchorProps = {
   readonly href: string;
@@ -33,7 +35,7 @@ export function ShowcaseFunnelTelemetryAnchor({
   }
 
   return (
-    <Link href={href} className={className} onClick={onClick} data-testid={dataTestId}>
+    <Link href={href} className={cn(MARKETING_SURFACES.inlineLink, className)} onClick={onClick} data-testid={dataTestId}>
       {children}
     </Link>
   );

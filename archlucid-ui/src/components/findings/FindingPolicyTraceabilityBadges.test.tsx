@@ -13,7 +13,7 @@ describe("FindingPolicyTraceabilityBadges", () => {
       <FindingPolicyTraceabilityBadges
         pack={{
           packId: "healthcare-claims-v3",
-          packName: "Healthcare Claims Policy Pack v3",
+          packName: "Enterprise Privacy Policy Pack v3",
           href: "/governance/policy-packs?packId=healthcare-claims-v3",
         }}
         policy={{

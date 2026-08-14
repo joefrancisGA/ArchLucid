@@ -42,7 +42,7 @@ describe("buyer-demo-persona-labels (TB-273 / 5CZ-demo)", () => {
       tenantId: "demo-tenant",
       workspaceId: "demo-workspace",
       projectId: "default",
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       manifestId: null,
       artifactId: null,
       dataJson: "{}",

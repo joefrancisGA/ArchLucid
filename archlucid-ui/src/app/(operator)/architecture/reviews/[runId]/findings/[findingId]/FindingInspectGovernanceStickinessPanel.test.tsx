@@ -45,14 +45,14 @@ describe("FindingInspectGovernanceStickinessPanel", () => {
   it("shows concurrent-update copy when another disposition wins after save (TB-987)", async () => {
     const saved: FindingDispositionEvent = {
       eventId: "evt-saved",
-      findingId: "phi-minimization-risk",
+      findingId: "sensitive-data-minimization-risk",
       disposition: "Accepted",
       reviewerUserId: "reviewer-1",
       occurredAtUtc: "2026-08-10T11:00:00.000Z",
     };
     const winner: FindingDispositionEvent = {
       eventId: "evt-winner",
-      findingId: "phi-minimization-risk",
+      findingId: "sensitive-data-minimization-risk",
       disposition: "RejectedAsNotApplicable",
       reviewerUserId: "reviewer-2",
       occurredAtUtc: "2026-08-10T12:00:00.000Z",
@@ -65,8 +65,8 @@ describe("FindingInspectGovernanceStickinessPanel", () => {
 
     render(
       <FindingInspectGovernanceStickinessPanel
-        findingId="phi-minimization-risk"
-        runId="claims-intake-modernization"
+        findingId="sensitive-data-minimization-risk"
+        runId="customer-intake-modernization"
       />,
     );
 
@@ -81,8 +81,8 @@ describe("FindingInspectGovernanceStickinessPanel", () => {
   it("uses one primary save action per subsection", () => {
     render(
       <FindingInspectGovernanceStickinessPanel
-        findingId="phi-minimization-risk"
-        runId="claims-intake-modernization"
+        findingId="sensitive-data-minimization-risk"
+        runId="customer-intake-modernization"
       />,
     );
 
@@ -99,8 +99,8 @@ describe("FindingInspectGovernanceStickinessPanel", () => {
   it("shows export impact before confirming a disposition (TB-2184)", () => {
     render(
       <FindingInspectGovernanceStickinessPanel
-        findingId="phi-minimization-risk"
-        runId="claims-intake-modernization"
+        findingId="sensitive-data-minimization-risk"
+        runId="customer-intake-modernization"
       />,
     );
 
@@ -116,7 +116,7 @@ describe("FindingInspectGovernanceStickinessPanel", () => {
     listRiskExceptions.mockResolvedValue([
       {
         riskExceptionId: "waiver-1",
-        findingId: "phi-minimization-risk",
+        findingId: "sensitive-data-minimization-risk",
         status: "Active",
         ownerUserId: "owner-1",
         rationale: "Temporary exception",
@@ -126,8 +126,8 @@ describe("FindingInspectGovernanceStickinessPanel", () => {
 
     render(
       <FindingInspectGovernanceStickinessPanel
-        findingId="phi-minimization-risk"
-        runId="claims-intake-modernization"
+        findingId="sensitive-data-minimization-risk"
+        runId="customer-intake-modernization"
       />,
     );
 

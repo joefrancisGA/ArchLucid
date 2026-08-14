@@ -49,7 +49,7 @@ const sampleRun: RunSummary = {
 describe("RunsListClient inspector", () => {
   it("collapses showcase alias + canonical rows into one table row (unique data-testid)", () => {
     const aliasRun: RunSummary = {
-      runId: "claims-intake-modernization-run",
+      runId: "customer-intake-modernization-run",
       projectId: "default",
       description: "Claims Intake Modernization",
       createdUtc: "2026-01-10T14:15:22.000Z",

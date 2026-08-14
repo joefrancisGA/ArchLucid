@@ -4,8 +4,8 @@ import { softNavigationTargetPathname } from "@/lib/soft-navigation-target-pathn
 
 describe("softNavigationTargetPathname", () => {
   it("returns pathname for absolute-path hrefs", () => {
-    expect(softNavigationTargetPathname("/architecture/reviews/claims-intake-modernization")).toBe(
-      "/architecture/reviews/claims-intake-modernization",
+    expect(softNavigationTargetPathname("/architecture/reviews/customer-intake-modernization")).toBe(
+      "/architecture/reviews/customer-intake-modernization",
     );
   });
 

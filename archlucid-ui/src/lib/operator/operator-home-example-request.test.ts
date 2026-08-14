@@ -32,18 +32,18 @@ describe("operator-home-example-request", () => {
     expect(OPERATOR_HOME_EXAMPLE_DESCRIPTION).toContain("healthcare claims intake modernization");
     expect(OPERATOR_HOME_EXAMPLE_SYSTEM_NAME).toBe("Claims Intake Modernization");
     expect(reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID)).toBe(
-      "/architecture/reviews/new?template=claims-intake-modernization",
+      "/architecture/reviews/new?template=customer-intake-modernization",
     );
   });
 
   it("resolves template and legacy example query params", () => {
     expect(
-      resolveReviewIntakeExampleTemplate({ templateParam: "claims-intake-modernization" })?.title,
+      resolveReviewIntakeExampleTemplate({ templateParam: "customer-intake-modernization" })?.title,
     ).toBe("Claims Intake Modernization");
     expect(resolveReviewIntakeExampleTemplate({ templateParam: "saas-readiness" })?.title).toBe("SaaS readiness");
     expect(resolveReviewIntakeExampleTemplate({ templateParam: "ai-governance" })?.title).toBe("AI governance");
     expect(resolveReviewIntakeExampleTemplate({ exampleParam: "healthcare-claims-intake" })?.id).toBe(
-      "claims-intake-modernization",
+      "customer-intake-modernization",
     );
     expect(resolveReviewIntakeExampleTemplate({ templateParam: "unknown-template" })).toBeNull();
   });

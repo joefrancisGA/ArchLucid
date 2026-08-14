@@ -187,7 +187,6 @@ import { ADVISORY_SCANS_FORM_SECTION_TITLE } from "@/lib/advisory-copy";
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
-import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 import AskPage from "./insights/ask-review-questions/page";
 import EvolutionReviewPage from "./insights/impact-preview/page";

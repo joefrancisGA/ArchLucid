@@ -1,9 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const claimsShowcasePath = "/showcase/claims-intake-modernization";
+const claimsShowcasePath = "/showcase/customer-intake-modernization";
 
 async function expectShowcaseMarketingBodyPresent(page: Page): Promise<void> {
-  await expect(page.getByRole("heading", { name: /Claims Intake Modernization/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Enterprise Customer Intake Modernization/i })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Executive summary/i })).toBeVisible();
   await expect(page.getByTestId("demo-preview-marketing-body")).toBeVisible();
   await expect(page.getByTestId("demo-preview-not-available")).toHaveCount(0);

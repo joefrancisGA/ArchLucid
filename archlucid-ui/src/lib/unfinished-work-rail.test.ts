@@ -109,7 +109,7 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
       drafts: [],
       runs: [
         run({
-          runId: "claims-intake-modernization",
+          runId: "customer-intake-modernization",
           hasFindingsSnapshot: false,
           hasGoldenManifest: false,
         }),

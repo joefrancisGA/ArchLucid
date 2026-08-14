@@ -10,7 +10,7 @@ function emptyLineage(): GovernanceLineageResult {
   return {
     approvalRequest: {
       approvalRequestId: "claims-intake-approval-001",
-      runId: "claims-intake-modernization-run",
+      runId: "customer-intake-modernization-run",
       manifestVersion: "",
       sourceEnvironment: "",
       targetEnvironment: "",

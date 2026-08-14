@@ -216,7 +216,7 @@ describe("RunDetailArtifactsExportsSection", () => {
     render(
       <RunDetailArtifactsExportsSection
         manifestId="manifest-1"
-        runId="claims-intake-modernization"
+        runId="customer-intake-modernization"
         buyerPolishedArtifactTable
         artifacts={[]}
         artifactsFailure={null}

@@ -5,7 +5,7 @@ import { effectiveRunSummaryForPipeline, runFromDetailToRunSummary } from "@/lib
 import type { RunDetail, RunSummary } from "@/types/authority";
 
 const baseRun: RunDetail["run"] = {
-  runId: "claims-intake-modernization",
+  runId: "customer-intake-modernization",
   projectId: "p1",
   createdUtc: "2026-01-01T00:00:00Z",
   contextSnapshotId: "c1",
@@ -57,7 +57,7 @@ describe("effectiveRunSummaryForPipeline", () => {
 
     const effective = effectiveRunSummaryForPipeline(junk, baseDetail);
 
-    expect(effective.runId).toBe("claims-intake-modernization");
+    expect(effective.runId).toBe("customer-intake-modernization");
     expect(effective.hasGoldenManifest).toBe(true);
   });
 

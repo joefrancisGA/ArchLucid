@@ -6,12 +6,12 @@ describe("resolveSoftNavigationHardFallbackAssignUrl", () => {
   it("returns a same-origin assign URL when soft-nav never left home", () => {
     expect(
       resolveSoftNavigationHardFallbackAssignUrl(
-        "/architecture/reviews/claims-intake-modernization",
+        "/architecture/reviews/customer-intake-modernization",
         "/",
         "",
         "https://www.archlucid.net",
       ),
-    ).toBe("/architecture/reviews/claims-intake-modernization");
+    ).toBe("/architecture/reviews/customer-intake-modernization");
   });
 
   it("includes query when navigating from home to reviews list", () => {

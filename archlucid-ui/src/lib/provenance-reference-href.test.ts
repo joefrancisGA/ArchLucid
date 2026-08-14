@@ -4,7 +4,7 @@ import { provenanceReferenceHref } from "@/lib/provenance-reference-href";
 import type { ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
 const nodes: ArchitectureLinkageNode[] = [
-  { id: "n-run", type: "ArchitectureRun", referenceId: "claims-intake-modernization", name: "Review" },
+  { id: "n-run", type: "ArchitectureRun", referenceId: "customer-intake-modernization", name: "Review" },
   {
     id: "n-manifest",
     type: "GoldenManifest",
@@ -23,7 +23,7 @@ describe("provenanceReferenceHref", () => {
   it("links golden manifest references to signed record detail", () => {
     expect(
       provenanceReferenceHref(
-        "claims-intake-modernization",
+        "customer-intake-modernization",
         "a1c2e3f4-a5b6-7890-abcd-ef1234567890",
         nodes,
       ),
@@ -31,18 +31,18 @@ describe("provenanceReferenceHref", () => {
   });
 
   it("links finding node references to inspect route", () => {
-    expect(provenanceReferenceHref("claims-intake-modernization", "finding-guid-1", nodes)).toBe(
-      "/architecture/reviews/claims-intake-modernization/findings/finding-guid-1/evidence-trace",
+    expect(provenanceReferenceHref("customer-intake-modernization", "finding-guid-1", nodes)).toBe(
+      "/architecture/reviews/customer-intake-modernization/findings/finding-guid-1/evidence-trace",
     );
   });
 
   it("returns null for unresolved guid references", () => {
     expect(
-      provenanceReferenceHref("claims-intake-modernization", "00000000-0000-0000-0000-000000000099", nodes),
+      provenanceReferenceHref("customer-intake-modernization", "00000000-0000-0000-0000-000000000099", nodes),
     ).toBeNull();
   });
 
   it("returns null for empty references", () => {
-    expect(provenanceReferenceHref("claims-intake-modernization", null, nodes)).toBeNull();
+    expect(provenanceReferenceHref("customer-intake-modernization", null, nodes)).toBeNull();
   });
 });

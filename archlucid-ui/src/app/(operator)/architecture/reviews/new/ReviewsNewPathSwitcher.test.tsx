@@ -194,7 +194,7 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
   });
 
   it("skips the job chooser when a valid example template deep link is present", async () => {
-    useSearchParams.mockReturnValue(new URLSearchParams("template=claims-intake-modernization"));
+    useSearchParams.mockReturnValue(new URLSearchParams("template=customer-intake-modernization"));
 
     render(<ReviewsNewPathSwitcher />);
 

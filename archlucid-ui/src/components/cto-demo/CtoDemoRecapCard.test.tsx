@@ -45,7 +45,7 @@ describe("CtoDemoRecapCard", () => {
     fireEvent.click(screen.getByTestId("cto-demo-recap-board-packet"));
 
     await waitFor(() => {
-      expect(downloadFirstValueReportPdf).toHaveBeenCalledWith("claims-intake-modernization");
+      expect(downloadFirstValueReportPdf).toHaveBeenCalledWith("customer-intake-modernization");
     });
   });
 });

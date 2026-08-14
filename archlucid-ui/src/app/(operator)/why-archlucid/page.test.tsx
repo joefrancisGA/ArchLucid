@@ -173,12 +173,12 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
       ...fixedMeasuredRoi,
       snapshot: {
         ...fixedSnapshot,
-        demoRunId: "claims-intake-modernization",
+        demoRunId: "customer-intake-modernization",
       },
     });
     sponsorPackMock.mockResolvedValue({
       ...fixedSponsorEvidencePack,
-      demoRunId: "claims-intake-modernization",
+      demoRunId: "customer-intake-modernization",
       demoRunValueReportDelta: {
         ...fixedSponsorEvidencePack.demoRunValueReportDelta!,
         isDemoTenant: true,
@@ -277,12 +277,12 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
       ...fixedMeasuredRoi,
       snapshot: {
         ...fixedSnapshot,
-        demoRunId: "claims-intake-modernization",
+        demoRunId: "customer-intake-modernization",
       },
     });
     sponsorPackMock.mockResolvedValue({
       ...fixedSponsorEvidencePack,
-      demoRunId: "claims-intake-modernization",
+      demoRunId: "customer-intake-modernization",
       demoRunValueReportDelta: {
         ...fixedSponsorEvidencePack.demoRunValueReportDelta!,
         isDemoTenant: true,

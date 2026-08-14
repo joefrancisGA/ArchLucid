@@ -22,7 +22,7 @@ describe("demo-preview-timeline-present", () => {
         },
       ],
       {
-        runId: "claims-intake-modernization",
+        runId: "customer-intake-modernization",
         manifestId: "manifest-1",
         isRunDetailAvailable: false,
       },

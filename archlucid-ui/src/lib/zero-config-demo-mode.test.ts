@@ -24,7 +24,7 @@ describe("zero-config-demo-mode", () => {
 
   it("resolves scenario id from zeroConfig query", () => {
     expect(resolveZeroConfigDemoScenarioId(new URLSearchParams("zeroConfig=1"))).toBe(
-      "claims-intake-modernization",
+      "customer-intake-modernization",
     );
     expect(resolveZeroConfigDemoScenarioId(new URLSearchParams("zeroConfig=multi-region-saas-platform"))).toBe(
       "multi-region-saas-platform",

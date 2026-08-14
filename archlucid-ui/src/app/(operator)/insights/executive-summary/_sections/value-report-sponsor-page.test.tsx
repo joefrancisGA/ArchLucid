@@ -1,22 +1,60 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-import { ValueReportEmptyState } from "./ValueReportEmptyState";
+import { PilotOutcomesEmptyState } from "./PilotOutcomesEmptyState";
 import { ValueReportIncludesSection } from "./ValueReportIncludesSection";
 
-describe("ValueReportEmptyState", () => {
+describe("PilotOutcomesEmptyState", () => {
   it("uses report-contextual CTAs instead of create-architecture primary", () => {
-    render(<ValueReportEmptyState />);
+    render(
+      <PilotOutcomesEmptyState
+        diagnostics={{
+          reportingPeriodLabel: "Last 30 days",
+          reviewsFinalized: 0,
+          reviewsInTimeline: 0,
+          mostRecentFinalizedUtc: null,
+          mostRecentFinalizedRunId: null,
+          includesSampleData: false,
+          hasQualifyingData: false,
+        }}
+        onApplyPeriod={vi.fn()}
+        periodBusy={false}
+      />,
+    );
 
-    expect(screen.getByText("No finalized reviews in this report period")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute("href", "/architecture/reviews");
-    expect(screen.getByRole("link", { name: "Start an architecture review" })).toHaveAttribute("href", "/architecture/reviews/new");
-    expect(screen.getByRole("link", { name: "View sample value report" })).toHaveAttribute(
+    expect(screen.getByText("No finalized reviews in this reporting period")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View completed reviews" })).toHaveAttribute(
       "href",
-      "/insights/pilot-outcomes",
+      "/architecture/reviews?status=completed",
+    );
+    expect(screen.getByRole("link", { name: "Start an architecture review" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new",
     );
     expect(screen.queryByRole("link", { name: "Create architecture" })).not.toBeInTheDocument();
-    expect(screen.queryByText(/Load sample workspace/i)).not.toBeInTheDocument();
+  });
+
+  it("calls onApplyPeriod when Adjust reporting period is clicked", () => {
+    const onApplyPeriod = vi.fn();
+
+    render(
+      <PilotOutcomesEmptyState
+        diagnostics={{
+          reportingPeriodLabel: "Last 30 days",
+          reviewsFinalized: 0,
+          reviewsInTimeline: 0,
+          mostRecentFinalizedUtc: null,
+          mostRecentFinalizedRunId: null,
+          includesSampleData: false,
+          hasQualifyingData: false,
+        }}
+        onApplyPeriod={onApplyPeriod}
+        periodBusy={false}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Adjust reporting period" }));
+    expect(onApplyPeriod).toHaveBeenCalledTimes(1);
   });
 });
 

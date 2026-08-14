@@ -9,7 +9,7 @@ describe("demo-preview-present", () => {
     const metrics = buildDemoPreviewAtAGlanceMetrics(payload);
 
     expect(metrics.status).toBe("Finalized");
-    expect(metrics.policyPack).toContain("Healthcare Claims Policy Pack");
+    expect(metrics.policyPack).toContain("Enterprise Privacy Policy Pack");
     expect(metrics.decisions).toBe("12");
     expect(metrics.monitoredRisks).toBe("1");
     expect(metrics.unresolvedIssues).toBe("0");

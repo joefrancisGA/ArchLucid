@@ -82,10 +82,10 @@ describe("resolveBuyerOperateBackLink", () => {
 });
 
 describe("isBuyerOperateBackLinkRedundantWithScopedRun", () => {
-  const backLink = { label: "Back to review", href: "/architecture/reviews/claims-intake-modernization" };
+  const backLink = { label: "Back to review", href: "/architecture/reviews/customer-intake-modernization" };
 
   it("is redundant when search runId matches the back-link package", () => {
-    expect(isBuyerOperateBackLinkRedundantWithScopedRun("claims-intake-modernization", backLink)).toBe(true);
+    expect(isBuyerOperateBackLinkRedundantWithScopedRun("customer-intake-modernization", backLink)).toBe(true);
   });
 
   it("is not redundant when search runId is empty", () => {

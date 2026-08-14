@@ -193,6 +193,7 @@ describe("nav-config structure", () => {
     expect(governanceHrefs).toEqual([
       "/governance/approval-queue",
       "/governance/findings",
+      "/governance/findings/assigned-to-me",
       "/governance/exceptions",
       "/governance/policy-packs",
       "/governance/standards-and-rules",

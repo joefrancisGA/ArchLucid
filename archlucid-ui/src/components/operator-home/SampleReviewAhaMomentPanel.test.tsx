@@ -42,7 +42,7 @@ describe("SampleReviewAhaMomentPanel", () => {
     expect(screen.getByText(SHOWCASE_HOME_AHA_MOMENT.decisionChange)).toBeInTheDocument();
     expect(screen.getByTestId("sample-aha-open")).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk",
+      "/architecture/reviews/customer-intake-modernization/findings/sensitive-data-minimization-risk",
     );
   });
 });

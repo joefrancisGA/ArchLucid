@@ -9,7 +9,7 @@ describe("FindingPolicyCitationProminentStrip", () => {
       <FindingPolicyCitationProminentStrip
         pack={{
           packId: "healthcare-claims-v3",
-          packName: "Healthcare Claims Policy Pack v3",
+          packName: "Enterprise Privacy Policy Pack v3",
           href: "/governance/policy-packs?packId=healthcare-claims-v3",
         }}
         policy={{
@@ -22,7 +22,7 @@ describe("FindingPolicyCitationProminentStrip", () => {
 
     expect(screen.getByTestId("finding-policy-citation-prominent")).toBeInTheDocument();
     expect(screen.getByTestId("finding-policy-violation-tag")).toHaveTextContent(
-      "Policy violation: Healthcare Claims Policy Pack v3",
+      "Policy violation: Enterprise Privacy Policy Pack v3",
     );
     expect(screen.getByText(/Triggered by policy/)).toBeInTheDocument();
     expect(screen.getByTestId("finding-policy-pack-badge")).toBeInTheDocument();

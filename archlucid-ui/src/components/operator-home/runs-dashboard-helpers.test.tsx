@@ -116,7 +116,7 @@ describe("runs dashboard status filters", () => {
 
   it("resolves showcase demo only when that run is in the active filter set", () => {
     const showcase: RunSummary = {
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       projectId: "default",
       hasGoldenManifest: true,
       hasGovernanceWarnings: true,

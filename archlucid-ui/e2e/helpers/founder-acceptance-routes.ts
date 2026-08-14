@@ -16,7 +16,7 @@ export const FOUNDER_PUBLIC_ROUTES: readonly FounderAcceptanceRoute[] = [
   { name: "Why ArchLucid", path: "/why" },
   { name: "Trust Center", path: "/trust" },
   { name: "Signup", path: "/signup" },
-  { name: "Showcase claims intake", path: "/showcase/claims-intake-modernization" },
+  { name: "Showcase Customer Intake", path: "/showcase/customer-intake-modernization" },
   { name: "Accessibility statement", path: "/accessibility" },
   { name: "Privacy", path: "/privacy" },
   { name: "Help", path: "/help" },

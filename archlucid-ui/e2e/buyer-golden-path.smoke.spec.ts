@@ -1,5 +1,5 @@
 /**
- * Mock E2E: sequential walk of the Claims Intake buyer golden path (`buyer-golden-journey-nav.ts`).
+ * Mock E2E: sequential walk of the Customer Intake buyer golden path (`buyer-golden-journey-nav.ts`).
  * Requires buyer-polished shell (`playwright.mock.config.ts` demo env flags).
  */
 import { expect, test } from "@playwright/test";
@@ -20,7 +20,7 @@ import { getAppMain } from "./helpers/app-main";
 import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface, governancePageMainHeading } from "./helpers/operator-journey";
 
 test.describe(
-  "buyer golden path — Claims Intake spine",
+  "buyer golden path — Customer Intake spine",
   { tag: ["@founder", "@buyer-journey"] },
   () => {
 

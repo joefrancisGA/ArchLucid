@@ -12,9 +12,9 @@ describe("ManifestDeliverableGrid", () => {
     render(
       <ManifestDeliverableGrid
         manifestId="manifest-1"
-        runId="claims-intake-modernization"
+        runId="customer-intake-modernization"
         buyerPolished
-        systemName="Claims Intake Modernization Review"
+        systemName="Enterprise Customer Intake Modernization Review"
       />,
     );
 
@@ -39,7 +39,7 @@ describe("ManifestDeliverableGrid", () => {
     vi.mocked(isCtoDemoPackEnv).mockReturnValue(false);
 
     render(
-      <ManifestDeliverableGrid manifestId="manifest-1" runId="claims-intake-modernization" buyerPolished />,
+      <ManifestDeliverableGrid manifestId="manifest-1" runId="customer-intake-modernization" buyerPolished />,
     );
 
     expect(screen.queryByTestId("deliverable-tile-executive-pdf")).toBeNull();

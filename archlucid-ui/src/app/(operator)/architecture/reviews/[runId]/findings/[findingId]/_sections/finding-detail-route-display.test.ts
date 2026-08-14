@@ -30,12 +30,12 @@ function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingIn
 
 describe("finding-detail-route-display buyer summary copy", () => {
   it("returns decision impact and next step for the PHI showcase finding", () => {
-    expect(buyerFindingDecisionImpactCopy(null, "phi-minimization-risk")).toContain("Non-blocking for package approval");
-    expect(buyerFindingNextStepCopy(null, "phi-minimization-risk")).toContain("ingress classification");
+    expect(buyerFindingDecisionImpactCopy(null, "sensitive-data-minimization-risk")).toContain("Non-blocking for package approval");
+    expect(buyerFindingNextStepCopy(null, "sensitive-data-minimization-risk")).toContain("ingress classification");
   });
 
   it("derives compact decision summary for PHI showcase finding id", () => {
-    const summary = deriveFindingDecisionSummary(null, "phi-minimization-risk");
+    const summary = deriveFindingDecisionSummary(null, "sensitive-data-minimization-risk");
 
     expect(summary.severity).toBeTruthy();
     expect(summary.disposition).toContain("monitoring");

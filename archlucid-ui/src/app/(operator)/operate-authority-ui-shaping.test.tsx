@@ -186,6 +186,7 @@ import {
   policyPacksPackContentHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
+import { GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS } from "@/lib/governance/governance-workflow-section-copy";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
@@ -617,7 +618,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       });
 
       // Approvals list and submit card are separate dynamic chunks that mount after the context bar.
-      expect(await screen.findByText("No approval requests for this review")).toBeInTheDocument();
+      expect(await screen.findByText(GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS)).toBeInTheDocument();
       expect((await screen.findAllByText("Submit for governance approval")).length).toBeGreaterThan(0);
 
       const submitVersion = await waitFor(() => {

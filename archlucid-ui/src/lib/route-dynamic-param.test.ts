@@ -54,9 +54,9 @@ describe("isInvalidGuidOrSlugRouteToken", () => {
   });
 
   it("allows slug run ids and showcase ids", () => {
-    expect(isInvalidGuidOrSlugRouteToken("claims-intake-modernization")).toBe(false);
+    expect(isInvalidGuidOrSlugRouteToken("customer-intake-modernization")).toBe(false);
     expect(isInvalidGuidOrSlugRouteToken("e2e-fixture-run-001")).toBe(false);
-    expect(isInvalidGuidOrSlugRouteToken("phi-minimization-risk")).toBe(false);
+    expect(isInvalidGuidOrSlugRouteToken("sensitive-data-minimization-risk")).toBe(false);
   });
 
   it("allows canonical uuids", () => {
@@ -77,7 +77,7 @@ describe("isInvalidGuidOrSlugRouteToken", () => {
 describe("isInvalidManifestRouteId", () => {
   it("requires a canonical uuid", () => {
     expect(isInvalidManifestRouteId("a1c2e3f4-a5b6-7890-abcd-ef1234567890")).toBe(false);
-    expect(isInvalidManifestRouteId("claims-intake-modernization")).toBe(true);
+    expect(isInvalidManifestRouteId("customer-intake-modernization")).toBe(true);
     expect(isInvalidManifestRouteId("undefined")).toBe(true);
   });
 });

@@ -12,7 +12,7 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links![0]?.label).toBe("Executive summary");
     expect(links![0]?.href).toContain("/architecture/reviews/");
     expect(links![1]?.href).toContain("/governance/signed-records/");
-    expect(links!.some((l) => l.href.includes("/findings/phi-minimization-risk"))).toBe(true);
+    expect(links!.some((l) => l.href.includes("/findings/sensitive-data-minimization-risk"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/insights/evidence-graph?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/governance/audit?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/insights/compare-two-reviews?"))).toBe(true);

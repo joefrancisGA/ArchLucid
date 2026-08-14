@@ -20,7 +20,7 @@ describe("FindingInspectItsmWorkflowPanel", () => {
   it("labels inbound human review as ITSM queue state separate from disposition trail (TB-987)", () => {
     render(
       <FindingInspectItsmWorkflowPanel
-        findingId="phi-minimization-risk"
+        findingId="sensitive-data-minimization-risk"
         humanReviewStatusLabel="Human review approved"
       />,
     );

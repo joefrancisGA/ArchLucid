@@ -44,7 +44,7 @@ export const SCREENSHOT_FINDING_ID = CUSTOMER_INTAKE_PRIMARY_FINDING_ID;
 export const SCREENSHOT_PLAN_ID = "customer-intake-modernization-plan";
 export const SCREENSHOT_APPROVAL_ID = "customer-intake-approval-001";
 /** Human slug for governance policy pack detail screenshots; aligns with `breadcrumb-map` demo segment titles. */
-export const SCREENSHOT_POLICY_PACK_ID = "healthcare-claims-v3-pack";
+export const SCREENSHOT_POLICY_PACK_ID = "demo-enterprise-privacy-pack";
 /** Screenshot manifest detail uses the canonical showcase UUID so mock API aligns with operator/showcase. */
 export const SCREENSHOT_MANIFEST_ID = SHOWCASE_STATIC_DEMO_MANIFEST_ID;
 export const SCREENSHOT_LEFT_RUN_ID = CUSTOMER_INTAKE_PRIOR_COMPARE_RUN_ID;

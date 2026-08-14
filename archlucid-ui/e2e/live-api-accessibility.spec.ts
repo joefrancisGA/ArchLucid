@@ -157,7 +157,7 @@ export const PAGES_DEFERRED = [
     name: "Finding detail (fixture run + mock-only finding slug)",
     path: `/architecture/reviews/${FIXTURE_RUN_ID}/findings/${FIXTURE_FINDING_ID}`,
     reason:
-      "`FIXTURE_FINDING_ID` aligns with mock/breadcrumb fixtures; live SQL demos use human slugs (e.g. showcase `phi-minimization-risk`). Scanning this pair can 404 or show empty chrome on catalogs without that row — showcase finding routes already cover the inspect UI.",
+      "`FIXTURE_FINDING_ID` aligns with mock/breadcrumb fixtures; live SQL demos use human slugs (e.g. showcase `sensitive-data-minimization-risk`). Scanning this pair can 404 or show empty chrome on catalogs without that row — showcase finding routes already cover the inspect UI.",
   },
 ] as const;
 

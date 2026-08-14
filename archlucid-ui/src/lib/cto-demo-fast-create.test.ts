@@ -11,7 +11,7 @@ describe("cto-demo-fast-create", () => {
     const href = getCtoDemoFastCreateDestinationHref();
 
     expect(href).toMatch(/^\/architecture\/reviews\//);
-    expect(href).toContain("claims-intake-modernization");
+    expect(href).toContain("customer-intake-modernization");
     expect(href).toContain("ctoDemoTour=1");
   });
 

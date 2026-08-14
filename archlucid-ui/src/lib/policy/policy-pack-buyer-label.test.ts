@@ -4,7 +4,7 @@ import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib
 
 describe("policyPackBuyerLabel", () => {
   it("formats healthcare claims demo pack with version", () => {
-    expect(policyPackBuyerLabel("healthcare-claims-v3", "3.4.1")).toBe("Healthcare Claims Policy Pack v3.4.1");
+    expect(policyPackBuyerLabel("healthcare-claims-v3", "3.4.1")).toBe("Enterprise Privacy Policy Pack v3.4.1");
   });
 
   it("formats generic id and version", () => {
@@ -19,13 +19,13 @@ describe("policyPackBuyerLabel", () => {
 describe("policyPackBuyerGovernanceDetailHref", () => {
   it("resolves healthcare claims pack to governance narrative route", () => {
     expect(policyPackBuyerGovernanceDetailHref("healthcare-claims-v3")).toBe(
-      "/governance/policy-packs/demo-healthcare-claims-pack",
+      "/governance/policy-packs/demo-enterprise-privacy-pack",
     );
   });
 
   it("trims rule set id", () => {
     expect(policyPackBuyerGovernanceDetailHref("  healthcare-claims-v3  ")).toBe(
-      "/governance/policy-packs/demo-healthcare-claims-pack",
+      "/governance/policy-packs/demo-enterprise-privacy-pack",
     );
   });
 

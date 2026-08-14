@@ -439,7 +439,7 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
     }
 
     /**
-     * Audit log: Playwright stubs return the Claims Intake trail so screenshots never depend on build-time demo merge
+     * Audit log: Playwright stubs return the Customer Intake trail so screenshots never depend on build-time demo merge
      * (see `screenshot-demo-quality-gates` — forbid "Showing 0 events").
      */
     if (apiPath === "/v1/audit/search") {

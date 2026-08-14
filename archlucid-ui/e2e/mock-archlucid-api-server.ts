@@ -256,10 +256,10 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         const runExplanation = fixtureRunExplanationSummary();
         sendJson(res, 200, {
           generatedUtc: "2026-01-15T14:30:00.000Z",
-          runId: "claims-intake-modernization",
+          runId: "customer-intake-modernization",
           manifestVersion: "3.4.1",
           isDemoData: true,
-          demoStatusMessage: "Demonstration — Claims Intake Modernization",
+          demoStatusMessage: "Demonstration — Enterprise Customer Intake Modernization",
           runExplanation,
           provenanceGraph: {
             nodes: [
@@ -308,7 +308,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         const pageSize = Math.min(200, Math.max(1, Number.parseInt(u.searchParams.get("pageSize") ?? "20", 10) || 20));
         /**
          * Empty page keeps **demo / mock E2E** aligned with `tryStaticDemoRunSummariesPaged`:
-         * `/reviews` SSR injects the Claims Intake showcase row + `OperatorDemoStaticBanner` when
+         * `/reviews` SSR injects the Customer Intake showcase row + `OperatorDemoStaticBanner` when
          * `NEXT_PUBLIC_DEMO_MODE` / static-operator flags are on. Returning a non-empty "live" page skips that path,
          * shrinks the document (~full-page screenshots), and breaks `chromium-visual` goldens.
          *

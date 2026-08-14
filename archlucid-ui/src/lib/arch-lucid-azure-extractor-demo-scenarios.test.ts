@@ -14,7 +14,7 @@ import { readArchLucidAzurePackageZipFromBytes } from "@/lib/read-arch-lucid-azu
 
 describe("arch-lucid-azure-extractor-demo-scenarios", () => {
   it("exports cloud-agnostic demo review scenario aliases", () => {
-    expect(DEFAULT_DEMO_REVIEW_SCENARIO_ID).toBe("claims-intake-modernization");
+    expect(DEFAULT_DEMO_REVIEW_SCENARIO_ID).toBe("customer-intake-modernization");
   });
 
   it("ships three complex bundled demo scenarios", () => {
@@ -41,7 +41,7 @@ describe("arch-lucid-azure-extractor-demo-scenarios", () => {
   });
 
   it("prefills wizard identity from scenario metadata", () => {
-    const scenario = getAzureExtractorDemoScenario("claims-intake-modernization");
+    const scenario = getAzureExtractorDemoScenario("customer-intake-modernization");
     const prefill = buildWizardPrefillFromDemoScenario(scenario);
 
     expect(prefill.systemName).toBe("ClaimsIntakeRg");
@@ -52,7 +52,7 @@ describe("arch-lucid-azure-extractor-demo-scenarios", () => {
     expect(resolveAzureExtractorDemoScenarioId("multi-region-saas-platform")).toBe(
       "multi-region-saas-platform",
     );
-    expect(resolveAzureExtractorDemoScenarioId("unknown")).toBe("claims-intake-modernization");
+    expect(resolveAzureExtractorDemoScenarioId("unknown")).toBe("customer-intake-modernization");
   });
 
   it("creates upload-ready demo zip files", () => {

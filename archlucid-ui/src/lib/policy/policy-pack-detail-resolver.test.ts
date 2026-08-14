@@ -13,8 +13,8 @@ describe("policy-pack-detail-resolver", () => {
   });
 
   it("maps healthcare claims demo ids", () => {
-    expect(resolvePolicyPackDetailKind("demo-healthcare-claims-pack", null)).toBe("healthcare-claims");
-    expect(resolvePolicyPackDetailBreadcrumbLabel("demo-healthcare-claims-pack", null)).toBe("Healthcare Claims");
+    expect(resolvePolicyPackDetailKind("demo-enterprise-privacy-pack", null)).toBe("healthcare-claims");
+    expect(resolvePolicyPackDetailBreadcrumbLabel("demo-enterprise-privacy-pack", null)).toBe("Healthcare Claims");
   });
 
   it("returns unknown for unrecognized ids without API metadata", () => {
