@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -183,6 +184,16 @@ public sealed class ArchitectureRequest
         get;
         set;
     }
+
+    /// <summary>
+    ///     L0 MUST question answers supplied by Quick start or other direct CreateRun paths (TB-2283).
+    /// </summary>
+    [JsonPropertyName("intakeQuestionAnswers")]
+    public Dictionary<string, string> IntakeQuestionAnswers
+    {
+        get;
+        set;
+    } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///     Explicit create-vs-review intent from homepage CTAs (<see cref="Common.ArchitectureWorkflowIntent" />).

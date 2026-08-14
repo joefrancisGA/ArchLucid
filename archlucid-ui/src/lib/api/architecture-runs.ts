@@ -92,6 +92,12 @@ export type CreateArchitectureRunRequestPayload = {
   wizardPresetUsed?: string;
   modelExecutionProfileOverride?: "Economy" | "Balanced" | "HighAssurance";
   modelAliasOverride?: string;
+  intakeQuestionAnswers?: Record<string, string>;
+  intakeTransparencyTrail?: {
+    asserted: readonly { key: string; value: string }[];
+    inferred: readonly { key: string; value: string; confidence: number }[];
+    skipped: readonly { questionKey: string; tier: "Must" | "Should" }[];
+  };
 };
 
 /** Response envelope for POST /v1/architecture/request. */

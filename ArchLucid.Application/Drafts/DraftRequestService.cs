@@ -694,22 +694,10 @@ public sealed class DraftRequestService(
 
     private static void EnsureMustQuestionsAnswered(DraftRequestDocument document)
     {
-        foreach (string mustKey in document.RequiredMustQuestionKeys)
-        {
-            bool hasAnswer = document.QuestionAnswers.TryGetValue(mustKey, out string? answer)
-                && !string.IsNullOrWhiteSpace(answer);
-
-            // Explicitly skipped MUST questions satisfy submit (ADR 0050 / R4): the trail entry
-            // downweights verdict confidence instead of blocking the user from proceeding.
-            bool hasSkip = document.TransparencyTrail.Skipped.Exists(entry =>
-                string.Equals(entry.QuestionKey, mustKey, StringComparison.OrdinalIgnoreCase));
-
-            if (!hasAnswer && !hasSkip)
-            {
-                throw new InvalidOperationException(
-                    $"MUST question '{mustKey}' must be answered before submit.");
-            }
-        }
+        UniversalIntakeMustQuestionCompleteness.EnsureComplete(
+            document.QuestionAnswers,
+            document.TransparencyTrail,
+            document.RequiredMustQuestionKeys);
     }
 
     private static void RemoveSkippedQuestion(DraftRequestDocument document, string questionKey)

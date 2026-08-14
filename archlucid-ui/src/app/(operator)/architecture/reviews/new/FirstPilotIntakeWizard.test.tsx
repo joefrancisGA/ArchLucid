@@ -64,12 +64,22 @@ import { REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD } from "@/lib/create-vs-revi
 import { showError } from "@/lib/toast";
 import { REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
+import { satisfyAllQuickStartL0MustQuestions } from "@/testing/quick-start-l0-must-vitest-helpers";
 
 import { FirstPilotIntakeWizard, FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE } from "./FirstPilotIntakeWizard";
 
 /** The intake gate (TB-2176) blocks start until the operator confirms the in-scope understanding. */
 function confirmScopeUnderstanding(): void {
   fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
+}
+
+function prepareQuickStartEvidenceReady(): void {
+  fireEvent.change(screen.getByTestId("first-pilot-title"), {
+    target: { value: "Retail API review" },
+  });
+  fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
+  satisfyAllQuickStartL0MustQuestions();
+  confirmScopeUnderstanding();
 }
 
 describe("FirstPilotIntakeWizard", () => {
@@ -161,8 +171,25 @@ describe("FirstPilotIntakeWizard", () => {
       target: { value: "x".repeat(120) },
     });
 
-    expect(screen.queryByTestId("first-pilot-readiness")).not.toBeInTheDocument();
+    expect(screen.getByTestId("first-pilot-readiness")).toHaveTextContent(/required clarification/i);
     expect(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeEnabled();
+  });
+
+  it("does not treat title plus evidence as sufficient without L0 MUST clarifications (TB-2283)", async () => {
+    render(<FirstPilotIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("first-pilot-title"), {
+      target: { value: "Retail API review" },
+    });
+    fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
+    confirmScopeUnderstanding();
+
+    expect(screen.getByTestId("first-pilot-readiness")).toHaveTextContent(/required clarification/i);
+
+    fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
+
+    expect(createRun).not.toHaveBeenCalled();
+    expect(screen.getByTestId("first-pilot-validation-error")).toBeInTheDocument();
   });
 
   it("encourages rich architecture context with a 100-character helper", () => {
@@ -188,12 +215,7 @@ describe("FirstPilotIntakeWizard", () => {
     expect(screen.getByTestId("first-pilot-write-destination")).toBeInTheDocument();
     expect(screen.getByTestId("new-review-sample-escape-inline")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByTestId("first-pilot-title"), {
-      target: { value: "Retail API review" },
-    });
-
-    fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
-    confirmScopeUnderstanding();
+    prepareQuickStartEvidenceReady();
 
     const startButton = screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA });
     expect(startButton).not.toBeDisabled();
@@ -215,11 +237,17 @@ describe("FirstPilotIntakeWizard", () => {
       description: string;
       systemName: string;
       policyReferences: string[];
+      requestSource?: string;
+      wizardPresetUsed?: string;
+      intakeQuestionAnswers?: Record<string, string>;
     };
     expect(body.systemName).toBe("Retail API review");
     expect(body.description).toContain("network-topology.pdf");
     expect(body.description.length).toBeGreaterThanOrEqual(100);
     expect(body.policyReferences).toContain(FOCUSED_PILOT_MODE_POLICY_REFERENCE);
+    expect(body.requestSource).toBe("wizard");
+    expect(body.wizardPresetUsed).toBe("quick-review");
+    expect(Object.keys(body.intakeQuestionAnswers ?? {})).toHaveLength(7);
     expect(push).toHaveBeenCalledWith(buildReviewGenerationRedirect("first-pilot-run-1", "quick-review"));
   });
 
@@ -228,11 +256,7 @@ describe("FirstPilotIntakeWizard", () => {
 
     render(<FirstPilotIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("first-pilot-title"), {
-      target: { value: "Retail API review" },
-    });
-    fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
-    confirmScopeUnderstanding();
+    prepareQuickStartEvidenceReady();
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     expect(screen.getByTestId("first-pilot-review-start-progress")).toBeInTheDocument();
@@ -253,6 +277,7 @@ describe("FirstPilotIntakeWizard", () => {
           "Modernize the retail API behind an API gateway with containerized services, PostgreSQL for orders, Redis cache, PCI-scoped payment flows, and EU data residency for customer profiles.",
       },
     });
+    satisfyAllQuickStartL0MustQuestions();
     confirmScopeUnderstanding();
 
     const startButton = screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA });
@@ -279,11 +304,7 @@ describe("FirstPilotIntakeWizard", () => {
 
     render(<FirstPilotIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("first-pilot-title"), {
-      target: { value: "Retail API review" },
-    });
-    fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
-    confirmScopeUnderstanding();
+    prepareQuickStartEvidenceReady();
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {
@@ -328,6 +349,7 @@ describe("FirstPilotIntakeWizard", () => {
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
     fireEvent.click(screen.getByText(/Review standards selection/i));
     fireEvent.click(screen.getByTestId("pilot-mode-policy-pack-toggle-all"));
+    satisfyAllQuickStartL0MustQuestions();
     confirmScopeUnderstanding();
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
@@ -348,11 +370,7 @@ describe("FirstPilotIntakeWizard", () => {
 
     render(<FirstPilotIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("first-pilot-title"), {
-      target: { value: "Retail API review" },
-    });
-    fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
-    confirmScopeUnderstanding();
+    prepareQuickStartEvidenceReady();
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {

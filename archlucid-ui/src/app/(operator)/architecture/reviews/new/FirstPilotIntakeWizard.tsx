@@ -13,6 +13,7 @@ import { ReviewStartUnresolvedNotice } from "@/components/review-intake/ReviewSt
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
+import { QuickStartL0MustQuestionsPanel } from "@/components/architecture/QuickStartL0MustQuestionsPanel";
 import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -66,6 +67,9 @@ import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
 import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
+import { projectUniversalIntakeAnswersOntoCreateRunPayload } from "@/lib/universal-intake-answer-projection";
+import { buildIntakeTransparencyTrail } from "@/lib/universal-intake-must-completeness";
+
 import { WIZARD_SESSION_IDS, wizardSessionHasTextContent } from "@/lib/wizard-session-persistence";
 
 import { WizardEvidenceUploadZone } from "./QuickReviewWizardDeferredPanels";
@@ -87,6 +91,8 @@ type FirstPilotIntakeSessionState = {
   readonly runTitle: string;
   readonly briefText: string;
   readonly focusedPilotModeEnabled: boolean;
+  readonly l0Answers: Readonly<Record<string, string>>;
+  readonly l0SkippedQuestionKeys: readonly string[];
 };
 
 export const FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE =
@@ -150,6 +156,8 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [briefText, setBriefText] = useState("");
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
+  const [l0Answers, setL0Answers] = useState<Readonly<Record<string, string>>>({});
+  const [l0SkippedQuestionKeys, setL0SkippedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [clientValidationMessage, setClientValidationMessage] = useState<string | null>(null);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
@@ -162,13 +170,17 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       runTitle,
       briefText,
       focusedPilotModeEnabled,
+      l0Answers,
+      l0SkippedQuestionKeys: [...l0SkippedQuestionKeys],
     }),
-    [briefText, focusedPilotModeEnabled, runTitle],
+    [briefText, focusedPilotModeEnabled, l0Answers, l0SkippedQuestionKeys, runTitle],
   );
   const handleSessionRestore = useCallback((snapshot: { state: FirstPilotIntakeSessionState }) => {
     setRunTitle(snapshot.state.runTitle);
     setBriefText(snapshot.state.briefText);
     setFocusedPilotModeEnabled(snapshot.state.focusedPilotModeEnabled);
+    setL0Answers(snapshot.state.l0Answers);
+    setL0SkippedQuestionKeys(new Set(snapshot.state.l0SkippedQuestionKeys));
   }, []);
   const wizardSession = useWizardSessionPersistence({
     wizardId: WIZARD_SESSION_IDS.reviewsNewQuickStart,
@@ -232,6 +244,10 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     title: runTitle,
     brief: briefText,
     evidenceFileCount: evidenceFiles.length,
+    l0Must: {
+      answers: l0Answers,
+      skippedQuestionKeys: l0SkippedQuestionKeys,
+    },
   };
 
   const canStart =
@@ -268,11 +284,18 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
     try {
       const briefWithScope = mergeScopeBulletsIntoBrief(scopeBullets, resolvedBrief);
-      const body = buildFirstPilotPayload(
+      const intakeTransparencyTrail = buildIntakeTransparencyTrail(l0SkippedQuestionKeys);
+      const basePayload = buildFirstPilotPayload(
         runTitle,
         briefWithScope,
         FIRST_PILOT_REQUIRED_CAPABILITIES,
         focusedPilotModeEnabled,
+      );
+      const body = projectUniversalIntakeAnswersOntoCreateRunPayload(
+        basePayload,
+        l0Answers,
+        l0SkippedQuestionKeys,
+        intakeTransparencyTrail,
       );
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
@@ -397,6 +420,14 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           </div>
 
           <EvidenceGapForecastPanel presence={evidencePresence} />
+
+          <QuickStartL0MustQuestionsPanel
+            answers={l0Answers}
+            skippedQuestionKeys={l0SkippedQuestionKeys}
+            busy={creationProgress.isActive || blocksLlmExecution}
+            onAnswersChange={setL0Answers}
+            onSkippedQuestionKeysChange={setL0SkippedQuestionKeys}
+          />
 
           <ArchitectureScopeUnderstandingCheckPanel
             input={scopeUnderstandingInput}

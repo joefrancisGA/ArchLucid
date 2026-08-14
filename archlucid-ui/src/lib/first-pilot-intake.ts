@@ -1,4 +1,9 @@
 import type { ActiveTenantContextView } from "@/lib/active-tenant-context-display";
+import {
+  describeUniversalIntakeMustGap,
+  isUniversalIntakeMustComplete,
+  type UniversalIntakeMustCompletenessInput,
+} from "@/lib/universal-intake-must-completeness";
 
 /** Default evidence category label when operators do not manually tag uploads. */
 export const DEFAULT_ARCHITECTURE_EVIDENCE_CATEGORY = "Architecture evidence";
@@ -15,6 +20,7 @@ export type FirstPilotIntakeReadinessInput = {
    */
   readonly brief: string;
   readonly evidenceFileCount: number;
+  readonly l0Must: UniversalIntakeMustCompletenessInput;
 };
 
 export function normalizeFirstPilotReviewTitle(title: string): string {
@@ -55,8 +61,9 @@ export function isFirstPilotIntakeReady(input: FirstPilotIntakeReadinessInput): 
   const titleReady = input.title.trim().length >= FIRST_PILOT_MIN_TITLE_CHARS;
   const briefReady = input.brief.trim().length >= FIRST_PILOT_MIN_BRIEF_CHARS;
   const evidenceReady = input.evidenceFileCount > 0;
+  const l0Ready = isUniversalIntakeMustComplete(input.l0Must);
 
-  return titleReady && (briefReady || evidenceReady);
+  return titleReady && (briefReady || evidenceReady) && l0Ready;
 }
 
 /**
@@ -71,6 +78,7 @@ export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInpu
   const titleReady = input.title.trim().length >= FIRST_PILOT_MIN_TITLE_CHARS;
   const briefLength = input.brief.trim().length;
   const evidenceReady = input.evidenceFileCount > 0;
+  const l0Gap = describeUniversalIntakeMustGap(input.l0Must);
 
   if (!titleReady && !evidenceReady && briefLength === 0) {
     return `Add a review title and attach evidence or add architecture context (at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters) to start.`;
@@ -80,13 +88,19 @@ export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInpu
     return "Add a review title to start.";
   }
 
-  // Naming the shortfall matters once context exists: otherwise "add architecture context" reads as
-  // wrong to someone who just added some, with no way to see how much more is needed.
-  if (briefLength > 0) {
+  if (!evidenceReady && briefLength === 0) {
+    return "Attach evidence or add architecture context to start.";
+  }
+
+  if (!evidenceReady && briefLength > 0 && briefLength < FIRST_PILOT_MIN_BRIEF_CHARS) {
     return `Architecture context needs at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters (${briefLength} so far), or attach evidence instead.`;
   }
 
-  return "Attach evidence or add architecture context to start.";
+  if (l0Gap !== null) {
+    return l0Gap;
+  }
+
+  return null;
 }
 
 /** Compact write-target line above the first-pilot start CTA — mirrors quick-review scope disclosure. */
