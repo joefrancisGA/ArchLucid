@@ -4,16 +4,13 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
 import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
 import { RecurrenceSchedulesHelpEvidenceOrientationStrip } from "@/components/help/RecurrenceSchedulesHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -24,6 +21,7 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 import {
   RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS,
   RECURRENCE_SCHEDULES_HELP_AUTOMATION_SECTION_TITLE,
+  RECURRENCE_SCHEDULES_HELP_BREADCRUMB_TOPIC_TITLE,
   RECURRENCE_SCHEDULES_HELP_EXAMPLES_SECTION_TITLE,
   RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION,
   RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION_TAG,
@@ -119,7 +117,7 @@ function RecurrenceSchedulesHelpExamplesSection(): React.ReactElement {
       <HelpSectionHeading id="common-schedule-examples">
         {RECURRENCE_SCHEDULES_HELP_EXAMPLES_SECTION_TITLE}
       </HelpSectionHeading>
-      <RecurrenceScheduleExamplesSection suppressHeading variant="cards" />
+      <RecurrenceScheduleExamplesSection suppressHeading variant="compact" />
     </section>
   );
 }
@@ -166,14 +164,36 @@ export function HelpRecurrenceSchedulesGuideView(
     >
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
+      <HelpTopicGuidePageHeader
+        topicTitle={RECURRENCE_SCHEDULES_HELP_BREADCRUMB_TOPIC_TITLE}
         title={RECURRENCE_SCHEDULES_HELP_PAGE_TITLE}
         titleTestId="help-recurrence-schedules-page-title"
         subtitle={RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE}
         navHref={RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH}
         headingLevel="h1"
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
+        actions={
+          <div className="flex flex-col items-start gap-2" data-testid="help-recurrence-schedules-header-actions">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="primary">
+                <Link href={RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION.href}>
+                  {RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
+              <StatusTag
+                kind="neutral"
+                label={RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION_TAG}
+                data-testid="help-recurrence-schedules-finalized-review-precondition-tag"
+              />
+            </div>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-recurrence-schedules-finalized-review-precondition"
+            >
+              {RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION}
+            </p>
+          </div>
+        }
       />
 
       <div className={contentGridClass}>
@@ -184,32 +204,6 @@ export function HelpRecurrenceSchedulesGuideView(
           >
             {RECURRENCE_SCHEDULES_HELP_OVERVIEW}
           </p>
-
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-recurrence-schedules-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Manage recurrence schedules</CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION.href}>
-                    {RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION.label}
-                  </Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION_TAG}
-                  data-testid="help-recurrence-schedules-finalized-review-precondition-tag"
-                />
-              </div>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="help-recurrence-schedules-finalized-review-precondition"
-              >
-                {RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION}
-              </p>
-            </CardContent>
-          </Card>
 
           <RecurrenceSchedulesHelpAutomationSection />
 

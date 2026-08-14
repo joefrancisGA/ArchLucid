@@ -4,7 +4,6 @@ import {
   RECURRENCE_SCHEDULE_EXAMPLES,
   RECURRENCE_SCHEDULES_HELPER_NEXT_STEP,
   RECURRENCE_SCHEDULES_MANAGE_PATH,
-  RECURRENCE_SCHEDULES_PAGE_SUBTITLE,
   RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF,
   RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
   RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
@@ -20,7 +19,10 @@ import {
 
 export const RECURRENCE_SCHEDULES_HELP_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.recurrenceSchedules;
 
-export const RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE = RECURRENCE_SCHEDULES_PAGE_SUBTITLE;
+export const RECURRENCE_SCHEDULES_HELP_BREADCRUMB_TOPIC_TITLE = "Recurrence schedules";
+
+export const RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE =
+  "Orient on automated follow-up review cadences — schedule kinds, health signals, and where to manage schedules.";
 
 export const RECURRENCE_SCHEDULES_HELP_OVERVIEW =
   "Recurrence schedules automate follow-up architecture reviews on a repeating cadence. When a schedule fires, ArchLucid clones the anchored review so your team can re-assess accepted risks, policy exceptions, and control obligations before they lapse.";

@@ -1,4 +1,4 @@
-import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_AUDIT_PATH,
@@ -22,13 +22,38 @@ export const RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 export const RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO =
   "Use these follow-ups when cadence, schedule health, or follow-up review outcomes still need attention.";
 
-export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
-  { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
-  { label: "Architecture digests help", href: inAppHelpHref("digests") },
-  { label: "Repeat architecture review", href: inAppHelpHref("repeat-review-loop") },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+/** Help follow-ups — no self-href to recurrence schedules manage or this help topic. */
+export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Audit trail",
+    href: GOVERNANCE_AUDIT_PATH,
+    when: "Trace enable, disable, and auto-disable events when schedule lifecycle needs assurance cites",
+  },
+  {
+    label: "Governance findings",
+    href: GOVERNANCE_FINDINGS_PATH,
+    when: "Triage findings raised when a follow-up cloned review surfaces new disposition work",
+  },
+  {
+    label: "Approval queue",
+    href: GOVERNANCE_APPROVAL_QUEUE_PATH,
+    when: "Route governance approvals when a scheduled follow-up requires sponsor sign-off",
+  },
+  {
+    label: "Architecture digests help",
+    href: inAppHelpHref("digests"),
+    when: "Separate sponsor digest email cadence from automated architecture review schedules",
+  },
+  {
+    label: "Repeat architecture review",
+    href: inAppHelpHref("repeat-review-loop"),
+    when: "Understand how cloned follow-up reviews connect back to the anchored review",
+  },
+  {
+    label: "Governance approval help",
+    href: inAppHelpHref("governance-approval"),
+    when: "Read approval workflow guidance when scheduled reviews need governance routing context",
+  },
 ] as const;
 
 export type RecurrenceSchedulesHelpHealthConstraint = {

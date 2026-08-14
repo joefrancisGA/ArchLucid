@@ -12,6 +12,7 @@ import {
   RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE,
   RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION,
 } from "@/lib/recurrence-schedules-help-guide-content";
+import { RECURRENCE_SCHEDULES_PAGE_SUBTITLE } from "@/lib/recurrence-schedules-copy";
 
 describe("recurrence schedules help drift guard", () => {
   it("keeps claim discipline free of Sources package jargon", () => {
@@ -31,8 +32,13 @@ describe("recurrence schedules help drift guard", () => {
     }
   });
 
-  it("keeps overview distinct from the page subtitle", () => {
-    expect(RECURRENCE_SCHEDULES_HELP_OVERVIEW).not.toBe(RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE);
+  it("keeps guide subtitle distinct from the product manage page subtitle", () => {
+    expect(RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE).not.toBe(RECURRENCE_SCHEDULES_PAGE_SUBTITLE);
+  });
+
+  it("requires when captions on every follow-up source link", () => {
+    expect(RECURRENCE_SCHEDULES_HELP_SOURCES.length).toBeGreaterThan(0);
+    expect(RECURRENCE_SCHEDULES_HELP_SOURCES.every((source) => source.when.trim().length > 0)).toBe(true);
   });
 
   it("lists seven guide headings including claim discipline", () => {

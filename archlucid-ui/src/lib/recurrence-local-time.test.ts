@@ -173,7 +173,8 @@ describe("buildRecurrenceLocalTimeSummary (TB-2210)", () => {
       referenceUtc: SUMMER_REFERENCE,
     });
 
-    expect(summary.localPrimary).toMatch(/America\/New_York\)/);
+    expect(summary.localPrimary).toMatch(/America\/New_York/);
+    expect(summary.localPrimary).not.toMatch(/\(\(/);
 
     const browserSummary = buildRecurrenceLocalTimeSummary({
       cronExpression: "0 8 1 * *",
@@ -181,6 +182,7 @@ describe("buildRecurrenceLocalTimeSummary (TB-2210)", () => {
     });
 
     expect(browserSummary.localPrimary).toMatch(/from your browser/);
+    expect(browserSummary.localPrimary).not.toMatch(/\(\(/);
   });
 });
 
