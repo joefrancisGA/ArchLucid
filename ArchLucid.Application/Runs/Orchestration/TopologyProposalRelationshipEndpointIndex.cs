@@ -411,6 +411,10 @@ public static class TopologyProposalRelationshipEndpointIndex
         if (IsDatastoreCategory(category))
         {
             AddSyntheticDatastoreEndpointKey(endpointKeys, label);
+
+            if (LooksLikeTerraformServiceSourceId(sourceId))
+                AddSyntheticServiceEndpointKey(endpointKeys, label);
+
             return;
         }
 
@@ -441,6 +445,10 @@ public static class TopologyProposalRelationshipEndpointIndex
         if (IsDatastoreCategory(category))
         {
             AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(label), nodeId);
+
+            if (LooksLikeTerraformServiceSourceId(sourceId))
+                AddResolutionAlias(aliasToNodeId, BuildSyntheticServiceNodeId(label), nodeId);
+
             return;
         }
 
@@ -471,6 +479,22 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("mysql", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("redis_cache", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("sql_database", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool LooksLikeTerraformServiceSourceId(string? sourceId)
+    {
+        if (string.IsNullOrWhiteSpace(sourceId))
+            return false;
+
+        string normalized = sourceId.Trim();
+
+        return normalized.Contains("app_service", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("function_app", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("container_app", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("linux_web_app", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("windows_web_app", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("web_app", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("kubernetes_cluster", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
