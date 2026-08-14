@@ -6,10 +6,16 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpWebhooksIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationGuideView";
+import { HELP_TOPIC_BREADCRUMB_HUB_LABEL } from "@/lib/help/help-hub-evidence-copy";
 import {
+  WEBHOOKS_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
   WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID,
+  WEBHOOKS_INTEGRATION_HELP_DELIVERY_SECTION_ID,
   WEBHOOKS_INTEGRATION_HELP_GUIDE_HEADINGS,
+  WEBHOOKS_INTEGRATION_HELP_MUTATION_PREREQUISITE_NOTICE,
+  WEBHOOKS_INTEGRATION_HELP_PAGE_SUBTITLE,
   WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION,
+  WEBHOOKS_INTEGRATION_HELP_READINESS_HREF,
 } from "@/lib/webhooks-integration-help-guide-content";
 import {
   WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
@@ -17,11 +23,20 @@ import {
   WEBHOOKS_INTEGRATION_HELP_SOURCES,
 } from "@/lib/webhooks-integration-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import {
+  WEBHOOKS_DELIVERY_CONTRACT_HEADING,
+  WEBHOOKS_PAGE_DESCRIPTION,
+  WEBHOOKS_SIGNATURE_ALGORITHM,
+  WEBHOOKS_SIGNATURE_HEADER_NAME,
+  WEBHOOKS_SIGNATURE_KEY_SCOPE_NOTE,
+  WEBHOOKS_SIGNATURE_VERIFICATION,
+  WEBHOOKS_TEST_FAILURE,
+} from "@/lib/webhooks-page-copy";
 
 describe("HelpWebhooksIntegrationGuideView", () => {
   const entry = getProductDocumentationEntry("webhooks-integration");
 
-  it("renders claim discipline heading id and guide headings in the TOC", () => {
+  it("renders breadcrumb, provenance, header action, delivery contract, TOC sections, and stacked sources", () => {
     if (entry === undefined) {
       throw new Error("Expected webhooks-integration documentation entry.");
     }
@@ -29,6 +44,23 @@ describe("HelpWebhooksIntegrationGuideView", () => {
     render(<HelpWebhooksIntegrationGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-webhooks-integration-guide")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent(
+      HELP_TOPIC_BREADCRUMB_HUB_LABEL,
+    );
+    expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+    expect(screen.getByTestId("help-topic-breadcrumb")).toHaveTextContent(
+      WEBHOOKS_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
+    );
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
+      "Last reviewed 2026-08-13 · integrations webhooks orientation",
+    );
+    expect(screen.getByTestId("help-webhooks-integration-page-title")).toHaveTextContent("Webhooks");
+    expect(WEBHOOKS_INTEGRATION_HELP_PAGE_SUBTITLE).not.toBe(WEBHOOKS_PAGE_DESCRIPTION);
+    expect(screen.getByTestId("help-webhooks-integration-mutation-prerequisite")).toHaveTextContent(
+      WEBHOOKS_INTEGRATION_HELP_MUTATION_PREREQUISITE_NOTICE,
+    );
+    expect(screen.queryByTestId("help-webhooks-integration-action-panel")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-webhooks-integration-overview").textContent?.toLowerCase()).not.toContain(
       "sources package",
     );
@@ -39,13 +71,41 @@ describe("HelpWebhooksIntegrationGuideView", () => {
       "id",
       WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID,
     );
+    expect(screen.getAllByRole("link", { name: WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
     expect(screen.getByRole("link", { name: WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
       "href",
       WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION.href,
     );
 
+    expect(screen.getByTestId("help-webhooks-integration-delivery-section")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: WEBHOOKS_DELIVERY_CONTRACT_HEADING })).toHaveAttribute(
+      "id",
+      WEBHOOKS_INTEGRATION_HELP_DELIVERY_SECTION_ID,
+    );
+    expect(screen.getByTestId("help-webhooks-integration-delivery-section")).toHaveTextContent(
+      WEBHOOKS_SIGNATURE_VERIFICATION,
+    );
+    expect(screen.getByTestId("help-webhooks-integration-delivery-section")).toHaveTextContent(
+      WEBHOOKS_SIGNATURE_KEY_SCOPE_NOTE,
+    );
+    expect(screen.getByTestId("help-webhooks-integration-signature-technical-details")).toHaveTextContent(
+      WEBHOOKS_SIGNATURE_HEADER_NAME,
+    );
+    expect(screen.getByTestId("help-webhooks-integration-signature-technical-details")).toHaveTextContent(
+      WEBHOOKS_SIGNATURE_ALGORITHM,
+    );
+
+    expect(screen.getByTestId("help-webhooks-integration-how-stepper")).toHaveTextContent(WEBHOOKS_TEST_FAILURE);
+    expect(screen.getByTestId("help-webhooks-integration-readiness-link")).toHaveAttribute(
+      "href",
+      WEBHOOKS_INTEGRATION_HELP_READINESS_HREF,
+    );
+    expect(screen.getAllByRole("link", { name: "Alert rules" })).toHaveLength(1);
+    expect(screen.queryByRole("link", { name: "Webhooks" })).not.toBeInTheDocument();
+
     for (const source of WEBHOOKS_INTEGRATION_HELP_SOURCES) {
       expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      expect(screen.getByText(source.when)).toBeInTheDocument();
     }
 
     for (const heading of WEBHOOKS_INTEGRATION_HELP_GUIDE_HEADINGS) {

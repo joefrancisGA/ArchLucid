@@ -19,6 +19,7 @@ const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "servicenow-integration",
   "slack-integration",
   "teams-integration",
+  "webhooks-integration",
   "standards-and-rules",
   "model-governance",
   "notifications",
