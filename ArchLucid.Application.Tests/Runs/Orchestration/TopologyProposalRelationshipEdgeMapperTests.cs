@@ -254,4 +254,51 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
             e.ToNodeId == "ds-1" &&
             e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
+
+    [Fact]
+    public void MapRelationships_resolves_terraform_source_id_when_graph_source_id_has_surrounding_whitespace()
+    {
+        const string rawTerraformSourceId = "azurerm_app_service.main";
+        const string paddedTerraformSourceId = $"  {rawTerraformSourceId}  ";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                SourceType = "Terraform",
+                SourceId = paddedTerraformSourceId,
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = rawTerraformSourceId,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
 }

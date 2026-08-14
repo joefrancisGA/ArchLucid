@@ -364,14 +364,18 @@ public static class TopologyProposalRelationshipEndpointIndex
 
     private static void AddEndpointKey(HashSet<string> knownEndpointKeys, string? value)
     {
-        if (!string.IsNullOrWhiteSpace(value))
-            knownEndpointKeys.Add(value);
+        if (string.IsNullOrWhiteSpace(value))
+            return;
+
+        knownEndpointKeys.Add(value.Trim());
     }
 
     private static void AddResolutionAlias(Dictionary<string, string> aliasToNodeId, string? endpointKey, string nodeId)
     {
-        if (!string.IsNullOrWhiteSpace(endpointKey))
-            aliasToNodeId.TryAdd(endpointKey, nodeId);
+        if (string.IsNullOrWhiteSpace(endpointKey))
+            return;
+
+        aliasToNodeId.TryAdd(endpointKey.Trim(), nodeId);
     }
 
     private static void AddArmResourceIdEndpointKeys(HashSet<string> endpointKeys, string? resourceId)
@@ -448,5 +452,5 @@ public static class TopologyProposalRelationshipEndpointIndex
         string.IsNullOrWhiteSpace(datastoreName) ? null : $"ds-{datastoreName}";
 
     private static bool EndpointKeyIsClaimed(string? value, HashSet<string> claimedEndpointKeys) =>
-        !string.IsNullOrWhiteSpace(value) && claimedEndpointKeys.Contains(value);
+        !string.IsNullOrWhiteSpace(value) && claimedEndpointKeys.Contains(value.Trim());
 }
