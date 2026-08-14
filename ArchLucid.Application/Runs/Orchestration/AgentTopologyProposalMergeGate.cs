@@ -24,27 +24,74 @@ public static class AgentTopologyProposalMergeGate
         if (inventoriedIdentifiers.Count == 0)
             return results;
 
-        List<AgentResult> filtered = [];
+        HashSet<string> accumulatedEndpointKeys = new(relationshipEndpointKeys, StringComparer.OrdinalIgnoreCase);
+        List<AgentResult> orderedResults = results
+            .OrderBy(static result => GetMergeOrder(result.AgentType))
+            .ToList();
 
-        foreach (AgentResult result in results)
+        Dictionary<string, AgentResult> sanitizedResultsById = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (AgentResult result in orderedResults)
         {
             if (!RequiresInventoryOverlayValidation(result.AgentType) || result.ProposedChanges is null)
             {
-                filtered.Add(result);
+                sanitizedResultsById[result.ResultId] = result;
                 continue;
             }
 
             AgentTopologyProposal sanitized = SanitizeProposal(
                 result.ProposedChanges,
-                relationshipEndpointKeys);
+                accumulatedEndpointKeys);
 
             if (ProposalIsEmpty(sanitized))
                 continue;
 
-            filtered.Add(CloneWithProposal(result, sanitized));
+            sanitizedResultsById[result.ResultId] = CloneWithProposal(result, sanitized);
+            RegisterSanitizedProposalEndpointKeys(sanitized, accumulatedEndpointKeys);
+        }
+
+        List<AgentResult> filtered = [];
+
+        foreach (AgentResult result in results)
+        {
+            if (!sanitizedResultsById.TryGetValue(result.ResultId, out AgentResult? sanitizedResult))
+                continue;
+
+            filtered.Add(sanitizedResult);
         }
 
         return filtered;
+    }
+
+    private static int GetMergeOrder(AgentType agentType) =>
+        agentType switch
+        {
+            AgentType.Topology => 10,
+            AgentType.Cost => 20,
+            AgentType.Compliance => 30,
+            AgentType.Critic => 40,
+            _ => 100,
+        };
+
+    private static void RegisterSanitizedProposalEndpointKeys(
+        AgentTopologyProposal proposal,
+        HashSet<string> endpointKeys)
+    {
+        if (proposal.AddedServices is { Count: > 0 })
+        {
+            foreach (ManifestService service in proposal.AddedServices)
+            {
+                TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(endpointKeys, service);
+            }
+        }
+
+        if (proposal.AddedDatastores is { Count: > 0 })
+        {
+            foreach (ManifestDatastore datastore in proposal.AddedDatastores)
+            {
+                TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(endpointKeys, datastore);
+            }
+        }
     }
 
     private static bool RequiresInventoryOverlayValidation(AgentType agentType) =>

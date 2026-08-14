@@ -943,4 +943,95 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered[0].ProposedChanges!.AddedDatastores.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenInventoryExists_AllowsCostRelationshipOnlyProposalsReferencingTopologyRenameAliasFromPriorResult()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "svc-api",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "api",
+                    Category = GraphTopologyCategories.Compute,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_app_service.main"
+                },
+                new GraphNode
+                {
+                    NodeId = "ds-sql",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql",
+                    Category = GraphTopologyCategories.Data,
+                    SourceType = "Terraform",
+                    SourceId = "azurerm_mssql_server.main"
+                }
+            ]
+        };
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    },
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ]
+            }
+        };
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology, cost]);
+
+        filtered.Should().HaveCount(2);
+        filtered.Should().ContainSingle(r => r.ResultId == "cost-1" && r.ProposedChanges!.AddedRelationships!.Count == 1);
+    }
 }
