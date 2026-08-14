@@ -9,6 +9,7 @@ import {
   SETTINGS_WORKSPACE_SETTINGS_PATH,
   pathMatchesSettingsWorkspaceSettings,
 } from "@/lib/settings-admin-route-paths";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 
 /**
@@ -33,6 +34,11 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
   // Reviews list is exact-match only — detail/new routes must not highlight the hub item.
   if (pathPart === REVIEWS_LIST_PATH) {
     return pathname === REVIEWS_LIST_PATH;
+  }
+
+  // Findings queue is exact-match only — assigned-to-me child route must not highlight the hub item.
+  if (pathPart === GOVERNANCE_FINDINGS_PATH) {
+    return pathname === GOVERNANCE_FINDINGS_PATH;
   }
 
   if (pathPart === SETTINGS_WORKSPACE_SETTINGS_PATH) {

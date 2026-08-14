@@ -11,7 +11,9 @@ import { EnterpriseInlineErrorNotification } from "@/components/EnterpriseInline
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
+import { GovernanceFindingsAssignedToMeBreadcrumb } from "@/components/governance/findings/GovernanceFindingsAssignedToMeBreadcrumb";
 import { GovernanceFindingsRelatedQueuesDisclosure } from "@/components/governance/findings/GovernanceFindingsRelatedQueuesDisclosure";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
@@ -20,9 +22,11 @@ import { GovernanceFindingsFilterBar } from "@/components/governance/findings/Go
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import { Button } from "@/components/ui/button";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
 import { useAssignedToMeFindingsQuery } from "@/components/governance/findings/use-assigned-to-me-findings-query";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import {
   ARCHITECTURE_RISK_REGISTER_EMPTY_BODY,
   ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE,
@@ -41,6 +45,7 @@ import {
   BUYER_RISK_REGISTER_EMPTY_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { hasGovernanceApprovalProvenance } from "@/lib/governance/governance-approval-provenance";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT,
@@ -49,6 +54,12 @@ import {
   GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT,
   GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
+import {
+  buildGovernanceAssignedToMeEmptyDescription,
+  GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF,
+  GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL,
+  resolveGovernanceAssignedToMeWorkspaceLabel,
+} from "@/lib/governance/governance-assigned-to-me-empty-state";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { comparePageHrefWithLifecycleAnchor, COMPARE_FINDING_LIFECYCLE_ANCHOR } from "@/lib/compare-finding-lifecycle";
 import { fetchRunDetailWorkspaceContextBundle } from "@/lib/fetch-run-detail-page-bundle-client";
@@ -58,6 +69,7 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
   matchesFindingsNaturalLanguageFacets,
@@ -102,10 +114,24 @@ export default function GovernanceFindingsQueueClient({
     () => readGovernanceFindingsQueueFacets().nlFacets,
   );
   const isAssignedToMe = mode === "assigned-to-me";
+  const { currentPrincipal } = useOperatorNavAuthority();
+  const scopeKey = useOperatorScopeQueryKey();
+  const assignedToMeWorkspaceLabel = useMemo(() => {
+    const record = readOperatorScopeFromStorage();
+
+    return resolveGovernanceAssignedToMeWorkspaceLabel(
+      record?.workspaceLabel,
+      record?.workspaceId ?? scopeKey.workspaceId,
+    );
+  }, [scopeKey.workspaceId]);
   const tenantQuery = useGovernanceFindingsQuery(!isAssignedToMe);
   const assignedToMeQuery = useAssignedToMeFindingsQuery(isAssignedToMe);
   const activeQuery = isAssignedToMe ? assignedToMeQuery : tenantQuery;
   const { rows, loading, loadFailed, refresh } = activeQuery;
+  const assignedToMeCheckedAt =
+    isAssignedToMe && assignedToMeQuery.dataUpdatedAt > 0
+      ? new Date(assignedToMeQuery.dataUpdatedAt)
+      : null;
   const loadFailure = isAssignedToMe ? assignedToMeQuery.loadFailure : tenantQuery.loadFailure;
   const {
     registerFilter,
@@ -233,26 +259,39 @@ export default function GovernanceFindingsQueueClient({
     scopedRunId !== null && scopedRunId.length > 0
       ? `/architecture/reviews/${encodeURIComponent(scopedRunId)}?reviewTab=review-package`
       : null;
+  const governanceApprovalProvenance = null;
+  const showGovernanceApprovalBanner =
+    buyerPolishedShell &&
+    !loadFailed &&
+    !isAssignedToMe &&
+    hasGovernanceApprovalProvenance(governanceApprovalProvenance);
 
   return (
-    <div className="w-full max-w-[1440px]">
-      {buyerPolishedShell && !loadFailed ? (
+    <div className={cn("w-full", isAssignedToMe ? "max-w-3xl" : "max-w-[1440px]")}>
+      {showGovernanceApprovalBanner ? (
         <GovernanceApprovalStatusBanner
           className="mb-4"
           onRiskRegisterPage={!isAssignedToMe}
           onAssignedToMeFindingsPage={isAssignedToMe}
+          provenance={governanceApprovalProvenance}
         />
-      ) : (
+      ) : !isAssignedToMe ? (
         <LayerHeader pageKey="governance-findings" density="compact" />
-      )}
+      ) : null}
 
       <OperatorPageHeader
         navHref={navHref}
         title={pageTitle}
         subtitle={pageSubtitle}
         titleTestId="architecture-risk-register-page-title"
+        breadcrumb={isAssignedToMe ? <GovernanceFindingsAssignedToMeBreadcrumb /> : undefined}
         metadata={
-          !buyerPolishedShell && !loading && !isAssignedToMe ? (
+          isAssignedToMe ? (
+            <span className="text-al-text-secondary" data-testid="governance-assigned-to-me-workspace">
+              Workspace:{" "}
+              <span className="font-medium text-al-text-primary">{assignedToMeWorkspaceLabel}</span>
+            </span>
+          ) : !buyerPolishedShell && !loading ? (
             <>
               <SelfDescribingMetricCount
                 variant="inline"
@@ -299,7 +338,10 @@ export default function GovernanceFindingsQueueClient({
         }
         actions={<PageContextualHelpButton />}
       />
-      <GovernanceJobRouterStrip currentJobId={currentJobId} />
+      <GovernanceJobRouterStrip
+        currentJobId={currentJobId}
+        layout={isAssignedToMe ? "compact" : "default"}
+      />
       {isAssignedToMe ? (
         <GovernanceFindingsRelatedQueuesDisclosure capabilitySurfaceId="assignedFindings" />
       ) : (
@@ -447,7 +489,11 @@ export default function GovernanceFindingsQueueClient({
             }
             description={
               isAssignedToMe
-                ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT.description
+                ? buildGovernanceAssignedToMeEmptyDescription({
+                    assigneeDisplayName: currentPrincipal.name ?? "",
+                    workspaceName: assignedToMeWorkspaceLabel,
+                    checkedAt: assignedToMeCheckedAt,
+                  })
                 : buyerPolishedShell
                   ? BUYER_RISK_REGISTER_EMPTY_BODY
                   : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
@@ -465,7 +511,22 @@ export default function GovernanceFindingsQueueClient({
                   ]
             }
             footer={
-              !buyerPolishedShell && !isAssignedToMe ? (
+              isAssignedToMe ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <RefreshButton
+                    variant="primary"
+                    busy={assignedToMeQuery.refreshing}
+                    onClick={() => {
+                      refresh();
+                    }}
+                  />
+                  <Button asChild size="sm" variant="outline">
+                    <Link href={GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF}>
+                      {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}
+                    </Link>
+                  </Button>
+                </div>
+              ) : !buyerPolishedShell ? (
                 <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>
                   View policy packs
                 </Link>

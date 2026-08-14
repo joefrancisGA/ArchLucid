@@ -21,6 +21,8 @@ export type AssignedToMeFindingsQueryState = {
   readonly loadFailed: boolean;
   readonly loadFailure: GovernanceFindingsFetchFailure | null;
   readonly refresh: () => void;
+  readonly dataUpdatedAt: number;
+  readonly refreshing: boolean;
 };
 
 export function useAssignedToMeFindingsQuery(enabled = true): AssignedToMeFindingsQueryState {
@@ -44,5 +46,7 @@ export function useAssignedToMeFindingsQuery(enabled = true): AssignedToMeFindin
     loadFailed: query.data?.loadFailed ?? false,
     loadFailure: query.data?.failure ?? null,
     refresh,
+    dataUpdatedAt: query.dataUpdatedAt,
+    refreshing: query.isFetching && !query.isPending,
   };
 }

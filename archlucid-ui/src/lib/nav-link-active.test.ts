@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 
 describe("isNavLinkActive", () => {
@@ -13,6 +14,12 @@ describe("isNavLinkActive", () => {
     expect(isNavLinkActive("/architecture/reviews", "/architecture/reviews")).toBe(true);
     expect(isNavLinkActive("/architecture/reviews/new", "/architecture/reviews")).toBe(false);
     expect(isNavLinkActive("/architecture/reviews/abc", "/architecture/reviews")).toBe(false);
+  });
+
+  it("matches /governance/findings list but not assigned-to-me child route", () => {
+    expect(isNavLinkActive("/governance/findings", GOVERNANCE_FINDINGS_PATH)).toBe(true);
+    expect(isNavLinkActive("/governance/findings/assigned-to-me", GOVERNANCE_FINDINGS_PATH)).toBe(false);
+    expect(isNavLinkActive("/governance/findings/assigned-to-me", "/governance/findings/assigned-to-me")).toBe(true);
   });
 
   it("matches /architecture/reviews/new exactly", () => {

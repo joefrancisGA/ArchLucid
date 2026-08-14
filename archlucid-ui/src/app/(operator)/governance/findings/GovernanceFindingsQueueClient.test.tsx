@@ -40,10 +40,16 @@ function renderGovernanceFindingsQueue(mode: "tenant" | "assigned-to-me" = "tena
   );
 }
 
-vi.mock("@/lib/api/governance-stickiness-api", () => ({
+const governanceStickinessApiMocks = vi.hoisted(() => ({
   getArchitectureDecisionRegister: vi.fn(),
   getArchitectureRiskRegister: vi.fn(),
+  fetchGovernanceFindingsRegistersBundle: vi.fn(async () => ({
+    riskRegister: await governanceStickinessApiMocks.getArchitectureRiskRegister(),
+    decisionRegister: await governanceStickinessApiMocks.getArchitectureDecisionRegister(),
+  })),
 }));
+
+vi.mock("@/lib/api/governance-stickiness-api", () => governanceStickinessApiMocks);
 
 vi.mock("@/lib/buyer/buyer-demo-content-gating", () => ({
   shouldUseGovernanceCuratedDemoSpine: () => false,
@@ -90,6 +96,41 @@ vi.mock("@/lib/use-nav-surface", () => ({
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => null,
 }));
+
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/operator/OperatorNavAuthorityProvider")>();
+
+  return {
+    ...actual,
+    useOperatorNavAuthority: () => ({
+      currentPrincipal: {
+        name: "Jordan Lee",
+        roleClaimValues: [],
+        authorityRank: 2,
+        primaryAppRole: "Architect",
+        hasCommittedArchitectureReview: true,
+      },
+      callerAuthorityRank: 2,
+      isAuthorityLoading: false,
+    }),
+    useNavCallerAuthorityRank: () => 2,
+  };
+});
+
+vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/operator/operator-scope-storage")>();
+
+  return {
+    ...actual,
+    readOperatorScopeFromStorage: () => ({
+      tenantId: "tenant-1",
+      workspaceId: "ws-1",
+      projectId: "proj-1",
+      workspaceLabel: "Claims Intake Demo",
+      projectLabel: "Default",
+    }),
+  };
+});
 
 vi.mock("@/components/usability/ItsmOutboundQuickActions", () => ({
   ItsmOutboundQuickActions: () => null,
@@ -307,19 +348,23 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     const empty = await screen.findByTestId("governance-findings-empty-state");
     expect(empty).toHaveAttribute("role", "status");
     expect(screen.getByText("No findings assigned to you")).toBeInTheDocument();
+    expect(within(empty).getByText(/Jordan Lee/)).toBeInTheDocument();
+    expect(within(empty).getByText(/Claims Intake Demo/)).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-empty-checked-at")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open findings queue" })).toHaveAttribute("href", "/governance/findings");
   });
 
   it("renders job router and tenant findings queue link", async () => {
     renderGovernanceFindingsQueue("assigned-to-me");
 
-    expect(screen.queryByTestId("governance-assigned-to-me-breadcrumb")).toBeNull();
+    expect(screen.getByTestId("governance-assigned-to-me-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
+    expect(screen.getByTestId("governance-assigned-to-me-workspace")).toHaveTextContent("Claims Intake Demo");
     expect(screen.getByTestId("governance-job-router")).toHaveAttribute("data-current-job", "assigned-to-me-findings");
-    expect(screen.getByTestId("governance-job-router-option-assigned-to-me-findings")).toHaveAttribute(
-      "data-current",
-      "true",
-    );
+    expect(screen.getByTestId("governance-job-router")).toHaveAttribute("data-layout", "compact");
+    expect(screen.queryByTestId("governance-job-router-option-assigned-to-me-findings")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-findings-related-queues-disclosure")).toBeInTheDocument();
   });
 
