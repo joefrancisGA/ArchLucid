@@ -190,6 +190,14 @@ import {
 } from "@/lib/model-governance-help-evidence-copy";
 import { MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID } from "@/lib/model-governance-help-guide-content";
 import {
+  SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE,
+  SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
+  SERVICENOW_INTEGRATION_CLAIM_HEADING_ID,
+  SERVICENOW_INTEGRATION_FOLLOW_UPS_TITLE,
+  SERVICENOW_INTEGRATION_SOURCES,
+  SERVICENOW_INTEGRATION_SOURCES_INTRO,
+} from "@/lib/servicenow-integration-evidence-copy";
+import {
   SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   SERVICENOW_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
@@ -1361,6 +1369,25 @@ export function JiraIntegrationEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={JIRA_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={JIRA_INTEGRATION_SOURCES_INTRO}
       sources={JIRA_INTEGRATION_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function ServiceNowIntegrationEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="servicenow-integration"
+      claim={SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE}
+      claimHeading={SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={SERVICENOW_INTEGRATION_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={SERVICENOW_INTEGRATION_FOLLOW_UPS_TITLE}
+      sourcesIntro={SERVICENOW_INTEGRATION_SOURCES_INTRO}
+      sources={SERVICENOW_INTEGRATION_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"

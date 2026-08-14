@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mockFetchHealth = vi.fn();
 const mockFetchSettings = vi.fn();
 const mockFetchConnection = vi.fn();
+const mockProbeHealth = vi.fn();
 const mockUpsertSettings = vi.fn();
 
 let canMutate = true;
@@ -26,11 +27,13 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
   fetchItsmIntegrationHealth: (...args: unknown[]) => mockFetchHealth(...args),
   fetchTenantItsmOutboundSettings: (...args: unknown[]) => mockFetchSettings(...args),
   fetchTenantItsmConnectorConnection: (...args: unknown[]) => mockFetchConnection(...args),
+  probeItsmIntegrationHealth: (...args: unknown[]) => mockProbeHealth(...args),
   upsertTenantItsmOutboundSettings: (...args: unknown[]) => mockUpsertSettings(...args),
 }));
 
 import { ServiceNowIntegrationPageClient } from "./ServiceNowIntegrationPageClient";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
+import { SERVICENOW_INTEGRATION_SOURCES } from "@/lib/servicenow-integration-evidence-copy";
 import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -118,6 +121,7 @@ describe("ServiceNowIntegrationPageClient", () => {
     mockFetchHealth.mockResolvedValue(baseHealth());
     mockFetchSettings.mockResolvedValue(baseSettings());
     mockFetchConnection.mockResolvedValue(baseConnection());
+    mockProbeHealth.mockResolvedValue(baseHealth());
     mockUpsertSettings.mockResolvedValue(baseSettings({ serviceNowAutoCreateCmdbCi: true }));
   });
 
@@ -156,6 +160,22 @@ describe("ServiceNowIntegrationPageClient", () => {
     const chooser = screen.getByTestId("itsm-connector-provider-chooser");
     const status = screen.getByTestId("servicenow-connection-status");
     expect(chooser.compareDocumentPosition(status) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("renders the ServiceNow integration Sources and claim-discipline strip", async () => {
+    render(<ServiceNowIntegrationPageClient />);
+
+    await screen.findByTestId("servicenow-integration-orientation");
+
+    const sources = screen.getByTestId("servicenow-integration-sources");
+
+    for (const link of SERVICENOW_INTEGRATION_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
+    expect(readinessLinks).toHaveLength(1);
+    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
   });
 
   it("maps setup incomplete to needs-attention in header and section status tags", async () => {
@@ -322,17 +342,16 @@ describe("ServiceNowIntegrationPageClient", () => {
   });
 
   it("runs connection test with pending, success, and aside timestamp", async () => {
-    mockFetchHealth
-      .mockResolvedValueOnce(
-        baseHealth({
-          serviceNow: { locallyConfigured: true, reachable: null, summary: "pending" },
-        }),
-      )
-      .mockResolvedValueOnce(
-        baseHealth({
-          serviceNow: { locallyConfigured: true, reachable: true, summary: "Connection check succeeded." },
-        }),
-      );
+    mockFetchHealth.mockResolvedValue(
+      baseHealth({
+        serviceNow: { locallyConfigured: true, reachable: null, summary: "pending" },
+      }),
+    );
+    mockProbeHealth.mockResolvedValue(
+      baseHealth({
+        serviceNow: { locallyConfigured: true, reachable: true, summary: "Connection check succeeded." },
+      }),
+    );
     mockFetchSettings.mockResolvedValue(
       baseSettings({
         deploymentCredentials: { serviceNowConfigured: true },
@@ -354,17 +373,16 @@ describe("ServiceNowIntegrationPageClient", () => {
   });
 
   it("shows connection test failure feedback", async () => {
-    mockFetchHealth
-      .mockResolvedValueOnce(
-        baseHealth({
-          serviceNow: { locallyConfigured: true, reachable: false, summary: "pending" },
-        }),
-      )
-      .mockResolvedValueOnce(
-        baseHealth({
-          serviceNow: { locallyConfigured: true, reachable: false, summary: "403 forbidden" },
-        }),
-      );
+    mockFetchHealth.mockResolvedValue(
+      baseHealth({
+        serviceNow: { locallyConfigured: true, reachable: false, summary: "pending" },
+      }),
+    );
+    mockProbeHealth.mockResolvedValue(
+      baseHealth({
+        serviceNow: { locallyConfigured: true, reachable: false, summary: "403 forbidden" },
+      }),
+    );
     mockFetchSettings.mockResolvedValue(
       baseSettings({
         deploymentCredentials: { serviceNowConfigured: true },
