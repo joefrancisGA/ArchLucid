@@ -60,6 +60,26 @@ describe("OperatorHomeDisclosureSection", () => {
     expect(heading.className).not.toContain("text-xs");
   });
 
+  it("auto-expands when location hash matches titleId", () => {
+    window.location.hash = "#operator-home-advanced-guidance-heading";
+
+    render(
+      <OperatorHomeDisclosureSection
+        title={OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE}
+        titleId="operator-home-advanced-guidance-heading"
+        sectionTestId="disclosure-hash-expand-test"
+        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance}
+        defaultExpanded={false}
+        autoExpandOnHashMatch
+        collapsedSummary="Collapsed summary"
+      >
+        <p>Expanded body</p>
+      </OperatorHomeDisclosureSection>,
+    );
+
+    expect(screen.getByText("Expanded body")).toBeInTheDocument();
+  });
+
   it("keeps collapsed sections closed before hydration when defaultExpanded is false", () => {
     render(
       <OperatorHomeDisclosureSection

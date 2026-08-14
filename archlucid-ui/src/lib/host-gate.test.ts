@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import { decideHostGateRedirect, isMarketingOnlyPath, isOperatorPath } from "@/lib/host-gate";
+import { LEGACY_ONBOARDING_PATH } from "@/lib/first-review-guide-route";
 import {
   RETIRED_LOGIN_BOOKMARK_PATH,
   RETIRED_ONBOARD_BOOKMARK_PATH,
@@ -43,6 +44,7 @@ describe("host-gate path classifiers", () => {
     expect(isOperatorPath(RETIRED_ONBOARD_BOOKMARK_PATH)).toBe(true);
     expect(isOperatorPath(RETIRED_ONBOARDING_START_BOOKMARK_PATH)).toBe(true);
     expect(isOperatorPath(RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH)).toBe(true);
+    expect(isOperatorPath(LEGACY_ONBOARDING_PATH)).toBe(true);
   });
 
   it("treats welcome/pricing/signup as marketing-only", () => {

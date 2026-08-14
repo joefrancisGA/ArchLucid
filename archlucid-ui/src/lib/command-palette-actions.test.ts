@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
-import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import {
+  FIRST_REVIEW_GUIDE_PATH,
+  ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+} from "@/lib/first-review-guide-route";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 
 describe("command-palette-actions (TB-1963)", () => {
@@ -17,7 +20,7 @@ describe("command-palette-actions (TB-1963)", () => {
     const finishSetupAction = COMMAND_PALETTE_ACTIONS.find((action) => action.id === "action-finish-setup");
 
     expect(finishSetupAction).toBeDefined();
-    expect(finishSetupAction?.href).toBe(`${FIRST_REVIEW_GUIDE_PATH}#onboarding-optional-setup-heading`);
+    expect(finishSetupAction?.href).toBe(`${FIRST_REVIEW_GUIDE_PATH}#${ONBOARDING_OPTIONAL_SETUP_HEADING_ID}`);
     expect(finishSetupAction?.href).not.toContain("/onboarding");
   });
 });

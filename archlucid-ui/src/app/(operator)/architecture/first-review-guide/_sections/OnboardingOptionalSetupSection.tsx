@@ -13,6 +13,10 @@ import {
   FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  ONBOARDING_OPTIONAL_SETUP_DELEGATION_HEADING_ID,
+  ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+} from "@/lib/first-review-guide-route";
 
 import {
   OptionalWorkspaceSetupDismissButton,
@@ -60,11 +64,15 @@ export function OnboardingOptionalSetupSection() {
   if (context !== null && !context.principalAdmin) {
     return (
       <section
-        aria-labelledby="onboarding-optional-setup-delegation-heading"
+        id={ONBOARDING_OPTIONAL_SETUP_HEADING_ID}
+        aria-labelledby={ONBOARDING_OPTIONAL_SETUP_DELEGATION_HEADING_ID}
         className="rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800"
         data-testid="onboarding-optional-setup-delegation"
       >
-        <h2 id="onboarding-optional-setup-delegation-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        <h2
+          id={ONBOARDING_OPTIONAL_SETUP_DELEGATION_HEADING_ID}
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+        >
           {FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE}
         </h2>
         <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
@@ -77,10 +85,11 @@ export function OnboardingOptionalSetupSection() {
   return (
     <OperatorHomeDisclosureSection
       title={FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE}
-      titleId="onboarding-optional-setup-heading"
+      titleId={ONBOARDING_OPTIONAL_SETUP_HEADING_ID}
       sectionTestId="onboarding-optional-setup"
       storageKey={ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY}
       defaultExpanded={false}
+      autoExpandOnHashMatch
       collapsedSummary={ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY}
     >
       <div className="space-y-4">

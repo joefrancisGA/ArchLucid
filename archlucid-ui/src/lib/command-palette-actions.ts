@@ -3,7 +3,10 @@
  */
 
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import {
+  FIRST_REVIEW_GUIDE_PATH,
+  ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+} from "@/lib/first-review-guide-route";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 
@@ -42,7 +45,7 @@ export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
   {
     id: "action-finish-setup",
     label: "Finish workspace setup",
-    href: `${FIRST_REVIEW_GUIDE_PATH}#onboarding-optional-setup-heading`,
+    href: `${FIRST_REVIEW_GUIDE_PATH}#${ONBOARDING_OPTIONAL_SETUP_HEADING_ID}`,
     searchValue: "action finish setup sso admin identity",
   },
   {

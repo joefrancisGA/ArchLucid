@@ -7,6 +7,7 @@ import {
   ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
   ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
 } from "@/lib/buyer/buyer-polish-copy";
+import { ONBOARDING_OPTIONAL_SETUP_HEADING_ID } from "@/lib/first-review-guide-route";
 
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 
@@ -91,6 +92,10 @@ describe("OnboardingOptionalSetupSection", () => {
     render(<OnboardingOptionalSetupSection />);
 
     expect(screen.getByTestId("onboarding-optional-setup-delegation")).toBeInTheDocument();
+    expect(screen.getByTestId("onboarding-optional-setup-delegation")).toHaveAttribute(
+      "id",
+      ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+    );
     expect(screen.getByText(ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION)).toBeInTheDocument();
     expect(screen.queryByTestId("onboarding-optional-setup")).not.toBeInTheDocument();
     expect(screen.queryByTestId("optional-workspace-setup-list-stub")).not.toBeInTheDocument();

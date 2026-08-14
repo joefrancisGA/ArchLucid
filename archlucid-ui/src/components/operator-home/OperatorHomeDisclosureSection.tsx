@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useCallback, useId, useLayoutEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useState, type ReactNode } from "react";
 
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,8 @@ type OperatorHomeDisclosureSectionProps = {
   sectionClassName?: string;
   bodyClassName?: string;
   sectionDataAttributes?: Record<string, string>;
+  /** When true and `titleId` is set, matching `location.hash` expands the section after hydration. */
+  autoExpandOnHashMatch?: boolean;
   children: ReactNode;
 };
 
@@ -52,6 +54,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     sectionClassName,
     bodyClassName,
     sectionDataAttributes,
+    autoExpandOnHashMatch = false,
     children,
   } = props;
 
@@ -64,9 +67,21 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   useLayoutEffect(() => {
-    setExpanded(readOperatorHomeDisclosureExpanded(storageKey, defaultExpanded, legacyStorageKeys));
+    let nextExpanded = readOperatorHomeDisclosureExpanded(storageKey, defaultExpanded, legacyStorageKeys);
+
+    if (autoExpandOnHashMatch && titleIdProp !== undefined && titleIdProp.trim() !== "") {
+      const hashId =
+        typeof window !== "undefined" ? window.location.hash.replace(/^#/, "").trim() : "";
+
+      if (hashId === titleIdProp) {
+        nextExpanded = true;
+        writeOperatorHomeDisclosureExpanded(storageKey, true);
+      }
+    }
+
+    setExpanded(nextExpanded);
     setHydrated(true);
-  }, [defaultExpanded, legacyStorageKeys, storageKey]);
+  }, [autoExpandOnHashMatch, defaultExpanded, legacyStorageKeys, storageKey, titleIdProp]);
 
   const persistExpanded = useCallback(
     (nextExpanded: boolean) => {
@@ -75,6 +90,26 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     },
     [storageKey],
   );
+
+  useEffect(() => {
+    if (!autoExpandOnHashMatch || titleIdProp === undefined || titleIdProp.trim() === "") {
+      return;
+    }
+
+    const onHashChange = () => {
+      const hashId = window.location.hash.replace(/^#/, "").trim();
+
+      if (hashId === titleIdProp) {
+        persistExpanded(true);
+      }
+    };
+
+    window.addEventListener("hashchange", onHashChange);
+
+    return () => {
+      window.removeEventListener("hashchange", onHashChange);
+    };
+  }, [autoExpandOnHashMatch, persistExpanded, titleIdProp]);
 
   const toggleExpanded = useCallback(() => {
     persistExpanded(!expanded);

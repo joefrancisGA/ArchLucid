@@ -16,6 +16,7 @@ import {
   RETIRED_ONBOARDING_START_BOOKMARK_PATH,
   RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
 } from "@/lib/ui-route-traffic-retired-redirect-shims";
+import { LEGACY_ONBOARDING_PATH } from "@/lib/first-review-guide-route";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
 
 /** Extra marketing paths not always in the sitemap (noindex / funnel). */
@@ -49,7 +50,6 @@ const CANONICAL_OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/sponsor",
   EVIDENCE_GRAPH_PATH,
   PATTERN_LIBRARY_PATH,
-  "/onboarding",
   PLANNING_PATH,
   PRODUCT_LEARNING_PATH,
   "/advisory-scheduling",
@@ -93,6 +93,7 @@ const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
   RETIRED_ONBOARD_BOOKMARK_PATH,
   RETIRED_ONBOARDING_START_BOOKMARK_PATH,
   RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
+  LEGACY_ONBOARDING_PATH,
 ];
 
 const OPERATOR_PATH_PREFIXES: readonly string[] = [
