@@ -32,6 +32,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   PageContextualHelpButton,
 } from "@/components/usability/PageContextualHelpButton";
+import { TenantSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
 
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
@@ -242,6 +243,8 @@ export function TenantSettingsPageView(props: Props) {
         actions={<PageContextualHelpButton triggerText={WORKSPACE_SETTINGS_HELP_TOPIC_LABEL} />}
 
       />
+
+      <TenantSettingsEvidenceOrientationStrip />
 
       <WorkspaceScopeTenantSettingsVocabularyRail
         currentSurfaceId="tenant-settings"

@@ -8,6 +8,7 @@ import { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/Shel
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { PreferencesSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ export function PreferencesSettingsPageView() {
         titleTestId="preferences-settings-page-title"
         actions={<PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />}
       />
+      <PreferencesSettingsEvidenceOrientationStrip />
       <PreferencesNotificationsVocabularyRail currentSurfaceId="preferences" />
       <ShellThemePreferencesAppearanceVocabularyRail currentSurfaceId="preferences-appearance" />
       <Card data-testid="preferences-appearance-card">

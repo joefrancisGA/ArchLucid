@@ -6,6 +6,12 @@ export const PREFERENCES_SETTINGS_CANONICAL_PATH = SETTINGS_PREFERENCES_PATH;
 
 export const PREFERENCES_HELP_TOPIC_LABEL = "How preferences work";
 
+export const PREFERENCES_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const PREFERENCES_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const PREFERENCES_SETTINGS_CLAIM_HEADING_ID = "preferences-settings-claim-discipline-heading" as const;
+
 export const PREFERENCES_SETTINGS_CLAIM_DISCIPLINE =
   "This Preferences page saves personal appearance choices to your account - it is not a sealed-review diligence Sources package. Open Getting started, Sign-in methods, or Assurance status when you need onboarding, sign-in controls, or trust cites.";
 

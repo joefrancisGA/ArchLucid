@@ -243,6 +243,7 @@ describe("BillingSettingsPage", () => {
     expect(screen.getByTestId("billing-tier-team")).toBeInTheDocument();
     expect(screen.getByTestId("billing-tier-enterprise")).toBeInTheDocument();
     expect(screen.getByTestId("operator-billing-current-plan")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-billing-settings-claim-discipline")).toBeInTheDocument();
     expect(screen.getByText(/does not have an active paid plan/i)).toBeInTheDocument();
     expect(screen.getByText(/Manage your plan, AI usage credits/i)).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /View public pricing/i })[0]).toHaveAttribute("href", "/pricing");

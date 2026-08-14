@@ -6,6 +6,12 @@ export const ROLE_MAPPING_SETTINGS_CANONICAL_PATH =
 
 export const ROLE_MAPPING_SETTINGS_HELP_TOPIC_LABEL = "How role mapping works" as const;
 
+export const ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const ROLE_MAPPING_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const ROLE_MAPPING_SETTINGS_CLAIM_HEADING_ID = "role-mapping-settings-claim-discipline-heading" as const;
+
 export const ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE =
   "This Role mapping page configures how IdP groups or claims become ArchLucid app roles - it is not a sealed-review diligence Sources package. Open Users and roles help, SSO overview, or Assurance status when you need membership, federation, or trust cites.";
 

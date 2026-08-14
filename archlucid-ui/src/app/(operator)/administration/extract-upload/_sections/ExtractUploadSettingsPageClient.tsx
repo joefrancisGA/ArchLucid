@@ -52,6 +52,7 @@ import {
   EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
 } from "@/lib/extract-upload-settings-page-copy";
 import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
+import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 
 const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
@@ -279,6 +280,8 @@ export function ExtractUploadSettingsPageClient() {
         hasBaselineArtifacts={hasBaselineArtifacts}
         extractorScriptVersion={extractorScriptVersion}
       />
+
+      <ExtractUploadSettingsEvidenceOrientationStrip />
 
       <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="extract-upload" />
 

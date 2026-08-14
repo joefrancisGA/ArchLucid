@@ -59,6 +59,7 @@ describe("ExtractUploadSettingsPageClient", () => {
     render(<ExtractUploadSettingsPageClient />);
 
     expect(screen.queryByTestId("extract-upload-page-breadcrumb")).toBeNull();
+    expect(screen.getByTestId("extract-upload-settings-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
     expect(screen.getByTestId("extract-upload-page-layout")).toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-page-aside")).toBeInTheDocument();

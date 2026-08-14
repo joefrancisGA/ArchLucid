@@ -150,6 +150,14 @@ import {
 } from "@/lib/preferences-help-evidence-copy";
 import { PREFERENCES_HELP_CLAIM_HEADING_ID } from "@/lib/preferences-help-guide-content";
 import {
+  PREFERENCES_SETTINGS_CLAIM_DISCIPLINE,
+  PREFERENCES_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  PREFERENCES_SETTINGS_CLAIM_HEADING_ID,
+  PREFERENCES_SETTINGS_FOLLOW_UPS_TITLE,
+  PREFERENCES_SETTINGS_SOURCES,
+  PREFERENCES_SETTINGS_SOURCES_INTRO,
+} from "@/lib/preferences-settings-evidence-copy";
+import {
   NOTIFICATIONS_HELP_CLAIM_DISCIPLINE,
   NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING,
   NOTIFICATIONS_HELP_CLAIM_HEADING_ID,
@@ -302,6 +310,14 @@ import {
   DEPLOYMENT_STATUS_SOURCES_INTRO,
 } from "@/lib/deployment-status-evidence-copy";
 import {
+  EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE,
+  EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  EXTRACT_UPLOAD_SETTINGS_CLAIM_HEADING_ID,
+  EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE,
+  EXTRACT_UPLOAD_SETTINGS_SOURCES,
+  EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO,
+} from "@/lib/extract-upload-settings-evidence-copy";
+import {
   FLEET_LLM_COGS_CLAIM_DISCIPLINE,
   FLEET_LLM_COGS_CLAIM_DISCIPLINE_HEADING,
   FLEET_LLM_COGS_CLAIM_HEADING_ID,
@@ -432,6 +448,14 @@ import {
   PRICING_QUOTE_AGING_SOURCES_INTRO,
 } from "@/lib/pricing-quote-aging-evidence-copy";
 import {
+  OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE,
+  OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  OPERATOR_BILLING_SETTINGS_CLAIM_HEADING_ID,
+  OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE,
+  OPERATOR_BILLING_SETTINGS_SOURCES,
+  OPERATOR_BILLING_SETTINGS_SOURCES_INTRO,
+} from "@/lib/operator/operator-billing-settings-evidence-copy";
+import {
   RAG_HEALTH_CLAIM_DISCIPLINE,
   RAG_HEALTH_CLAIM_DISCIPLINE_HEADING,
   RAG_HEALTH_CLAIM_HEADING_ID,
@@ -439,6 +463,14 @@ import {
   RAG_HEALTH_SOURCES,
   RAG_HEALTH_SOURCES_INTRO,
 } from "@/lib/rag-health-evidence-copy";
+import {
+  ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE,
+  ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  ROLE_MAPPING_SETTINGS_CLAIM_HEADING_ID,
+  ROLE_MAPPING_SETTINGS_FOLLOW_UPS_TITLE,
+  ROLE_MAPPING_SETTINGS_SOURCES,
+  ROLE_MAPPING_SETTINGS_SOURCES_INTRO,
+} from "@/lib/role-mapping-settings-evidence-copy";
 import {
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE,
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -495,6 +527,14 @@ import {
   TRIAL_FUNNEL_SOURCES,
   TRIAL_FUNNEL_SOURCES_INTRO,
 } from "@/lib/trial-funnel-evidence-copy";
+import {
+  TENANT_SETTINGS_CLAIM_DISCIPLINE,
+  TENANT_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  TENANT_SETTINGS_CLAIM_HEADING_ID,
+  TENANT_SETTINGS_FOLLOW_UPS_TITLE,
+  TENANT_SETTINGS_SOURCES,
+  TENANT_SETTINGS_SOURCES_INTRO,
+} from "@/lib/tenant-settings-evidence-copy";
 import {
   TENANT_HEALTH_CLAIM_DISCIPLINE,
   TENANT_HEALTH_CLAIM_DISCIPLINE_HEADING,
@@ -988,6 +1028,101 @@ export function BaselineSettingsEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={BASELINE_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={BASELINE_SETTINGS_SOURCES_INTRO}
       sources={BASELINE_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function ExtractUploadSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="extract-upload-settings"
+      claim={EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={EXTRACT_UPLOAD_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO}
+      sources={EXTRACT_UPLOAD_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function OperatorBillingSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="operator-billing-settings"
+      claim={OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={OPERATOR_BILLING_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={OPERATOR_BILLING_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={OPERATOR_BILLING_SETTINGS_SOURCES_INTRO}
+      sources={OPERATOR_BILLING_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function PreferencesSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="preferences-settings"
+      claim={PREFERENCES_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={PREFERENCES_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={PREFERENCES_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={PREFERENCES_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={PREFERENCES_SETTINGS_SOURCES_INTRO}
+      sources={PREFERENCES_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="role-mapping-settings"
+      claim={ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={ROLE_MAPPING_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={ROLE_MAPPING_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ROLE_MAPPING_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={ROLE_MAPPING_SETTINGS_SOURCES_INTRO}
+      sources={ROLE_MAPPING_SETTINGS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function TenantSettingsEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="tenant-settings"
+      claim={TENANT_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={TENANT_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={TENANT_SETTINGS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={TENANT_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={TENANT_SETTINGS_SOURCES_INTRO}
+      sources={TENANT_SETTINGS_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
@@ -1760,7 +1895,7 @@ export function ServiceNowIntegrationHelpEvidenceOrientationStrip(
       claim={SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE}
       claimHeading={SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorInlineNote}
       claimElement="div"
       sourcesTitle={SERVICENOW_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SERVICENOW_INTEGRATION_HELP_SOURCES_INTRO}

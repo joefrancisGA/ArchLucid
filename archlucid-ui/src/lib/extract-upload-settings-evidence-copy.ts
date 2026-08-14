@@ -5,6 +5,12 @@ export const EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH = "/administration/extract-u
 
 export const EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL = "How extract and upload works" as const;
 
+export const EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const EXTRACT_UPLOAD_SETTINGS_CLAIM_HEADING_ID = "extract-upload-settings-claim-discipline-heading" as const;
+
 export const EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE =
   "This Extract and Upload page collects a read-only Azure inventory ZIP for architecture reviews - it is not a sealed-review diligence Sources package. Open Evidence intake help, Start a review, or Cloud connections when you need intake guidance or live connectors.";
 

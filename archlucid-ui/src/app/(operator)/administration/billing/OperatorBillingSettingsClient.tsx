@@ -8,6 +8,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AiUsageBillingVocabularyRail } from "@/components/AiUsageBillingVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OperatorBillingSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
@@ -83,6 +84,7 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
         subtitle={OPERATOR_BILLING_PAGE_LEAD}
         actions={<PageContextualHelpButton />}
       />
+      <OperatorBillingSettingsEvidenceOrientationStrip />
       <AiUsageBillingVocabularyRail currentSurfaceId="billing" />
       <OperatorBillingPaymentPastDueBanner canMutate={canMutate} />
 
