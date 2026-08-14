@@ -53,7 +53,7 @@ export const AUDIT_TRAIL_HELP_PRIMARY_ACTIONS = {
 } as const;
 
 export const AUDIT_TRAIL_HELP_WHAT_IS_BODY =
-  "When an authorized user finalizes an architecture review, records a governance approval, updates evidence, or exports a diligence bundle, ArchLucid appends an audit trail entry with actor identity, action type, timestamp, and correlation identifiers. Entries stay linked to the review so auditors can reconstruct accountability without opening every finding or signed review record separately.";
+  "When an authorized user finalizes an architecture review, records a governance approval, updates evidence, or exports a diligence bundle, ArchLucid appends an audit trail entry with actor identity, action type, timestamp, and correlation identifiers. Entries stay linked to the review so auditors can reconstruct accountability without opening every finding or sealed review record separately.";
 
 export type AuditTrailHelpAnatomyField = {
   readonly label: string;
@@ -66,7 +66,7 @@ const AUDIT_TRAIL_HELP_ANATOMY_DESCRIPTIONS: Readonly<
   Occurred: "When the action occurred in UTC.",
   Event: "What changed — for example submission, approval, export, or evidence update.",
   Actor: "The person or service identity that performed the action.",
-  Review: "The architecture review or signed review record when the action is review-scoped.",
+  Review: "The architecture review or sealed review record when the action is review-scoped.",
   Correlation: "Optional identifier linking related operations for forensics.",
   Payload:
     "Structured action outcome when shown. Tenant, workspace, and project scope appear as row context rather than a separate column.",
@@ -128,7 +128,7 @@ export const AUDIT_TRAIL_HELP_EVIDENCE_TRAIL_ITEMS = [
   "Input artifacts and evidence trail citations explain what was reviewed.",
   "Findings and decisions capture architecture risk and governance disposition.",
   "Audit trail entries record authenticated actions — who submitted, approved, exported, or changed evidence.",
-  "The signed review record binds the committed architecture review state.",
+  "The sealed review record binds the committed architecture review state.",
 ] as const;
 
 export type AuditTrailHelpRoleGuidance = {

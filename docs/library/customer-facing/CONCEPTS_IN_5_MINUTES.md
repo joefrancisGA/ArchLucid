@@ -12,7 +12,7 @@ ArchLucid ingests architecture evidence, evaluates it against your standards, an
 2. **Analyze** — assessment engines evaluate the architecture in scope  
 3. **Findings** — structured issues with severity and evidence links  
 4. **Decisions** — approvals, accepted risks, and governance notes  
-5. **Governance outputs** — signed review record, evidence trail, and exports  
+5. **Governance outputs** — sealed review record, evidence trail, and exports  
 
 ## Plain-language vocabulary
 
@@ -22,7 +22,7 @@ ArchLucid ingests architecture evidence, evaluates it against your standards, an
 | **Evidence** | Briefs, diagrams, documents, IaC exports, and optional cloud inventory. |
 | **Findings** | Structured issues and risks surfaced during analysis. |
 | **Decision** | A disposition in the Decision register (approve, reject, waive, accept risk). |
-| **Signed review record** | The package locked at finalize — findings, evidence trail, decisions, and exports for one review. |
+| **Sealed review record** | The package locked at finalize — findings, evidence trail, decisions, and exports for one review. |
 | **Evidence trail** | Traceable path from findings back to supporting artifacts. |
 | **Policy pack** | Versioned governance standards and rules for your workspace. |
 | **Governance approval** | Formal sign-off when a review requires approver acknowledgement. |

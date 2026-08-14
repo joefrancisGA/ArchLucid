@@ -14,7 +14,7 @@ export const API_KEYS_HELP_TOPIC_LABEL = "How API keys work";
 export const API_KEYS_SETTINGS_CANONICAL_PATH = CLI_USAGE_HELP_PATH;
 
 export const API_KEYS_SETTINGS_CLAIM_DISCIPLINE =
-  "This API keys page manages automation credentials for approved enterprise configurations - it is not a signed-review diligence Sources package. Open Users and roles help, Audit, or Assurance status when you need membership, governed trails, or trust cites.";
+  "This API keys page manages automation credentials for approved enterprise configurations - it is not a sealed-review diligence Sources package. Open Users and roles help, Audit, or Assurance status when you need membership, governed trails, or trust cites.";
 
 export const API_KEYS_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when key rotation turns into membership setup, audit trails, CLI usage, or assurance cites.";

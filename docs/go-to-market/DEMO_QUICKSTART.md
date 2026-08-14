@@ -46,7 +46,7 @@ The script waits up to **120 seconds** for `http://localhost:5000/health/ready`,
 
 1. **Open a finalized package** — From home or **Architecture packages** (`/architecture/reviews`), open the seeded **hardened Contoso** review (`6e8c4a102b1f4c9a9d3e10b2a4f0c502` after startup seed; see [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) Â§3) or the static showcase **Claims Intake Modernization** package at `/architecture/reviews/claims-intake-modernization` when running UI-only fixtures. You should land on review detail with findings and manifest linkage already present.
 2. **Findings and explainability** — Open one finding. Walk the structured trace (what was examined, rules applied, evidence cited, confidence limits). Call out an **explicit non-conclusion** or evidence gap when the finding flags missing proof — do not imply the AI always concludes.
-3. **Finalize / architecture package** — Show the signed review record / architecture package summary (finding counts, decision trail). This is the sponsor-ready package, not a chat transcript.
+3. **Finalize / architecture package** — Show the sealed review record / architecture package summary (finding counts, decision trail). This is the sponsor-ready package, not a chat transcript.
 4. **Export** — Download Markdown, DOCX, or ZIP from review detail or the export flow (consulting templates may require optional configuration).
 5. **Creation bridge (one line)** — "Creation follows the same governed pipeline." Optional 30-second peek: home **Open created sample** → `/architecture/reviews/northwind-copilot-rag-platform` (**Created** origin badge; see **TB-742**). Do not start the five-minute path there.
 
@@ -1170,7 +1170,7 @@ Each pack folder includes `starter-pack.json` with `scopeLabel`, `doNotUseWhen`,
 
 ### How to start in the architect workspace
 
-1. Confirm a Core Pilot finalize exists (signed review record on an architecture package).
+1. Confirm a Core Pilot finalize exists (sealed review record on an architecture package).
 2. Pick one row from the table.
 3. Open **New architecture review** with baseline ZIP intake (`/architecture/reviews/new?baseline=1`) when the pack lists `second-run.json`, or use **Quick review** / **Detailed wizard** for greenfield presets.
 4. Attach pack JSON/ZIP from the pack folder as evidence; run the assessment; finalize; export the proof checklist in the pack folder.
@@ -1214,7 +1214,7 @@ Former standalone body: `docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUG
 2. **Load second review** — Architect **New architecture review → Starting point → SECOND_RUN** paste `second-run.json`, or `archlucid second-run templates/starter-proof-packs/regulated-saas-soc-procurement/second-run.json`.
 3. **Attach policy context** — Use `policy-context.json` to select SaaS policy pack folder per pack README.
 4. **Execute and finalize** — Wait for **Ready to finalize**, run optional governance dry-run, then **Finalize**.
-5. **Review outputs** — Walk `proof-package-checklist.md`: findings, evidence labels, signed review record id, artifacts table.
+5. **Review outputs** — Walk `proof-package-checklist.md`: findings, evidence labels, sealed review record id, artifacts table.
 6. **Proof packet** — `archlucid pilot proof-packet <runId>` and/or `.\scripts\collect-first-pilot-proof.ps1 -RunId <runId> -SponsorHandoff`.
 7. **Commercial next step** — Send proof folder + [`QUOTE_TO_PROOF_PACKET.md#founder-led-offer-menu-after-first-credible-review`](QUOTE_TO_PROOF_PACKET.md#founder-led-offer-menu-after-first-credible-review); review `quote-to-proof-readiness.json` / `commercial-closeout.md`.
 

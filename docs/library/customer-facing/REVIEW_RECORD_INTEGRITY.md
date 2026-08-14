@@ -1,6 +1,6 @@
 # Review record integrity
 
-ArchLucid's signed review record is the committed golden manifest for a finalized architecture review. Integrity means the package hash, findings snapshot, and audit trail stay append-only after finalize — corrections add new rows; they do not rewrite history.
+ArchLucid's sealed review record is the committed golden manifest for a finalized architecture review. Integrity means the package hash, findings snapshot, and audit trail stay append-only after finalize — corrections add new rows; they do not rewrite history.
 
 ## What the record contains
 

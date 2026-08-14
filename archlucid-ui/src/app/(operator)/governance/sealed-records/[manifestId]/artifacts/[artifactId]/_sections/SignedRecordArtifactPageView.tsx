@@ -51,7 +51,7 @@ function formatDate(iso: string): string {
   }
 }
 
-/** Buyer-safe artifact preview for GAR `/governance/signed-records/.../artifacts/...`. */
+/** Buyer-safe artifact preview for GAR `/governance/sealed-records/.../artifacts/...`. */
 export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageViewProps): React.JSX.Element {
   const model = props.model;
   const buyerPolishedLayout = model.buyerPolishedLayout;
@@ -64,11 +64,11 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
     <div className={cn("w-full max-w-[1200px] px-1 py-2 sm:px-0", OPERATOR_LAYOUT.sectionStack)} data-testid="signed-record-artifact-page">
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link className={OPERATOR_LINK.nav} href={SIGNED_RECORDS_LIST_PATH}>
-          Signed review records
+          Sealed review records
         </Link>
         {" · "}
         <Link className={OPERATOR_LINK.nav} href={signedRecordDetailPath(model.manifestId)}>
-          Signed record
+          Sealed record
         </Link>
         {model.runId !== null ? (
           <>

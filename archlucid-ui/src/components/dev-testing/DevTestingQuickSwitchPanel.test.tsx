@@ -101,10 +101,10 @@ describe("DevTestingQuickSwitchPanel", () => {
       "href",
       "/governance/approval-requests/33333333-aaaa-bbbb-cccc-dddddddddddd/lineage",
     );
-    expect(manifestLink).toHaveAttribute("href", "/governance/signed-records/44444444-aaaa-bbbb-cccc-dddddddddddd");
+    expect(manifestLink).toHaveAttribute("href", "/governance/sealed-records/44444444-aaaa-bbbb-cccc-dddddddddddd");
     expect(artifactLink).toHaveAttribute(
       "href",
-      "/governance/signed-records/44444444-aaaa-bbbb-cccc-dddddddddddd/artifacts/55555555-aaaa-bbbb-cccc-dddddddddddd",
+      "/governance/sealed-records/44444444-aaaa-bbbb-cccc-dddddddddddd/artifacts/55555555-aaaa-bbbb-cccc-dddddddddddd",
     );
   });
 

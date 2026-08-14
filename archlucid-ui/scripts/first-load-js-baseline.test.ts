@@ -65,7 +65,7 @@ Route (app)                                          Revalidate  Expire
     expect(routes.get("/governance/alerts")).toBe(1394.5);
     expect(routes.get("/governance/alert-rules")).toBe(1060.8);
     expect(routes.get("/architecture/sponsor-dashboard")).toBe(1489.3);
-    expect(routes.get("/governance/signed-records")).toBe(1427.7);
+    expect(routes.get("/governance/sealed-records")).toBe(1427.7);
     expect(parseRouteBundleStatsFirstLoadJsKb(stats).size).toBeGreaterThanOrEqual(9);
   });
 

@@ -25,7 +25,7 @@
   `docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md` (including the proof-scope rule) or trip
   `scripts/ci/check_buyer_claim_drift.py`. When adding buyer-visible copy, prefer wording
   already blessed in `docs/library/CONCEPT_VOCABULARY.md` and
-  `docs/library/VOCABULARY_ROSETTA.md` (buyer verbs: finalize, review, signed review record —
+  `docs/library/VOCABULARY_ROSETTA.md` (buyer verbs: finalize, review, sealed review record —
   never commit/run/manifest on buyer surfaces).
 - Verification: focused Vitest only (`npx vitest run <files>` from `archlucid-ui/`), scoped
   dotnet compile via `.\scripts\ci\agent-compile-check.ps1 -ProjectPath <csproj>` only when

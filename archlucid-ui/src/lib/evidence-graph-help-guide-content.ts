@@ -13,7 +13,7 @@ export const EVIDENCE_GRAPH_HELP_PAGE_TITLE = EVIDENCE_GRAPH_PAGE_TITLE;
 export const EVIDENCE_GRAPH_HELP_PAGE_SUBTITLE = EVIDENCE_GRAPH_PAGE_SUBTITLE;
 
 export const EVIDENCE_GRAPH_HELP_OVERVIEW =
-  "The evidence graph shows how evidence connects to findings, decisions, approvals, and audit records for a selected finalized review. Use it to explore relationships before briefing sponsors — not as a signed-review diligence Sources package.";
+  "The evidence graph shows how evidence connects to findings, decisions, approvals, and audit records for a selected finalized review. Use it to explore relationships before briefing sponsors — not as a sealed-review diligence Sources package.";
 
 export const EVIDENCE_GRAPH_HELP_PRIMARY_ACTION = {
   label: "Open evidence graph",

@@ -10,7 +10,7 @@ export const MODEL_GOVERNANCE_HELP_PAGE_SUBTITLE =
   "Manage the workspace default execution profile and governed model aliases used on reviews.";
 
 export const MODEL_GOVERNANCE_HELP_OVERVIEW =
-  "Model governance controls which execution profile and governed model aliases apply to architecture reviews in this workspace. Use it for workspace-wide AI policy — not as a signed-review diligence Sources package.";
+  "Model governance controls which execution profile and governed model aliases apply to architecture reviews in this workspace. Use it for workspace-wide AI policy — not as a sealed-review diligence Sources package.";
 
 export const MODEL_GOVERNANCE_HELP_PRIMARY_ACTION = {
   label: "Open AI and model governance",

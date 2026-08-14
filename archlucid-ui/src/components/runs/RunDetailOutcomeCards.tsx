@@ -494,7 +494,7 @@ export function RunDetailOutcomeCards({
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Exports</dt>
-                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Review, signed review record, audit trail</dd>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Review, sealed review record, audit trail</dd>
               </div>
             </dl>
           ) : null}
@@ -628,7 +628,7 @@ export function RunDetailOutcomeCards({
           ) : null}
           <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {hasGoldenManifest
-              ? "Signed review record is pinned to this review."
+              ? "Sealed review record is pinned to this review."
               : "Finalize from the finalize control when ready."}
           </p>
           {governanceGateLabel !== null && governanceGateLabel !== undefined && governanceGateLabel.length > 0 ? (

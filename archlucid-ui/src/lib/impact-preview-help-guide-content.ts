@@ -8,7 +8,7 @@ export const IMPACT_PREVIEW_HELP_PAGE_SUBTITLE =
   "Estimate before-and-after effects of proposed architecture changes against a finalized review baseline.";
 
 export const IMPACT_PREVIEW_HELP_OVERVIEW =
-  "Impact preview is review-time what-if analysis against a finalized baseline — not production observation and not a signed-review diligence Sources package by itself.";
+  "Impact preview is review-time what-if analysis against a finalized baseline — not production observation and not a sealed-review diligence Sources package by itself.";
 
 export const IMPACT_PREVIEW_HELP_PRIMARY_ACTION = {
   label: "Open impact preview",

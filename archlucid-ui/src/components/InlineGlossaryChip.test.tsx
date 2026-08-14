@@ -27,16 +27,16 @@ describe("InlineGlossaryChip", () => {
 
     renderWithTooltip(
       <InlineGlossaryChip nounId="signed-review-record" pulseOnFirstEncounter={false}>
-        signed review record
+        sealed review record
       </InlineGlossaryChip>,
     );
 
-    fireEvent.pointerMove(screen.getByText("signed review record"));
+    fireEvent.pointerMove(screen.getByText("sealed review record"));
 
     const tooltip = await screen.findByRole("tooltip");
     expect(tooltip).toHaveTextContent(entry.definition);
     expect(tooltip).toHaveTextContent("Open glossary →");
-    expect(tooltip.querySelector('a[href="/help/glossary#term-signed-review-record"]')).not.toBeNull();
+    expect(tooltip.querySelector('a[href="/help/glossary#term-sealed-review-record"]')).not.toBeNull();
   });
 
   it("persists seen state in localStorage when the tooltip opens", async () => {

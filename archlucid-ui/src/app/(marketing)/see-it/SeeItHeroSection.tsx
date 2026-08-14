@@ -17,7 +17,7 @@ import { SeeItDeliverablePreview } from "./SeeItDeliverablePreview";
 
 /** Shorter than the shared outcome-led line — hero visuals carry the rest. */
 export const SEE_IT_HERO_LEAD =
-  "Evidence-backed proof export — signed review record, findings, and audit trail — not a chat transcript.";
+  "Evidence-backed proof export — sealed review record, findings, and audit trail — not a chat transcript.";
 
 /** First-viewport hero for `/see-it` — one headline, one lead, one primary CTA, sample preview rail (TB-1281). */
 export function SeeItHeroSection(): React.JSX.Element {

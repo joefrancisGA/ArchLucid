@@ -4,7 +4,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const PRICING_CANONICAL_PATH = "/pricing" as const;
 
 export const PRICING_CLAIM_DISCIPLINE =
-  "Tier cards and quote requests describe commercial packaging and trial access — they are not a signed-review diligence Sources package. Open Assurance status or the Trust Center before treating assurance language as procurement evidence.";
+  "Tier cards and quote requests describe commercial packaging and trial access — they are not a sealed-review diligence Sources package. Open Assurance status or the Trust Center before treating assurance language as procurement evidence.";
 
 export const PRICING_SOURCES_INTRO =
   "Use these evaluation links when pricing questions turn into security, packaging, or pilot-scope follow-ups.";

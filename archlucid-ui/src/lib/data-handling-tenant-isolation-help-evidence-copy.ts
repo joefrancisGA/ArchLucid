@@ -11,7 +11,7 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE =
   "This page explains how ArchLucid handles review evidence and enforces tenant scope. It is architect orientation, and it is not a countersigned DPA.";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO =
-  "Artifact index for isolation, signed review record, and audit trail claims that need a cite trail beyond this guide.";
+  "Artifact index for isolation, sealed review record, and audit trail claims that need a cite trail beyond this guide.";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_DISCLOSURE_TITLE =
   HELP_DILIGENCE_ARTIFACT_INDEX_TITLE;
@@ -45,7 +45,7 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES: readonly EvidenceDilig
     access: "Signed-in help",
   },
   {
-    label: "Signed review record",
+    label: "Sealed review record",
     href: inAppHelpHref("review-packages"),
     evidences: "Governed review outputs retained in your tenant",
     access: "Tenant workspace",

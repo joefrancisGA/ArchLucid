@@ -11,7 +11,7 @@ const SignedRecordsListClient = dynamic(
       <div
         className="min-h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
         role="status"
-        aria-label="Loading signed records"
+        aria-label="Loading sealed records"
         data-testid="signed-records-list-chunk-loading"
       />
     ),
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   title: SIGNED_RECORDS_LIST_PAGE_TITLE,
 };
 
-/** Signed records list with deferred client chunk (TB-2061). */
+/** Sealed records list with deferred client chunk (TB-2061). */
 export default function SignedRecordsListPage() {
   return (
     <Suspense
@@ -30,7 +30,7 @@ export default function SignedRecordsListPage() {
         <div
           className="min-h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
           role="status"
-          aria-label="Loading signed records"
+          aria-label="Loading sealed records"
           data-testid="signed-records-list-suspense-fallback"
         />
       }

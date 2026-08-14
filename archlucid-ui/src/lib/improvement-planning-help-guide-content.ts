@@ -8,7 +8,7 @@ export const IMPROVEMENT_PLANNING_HELP_PAGE_SUBTITLE =
   "Convert review feedback into recurring themes, prioritized improvement plans, and exportable summaries.";
 
 export const IMPROVEMENT_PLANNING_HELP_OVERVIEW =
-  "Improvement planning turns captured review feedback into themes and prioritized plans for architects and product triage. It is derived signal — not a signed-review diligence Sources package.";
+  "Improvement planning turns captured review feedback into themes and prioritized plans for architects and product triage. It is derived signal — not a sealed-review diligence Sources package.";
 
 export const IMPROVEMENT_PLANNING_HELP_PRIMARY_ACTION = {
   label: "Open improvement planning",

@@ -13,7 +13,7 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_PAGE_TITLE = SEARCH_PAGE_TITLE;
 export const SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE = SEARCH_PAGE_SUBTITLE;
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_OVERVIEW =
-  "Search review evidence retrieves snippets across findings, decisions, and signed records in this workspace. Use it to discover review context before opening cited packages, the evidence graph, or governance queues.";
+  "Search review evidence retrieves snippets across findings, decisions, and sealed records in this workspace. Use it to discover review context before opening cited packages, the evidence graph, or governance queues.";
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_ACTION = {
   label: "Open search review evidence",
@@ -40,13 +40,13 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_FEATURE_ITEMS: readonly SearchReviewEvi
   },
   {
     label: "Ask follow-up",
-    detail: "Use Ask review questions when plain-language answers need a selected signed record.",
+    detail: "Use Ask review questions when plain-language answers need a selected sealed record.",
   },
 ] as const;
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_HOW_TO_READ_STEPS = [
   "Enter a phrase and optionally limit results to one finalized review.",
-  "Open a hit to inspect the cited finding, decision, or signed record context.",
+  "Open a hit to inspect the cited finding, decision, or sealed record context.",
   "Follow evidence graph, findings, or audit trails when search hits need fuller diligence.",
 ] as const;
 

@@ -13,7 +13,7 @@ export const EVIDENCE_TRAIL_HELP_PRIMARY_ACTION = {
 } as const;
 
 export const EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE =
-  "This Evidence graph guide is architect orientation for tracing findings, artifacts, and provenance — it is not a signed-review diligence Sources package. Open the live Evidence graph, Validate review, or Audit when you need workspace packages or assurance claims.";
+  "This Evidence graph guide is architect orientation for tracing findings, artifacts, and provenance — it is not a sealed-review diligence Sources package. Open the live Evidence graph, Validate review, or Audit when you need workspace packages or assurance claims.";
 
 export const EVIDENCE_TRAIL_HELP_SOURCES_INTRO =
   "Use these follow-ups when evidence-trail vocabulary turns into the live graph, search, provenance validation, or findings triage.";

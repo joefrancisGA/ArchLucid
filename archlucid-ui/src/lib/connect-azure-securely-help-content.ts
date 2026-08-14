@@ -13,7 +13,7 @@ export const CONNECT_AZURE_SECURELY_WITHOUT_CONNECTION_NOTE =
   "Reviews can proceed with briefs, diagrams, documents, and uploaded evidence when you choose not to connect.";
 
 export const CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE =
-  "This topic is setup orientation for Azure federated trust and read-only role assignment — not an evidence trail or signed review record. Open Assurance status or the Cloud connections hub before treating setup guidance as assurance evidence.";
+  "This topic is setup orientation for Azure federated trust and read-only role assignment — not an evidence trail or sealed review record. Open Assurance status or the Cloud connections hub before treating setup guidance as assurance evidence.";
 
 export const CONNECT_AZURE_SECURELY_SOURCES_INTRO =
   "Use these follow-ups when Azure setup needs the live hub, permissions detail, or assurance cites.";

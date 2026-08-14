@@ -9,7 +9,7 @@ import {
 export const JIRA_INTEGRATION_HELP_CANONICAL_PATH = "/help/jira-integration" as const;
 
 export const JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE =
-  "This guide explains Jira outbound routing and connection health — it is not a signed-review diligence Sources package.";
+  "This guide explains Jira outbound routing and connection health — it is not a sealed-review diligence Sources package.";
 
 export const JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

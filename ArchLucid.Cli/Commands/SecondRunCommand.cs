@@ -136,7 +136,7 @@ internal static class SecondRunCommand
             }
 
             version = commit.Response?.Manifest.Metadata.ManifestVersion ?? "(unknown)";
-            await Console.Out.WriteLineAsync($"  Review finalized. Signed review record version: {version}");
+            await Console.Out.WriteLineAsync($"  Review finalized. Sealed review record version: {version}");
         }
 
         string reportPath = Path.Combine(Directory.GetCurrentDirectory(), $"first-value-{runId}.md");

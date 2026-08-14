@@ -75,7 +75,7 @@ const BUYER_STEP_TEXT_OVERRIDES: Record<FirstPilotOperatingRailStepId, FirstPilo
   },
   "finalize-package": {
     title: "Finalize the review",
-    shortBody: "Lock the signed review record on review detail to finalize governance records and exports.",
+    shortBody: "Lock the sealed review record on review detail to finalize governance records and exports.",
     primaryLabel: "Finalize on review detail",
   },
   "sponsor-packet": {

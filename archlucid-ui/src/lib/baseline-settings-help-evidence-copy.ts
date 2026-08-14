@@ -8,7 +8,7 @@ import {
 export const BASELINE_SETTINGS_HELP_CANONICAL_PATH = "/help/baseline-settings" as const;
 
 export const BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how baseline anchors feed ROI measurement — it is not a signed review record or audited financial statement.";
+  "This guide explains how baseline anchors feed ROI measurement — it is not a sealed review record or audited financial statement.";
 
 export const BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

@@ -16,7 +16,7 @@ export const BUYER_RUN_INSPECTOR_FINALIZED_LABEL = "Example · finalized";
 export const BUYER_RUNS_GETTING_STARTED_GUIDE = "getting-started guide";
 
 export const BUYER_RUNS_LIST_GLOSSARY_LEAD =
-  "Open a review for the signed record, evidence, findings, and deliverables.";
+  "Open a review for the sealed record, evidence, findings, and deliverables.";
 
 export const BUYER_RUNS_LIST_MALFORMED_HEADING = "Reviews could not be displayed.";
 

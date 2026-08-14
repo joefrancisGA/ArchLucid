@@ -136,7 +136,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
       expect(screen.getByTestId("why-archlucid-first-value-report-body")).toHaveTextContent(
         "ArchLucid — first value report",
       );
-      expect(screen.getByTestId("why-archlucid-citations")).toHaveTextContent("Signed review record");
+      expect(screen.getByTestId("why-archlucid-citations")).toHaveTextContent("Sealed review record");
     });
 
     expect(container.firstChild).toMatchSnapshot();

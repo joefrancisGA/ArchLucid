@@ -24,7 +24,7 @@ export function RunsPageBuyerHelpTip(props: RunsPageBuyerHelpTipProps) {
 
   const hint =
     variant === "search"
-      ? "Use Search reviews below to narrow by title or description. Each row opens the full review — signed review record, evidence trail, findings, and deliverables — for that run."
+      ? "Use Search reviews below to narrow by title or description. Each row opens the full review — sealed review record, evidence trail, findings, and deliverables — for that run."
       : demoMarketing
         ? "Demonstration workspace — suitable for understanding output shape and navigation, not as customer-specific ROI or compliance evidence."
         : "Example review — illustrates structure and navigation for your workspace. Start a review on your own architecture when you are ready for customer-specific evidence.";

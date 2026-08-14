@@ -45,7 +45,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         subtitle={
           buyerPolishedShell
             ? BUYER_POLICY_PACK_LEAD
-            : `${BUYER_POLICY_PACK_LEAD} — matching the Claims Intake showcase review referenced from Governance and signed review record surfaces.`
+            : `${BUYER_POLICY_PACK_LEAD} — matching the Claims Intake showcase review referenced from Governance and sealed review record surfaces.`
         }
         subtitleClassName="max-w-prose leading-relaxed"
       >
@@ -66,7 +66,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         <h2 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>What sponsors see first</h2>
         <ul className={cn("m-0 mt-3 list-disc space-y-2 ps-5 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <li>Explicit minimization checks where identifiers cross trust boundaries (mirrors the PHI finding storyline).</li>
-          <li>Required evidence artifacts for regulators — signed review records, graph excerpts, and governance approvals stay linked.</li>
+          <li>Required evidence artifacts for regulators — sealed review records, graph excerpts, and governance approvals stay linked.</li>
           <li>Operational drift hooks when unstructured attachments spike risk (Alerts ties back to the sample intake graph).</li>
         </ul>
       </section>

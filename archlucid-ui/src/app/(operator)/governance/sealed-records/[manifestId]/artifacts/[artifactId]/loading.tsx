@@ -21,7 +21,7 @@ export default function SignedRecordArtifactLoading(): React.JSX.Element {
         breadcrumb={
           <nav aria-label="Breadcrumb">
             <Link className={OPERATOR_LINK.nav} href={SIGNED_RECORDS_LIST_PATH}>
-              Signed review records
+              Sealed review records
             </Link>
           </nav>
         }

@@ -8,7 +8,7 @@ export const WEBHOOKS_INTEGRATION_CANONICAL_PATH = "/integrations/webhooks" as c
 export const WEBHOOKS_INTEGRATION_HELP_TOPIC_LABEL = "How webhooks work";
 
 export const WEBHOOKS_INTEGRATION_CLAIM_DISCIPLINE =
-  "Webhook subscriptions route governance alerts to HTTPS destinations — they are not a signed-review diligence Sources package. Open Alert rules, Integration readiness, or Audit when you need operational or governed trails.";
+  "Webhook subscriptions route governance alerts to HTTPS destinations — they are not a sealed-review diligence Sources package. Open Alert rules, Integration readiness, or Audit when you need operational or governed trails.";
 
 export const WEBHOOKS_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when destinations need routing rules, readiness checks, or a sibling notification channel.";

@@ -303,7 +303,7 @@ Step label reads "Review findings and missing evidence."
 ### F19 · `/reviews` · RunsPageView — subtitle (TB-449)
 
 **Current issue**  
-Page subtitle: "Finalized architecture reviews with findings, evidence, signed review records, and exports."
+Page subtitle: "Finalized architecture reviews with findings, evidence, sealed review records, and exports."
 
 **Why it matters**  
 Users with in-progress (non-finalized) reviews land on this page and the subtitle implies they will only see completed reviews. A first-time user may not find their in-progress work and assume the review failed.
@@ -414,7 +414,7 @@ Error heading: "Review generation — Could not open generated package."
 | commit (verb) | Onboarding lead, progress steps, empty state | finalize |
 | committed package | Onboarding page lead copy | finalized architecture package |
 | artifacts | "Artifacts & exports" section title, architect workspace | deliverables |
-| manifest | "Review the manifest's decisions…" in artifact section description | architecture package / signed record |
+| manifest | "Review the manifest's decisions…" in artifact section description | architecture package / sealed record |
 | pilot mode / pilot guidance / first-pilot | New review help link, advanced toggle, error toast | review / setup guide / focused scope |
 | traceability bundle | Actions card download CTA | evidence package |
 | Sponsor Export (DOCX) | Primary download button | Architecture review report (DOCX) |

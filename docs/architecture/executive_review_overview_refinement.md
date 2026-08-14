@@ -12,7 +12,7 @@ This refinement targets the **Overview** tab of the review-package workspace —
 
 | Layer | Responsibility | Implementation |
 | --- | --- | --- |
-| **Review package workflow** (top step strip) | Finalized deliverable spine for sponsors/auditors: sponsor summary → signed record → evidence trail → governance → audit | Existing `BuyerGoldenJourneyLayerContextStrip` / `BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS` (unchanged) |
+| **Review package workflow** (top step strip) | Finalized deliverable spine for sponsors/auditors: sponsor summary → sealed record → evidence trail → governance → audit | Existing `BuyerGoldenJourneyLayerContextStrip` / `BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS` (unchanged) |
 | **Review sections** (in-page tabs) | Working review detail: findings, evidence, decisions, package exports, architecture source, activity | `ReviewDetailWorkspace` with primary tabs + **More sections** menu |
 
 `ReviewDetailWorkspaceOrientation` explains the distinction on buyer-polished review pages.

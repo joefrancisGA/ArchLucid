@@ -53,7 +53,7 @@ export function SampleReviewPackageSummary({
           Claims Intake sample review
         </h2>
         <p className={cn("m-0 mt-2 max-w-2xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-          Inspect the signed review record, evidence trail, and audit record when you need the full package. Numbers are
+          Inspect the sealed review record, evidence trail, and audit record when you need the full package. Numbers are
           illustrative only and do not represent customer ROI without a live workspace.
         </p>
 

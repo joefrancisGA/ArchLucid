@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-28  
 **Scope:** Left nav groups · Route names · Page titles · Breadcrumbs · CTAs · Cross-links between review, evidence, governance, and audit views  
-**Golden path audited:** Home → Reviews list → Review detail → Sponsor summary → Signed review record → Evidence graph → Governance → Audit trail  
+**Golden path audited:** Home → Reviews list → Review detail → Sponsor summary → Sealed review record → Evidence graph → Governance → Audit trail  
 **Constraint:** No new features. Prefer structural fixes over rewrites.  
 **Backlog cross-reference:** TB-516–TB-534. No conflicts with TB-431–455 — all new findings operate at the nav-structure layer.
 
@@ -335,8 +335,8 @@ One group per conceptual domain. Progressive disclosure preserved — advanced t
 | 2 | New review `/reviews/new` | Reviews group | "Start architecture review" | CTA label inconsistency (TB-437) |
 | 3 | Review packages `/reviews` | Reviews group | "Open review →" | Subtitle implies finalized only (TB-449) |
 | 4 | Review detail `/reviews/[runId]` | via Reviews list | "Open sponsor summary" | **Governance CTA missing when ready (N06/TB-521)** |
-| 5 | Sponsor summary `/sponsor/reviews/[runId]` | **NOT IN NAV** | "View signed record →" | **No nav entry; no return breadcrumb (N08/TB-523, N13/TB-528)** |
-| 6 | Signed review record `#manifest-summary` | Section on review detail | "Submit for governance approval →" | Not a route; CTA missing (N06/TB-521) |
+| 5 | Sponsor summary `/sponsor/reviews/[runId]` | **NOT IN NAV** | "View sealed record →" | **No nav entry; no return breadcrumb (N08/TB-523, N13/TB-528)** |
+| 6 | Sealed review record `#manifest-summary` | Section on review detail | "Submit for governance approval →" | Not a route; CTA missing (N06/TB-521) |
 | 7 | Evidence graph `/graph?runId=…` | Review Work — wrong position (N03/TB-518) | "View governance record →" | Position wrong; no forward CTA |
 | 8 | Governance approval `/governance` | **Hidden until phase 2 (N02/TB-517)** | "View audit trail →" | **Governance group locked (N02/TB-517)** |
 | 9 | Audit trail `/governance/audit` | **Hidden until phase 2 (N02/TB-517)** | "Download governance evidence" | **Audit hidden; no breadcrumb from governance (N13/TB-528)** |

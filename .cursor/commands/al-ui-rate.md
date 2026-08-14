@@ -55,7 +55,7 @@ If **no screenshot** is attached, stop:
 
 - **The parent agent must not rate the screen itself.** Phase 1 is always delegated to an **Opus High** subagent, regardless of which model the parent is running. Do not skip delegation because the parent "can see" the screenshot.
 - **Screenshot-derived facts are inferred** — label route, tenant, error text, and mode as **(inferred from screenshot)** unless the user confirmed them in text.
-- Follow ArchLucid product language (`docs/library/UI_DESIGN_SYSTEM.md`, `archlucid-ui/AGENTS.md`): *architecture package*, *finding*, *evidence trail*, *signed review record*, *decision*, *governance approval*, *audit trail* — not *run* / *job* / *alert* (unless it is an alert) / *log*. Never call the package a *signed decision record*.
+- Follow ArchLucid product language (`docs/library/UI_DESIGN_SYSTEM.md`, `archlucid-ui/AGENTS.md`): *architecture package*, *finding*, *evidence trail*, *sealed review record*, *decision*, *governance approval*, *audit trail* — not *run* / *job* / *alert* (unless it is an alert) / *log*. Never call the package a *signed decision record*.
 - Ground visual judgment in **IBM Carbon + Fluent 2 shell** standards in `docs/library/UI_DESIGN_SYSTEM.md` (neutral surfaces, restrained teal accent, compact enterprise spacing, `StatusTag` / `SeverityTag`, disclosure for technical IDs).
 - **Do not** soften the critique to spare feelings — the brief below requires brutal honesty.
 - **Do not** invent backend defects you cannot see; if a failure mode is only suspected, mark it **hypothesis** and exclude it from Phase 2 scope.

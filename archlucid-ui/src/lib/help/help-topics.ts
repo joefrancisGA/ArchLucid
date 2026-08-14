@@ -72,7 +72,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Create your first review",
     keywords: ["wizard", "create", "pipeline", "review", "request"],
     summary:
-      "Create a request, track progress, finalize the signed review record, and review artifacts, findings, and the review trail.",
+      "Create a request, track progress, finalize the sealed review record, and review artifacts, findings, and the review trail.",
     docPath: "docs/library/FIRST_RUN_WIZARD.md",
     routes: ["/architecture/reviews/new", "/", "/architecture/first-review-guide"],
   },
@@ -96,7 +96,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     id: "replay",
     title: "Validate review",
     keywords: ["verify", "drift", "validation"],
-    summary: "Validate whether a finalized review can still be reproduced and its signed review record remains valid.",
+    summary: "Validate whether a finalized review can still be reproduced and its sealed review record remains valid.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
     routes: ["/internal/validate-route"],
   },

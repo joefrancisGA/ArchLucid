@@ -185,7 +185,7 @@ Platform engineering, cloud architecture, or a founder/CTO sponsor uses this acc
 
 ### Sponsor artifact example
 
-A proof package that opens with: “This Azure SaaS review links customer-run Azure inventory, policy-pack checks, findings, and a finalized architecture package into one signed review record.” Attach the architecture package export plus the Azure extractor ingest summary; do not attach raw secrets or customer identifiers.
+A proof package that opens with: “This Azure SaaS review links customer-run Azure inventory, policy-pack checks, findings, and a finalized architecture package into one sealed review record.” Attach the architecture package export plus the Azure extractor ingest summary; do not attach raw secrets or customer identifiers.
 
 ### ROI and procurement proof points
 
@@ -223,7 +223,7 @@ Detailed UI/API steps: sections above. Spine: [`FIRST_PILOT_OPERATOR_PATH.md`](.
 
 ### Expected artifacts
 
-- Finalized **architecture package** with signed review record
+- Finalized **architecture package** with sealed review record
 - **Findings** linked to Azure inventory evidence and policy pack rules
 - **Architecture package** exports (DOCX / ZIP) from review detail
 - Optional **sponsor summary** / per-run ROI with explicit basis labels (Retail, EA-adjusted, Uploaded actual)

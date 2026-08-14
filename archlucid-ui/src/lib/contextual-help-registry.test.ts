@@ -18,7 +18,7 @@ import {
 } from "@/lib/internal-ops-route-paths";
 
 const INTERNAL_ROUTE_IN_COPY =
-  /\/(admin|api|governance|settings|integrations|reviews|architectures|help|graph|compare|replay|value-report|digests|planning|advisory|sponsor|manifests|signed-records)(\/|\b)/i;
+  /\/(admin|api|governance|settings|integrations|reviews|architectures|help|graph|compare|replay|value-report|digests|planning|advisory|sponsor|manifests|signed-records|sealed-records)(\/|\b)/i;
 
 const API_PATH_IN_COPY = /\/v\d+\//;
 
@@ -109,7 +109,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/alert-rules",
       "/governance/approval-queue",
       "/governance/approval-requests",
-      "/governance/signed-records",
+      "/governance/sealed-records",
       INTERNAL_TENANT_HEALTH_PATH,
       INTERNAL_RECOMMENDATION_LEARNING_PATH,
       INTERNAL_TENANTS_PATH,
@@ -479,10 +479,10 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves signed-record detail Category-1 help (MMX)", () => {
-    expect(contextualHelpForPathname("/governance/signed-records/demo-manifest")?.whatIsThisPage).toContain(
-      "Signed review record",
+    expect(contextualHelpForPathname("/governance/sealed-records/demo-manifest")?.whatIsThisPage).toContain(
+      "Sealed review record",
     );
-    expect(contextualHelpForPathname("/governance/signed-records/demo-manifest")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/governance/sealed-records/demo-manifest")?.whatToDoNext).toContain(
       "export the review bundle",
     );
   });

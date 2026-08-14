@@ -61,7 +61,7 @@ const READINESS_CHECK_LABELS: Readonly<Record<string, string>> = {
   "graph-projection-cache": "Evidence graph cache",
   schema_files: "Schema bootstrap files",
   compliance_rule_pack: "Compliance rule packs",
-  run_golden_manifest_consistency: "Signed review records",
+  run_golden_manifest_consistency: "Sealed review records",
   orchestrator: "Review orchestration",
   agent_execution_mode: "Agent execution mode",
   temp_directory: "Temporary workspace storage",

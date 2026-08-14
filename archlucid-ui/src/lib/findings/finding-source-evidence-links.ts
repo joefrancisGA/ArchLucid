@@ -112,7 +112,7 @@ function showcaseInspectEvidenceLink(
   if (index === 0) {
     return linkFromKind(
       "manifestSection",
-      "Open PHI handling in signed record",
+      "Open PHI handling in sealed record",
       runDetailSectionHref(ctx.runId, "manifest-summary"),
       detail,
     );
@@ -150,7 +150,7 @@ function inspectRowSourceLink(
       if (manifestId !== null && manifestId.includes("-")) {
         return linkFromKind(
           "manifestRecord",
-          "Open signed record section",
+          "Open sealed record section",
           manifestRecordSectionHref(manifestId, "manifest-decisions"),
           detail,
         );
@@ -158,7 +158,7 @@ function inspectRowSourceLink(
 
       return linkFromKind(
         "manifestSection",
-        "Open signed record section",
+        "Open sealed record section",
         runDetailSectionHref(ctx.runId, "manifest-summary"),
         detail,
       );
@@ -210,7 +210,7 @@ function inspectRowSourceLink(
 
   return linkFromKind(
     "manifestSection",
-    "Open signed record section",
+    "Open sealed record section",
     runDetailSectionHref(ctx.runId, "manifest-summary"),
     detail,
   );
@@ -236,7 +236,7 @@ export function parseEvidenceRefToSourceLink(
     if (manifestId !== null) {
       return linkFromKind(
         "manifestRecord",
-        "Open signed record section",
+        "Open sealed record section",
         manifestRecordSectionHref(manifestId, "manifest-decisions"),
         snippet,
       );
@@ -244,7 +244,7 @@ export function parseEvidenceRefToSourceLink(
 
     return linkFromKind(
       "manifestSection",
-      "Open signed record section",
+      "Open sealed record section",
       runDetailSectionHref(ctx.runId, "manifest-summary"),
       snippet,
     );

@@ -339,8 +339,8 @@ export const REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS = [
  * golden-path scans above.
  */
 export const REVIEW_TERMINOLOGY_FINALIZE_AUDIT_SURFACE_PATHS = [
-  "src/app/(operator)/governance/signed-records/_sections/signed-records-list-copy.ts",
-  "src/app/(operator)/governance/signed-records/_sections/SignedRecordsListTable.tsx",
+  "src/app/(operator)/governance/sealed-records/_sections/signed-records-list-copy.ts",
+  "src/app/(operator)/governance/sealed-records/_sections/SignedRecordsListTable.tsx",
   "src/app/(operator)/governance/audit/_sections/AuditResultsSection.tsx",
   "src/app/(operator)/why-archlucid/_sections/WhyArchLucidSponsorPackBody.tsx",
   "src/components/SponsorWorkspaceHealthDashboard.tsx",

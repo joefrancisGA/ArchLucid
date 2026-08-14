@@ -17,7 +17,7 @@ import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
-import { SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN } from "@/app/(operator)/governance/signed-records/_sections/signed-records-list-copy";
+import { SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN } from "@/app/(operator)/governance/sealed-records/_sections/signed-records-list-copy";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import {
   REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS,
@@ -111,7 +111,7 @@ describe("review terminology guard", () => {
 
   it("canonical product terms export audit trail label constant", () => {
     expect(AUDIT_TRAIL_LABEL).toBe("Audit trail");
-    expect(SIGNED_MANIFEST_LABEL).toBe("Signed review record");
+    expect(SIGNED_MANIFEST_LABEL).toBe("Sealed review record");
   });
 
   it("finalize/audit surfaces use one verb and one destination name", () => {

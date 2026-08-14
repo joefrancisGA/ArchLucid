@@ -9,7 +9,7 @@ import {
 export const SPONSOR_DASHBOARD_HELP_CANONICAL_PATH = "/help/sponsor-dashboard" as const;
 
 export const SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE =
-  "This guide explains sponsor dashboard KPIs, trends, and sponsor exports — it is not a signed-review diligence Sources package.";
+  "This guide explains sponsor dashboard KPIs, trends, and sponsor exports — it is not a sealed-review diligence Sources package.";
 
 export const SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

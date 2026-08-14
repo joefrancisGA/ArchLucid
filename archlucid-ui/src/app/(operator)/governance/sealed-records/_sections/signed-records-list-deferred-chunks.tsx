@@ -21,6 +21,6 @@ export const SignedRecordsListTableDeferred: ComponentType<SignedRecordsListTabl
   () => import("./SignedRecordsListTable").then((module) => module.SignedRecordsListTable),
   {
     ssr: false,
-    loading: () => signedRecordsListDeferredLoading("Loading signed review records table"),
+    loading: () => signedRecordsListDeferredLoading("Loading sealed review records table"),
   },
 );

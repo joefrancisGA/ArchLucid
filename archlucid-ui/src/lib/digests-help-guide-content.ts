@@ -55,7 +55,7 @@ export const DIGESTS_HELP_SAMPLE_DIGEST_TITLE = "Example digest summary";
 export const DIGESTS_HELP_SAMPLE_DIGEST_PERIOD = "Week of 4–10 Aug 2026";
 
 export const DIGESTS_HELP_SAMPLE_DIGEST_LINES = [
-  "3 architecture reviews progressed; 1 signed review record finalized.",
+  "3 architecture reviews progressed; 1 sealed review record finalized.",
   "2 governance approval requests awaiting architect action.",
   "5 open findings — 2 critical severity in production scope.",
   "Weekly advisory scan completed; 1 new finding surfaced.",

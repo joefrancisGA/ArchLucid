@@ -28,7 +28,7 @@ export const TRACKED_ROUTES = [
   "/governance/alerts",
   "/governance/alert-rules",
   "/architecture/sponsor-dashboard",
-  "/governance/signed-records",
+  "/governance/sealed-records",
 ];
 
 const ROUTE_LINE =

@@ -7,7 +7,7 @@ import type { ArchitectureLinkageEdge, ArchitectureLinkageNode } from "@/types/a
 const nodes: ArchitectureLinkageNode[] = [
   { id: "n-ctx", type: "ContextSnapshot", referenceId: "ctx-1", name: "Source context reviewed" },
   { id: "n-find", type: "Finding", referenceId: "f-1", name: "PHI minimization risk" },
-  { id: "n-manifest", type: "GoldenManifest", referenceId: "m-1", name: "Signed review record" },
+  { id: "n-manifest", type: "GoldenManifest", referenceId: "m-1", name: "Sealed review record" },
 ];
 
 const edges: ArchitectureLinkageEdge[] = [

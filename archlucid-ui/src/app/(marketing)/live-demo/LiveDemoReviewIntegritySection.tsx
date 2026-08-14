@@ -3,7 +3,7 @@ import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const INTEGRITY_POINTS = [
-  "Immutable signed review record",
+  "Immutable sealed review record",
   "Evidence traceability to captured context",
   "Recorded governance approval",
   "Accountable actors on each milestone",

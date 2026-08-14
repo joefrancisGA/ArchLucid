@@ -3,7 +3,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const RAG_HEALTH_CLAIM_DISCIPLINE =
-  "RAG corpus health reports chunk counts and last-indexed timestamps for this API host — it is not a signed-review diligence Sources package. Open Diagnostics, System health, or Audit when you need readiness or governed trails.";
+  "RAG corpus health reports chunk counts and last-indexed timestamps for this API host — it is not a sealed-review diligence Sources package. Open Diagnostics, System health, or Audit when you need readiness or governed trails.";
 
 export const RAG_HEALTH_SOURCES_INTRO =
   "Use these follow-ups when corpus freshness needs operational readiness checks or troubleshooting.";

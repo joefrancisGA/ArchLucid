@@ -70,8 +70,8 @@ Pick one:
 | 3 | Execute the review (`POST …/execute` or UI equivalent) | Run progresses through agent/simulator pipeline |
 | 4 | Wait until run status is **Ready for commit** | Poll run detail until commit is allowed |
 | 5 | Commit the review | Golden manifest created; status **Committed** |
-| 6 | Open **Reviews list** → **Review detail** | **Golden manifest** / signed record link visible |
-| 7 | Open **Manifest / signed record** detail | Manifest heading, artifacts table, **Download bundle (ZIP)** |
+| 6 | Open **Reviews list** → **Review detail** | **Golden manifest** / sealed record link visible |
+| 7 | Open **Manifest / sealed record** detail | Manifest heading, artifacts table, **Download bundle (ZIP)** |
 | 8 | Download export ZIP (`GET /v1/artifacts/runs/{runId}/export`) | Non-empty ZIP; audit event **RunExported** |
 | 9 | Submit governance approval (`POST /v1/governance/approval-requests`) | Approval request created |
 | 10 | Negative check: approve as **same actor** who submitted | **400** self-approval blocked (soft expectation in automation) |

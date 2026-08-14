@@ -257,14 +257,14 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
                 BUYER_MANIFEST_AUTHORITY_SUMMARY
               ) : (
                 <>
-                  This is the signed review record for the architecture review — decisions, findings, and the files you
+                  This is the sealed review record for the architecture review — decisions, findings, and the files you
                   can open or download.
                 </>
               )}
             </>
           ) : (
             <>
-              A signed review record is the immutable authority for this review. It captures decisions, findings, and
+              A sealed review record is the immutable authority for this review. It captures decisions, findings, and
               the downloadable {DELIVERABLES_BUNDLE_LABEL.toLowerCase()} linked from review detail.
             </>
           )
@@ -286,7 +286,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           data-testid="manifest-buyer-authority-summary"
         >
           <h2 id="manifest-authority-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            What this signed review record proves
+            What this sealed review record proves
           </h2>
           <p className={cn("m-0 mt-2 max-w-prose leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {BUYER_MANIFEST_AUTHORITY_SUMMARY}

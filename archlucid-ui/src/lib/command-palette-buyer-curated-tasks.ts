@@ -32,7 +32,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
   {
     label: SIGNED_MANIFEST_LABEL,
     href: getShowcaseManifestHref(),
-    searchValue: "signed review record package deliverables",
+    searchValue: "sealed review record package deliverables",
   },
   {
     label: "Policy pack basis",

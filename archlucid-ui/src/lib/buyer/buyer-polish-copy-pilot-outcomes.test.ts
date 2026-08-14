@@ -135,7 +135,7 @@ describe("buyer-polish-copy sample review AHA badge (TB-473)", () => {
 describe("buyer-polish-copy sample findings defensible layer (TB-474)", () => {
   it("uses example review caption without demo-derived or execution mode jargon", () => {
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER).toBe(
-      "Example review — not your workspace data. Open the full review for findings, evidence, and the signed record.",
+      "Example review — not your workspace data. Open the full review for findings, evidence, and the sealed record.",
     );
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("demo-derived");
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("execution mode");

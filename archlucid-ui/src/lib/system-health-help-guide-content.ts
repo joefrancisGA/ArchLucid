@@ -13,7 +13,7 @@ export const SYSTEM_HEALTH_HELP_PAGE_TITLE = SYSTEM_HEALTH_PAGE_TITLE;
 export const SYSTEM_HEALTH_HELP_PAGE_SUBTITLE = SYSTEM_HEALTH_PAGE_SUBTITLE_OPERATOR;
 
 export const SYSTEM_HEALTH_HELP_OVERVIEW =
-  "System health reports workspace operational readiness — live and ready checks plus deployment identity. Use it to confirm dependencies before reviews depend on them, not as a signed-review diligence Sources package.";
+  "System health reports workspace operational readiness — live and ready checks plus deployment identity. Use it to confirm dependencies before reviews depend on them, not as a sealed-review diligence Sources package.";
 
 export const SYSTEM_HEALTH_HELP_PRIMARY_ACTION = {
   label: "Open system health",

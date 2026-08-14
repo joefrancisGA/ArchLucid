@@ -13,7 +13,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Architecture review",
     definition:
-      "A versioned, evidence-linked analysis package produced by ArchLucid. Contains findings, a signed review record, and a full audit trail.",
+      "A versioned, evidence-linked analysis package produced by ArchLucid. Contains findings, a sealed review record, and a full audit trail.",
   },
   {
     term: "Finding",
@@ -26,7 +26,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
       "The decision-traceability graph linking each finding back through the policy rule, evidence source, and agent reasoning that produced it.",
   },
   {
-    term: "Signed review record",
+    term: "Sealed review record",
     definition:
       "The signed, immutable summary of a finalized architecture review. Finalizing the review seals the package and triggers governance gates.",
   },

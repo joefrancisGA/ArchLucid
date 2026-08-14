@@ -19,7 +19,7 @@ export type SpecimenDeliverablePreviewCalloutProps = {
   readonly sectionTestId?: string;
 };
 
-/** Pre-intake specimen preview — signed review record + findings (TB-2151). */
+/** Pre-intake specimen preview — sealed review record + findings (TB-2151). */
 export function SpecimenDeliverablePreviewCallout(
   props: SpecimenDeliverablePreviewCalloutProps,
 ): React.JSX.Element {

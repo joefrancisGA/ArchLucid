@@ -7,7 +7,7 @@ export const EVIDENCE_GRAPH_CANONICAL_PATH = EVIDENCE_GRAPH_PATH;
 export const EVIDENCE_GRAPH_HELP_TOPIC_LABEL = "How the evidence graph works";
 
 export const EVIDENCE_GRAPH_CLAIM_DISCIPLINE =
-  "The evidence graph visualizes how evidence connects to findings, decisions, approvals, and audit records for a finalized review — it is not a signed-review diligence Sources package.";
+  "The evidence graph visualizes how evidence connects to findings, decisions, approvals, and audit records for a finalized review — it is not a sealed-review diligence Sources package.";
 
 export const EVIDENCE_GRAPH_SOURCES_INTRO =
   "Use these follow-ups when graph exploration needs review intake, search, compare, or evidence-trail methodology.";

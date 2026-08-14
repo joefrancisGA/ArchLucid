@@ -8,7 +8,7 @@ export const TEAMS_INTEGRATION_CANONICAL_PATH = "/integrations/teams" as const;
 export const TEAMS_INTEGRATION_HELP_TOPIC_LABEL = "How Teams notifications work";
 
 export const TEAMS_INTEGRATION_CLAIM_DISCIPLINE =
-  "Teams destinations route governance alerts to Microsoft Teams channels — they are not a signed-review diligence Sources package. Open Alert rules, Integration readiness, or Audit when you need operational or governed trails.";
+  "Teams destinations route governance alerts to Microsoft Teams channels — they are not a sealed-review diligence Sources package. Open Alert rules, Integration readiness, or Audit when you need operational or governed trails.";
 
 export const TEAMS_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when the Teams connector needs routing rules, readiness checks, or a sibling notification channel.";

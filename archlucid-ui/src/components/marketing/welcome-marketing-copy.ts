@@ -26,7 +26,7 @@ export const WELCOME_HERO_PITCH =
  */
 export const WELCOME_HERO_DIFFERENTIATORS: readonly string[] = [
   "Every finding traces to evidence",
-  "Signed review records with an audit trail",
+  "Sealed review records with an audit trail",
   "Governance policy packs included",
   "Exports for ARB, audit, and procurement",
 ];

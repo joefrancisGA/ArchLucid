@@ -26,7 +26,7 @@ export const INTERNAL_DEMO_READINESS_TOOLING_DISABLED_DIAGNOSTICS_CTA = "Open di
 export const INTERNAL_DEMO_READINESS_TOOLING_DISABLED_SYSTEM_HEALTH_CTA = "Open System health" as const;
 
 export const DEMO_READINESS_CLAIM_DISCIPLINE =
-  "This Demo readiness page is an internal employee diagnostic for buyer CTO demo checks - it is not a signed-review diligence Sources package. Open System health, Trial funnel, or Audit when you need live dependency, conversion, or governed trails.";
+  "This Demo readiness page is an internal employee diagnostic for buyer CTO demo checks - it is not a sealed-review diligence Sources package. Open System health, Trial funnel, or Audit when you need live dependency, conversion, or governed trails.";
 
 export const DEMO_READINESS_SOURCES_INTRO =
   "Use these follow-ups when demo checks turn into platform health, trial conversion, or public demo surfaces.";

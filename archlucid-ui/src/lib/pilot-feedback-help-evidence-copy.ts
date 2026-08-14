@@ -6,7 +6,7 @@ export { PRODUCT_LEARNING_HELP_TOPIC_LABEL as PILOT_FEEDBACK_HELP_TOPIC_LABEL } 
 export const PILOT_FEEDBACK_HELP_CANONICAL_PATH = "/help/pilot-feedback" as const;
 
 export const PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE =
-  "This pilot feedback guide orients architects on human judgment signals and product-learning triage — it is help orientation, not a signed-review diligence Sources package from your tenant. Open Pilot feedback or Improvement planning when you need live signal trails.";
+  "This pilot feedback guide orients architects on human judgment signals and product-learning triage — it is help orientation, not a sealed-review diligence Sources package from your tenant. Open Pilot feedback or Improvement planning when you need live signal trails.";
 
 export const PILOT_FEEDBACK_HELP_SOURCES_INTRO =
   "Use these follow-ups when pilot-feedback vocabulary turns into live triage dashboards, planning themes, or architecture reviews.";

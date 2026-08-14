@@ -8,7 +8,7 @@ export const RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH = "/help/recurrence-schedu
 export const RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL = RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE;
 
 export const RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE =
-  "This guide explains automated re-review cadences — it is not a signed review record or digest delivery receipt.";
+  "This guide explains automated re-review cadences — it is not a sealed review record or digest delivery receipt.";
 
 export const RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

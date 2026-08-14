@@ -7,7 +7,7 @@ export const PREFERENCES_SETTINGS_CANONICAL_PATH = SETTINGS_PREFERENCES_PATH;
 export const PREFERENCES_HELP_TOPIC_LABEL = "How preferences work";
 
 export const PREFERENCES_SETTINGS_CLAIM_DISCIPLINE =
-  "This Preferences page saves personal appearance choices to your account - it is not a signed-review diligence Sources package. Open Getting started, Sign-in methods, or Assurance status when you need onboarding, sign-in controls, or trust cites.";
+  "This Preferences page saves personal appearance choices to your account - it is not a sealed-review diligence Sources package. Open Getting started, Sign-in methods, or Assurance status when you need onboarding, sign-in controls, or trust cites.";
 
 export const PREFERENCES_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when personal theme settings turn into onboarding, account security, or assurance cites.";

@@ -97,7 +97,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     stepNumber: 4,
     title: "Finalize review",
     description:
-      "Finalize when ready — this locks the signed review record, findings, and export surfaces on the architecture review.",
+      "Finalize when ready — this locks the sealed review record, findings, and export surfaces on the architecture review.",
     expectedOutput: "A finalized architecture review with artifacts and audit trail.",
     href: "/architecture/reviews/new",
     ctaLabel: "Finalize on review detail",

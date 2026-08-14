@@ -95,7 +95,7 @@ test.describe(
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    // GUID `/architecture/reviews/{id}/signed-record` rewrites to review detail — canonical manifest route uses seeded goldenManifestId.
+    // GUID `/architecture/reviews/{id}/sealed-record` rewrites to review detail — canonical manifest route uses seeded goldenManifestId.
     await page.goto(liveSignedManifestHref(liveProductTourGoldenManifestId));
     await waitForLiveOperatorPageHydration(page);
     await expectLiveManifestDetailPageReady(page, liveProductTourGoldenManifestId, { timeoutMs: 90_000 });

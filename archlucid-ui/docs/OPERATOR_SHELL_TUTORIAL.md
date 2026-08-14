@@ -88,10 +88,10 @@ archlucid-ui/
 │   │   │       ├── page.tsx  ← /architecture/reviews/{runId}
 │   │   │       └── (no artifacts/[artifactId] — RER retired; Preview → GAR)
 │   │   │
-│   │   ├── governance/signed-records/[manifestId]/
-│   │   │   ├── page.tsx      ← /governance/signed-records/{manifestId}
+│   │   ├── governance/sealed-records/[manifestId]/
+│   │   │   ├── page.tsx      ← /governance/sealed-records/{manifestId}
 │   │   │   └── artifacts/[artifactId]/
-│   │   │       ├── page.tsx  ← /governance/signed-records/{manifestId}/artifacts/{artifactId}
+│   │   │       ├── page.tsx  ← /governance/sealed-records/{manifestId}/artifacts/{artifactId}
 │   │   │       └── loading.tsx
 │   │   │
 │   │   ├── insights/evidence-graph/page.tsx    ← /insights/evidence-graph
@@ -478,9 +478,9 @@ The order matters: **error → malformed → empty → data**. This is determini
 **API calls:** `getManifestSummary`, `listArtifacts`  
 **States:** Same pattern as run detail but manifest-focused.
 
-### `/governance/signed-records/{manifestId}/artifacts/{artifactId}` — Artifact review (GAR)
+### `/governance/sealed-records/{manifestId}/artifacts/{artifactId}` — Artifact review (GAR)
 
-**File:** `app/(operator)/governance/signed-records/[manifestId]/artifacts/[artifactId]/page.tsx` (server component)  
+**File:** `app/(operator)/governance/sealed-records/[manifestId]/artifacts/[artifactId]/page.tsx` (server component)  
 **API calls:**
 1. `getArtifactDescriptor(manifestId, artifactId)` → metadata
 2. `fetchArtifactContentUtf8(manifestId, artifactId)` → file body as text
@@ -490,7 +490,7 @@ The order matters: **error → malformed → empty → data**. This is determini
 
 ### `/architecture/reviews/{runId}/artifacts/{artifactId}` — Retired run-scoped entry (RER)
 
-**Status:** No App Router page (old bookmarks 404). `ArtifactListTable` Preview uses `artifactPreviewHref` → GAR only (`/governance/signed-records/.../artifacts/...`). Do not reintroduce a run-scoped redirect page.
+**Status:** No App Router page (old bookmarks 404). `ArtifactListTable` Preview uses `artifactPreviewHref` → GAR only (`/governance/sealed-records/.../artifacts/...`). Do not reintroduce a run-scoped redirect page.
 
 ### `/graph` — Graph viewer
 
@@ -530,7 +530,7 @@ If the run has a golden manifest, the artifacts section shows a table:
 
 ### Step 2: Open an artifact for review
 
-Click **Review** / **Preview**. This opens `/governance/signed-records/{manifestId}/artifacts/{artifactId}` (GAR).
+Click **Review** / **Preview**. This opens `/governance/sealed-records/{manifestId}/artifacts/{artifactId}` (GAR).
 
 ### Step 3: Understand the artifact
 
@@ -655,8 +655,8 @@ Every route in the architect workspace has one:
 app/loading.tsx                          → "Loading."
 app/architecture/reviews/loading.tsx     → "Loading reviews."
 app/architecture/reviews/[reviewId]/loading.tsx → "Loading review detail."
-app/governance/signed-records/[manifestId]/loading.tsx → "Loading signed review record."
-app/governance/signed-records/.../artifacts/.../loading.tsx → "Loading artifact review."
+app/governance/sealed-records/[manifestId]/loading.tsx → "Loading sealed review record."
+app/governance/sealed-records/.../artifacts/.../loading.tsx → "Loading artifact review."
 app/insights/evidence-graph/loading.tsx  → "Loading evidence graph."
 app/insights/compare-two-reviews/loading.tsx → "Loading compare."
 app/internal/validate-route/loading.tsx          → "Loading replay."

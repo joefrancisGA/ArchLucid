@@ -74,15 +74,20 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     # Legacy key: /help/policy-pack-delta-demo is a live registry topic again, so this entry only
     # keeps the route out of the traffic catalog. Dropping it needs a workbook sync for the new row.
     "/help/policy-pack-delta-demo": "/help/policy-packs#policy-pack-delta-demo",
-    "/manifests": "/governance/signed-records",
-    "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
+    "/manifests": "/governance/sealed-records",
+    "/manifests/[manifestId]": "/governance/sealed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": (
-        "/governance/signed-records/[manifestId]/artifacts/[artifactId]"
+        "/governance/sealed-records/[manifestId]/artifacts/[artifactId]"
     ),
-    "/signed-records": "/governance/signed-records",
-    "/signed-records/[manifestId]": "/governance/signed-records/[manifestId]",
+    "/signed-records": "/governance/sealed-records",
+    "/signed-records/[manifestId]": "/governance/sealed-records/[manifestId]",
     "/signed-records/[manifestId]/artifacts/[artifactId]": (
-        "/governance/signed-records/[manifestId]/artifacts/[artifactId]"
+        "/governance/sealed-records/[manifestId]/artifacts/[artifactId]"
+    ),
+    "/governance/signed-records": "/governance/sealed-records",
+    "/governance/signed-records/[manifestId]": "/governance/sealed-records/[manifestId]",
+    "/governance/signed-records/[manifestId]/artifacts/[artifactId]": (
+        "/governance/sealed-records/[manifestId]/artifacts/[artifactId]"
     ),
     "/settings/cost-reporting": "/administration/ai-usage",
     "/settings/ai-usage": "/administration/ai-usage",

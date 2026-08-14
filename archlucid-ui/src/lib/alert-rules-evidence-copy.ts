@@ -5,7 +5,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const ALERT_RULES_CANONICAL_PATH = GOVERNANCE_ALERT_RULES_PATH;
 
 export const ALERT_RULES_CLAIM_DISCIPLINE =
-  "Alert conditions, destinations, and simulations configure when and where workspace alerts fire — they are not a signed-review diligence Sources package. Open the Alert inbox or Audit when you need a governed trail.";
+  "Alert conditions, destinations, and simulations configure when and where workspace alerts fire — they are not a sealed-review diligence Sources package. Open the Alert inbox or Audit when you need a governed trail.";
 
 export const ALERT_RULES_SOURCES_INTRO =
   "Use these follow-ups when alert setup needs inbox triage, delivery channels, or product orientation.";

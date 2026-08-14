@@ -8,7 +8,7 @@ import {
 export const SLACK_INTEGRATION_HELP_CANONICAL_PATH = "/help/slack-integration" as const;
 
 export const SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how Slack destinations route governance alerts — it is not a signed-review diligence Sources package.";
+  "This guide explains how Slack destinations route governance alerts — it is not a sealed-review diligence Sources package.";
 
 export const SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

@@ -11,7 +11,7 @@ export const SPONSOR_DASHBOARD_HELP_PAGE_TITLE = SPONSOR_DASHBOARD_PAGE_TITLE;
 export const SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE = SPONSOR_DASHBOARD_PAGE_SUBTITLE_BUYER;
 
 export const SPONSOR_DASHBOARD_HELP_OVERVIEW =
-  "The sponsor dashboard summarizes portfolio ROI trends, workspace-health KPI tiles, and sponsor exports for the selected scope. Use it for governance posture at a glance — not as a signed-review diligence Sources package.";
+  "The sponsor dashboard summarizes portfolio ROI trends, workspace-health KPI tiles, and sponsor exports for the selected scope. Use it for governance posture at a glance — not as a sealed-review diligence Sources package.";
 
 export const SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION = {
   label: "Open sponsor dashboard",

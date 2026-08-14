@@ -13,7 +13,7 @@ export const CONNECTION_STATUS_HELP_PAGE_SUBTITLE =
   "See which workspace integrations are ready, recommended, or optional before reviews depend on them.";
 
 export const CONNECTION_STATUS_HELP_OVERVIEW =
-  "Connection status is the operator readiness dashboard for connectors, webhooks, and cloud links. The live page opens with a summary strip of aggregate counts, then a connector inventory table grouped by purpose — not as a signed-review diligence package.";
+  "Connection status is the operator readiness dashboard for connectors, webhooks, and cloud links. The live page opens with a summary strip of aggregate counts, then a connector inventory table grouped by purpose — not as a sealed-review diligence package.";
 
 export const CONNECTION_STATUS_HELP_PRIMARY_ACTION = {
   label: "Open connection status",

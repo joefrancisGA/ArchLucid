@@ -88,7 +88,7 @@ test.describe(
     await expect(manifestSection).toBeVisible({ timeout: 90_000 });
     await manifestSection.scrollIntoViewIfNeeded();
 
-    await expect(page.getByRole("heading", { name: /Signed review record/i })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { name: /Sealed review record/i })).toBeVisible({ timeout: 60_000 });
     await expect(manifestSection).toContainText("Finalized", { timeout: 60_000 });
 
     const manifestDecisionCount = manifestSection.getByTestId("run-detail-manifest-decision-count");

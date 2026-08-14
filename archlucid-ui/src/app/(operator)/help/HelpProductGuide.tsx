@@ -88,7 +88,7 @@ export function HelpProductGuide() {
             <li>Commit the review.</li>
             <li>
               Open the <strong>evidence trail</strong>, <strong>audit trail</strong>, and{" "}
-              <strong>signed review record</strong>.
+              <strong>sealed review record</strong>.
             </li>
             <li>
               Share the{" "}
@@ -118,7 +118,7 @@ export function HelpProductGuide() {
               — start with the business decision and monitored risks.
             </li>
             <li>
-              Open the <strong>signed review record</strong> — the immutable package locked when this review was finalized.
+              Open the <strong>sealed review record</strong> — the immutable package locked when this review was finalized.
             </li>
             <li>
               Follow the{" "}

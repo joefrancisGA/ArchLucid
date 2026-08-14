@@ -178,7 +178,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     title: "Export or deliverable download is unavailable",
     kind: "user-fixable",
     whatYouSee: "Export is disabled or the download fails.",
-    likelyCause: "Review not finalized, missing signed review record, or your role cannot export.",
+    likelyCause: "Review not finalized, missing sealed review record, or your role cannot export.",
     tryFirst: "Confirm the review is finalized and you have export permission.",
     ifStillBlocked: "Review governance approval requirements and retry after refresh.",
     nextSteps: [

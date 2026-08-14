@@ -6,7 +6,7 @@ export const CONNECT_AWS_SECURELY_CANONICAL_PATH = "/help/cloud-connections/aws"
 export const CONNECT_AWS_SECURELY_HELP_TOPIC_LABEL = "How AWS cloud connection works" as const;
 
 export const CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE =
-  "This guide explains how to attach AWS with OIDC-federated read-only IAM and Resource Explorer inventory — it is connector setup orientation, not a signed-review diligence Sources package. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
+  "This guide explains how to attach AWS with OIDC-federated read-only IAM and Resource Explorer inventory — it is connector setup orientation, not a sealed-review diligence Sources package. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
 
 export const CONNECT_AWS_SECURELY_SOURCES_INTRO =
   "Use these follow-ups when AWS setup needs the live hub, parent cloud-connections help, sibling cloud guides, or assurance cites.";

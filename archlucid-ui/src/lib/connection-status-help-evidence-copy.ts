@@ -5,7 +5,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const CONNECTION_STATUS_HELP_CANONICAL_PATH = "/help/connection-status" as const;
 
 export const CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how to read the connection status summary strip and connector inventory — it is not a signed-review diligence package.";
+  "This guide explains how to read the connection status summary strip and connector inventory — it is not a sealed-review diligence package.";
 
 export const CONNECTION_STATUS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

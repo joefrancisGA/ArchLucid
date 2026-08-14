@@ -5,7 +5,7 @@ import { CANONICAL_GET_STARTED_PATH } from "@/lib/legacy-quick-start-route";
 export const SEE_IT_CANONICAL_PATH = "/see-it" as const;
 
 export const SEE_IT_CLAIM_DISCIPLINE =
-  "This see-it page shows a fabricated sample finalized review for evaluation — it is marketing proof orientation, not a signed-review diligence Sources package from your tenant. Open Assurance status or start an evaluation when you need live workspace evidence.";
+  "This see-it page shows a fabricated sample finalized review for evaluation — it is marketing proof orientation, not a sealed-review diligence Sources package from your tenant. Open Assurance status or start an evaluation when you need live workspace evidence.";
 
 export const SEE_IT_SOURCES_INTRO =
   "Use these evaluation links when the sample proof turns into signup, assurance, or a deeper walkthrough.";

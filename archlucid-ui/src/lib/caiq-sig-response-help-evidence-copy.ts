@@ -7,7 +7,7 @@ export const CAIQ_SIG_RESPONSE_HELP_TOPIC_LABEL = "How CAIQ and SIG responses wo
 
 /** Print / PDF export — full claim discipline (not duplicated on-screen). */
 export const CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE =
-  "This CAIQ / SIG questionnaire guide maps pre-filled responses to in-repo evidence for procurement reviewers — it is help orientation and self-attested questionnaire fill, not a CPA SOC 2 attestation, a published third-party pen-test report, or a signed-review diligence Sources package from your tenant. Open SOC 2 self-assessment, Trust Center, or Procurement FAQ when you need related assurance surfaces.";
+  "This CAIQ / SIG questionnaire guide maps pre-filled responses to in-repo evidence for procurement reviewers — it is help orientation and self-attested questionnaire fill, not a CPA SOC 2 attestation, a published third-party pen-test report, or a sealed-review diligence Sources package from your tenant. Open SOC 2 self-assessment, Trust Center, or Procurement FAQ when you need related assurance surfaces.";
 
 export const CAIQ_SIG_RESPONSE_HELP_LEAD =
   "Pre-filled CAIQ Lite themes and SIG Core control families mapped to in-repo evidence for procurement reviewers drafting security questionnaires.";
@@ -20,7 +20,7 @@ export const CAIQ_SIG_RESPONSE_HELP_CLAIM_SCOPE =
 export const CAIQ_SIG_RESPONSE_HELP_CLAIM_NOT_THIS = [
   "Not a CPA SOC 2 attestation",
   "Not a published third-party pen-test report",
-  "Not a signed-review diligence Sources package from your tenant",
+  "Not a sealed-review diligence Sources package from your tenant",
 ] as const;
 
 export const CAIQ_SIG_RESPONSE_HELP_SOURCES_INTRO =

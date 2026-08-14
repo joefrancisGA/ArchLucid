@@ -62,7 +62,7 @@ export function canonicalObjectHomeActionLabel(objectType: GovernedObjectType): 
     case "decision":
       return "decision register";
     case "signedReviewRecord":
-      return "signed review record";
+      return "sealed review record";
     case "approvalRequest":
       return "approval queue";
     default: {

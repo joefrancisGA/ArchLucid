@@ -14,7 +14,7 @@ There is **no first-party ArchLucid → Cursor connector today**, but you can al
 
 ## What ArchLucid produces today
 
-ArchLucid's output is a **finalized architecture package** (signed review record + synthesized artifacts), not a ticket or pull request by itself. After you **finalize** a review, you get machine-readable and human-readable design material:
+ArchLucid's output is a **finalized architecture package** (sealed review record + synthesized artifacts), not a ticket or pull request by itself. After you **finalize** a review, you get machine-readable and human-readable design material:
 
 | Output | How to get it | Good for Cursor because… |
 |--------|---------------|---------------------------|

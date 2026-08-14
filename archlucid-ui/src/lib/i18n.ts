@@ -22,7 +22,7 @@ export {
 } from "@/lib/operator/operator-health-labels";
 
 export const DOMAIN_TERMS = {
-  goldenManifest: "Signed review record",
+  goldenManifest: "Sealed review record",
   decisionTrace: "Decision Trace",
   policyPack: "Policy Pack",
   policyPackContentDocument: "Policy Pack Content Document",
@@ -68,9 +68,9 @@ export const RUNS_DASHBOARD_LABELS = {
   packagingPreFinalPosture: "Reviews nearing finalization",
   reviewOutcomes: "Review outcomes",
   recentSummary: "Showing the latest architecture reviews for this workspace.",
-  attentionSummary: "Reviews with findings awaiting a finalized signed review record.",
+  attentionSummary: "Reviews with findings awaiting a finalized sealed review record.",
   attentionSummaryBuyer:
-    "Architecture reviews still moving toward a finalized signed review record before sponsor sign-off.",
+    "Architecture reviews still moving toward a finalized sealed review record before sponsor sign-off.",
   noReviewsNeedAttention: "No reviews currently need attention.",
   oneReviewNeedsAttention: "1 review needs attention.",
   reviewsNeedAttentionCount: (count: number) => `${count} reviews need attention.`,
@@ -130,7 +130,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   assignedToMeFindings: "Assigned to me",
   riskExceptions: "Exceptions",
   decisionRegister: "Decision register",
-  signedReviewRecords: "Signed review records",
+  signedReviewRecords: "Sealed review records",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
   /** Baseline settings (`/administration/baseline`) — sidebar short form; the page H1 keeps the "— ROI measurement" qualifier. */

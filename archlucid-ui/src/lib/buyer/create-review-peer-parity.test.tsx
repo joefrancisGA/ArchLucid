@@ -116,10 +116,10 @@ describe("ADR 0067 — Create architecture / Review peer parity", () => {
   });
 
   it("keeps artifact standing distinct — parity of entry points, not of artifacts", () => {
-    // ADR 0067 decision point 5: a draft is mutable and unsigned; only review yields a signed record.
+    // ADR 0067 decision point 5: a draft is mutable and unsealed; only review yields a sealed record.
     expect(OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY).toMatch(/draft/i);
     expect(OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY).not.toMatch(/signed/i);
-    expect(OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY).toMatch(/signed review record/i);
+    expect(OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY).toMatch(/sealed review record/i);
   });
 
   it("audits both hub primaries in lockstep in the CTA inventory", () => {

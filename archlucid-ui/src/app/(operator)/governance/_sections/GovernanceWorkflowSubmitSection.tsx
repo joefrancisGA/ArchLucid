@@ -151,7 +151,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               <Label htmlFor="gov-submit-version">
                 Review record version (the{" "}
                 <GlossaryTooltip termKey="golden_manifest" pulseOnFirstSession={false}>
-                  signed review record
+                  sealed review record
                 </GlossaryTooltip>{" "}
                 label)
               </Label>

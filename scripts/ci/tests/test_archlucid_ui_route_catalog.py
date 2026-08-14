@@ -279,14 +279,15 @@ def test_migrate_workbook_path_maps_legacy_sponsor_report_to_insights() -> None:
 def test_migrate_workbook_path_maps_legacy_replay_and_signed_records() -> None:
     assert migrate_workbook_path("/replay") == "/internal/validate-route"
     assert migrate_workbook_path("/internal/replay") == "/internal/validate-route"
-    assert migrate_workbook_path("/signed-records") == "/governance/signed-records"
+    assert migrate_workbook_path("/signed-records") == "/governance/sealed-records"
+    assert migrate_workbook_path("/governance/signed-records") == "/governance/sealed-records"
     assert (
         migrate_workbook_path("/signed-records/[manifestId]")
-        == "/governance/signed-records/[manifestId]"
+        == "/governance/sealed-records/[manifestId]"
     )
     assert (
         migrate_workbook_path("/manifests/[manifestId]")
-        == "/governance/signed-records/[manifestId]"
+        == "/governance/sealed-records/[manifestId]"
     )
 
 

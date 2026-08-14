@@ -31,9 +31,9 @@ export type FirstWeekRouteGuidanceConfig = {
 export const BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR = "#finalize-review";
 
 const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
-  useWhen: "The review is running or findings are ready but the signed review record is not finalized yet.",
+  useWhen: "The review is running or findings are ready but the sealed review record is not finalized yet.",
   bridgeCopy:
-    "Stay on this page until you finalize — that locks the signed review record and unlocks sponsor exports.",
+    "Stay on this page until you finalize — that locks the sealed review record and unlocks sponsor exports.",
   primaryAction: { label: "Finalize this review", href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR },
   operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
 };
@@ -45,7 +45,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   home: {
     useWhen: "You are in your first pilot session and need the shortest path to a committed review.",
     bridgeCopy:
-      "Each architecture review is tracked as one review — the same object from capture through signed review record and export. Start with briefs, diagrams, or IaC only (evidence-only); cloud inventory ZIP (AWS, Azure, or GCP) is optional when you need live architecture structure or cost grounding.",
+      "Each architecture review is tracked as one review — the same object from capture through sealed review record and export. Start with briefs, diagrams, or IaC only (evidence-only); cloud inventory ZIP (AWS, Azure, or GCP) is optional when you need live architecture structure or cost grounding.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     operateDeferralNote:
       "Graph, Compare, and heavy governance surfaces stay out of the sidebar until after your first committed package.",
@@ -53,7 +53,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   onboarding: {
     useWhen: "Follow this guided path to create and commit your first review.",
     bridgeCopy:
-      "The checklist below walks one architecture review from capture to committed signed review record.",
+      "The checklist below walks one architecture review from capture to committed sealed review record.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     operateDeferralNote: "Finish this path before exploring Operate analysis or governance lanes.",
   },
@@ -67,7 +67,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   "reviews-list": {
     useWhen: "You want to resume an in-progress review or open a committed review.",
     bridgeCopy:
-      "Each package gives you the review record, findings, evidence trail, signed review record, and exports.",
+      "Each package gives you the review record, findings, evidence trail, sealed review record, and exports.",
     operateDeferralNote: "",
   },
   "review-detail-in-progress": BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE,

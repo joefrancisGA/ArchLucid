@@ -28,11 +28,11 @@ export function resolveWhyArchLucidDemoUniverse(args: ResolveWhyArchLucidDemoUni
 export function whyArchLucidUniverseWalkthroughLead(universe: WhyArchLucidDemoUniverse): string {
   switch (universe) {
     case "claims":
-      return "See how ArchLucid turns architecture review into a governed decision package — sponsor report, signed review record, evidence trail, governance approval, and audit record — using the Claims Intake sample workspace as a walkthrough.";
+      return "See how ArchLucid turns architecture review into a governed decision package — sponsor report, sealed review record, evidence trail, governance approval, and audit record — using the Claims Intake sample workspace as a walkthrough.";
     case "contoso":
-      return "See how ArchLucid turns architecture review into a governed decision package — sponsor report, signed review record, evidence trail, governance approval, and audit record — using the Retail baseline sample workspace as a walkthrough.";
+      return "See how ArchLucid turns architecture review into a governed decision package — sponsor report, sealed review record, evidence trail, governance approval, and audit record — using the Retail baseline sample workspace as a walkthrough.";
     case "unknown":
-      return "See how ArchLucid turns architecture review into a governed decision package — sponsor report, signed review record, evidence trail, governance approval, and audit record — using a demo sample workspace as a walkthrough.";
+      return "See how ArchLucid turns architecture review into a governed decision package — sponsor report, sealed review record, evidence trail, governance approval, and audit record — using a demo sample workspace as a walkthrough.";
     default: {
       const _exhaustive: never = universe;
 

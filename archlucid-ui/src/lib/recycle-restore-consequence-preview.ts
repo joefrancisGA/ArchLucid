@@ -57,7 +57,7 @@ export function buildRecycleRestoreConsequencePreview(): RecycleRestoreConsequen
         id: "staysDistinctPackages",
         label: "What stays distinct — packages",
         detail:
-          "Architecture packages and signed review records stay on the reviews hub. Soft-delete did not erase them; restore does not re-finalize them.",
+          "Architecture packages and sealed review records stay on the reviews hub. Soft-delete did not erase them; restore does not re-finalize them.",
       },
     ],
     distinctObjectsNote: RECYCLE_RESTORE_DISTINCT_OBJECTS_NOTE,

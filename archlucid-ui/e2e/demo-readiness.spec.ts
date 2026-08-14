@@ -71,7 +71,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   });
 
   test("showcase-aligned manifest UUID loads manifest chrome (not indefinite skeleton)", async ({ page }) => {
-    await page.goto(`/governance/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
+    await page.goto(`/governance/sealed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
     const primaryMain = getAppMain(page);
     await expect(primaryMain).toHaveCount(1);
@@ -94,7 +94,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await page.goto(claimsShowcasePath);
     await page
       .getByRole("region", { name: /Explore in workspace/i })
-      .getByRole("link", { name: "Open signed record", exact: true })
+      .getByRole("link", { name: "Open sealed record", exact: true })
       .click();
     await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
@@ -105,7 +105,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/",
       "/architecture/reviews",
       `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
-      `/governance/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
+      `/governance/sealed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
       "/governance/approval-queue",
       "/help",
       `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
@@ -158,7 +158,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(claimsTableRow).toBeVisible();
     await reviewsHubPackagePrimaryAction(appMain, SHOWCASE_DEMO_RUN_ID).click();
     const afterListClickUrl = new RegExp(
-      `(?:/governance/signed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/architecture/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}(?:/architecture)?)`,
+      `(?:/governance/sealed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/architecture/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}(?:/architecture)?)`,
     );
     await expect(page).toHaveURL(afterListClickUrl);
 
@@ -170,7 +170,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expectMainHasNoHardFailureChrome(page);
 
-    await page.goto(`/governance/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
+    await page.goto(`/governance/sealed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
     await expect(
       getAppMain(page).getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });
@@ -228,7 +228,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   });
 
   test("invalid manifest and run route tokens surface branded not-found @demo-readiness", async ({ page }) => {
-    await page.goto("/governance/signed-records/undefined");
+    await page.goto("/governance/sealed-records/undefined");
     await expectBrandedNotFoundSurface(page);
 
     await page.goto("/architecture/reviews/undefined");

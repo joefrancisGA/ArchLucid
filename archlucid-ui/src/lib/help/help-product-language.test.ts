@@ -33,10 +33,10 @@ describe("help-product-language", () => {
 
   it("rewrites legacy signed-records paths to governance canonical", () => {
     expect(rewriteLegacyHelpOperatorRoutes("[Record](/signed-records/abc) and [list](/signed-records)")).toBe(
-      "[Record](/governance/signed-records/abc) and [list](/governance/signed-records)",
+      "[Record](/governance/sealed-records/abc) and [list](/governance/sealed-records)",
     );
     expect(rewriteLegacyHelpOperatorRoutes("[Manifest](/manifests/abc/artifacts/x)")).toBe(
-      "[Manifest](/governance/signed-records/abc/artifacts/x)",
+      "[Manifest](/governance/sealed-records/abc/artifacts/x)",
     );
   });
 
@@ -61,7 +61,7 @@ describe("help-product-language", () => {
     expect(output).toContain("ReviewId=abc");
     expect(output.toLowerCase()).toContain("review not ready to finalize");
     expect(output.toLowerCase()).toContain("review exists");
-    expect(output.toLowerCase()).toContain("signed review record");
+    expect(output.toLowerCase()).toContain("sealed review record");
   });
 
   it("preserves Architecture package and does not collapse it to architecture review", () => {

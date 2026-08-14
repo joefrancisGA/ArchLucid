@@ -22,7 +22,7 @@ export const TROUBLESHOOTING_HELP_APPLICABILITY =
 export const TROUBLESHOOTING_HELP_RELATED_TITLE = "Live checks and follow-ups" as const;
 
 export const TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE =
-  "This troubleshooting guide helps architects unblock reviews and connections — it is not a signed-review diligence Sources package. Open System health or Audit when you need operational or governed trails.";
+  "This troubleshooting guide helps architects unblock reviews and connections — it is not a sealed-review diligence Sources package. Open System health or Audit when you need operational or governed trails.";
 
 export const TROUBLESHOOTING_HELP_SOURCES_INTRO =
   "Use these follow-ups when a symptom needs live health checks, audit context, or product orientation.";

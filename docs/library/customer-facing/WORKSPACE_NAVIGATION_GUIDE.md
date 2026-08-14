@@ -20,7 +20,7 @@ The **architect workspace** and **sponsor** reading surfaces are separate shells
 
 1. **Start** — Open Home (`/`). Use the first-review checklist, or go to **New architecture review** (`/architecture/reviews/new`).
 2. **Reviews** — Open **Reviews**, pick your project, and open a row.
-3. **Review detail** — Watch assessment progress. After you **finalize**, the signed review record, findings, and exports appear.
+3. **Review detail** — Watch assessment progress. After you **finalize**, the sealed review record, findings, and exports appear.
 4. **Artifacts** — Download sponsor-ready outputs from the architecture package.
 
 Saving an **architecture draft** (Architectures workspace) is optional and does not start a review.

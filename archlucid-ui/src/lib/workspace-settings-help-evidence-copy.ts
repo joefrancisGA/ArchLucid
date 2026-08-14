@@ -9,7 +9,7 @@ import {
 export const WORKSPACE_SETTINGS_HELP_CANONICAL_PATH = "/help/workspace-settings" as const;
 
 export const WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE =
-  "This guide explains workspace and tenant settings — it is not a signed-review diligence Sources package.";
+  "This guide explains workspace and tenant settings — it is not a sealed-review diligence Sources package.";
 
 export const WORKSPACE_SETTINGS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

@@ -56,7 +56,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Users & roles (3 tabs) | **TB-1210**–**TB-1215** (open P1 **V1**) | Operator vs Architect honesty; tab-specific empty copy; breadcrumb/nav title; API keys empty + CTA; invite empty composition; PageContextualHelpButton; owner screenshots ~49/100 2026-07-25 |
 | Users API keys tab (`/administration/settings/users?tab=keys`) | **TB-1931**–**TB-1935** (open **V1**) | Job honesty; execute **TB-1213** CTA; keys empty/error; columns; Vitest; ~45/100; traffic **SEU**; pairs **TB-1210**–**TB-1215**; sibling **SSU** |
 | Users invitations tab (`/administration/settings/users?tab=users`) | **TB-1936**–**TB-1940** (open **V1**) | URL sync; execute **TB-1214**; principals purge; density; Vitest; ~46/100; traffic **SSU**; pairs **TB-1210**–**TB-1215**; sibling **SEU** |
-| Signed review records (`/signed-records`) | **TB-1941**–**TB-1942**, **TB-1944**–**TB-1945** (open **V1**) | Traffic section; empty projectId; CTA/pagination/enrich; Vitest; ~50/100; traffic **SI**; sibling **MAM** via **TB-1824**; **TB-1943** Done |
+| Sealed review records (`/signed-records`) | **TB-1941**–**TB-1942**, **TB-1944**–**TB-1945** (open **V1**) | Traffic section; empty projectId; CTA/pagination/enrich; Vitest; ~50/100; traffic **SI**; sibling **MAM** via **TB-1824**; **TB-1943** Done |
 | AI usage (`/administration/settings/ai-usage`) | **TB-1216**–**TB-1220** (open P1 **V1**) | Administration breadcrumb honesty; suppress zero-usage theater; PageHeading/help; budget CTA dedupe; hide Highest-cost when $0; owner screenshot ~51/100 2026-07-25 |
 | Security & Trust (`/administration/settings/security-trust`) | **TB-1223**–**TB-1227**, **TB-1285**–**TB-1286** (open; **TB-1284** Done) | Administration breadcrumb honesty; collapse triple intro; PageHeading/help; Available-now CTA; contact dedupe; StatusTag badges; density/legend; owner reviews ~53/100 2026-07-25/26; traffic **WSX** |
 | Account security (`/administration/settings/account-security`) | **TB-1881**–**TB-1885** (open **V1**) | Scope honesty; busy disables; in-page remove; empty/help; Vitest; ~52/100; traffic **SEA**; pairs **TB-1614** |
@@ -665,10 +665,10 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1938 | Users tab — purge principals jargon from error/empty with **TB-1211** | Trustworthiness P1 **V1** — with **TB-1936** |
 | TB-1939 | Users tab — Invite primary + demote pending/users empty Cards | Adoption friction P1 **V1** — with **TB-1936** |
 | TB-1940 | Users tab — Vitest URL sync + empty composition | Testability P2 **V1** — with **TB-1936** |
-| TB-1941 | Signed records list — traffic section honesty (not Marketing) | Trustworthiness P1 **V1** — SI ~50 |
-| TB-1942 | Signed records list — empty Browse reviews drop `projectId=default` | Trustworthiness P1 **V1** — with **TB-1941** |
-| TB-1944 | Signed records list — dedupe Open review CTAs + page-1/100 + N+1 enrich | Adoption friction P1 **V1** — with **TB-1941** |
-| TB-1945 | Signed records list — Vitest empty href + row honesty + traffic note | Testability P2 **V1** — with **TB-1941** |
+| TB-1941 | Sealed records list — traffic section honesty (not Marketing) | Trustworthiness P1 **V1** — SI ~50 |
+| TB-1942 | Sealed records list — empty Browse reviews drop `projectId=default` | Trustworthiness P1 **V1** — with **TB-1941** |
+| TB-1944 | Sealed records list — dedupe Open review CTAs + page-1/100 + N+1 enrich | Adoption friction P1 **V1** — with **TB-1941** |
+| TB-1945 | Sealed records list — Vitest empty href + row honesty + traffic note | Testability P2 **V1** — with **TB-1941** |
 | TB-1950 | MAM — Vitest App Router existence with **TB-1825** | Testability P2 **V1** — with **TB-1946** — **Done** 2026-08-11 |
 | TB-1661 | Operator line-tabs visual contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner tabs consistency pass 2026-07-27; after Done **TB-665**; pairs **TB-1552**–**TB-1556** / **TB-1572**–**TB-1576** / **TB-1646**–**TB-1650** |
 | TB-1662 | Strip TabsList/TabsTrigger chrome overrides (Advisory, Help×2, Deliverables, buyer RunsDashboard) | Adoption friction P1 **V1** — with **TB-1661**; after Done **TB-667**/**TB-670** |

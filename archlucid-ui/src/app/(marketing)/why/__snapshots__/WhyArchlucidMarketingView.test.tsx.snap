@@ -148,7 +148,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       <p
         class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
       >
-        This Why ArchLucid page compares product fit for evaluation — it is marketing differentiation orientation, not a signed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.
+        This Why ArchLucid page compares product fit for evaluation — it is marketing differentiation orientation, not a sealed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.
       </p>
     </aside>
   </div>
@@ -470,7 +470,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
       data-testid="why-outcome-led-value-proposition"
     >
-      Cut architecture review cycle time with an evidence-backed proof export — signed review record, findings, audit trail, and sponsor-ready readout — not a chat transcript.
+      Cut architecture review cycle time with an evidence-backed proof export — sealed review record, findings, audit trail, and sponsor-ready readout — not a chat transcript.
     </p>
     <p
       class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
@@ -513,7 +513,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             ArchLucid:
           </span>
-           Committed signed review record in SQL with review record id and audit trail
+           Committed sealed review record in SQL with review record id and audit trail
         </p>
         <p
           class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
@@ -809,7 +809,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 <td
                   class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                  Typical fit: interactive Q&A — not a governed package with finalized signed review record lineage by default.
+                  Typical fit: interactive Q&A — not a governed package with finalized sealed review record lineage by default.
                 </td>
                 <td
                   class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"

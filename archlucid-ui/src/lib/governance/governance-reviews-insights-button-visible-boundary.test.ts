@@ -11,7 +11,7 @@ const REPO_ROOT = join(process.cwd());
 const GOVERNANCE_REVIEWS_INSIGHTS_BUTTON_PATHS = [
   "src/app/(operator)/governance/audit/_sections/AuditPageView.tsx",
   "src/components/AuditActiveFilterChips.tsx",
-  "src/app/(operator)/governance/signed-records/_sections/SignedRecordsListClient.tsx",
+  "src/app/(operator)/governance/sealed-records/_sections/SignedRecordsListClient.tsx",
   "src/components/governance/findings/GovernanceFindingsFilterBar.tsx",
   "src/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackageSponsorHandoffStrip.tsx",
   "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArtifactsExportsSection.tsx",

@@ -181,7 +181,7 @@ internal static class TrialFunnelOperationalSummaryBuilder
             StageDefinitions =
             [
                 "Trial started — TrialSignupAttempted audit event in the selected window.",
-                "First review finalized — TrialFirstRunCompleted audit event (first signed review record committed).",
+                "First review finalized — TrialFirstRunCompleted audit event (first sealed review record committed).",
                 "Checkout activity — BillingCheckoutInitiated or BillingCheckoutCompleted audit events.",
                 "Converted — TenantTrialConverted audit event or tenant TrialStatus = Converted.",
             ],

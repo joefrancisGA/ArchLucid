@@ -22,22 +22,22 @@ const payload: FindingInspectPayload = {
 };
 
 describe("FindingDetailOperationalActions", () => {
-  it("renders navigation as links with signed review record vocabulary", () => {
+  it("renders navigation as links with sealed review record vocabulary", () => {
     render(
       <FindingDetailOperationalActions
         runId="run-1"
         findingId="finding-1"
         payload={payload}
         graphEvidenceHref="/graph?runId=run-1"
-        linkedManifestHref="/governance/signed-records/m1"
+        linkedManifestHref="/governance/sealed-records/m1"
         inspectHref="/architecture/reviews/run-1/findings/finding-1/evidence-trace"
       />,
     );
 
     expect(screen.getByRole("link", { name: "Evidence graph" })).toHaveAttribute("href", "/graph?runId=run-1");
-    expect(screen.getByRole("link", { name: /Open signed review record/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Open sealed review record/i })).toHaveAttribute(
       "href",
-      "/governance/signed-records/m1",
+      "/governance/sealed-records/m1",
     );
     expect(screen.getByRole("link", { name: "Open evidence trace" })).toHaveAttribute(
       "href",

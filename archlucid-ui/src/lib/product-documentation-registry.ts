@@ -563,7 +563,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "decision-register",
     title: "Decision register",
-    summary: "Browse architecture decisions locked with signed review records.",
+    summary: "Browse architecture decisions locked with sealed review records.",
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",

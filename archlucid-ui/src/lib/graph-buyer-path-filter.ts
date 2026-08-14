@@ -126,7 +126,7 @@ function buyerTrailBreadcrumbLabel(nodeType: string): string {
 }
 
 /**
- * Short inspector trail from the selected node toward the signed review record.
+ * Short inspector trail from the selected node toward the sealed review record.
  * Uses BFS so the breadcrumb stays a linear path, not the full path intersection set.
  */
 export function resolveBuyerTrailPathBreadcrumb(

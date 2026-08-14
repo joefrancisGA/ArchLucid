@@ -40,9 +40,9 @@ describe("ui-route-traffic-template-canonical-guard (TB-748)", () => {
     expect(paths.length).toBeGreaterThan(0);
     expect(paths).toContain("/governance/alerts");
     expect(paths).toContain("/integrations/cloud-connections");
-    expect(paths).toContain("/governance/signed-records");
-    expect(paths).toContain("/governance/signed-records/[manifestId]");
-    expect(paths).toContain("/governance/signed-records/[manifestId]/artifacts/[artifactId]");
+    expect(paths).toContain("/governance/sealed-records");
+    expect(paths).toContain("/governance/sealed-records/[manifestId]");
+    expect(paths).toContain("/governance/sealed-records/[manifestId]/artifacts/[artifactId]");
     expect(paths).toContain("/internal/health");
     expect(paths).toContain("/insights/sponsor-report");
     expect(paths).toContain("/internal/validate-route");

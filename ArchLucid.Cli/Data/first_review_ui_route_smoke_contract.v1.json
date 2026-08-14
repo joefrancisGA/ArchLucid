@@ -20,7 +20,7 @@
     {
       "id": "run-signed-record",
       "label": "Run signed record",
-      "pathTemplate": "/reviews/{runId}/signed-record"
+      "pathTemplate": "/reviews/{runId}/sealed-record"
     },
     {
       "id": "signed-records-list",

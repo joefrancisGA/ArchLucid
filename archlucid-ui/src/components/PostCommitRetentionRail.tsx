@@ -50,8 +50,8 @@ export function PostCommitRetentionRail({
         <CardDescription className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
             ? showcaseSpine
-              ? "After the sample review, continue Sponsor Report → signed review record → evidence trail → governance approval → audit trail."
-              : "Finalized package — use Sponsor Report, then signed review record, evidence trail, governance, and audit trail in order."
+              ? "After the sample review, continue Sponsor Report → sealed review record → evidence trail → governance approval → audit trail."
+              : "Finalized package — use Sponsor Report, then sealed review record, evidence trail, governance, and audit trail in order."
             : "You have a finalized review. Pick the next loop that fits your team—navigation stays inside this workspace."}
         </CardDescription>
       </CardHeader>

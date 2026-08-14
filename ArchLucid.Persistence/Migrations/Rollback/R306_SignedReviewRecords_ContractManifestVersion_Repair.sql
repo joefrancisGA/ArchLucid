@@ -1,6 +1,6 @@
 /*
   R306: Rollback 306_SignedReviewRecords_ContractManifestVersion_Repair.sql —
-  drop the typed ContractManifestVersion index + column from the physical signed review record table.
+  drop the typed ContractManifestVersion index + column from the physical sealed review record table.
 
   Resolves the physical table (post-295 dbo.SignedReviewRecords, pre-295 dbo.GoldenManifests) rather than
   the backward-compatible synonym: OBJECT_ID(..., N'U') and COL_LENGTH both return NULL for a synonym.

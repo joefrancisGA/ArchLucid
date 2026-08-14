@@ -91,7 +91,7 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
     return "Finding detail";
   }
 
-  const manifestMatch = /^\/signed-records\/([^/]+)/u.exec(path);
+  const manifestMatch = /^\/(?:governance\/)?(?:signed|sealed)-records\/([^/]+)/u.exec(path);
 
   if (manifestMatch !== null) {
     return "Architecture snapshot";
@@ -127,7 +127,7 @@ export function recentViewKindFromPathname(pathname: string): OperatorRecentView
     return "review";
   }
 
-  if (/^\/signed-records\//u.test(path)) {
+  if (/^\/(?:governance\/)?(?:signed|sealed)-records\//u.test(path)) {
     return "manifest";
   }
 

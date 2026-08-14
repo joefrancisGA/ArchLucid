@@ -8,7 +8,7 @@ export const BUYER_EVIDENCE_CHAIN_SOURCE_LINE =
   "Persisted evidence chain pointers for this finding (review record version, snapshots, and trace ids).";
 
 export const BUYER_GRAPH_WHAT_THIS_PROVES =
-  "Trace any accepted risk to its supporting evidence — from source context through policy basis, decision, approval, signed review record, and audit record.";
+  "Trace any accepted risk to its supporting evidence — from source context through policy basis, decision, approval, sealed review record, and audit record.";
 
 export const BUYER_GRAPH_TECHNICAL_CONTROLS_DISCLOSURE = "Graph options and filters";
 
@@ -148,7 +148,7 @@ export const OPERATOR_GRAPH_IDLE_BODY =
   "Create a review or open the Claims Intake sample graph (not your tenant workspace) to explore how evidence connects to findings and decisions.";
 
 export const OPERATOR_GRAPH_WHAT_YOU_WILL_SEE =
-  "The graph connects review inputs, evidence, policy references, findings, decisions, and signed review records.";
+  "The graph connects review inputs, evidence, policy references, findings, decisions, and sealed review records.";
 
 export const BUYER_FINDING_EVIDENCE_TRACE_LABEL = "Evidence trace";
 

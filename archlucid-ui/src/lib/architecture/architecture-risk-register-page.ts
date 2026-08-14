@@ -8,7 +8,7 @@ export const ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE =
   "Track architecture risks created from findings, waivers, exceptions, and governance decisions for this review.";
 
 export const ARCHITECTURE_RISK_REGISTER_GOVERNANCE_INTRO =
-  "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions. Each risk should remain traceable to the review, evidence, policy rule, and signed review record that produced it. Use this register to assign owners, monitor aging risks, review exceptions before expiry, and prepare audit evidence.";
+  "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions. Each risk should remain traceable to the review, evidence, policy rule, and sealed review record that produced it. Use this register to assign owners, monitor aging risks, review exceptions before expiry, and prepare audit evidence.";
 
 export const ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE = "No risks recorded for this review";
 
@@ -74,7 +74,7 @@ export const ARCHITECTURE_RISK_REGISTER_GLOSSARY = [
   {
     term: "Architecture review",
     definition:
-      "A finalized review with findings, evidence, and a signed review record produced through governed architecture analysis.",
+      "A finalized review with findings, evidence, and a sealed review record produced through governed architecture analysis.",
   },
   {
     term: "Finding",
@@ -102,9 +102,9 @@ export const ARCHITECTURE_RISK_REGISTER_GLOSSARY = [
       "The linked inputs, policy rules, findings, and audit events that explain why a risk exists.",
   },
   {
-    term: "Signed review record",
+    term: "Sealed review record",
     definition:
-      "The immutable signed record for a finalized review that anchors register traceability.",
+      "The immutable sealed record for a finalized review that anchors register traceability.",
   },
   {
     term: "Audit trail",

@@ -76,7 +76,7 @@ To browse interactively, run `e2e/start-e2e-with-mock.ts` (see `playwright.mock.
 | What | URL |
 |------|-----|
 | Review package | `/architecture/reviews/claims-intake-modernization` |
-| Signed review record | `/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
+| Sealed review record | `/governance/sealed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
 | Finding | `/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
 | Finding inspect | `/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect` |
 | Provenance | `/architecture/reviews/claims-intake-modernization/provenance` |
@@ -117,7 +117,7 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 | Path | Canonical |
 |------|-----------|
-| `/architecture/reviews/*/signed-record` | `/architecture/reviews/*` or `/governance/signed-records/{manifestId}` when manifest id is known |
+| `/architecture/reviews/*/signed-record` | `/architecture/reviews/*` or `/governance/sealed-records/{manifestId}` when manifest id is known |
 | `/digests`, `/digest-subscriptions` | `/architecture/digests` (+ `?tab=subscriptions`) |
 | `/governance/risk-exceptions`, `/governance/risk-exceptions/*` | `/governance/exceptions` |
 | `/settings/roles` | `/administration/users?tab=roles` |
@@ -126,13 +126,13 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 | `/architectures`, `/architectures/*` | `/architecture/architectures/*` (help/orientation only) |
 | `/dashboard`, `/sponsor/dashboard`, `/portfolio` | `/architecture/sponsor-dashboard` |
 | `/audit`, `/policy-packs/*`, `/alerts`, `/alert-rules/*` | `/governance/*` |
-| `/signed-records`, `/signed-records/*` | `/governance/signed-records/*` |
-| `/manifests`, `/manifests/*` | `/governance/signed-records/*` |
+| `/signed-records`, `/signed-records/*` | `/governance/sealed-records/*` |
+| `/manifests`, `/manifests/*` | `/governance/sealed-records/*` |
 | `/value-report`, `/value-report/pilot`, `/value-report/roi` | `/sponsor-report/*` |
 | `/administration/settings`, `/admin/users`, `/workspace/security-trust`, `/admin/support` | `/administration/*` |
 | `/settings/cloud-connections` | `/integrations/cloud-connections` |
 
-**Note:** Run-scoped `/architecture/reviews/[runId]/artifacts/[artifactId]` (**RER**) is **retired** — no App Router page (old bookmarks 404). Artifact Preview hrefs emit **GAR** only (`/governance/signed-records/[manifestId]/artifacts/[artifactId]`).
+**Note:** Run-scoped `/architecture/reviews/[runId]/artifacts/[artifactId]` (**RER**) is **retired** — no App Router page (old bookmarks 404). Artifact Preview hrefs emit **GAR** only (`/governance/sealed-records/[manifestId]/artifacts/[artifactId]`).
 
 ---
 
@@ -189,7 +189,7 @@ Columns:
 | `/architecture/reviews/[runId]/provenance` | Evidence provenance diagram | Append to populated review URL |
 | `/architecture/reviews/[runId]/findings/[findingId]` | Finding detail | T1: `…/findings/phi-minimization-risk` |
 | `/architecture/reviews/[runId]/findings/[findingId]/inspect` | Finding evidence trace inspect | Same finding + `/inspect` |
-| `/governance/signed-records/[manifestId]` | Signed review record summary, artifacts, bundle | T1: `a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
+| `/governance/sealed-records/[manifestId]` | Sealed review record summary, artifacts, bundle | T1: `a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
 | `/graph` | Deprecated alias | Retired pre-release bookmark — no App Router page or redirect; canonical UX on **INE** (`/insights/evidence-graph`) |
 | `/insights/evidence-graph` | Evidence graph (trace table + interactive graph) | T1: `?runId=claims-intake-modernization` → **Load graph**; deep links via `runId` + `graphNodeId` (**INE**) |
 | `/onboarding` | In-product onboarding | T1/T2; T2 may show `trialSampleRunId` from API |

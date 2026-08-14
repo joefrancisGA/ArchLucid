@@ -6,7 +6,7 @@ import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS
 export const GOVERNANCE_SETUP_CANONICAL_PATH = GOVERNANCE_SETUP_HREF;
 
 export const GOVERNANCE_SETUP_CLAIM_DISCIPLINE =
-  "Governance setup is a checklist guide that links into audited config workspaces — it is not a signed-review diligence Sources package. Setup detects policy baseline and alert ownership from workspace configuration; threshold preview, approval expectations, and sponsor reporting are steps you confirm yourself. Open Findings, Audit, or Policy packs when you need live governance trails.";
+  "Governance setup is a checklist guide that links into audited config workspaces — it is not a sealed-review diligence Sources package. Setup detects policy baseline and alert ownership from workspace configuration; threshold preview, approval expectations, and sponsor reporting are steps you confirm yourself. Open Findings, Audit, or Policy packs when you need live governance trails.";
 
 export const GOVERNANCE_SETUP_SOURCES_INTRO =
   "Use these follow-ups when setup steps turn into live configuration, disposition, or activity trails.";

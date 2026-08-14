@@ -731,7 +731,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "append-only-sealed-evidence-m-161",
     "sectionHeading": "Append-only and sealed evidence (M-161)",
-    "excerpt": "Former standalone body: `docs/go-to-market/APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-161 / TB-1009). Complements [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) and [Committed signed review record (M-155)](#committed-golden-ma…"
+    "excerpt": "Former standalone body: `docs/go-to-market/APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-161 / TB-1009). Complements [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) and [Committed sealed review record (M-155)](#committed-golden-ma…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -766,7 +766,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "authority-vs-agenttask-loop-m-159",
     "sectionHeading": "Authority pipeline versus AgentTask loop (M-159)",
-    "excerpt": "Former standalone body: `docs/go-to-market/AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-159 / TB-1007). Complements [Committed signed review record (M-155)](#committed-golden-manifest-unit-of-truth-m-155). Does not reopen Done TB-305/TB-919. Not an assurance …"
+    "excerpt": "Former standalone body: `docs/go-to-market/AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-159 / TB-1007). Complements [Committed sealed review record (M-155)](#committed-golden-manifest-unit-of-truth-m-155). Does not reopen Done TB-305/TB-919. Not an assurance …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -808,7 +808,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "transactional-finalize-vs-outbox-m-163",
     "sectionHeading": "Transactional finalize versus async outbox (M-163)",
-    "excerpt": "Former standalone body: `docs/go-to-market/TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-163 / TB-1011). Complements [Committed signed review record (M-155)](#committed-golden-manifest-unit-of-truth-m-155) and [Append-only / sealed evidence (M-161)](#appe…"
+    "excerpt": "Former standalone body: `docs/go-to-market/TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-163 / TB-1011). Complements [Committed sealed review record (M-155)](#committed-golden-manifest-unit-of-truth-m-155) and [Append-only / sealed evidence (M-161)](#appe…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -822,7 +822,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "never-silent-vs-disclosed-best-effort",
     "sectionHeading": "Never silent vs disclosed best-effort",
-    "excerpt": "Transactional finalize (same UoW / ADR 0004 / `AuthorityCommittedPipelineFinalizer`) owns committed signed review record, sealed evidence, run anchors, and retrieval outbox enqueue. Integration fan-out enqueue is preferred-but-see-residual. Outbox/async workers own Search indexing, SB/webhook delivery, Cosmos/export-blob…"
+    "excerpt": "Transactional finalize (same UoW / ADR 0004 / `AuthorityCommittedPipelineFinalizer`) owns committed sealed review record, sealed evidence, run anchors, and retrieval outbox enqueue. Integration fan-out enqueue is preferred-but-see-residual. Outbox/async workers own Search indexing, SB/webhook delivery, Cosmos/export-blob…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -892,7 +892,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "readiness-matrix",
     "sectionHeading": "Readiness matrix",
-    "excerpt": "The client must not infer a later state from an earlier write. A status badge should name the object that is ready rather than using a generic “complete.” Prefer poll/SSE until signed review record for package readiness; disclose outbox and replica lag for projections."
+    "excerpt": "The client must not infer a later state from an earlier write. A status badge should name the object that is ready rather than using a generic “complete.” Prefer poll/SSE until sealed review record for package readiness; disclose outbox and replica lag for projections."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -968,7 +968,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "committed-golden-manifest-unit-of-truth-m-155",
-    "sectionHeading": "Committed signed review record — unit of truth (M-155)",
+    "sectionHeading": "Committed sealed review record — unit of truth (M-155)",
     "excerpt": "Former standalone body: `docs/go-to-market/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-155 / TB-1003). Complements [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191). Does not claim WORM or PKI beyond app-layer hash line…"
   },
   {
@@ -976,7 +976,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "truth-versus-useful-context",
     "sectionHeading": "Truth versus useful context",
-    "excerpt": "Buyer-facing terms are “finalized architecture review” or “signed review record” only after commit. `review-backed` in the proof-language audit refers to that committed package."
+    "excerpt": "Buyer-facing terms are “finalized architecture review” or “sealed review record” only after commit. `review-backed` in the proof-language audit refers to that committed package."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -1004,7 +1004,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "operator-primary-object-nav-collapse-m-177",
     "sectionHeading": "Operator primary object and navigation collapse (M-177)",
-    "excerpt": "Former standalone body: `docs/go-to-market/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-177 / TB-1026). Complements [Committed signed review record (M-155)](#committed-golden-manifest-unit-of-truth-m-155). Does not mandate renaming every “Reviews” UI…"
+    "excerpt": "Former standalone body: `docs/go-to-market/OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-177 / TB-1026). Complements [Committed sealed review record (M-155)](#committed-golden-manifest-unit-of-truth-m-155). Does not mandate renaming every “Reviews” UI…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2068,7 +2068,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "golden-cohort-relock-vs-rubber-stamp-m-202",
     "sectionHeading": "Golden-cohort re-lock vs rubber-stamp (M-202)",
-    "excerpt": "Former standalone body: `docs/go-to-market/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-201 / M-202 / TB-1172). Complements [Committed signed review record (M-155)](#committed-golden-manifest-unit-of-truth-m-155) and [AOAI model retirement (M-274)](#…"
+    "excerpt": "Former standalone body: `docs/go-to-market/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-201 / M-202 / TB-1172). Complements [Committed sealed review record (M-155)](#committed-golden-manifest-unit-of-truth-m-155) and [AOAI model retirement (M-274)](#…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2124,7 +2124,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "manifest-dual-hasher-projection-evolution-m-199",
     "sectionHeading": "Dual hasher / projection evolution (M-199)",
-    "excerpt": "Former standalone body: `docs/go-to-market/MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-198 / M-199 / TB-1156). Complements [Committed signed review record (M-155)](#committed-golden-manifest-unit-of-truth-m-155) and [Golden-cohort re-lock (M-20…"
+    "excerpt": "Former standalone body: `docs/go-to-market/MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-198 / M-199 / TB-1156). Complements [Committed sealed review record (M-155)](#committed-golden-manifest-unit-of-truth-m-155) and [Golden-cohort re-lock (M-20…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2369,7 +2369,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "inv001-decide-once-committed-manifest-triad-m-254",
     "sectionHeading": "INV-001 / decide-once / committed-manifest triad (M-254)",
-    "excerpt": "Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-253 / M-254 / TB-1416). Complements [Tenant identity (M-151)](#tenant-identity-single-derivation-m-151), [Committed signed review record (M-155)](#committe…"
+    "excerpt": "Former standalone body: `docs/go-to-market/INV001_DECIDE_ONCE_COMMITTED_MANIFEST_PA_TRIAD_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-253 / M-254 / TB-1416). Complements [Tenant identity (M-151)](#tenant-identity-single-derivation-m-151), [Committed sealed review record (M-155)](#committe…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2397,7 +2397,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "claim-boundary-31",
     "sectionHeading": "Claim boundary",
-    "excerpt": "Do not equate INV-001 tenant decide-once with architecture decided once or INV-012 quality-gate decide-once; do not claim committed signed review record proves semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation; do not sell the triad as closed while residual owner contracts remain Not started. Say …"
+    "excerpt": "Do not equate INV-001 tenant decide-once with architecture decided once or INV-012 quality-gate decide-once; do not claim committed sealed review record proves semantic faithfulness, zero AgentTask overlay, or crypto tenant isolation; do not sell the triad as closed while residual owner contracts remain Not started. Say …"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3118,7 +3118,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "how-versions-pin-into-committed-manifests",
     "sectionHeading": "How versions pin into committed manifests",
-    "excerpt": "Gap (documented): Draft/execute before commit has no separate durable per-run pack-version column outside resolver — pin is commit-time on the signed review record. Later assignment changes do not rewrite sealed commits."
+    "excerpt": "Gap (documented): Draft/execute before commit has no separate durable per-run pack-version column outside resolver — pin is commit-time on the sealed review record. Later assignment changes do not rewrite sealed commits."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3951,7 +3951,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "engineering-pointers-5",
     "sectionHeading": "Engineering pointers",
-    "excerpt": "- Immutability posture: [`../library/EVIDENCE_IMMUTABILITY.md`](../library/EVIDENCE_IMMUTABILITY.md); ADRs 0039 / 0040. - Tolerant JSON / fallback audit: [`../library/JSON_FALLBACK_AUDIT.md`](../library/JSON_FALLBACK_AUDIT.md). - Unit of truth remains the committed signed review record: [M-155](#committed-golden-manifest…"
+    "excerpt": "- Immutability posture: [`../library/EVIDENCE_IMMUTABILITY.md`](../library/EVIDENCE_IMMUTABILITY.md); ADRs 0039 / 0040. - Tolerant JSON / fallback audit: [`../library/JSON_FALLBACK_AUDIT.md`](../library/JSON_FALLBACK_AUDIT.md). - Unit of truth remains the committed sealed review record: [M-155](#committed-golden-manifest…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3979,7 +3979,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "dapper-ddl-satellite-breakdown-m-220",
     "sectionHeading": "Dapper / DDL / satellite breakdown signals (M-220)",
-    "excerpt": "Former standalone body: `docs/go-to-market/DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-219 / M-220 / TB-1263). Complements [Manifest content-schema evolution (M-224)](#manifest-content-schema-evolution-m-224), [Committed signed review record (M-15…"
+    "excerpt": "Former standalone body: `docs/go-to-market/DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM M-219 / M-220 / TB-1263). Complements [Manifest content-schema evolution (M-224)](#manifest-content-schema-evolution-m-224), [Committed sealed review record (M-15…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

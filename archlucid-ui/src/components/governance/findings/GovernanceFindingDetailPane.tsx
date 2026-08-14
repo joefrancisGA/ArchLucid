@@ -208,7 +208,7 @@ export function GovernanceFindingOperationalHeaderMeta(props: {
               className={OPERATOR_LINK.inline}
               href={governanceFindingManifestRecordHref(row.runId, row.manifestId)}
             >
-              Open signed record
+              Open sealed record
             </Link>
           </div>
         </div>

@@ -9,7 +9,7 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`STA
 
 ## 1) Solution architect: from request to finalized architecture package
 
-**Goal:** Produce a durable **architecture package** (pipeline outcome, findings, signed review record, exports) suitable for sponsor and engineering handoff.
+**Goal:** Produce a durable **architecture package** (pipeline outcome, findings, sealed review record, exports) suitable for sponsor and engineering handoff.
 
 **Prerequisites:** Tenant access with **Read** + **Execute** authority; at least one architecture request worth of context. See [CORE_PILOT.md](../../CORE_PILOT.md) and [SECOND_RUN.md](../SECOND_RUN.md) for a follow-on review.
 
@@ -17,10 +17,10 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`STA
 
 1. **Request** — UI: `/architecture/reviews/new` (retired bookmark) Â· API: `POST /v1/architecture/request` Â· CLI: `dotnet run --project ArchLucid.Cli -- run` (see [CLI_USAGE.md](../CLI_USAGE.md)).
 2. **Track pipeline** — UI: `/architecture/reviews/{runId}` Â· API: `GET /v1/architecture/review/{runId}` Â· CLI: `… status <runId>`.
-3. **Finalize** — UI: review detail **Finalize** Â· API: `POST /v1/architecture/review/{runId}/finalize` Â· CLI: `… commit <runId>` (signed review record must exist before downstream exports).
+3. **Finalize** — UI: review detail **Finalize** Â· API: `POST /v1/architecture/review/{runId}/finalize` Â· CLI: `… commit <runId>` (sealed review record must exist before downstream exports).
 4. **Package for stakeholders** — UI: review detail exports (first-value report, sponsor artefacts) Â· API: **review export** — first-value report (`text/markdown`, ReadAuthority) Â· CLI: `… first-value-report <runId> [--save]`, `… sponsor-one-pager <runId> [--save]` where applicable.
 
-**Expected outputs:** Finalized architecture package with signed review record; Markdown/PDF-style sponsor artefacts when generated; shareable links into `/architecture/reviews/{runId}`.
+**Expected outputs:** Finalized architecture package with sealed review record; Markdown/PDF-style sponsor artefacts when generated; shareable links into `/architecture/reviews/{runId}`.
 
 **Failure hints:** `404` on first-value report → review not finalized or wrong scope; finalize blocked → see recipe 2 (governance gate) and [PRE_COMMIT_GOVERNANCE_GATE.md](../PRE_COMMIT_GOVERNANCE_GATE.md). If your automation mixes **`POST …/execute`**, **`…/result`**, and **`…/commit`** with the Authority pipeline, read [ARCHITECTURE_FLOWS.md](../ARCHITECTURE_FLOWS.md) Flow A1 first.
 

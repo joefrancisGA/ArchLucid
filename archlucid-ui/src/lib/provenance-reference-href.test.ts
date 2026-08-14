@@ -20,14 +20,14 @@ const nodes: ArchitectureLinkageNode[] = [
 ];
 
 describe("provenanceReferenceHref", () => {
-  it("links golden manifest references to signed record detail", () => {
+  it("links golden manifest references to sealed record detail", () => {
     expect(
       provenanceReferenceHref(
         "claims-intake-modernization",
         "a1c2e3f4-a5b6-7890-abcd-ef1234567890",
         nodes,
       ),
-    ).toBe("/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890");
+    ).toBe("/governance/sealed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890");
   });
 
   it("links finding node references to inspect route", () => {

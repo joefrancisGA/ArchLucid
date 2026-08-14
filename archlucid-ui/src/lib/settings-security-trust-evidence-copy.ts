@@ -8,7 +8,7 @@ export const SETTINGS_SECURITY_TRUST_CANONICAL_PATH = SETTINGS_SECURITY_TRUST_PA
 export const SETTINGS_SECURITY_TRUST_HELP_TOPIC_LABEL = "How security and trust settings work" as const;
 
 export const SETTINGS_SECURITY_TRUST_CLAIM_DISCIPLINE =
-  "This settings page lists procurement-oriented security and trust materials for the workspace — it is architect orientation, not a signed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status, Trust Center, or Audit when you need live assurance surfaces or governed trails.";
+  "This settings page lists procurement-oriented security and trust materials for the workspace — it is architect orientation, not a sealed-review diligence Sources package, a CPA SOC 2 attestation, or a published third-party pen-test report. Open Assurance status, Trust Center, or Audit when you need live assurance surfaces or governed trails.";
 
 export const SETTINGS_SECURITY_TRUST_SOURCES_INTRO =
   "Use these follow-ups when procurement vocabulary turns into public assurance hubs, isolation depth, or audit activity.";

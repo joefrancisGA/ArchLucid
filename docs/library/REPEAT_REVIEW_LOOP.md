@@ -19,7 +19,7 @@
 
 | Repeat-review signal | Where you see it | Proof acceptance |
 | --- | --- | --- |
-| Reused prior decision | [Compare and prior package context](/insights/compare-two-reviews) | Second review references first signed review record in findings or compare output |
+| Reused prior decision | [Compare and prior package context](/insights/compare-two-reviews) | Second review references first sealed review record in findings or compare output |
 | Repeated finding category trend | [Product learning rollups](/help/pilot-feedback) | Category counts shift with real evidence changes |
 | Improved cycle time | [Review duration metrics and pilot timing budget](/insights/architecture-scorecard) | Wall-clock or architect hours decrease vs baseline in [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) |
 | Governance trend | [Policy pack dry-run and enforce](/governance/policy-packs) | Fewer critical findings on repeat with same pack |
@@ -58,7 +58,7 @@ Second-run proof collection (TB-227):
 
 ## Second-review proof checklist
 
-- [ ] Second architecture package finalized with a distinct review identity and signed review record.
+- [ ] Second architecture package finalized with a distinct review identity and sealed review record.
 - [ ] Compare output attached or linked in sponsor narrative.
 - [ ] Prior decisions reused or explicitly superseded.
 - [ ] Governance dry-run completed before stricter enforce mode (when used).

@@ -141,7 +141,7 @@ export function CommitRunButton({
       <LongOperationWaitNotice
         active={busy}
         operationLabel="Finalizing architecture review"
-        stageLabel="Saving signed review record"
+        stageLabel="Saving sealed review record"
         testId="commit-run-long-wait"
       />
       <div>
@@ -192,7 +192,7 @@ export function CommitRunButton({
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         title="Finalize this review?"
-        description={`Creates the signed review record for this architecture review. If the review is not ready, resolve blockers and try again. ${FINALIZE_REPLAY_COMPARE_TOOLTIP}`}
+        description={`Creates the sealed review record for this architecture review. If the review is not ready, resolve blockers and try again. ${FINALIZE_REPLAY_COMPARE_TOOLTIP}`}
         confirmLabel="Finalize review"
         cancelLabel="Cancel"
         variant="default"

@@ -3,7 +3,7 @@
  *
  * Why two surfaces exist:
  * - Ask review questions (`/insights/ask-review-questions`) answers questions
- *   about a finalized review and cites evidence from the signed review record.
+ *   about a finalized review and cites evidence from the sealed review record.
  * - Architecture intelligence (`/architecture/architecture-intelligence`) runs
  *   closed-loop architecture reasoning or the golden regression harness against
  *   a free-form description.
@@ -39,7 +39,7 @@ export const ASK_ARCHITECTURE_INTELLIGENCE_HEADING =
   "Ask review questions and Architecture intelligence serve different purposes" as const;
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_WHY_TWO =
-  "Ask review questions answers questions about a finalized review and cites evidence from the signed review record. Architecture intelligence runs closed-loop architecture reasoning or the golden regression harness against a free-form description. Asking about a signed review is not the same as running closed-loop reasoning." as const;
+  "Ask review questions answers questions about a finalized review and cites evidence from the sealed review record. Architecture intelligence runs closed-loop architecture reasoning or the golden regression harness against a free-form description. Asking about a signed review is not the same as running closed-loop reasoning." as const;
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_COMPACT_LINE =
   "Ask review questions is Q&A on a signed review; Architecture intelligence runs closed-loop reasoning." as const;

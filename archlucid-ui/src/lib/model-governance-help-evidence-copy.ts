@@ -9,7 +9,7 @@ import {
 export const MODEL_GOVERNANCE_HELP_CANONICAL_PATH = "/help/model-governance" as const;
 
 export const MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE =
-  "This guide explains workspace execution profiles and governed model aliases — it is not a signed-review diligence Sources package.";
+  "This guide explains workspace execution profiles and governed model aliases — it is not a sealed-review diligence Sources package.";
 
 export const MODEL_GOVERNANCE_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

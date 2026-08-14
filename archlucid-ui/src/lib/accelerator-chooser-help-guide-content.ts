@@ -14,13 +14,13 @@ export const ACCELERATOR_CHOOSER_HELP_OVERVIEW =
   "Each row maps a stakeholder scenario to an in-product accelerator pack. Pick one primary pack, start the architecture review, attach evidence, finalize, and export the proof checklist.";
 
 export const ACCELERATOR_CHOOSER_HELP_PREREQUISITE =
-  "Specialty packs assume at least one signed review record in this tenant — finalize your first architecture review before starting a specialty pack.";
+  "Specialty packs assume at least one sealed review record in this tenant — finalize your first architecture review before starting a specialty pack.";
 
 export const ACCELERATOR_CHOOSER_HELP_PREREQUISITE_TENANT_STATE = {
-  checking: "Checking whether this tenant has a signed review record…",
-  met: "This tenant has a finalized signed review record.",
-  notMet: "No signed review record found in this tenant yet.",
-  unknown: "Signed review record status is unavailable — sign in with review read access to verify.",
+  checking: "Checking whether this tenant has a sealed review record…",
+  met: "This tenant has a finalized sealed review record.",
+  notMet: "No sealed review record found in this tenant yet.",
+  unknown: "Sealed review record status is unavailable — sign in with review read access to verify.",
 } as const;
 
 export const ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_COPY = ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE;
@@ -51,7 +51,7 @@ export type AcceleratorChooserHelpWorkflowStep = {
 export const ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS: readonly AcceleratorChooserHelpWorkflowStep[] = [
   {
     stepNumber: 1,
-    title: "Confirm a signed review record",
+    title: "Confirm a sealed review record",
     description:
       "Specialty packs assume you already finalized at least one architecture review in this tenant.",
     href: ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.firstArchitectureReview.href,
@@ -69,7 +69,7 @@ export const ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS: readonly AcceleratorChoose
     stepNumber: 3,
     title: "Finalize and export proof",
     description:
-      "Attach pack evidence, finalize the architecture review, then export the proof checklist with the signed review record.",
+      "Attach pack evidence, finalize the architecture review, then export the proof checklist with the sealed review record.",
     href: inAppHelpHref("repeat-review-loop"),
     ctaLabel: "Finalize and export guide",
   },

@@ -10,7 +10,7 @@ import {
 import { REVIEW_DETAIL_TAB_IDS } from "@/lib/review-detail-workspace-tabs";
 
 describe("resolveReviewDetailTabLifecycleStage", () => {
-  it("returns committed when a signed review record exists", () => {
+  it("returns committed when a sealed review record exists", () => {
     expect(
       resolveReviewDetailTabLifecycleStage({
         manifestId: "manifest-1",

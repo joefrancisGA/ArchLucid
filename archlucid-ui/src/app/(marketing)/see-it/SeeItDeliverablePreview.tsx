@@ -14,7 +14,7 @@ const PREVIEW_LAYERS = [
   {
     id: "sponsor-report",
     title: "Sponsor report",
-    detail: "Sponsor briefing · signed review record",
+    detail: "Sponsor briefing · sealed review record",
   },
   {
     id: "findings",
@@ -63,7 +63,7 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
           <StatusTag kind="approved" className="px-2.5 py-1 text-sm font-semibold" />
         </div>
         <p className={cn("m-0 mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
-          Signed review record · Policy pack · Fabricated sample data
+          Sealed review record · Policy pack · Fabricated sample data
         </p>
       </div>
 

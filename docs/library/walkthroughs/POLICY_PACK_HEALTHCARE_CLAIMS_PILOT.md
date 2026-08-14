@@ -137,7 +137,7 @@ See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md) for seve
 
 1. Resolve or disposition blocking findings (or confirm warn-only severities per tenant config).
 2. Select **Finalize** on review detail.
-3. After success, open **Architecture package** sections: signed review record, artifacts, exports.
+3. After success, open **Architecture package** sections: sealed review record, artifacts, exports.
 
 <details>
 <summary>Administrator details — HTTP path</summary>

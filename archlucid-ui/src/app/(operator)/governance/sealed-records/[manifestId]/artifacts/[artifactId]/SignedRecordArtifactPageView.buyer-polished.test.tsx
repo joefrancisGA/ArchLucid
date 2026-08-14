@@ -12,7 +12,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
-  usePathname: () => "/governance/signed-records/manifest-1/artifacts/artifact-1",
+  usePathname: () => "/governance/sealed-records/manifest-1/artifacts/artifact-1",
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({

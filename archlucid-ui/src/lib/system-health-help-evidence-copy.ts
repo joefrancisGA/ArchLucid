@@ -9,7 +9,7 @@ import {
 export const SYSTEM_HEALTH_HELP_CANONICAL_PATH = "/help/system-health" as const;
 
 export const SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE =
-  "This guide explains workspace system health readiness — it is not a signed-review diligence Sources package.";
+  "This guide explains workspace system health readiness — it is not a sealed-review diligence Sources package.";
 
 export const SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

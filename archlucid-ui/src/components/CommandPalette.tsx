@@ -85,7 +85,7 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
 
   const reviewPackageSubtree =
     /^\/architecture\/reviews\/[^/]+(?:\/|$)/u.test(path) ||
-    /^\/signed-records\/[^/]/u.test(path) ||
+    /^\/(?:governance\/)?(?:signed|sealed)-records\/[^/]/u.test(path) ||
     /^\/architecture\/reviews\/[^/]+\/architecture/u.test(path) ||
     /^\/sponsor\/reviews\/[^/]/u.test(path);
 
@@ -555,19 +555,19 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     const path = (pathname ?? "").split("?")[0] ?? "";
 
     if (path.startsWith("/insights/evidence-graph")) {
-      return "Jump to audit, signed review record, governance, or type another destination…";
+      return "Jump to audit, sealed review record, governance, or type another destination…";
     }
 
     if (path.startsWith("/insights/ask-review-questions")) {
-      return "Jump to sponsor report, signed review record, evidence trail, or governance…";
+      return "Jump to sponsor report, sealed review record, evidence trail, or governance…";
     }
 
     if (path.startsWith("/insights/compare-two-reviews")) {
-      return "Jump to review, signed review record, or evidence trail…";
+      return "Jump to review, sealed review record, or evidence trail…";
     }
 
     if (path.startsWith("/audit")) {
-      return "Jump to sponsor report, evidence graph, signed review record — or type a destination…";
+      return "Jump to sponsor report, evidence graph, sealed review record — or type a destination…";
     }
 
     if (path.startsWith("/governance")) {
@@ -575,7 +575,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     }
 
     if (isSponsorDashboardPath(path)) {
-      return "Jump to signed review record, evidence graph, audit…";
+      return "Jump to sealed review record, evidence graph, audit…";
     }
 
     if (path.startsWith("/signed-records") || path.includes("/architecture")) {

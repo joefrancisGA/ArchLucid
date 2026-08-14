@@ -104,9 +104,9 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       : run.hasArtifactBundle
         ? buyerPolished
           ? "Browse sponsor-ready deliverables and exports from the full review. Open review detail when you need the complete workspace view."
-          : "Artifacts are summarized alongside the finalized review record — open the signed record link below."
+          : "Artifacts are summarized alongside the finalized review record — open the sealed record link below."
         : buyerPolished
-          ? "Evidence bundle available from the signed review record."
+          ? "Evidence bundle available from the sealed review record."
           : "Artifact bundle not reported in list payload";
 
   const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;
@@ -189,7 +189,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           <InlineMetadataLine label="Governance approval" value="Approved with monitoring" />
           <InlineMetadataLine
             label="Remaining monitored risk"
-            value={`${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized signed review record)`}
+            value={`${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized sealed review record)`}
           />
           <InlineMetadataLine label="Evidence trail" value="Ready" />
           <InlineMetadataLine label="Audit trail" value="Complete" />

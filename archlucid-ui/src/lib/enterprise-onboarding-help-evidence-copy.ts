@@ -8,7 +8,7 @@ export const ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL = "How enterprise onboarding
 export const ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE = "Related setup and trust pages";
 
 export const ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE =
-  "This enterprise onboarding checklist orients architects on SSO, identity, and hosted tenant setup — it is not a signed review record. Open Identity providers, Security and trust, or Audit when you need live evidence trails or governance approval records.";
+  "This enterprise onboarding checklist orients architects on SSO, identity, and hosted tenant setup — it is not a sealed review record. Open Identity providers, Security and trust, or Audit when you need live evidence trails or governance approval records.";
 
 export const ENTERPRISE_ONBOARDING_HELP_SOURCES_INTRO =
   "Use these follow-ups when onboarding checklist steps turn into identity setup, roles, cloud attachment, or assurance orientation.";

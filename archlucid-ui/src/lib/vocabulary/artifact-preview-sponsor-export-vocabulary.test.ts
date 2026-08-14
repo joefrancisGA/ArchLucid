@@ -28,7 +28,7 @@ describe("artifact-preview-sponsor-export-vocabulary (TB-2303)", () => {
 
   it("uses a specific artifact href when mounting on preview", () => {
     const artifactHref =
-      "/governance/signed-records/manifest-1/artifacts/cost-summary";
+      "/governance/sealed-records/manifest-1/artifacts/cost-summary";
     const model = buildArtifactPreviewSponsorExportVocabulary({ artifactHref });
 
     expect(model.artifactPreviewLink.label).toBe("Artifact preview");
@@ -50,7 +50,7 @@ describe("artifact-preview-sponsor-export-vocabulary (TB-2303)", () => {
 
   it("resolves the peer surface from artifact preview and sponsor export", () => {
     const model = buildArtifactPreviewSponsorExportVocabulary({
-      artifactHref: "/governance/signed-records/m1/artifacts/a1",
+      artifactHref: "/governance/sealed-records/m1/artifacts/a1",
       runId: "run-1",
     });
 

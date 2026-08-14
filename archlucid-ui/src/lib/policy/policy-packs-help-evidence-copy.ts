@@ -19,7 +19,7 @@ export const POLICY_PACKS_HELP_PRIMARY_ACTION = {
 } as const;
 
 export const POLICY_PACKS_HELP_CLAIM_DISCIPLINE =
-  "This Policy packs guide orients architects on pack assignment and conflict resolution — it is help orientation, not a signed-review diligence Sources package from your tenant. Open Policy packs or Standards and rules when you need live pack/rule state.";
+  "This Policy packs guide orients architects on pack assignment and conflict resolution — it is help orientation, not a sealed-review diligence Sources package from your tenant. Open Policy packs or Standards and rules when you need live pack/rule state.";
 
 export const POLICY_PACKS_HELP_SOURCES_INTRO =
   "Use these follow-ups when pack vocabulary turns into live assignments, conflict resolution, findings triage, or SE demo rehearsal.";

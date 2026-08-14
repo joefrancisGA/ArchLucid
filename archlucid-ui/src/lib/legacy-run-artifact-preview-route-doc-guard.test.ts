@@ -74,7 +74,7 @@ describe("legacy-run-artifact-preview-route-doc-guard (TB-1823 / TB-1825 / TB-19
       '"/signed-records/[manifestId]/artifacts/[artifactId]":',
     );
     expect(catalogSource).toContain(
-      '"/governance/signed-records/[manifestId]/artifacts/[artifactId]"',
+      '"/governance/sealed-records/[manifestId]/artifacts/[artifactId]"',
     );
   });
 });

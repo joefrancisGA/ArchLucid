@@ -84,7 +84,7 @@ test.describe("operator shell smoke — core proof path", () => {
     await page.goto(`/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
 
-    await page.goto(`/governance/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
+    await page.goto(`/governance/sealed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
     await expect(page.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN })).toBeVisible();
 
     await page.goto(

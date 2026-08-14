@@ -7,7 +7,7 @@ export const ARCHITECTURE_SPONSOR_DASHBOARD_CANONICAL_PATH = SPONSOR_DASHBOARD_H
 export const SPONSOR_DASHBOARD_HELP_TOPIC_LABEL = "How the sponsor dashboard works";
 
 export const ARCHITECTURE_SPONSOR_DASHBOARD_CLAIM_DISCIPLINE =
-  "Sponsor dashboard KPIs, trends, and sponsor exports summarize portfolio ROI and workspace health for the selected window — they are not a signed-review diligence Sources package. Open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails.";
+  "Sponsor dashboard KPIs, trends, and sponsor exports summarize portfolio ROI and workspace health for the selected window — they are not a sealed-review diligence Sources package. Open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails.";
 
 export const ARCHITECTURE_SPONSOR_DASHBOARD_SOURCES_INTRO =
   "Use these follow-ups when portfolio KPIs need architecture reviews, grounded Q&A, ROI methodology, or assurance cites.";

@@ -6,7 +6,7 @@ export const SCIM_PROVISIONING_CANONICAL_PATH = "/administration/scim-provisioni
 export const SCIM_PROVISIONING_HELP_TOPIC_LABEL = "How SCIM provisioning works" as const;
 
 export const SCIM_PROVISIONING_CLAIM_DISCIPLINE =
-  "This SCIM provisioning page manages inbound directory tokens for workspace user sync - it is not a signed-review diligence Sources package. Open SSO and identity, SSO wizard, or Assurance status when you need federation setup or trust cites.";
+  "This SCIM provisioning page manages inbound directory tokens for workspace user sync - it is not a sealed-review diligence Sources package. Open SSO and identity, SSO wizard, or Assurance status when you need federation setup or trust cites.";
 
 export const SCIM_PROVISIONING_SOURCES_INTRO =
   "Use these follow-ups when token setup turns into SSO federation, role mapping, or assurance cites.";

@@ -13,7 +13,7 @@ export const WEBHOOKS_INTEGRATION_HELP_PAGE_TITLE = WEBHOOKS_PAGE_TITLE;
 export const WEBHOOKS_INTEGRATION_HELP_PAGE_SUBTITLE = WEBHOOKS_PAGE_DESCRIPTION;
 
 export const WEBHOOKS_INTEGRATION_HELP_OVERVIEW =
-  "Webhooks let ArchLucid deliver governance alert events to HTTPS endpoints your team operates. Subscriptions are workspace-scoped routing configuration — not a signed-review diligence package.";
+  "Webhooks let ArchLucid deliver governance alert events to HTTPS endpoints your team operates. Subscriptions are workspace-scoped routing configuration — not a sealed-review diligence package.";
 
 export const WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION = {
   label: "Open webhooks",

@@ -33,9 +33,9 @@ archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClien
 archlucid-ui/src/app/(operator)/governance/policy-packs/[id]/HealthcareClaimsPolicyPackDetail.tsx
 archlucid-ui/src/app/(operator)/governance/policy-packs/_sections/load-policy-packs-page-data.ts
 archlucid-ui/src/app/(operator)/governance/policy-packs/_sections/use-policy-packs-page.ts
-archlucid-ui/src/app/(operator)/governance/signed-records/[manifestId]/_sections/load-manifest-detail-page-model.ts
-archlucid-ui/src/app/(operator)/governance/signed-records/[manifestId]/artifacts/[artifactId]/_sections/load-signed-record-artifact-page-model.ts
-archlucid-ui/src/app/(operator)/governance/signed-records/[manifestId]/loading.tsx
+archlucid-ui/src/app/(operator)/governance/sealed-records/[manifestId]/_sections/load-manifest-detail-page-model.ts
+archlucid-ui/src/app/(operator)/governance/sealed-records/[manifestId]/artifacts/[artifactId]/_sections/load-signed-record-artifact-page-model.ts
+archlucid-ui/src/app/(operator)/governance/sealed-records/[manifestId]/loading.tsx
 archlucid-ui/src/app/(operator)/governance/standards-and-rules/_sections/use-governance-resolution-page.ts
 archlucid-ui/src/app/(operator)/help/_sections/HelpAuditTrailGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpBillingAndPlansGuideView.tsx

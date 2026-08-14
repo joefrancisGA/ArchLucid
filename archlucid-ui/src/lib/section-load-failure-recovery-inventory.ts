@@ -15,7 +15,7 @@ const SECTION_LOAD_FAILURE_MARKERS: readonly string[] = ["OperatorSectionLoadFai
 export const SECTION_LOAD_FAILURE_RECOVERY_SURFACES: readonly ErrorRecoveryContractGuardedSurface[] = [
   {
     id: "signed-records-list",
-    sourceRoots: ["app/(operator)/governance/signed-records/_sections/SignedRecordsListClient.tsx"],
+    sourceRoots: ["app/(operator)/governance/sealed-records/_sections/SignedRecordsListClient.tsx"],
     requiredMarkers: SECTION_LOAD_FAILURE_MARKERS,
   },
   {

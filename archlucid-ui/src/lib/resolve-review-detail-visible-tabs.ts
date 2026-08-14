@@ -54,7 +54,7 @@ export function resolveReviewDetailTabLifecycleStage(
   return "draft";
 }
 
-/** High-frequency tabs — architecture, policies, signed record, and decisions stay under More. */
+/** High-frequency tabs — architecture, policies, sealed record, and decisions stay under More. */
 const PRIMARY_REVIEW_DETAIL_TAB_IDS: readonly ReviewDetailTabId[] = [
   "overview",
   "findings",

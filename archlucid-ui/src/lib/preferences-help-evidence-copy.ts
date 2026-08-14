@@ -9,7 +9,7 @@ import {
 export const PREFERENCES_HELP_CANONICAL_PATH = "/help/preferences" as const;
 
 export const PREFERENCES_HELP_CLAIM_DISCIPLINE =
-  "This guide explains personal preferences — it is not a signed-review diligence Sources package.";
+  "This guide explains personal preferences — it is not a sealed-review diligence Sources package.";
 
 export const PREFERENCES_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

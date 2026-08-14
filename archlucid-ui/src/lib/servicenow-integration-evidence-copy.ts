@@ -8,7 +8,7 @@ export const SERVICENOW_INTEGRATION_CANONICAL_PATH = "/integrations/servicenow" 
 export const SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL = "How ServiceNow integration works";
 
 export const SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE =
-  "ServiceNow outbound settings configure how findings and reviews create incidents — they are not a signed-review diligence Sources package. Open Integration readiness or Audit when you need operational or governed trails.";
+  "ServiceNow outbound settings configure how findings and reviews create incidents — they are not a sealed-review diligence Sources package. Open Integration readiness or Audit when you need operational or governed trails.";
 
 export const SERVICENOW_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when connection health, readiness checks, or related work-item integrations need attention.";

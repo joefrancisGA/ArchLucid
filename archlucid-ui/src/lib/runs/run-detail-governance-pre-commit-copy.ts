@@ -11,13 +11,13 @@ export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA = "View assessment a
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_LABEL = "Approval gate";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_VALUE =
-  "Opens after you finalize this architecture review and create the signed review record.";
+  "Opens after you finalize this architecture review and create the sealed review record.";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_HEADING = "What happens next";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_STEPS: readonly string[] = [
-  "Finalize the architecture review to create the signed review record.",
-  "Route governance approval on the signed review record.",
+  "Finalize the architecture review to create the sealed review record.",
+  "Route governance approval on the sealed review record.",
   "Record the decision and audit trail for sponsor handoff.",
 ] as const;
 

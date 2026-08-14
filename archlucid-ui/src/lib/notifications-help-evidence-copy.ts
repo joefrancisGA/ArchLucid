@@ -4,7 +4,7 @@ import { NOTIFICATION_PREFERENCE_CENTER_PATH } from "@/lib/notification-preferen
 export const NOTIFICATIONS_HELP_CANONICAL_PATH = "/help/notifications" as const;
 
 export const NOTIFICATIONS_HELP_CLAIM_DISCIPLINE =
-  "This guide explains the notifications channel launcher — it is not a signed-review diligence Sources package and does not store a unified preference profile.";
+  "This guide explains the notifications channel launcher — it is not a sealed-review diligence Sources package and does not store a unified preference profile.";
 
 export const NOTIFICATIONS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

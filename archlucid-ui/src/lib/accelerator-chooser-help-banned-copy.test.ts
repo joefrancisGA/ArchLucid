@@ -9,6 +9,6 @@ describe("accelerator-chooser-help-banned-copy", () => {
   it("exports shared banned patterns for help tests", () => {
     expect(ACCELERATOR_CHOOSER_HELP_BANNED_VISIBLE_COPY_PATTERNS.length).toBeGreaterThan(0);
     expect(acceleratorChooserHelpCopyContainsBannedPattern("core pilot walkthrough")).toHaveLength(1);
-    expect(acceleratorChooserHelpCopyContainsBannedPattern("signed review record")).toHaveLength(0);
+    expect(acceleratorChooserHelpCopyContainsBannedPattern("sealed review record")).toHaveLength(0);
   });
 });

@@ -47,7 +47,7 @@ After analysis completes â€” and after finalize when your workflow requires it â
 
 - **Proof packet** and architecture package exports from the **Evidence** tab.
 - **Sponsor or sponsor summaries** when your tenant enables those outputs.
-- **Signed review record** links when the architecture review has been finalized.
+- **Sealed review record** links when the architecture review has been finalized.
 
 Exports are buyer-safe: they summarize outcomes without exposing raw engineering logs. Pick the format that matches your audience; you can regenerate exports from the same package while it remains open.
 

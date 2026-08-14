@@ -3,7 +3,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const AUTH_BOOTSTRAP_CANONICAL_PATH = "/auth/bootstrap" as const;
 
 export const AUTH_BOOTSTRAP_CLAIM_DISCIPLINE =
-  "This post-sign-in bootstrap chooses or creates a workspace - it is an authentication handoff, not a signed-review diligence Sources package. After you enter a workspace, open Assurance status or a finalized review when you need live workspace evidence.";
+  "This post-sign-in bootstrap chooses or creates a workspace - it is an authentication handoff, not a sealed-review diligence Sources package. After you enter a workspace, open Assurance status or a finalized review when you need live workspace evidence.";
 
 export const AUTH_BOOTSTRAP_SOURCES_INTRO =
   "Use these follow-ups when bootstrap is blocked or you need product orientation before a workspace is ready.";

@@ -152,7 +152,7 @@ Use this when you need a one-screen index. Numbered sections below add escalatio
 |------|--------|
 | First check | Confirm finalize returned 2xx; refresh review detail artifacts table |
 | Likely cause | Async synthesis lag, wrong scope, empty synthesis |
-| Escalation artifact | Finalize response body + signed review record id |
+| Escalation artifact | Finalize response body + sealed review record id |
 
 → [`CORE_PILOT.md`](../CORE_PILOT.md) (step 4) · [`API_CONTRACTS.md`](../library/API_CONTRACTS.md)
 

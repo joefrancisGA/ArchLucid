@@ -72,7 +72,7 @@ function DemoEvidenceScaffold(props: {
           subgraph.
         </p>
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Linked in the evidence trail and signed review record for this review.
+          Linked in the evidence trail and sealed review record for this review.
         </p>
         <div className="mt-2">
           <Link href={props.reviewContextHref} className={OPERATOR_LINK.optional}>

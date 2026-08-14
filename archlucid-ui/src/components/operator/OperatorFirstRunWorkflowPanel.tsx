@@ -364,7 +364,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 {OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING}
               </h2>
               <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Claims Intake is the sample review — start with the signed review record summary, then review detail or the read-only
+                Claims Intake is the sample review — start with the sealed review record summary, then review detail or the read-only
                 walkthrough. The checklist below is optional.
               </p>
               <p className={cn("m-0 mt-2 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
@@ -372,7 +372,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                   className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                   href={getShowcaseManifestHref()}
                 >
-                  View signed record summary
+                  View sealed record summary
                 </Link>{" "}
                 ·{" "}
                 <Link

@@ -126,10 +126,10 @@ export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): s
     if (isPhiMinimizationSampleFinding(payload) || isPhiMinimizationFindingId(payload.findingId)) {
       if (isBuyerPolishedOperatorShellEnv()) {
         if (ruleLabel !== null && ruleLabel.trim().length > 0) {
-          return `Evidence linked to ${ruleLabel} — see evidence trail and signed review record.`;
+          return `Evidence linked to ${ruleLabel} — see evidence trail and sealed review record.`;
         }
 
-        return "Evidence linked in the finalized review — see evidence trail and signed review record.";
+        return "Evidence linked in the finalized review — see evidence trail and sealed review record.";
       }
     }
 

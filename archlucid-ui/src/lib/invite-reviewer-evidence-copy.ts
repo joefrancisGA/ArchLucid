@@ -7,7 +7,7 @@ export const INVITE_REVIEWER_CANONICAL_PATH = `${SETTINGS_USERS_PATH}/invite-rev
 export const INVITE_REVIEWER_HELP_TOPIC_LABEL = "How to invite a reviewer" as const;
 
 export const INVITE_REVIEWER_CLAIM_DISCIPLINE =
-  "Inviting a reviewer grants Reader or Auditor access for architecture review sign-off — it is not a signed-review diligence Sources package. Open Users and roles or Users and roles help when you need the full directory and role matrix.";
+  "Inviting a reviewer grants Reader or Auditor access for architecture review sign-off — it is not a sealed-review diligence Sources package. Open Users and roles or Users and roles help when you need the full directory and role matrix.";
 
 export const INVITE_REVIEWER_SOURCES_INTRO =
   "Use these follow-ups when an invitation needs directory management, role guidance, or SSO prerequisites.";

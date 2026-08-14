@@ -6,7 +6,7 @@ export const EVIDENCE_INTAKE_HELP_CANONICAL_PATH = "/help/evidence-intake" as co
 export const EVIDENCE_INTAKE_HELP_TOPIC_LABEL = "How to start a review" as const;
 
 export const EVIDENCE_INTAKE_HELP_CLAIM_DISCIPLINE =
-  "This Start a review guide is architect orientation for evidence intake — it is not a signed review record. Open New architecture review, Reviews, or Audit trail when you need live packages or assurance claims.";
+  "This Start a review guide is architect orientation for evidence intake — it is not a sealed review record. Open New architecture review, Reviews, or Audit trail when you need live packages or assurance claims.";
 
 export const EVIDENCE_INTAKE_HELP_PRIMARY_ACTION = {
   label: START_REVIEW_LABEL,

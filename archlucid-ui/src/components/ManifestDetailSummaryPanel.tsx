@@ -152,7 +152,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             and evidence bundle — use the download actions on this page when available.
           </p>
         ) : (
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No decisions recorded for this signed review record.</p>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No decisions recorded for this sealed review record.</p>
         )}
         {decisionRestCount > 0 ? (
           <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -188,7 +188,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             or download the bundle.
           </p>
         ) : (
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No monitored risks recorded on this signed review record.</p>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No monitored risks recorded on this sealed review record.</p>
         )}
       </div>
     </details>
@@ -258,7 +258,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   const buyerManifestProvesCallout =
     (buyerPolishedLayout ?? false) && isCuratedDemo ? (
       <p className={cn("m-0 max-w-prose leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        What this signed review record proves: a versioned package with enumerated decisions, monitored risks
+        What this sealed review record proves: a versioned package with enumerated decisions, monitored risks
         under an explicit governance cadence, stable identifiers for audit correlation, and packaged deliverables wired
         to the evidence graph and audit trail.
       </p>

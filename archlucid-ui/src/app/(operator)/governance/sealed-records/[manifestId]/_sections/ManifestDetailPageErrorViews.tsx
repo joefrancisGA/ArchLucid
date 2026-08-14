@@ -77,7 +77,7 @@ export function ManifestDetailSummaryLoadErrorView(props: {
         correlationId={props.summaryFailure.correlationId}
       />
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        Try reloading, or return to the reviews list, open a review, then the signed review record from review detail.
+        Try reloading, or return to the reviews list, open a review, then the sealed review record from review detail.
       </p>
       <ManifestDetailPageErrorFooterLinks />
     </ManifestDetailPageErrorFrame>
@@ -120,7 +120,7 @@ export function ManifestDetailSummaryMissingView(props: { readonly buyerPolished
         <OperatorErrorUiReferenceLine />
       </OperatorErrorCallout>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        If this continues, try reloading, or return to the reviews list and open a review, then the signed review record.
+        If this continues, try reloading, or return to the reviews list and open a review, then the sealed review record.
       </p>
       <ManifestDetailPageErrorFooterLinks />
     </ManifestDetailPageErrorFrame>

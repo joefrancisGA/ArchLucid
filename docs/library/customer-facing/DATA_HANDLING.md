@@ -2,7 +2,7 @@
 
 ## What ArchLucid does {#what-archlucid-does}
 
-ArchLucid takes your architecture brief and optional evidence context, applies policy packs, and produces a **governed architecture package** with findings, decisions, a **signed review record**, and an audit trail. ArchLucid does not execute code in your environment and does not require write access to your systems.
+ArchLucid takes your architecture brief and optional evidence context, applies policy packs, and produces a **governed architecture package** with findings, decisions, a **sealed review record**, and an audit trail. ArchLucid does not execute code in your environment and does not require write access to your systems.
 
 For the end-to-end product workflow, see [How ArchLucid works](/help/getting-started#how-archlucid-works).
 
@@ -14,7 +14,7 @@ ArchLucid does not send source code repositories, secrets, or credentials as par
 
 ## What stays in your tenant {#what-stays-in-your-tenant}
 
-All findings, signed review records, decisions, governance approvals, and audit log entries are stored in your ArchLucid tenant database. ArchLucid does not retain copies outside your tenant boundary for product analytics on governed review content.
+All findings, sealed review records, decisions, governance approvals, and audit log entries are stored in your ArchLucid tenant database. ArchLucid does not retain copies outside your tenant boundary for product analytics on governed review content.
 
 ## Data residency {#data-residency}
 

@@ -13,7 +13,7 @@ export const AUTHENTICATION_SIGN_IN_HELP_PAGE_SCOPE =
   "Use this guide when someone cannot sign in, needs an invitation, or is setting up SSO — then return to the sign-in screen when ready." as const;
 
 export const AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE =
-  "This Authentication and sign-in guide orients architects on how people sign in and how identity connects to workspace access — it is help orientation, not a signed-review diligence Sources package from your tenant. Open Users and roles, Security and trust help, or Configure SSO when you need live access or identity provider setup.";
+  "This Authentication and sign-in guide orients architects on how people sign in and how identity connects to workspace access — it is help orientation, not a sealed-review diligence Sources package from your tenant. Open Users and roles, Security and trust help, or Configure SSO when you need live access or identity provider setup.";
 
 export const AUTHENTICATION_SIGN_IN_HELP_SOURCES_INTRO =
   "Use these follow-ups when sign-in vocabulary turns into roles, SSO setup, or identity provider configuration.";

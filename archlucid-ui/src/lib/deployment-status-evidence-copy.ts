@@ -27,7 +27,7 @@ export const ADMIN_DEPLOYMENT_STATUS_DEMO_UNAVAILABLE_DESCRIPTION =
 export const ADMIN_DEPLOYMENT_STATUS_EXTERNAL_LINK_NEW_TAB_SUFFIX = "(opens in new tab)" as const;
 
 export const DEPLOYMENT_STATUS_CLAIM_DISCIPLINE =
-  "This Deployment status page is an internal employee view of release identity and BUILD_ID agreement - it is not a signed-review diligence Sources package. Open System health, Demo readiness, or Audit when you need tenant readiness, demo checks, or governed trails.";
+  "This Deployment status page is an internal employee view of release identity and BUILD_ID agreement - it is not a sealed-review diligence Sources package. Open System health, Demo readiness, or Audit when you need tenant readiness, demo checks, or governed trails.";
 
 export const DEPLOYMENT_STATUS_SOURCES_INTRO =
   "Use these follow-ups when BUILD_ID or health signals turn into workspace readiness, demo diagnostics, or audit activity.";

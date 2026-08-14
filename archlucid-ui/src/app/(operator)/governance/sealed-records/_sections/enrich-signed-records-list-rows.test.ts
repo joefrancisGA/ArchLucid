@@ -30,7 +30,7 @@ describe("enrichSignedRecordsListRows", () => {
         ...baseRow,
         manifestVersion: "2.1.0",
         manifestId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-        signedRecordHref: "/governance/signed-records/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        signedRecordHref: "/governance/sealed-records/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
       },
     ]);
 
@@ -47,7 +47,7 @@ describe("enrichSignedRecordsListRows", () => {
     expect(resolveGoldenManifestIdForRun).toHaveBeenCalledWith(baseRow.runId);
     expect(rows[0]?.manifestId).toBe("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
     expect(rows[0]?.signedRecordHref).toBe(
-      "/governance/signed-records/bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
+      "/governance/sealed-records/bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
     );
   });
 

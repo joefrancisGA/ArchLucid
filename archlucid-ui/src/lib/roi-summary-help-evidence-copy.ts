@@ -11,7 +11,7 @@ export const ROI_SUMMARY_HELP_CANONICAL_PATH = "/help/roi-summary" as const;
 export const ROI_SUMMARY_HELP_TOPIC_LABEL = "How to read ROI summary";
 
 export const ROI_SUMMARY_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how to read portfolio ROI framing — it is not a signed review record or audited financial statement.";
+  "This guide explains how to read portfolio ROI framing — it is not a sealed review record or audited financial statement.";
 
 export const ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

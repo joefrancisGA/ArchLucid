@@ -1,5 +1,5 @@
 /**
- * Signed review record copy — sections, deliverables, and downloads.
+ * Sealed review record copy — sections, deliverables, and downloads.
  *
  * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
@@ -19,7 +19,7 @@ export const BUYER_MANIFEST_DELIVERABLE_DOCX_DESC =
 export const BUYER_MANIFEST_DELIVERABLE_ZIP_TITLE = "Review bundle (ZIP)";
 
 export const BUYER_MANIFEST_DELIVERABLE_ZIP_DESC =
-  "All signed artifacts, evidence index, and review record in one archive.";
+  "All sealed artifacts, evidence index, and review record in one archive.";
 
 export const BUYER_MANIFEST_DELIVERABLE_MARKDOWN_TITLE = "Decision receipt (Markdown)";
 
@@ -33,7 +33,7 @@ export const BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING = "Review record summary r
 export const BUYER_MANIFEST_SUMMARY_MISSING_HEADING = "Review record summary missing.";
 
 export const BUYER_SEALED_MANIFEST_TOOLTIP =
-  "Finalized signed review record: hash-verified, write-locked record after governance approval — not informal draft text.";
+  "Finalized sealed review record: hash-verified, write-locked record after governance approval — not informal draft text.";
 
 export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download finalized review";
 
@@ -43,7 +43,7 @@ export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE = "Delivered as a ZIP archi
  * @deprecated Prefer {@link SIGNED_MANIFEST_LABEL} / `BUYER_SURFACE_VOCABULARY.signedReviewRecord`.
  * Kept so older imports resolve to the canonical package noun (not a Decision register row).
  */
-export const BUYER_SIGNED_DECISION_RECORD_LABEL = "Signed review record";
+export const BUYER_SIGNED_DECISION_RECORD_LABEL = "Sealed review record";
 
 export const BUYER_MANIFEST_SECTION_DECISION = "Decision";
 
@@ -64,21 +64,21 @@ export const BUYER_DOWNLOAD_REVIEW_RECORD_JSON = "Download review record (JSON)"
 
 export const BUYER_COPY_REVIEW_RECORD_JSON = "Copy review record JSON";
 
-export const BUYER_VIEW_SIGNED_RECORD_CTA = "View signed record";
+export const BUYER_VIEW_SIGNED_RECORD_CTA = "View sealed record";
 
-export const BUYER_OPEN_SIGNED_RECORD_CTA = "Open signed record";
+export const BUYER_OPEN_SIGNED_RECORD_CTA = "Open sealed record";
 
-export const BUYER_VIEW_SIGNED_REVIEW_RECORD_CTA = "View signed review record";
+export const BUYER_VIEW_SIGNED_REVIEW_RECORD_CTA = "View sealed review record";
 
 export const BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE =
-  "Blocking issues: 0 · Evidence basis: signed review record, evidence trail, audit trail";
+  "Blocking issues: 0 · Evidence basis: sealed review record, evidence trail, audit trail";
 
 export const BUYER_DECISION_KEY_SUMMARY = "Decision key";
 
 export const BUYER_MANIFEST_HEADLINE_SUFFIX = "architecture review";
 
 export const BUYER_MANIFEST_AUTHORITY_SUMMARY =
-  "This signed review record is the authoritative record for this review — decisions, findings, and downloadable deliverables.";
+  "This sealed review record is the authoritative record for this review — decisions, findings, and downloadable deliverables.";
 
 export const BUYER_MANIFEST_TOP_RISK_CTA = "View top risk and evidence";
 

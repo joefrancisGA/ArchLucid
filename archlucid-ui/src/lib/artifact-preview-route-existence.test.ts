@@ -8,7 +8,7 @@ describe("artifact preview App Router existence (TB-1825 / TB-1950 / GAR / RER)"
     const garPage = join(
       appRoot,
       "governance",
-      "signed-records",
+      "sealed-records",
       "[manifestId]",
       "artifacts",
       "[artifactId]",

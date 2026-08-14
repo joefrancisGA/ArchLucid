@@ -276,7 +276,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             The supplementary comparison may still have succeeded; check the sections below.
           </p>
           <OperatorTryNext>
-            Verify both reviews have finalized signed review records in scope. If only the supplementary diff is needed for
+            Verify both reviews have finalized sealed review records in scope. If only the supplementary diff is needed for
             now, expand <strong>Review-level diff</strong> after confirming the pair in the summary panel.
           </OperatorTryNext>
         </>

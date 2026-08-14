@@ -7,7 +7,7 @@ export const IDENTITY_PROVIDERS_SETTINGS_CANONICAL_PATH =
 export const IDENTITY_PROVIDERS_SETTINGS_HELP_TOPIC_LABEL = "How SSO and identity work" as const;
 
 export const IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE =
-  "This SSO and identity hub configures federation and sign-in for the workspace - it is not a signed-review diligence Sources package. Open Enterprise onboarding help, Users and roles, or Assurance status when you need onboarding, membership, or trust cites.";
+  "This SSO and identity hub configures federation and sign-in for the workspace - it is not a sealed-review diligence Sources package. Open Enterprise onboarding help, Users and roles, or Assurance status when you need onboarding, membership, or trust cites.";
 
 export const IDENTITY_PROVIDERS_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when SSO setup turns into domain enforcement, role mapping, membership, or assurance cites.";

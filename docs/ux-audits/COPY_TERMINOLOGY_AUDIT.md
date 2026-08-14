@@ -78,7 +78,7 @@ These terms must not appear in any customer-visible rendered text (page titles, 
 | `talk-track only` | Internal GTM language |
 | `static fallback` (customer-facing) | Implementation terminology; keep presenter-only |
 | `architecture run` / `run` (singular, standalone) | Legacy API name; use "architecture review" |
-| `golden manifest` | Legacy artifact name; use "signed review record" |
+| `golden manifest` | Legacy artifact name; use "sealed review record" |
 | `pre-commit gate` (in headings/labels) | Git-metaphor vocabulary; use "approval gate" |
 | `evaluation workspace` | Pre-sale framing; use "example workspace" or "sample workspace" |
 

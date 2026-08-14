@@ -107,7 +107,7 @@ function buyerModel(overrides: Partial<FindingDetailPageModel> = {}): FindingDet
     inspectPayload,
     inspectFailure: null,
     buyerPolishedShell: true,
-    linkedManifestHref: "/governance/signed-records/m1",
+    linkedManifestHref: "/governance/sealed-records/m1",
     pageTitle: "Over-permissive storage access",
     findingIsPhi: false,
     runExecutionFootnote: null,

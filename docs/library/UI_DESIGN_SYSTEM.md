@@ -77,7 +77,7 @@ Use precise product language throughout the UI — labels, headings, empty state
 | Finding | Issue, alert (unless it is an alert) |
 | Residual risk | Open issue |
 | Evidence trail / Evidence graph (see split below) | Logs, output |
-| Signed review record (package) | Signed decision record, golden manifest |
+| Sealed review record (package) | Signed decision record, golden manifest |
 | Decision (disposition) | Calling the package a decision record |
 | Governance approval | Sign-off, approval |
 | Audit trail | History |
@@ -86,7 +86,7 @@ Use precise product language throughout the UI — labels, headings, empty state
 
 | Term | Role | Use when |
 |------|------|----------|
-| **Evidence trail** | **Concept** — the diligence chain evidence → findings → decisions → signed review record | Glossary, Related-links, help topics, and copy that names the *idea* of governed linkage |
+| **Evidence trail** | **Concept** — the diligence chain evidence → findings → decisions → sealed review record | Glossary, Related-links, help topics, and copy that names the *idea* of governed linkage |
 | **Evidence graph** | **Surface** — `/insights/evidence-graph` and journey destinations that open that route | Page titles, nav, golden-journey step pills, surface CTAs that name the graph UI |
 
 Do **not** use “Evidence trail” as the title, tab, or destination pill for `/insights/evidence-graph`. Keep glossary and Related-links “Evidence trail” labels unless an explicit rename of the concept is approved.
@@ -365,7 +365,7 @@ Bans playful empties — this section defines **empty kinds**, Compact-vs-center
 > - Compact, readable enterprise spacing; no giant marketing cards in architect workspace views.
 > - Hide CLI/script/API/model/runtime details from normal surfaces.
 > - Keep technical details behind diagnostics or technical appendix disclosures.
-> - Use precise product language: architecture package, finding, residual risk, evidence trail, signed review record, decision, governance approval, audit trail. Never call the package a signed decision record.
+> - Use precise product language: architecture package, finding, residual risk, evidence trail, sealed review record, decision, governance approval, audit trail. Never call the package a signed decision record.
 > - Design for CIO/procurement/compliance credibility.
 
 ---

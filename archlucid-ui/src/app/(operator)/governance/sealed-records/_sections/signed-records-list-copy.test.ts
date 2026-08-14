@@ -15,7 +15,7 @@ describe("signed-records-list-copy", () => {
   });
 
   it("formats pagination summary with more-available honesty (TB-1944)", () => {
-    expect(formatSignedRecordsListPaginationSummary(1, 100, true)).toMatch(/Page 1 · Showing 100 signed records · more available/);
-    expect(formatSignedRecordsListPaginationSummary(2, 1, false)).toBe("Page 2 · Showing 1 signed record");
+    expect(formatSignedRecordsListPaginationSummary(1, 100, true)).toMatch(/Page 1 · Showing 100 sealed records · more available/);
+    expect(formatSignedRecordsListPaginationSummary(2, 1, false)).toBe("Page 2 · Showing 1 sealed record");
   });
 });

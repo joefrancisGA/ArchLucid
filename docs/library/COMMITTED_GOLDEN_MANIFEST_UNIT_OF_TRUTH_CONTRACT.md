@@ -23,9 +23,9 @@ The only unit of truth for buyer-facing **review-backed / finalized / signed pac
 
 | Item | Role |
 |------|------|
-| Committed golden manifest | **Unit of truth** for finalized architecture package / signed review record |
+| Committed golden manifest | **Unit of truth** for finalized architecture package / sealed review record |
 | `GoldenManifestId` + `ManifestHash` | Identity + app-layer hash lineage after commit |
-| Buyer vocabulary | “Finalized architecture package” / “signed review record” **only after commit** |
+| Buyer vocabulary | “Finalized architecture package” / “sealed review record” **only after commit** |
 | `review-backed` (proof-language) | Refers to that committed package — not drafts, Ask, or Simulator |
 
 ---

@@ -18,7 +18,7 @@ const showcaseRunEnc = encodeURIComponent(SHOWCASE_DEMO_RUN_ID);
 /** Canonical five-step buyer spine URLs (aligned with `buyer-golden-journey-nav.ts`). */
 export function showcaseSignedManifestBrowserUrlPattern(): RegExp {
   return new RegExp(
-    `(?:/(?:governance/)?signed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/signed-record)`,
+    `(?:/(?:governance/)?signed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/sealed-record)`,
   );
 }
 
@@ -29,8 +29,8 @@ export function isShowcaseSignedManifestBrowserPath(pathname: string): boolean {
 export const BUYER_GOLDEN_PATH_HREFS = {
   sponsor: `/architecture/reviews/${showcaseRunEnc}`,
   reviewPackage: `/architecture/reviews/${showcaseRunEnc}`,
-  signedManifestFriendly: `/architecture/reviews/${showcaseRunEnc}/signed-record`,
-  signedManifestCanonical: `/governance/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
+  signedManifestFriendly: `/architecture/reviews/${showcaseRunEnc}/sealed-record`,
+  signedManifestCanonical: `/governance/sealed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
   evidenceGraph: `/insights/evidence-graph?runId=${showcaseRunEnc}`,
   governanceApproval: `/governance/approval-queue?runId=${showcaseRunEnc}`,
   auditTrail: `/governance/audit?runId=${showcaseRunEnc}`,

@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-08-13 - Vocabulary: sealed review record
+
+- Buyer noun is **sealed review record** (former **signed review record**). Finalize still write-locks and hash-anchors the record; the word no longer implies a PKI signature.
+- UI list path is `/governance/sealed-records`, with permanent redirects from `/signed-records` and `/governance/signed-records`.
+- HTTP/SQL identifiers may still say `signed-review-record` / `dbo.SignedReviewRecords`.
+
 **Buyer shorthand (rolling):** recent entries below also call out **security / audit**, **governance & exports**, **integrations / connectors**, and **operational controls** when they change ï¿½ scan section headings for *Admin*, *Audit*, *Governance*, *OpenAPI*, *Terraform*, and *support bundle*.
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.

@@ -501,7 +501,7 @@ public sealed class AuthorityQueryController(
         return Ok(graph);
     }
 
-    /// <summary>Returns the hydrated signed review record JSON for the review when finalized.</summary>
+    /// <summary>Returns the hydrated sealed review record JSON for the review when finalized.</summary>
     [HttpGet("reviews/{runId:guid}/signed-review-record")]
     [ProducesResponseType(typeof(ManifestDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

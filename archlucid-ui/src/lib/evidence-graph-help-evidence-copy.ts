@@ -9,7 +9,7 @@ import {
 export const EVIDENCE_GRAPH_HELP_CANONICAL_PATH = "/help/evidence-graph" as const;
 
 export const EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how the evidence graph relates findings, decisions, and audit records — it is not a signed-review diligence Sources package.";
+  "This guide explains how the evidence graph relates findings, decisions, and audit records — it is not a sealed-review diligence Sources package.";
 
 export const EVIDENCE_GRAPH_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

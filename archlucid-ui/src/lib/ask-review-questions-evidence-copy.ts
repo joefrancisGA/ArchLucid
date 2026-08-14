@@ -8,7 +8,7 @@ export const ASK_REVIEW_QUESTIONS_CANONICAL_PATH = "/insights/ask-review-questio
 export { PRIOR_MANIFEST_RETRIEVAL_HELP_TOPIC_LABEL } from "@/lib/prior-manifest-retrieval-help-evidence-copy";
 
 export const ASK_REVIEW_QUESTIONS_CLAIM_DISCIPLINE =
-  "Ask review questions grounds answers in a selected signed review record — it is not a complete diligence Sources export package by itself. Open cited findings, Evidence graph, or Audit when you need fuller sponsor-safe trails.";
+  "Ask review questions grounds answers in a selected sealed review record — it is not a complete diligence Sources export package by itself. Open cited findings, Evidence graph, or Audit when you need fuller sponsor-safe trails.";
 
 export const ASK_REVIEW_QUESTIONS_SOURCES_INTRO =
   "Use these follow-ups when answers need package context, evidence search, or governance disposition.";

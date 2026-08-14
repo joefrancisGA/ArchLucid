@@ -3,7 +3,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const WHY_CANONICAL_PATH = "/why" as const;
 
 export const WHY_CLAIM_DISCIPLINE =
-  "This Why ArchLucid page compares product fit for evaluation — it is marketing differentiation orientation, not a signed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.";
+  "This Why ArchLucid page compares product fit for evaluation — it is marketing differentiation orientation, not a sealed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.";
 
 export const WHY_SOURCES_INTRO =
   "Use these evaluation links when the comparison story turns into a sample proof, signup, or assurance review.";

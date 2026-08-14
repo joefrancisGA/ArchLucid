@@ -37,7 +37,7 @@ describe("SampleReviewPackageSummary", () => {
     expect(screen.getByRole("heading", { name: "Claims Intake sample review" })).toBeInTheDocument();
     expect(screen.getByText(/Numbers are illustrative only/i)).toBeInTheDocument();
     expect(screen.getByText("Demo only")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open signed record" })).toHaveAttribute("href", getShowcaseManifestHref());
+    expect(screen.getByRole("link", { name: "Open sealed record" })).toHaveAttribute("href", getShowcaseManifestHref());
     expect(screen.getByRole("link", { name: "Start a real review" })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByTestId("sample-review-package-aha-open")).toHaveAttribute(
       "href",

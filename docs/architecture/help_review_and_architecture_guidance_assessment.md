@@ -138,7 +138,7 @@ This entry's **title says "First review guide"** but its **href points at `/help
 | Term | Canonical definition found | Source |
 |---|---|---|
 | Review | *"A structured examination of architecture change or design intent tied to artifacts and policies."* / *"The end-to-end work unit from intake through finalized outputs for one architecture question."* | `docs/library/GLOSSARY.md:11`; `archlucid-ui/src/lib/glossary-definitions.ts` |
-| Review package | *"A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list."* | `archlucid-ui/src/lib/glossary-terms.ts:23-26` |
+| Review package | *"A governed architecture review with sealed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list."* | `archlucid-ui/src/lib/glossary-terms.ts:23-26` |
 | Architecture package | *"Review package (legacy UI noun), finalized review artifact — findings, evidence trail, signed decision record, and exports for one architecture review."* | `docs/go-to-market/UI_GLOSSARY_V1.md:12` |
 | Evidence trail | *"The chronological, inspectable lineage from inputs (prompts, repositories, citations) through deterministic steps to reviewer-visible outputs."* | `docs/library/GLOSSARY.md:18` |
 | Architecture draft | **No glossary entry.** Product-copy-only usage. | `ArchitectureDraftWorkspace.tsx:43`, `guided-intake-copy.ts:100` |

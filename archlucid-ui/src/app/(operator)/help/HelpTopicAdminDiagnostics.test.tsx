@@ -118,7 +118,7 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     expect(content.textContent ?? "").not.toContain("Workspace Overview");
     expect(content.textContent ?? "").not.toContain("claim discipline");
     expect(content.textContent ?? "").not.toContain("Sources package");
-    expect(content.textContent ?? "").not.toContain("signed-review diligence");
+    expect(content.textContent ?? "").not.toContain("sealed-review diligence");
     expect(content.textContent ?? "").toContain("Without Admin access");
 
     const orientation = screen.getByTestId("help-admin-diagnostics-page-orientation");

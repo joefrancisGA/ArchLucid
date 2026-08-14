@@ -15,7 +15,7 @@ export function WizardPackagePreview(props: WizardPackagePreviewProps) {
     "Compliance checks against policy packs",
     "Critic review and explainability trace",
     props.hasEvidence ? "Evidence-linked provenance graph" : "Evidence trail (attach files to enrich)",
-    "Signed review record and exportable deliverables",
+    "Sealed review record and exportable deliverables",
   ];
 
   return (

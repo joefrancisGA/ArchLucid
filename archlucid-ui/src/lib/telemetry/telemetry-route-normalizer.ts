@@ -13,8 +13,8 @@ export function normalizeTelemetryRoute(pathname: string): string {
   }
 
   normalized = normalized.replace(
-    /\/(?:manifests|governance\/signed-records|signed-records)\/[^/]+/i,
-    "/governance/signed-records/[manifestId]",
+    /\/(?:manifests|governance\/(?:signed|sealed)-records|(?:signed|sealed)-records)\/[^/]+/i,
+    "/governance/sealed-records/[manifestId]",
   );
 
   if (normalized.length === 0) {

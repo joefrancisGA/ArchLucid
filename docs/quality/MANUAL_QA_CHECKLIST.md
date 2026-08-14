@@ -127,7 +127,7 @@ Use these stable tokens for a **single** walkthrough session (aligned with `src/
 | 6 | Open PHI finding | Post-approval lead mentions **residual PHI minimization risk** with monitoring; confidence explainer distinguishes **finding evaluation confidence** from product accuracy |
 | 7 | Open graph, load trail | **What this proves** line traces PHI risk → policy → decision → approval → manifest → audit; ~15 linked records / 7 audit events feel coherent (static counts) |
 | 8 | **Ask** — placeholder “Ask about this architecture package…” | Grounding line: scoped to review evidence; does not claim to replace governance records; showcase anchors mention sponsor summary, manifest, policy, evidence trail, audit |
-| 9 | **Governance** | Page title **Governance workflow**; approval lead references **signed review record** (not ADR-style package naming); footnote: production still under customer change management |
+| 9 | **Governance** | Page title **Governance workflow**; approval lead references **sealed review record** (not ADR-style package naming); footnote: production still under customer change management |
 | 10 | **Governance → findings** | **Monitored risks** section; CTAs **View finding and evidence** / **View evidence trail** |
 | 11 | **Audit** | Intro **Recorded timeline for this architecture package**; **Audit trail complete** when story complete; **Download governance evidence package** |
 | 12 | **Reviews list** | Featured row **Claims Intake Modernization**; tabs **Approved** / **Approved with monitoring** / **Needs attention** make sense for demo data |

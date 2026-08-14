@@ -12,7 +12,7 @@ export type DispositionExportImpactLine = {
 };
 
 const SIGNED_RECORD_UNCHANGED_DETAIL =
-  "Unchanged — the committed signed review record snapshot is not rewritten; disposition is recorded separately on the audit trail.";
+  "Unchanged — the committed sealed review record snapshot is not rewritten; disposition is recorded separately on the audit trail.";
 
 const AUDIT_TRAIL_INCLUDED_DETAIL =
   "Included — appends a disposition event to the finding review trail (audit history).";
@@ -78,7 +78,7 @@ export function getDispositionExportImpactLines(
 export function dispositionExportImpactSurfaceLabel(surface: DispositionExportImpactSurface): string {
   switch (surface) {
     case "signed_review_record":
-      return "Signed review record";
+      return "Sealed review record";
     case "sponsor_packet":
       return "Sponsor packet";
     case "audit_trail":

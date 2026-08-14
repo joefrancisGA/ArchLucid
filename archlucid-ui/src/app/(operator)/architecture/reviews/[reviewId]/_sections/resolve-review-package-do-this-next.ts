@@ -69,7 +69,7 @@ function sentenceForPrimaryAction(
 
       return "Open findings need your disposition before you can finalize or share this package.";
     case "finalize-package":
-      return "Assessment finished — finalize this review to create a signed review record.";
+      return "Assessment finished — finalize this review to create a sealed review record.";
     case "send-to-sponsor":
       return "This package is finalized — download or share the sponsor briefing export when you are ready.";
     case "open-governance-decision":

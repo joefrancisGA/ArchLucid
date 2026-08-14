@@ -37,7 +37,7 @@ describe("artifactPreviewHref (TB-1821 / TB-1822 / TB-1948)", () => {
     const mamPage = join(
       appRoot,
       "governance",
-      "signed-records",
+      "sealed-records",
       "[manifestId]",
       "artifacts",
       "[artifactId]",
@@ -48,7 +48,7 @@ describe("artifactPreviewHref (TB-1821 / TB-1822 / TB-1948)", () => {
     expect(existsSync(mamPage)).toBe(true);
 
     expect(artifactPreviewHref(manifestId, artifactId, runId)).toBe(
-      `/governance/signed-records/${manifestId}/artifacts/${artifactId}`,
+      `/governance/sealed-records/${manifestId}/artifacts/${artifactId}`,
     );
   });
 });

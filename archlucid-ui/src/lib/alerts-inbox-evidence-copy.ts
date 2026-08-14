@@ -3,7 +3,7 @@ import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH, governanceAlertRulesTa
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ALERTS_INBOX_CLAIM_DISCIPLINE =
-  "Alert inbox is the operational triage launcher for raised governance notifications — it is not a signed-review diligence Sources package. Open Findings, Audit, or Alert rules when you need disposition trails or configuration evidence.";
+  "Alert inbox is the operational triage launcher for raised governance notifications — it is not a sealed-review diligence Sources package. Open Findings, Audit, or Alert rules when you need disposition trails or configuration evidence.";
 
 export const ALERTS_INBOX_SOURCES_INTRO =
   "Use these follow-ups when inbox triage turns into finding disposition, rule configuration, or activity trails.";

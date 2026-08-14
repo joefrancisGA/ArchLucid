@@ -2,13 +2,16 @@
  * Canonical buyer-facing product nouns — single source for UI copy sweeps (TB-273).
  *
  * Pairing (do not conflate):
- * - **Signed review record** = immutable package locked at finalize (golden manifest).
+ * - **Sealed review record** = immutable package locked at finalize (golden manifest).
  * - **Decision** = disposition on a finding/proposal; browsed in the Decision register.
- * Never call the package a "signed decision record".
+ * Never call the package a "signed decision record" or "signed review record".
  */
 
 /** Committed architecture output (prefer over "golden manifest" or internal "manifest" in buyer copy). */
-export const SIGNED_MANIFEST_LABEL = "Signed review record";
+export const SEALED_MANIFEST_LABEL = "Sealed review record";
+
+/** @deprecated Use {@link SEALED_MANIFEST_LABEL}. Kept so existing imports keep compiling. */
+export const SIGNED_MANIFEST_LABEL = SEALED_MANIFEST_LABEL;
 
 /**
  * Disposition noun for Decision register rows and finding outcomes.

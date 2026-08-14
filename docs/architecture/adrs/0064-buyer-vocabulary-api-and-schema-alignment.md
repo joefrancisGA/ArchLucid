@@ -1,4 +1,6 @@
 > **Scope:** ADR 0064 — Align public HTTP paths and spine SQL table names with buyer vocabulary (review / finalize / signed review record) on **v1** without introducing a v2 API version.
+>
+> **Amended 2026-08-13:** Buyer noun is now **sealed review record**. HTTP/SQL identifiers may still say `signed-review-record` / `dbo.SignedReviewRecords` until a follow-up contract rename.
 
 # ADR 0064: Buyer-vocabulary API and schema alignment (v1 in place)
 

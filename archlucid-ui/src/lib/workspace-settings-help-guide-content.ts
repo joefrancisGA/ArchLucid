@@ -11,7 +11,7 @@ export const WORKSPACE_SETTINGS_HELP_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.works
 export const WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE = TENANT_SETTINGS_PAGE_SUBTITLE;
 
 export const WORKSPACE_SETTINGS_HELP_OVERVIEW =
-  "Workspace settings configures tenant-wide defaults, quality gates, and cost settings that reviews inherit. It is an Admin surface — not a signed-review diligence Sources package.";
+  "Workspace settings configures tenant-wide defaults, quality gates, and cost settings that reviews inherit. It is an Admin surface — not a sealed-review diligence Sources package.";
 
 export const WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION = {
   label: "Open workspace settings",

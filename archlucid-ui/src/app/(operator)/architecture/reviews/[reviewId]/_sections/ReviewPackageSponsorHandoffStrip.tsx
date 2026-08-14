@@ -35,7 +35,7 @@ export type ReviewPackageSponsorHandoffStripProps = {
   readonly rehearsalPreview?: SponsorRehearsalPreviewInput | null;
 };
 
-/** Sponsor export entry on the signed review record tab — soft ROI baseline warn (TB-2204). */
+/** Sponsor export entry on the sealed review record tab — soft ROI baseline warn (TB-2204). */
 export function ReviewPackageSponsorHandoffStrip(
   props: ReviewPackageSponsorHandoffStripProps,
 ): React.JSX.Element {

@@ -85,7 +85,7 @@ export function ShowcaseQuickNav({
               renderMode={renderMode}
               funnelAction="quick_nav_signed_record"
             >
-              Open signed record
+              Open sealed record
             </ShowcaseFunnelTelemetryAnchor>
             <ShowcaseFunnelTelemetryAnchor
               href={findingHref}

@@ -11,14 +11,14 @@ describe("signed-record artifact preview route contract (TB-1947 / GAR)", () => 
     const artifactId = "cost-summary";
 
     expect(signedRecordArtifactPath(manifestId, artifactId)).toBe(
-      `/governance/signed-records/${manifestId}/artifacts/${artifactId}`,
+      `/governance/sealed-records/${manifestId}/artifacts/${artifactId}`,
     );
 
     const appRoot = join(process.cwd(), "src", "app", "(operator)");
     const mamPage = join(
       appRoot,
       "governance",
-      "signed-records",
+      "sealed-records",
       "[manifestId]",
       "artifacts",
       "[artifactId]",
@@ -27,7 +27,7 @@ describe("signed-record artifact preview route contract (TB-1947 / GAR)", () => 
     const loader = join(
       appRoot,
       "governance",
-      "signed-records",
+      "sealed-records",
       "[manifestId]",
       "artifacts",
       "[artifactId]",
@@ -37,7 +37,7 @@ describe("signed-record artifact preview route contract (TB-1947 / GAR)", () => 
     const view = join(
       appRoot,
       "governance",
-      "signed-records",
+      "sealed-records",
       "[manifestId]",
       "artifacts",
       "[artifactId]",

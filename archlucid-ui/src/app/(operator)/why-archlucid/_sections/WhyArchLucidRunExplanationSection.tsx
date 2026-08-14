@@ -24,7 +24,7 @@ export function WhyArchLucidRunExplanationSection(props: WhyArchLucidRunExplanat
         Architecture review explanation and citations
       </h2>
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Aggregate sponsor explanation persisted with the architecture review, with citations back to the signed review record, findings,
+        Aggregate sponsor explanation persisted with the architecture review, with citations back to the sealed review record, findings,
         decision traces, and evidence bundles that the explainability trace was built from.
       </p>
 

@@ -14,14 +14,14 @@ import {
 describe("ArtifactPreviewSponsorExportVocabularyRail (TB-2303)", () => {
   it("renders artifact-preview strip with peer link to sponsor export", () => {
     const model = buildArtifactPreviewSponsorExportVocabulary({
-      artifactHref: "/governance/signed-records/m1/artifacts/a1",
+      artifactHref: "/governance/sealed-records/m1/artifacts/a1",
       runId: "run-abc",
     });
 
     render(
       <ArtifactPreviewSponsorExportVocabularyRail
         currentSurfaceId="artifact-preview"
-        artifactHref="/governance/signed-records/m1/artifacts/a1"
+        artifactHref="/governance/sealed-records/m1/artifacts/a1"
         runId="run-abc"
       />,
     );
@@ -35,7 +35,7 @@ describe("ArtifactPreviewSponsorExportVocabularyRail (TB-2303)", () => {
     expect(peer).toHaveAttribute("href", model.sponsorExportLink.href);
   });
 
-  it("renders sponsor-export strip with Signed review records peer", () => {
+  it("renders sponsor-export strip with Sealed review records peer", () => {
     render(
       <ArtifactPreviewSponsorExportVocabularyRail currentSurfaceId="sponsor-export" />,
     );

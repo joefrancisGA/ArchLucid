@@ -296,7 +296,7 @@ class TestBuyerClaimDrift(unittest.TestCase):
                 target.write_text("Safe default text.\n", encoding="utf-8")
 
             bad = root / "docs/go-to-market/PRODUCT_DATASHEET.md"
-            bad.write_text("Ask review answers are the signed review record for procurement.\n", encoding="utf-8")
+            bad.write_text("Ask review answers are the sealed review record for procurement.\n", encoding="utf-8")
 
             violations = G.buyer_claim_drift_violations(root)
 

@@ -24,7 +24,7 @@ export function getShowcaseWalkthroughHref(): string {
   return `/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 }
 
-/** Finalized signed record for the Claims Intake static spine (canonical manifest detail). */
+/** Finalized sealed record for the Claims Intake static spine (canonical manifest detail). */
 export function getShowcaseManifestHref(): string {
   return signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
 }
@@ -117,7 +117,7 @@ export function getBuyerSafeReviewsTableLinkForRun(run: {
   return { href, label: "Continue review" };
 }
 
-/** Signed review record for the same review — secondary table action next to {@link getBuyerSafeReviewsTableLink}. */
+/** Sealed review record for the same review — secondary table action next to {@link getBuyerSafeReviewsTableLink}. */
 export function getBuyerSafeSignedManifestTableLink(runId: string): PrimaryReviewExploreLink {
   const id = canonicalizeDemoRunId(runId.trim());
 

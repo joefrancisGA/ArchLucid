@@ -192,12 +192,12 @@ export const OPERATOR_EMPTY_STATE_MIGRATION_INVENTORY: readonly OperatorEmptySta
   },
   {
     id: "manifest-detail-no-artifacts",
-    pathOrSurface: "/governance/signed-records/[manifestId]",
+    pathOrSurface: "/governance/sealed-records/[manifestId]",
     kind: "hub-zone",
     chrome: "compact",
     disposition: "migrated",
     testId: "manifest-deliverables-empty-state",
-    componentOrModule: "app/(operator)/governance/signed-records/[manifestId]/_sections/ManifestDetailPageView.tsx",
+    componentOrModule: "app/(operator)/governance/sealed-records/[manifestId]/_sections/ManifestDetailPageView.tsx",
     notes: "Nested deliverables panel empty — Compact buyer/operator variants (**TB-1556**).",
   },
   {

@@ -91,7 +91,7 @@ type RunDetailBelowFoldSectionsProps = {
   readonly context: RunDetailDeferredSectionContext;
   /**
    * `LEGACY_HASH_TO_TAB` already assigns run explanation, deliverables, manifest alerts, and run
-   * actions to the Findings / Evidence / Policies / Signed review record tabs. The tabbed workspace
+   * actions to the Findings / Evidence / Policies / Sealed review record tabs. The tabbed workspace
    * mounts them there, so this shared block must omit them to avoid rendering the same anchor id on
    * two tabs. The legacy single-column path passes nothing and still renders every section.
    */

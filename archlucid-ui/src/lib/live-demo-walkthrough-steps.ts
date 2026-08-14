@@ -42,10 +42,10 @@ export const LIVE_DEMO_WALKTHROUGH_STEPS: readonly LiveDemoWalkthroughStep[] = [
     id: "signed-record",
     number: 2,
     title: DEMO_PREVIEW_ARTIFACT_SIGNED_TITLE,
-    shortLabel: "Signed record",
+    shortLabel: "Sealed record",
     description: DEMO_PREVIEW_ARTIFACT_SIGNED_DESC,
     keyTakeaway:
-      "The signed review record captures finalized status, accountable reviewer, policy coverage, and integrity checks.",
+      "The sealed review record captures finalized status, accountable reviewer, policy coverage, and integrity checks.",
   },
   {
     id: "evidence",

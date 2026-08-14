@@ -27,7 +27,7 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     id: "governance_quick_approve",
     classification: "permanent",
     confirmationLead:
-      "This records a governance approval on the signed review record. It cannot be undone from this workspace.",
+      "This records a governance approval on the sealed review record. It cannot be undone from this workspace.",
   },
   governance_workflow_approve: {
     id: "governance_workflow_approve",

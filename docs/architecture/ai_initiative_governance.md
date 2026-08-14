@@ -48,7 +48,7 @@ ArchLucid should **lead adoption and monetization with AI initiative readiness**
 | Findings with severity, confidence, citations | Shipped | `Finding`, explainability traces, `PolicyRuleId` |
 | Finding dispositions | Shipped | `Accepted`, `Deferred`, `NeedsEvidence`, `Remediated`, `RejectedAsNotApplicable` |
 | Governance gate, exceptions, decision register, approvals | Shipped | `PreCommitGovernanceGate`, governance APIs |
-| Signed review record + sealed immutability | Shipped | `GoldenManifests`, `SealedEvidenceTableRegistry` |
+| Sealed review record + sealed immutability | Shipped | `GoldenManifests`, `SealedEvidenceTableRegistry` |
 | Exports (PDF, DOCX, ZIP, decision receipt, whitelabel consulting DOCX) | Shipped | `RunDetailArtifactsExportsSection.tsx` |
 | Comparison, replay, recurrence | Shipped | `ReplayRunService`, `ComparisonRecords` |
 | AI Governance / Responsible AI policy pack (25 rules) | Shipped | `ai-governance-responsible-ai.json` |
@@ -247,7 +247,7 @@ ArchLucid owns the **decision record about the design**; runtime artifacts flow 
 | Architect self-serve workbench | Model registry metadata | Runtime monitoring |
 | RFI + decision memos with audit chain | | Regulatory certification claims |
 
-**Durable moat [I]:** sealed evidence → rule → finding → disposition → signed record chain with deterministic gates and replay — not policy-pack content or questionnaire UX alone.
+**Durable moat [I]:** sealed evidence → rule → finding → disposition → sealed record chain with deterministic gates and replay — not policy-pack content or questionnaire UX alone.
 
 ---
 

@@ -58,7 +58,7 @@ const OPERATOR_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Review AI findings",
     description:
-      "When the review completes, open it to read findings, evidence, and narrative. Finalize when you are ready to lock the signed review record and sponsor exports.",
+      "When the review completes, open it to read findings, evidence, and narrative. Finalize when you are ready to lock the sealed review record and sponsor exports.",
     Icon: CheckCircle2,
   },
 ];
@@ -73,7 +73,7 @@ const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Start from sponsor report",
     description:
-      "Open the sponsor workspace first for sponsor-ready posture and citations; drill into signed review record, evidence traceability, and deliverables when you need deeper proof.",
+      "Open the sponsor workspace first for sponsor-ready posture and citations; drill into sealed review record, evidence traceability, and deliverables when you need deeper proof.",
     Icon: Users,
   },
   {

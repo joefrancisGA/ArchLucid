@@ -56,7 +56,7 @@
     ]
   },
   {
-    "route": "/governance/signed-records",
+    "route": "/governance/sealed-records",
     "firstLoadUncompressedJsBytes": 1461965,
     "firstLoadChunkPaths": [
       ".next/static/chunks/signed-records.js"

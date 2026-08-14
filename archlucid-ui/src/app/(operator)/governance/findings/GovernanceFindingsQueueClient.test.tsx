@@ -67,7 +67,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
       headline: "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions.",
       useWhen: "Start with open risks, expiring exceptions, or risks without owners.",
       firstPilotNote: null,
-      enterpriseFootnote: "Each row should trace back to its source review, evidence trail, and signed review record.",
+      enterpriseFootnote: "Each row should trace back to its source review, evidence trail, and sealed review record.",
       omitReviewPackageScopeHelp: true,
     },
     contextHints: {

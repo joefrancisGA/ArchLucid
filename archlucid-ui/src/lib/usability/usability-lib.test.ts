@@ -70,7 +70,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/administration/workspace-settings")?.slug).toBe("workspace-settings");
     expect(pageHelpTopicForPathname("/internal/recommendation-learning")?.slug).toBe("pilot-feedback");
     expect(pageHelpTopicForPathname("/architecture/reviews/run-1/artifacts/cost-summary")?.slug).toBe("review-artifacts");
-    expect(pageHelpTopicForPathname("/governance/signed-records/manifest-1/artifacts/cost-summary")?.slug).toBe(
+    expect(pageHelpTopicForPathname("/governance/sealed-records/manifest-1/artifacts/cost-summary")?.slug).toBe(
       "review-artifacts",
     );
     expect(pageHelpTopicForPathname("/insights/roi-summary")?.slug).toBe("roi-summary");

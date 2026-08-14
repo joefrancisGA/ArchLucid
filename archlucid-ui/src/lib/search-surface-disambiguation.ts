@@ -26,7 +26,7 @@ export const EVIDENCE_TRAIL_SEARCH = {
   scopedTitle: "Search this review's evidence",
   /** Operator page lead — evidence trail language, distinct from header find-a-page. */
   pageSubtitle:
-    "Search the evidence trail for findings, decisions, and signed review records across this workspace.",
+    "Search the evidence trail for findings, decisions, and sealed review records across this workspace.",
   /** Query field placeholder — must not read like header global search. */
   queryPlaceholder:
     "Search the evidence trail for a finding, decision, policy, component, or phrase…",

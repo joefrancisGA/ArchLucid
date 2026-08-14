@@ -26,7 +26,7 @@ export const BUYER_ASK_RETRIEVAL_DEGRADED_LABEL =
   "Answer quality may be reduced when evidence search is limited.";
 
 export const BUYER_ASK_GROUNDING_ONCE =
-  "Answers are scoped to selected review evidence. Validate conclusions against the finalized signed review record — Ask does not replace formal governance records.";
+  "Answers are scoped to selected review evidence. Validate conclusions against the finalized sealed review record — Ask does not replace formal governance records.";
 
 export const BUYER_ASK_REVIEW_ANCHORS_LINE =
   "Replies on this review can include quick links to sponsor report, review record, policy basis, evidence trail, and audit anchors where available.";

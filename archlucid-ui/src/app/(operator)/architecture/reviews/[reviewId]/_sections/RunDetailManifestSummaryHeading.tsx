@@ -14,7 +14,7 @@ export function RunDetailManifestSummaryHeading(props: RunDetailManifestSummaryH
   const { vocabulary } = useGovernanceMode();
 
   if (buyerPolishedShell) {
-    return <h3 className={runDetailSectionHeadingClass}>Signed review record</h3>;
+    return <h3 className={runDetailSectionHeadingClass}>Sealed review record</h3>;
   }
 
   return (

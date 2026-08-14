@@ -8,7 +8,7 @@ export const SECURITY_TRUST_HELP_CANONICAL_PATH = "/help/security-trust" as cons
 export const SECURITY_TRUST_HELP_TOPIC_LABEL = "How security and trust work" as const;
 
 export const SECURITY_TRUST_HELP_CLAIM_DISCIPLINE =
-  "This Security and trust help topic orients architects and buyers on the assurance ladder, data handling, and diligence materials — it is help orientation, not a CPA SOC 2 attestation, a published third-party pen-test report, or a signed-review diligence Sources package from your tenant. Open Assurance status or Trust Center when you need public assurance surfaces or downloadable packs.";
+  "This Security and trust help topic orients architects and buyers on the assurance ladder, data handling, and diligence materials — it is help orientation, not a CPA SOC 2 attestation, a published third-party pen-test report, or a sealed-review diligence Sources package from your tenant. Open Assurance status or Trust Center when you need public assurance surfaces or downloadable packs.";
 
 export const SECURITY_TRUST_HELP_SOURCES_INTRO =
   "Use these follow-ups when help vocabulary turns into live assurance hubs, isolation depth, or procurement orientation.";

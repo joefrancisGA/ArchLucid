@@ -346,7 +346,7 @@ describe("run-detail-workspace-derive", () => {
     expect(derivePackageVersionLabel({ ruleSetVersion: "2.1.0" } as never, "manifest-1")).toBe("2.1.0");
   });
 
-  it("formats signed review record id labels without treating them as versions", () => {
+  it("formats sealed review record id labels without treating them as versions", () => {
     expect(deriveSignedReviewRecordIdLabel("9026d565-0000-0000-0000-0000000099e8")).toBe("9026d565…99e8");
   });
 

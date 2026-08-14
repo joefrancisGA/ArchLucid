@@ -224,7 +224,7 @@ export const BUYER_CTO_DEMO_PREFLIGHT_BEGIN_CTA = "Begin demo";
 export const BUYER_CTO_DEMO_AGENDA_HEADING = "Your 30-minute review journey";
 
 export const BUYER_CTO_DEMO_AGENDA_SUBTEXT =
-  "Five stops from sponsor outcomes through signed review record, evidence, governance, and audit trail.";
+  "Five stops from sponsor outcomes through sealed review record, evidence, governance, and audit trail.";
 
 export const BUYER_CTO_DEMO_AUDIT_VERIFY_CTA = "Verify integrity";
 
@@ -246,7 +246,7 @@ export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE =
 
 export const BUYER_CTO_DEMO_VALUE_STRIP_LABELS: readonly string[] = [
   "This sponsor report gives your sponsor a one-page risk and outcome verdict — no engineering context required.",
-  "This signed review record is the verifiable record of every decision made in this review — your auditors' starting point.",
+  "This sealed review record is the verifiable record of every decision made in this review — your auditors' starting point.",
   "Every finding traces back to the exact evidence that produced it — no black-box AI.",
   "This approval gate enforces separation-of-duties before any architecture change is promoted to production.",
   "Every event in this timeline is immutable and exportable — the compliance trail your auditors need on day one.",

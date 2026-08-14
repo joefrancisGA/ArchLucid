@@ -10,7 +10,7 @@ export const BUYER_AUDIT_TRAIL_COMPLETE_HEADING = "Audit trail for this review";
 
 /** Buyer completion card on audit results — scope framing without "complete" overclaim (BDA-008). */
 export const BUYER_AUDIT_PACKAGE_READY_LEAD =
-  "Decisions, signed review record, evidence trail, governance approval, and audit events are available for this review.";
+  "Decisions, sealed review record, evidence trail, governance approval, and audit events are available for this review.";
 
 export const BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION =
   "System-recorded events capture automated lifecycle steps.";

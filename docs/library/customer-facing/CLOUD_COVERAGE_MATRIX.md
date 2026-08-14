@@ -1,6 +1,6 @@
 # Cloud coverage matrix
 
-ArchLucid’s **review workflow** (ingest evidence → apply policy packs → findings → decisions → signed review record) is cloud-agnostic. **Deterministic rule depth** varies by cloud and is documented here — not implied to be equal on every provider.
+ArchLucid’s **review workflow** (ingest evidence → apply policy packs → findings → decisions → sealed review record) is cloud-agnostic. **Deterministic rule depth** varies by cloud and is documented here — not implied to be equal on every provider.
 
 **Sources:** `docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md` (45 bundled packs), `DefaultPolicyPackCloudBaselineApplicator` (AWS/GCP packs auto-enable when a review targets that cloud), `archlucid-ui/src/lib/cloud-neutral-primary-copy.ts`.
 
@@ -9,7 +9,7 @@ ArchLucid’s **review workflow** (ingest evidence → apply policy packs → fi
 | Capability | Cloud-agnostic | Azure | AWS | GCP |
 |------------|----------------|-------|-----|-----|
 | Evidence ingest (brief, diagram, document) | Full | Full | Full | Full |
-| Review / finalize / signed review record workflow | Full | Full | Full | Full |
+| Review / finalize / sealed review record workflow | Full | Full | Full | Full |
 | Security architecture baseline pack | Full | Full | Full | Full |
 | AI governance pack | Full | Full | Full | Full |
 | FinOps / cost governance packs | Full | Full | Full | Full |

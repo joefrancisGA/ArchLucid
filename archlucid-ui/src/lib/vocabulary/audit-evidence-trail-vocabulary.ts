@@ -7,7 +7,7 @@
  * - Evidence graph (`/insights/evidence-graph`) is the signed-record evidence
  *   trail visualization for an architecture package.
  * - Search review evidence (`/insights/search-review-evidence`) finds findings,
- *   decisions, and signed review records across packages in the evidence trail.
+ *   decisions, and sealed review records across packages in the evidence trail.
  *
  * They stay separate because the audit activity log is not the diligence
  * evidence trail, and graph presentation is not cross-package retrieval.
@@ -41,7 +41,7 @@ export const AUDIT_EVIDENCE_TRAIL_HEADING =
   "Audit trail and evidence surfaces serve different purposes" as const;
 
 export const AUDIT_EVIDENCE_TRAIL_WHY_THREE =
-  "Audit trail is the operator activity log for governance and review events. Evidence graph visualizes the signed-record evidence trail for an architecture package. Search review evidence finds findings, decisions, and signed review records across packages. Do not treat the audit log as the diligence evidence trail — open the peer evidence surface when you need signed-record proof or cross-package retrieval." as const;
+  "Audit trail is the operator activity log for governance and review events. Evidence graph visualizes the signed-record evidence trail for an architecture package. Search review evidence finds findings, decisions, and sealed review records across packages. Do not treat the audit log as the diligence evidence trail — open the peer evidence surface when you need signed-record proof or cross-package retrieval." as const;
 
 export const AUDIT_EVIDENCE_TRAIL_COMPACT_LINE =
   "Audit is the activity log; Evidence graph and Search review evidence are the diligence trail — open the peers when you need both." as const;
@@ -64,7 +64,7 @@ export const AUDIT_EVIDENCE_TRAIL_SEARCH_EVIDENCE_LINK: AuditEvidenceTrailLink =
   id: "search-evidence",
   label: "Search review evidence",
   href: SEARCH_REVIEW_EVIDENCE_PATH,
-  whenToUse: "Find findings, decisions, and signed review records across architecture packages.",
+  whenToUse: "Find findings, decisions, and sealed review records across architecture packages.",
 };
 
 /** Full vocabulary model (heading, why-three copy, and deep links). */

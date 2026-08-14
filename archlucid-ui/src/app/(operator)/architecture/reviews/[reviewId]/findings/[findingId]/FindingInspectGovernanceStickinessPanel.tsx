@@ -653,7 +653,7 @@ export function FindingInspectGovernanceStickinessPanel({
           }
         }}
         title="Revoke risk exception?"
-        description="Revoking ends the active waiver for this finding. The revocation is recorded on the audit trail; the signed review record is not automatically changed."
+        description="Revoking ends the active waiver for this finding. The revocation is recorded on the audit trail; the sealed review record is not automatically changed."
         confirmLabel="Revoke waiver"
         variant="destructive"
         busy={busyAction === "revoke-waiver"}

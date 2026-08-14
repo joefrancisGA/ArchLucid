@@ -83,7 +83,7 @@ export default function SignedRecordsListClient() {
       setRows([]);
       setHasMore(false);
       setNextCursor(null);
-      setLoadError(error instanceof Error ? error.message : "Failed to load signed review records.");
+      setLoadError(error instanceof Error ? error.message : "Failed to load sealed review records.");
     } finally {
       setLoading(false);
     }
@@ -172,7 +172,7 @@ export default function SignedRecordsListClient() {
       ) : null}
 
       {loading ? (
-        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>Loading signed review records…</p>
+        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>Loading sealed review records…</p>
       ) : null}
 
       {!loading && hasRows ? (

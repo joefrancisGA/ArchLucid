@@ -42,7 +42,7 @@ function showcaseSampleReviewTabHref(
   return `${baseHref}?${params.toString()}`;
 }
 
-/** Specimen signed review record tab for pre-intake preview (TB-2151). */
+/** Specimen sealed review record tab for pre-intake preview (TB-2151). */
 export function showcaseSpecimenSignedReviewRecordHref(
   runId: string = SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId,
 ): string {

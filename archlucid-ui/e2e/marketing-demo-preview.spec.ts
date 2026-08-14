@@ -18,7 +18,7 @@ test.describe("marketing-demo-preview", () => {
 
     const artifactNav = page.getByTestId("demo-preview-artifact-nav");
     await expect(artifactNav.getByRole("button", { name: /1 · Sponsor report/i })).toBeVisible();
-    await expect(artifactNav.getByRole("button", { name: /2 · Signed review record/i })).toBeVisible();
+    await expect(artifactNav.getByRole("button", { name: /2 · Sealed review record/i })).toBeVisible();
 
     const signup = page.locator('[data-testid="demo-preview-cta-signup"]');
 

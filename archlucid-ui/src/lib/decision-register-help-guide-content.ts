@@ -5,7 +5,7 @@ import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help
 export const DECISION_REGISTER_HELP_PAGE_TITLE = "Decision register";
 
 export const DECISION_REGISTER_HELP_PAGE_SUBTITLE =
-  "Browse architecture decisions locked with signed review records — category, confidence, findings, and lineage.";
+  "Browse architecture decisions locked with sealed review records — category, confidence, findings, and lineage.";
 
 export const DECISION_REGISTER_HELP_OVERVIEW =
   "The decision register is the workspace index of architecture decisions recorded when reviews are signed. Use it to filter and open decisions — not as a standalone diligence Sources package.";

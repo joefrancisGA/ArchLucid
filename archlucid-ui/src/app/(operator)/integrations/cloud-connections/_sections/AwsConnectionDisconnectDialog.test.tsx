@@ -19,7 +19,7 @@ describe("AwsConnectionDisconnectDialog", () => {
     expect(screen.getByRole("heading", { name: "Disconnect AWS account 123456789012?" })).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Scheduled read-only inventory collection for this AWS account will stop. Previously collected inventory packages and any signed review records that cite them are retained.",
+        "Scheduled read-only inventory collection for this AWS account will stop. Previously collected inventory packages and any sealed review records that cite them are retained.",
       ),
     ).toBeInTheDocument();
 

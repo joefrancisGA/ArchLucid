@@ -11,7 +11,7 @@ export const FINDINGS_HELP_CANONICAL_PATH = FINDINGS_HELP_PATH;
 export const FINDINGS_HELP_TOPIC_LABEL = "How findings work";
 
 export const FINDINGS_HELP_CLAIM_DISCIPLINE =
-  "This findings guide explains how architecture concerns are inspected and resolved — it is not a signed-review diligence Sources package. Open Findings, Audit, or a finalized architecture review when you need live or governed trails.";
+  "This findings guide explains how architecture concerns are inspected and resolved — it is not a sealed-review diligence Sources package. Open Findings, Audit, or a finalized architecture review when you need live or governed trails.";
 
 export const FINDINGS_HELP_SOURCES_INTRO =
   "Use these follow-ups when a finding needs live triage, evidence search, governance decisions, or product orientation.";

@@ -4,12 +4,12 @@
 
 # Vocabulary rosetta — internal/API terms vs buyer terms
 
-**Origin:** principal-architect critique #3 ("two vocabularies for the same objects"). The UI says *architecture review / finalize / signed review record*; the API and CLI say `run` / `runId` / `commit` / manifest. Every buyer-visible mismatch costs trust. This file records the end state and tracks the remaining leaks.
+**Origin:** principal-architect critique #3 ("two vocabularies for the same objects"). The UI says *architecture review / finalize / sealed review record*; the API and CLI say `run` / `runId` / `commit` / manifest. Every buyer-visible mismatch costs trust. This file records the end state and tracks the remaining leaks.
 
 ## End-state rule
 
-1. **Public HTTP and spine SQL use buyer nouns (ADR 0064).** Canonical paths say `review` / `finalize` / `signed-review-record` (and related). Spine tables are `dbo.Reviews`, `dbo.SignedReviewRecords`, `dbo.FinalizeReviewIdempotency`, with synonyms for the former `Runs` / `GoldenManifests` / `CommitRunIdempotency` names so existing SQL text keeps compiling.
-2. **Buyer surfaces use the same nouns.** Marketing, help, empty states, page titles, breadcrumbs, toasts, error messages, aria-labels, and export prose say *architecture review, architecture package, finalize/finalized, signed review record, evidence graph*.
+1. **Public HTTP and spine SQL use buyer nouns (ADR 0064).** Canonical paths say `review` / `finalize` / `signed-review-record` (wire lag; buyer noun is **sealed review record**). Spine tables are `dbo.Reviews`, `dbo.SignedReviewRecords`, `dbo.FinalizeReviewIdempotency`, with synonyms for the former `Runs` / `GoldenManifests` / `CommitRunIdempotency` names so existing SQL text keeps compiling.
+2. **Buyer surfaces use the same nouns.** Marketing, help, empty states, page titles, breadcrumbs, toasts, error messages, aria-labels, and export prose say *architecture review, architecture package, finalize/finalized, sealed review record, evidence graph*.
 3. **Operator surfaces prefer buyer vocabulary** but may show raw API identifiers (a `runId` route parameter value, correlation IDs) inside disclosure affordances or support-correlation contexts — labeled, not narrated (e.g. a copyable ID row is fine; "commit your run" prose is not).
 4. **Docs:** engineering docs may still say `run`/`commit`/`GoldenManifest` for type and historical names. Customer-facing docs use buyer nouns. Bridge line when teaching the wire: route param `runId` is the **Review ID**; `POST …/finalize` is finalize.
 5. **C# type names and durable audit event strings** may lag; do not rewrite historical audit rows.
@@ -21,7 +21,7 @@
 | `run`, `ArchitectureRun`, `/v1/architecture/review/...` | **Architecture review** / **Review** | Code, API, CLI verb, route params, engineering docs | `review-terminology-guard.test.ts` + `review-terminology-surfaces.ts` (high-traffic UI modules); `check_concept_vocabulary.py` (docs) |
 | `runId` (displayed) | **Review ID** label (raw value allowed in disclosure/support contexts) | Code identifiers everywhere; work-item/export correlation payloads | Manual review; see inventory class (b) |
 | `commit` (verb), "committed" | **Finalize** / **finalized** | Git contexts; API `POST .../commit`; CLI verb; code identifiers (`PreCommitGovernanceGate`) | **Gap — this is the incomplete migration.** New literals banned via `internal-concept-leakage-vocabulary.test.ts` (2026-08-03); backfill tracked in the inventory below |
-| golden manifest / committed manifest | **Signed review record** (artifact) / **Architecture package** (whole) | Code identifiers (`GoldenManifest`, `IManifestHashService`), engineering docs | `GoldenManifestExportMenu.test.ts` (no buyer-visible literals); `help-product-language.ts` regex rewrite; `review-terminology-copy.test.ts`; `customer-glossary-manifest.ts` deprecated aliases |
+| golden manifest / committed manifest | **Sealed review record** (artifact) / **Architecture package** (whole) | Code identifiers (`GoldenManifest`, `IManifestHashService`), engineering docs | `GoldenManifestExportMenu.test.ts` (no buyer-visible literals); `help-product-language.ts` regex rewrite; `review-terminology-copy.test.ts`; `customer-glossary-manifest.ts` deprecated aliases |
 | pre-commit gate | **Pre-finalize governance gate** | Code (`PreCommitGovernanceGate`), API | Docs updated opportunistically; POSITIONING.md already annotates "(API still says pre-commit)" |
 | coordinator | *(never buyer-visible)* | Internal pipeline ADRs/code only | Not rendered on any surface |
 | Authority / `requiredAuthority` | Workspace-role phrasing ("workspace administrator") | Code, API contracts | `internal-concept-leakage-guard.test.ts` (IA-013) |

@@ -201,7 +201,7 @@ export async function pinArchitectureRun(
   );
 }
 
-/** Finalizes agent results into a signed review record (POST /v1/architecture/review/{runId}/finalize). */
+/** Finalizes agent results into a sealed review record (POST /v1/architecture/review/{runId}/finalize). */
 export async function commitArchitectureRun(
   runId: string,
   options?: { readonly notifySponsor?: boolean },

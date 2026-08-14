@@ -7,7 +7,7 @@ const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh }),
-  usePathname: () => "/governance/signed-records/manifest-1/artifacts/artifact-1",
+  usePathname: () => "/governance/sealed-records/manifest-1/artifacts/artifact-1",
 }));
 
 import { SignedRecordArtifactPageHeader } from "./SignedRecordArtifactPageHeader";

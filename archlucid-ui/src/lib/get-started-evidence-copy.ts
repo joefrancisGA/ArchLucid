@@ -4,7 +4,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const GET_STARTED_CANONICAL_PATH = "/get-started" as const;
 
 export const GET_STARTED_CLAIM_DISCIPLINE =
-  "This get-started page orients buyers toward a guided trial or illustrative sample review — it is marketing first-run orientation, not a signed-review diligence Sources package from your tenant. Open Assurance status or start an evaluation when you need live workspace evidence.";
+  "This get-started page orients buyers toward a guided trial or illustrative sample review — it is marketing first-run orientation, not a sealed-review diligence Sources package from your tenant. Open Assurance status or start an evaluation when you need live workspace evidence.";
 
 export const GET_STARTED_SOURCES_INTRO =
   "Use these evaluation links when path selection turns into signup, assurance, or product orientation.";

@@ -11,4 +11,4 @@ export const RETIRED_RUN_ARTIFACT_PREVIEW_TRAFFIC_PATH =
 
 /** Canonical signed-record artifact preview scored on traffic row GAR. */
 export const CANONICAL_SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_PATH =
-  "/governance/signed-records/[manifestId]/artifacts/[artifactId]" as const;
+  "/governance/sealed-records/[manifestId]/artifacts/[artifactId]" as const;

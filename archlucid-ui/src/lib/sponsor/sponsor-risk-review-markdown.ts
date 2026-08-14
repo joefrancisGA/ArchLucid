@@ -143,7 +143,7 @@ export function buildSponsorRiskReviewMarkdown(
     "",
     evidenceParts.length > 0
       ? evidenceParts.join(" ")
-      : "Confidence metadata was not returned — use the signed review record and finding detail as the authoritative record.",
+      : "Confidence metadata was not returned — use the sealed review record and finding detail as the authoritative record.",
     "",
     "## Prioritized findings (summary)",
     "",

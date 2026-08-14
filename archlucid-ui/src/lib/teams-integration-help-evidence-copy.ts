@@ -8,7 +8,7 @@ import {
 export const TEAMS_INTEGRATION_HELP_CANONICAL_PATH = "/help/teams-integration" as const;
 
 export const TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how Teams destinations route governance alerts — it is not a signed-review diligence Sources package.";
+  "This guide explains how Teams destinations route governance alerts — it is not a sealed-review diligence Sources package.";
 
 export const TEAMS_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

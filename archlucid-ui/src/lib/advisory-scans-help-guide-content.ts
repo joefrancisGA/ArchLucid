@@ -90,6 +90,6 @@ export const ADVISORY_SCANS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] 
 
 /** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
 export const ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a signed-review diligence Sources package", "not a diligence Sources package"],
-  claimMustContain: "not a signed-review diligence Sources package",
+  overviewMustNotContain: ["not a sealed-review diligence Sources package", "not a diligence Sources package"],
+  claimMustContain: "not a sealed-review diligence Sources package",
 } as const;

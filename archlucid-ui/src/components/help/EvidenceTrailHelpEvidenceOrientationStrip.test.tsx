@@ -11,7 +11,7 @@ describe("EvidenceTrailHelpEvidenceOrientationStrip", () => {
     const claimDiscipline = screen.getByTestId("evidence-trail-help-claim-discipline");
 
     expect(claimDiscipline).toHaveTextContent(EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE);
-    expect(claimDiscipline).toHaveTextContent("not a signed-review diligence Sources package");
+    expect(claimDiscipline).toHaveTextContent("not a sealed-review diligence Sources package");
     expect(screen.queryByTestId("evidence-trail-help-sources")).toBeNull();
   });
 });

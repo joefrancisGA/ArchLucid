@@ -2,7 +2,7 @@
  * TB-2303 — Artifact preview ≠ Sponsor export vocabulary rail.
  *
  * Why two surfaces exist:
- * - Artifact preview (`/governance/signed-records/.../artifacts/...`) is the
+ * - Artifact preview (`/governance/sealed-records/.../artifacts/...`) is the
  *   in-shell signed-record artifact viewer for one committed output.
  * - Sponsor export (sponsor dashboard `#sponsor-exports` and review-detail
  *   `#sponsor-handoff`) is the per-package handoff — download the sponsor
@@ -45,15 +45,15 @@ export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_COMPACT_LINE =
   "Artifact preview is in-shell signed-record content; Sponsor export is package handoff." as const;
 
 /**
- * Peer from Sponsor export: Signed review records list, because artifact preview
+ * Peer from Sponsor export: Sealed review records list, because artifact preview
  * is manifest/artifact-scoped (open a record, then preview an artifact).
  */
 export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_RECORDS_PEER_LINK: ArtifactPreviewSponsorExportLink =
   {
     id: "artifact-preview",
-    label: "Signed review records (open Artifact preview)",
+    label: "Sealed review records (open Artifact preview)",
     href: SIGNED_RECORDS_LIST_PATH,
-    whenToUse: "Open a signed review record, then preview a committed artifact in the shell.",
+    whenToUse: "Open a sealed review record, then preview a committed artifact in the shell.",
   };
 
 export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_SPONSOR_LINK: ArtifactPreviewSponsorExportLink = {

@@ -18,8 +18,8 @@ function applyHelpTopicProductLanguage(text) {
   let result = text;
 
   const replacements = [
-    [/\bgolden manifests\b/gi, "signed review records"],
-    [/\bgolden manifest\b/gi, "signed review record"],
+    [/\bgolden manifests\b/gi, "sealed review records"],
+    [/\bgolden manifest\b/gi, "sealed review record"],
     [/\bmanifest summary\b/gi, "review summary"],
     [/\bmanifest not found\b/gi, "review not found"],
     [/\bmanifest exists\b/gi, "review exists"],
@@ -32,7 +32,7 @@ function applyHelpTopicProductLanguage(text) {
     [/\barchitecture run\b/gi, "architecture review"],
     [/\bfor this run\b/gi, "for this review"],
     [/\bthe run\b/gi, "the review"],
-    [/\bmanifests when governance\b/gi, "signed review records when governance"],
+    [/\bmanifests when governance\b/gi, "sealed review records when governance"],
     [/\bcreate runs\b/gi, "create reviews"],
     [/\barchitecture runs\b/gi, "architecture reviews"],
   ];
@@ -134,7 +134,7 @@ const CURATED_DOC_PATHS = [
 /** @typedef {{ docPath: string; docTitle: string; sectionSlug: string; sectionHeading: string; excerpt: string }} HelpDocSearchRecord */
 
 const REVIEW_PACKAGE_LABEL = "Review";
-const SIGNED_MANIFEST_LABEL = "Signed review record";
+const SIGNED_MANIFEST_LABEL = "Sealed review record";
 const ARCHITECTURE_REVIEW_LABEL = "Architecture review";
 
 /**

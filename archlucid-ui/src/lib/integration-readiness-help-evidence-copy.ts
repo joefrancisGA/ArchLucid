@@ -12,7 +12,7 @@ export const INTEGRATION_READINESS_HELP_PRIMARY_ACTION = {
 } as const;
 
 export const INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE =
-  "This integration readiness guide is architect orientation for connector setup priority — it is not a signed-review diligence Sources package. Open Connection status or a specific integration settings page when you need live connector health.";
+  "This integration readiness guide is architect orientation for connector setup priority — it is not a sealed-review diligence Sources package. Open Connection status or a specific integration settings page when you need live connector health.";
 
 export const INTEGRATION_READINESS_HELP_SOURCES_INTRO =
   "Use these follow-ups when readiness labels turn into live connector setup, ITSM destinations, or cloud evidence attachments.";

@@ -37,7 +37,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ASK: PageCapabilityBoundary = {
 export const PAGE_CAPABILITY_BOUNDARY_COMPARE: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
-    "Mutate either review's signed review record or attached evidence.",
+    "Mutate either review's sealed review record or attached evidence.",
     "Approve, reject, or finalize packages from the comparison view.",
     "Invent findings or architecture outside the two selected packages.",
     "Replace the Decision register or governance approval workflows.",
@@ -51,7 +51,7 @@ export const PAGE_CAPABILITY_BOUNDARY_GOVERNANCE_FINDINGS: PageCapabilityBoundar
     "Automatically remediate cloud or application configuration.",
     "Author or change policy packs and policy rules.",
     "Invent risks that are not traceable to findings, waivers, exceptions, or governance decisions.",
-    "Replace the Decision register or signed review record as the authority of record.",
+    "Replace the Decision register or sealed review record as the authority of record.",
   ],
 };
 
@@ -70,7 +70,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ASSIGNED_FINDINGS: PageCapabilityBoundary 
 export const PAGE_CAPABILITY_BOUNDARY_ARCHITECTURE_INTELLIGENCE: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
-    "Finalize an architecture package or create a signed review record by itself.",
+    "Finalize an architecture package or create a sealed review record by itself.",
     "Approve, reject, or write Decision register dispositions.",
     "Deploy or change cloud infrastructure from reasoning output.",
     "Replace advisory scans, impact preview, or pairwise compare as the system of record.",
@@ -81,7 +81,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ARCHITECTURE_INTELLIGENCE: PageCapabilityB
 export const PAGE_CAPABILITY_BOUNDARY_IMPACT_PREVIEW: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
-    "Mutate the baseline architecture package or its signed review record.",
+    "Mutate the baseline architecture package or its sealed review record.",
     "Approve, reject, or finalize packages from a simulation.",
     "Replace pairwise Compare of two finalized architecture packages.",
     "Author policy packs or write Decision register dispositions.",
@@ -93,7 +93,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ADVISORY_SCANS: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
     "Automatically remediate findings or cloud configuration.",
-    "Finalize architecture packages or create signed review records.",
+    "Finalize architecture packages or create sealed review records.",
     "Replace the governance findings queue or Decision register.",
     "Author or publish policy packs from a scan recommendation.",
   ],

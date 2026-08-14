@@ -8,7 +8,7 @@ import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 export const SHOWCASE_QUICK_NAV_HEADING = "Explore in workspace";
 
 export const SHOWCASE_QUICK_NAV_DEEP_LINK_BODY =
-  "Same scenario as this public preview — open the review, signed record, or a finding.";
+  "Same scenario as this public preview — open the review, sealed record, or a finding.";
 
 export const SHOWCASE_QUICK_NAV_SIGN_IN_BODY =
   "The full workspace view requires sign-in. You can continue with the same illustrative scenario after authentication.";

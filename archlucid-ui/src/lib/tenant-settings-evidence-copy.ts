@@ -6,7 +6,7 @@ export const TENANT_SETTINGS_CANONICAL_PATH = "/administration/workspace-setting
 export const WORKSPACE_SETTINGS_HELP_TOPIC_LABEL = "How workspace settings work";
 
 export const TENANT_SETTINGS_CLAIM_DISCIPLINE =
-  "This Tenant settings page configures workspace defaults and tenant-wide options - it is not a signed-review diligence Sources package. Open Projects recycle bin, Digests schedule, or Assurance status when you need restore, digest timing, or trust cites.";
+  "This Tenant settings page configures workspace defaults and tenant-wide options - it is not a sealed-review diligence Sources package. Open Projects recycle bin, Digests schedule, or Assurance status when you need restore, digest timing, or trust cites.";
 
 export const TENANT_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when tenant defaults turn into recycle-bin restore, digest schedules, or assurance cites.";

@@ -7,7 +7,7 @@ export const API_KEYS_HELP_CANONICAL_PATH = "/help/api-keys" as const;
 export const API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide is not";
 
 export const API_KEYS_HELP_CLAIM_DISCIPLINE =
-  `This guide is not the ${HELP_DILIGENCE_ARTIFACT_INDEX_TITLE} for a signed review record. Open Assurance status when diligence needs citations beyond this orientation.`;
+  `This guide is not the ${HELP_DILIGENCE_ARTIFACT_INDEX_TITLE} for a sealed review record. Open Assurance status when diligence needs citations beyond this orientation.`;
 
 export const API_KEYS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

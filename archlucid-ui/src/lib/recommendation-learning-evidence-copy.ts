@@ -9,7 +9,7 @@ export { RECOMMENDATION_LEARNING_CANONICAL_PATH };
 export const RECOMMENDATION_LEARNING_HELP_TOPIC_LABEL = "How recommendation learning works" as const;
 
 export const RECOMMENDATION_LEARNING_CLAIM_DISCIPLINE =
-  "Recommendation learning rebuilds ranking weights from historical advisory outcomes for architects — preview and rebuild are operational profile controls, not a signed-review diligence Sources package. Open Advisory scans or Pilot feedback when you need live recommendation or feedback trails.";
+  "Recommendation learning rebuilds ranking weights from historical advisory outcomes for architects — preview and rebuild are operational profile controls, not a sealed-review diligence Sources package. Open Advisory scans or Pilot feedback when you need live recommendation or feedback trails.";
 
 export const RECOMMENDATION_LEARNING_SOURCES_INTRO =
   "Use these follow-ups when profile eligibility, rebuild impact, or architect feedback needs a live workflow trail.";

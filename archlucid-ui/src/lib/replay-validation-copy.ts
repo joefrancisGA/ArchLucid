@@ -1,7 +1,7 @@
 /** Operator copy for the validate review workflow (`/internal/validate-route`). */
 
 export const REPLAY_PAGE_INTRO =
-  "Confirm that a finalized review, its findings, evidence links, decisions, and signed record remain reproducible and internally consistent.";
+  "Confirm that a finalized review, its findings, evidence links, decisions, and sealed record remain reproducible and internally consistent.";
 
 export const REPLAY_COMPARE_LINK_LABEL = "Need to compare two versions? Open Compare reviews.";
 

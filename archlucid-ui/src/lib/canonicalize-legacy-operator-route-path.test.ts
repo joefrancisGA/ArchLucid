@@ -38,9 +38,9 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
       "/architecture/digests?tab=subscriptions",
     );
     expect(canonicalizeLegacyOperatorRoutePath("/governance/risk-exceptions")).toBe("/governance/exceptions");
-    expect(canonicalizeLegacyOperatorRoutePath("/manifests/demo-id")).toBe("/governance/signed-records/demo-id");
+    expect(canonicalizeLegacyOperatorRoutePath("/manifests/demo-id")).toBe("/governance/sealed-records/demo-id");
     expect(canonicalizeLegacyOperatorRoutePath("/signed-records/demo-id")).toBe(
-      "/governance/signed-records/demo-id",
+      "/governance/sealed-records/demo-id",
     );
     expect(canonicalizeLegacyOperatorRoutePath("/settings/roles")).toBe("/administration/users");
     expect(canonicalizeLegacyOperatorRoutePath("/settings/cloud-connections")).toBe(

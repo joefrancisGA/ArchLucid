@@ -45,7 +45,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
     // Surface name (TB-2097 B): destination pill; “Evidence trail” remains the glossary concept.
     label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
     href: `/insights/evidence-graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`,
-    chipTooltip: "Interactive graph linking evidence → findings → decisions → signed review record outputs.",
+    chipTooltip: "Interactive graph linking evidence → findings → decisions → sealed review record outputs.",
   },
   {
     step: 4,
@@ -108,9 +108,9 @@ export function resolveBuyerGoldenJourneyNav(
 
   let stepIdx: number | null = null;
 
-  const signedRecordFriendly = /^\/architecture\/reviews\/([^/]+)\/signed-record\b/.exec(path);
-  // Live SQL golden manifests use seeded GUIDs under `/governance/signed-records/{id}` (legacy `/signed-records/{id}` redirects here).
-  const signedRecordCanonical = /^\/(?:governance\/)?signed-records\/([^/]+)$/.exec(path);
+  const signedRecordFriendly = /^\/architecture\/reviews\/([^/]+)\/(?:signed|sealed)-record\b/.exec(path);
+  // Live SQL golden manifests use seeded GUIDs under `/governance/sealed-records/{id}` (legacy `/signed-records/{id}` redirects here).
+  const signedRecordCanonical = /^\/(?:governance\/)?(?:signed|sealed)-records\/([^/]+)$/.exec(path);
 
   if (signedRecordFriendly !== null && isBuyerGoldenSpineRunId(signedRecordFriendly[1] ?? "")) {
     stepIdx = 1;

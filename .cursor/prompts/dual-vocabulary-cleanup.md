@@ -7,7 +7,7 @@
 
 # Dual-vocabulary cleanup — Composer prompt set
 
-**Problem being fixed:** the product runs two parallel languages for the same objects. UI says *architecture review / architecture package / finalize / signed review record*; API and CLI say `run` / `runId` / `commit` / manifest. The seams leak into buyer-visible surfaces — notably, the canonical buyer copy module `archlucid-ui/src/lib/buyer-surface-vocabulary.ts` itself says "Commit at least one review…" and "committed reviews" in executive-dashboard copy, while `.cursor/rules/UI-Enterprise-Design-Standard.mdc` bans "commit" as a buyer-facing word (buyer verb: **finalize**). Every mismatch a buyer sees (screen says "finalize", error toast says "commit failed", URL says `runId`) costs trust.
+**Problem being fixed:** the product runs two parallel languages for the same objects. UI says *architecture review / architecture package / finalize / sealed review record*; API and CLI say `run` / `runId` / `commit` / manifest. The seams leak into buyer-visible surfaces — notably, the canonical buyer copy module `archlucid-ui/src/lib/buyer-surface-vocabulary.ts` itself says "Commit at least one review…" and "committed reviews" in executive-dashboard copy, while `.cursor/rules/UI-Enterprise-Design-Standard.mdc` bans "commit" as a buyer-facing word (buyer verb: **finalize**). Every mismatch a buyer sees (screen says "finalize", error toast says "commit failed", URL says `runId`) costs trust.
 
 **Explicit non-goal (all prompts):** do NOT rename API routes, OpenAPI schema properties, `runId`/`commit` API nouns, database columns, or C# types. The API vocabulary is a compatibility surface guarded by OpenAPI snapshot gates. This prompt set fixes what humans *read*, not what machines *call*.
 
@@ -16,7 +16,7 @@
 **Global constraints (apply to every prompt):**
 
 - Respect working-tree safety: many target files are dirty (`empty-state-presets.ts`, `contextual-help-registry.ts`, `internal-concept-leakage-guard.test.ts`, several help/insights files). Run `.\scripts\agent\check-working-tree-path.ps1 -Path <file>` before editing any tracked file; if blocked, skip that file and list it in your summary — never overwrite.
-- Buyer verb/noun canon (from `UI-Enterprise-Design-Standard.mdc` and `docs/library/CONCEPT_VOCABULARY.md`): *architecture package, architecture review, finding, evidence trail, signed review record, finalize, decision, governance approval, audit trail*. Banned as buyer-facing first-impression words: *run, commit, manifest, coordinator, Authority, V1*.
+- Buyer verb/noun canon (from `UI-Enterprise-Design-Standard.mdc` and `docs/library/CONCEPT_VOCABULARY.md`): *architecture package, architecture review, finding, evidence trail, sealed review record, finalize, decision, governance approval, audit trail*. Banned as buyer-facing first-impression words: *run, commit, manifest, coordinator, Authority, V1*.
 - Nuance: "run" stays legal as the CLI/API noun in engineering docs and code; "commit" stays legal in git contexts and API identifiers. The ban is on *buyer-visible rendered copy*.
 - UI verification: focused Vitest only (`npx vitest run <files>` from `archlucid-ui/`); no full builds. One shell command per turn per repo shell-hygiene rules.
 
@@ -26,7 +26,7 @@
 
 ```text
 ArchLucid is mid-migration from internal vocabulary (run, runId, commit, golden manifest) to
-buyer vocabulary (architecture review, architecture package, finalize, signed review record).
+buyer vocabulary (architecture review, architecture package, finalize, sealed review record).
 Produce the authoritative inventory and end-state mapping. READ-ONLY except for the two doc
 deliverables below — no code changes.
 
@@ -46,7 +46,7 @@ deliverables below — no code changes.
 2. Deliverable A — new file docs/library/VOCABULARY_ROSETTA.md: one table, columns
    Internal/API term | Buyer term | Where the internal term remains legal | Enforcement
    (guard/test). Rows at minimum: run/runId → architecture review / Review ID;
-   commit (verb) → finalize; committed → finalized; golden manifest → signed review record;
+   commit (verb) → finalize; committed → finalized; golden manifest → sealed review record;
    pre-commit gate → pre-finalize governance gate; coordinator → (never buyer-visible);
    Authority → workspace role phrasing. State the END-STATE RULE explicitly: API/CLI/schema
    identifiers keep legacy nouns permanently (compatibility surface); every human-readable
@@ -74,7 +74,7 @@ ArchLucid's canonical buyer copy modules themselves leak internal vocabulary. Fi
 constants at the source so every consuming surface inherits the correction. The mapping and
 inventory live in docs/library/VOCABULARY_ROSETTA.md (execute class-(a) rows that live in
 src/lib copy modules; if the rosetta is missing, apply the mapping: commit→finalize,
-committed→finalized, run→review, golden manifest→signed review record).
+committed→finalized, run→review, golden manifest→sealed review record).
 
 1. archlucid-ui/src/lib/buyer-surface-vocabulary.ts — BUYER_EXECUTIVE_SUMMARY_VOCABULARY and
    siblings: replace buyer-visible "Commit"/"committed" phrasing with "Finalize"/"finalized"
@@ -107,7 +107,7 @@ and pages rather than via the src/lib copy modules (those were fixed in a prior 
 1. Sweep archlucid-ui/src/app and src/components for rendered buyer-visible text using
    internal vocabulary: error toasts and failure messages ("commit failed", "run not found"),
    empty states, page titles/metadata, aria-labels, button labels, helper text. Apply the
-   rosetta mapping (commit→finalize, run→review, golden manifest→signed review record,
+   rosetta mapping (commit→finalize, run→review, golden manifest→sealed review record,
    runId→Review ID when displayed as a label; the raw ID value may still be shown inside a
    disclosure affordance per the end-state rule).
 2. Special attention to the API error seam: where UI code interpolates API problem-details or
@@ -180,7 +180,7 @@ docs/library/VOCABULARY_ROSETTA.md. API/CLI identifiers stay; descriptions chang
    success, errors) adopt buyer nouns with the API id in parentheses where useful. Do not
    rename commands, flags, or output JSON fields.
 2. Customer-facing docs sweep: docs/library/customer-facing/ and in-app help content sources —
-   apply the rosetta to prose (finalize, architecture package, signed review record), keeping
+   apply the rosetta to prose (finalize, architecture package, sealed review record), keeping
    one explicit bridge line where the API is taught: "the API and CLI use run and commit for
    compatibility; the product calls these a review and finalize." Engineering docs
    (docs/engineering/, ADRs, API_CONTRACTS.md) are OUT of scope — internal nouns are correct

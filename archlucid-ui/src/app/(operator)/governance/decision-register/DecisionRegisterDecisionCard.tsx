@@ -92,7 +92,7 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
             <dt className="text-al-text-secondary">Evidence lineage</dt>
             <dd className="m-0">
               <Link className={OPERATOR_LINK.nav} href={signedRecordDetailPath(decision.manifestId)}>
-                View signed record
+                View sealed record
               </Link>
             </dd>
           </div>

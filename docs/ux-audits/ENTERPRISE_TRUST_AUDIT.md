@@ -30,7 +30,7 @@ ArchLucid has built a genuine enterprise trust foundation:
 - **Audit trail claim is honest.** `AUDIT_TRAIL_INTEGRITY_NOTE` correctly describes an append-only audit trail. The CTO demo includes an audit integrity verification button.
 - **Tenant isolation claim is defensible.** "Each customer receives a dedicated database catalog" is stated in the CTO demo tenant isolation proof callout and linked to a glossary definition.
 - **Demo data labeling is mostly gated.** `CtoDemoStaticFallbackPresenterBanner` is correctly gated to demo environments. `FindingTrustChip` distinguishes evidence-backed from heuristic findings.
-- **Signed record terminology is enforced.** The `trustEvidenceGoldenManifestFieldTitle` guard translates "golden manifest" to "signed record" in data-layer fields for buyer shells.
+- **Sealed record terminology is enforced.** The `trustEvidenceGoldenManifestFieldTitle` guard translates "golden manifest" to "sealed record" in data-layer fields for buyer shells.
 
 ### What breaks trust
 

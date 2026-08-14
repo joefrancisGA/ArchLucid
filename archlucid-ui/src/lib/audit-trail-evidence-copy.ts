@@ -3,7 +3,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_DECISION_REGISTER_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const AUDIT_TRAIL_CLAIM_DISCIPLINE =
-  "Audit events are an workspace activity log for this workspace — not a signed-review diligence Sources package by themselves. Integrity export/verify when available strengthens provenance for architects";
+  "Audit events are an workspace activity log for this workspace — not a sealed-review diligence Sources package by themselves. Integrity export/verify when available strengthens provenance for architects";
 
 export const AUDIT_TRAIL_SOURCES_INTRO =
   "Open the related architecture review or findings when an event needs follow-up; use Audit trail help for coverage expectations.";

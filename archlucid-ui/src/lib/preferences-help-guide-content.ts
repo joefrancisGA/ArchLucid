@@ -9,7 +9,7 @@ export const PREFERENCES_HELP_PAGE_TITLE = "Preferences";
 export const PREFERENCES_HELP_PAGE_SUBTITLE = "Personal settings saved to your account.";
 
 export const PREFERENCES_HELP_OVERVIEW =
-  "Preferences stores personal appearance choices for your signed-in profile. Changes apply across supported devices — they do not change workspace governance, billing, or signed-review diligence packages.";
+  "Preferences stores personal appearance choices for your signed-in profile. Changes apply across supported devices — they do not change workspace governance, billing, or sealed-review diligence packages.";
 
 export const PREFERENCES_HELP_PRIMARY_ACTION = {
   label: "Open preferences",

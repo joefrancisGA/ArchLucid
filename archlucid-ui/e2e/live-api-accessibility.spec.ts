@@ -39,8 +39,8 @@ const PAGES = [
     name: "Finding inspect (showcase run)",
     path: `/architecture/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}/inspect`,
   },
-  { name: "Manifest detail", path: `/governance/signed-records/${FIXTURE_MANIFEST_ID}` },
-  { name: "Manifest detail (empty artifacts fixture)", path: `/governance/signed-records/${FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID}` },
+  { name: "Manifest detail", path: `/governance/sealed-records/${FIXTURE_MANIFEST_ID}` },
+  { name: "Manifest detail (empty artifacts fixture)", path: `/governance/sealed-records/${FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID}` },
   { name: "Compare", path: "/insights/compare-two-reviews" },
   { name: "Replay", path: "/internal/validate-route" },
   { name: "Ask", path: "/insights/ask-review-questions" },
@@ -97,7 +97,7 @@ const PAGES = [
   { name: "Marketing get started", path: "/get-started" },
   {
     name: "Manifest detail (showcase static demo UUID)",
-    path: `/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
+    path: `/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
   },
   {
     name: "Planning plan detail (demo slug)",
@@ -117,7 +117,7 @@ const GOLDEN_PATH_OPERATOR_A11Y_PAGES = [
   { name: "Overview", path: "/" },
   { name: "Reviews list (canonical /reviews)", path: "/architecture/reviews" },
   { name: "Run detail (canonical /reviews)", path: `/architecture/reviews/${FIXTURE_RUN_ID}` },
-  { name: "Manifest detail", path: `/governance/signed-records/${FIXTURE_MANIFEST_ID}` },
+  { name: "Manifest detail", path: `/governance/sealed-records/${FIXTURE_MANIFEST_ID}` },
 ] as const;
 
 const goldenPathSet = new Set<string>(GOLDEN_PATH_OPERATOR_A11Y_PAGES.map((p) => p.path));

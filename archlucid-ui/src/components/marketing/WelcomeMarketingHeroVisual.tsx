@@ -24,7 +24,7 @@ export function WelcomeMarketingHeroVisual(): React.JSX.Element {
           Healthcare Claims intake modernization
         </p>
         <p className={cn("m-0 mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
-          Signed review record · Policy pack v1.2 · Fabricated sample data
+          Sealed review record · Policy pack v1.2 · Fabricated sample data
         </p>
       </div>
       <div className="space-y-3 px-4 py-4">

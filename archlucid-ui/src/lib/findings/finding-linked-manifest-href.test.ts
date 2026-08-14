@@ -13,7 +13,7 @@ describe("findingLinkedManifestDetailHrefForRun", () => {
     vi.mocked(isDemoRunIdEligibleForStaticFallback).mockReturnValue(true);
 
     expect(findingLinkedManifestDetailHrefForRun(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(
-      `/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
+      `/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
     );
   });
 

@@ -19,7 +19,7 @@ describe("decision-register-empty-teaching (TB-2263)", () => {
 
     expect(model.title).toBe(DECISION_REGISTER_EMPTY_TEACHING_TITLE);
     expect(model.body).toBe(DECISION_REGISTER_EMPTY_TEACHING_BODY);
-    expect(model.body.toLowerCase()).toContain("signed review record");
+    expect(model.body.toLowerCase()).toContain("sealed review record");
     expect(model.honestyLine).toBe(DECISION_REGISTER_EMPTY_TEACHING_HONESTY);
     expect(model.honestyLine.toLowerCase()).toContain("findings queue");
 

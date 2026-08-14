@@ -853,7 +853,7 @@ Former standalone body: `docs/go-to-market/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRU
 | Ask response or chat | Yes | No |
 | Simulator demo or UI summary | Yes, labelled | No |
 
-Buyer-facing terms are “finalized architecture package” or “signed review record” only after commit. `review-backed` in the proof-language audit refers to that committed package.
+Buyer-facing terms are “finalized architecture package” or “sealed review record” only after commit. `review-backed` in the proof-language audit refers to that committed package.
 
 ### Chain integrity
 

@@ -110,7 +110,7 @@ Sign in as **Admin**. Complete the table in **Pass A**, then again in **Pass B**
 | 27 | `/governance/policy-packs/{id}` | Detail shell | Scoped assignment | [ ] | [ ] |
 | 28 | `/governance/standards-and-rules` | Empty diagnosis | Conflict / precedence | [ ] | [ ] |
 | 29 | `/governance/decision-register` | Empty dispositions | Signed decisions | [ ] | [ ] |
-| 30 | `/governance/signed-records` | Empty | Manifests after finalize | [ ] | [ ] |
+| 30 | `/governance/sealed-records` | Empty | Manifests after finalize | [ ] | [ ] |
 | 31 | `/governance/advisory-scans?tab=scans` | Empty scans | Scan results | [ ] | [ ] |
 | 32 | `/governance/advisory-scans?tab=schedules` | Empty schedules | CRUD schedules (Execute) | [ ] | [ ] |
 | 33 | `/governance/audit` | Empty audit table | Events after actions | [ ] | [ ] |
@@ -219,7 +219,7 @@ Do once; unlocks almost every populated and multi-state review screen.
 | [ ] | Finding detail `/architecture/reviews/{runId}/findings/{findingId}` |
 | [ ] | Evidence trace `…/findings/{findingId}/evidence-trace` |
 | [ ] | Provenance `/architecture/reviews/{runId}/provenance` |
-| [ ] | Signed record `/governance/signed-records/{manifestId}` (+ artifact leaf if offered) |
+| [ ] | Sealed record `/governance/sealed-records/{manifestId}` (+ artifact leaf if offered) |
 | [ ] | Second review → finalize (unlocks Compare and richer digests/ROI) |
 | [ ] | Optional: digest subscription + enable schedule |
 | [ ] | Optional: alert rule → inbox row |

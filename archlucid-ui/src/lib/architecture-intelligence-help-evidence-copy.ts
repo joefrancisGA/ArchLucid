@@ -13,7 +13,7 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING =
   "What architecture intelligence is not" as const;
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE =
-  "This guide explains closed-loop architecture reasoning and publish-to-findings. Descriptions you submit are tenant-scoped to your workspace and retained under your workspace data-retention policy — it is not a signed-review diligence Sources package.";
+  "This guide explains closed-loop architecture reasoning and publish-to-findings. Descriptions you submit are tenant-scoped to your workspace and retained under your workspace data-retention policy — it is not a sealed-review diligence Sources package.";
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

@@ -42,7 +42,7 @@ describe("buildSignedRecordsListRowsFromRuns", () => {
 
     expect(rows[0]?.manifestId).toBe("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
     expect(rows[0]?.signedRecordHref).toBe(
-      "/governance/signed-records/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "/governance/sealed-records/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
     );
     expect(isSignedRecordsListRowOpenable(rows[0]!)).toBe(true);
   });

@@ -64,7 +64,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
             {`1 · ${BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel}`}
           </span>
           <span className={outcomeCaptionClass}>
-            Sign in with a connected workspace to open the sponsor report and finalized signed record.
+            Sign in with a connected workspace to open the sponsor report and finalized sealed record.
           </span>
         </div>
       )}
@@ -93,7 +93,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`3 · ${BUYER_SURFACE_VOCABULARY.evidenceGraphNav}`}
           </span>
-          <span className={outcomeCaptionClass}>See summarized posture on the finalized signed review record</span>
+          <span className={outcomeCaptionClass}>See summarized posture on the finalized sealed review record</span>
         </Link>
       ) : (
         <div className={disabledCardClass}>
@@ -134,7 +134,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
             <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {`5 · ${BUYER_SURFACE_VOCABULARY.auditTrail}`}
             </span>
-            <span className={outcomeCaptionClass}>PHI minimization posture — see related items in the signed review record</span>
+            <span className={outcomeCaptionClass}>PHI minimization posture — see related items in the sealed review record</span>
           </Link>
         ) : (
           <div className={disabledCardClass}>

@@ -161,10 +161,10 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
     ),
     ClaimPattern(
         re.compile(
-            r"ask(?:\s+review)?\s+answers?\s+(?:are|is)\s+(?:the\s+)?signed\s+review\s+record",
+            r"ask(?:\s+review)?\s+answers?\s+(?:are|is)\s+(?:the\s+)?(?:signed|sealed)\s+review\s+record",
             re.IGNORECASE,
         ),
-        "Ask-review answers are advisory overlays, not substitutes for the committed signed review record.",
+        "Ask-review answers are advisory overlays, not substitutes for the committed sealed review record.",
         "docs/library/customer-facing/REVIEW_RECORD_INTEGRITY.md",
     ),
     ClaimPattern(
