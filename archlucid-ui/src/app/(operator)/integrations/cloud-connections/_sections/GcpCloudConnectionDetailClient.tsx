@@ -1,11 +1,17 @@
 ﻿"use client";
 
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GCP_WIF_STARTER_IDENTITY_INTRO } from "@/lib/gcp-cloud-connection-wif-starter";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 import { gcpConnectionStatusTagKind } from "@/lib/gcp-connection-present";
+import {
+  CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
+  CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO,
+  cloudProviderConnectionSources,
+} from "@/lib/cloud-provider-connection-evidence-copy";
 
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
 import { CloudProviderDetailLayout } from "./CloudProviderDetailLayout";
@@ -104,6 +110,12 @@ export function GcpCloudConnectionDetailClient() {
               </p>
             </CloudSecurityPreflightTechnicalDetails>
           }
+        />
+        <EvidenceOrientationClaimAndSourcesStrip
+          slug="cloud-connections-gcp"
+          claim={CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE}
+          sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
+          sources={cloudProviderConnectionSources("gcp")}
         />
       </div>
     </GcpConnectionDataProvider>

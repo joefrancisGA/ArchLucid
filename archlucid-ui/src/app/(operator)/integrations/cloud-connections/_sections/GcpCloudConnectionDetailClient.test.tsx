@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -34,6 +34,7 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
 
 import { GcpCloudConnectionDetailClient } from "./GcpCloudConnectionDetailClient";
 import { GCP_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/gcp-cloud-connection-copy";
+import { CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE } from "@/lib/cloud-provider-connection-evidence-copy";
 
 describe("GcpCloudConnectionDetailClient", () => {
   it("does not claim Preview for Tier 2 Done GCP (TB-1140)", () => {
@@ -44,7 +45,6 @@ describe("GcpCloudConnectionDetailClient", () => {
     expect(detail).toBeInTheDocument();
     expect(detail).not.toHaveTextContent(/Preview/i);
     expect(detail).toHaveTextContent(/Workload Identity Federation/i);
-    expect(screen.queryByTestId("cloud-connection-gcp-orientation")).toBeNull(); // TB-2092
   });
 
   it("does not surface Tier/hosted-poll jargon on the GCP product surface (TB-1774)", () => {
@@ -87,5 +87,25 @@ describe("GcpCloudConnectionDetailClient", () => {
 
     expect(screen.getByTestId("gcp-connection-header-connect")).toHaveTextContent("Connect GCP project");
     expect(screen.getByTestId("gcp-connection-header-connect")).toHaveAttribute("href", "#connection-details");
+  });
+
+  it("mounts claim-discipline sources matching the AWS cloud detail page (P0-3, P0-8)", async () => {
+    render(<GcpCloudConnectionDetailClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("gcp-connection-header-status")).toHaveTextContent("Not connected");
+    });
+
+    expect(screen.getByTestId("cloud-connections-gcp-claim-discipline")).toHaveTextContent(
+      CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
+    );
+    const sources = screen.getByTestId("cloud-connections-gcp-sources");
+    expect(within(sources).getByRole("link", { name: "Connection status" })).toHaveAttribute(
+      "href",
+      "/administration/connection-status",
+    );
+    expect(
+      within(sources).queryByRole("link", { name: /integrations\/cloud-connections\/gcp/i }),
+    ).not.toBeInTheDocument();
   });
 });

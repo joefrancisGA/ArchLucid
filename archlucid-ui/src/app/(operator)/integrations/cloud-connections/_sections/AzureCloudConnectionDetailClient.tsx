@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 
-
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 
 import { Button } from "@/components/ui/button";
 
@@ -17,6 +17,12 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
 import { azureConnectionStatusTagKind } from "@/lib/azure-connection-present";
+
+import {
+  CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
+  CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO,
+  cloudProviderConnectionSources,
+} from "@/lib/cloud-provider-connection-evidence-copy";
 
 
 
@@ -140,7 +146,9 @@ function AzureConnectionDetailBody() {
 
   return (
 
-    <CloudProviderDetailLayout
+    <>
+
+      <CloudProviderDetailLayout
 
       providerLabel="Azure"
 
@@ -223,6 +231,15 @@ function AzureConnectionDetailBody() {
       }
 
     />
+
+      <EvidenceOrientationClaimAndSourcesStrip
+        slug="cloud-connections-azure"
+        claim={CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE}
+        sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
+        sources={cloudProviderConnectionSources("azure")}
+      />
+
+    </>
 
   );
 
