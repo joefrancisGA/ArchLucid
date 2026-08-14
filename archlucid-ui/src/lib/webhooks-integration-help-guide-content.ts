@@ -1,4 +1,5 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/webhooks-integration-help-evidence-copy";
 import { WEBHOOKS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/webhooks-integration-evidence-copy";
 import {
   WEBHOOKS_EVENTS_HELPER,
@@ -13,7 +14,7 @@ export const WEBHOOKS_INTEGRATION_HELP_PAGE_TITLE = WEBHOOKS_PAGE_TITLE;
 export const WEBHOOKS_INTEGRATION_HELP_PAGE_SUBTITLE = WEBHOOKS_PAGE_DESCRIPTION;
 
 export const WEBHOOKS_INTEGRATION_HELP_OVERVIEW =
-  "Webhooks let ArchLucid deliver governance alert events to HTTPS endpoints your team operates. Subscriptions are workspace-scoped routing configuration — not a sealed-review diligence package.";
+  "Webhooks let ArchLucid deliver governance alert events to HTTPS endpoints your team operates. Subscriptions are workspace-scoped routing configuration.";
 
 export const WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION = {
   label: "Open webhooks",
@@ -52,8 +53,21 @@ export const WEBHOOKS_INTEGRATION_HELP_HOW_TO_READ_STEPS = [
 
 export const WEBHOOKS_INTEGRATION_HELP_ALERT_RULES_HREF = "/governance/alert-rules";
 
+export const WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID = "help-webhooks-integration-claim-discipline-heading" as const;
+
 export const WEBHOOKS_INTEGRATION_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-webhooks-do", title: "What webhooks do" },
   { level: 2, id: "how-webhooks-work", title: WEBHOOKS_INTEGRATION_HELP_TOPIC_LABEL },
+  {
+    level: 2,
+    id: WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID,
+    title: WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
+
+/** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
+export const WEBHOOKS_INTEGRATION_HELP_NEGATION_DRIFT_MARKERS = {
+  overviewMustNotContain: ["not a sealed-review diligence package", "not a diligence package"],
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;

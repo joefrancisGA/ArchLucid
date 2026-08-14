@@ -7,8 +7,10 @@ import {
 
 export const WEBHOOKS_INTEGRATION_HELP_CANONICAL_PATH = "/help/webhooks-integration" as const;
 
+export const WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how HTTPS webhook subscriptions receive governance alerts — it is not a sealed-review diligence Sources package.";
+  "This guide explains how HTTPS webhook subscriptions receive governance alerts — configure destination URLs, signing secrets, and event filters, then open Alert rules or Integration readiness when routing or procurement setup needs follow-up.";
 
 export const WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

@@ -152,8 +152,10 @@ import {
   SERVICENOW_INTEGRATION_HELP_SOURCES_INTRO,
 } from "@/lib/servicenow-integration-help-evidence-copy";
 import { SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/servicenow-integration-help-guide-content";
+import { SPONSOR_DASHBOARD_HELP_CLAIM_HEADING_ID } from "@/lib/sponsor-dashboard-help-guide-content";
 import {
   SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE,
+  SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING,
   SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE,
   SPONSOR_DASHBOARD_HELP_SOURCES,
   SPONSOR_DASHBOARD_HELP_SOURCES_INTRO,
@@ -218,10 +220,12 @@ import {
 import { SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/slack-integration-help-guide-content";
 import {
   STANDARDS_RULES_HELP_CLAIM_DISCIPLINE,
+  STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING,
   STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE,
   STANDARDS_RULES_HELP_SOURCES,
   STANDARDS_RULES_HELP_SOURCES_INTRO,
 } from "@/lib/standards-rules-help-evidence-copy";
+import { STANDARDS_RULES_HELP_CLAIM_HEADING_ID } from "@/lib/standards-rules-help-guide-content";
 import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
   ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
@@ -275,10 +279,12 @@ import {
 } from "@/lib/subprocessors-help-evidence-copy";
 import {
   TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   TEAMS_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
   TEAMS_INTEGRATION_HELP_SOURCES,
   TEAMS_INTEGRATION_HELP_SOURCES_INTRO,
 } from "@/lib/teams-integration-help-evidence-copy";
+import { TEAMS_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/teams-integration-help-guide-content";
 import {
   TEAMS_INTEGRATION_CLAIM_DISCIPLINE,
   TEAMS_INTEGRATION_SOURCES,
@@ -286,10 +292,12 @@ import {
 } from "@/lib/teams-integration-evidence-copy";
 import {
   WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
+  WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
   WEBHOOKS_INTEGRATION_HELP_SOURCES,
   WEBHOOKS_INTEGRATION_HELP_SOURCES_INTRO,
 } from "@/lib/webhooks-integration-help-evidence-copy";
+import { WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/webhooks-integration-help-guide-content";
 import {
   ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE,
   ITSM_OAUTH_CALLBACK_SOURCES,
@@ -441,11 +449,19 @@ export function ConnectionStatusHelpEvidenceOrientationStrip(): React.JSX.Elemen
   );
 }
 
-export function StandardsRulesHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type StandardsRulesHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function StandardsRulesHelpEvidenceOrientationStrip(
+  props: StandardsRulesHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-standards-rules"
       claim={STANDARDS_RULES_HELP_CLAIM_DISCIPLINE}
+      claimHeading={STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={STANDARDS_RULES_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE}
@@ -453,6 +469,8 @@ export function StandardsRulesHelpEvidenceOrientationStrip(): React.JSX.Element 
       sources={STANDARDS_RULES_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
@@ -633,11 +651,19 @@ export function SlackIntegrationHelpEvidenceOrientationStrip(
   );
 }
 
-export function TeamsIntegrationHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type TeamsIntegrationHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function TeamsIntegrationHelpEvidenceOrientationStrip(
+  props: TeamsIntegrationHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-teams-integration"
       claim={TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE}
+      claimHeading={TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={TEAMS_INTEGRATION_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={TEAMS_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
@@ -645,15 +671,25 @@ export function TeamsIntegrationHelpEvidenceOrientationStrip(): React.JSX.Elemen
       sources={TEAMS_INTEGRATION_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
 
-export function WebhooksIntegrationHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type WebhooksIntegrationHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function WebhooksIntegrationHelpEvidenceOrientationStrip(
+  props: WebhooksIntegrationHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-webhooks-integration"
       claim={WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE}
+      claimHeading={WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
@@ -661,6 +697,8 @@ export function WebhooksIntegrationHelpEvidenceOrientationStrip(): React.JSX.Ele
       sources={WEBHOOKS_INTEGRATION_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
@@ -852,11 +890,19 @@ export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(): React.JS
   );
 }
 
-export function SponsorDashboardHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type SponsorDashboardHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function SponsorDashboardHelpEvidenceOrientationStrip(
+  props: SponsorDashboardHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-sponsor-dashboard"
       claim={SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE}
+      claimHeading={SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={SPONSOR_DASHBOARD_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
       claimElement="div"
       sourcesTitle={SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE}
@@ -864,6 +910,8 @@ export function SponsorDashboardHelpEvidenceOrientationStrip(): React.JSX.Elemen
       sources={SPONSOR_DASHBOARD_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
