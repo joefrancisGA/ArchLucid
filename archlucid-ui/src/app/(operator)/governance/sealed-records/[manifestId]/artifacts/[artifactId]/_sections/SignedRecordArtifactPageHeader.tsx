@@ -9,6 +9,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import {
   SIGNED_RECORD_ARTIFACT_ACTION_REFRESH,
   SIGNED_RECORD_ARTIFACT_ACTION_REFRESHING,
@@ -41,8 +42,11 @@ export function SignedRecordArtifactPageHeader(props: SignedRecordArtifactPageHe
     }
   }, [router]);
 
-  const lastRefreshedLabel =
-    lastRefreshedAt === null ? "Not refreshed yet" : lastRefreshedAt.toLocaleString();
+  const lastRefreshedLabel = operatorFreshnessMetadataWithClockLabel({
+    prefix: SIGNED_RECORD_ARTIFACT_LAST_REFRESHED_PREFIX,
+    lastRefreshedAt,
+    refreshingLabel: refreshing ? SIGNED_RECORD_ARTIFACT_ACTION_REFRESHING : null,
+  });
 
   return (
     <OperatorPageHeader
@@ -69,8 +73,7 @@ export function SignedRecordArtifactPageHeader(props: SignedRecordArtifactPageHe
           className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="signed-record-artifact-last-refreshed"
         >
-          {SIGNED_RECORD_ARTIFACT_LAST_REFRESHED_PREFIX}:{" "}
-          {refreshing ? SIGNED_RECORD_ARTIFACT_ACTION_REFRESHING : lastRefreshedLabel}
+          {lastRefreshedLabel}
         </span>
       }
     />
