@@ -518,7 +518,7 @@ public sealed class CrossAgentProposalConsistencyGateTests
     }
 
     [Fact]
-    public void ApplyToResults_strips_topology_relationship_only_follow_up_when_endpoints_are_not_declared_in_batch()
+    public void ApplyToResults_defers_topology_relationship_only_follow_up_with_undeclared_rename_labels_to_merge_gate()
     {
         AgentResult declaration = new()
         {
@@ -571,7 +571,54 @@ public sealed class CrossAgentProposalConsistencyGateTests
 
         CrossAgentProposalConsistencyGate.ApplyToResults([followUp, declaration]);
 
-        followUp.ProposedChanges!.AddedRelationships.Should().BeEmpty();
+        followUp.ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void ApplyToResults_preserves_relationship_only_inventoried_endpoints_when_batch_declares_unrelated_service()
+    {
+        AgentResult unrelatedDeclaration = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "worker",
+                        ServiceId = "svc-worker",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    }
+                ]
+            }
+        };
+
+        AgentResult inventoriedRelationship = new()
+        {
+            ResultId = "topology-2",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    }
+                ],
+            }
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([inventoriedRelationship, unrelatedDeclaration]);
+
+        inventoriedRelationship.ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
 
     [Fact]

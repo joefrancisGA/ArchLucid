@@ -162,16 +162,7 @@ public static class CrossAgentProposalConsistencyGate
         }
 
         if (!ProposalDeclaresEndpoints(proposal))
-        {
-            if (validationEndpointKeys.Count == 0)
-                return [.. relationships];
-
-            return TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
-                validationEndpointKeys,
-                proposal.AddedServices ?? [],
-                proposal.AddedDatastores ?? [],
-                relationships);
-        }
+            return FilterRelationshipOnlyProposals(declaredBatchEndpointKeys, validationEndpointKeys, relationships);
 
         HashSet<string> declaredEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
             proposal.AddedServices ?? [],
@@ -189,6 +180,39 @@ public static class CrossAgentProposalConsistencyGate
         {
             if (ShouldRetainDeclaredProposalRelationship(relationship, declaredEndpointKeys, validationEndpointKeys))
                 retained.Add(relationship);
+        }
+
+        return retained;
+    }
+
+    private static List<ManifestRelationship> FilterRelationshipOnlyProposals(
+        HashSet<string> declaredBatchEndpointKeys,
+        HashSet<string> validationEndpointKeys,
+        IReadOnlyList<ManifestRelationship> relationships)
+    {
+        if (validationEndpointKeys.Count == 0)
+            return [.. relationships];
+
+        List<ManifestRelationship> retained = [];
+
+        foreach (ManifestRelationship relationship in relationships)
+        {
+            bool sourceDeclaredInBatch = declaredBatchEndpointKeys.Contains(relationship.SourceId);
+            bool targetDeclaredInBatch = declaredBatchEndpointKeys.Contains(relationship.TargetId);
+
+            // Defer relationships that reference endpoints outside this batch to merge-gate graph validation.
+            if (!sourceDeclaredInBatch || !targetDeclaredInBatch)
+            {
+                retained.Add(relationship);
+                continue;
+            }
+
+            if (TopologyProposalRelationshipEndpointIndex.RelationshipEndpointsAreKnown(
+                    relationship,
+                    validationEndpointKeys))
+            {
+                retained.Add(relationship);
+            }
         }
 
         return retained;
