@@ -524,7 +524,12 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("elastic_cloud", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("neptune_cluster", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("oracle_cloud", StringComparison.OrdinalIgnoreCase)
+<<<<<<< Updated upstream
             || normalized.Contains("oracle_autonomous", StringComparison.OrdinalIgnoreCase);
+=======
+            || normalized.Contains("oracle_autonomous", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage_mover", StringComparison.OrdinalIgnoreCase);
+>>>>>>> Stashed changes
     }
 
     private static bool LooksLikeTerraformServiceSourceId(string? sourceId)
