@@ -364,10 +364,10 @@ public static class AgentTopologyProposalMergeGate
         string? alternateId,
         HashSet<string> inventoriedIdentifiers)
     {
-        if (!string.IsNullOrWhiteSpace(primaryName) && inventoriedIdentifiers.Contains(primaryName))
+        if (TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(primaryName, inventoriedIdentifiers))
             return true;
 
-        if (!string.IsNullOrWhiteSpace(alternateId) && inventoriedIdentifiers.Contains(alternateId))
+        if (TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(alternateId, inventoriedIdentifiers))
             return true;
 
         return false;
