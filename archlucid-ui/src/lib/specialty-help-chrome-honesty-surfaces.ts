@@ -16,7 +16,6 @@ export const SPECIALTY_HELP_CHROME_HONESTY_SCAN_FILES: readonly string[] = [
  * Remove a slug here only when `clusterDone` is true in `specialty-help-chrome-below-50-inventory.ts`.
  */
 export const SPECIALTY_HELP_CHROME_INVENTORY_DRIFT_GUARD_SLUGS: readonly string[] = [
-  "configuration-reference",
   "evaluator-workbook",
   "first-hour-operator-path",
   "procurement",

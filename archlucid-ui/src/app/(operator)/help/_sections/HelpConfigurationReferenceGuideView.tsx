@@ -16,11 +16,22 @@ import {
   CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS,
   CONFIGURATION_REFERENCE_HELP_TASK_SECTIONS,
 } from "@/lib/configuration-reference-help-guide-content";
+import {
+  CONFIGURATION_REFERENCE_HELP_JOB_MATRIX,
+  CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_HEADING,
+  CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_TEST_ID,
+} from "@/lib/configuration-reference-help-ia-dual";
 import { CONFIGURATION_REFERENCE_HELP_PATH } from "@/lib/configuration-reference-help-route";
+import {
+  CONFIGURATION_REFERENCE_HELP_RELATED_HEADING,
+  CONFIGURATION_REFERENCE_HELP_RELATED_TEST_ID,
+  configurationReferenceHelpRelatedGuides,
+} from "@/lib/configuration-reference-help-related-guides";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -38,6 +49,7 @@ export function HelpConfigurationReferenceGuideView(
 ): React.ReactElement {
   const { entry, markdown } = props;
   const sourceDocPath = entry.sourcePaths[0] ?? "";
+  const relatedGuides = configurationReferenceHelpRelatedGuides();
 
   return (
     <article
@@ -61,6 +73,38 @@ export function HelpConfigurationReferenceGuideView(
           </div>
         }
       />
+
+      <section
+        aria-labelledby="help-configuration-reference-job-matrix-heading"
+        className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+        data-testid={CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_TEST_ID}
+      >
+        <h2
+          id="help-configuration-reference-job-matrix-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          {CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_HEADING}
+        </h2>
+        <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
+          {CONFIGURATION_REFERENCE_HELP_JOB_MATRIX.map((row) => (
+            <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+              {row.isCurrent === true ? (
+                <span
+                  className="shrink-0 font-medium text-al-text-primary"
+                  data-testid="help-configuration-reference-job-matrix-current"
+                >
+                  {row.label}
+                </span>
+              ) : (
+                <Link className={cn(OPERATOR_LINK.inline, "shrink-0 font-medium")} href={row.href ?? "#"}>
+                  {row.label}
+                </Link>
+              )}
+              <span className="text-al-text-secondary">{row.when}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
@@ -154,6 +198,35 @@ export function HelpConfigurationReferenceGuideView(
             helpTopicSlug={entry.slug}
           />
         </HelpLazyDetails>
+
+        <section
+          aria-labelledby="help-configuration-reference-related-heading"
+          className="space-y-2 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+          data-testid={CONFIGURATION_REFERENCE_HELP_RELATED_TEST_ID}
+        >
+          <h2
+            id="help-configuration-reference-related-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            {CONFIGURATION_REFERENCE_HELP_RELATED_HEADING}
+          </h2>
+          <ul className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
+            {relatedGuides.map((guide) => (
+              <li key={guide.href}>
+                <Link
+                  href={guide.href}
+                  className={cn(
+                    "underline-offset-2 hover:underline",
+                    DESIGN_TOKENS.accent.link,
+                    OPERATOR_LINK.inline,
+                  )}
+                >
+                  {guide.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     </article>
   );

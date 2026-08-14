@@ -16,8 +16,15 @@ vi.mock("next/navigation", () => ({
 import { HelpConfigurationReferenceGuideView } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceGuideView";
 import {
   CONFIGURATION_REFERENCE_HELP_PRIMARY_ACTIONS,
-  CONFIGURATION_REFERENCE_HELP_SOURCES,
 } from "@/lib/configuration-reference-help-guide-content";
+import {
+  CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_TEST_ID,
+  CONFIGURATION_REFERENCE_HELP_JOB_MATRIX,
+} from "@/lib/configuration-reference-help-ia-dual";
+import {
+  CONFIGURATION_REFERENCE_HELP_RELATED_TEST_ID,
+  configurationReferenceHelpRelatedGuides,
+} from "@/lib/configuration-reference-help-related-guides";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -54,6 +61,20 @@ describe("HelpConfigurationReferenceGuideView", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-configuration-reference-task-sections")).toBeInTheDocument();
     expect(screen.getByTestId("help-configuration-reference-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId(CONFIGURATION_REFERENCE_HELP_JOB_MATRIX_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByTestId("help-configuration-reference-job-matrix-current")).toHaveTextContent(
+      CONFIGURATION_REFERENCE_HELP_JOB_MATRIX.find((row) => row.isCurrent === true)?.label ?? "",
+    );
+    expect(screen.getByTestId(CONFIGURATION_REFERENCE_HELP_RELATED_TEST_ID)).toBeInTheDocument();
+
+    const relatedSection = screen.getByTestId(CONFIGURATION_REFERENCE_HELP_RELATED_TEST_ID);
+
+    for (const guide of configurationReferenceHelpRelatedGuides()) {
+      expect(within(relatedSection).getByRole("link", { name: guide.label })).toHaveAttribute(
+        "href",
+        guide.href,
+      );
+    }
 
     const appendix = screen.getByTestId("help-configuration-reference-catalog-appendix");
 

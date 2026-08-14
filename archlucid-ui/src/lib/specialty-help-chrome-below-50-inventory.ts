@@ -27,7 +27,7 @@ export const SPECIALTY_HELP_CHROME_BELOW_50_INVENTORY: readonly SpecialtyHelpChr
     helpPath: "/help/configuration-reference",
     slug: "configuration-reference",
     owningClusterId: "TB-1326",
-    clusterDone: false,
+    clusterDone: true,
   },
   {
     approximateScore: 40,
