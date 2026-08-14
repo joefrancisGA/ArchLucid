@@ -21,6 +21,7 @@ import {
   ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE,
   ARCHITECTURE_SCORECARD_HELP_SOURCES,
 } from "@/lib/architecture-scorecard-help-evidence-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpArchitectureScorecardGuideView", () => {
@@ -33,7 +34,7 @@ describe("HelpArchitectureScorecardGuideView", () => {
     expect(entry?.releaseApplicability).toBe("sponsor architecture scorecard orientation");
   });
 
-  it("uses a help-specific title distinct from the product page", () => {
+  it("uses the same title as the architecture scorecard operator page", () => {
     if (entry === undefined) {
       throw new Error("Expected architecture scorecard documentation entry.");
     }
@@ -41,7 +42,7 @@ describe("HelpArchitectureScorecardGuideView", () => {
     render(<HelpArchitectureScorecardGuideView entry={entry} />);
 
     expect(screen.getByRole("heading", { level: 1, name: ARCHITECTURE_SCORECARD_HELP_PAGE_TITLE })).toBeInTheDocument();
-    expect(ARCHITECTURE_SCORECARD_HELP_PAGE_TITLE).not.toBe(REVIEW_SCORECARD_PAGE_TITLE);
+    expect(ARCHITECTURE_SCORECARD_HELP_PAGE_TITLE).toBe(REVIEW_SCORECARD_PAGE_TITLE);
     expect(screen.getByText(ARCHITECTURE_SCORECARD_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-12");
   });
@@ -101,7 +102,9 @@ describe("HelpArchitectureScorecardGuideView", () => {
 
     const relatedSources = screen.getByTestId("help-architecture-scorecard-sources");
     for (const source of ARCHITECTURE_SCORECARD_HELP_SOURCES) {
-      expect(within(relatedSources).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+
+      expect(within(relatedSources).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
   });
 });

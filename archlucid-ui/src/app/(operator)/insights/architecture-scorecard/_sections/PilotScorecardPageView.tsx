@@ -10,7 +10,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ScorecardRoiVocabularyRail } from "@/components/ScorecardRoiVocabularyRail";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { Button } from "@/components/ui/button";
 import {
@@ -186,7 +186,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
         }
         actions={
           <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end print:hidden">
-            <PageContextualHelpButton />
+            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
             <nav
               aria-label="Related value reports"
               className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

@@ -1,4 +1,5 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   ALERTS_HELP_CLAIM_DISCIPLINE_HEADING,
   ALERTS_HELP_CLAIM_HEADING_ID,
@@ -15,7 +16,7 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const ALERTS_HELP_PAGE_TITLE = "Understanding governance alerts";
+export const ALERTS_HELP_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.alerts;
 
 export const ALERTS_HELP_PAGE_SUBTITLE =
   "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.";

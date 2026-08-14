@@ -570,7 +570,7 @@
     "url": "/help/troubleshooting"
   },
   {
-    "title": "Understanding governance alerts",
+    "title": "Alerts",
     "summary": "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.",
     "category": "Operations",
     "url": "/help/alerts"

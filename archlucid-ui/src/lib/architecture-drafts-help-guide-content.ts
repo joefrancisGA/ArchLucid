@@ -10,7 +10,7 @@ import {
 } from "@/lib/architecture/architecture-workflow-labels";
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
-export const ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE = "Architecture drafts guide";
+export const ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
 
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE =
   "Browse, resume, and refine saved architecture drafts before filing evidence for a governance review.";

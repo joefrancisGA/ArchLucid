@@ -1,5 +1,6 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
+  NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE,
   NOTIFICATION_PREFERENCE_CENTER_PATH,
   NOTIFICATION_PREFERENCE_CHANNELS,
 } from "@/lib/notification-preference-center";
@@ -11,7 +12,7 @@ import {
 
 export const NOTIFICATIONS_HELP_BREADCRUMB_TOPIC_TITLE = "Notifications";
 
-export const NOTIFICATIONS_HELP_PAGE_TITLE = "How notifications reach you";
+export const NOTIFICATIONS_HELP_PAGE_TITLE = NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE;
 
 export const NOTIFICATIONS_HELP_PAGE_SUBTITLE =
   "Learn which channels can notify you, where each destination is configured, and when to open alerts or integration help.";

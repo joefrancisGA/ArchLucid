@@ -4,9 +4,13 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE } from "@/lib/developer-settings-evidence-copy";
 import { GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE } from "@/lib/notification-preference-center";
+import { REVIEW_SCORECARD_PAGE_TITLE } from "@/lib/pilot-scorecard-present";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
 import {
   INTERNAL_DEMO_READINESS_PATH,
@@ -49,6 +53,26 @@ const PAGE_HELP_TITLE_COLLISION_SURFACES: ReadonlyArray<{
     pathname: "/governance/setup",
     pageTitle: GOVERNANCE_SETUP_PAGE_TITLE,
     modulePath: "app/(operator)/governance/setup/_sections/GovernanceSetupGuidePageView.tsx",
+  },
+  {
+    pathname: "/architecture/architectures",
+    pageTitle: ARCHITECTURE_DRAFTS_LIST_LABEL,
+    modulePath: "app/(operator)/architecture/architectures/_sections/ArchitecturesHubHeaderActions.tsx",
+  },
+  {
+    pathname: "/administration/notifications",
+    pageTitle: NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE,
+    modulePath: "app/(operator)/administration/notifications/_sections/NotificationPreferenceCenterPageView.tsx",
+  },
+  {
+    pathname: "/governance/alerts",
+    pageTitle: OPERATOR_NAV_LINK_LABELS.alerts,
+    modulePath: "app/(operator)/governance/alerts/AlertsHubChrome.tsx",
+  },
+  {
+    pathname: "/insights/architecture-scorecard",
+    pageTitle: REVIEW_SCORECARD_PAGE_TITLE,
+    modulePath: "app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx",
   },
 ];
 

@@ -37,8 +37,8 @@ describe("notifications help drift guard", () => {
     expect(NOTIFICATIONS_HELP_CLAIM_DISCIPLINE.toLowerCase()).not.toContain("sources package");
   });
 
-  it("keeps help page title distinct from the product hub title", () => {
-    expect(NOTIFICATIONS_HELP_PAGE_TITLE).not.toBe(NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE);
+  it("aligns help page title with the notifications operator hub title", () => {
+    expect(NOTIFICATIONS_HELP_PAGE_TITLE).toBe(NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE);
   });
 
   it("uses distinct Start here card title and primary action label", () => {

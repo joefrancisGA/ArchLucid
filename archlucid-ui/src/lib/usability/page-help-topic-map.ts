@@ -105,7 +105,10 @@ import { INTEGRATION_EVENTS_DLQ_HELP_TOPIC_LABEL } from "@/lib/integration-event
 import { INTEGRATION_READINESS_HELP_TOPIC_LABEL } from "@/lib/integration-readiness-help-evidence-copy";
 import { ITSM_CONNECTORS_HELP_TOPIC_LABEL } from "@/lib/admin-itsm-connectors-evidence-copy";
 import { ITSM_OAUTH_CALLBACK_HELP_TOPIC_LABEL } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
-import { NOTIFICATIONS_HELP_TOPIC_LABEL } from "@/lib/notification-preference-center";
+import {
+  NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE,
+  NOTIFICATIONS_HELP_TOPIC_LABEL,
+} from "@/lib/notification-preference-center";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { PATH_CHOOSER_HELP_TOPIC_LABEL } from "@/lib/path-chooser-help-evidence-copy";
 import { PATTERN_LIBRARY_HELP_TOPIC_LABEL } from "@/lib/pattern-library-evidence-copy";
@@ -121,6 +124,7 @@ import {
 } from "@/lib/settings-admin-route-paths";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-scorecard-page-copy";
+import { REVIEW_SCORECARD_PAGE_TITLE } from "@/lib/pilot-scorecard-present";
 import { CONNECTION_STATUS_HELP_TOPIC_LABEL } from "@/lib/connection-status-evidence-copy";
 import { ROI_SUMMARY_HELP_TOPIC_LABEL } from "@/lib/roi-summary-help-evidence-copy";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
@@ -259,13 +263,13 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/help/users-and-roles",
     topic: { slug: "users-and-roles", label: USERS_AND_ROLES_HELP_TOPIC_LABEL },
   },
-  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } },
+  { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_LIST_LABEL } },
   { prefix: "/architecture/architectures/new", topic: { slug: "first-architecture-review", label: ARCHITECTURES_NEW_HELP_TOPIC_LABEL } },
   {
     prefix: "/architecture/architecture-intelligence",
     topic: { slug: "architecture-intelligence", label: ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL },
   },
-  { prefix: "/architectures", topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } },
+  { prefix: "/architectures", topic: { slug: "architecture-drafts", label: ARCHITECTURE_DRAFTS_LIST_LABEL } },
   { prefix: "/architecture/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/architecture/reviews", topic: { slug: "review-packages", label: REVIEW_PACKAGES_HELP_INBOUND_LABEL } },
   {
@@ -327,7 +331,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/governance/alerts",
-    topic: { slug: "alerts", label: ALERTS_HOW_ALERTS_WORK_LABEL },
+    topic: { slug: "alerts", label: OPERATOR_NAV_LINK_LABELS.alerts },
   },
   {
     prefix: "/governance/alert-rules",
@@ -350,7 +354,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/insights/architecture-scorecard",
     topic: {
       slug: "architecture-scorecard",
-      label: ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL,
+      label: REVIEW_SCORECARD_PAGE_TITLE,
     },
   },
   {
@@ -717,7 +721,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/notifications",
-    topic: { slug: "notifications", label: NOTIFICATIONS_HELP_TOPIC_LABEL },
+    topic: { slug: "notifications", label: NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE },
   },
   {
     prefix: "/administration/account-security",

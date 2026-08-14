@@ -7,7 +7,10 @@ import {
   AlertsHubHeaderConfigureLinkProvider,
   useAlertsHubHeaderConfigureLinkVisibility,
 } from "@/components/alerts/AlertsHubHeaderConfigureLinkContext";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   alertsPageSubtitle,
@@ -57,7 +60,7 @@ function AlertsHubChromeInner({
         titleTestId="alerts-page-title"
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="alerts-hub-header-actions">
-            <PageContextualHelpButton />
+            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
             {showHeaderConfigureLink ? (
               <Link
                 href={governanceAlertRulesTabHref("rules")}

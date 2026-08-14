@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ADVISORY_SCANS_HELP_TOPIC_LABEL } from "@/lib/advisory-scans-help-evidence-copy";
-import { ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } from "@/lib/architecture-drafts-evidence-copy";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { AUDIT_TRAIL_HELP_TOPIC_LABEL } from "@/lib/audit-trail-help-evidence-copy";
 import { BILLING_AND_PLANS_HELP_TOPIC_LABEL } from "@/lib/billing-and-plans-help-evidence-copy";
 import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help-evidence-copy";
@@ -13,6 +13,9 @@ import { SETTINGS_HUB_HELP_TOPIC_LABEL } from "@/lib/contextual-help/administrat
 import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { COMPARISON_REPLAY_HELP_TOPIC_LABEL } from "@/lib/comparison-replay-help-evidence-copy";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE } from "@/lib/notification-preference-center";
+import { REVIEW_SCORECARD_PAGE_TITLE } from "@/lib/pilot-scorecard-present";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-registration-tour";
@@ -33,9 +36,9 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/administration/system-health")?.slug).toBe("system-health");
     expect(pageHelpTopicForPathname("/administration/system-health")?.label).toBe("How system health works");
     expect(pageHelpTopicForPathname("/architecture/architectures")?.slug).toBe("architecture-drafts");
-    expect(pageHelpTopicForPathname("/architecture/architectures")?.label).toBe(ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL);
+    expect(pageHelpTopicForPathname("/architecture/architectures")?.label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
     expect(pageHelpTopicForPathname("/architecture/architectures/draft-id-123")?.slug).toBe("architecture-drafts");
-    expect(pageHelpTopicForPathname("/architecture/architectures/draft-id-123")?.label).toBe(ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL);
+    expect(pageHelpTopicForPathname("/architecture/architectures/draft-id-123")?.label).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
     expect(pageHelpTopicForPathname("/architecture/digests")?.slug).toBe("digests");
     expect(pageHelpTopicForPathname("/settings/roles")?.slug).toBe("users-and-roles");
     expect(pageHelpTopicForPathname("/architecture/digests")?.label).toBe(DIGESTS_HELP_TOPIC_LABEL);
@@ -54,7 +57,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/administration")?.slug).toBeUndefined();
     expect(pageHelpTopicForPathname("/administration/settings")?.label).toBe(SETTINGS_HUB_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/administration/notifications")?.slug).toBe("notifications");
-    expect(pageHelpTopicForPathname("/administration/notifications")?.label).toBe("How notifications work");
+    expect(pageHelpTopicForPathname("/administration/notifications")?.label).toBe(NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE);
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.slug).toBe("billing-and-plans");
     expect(pageHelpTopicForPathname("/help/billing-and-plans")?.label).toBe(BILLING_AND_PLANS_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/help/repeat-review-loop")?.slug).toBe("repeat-review-loop");
@@ -79,7 +82,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/help/roi-summary")?.slug).toBe("roi-summary");
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.slug).toBe("architecture-scorecard");
     expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.hashFragment).toBeUndefined();
-    expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.label).toBe("How architecture scorecards work");
+    expect(pageHelpTopicForPathname("/insights/architecture-scorecard")?.label).toBe(REVIEW_SCORECARD_PAGE_TITLE);
     expect(pageHelpTopicForPathname("/insights/sponsor-report")?.label).toBe("How the sponsor report works");
     expect(pageHelpTopicForPathname("/insights/ask-review-questions")?.slug).toBe("prior-manifest-retrieval");
     expect(pageHelpTopicForPathname("/insights/patterns")?.slug).toBe("repeat-review-loop");

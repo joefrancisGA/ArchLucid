@@ -1,7 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { useCreateArchitectureNavigation } from "@/hooks/use-create-architecture-navigation";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
@@ -11,7 +14,7 @@ export function ArchitecturesHubHeaderActions(): React.JSX.Element {
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="architectures-hub-header-actions">
-      <PageContextualHelpButton />
+      <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
       <Button
         type="button"
         variant="primary"

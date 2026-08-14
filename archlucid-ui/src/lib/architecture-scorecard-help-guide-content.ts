@@ -1,5 +1,6 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-scorecard-page-copy";
+import { REVIEW_SCORECARD_PAGE_TITLE } from "@/lib/pilot-scorecard-present";
 import {
   ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE_HEADING,
   ARCHITECTURE_SCORECARD_HELP_CLAIM_HEADING_ID,
@@ -26,7 +27,7 @@ import {
 
 export { ARCHITECTURE_SCORECARD_HELP_TOPIC_LABEL };
 
-export const ARCHITECTURE_SCORECARD_HELP_PAGE_TITLE = "How to read the architecture scorecard";
+export const ARCHITECTURE_SCORECARD_HELP_PAGE_TITLE = REVIEW_SCORECARD_PAGE_TITLE;
 
 export const ARCHITECTURE_SCORECARD_HELP_PAGE_SUBTITLE =
   "Learn what each scorecard tile means and how directional savings are derived before you brief sponsors.";

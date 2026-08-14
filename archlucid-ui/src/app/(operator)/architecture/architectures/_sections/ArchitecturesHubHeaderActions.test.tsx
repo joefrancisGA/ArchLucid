@@ -14,6 +14,7 @@ vi.mock("@/hooks/use-create-architecture-navigation", () => ({
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
   PageContextualHelpButton: () => <button type="button">Help</button>,
 }));
 

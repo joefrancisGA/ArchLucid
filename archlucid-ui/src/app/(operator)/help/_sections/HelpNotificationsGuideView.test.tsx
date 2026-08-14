@@ -21,6 +21,7 @@ import {
   NOTIFICATIONS_HELP_SOURCES,
   NOTIFICATIONS_HELP_TOPIC_LABEL,
 } from "@/lib/notifications-help-evidence-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE } from "@/lib/notification-preference-center";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -37,11 +38,8 @@ describe("HelpNotificationsGuideView", () => {
 
     expect(screen.getByTestId("help-notifications-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · administration notifications orientation",
-    );
-    expect(screen.getByTestId("help-notifications-page-title")).toHaveTextContent("How notifications reach you");
-    expect(screen.getByTestId("help-notifications-page-title").textContent).not.toBe(
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-notifications-page-title")).toHaveTextContent(
       NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE,
     );
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
@@ -98,7 +96,9 @@ describe("HelpNotificationsGuideView", () => {
     const sourcesStrip = screen.getByTestId("help-notifications-sources");
 
     for (const source of NOTIFICATIONS_HELP_SOURCES) {
-      expect(within(sourcesStrip).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+
+      expect(within(sourcesStrip).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
     expect(screen.queryByRole("link", { name: "Read alerts help →" })).not.toBeInTheDocument();
