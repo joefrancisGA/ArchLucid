@@ -374,6 +374,10 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AgentSchemaRemediationOptions>(
             configuration.GetSection(AgentSchemaRemediationOptions.SectionPath));
         services.PostConfigure<AgentSchemaRemediationOptions>(static o => o.Normalize());
+        services.Configure<AgentLogicalStepSpendCapOptions>(
+            configuration.GetSection(AgentLogicalStepSpendCapOptions.SectionPath));
+        services.PostConfigure<AgentLogicalStepSpendCapOptions>(static o => o.Normalize());
+        services.AddSingleton<IAgentLogicalStepSpendCapPolicy, AgentLogicalStepSpendCapPolicy>();
 
         RegisterAgentModelTierOrchestration(services, configuration);
 

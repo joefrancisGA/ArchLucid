@@ -14,4 +14,7 @@ public enum AgentExecutionOutcomeKind
 
     /// <summary>Persisted row exists but is empty / not meaningful (treat as failed for commit).</summary>
     Failed = 3,
+
+    /// <summary>Dependent agent output is inconsistent with upstream agent result versions (TB-942).</summary>
+    Stale = 4,
 }

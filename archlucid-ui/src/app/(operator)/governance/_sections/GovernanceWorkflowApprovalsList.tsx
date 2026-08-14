@@ -286,8 +286,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                     <Button
                       type="button"
                       size="sm"
-                      variant="outline"
-                      className="border-rose-600/40 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-rose-800/50"
+                      variant="destructive"
                       disabled={!canMutateWorkflow}
                       aria-describedby={
                         mutationDisabledReason === null ? undefined : mutationDisabledHintId

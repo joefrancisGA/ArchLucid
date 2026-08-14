@@ -107,8 +107,7 @@ export function ClientRuntimeDiagnostics() {
           <Button
             type="button"
             size="sm"
-            variant="outline"
-            className="border-rose-700 bg-white dark:border-rose-400 dark:bg-rose-900"
+            variant="destructive"
             onClick={() => setFindings([])}
           >
             Dismiss

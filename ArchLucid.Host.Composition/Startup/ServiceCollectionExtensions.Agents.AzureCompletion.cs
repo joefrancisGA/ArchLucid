@@ -198,7 +198,8 @@ public static partial class ServiceCollectionExtensions
             sp.GetRequiredService<IDemoAiPromptCache>(),
             sp.GetRequiredService<IOptionsMonitor<AiUsageControlsOptions>>(),
             auditService,
-            accountingLogger);
+            accountingLogger,
+            spendCapPolicy: sp.GetRequiredService<IAgentLogicalStepSpendCapPolicy>());
 
         IConfiguration config = sp.GetRequiredService<IConfiguration>();
         bool modernCompletionCacheEnabled = IsAgentRuntimeCompletionCacheEnabled(config);

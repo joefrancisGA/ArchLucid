@@ -210,8 +210,8 @@ export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
                   <Button
                     type="button"
                     size="sm"
-                    variant="outline"
-                    className="w-full border-rose-600/40 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-rose-800/50"
+                    variant="destructive"
+                    className="w-full"
                     title={props.canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
                     onClick={() => {
                       props.onPendingAction(props.alert.alertId, "Suppress");

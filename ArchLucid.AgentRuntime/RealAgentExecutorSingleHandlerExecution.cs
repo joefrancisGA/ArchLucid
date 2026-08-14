@@ -92,6 +92,7 @@ internal static class RealAgentExecutorSingleHandlerExecution
                 try
                 {
                     using (LlmAccountingInvocationScope.Begin(task.AgentType, LlmInvokeKind.Primary))
+                    using (AgentLogicalStepSpendScope.Begin(runId, task.TaskId))
                     {
                         result = await dependencies.ConcurrencyGate.ExecuteAsync(
                             async ct =>

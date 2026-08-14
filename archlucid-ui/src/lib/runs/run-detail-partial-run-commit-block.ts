@@ -123,6 +123,17 @@ export function resolvePartialRunCommitBlockPresentation(args: {
     return null;
   }
 
+  const staleCritic = incomplete.find(
+    (row) => (row.agentType ?? "").trim() === "Critic" && (row.outcome ?? "").trim() === "Stale",
+  );
+
+  if (staleCritic) {
+    return {
+      summary: "Critic out of date — re-run required.",
+      technicalDetail: formatIncompleteAssessmentCoverageSummary(incomplete).technicalDetail,
+    };
+  }
+
   return formatIncompleteAssessmentCoverageSummary(incomplete);
 }
 

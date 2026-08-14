@@ -65,6 +65,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
     private readonly LlmJudgeDailyTokenBudgetTracker? _judgeDailyBudgetTracker;
 
+    private readonly IAgentLogicalStepSpendCapPolicy? _spendCapPolicy;
+
     public LlmCompletionAccountingClient(
         IAgentCompletionClient inner,
         LlmTokenQuotaWindowTracker quotaTracker,
@@ -87,7 +89,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         ILogger<LlmCompletionAccountingClient> logger,
         bool useJudgeDailyCapOnly = false,
         IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions>? judgeDailyBudgetOptions = null,
-        LlmJudgeDailyTokenBudgetTracker? judgeDailyBudgetTracker = null)
+        LlmJudgeDailyTokenBudgetTracker? judgeDailyBudgetTracker = null,
+        IAgentLogicalStepSpendCapPolicy? spendCapPolicy = null)
     {
         ArgumentNullException.ThrowIfNull(inner);
         ArgumentNullException.ThrowIfNull(quotaTracker);
@@ -138,6 +141,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
         _judgeDailyBudgetOptions = judgeDailyBudgetOptions;
         _judgeDailyBudgetTracker = judgeDailyBudgetTracker;
+        _spendCapPolicy = spendCapPolicy;
     }
 
     /// <inheritdoc />
@@ -169,6 +173,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         {
             return guardResult.CachedResponseJson;
         }
+
+        _spendCapPolicy?.EnsureBilledAttemptAllowed();
 
         long? dailyReserved = null;
         decimal? monthlyReserved = null;

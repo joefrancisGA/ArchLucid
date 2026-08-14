@@ -67,7 +67,7 @@ export function PilotConversionCta(props: PilotConversionCtaProps) {
         Additional real-mode execution is blocked until billing is enabled for this workspace.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button asChild type="button" size="sm" className="bg-rose-800 text-white hover:bg-rose-900 dark:bg-rose-700 dark:hover:bg-rose-600">
+        <Button asChild type="button" size="sm" variant="destructive">
           <Link href="/pricing#pricing-quote-request">Request quote</Link>
         </Button>
         <Button type="button" size="sm" variant="outline" onClick={() => void onConvert()}>

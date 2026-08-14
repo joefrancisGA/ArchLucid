@@ -52,6 +52,11 @@ public static class RealAgentFailureTriageResolver
             return RealAgentFailureTriageScenarioIds.BudgetCutoff;
         }
 
+        if (string.Equals(summary.FailureClass, AgentExecutionFailureClasses.StepSpendCap, StringComparison.Ordinal))
+        {
+            return RealAgentFailureTriageScenarioIds.StepSpendCapExceeded;
+        }
+
         return null;
     }
 

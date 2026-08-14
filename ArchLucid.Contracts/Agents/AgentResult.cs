@@ -206,4 +206,13 @@ public sealed class AgentResult
         get;
         set;
     }
+
+    /// <summary>
+    ///     Upstream required-agent <see cref="ResultId"/> values captured when this dependent agent completed (TB-942).
+    /// </summary>
+    public Dictionary<string, string>? UpstreamResultFingerprints
+    {
+        get;
+        set;
+    }
 }

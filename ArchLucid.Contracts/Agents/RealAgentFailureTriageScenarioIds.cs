@@ -23,6 +23,12 @@ public static class RealAgentFailureTriageScenarioIds
     /// <summary>Required agents incomplete or FailedPartial — commit blocked (TB-937).</summary>
     public const string PartialRequiredAgentsIncomplete = "partialRequiredAgentsIncomplete";
 
+    /// <summary>Per-(RunId, TaskId) billed completion attempt cap reached (TB-941).</summary>
+    public const string StepSpendCapExceeded = "stepSpendCapExceeded";
+
+    /// <summary>Critic or merge output stale relative to upstream agent results (TB-942).</summary>
+    public const string StaleDownstreamAgent = "staleDownstreamAgent";
+
     /// <summary>All scenarios required for assessment #23 acceptance (order-stable for docs/CI).</summary>
     public static IReadOnlyList<string> AllRequired { get; } =
     [
@@ -34,5 +40,7 @@ public static class RealAgentFailureTriageScenarioIds
         BudgetCutoff,
         FallbackToSimulator,
         PartialRequiredAgentsIncomplete,
+        StepSpendCapExceeded,
+        StaleDownstreamAgent,
     ];
 }
