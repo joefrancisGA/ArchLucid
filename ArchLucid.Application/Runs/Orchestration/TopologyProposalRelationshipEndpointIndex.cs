@@ -57,7 +57,7 @@ public static class TopologyProposalRelationshipEndpointIndex
         ManifestService service,
         IReadOnlyList<GraphNode> graphNodes)
     {
-        if (!TryResolveInventoriedNodeIdForService(service, graphNodes, out string nodeId))
+        if (!TryResolveGraphTopologyNodeIdForService(service, graphNodes, out string nodeId))
             return;
 
         AddResolutionAlias(aliasToNodeId, service.ServiceName, nodeId);
@@ -70,7 +70,7 @@ public static class TopologyProposalRelationshipEndpointIndex
         ManifestDatastore datastore,
         IReadOnlyList<GraphNode> graphNodes)
     {
-        if (!TryResolveInventoriedNodeIdForDatastore(datastore, graphNodes, out string nodeId))
+        if (!TryResolveGraphTopologyNodeIdForDatastore(datastore, graphNodes, out string nodeId))
             return;
 
         AddResolutionAlias(aliasToNodeId, datastore.DatastoreName, nodeId);
@@ -166,14 +166,14 @@ public static class TopologyProposalRelationshipEndpointIndex
         knownEndpointKeys.Contains(relationship.SourceId)
         && knownEndpointKeys.Contains(relationship.TargetId);
 
-    public static bool TryResolveInventoriedNodeIdForService(
+    public static bool TryResolveGraphTopologyNodeIdForService(
         ManifestService service,
         IReadOnlyList<GraphNode> graphNodes,
         out string nodeId)
     {
         foreach (GraphNode node in graphNodes)
         {
-            if (!IsInventoriedTopologyResource(node))
+            if (!IsGraphTopologyResource(node))
                 continue;
 
             if (!NodeMatchesService(node, service))
@@ -187,14 +187,14 @@ public static class TopologyProposalRelationshipEndpointIndex
         return false;
     }
 
-    public static bool TryResolveInventoriedNodeIdForDatastore(
+    public static bool TryResolveGraphTopologyNodeIdForDatastore(
         ManifestDatastore datastore,
         IReadOnlyList<GraphNode> graphNodes,
         out string nodeId)
     {
         foreach (GraphNode node in graphNodes)
         {
-            if (!IsInventoriedTopologyResource(node))
+            if (!IsGraphTopologyResource(node))
                 continue;
 
             if (!NodeMatchesDatastore(node, datastore))
@@ -274,8 +274,11 @@ public static class TopologyProposalRelationshipEndpointIndex
             StringComparison.Ordinal);
     }
 
+    private static bool IsGraphTopologyResource(GraphNode node) =>
+        string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase);
+
     private static bool IsInventoriedTopologyResource(GraphNode node) =>
-        string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase)
+        IsGraphTopologyResource(node)
         && !IsAgentProposedTopologyNode(node);
 
     private static bool IsAgentProposedTopologyNode(GraphNode node) =>
@@ -348,7 +351,8 @@ public static class TopologyProposalRelationshipEndpointIndex
     }
 
     private static bool IsDatastoreCategory(string? category) =>
-        string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase);
+        string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
+        || string.Equals(category, GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase);
 
     private static void AddSyntheticServiceEndpointKey(HashSet<string> endpointKeys, string? serviceName)
     {

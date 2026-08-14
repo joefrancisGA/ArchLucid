@@ -170,4 +170,44 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
             e.ToNodeId == "ds-1" &&
             e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
+
+    [Fact]
+    public void MapRelationships_resolves_storage_category_nodes_by_synthetic_datastore_node_id()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "t1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "blob-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "artifacts",
+                Category = GraphTopologyCategories.Storage,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "api",
+                    TargetId = "ds-artifacts",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "t1" &&
+            e.ToNodeId == "blob-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
 }
