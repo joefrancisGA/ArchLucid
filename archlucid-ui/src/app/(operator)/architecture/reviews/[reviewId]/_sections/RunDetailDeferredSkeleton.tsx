@@ -30,6 +30,18 @@ export function RunDetailBelowFoldDeferredSkeleton(): React.JSX.Element {
   );
 }
 
+/** Skeleton while package-changes-since-finalize streams on the review-package tab. */
+export function RunDetailPackageChangesSinceFinalizeSkeleton(): React.JSX.Element {
+  return (
+    <div
+      className="h-24 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+      role="status"
+      aria-label="Loading package changes since finalize"
+      data-testid="package-changes-since-finalize-loading"
+    />
+  );
+}
+
 /** Compact skeleton while pipeline timeline/stages stream (TB-2026 nested boundary). */
 export function RunDetailBelowFoldPipelineSkeleton(): React.JSX.Element {
   return (

@@ -1,16 +1,11 @@
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { fetchRunDetailTimelinesBundle } from "@/lib/fetch-run-detail-page-bundle-client";
+import { loadRunDetailPipelineTimelineCached } from "./load-run-detail-pipeline-timeline-cached";
 import { loadRunDetailWorkspaceContextBundleCached } from "./load-run-detail-workspace-context-bundle-cached";
 import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { coerceRunComparison } from "@/lib/operator/operator-response-guards";
-import { tryStaticDemoPipelineTimeline } from "@/lib/operator/operator-static-demo";
 import { resolveRunDetailSavingsSummary } from "@/lib/runs/run-detail-savings-summary-resolve";
-import { isTimelineMilestoneEvent } from "@/lib/timeline-milestone-events";
-import type { ArtifactDescriptor, PipelineTimelineItem, RunDetail } from "@/types/authority";
-import type { StageTimelineSummary } from "@/types/stage-timeline";
+import type { ArtifactDescriptor, RunDetail } from "@/types/authority";
 
 import type {
   RunDetailBelowFoldDeferredModel,
@@ -180,45 +175,9 @@ async function loadPipelineTimelineSections(
     "pipelineTimelineForUi" | "pipelineTimelineAllForPackageChanges" | "pipelineTimelineFailure" | "stageTimelineForUi"
   >
 > {
-  let pipelineTimeline: PipelineTimelineItem[] | null = null;
-  let pipelineTimelineFailure: ApiLoadFailureState | null = null;
-  let stageTimelineForUi: StageTimelineSummary[] = [];
-
-  try {
-    const bundle = await fetchRunDetailTimelinesBundle(context.routeRunId);
-
-    pipelineTimeline = bundle.pipelineTimeline;
-    stageTimelineForUi = Array.isArray(bundle.stageTimeline) ? bundle.stageTimeline : [];
-  } catch (error) {
-    pipelineTimelineFailure = toApiLoadFailure(error);
-
-    if (context.usedStaticDemoRun) {
-      const staticTimeline = tryStaticDemoPipelineTimeline(context.routeRunId);
-
-      if (staticTimeline !== null && staticTimeline.length > 0) {
-        pipelineTimeline = staticTimeline;
-        pipelineTimelineFailure = null;
-      }
-    }
-  }
-
-  if (pipelineTimeline === null || pipelineTimeline.length === 0) {
-    const staticTimeline = tryStaticDemoPipelineTimeline(context.routeRunId);
-
-    if (staticTimeline !== null && staticTimeline.length > 0) {
-      pipelineTimeline = staticTimeline;
-      pipelineTimelineFailure = null;
-    }
-  }
-
-  const pipelineTimelineForUi: PipelineTimelineItem[] | null = context.buyerPolishedArtifactTable
-    ? pipelineTimeline?.filter((event) => isTimelineMilestoneEvent(event.eventType)) ?? null
-    : pipelineTimeline;
-
-  return {
-    pipelineTimelineForUi,
-    pipelineTimelineAllForPackageChanges: pipelineTimeline,
-    pipelineTimelineFailure,
-    stageTimelineForUi,
-  };
+  return loadRunDetailPipelineTimelineCached(
+    context.routeRunId,
+    context.usedStaticDemoRun,
+    context.buyerPolishedArtifactTable,
+  );
 }

@@ -30,7 +30,6 @@ import {
   RunDetailOperatorTechnicalForensicsPanelDeferred,
   RunDetailOutcomeCardsDeferred,
   RunDetailOverviewPanelClientDeferred,
-  RunDetailPackageChangesSinceFinalizeDeferred,
   RunDetailPolicyPackImpactCalloutDeferred,
   RunDetailProgressTrackerDeferred,
   RunDetailReviewPackageSectionDeferred,
@@ -45,6 +44,9 @@ import {
   RunDetailWorkspaceSummaryStripDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
+import {
+  RunDetailPackageChangesSinceFinalizeSection,
+} from "./RunDetailPackageChangesSinceFinalizeSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import {
@@ -55,6 +57,7 @@ import {
   RunDetailBelowFoldDeferredSkeleton,
   RunDetailExplanationSkeleton,
   RunDetailMidDeferredSkeleton,
+  RunDetailPackageChangesSinceFinalizeSkeleton,
 } from "./RunDetailDeferredSkeleton";
 import { RunDetailDecisionDeltaDeferred } from "./RunDetailDecisionDeltaDeferred";
 import { RunDetailDecisionDeltaSkeleton } from "./RunDetailDecisionDeltaSkeleton";
@@ -440,14 +443,16 @@ const architectureTabPanelEl = (
               />
             ) : null}
             {m.manifestId ? (
-              <RunDetailPackageChangesSinceFinalizeDeferred
-                runId={m.routeRunId}
-                finalizeUtc={
-                  m.manifestSummaryForUi?.createdUtc?.trim() ||
-                  m.manifestSummary?.createdUtc?.trim() ||
-                  null
-                }
-              />
+              <Suspense fallback={<RunDetailPackageChangesSinceFinalizeSkeleton />}>
+                <RunDetailPackageChangesSinceFinalizeSection
+                  context={deferredContext}
+                  finalizeUtc={
+                    m.manifestSummaryForUi?.createdUtc?.trim() ||
+                    m.manifestSummary?.createdUtc?.trim() ||
+                    null
+                  }
+                />
+              </Suspense>
             ) : null}
             {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
             {!m.buyerPolishedArtifactTable ? (

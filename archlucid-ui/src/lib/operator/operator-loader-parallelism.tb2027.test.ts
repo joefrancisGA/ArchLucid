@@ -19,7 +19,8 @@ describe("TB-2027 operator loader parallelism", () => {
     expect(source).toMatch(
       /loadRunDetailMidDeferredModel[\s\S]*?await Promise\.all\(\[\s*loadChangesSinceLastReviewBanner/,
     );
-    expect(source).toContain("fetchRunDetailTimelinesBundle");
+    expect(source).toContain("loadRunDetailPipelineTimelineCached");
+    expect(source).not.toContain("fetchRunDetailTimelinesBundle");
     expect(source).toContain("loadRunDetailWorkspaceContextBundleCached");
     expect(source).not.toContain("loadPipelineTimelineOnly");
     expect(source).not.toContain("loadStageTimelineOnly");

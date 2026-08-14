@@ -1,67 +1,30 @@
-"use client";
-
-import { useEffect, useState, type JSX } from "react";
-
 import { PackageChangesSinceFinalizePanel } from "@/components/PackageChangesSinceFinalizePanel";
-import { fetchRunDetailTimelinesBundle } from "@/lib/fetch-run-detail-page-bundle-client";
-import { tryStaticDemoPipelineTimeline } from "@/lib/operator/operator-static-demo";
-import type { PackageChangeSourceEvent } from "@/lib/package-changes-since-finalize";
+
+import { loadRunDetailPipelineTimelineCached } from "./load-run-detail-pipeline-timeline-cached";
+import type { RunDetailDeferredSectionContext } from "./run-detail-page-model";
 
 export type RunDetailPackageChangesSinceFinalizeSectionProps = {
-  readonly runId: string;
+  readonly context: RunDetailDeferredSectionContext;
   readonly finalizeUtc: string | null;
 };
 
 /**
- * TB-2200 — thin client that reuses timelines bundle pipeline feed for the review-package tab.
- * Activity tab maps the already-loaded below-fold pipeline feed instead of this hop.
+ * TB-2200 — review-package tab reuses the same cached pipeline timeline as the activity below-fold
+ * boundary (no duplicate timelines-bundle hop).
  */
-export function RunDetailPackageChangesSinceFinalizeSection(
+export async function RunDetailPackageChangesSinceFinalizeSection(
   props: RunDetailPackageChangesSinceFinalizeSectionProps,
-): JSX.Element {
-  const [events, setEvents] = useState<readonly PackageChangeSourceEvent[] | null>(null);
+): Promise<React.JSX.Element> {
+  const pipeline = await loadRunDetailPipelineTimelineCached(
+    props.context.routeRunId,
+    props.context.usedStaticDemoRun,
+    props.context.buyerPolishedArtifactTable,
+  );
 
-  useEffect(() => {
-    let canceled = false;
-
-    const staticTimeline = tryStaticDemoPipelineTimeline(props.runId);
-
-    if (staticTimeline !== null) {
-      setEvents(staticTimeline);
-      return () => {
-        canceled = true;
-      };
-    }
-
-    void fetchRunDetailTimelinesBundle(props.runId)
-      .then((bundle) => {
-        const rows = bundle.pipelineTimeline;
-
-        if (!canceled) {
-          setEvents(Array.isArray(rows) ? rows : []);
-        }
-      })
-      .catch(() => {
-        if (!canceled) {
-          setEvents([]);
-        }
-      });
-
-    return () => {
-      canceled = true;
-    };
-  }, [props.runId]);
-
-  if (events === null) {
-    return (
-      <div
-        className="h-24 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-        role="status"
-        aria-label="Loading package changes since finalize"
-        data-testid="package-changes-since-finalize-loading"
-      />
-    );
-  }
-
-  return <PackageChangesSinceFinalizePanel events={events} finalizeUtc={props.finalizeUtc} />;
+  return (
+    <PackageChangesSinceFinalizePanel
+      events={pipeline.pipelineTimelineAllForPackageChanges}
+      finalizeUtc={props.finalizeUtc}
+    />
+  );
 }
