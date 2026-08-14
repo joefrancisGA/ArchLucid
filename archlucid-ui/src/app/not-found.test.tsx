@@ -29,6 +29,7 @@ vi.mock("next/navigation", async (importOriginal) => {
 
 import NotFound from "./not-found";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   BRANDED_NOT_FOUND_GENERIC_BODY,
   BRANDED_NOT_FOUND_GENERIC_TITLE,
@@ -54,7 +55,7 @@ describe("not-found", () => {
     expect(screen.getByTestId("not-found-start-review")).toHaveTextContent(BUYER_START_ARCHITECTURE_REVIEW_CTA);
     expect(screen.getByTestId("not-found-sample-review")).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization",
+      `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     );
     expect(screen.queryByRole("link", { name: "Findings" })).not.toBeInTheDocument();
     expect(screen.queryByText(/ArchLucid · 404/i)).not.toBeInTheDocument();
