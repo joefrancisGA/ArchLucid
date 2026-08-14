@@ -18,6 +18,20 @@ const CONTRIBUTOR_DOC_PATHS = [
   "docs/architecture/ui_routes.md",
 ] as const;
 
+const CUSTOMER_FACING_DOC_PATHS = [
+  "docs/library/customer-facing/AUTHENTICATION_AND_SIGN_IN.md",
+  "docs/library/contributor-reference/AUTHENTICATION_CONFIGURATION.md",
+] as const;
+
+const AUTHENTICATION_SIGN_IN_HELP_SOURCE_PATHS = [
+  "src/lib/authentication-sign-in-help-copy.ts",
+  "src/lib/authentication-sign-in-help-guide-content.ts",
+  "src/lib/authentication-sign-in-help-evidence-copy.ts",
+  "src/app/(operator)/help/_sections/HelpAuthenticationSignInActionPanel.tsx",
+] as const;
+
+const LEGACY_LOGIN_ROUTE_PATTERN = /["'`]\/login["'`]/;
+
 function readRepoRelativeDoc(relativePath: string): string {
   return readFileSync(join(process.cwd(), "..", relativePath), "utf8");
 }
@@ -50,6 +64,29 @@ describe("legacy-login-route-doc-guard (TB-1795)", () => {
 
       expect(violations, `unlabeled legacy login path in ${relativePath}`).toEqual([]);
     }
+  });
+
+  it("does not teach /login as the sign-in URL in customer-facing auth docs (TB-1795)", () => {
+    for (const relativePath of CUSTOMER_FACING_DOC_PATHS) {
+      const violations = linesWithUnlabeledLegacyLoginPath(readRepoRelativeDoc(relativePath));
+
+      expect(violations, `unlabeled legacy login path in ${relativePath}`).toEqual([]);
+    }
+  });
+
+  it("points authentication-sign-in help CTAs at /auth/signin, not /login (TB-1795)", () => {
+    for (const relativePath of AUTHENTICATION_SIGN_IN_HELP_SOURCE_PATHS) {
+      const source = readFileSync(join(process.cwd(), relativePath), "utf8");
+
+      expect(source, `legacy /login route in ${relativePath}`).not.toMatch(LEGACY_LOGIN_ROUTE_PATTERN);
+    }
+
+    const primaryActionSource = readFileSync(
+      join(process.cwd(), "src/lib/authentication-sign-in-help-copy.ts"),
+      "utf8",
+    );
+
+    expect(primaryActionSource).toContain(CANONICAL_AUTH_SIGNIN_PATH);
   });
 
   it("does not present the legacy login path as a live marketing surface in traffic notes", () => {

@@ -35,5 +35,6 @@ describe("OperatorHomeAdvancedGuidanceSection", () => {
       expect(screen.getByTestId("core-pilot-checklist")).toBeInTheDocument();
     });
     expect(screen.queryByTestId("start-cto-demo-card")).toBeNull();
+    expect(screen.queryByRole("link", { name: "View workflow" })).toBeNull();
   });
 });

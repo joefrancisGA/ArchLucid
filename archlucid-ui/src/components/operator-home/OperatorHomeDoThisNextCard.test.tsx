@@ -2,7 +2,11 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeDoThisNextCard } from "@/components/operator-home/OperatorHomeDoThisNextCard";
-import { OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA } from "@/lib/buyer/buyer-polish-copy";
+import {
+  OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
+  OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
+  OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA,
+} from "@/lib/buyer/buyer-polish-copy";
 import { SHOWCASE_SAMPLE_REVIEW_REGISTRY } from "@/lib/showcase-sample-review-registry";
 
 const shouldInjectDemoSeededOverviewSample = vi.fn();
@@ -94,6 +98,43 @@ describe("OperatorHomeDoThisNextCard", () => {
     const card = screen.getByTestId("operator-home-do-this-next");
     expect(within(card).getAllByTestId("operator-home-do-this-next-primary")).toHaveLength(1);
     expect(screen.queryByTestId("operator-home-do-this-next-secondary")).toBeNull();
+  });
+
+  it("does not ship duplicate educational secondaries to architecture workflow help (TB-1994 / TB-1995)", async () => {
+    shouldInjectDemoSeededOverviewSample.mockReturnValue(true);
+    vi.mocked(useFinishSetupReadinessContext).mockReturnValue({
+      phase: "ready",
+      context: {
+        healthReady: true,
+        healthLoadFailed: false,
+        principalAdmin: true,
+      },
+      readyCount: 2,
+      totalCount: 2,
+    });
+    vi.mocked(useFeaturedCompletedSampleQuery).mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: {
+        selectedRunId: "claims-intake-modernization",
+        isConfigured: true,
+        isAvailable: true,
+        reviewTitle: "Claims intake modernization",
+        architectureName: "Claims intake modernization",
+        completedUtc: "2026-01-01T00:00:00.000Z",
+        isSampleApproved: true,
+      },
+    } as ReturnType<typeof useFeaturedCompletedSampleQuery>);
+
+    render(<OperatorHomeDoThisNextCard />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-home-do-this-next-primary")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("operator-home-do-this-next-secondary")).toBeNull();
+    expect(screen.queryByRole("link", { name: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA })).toBeNull();
+    expect(screen.queryByRole("link", { name: OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA })).toBeNull();
   });
 
   it("promotes admin setup when readiness blocks beginning on a real empty tenant", async () => {

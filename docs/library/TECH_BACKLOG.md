@@ -1367,8 +1367,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2109 | **Done** (2026-08-13) — Non-Azure engine data-boundary gate: `ExternalSubprocessorDisclosureComplete` offerability gate + buyer subprocessors/trust copy + workspace acknowledgment API; see ## TB-2109 below | Compliance readiness P1 ? **V1.1** | M |
 | TB-2096 | **Done** ? Keep only middle golden-journey step pills ? remove prev/next arrows + Review lifecycle hero; see ## TB-2096 below | Adoption friction P0 ? **V1**; owner ask 2026-08-07; Evidence graph spine | S |
 | TB-2097 | **Done** ? Rename golden-journey step pill ?Evidence trail? ? ?Evidence graph?; see ## TB-2097 below | Adoption friction P0 ? **V1**; owner ask 2026-08-07; aligns BUYER_SURFACE_VOCABULARY | S |
-| TB-2006 | Architecture draft workspace ? disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
-| TB-2007 | Pilot baseline wizard ? disable Next/Save until valid; inline field errors; see ## TB-2007 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
+| TB-2006 | **Done** (2026-08-13) — Architecture draft workspace: disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 ? **V1** | S |
+| TB-2007 | **Done** (2026-08-13) — Pilot baseline wizard: disable Next/Save until valid; inline field errors; see ## TB-2007 below | Adoption friction P1 ? **V1** | S |
 | TB-2008 | Admin toast-validation ? Tenant cost settings + governance bulk disposition; see ## TB-2008 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
 | TB-2012 | Design-system ? date/datetime range Start/End date labels + content-sized pickers; see ## TB-2012 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
 | TB-2013 | Decision Register ? Start/End date labels + content-sized date inputs; see ## TB-2013 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
@@ -1617,8 +1617,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1754 | **Done** (2026-08-13) — subprocessors single H1 + Help Center product tier; Vitest; see ## TB-1754 below | Adoption friction P1 ? **V1**; with **TB-1751** | S |
 | TB-1759 | **Done** (2026-08-13) — Azure Boards page-help inbound → canonical `/help/azure-boards`; see ## TB-1759 below | Adoption friction P1 ? **V1**; with **TB-1756**; pairs **TB-1623**/**TB-1701** | S |
 | TB-1768 | Azure cloud detail ? page-help ? `/help/cloud-connections/azure`; see ## TB-1768 below | Adoption friction P1 ? **V1**; with **TB-1766**; pairs **TB-1629** | S |
-| TB-1795 | Docs/help ? login language ? `/auth/signin` (keep shim); see ## TB-1795 below | Trustworthiness P1 ? **V1**; with **TB-1791**; pairs **TB-1614** (do not reopen) | S |
-| TB-1994 | Overview empty ? collapse duplicate Learn how / View workflow (same `/help/core-pilot`); see ## TB-1994 below | Adoption friction P1 ? **V1**; owner screenshot 2026-07-28; residual after Done **TB-1038** | S |
+| TB-1795 | **Done** (2026-08-13) — Docs/help login language → `/auth/signin` (keep shim); see ## TB-1795 below | Trustworthiness P1 ? **V1**; with **TB-1791**; pairs **TB-1614** (do not reopen) | S |
+| TB-1994 | **Done** (2026-08-13) — Overview empty: collapse duplicate Learn how / View workflow (same `/help/core-pilot`); see ## TB-1994 below | Adoption friction P1 ? **V1**; owner screenshot 2026-07-28; residual after Done **TB-1038** | S |
 | TB-1415 | **Done** (2026-08-13) — Anti-bare-HelpTopicMarkdownView / ungated-technical-doc honesty CI + ≤~50 inventory drift guard; see `## TB-1415` below | Testability P1 — **V1**; after **TB-1414**; pairs **M-251** | S |
 
 ### Remaining summary rows (cluster order; open P1s moved above)
@@ -43269,11 +43269,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1795 ? Docs/help ? login language ? `/auth/signin` (keep shim) (P0)
 
-**Window:** V1 ? Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Trustworthiness. **Status:** **Done** (2026-08-13). **Priority:** P0.
 
 **Problem:** Docs/help may teach `/login` as the sign-in URL.
 
 **Approach:** Canonicalize to `/auth/signin` (and session-expired where idle). Coordinate with open **TB-1614** (do not reopen). Vitest/docs grep.
+
+**Shipped:** `legacy-login-route-doc-guard.test.ts` scans contributor + customer-facing auth docs and authentication-sign-in help modules for unlabeled `/login` routes; primary help CTA uses `/auth/signin`; `/login` remains redirect-only (TB-1791).
 
 **Acceptance:** Operator docs point at canonical auth routes. **Size estimate:** S.
 
@@ -45860,7 +45862,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-13).
 
 **Priority:** P1.
 
@@ -45874,6 +45876,8 @@ Operators must read three intros before reaching the Trust Center link list.
 2. Bottom advanced-guidance: keep collapsed progressive disclosure (title ? core-pilot OK per Done **TB-866**), but do not restack a competing visible **View workflow** body CTA when the above-fold secondary already exists.
 3. Do not remove sidebar **First review guide** ? `/onboarding`.
 4. Update tests that assert both secondaries.
+
+**Shipped:** TB-2232 canonical next-action slot removed duplicate Do-this-next secondaries; advanced-guidance rail drops buyer explore rows; Vitest guards in `OperatorHomeDoThisNextCard.test.tsx` and `OperatorHomeAdvancedGuidanceSection.test.tsx` (TB-1994 / TB-1995).
 
 **Acceptance:** Empty Overview has ?1 above-fold secondary link to `/help/core-pilot`; primary sample/setup CTA unchanged.
 
@@ -46115,7 +46119,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** **Done** (2026-08-12) ? `ArchitectureDraftWorkspace.tsx` gates **Start architecture review** on readiness/scope/persist; validation `showError` removed; inline readiness + Vitest TB-2006 cases.
+**Status:** **Done** (2026-08-13) ? `ArchitectureDraftWorkspace.tsx` gates **Start architecture review** on readiness/scope/persist; validation `showError` removed; inline readiness + Vitest TB-2006 cases.
 
 **Priority:** P1.
 
@@ -46144,7 +46148,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** **Done** (2026-08-12) ? `PilotBaselineWizard.tsx` + `pilot-baseline-wizard-validation.ts`; `BaselineFieldMessage`; Vitest TB-2007.
+**Status:** **Done** (2026-08-13) ? `PilotBaselineWizard.tsx` + `pilot-baseline-wizard-validation.ts`; `BaselineFieldMessage`; Vitest TB-2007.
 
 **Priority:** P1.
 
