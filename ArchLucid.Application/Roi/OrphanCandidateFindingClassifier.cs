@@ -44,12 +44,15 @@ internal static class OrphanCandidateFindingClassifier
             if (string.IsNullOrWhiteSpace(evidenceRef))
                 continue;
 
-            if (evidenceRef.Equals(OrphanCandidateFindingMarkers.FindingTypeOrphanedAzureResource, StringComparison.OrdinalIgnoreCase)
-                || evidenceRef.Equals(OrphanCandidateFindingMarkers.EngineOrphanedAzureResource, StringComparison.OrdinalIgnoreCase)
-                || evidenceRef.Equals(OrphanCandidateFindingMarkers.OrphanCandidateAzureResource, StringComparison.OrdinalIgnoreCase))
-                return true;
+            foreach (string marker in OrphanCandidateFindingMarkers.StructuredEvidenceRefs)
+            {
+                if (evidenceRef.Equals(marker, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
 
-            if (evidenceRef.StartsWith("finding-type:OrphanedAzureResource", StringComparison.OrdinalIgnoreCase))
+            if (evidenceRef.StartsWith("finding-type:OrphanedAzureResource", StringComparison.OrdinalIgnoreCase)
+                || evidenceRef.StartsWith("finding-type:OrphanedAwsResource", StringComparison.OrdinalIgnoreCase)
+                || evidenceRef.StartsWith("finding-type:OrphanedGcpResource", StringComparison.OrdinalIgnoreCase))
                 return true;
         }
 
@@ -63,6 +66,11 @@ internal static class OrphanCandidateFindingClassifier
 
         return message.Contains("orphan", StringComparison.OrdinalIgnoreCase)
                || message.Contains("Unattached managed disk", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("Unattached EBS volume", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("Unattached persistent disk", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("Elastic IP with no association", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("Network interface with no instance attachment", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("Static IP address with no users", StringComparison.OrdinalIgnoreCase)
                || message.Contains("no virtualMachine attachment", StringComparison.OrdinalIgnoreCase)
                || message.Contains("no ipConfiguration", StringComparison.OrdinalIgnoreCase);
     }

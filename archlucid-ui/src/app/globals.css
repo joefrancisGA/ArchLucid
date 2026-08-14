@@ -18,7 +18,7 @@ body {
   --al-primary-action-bg-hover: #115e59;
   --al-primary-action-fg: #ffffff;
   --al-primary-action-ring: #5eead4;
-  --al-accent-link: #115e59;
+  --al-accent-link: #1e4e4a;
   --al-accent-link-hover: #134e4a;
   --al-text-primary: #171717;
   --al-text-secondary: #525252;
@@ -74,8 +74,8 @@ html {
   --al-primary-action-bg-hover: #0f766e;
   --al-primary-action-fg: #ffffff;
   --al-primary-action-ring: #2dd4bf;
-  --al-accent-link: #5eead4;
-  --al-accent-link-hover: #99f6e4;
+  --al-accent-link: #14b8a6;
+  --al-accent-link-hover: #2dd4bf;
   --al-text-primary: #f5f5f5;
   --al-text-secondary: #a3a3a3;
   /* Keep ≥4.5:1 on --al-surface-base (#0a0a0a); #737373 fails WCAG AA at body size. */

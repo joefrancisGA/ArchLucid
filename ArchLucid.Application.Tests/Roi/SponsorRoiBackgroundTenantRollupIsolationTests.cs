@@ -117,8 +117,17 @@ public sealed class SponsorRoiBackgroundTenantRollupIsolationTests
             .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((DateTime?)null);
 
+        Mock<ICloudInventoryExtractorPackageRepository> cloudInventoryRepository = new();
+        cloudInventoryRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchLucid.Contracts.Common.CloudProvider>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((DateTime?)null);
+
         RoiCostEvidenceFreshnessEvaluator freshnessEvaluator = new(
             packageRepository.Object,
+            cloudInventoryRepository.Object,
             ambientScopeProvider.Object,
             TimeProvider.System,
             Microsoft.Extensions.Options.Options.Create(new Core.Configuration.RoiCostEvidenceFreshnessOptions()));

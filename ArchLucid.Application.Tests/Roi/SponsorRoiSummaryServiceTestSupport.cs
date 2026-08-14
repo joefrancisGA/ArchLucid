@@ -88,8 +88,17 @@ internal static class SponsorRoiSummaryServiceTestSupport
             .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(resolvedScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync((DateTime?)null);
 
+        Mock<ICloudInventoryExtractorPackageRepository> cloudInventoryRepository = new();
+        cloudInventoryRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(
+                resolvedScope,
+                It.IsAny<ArchLucid.Contracts.Common.CloudProvider>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((DateTime?)null);
+
         RoiCostEvidenceFreshnessEvaluator freshnessEvaluator = new(
             packageRepository.Object,
+            cloudInventoryRepository.Object,
             scopeProvider.Object,
             clock ?? TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions()));

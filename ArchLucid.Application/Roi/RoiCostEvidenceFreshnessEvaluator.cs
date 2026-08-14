@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -7,15 +8,20 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Roi;
 
-/// <summary>Evaluates uploaded Azure extractor cost evidence freshness for sponsor ROI labeling.</summary>
+/// <summary>Evaluates uploaded Azure/AWS/GCP extractor cost evidence freshness for sponsor ROI labeling.</summary>
 public sealed class RoiCostEvidenceFreshnessEvaluator(
     IAzureExtractorPackageRepository azureExtractorPackageRepository,
+    ICloudInventoryExtractorPackageRepository cloudInventoryExtractorPackageRepository,
     IScopeContextProvider scopeContextProvider,
     TimeProvider clock,
     IOptions<RoiCostEvidenceFreshnessOptions> options)
 {
     private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository =
         azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
+
+    private readonly ICloudInventoryExtractorPackageRepository _cloudInventoryExtractorPackageRepository =
+        cloudInventoryExtractorPackageRepository
+        ?? throw new ArgumentNullException(nameof(cloudInventoryExtractorPackageRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -28,8 +34,7 @@ public sealed class RoiCostEvidenceFreshnessEvaluator(
     public async Task<RoiCostEvidenceFreshnessSnapshot> EvaluateAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        DateTime? collectionUtc = await _azureExtractorPackageRepository
-            .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, cancellationToken)
+        DateTime? collectionUtc = await ResolveLatestCollectionTimestampUtcAsync(scope, cancellationToken)
             .ConfigureAwait(false);
 
         int staleAfterDays = _options.StaleAfterDays <= 0 ? 90 : _options.StaleAfterDays;
@@ -57,5 +62,44 @@ public sealed class RoiCostEvidenceFreshnessEvaluator(
             LatestCollectionTimestampUtc = normalizedUtc,
             StaleAfterDays = staleAfterDays,
         };
+    }
+
+    private async Task<DateTime?> ResolveLatestCollectionTimestampUtcAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        DateTime? azureCollectionUtc = await _azureExtractorPackageRepository
+            .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, cancellationToken)
+            .ConfigureAwait(false);
+
+        DateTime? awsCollectionUtc = await _cloudInventoryExtractorPackageRepository
+            .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, CloudProvider.Aws, cancellationToken)
+            .ConfigureAwait(false);
+
+        DateTime? gcpCollectionUtc = await _cloudInventoryExtractorPackageRepository
+            .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, CloudProvider.Gcp, cancellationToken)
+            .ConfigureAwait(false);
+
+        return MaxUtc(azureCollectionUtc, awsCollectionUtc, gcpCollectionUtc);
+    }
+
+    private static DateTime? MaxUtc(params DateTime?[] timestamps)
+    {
+        DateTime? latest = null;
+
+        foreach (DateTime? timestamp in timestamps)
+        {
+            if (timestamp is null)
+                continue;
+
+            DateTime normalizedUtc = timestamp.Value.Kind == DateTimeKind.Utc
+                ? timestamp.Value
+                : timestamp.Value.ToUniversalTime();
+
+            if (latest is null || normalizedUtc > latest.Value)
+                latest = normalizedUtc;
+        }
+
+        return latest;
     }
 }

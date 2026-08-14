@@ -34,6 +34,34 @@ public sealed class SponsorOrphanCandidateKpiCalculatorTests
     }
 
     [Fact]
+    public void BuildFromLatestDetails_counts_aws_orphan_markers()
+    {
+        ArchitectureRunDetail detail = CommittedDetail(
+            runId: "run-aws",
+            findings:
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "aws-orph-1",
+                    Category = "CostOptimization",
+                    Message = "Orphaned AWS resource: AWS::EC2::Volume",
+                    EstimatedUsdSavings = 75m,
+                    EvidenceRefs =
+                    [
+                        "finding-type:OrphanedAwsResource",
+                        "engine:orphaned-aws-resource",
+                    ],
+                },
+            ]);
+
+        SponsorOrphanCandidateSummary summary =
+            SponsorOrphanCandidateKpiCalculator.BuildFromLatestDetails([detail]);
+
+        summary.CandidateCount.Should().Be(1);
+        summary.AnnualSavingsUsd.Should().Be(75m);
+    }
+
+    [Fact]
     public void BuildFromLatestDetails_uses_legacy_message_fallback()
     {
         ArchitectureRunDetail detail = CommittedDetail(
