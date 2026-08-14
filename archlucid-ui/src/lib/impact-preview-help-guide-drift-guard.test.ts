@@ -88,6 +88,12 @@ describe("impact-preview help negation drift guard", () => {
     expect(simulationTile?.href).toBe("/insights/impact-preview");
   });
 
+  it("links proposed change to improvement planning, not the retired planning route", () => {
+    const proposedChangeTile = IMPACT_PREVIEW_HELP_INPUT_TILE_ITEMS.find((item) => item.label === "Proposed change");
+
+    expect(proposedChangeTile?.href).toBe("/insights/improvement-planning");
+  });
+
   it("lists stacked impact-preview sources with real routes", () => {
     const sourceHrefs = IMPACT_PREVIEW_SOURCES.map((source) => source.href);
 
