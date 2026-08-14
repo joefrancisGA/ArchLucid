@@ -12,7 +12,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 
 internal static class AgentModelAliasRegistryTestsHelper
 {
-    internal static CatalogBackedAgentModelAliasRegistry CreateCatalogRegistry(AgentModelTierResolver tierResolver)
+    internal static CatalogBackedAgentModelAliasRegistry CreateCatalogRegistry(IAgentModelTierResolver tierResolver)
     {
         InMemoryAgentModelCatalogRepository repository = new();
 

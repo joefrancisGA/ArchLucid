@@ -90,81 +90,10 @@ public static class CloudProviderAgentPromptComposer
 
     internal static string? TryGetUserPromptGuidance(AgentType agentType, CloudProvider cloudProvider)
     {
-        if (cloudProvider == CloudProvider.Azure || cloudProvider == CloudProvider.None)
+        if (cloudProvider is not (CloudProvider.Aws or CloudProvider.Gcp))
             return null;
 
-        return agentType switch
-        {
-            AgentType.Topology when cloudProvider == CloudProvider.Aws =>
-                """
-                Important guidance (AWS target):
-                - Produce a simple, coherent MVP-quality AWS topology.
-                - Prefer managed services (Lambda, RDS, S3) over self-managed EC2 unless required.
-                - Use stable IDs such as svc-api, ds-metadata where appropriate.
-                - Return JSON only.
-                """,
-            AgentType.Topology when cloudProvider == CloudProvider.Gcp =>
-                """
-                Important guidance (GCP target):
-                - Produce a simple, coherent MVP-quality GCP topology.
-                - Prefer Cloud Run / GKE Autopilot / Cloud SQL over raw Compute Engine unless required.
-                - Use stable IDs such as svc-api, ds-metadata where appropriate.
-                - Return JSON only.
-                """,
-            AgentType.Compliance when cloudProvider == CloudProvider.Aws =>
-                """
-                Important guidance (AWS target):
-                - Infer mandatory controls conservatively from constraints and required capabilities.
-                - Prefer IAM roles/policies, Security Groups, S3 bucket policies, KMS, and CloudTrail idioms.
-                - Prefer reusable machine-friendly findings such as IamLeastPrivilegeRequired or S3PublicAccessBlocked.
-                - Return JSON only.
-                """,
-            AgentType.Compliance when cloudProvider == CloudProvider.Gcp =>
-                """
-                Important guidance (GCP target):
-                - Infer mandatory controls conservatively from constraints and required capabilities.
-                - Prefer IAM bindings, VPC firewall rules, CMEK, and Cloud Audit Logs idioms.
-                - Prefer reusable machine-friendly findings such as FirewallRuleTooPermissive or ServiceAccountKeyExposure.
-                - Return JSON only.
-                """,
-            AgentType.Cost when cloudProvider == CloudProvider.Aws =>
-                """
-                Important guidance (AWS target):
-                - Prefer managed services with predictable operational cost for MVP workloads.
-                - Discuss AWS on-demand / Savings Plans tradeoffs; cite AWS retail grounding only.
-                - Highlight token/search spend monitoring when AI services are in scope.
-                - Return JSON only.
-                """,
-            AgentType.Cost when cloudProvider == CloudProvider.Gcp =>
-                """
-                Important guidance (GCP target):
-                - Prefer managed services with predictable operational cost for MVP workloads.
-                - Discuss GCE/GKE/Cloud SQL spend drivers; cite GCP retail grounding only.
-                - Highlight token/search spend monitoring when AI services are in scope.
-                - Return JSON only.
-                """,
-            AgentType.Critic when cloudProvider == CloudProvider.Aws =>
-                """
-                Important guidance (AWS target):
-                - Challenge prior agent claims using AWS constructs (public S3 buckets, open Security Groups, overly broad IAM).
-                - Every High/Error/Critical finding must name a specific uploaded element and state a concrete gap or dispute.
-                - Prefer machine-friendly UnderSpecified messages only when tied to doc:… or awsExtractor:… evidence refs.
-                - Do NOT emit generic checklist advice unless tied to a named element in this architecture.
-                - Omit obvious findings entirely; downgrade any borderline generic item to severity Info with Low confidenceLevel.
-                - Return at most 8 findings; return JSON only.
-                """,
-            AgentType.Critic when cloudProvider == CloudProvider.Gcp =>
-                """
-                Important guidance (GCP target):
-                - Challenge prior agent claims using GCP constructs (0.0.0.0/0 firewall rules, default SA keys, public Cloud Storage).
-                - Every High/Error/Critical finding must name a specific uploaded element and state a concrete gap or dispute.
-                - Prefer machine-friendly UnderSpecified messages only when tied to doc:… or gcpExtractor:… evidence refs.
-                - Do NOT emit generic checklist advice unless tied to a named element in this architecture.
-                - Omit obvious findings entirely; downgrade any borderline generic item to severity Info with Low confidenceLevel.
-                - Return at most 8 findings; return JSON only.
-                """,
-            _ => null,
-        };
+        return AgentUserPromptStaticPrefix.TryGetImportantGuidanceText(agentType, cloudProvider);
     }
 
     private static string GetCloudNeutralSystemPromptAddendum(AgentType agentType)

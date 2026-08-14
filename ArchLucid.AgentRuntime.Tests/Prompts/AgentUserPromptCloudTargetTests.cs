@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -126,5 +128,43 @@ public sealed class AgentUserPromptCloudTargetTests
 
         prompt.Should().Contain("GKE Autopilot");
         prompt.Should().NotContain("App Service");
+    }
+
+    [Theory]
+    [InlineData(AgentType.Topology, CloudProvider.Aws, "Important guidance (AWS target):", "Lambda")]
+    [InlineData(AgentType.Topology, CloudProvider.Gcp, "Important guidance (GCP target):", "GKE Autopilot")]
+    [InlineData(AgentType.Compliance, CloudProvider.Aws, "Important guidance (AWS target):", "IAM roles/policies")]
+    [InlineData(AgentType.Cost, CloudProvider.Gcp, "Important guidance (GCP target):", "GCE/GKE/Cloud SQL")]
+    [InlineData(AgentType.Critic, CloudProvider.Aws, "Important guidance (AWS target):", "awsExtractor:")]
+    public void StaticPrefix_aws_gcp_contains_provider_specific_important_guidance(
+        AgentType agentType,
+        CloudProvider cloudProvider,
+        string expectedHeader,
+        string expectedPhrase)
+    {
+        StringBuilder sb = new();
+
+        switch (agentType)
+        {
+            case AgentType.Topology:
+                AgentUserPromptStaticPrefix.AppendTopology(sb, cloudProvider);
+                break;
+            case AgentType.Compliance:
+                AgentUserPromptStaticPrefix.AppendCompliance(sb, cloudProvider);
+                break;
+            case AgentType.Cost:
+                AgentUserPromptStaticPrefix.AppendCost(sb, cloudProvider);
+                break;
+            case AgentType.Critic:
+                AgentUserPromptStaticPrefix.AppendCritic(sb, cloudProvider);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(agentType), agentType, null);
+        }
+
+        string prompt = sb.ToString();
+
+        prompt.Should().Contain(expectedHeader);
+        prompt.Should().Contain(expectedPhrase);
     }
 }

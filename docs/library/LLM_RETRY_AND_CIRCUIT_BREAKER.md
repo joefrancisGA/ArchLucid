@@ -104,11 +104,16 @@ Configured via **`ArchLucid:FallbackLlm`** (see **`docs/RESILIENCE_CONFIGURATION
 | `TaskCanceledException`, token **not** canceled | Yes | Typical HTTP timeout. |
 | `OperationCanceledException` / cancel with user token | No | Intentional shutdown. |
 | `InvalidOperationException` | No | e.g. empty assistant message — retry wastes tokens. |
+| `JsonException` | No | Schema-invalid JSON from provider — semantic-terminal (TB-944). |
+| `ArgumentException` | No | Invalid request shape — semantic-terminal (TB-944). |
 | `CircuitBreakerOpenException` | No | Circuit already open. |
+
+Canonical classifier: `LlmCompletionFailureClassifier` in `ArchLucid.AgentRuntime` (TB-944). **Semantic-terminal** failures do not Polly-retry and do not tick `RecordFailure` on the circuit breaker decorator.
 
 ### Circuit breaker interaction
 
-- **One logical call** that exhausts all retries produces **one** `RecordFailure` (one step toward open).
+- **One logical call** that exhausts all retries on a **transport-retryable** fault produces **one** `RecordFailure` (one step toward open).
+- **Semantic-terminal** failures (empty assistant, schema parse, non-429 4xx, etc.) surface to the caller **without** ticking the breaker (TB-944).
 - A call that eventually succeeds after retries produces **one** `RecordSuccess` (helps half-open recovery).
 
 State machine (simplified):
