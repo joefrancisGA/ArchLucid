@@ -57,7 +57,7 @@ public static class AgentTopologyProposalGraphMerge
 
         foreach (AgentResult result in validatedResults)
         {
-            if (result.AgentType != AgentType.Topology)
+            if (!ContributesProposalEndpointAliases(result.AgentType))
                 continue;
 
             AgentTopologyProposal? proposal = result.ProposedChanges;
@@ -65,6 +65,7 @@ public static class AgentTopologyProposalGraphMerge
             if (proposal is null)
                 continue;
 
+            bool materializeNodes = result.AgentType == AgentType.Topology;
             string? reasoning = result.ReasoningTrace?.Trim();
             Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
 
@@ -74,7 +75,9 @@ public static class AgentTopologyProposalGraphMerge
                 {
                     if (TopologyProposalRelationshipEndpointIndex.TryClaimService(svc, seenTopologyKeys))
                     {
-                        added.Add(TopologyServiceNode(svc, reasoning));
+                        if (materializeNodes)
+                            added.Add(TopologyServiceNode(svc, reasoning));
+
                         continue;
                     }
 
@@ -91,7 +94,9 @@ public static class AgentTopologyProposalGraphMerge
                 {
                     if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(ds, seenTopologyKeys))
                     {
-                        added.Add(TopologyDatastoreNode(ds, reasoning));
+                        if (materializeNodes)
+                            added.Add(TopologyDatastoreNode(ds, reasoning));
+
                         continue;
                     }
 
@@ -178,8 +183,11 @@ public static class AgentTopologyProposalGraphMerge
         return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [key1] = e1.ToString(), [key2] = e2.ToString() };
     }
 
-    private static bool MaterializesProposalRelationships(AgentType agentType) =>
+    private static bool ContributesProposalEndpointAliases(AgentType agentType) =>
         agentType is AgentType.Topology or AgentType.Cost or AgentType.Compliance or AgentType.Critic;
+
+    private static bool MaterializesProposalRelationships(AgentType agentType) =>
+        ContributesProposalEndpointAliases(agentType);
 
     private static HashSet<string> CollectDirectedEdgeKeys(IReadOnlyList<GraphEdge> edges)
     {
