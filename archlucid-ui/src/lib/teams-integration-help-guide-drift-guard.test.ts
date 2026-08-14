@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  TEAMS_INTEGRATION_HELP_ALERT_RULES_HREF,
+  TEAMS_INTEGRATION_HELP_ALTERNATIVE_SOURCES,
   TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   TEAMS_INTEGRATION_HELP_SOURCES,
 } from "@/lib/teams-integration-help-evidence-copy";
@@ -14,11 +16,10 @@ import {
   TEAMS_INTEGRATION_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/teams-integration-help-guide-content";
 import {
-  TEAMS_SETUP_STEP_CREATE_WEBHOOK,
-  TEAMS_SETUP_STEP_ENTER_SECRET,
-  TEAMS_SETUP_STEP_SAVE_CONNECTION,
-  TEAMS_SETUP_STEP_SEND_TEST,
+  TEAMS_INTEGRATION_BEFORE_YOU_CONNECT_STEPS,
+  TEAMS_INTEGRATION_PAGE_SUBTITLE,
 } from "@/lib/teams-integration-page-copy";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 describe("teams integration help drift guard", () => {
   it("keeps claim discipline free of Sources package jargon", () => {
@@ -33,14 +34,16 @@ describe("teams integration help drift guard", () => {
     expect(TEAMS_INTEGRATION_HELP_START_HERE_CARD_TITLE).not.toBe(TEAMS_INTEGRATION_HELP_PRIMARY_ACTION.label);
   });
 
-  it("keeps overview distinct from the page subtitle", () => {
+  it("keeps overview and help subtitle distinct from the operator page subtitle", () => {
     expect(TEAMS_INTEGRATION_HELP_OVERVIEW).not.toBe(TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE);
+    expect(TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE).not.toBe(TEAMS_INTEGRATION_PAGE_SUBTITLE);
   });
 
-  it("lists five guide headings so the topic rail renders at xl", () => {
-    expect(TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS).toHaveLength(5);
-    expect(TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS[1]?.id).toBe("set-up-teams-notifications");
-    expect(TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS[4]?.id).toBe("where-to-go-next");
+  it("lists six guide headings so the topic rail renders at xl", () => {
+    expect(TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS).toHaveLength(6);
+    expect(TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS[1]?.id).toBe("teams-webhook-secret-handling");
+    expect(TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS[2]?.id).toBe("set-up-teams-notifications");
+    expect(TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS[5]?.id).toBe("where-to-go-next");
     expect(
       TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS.some(
         (heading) => heading.id === "help-teams-integration-claim-discipline-heading",
@@ -48,13 +51,8 @@ describe("teams integration help drift guard", () => {
     ).toBe(true);
   });
 
-  it("matches setup steps to Teams page copy exports", () => {
-    expect(TEAMS_INTEGRATION_HELP_SETUP_STEPS).toEqual([
-      TEAMS_SETUP_STEP_CREATE_WEBHOOK,
-      TEAMS_SETUP_STEP_ENTER_SECRET,
-      TEAMS_SETUP_STEP_SEND_TEST,
-      TEAMS_SETUP_STEP_SAVE_CONNECTION,
-    ]);
+  it("matches setup steps to shared Teams before-you-connect copy", () => {
+    expect(TEAMS_INTEGRATION_HELP_SETUP_STEPS).toEqual(TEAMS_INTEGRATION_BEFORE_YOU_CONNECT_STEPS);
   });
 
   it("lists teams integration help sources with unique hrefs and no self-href", () => {
@@ -64,5 +62,16 @@ describe("teams integration help drift guard", () => {
     expect(TEAMS_INTEGRATION_HELP_SOURCES.every((source) => source.href.startsWith("/"))).toBe(true);
     expect(sourceHrefs).not.toContain("/integrations/teams");
     expect(sourceHrefs).not.toContain("/help/teams-integration");
+    expect(sourceHrefs).toContain(TEAMS_INTEGRATION_HELP_ALERT_RULES_HREF);
+  });
+
+  it("routes sibling channels through help topics instead of live integration surfaces", () => {
+    const alternativeHrefs = TEAMS_INTEGRATION_HELP_ALTERNATIVE_SOURCES.map((source) => source.href);
+
+    expect(alternativeHrefs).toEqual([
+      inAppHelpHref("slack-integration"),
+      inAppHelpHref("webhooks-integration"),
+    ]);
+    expect(alternativeHrefs.every((href) => href.startsWith("/help/"))).toBe(true);
   });
 });

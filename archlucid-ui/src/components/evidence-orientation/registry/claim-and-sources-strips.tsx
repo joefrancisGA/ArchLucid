@@ -1,4 +1,5 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientation/EvidenceOrientationClaimCallout";
 import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
 import {
@@ -585,6 +586,9 @@ import {
   SUBPROCESSORS_HELP_SOURCES_INTRO,
 } from "@/lib/subprocessors-help-evidence-copy";
 import {
+  TEAMS_INTEGRATION_HELP_ALERT_RULES_HREF,
+  TEAMS_INTEGRATION_HELP_ALTERNATIVE_SOURCES,
+  TEAMS_INTEGRATION_HELP_ALTERNATIVES_TITLE,
   TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   TEAMS_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
@@ -1638,22 +1642,54 @@ export type TeamsIntegrationHelpEvidenceOrientationStripProps = {
 export function TeamsIntegrationHelpEvidenceOrientationStrip(
   props: TeamsIntegrationHelpEvidenceOrientationStripProps = {},
 ): React.JSX.Element {
+  const sectionHeadingClass = cn(
+    OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+    OPERATOR_TYPOGRAPHY.sectionTitle,
+    "m-0 scroll-mt-24",
+  );
+
   return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="help-teams-integration"
-      claim={TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE}
-      claimHeading={TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={TEAMS_INTEGRATION_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
-      claimElement="div"
-      sourcesTitle={TEAMS_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={TEAMS_INTEGRATION_HELP_SOURCES_INTRO}
-      sources={TEAMS_INTEGRATION_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
-      sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
-      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
-    />
+    <EvidenceOrientationStripShell testId="help-teams-integration-orientation">
+      <EvidenceOrientationClaimCallout
+        testId="help-teams-integration-claim-discipline"
+        body={TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE}
+        style={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+        element="div"
+        bodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+        headingClassName={sectionHeadingClass}
+        heading={{
+          text: TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
+          id: TEAMS_INTEGRATION_HELP_CLAIM_HEADING_ID,
+        }}
+      />
+
+      <EvidenceOrientationSourcesSection
+        testId="help-teams-integration-sources"
+        headingId="where-to-go-next"
+        title={TEAMS_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
+        intro={TEAMS_INTEGRATION_HELP_SOURCES_INTRO}
+        links={TEAMS_INTEGRATION_HELP_SOURCES}
+        style={EVIDENCE_SOURCES_STYLE.operatorRaised}
+        layout="stacked"
+        listClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+        headingClassName={sectionHeadingClass}
+        distinguishFollowUpDestinations
+        promotedSourceHref={TEAMS_INTEGRATION_HELP_ALERT_RULES_HREF}
+      />
+
+      <EvidenceOrientationSourcesSection
+        testId="help-teams-integration-alternative-sources"
+        headingId="help-teams-integration-alternative-sources-heading"
+        title={TEAMS_INTEGRATION_HELP_ALTERNATIVES_TITLE}
+        intro="Compare sibling notification channels when Teams is not the only destination under review."
+        links={TEAMS_INTEGRATION_HELP_ALTERNATIVE_SOURCES}
+        style={EVIDENCE_SOURCES_STYLE.operatorRaised}
+        layout="stacked"
+        listClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+        headingClassName={cn(OPERATOR_TYPOGRAPHY.cardTitle, "m-0")}
+        distinguishFollowUpDestinations
+      />
+    </EvidenceOrientationStripShell>
   );
 }
 

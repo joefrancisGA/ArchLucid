@@ -18,13 +18,21 @@ export const TEAMS_INTEGRATION_CONNECT_SECTION_LEAD =
 export const TEAMS_INTEGRATION_HELP_SUMMARY =
   "Microsoft Teams notifications route selected governance and review events to a channel your operators already monitor. Use this guide before configuring secret references, triggers, and test delivery.";
 
-export const TEAMS_SETUP_STEP_CREATE_WEBHOOK =
-  "Create a Teams incoming webhook and store it in your approved secret store.";
+/** Shared setup sequence for `/integrations/teams` and `/help/teams-integration`. */
+export const TEAMS_INTEGRATION_BEFORE_YOU_CONNECT_STEPS = [
+  "Create an incoming webhook for the Teams channel that should receive notifications.",
+  "Store the webhook URL in your organization's approved secret store.",
+  "Confirm that the ArchLucid delivery identity can read that secret.",
+  "Enter the secret name or reference on the Teams notifications page.",
+  "Validate the secret, then send a test notification before saving.",
+] as const;
 
-export const TEAMS_SETUP_STEP_ENTER_SECRET =
-  "Enter the secret reference on the Teams notifications page and validate access.";
+export const TEAMS_SETUP_STEP_CREATE_WEBHOOK = TEAMS_INTEGRATION_BEFORE_YOU_CONNECT_STEPS[0];
 
-export const TEAMS_SETUP_STEP_SEND_TEST = "Select notification triggers and send a test notification.";
+export const TEAMS_SETUP_STEP_ENTER_SECRET = TEAMS_INTEGRATION_BEFORE_YOU_CONNECT_STEPS[3];
+
+export const TEAMS_SETUP_STEP_SEND_TEST =
+  "Select notification triggers and send a test notification.";
 
 export const TEAMS_SETUP_STEP_SAVE_CONNECTION =
   "Save the connection once validation and test delivery succeed.";

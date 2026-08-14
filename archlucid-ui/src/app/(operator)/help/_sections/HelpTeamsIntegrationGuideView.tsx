@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -17,14 +18,17 @@ import {
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
-  TEAMS_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
   TEAMS_INTEGRATION_HELP_FEATURE_ITEMS,
   TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS,
   TEAMS_INTEGRATION_HELP_HOW_TO_READ_STEPS,
   TEAMS_INTEGRATION_HELP_OVERVIEW,
+  TEAMS_INTEGRATION_HELP_PAGE_EYEBROW,
   TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE,
   TEAMS_INTEGRATION_HELP_PAGE_TITLE,
   TEAMS_INTEGRATION_HELP_PRIMARY_ACTION,
+  TEAMS_INTEGRATION_HELP_SECURITY_CALLOUT_BODY,
+  TEAMS_INTEGRATION_HELP_SECURITY_SECTION_ID,
+  TEAMS_INTEGRATION_HELP_SECURITY_SECTION_TITLE,
   TEAMS_INTEGRATION_HELP_SETUP_STEPS,
   TEAMS_INTEGRATION_HELP_START_HERE_CARD_TITLE,
   TEAMS_INTEGRATION_HELP_WEBHOOK_PRECONDITION,
@@ -62,6 +66,7 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
+        eyebrow={TEAMS_INTEGRATION_HELP_PAGE_EYEBROW}
         title={TEAMS_INTEGRATION_HELP_PAGE_TITLE}
         titleTestId="help-teams-integration-page-title"
         subtitle={TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE}
@@ -93,7 +98,6 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="help-teams-integration-webhook-precondition"
               >
-                <span className="font-medium text-al-text-primary">Incoming webhook.</span>{" "}
                 {TEAMS_INTEGRATION_HELP_WEBHOOK_PRECONDITION}
               </p>
             </CardContent>
@@ -118,6 +122,21 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
           </section>
 
           <section
+            aria-labelledby={TEAMS_INTEGRATION_HELP_SECURITY_SECTION_ID}
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id={TEAMS_INTEGRATION_HELP_SECURITY_SECTION_ID}>
+              {TEAMS_INTEGRATION_HELP_SECURITY_SECTION_TITLE}
+            </HelpSectionHeading>
+            <div
+              className={cn(DESIGN_TOKENS.callout.neutral, "p-3")}
+              data-testid="help-teams-integration-security-callout"
+            >
+              <p className={readingBodyClass}>{TEAMS_INTEGRATION_HELP_SECURITY_CALLOUT_BODY}</p>
+            </div>
+          </section>
+
+          <section
             aria-labelledby="set-up-teams-notifications"
             className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
           >
@@ -137,20 +156,22 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
             className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
           >
             <HelpSectionHeading id="how-teams-notifications-work">{TEAMS_INTEGRATION_HELP_TOPIC_LABEL}</HelpSectionHeading>
-            <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
+            <ul
+              className={cn("m-0 list-disc space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-teams-integration-how-stepper"
             >
               {TEAMS_INTEGRATION_HELP_HOW_TO_READ_STEPS.map((step) => (
                 <li key={step}>{step}</li>
               ))}
-            </ol>
+            </ul>
           </section>
 
-          <TeamsIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+            <TeamsIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          </div>
         </div>
 
-        <HelpTopicTableOfContents headings={TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS} enableScrollSpy />
       </div>
     </article>
   );

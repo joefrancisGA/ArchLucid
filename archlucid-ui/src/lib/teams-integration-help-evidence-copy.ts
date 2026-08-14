@@ -1,5 +1,4 @@
 import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
-import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { TEAMS_INTEGRATION_SOURCES_INTRO } from "@/lib/teams-integration-evidence-copy";
@@ -15,6 +14,8 @@ export const TEAMS_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const TEAMS_INTEGRATION_HELP_SOURCES_INTRO = TEAMS_INTEGRATION_SOURCES_INTRO;
 
+export const TEAMS_INTEGRATION_HELP_ALERT_RULES_HREF = GOVERNANCE_ALERT_RULES_PATH;
+
 /** Help follow-ups — no self-href to `/integrations/teams`; one Alert rules destination. */
 export const TEAMS_INTEGRATION_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
   {
@@ -23,28 +24,34 @@ export const TEAMS_INTEGRATION_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen
     when: "Change which governance events fire Teams notifications",
   },
   {
-    label: "Integration readiness",
-    href: INTEGRATIONS_READINESS_PATH,
-    when: "Read procurement-oriented setup guidance when multiple connectors need attention",
-  },
-  {
-    label: "Slack",
-    href: "/integrations/slack",
-    when: "Compare Slack routing when operators monitor both chat platforms",
-  },
-  {
-    label: "Webhooks",
-    href: "/integrations/webhooks",
-    when: "Route custom HTTP destinations when Teams is not the right channel",
-  },
-  {
     label: "How alerts work",
     href: inAppHelpHref("alerts"),
     when: "Understand alert inbox behavior before changing routing rules",
   },
   {
+    label: "Integration readiness",
+    href: inAppHelpHref("integration-readiness"),
+    when: "Review connector procurement and workspace readiness when Teams is one of several channels",
+  },
+  {
     label: "Audit",
     href: GOVERNANCE_AUDIT_PATH,
     when: "Follow governed activity when destination or routing changes need audit context",
+  },
+] as const;
+
+export const TEAMS_INTEGRATION_HELP_ALTERNATIVES_TITLE = "Other chat routing options";
+
+/** Sibling notification channels — help-to-help only, not live integration surfaces. */
+export const TEAMS_INTEGRATION_HELP_ALTERNATIVE_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Slack integration help",
+    href: inAppHelpHref("slack-integration"),
+    when: "Compare Slack routing when operators monitor both chat platforms",
+  },
+  {
+    label: "Webhooks integration help",
+    href: inAppHelpHref("webhooks-integration"),
+    when: "Route custom HTTP destinations when Teams is not the right channel",
   },
 ] as const;
