@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
-import { StatusPill } from "@/components/StatusPill";
+import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { Button } from "@/components/ui/button";
 import {
   ADVISORY_SCANS_CARD_DISPOSITION_LABEL,
@@ -88,7 +88,7 @@ export function AdvisoryRecommendationCard(props: AdvisoryRecommendationCardProp
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {ADVISORY_SCANS_CARD_DISPOSITION_LABEL}
           </p>
-          <StatusPill status={recommendation.status} domain="governance" uppercase={false} />
+          <GovernanceStatusTag status={recommendation.status} />
         </div>
       </div>
 

@@ -9,9 +9,10 @@ import { HelpStandardsRulesGuideView } from "@/app/(operator)/help/_sections/Hel
 import {
   STANDARDS_RULES_HELP_CLAIM_HEADING_ID,
   STANDARDS_RULES_HELP_GUIDE_HEADINGS,
+  STANDARDS_RULES_HELP_OVERVIEW,
   STANDARDS_RULES_HELP_PAGE_SUBTITLE,
   STANDARDS_RULES_HELP_PRIMARY_ACTION,
-  STANDARDS_RULES_HELP_START_HERE_CARD_TITLE,
+  STANDARDS_RULES_HELP_RESOLUTION_SNAPSHOT_EXPORT_HREF,
   STANDARDS_RULES_HELP_TABLE_ITEMS,
 } from "@/lib/standards-rules-help-guide-content";
 import {
@@ -21,12 +22,13 @@ import {
 } from "@/lib/standards-rules-help-evidence-copy";
 import { STANDARDS_RULES_PAGE_SUBTITLE } from "@/lib/standards-rules-page";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpStandardsRulesGuideView", () => {
   const entry = getProductDocumentationEntry("standards-and-rules");
 
-  it("renders provenance, start-here card, readingBody, and deduped follow-ups", () => {
+  it("renders provenance, header primary action, readingBody, scroll-spy TOC, and follow-ups", () => {
     if (entry === undefined) {
       throw new Error("Expected standards-and-rules documentation entry.");
     }
@@ -36,9 +38,11 @@ describe("HelpStandardsRulesGuideView", () => {
     expect(screen.getByTestId("help-standards-rules-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · governance standards and rules orientation",
+      "Last reviewed 2026-08-13 · Governance policy resolution, enforced rules, and diagnostic export",
     );
     expect(STANDARDS_RULES_HELP_PAGE_SUBTITLE).not.toBe(STANDARDS_RULES_PAGE_SUBTITLE);
+    expect(STANDARDS_RULES_HELP_OVERVIEW.toLowerCase()).not.toContain("this review");
+    expect(screen.getByTestId("help-standards-rules-overview")).toHaveTextContent(STANDARDS_RULES_HELP_OVERVIEW);
     expect(screen.getByTestId("help-standards-rules-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-standards-rules-claim-discipline").textContent?.toLowerCase()).not.toContain(
       "sources package",
@@ -55,30 +59,38 @@ describe("HelpStandardsRulesGuideView", () => {
       STANDARDS_RULES_HELP_PRIMARY_ACTION.href,
     );
     expect(screen.getAllByRole("link", { name: STANDARDS_RULES_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
-    expect(
-      screen.getByRole("heading", { level: 2, name: STANDARDS_RULES_HELP_START_HERE_CARD_TITLE }),
-    ).toBeInTheDocument();
-    expect(STANDARDS_RULES_HELP_START_HERE_CARD_TITLE).not.toBe(STANDARDS_RULES_HELP_PRIMARY_ACTION.label);
-    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-standards-rules-action-panel")).not.toBeInTheDocument();
 
     for (const item of STANDARDS_RULES_HELP_TABLE_ITEMS) {
-      if (item.href === undefined) {
-        continue;
-      }
-
       expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
     }
 
+    expect(screen.getByRole("link", { name: "Resolution snapshot" })).toHaveAttribute(
+      "href",
+      STANDARDS_RULES_HELP_RESOLUTION_SNAPSHOT_EXPORT_HREF,
+    );
+
     for (const source of STANDARDS_RULES_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+
+      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(screen.getAllByRole("link", { name: "Policy packs help" })).toHaveLength(1);
+    expect(
+      screen.getByRole("link", {
+        name: formatHelpFollowUpLinkAccessibleName(
+          STANDARDS_RULES_HELP_SOURCES[0].href,
+          STANDARDS_RULES_HELP_SOURCES[0].label,
+        ),
+      }),
+    ).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Policy packs" })).toHaveLength(1);
     expect(screen.getAllByRole("link", { name: STANDARDS_RULES_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
 
     for (const heading of STANDARDS_RULES_HELP_GUIDE_HEADINGS) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
+
+    expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
   });
 });

@@ -6,6 +6,7 @@ import {
   STANDARDS_RULES_SOURCES_INTRO,
 } from "@/lib/standards-rules-evidence-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export const STANDARDS_RULES_HELP_CANONICAL_PATH = "/help/standards-and-rules" as const;
 
@@ -21,6 +22,7 @@ export const STANDARDS_RULES_HELP_SOURCES_INTRO = STANDARDS_RULES_SOURCES_INTRO;
 export const STANDARDS_RULES_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Policy packs help", href: inAppHelpHref("policy-packs") },
   { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Sealed review records", href: SIGNED_RECORDS_LIST_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Assurance status", href: "/security-trust" },
 ] as const;
