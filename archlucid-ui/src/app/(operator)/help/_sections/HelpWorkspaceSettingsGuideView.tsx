@@ -2,28 +2,30 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { WorkspaceSettingsHelpEvidenceOrientationStrip } from "@/components/help/WorkspaceSettingsHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import {
+  WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION,
+  WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_TAG,
+  WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
   WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS,
   WORKSPACE_SETTINGS_HELP_HOW_TO_READ_STEPS,
   WORKSPACE_SETTINGS_HELP_OVERVIEW,
   WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE,
   WORKSPACE_SETTINGS_HELP_PAGE_TITLE,
   WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION,
-  WORKSPACE_SETTINGS_HELP_RECYCLE_BIN_HREF,
-  WORKSPACE_SETTINGS_HELP_SCOPE_HREF,
+  WORKSPACE_SETTINGS_HELP_START_HERE_CARD_TITLE,
   WORKSPACE_SETTINGS_HELP_TILE_ITEMS,
 } from "@/lib/workspace-settings-help-guide-content";
 import { WORKSPACE_SETTINGS_HELP_CANONICAL_PATH } from "@/lib/workspace-settings-help-evidence-copy";
@@ -51,6 +53,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuideViewProps): React.ReactElement {
   const { entry } = props;
   const contentGridClass = resolveHelpPageContentGridClass(WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS.length);
+  const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
@@ -59,7 +62,8 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
     >
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
+      <HelpTopicGuidePageHeader
+        topicTitle={WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE}
         title={WORKSPACE_SETTINGS_HELP_PAGE_TITLE}
         titleTestId="help-workspace-settings-page-title"
         subtitle={WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE}
@@ -71,10 +75,7 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p
-            className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="help-workspace-settings-overview"
-          >
+          <p className={readingBodyClass} data-testid="help-workspace-settings-overview">
             {WORKSPACE_SETTINGS_HELP_OVERVIEW}
           </p>
 
@@ -83,14 +84,29 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
             data-testid="help-workspace-settings-action-panel"
           >
             <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Open workspace settings</CardTitle>
+              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                {WORKSPACE_SETTINGS_HELP_START_HERE_CARD_TITLE}
+              </CardTitle>
             </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.href}>
-                  {WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
+            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button asChild size="sm" variant="primary">
+                  <Link href={WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.href}>
+                    {WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.label}
+                  </Link>
+                </Button>
+                <StatusTag
+                  kind="neutral"
+                  label={WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_TAG}
+                  data-testid="help-workspace-settings-admin-precondition-tag"
+                />
+              </div>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-workspace-settings-admin-precondition"
+              >
+                {WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION}
+              </p>
             </CardContent>
           </Card>
 
@@ -100,7 +116,7 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
           >
             <HelpSectionHeading id="what-workspace-settings-cover">What workspace settings cover</HelpSectionHeading>
             <dl
-              className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-workspace-settings-tile-items"
             >
               {WORKSPACE_SETTINGS_HELP_TILE_ITEMS.map((item) => (
@@ -118,26 +134,16 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
           >
             <HelpSectionHeading id="how-workspace-settings-work">{WORKSPACE_SETTINGS_HELP_TOPIC_LABEL}</HelpSectionHeading>
             <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-workspace-settings-how-stepper"
             >
               {WORKSPACE_SETTINGS_HELP_HOW_TO_READ_STEPS.map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={WORKSPACE_SETTINGS_HELP_SCOPE_HREF}>
-                Read workspace and scope help →
-              </Link>
-            </p>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={WORKSPACE_SETTINGS_HELP_RECYCLE_BIN_HREF}>
-                Open projects recycle bin →
-              </Link>
-            </p>
           </section>
 
-          <WorkspaceSettingsHelpEvidenceOrientationStrip />
+          <WorkspaceSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
         </div>
 
         <HelpTopicTableOfContents headings={WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS} />

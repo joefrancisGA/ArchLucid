@@ -5,11 +5,14 @@ import {
   TENANT_SETTINGS_CANONICAL_PATH,
   WORKSPACE_SETTINGS_HELP_TOPIC_LABEL,
 } from "@/lib/tenant-settings-evidence-copy";
-import { TENANT_SETTINGS_PAGE_SUBTITLE, TENANT_SETTINGS_VOCABULARY_CURRENT_LABEL } from "@/lib/tenant-settings-page-copy";
+import { TENANT_SETTINGS_VOCABULARY_CURRENT_LABEL } from "@/lib/tenant-settings-page-copy";
+
+export const WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE = "Workspace settings";
 
 export const WORKSPACE_SETTINGS_HELP_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.workspaceSettings;
 
-export const WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE = TENANT_SETTINGS_PAGE_SUBTITLE;
+export const WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE =
+  "How tenant-wide defaults, quality gates, and cost settings fit workspace administration and downstream reviews.";
 
 export const WORKSPACE_SETTINGS_HELP_OVERVIEW =
   "Workspace settings configures tenant-wide defaults, quality gates, and cost settings that reviews inherit. It is an Admin surface — not a sealed-review diligence Sources package.";
@@ -18,6 +21,13 @@ export const WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION = {
   label: "Open workspace settings",
   href: TENANT_SETTINGS_CANONICAL_PATH,
 } as const;
+
+export const WORKSPACE_SETTINGS_HELP_START_HERE_CARD_TITLE = "Start here";
+
+export const WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_TAG = "Admin";
+
+export const WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION =
+  "Changing tenant defaults needs Admin authority; active workspace and project selection lives in the header workspace switcher.";
 
 export type WorkspaceSettingsHelpTileItem = {
   readonly label: string;
@@ -38,7 +48,7 @@ export const WORKSPACE_SETTINGS_HELP_TILE_ITEMS: readonly WorkspaceSettingsHelpT
     detail: "Active tenant, workspace, and project selection lives in the header switcher.",
   },
   {
-    label: "Assurance cites",
+    label: "Assurance status",
     detail: "Open assurance status when tenant defaults turn into procurement diligence questions.",
   },
 ] as const;
@@ -48,10 +58,6 @@ export const WORKSPACE_SETTINGS_HELP_HOW_TO_READ_STEPS = [
   "Review quality gates and cost settings that downstream reviews inherit.",
   "Open projects recycle bin or scope help when workspace questions turn into restore or scope work.",
 ] as const;
-
-export const WORKSPACE_SETTINGS_HELP_SCOPE_HREF = "/help/scope";
-
-export const WORKSPACE_SETTINGS_HELP_RECYCLE_BIN_HREF = "/administration/workspace-settings/recycle-bin";
 
 export const WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID = "help-workspace-settings-claim-discipline-heading" as const;
 

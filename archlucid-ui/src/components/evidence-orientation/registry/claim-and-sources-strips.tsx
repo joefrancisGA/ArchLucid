@@ -638,7 +638,13 @@ export function NotificationsHelpEvidenceOrientationStrip(
   );
 }
 
-export function WorkspaceSettingsHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type WorkspaceSettingsHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function WorkspaceSettingsHelpEvidenceOrientationStrip(
+  props: WorkspaceSettingsHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-workspace-settings"
@@ -652,6 +658,8 @@ export function WorkspaceSettingsHelpEvidenceOrientationStrip(): React.JSX.Eleme
       sources={WORKSPACE_SETTINGS_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
