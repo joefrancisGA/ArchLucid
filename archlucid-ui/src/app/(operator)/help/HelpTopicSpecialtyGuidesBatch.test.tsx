@@ -102,5 +102,14 @@ describe("specialty help guides — operator surfaces batch", () => {
 
       return;
     }
+
+    if (slug === "model-governance") {
+      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+      expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
+        "Last reviewed 2026-08-13 · administration model governance orientation",
+      );
+
+      return;
+    }
   });
 });

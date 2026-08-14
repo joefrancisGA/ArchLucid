@@ -126,6 +126,30 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-13 · integrations jira orientation");
   });
 
+  it("formats model governance help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "model-governance",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "administration model governance orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · administration model governance orientation");
+  });
+
+  it("formats notifications help review provenance", () => {
+    expect(
+      formatHelpTopicApplicabilityMetadata(
+        sampleEntry({
+          slug: "notifications",
+          lastReviewed: "2026-08-13",
+          releaseApplicability: "administration notifications orientation",
+        }),
+      ),
+    ).toBe("Last reviewed 2026-08-13 · administration notifications orientation");
+  });
+
   it("formats ai usage help review provenance", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(

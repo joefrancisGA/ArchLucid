@@ -16,6 +16,8 @@ const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "impact-preview",
   "improvement-planning",
   "jira-integration",
+  "model-governance",
+  "notifications",
 ]);
 
 function formatGuideReviewProvenance(entry: ProductDocumentationEntry): string | null {

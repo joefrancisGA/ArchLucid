@@ -2,9 +2,9 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ModelGovernanceHelpEvidenceOrientationStrip } from "@/components/help/ModelGovernanceHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -17,8 +17,10 @@ import {
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import {
-  MODEL_GOVERNANCE_HELP_AI_USAGE_HREF,
-  MODEL_GOVERNANCE_HELP_BILLING_HREF,
+  MODEL_GOVERNANCE_HELP_BREADCRUMB_TOPIC_TITLE,
+  MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_EMBEDDINGS,
+  MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_LEAD,
+  MODEL_GOVERNANCE_HELP_DATA_HANDLING_HREF,
   MODEL_GOVERNANCE_HELP_FEATURE_ITEMS,
   MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS,
   MODEL_GOVERNANCE_HELP_HOW_TO_READ_STEPS,
@@ -26,6 +28,8 @@ import {
   MODEL_GOVERNANCE_HELP_PAGE_SUBTITLE,
   MODEL_GOVERNANCE_HELP_PAGE_TITLE,
   MODEL_GOVERNANCE_HELP_PRIMARY_ACTION,
+  MODEL_GOVERNANCE_HELP_START_HERE_CARD_TITLE,
+  MODEL_GOVERNANCE_HELP_SUBPROCESSORS_HREF,
 } from "@/lib/model-governance-help-guide-content";
 import { MODEL_GOVERNANCE_HELP_CANONICAL_PATH } from "@/lib/model-governance-help-evidence-copy";
 import { MODEL_GOVERNANCE_HELP_TOPIC_LABEL } from "@/lib/model-governance-settings-evidence-copy";
@@ -51,6 +55,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideViewProps): React.ReactElement {
   const { entry } = props;
   const contentGridClass = resolveHelpPageContentGridClass(MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS.length);
+  const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
@@ -59,7 +64,8 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
     >
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
+      <HelpTopicGuidePageHeader
+        topicTitle={MODEL_GOVERNANCE_HELP_BREADCRUMB_TOPIC_TITLE}
         title={MODEL_GOVERNANCE_HELP_PAGE_TITLE}
         titleTestId="help-model-governance-page-title"
         subtitle={MODEL_GOVERNANCE_HELP_PAGE_SUBTITLE}
@@ -71,16 +77,15 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p
-            className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="help-model-governance-overview"
-          >
+          <p className={readingBodyClass} data-testid="help-model-governance-overview">
             {MODEL_GOVERNANCE_HELP_OVERVIEW}
           </p>
 
           <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-model-governance-action-panel">
             <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Open AI and model governance</CardTitle>
+              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                {MODEL_GOVERNANCE_HELP_START_HERE_CARD_TITLE}
+              </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
               <Button asChild size="sm" variant="primary">
@@ -92,12 +97,30 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
           </Card>
 
           <section
+            aria-labelledby="data-boundary"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id="data-boundary">Data boundary</HelpSectionHeading>
+            <p className={readingBodyClass} data-testid="help-model-governance-data-boundary">
+              {MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_LEAD}{" "}
+              <Link className={OPERATOR_LINK.inline} href={MODEL_GOVERNANCE_HELP_SUBPROCESSORS_HREF}>
+                Subprocessors register
+              </Link>{" "}
+              lists disclosed external engines. {MODEL_GOVERNANCE_HELP_DATA_BOUNDARY_EMBEDDINGS}{" "}
+              <Link className={OPERATOR_LINK.inline} href={MODEL_GOVERNANCE_HELP_DATA_HANDLING_HREF}>
+                Data handling help
+              </Link>{" "}
+              covers residency and retention posture.
+            </p>
+          </section>
+
+          <section
             aria-labelledby="what-model-governance-controls"
             className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
           >
             <HelpSectionHeading id="what-model-governance-controls">What model governance controls</HelpSectionHeading>
             <dl
-              className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-model-governance-feature-items"
             >
               {MODEL_GOVERNANCE_HELP_FEATURE_ITEMS.map((item) => (
@@ -115,26 +138,16 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
           >
             <HelpSectionHeading id="how-model-governance-works">{MODEL_GOVERNANCE_HELP_TOPIC_LABEL}</HelpSectionHeading>
             <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-model-governance-how-stepper"
             >
               {MODEL_GOVERNANCE_HELP_HOW_TO_READ_STEPS.map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={MODEL_GOVERNANCE_HELP_AI_USAGE_HREF}>
-                Read AI usage help →
-              </Link>
-            </p>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={MODEL_GOVERNANCE_HELP_BILLING_HREF}>
-                Read billing and plans help →
-              </Link>
-            </p>
           </section>
 
-          <ModelGovernanceHelpEvidenceOrientationStrip />
+          <ModelGovernanceHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
         </div>
 
         <HelpTopicTableOfContents headings={MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS} />

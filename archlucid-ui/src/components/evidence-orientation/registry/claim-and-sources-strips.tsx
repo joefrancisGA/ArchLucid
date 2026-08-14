@@ -807,7 +807,13 @@ export function ArchitectureDraftsHelpEvidenceOrientationStrip(): React.JSX.Elem
   );
 }
 
-export function ModelGovernanceHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type ModelGovernanceHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+};
+
+export function ModelGovernanceHelpEvidenceOrientationStrip(
+  props: ModelGovernanceHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-model-governance"
@@ -819,6 +825,8 @@ export function ModelGovernanceHelpEvidenceOrientationStrip(): React.JSX.Element
       sources={MODEL_GOVERNANCE_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
