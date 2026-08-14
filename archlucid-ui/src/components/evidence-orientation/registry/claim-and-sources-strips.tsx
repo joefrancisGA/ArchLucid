@@ -439,6 +439,14 @@ import {
   TEAMS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/teams-integration-evidence-copy";
 import {
+  TRIAL_FUNNEL_CLAIM_DISCIPLINE,
+  TRIAL_FUNNEL_CLAIM_DISCIPLINE_HEADING,
+  TRIAL_FUNNEL_CLAIM_HEADING_ID,
+  TRIAL_FUNNEL_FOLLOW_UPS_TITLE,
+  TRIAL_FUNNEL_SOURCES,
+  TRIAL_FUNNEL_SOURCES_INTRO,
+} from "@/lib/trial-funnel-evidence-copy";
+import {
   WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
   WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
@@ -760,6 +768,25 @@ export function DeploymentStatusEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={DEPLOYMENT_STATUS_FOLLOW_UPS_TITLE}
       sourcesIntro={DEPLOYMENT_STATUS_SOURCES_INTRO}
       sources={DEPLOYMENT_STATUS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function TrialFunnelEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="trial-funnel"
+      claim={TRIAL_FUNNEL_CLAIM_DISCIPLINE}
+      claimHeading={TRIAL_FUNNEL_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={TRIAL_FUNNEL_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={TRIAL_FUNNEL_FOLLOW_UPS_TITLE}
+      sourcesIntro={TRIAL_FUNNEL_SOURCES_INTRO}
+      sources={TRIAL_FUNNEL_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"

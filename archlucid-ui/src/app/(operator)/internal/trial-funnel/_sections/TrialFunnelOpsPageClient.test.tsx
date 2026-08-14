@@ -1,6 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 import { TrialFunnelOpsPageClient } from "@/app/(operator)/internal/trial-funnel/_sections/TrialFunnelOpsPageClient";
 import { TRIAL_FUNNEL_PAGE_SUBTITLE } from "@/lib/trial-funnel-metric-contract";
 
@@ -70,6 +74,7 @@ describe("TrialFunnelOpsPageClient", () => {
     render(<TrialFunnelOpsPageClient />);
 
     expect(await screen.findByText(TRIAL_FUNNEL_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("trial-funnel-claim-discipline")).toBeInTheDocument();
     expect(screen.queryByText(/no live stripe claims/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/sales-led checkout remains deferred/i)).not.toBeInTheDocument();
   });

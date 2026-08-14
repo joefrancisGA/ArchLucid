@@ -1,0 +1,57 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
+import { render, screen, within } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { TrialFunnelEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import {
+  TRIAL_FUNNEL_CANONICAL_PATH,
+  TRIAL_FUNNEL_CLAIM_DISCIPLINE,
+  TRIAL_FUNNEL_CLAIM_DISCIPLINE_HEADING,
+  TRIAL_FUNNEL_CLAIM_HEADING_ID,
+  TRIAL_FUNNEL_FOLLOW_UPS_TITLE,
+  TRIAL_FUNNEL_SOURCES,
+  TRIAL_FUNNEL_SOURCES_INTRO,
+} from "@/lib/trial-funnel-evidence-copy";
+
+describe("trial-funnel-evidence-copy", () => {
+  it("wires exports into the Trial funnel evidence strip registry", () => {
+    const registryPath = path.join(
+      process.cwd(),
+      "src/components/evidence-orientation/registry/claim-and-sources-strips.tsx",
+    );
+    const registrySource = readFileSync(registryPath, "utf8");
+
+    expect(registrySource).toContain("trial-funnel-evidence-copy");
+    expect(registrySource).toContain("TrialFunnelEvidenceOrientationStrip");
+    expect(TRIAL_FUNNEL_CANONICAL_PATH).toBe("/internal/trial-funnel");
+  });
+
+  it("renders claim discipline and operator Sources follow-ups", () => {
+    render(<TrialFunnelEvidenceOrientationStrip />);
+
+    expect(screen.getByTestId("trial-funnel-claim-discipline")).toHaveTextContent(TRIAL_FUNNEL_CLAIM_DISCIPLINE);
+    expect(screen.getByText(TRIAL_FUNNEL_SOURCES_INTRO)).toBeInTheDocument();
+
+    const sources = screen.getByTestId("trial-funnel-sources");
+
+    for (const link of TRIAL_FUNNEL_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    expect(
+      within(sources).queryByRole("link", { name: new RegExp(`^${TRIAL_FUNNEL_CANONICAL_PATH}$`, "i") }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("labels claim discipline and follow-ups for accessibility parity", () => {
+    render(<TrialFunnelEvidenceOrientationStrip />);
+
+    const claim = screen.getByTestId("trial-funnel-claim-discipline");
+    expect(claim).toHaveAttribute("aria-labelledby", TRIAL_FUNNEL_CLAIM_HEADING_ID);
+    expect(screen.getByRole("heading", { name: TRIAL_FUNNEL_CLAIM_DISCIPLINE_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: TRIAL_FUNNEL_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
+  });
+});
