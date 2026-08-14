@@ -132,6 +132,30 @@ public sealed class LearningController(
         return Ok(body);
     }
 
+    /// <summary>Planning list view bundle: summary KPIs, themes, and plans from one scoped read pass.</summary>
+    [HttpGet("list-bundle")]
+    [ProducesResponseType(typeof(LearningPlanningListBundleResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetListBundle(
+        [FromQuery] string? maxThemes,
+        [FromQuery] string? maxPlans,
+        CancellationToken cancellationToken)
+    {
+        if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int themeTake,
+                out string? themeError))
+            return this.BadRequestProblem(themeError!, ProblemTypes.ValidationFailed);
+
+        if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake,
+                out string? planError))
+            return this.BadRequestProblem(planError!, ProblemTypes.ValidationFailed);
+
+        ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
+        LearningPlanningListBundleResponse body =
+            await learningReadService.GetListBundleAsync(scope, themeTake, planTake, cancellationToken);
+
+        return Ok(body);
+    }
+
     /// <summary>
     ///     Bounded export: markdown (JSON wrapper) or structured JSON — top themes, prioritized plans, and evidence
     ///     references.

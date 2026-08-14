@@ -33,6 +33,24 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
     }
 
     [SkippableFact]
+    public async Task GetDashboard_ReturnsOk_WithAllSlices()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/dashboard");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        ProductLearningDashboardBundleResponse? body =
+            await response.Content.ReadFromJsonAsync<ProductLearningDashboardBundleResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.Summary.SummaryNotes.Should().NotBeEmpty();
+        body.Summary.TotalSignalsInScope.Should().Be(0);
+        body.Opportunities.Opportunities.Should().NotBeNull();
+        body.Trends.Trends.Should().NotBeNull();
+        body.Triage.Items.Should().NotBeNull();
+    }
+
+    [SkippableFact]
     public async Task GetSummary_InvalidSince_Returns400Problem()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/summary?since=not-a-date");
