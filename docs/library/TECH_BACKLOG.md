@@ -11,28 +11,28 @@ Regenerate after opening or closing summary-table rows:
 
 | Architectural quality | Open |
 | --- | ---: |
-| Correctness | 6 |
+| Correctness | 4 |
 | Testability | 42 |
 | Reliability | 6 |
 | Deployability | 3 |
-| AI/Agent readiness | 11 |
+| AI/Agent readiness | 9 |
 | Architectural integrity | 5 |
-| Adoption friction | 30 |
+| Adoption friction | 27 |
 | Commercial / marketability | 1 |
 | Cutting-edge AI | 3 |
 | Explainability | 2 |
-| Trustworthiness | 8 |
-| Maintainability | 6 |
+| Trustworthiness | 7 |
+| Maintainability | 5 |
 | Interoperability | 5 |
 | Performance | 3 |
-| Cost-effectiveness | 7 |
+| Cost-effectiveness | 6 |
 | Code hygiene | 2 |
 | Stickiness | 4 |
 | Differentiability | 4 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **155** |
+| **Total (unique open)** | **145** |
 
-**By priority band:** P0 **1** | P1 **30** | P2 **105** | P3 **12** | unlabeled **7**.
+**By priority band:** P0 **0** | P1 **21** | P2 **105** | P3 **12** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1632,7 +1632,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1753 | **Done** (2026-08-13) — subprocessors IA dual job matrix vs DPA / Trust; Vitest; see ## TB-1753 below | Adoption friction P1 ? **V1**; with **TB-1751**; pairs **TB-1676**/**TB-1679** | S |
 | TB-1754 | **Done** (2026-08-13) — subprocessors single H1 + Help Center product tier; Vitest; see ## TB-1754 below | Adoption friction P1 ? **V1**; with **TB-1751** | S |
 | TB-1759 | **Done** (2026-08-13) — Azure Boards page-help inbound → canonical `/help/azure-boards`; see ## TB-1759 below | Adoption friction P1 ? **V1**; with **TB-1756**; pairs **TB-1623**/**TB-1701** | S |
-| TB-1768 | Azure cloud detail ? page-help ? `/help/cloud-connections/azure`; see ## TB-1768 below | Adoption friction P1 ? **V1**; with **TB-1766**; pairs **TB-1629** | S |
+| TB-1768 | **Done** (2026-08-14) — Azure cloud detail page-help → `/help/cloud-connections/azure`; Vitest TB-1768; see ## TB-1768 below | Adoption friction P1 ? **V1**; with **TB-1766**; pairs **TB-1629** | S |
 | TB-1795 | **Done** (2026-08-13) — Docs/help login language → `/auth/signin` (keep shim); see ## TB-1795 below | Trustworthiness P1 ? **V1**; with **TB-1791**; pairs **TB-1614** (do not reopen) | S |
 | TB-1994 | **Done** (2026-08-13) — Overview empty: collapse duplicate Learn how / View workflow (same `/help/core-pilot`); see ## TB-1994 below | Adoption friction P1 ? **V1**; owner screenshot 2026-07-28; residual after Done **TB-1038** | S |
 | TB-1415 | **Done** (2026-08-13) — Anti-bare-HelpTopicMarkdownView / ungated-technical-doc honesty CI + ≤~50 inventory drift guard; see `## TB-1415` below | Testability P1 — **V1**; after **TB-1414**; pairs **M-251** | S |
@@ -42954,13 +42954,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1768 ? Azure cloud detail ? page-help ? `/help/cloud-connections/azure` (P0)
 
-**Window:** V1 ? Adoption friction. **Status:** Not started. **Priority:** P0.
+**Window:** V1 ? Adoption friction. **Status:** **Done** (2026-08-14). **Priority:** P1 (summary table).
 
 **Problem:** Page-help / inbound may map to `/help/azure-permissions` (open **TB-1629** dual) instead of Connect Azure securely.
 
 **Approach:** Canonical help href `/help/cloud-connections/azure`; permissions as secondary. Vitest: primary help link slug. Do not reopen **TB-1626**?**TB-1630**.
 
 **Acceptance:** Help opens Connect Azure securely first. **Size estimate:** S.
+
+**Shipped:** Page-help map row for `/integrations/cloud-connections/azure` → `cloud-connections-azure` (shipped with **TB-1629**); explicit TB-1768 Vitest in `operator-integrations-page-help-surfaces.test.ts` asserts primary href `/help/cloud-connections/azure`, not `/help/azure-permissions`.
 
 ---
 

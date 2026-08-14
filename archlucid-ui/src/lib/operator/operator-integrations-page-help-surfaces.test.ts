@@ -7,6 +7,7 @@ import { OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES } from "@/lib/operator/
 import { isGenericLearnMoreSlug } from "@/lib/learn-more-job-match-inventory";
 import { CONNECT_AZURE_SECURELY_HELP_TOPIC_LABEL } from "@/lib/cloud-provider-connection-evidence-copy";
 import { CLOUD_CONNECTIONS_HELP_TOPIC_LABEL } from "@/lib/cloud-connections-evidence-copy";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { CONNECT_AWS_SECURELY_HELP_TOPIC_LABEL } from "@/lib/connect-aws-securely-help-evidence-copy";
 import { CONNECT_GCP_SECURELY_HELP_TOPIC_LABEL } from "@/lib/connect-gcp-securely-help-evidence-copy";
 import { PATTERN_LIBRARY_HELP_TOPIC_LABEL } from "@/lib/pattern-library-evidence-copy";
@@ -62,6 +63,14 @@ describe("operator-integrations-page-help-surfaces (TB-1669)", () => {
     const source = readSrcModule(modulePath);
 
     expect(source).toContain("PageContextualHelpButton");
+  });
+
+  it("Azure cloud detail page-help opens Connect Azure securely first (TB-1768)", () => {
+    const topic = pageHelpTopicForPathname("/integrations/cloud-connections/azure");
+
+    expect(topic?.slug).toBe("cloud-connections-azure");
+    expect(inAppHelpHref(topic!.slug)).toBe("/help/cloud-connections/azure");
+    expect(inAppHelpHref(topic!.slug)).not.toBe("/help/azure-permissions");
   });
 
   it("cloud provider children map to provider-specific topics (TB-1669)", () => {
