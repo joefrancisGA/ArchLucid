@@ -507,7 +507,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("maps_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("data_share", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("digital_twins", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("media_services", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("media_services", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("elastic_san", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool LooksLikeTerraformServiceSourceId(string? sourceId)
@@ -553,7 +554,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("web_pubsub", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("healthbot", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("notification_hub", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("notification_hub", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("fluid_relay", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDatastoreCategory(string? category) =>
