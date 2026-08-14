@@ -49252,7 +49252,7 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 
 ---
 
-## TB-2107 ? Per-engine tokenizer and USD rate profiles (P2)
+## TB-2107 ? Per-engine tokenizer and USD rate profiles (P2) — **Done** 2026-08-14
 
 **Window:** V1.1 ? ADR 0065 D6. After **TB-2103**.
 
