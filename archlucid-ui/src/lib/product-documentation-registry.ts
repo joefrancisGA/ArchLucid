@@ -692,10 +692,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "AI usage",
     summary: "Estimated AI spend, budget signals, and workflow cost filters for the workspace.",
     audience: "operator",
-    sourcePaths: [
-      "archlucid-ui/src/lib/ai-usage-help-guide-content.ts",
-      "archlucid-ui/src/lib/ai-usage-help-evidence-copy.ts",
-    ],
+    sourcePaths: [],
     lastReviewed: "2026-08-13",
     releaseApplicability: "Administration · AI usage orientation",
   },
@@ -704,10 +701,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "Preferences",
     summary: "Personal appearance settings saved to your signed-in account.",
     audience: "operator",
-    sourcePaths: [
-      "archlucid-ui/src/lib/preferences-help-guide-content.ts",
-      "archlucid-ui/src/lib/preferences-help-evidence-copy.ts",
-    ],
+    sourcePaths: [],
     lastReviewed: "2026-08-13",
     releaseApplicability: "Administration · preferences orientation",
   },

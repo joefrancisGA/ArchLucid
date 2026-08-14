@@ -35,6 +35,17 @@ describe("help-topic-content-loader (TB-2238)", () => {
     expect(loaded!.markdown).toBe("");
   });
 
+  it.each(["preferences", "ai-usage"] as const)(
+    "loads app-guided administration topic %s without repo markdown",
+    (slug) => {
+      const loaded = loadHelpTopicContent(slug);
+
+      expect(loaded).not.toBeNull();
+      expect(loaded!.contentKind).toBe("app-guided");
+      expect(loaded!.markdown).toBe("");
+    },
+  );
+
   it("classifies markdown topics with layout strips", () => {
     const entry = getProductDocumentationEntry("security-trust");
 
