@@ -17,6 +17,7 @@ public static class CrossAgentProposalConsistencyGate
             .OrderBy(static result => GetMergeOrder(result.AgentType))
             .ToList();
 
+        HashSet<string> declaredBatchEndpointKeys = CollectDeclaredBatchEndpointKeys(ordered);
         HashSet<string> claimedServiceEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> claimedDatastoreEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> claimedRequiredControls = new(StringComparer.OrdinalIgnoreCase);
@@ -32,9 +33,48 @@ public static class CrossAgentProposalConsistencyGate
             proposal.AddedDatastores = ClaimDatastores(proposal.AddedDatastores, claimedDatastoreEndpointKeys);
             proposal.RequiredControls = ClaimRequiredControls(proposal.RequiredControls, claimedRequiredControls);
             proposal.AddedRelationships = FilterRelationships(
+                declaredBatchEndpointKeys,
                 claimedServiceEndpointKeys,
                 claimedDatastoreEndpointKeys,
                 proposal);
+        }
+    }
+
+    private static HashSet<string> CollectDeclaredBatchEndpointKeys(IReadOnlyList<AgentResult> orderedResults)
+    {
+        HashSet<string> endpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (AgentResult result in orderedResults)
+        {
+            AgentTopologyProposal? proposal = result.ProposedChanges;
+
+            if (proposal is null)
+                continue;
+
+            RegisterDeclaredProposalEndpointKeys(proposal, endpointKeys);
+        }
+
+        return endpointKeys;
+    }
+
+    private static void RegisterDeclaredProposalEndpointKeys(
+        AgentTopologyProposal proposal,
+        HashSet<string> endpointKeys)
+    {
+        if (proposal.AddedServices is { Count: > 0 })
+        {
+            foreach (ManifestService service in proposal.AddedServices)
+            {
+                TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(endpointKeys, service);
+            }
+        }
+
+        if (proposal.AddedDatastores is { Count: > 0 })
+        {
+            foreach (ManifestDatastore datastore in proposal.AddedDatastores)
+            {
+                TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(endpointKeys, datastore);
+            }
         }
     }
 
@@ -103,6 +143,7 @@ public static class CrossAgentProposalConsistencyGate
     }
 
     private static List<ManifestRelationship> FilterRelationships(
+        HashSet<string> declaredBatchEndpointKeys,
         HashSet<string> claimedServiceEndpointKeys,
         HashSet<string> claimedDatastoreEndpointKeys,
         AgentTopologyProposal proposal)
@@ -112,15 +153,21 @@ public static class CrossAgentProposalConsistencyGate
         if (relationships is null || relationships.Count == 0)
             return [];
 
-        IEnumerable<string> priorClaimedEndpointKeys = claimedServiceEndpointKeys.Concat(claimedDatastoreEndpointKeys);
+        HashSet<string> validationEndpointKeys = new(declaredBatchEndpointKeys, StringComparer.OrdinalIgnoreCase);
+
+        foreach (string endpointKey in claimedServiceEndpointKeys.Concat(claimedDatastoreEndpointKeys))
+        {
+            if (!string.IsNullOrWhiteSpace(endpointKey))
+                validationEndpointKeys.Add(endpointKey);
+        }
 
         if (!ProposalDeclaresEndpoints(proposal))
         {
-            if (!priorClaimedEndpointKeys.Any())
+            if (validationEndpointKeys.Count == 0)
                 return [.. relationships];
 
             return TopologyProposalRelationshipEndpointIndex.FilterKnownRelationships(
-                priorClaimedEndpointKeys,
+                validationEndpointKeys,
                 proposal.AddedServices ?? [],
                 proposal.AddedDatastores ?? [],
                 relationships);
@@ -130,9 +177,7 @@ public static class CrossAgentProposalConsistencyGate
             proposal.AddedServices ?? [],
             proposal.AddedDatastores ?? []);
 
-        HashSet<string> validationEndpointKeys = new(declaredEndpointKeys, StringComparer.OrdinalIgnoreCase);
-
-        foreach (string endpointKey in priorClaimedEndpointKeys)
+        foreach (string endpointKey in declaredEndpointKeys)
         {
             if (!string.IsNullOrWhiteSpace(endpointKey))
                 validationEndpointKeys.Add(endpointKey);

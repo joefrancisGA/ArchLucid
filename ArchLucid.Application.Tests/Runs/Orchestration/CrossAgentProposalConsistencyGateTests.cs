@@ -516,4 +516,132 @@ public sealed class CrossAgentProposalConsistencyGateTests
         cost.ProposedChanges!.AddedRelationships.Should().ContainSingle();
         cost.ProposedChanges.AddedRelationships![0].TargetId.Should().Be("renamed-sql");
     }
+
+    [Fact]
+    public void ApplyToResults_strips_topology_relationship_only_follow_up_when_endpoints_are_not_declared_in_batch()
+    {
+        AgentResult declaration = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    }
+                ],
+            }
+        };
+
+        AgentResult followUp = new()
+        {
+            ResultId = "topology-2",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = "renamed-sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    }
+                ],
+            }
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([followUp, declaration]);
+
+        followUp.ProposedChanges!.AddedRelationships.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ApplyToResults_preserves_topology_relationship_only_follow_up_when_rename_aliases_are_declared_later_in_batch()
+    {
+        AgentResult declaration = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    }
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "renamed-sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    }
+                ],
+            }
+        };
+
+        AgentResult followUp = new()
+        {
+            ResultId = "topology-2",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = "renamed-sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    }
+                ],
+            }
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([followUp, declaration]);
+
+        followUp.ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
 }
