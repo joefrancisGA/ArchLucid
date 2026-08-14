@@ -50,6 +50,7 @@ import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evide
 import {
   INTERNAL_DEMO_READINESS_PATH,
   INTERNAL_DEPLOYMENT_STATUS_PATH,
+  INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
   INTERNAL_PRICING_QUOTE_AGING_PATH,
   INTERNAL_REPLAY_PATH,
   INTERNAL_TENANT_HEALTH_PATH,
@@ -632,6 +633,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   {
     prefix: "/internal/failed-integration-messages",
     topic: { slug: "integration-readiness", label: INTEGRATION_EVENTS_DLQ_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
+    topic: { slug: "policy-packs", label: POLICY_PACKS_HELP_TOPIC_LABEL },
   },
   { prefix: "/administration/system-health", topic: { slug: "system-health", label: SYSTEM_HEALTH_HELP_TOPIC_LABEL } },
   { prefix: "/internal/integrations/itsm", topic: { slug: "integration-readiness", label: ITSM_CONNECTORS_HELP_TOPIC_LABEL } },
