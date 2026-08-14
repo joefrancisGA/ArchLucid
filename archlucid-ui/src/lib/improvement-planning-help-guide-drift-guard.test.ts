@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import { IMPROVEMENT_PLANNING_HELP_SOURCES } from "@/lib/improvement-planning-help-evidence-copy";
 import { IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE } from "@/lib/improvement-planning-help-evidence-copy";
 import {
+  IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION,
   IMPROVEMENT_PLANNING_HELP_NEGATION_DRIFT_MARKERS,
+  IMPROVEMENT_PLANNING_HELP_HOW_TO_READ_STEPS,
   IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS,
   IMPROVEMENT_PLANNING_HELP_OVERVIEW,
   IMPROVEMENT_PLANNING_HELP_PAGE_SUBTITLE,
@@ -94,5 +96,22 @@ describe("improvement-planning help negation drift guard", () => {
       true,
     );
     expect(productLearningSource?.adminOnly).toBe(true);
+  });
+
+  it("aligns product learning tile label with the stacked sources link and avoids run/job phrasing", () => {
+    const productLearningTile = IMPROVEMENT_PLANNING_HELP_SHOW_TILE_ITEMS.find((item) => item.href.includes("product-learning"));
+    const productLearningSource = IMPROVEMENT_PLANNING_HELP_SOURCES.find((source) => source.label === "Product learning");
+
+    expect(productLearningTile?.label).toBe("Product learning");
+    expect(productLearningTile?.href).toBe(productLearningSource?.href);
+
+    const guideCopy = [
+      IMPROVEMENT_PLANNING_HELP_OVERVIEW,
+      IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION,
+      IMPROVEMENT_PLANNING_HELP_HOW_TO_READ_STEPS.join(" "),
+    ].join(" ");
+
+    expect(guideCopy.toLowerCase()).not.toContain("run pilot feedback");
+    expect(guideCopy.toLowerCase()).not.toContain("run pilot feedback analysis");
   });
 });

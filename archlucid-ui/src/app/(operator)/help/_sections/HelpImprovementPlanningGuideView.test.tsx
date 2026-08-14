@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -82,8 +82,20 @@ describe("HelpImprovementPlanningGuideView", () => {
     }
 
     for (const source of IMPROVEMENT_PLANNING_HELP_SOURCES) {
-      const linkName = source.adminOnly === true ? new RegExp(source.label, "i") : source.label;
-      expect(screen.getByRole("link", { name: linkName })).toHaveAttribute("href", source.href);
+      const sourcesRegion = within(screen.getByTestId("help-improvement-planning-sources"));
+      const linkName =
+        source.adminOnly === true ? new RegExp(`${source.label}.*Admin`, "i") : source.label;
+      expect(sourcesRegion.getByRole("link", { name: linkName })).toHaveAttribute("href", source.href);
     }
+
+    const productLearningTile = IMPROVEMENT_PLANNING_HELP_SHOW_TILE_ITEMS.find(
+      (item) => item.label === "Product learning",
+    );
+    expect(productLearningTile).toBeDefined();
+    expect(
+      within(screen.getByTestId("help-improvement-planning-show-tile-items")).getByRole("link", {
+        name: "Product learning",
+      }),
+    ).toHaveAttribute("href", productLearningTile?.href);
   });
 });

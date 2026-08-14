@@ -21,7 +21,7 @@ export const IMPROVEMENT_PLANNING_HELP_OVERVIEW =
   "Improvement planning turns captured review feedback into recurring themes, prioritized improvement plans, and exportable summaries for architects and product triage.";
 
 export const IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION =
-  "Capture review feedback or run pilot feedback analysis before themes and prioritized plans can be derived.";
+  "Capture review feedback or record pilot feedback in product learning before themes and prioritized plans can be derived.";
 
 /** Compact feedback tag beside the Start here primary action. */
 export const IMPROVEMENT_PLANNING_HELP_FEEDBACK_PRECONDITION_TAG = "Captured feedback";
@@ -61,8 +61,8 @@ export const IMPROVEMENT_PLANNING_HELP_SHOW_TILE_ITEMS: readonly ImprovementPlan
     href: IMPROVEMENT_PLANNING_HELP_PLANS_HREF,
   },
   {
-    label: "Pilot feedback",
-    detail: "Product-learning surfaces complement planning when pilots need aggregate signals.",
+    label: "Product learning",
+    detail: "Record pilot feedback signals in product learning when pilots need aggregate triage before themes appear.",
     href: PRODUCT_LEARNING_PATH,
   },
   {
@@ -91,7 +91,7 @@ export const IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS: readonly ImprovementPl
 ] as const;
 
 export const IMPROVEMENT_PLANNING_HELP_HOW_TO_READ_STEPS = [
-  "Capture review feedback or run pilot feedback analysis to generate themes.",
+  "Capture review feedback or record pilot feedback in product learning to generate themes.",
   "Open a theme or plan row to read status and linked review context.",
   "Return to reviews or findings when a plan needs execution or governance follow-up.",
 ] as const;
