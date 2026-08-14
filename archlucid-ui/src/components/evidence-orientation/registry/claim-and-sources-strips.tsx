@@ -391,6 +391,14 @@ import {
   POLICY_PACKS_HELP_SOURCES_INTRO,
 } from "@/lib/policy/policy-packs-help-evidence-copy";
 import {
+  PRICING_QUOTE_AGING_CLAIM_DISCIPLINE,
+  PRICING_QUOTE_AGING_CLAIM_DISCIPLINE_HEADING,
+  PRICING_QUOTE_AGING_CLAIM_HEADING_ID,
+  PRICING_QUOTE_AGING_FOLLOW_UPS_TITLE,
+  PRICING_QUOTE_AGING_SOURCES,
+  PRICING_QUOTE_AGING_SOURCES_INTRO,
+} from "@/lib/pricing-quote-aging-evidence-copy";
+import {
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE,
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE_HEADING,
   REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID,
@@ -776,6 +784,25 @@ export function DeploymentStatusEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={DEPLOYMENT_STATUS_FOLLOW_UPS_TITLE}
       sourcesIntro={DEPLOYMENT_STATUS_SOURCES_INTRO}
       sources={DEPLOYMENT_STATUS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+    />
+  );
+}
+
+export function PricingQuoteAgingEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="pricing-quote-aging"
+      claim={PRICING_QUOTE_AGING_CLAIM_DISCIPLINE}
+      claimHeading={PRICING_QUOTE_AGING_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={PRICING_QUOTE_AGING_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={PRICING_QUOTE_AGING_FOLLOW_UPS_TITLE}
+      sourcesIntro={PRICING_QUOTE_AGING_SOURCES_INTRO}
+      sources={PRICING_QUOTE_AGING_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
