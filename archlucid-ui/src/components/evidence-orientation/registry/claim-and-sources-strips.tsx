@@ -381,6 +381,9 @@ import {
 import { WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/webhooks-integration-help-guide-content";
 import {
   ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE,
+  ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING,
+  ITSM_OAUTH_CALLBACK_CLAIM_HEADING_ID,
+  ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE,
   ITSM_OAUTH_CALLBACK_SOURCES,
   ITSM_OAUTH_CALLBACK_SOURCES_INTRO,
 } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
@@ -1304,8 +1307,16 @@ export function ItsmOAuthCallbackEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="itsm-oauth-callback"
       claim={ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE}
+      claimHeading={ITSM_OAUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={ITSM_OAUTH_CALLBACK_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE}
       sourcesIntro={ITSM_OAUTH_CALLBACK_SOURCES_INTRO}
       sources={ITSM_OAUTH_CALLBACK_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
