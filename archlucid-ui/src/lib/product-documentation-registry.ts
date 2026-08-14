@@ -703,7 +703,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",
-    releaseApplicability: "Administration · preferences orientation",
+    releaseApplicability: "Scope: personal account settings · Audience: all signed-in users",
   },
   {
     slug: "notifications",

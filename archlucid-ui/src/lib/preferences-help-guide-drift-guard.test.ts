@@ -81,8 +81,10 @@ describe("preferences help negation drift guard", () => {
 
     expect(tileLabels).not.toContain("Sign-in methods");
     expect(tileLabels).not.toContain("Onboarding");
-    expect(tileLabels).not.toContain("Personal scope");
+    expect(tileLabels).not.toContain("Appearance card");
+    expect(tileLabels).not.toContain("Account sync");
     expect(new Set(tileLabels).size).toBe(tileLabels.length);
+    expect(tileLabels).toHaveLength(2);
   });
 
   it("links the primary action to preferences settings", () => {
@@ -91,6 +93,7 @@ describe("preferences help negation drift guard", () => {
 
   it("lists stacked preference sources with real routes and no self-href", () => {
     const sourceHrefs = PREFERENCES_HELP_SOURCES.map((source) => source.href);
+    const sourceLabels = PREFERENCES_HELP_SOURCES.map((source) => source.label);
 
     expect(new Set(sourceHrefs).size).toBe(sourceHrefs.length);
     expect(PREFERENCES_HELP_SOURCES.every((source) => source.href.startsWith("/"))).toBe(true);
@@ -99,6 +102,8 @@ describe("preferences help negation drift guard", () => {
     );
     expect(sourceHrefs).not.toContain("/administration/preferences");
     expect(sourceHrefs).not.toContain("/help/preferences");
+    expect(sourceHrefs).not.toContain("/administration/users");
+    expect(sourceLabels).not.toContain("Users and roles");
   });
 
   it("avoids API vocabulary in how-to steps and keeps role precondition in Start here copy", () => {
@@ -111,5 +116,7 @@ describe("preferences help negation drift guard", () => {
 
     expect(guideCopy.toLowerCase()).not.toContain("api responds");
     expect(guideCopy.toLowerCase()).not.toContain("preferences api");
+    expect(guideCopy.toLowerCase()).not.toContain("supported devices");
+    expect(guideCopy.toLowerCase()).not.toContain("stacked");
   });
 });

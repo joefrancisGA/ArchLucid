@@ -26,11 +26,6 @@ export const PREFERENCES_HELP_SOURCES: readonly EvidenceOrientationLink[] = [
     when: "Open account security when sign-in controls need attention",
   },
   {
-    label: "Users and roles",
-    href: "/administration/users",
-    when: "Confirm workspace roles when access questions extend beyond personal settings",
-  },
-  {
     label: "How ArchLucid works",
     href: inAppHelpHref("getting-started", "how-archlucid-works"),
     when: "Read product orientation when preferences are not the primary question",

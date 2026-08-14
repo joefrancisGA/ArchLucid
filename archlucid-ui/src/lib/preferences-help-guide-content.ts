@@ -7,7 +7,7 @@ export const PREFERENCES_HELP_PAGE_TITLE = "Preferences";
 export const PREFERENCES_HELP_PAGE_SUBTITLE = "Personal settings saved to your account.";
 
 export const PREFERENCES_HELP_OVERVIEW =
-  "Preferences stores personal appearance choices for your signed-in profile. Saved theme selections apply across supported devices when you are signed in.";
+  "Preferences stores personal appearance choices for your signed-in profile. Theme selections save to your account and apply the next time you sign in on any browser.";
 
 export const PREFERENCES_HELP_START_HERE_CARD_TITLE = "Start here";
 
@@ -35,12 +35,8 @@ export const PREFERENCES_HELP_TILE_ITEMS: readonly PreferencesHelpTileItem[] = [
     detail: "Light, dark, or system appearance saved to your account.",
   },
   {
-    label: "Appearance card",
-    detail: "The preferences page groups theme controls under a single appearance section.",
-  },
-  {
-    label: "Account sync",
-    detail: "Saved preferences apply across supported devices when you are signed in.",
+    label: "Personal scope",
+    detail: "Changes apply only to your signed-in profile — not workspace governance or tenant defaults.",
   },
 ] as const;
 
@@ -60,7 +56,7 @@ export const PREFERENCES_HELP_CHANGES_ITEMS: readonly PreferencesHelpTileItem[] 
 export const PREFERENCES_HELP_HOW_TO_READ_STEPS = [
   "Choose a theme that matches how you review architecture evidence.",
   "Save appearance choices and confirm the preferences page reflects your selection.",
-  "Follow stacked follow-ups when personal settings turn into onboarding, account security, or assurance questions.",
+  "Use the related links below when personal settings lead to onboarding, account security, or assurance questions.",
 ] as const;
 
 export const PREFERENCES_HELP_CLAIM_HEADING_ID = "help-preferences-claim-discipline-heading" as const;
