@@ -29,6 +29,12 @@ describe("slack integration help drift guard", () => {
     }
   });
 
+  it("states explicit exclusions with negation markers", () => {
+    for (const marker of SLACK_INTEGRATION_HELP_NEGATION_DRIFT_MARKERS.claimMustContainNegation) {
+      expect(SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE.toLowerCase()).toContain(marker);
+    }
+  });
+
   it("uses distinct Start here card title and primary action label", () => {
     expect(SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE).not.toBe(SLACK_INTEGRATION_HELP_PRIMARY_ACTION.label);
   });
@@ -60,6 +66,8 @@ describe("slack integration help drift guard", () => {
 
     expect(new Set(sourceHrefs).size).toBe(sourceHrefs.length);
     expect(SLACK_INTEGRATION_HELP_SOURCES.every((source) => source.href.startsWith("/"))).toBe(true);
+    expect(SLACK_INTEGRATION_HELP_SOURCES.every((source) => source.when.trim().length > 0)).toBe(true);
     expect(sourceHrefs).not.toContain("/integrations/slack");
+    expect(sourceHrefs).not.toContain("/help/slack-integration");
   });
 });

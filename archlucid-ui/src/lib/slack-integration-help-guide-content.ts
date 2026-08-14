@@ -13,8 +13,6 @@ import {
   SLACK_SETUP_STEP_SEND_TEST,
 } from "@/lib/slack-integration-page-copy";
 
-export const SLACK_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE = "Slack integration";
-
 export const SLACK_INTEGRATION_HELP_PAGE_TITLE = SLACK_INTEGRATION_PAGE_TITLE;
 
 export const SLACK_INTEGRATION_HELP_PAGE_SUBTITLE = SLACK_INTEGRATION_PAGE_SUBTITLE;
@@ -23,9 +21,16 @@ export const SLACK_INTEGRATION_HELP_OVERVIEW = SLACK_INTEGRATION_HELP_SUMMARY;
 
 export const SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE = "Start here";
 
-export const SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION_TAG = "Incoming webhook";
-
 export const SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION = SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP;
+
+export const SLACK_INTEGRATION_HELP_READINESS_SECTION_TITLE = "Workspace Slack status";
+
+export const SLACK_INTEGRATION_HELP_READINESS_FORBIDDEN_MESSAGE =
+  "Workspace Slack destination status is not available at your current permission level.";
+
+export const SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_TITLE = "Credential handling";
+
+export const SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_BODY = SLACK_INTEGRATION_SECURITY_NOTE;
 
 export const SLACK_INTEGRATION_HELP_PRIMARY_ACTION = {
   label: "Open Slack notifications",
@@ -59,16 +64,12 @@ export const SLACK_INTEGRATION_HELP_FEATURE_ITEMS: readonly SlackIntegrationHelp
     label: "Alert routing",
     detail: "Governance events post when matching alert rules fire and this destination stays enabled.",
   },
-  {
-    label: "Credential handling",
-    detail: SLACK_INTEGRATION_SECURITY_NOTE,
-  },
 ] as const;
 
 export const SLACK_INTEGRATION_HELP_HOW_TO_READ_STEPS = [
-  "Governance alerts post to enabled destinations when matching alert rules fire.",
   "Review delivery history on the Slack notifications page when channels miss expected posts.",
-  "Open Integration readiness when Slack is one of several connectors under procurement review.",
+  "Enabled destinations post when matching alert rules fire; disabled destinations pause delivery without deleting saved webhook URLs.",
+  "Failed test notifications usually mean the webhook URL, Slack app permissions, or channel access — fix those on the Slack notifications page before re-enabling alert routing.",
 ] as const;
 
 export const SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID = "help-slack-integration-claim-discipline-heading" as const;
@@ -88,4 +89,5 @@ export const SLACK_INTEGRATION_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading
 /** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
 export const SLACK_INTEGRATION_HELP_NEGATION_DRIFT_MARKERS = {
   claimMustNotContain: ["sources package", "sealed-review diligence"],
+  claimMustContainNegation: ["does not"],
 } as const;

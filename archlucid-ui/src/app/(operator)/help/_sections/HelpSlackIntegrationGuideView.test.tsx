@@ -5,15 +5,27 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/app/(operator)/help/_sections/HelpSlackIntegrationWorkspaceReadinessStrip", () => ({
+  HelpSlackIntegrationWorkspaceReadinessStrip: (props: { readonly showSetupPrecondition?: boolean }) => (
+    <div
+      data-show-setup-precondition={props.showSetupPrecondition === true ? "true" : "false"}
+      data-testid="help-slack-integration-workspace-readiness"
+    >
+      <div data-testid="help-slack-integration-workspace-readiness-status">Not configured</div>
+    </div>
+  ),
+}));
+
 import { HelpSlackIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpSlackIntegrationGuideView";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID,
+  SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_BODY,
+  SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_TITLE,
   SLACK_INTEGRATION_HELP_GUIDE_HEADINGS,
   SLACK_INTEGRATION_HELP_PRIMARY_ACTION,
   SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE,
-  SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION,
-  SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION_TAG,
 } from "@/lib/slack-integration-help-guide-content";
 import {
   SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE,
@@ -25,7 +37,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 describe("HelpSlackIntegrationGuideView", () => {
   const entry = getProductDocumentationEntry("slack-integration");
 
-  it("renders provenance, start-here card, readingBody, TOC sections, and stacked sources", () => {
+  it("renders provenance, header action, readiness strip, credential disclosure, TOC, and prefixed follow-ups", () => {
     if (entry === undefined) {
       throw new Error("Expected slack-integration documentation entry.");
     }
@@ -34,18 +46,18 @@ describe("HelpSlackIntegrationGuideView", () => {
 
     expect(screen.getByTestId("help-slack-integration-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Last reviewed 2026-08-13 · integrations slack notifications orientation",
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Last reviewed 2026-08-13");
+    expect(screen.getByTestId("help-topic-registry-provenance")).not.toHaveTextContent(
+      "integrations slack notifications orientation",
     );
-    expect(screen.getByTestId("help-slack-integration-webhook-precondition")).toHaveTextContent(
-      SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION,
-    );
-    expect(screen.getByTestId("help-slack-integration-webhook-precondition-tag")).toHaveTextContent(
-      SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION_TAG,
-    );
+    expect(screen.getByTestId("help-slack-integration-workspace-readiness")).toBeInTheDocument();
+    expect(screen.getByTestId("help-slack-integration-workspace-readiness-status")).toBeInTheDocument();
     expect(screen.getByTestId("help-slack-integration-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
     expect(screen.getByTestId("help-slack-integration-claim-discipline").textContent?.toLowerCase()).not.toContain(
       "sources package",
+    );
+    expect(screen.getByTestId("help-slack-integration-claim-discipline").textContent?.toLowerCase()).toContain(
+      "does not",
     );
     expect(screen.getByTestId("help-slack-integration-claim-discipline").textContent).toContain(
       SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE.slice(0, 40),
@@ -54,33 +66,34 @@ describe("HelpSlackIntegrationGuideView", () => {
       "id",
       SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID,
     );
+    expect(screen.getAllByRole("link", { name: SLACK_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
     expect(screen.getByRole("link", { name: SLACK_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
       "href",
       SLACK_INTEGRATION_HELP_PRIMARY_ACTION.href,
     );
-    expect(screen.getAllByRole("link", { name: SLACK_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
     expect(
       screen.getByRole("heading", { level: 2, name: SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Set up Slack notifications" })).toBeInTheDocument();
     expect(screen.getByTestId("help-slack-integration-setup-stepper")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Open alert rules" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Open alert rules →" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-slack-integration-credential-handling-details")).toHaveTextContent(
+      SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_TITLE,
+    );
+    expect(screen.getByTestId("help-slack-integration-credential-handling-details")).toHaveTextContent(
+      SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_BODY,
+    );
 
     for (const source of SLACK_INTEGRATION_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+
+      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+      expect(screen.getByText(source.when)).toBeInTheDocument();
     }
 
-    expect(screen.getAllByRole("link", { name: "Alert rules" })).toHaveLength(1);
-    const integrationReadinessSource = SLACK_INTEGRATION_HELP_SOURCES.find(
-      (source) => source.label === "Integration readiness",
-    );
-    expect(integrationReadinessSource).toBeDefined();
-    expect(screen.getByRole("link", { name: "Integration readiness" })).toHaveAttribute(
-      "href",
-      integrationReadinessSource?.href,
-    );
+    expect(screen.getByRole("link", { name: "Open Alert rules" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Read How alerts work" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Read Security and trust help" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Slack notifications" })).not.toBeInTheDocument();
 
     for (const heading of SLACK_INTEGRATION_HELP_GUIDE_HEADINGS) {

@@ -11,7 +11,7 @@ export const SLACK_INTEGRATION_HELP_CANONICAL_PATH = "/help/slack-integration" a
 export const SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how Slack destinations route governance alerts — configure incoming webhooks, test delivery, then open Alert rules or Integration readiness when routing or procurement setup needs follow-up.";
+  "This guide explains Slack incoming-webhook destinations for governance alerts. It does not cover Slack app installation or workspace admin, per-channel Slack permissions, delivery retry guarantees, or which governance events fire — those live on Alert rules and in Slack admin.";
 
 export const SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
@@ -43,5 +43,10 @@ export const SLACK_INTEGRATION_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen
     label: "How alerts work",
     href: inAppHelpHref("alerts"),
     when: "Understand alert inbox behavior before changing routing rules",
+  },
+  {
+    label: "Security and trust help",
+    href: inAppHelpHref("security-trust"),
+    when: "Read how ArchLucid stores webhook credentials and tenant isolation posture",
   },
 ] as const;
