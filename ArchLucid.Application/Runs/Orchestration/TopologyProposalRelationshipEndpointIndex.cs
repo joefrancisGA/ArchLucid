@@ -492,6 +492,7 @@ public static class TopologyProposalRelationshipEndpointIndex
         string normalized = sourceId.Trim();
 
         return normalized.Contains("app_service", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("api_management", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("function_app", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("container_app", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("linux_web_app", StringComparison.OrdinalIgnoreCase)
