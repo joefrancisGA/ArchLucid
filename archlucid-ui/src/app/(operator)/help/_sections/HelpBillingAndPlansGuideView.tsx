@@ -13,6 +13,8 @@ import {
 } from "@/app/(operator)/help/_sections/HelpBillingCurrentPlanCard";
 import { HelpBillingAndPlansPageHeader } from "@/app/(operator)/help/_sections/HelpBillingAndPlansPageHeader";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { BillingAndPlansHelpEvidenceOrientationStrip } from "@/components/help/BillingAndPlansHelpEvidenceOrientationStrip";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,6 +25,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   BILLING_HELP_FAQ_ITEMS,
+  BILLING_HELP_GUIDE_HEADINGS,
   BILLING_HELP_HOW_BILLING_WORKS_ITEMS,
   BILLING_HELP_OVERVIEW,
   BILLING_HELP_REFRESH_ERROR_MESSAGE,
@@ -38,7 +41,7 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
 } from "@/lib/design-tokens";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { showError } from "@/lib/toast";
@@ -120,6 +123,8 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
     });
   }, []);
 
+  const contentGridClass = resolveHelpPageContentGridClass(BILLING_HELP_GUIDE_HEADINGS.length);
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     setRefreshError(null);
@@ -160,78 +165,84 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
         />
       </div>
 
-      <div className={cn("space-y-6", "w-full max-w-[52rem]")}>
-        <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-billing-overview">
-          {BILLING_HELP_OVERVIEW}
-        </p>
-
-        <section
-          aria-labelledby="how-billing-works"
-          className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-        >
-          <HelpSectionHeading id="how-billing-works">How billing works</HelpSectionHeading>
-          <ul
-            className={cn("m-0 list-none space-y-3 p-0", HELP_PAGE_LAYOUT.readingBody)}
-            data-testid="help-billing-how-it-works"
-          >
-            {BILLING_HELP_HOW_BILLING_WORKS_ITEMS.map((item) => (
-              <li
-                key={item.id}
-                className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
-              >
-                <h3 className={cn("m-0", HELP_PAGE_LAYOUT.sectionH3)}>{item.title}</h3>
-                <p className={cn("m-0 mt-1 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>{item.body}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section
-          aria-labelledby="common-questions"
-          className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-        >
-          <HelpSectionHeading id="common-questions">Common questions</HelpSectionHeading>
-          <p className={cn("m-0", HELP_PAGE_LAYOUT.paragraph, "text-al-text-secondary")}>
-            Expand a question for a short answer and where to go next in the product.
+      <div className={contentGridClass}>
+        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "max-w-[75ch] space-y-6 xl:max-w-none")}>
+          <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-billing-overview">
+            {BILLING_HELP_OVERVIEW}
           </p>
-          <div className="space-y-3" data-testid="help-billing-faq-list">
-            {BILLING_HELP_FAQ_ITEMS.map((item) => (
-              <BillingFaqItemCard key={item.id} item={item} />
-            ))}
-          </div>
-        </section>
 
-        <section
-          aria-labelledby="support"
-          className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-        >
-          <HelpSectionHeading id="support">Support</HelpSectionHeading>
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-billing-support-card">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("text-base", HELP_PAGE_LAYOUT.sectionH3)}>
-                Billing support
-              </CardTitle>
-              <p className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>
-                {BILLING_HELP_SUPPORT_INTRO}
-              </p>
-            </CardHeader>
-            <CardContent className={OPERATOR_CARD.content}>
-              <Button asChild size="sm" variant="outline">
-                <a href={BILLING_HELP_SUPPORT_ACTION.href}>{BILLING_HELP_SUPPORT_ACTION.label}</a>
-              </Button>
-              <Link
-                href="/administration/billing"
-                className={cn(
-                  "mt-3 inline-block text-sm underline-offset-2 hover:underline",
-                  DESIGN_TOKENS.accent.link,
-                  HELP_PAGE_LAYOUT.readingBody,
-                )}
-              >
-                Open Billing and plans
-              </Link>
-            </CardContent>
-          </Card>
-        </section>
+          <section
+            aria-labelledby="how-billing-works"
+            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id="how-billing-works">How billing works</HelpSectionHeading>
+            <ul
+              className={cn("m-0 list-none space-y-3 p-0", HELP_PAGE_LAYOUT.readingBody)}
+              data-testid="help-billing-how-it-works"
+            >
+              {BILLING_HELP_HOW_BILLING_WORKS_ITEMS.map((item) => (
+                <li
+                  key={item.id}
+                  className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+                >
+                  <h3 className={cn("m-0", HELP_PAGE_LAYOUT.sectionH3)}>{item.title}</h3>
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>{item.body}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section
+            aria-labelledby="common-questions"
+            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id="common-questions">Common questions</HelpSectionHeading>
+            <p className={cn("m-0", HELP_PAGE_LAYOUT.paragraph, "text-al-text-secondary")}>
+              Expand a question for a short answer and where to go next in the product.
+            </p>
+            <div className="space-y-3" data-testid="help-billing-faq-list">
+              {BILLING_HELP_FAQ_ITEMS.map((item) => (
+                <BillingFaqItemCard key={item.id} item={item} />
+              ))}
+            </div>
+          </section>
+
+          <section
+            aria-labelledby="support"
+            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id="support">Support</HelpSectionHeading>
+            <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-billing-support-card">
+              <CardHeader className={OPERATOR_CARD.header}>
+                <CardTitle as="h2" className={cn("text-base", HELP_PAGE_LAYOUT.sectionH3)}>
+                  Billing support
+                </CardTitle>
+                <p className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>
+                  {BILLING_HELP_SUPPORT_INTRO}
+                </p>
+              </CardHeader>
+              <CardContent className={OPERATOR_CARD.content}>
+                <Button asChild size="sm" variant="outline">
+                  <a href={BILLING_HELP_SUPPORT_ACTION.href}>{BILLING_HELP_SUPPORT_ACTION.label}</a>
+                </Button>
+                <Link
+                  href="/administration/billing"
+                  className={cn(
+                    "mt-3 inline-block text-sm underline-offset-2 hover:underline",
+                    DESIGN_TOKENS.accent.link,
+                    HELP_PAGE_LAYOUT.readingBody,
+                  )}
+                >
+                  Open Billing and plans
+                </Link>
+              </CardContent>
+            </Card>
+          </section>
+
+          <BillingAndPlansHelpEvidenceOrientationStrip />
+        </div>
+
+        <HelpTopicTableOfContents headings={BILLING_HELP_GUIDE_HEADINGS} />
       </div>
     </article>
   );

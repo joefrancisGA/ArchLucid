@@ -26,6 +26,14 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_SOURCES_INTRO,
 } from "@/lib/authentication-sign-in-help-evidence-copy";
 import {
+  BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE,
+  BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE_HEADING,
+  BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID,
+  BILLING_AND_PLANS_HELP_FOLLOW_UPS_TITLE,
+  BILLING_AND_PLANS_HELP_SOURCES,
+  BILLING_AND_PLANS_HELP_SOURCES_INTRO,
+} from "@/lib/billing-and-plans-help-evidence-copy";
+import {
   COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE,
   COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE_HEADING,
   COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID,
@@ -432,6 +440,27 @@ export function AuthenticationSignInHelpEvidenceOrientationStrip(): React.JSX.El
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
+    />
+  );
+}
+
+export function BillingAndPlansHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-billing-and-plans"
+      claimTestId="help-billing-claim-discipline"
+      claim={BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE}
+      claimHeading={BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={BILLING_AND_PLANS_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={BILLING_AND_PLANS_HELP_SOURCES_INTRO}
+      sources={BILLING_AND_PLANS_HELP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
