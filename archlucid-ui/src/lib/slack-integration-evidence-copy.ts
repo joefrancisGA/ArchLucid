@@ -7,8 +7,14 @@ export const SLACK_INTEGRATION_CANONICAL_PATH = "/integrations/slack" as const;
 
 export const SLACK_INTEGRATION_HELP_TOPIC_LABEL = "How Slack notifications work";
 
+export const SLACK_INTEGRATION_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
 export const SLACK_INTEGRATION_CLAIM_DISCIPLINE =
-  "Slack destinations route governance alerts to incoming webhooks — they are not a sealed-review diligence Sources package. Open Alert rules, Integration readiness, or Audit when you need operational or governed trails.";
+  "This page explains how Slack destinations route governance alerts to incoming webhooks — open Alert rules, Integration readiness, Microsoft Teams, or Audit when you need routing rules, readiness checks, or governed trails.";
+
+export const SLACK_INTEGRATION_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const SLACK_INTEGRATION_CLAIM_HEADING_ID = "slack-integration-claim-discipline-heading" as const;
 
 export const SLACK_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when destinations need routing rules, readiness checks, or a sibling notification channel.";

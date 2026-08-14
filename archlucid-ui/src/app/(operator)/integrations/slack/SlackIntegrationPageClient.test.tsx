@@ -34,6 +34,7 @@ import {
   SLACK_INTEGRATION_SAVE_SUCCESS_MESSAGE,
 } from "@/lib/admin-integration-mutation-outcome-copy";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { SLACK_INTEGRATION_SOURCES } from "@/lib/slack-integration-evidence-copy";
 import {
   SLACK_ACTION_REFRESH,
   SLACK_FIELD_DESTINATION_NAME_LABEL,
@@ -74,9 +75,8 @@ describe("SlackIntegrationPageClient", () => {
     expect(screen.getByTestId("slack-last-checked")).toHaveTextContent(SLACK_LAST_CHECKED_PREFIX);
     expect(screen.getByTestId("slack-last-checked").querySelector("time")).toBeInTheDocument();
 
-    const readinessLinks = screen.getAllByRole("link", { name: /^Integration readiness$/i });
-    expect(readinessLinks).toHaveLength(1);
-    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
+    const readinessLink = screen.getByTestId("slack-readiness-link");
+    expect(readinessLink).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
     expect(screen.queryByRole("link", { name: /Configure Microsoft Teams/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/Need a different channel\?/i)).not.toBeInTheDocument();
 
@@ -93,6 +93,22 @@ describe("SlackIntegrationPageClient", () => {
 
     expect(screen.getByTestId("digests-teams-slack-vocabulary")).toBeInTheDocument();
     expect(screen.queryByTestId("teams-slack-notification-vocabulary")).not.toBeInTheDocument();
+  });
+
+  it("renders the Slack integration Sources and claim-discipline strip", async () => {
+    render(<SlackIntegrationPageClient />);
+
+    await screen.findByTestId("slack-integration-orientation");
+
+    const sources = screen.getByTestId("slack-integration-sources");
+
+    for (const link of SLACK_INTEGRATION_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
+    expect(readinessLinks).toHaveLength(1);
+    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
   });
 
   it("stacks setup guidance below the connect form (TB-1575 / TB-1576 demoted single-column)", async () => {

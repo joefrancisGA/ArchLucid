@@ -263,6 +263,14 @@ import {
 } from "@/lib/slack-integration-help-evidence-copy";
 import { SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID } from "@/lib/slack-integration-help-guide-content";
 import {
+  SLACK_INTEGRATION_CLAIM_DISCIPLINE,
+  SLACK_INTEGRATION_CLAIM_DISCIPLINE_HEADING,
+  SLACK_INTEGRATION_CLAIM_HEADING_ID,
+  SLACK_INTEGRATION_FOLLOW_UPS_TITLE,
+  SLACK_INTEGRATION_SOURCES,
+  SLACK_INTEGRATION_SOURCES_INTRO,
+} from "@/lib/slack-integration-evidence-copy";
+import {
   STANDARDS_RULES_HELP_CLAIM_DISCIPLINE,
   STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING,
   STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE,
@@ -854,6 +862,25 @@ export function SlackIntegrationHelpEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function SlackIntegrationEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="slack-integration"
+      claim={SLACK_INTEGRATION_CLAIM_DISCIPLINE}
+      claimHeading={SLACK_INTEGRATION_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={SLACK_INTEGRATION_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={SLACK_INTEGRATION_FOLLOW_UPS_TITLE}
+      sourcesIntro={SLACK_INTEGRATION_SOURCES_INTRO}
+      sources={SLACK_INTEGRATION_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }
