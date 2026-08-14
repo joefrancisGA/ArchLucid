@@ -22,9 +22,6 @@ PREFERRED_NEW_ROW_IDS: dict[str, str] = {
     "/internal/validate-route": "REP",
     "/shell/contextual-help-drawer": "HCD",
     "/help/choose-your-next-step": "HPX",
-    "/onboard": "OXX",
-    "/onboarding/start": "OSX",
-    "/operate/architecture-graph": "OAX",
     "/governance/advisory-scans?tab=scans": "ADT",
     # App Router dynamic segment renamed [runId] → [reviewId]; keep stable workbook IDs on sync.
     "/architecture/reviews/[reviewId]": "RRE",
@@ -239,14 +236,8 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # /settings/alerts retired from the workbook (SEA removed, TB-1886–TB-1890); migration still maps to SAX.
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
 # Batch C folded FIR `/help/first-pilot-path` into COR — permanent redirect only (no traffic-tracked bookmark).
-# TB-1798 / TB-1801: legacy onboarding bookmarks stay as redirect-shim workbook rows (OXX/OSX).
-TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset(
-    {
-        "/onboard",
-        "/onboarding/start",
-        "/operate/architecture-graph",
-    }
-)
+# Legacy bookmark paths migrate in WORKBOOK_PATH_MIGRATIONS only — not scored workbook rows.
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset()
 
 # Operator-shell overlays scored in the workbook but not App Router pages.
 SHELL_OVERLAY_TRAFFIC_ENTRIES: dict[str, str] = {

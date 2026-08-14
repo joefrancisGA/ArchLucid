@@ -7,7 +7,8 @@ import {
   CANONICAL_ONBOARDING_PATH,
   LEGACY_ONBOARDING_START_PATH,
 } from "@/lib/legacy-onboarding-start-route";
-import { LEGACY_ONBOARDING_START_TRAFFIC_NOTE } from "@/lib/ui-route-traffic-legacy-onboarding-start";
+import { RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS } from "@/lib/ui-route-traffic-retired-redirect-shims";
+import { extractMasterTableRows, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 const LEGACY_ONBOARDING_START_PATH_PATTERN = /\/onboarding\/start/g;
 const CATALOG_PATH = join(process.cwd(), "..", "scripts", "ci", "archlucid_ui_route_catalog.py");
@@ -56,10 +57,11 @@ describe("legacy-onboarding-start-route-doc-guard (TB-1803)", () => {
     }
   });
 
-  it("does not present the legacy onboarding-start path as a live marketing surface in traffic notes", () => {
-    expect(LEGACY_ONBOARDING_START_TRAFFIC_NOTE.toLowerCase()).toContain("legacy");
-    expect(LEGACY_ONBOARDING_START_TRAFFIC_NOTE).toContain("first-review-guide");
-    expect(LEGACY_ONBOARDING_START_TRAFFIC_NOTE).not.toMatch(/live marketing/i);
+  it("does not score /onboarding/start as a traffic workbook row", () => {
+    const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
+
+    expect(RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS).toContain(LEGACY_ONBOARDING_START_PATH);
+    expect(rows.find((row) => row.path === LEGACY_ONBOARDING_START_PATH)).toBeUndefined();
   });
 
   it("migrates /onboarding/start to first-review-guide in Python WORKBOOK_PATH_MIGRATIONS (TB-1801)", () => {

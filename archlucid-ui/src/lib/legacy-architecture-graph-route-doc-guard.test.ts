@@ -7,7 +7,8 @@ import {
   CANONICAL_GRAPH_PATH,
   LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
 } from "@/lib/legacy-architecture-graph-route";
-import { LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE } from "@/lib/ui-route-traffic-legacy-architecture-graph";
+import { RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS } from "@/lib/ui-route-traffic-retired-redirect-shims";
+import { extractMasterTableRows, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 const LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH_PATTERN = /\/operate\/architecture-graph/g;
 const CATALOG_PATH = join(process.cwd(), "..", "scripts", "ci", "archlucid_ui_route_catalog.py");
@@ -54,10 +55,11 @@ describe("legacy-architecture-graph-route-doc-guard (TB-1809)", () => {
     }
   });
 
-  it("does not present the legacy operate architecture-graph path as a live marketing surface in traffic notes", () => {
-    expect(LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE.toLowerCase()).toContain("legacy");
-    expect(LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE).toContain("insights/evidence-graph");
-    expect(LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE).not.toMatch(/live marketing/i);
+  it("does not score /operate/architecture-graph as a traffic workbook row", () => {
+    const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
+
+    expect(RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS).toContain(LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH);
+    expect(rows.find((row) => row.path === LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH)).toBeUndefined();
   });
 
   it("migrates /operate/architecture-graph to evidence-graph in Python WORKBOOK_PATH_MIGRATIONS (TB-1806)", () => {

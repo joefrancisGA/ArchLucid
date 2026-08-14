@@ -6,7 +6,8 @@ import {
   CANONICAL_AUTH_SIGNIN_PATH,
   LEGACY_LOGIN_PATH,
 } from "@/lib/legacy-login-route";
-import { LEGACY_LOGIN_TRAFFIC_NOTE } from "@/lib/ui-route-traffic-legacy-login";
+import { extractMasterTableRows, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
+import { REMOVED_LEGACY_LOGIN_TRAFFIC_ROW_ID } from "@/lib/ui-route-traffic-retired-legacy-login";
 
 const LEGACY_LOGIN_PATH_PATTERN = /\/login(?![-\w])/g;
 const CATALOG_PATH = join(process.cwd(), "..", "scripts", "ci", "archlucid_ui_route_catalog.py");
@@ -89,11 +90,11 @@ describe("legacy-login-route-doc-guard (TB-1795)", () => {
     expect(primaryActionSource).toContain(CANONICAL_AUTH_SIGNIN_PATH);
   });
 
-  it("does not present the legacy login path as a live marketing surface in traffic notes", () => {
-    expect(LEGACY_LOGIN_TRAFFIC_NOTE.toLowerCase()).toContain("legacy");
-    expect(LEGACY_LOGIN_TRAFFIC_NOTE).toContain("/auth/signin");
-    expect(LEGACY_LOGIN_TRAFFIC_NOTE).toContain("/auth/session-expired");
-    expect(LEGACY_LOGIN_TRAFFIC_NOTE).not.toMatch(/live marketing/i);
+  it("does not track retired LOG in the traffic workbook template", () => {
+    const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
+    const logRow = rows.find((row) => row.id === REMOVED_LEGACY_LOGIN_TRAFFIC_ROW_ID);
+
+    expect(logRow).toBeUndefined();
   });
 
   it("migrates /login to /auth/signin in Python WORKBOOK_PATH_MIGRATIONS (TB-1794)", () => {

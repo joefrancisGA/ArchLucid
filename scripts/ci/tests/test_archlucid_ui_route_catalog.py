@@ -29,7 +29,7 @@ def test_discover_app_router_paths_includes_architectures_hub() -> None:
 
 def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
     tab_paths = discover_tab_paths()
-    assert "/architecture/reviews/[runId]?archTab=evidence" in tab_paths
+    assert "/architecture/reviews/[reviewId]?archTab=evidence" in tab_paths
     assert "/architecture/digests?tab=get-started" in tab_paths
     assert "/architecture/digests?tab=browse" not in tab_paths
     assert "/administration/users?tab=roles" in tab_paths
@@ -211,6 +211,19 @@ def test_migrate_workbook_path_maps_legacy_login_and_architecture_graph() -> Non
     assert migrate_workbook_path("/operate/architecture-graph") == "/insights/evidence-graph"
 
 
+def test_migrate_workbook_path_maps_architecture_review_run_id_to_review_id() -> None:
+    assert migrate_workbook_path("/architecture/reviews/[runId]") == "/architecture/reviews/[reviewId]"
+    assert (
+        migrate_workbook_path("/architecture/reviews/[runId]/findings/[findingId]")
+        == "/architecture/reviews/[reviewId]/findings/[findingId]"
+    )
+    assert (
+        migrate_workbook_path("/architecture/reviews/[runId]?archTab=evidence")
+        == "/architecture/reviews/[reviewId]?archTab=evidence"
+    )
+    assert migrate_workbook_path("/reviews/[runId]/provenance") == "/architecture/reviews/[reviewId]/provenance"
+
+
 def test_migrate_workbook_path_maps_legacy_settings_alerts() -> None:
     assert migrate_workbook_path("/settings/alerts") == "/governance/alert-rules"
 
@@ -222,7 +235,7 @@ def test_build_catalog_does_not_track_retired_settings_alerts_bookmark() -> None
 
 def test_build_catalog_skips_rer_run_artifact_preview_redirect_page() -> None:
     catalog = build_catalog()
-    assert "/architecture/reviews/[runId]/artifacts/[artifactId]" not in catalog
+    assert "/architecture/reviews/[reviewId]/artifacts/[artifactId]" not in catalog
 
 
 def test_build_catalog_skips_demo_entry_redirect_page() -> None:
@@ -306,6 +319,14 @@ def test_build_catalog_tracks_evidence_graph_as_planning() -> None:
     catalog = build_catalog()
     assert "/insights/evidence-graph" in catalog
     assert catalog["/insights/evidence-graph"].section == "Planning"
+
+
+def test_build_catalog_does_not_track_retired_redirect_shim_bookmarks() -> None:
+    catalog = build_catalog()
+    assert "/onboard" not in catalog
+    assert "/onboarding/start" not in catalog
+    assert "/operate/architecture-graph" not in catalog
+    assert "/quick-start" not in catalog
 
 
 def test_build_catalog_tracks_first_review_guide_as_onboarding() -> None:
