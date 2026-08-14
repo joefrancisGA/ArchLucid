@@ -1573,7 +1573,7 @@ export function WorkspaceSettingsHelpEvidenceOrientationStrip(
       claim={WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE}
       claimHeading={WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID}
-      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorInlineNote}
       claimElement="div"
       sourcesTitle={WORKSPACE_SETTINGS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={WORKSPACE_SETTINGS_HELP_SOURCES_INTRO}

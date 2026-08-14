@@ -252,16 +252,16 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     ).toBe("Last reviewed 2026-08-13 · in-product support discovery and escalation paths");
   });
 
-  it("formats workspace settings help review provenance", () => {
+  it("formats workspace settings help review provenance with humanized applicability", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
         sampleEntry({
           slug: "workspace-settings",
           lastReviewed: "2026-08-13",
-          releaseApplicability: "administration workspace settings orientation",
+          releaseApplicability: "Administration · Workspace settings orientation",
         }),
       ),
-    ).toBe("Last reviewed 2026-08-13");
+    ).toBe("Last reviewed 2026-08-13 · Administration · Workspace settings orientation");
   });
 
   it("returns null when report-a-problem registry metadata is absent", () => {

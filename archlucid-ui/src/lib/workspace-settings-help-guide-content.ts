@@ -5,7 +5,6 @@ import {
   TENANT_SETTINGS_CANONICAL_PATH,
   WORKSPACE_SETTINGS_HELP_TOPIC_LABEL,
 } from "@/lib/tenant-settings-evidence-copy";
-import { TENANT_SETTINGS_VOCABULARY_CURRENT_LABEL } from "@/lib/tenant-settings-page-copy";
 
 export const WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE = "Workspace settings";
 
@@ -15,7 +14,7 @@ export const WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE =
   "How tenant-wide defaults, quality gates, and cost settings fit workspace administration and downstream reviews.";
 
 export const WORKSPACE_SETTINGS_HELP_OVERVIEW =
-  "Workspace settings configures tenant-wide defaults, quality gates, and cost settings that reviews inherit. It is an Admin surface — not a sealed-review diligence Sources package.";
+  "Workspace settings is the Admin surface for tenant-wide defaults — distinct from the active workspace and project you select in the header switcher. It configures quality gates and cost settings that downstream reviews inherit; it is not a sealed-review diligence Sources package.";
 
 export const WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION = {
   label: "Open workspace settings",
@@ -24,7 +23,9 @@ export const WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION = {
 
 export const WORKSPACE_SETTINGS_HELP_START_HERE_CARD_TITLE = "Start here";
 
-export const WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_TAG = "Admin";
+export const WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID = "help-workspace-settings-admin-precondition" as const;
+
+export const WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_LABEL = "Admin authority.";
 
 export const WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION =
   "Changing tenant defaults needs Admin authority; active workspace and project selection lives in the header workspace switcher.";
@@ -36,8 +37,8 @@ export type WorkspaceSettingsHelpTileItem = {
 
 export const WORKSPACE_SETTINGS_HELP_TILE_ITEMS: readonly WorkspaceSettingsHelpTileItem[] = [
   {
-    label: TENANT_SETTINGS_VOCABULARY_CURRENT_LABEL,
-    detail: "Tenant defaults, quality gates, and cost settings for the organization.",
+    label: "Tenant-wide defaults",
+    detail: "Quality gates, cost settings, and organization options inherited by downstream reviews.",
   },
   {
     label: "Projects recycle bin",

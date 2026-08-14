@@ -721,7 +721,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",
-    releaseApplicability: "administration workspace settings orientation",
+    releaseApplicability: "Administration · Workspace settings orientation",
   },
   {
     slug: "evidence-graph",

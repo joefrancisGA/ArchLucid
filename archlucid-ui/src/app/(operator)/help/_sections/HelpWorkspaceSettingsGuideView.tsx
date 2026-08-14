@@ -2,12 +2,12 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { WorkspaceSettingsHelpEvidenceOrientationStrip } from "@/components/help/WorkspaceSettingsHelpEvidenceOrientationStrip";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_CARD,
@@ -17,7 +17,8 @@ import {
 } from "@/lib/design-tokens";
 import {
   WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION,
-  WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_TAG,
+  WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID,
+  WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_LABEL,
   WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
   WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS,
   WORKSPACE_SETTINGS_HELP_HOW_TO_READ_STEPS,
@@ -68,6 +69,7 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
         subtitle={WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE}
         navHref={WORKSPACE_SETTINGS_HELP_CANONICAL_PATH}
         headingLevel="h1"
+        breadcrumb={<HelpTopicBreadcrumb topicTitle={WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE} />}
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />
@@ -88,22 +90,20 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
               </CardTitle>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" variant="primary">
-                  <Link href={WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.href}>
-                    {WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.label}
-                  </Link>
-                </Button>
-                <StatusTag
-                  kind="neutral"
-                  label={WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_TAG}
-                  data-testid="help-workspace-settings-admin-precondition-tag"
-                />
-              </div>
+              <Button asChild size="sm" variant="primary">
+                <Link
+                  href={WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.href}
+                  aria-describedby={WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID}
+                >
+                  {WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
               <p
+                id={WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID}
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="help-workspace-settings-admin-precondition"
               >
+                <span className="font-medium text-al-text-primary">{WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_LABEL}</span>{" "}
                 {WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION}
               </p>
             </CardContent>
