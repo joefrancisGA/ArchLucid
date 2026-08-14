@@ -15,15 +15,6 @@ namespace ArchLucid.Application.Runs.Coordination;
 /// </summary>
 public static class RunStarterTaskFactory
 {
-    private const string PolicyPackEnterpriseDefault = "policy-pack:enterprise-default";
-    private const string PolicyPackAzureSecurityBaseline = "policy-pack:azure-security-baseline";
-    private const string PolicyPrivateNetworkingRequired = "policy:private-networking-required";
-    private const string PolicyManagedIdentityRequired = "policy:managed-identity-required";
-    private const string PolicyEncryptionAtRestRequired = "policy:encryption-at-rest-required";
-    private const string CatalogAzureCoreServices = "catalog:azure-core-services";
-    private const string CatalogAzureSql = "catalog:azure-sql";
-    private const string CatalogAzureAiSearch = "catalog:azure-ai-search";
-    private const string CatalogAzureAiServices = "catalog:azure-ai-services";
     private const string ToolServiceCatalogReader = "service-catalog-reader";
     private const string ToolPatternLibraryReader = "pattern-library-reader";
     private const string ToolPricingProfileReader = "pricing-profile-reader";
@@ -53,8 +44,8 @@ public static class RunStarterTaskFactory
         {
             EvidenceBundleId = Guid.NewGuid().ToString("N"),
             RequestDescription = request.Description,
-            PolicyRefs = BuildPolicyRefs(request),
-            ServiceCatalogRefs = BuildServiceCatalogRefs(request),
+            PolicyRefs = RunStarterCloudEvidenceRefs.BuildPolicyRefs(request),
+            ServiceCatalogRefs = RunStarterCloudEvidenceRefs.BuildServiceCatalogRefs(request),
             PriorManifestRefs = string.IsNullOrWhiteSpace(request.PriorManifestVersion) ? [] : [request.PriorManifestVersion],
             Metadata = metadata
         };
@@ -84,28 +75,6 @@ public static class RunStarterTaskFactory
     private static LlmModelTier ResolveModelTier(AgentType agentType, AgentModelExecutionProfile executionProfile)
     {
         return AgentModelExecutionProfileTierPolicy.ResolveTier(executionProfile, agentType);
-    }
-
-    private static List<string> BuildPolicyRefs(ArchitectureRequest request)
-    {
-        List<string> refs = [PolicyPackEnterpriseDefault, PolicyPackAzureSecurityBaseline];
-        if (RequestConstraintClassifier.HasPrivateNetworkingConstraint(request))
-            refs.Add(PolicyPrivateNetworkingRequired);
-        if (RequestConstraintClassifier.HasManagedIdentityConstraint(request))
-            refs.Add(PolicyManagedIdentityRequired);
-        if (RequestConstraintClassifier.HasEncryptionConstraint(request))
-            refs.Add(PolicyEncryptionAtRestRequired);
-        return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-    }
-
-    private static List<string> BuildServiceCatalogRefs(ArchitectureRequest request)
-    {
-        List<string> refs = [CatalogAzureCoreServices, CatalogAzureSql];
-        if (RequestConstraintClassifier.RequiresSearchCapability(request))
-            refs.Add(CatalogAzureAiSearch);
-        if (RequestConstraintClassifier.RequiresAiCapability(request))
-            refs.Add(CatalogAzureAiServices);
-        return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     private static AgentTask CreateTopologyTask(
