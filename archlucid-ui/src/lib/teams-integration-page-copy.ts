@@ -15,6 +15,20 @@ export const TEAMS_INTEGRATION_DRAFT_NOT_SAVED_HELPER =
 export const TEAMS_INTEGRATION_CONNECT_SECTION_LEAD =
   "Reference the secret that contains your Teams incoming webhook URL, then choose which notifications to send.";
 
+export const TEAMS_INTEGRATION_HELP_SUMMARY =
+  "Microsoft Teams notifications route selected governance and review events to a channel your operators already monitor. Use this guide before configuring secret references, triggers, and test delivery.";
+
+export const TEAMS_SETUP_STEP_CREATE_WEBHOOK =
+  "Create a Teams incoming webhook and store it in your approved secret store.";
+
+export const TEAMS_SETUP_STEP_ENTER_SECRET =
+  "Enter the secret reference on the Teams notifications page and validate access.";
+
+export const TEAMS_SETUP_STEP_SEND_TEST = "Select notification triggers and send a test notification.";
+
+export const TEAMS_SETUP_STEP_SAVE_CONNECTION =
+  "Save the connection once validation and test delivery succeed.";
+
 export const TEAMS_INTEGRATION_SECRET_NAME_LABEL = "Secret name";
 
 export const TEAMS_INTEGRATION_SECRET_HELPER =

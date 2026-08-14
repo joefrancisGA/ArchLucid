@@ -110,6 +110,13 @@ describe("specialty help guides — operator surfaces batch", () => {
       return;
     }
 
+    if (slug === "teams-integration") {
+      expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
+      expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();
+
+      return;
+    }
+
     if (slug === "architecture-drafts") {
       expect(screen.getByRole("link", { name: HELP_TOPIC_BREADCRUMB_HUB_LABEL })).toHaveAttribute("href", "/help");
       expect(screen.getByTestId("help-topic-registry-provenance")).toBeInTheDocument();

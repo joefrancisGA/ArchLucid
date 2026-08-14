@@ -18,13 +18,12 @@ const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "jira-integration",
   "servicenow-integration",
   "slack-integration",
-  "standards-and-rules",
+  "teams-integration",
   "model-governance",
   "notifications",
   "preferences",
   "recurrence-schedules",
   "search-review-evidence",
-  "sponsor-dashboard",
   "system-health",
 ]);
 
