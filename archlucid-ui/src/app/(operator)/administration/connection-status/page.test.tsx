@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import AdministrationConnectionStatusPage from "@/app/(operator)/administration/connection-status/page";
@@ -24,15 +24,16 @@ describe("AdministrationConnectionStatusPage (ADC)", () => {
     expect(
       screen.getByText(/See which integrations are ready, recommended, or optional for this workspace/i),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("connection-status-related-surfaces")).toHaveTextContent("Related:");
-    expect(screen.getByRole("link", { name: "Cloud connections" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Webhooks" })).toBeInTheDocument();
+    const relatedSurfaces = screen.getByTestId("connection-status-related-surfaces");
+
+    expect(within(relatedSurfaces).getByRole("link", { name: "Cloud connections" })).toBeInTheDocument();
+    expect(within(relatedSurfaces).getByRole("link", { name: "Webhooks" })).toBeInTheDocument();
     expect(screen.queryByTestId("connection-status-cloud-connections-vocabulary")).toBeNull();
     expect(screen.queryByTestId("connection-status-webhooks-vocabulary")).toBeNull();
     expect(screen.queryByRole("link", { name: "How integration readiness works" })).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("connection-status-sources")).toBeNull();
-    expect(screen.queryByTestId("connection-status-claim-discipline")).toBeNull();
+    expect(screen.getByTestId("connection-status-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("connection-status-sources")).toBeInTheDocument();
     expect(screen.queryByText("About integration readiness")).not.toBeInTheDocument();
     expect(screen.getByTestId("connector-operations-dashboard")).toBeInTheDocument();
   });

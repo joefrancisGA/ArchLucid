@@ -252,6 +252,14 @@ import {
   CONNECTION_STATUS_HELP_SOURCES,
   CONNECTION_STATUS_HELP_SOURCES_INTRO,
 } from "@/lib/connection-status-help-evidence-copy";
+import {
+  CONNECTION_STATUS_CLAIM_DISCIPLINE,
+  CONNECTION_STATUS_CLAIM_DISCIPLINE_HEADING,
+  CONNECTION_STATUS_CLAIM_HEADING_ID,
+  CONNECTION_STATUS_FOLLOW_UPS_TITLE,
+  CONNECTION_STATUS_SOURCES,
+  CONNECTION_STATUS_SOURCES_INTRO,
+} from "@/lib/connection-status-evidence-copy";
 import { CONNECTION_STATUS_HELP_CLAIM_HEADING_ID } from "@/lib/connection-status-help-guide-content";
 import {
   DECISION_REGISTER_HELP_CLAIM_DISCIPLINE,
@@ -682,6 +690,25 @@ export function ConnectionStatusHelpEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function ConnectionStatusEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="connection-status"
+      claim={CONNECTION_STATUS_CLAIM_DISCIPLINE}
+      claimHeading={CONNECTION_STATUS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={CONNECTION_STATUS_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
+      claimElement="div"
+      sourcesTitle={CONNECTION_STATUS_FOLLOW_UPS_TITLE}
+      sourcesIntro={CONNECTION_STATUS_SOURCES_INTRO}
+      sources={CONNECTION_STATUS_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
     />
   );
 }

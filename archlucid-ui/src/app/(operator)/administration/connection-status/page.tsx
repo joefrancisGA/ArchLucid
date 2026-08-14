@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ConnectorOperationsDashboard } from "@/components/integrations/ConnectorOperationsDashboard";
+import { ConnectionStatusEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -35,6 +36,7 @@ export default function AdministrationConnectionStatusPage() {
           </>
         }
       />
+      <ConnectionStatusEvidenceOrientationStrip />
       <ConnectorOperationsDashboard />
     </div>
   );
