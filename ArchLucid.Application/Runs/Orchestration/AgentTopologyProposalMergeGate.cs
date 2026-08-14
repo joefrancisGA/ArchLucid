@@ -21,8 +21,8 @@ public static class AgentTopologyProposalMergeGate
         HashSet<string> inventoriedIdentifiers = ResolveInventoriedIdentifiers(graph);
         HashSet<string> relationshipEndpointKeys = ResolveRelationshipEndpointKeys(graph, inventoriedIdentifiers);
 
-        if (relationshipEndpointKeys.Count == 0)
-            return FilterGreenfieldProposals(results);
+        if (inventoriedIdentifiers.Count == 0)
+            return FilterGreenfieldProposals(results, relationshipEndpointKeys);
 
         HashSet<string> accumulatedEndpointKeys = new(relationshipEndpointKeys, StringComparer.OrdinalIgnoreCase);
         List<AgentResult> orderedResults = results
@@ -74,9 +74,13 @@ public static class AgentTopologyProposalMergeGate
         return filtered;
     }
 
-    private static IReadOnlyList<AgentResult> FilterGreenfieldProposals(IReadOnlyList<AgentResult> results)
+    private static IReadOnlyList<AgentResult> FilterGreenfieldProposals(
+        IReadOnlyList<AgentResult> results,
+        HashSet<string>? seedEndpointKeys = null)
     {
-        HashSet<string> accumulatedEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> accumulatedEndpointKeys = seedEndpointKeys is { Count: > 0 }
+            ? new HashSet<string>(seedEndpointKeys, StringComparer.OrdinalIgnoreCase)
+            : new(StringComparer.OrdinalIgnoreCase);
         List<AgentResult> orderedResults = results
             .OrderBy(static result => GetMergeOrder(result.AgentType))
             .ToList();
