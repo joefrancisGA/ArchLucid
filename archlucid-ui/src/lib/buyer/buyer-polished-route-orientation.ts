@@ -28,6 +28,7 @@ import {
 } from "@/lib/settings-admin-route-paths";
 import {
   pathMatchesSignedRecordsDetailRoute,
+  SIGNED_RECORDS_LIST_PATH,
   signedRecordDetailPath,
 } from "@/lib/signed-records-paths";
 import {
@@ -180,6 +181,11 @@ export function buyerPolishedRouteOrientation(
 
   // Alert rules hub carries its own OperatorPageHeader subtitle (TB-1435).
   if (pathMatchesGovernanceAlertRules(path)) {
+    return null;
+  }
+
+  // Sealed review records list carries its own OperatorPageHeader subtitle — not governance overview strip.
+  if (path === SIGNED_RECORDS_LIST_PATH) {
     return null;
   }
 

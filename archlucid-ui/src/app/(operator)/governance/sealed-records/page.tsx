@@ -11,7 +11,7 @@ const SignedRecordsListClient = dynamic(
       <div
         className="min-h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
         role="status"
-        aria-label="Loading sealed records"
+        aria-label="Loading sealed review records"
         data-testid="signed-records-list-chunk-loading"
       />
     ),
@@ -30,7 +30,7 @@ export default function SignedRecordsListPage() {
         <div
           className="min-h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
           role="status"
-          aria-label="Loading sealed records"
+          aria-label="Loading sealed review records"
           data-testid="signed-records-list-suspense-fallback"
         />
       }

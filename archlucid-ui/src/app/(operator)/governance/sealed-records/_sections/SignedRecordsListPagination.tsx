@@ -16,11 +16,14 @@ export type SignedRecordsListPaginationProps = {
   readonly hasMore: boolean;
   readonly canGoPrevious: boolean;
   readonly canGoNext: boolean;
+  readonly disabled?: boolean;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
 };
 
 export function SignedRecordsListPagination(props: SignedRecordsListPaginationProps): React.JSX.Element {
+  const controlsDisabled = props.disabled === true;
+
   return (
     <nav
       className={cn("mt-4 flex flex-wrap items-center gap-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
@@ -34,7 +37,7 @@ export function SignedRecordsListPagination(props: SignedRecordsListPaginationPr
         type="button"
         variant="outline"
         size="sm"
-        disabled={!props.canGoPrevious}
+        disabled={controlsDisabled || !props.canGoPrevious}
         onClick={props.onPrevious}
         data-testid="signed-records-list-pagination-previous"
       >
@@ -44,7 +47,7 @@ export function SignedRecordsListPagination(props: SignedRecordsListPaginationPr
         type="button"
         variant="outline"
         size="sm"
-        disabled={!props.canGoNext}
+        disabled={controlsDisabled || !props.canGoNext}
         onClick={props.onNext}
         data-testid="signed-records-list-pagination-next"
       >

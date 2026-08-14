@@ -134,6 +134,11 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/governance/alert-rules")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
   });
 
+  it("returns null for sealed review records list — not governance overview pending-approvals blurb", () => {
+    expect(buyerPolishedRouteOrientation("/governance/sealed-records")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/sealed-records")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
+  });
+
   it("orients the operator security-trust route for procurement reviewers", () => {
     const canonical = buyerPolishedRouteOrientation("/administration/security-trust");
     const legacy = buyerPolishedRouteOrientation("/workspace/security-trust");

@@ -3,27 +3,35 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { listRunsByProjectPaged } from "@/lib/api";
 import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
-import { tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
+import { areSpineStaticDemoPayloadsAvailable, tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
+import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { cn } from "@/lib/utils";
 
 import { enrichSignedRecordsListRows } from "./enrich-signed-records-list-rows";
 import { SignedRecordsListTableDeferred } from "./signed-records-list-deferred-chunks";
 import {
+  formatSignedRecordsListRecordCount,
   SIGNED_RECORDS_LIST_EMPTY_BODY,
   SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL,
+  SIGNED_RECORDS_LIST_EMPTY_SAMPLE_CTA,
   SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF,
   SIGNED_RECORDS_LIST_EMPTY_SECONDARY_LABEL,
   SIGNED_RECORDS_LIST_EMPTY_TITLE,
+  SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX,
+  SIGNED_RECORDS_LIST_LIST_LEAD,
+  SIGNED_RECORDS_LIST_LOADING_STATUS,
   SIGNED_RECORDS_LIST_PAGE_SUBTITLE,
   SIGNED_RECORDS_LIST_PAGE_TITLE,
 } from "./signed-records-list-copy";
@@ -42,6 +50,7 @@ export default function SignedRecordsListClient() {
   const [cursorHistory, setCursorHistory] = useState<readonly string[]>([]);
   const [hasMore, setHasMore] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
   const loadRows = useCallback(async (request: { readonly page: number; readonly cursor: string }) => {
     setLoading(true);
@@ -79,6 +88,7 @@ export default function SignedRecordsListClient() {
       setRows(enrichedRows);
       setHasMore(coerced.value.hasMore);
       setNextCursor(coerced.value.nextCursor ?? null);
+      setLastRefreshedAt(new Date());
     } catch (error: unknown) {
       setRows([]);
       setHasMore(false);
@@ -134,7 +144,15 @@ export default function SignedRecordsListClient() {
   }, [cursorHistory]);
 
   const hasRows = rows.length > 0;
-  const showPagination = !loading && loadError === null && (hasRows || page > 1 || hasMore);
+  const showEmptyState = !loading && !hasRows && loadError === null;
+  const showPagination = loadError === null && (loading || hasRows || page > 1 || hasMore);
+  const showListChrome = loadError === null && (loading || hasRows);
+  const showcaseSampleAvailable = areSpineStaticDemoPayloadsAvailable();
+  const freshnessLabel = operatorFreshnessMetadataWithClockLabel({
+    prefix: SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX,
+    lastRefreshedAt: loading ? null : lastRefreshedAt,
+    refreshingLabel: loading ? "Refreshing…" : null,
+  });
 
   return (
     <div className="w-full max-w-[1440px]">
@@ -145,7 +163,9 @@ export default function SignedRecordsListClient() {
         titleTestId="signed-records-list-page-title"
         actions={<PageContextualHelpButton />}
       />
-      <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="signed-records" />
+
+      {hasRows ? <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="signed-records" /> : null}
+
       {loadError !== null ? (
         <OperatorSectionLoadFailure
           className="mb-4"
@@ -156,7 +176,7 @@ export default function SignedRecordsListClient() {
         />
       ) : null}
 
-      {!loading && !hasRows && loadError === null ? (
+      {showEmptyState ? (
         <EnterpriseCompactEmptyState
           title={SIGNED_RECORDS_LIST_EMPTY_TITLE}
           description={SIGNED_RECORDS_LIST_EMPTY_BODY}
@@ -167,12 +187,39 @@ export default function SignedRecordsListClient() {
               href: SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF,
               variant: "outline",
             },
+            ...(showcaseSampleAvailable
+              ? [{ label: SIGNED_RECORDS_LIST_EMPTY_SAMPLE_CTA, href: getShowcaseManifestHref(), variant: "outline" as const }]
+              : []),
           ]}
         />
       ) : null}
 
+      {showListChrome ? (
+        <div className="mb-4 space-y-2" data-testid="signed-records-list-chrome">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SIGNED_RECORDS_LIST_LIST_LEAD}</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="signed-records-list-record-count">
+              {formatSignedRecordsListRecordCount(rows.length)}
+            </span>
+            <OperatorPageFreshnessMetadata
+              testId="signed-records-list-last-refreshed"
+              lastRefreshedAt={loading ? null : lastRefreshedAt}
+            >
+              {freshnessLabel}
+            </OperatorPageFreshnessMetadata>
+          </div>
+        </div>
+      ) : null}
+
       {loading ? (
-        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>Loading sealed review records…</p>
+        <p
+          className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}
+          role="status"
+          aria-live="polite"
+          data-testid="signed-records-list-loading-status"
+        >
+          {SIGNED_RECORDS_LIST_LOADING_STATUS}
+        </p>
       ) : null}
 
       {!loading && hasRows ? (
@@ -192,6 +239,7 @@ export default function SignedRecordsListClient() {
           hasMore={hasMore}
           canGoPrevious={cursorHistory.length > 0}
           canGoNext={hasMore && nextCursor !== null && nextCursor.length > 0}
+          disabled={loading}
           onPrevious={goToPreviousPage}
           onNext={goToNextPage}
         />
