@@ -109,6 +109,33 @@ public sealed class InMemoryImmutableSourceStore : IImmutableSourceStore
         return Task.FromResult(VerifyIntegrity(artifactId, expectedQuote));
     }
 
+    public string? TryReadSourceExcerpt(string artifactId, int maxChars = 512)
+    {
+        return TryReadSourceExcerptAsync(artifactId, maxChars).GetAwaiter().GetResult();
+    }
+
+    public Task<string?> TryReadSourceExcerptAsync(
+        string artifactId,
+        int maxChars = 512,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (string.IsNullOrWhiteSpace(artifactId))
+        {
+            return Task.FromResult<string?>(null);
+        }
+
+        if (!_artifacts.TryGetValue(artifactId, out StoredArtifact? stored))
+        {
+            return Task.FromResult<string?>(null);
+        }
+
+        string contentText = Encoding.UTF8.GetString(stored.Content);
+
+        return Task.FromResult(ImmutableSourceExcerptReader.Trim(contentText, maxChars));
+    }
+
     internal byte[]? GetContent(string artifactId)
     {
         if (string.IsNullOrWhiteSpace(artifactId))

@@ -12,6 +12,8 @@ public interface IImmutableSourceStore
 
     bool VerifyIntegrity(string artifactId, string? expectedQuote = null);
 
+    string? TryReadSourceExcerpt(string artifactId, int maxChars = 512);
+
     Task<ImmutableSourceArtifact> StoreAsync(
         ImmutableSourceArtifact artifact,
         byte[] content,
@@ -22,5 +24,10 @@ public interface IImmutableSourceStore
     Task<bool> VerifyIntegrityAsync(
         string artifactId,
         string? expectedQuote = null,
+        CancellationToken cancellationToken = default);
+
+    Task<string?> TryReadSourceExcerptAsync(
+        string artifactId,
+        int maxChars = 512,
         CancellationToken cancellationToken = default);
 }

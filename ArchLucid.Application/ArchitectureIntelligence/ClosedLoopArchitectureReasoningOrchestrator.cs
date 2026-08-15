@@ -458,6 +458,11 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                     citedQuotes.Add(finding.Provenance.PassageLocator.Quote);
                 }
 
+                citedQuotes = EvidenceValidationSourceReread.AugmentCitedQuotesForHighSeverity(
+                    finding,
+                    citedQuotes,
+                    _sourceStore);
+
                 string claimedConclusion = $"{finding.Conclusion}:{finding.Severity}:{finding.Title}";
 
                 return await _evidenceValidationPipeline.ValidateAsync(
