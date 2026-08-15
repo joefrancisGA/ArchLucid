@@ -86,7 +86,7 @@ function confirmScopeUnderstanding(): void {
 
 function prepareQuickStartEvidenceReady(): void {
   fireEvent.change(screen.getByTestId("first-pilot-title"), {
-    target: { value: "Retail API review" },
+    target: { value: "Retail API modernization review" },
   });
   fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
   satisfyAllQuickStartL0MustQuestions();
@@ -139,7 +139,7 @@ describe("FirstPilotIntakeWizard", () => {
     expect(screen.getByTestId("first-pilot-validation-error")).toBeInTheDocument();
 
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
-      target: { value: "Retail API review" },
+      target: { value: "Retail API modernization review" },
     });
 
     expect(screen.getByTestId("first-pilot-readiness")).toHaveTextContent(
@@ -154,7 +154,7 @@ describe("FirstPilotIntakeWizard", () => {
     render(<FirstPilotIntakeWizard />);
 
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
-      target: { value: "Retail API review" },
+      target: { value: "Retail API modernization review" },
     });
 
     expect(screen.getByTestId("first-pilot-readiness")).toBeInTheDocument();
@@ -166,7 +166,7 @@ describe("FirstPilotIntakeWizard", () => {
     render(<FirstPilotIntakeWizard />);
 
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
-      target: { value: "Retail API review" },
+      target: { value: "Retail API modernization review" },
     });
     fireEvent.change(screen.getByTestId("first-pilot-brief"), {
       target: { value: "Too short to review." },
@@ -190,7 +190,7 @@ describe("FirstPilotIntakeWizard", () => {
     render(<FirstPilotIntakeWizard />);
 
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
-      target: { value: "Retail API review" },
+      target: { value: "Retail API modernization review" },
     });
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
     confirmScopeUnderstanding();
@@ -252,7 +252,7 @@ describe("FirstPilotIntakeWizard", () => {
       wizardPresetUsed?: string;
       intakeQuestionAnswers?: Record<string, string>;
     };
-    expect(body.systemName).toBe("Retail API review");
+    expect(body.systemName).toBe("Retail API modernization review");
     expect(body.description).toContain("network-topology.pdf");
     expect(body.description.length).toBeGreaterThanOrEqual(100);
     expect(body.policyReferences).toContain(FOCUSED_PILOT_MODE_POLICY_REFERENCE);
@@ -268,7 +268,7 @@ describe("FirstPilotIntakeWizard", () => {
     render(<FirstPilotIntakeWizard />);
 
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
-      target: { value: "Retail API review" },
+      target: { value: "Retail API modernization review" },
     });
     fireEvent.click(screen.getByTestId("first-pilot-upload-photo-stub"));
     satisfyAllQuickStartL0MustQuestions();
@@ -302,7 +302,7 @@ describe("FirstPilotIntakeWizard", () => {
     render(<FirstPilotIntakeWizard />);
 
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
-      target: { value: "Retail API review" },
+      target: { value: "Retail API modernization review" },
     });
     fireEvent.change(screen.getByTestId("first-pilot-brief"), {
       target: {
@@ -377,7 +377,7 @@ describe("FirstPilotIntakeWizard", () => {
     render(<FirstPilotIntakeWizard />);
 
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
-      target: { value: "Retail API review" },
+      target: { value: "Retail API modernization review" },
     });
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
     fireEvent.click(screen.getByText(/Review standards selection/i));

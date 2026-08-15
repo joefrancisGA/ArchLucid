@@ -5,6 +5,10 @@ import {
   type QuickStartAnalyzableEvidenceInput,
 } from "@/lib/first-pilot-analyzable-evidence";
 import {
+  describeFirstPilotReviewTitleGap,
+  isFirstPilotReviewTitleAcceptable,
+} from "@/lib/first-pilot-review-title-quality";
+import {
   describeUniversalIntakeMustGap,
   isUniversalIntakeMustComplete,
   type UniversalIntakeMustCompletenessInput,
@@ -39,13 +43,7 @@ function toAnalyzableEvidenceInput(input: FirstPilotIntakeReadinessInput): Quick
 }
 
 export function normalizeFirstPilotReviewTitle(title: string): string {
-  const trimmed = title.trim();
-
-  if (trimmed.length >= FIRST_PILOT_MIN_TITLE_CHARS) {
-    return trimmed;
-  }
-
-  return "Architecture review";
+  return title.trim();
 }
 
 export function buildEvidenceBackedIntakeBrief(title: string, files: readonly File[], userBrief: string): string {
@@ -55,7 +53,7 @@ export function buildEvidenceBackedIntakeBrief(title: string, files: readonly Fi
     return trimmedBrief;
   }
 
-  const reviewTitle = normalizeFirstPilotReviewTitle(title);
+  const reviewTitle = normalizeFirstPilotReviewTitle(title) || "this architecture";
   const fileLines = files.map((file) => `- ${file.name}`).join("\n");
   const attachmentSection =
     fileLines.length > 0
@@ -73,7 +71,7 @@ export function buildEvidenceBackedIntakeBrief(title: string, files: readonly Fi
 }
 
 export function isFirstPilotIntakeReady(input: FirstPilotIntakeReadinessInput): boolean {
-  const titleReady = input.title.trim().length >= FIRST_PILOT_MIN_TITLE_CHARS;
+  const titleReady = isFirstPilotReviewTitleAcceptable(input.title);
   const briefReady = input.brief.trim().length >= FIRST_PILOT_MIN_BRIEF_CHARS;
   const evidenceReady = input.evidenceFileCount > 0;
   const l0Ready = isUniversalIntakeMustComplete(input.l0Must);
@@ -95,17 +93,18 @@ export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInpu
     return null;
   }
 
-  const titleReady = input.title.trim().length >= FIRST_PILOT_MIN_TITLE_CHARS;
+  const titleReady = isFirstPilotReviewTitleAcceptable(input.title);
   const briefLength = input.brief.trim().length;
   const evidenceReady = input.evidenceFileCount > 0;
   const l0Gap = describeUniversalIntakeMustGap(input.l0Must);
+  const titleGap = describeFirstPilotReviewTitleGap(input.title);
 
-  if (!titleReady && !evidenceReady && briefLength === 0) {
+  if (!titleReady && !evidenceReady && briefLength === 0 && input.title.trim().length === 0) {
     return `Add a review title and attach evidence or add architecture context (at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters) to start.`;
   }
 
   if (!titleReady) {
-    return "Add a review title to start.";
+    return titleGap ?? "Add a review title that names the system and the decision.";
   }
 
   if (!evidenceReady && briefLength === 0) {

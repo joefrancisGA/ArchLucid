@@ -23,6 +23,10 @@ function reviewFinding(overrides: Partial<QuickDecisionFinding> & Pick<QuickDeci
     muteReason: overrides.muteReason ?? null,
     enforcementTier: overrides.enforcementTier ?? "PolicyViolation",
     humanReviewStatus: overrides.humanReviewStatus ?? 1,
+    trustLabel: overrides.trustLabel,
+    policyRuleId: overrides.policyRuleId,
+    evidenceRefCount: overrides.evidenceRefCount,
+    confidenceLevel: overrides.confidenceLevel,
   };
 }
 

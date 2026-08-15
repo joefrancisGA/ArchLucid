@@ -24,6 +24,8 @@ const analyzableEvidenceDefaults = {
   limitedEvidenceAnalysisAcknowledged: false,
 };
 
+const qualityTitle = "Retail API modernization review";
+
 describe("first-pilot-intake", () => {
   it("buildEvidenceBackedIntakeBrief auto-tags uploaded files and meets minimum length", () => {
     const brief = buildEvidenceBackedIntakeBrief(
@@ -42,7 +44,7 @@ describe("first-pilot-intake", () => {
   it("isFirstPilotIntakeReady accepts title plus analyzable evidence without a long brief when L0 is complete", () => {
     expect(
       isFirstPilotIntakeReady({
-        title: "Retail API",
+        title: qualityTitle,
         brief: "",
         evidenceFileCount: 1,
         ...analyzableEvidenceDefaults,
@@ -54,7 +56,7 @@ describe("first-pilot-intake", () => {
   it("isFirstPilotIntakeReady rejects generic image-only evidence without acknowledgment (TB-2296)", () => {
     expect(
       isFirstPilotIntakeReady({
-        title: "Retail API",
+        title: qualityTitle,
         brief: "",
         evidenceFileCount: 1,
         evidenceFileNames: ["photo.png"],
@@ -80,7 +82,7 @@ describe("first-pilot-intake", () => {
   it("isFirstPilotIntakeReady requires L0 MUST clarifications even with evidence", () => {
     expect(
       isFirstPilotIntakeReady({
-        title: "Retail API",
+        title: qualityTitle,
         brief: "",
         evidenceFileCount: 1,
         ...analyzableEvidenceDefaults,
@@ -89,8 +91,21 @@ describe("first-pilot-intake", () => {
     ).toBe(false);
   });
 
-  it("normalizeFirstPilotReviewTitle falls back when title is too short", () => {
-    expect(normalizeFirstPilotReviewTitle("  ")).toBe("Architecture review");
+  it("isFirstPilotIntakeReady rejects activity-only titles even with evidence", () => {
+    expect(
+      isFirstPilotIntakeReady({
+        title: "Retail API review",
+        brief: "",
+        evidenceFileCount: 1,
+        ...analyzableEvidenceDefaults,
+        l0Must: completeL0Must,
+      }),
+    ).toBe(false);
+  });
+
+  it("normalizeFirstPilotReviewTitle trims without inventing a default title", () => {
+    expect(normalizeFirstPilotReviewTitle("  ")).toBe("");
+    expect(normalizeFirstPilotReviewTitle(qualityTitle)).toBe(qualityTitle);
   });
 
   it("describeFirstPilotIntakeGap names both title and evidence-or-context gates on cold load", () => {
@@ -106,10 +121,10 @@ describe("first-pilot-intake", () => {
     ).toBe("Add a review title and attach evidence or add architecture context (at least 100 characters) to start.");
   });
 
-  it("describeFirstPilotIntakeGap asks for evidence or context once a title exists", () => {
+  it("describeFirstPilotIntakeGap asks for evidence or context once a quality title exists", () => {
     expect(
       describeFirstPilotIntakeGap({
-        title: "Retail API",
+        title: qualityTitle,
         brief: "",
         evidenceFileCount: 0,
         evidenceFileNames: [],
@@ -122,7 +137,7 @@ describe("first-pilot-intake", () => {
   it("describeFirstPilotIntakeGap names the shortfall once context has been started", () => {
     expect(
       describeFirstPilotIntakeGap({
-        title: "Retail API",
+        title: qualityTitle,
         brief: "x".repeat(40),
         evidenceFileCount: 0,
         evidenceFileNames: [],
@@ -135,7 +150,7 @@ describe("first-pilot-intake", () => {
   it("describeFirstPilotIntakeGap surfaces L0 gaps once title and evidence are ready", () => {
     expect(
       describeFirstPilotIntakeGap({
-        title: "Retail API",
+        title: qualityTitle,
         brief: "",
         evidenceFileCount: 1,
         ...analyzableEvidenceDefaults,
@@ -147,7 +162,7 @@ describe("first-pilot-intake", () => {
   it("describeFirstPilotIntakeGap stays silent whenever submit is allowed", () => {
     expect(
       describeFirstPilotIntakeGap({
-        title: "Retail API",
+        title: qualityTitle,
         brief: "",
         evidenceFileCount: 1,
         ...analyzableEvidenceDefaults,
@@ -156,7 +171,7 @@ describe("first-pilot-intake", () => {
     ).toBeNull();
     expect(
       describeFirstPilotIntakeGap({
-        title: "Retail API",
+        title: qualityTitle,
         brief: "x".repeat(120),
         evidenceFileCount: 0,
         evidenceFileNames: [],
