@@ -441,12 +441,12 @@ export const MARKETING_TYPOGRAPHY = {
     "text-3xl font-semibold leading-tight tracking-tight text-al-text-primary sm:text-4xl lg:text-5xl",
   sectionTitle: "text-2xl font-semibold leading-tight tracking-tight text-al-text-primary",
   cardTitle: OPERATOR_TYPOGRAPHY.cardTitle,
-  /** Marketing body — ~16px for public landing readability (not operator 13px). */
-  body: "text-base font-normal leading-relaxed text-al-text-primary",
+  /** Marketing body — ~17px for public landing readability (not operator 13px). */
+  body: "text-[17px] font-normal leading-7 text-al-text-primary",
   /** Hero and pricing intros — slightly larger than marketing body copy. */
-  lead: "text-base leading-relaxed text-neutral-700 sm:text-lg dark:text-neutral-300",
-  /** Marketing metadata — ~14px captions (not operator 12px helper). */
-  meta: "text-sm font-normal leading-5 text-al-text-secondary",
+  lead: "text-[17px] leading-7 text-neutral-700 sm:text-lg sm:leading-8 dark:text-neutral-300",
+  /** Marketing metadata — ~15px captions (not operator 12px helper). */
+  meta: "text-[15px] font-normal leading-6 text-al-text-secondary",
   // teal-900 (≥4.5:1 on marketing hero bands); teal-800 fails axe on neutral-50.
   eyebrow: `${OPERATOR_TYPOGRAPHY.helper} font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200`,
   formLabel: `${OPERATOR_TYPE_SCALE.body} font-medium text-al-text-primary`,

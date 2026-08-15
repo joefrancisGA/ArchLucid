@@ -14,11 +14,19 @@ export const WHY_MARKETING_PDF_DOWNLOAD_LABEL = "Download differentiation overvi
 
 export const WHY_MARKETING_PDF_SECTION_TITLE = "Differentiation overview (PDF)";
 
+/** @deprecated PDF section demoted to quiet procurement link on /why — kept for drift guards. */
 export const WHY_MARKETING_PDF_SECTION_INTRO_BEFORE_LINK =
   "Download a single PDF that bundles the same read-only sample output as the ";
 
+/** @deprecated PDF section demoted to quiet procurement link on /why — kept for drift guards. */
 export const WHY_MARKETING_PDF_SECTION_INTRO_AFTER_LINK =
   " page (review excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in your environment, use the contact path on the getting started page.";
+
+export const WHY_PROCUREMENT_PDF_QUIET_PREFIX = "Need procurement detail? ";
+
+export const WHY_PROCUREMENT_PDF_QUIET_LINK_LABEL = "Download the complete differentiation brief";
+
+export const WHY_HARD_COMPARISON_DISCLOSURE_LABEL = "See detailed capability comparison";
 
 export const WHY_MARKET_LANDSCAPE_CITATION_NOTE =
   "Summarized wording only — citations and benchmark detail are included in the marketing overview PDF linked from this page.";
@@ -28,6 +36,15 @@ export const WHY_MARKET_LANDSCAPE_DISCLOSURE_LABEL = "More comparisons: adjacent
 
 export const WHY_BRAND_CATEGORY_DOWNLOAD_NOTE =
   "The downloadable differentiation overview carries the citation-backed drill-down for diligence teams who need paperwork parity.";
+
+/** Compact differentiation context — long-form comparisons live below the proof chain. */
+export const WHY_BRAND_CATEGORY_INTRO =
+  "Governed architecture reviews whose findings, signed decisions, and exports share one traceable evidence trail — not disposable chat output.";
+
+export const WHY_CLOSING_HEADING = "See what a governed architecture decision actually looks like";
+
+export const WHY_CLOSING_LEAD =
+  "Inspect the evidence, findings, approvals, audit trail, and final export from a completed review.";
 
 export const WHY_CLOSING_PRIMARY_CTA_LABEL = SEE_IT_PAGE_TITLE;
 

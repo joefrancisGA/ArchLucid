@@ -14,144 +14,116 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <div
       class="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20"
     >
-      <p
-        class="text-xs font-normal leading-[18px] text-al-text-secondary font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200"
-        data-testid="why-brand-category-eyebrow"
-      >
-        Architecture Proof Engine
-      </p>
-      <h1
-        class="mt-3 text-3xl font-semibold leading-tight tracking-tight text-al-text-primary sm:text-4xl lg:text-5xl"
-        id="why-hero-heading"
-      >
-        Why ArchLucid
-      </h1>
-      <p
-        class="mt-4 max-w-3xl text-base leading-relaxed text-neutral-700 sm:text-lg dark:text-neutral-300"
-        data-testid="why-hero-pitch"
-      >
-        Governed architecture reviews with traceable evidence, signed decisions, and audit-ready exports — not another chat box.
-      </p>
       <div
-        class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
-        data-testid="why-hero-cta-row"
+        class="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-12"
       >
+        <div>
+          <p
+            class="text-xs font-normal leading-[18px] text-al-text-secondary font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200"
+            data-testid="why-brand-category-eyebrow"
+          >
+            Architecture Proof Engine
+          </p>
+          <h1
+            class="mt-3 text-3xl font-semibold leading-tight tracking-tight text-al-text-primary sm:text-4xl lg:text-5xl"
+            id="why-hero-heading"
+          >
+            Why ArchLucid
+          </h1>
+          <p
+            class="mt-4 max-w-3xl text-[17px] leading-7 text-neutral-700 sm:text-lg sm:leading-8 dark:text-neutral-300"
+            data-testid="why-hero-pitch"
+          >
+            Governed architecture reviews with traceable evidence, signed decisions, and audit-ready exports — not another chat box.
+          </p>
+          <div
+            class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+            data-testid="why-hero-cta-row"
+          >
+            <a
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6 text-[15px]"
+              data-testid="why-hero-primary-cta"
+              href="/see-it"
+            >
+              See a finalized sample review
+            </a>
+            <a
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
+              data-testid="why-hero-secondary-cta"
+              href="/signup"
+            >
+              Start your evaluation
+            </a>
+          </div>
+        </div>
         <a
-          class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6 text-[15px]"
-          data-testid="why-hero-primary-cta"
+          aria-label="See a finalized sample review — open the public proof slice"
+          class="group block rounded-lg border border-neutral-200 bg-al-surface-raised text-left shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 marketing-hero-visual"
+          data-testid="why-hero-proof-card"
           href="/see-it"
         >
-          See a finalized sample review
-        </a>
-        <a
-          class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
-          data-testid="why-hero-secondary-cta"
-          href="/signup"
-        >
-          Start your evaluation
+          <div
+            class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800"
+          >
+            <p
+              class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+            >
+              Healthcare Claims intake modernization
+            </p>
+            <p
+              class="m-0 mt-1 text-[15px] font-normal leading-6 text-al-text-secondary"
+            >
+              Review AL-2841 · 12 findings · 3 approvals · 47 evidence references
+            </p>
+          </div>
+          <div
+            class="space-y-3 px-4 py-4"
+          >
+            <div
+              class="flex flex-wrap items-center gap-2"
+            >
+              <span
+                class="rounded-md border border-neutral-200 bg-white px-2 py-0.5 text-[13px] font-semibold text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950"
+              >
+                Finalized and signed
+              </span>
+              <span
+                class="text-[15px] font-normal leading-6 text-al-text-secondary"
+              >
+                Sealed review record · Policy pack v1.2 · Fabricated sample data
+              </span>
+            </div>
+            <p
+              class="m-0 group-hover:underline dark:text-teal-300 text-[15px] font-normal leading-6 text-al-text-secondary"
+            >
+              Inspect the full sample review →
+            </p>
+          </div>
         </a>
       </div>
     </div>
   </section>
   <section
-    aria-label="Differentiation context"
-    class="mt-10"
-    data-testid="why-brand-category-detail"
+    class="mt-12 rounded-xl border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800"
   >
     <p
-      class="max-w-3xl text-[13px] font-normal leading-5 text-al-text-secondary"
-      data-testid="why-brand-category-paragraph"
+      class="text-xs font-normal leading-[18px] text-al-text-secondary font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200"
     >
-      ArchLucid is an Architecture Proof Engine: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable differentiation overview carries the citation-backed drill-down for diligence teams who need paperwork parity.
+      First-principles outcome
     </p>
-    <p
-      class="mt-3 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
-      data-testid="why-proof-scope-statement"
+    <h2
+      class="mt-2 text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
+      id="why-hero-outcome-heading"
     >
-      Proof of diligence, not a performance guarantee: every finding traces to evidence, and the finalized package is hash-verified and auditable.
+      One buyer problem, one proof export
+    </h2>
+    <p
+      class="mt-3 max-w-3xl text-[17px] font-normal leading-7 text-al-text-primary text-al-text-secondary"
+      data-testid="why-outcome-led-value-proposition"
+    >
+      Cut architecture review cycle time with an evidence-backed proof export — sealed review record, findings, audit trail, and sponsor-ready readout — not a chat transcript.
     </p>
   </section>
-  <div
-    class="mt-6 space-y-3 text-left"
-    data-testid="why-orientation"
-  >
-    <section
-      aria-labelledby="why-sources-heading"
-      class="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-      data-testid="why-sources"
-    >
-      <h2
-        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
-        id="why-sources-heading"
-      >
-        Sources for follow-up
-      </h2>
-      <p
-        class="m-0 mt-1 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
-      >
-        Use these evaluation links when the comparison story turns into a sample proof, signup, or assurance review.
-      </p>
-      <ul
-        class="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-[13px] font-normal leading-5 text-al-text-primary"
-      >
-        <li>
-          <a
-            class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            href="/see-it"
-          >
-            See a sample review
-          </a>
-        </li>
-        <li>
-          <a
-            class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            href="/signup"
-          >
-            Start evaluation
-          </a>
-        </li>
-        <li>
-          <a
-            class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            href="/get-started"
-          >
-            Get started
-          </a>
-        </li>
-        <li>
-          <a
-            class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            href="/security-trust"
-          >
-            Assurance status
-          </a>
-        </li>
-        <li>
-          <a
-            class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            href="/trust"
-          >
-            Trust Center
-          </a>
-        </li>
-      </ul>
-    </section>
-    <aside
-      class="rounded-md border border-amber-200/80 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
-      data-testid="why-claim-discipline"
-    >
-      <h2
-        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
-      >
-        Marketing comparison only
-      </h2>
-      <p
-        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
-      >
-        This Why ArchLucid page compares product fit for evaluation — it is marketing differentiation orientation, not a sealed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.
-      </p>
-    </aside>
-  </div>
   <div
     class="mt-8"
   >
@@ -166,7 +138,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         Why this is not a chat answer
       </h2>
       <p
-        class="m-0 mt-2 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
+        class="m-0 mt-2 max-w-3xl text-[17px] font-normal leading-7 text-al-text-primary"
       >
         Each sponsor-facing claim can trace through stored evidence, a finding, a committed review record, an exportable artifact, and durable audit metadata — not a disposable LLM thread.
       </p>
@@ -206,7 +178,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               </svg>
             </span>
             <span
-              class="text-xs font-normal leading-[18px] text-al-text-secondary"
+              class="text-[15px] font-normal leading-6 text-al-text-secondary"
             >
               1
             </span>
@@ -218,7 +190,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           </div>
           <span
             aria-hidden="true"
-            class="flex shrink-0 items-center justify-center px-0 py-2 sm:px-2 sm:py-0 text-[13px] font-normal leading-5 text-al-text-primary"
+            class="flex shrink-0 items-center justify-center px-0 py-2 sm:px-2 sm:py-0 text-[17px] font-normal leading-7 text-al-text-primary"
           >
             <span
               class="sm:hidden"
@@ -263,7 +235,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               </svg>
             </span>
             <span
-              class="text-xs font-normal leading-[18px] text-al-text-secondary"
+              class="text-[15px] font-normal leading-6 text-al-text-secondary"
             >
               2
             </span>
@@ -275,7 +247,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           </div>
           <span
             aria-hidden="true"
-            class="flex shrink-0 items-center justify-center px-0 py-2 sm:px-2 sm:py-0 text-[13px] font-normal leading-5 text-al-text-primary"
+            class="flex shrink-0 items-center justify-center px-0 py-2 sm:px-2 sm:py-0 text-[17px] font-normal leading-7 text-al-text-primary"
           >
             <span
               class="sm:hidden"
@@ -322,7 +294,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               </svg>
             </span>
             <span
-              class="text-xs font-normal leading-[18px] text-al-text-secondary"
+              class="text-[15px] font-normal leading-6 text-al-text-secondary"
             >
               3
             </span>
@@ -334,7 +306,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           </div>
           <span
             aria-hidden="true"
-            class="flex shrink-0 items-center justify-center px-0 py-2 sm:px-2 sm:py-0 text-[13px] font-normal leading-5 text-al-text-primary"
+            class="flex shrink-0 items-center justify-center px-0 py-2 sm:px-2 sm:py-0 text-[17px] font-normal leading-7 text-al-text-primary"
           >
             <span
               class="sm:hidden"
@@ -380,7 +352,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               </svg>
             </span>
             <span
-              class="text-xs font-normal leading-[18px] text-al-text-secondary"
+              class="text-[15px] font-normal leading-6 text-al-text-secondary"
             >
               4
             </span>
@@ -392,7 +364,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           </div>
           <span
             aria-hidden="true"
-            class="flex shrink-0 items-center justify-center px-0 py-2 sm:px-2 sm:py-0 text-[13px] font-normal leading-5 text-al-text-primary"
+            class="flex shrink-0 items-center justify-center px-0 py-2 sm:px-2 sm:py-0 text-[17px] font-normal leading-7 text-al-text-primary"
           >
             <span
               class="sm:hidden"
@@ -438,7 +410,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               </svg>
             </span>
             <span
-              class="text-xs font-normal leading-[18px] text-al-text-secondary"
+              class="text-[15px] font-normal leading-6 text-al-text-secondary"
             >
               5
             </span>
@@ -453,31 +425,104 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     </section>
   </div>
   <section
-    class="mt-12 rounded-xl border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800"
+    aria-label="Differentiation context"
+    class="mt-10"
+    data-testid="why-brand-category-detail"
   >
     <p
-      class="text-xs font-normal leading-[18px] text-al-text-secondary font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200"
+      class="max-w-3xl text-[17px] font-normal leading-7 text-al-text-secondary"
+      data-testid="why-brand-category-paragraph"
     >
-      First-principles outcome
-    </p>
-    <h2
-      class="mt-2 text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
-      id="why-hero-outcome-heading"
-    >
-      One buyer problem, one proof export
-    </h2>
-    <p
-      class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
-      data-testid="why-outcome-led-value-proposition"
-    >
-      Cut architecture review cycle time with an evidence-backed proof export — sealed review record, findings, audit trail, and sponsor-ready readout — not a chat transcript.
+      ArchLucid is an Architecture Proof Engine: Governed architecture reviews whose findings, signed decisions, and exports share one traceable evidence trail — not disposable chat output.
     </p>
     <p
-      class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
+      class="mt-3 max-w-3xl text-[15px] font-normal leading-6 text-al-text-secondary"
+      data-testid="why-proof-scope-statement"
     >
-      Multi-agent execution sits behind those outcomes so teams move faster without losing the governed record CFOs and regulators expect.
+      Proof of diligence, not a performance guarantee: every finding traces to evidence, and the finalized package is hash-verified and auditable.
     </p>
   </section>
+  <div
+    class="mt-6 space-y-3 text-left"
+    data-testid="why-orientation"
+  >
+    <section
+      aria-labelledby="why-sources-heading"
+      class="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="why-sources"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+        id="why-sources-heading"
+      >
+        Sources for follow-up
+      </h2>
+      <p
+        class="m-0 mt-1 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        Use these evaluation links when the comparison story turns into a sample proof, signup, or assurance review.
+      </p>
+      <ul
+        class="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        <li>
+          <a
+            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+            href="/see-it"
+          >
+            See a sample review
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+            href="/signup"
+          >
+            Start evaluation
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+            href="/get-started"
+          >
+            Get started
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+            href="/security-trust"
+          >
+            Assurance status
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+            href="/trust"
+          >
+            Trust Center
+          </a>
+        </li>
+      </ul>
+    </section>
+    <aside
+      class="rounded-md border border-neutral-200 bg-neutral-50/40 p-3 dark:border-neutral-700 dark:bg-neutral-900/30"
+      data-testid="why-claim-discipline"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+      >
+        About these comparisons
+      </h2>
+      <p
+        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        Product differentiation only — use your own evidence for formal evaluation. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.
+      </p>
+    </aside>
+  </div>
   <section
     aria-labelledby="why-vs-chat-assistant-heading"
     class="mt-12"
@@ -490,9 +535,9 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       vs a chat assistant (ChatGPT, Copilot, Claude)
     </h2>
     <p
-      class="mt-2 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
+      class="mt-2 max-w-3xl text-[15px] font-normal leading-6 text-al-text-secondary"
     >
-      Many buyers already use a general LLM for architecture questions. ArchLucid is not “another chat box” — it persists a committed review, governance gate, and audit trail a session cannot replace.
+      Many buyers already use a general LLM for architecture questions. ArchLucid persists a committed review, governance gate, and audit trail a session cannot replace.
     </p>
     <ul
       class="mt-4 grid gap-3 sm:grid-cols-2"
@@ -501,12 +546,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         class="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <p
-          class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
+          class="m-0 dark:text-neutral-100 text-[15px] font-semibold leading-[22px] text-al-text-primary"
         >
           Durable review artifact
         </p>
         <p
-          class="m-0 mt-2 text-neutral-700 dark:text-neutral-300"
+          class="m-0 mt-2 dark:text-neutral-300 text-[17px] font-normal leading-7 text-al-text-primary"
         >
           <span
             class="font-medium text-teal-800 dark:text-teal-300"
@@ -516,7 +561,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
            Committed sealed review record in SQL with review record id and audit trail
         </p>
         <p
-          class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
+          class="m-0 mt-1 dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
         >
           <span
             class="font-medium"
@@ -530,12 +575,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         class="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <p
-          class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
+          class="m-0 dark:text-neutral-100 text-[15px] font-semibold leading-[22px] text-al-text-primary"
         >
           Governance before commit
         </p>
         <p
-          class="m-0 mt-2 text-neutral-700 dark:text-neutral-300"
+          class="m-0 mt-2 dark:text-neutral-300 text-[17px] font-normal leading-7 text-al-text-primary"
         >
           <span
             class="font-medium text-teal-800 dark:text-teal-300"
@@ -545,7 +590,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
            Optional pre-commit gate blocks policy violations before the review record is canonical
         </p>
         <p
-          class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
+          class="m-0 mt-1 dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
         >
           <span
             class="font-medium"
@@ -559,12 +604,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         class="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <p
-          class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
+          class="m-0 dark:text-neutral-100 text-[15px] font-semibold leading-[22px] text-al-text-primary"
         >
           Evidence per finding
         </p>
         <p
-          class="m-0 mt-2 text-neutral-700 dark:text-neutral-300"
+          class="m-0 mt-2 dark:text-neutral-300 text-[17px] font-normal leading-7 text-al-text-primary"
         >
           <span
             class="font-medium text-teal-800 dark:text-teal-300"
@@ -574,7 +619,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
            Evidence refs and explainability traces on structured findings
         </p>
         <p
-          class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
+          class="m-0 mt-1 dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
         >
           <span
             class="font-medium"
@@ -588,12 +633,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         class="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <p
-          class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
+          class="m-0 dark:text-neutral-100 text-[15px] font-semibold leading-[22px] text-al-text-primary"
         >
           Sponsor export
         </p>
         <p
-          class="m-0 mt-2 text-neutral-700 dark:text-neutral-300"
+          class="m-0 mt-2 dark:text-neutral-300 text-[17px] font-normal leading-7 text-al-text-primary"
         >
           <span
             class="font-medium text-teal-800 dark:text-teal-300"
@@ -603,7 +648,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
            Repeatable sponsor packet and labeled ROI basis (buyer-provided / demo / not collected)
         </p>
         <p
-          class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
+          class="m-0 mt-1 dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
         >
           <span
             class="font-medium"
@@ -617,12 +662,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         class="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <p
-          class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
+          class="m-0 dark:text-neutral-100 text-[15px] font-semibold leading-[22px] text-al-text-primary"
         >
           Audit trail
         </p>
         <p
-          class="m-0 mt-2 text-neutral-700 dark:text-neutral-300"
+          class="m-0 mt-2 dark:text-neutral-300 text-[17px] font-normal leading-7 text-al-text-primary"
         >
           <span
             class="font-medium text-teal-800 dark:text-teal-300"
@@ -632,7 +677,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
            Typed AuditEvents with correlation ids for mutating API work
         </p>
         <p
-          class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
+          class="m-0 mt-1 dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
         >
           <span
             class="font-medium"
@@ -644,7 +689,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       </li>
     </ul>
     <p
-      class="mt-3 text-sm text-neutral-600 dark:text-neutral-400"
+      class="mt-3 dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
     >
       More detail:
        
@@ -679,7 +724,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         class="border-t border-neutral-200 px-4 pb-4 pt-3 dark:border-neutral-800"
       >
         <p
-          class="max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400"
+          class="max-w-3xl dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
         >
           Summarized wording only — citations and benchmark detail are included in the marketing overview PDF linked from this page.
         </p>
@@ -687,7 +732,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
         >
           <table
-            class="w-full min-w-[60rem] border-collapse text-left text-sm"
+            class="w-full min-w-[60rem] border-collapse text-left text-[15px] font-normal leading-6 text-al-text-secondary"
             data-testid="why-market-landscape-mini-table"
           >
             <thead>
@@ -824,37 +869,584 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     </details>
   </section>
   <section
-    class="rounded-md border border-neutral-200 bg-neutral-100/80 dark:border-neutral-800 dark:bg-neutral-900/50 p-4"
+    aria-labelledby="why-hard-compare-heading"
+    class="mt-12"
+    data-testid="why-governance-comparison"
   >
     <h2
       class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
+      id="why-hard-compare-heading"
     >
-      Differentiation overview (PDF)
+      Governance capability comparison
     </h2>
     <p
-      class="mt-2 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
+      class="mt-2 max-w-3xl dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
     >
-      Download a single PDF that bundles the same read-only sample output as the 
-      <a
-        class="font-medium font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-        href="/see-it"
-      >
-        see-it sample review
-      </a>
-       page (review excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in your environment, use the contact path on the getting started page.
+      Five differentiators that matter most in procurement — not a vendor scorecard.
     </p>
-    <p
-      class="mt-3"
+    <div
+      class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
     >
+      <table
+        class="w-full border-collapse text-left text-[15px] font-normal leading-6 text-al-text-secondary"
+        data-testid="why-governance-summary-table"
+      >
+        <caption
+          class="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-left text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+        >
+          ArchLucid vs typical chat AI — governance at a glance
+        </caption>
+        <thead>
+          <tr
+            class="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/80"
+          >
+            <th
+              class="min-w-[220px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              Capability
+            </th>
+            <th
+              class="min-w-[120px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              ArchLucid
+            </th>
+            <th
+              class="min-w-[120px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              Typical chat AI
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Immutable review record
+            </th>
+            <td
+              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              ✓
+            </td>
+            <td
+              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              —
+            </td>
+          </tr>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Evidence-linked findings
+            </th>
+            <td
+              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              ✓
+            </td>
+            <td
+              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              partial
+            </td>
+          </tr>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Approval gates
+            </th>
+            <td
+              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              ✓
+            </td>
+            <td
+              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              —
+            </td>
+          </tr>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Sponsor-ready export integrity
+            </th>
+            <td
+              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              ✓
+            </td>
+            <td
+              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              —
+            </td>
+          </tr>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Auditable decision history
+            </th>
+            <td
+              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              ✓
+            </td>
+            <td
+              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              —
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p
+      class="mt-4 dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
+    >
+      Need procurement detail? 
       <a
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[13px] font-semibold leading-[18px] bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-9 px-4 py-2"
+        class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
         data-testid="why-proof-pack-download"
         download="why-archlucid-pack.pdf"
         href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
       >
-        Download differentiation overview (PDF)
+        Download the complete differentiation brief
       </a>
+       →
     </p>
+    <details
+      class="group mt-6 rounded-lg border border-neutral-200 dark:border-neutral-800"
+      data-testid="why-hard-comparison-disclosure"
+    >
+      <summary
+        class="cursor-pointer list-none px-4 py-3 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden"
+        data-testid="why-hard-comparison-disclosure-trigger"
+      >
+        <span
+          class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
+        >
+          See detailed capability comparison
+        </span>
+      </summary>
+      <div
+        class="border-t border-neutral-200 px-4 pb-4 pt-3 dark:border-neutral-800"
+      >
+        <p
+          class="max-w-3xl dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
+        >
+          Symbols in the product columns (✓ / partial / —) summarize capability depth; each row links to diligence references.
+        </p>
+        <div
+          class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
+        >
+          <table
+            class="w-full min-w-[72rem] border-collapse text-left text-[15px] font-normal leading-6 text-al-text-secondary"
+            data-testid="why-hard-comparison-table"
+          >
+            <caption
+              class="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-left text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+            >
+              ArchLucid vs typical adjacent stacks — governance-focused capability rows
+            </caption>
+            <thead>
+              <tr
+                class="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/80"
+              >
+                <th
+                  class="min-w-[220px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+                  scope="col"
+                >
+                  Claim
+                </th>
+                <th
+                  class="min-w-[140px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+                  scope="col"
+                >
+                  Verify
+                </th>
+                <th
+                  class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+                  scope="col"
+                >
+                  ArchLucid
+                </th>
+                <th
+                  class="min-w-[120px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+                  scope="col"
+                >
+                  draw.io+Confluence
+                </th>
+                <th
+                  class="min-w-[140px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+                  scope="col"
+                >
+                  GitHub Copilot for generic IaC review
+                </th>
+                <th
+                  class="min-w-[120px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+                  scope="col"
+                >
+                  Generic AI architect tool
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+              >
+                <th
+                  class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+                  scope="row"
+                >
+                  Every commit produces a versioned, immutable review record
+                </th>
+                <td
+                  class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  <div
+                    class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
+                  >
+                    <a
+                      class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                      href="/showcase/customer-intake-modernization"
+                    >
+                      Enterprise customer intake sample review
+                    </a>
+                  </div>
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  ✓
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  partial
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+              </tr>
+              <tr
+                class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+              >
+                <th
+                  class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+                  scope="row"
+                >
+                  Every material change produces a typed audit record in an append-only store
+                </th>
+                <td
+                  class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  <div
+                    class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
+                  >
+                    <a
+                      class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                      download=""
+                      href="/v1/marketing/trust-center/evidence-pack.zip"
+                    >
+                      Assurance evidence bundle (ZIP)
+                    </a>
+                    <a
+                      class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                      href="/help/audit-trail"
+                    >
+                      Audit trail
+                    </a>
+                  </div>
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  ✓
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  partial
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+              </tr>
+              <tr
+                class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+              >
+                <th
+                  class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+                  scope="row"
+                >
+                  Tenant isolation uses separate database catalogs per tenant, with application-layer scope enforcement on every request
+                </th>
+                <td
+                  class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  <div
+                    class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
+                  >
+                    <a
+                      class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                      href="/help/data-handling"
+                    >
+                      Data handling and tenant isolation
+                    </a>
+                    <a
+                      class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                      href="/security-trust"
+                    >
+                      Assurance status
+                    </a>
+                  </div>
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  ✓
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+              </tr>
+              <tr
+                class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+              >
+                <th
+                  class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+                  scope="row"
+                >
+                  Authentication fails closed by default (API keys disabled until enabled)
+                </th>
+                <td
+                  class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  <div
+                    class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
+                  >
+                    <a
+                      class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                      href="/help/authentication-sign-in"
+                    >
+                      Authentication and sign-in
+                    </a>
+                    <a
+                      class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                      href="/trust"
+                    >
+                      Trust center
+                    </a>
+                  </div>
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  ✓
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  partial
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+              </tr>
+              <tr
+                class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+              >
+                <th
+                  class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+                  scope="row"
+                >
+                  Comparison replay can re-derive the same artifact and detect drift
+                </th>
+                <td
+                  class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  <div
+                    class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
+                  >
+                    <a
+                      class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                      href="/help/comparison-replay"
+                    >
+                      Compare and replay
+                    </a>
+                  </div>
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  ✓
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+              </tr>
+              <tr
+                class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+              >
+                <th
+                  class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+                  scope="row"
+                >
+                  Findings carry typed payloads per category, not free-text
+                </th>
+                <td
+                  class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  <div
+                    class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
+                  >
+                    <a
+                      class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                      href="/showcase/claims-intake-modernization"
+                    >
+                      Claims regulated-depth evidence trail
+                    </a>
+                  </div>
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  ✓
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  partial
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  partial
+                </td>
+              </tr>
+              <tr
+                class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+              >
+                <th
+                  class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+                  scope="row"
+                >
+                  Governance gate can block configured high-severity changes before approval
+                </th>
+                <td
+                  class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  <div
+                    class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
+                  >
+                    <a
+                      class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                      href="/help/governance-approval"
+                    >
+                      Governance approval
+                    </a>
+                  </div>
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  ✓
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+                <td
+                  class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+                >
+                  —
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </details>
   </section>
   <section
     aria-labelledby="why-proof-ladder-heading"
@@ -868,9 +1460,9 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       Inspect a sample review
     </h2>
     <p
-      class="mt-2 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
+      class="mt-2 max-w-3xl text-[15px] font-normal leading-6 text-al-text-secondary"
     >
-      Start with the anonymous Claims-static proof path — the same universe as the welcome and see-it funnels. A separate Contoso-labeled retail sample is available when you need a longer in-product preview.
+      Start with the anonymous enterprise intake proof path — the same universe as the welcome and see-it funnels. A separate enterprise retail sample is available when you need a longer in-product preview.
     </p>
     <div
       class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
@@ -885,430 +1477,29 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       <a
         class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
         data-testid="why-proof-ladder-sample-cta"
-        href="/showcase/claims-intake-modernization"
+        href="/showcase/customer-intake-modernization"
       >
         Healthcare Claims sample review
       </a>
     </div>
     <p
-      class="mt-4 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
+      class="mt-4 max-w-3xl text-[17px] font-normal leading-7 text-al-text-primary"
       data-testid="why-proof-ladder-links"
     >
       <a
         class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-        href="/live-demo"
+        href="/get-started"
       >
-        Prefer a longer walkthrough?
+        Ready to start your evaluation?
       </a>
        · 
       <a
         class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-        href="/demo/preview"
+        href="/showcase/customer-intake-modernization"
       >
-        Retail Contoso sample (longer preview)
+        Enterprise retail sample (longer preview)
       </a>
     </p>
-  </section>
-  <section
-    aria-labelledby="why-hard-compare-heading"
-    class="mt-12"
-  >
-    <h2
-      class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
-      id="why-hard-compare-heading"
-    >
-      Governance capability comparison
-    </h2>
-    <p
-      class="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400"
-    >
-      Symbols in the product columns (✓ / partial / —) summarize capability depth; each row links to diligence references. This section is a governance capability comparison — not a vendor scorecard.
-    </p>
-    <div
-      class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
-    >
-      <table
-        class="w-full min-w-[72rem] border-collapse text-left text-sm"
-        data-testid="why-hard-comparison-table"
-      >
-        <caption
-          class="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-left text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
-        >
-          ArchLucid vs typical adjacent stacks — governance-focused capability rows
-        </caption>
-        <thead>
-          <tr
-            class="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/80"
-          >
-            <th
-              class="min-w-[220px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
-              scope="col"
-            >
-              Claim
-            </th>
-            <th
-              class="min-w-[140px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
-              scope="col"
-            >
-              Verify
-            </th>
-            <th
-              class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
-              scope="col"
-            >
-              ArchLucid
-            </th>
-            <th
-              class="min-w-[120px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
-              scope="col"
-            >
-              draw.io+Confluence
-            </th>
-            <th
-              class="min-w-[140px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
-              scope="col"
-            >
-              GitHub Copilot for generic IaC review
-            </th>
-            <th
-              class="min-w-[120px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
-              scope="col"
-            >
-              Generic AI architect tool
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Every commit produces a versioned, immutable review record
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <div
-                class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
-              >
-                <a
-                  class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/showcase/claims-intake-modernization"
-                >
-                  Claims sample architecture review
-                </a>
-              </div>
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              ✓
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              partial
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Every material change produces a typed audit record in an append-only store
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <div
-                class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
-              >
-                <a
-                  class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  download=""
-                  href="/v1/marketing/trust-center/evidence-pack.zip"
-                >
-                  Assurance evidence bundle (ZIP)
-                </a>
-                <a
-                  class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/help/audit-trail"
-                >
-                  Audit trail
-                </a>
-              </div>
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              ✓
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              partial
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Tenant isolation uses separate database catalogs per tenant, with application-layer scope enforcement on every request
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <div
-                class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
-              >
-                <a
-                  class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/help/data-handling"
-                >
-                  Data handling and tenant isolation
-                </a>
-                <a
-                  class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/security-trust"
-                >
-                  Assurance status
-                </a>
-              </div>
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              ✓
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Authentication fails closed by default (API keys disabled until enabled)
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <div
-                class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
-              >
-                <a
-                  class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/help/authentication-sign-in"
-                >
-                  Authentication and sign-in
-                </a>
-                <a
-                  class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/trust"
-                >
-                  Trust center
-                </a>
-              </div>
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              ✓
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              partial
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Comparison replay can re-derive the same artifact and detect drift
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <div
-                class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
-              >
-                <a
-                  class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/help/comparison-replay"
-                >
-                  Compare and replay
-                </a>
-              </div>
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              ✓
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Findings carry typed payloads per category, not free-text
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <div
-                class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
-              >
-                <a
-                  class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/showcase/claims-intake-modernization"
-                >
-                  Claims evidence trail
-                </a>
-              </div>
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              ✓
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              partial
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              partial
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Governance gate can block configured high-severity changes before approval
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <div
-                class="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug"
-              >
-                <a
-                  class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/help/governance-approval"
-                >
-                  Governance approval
-                </a>
-              </div>
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              ✓
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-            <td
-              class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              —
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
   </section>
   <section
     aria-labelledby="why-closing-cta-heading"
@@ -1319,12 +1510,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
       id="why-closing-cta-heading"
     >
-      Next step
+      See what a governed architecture decision actually looks like
     </h2>
     <p
-      class="mt-2 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
+      class="mt-2 max-w-3xl text-[17px] font-normal leading-7 text-al-text-primary text-al-text-secondary"
     >
-      Inspect the public sample review, then start an evaluation when you are ready to bring your own architecture evidence.
+      Inspect the evidence, findings, approvals, audit trail, and final export from a completed review.
     </p>
     <div
       class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
@@ -1345,7 +1536,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       </a>
     </div>
     <p
-      class="mt-4 text-sm text-neutral-600 dark:text-neutral-400"
+      class="mt-4 dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
     >
       For sponsor-ready language and procurement context, see the
        
