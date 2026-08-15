@@ -1,10 +1,30 @@
 import type { Redirect } from "next/dist/lib/load-custom-routes";
 
+import {
+  MARKETING_CANONICAL_DEMO_PATH,
+  MARKETING_CANONICAL_GET_STARTED_PATH,
+} from "@/lib/marketing/marketing-entry-spine";
+
 /**
  * TB-2234 / TB-2236 — Allowlisted permanent bookmark redirects.
  * IA batch 4 retired blanket next.config redirects; these rows are explicit owner-approved shims only.
  */
 export const BOOKMARK_PERMANENT_REDIRECTS: Redirect[] = [
+  {
+    source: "/try",
+    destination: MARKETING_CANONICAL_GET_STARTED_PATH,
+    permanent: true,
+  },
+  {
+    source: "/live-demo",
+    destination: MARKETING_CANONICAL_DEMO_PATH,
+    permanent: true,
+  },
+  {
+    source: "/demo/preview",
+    destination: MARKETING_CANONICAL_DEMO_PATH,
+    permanent: true,
+  },
   {
     source: "/runs/:reviewId",
     destination: "/architecture/reviews/:reviewId",
@@ -13,31 +33,6 @@ export const BOOKMARK_PERMANENT_REDIRECTS: Redirect[] = [
   {
     source: "/runs/:reviewId/:path*",
     destination: "/architecture/reviews/:reviewId/:path*",
-    permanent: true,
-  },
-  {
-    source: "/try",
-    destination: "/see-it",
-    permanent: true,
-  },
-  {
-    source: "/live-demo",
-    destination: "/see-it",
-    permanent: true,
-  },
-  {
-    source: "/live-demo/:path*",
-    destination: "/see-it",
-    permanent: true,
-  },
-  {
-    source: "/demo/preview",
-    destination: "/see-it",
-    permanent: true,
-  },
-  {
-    source: "/demo/preview/:path*",
-    destination: "/see-it",
     permanent: true,
   },
   {
