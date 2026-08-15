@@ -153,7 +153,10 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             interview = _interviewService.ApplyAnswers(model, interview, request.FramingAnswers);
         }
 
-        List<SpecialistReviewResult> specialistReviews = await RunSpecialistReviewsAsync(model, cancellationToken);
+        List<SpecialistReviewResult> specialistReviews = await RunSpecialistReviewsAsync(
+            model,
+            request.DeclaredPriorities,
+            cancellationToken);
 
         if (!interview.IsFramingComplete)
         {
@@ -405,14 +408,12 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
     private async Task<List<SpecialistReviewResult>> RunSpecialistReviewsAsync(
         ArchitectureKnowledgeModel model,
+        IReadOnlyList<string> declaredPriorities,
         CancellationToken cancellationToken)
     {
-        QualityDimension[] dimensions =
-        [
-            QualityDimension.Reliability,
-            QualityDimension.Security,
-            QualityDimension.Cost,
-        ];
+        QualityDimension[] dimensions = DeclaredPrioritySpecialistDepthSelector
+            .SelectDimensions(declaredPriorities)
+            .ToArray();
 
         SpecialistReviewResult[] reviews = await BoundedParallelMap.MapAsync(
             dimensions,
