@@ -155,4 +155,32 @@ public sealed class DecisionGradeFindingProvenanceValidatorTests
 
         DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
     }
+
+    [Fact]
+    public void GetViolations_allows_advisor_cost_recommendation_with_rules_and_payload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "advisor-1",
+                    FindingType = "AdvisorCostRecommendation",
+                    EngineType = "advisor-cost-recommendation",
+                    Category = "CostOptimization",
+                    Payload = new AdvisorCostRecommendationFindingPayload
+                    {
+                        RecommendationId = "rec-1",
+                        Title = "Right-size underutilized VM",
+                        Category = "Cost",
+                        EntryIndex = 0,
+                    },
+                    Trace = new ExplainabilityTrace { RulesApplied = ["extractor-advisor-cost-json"] },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
 }

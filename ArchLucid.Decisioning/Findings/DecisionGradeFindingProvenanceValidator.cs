@@ -95,6 +95,9 @@ public static class DecisionGradeFindingProvenanceValidator
         if (finding.Payload is RequirementFindingPayload requirement)
             return !string.IsNullOrWhiteSpace(requirement.RequirementName);
 
+        if (finding.Payload is AdvisorCostRecommendationFindingPayload advisorCost)
+            return !string.IsNullOrWhiteSpace(advisorCost.RecommendationId);
+
         return false;
     }
 
