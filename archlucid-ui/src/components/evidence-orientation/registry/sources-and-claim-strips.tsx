@@ -327,8 +327,8 @@ export function TrustCenterEvidenceOrientationStrip(): React.JSX.Element {
       margin="mt-8"
       sourcesIntro={TRUST_CENTER_SOURCES_INTRO}
       sources={TRUST_CENTER_SOURCES}
-      claimHeading="Public assurance posture only"
-      claim={TRUST_CENTER_CLAIM_DISCIPLINE}
+      claimHeading=""
+      claim=""
     />
   );
 }

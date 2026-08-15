@@ -152,7 +152,7 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "TXX",
     path: "/trust",
     section: "Marketing",
-    note: "Trust Center (Marketing) - MarketingTrustCenterBuyerBody with TrustCenterEvidenceOrientationStrip (evaluation Sources + claim-discipline: public assurance downloads only; not CPA SOC 2 / third-party pen-test unless linked artifact says so), public evidence pack + diligence contact. Not an operator PageContextualHelp surface. Score 58/100 (2026-08-08) - marketing Trust Center ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Trust Center (Marketing) - MarketingTrustCenterBuyerBody on trust-center rail with skip link, hero last-reviewed meta, primary ZIP CTA, merged trust content + help topics, revision history, Related trust surfaces disclosure, and TrustCenterEvidenceOrientationStrip Sources-only footer (claim callout removed). Public evidence pack + diligence contact. Not an operator PageContextualHelp surface. Score 58/100 Evidence (marketing Trust Center ceiling); UX 80/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["MarketingTrustCenterBuyerBody", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for why marketing page. Owner backlog shorthand: WHY. */

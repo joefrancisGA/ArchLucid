@@ -1,3 +1,5 @@
+import { TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF } from "@/lib/trust-center-public-assurance";
+
 export const TRUST_CENTER_SECURITY_EMAIL = "security@archlucid.net" as const;
 
 export const TRUST_CENTER_PUBLIC_EVIDENCE_VERSION = "2026.05" as const;
@@ -70,8 +72,8 @@ export const TRUST_ASSURANCE_GLANCE_PANELS: readonly TrustAssuranceGlancePanel[]
       "Questionnaire-oriented summaries with immutable change logging",
       "Procurement artifacts mapped to common security questionnaires",
     ],
-    actionLabel: "View public evidence",
-    actionHref: "#trust-public-evidence",
+    actionLabel: "Download evidence pack (ZIP)",
+    actionHref: TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF,
   },
   {
     id: "shared-diligence",
