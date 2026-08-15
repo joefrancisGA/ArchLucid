@@ -116,7 +116,6 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
       </header>
 
       <TrustAssuranceSecurityTrustVocabularyRail currentSurfaceId="trust-center" />
-      <TrustCenterEvidenceOrientationStrip />
 
       <section aria-labelledby="trust-assurance-glance-heading" data-testid="trust-center-assurance-glance">
         <h2
@@ -399,6 +398,8 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           </Link>
         </p>
       </section>
+
+      <TrustCenterEvidenceOrientationStrip />
     </div>
   );
 }

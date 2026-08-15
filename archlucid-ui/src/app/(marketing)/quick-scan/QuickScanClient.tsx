@@ -308,7 +308,7 @@ export function QuickScanClient(): ReactElement {
             </p>
           </header>
 
-          <QuickScanEvidenceOrientationStrip />
+          <QuickScanEvidenceOrientationStrip part="claim" />
 
           <QuickScanForm
             values={formValues}
@@ -564,6 +564,8 @@ export function QuickScanClient(): ReactElement {
           </div>
         </section>
       ) : null}
+
+      <QuickScanEvidenceOrientationStrip part="sources" />
     </div>
   );
 }

@@ -117,7 +117,6 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
       </section>
 
       <TrustAssuranceSecurityTrustVocabularyRail currentSurfaceId="assurance-status" />
-      <SecurityTrustEvidenceOrientationStrip />
 
       <section aria-labelledby="security-trust-evidence-groups" className="space-y-4">
         <h2 id="security-trust-evidence-groups" className={MARKETING_TYPOGRAPHY.sectionTitle}>
@@ -265,6 +264,8 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
           <SecurityTrustPrimaryActions />
         </div>
       </section>
+
+      <SecurityTrustEvidenceOrientationStrip />
     </MarketingPageShell>
   );
 }

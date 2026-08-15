@@ -180,8 +180,6 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
             </div>
           </header>
 
-          <PrivacyEvidenceOrientationStrip />
-
           {props.bodyMarkdown.length > 0 ? (
             <div className="mt-8" data-testid="privacy-policy-body">
               <MarketingAccessibilityMarkdownFragment
@@ -206,6 +204,8 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
           )}
 
           <PrivacyPolicyRelatedDocuments documents={props.relatedDocuments} />
+
+          <PrivacyEvidenceOrientationStrip />
         </article>
 
         <div className="hidden xl:block">

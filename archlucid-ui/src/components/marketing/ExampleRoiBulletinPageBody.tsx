@@ -116,7 +116,7 @@ export function ExampleRoiBulletinPageBody(props: ExampleRoiBulletinPageBodyProp
 
 
 
-      <ExampleRoiBulletinEvidenceOrientationStrip />
+      <ExampleRoiBulletinEvidenceOrientationStrip part="claim" />
 
 
 
@@ -255,6 +255,8 @@ export function ExampleRoiBulletinPageBody(props: ExampleRoiBulletinPageBodyProp
         </p>
 
       </CollapsibleSection>
+
+      <ExampleRoiBulletinEvidenceOrientationStrip part="sources" />
 
     </div>
 

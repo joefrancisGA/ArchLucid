@@ -51,12 +51,14 @@ export default async function SeeItMarketingPage() {
           Evaluation slice for this sample — the same proof shape buyers use on sponsor report and review
           pages.
         </p>
+        <SeeItEvidenceOrientationStrip part="claim" />
+
         <div className="mt-8">
           <SeeItMarketingBody source={source} payload={normalized} />
         </div>
       </div>
 
-      <SeeItEvidenceOrientationStrip />
+      <SeeItEvidenceOrientationStrip part="sources" />
     </MarketingPageShell>
   );
 }

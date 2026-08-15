@@ -49,8 +49,6 @@ export function ComplianceJourneyPageBody(): ReactNode {
         </Button>
       </header>
 
-      <ComplianceJourneyEvidenceOrientationStrip />
-
       <div className="space-y-6" data-testid="compliance-journey-stages">
         {COMPLIANCE_JOURNEY_STAGES.map((stage) => {
           const secondaryLinks = stageSecondaryLinks(stage.id);
@@ -93,6 +91,8 @@ export function ComplianceJourneyPageBody(): ReactNode {
           );
         })}
       </div>
+
+      <ComplianceJourneyEvidenceOrientationStrip />
     </div>
   );
 }
