@@ -71,4 +71,23 @@ describe("finding-confidence-filter", () => {
     expect(visibility.visibleFindings.map((row) => row.findingId)).toEqual(["blocking-low"]);
     expect(visibility.hiddenByConfidenceCount).toBe(1);
   });
+
+  it("does not treat disposition-accepted policy violations as approval-blocking", () => {
+    const accepted = finding({
+      enforcementTier: "PolicyViolation",
+      confidenceLevel: "Low",
+      humanReviewStatus: 1,
+      aiReasoning: {
+        wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+        reasoningTrace: "",
+      },
+    });
+
+    expect(isApprovalBlockingFinding(accepted)).toBe(false);
+
+    const partition = partitionQuickDecisionFindingsByConfidence([accepted]);
+
+    expect(partition.trustedFindings).toHaveLength(0);
+    expect(partition.lowConfidenceFindings.map((row) => row.findingId)).toEqual(["f-1"]);
+  });
 });

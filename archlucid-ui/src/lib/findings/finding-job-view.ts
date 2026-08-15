@@ -97,6 +97,19 @@ function isGovernanceOpenRow(row: GovernanceFindingQueueRow): boolean {
   return true;
 }
 
+/** True when human review or disposition closes the finding for governance approval gating. */
+export function isReviewFindingDispositionClosed(finding: QuickDecisionFinding): boolean {
+  const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
+
+  if (reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden") {
+    return true;
+  }
+
+  const disposition = normalizeDisposition(readDispositionFromReviewFinding(finding));
+
+  return isReadyDisposition(disposition);
+}
+
 export function classifyReviewFindingJobView(finding: QuickDecisionFinding): FindingJobView {
   const disposition = normalizeDisposition(readDispositionFromReviewFinding(finding));
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
