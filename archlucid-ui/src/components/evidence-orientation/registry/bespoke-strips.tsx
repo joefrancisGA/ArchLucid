@@ -30,6 +30,8 @@ import {
   GLOSSARY_HELP_FOLLOW_UP_LINKS,
 } from "@/lib/glossary-help-evidence-copy";
 import { PILOT_GUIDE_HELP_CLAIM_DISCIPLINE } from "@/lib/pilot-guide-help-evidence-copy";
+import { EVALUATION_SOURCES_TITLE } from "@/lib/evaluation-sources-title";
+import { PRICING_SOURCES, PRICING_SOURCES_INTRO } from "@/lib/pricing-evidence-copy";
 import { ProcurementHelpDiligenceCtaSection } from "@/components/help/ProcurementHelpDiligenceCtaSection";
 import { ProcurementHelpPostureSummary } from "@/components/help/ProcurementHelpPostureSummary";
 import { PROCUREMENT_HELP_CLAIM_DISCIPLINE, PROCUREMENT_HELP_LEAD } from "@/lib/procurement-help-evidence-copy";
@@ -176,6 +178,33 @@ export function PilotGuideHelpEvidenceOrientationStrip(): React.JSX.Element {
       testId="pilot-guide-help-claim-discipline"
       body={PILOT_GUIDE_HELP_CLAIM_DISCIPLINE}
     />
+  );
+}
+
+/**
+ * Sources only — `/pricing` carries no claim-discipline band.
+ *
+ * Tier cards, the FAQ, and the quote panel make no assurance claim, so a "not procurement evidence"
+ * caution would hedge against something the page never says. That is the disclaimer-dilution the
+ * owner ruled out in **TB-2091** / **TB-2092**; pricing kept its band only because TB-2092 scoped
+ * the sweep to operator surfaces. The Sources index stays: pricing questions do turn into security
+ * and packaging questions, and Assurance status / Trust Center are the honest next click.
+ *
+ * Uses the shell for page rhythm (`mb-10`) rather than the shared sources-and-claim strip, whose
+ * claim props are required.
+ */
+export function PricingEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationStripShell testId="pricing-orientation" margin="mb-10">
+      <EvidenceOrientationSourcesSection
+        testId="pricing-sources"
+        headingId="pricing-sources-heading"
+        title={EVALUATION_SOURCES_TITLE}
+        intro={PRICING_SOURCES_INTRO}
+        links={PRICING_SOURCES}
+        style={EVIDENCE_SOURCES_STYLE.evaluationMuted}
+      />
+    </EvidenceOrientationStripShell>
   );
 }
 

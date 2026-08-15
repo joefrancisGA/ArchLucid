@@ -9,9 +9,6 @@ describe("PricingEvidenceOrientationStrip", () => {
     render(<PricingEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("pricing-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("pricing-claim-discipline")).toHaveTextContent(
-      /Commercial packaging|CPA SOC 2|third-party pen/i,
-    );
 
     const sources = screen.getByTestId("pricing-sources");
 
@@ -20,5 +17,13 @@ describe("PricingEvidenceOrientationStrip", () => {
     }
 
     expect(PRICING_SOURCES.some((link) => link.href === PRICING_CANONICAL_PATH)).toBe(false);
+  });
+
+  it("carries no claim-discipline band", () => {
+    render(<PricingEvidenceOrientationStrip />);
+
+    // Tier cards make no assurance claim, so a caution band would hedge a claim the page never makes.
+    expect(screen.queryByTestId("pricing-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.queryByText(/commercial packaging only/i)).not.toBeInTheDocument();
   });
 });

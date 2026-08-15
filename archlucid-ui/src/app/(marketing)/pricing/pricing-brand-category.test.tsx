@@ -111,7 +111,7 @@ describe("PricingPage brand category", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Pricing" })).toBeInTheDocument();
     expect(screen.getByTestId("pricing-faq-link-line").querySelector('a[href="/faq"]')).toBeTruthy();
     expect(screen.getByTestId("pricing-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("pricing-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("pricing-claim-discipline")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 2, name: "Pricing" })).not.toBeInTheDocument();
   });
 

@@ -1,4 +1,7 @@
-import { EvidenceOrientationSourcesAndClaimStrip } from "@/components/evidence-orientation/EvidenceOrientationSourcesAndClaimStrip";
+import {
+  EvidenceOrientationSourcesAndClaimStrip,
+  type EvidenceOrientationStripPart,
+} from "@/components/evidence-orientation/EvidenceOrientationSourcesAndClaimStrip";
 import {
   ARCHITECTURE_CREATED_CLARIFICATIONS_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES,
@@ -39,11 +42,6 @@ import {
   GET_STARTED_SOURCES,
   GET_STARTED_SOURCES_INTRO,
 } from "@/lib/get-started-evidence-copy";
-import {
-  PRICING_CLAIM_DISCIPLINE,
-  PRICING_SOURCES,
-  PRICING_SOURCES_INTRO,
-} from "@/lib/pricing-evidence-copy";
 import {
   PRIVACY_CLAIM_DISCIPLINE,
   PRIVACY_SOURCES,
@@ -88,6 +86,14 @@ import {
   WELCOME_SOURCES_INTRO,
 } from "@/lib/welcome-evidence-copy";
 import { WHY_CLAIM_DISCIPLINE, WHY_SOURCES, WHY_SOURCES_INTRO } from "@/lib/why-evidence-copy";
+
+/**
+ * Props for surfaces that render sample output. They place the claim band beside the sample and the
+ * Sources index at the page foot, so each call site names which half it is rendering.
+ */
+export type SplitEvidenceOrientationStripProps = {
+  readonly part?: EvidenceOrientationStripPart;
+};
 
 export function ArchitectureCreatedClarificationsEvidenceOrientationStrip(): React.JSX.Element {
   return (
@@ -158,10 +164,13 @@ export function ComplianceJourneyEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function ExampleRoiBulletinEvidenceOrientationStrip(): React.JSX.Element {
+export function ExampleRoiBulletinEvidenceOrientationStrip({
+  part,
+}: SplitEvidenceOrientationStripProps = {}): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="example-roi-bulletin"
+      part={part}
       margin="mt-6"
       align="text-left"
       sourcesIntro={EXAMPLE_ROI_BULLETIN_SOURCES_INTRO}
@@ -191,24 +200,12 @@ export function GetStartedEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="get-started"
+      margin="mt-10"
       align="text-left"
       sourcesIntro={GET_STARTED_SOURCES_INTRO}
       sources={GET_STARTED_SOURCES}
       claimHeading="First-run orientation only"
       claim={GET_STARTED_CLAIM_DISCIPLINE}
-    />
-  );
-}
-
-export function PricingEvidenceOrientationStrip(): React.JSX.Element {
-  return (
-    <EvidenceOrientationSourcesAndClaimStrip
-      slug="pricing"
-      margin="mb-10"
-      sourcesIntro={PRICING_SOURCES_INTRO}
-      sources={PRICING_SOURCES}
-      claimHeading="Commercial packaging only"
-      claim={PRICING_CLAIM_DISCIPLINE}
     />
   );
 }
@@ -229,10 +226,14 @@ export function PrivacyEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function QuickScanEvidenceOrientationStrip(): React.JSX.Element {
+export function QuickScanEvidenceOrientationStrip({
+  part,
+}: SplitEvidenceOrientationStripProps = {}): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="quick-scan"
+      part={part}
+      margin={part === "sources" ? "mt-10" : undefined}
       align="text-left"
       sourcesIntro={QUICK_SCAN_SOURCES_INTRO}
       sources={QUICK_SCAN_SOURCES}
@@ -254,11 +255,14 @@ export function SecurityTrustEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function SeeItEvidenceOrientationStrip(): React.JSX.Element {
+export function SeeItEvidenceOrientationStrip({
+  part,
+}: SplitEvidenceOrientationStripProps = {}): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="see-it"
-      margin="mt-10"
+      part={part}
+      margin={part === "claim" ? "mt-6" : "mt-10"}
       align="text-left"
       sourcesIntro={SEE_IT_SOURCES_INTRO}
       sources={SEE_IT_SOURCES}
@@ -268,11 +272,14 @@ export function SeeItEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function ShowcaseEvidenceOrientationStrip(): React.JSX.Element {
+export function ShowcaseEvidenceOrientationStrip({
+  part,
+}: SplitEvidenceOrientationStripProps = {}): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="showcase"
-      margin="mt-6"
+      part={part}
+      margin={part === "sources" ? "mt-10" : "mt-6"}
       align="text-left"
       sourcesIntro={SHOWCASE_SOURCES_INTRO}
       sources={SHOWCASE_SOURCES}
@@ -328,7 +335,7 @@ export function WelcomeEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="welcome"
-      margin="mb-10"
+      margin="mt-10"
       align="text-left"
       sourcesIntro={WELCOME_SOURCES_INTRO}
       sources={WELCOME_SOURCES}

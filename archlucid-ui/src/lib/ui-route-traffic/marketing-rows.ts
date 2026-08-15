@@ -56,8 +56,9 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "P",
     path: "/pricing",
     section: "Marketing",
-    note: "Pricing (Marketing) - PricingPageHero + tier grid/FAQ/quote with PricingEvidenceOrientationStrip (evaluation Sources + claim-discipline: commercial packaging only). Not an operator PageContextualHelp surface. Score 58/100 (2026-08-08) - marketing commercial packaging ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Pricing (Marketing) - PricingPageHero + tier grid/FAQ/quote with PricingEvidenceOrientationStrip (evaluation Sources only; claim-discipline band retired - tier cards make no assurance claim to disclaim, per the TB-2091/TB-2092 sweep). Not an operator PageContextualHelp surface. Score 58/100 (2026-08-08) - marketing commercial packaging ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["PricingEvidenceOrientationStrip", "Score 58", "cannot improve further toward 80"],
+    noteMustNotContain: ["commercial packaging only"],
   },
   /** Traffic workbook row ID for Improvement planning. Owner backlog shorthand: PLA. */
   {
