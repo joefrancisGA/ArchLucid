@@ -68,5 +68,22 @@ public sealed class IncrementalReReviewServiceTests
         result.FullReReviewTriggered.Should().BeFalse();
         result.PartialScopeDisclaimer.Should().Contain("Unreviewed remainder");
         result.SpecialistResults.Should().NotBeEmpty();
+        result.GlobalInvariantResults.Should().HaveCount(5);
+    }
+
+    [Fact]
+    public void ReReview_skips_global_invariant_checks_when_flag_disabled()
+    {
+        ArchitectureKnowledgeModel model = new ArchitectureOntologyService().CreateEmptyModel("tenant-1");
+        ReReviewScope scope = new()
+        {
+            AffectedElementIds = [],
+            FullReReview = false,
+            IncludeGlobalInvariantChecks = false,
+        };
+
+        IncrementalReReviewResult result = _service.ReReview(model, scope, _specialistReviewService);
+
+        result.GlobalInvariantResults.Should().BeEmpty();
     }
 }

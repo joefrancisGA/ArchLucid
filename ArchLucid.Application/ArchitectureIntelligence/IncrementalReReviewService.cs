@@ -17,7 +17,7 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(specialistService);
 
-        List<GlobalInvariantCheckResult> globalInvariantResults = RunGlobalInvariantChecks(model);
+        List<GlobalInvariantCheckResult> globalInvariantResults = [];
         bool fullReReviewTriggered = scope.FullReReview || scope.Trigger.HasValue;
         List<SpecialistReviewResult> specialistResults = [];
         string? partialScopeDisclaimer = null;
@@ -31,6 +31,11 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
             ArchitectureKnowledgeModel scopedModel = BuildScopedModel(model, scope.AffectedElementIds);
             specialistResults.Add(specialistService.Review(scopedModel));
             partialScopeDisclaimer = PartialScopeDisclaimer;
+        }
+
+        if (scope.IncludeGlobalInvariantChecks)
+        {
+            globalInvariantResults = RunGlobalInvariantChecks(model);
         }
 
         return new IncrementalReReviewResult
