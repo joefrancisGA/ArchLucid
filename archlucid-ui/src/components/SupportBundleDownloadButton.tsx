@@ -78,7 +78,8 @@ export function SupportBundleDownloadButtonMeta(
   props: SupportBundleDownloadButtonMetaProps,
 ): React.JSX.Element {
   const { className, showContentsDisclosure = false, showDiagnosticsLink = false, model } = props;
-  const resolvedModel = model ?? useSupportBundleDownloadModel();
+  const defaultModel = useSupportBundleDownloadModel();
+  const resolvedModel = model ?? defaultModel;
   const statusTag = resolveSupportBundleStatusTag(resolvedModel.bundleStatus, resolvedModel.lastGeneratedAt);
 
   return (
@@ -142,7 +143,8 @@ export function SupportBundleDownloadButton({
   buttonOnly = false,
   model,
 }: SupportBundleDownloadButtonProps): React.JSX.Element {
-  const internalModel = model ?? useSupportBundleDownloadModel();
+  const defaultModel = useSupportBundleDownloadModel();
+  const internalModel = model ?? defaultModel;
   const { canGenerateBundle, downloading, onDownload } = internalModel;
 
   const button = (

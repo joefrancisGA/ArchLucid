@@ -1,5 +1,7 @@
 > **Scope:** TB-952 — outbound capabilities reachable from agent handlers; pairs GTM **M-115** / **M-116**.
 
+**Audience:** Contributors and internal assurance reviewers.
+
 # Agent side-effect surface inventory
 
 **Last updated:** 2026-08-14

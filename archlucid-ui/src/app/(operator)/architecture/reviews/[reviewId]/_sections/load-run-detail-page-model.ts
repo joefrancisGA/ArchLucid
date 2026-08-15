@@ -66,9 +66,9 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let progressInitialSummary: RunSummary | null = null;
   let manifestSummary: ManifestSummary | null = null;
   let artifacts: ArtifactDescriptor[] = [];
-  let manifestSummaryFailure: ApiLoadFailureState | null = null;
+  const manifestSummaryFailure: ApiLoadFailureState | null = null;
   let manifestSummaryMalformed: string | null = null;
-  let artifactsFailure: ApiLoadFailureState | null = null;
+  const artifactsFailure: ApiLoadFailureState | null = null;
   let artifactsMalformed: string | null = null;
 
   const serverScopeHeaders = isBrowser() ? null : await resolveServerScopeHeadersForRun(runId);

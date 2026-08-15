@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:372 -->
+<!-- audit-core-const-count:383 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -432,7 +432,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RunExported` | `RunExported` | `ArtifactExportController` |
 | `RunExportLineageVerified` | `RunExportLineageVerified` | `RunExportLineageVerifier` via `ArtifactExportController` (`GET …/export/verify`) |
 | `ExportDownloadSucceeded` | `Export.DownloadSucceeded` | `RunsExportController` (`GET /v1/runs/{runId}/export/{format}`), `RunQueryController` (`GET …/traceability-bundle.zip`, `GET /v1/runs/{runId}/review-trail/export`), `RunComparisonController` (`GET …/run/compare/end-to-end/export/file`, `GET …/run/compare/end-to-end/export/docx`) |
-| `ExecutiveRoiBoardPackExported` | `ExecutiveRoiBoardPackExported` | `RoiController` (`GET /v1/roi/sponsor-summary/board-pack`) |
+| `SponsorRoiBoardPackExported` | `SponsorRoiBoardPackExported` | `RoiController` (`GET /v1/roi/sponsor-summary/board-pack`) |
 | `RunExportFailed` | `Export.Failed` | `ArtifactExportController` |
 | `RunExportBlobPushQueued` | `RunExportBlobPushQueued` | `ArtifactExportController` (HTTP 202 accepts enqueue; background `RunExportBlobPushService` emits succeeded/failed) |
 | `RunExportBlobPushSucceeded` | `RunExportBlobPushSucceeded` | `RunExportBlobPushService` (`ArtifactExportController` queues background PUT to customer SAS) |
@@ -457,6 +457,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `CloudInventoryExtractorPackageSchemaRejected` | `CloudInventoryExtractorPackage.SchemaRejected` | `CloudInventoryExtractorIngestService` (`CloudInventoryExtractorUploadController`) |
 | `CloudInventoryExtractorPackageIngestSucceeded` | `CloudInventoryExtractorPackage.IngestSucceeded` | `CloudInventoryExtractorIngestService` (`CloudInventoryExtractorUploadController`) |
 | `CloudInventoryExtractorPackageDownloaded` | `Export.CloudInventoryExtractorPackageDownloaded` | `CloudInventoryExtractorUploadController` (`GET /v1/extractor/aws/packages/{packageId}`, `GET /v1/extractor/gcp/packages/{packageId}`) |
+| `CloudInventoryExtractorPackageChunkSessionStarted` | `CloudInventoryExtractorPackage.ChunkSessionStarted` | `CloudInventoryExtractorUploadController` (`POST /v1/extractor/aws/upload-sessions`, `POST /v1/extractor/gcp/upload-sessions`) |
 | `AzureExtractorPackageChunkSessionStarted` | `AzureExtractorPackage.ChunkSessionStarted` | `AzureExtractorUploadController` (`POST …/azure-extractor/upload-sessions`) |
 | `ValueReportGenerated` | `ValueReportGenerated` | `ValueReportController`, `InMemoryValueReportJobQueue` |
 | `ReplayExportRecorded` | `ReplayExportRecorded` | `ExportsController` |
@@ -520,9 +521,11 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `PolicyPackAssigned` | `PolicyPackAssigned` | `PolicyPacksAppService` |
 | `PolicyPackAssignmentCreated` | `PolicyPackAssignmentCreated` | `PolicyPacksAppService` |
 | `PolicyPackAssignmentArchived` | `PolicyPackAssignmentArchived` | `PolicyPacksAppService` |
+| `PolicyPackAssignmentEnabledChanged` | `PolicyPackAssignmentEnabledChanged` | `PolicyPacksController` (`PUT /v1/policy-packs/assignments/{assignmentId}/enabled`) |
 | `PolicyPackDuplicated` | `PolicyPackDuplicated` | `PolicyPacksAppService` (`POST /v1/policy-packs/{policyPackId}/duplicate`) |
 | `PolicyPackCatalogPromoted` | `PolicyPackCatalogPromoted` | `PolicyPacksController` (`POST /v1/policy-packs/catalog/promote`) |
 | `PolicyPackCatalogDemoted` | `PolicyPackCatalogDemoted` | `PolicyPacksController` (`POST /v1/policy-packs/catalog/demote`) |
+| `PlatformBundledPolicyPackActivationChanged` | `PlatformBundledPolicyPackActivationChanged` | `AdminPlatformBundledPolicyPacksController` (`PUT /v1/admin/platform-bundled-policy-packs/{policyPackId}/activation`) |
 | `PostCommitProjectionDeadLettered` | `PostCommitProjectionDeadLettered` | `PostCommitProjectionOutboxProcessor` (retries exhausted during background projection side-effects) |
 | `GovernanceResolutionExecuted` | `GovernanceResolutionExecuted` | `GovernanceResolutionController` |
 | `GovernanceConflictDetected` | `GovernanceConflictDetected` | `GovernanceResolutionController` |
@@ -587,6 +590,13 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `WorkspaceModelExecutionProfileUpdated` | `Workspace.ModelExecutionProfileUpdated` | `SettingsController` (`PUT …/admin/settings/model-execution-profile`) |
 | `WorkspaceModelExecutionProfileOverrideCleared` | `Workspace.ModelExecutionProfileOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/model-execution-profile`) |
 | `RunModelExecutionProfileOverrideApplied` | `Run.ModelExecutionProfileOverrideApplied` | `ModelExecutionProfileOverrideAuditWriter` (per-review override at run create) |
+| `WorkspaceAllowedEngineSetUpdated` | `Workspace.AllowedEngineSetUpdated` | `SettingsController` (`PUT …/admin/settings/allowed-engine-set`) |
+| `WorkspaceAllowedEngineSetOverrideCleared` | `Workspace.AllowedEngineSetOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/allowed-engine-set`) |
+| `RunModelAliasOverrideApplied` | `Run.ModelAliasOverrideApplied` | `ReviewModelAliasOverrideAuditWriter` (per-review override at run create) |
+| `WorkspaceExternalSubprocessorEngineAcknowledged` | `Workspace.ExternalSubprocessorEngineAcknowledged` | `ExternalSubprocessorEngineAcknowledgmentService` (`POST …/admin/settings/external-subprocessor-engine-acknowledgment`) |
+| `ModelCatalogEntryCreated` | `ModelCatalog.EntryCreated` | `AdminAgentModelCatalogController` (`POST /v1/admin/agent-model-catalog/entries`) |
+| `ModelCatalogEntryUpdated` | `ModelCatalog.EntryUpdated` | `AdminAgentModelCatalogController` (`PUT /v1/admin/agent-model-catalog/entries/{entryId}`) |
+| `ModelCatalogEvaluationRecorded` | `ModelCatalog.EvaluationRecorded` | `AgentModelCatalogEvaluationRecorder` (`POST /v1/admin/agent-model-catalog/entries/{entryId}/evaluations`) |
 | `AgentOutputLlmFaithfulnessWarned` | `AgentOutput.LlmFaithfulnessWarned` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness warn floor) |
 | `AgentOutputLlmFaithfulnessRejected` | `AgentOutput.LlmFaithfulnessRejected` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness reject floor) |
 | `AdminApiKeyRotationMaterialIssued` | `Admin.ApiKeyRotationMaterialIssued` | `AdminApiKeySettingsController` (`POST …/admin/settings/api-keys/rotate`) |
@@ -640,6 +650,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantTeamsIncomingWebhookConnectionUpserted` | `TenantTeamsIncomingWebhookConnectionUpserted` | `TeamsIncomingWebhookConnectionsController` |
 | `TenantTeamsIncomingWebhookConnectionRemoved` | `TenantTeamsIncomingWebhookConnectionRemoved` | `TeamsIncomingWebhookConnectionsController` |
 | `ExecDigestPreferencesUpdated` | `ExecDigestPreferencesUpdated` | `TenantExecDigestPreferencesController` |
+| `SponsorDigestPreferencesUpdated` | `SponsorDigestPreferencesUpdated` | `TenantSponsorDigestPreferencesController` (`PUT /v1/tenant/sponsor-digest-preferences`) |
 | `TenantEntraDirectoryBound` | `TenantEntraDirectoryBound` | `TenantTrialController` (`POST …/tenant/link-entra`) |
 | `TenantTrialConverted` | `TenantTrialConverted` | `TenantTrialController` |
 | `TrialLifecycleTransition` | `TrialLifecycleTransition` | `TrialLifecycleTransitionEngine` |

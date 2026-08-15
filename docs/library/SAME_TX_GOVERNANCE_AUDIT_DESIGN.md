@@ -1,5 +1,7 @@
 > **Scope:** TB-956 — co-commit governance disposition rows with Required audit events (INV-003 mitigation).
 
+**Audience:** Contributors and internal assurance reviewers.
+
 # Same-transaction governance audit writes
 
 **Last updated:** 2026-08-14

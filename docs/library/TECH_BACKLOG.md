@@ -34895,7 +34895,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Source:** Owner / PA question 2026-07-26: *Audit my current elevator pitch against shipped V1 ? what claims should I cut, hedge, or prove with a committed-run artifact?*
 
-**Problem:** [`ELEVATOR_PITCH.md`](../go-to-market/ELEVATOR_PITCH.md) (**M-02** Done) and [`SPONSOR_SPONSOR_BRIEF.md`](../go-to-market/SPONSOR_SPONSOR_BRIEF.md) ?4 still carry buyer-facing claims that are stronger than the committed-run contract in [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) / [`V1_SCOPE.md`](V1_SCOPE.md). Highest risk: brief ?4 **?Reviews that took two weeks now take two hours?**; pitch ?every finding? explainability trace? + ?auditable and **replayable**?; GRC opener ?pre-commit governance gate?; CTO opener ?fraction of the time?; stale pitch Rule / WNTP connector deferral vs ?2.13??2.15 GA.
+**Problem:** [`ELEVATOR_PITCH.md`](../go-to-market/ELEVATOR_PITCH.md) (**M-02** Done) and [`SPONSOR_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) ?4 still carry buyer-facing claims that are stronger than the committed-run contract in [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md) / [`V1_SCOPE.md`](V1_SCOPE.md). Highest risk: brief ?4 **?Reviews that took two weeks now take two hours?**; pitch ?every finding? explainability trace? + ?auditable and **replayable**?; GRC opener ?pre-commit governance gate?; CTO opener ?fraction of the time?; stale pitch Rule / WNTP connector deferral vs ?2.13??2.15 GA.
 
 **Approach:**
 
