@@ -4230,6 +4230,9 @@
             },
             "type": "object"
           },
+          "isProvisionalSynthesis": {
+            "type": "boolean"
+          },
           "modelId": {
             "type": "string"
           },
@@ -11468,6 +11471,81 @@
               "null",
               "array"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "ExecDigestSponsorDeepLinkHighlightedRunDto": {
+        "properties": {
+          "caption": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runIdHex": {
+            "type": "string"
+          },
+          "significanceScore": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "ExecDigestSponsorDeepLinkViewResponse": {
+        "properties": {
+          "committedManifestsInWeek": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "complianceDriftMarkdown": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "decisionNeededMarkdown": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingsDeltaSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runIdHex": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runSummaryMarkdown": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "signInUrl": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "topRuns": {
+            "items": {
+              "$ref": "#/components/schemas/ExecDigestSponsorDeepLinkHighlightedRunDto"
+            },
+            "type": "array"
+          },
+          "weekLabel": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -37480,6 +37558,9 @@
     },
     {
       "name": "Evolution"
+    },
+    {
+      "name": "ExecDigestSponsorDeepLink"
     },
     {
       "name": "ExecDigestUnsubscribe"
