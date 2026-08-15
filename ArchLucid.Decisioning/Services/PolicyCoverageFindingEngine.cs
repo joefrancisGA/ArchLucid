@@ -73,6 +73,7 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
                     PolicyApplicabilityEdgeCount = result.PolicyApplicabilityEdgeCount,
                     UncoveredResources = result.UncoveredResources
                 },
+                RelatedNodeIds = [.. result.UncoveredResources],
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = [.. result.UncoveredResources],

@@ -80,6 +80,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 [
                     "Add missing topology categories to the architecture input."
                 ],
+                RelatedNodeIds = [.. result.TopologyNodeIds],
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = [.. result.TopologyNodeIds],

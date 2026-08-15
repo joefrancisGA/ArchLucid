@@ -157,6 +157,64 @@ public sealed class DecisionGradeFindingProvenanceValidatorTests
     }
 
     [Fact]
+    public void GetViolations_allows_policy_coverage_with_rules_graph_nodes_and_payload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "policy-1",
+                    FindingType = "PolicyCoverageFinding",
+                    EngineType = "policy-coverage",
+                    Category = "Policy",
+                    Payload = new PolicyCoverageFindingPayload
+                    {
+                        PolicyNodeCount = 1,
+                        PolicyApplicabilityEdgeCount = 0,
+                        UncoveredResources = ["storage-1", "vm-2"],
+                    },
+                    Trace = new ExplainabilityTrace
+                    {
+                        GraphNodeIdsExamined = ["storage-1", "vm-2"],
+                        RulesApplied = ["policy-coverage-applicability"],
+                    },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetViolations_allows_topology_coverage_presence_with_rules_and_payload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "topology-1",
+                    FindingType = "TopologyCoverageFinding",
+                    EngineType = "topology-coverage",
+                    Category = "Topology",
+                    Payload = new TopologyCoverageFindingPayload
+                    {
+                        TopologyNodeCount = 0,
+                        ExpectedCategories = ["network", "storage"],
+                        MissingCategories = ["network", "storage"],
+                    },
+                    Trace = new ExplainabilityTrace { RulesApplied = ["topology-coverage-presence"] },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
+
+    [Fact]
     public void GetViolations_allows_advisor_cost_recommendation_with_rules_and_payload()
     {
         FindingsSnapshot snapshot = new()

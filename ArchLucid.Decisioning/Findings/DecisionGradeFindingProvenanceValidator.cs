@@ -53,6 +53,9 @@ public static class DecisionGradeFindingProvenanceValidator
         if (HasInventoryDrivenEngineProvenance(finding))
             return true;
 
+        if (HasGraphCoverageEngineProvenance(finding))
+            return true;
+
         bool hasNodes = finding.RelatedNodeIds is { Count: > 0 } nodes
                         && nodes.Any(static n => !string.IsNullOrWhiteSpace(n));
 
@@ -101,6 +104,43 @@ public static class DecisionGradeFindingProvenanceValidator
         return false;
     }
 
+    private static bool HasGraphCoverageEngineProvenance(Finding finding)
+    {
+        if (!IsGraphCoverageEngine(finding.EngineType))
+            return false;
+
+        bool hasRules = finding.Trace?.RulesApplied is { Count: > 0 } rules
+                        && rules.Any(static r => !string.IsNullOrWhiteSpace(r));
+
+        if (!hasRules)
+            return false;
+
+        if (finding.RelatedNodeIds is { Count: > 0 } nodes
+            && nodes.Any(static n => !string.IsNullOrWhiteSpace(n)))
+        {
+            return true;
+        }
+
+        if (finding.Payload is PolicyCoverageFindingPayload)
+            return true;
+
+        if (finding.Payload is TopologyCoverageFindingPayload)
+            return true;
+
+        if (finding.Payload is RequirementCoverageFindingPayload requirement)
+        {
+            return requirement.UncoveredRequirementCount > 0
+                   || requirement.UncoveredRequirements.Any(static id => !string.IsNullOrWhiteSpace(id));
+        }
+
+        return false;
+    }
+
+    private static bool IsGraphCoverageEngine(string? engineType) =>
+        string.Equals(engineType, "policy-coverage", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "topology-coverage", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "requirement-coverage", StringComparison.OrdinalIgnoreCase);
+
     private static bool IsInventoryDrivenEngine(string? engineType) =>
         string.Equals(engineType, "azure-inventory-reconciliation", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "aws-inventory-reconciliation", StringComparison.OrdinalIgnoreCase)
@@ -110,5 +150,6 @@ public static class DecisionGradeFindingProvenanceValidator
         || string.Equals(engineType, "gcp-inventory-security-baseline", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "orphaned-azure-resource", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "orphaned-aws-resource", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(engineType, "orphaned-gcp-resource", StringComparison.OrdinalIgnoreCase);
+        || string.Equals(engineType, "orphaned-gcp-resource", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "advisor-cost-recommendation", StringComparison.OrdinalIgnoreCase);
 }
