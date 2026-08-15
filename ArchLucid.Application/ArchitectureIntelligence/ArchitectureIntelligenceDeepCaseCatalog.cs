@@ -126,6 +126,92 @@ public static class ArchitectureIntelligenceDeepCaseCatalog
                 ],
                 ExpectedMutationIds = ["mutate-remove-trust-boundary"],
             },
+            new ArchitectureIntelligenceDeepCase
+            {
+                CaseId = "deep-regulated-workload-residency",
+                Title = "Regulated workload with residency gap",
+                SourceText = """
+                    Healthcare analytics platform processing PHI for US patients.
+                    Data residency requirement: US-only. Architecture mentions EU backup region.
+                    Third-party OCR vendor API used without interface documentation.
+                    50,000 concurrent users expected at peak with no capacity plan.
+                    """,
+                PlantedDefects =
+                [
+                    new PlantedDefectExpectation
+                    {
+                        DefectId = "residency-conflict",
+                        TitlePattern = "compliance",
+                        Dimension = QualityDimension.PrivacyCompliance,
+                        MinSeverity = "Medium",
+                    },
+                    new PlantedDefectExpectation
+                    {
+                        DefectId = "vendor-api",
+                        TitlePattern = "external",
+                        Dimension = QualityDimension.Integration,
+                        MinSeverity = "Medium",
+                    },
+                ],
+                ExpectedMutationIds = ["mutate-data-regulated"],
+            },
+            new ArchitectureIntelligenceDeepCase
+            {
+                CaseId = "deep-ambiguous-stakeholder-goals",
+                Title = "Ambiguous stakeholder goals and unstated load",
+                SourceText = """
+                    Stakeholders disagree on whether the MVP must support real-time sync.
+                    Product wants 10,000 users; operations wants minimal on-call burden.
+                    No capacity expectation documented. No operational owner named.
+                    """,
+                PlantedDefects =
+                [
+                    new PlantedDefectExpectation
+                    {
+                        DefectId = "capacity-gap",
+                        TitlePattern = "capacity",
+                        Dimension = QualityDimension.PerformanceScalability,
+                        MinSeverity = "Medium",
+                    },
+                    new PlantedDefectExpectation
+                    {
+                        DefectId = "operations-gap",
+                        TitlePattern = "ownership",
+                        Dimension = QualityDimension.Operations,
+                        MinSeverity = "Medium",
+                    },
+                ],
+                ExpectedMutationIds = ["mutate-rto-30m"],
+            },
+            new ArchitectureIntelligenceDeepCase
+            {
+                CaseId = "deep-intentional-tradeoff",
+                Title = "Intentional security vs cost trade-off",
+                SourceText = """
+                    Cost-sensitive batch ETL. Monthly cost ceiling: $3000 stated in framing.
+                    Security wants private endpoints for all data stores; finance rejects added spend.
+                    Public HTTPS admin API exists without trust boundary.
+                    Cost drivers list compute only without ceiling mapping.
+                    """,
+                PlantedDefects =
+                [
+                    new PlantedDefectExpectation
+                    {
+                        DefectId = "public-admin",
+                        TitlePattern = "public",
+                        Dimension = QualityDimension.Security,
+                        MinSeverity = "High",
+                    },
+                    new PlantedDefectExpectation
+                    {
+                        DefectId = "ceiling-gap",
+                        TitlePattern = "ceiling",
+                        Dimension = QualityDimension.Cost,
+                        MinSeverity = "Medium",
+                    },
+                ],
+                ExpectedMutationIds = ["mutate-remove-trust-boundary"],
+            },
         ];
     }
 }

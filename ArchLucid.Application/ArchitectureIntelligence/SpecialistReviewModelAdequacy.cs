@@ -52,7 +52,7 @@ internal static partial class SpecialistReviewModelAdequacy
         }
 
         string searchText = CollectModelSearchText(model);
-        int? statedRtoMinutes = ParseRtoMinutes(searchText);
+        int? statedRtoMinutes = ArchitectureFramingConstraintReader.GetStatedRtoMinutes(model);
         int? backupIntervalMinutes = ParseBackupIntervalMinutes(searchText);
 
         if (statedRtoMinutes is null)
@@ -105,7 +105,7 @@ internal static partial class SpecialistReviewModelAdequacy
         }
 
         string searchText = CollectModelSearchText(model);
-        decimal? statedCeilingUsd = ParseMonthlyCostCeilingUsd(searchText);
+        decimal? statedCeilingUsd = ArchitectureFramingConstraintReader.GetStatedMonthlyCostCeilingUsd(model);
 
         if (statedCeilingUsd is null)
         {
@@ -170,6 +170,8 @@ internal static partial class SpecialistReviewModelAdequacy
     }
 
     internal static int? TryParseBackupIntervalMinutes(string text) => ParseBackupIntervalMinutes(text);
+
+    internal static int? TryParseRtoMinutes(string text) => ParseRtoMinutes(text);
 
     internal static decimal? TryParseMonthlyCostCeilingUsd(string text) => ParseMonthlyCostCeilingUsd(text);
 
@@ -287,7 +289,7 @@ internal static partial class SpecialistReviewModelAdequacy
     private static partial Regex BackupDurationPattern();
 
     [GeneratedRegex(
-        @"(?i)(?:cost\s+ceiling|monthly\s+(?:cost\s+)?ceiling|budget)\s*(?:of\s*)?\$?\s*(?<amount>\d+(?:\.\d+)?)",
+        @"(?i)(?:cost\s+ceiling|monthly\s+(?:cost\s+)?ceiling|budget)\s*(?:of\s*)?[:=\-]?\s*\$?\s*(?<amount>\d+(?:\.\d+)?)",
         RegexOptions.CultureInvariant)]
     private static partial Regex MonthlyCostCeilingPattern();
 }
