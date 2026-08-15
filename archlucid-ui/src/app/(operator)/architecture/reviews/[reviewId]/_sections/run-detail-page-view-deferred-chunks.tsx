@@ -207,8 +207,8 @@ export const RunDetailCtoDemoReviewRouteGuardDeferred = dynamic(
 
 export const RunDetailPolicyPackImpactCalloutDeferred = dynamic(
   () =>
-    import("@/components/findings/ReviewDetailPolicyPackImpactCallout").then(
-      (module) => module.ReviewDetailPolicyPackImpactCallout,
+    import("@/components/findings/ReviewDetailPolicyPackImpactSection").then(
+      (module) => module.ReviewDetailPolicyPackImpactSection,
     ),
   { ssr: false, loading: () => null },
 );

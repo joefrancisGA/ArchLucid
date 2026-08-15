@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
+import { FeasibilityVerdictDriversPanel } from "@/components/feasibility/FeasibilityVerdictDriversPanel";
+import { parseFeasibilityVerdictDrivers } from "@/lib/feasibility-verdict-transparency-trail";
 import {
   feasibilityVerdictKindLabel,
   feasibilityVerdictTone,
@@ -28,6 +30,7 @@ export type DraftIntakeDecisionReceiptCardProps = {
  */
 export function DraftIntakeDecisionReceiptCard(props: DraftIntakeDecisionReceiptCardProps) {
   const tone = feasibilityVerdictTone(props.verdict.kind);
+  const verdictDrivers = parseFeasibilityVerdictDrivers(props.verdict.transparencyTrail);
 
   // `p-0` cancels the callout token's own inset — CardHeader / CardContent already own this card's padding.
   let toneClass = cn(DESIGN_TOKENS.callout.warn, "p-0");
@@ -48,6 +51,7 @@ export function DraftIntakeDecisionReceiptCard(props: DraftIntakeDecisionReceipt
         <DraftIntakeClaimLabel surface="redirected-draft" />
         <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{feasibilityVerdictKindLabel(props.verdict.kind)}</p>
         <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{props.verdict.summary}</p>
+        <FeasibilityVerdictDriversPanel drivers={verdictDrivers} />
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Cost story ({DECISION_RECEIPT_COST_ESTIMATE_LABEL}): ~$1 session vs ~$25k / 2–4 weeks of human
           architecture review avoided.

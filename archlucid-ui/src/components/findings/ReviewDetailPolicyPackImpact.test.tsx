@@ -13,14 +13,18 @@ describe("ReviewDetailPolicyPackImpactCallout", () => {
         runId="run-abc"
         mappedFindingCount={4}
         totalFindingCount={5}
+        cloudMismatchDetail="Azure-focused policy packs are selected while the cloud target is AWS."
       />,
     );
 
     expect(screen.getByTestId("review-detail-policy-pack-impact-callout")).toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-policy-pack-cloud-mismatch")).toHaveTextContent(
+      "Azure-focused policy packs",
+    );
     expect(screen.getByTestId("review-detail-policy-pack-impact-counts")).toHaveTextContent("4 of 5");
     expect(screen.getByTestId("review-detail-policy-pack-impact-view-pack")).toHaveAttribute(
       "href",
-      "/governance/policy-packs/demo-enterprise-privacy-pack",
+      "/governance/policy-packs/demo-healthcare-claims-pack",
     );
     expect(screen.getByTestId("review-detail-policy-pack-impact-edit-rules")).toHaveAttribute(
       "href",
