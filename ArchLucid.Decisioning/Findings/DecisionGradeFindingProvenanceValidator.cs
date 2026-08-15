@@ -133,13 +133,20 @@ public static class DecisionGradeFindingProvenanceValidator
                    || requirement.UncoveredRequirements.Any(static id => !string.IsNullOrWhiteSpace(id));
         }
 
+        if (finding.Payload is SecurityCoverageFindingPayload security)
+        {
+            return security.UnprotectedResourceCount > 0
+                   || security.UnprotectedResources.Any(static id => !string.IsNullOrWhiteSpace(id));
+        }
+
         return false;
     }
 
     private static bool IsGraphCoverageEngine(string? engineType) =>
         string.Equals(engineType, "policy-coverage", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "topology-coverage", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(engineType, "requirement-coverage", StringComparison.OrdinalIgnoreCase);
+        || string.Equals(engineType, "requirement-coverage", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "security-coverage", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsInventoryDrivenEngine(string? engineType) =>
         string.Equals(engineType, "azure-inventory-reconciliation", StringComparison.OrdinalIgnoreCase)

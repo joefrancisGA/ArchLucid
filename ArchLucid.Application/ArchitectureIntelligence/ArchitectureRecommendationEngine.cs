@@ -34,14 +34,8 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
         SpecialistReviewFinding finding,
         IReadOnlyList<string> declaredPriorities)
     {
-        string effortBand = finding.Severity.Equals("Critical", StringComparison.OrdinalIgnoreCase)
-            || finding.Severity.Equals("High", StringComparison.OrdinalIgnoreCase)
-            ? "High"
-            : "Medium";
-
-        string riskReductionLevel = finding.Dimension == QualityDimension.Security
-            ? "High"
-            : "Moderate";
+        EffortEstimate effort = ArchitectureRecommendationEffortEstimate.Build(finding);
+        RiskReductionEstimate riskReduction = ArchitectureRecommendationEffortEstimate.BuildRiskReduction(finding);
 
         return new ArchitectureRecommendation
         {
@@ -49,21 +43,12 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
             Problem = finding.Title,
             Evidence = finding.Rationale,
             AffectedRequirementOrQualityAttribute = finding.Dimension.ToString(),
-            ConsequenceOfInaction = $"Unresolved {finding.Dimension} risk may remain open.",
-            ProposedChange = $"Address finding: {finding.Title}",
+            ConsequenceOfInaction = ArchitectureRecommendationProposedChange.BuildConsequence(finding),
+            ProposedChange = ArchitectureRecommendationProposedChange.Build(finding),
             Alternatives = ["Defer with documented exception", "Collect additional evidence before changing design"],
-            Effort = new EffortEstimate
-            {
-                Band = effortBand,
-                BasisNotes = $"Derived from {finding.Severity} severity specialist finding.",
-                ImplementationEstimateAvailable = true,
-            },
-            RiskReduction = new RiskReductionEstimate
-            {
-                Level = riskReductionLevel,
-                ScenarioNotes = $"Resolving this finding reduces {finding.Dimension} exposure.",
-            },
-            ValidationMethod = "Re-run specialist review after design update.",
+            Effort = effort,
+            RiskReduction = riskReduction,
+            ValidationMethod = ArchitectureRecommendationProposedChange.BuildValidationMethod(finding),
             Confidence = finding.Confidence,
             RequiresHumanApproval = finding.Severity.Equals("Critical", StringComparison.OrdinalIgnoreCase),
             Provenance = new ClaimProvenance

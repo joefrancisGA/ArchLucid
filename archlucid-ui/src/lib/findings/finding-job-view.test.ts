@@ -153,6 +153,16 @@ describe("finding-job-view", () => {
     expect(sponsorReady.map((entry) => entry.findingId)).toEqual(["f-5"]);
   });
 
+  it("maps governance adversarial phrasing to verify-hypotheses (TB-2315)", () => {
+    const row = governanceRow({
+      findingId: "g-adv",
+      title: "Adversarial challenge: backup assumption",
+      recommended: "Falsify/confirm with evidence before publish",
+    });
+
+    expect(classifyGovernanceFindingJobView(row)).toBe("verify-hypotheses");
+  });
+
   it("resolveEffectiveFindingJobView skips persisted job view when the filter bar is hidden", () => {
     expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", true)).toBe("ready-for-sponsor-packet");
     expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", false)).toBeNull();

@@ -64,26 +64,50 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
         ArchitectureKnowledgeModel model,
         List<string> openQuestions)
     {
-        ArchitectureModelElement? recoveryObjective = model.Elements.FirstOrDefault(
-            element => element.Kind == ArchitectureElementKind.RecoveryObjective);
+        SpecialistReviewModelAdequacy.RecoveryAdequacyAssessment assessment =
+            SpecialistReviewModelAdequacy.AssessRecovery(model);
 
-        if (recoveryObjective is not null)
+        switch (assessment.Outcome)
         {
-            return CreatePassFinding(
-                model,
-                QualityDimension.Reliability,
-                "Recovery objectives are documented.",
-                "At least one recovery objective element exists in the model.",
-                recoveryObjective);
+            case SpecialistReviewModelAdequacy.RecoveryAdequacyOutcome.MissingObjective:
+                openQuestions.Add("What are the RTO/RPO targets for critical workloads?");
+
+                return CreateIndeterminateFinding(
+                    model,
+                    QualityDimension.Reliability,
+                    "Recovery objectives are missing",
+                    assessment.Summary);
+
+            case SpecialistReviewModelAdequacy.RecoveryAdequacyOutcome.Inadequate:
+                openQuestions.Add("How will backup, replication, or failover meet the stated RTO?");
+
+                return CreateFailFinding(
+                    model,
+                    QualityDimension.Reliability,
+                    "Stated recovery objective may not be achievable",
+                    assessment.Summary,
+                    severity: "High");
+
+            case SpecialistReviewModelAdequacy.RecoveryAdequacyOutcome.CannotVerify:
+                openQuestions.Add("Document backup interval, replication, or failover evidence for the stated RTO.");
+
+                return CreateIndeterminateFinding(
+                    model,
+                    QualityDimension.Reliability,
+                    "Recovery objective adequacy cannot be verified",
+                    assessment.Summary);
+
+            default:
+                ArchitectureModelElement? recoveryObjective = model.Elements.FirstOrDefault(
+                    element => element.Kind == ArchitectureElementKind.RecoveryObjective);
+
+                return CreatePassFinding(
+                    model,
+                    QualityDimension.Reliability,
+                    "Recovery objectives appear adequate for stated targets.",
+                    assessment.Summary,
+                    recoveryObjective);
         }
-
-        openQuestions.Add("What are the RTO/RPO targets for critical workloads?");
-
-        return CreateIndeterminateFinding(
-            model,
-            QualityDimension.Reliability,
-            "Recovery objectives are missing",
-            "No RecoveryObjective element was extracted from the available sources.");
     }
 
     private static SpecialistReviewFinding ReviewSecurity(
@@ -138,26 +162,48 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
         ArchitectureKnowledgeModel model,
         List<string> openQuestions)
     {
-        ArchitectureModelElement? costDriver = model.Elements.FirstOrDefault(
-            element => element.Kind == ArchitectureElementKind.CostDriver);
+        SpecialistReviewModelAdequacy.CostAdequacyAssessment assessment =
+            SpecialistReviewModelAdequacy.AssessCost(model);
 
-        if (costDriver is not null)
+        switch (assessment.Outcome)
         {
-            return CreatePassFinding(
-                model,
-                QualityDimension.Cost,
-                "Cost drivers are documented.",
-                "At least one cost driver element exists in the model.",
-                costDriver);
+            case SpecialistReviewModelAdequacy.CostAdequacyOutcome.MissingDrivers:
+                openQuestions.Add("What are the primary cost drivers for this architecture?");
+
+                return CreateIndeterminateFinding(
+                    model,
+                    QualityDimension.Cost,
+                    "Cost drivers are missing",
+                    assessment.Summary);
+
+            case SpecialistReviewModelAdequacy.CostAdequacyOutcome.CeilingNotAddressed:
+                openQuestions.Add("Map major cost drivers to the stated monthly ceiling or revise the ceiling.");
+
+                return CreateFailFinding(
+                    model,
+                    QualityDimension.Cost,
+                    "Stated cost ceiling is not reflected in cost drivers",
+                    assessment.Summary,
+                    severity: "Medium");
+
+            case SpecialistReviewModelAdequacy.CostAdequacyOutcome.CannotVerify:
+                return CreateIndeterminateFinding(
+                    model,
+                    QualityDimension.Cost,
+                    "Cost driver adequacy cannot be verified",
+                    assessment.Summary);
+
+            default:
+                ArchitectureModelElement? costDriver = model.Elements.FirstOrDefault(
+                    element => element.Kind == ArchitectureElementKind.CostDriver);
+
+                return CreatePassFinding(
+                    model,
+                    QualityDimension.Cost,
+                    "Cost drivers align with stated constraints.",
+                    assessment.Summary,
+                    costDriver);
         }
-
-        openQuestions.Add("What are the primary cost drivers for this architecture?");
-
-        return CreateIndeterminateFinding(
-            model,
-            QualityDimension.Cost,
-            "Cost drivers are missing",
-            "No CostDriver element was extracted from the available sources.");
     }
 
     private static SpecialistReviewFinding CreatePassFinding(
@@ -213,6 +259,36 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
                 SupportStatus = SupportStatus.Unsupported,
                 Confidence = 0.5,
                 Notes = "Insufficient evidence; absence is not treated as a confirmed defect.",
+            },
+        };
+
+        return AttachModelEvidence(finding, model, supportingElement: null);
+    }
+
+    private static SpecialistReviewFinding CreateFailFinding(
+        ArchitectureKnowledgeModel model,
+        QualityDimension dimension,
+        string title,
+        string rationale,
+        string severity)
+    {
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = Guid.NewGuid().ToString("N"),
+            Dimension = dimension,
+            Title = title,
+            Rationale = rationale,
+            Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            GovernanceDisposition = GovernanceDisposition.Open,
+            Confidence = 0.75,
+            Severity = severity,
+            Provenance = new ClaimProvenance
+            {
+                Origin = ClaimOrigin.ModelInferred,
+                SupportStatus = SupportStatus.PartiallySupported,
+                Confidence = 0.75,
+                Notes = "Inferred from extracted model fields against stated constraints.",
             },
         };
 

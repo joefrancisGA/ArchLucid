@@ -37,6 +37,7 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     UnprotectedResourceCount = result.UnprotectedResourceCount,
                     UnprotectedResources = result.UnprotectedResources
                 },
+                RelatedNodeIds = [.. result.UnprotectedResources],
                 RecommendedActions =
                 [
                     "Add security baseline declarations or protection mappings for uncovered resources."

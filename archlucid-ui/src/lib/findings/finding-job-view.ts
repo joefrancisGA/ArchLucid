@@ -11,6 +11,7 @@ import {
   isVerifyHypothesisReviewFinding,
 } from "@/lib/review-quality/finding-quality-signals";
 import {
+  coerceArchitectureFindingSeverity,
   humanReviewStatusDisplay,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
@@ -179,6 +180,24 @@ export function classifyReviewFindingJobView(finding: QuickDecisionFinding): Fin
   return "needs-my-decision";
 }
 
+function mapGovernanceRowForJobViewClassification(row: GovernanceFindingQueueRow): QuickDecisionFinding {
+  return {
+    findingId: row.findingId,
+    title: row.title,
+    recommendation: row.recommended,
+    severityValue: coerceArchitectureFindingSeverity(row.severity),
+    findingOrder: 0,
+    aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+    isMuted: false,
+    muteReason: null,
+    policyRuleId: row.policyRuleId,
+    evidenceRefCount: row.evidenceRefCount,
+    confidenceLevel: row.traceConfidenceLevel ?? null,
+    humanReviewStatus: null,
+    trustLabel: null,
+  };
+}
+
 export function classifyGovernanceFindingJobView(row: GovernanceFindingQueueRow): FindingJobView {
   if (row.recordKind !== "finding") {
     return "needs-my-decision";
@@ -201,6 +220,24 @@ export function classifyGovernanceFindingJobView(row: GovernanceFindingQueueRow)
     }
 
     return "disposition-closed";
+  }
+
+  const mappedRow = mapGovernanceRowForJobViewClassification(row);
+
+  if (isContradictionReviewFinding(mappedRow)) {
+    return "resolve-contradictions";
+  }
+
+  if (isCannotDetermineReviewFinding(mappedRow)) {
+    return "answer-these-questions";
+  }
+
+  if (isVerifyHypothesisReviewFinding(mappedRow)) {
+    return "verify-hypotheses";
+  }
+
+  if (isCoverageGapReviewFinding(mappedRow)) {
+    return "coverage-gaps";
   }
 
   if (
