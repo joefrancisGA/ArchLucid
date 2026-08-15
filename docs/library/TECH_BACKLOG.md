@@ -2464,7 +2464,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-916 | Consumed OpenAI/Search capacity assertions ? data-source existing accounts and assert TPM/deployment SKU and Search replica/partition expectations via Terraform `check` blocks + documented capacity plan; see `## TB-916` below | Performance P2 ? **V2**; WAF Performance pillar 2026-07-20; platform resources stay externally owned per TB-093; pairs V1 **TB-947** | M |
 | TB-917 | Cosmos indexing policy + partition-skew monitoring ? explicit `indexing_policy` on containers, documented RU budget per partition key, RU-consumption skew alert; see `## TB-917` below | Performance P3 ? **V2**; WAF Performance pillar 2026-07-20; Cosmos optional/off for pilots | M |
 | TB-918 | ACR geo-replication dead variables ? either wire `georeplications` block behind the existing `enable_geo_replication` variable or remove the unused variables; see `## TB-918` below | Code hygiene P3 ? **V2**; WAF Reliability pillar 2026-07-20 | XS |
-| TB-920 | Shared outbox processor/hosted-service abstraction ? dedup the 6 near-identical hand-rolled outboxes (entry/repo/processor/hosted-service/dead-letter/metrics) onto one generic base; see `## TB-920` below | Architectural integrity P1 ? **V1**; TB-302/DTF follow-up 2026-07-20 | M |
+| TB-920 | ~~Shared outbox processor/hosted-service abstraction — dedup the 6 near-identical hand-rolled outboxes (entry/repo/processor/hosted-service/dead-letter/metrics) onto one generic base; see `## TB-920` below~~ **Done** (2026-08-14) | Architectural integrity P1 ? **V1**; TB-302/DTF follow-up 2026-07-20 | M |
 | TB-921 | Formalize DTF-adoption trigger criteria as a living decision gate ? turn `V1_DEFERRED.md` ?6f prose into an explicit checklist so future outbox/orchestration proposals are evaluated consistently; see `## TB-921` below | Architectural integrity P2 ? **V1**; TB-302/DTF follow-up 2026-07-20 | S |
 | TB-922 | CI smoke coverage for the dormant DTF orchestrator seam ? exercise `OrchestratorBackend.DurableTask` / `DtfAuthorityRunOrchestrator` in CI so the reversibility seam doesn't bit-rot before it's needed; see `## TB-922` below | Reliability P2 ? **V1**; TB-302/DTF follow-up 2026-07-20 | S |
 | TB-923 | Governance approval SLA breach ? notify-only vs auto-act decision (assessment-only) ? `SlaDeadlineUtc`/`SlaBreachNotifiedUtc` today only notify; decide before scope grows into ad hoc escalation logic; see `## TB-923` below | Reliability P3 ? **V1**; TB-302/DTF follow-up 2026-07-20 | XS |
@@ -24615,9 +24615,11 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 ---
 
-## TB-920 ? Shared outbox processor/hosted-service abstraction (P1)
+## TB-920 — Shared outbox processor/hosted-service abstraction (P1) — **Done** (2026-08-14)
 
 **Window:** V1 ? TB-302/DTF orchestration follow-up 2026-07-20 (sonnet_questions Q15).
+
+**Closure (2026-08-14):** Shared `IRecoverableOutboxEntry` / `IRecoverableOutboxRepository<T>` ports, `RecoverableOutboxProcessorBase<,,>`, `LeaderElectedOutboxHostedServiceBase`, retry/options verifier/failure handler. Migrated CosmosGraphSnapshot, RunExportBlobPush, PostCommitProjection, and AuthorityPipelineWork processors + hosted services. `RecoverableOutboxProcessorArchitectureTests` + `OutboxProcessorRetryCalculatorTests`. IntegrationEvent and RetrievalIndexing outboxes remain bespoke per acceptance step 3.
 
 **Why:** Six independent outbox implementations exist today ? `IntegrationEventOutbox`, `RetrievalIndexingOutbox`, `CosmosGraphSnapshotOutbox`, `RunExportBlobPushOutbox`, `PostCommitProjectionOutbox`, `AuthorityPipelineWorkOutbox` ? each reimplementing the same shape: entry model ? Dapper + InMemory repository pair ? processor ? leader-elected hosted service ? dead-letter ? metrics gauge. TB-306's own changelog documents copying "retrieval/Cosmos outbox lease/backoff/dead-letter" verbatim into the next one. Every new side effect that needs durability currently costs a full new table+processor+hosted-service+metrics bundle instead of reusing one ? this duplication rate is itself the primary signal weighed when deciding whether hand-rolled outbox orchestration is becoming worse than adopting a durable-execution framework (see **TB-921**).
 
@@ -44505,9 +44507,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1875 ? Quick start ? Vitest URL sync + traffic honesty (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
 **Approach:** Vitest covers **TB-1871**?**TB-1874** with **TB-1867** shared sync tests.
+
+**Shipped:** `reviews-new-quick-review-band.test.ts` consolidates anti-regress checks for **TB-1871**?**TB-1874**; inventories sibling Vitest guards in `ui-route-traffic-reviews-new-quick-review.test.ts`, `ReviewsNewPathSwitcher.test.tsx`, `quick-review-wizard-import-policy.test.ts`, `FirstPilotIntakeWizard.test.tsx`, and `reviews-new-path-copy.test.ts`.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
