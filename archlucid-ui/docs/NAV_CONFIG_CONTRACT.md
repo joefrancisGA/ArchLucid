@@ -34,6 +34,8 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 
 **Commit-state presentation (TB-524):** `nav-committed-architecture-review-promotion.ts` never adds or removes a row. Once `hasCommittedArchitectureReview` is true it moves **First review guide** to the end of the Architecture group and re-tags it `extended`, and re-tags Compare / Evidence graph / pilot outcomes `essential`.
 
+**Governance mode is label-only.** `useGovernanceMode()` / `GovernanceModeToggle` change **nav copy, never nav visibility**. The only nav effect is `resolveNavLinkPresentation` → `resolveReviewsListNavLinkLabel`, which swaps the Reviews-list plural noun via `governanceModeVocabulary`. Do **not** add href- or group-level hiding keyed on governance mode: turning the toggle off must not remove the Governance group or any `/governance/*` destination, because operators use the toggle for vocabulary and would lose reachable routes with no explanation. A `governance-mode-nav-filter.ts` module that hid 14 hrefs plus the whole `operate-governance` group existed but was never imported by any component — its tests passed against behavior the shell never had, so it was removed rather than wired in. Visibility belongs to `nav-shell-visibility.ts` (authority + lifecycle) and the packaging omissions below.
+
 ## Nav groups → buyer layers
 
 | Group `id`           | `surface`           | Layer    | Notes |
