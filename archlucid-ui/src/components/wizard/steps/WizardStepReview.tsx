@@ -8,8 +8,10 @@ import { useFormContext } from "react-hook-form";
 
 import { Separator } from "@/components/ui/separator";
 import { RunWizardCostPreviewCard } from "@/components/wizard/RunWizardCostPreviewCard";
+import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/WizardPolicyPackCloudMismatchCallout";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
+import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 function ErrorList({ errors }: { errors: FieldErrors<WizardFormValues> }) {
@@ -72,9 +74,13 @@ function ReadOnlyBlock(props: { title: string; children: ReactNode }) {
 /**
  * Step 6: read-only summary and validation error surface before API submit (handled by parent nav).
  */
-export function WizardStepReview() {
+export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boolean }) {
   const { watch, formState } = useFormContext<WizardFormValues>();
   const v = watch();
+  const focusedPilotModeEnabled = props.focusedPilotModeEnabled ?? true;
+  const policyPackCloudMismatch = deriveWizardPolicyPackCloudMismatch(v, {
+    focusedPilotModeEnabled,
+  });
 
   return (
     <WizardStepPanel
@@ -83,6 +89,10 @@ export function WizardStepReview() {
     >
       <div className="space-y-4">
         <ErrorList errors={formState.errors} />
+
+        {policyPackCloudMismatch !== null ? (
+          <WizardPolicyPackCloudMismatchCallout detail={policyPackCloudMismatch} />
+        ) : null}
 
         <RunWizardCostPreviewCard />
 

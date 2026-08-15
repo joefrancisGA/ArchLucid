@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildDefaultWizardValues } from "@/lib/wizard-schema";
-import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
+import { deriveWizardPolicyPackCloudMismatch, wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 
 describe("wizard-payload", () => {
   it("includes wizard telemetry fields when options are provided", () => {
@@ -62,5 +62,19 @@ describe("wizard-payload", () => {
     });
 
     expect(payload.modelAliasOverride).toBeUndefined();
+  });
+
+  it("flags Azure packs when wizard cloud target is AWS (TB-2322)", () => {
+    const mismatch = deriveWizardPolicyPackCloudMismatch(
+      {
+        ...buildDefaultWizardValues(),
+        cloudProvider: "Aws",
+        policyReferences: ["cis-azure-baseline"],
+      },
+      { focusedPilotModeEnabled: false },
+    );
+
+    expect(mismatch).toContain("Azure-focused policy packs");
+    expect(mismatch).toContain("AWS");
   });
 });

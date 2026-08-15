@@ -41,8 +41,10 @@ import {
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
+  REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
   REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
 } from "@/lib/review-start-progress-copy";
+import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
 import {
   getWizardStepFieldGroup,
   FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
@@ -221,8 +223,17 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
   }, [stepIndex]);
 
   const isCreating = submitting || creationProgress.isActive;
+  const policyPackCloudMismatch = useMemo(
+    () =>
+      deriveWizardPolicyPackCloudMismatch(templateWizardSessionState, {
+        requestSource: "wizard",
+        wizardPresetUsed: presetDeeplinkToken ?? undefined,
+        focusedPilotModeEnabled,
+      }),
+    [focusedPilotModeEnabled, presetDeeplinkToken, templateWizardSessionState],
+  );
   const canProceed = !isCreating;
-  const canSubmit = !isCreating && !blocksLlmExecution;
+  const canSubmit = !isCreating && !blocksLlmExecution && policyPackCloudMismatch === null;
 
   const saveWizardDraft = useCallback(() => {
     try {
@@ -315,6 +326,8 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     const gateFailure = await evaluateWizardFormCreateRunGates({
       trigger,
       blocksLlmExecution,
+      getValues,
+      payloadOptions: buildPayloadOptions(),
     });
 
     if (gateFailure === "validation") {
@@ -325,6 +338,22 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
 
     if (gateFailure === "llm-budget") {
       showToast("err", REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
+
+      return;
+    }
+
+    if (gateFailure === "policy-cloud-mismatch") {
+      const mismatch = deriveWizardPolicyPackCloudMismatch(getValues(), {
+        requestSource: "wizard",
+        wizardPresetUsed: presetDeeplinkToken ?? undefined,
+        focusedPilotModeEnabled,
+      });
+      showToast(
+        "err",
+        mismatch !== null
+          ? `${REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE} ${mismatch}`
+          : REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
+      );
 
       return;
     }
@@ -632,7 +661,9 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
               onConfidenceChange={setBaselineConfidence}
             />
           ) : null}
-          {stepIndex === REVIEW_STEP_INDEX ? <WizardStepReview /> : null}
+          {stepIndex === REVIEW_STEP_INDEX ? (
+            <WizardStepReview focusedPilotModeEnabled={focusedPilotModeEnabled} />
+          ) : null}
           {stepIndex === TRACK_STEP_INDEX && runId ? (
             <>
               {postCreateEvidencePanel}
