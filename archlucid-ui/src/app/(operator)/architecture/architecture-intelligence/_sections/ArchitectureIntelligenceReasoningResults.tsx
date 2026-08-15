@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { findingJobViewLaneLead } from "@/lib/findings/finding-job-view-lane-lead";
+import { buildReviewFindingsTabHref } from "@/lib/findings/review-findings-job-view-url";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +33,12 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
   const validationById = new Map(
     (props.result.validationResults ?? []).map((validation) => [validation.findingId, validation]),
   );
+  const runId = props.result.runId?.trim() ?? "";
+  const adversarialChallengeCount = props.result.adversarial?.challenges?.length ?? 0;
+  const verifyHypothesesLaneHref =
+    runId.length > 0 && adversarialChallengeCount > 0
+      ? buildReviewFindingsTabHref(runId, "verify-hypotheses")
+      : null;
 
   return (
     <div className="space-y-4" data-testid="architecture-intelligence-reasoning-results">
@@ -173,6 +181,22 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
           Substantiated: {props.result.adversarial?.substantiatedFindings?.length ?? 0} · Challenges:{" "}
           {props.result.adversarial?.challenges?.length ?? 0}
         </p>
+        {adversarialChallengeCount > 0 ? (
+          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {findingJobViewLaneLead("verify-hypotheses")}
+          </p>
+        ) : null}
+        {verifyHypothesesLaneHref !== null ? (
+          <p className="m-0 mt-2">
+            <Link
+              href={verifyHypothesesLaneHref}
+              className={cn(OPERATOR_LINK.inline, "font-medium")}
+              data-testid="architecture-intelligence-adversarial-verify-lane-link"
+            >
+              Open verify-hypotheses lane on the findings list
+            </Link>
+          </p>
+        ) : null}
         {(props.result.adversarial?.challenges ?? []).length > 0 ? (
           <ul className="m-0 list-disc space-y-1 pl-5">
             {(props.result.adversarial?.challenges ?? []).map((challenge, index) => (
