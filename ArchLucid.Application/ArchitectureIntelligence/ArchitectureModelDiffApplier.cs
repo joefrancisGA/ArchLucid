@@ -42,7 +42,14 @@ public sealed class ArchitectureModelDiffApplier : IArchitectureModelDiffApplier
             Description = $"Proposed recommendation: {recommendation.Problem}",
         });
 
-        if (recommendation.ProposedChange.Contains("trust boundary", StringComparison.OrdinalIgnoreCase))
+        ArchitectureModelDiffDesignDeltaApplier.ApplyDesignDeltas(
+            afterModel,
+            recommendation,
+            recommendationElementId,
+            entries);
+
+        if (recommendation.ProposedChange.Contains("trust boundary", StringComparison.OrdinalIgnoreCase)
+            && !afterModel.Elements.Any(element => element.Kind == ArchitectureElementKind.TrustBoundary))
         {
             string trustBoundaryId = Guid.NewGuid().ToString("N");
             afterModel.Elements.Add(new ArchitectureModelElement

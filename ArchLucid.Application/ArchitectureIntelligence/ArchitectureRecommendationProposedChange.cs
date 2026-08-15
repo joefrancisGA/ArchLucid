@@ -46,6 +46,26 @@ internal static class ArchitectureRecommendationProposedChange
             return $"Address the cost exposure ({title}) with a concrete spend or architecture change.";
         }
 
+        if (finding.Dimension == QualityDimension.DataArchitecture)
+        {
+            return "Document data flows for sensitive data paths, classification, and storage boundaries.";
+        }
+
+        if (finding.Dimension == QualityDimension.PerformanceScalability)
+        {
+            return "Record a capacity expectation that states peak load and how the design scales to meet it.";
+        }
+
+        if (finding.Dimension == QualityDimension.PrivacyCompliance)
+        {
+            return "Record compliance obligations and jurisdiction controls that apply to this architecture.";
+        }
+
+        if (finding.Dimension == QualityDimension.Integration)
+        {
+            return "Document external interfaces, authentication, and failure handling for third-party dependencies.";
+        }
+
         return $"Implement a concrete design change to resolve: {title}.";
     }
 
