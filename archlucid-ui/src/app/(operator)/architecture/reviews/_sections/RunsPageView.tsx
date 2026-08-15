@@ -6,7 +6,6 @@ import { OperatorMalformedCallout, OperatorTryNext } from "@/components/operator
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { PlanningReviewsVocabularyRail } from "@/components/PlanningReviewsVocabularyRail";
 import { RunsListProofHeadline } from "@/components/runs/RunsListProofHeadline";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -83,8 +82,7 @@ export function RunsPageView(props: Props) {
         }
         actions={<ReviewsHubHeaderActions />}
       />
-      <PlanningReviewsVocabularyRail currentSurfaceId="architecture-reviews" />
-{hubLoadOk ? (
+      {hubLoadOk ? (
         <>
           <ReviewsHubSummaryRow summary={workspaceSummary} />
           <ReviewsHubPinnedReviews />
