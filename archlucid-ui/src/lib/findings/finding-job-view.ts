@@ -105,14 +105,6 @@ export function classifyReviewFindingJobView(finding: QuickDecisionFinding): Fin
     return "deferred";
   }
 
-  if (isContradictionReviewFinding(finding)) {
-    return "resolve-contradictions";
-  }
-
-  if (isCannotDetermineReviewFinding(finding)) {
-    return "answer-these-questions";
-  }
-
   if (
     isReadyDisposition(disposition)
     || reviewStatus?.label === "Approved"
@@ -123,6 +115,14 @@ export function classifyReviewFindingJobView(finding: QuickDecisionFinding): Fin
     }
 
     return "needs-my-decision";
+  }
+
+  if (isContradictionReviewFinding(finding)) {
+    return "resolve-contradictions";
+  }
+
+  if (isCannotDetermineReviewFinding(finding)) {
+    return "answer-these-questions";
   }
 
   if (isVerifyHypothesisReviewFinding(finding)) {
