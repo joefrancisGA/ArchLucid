@@ -34,6 +34,14 @@ export const IMPACT_PREVIEW_TRUST_NOTICE =
 
 export const IMPACT_PREVIEW_ACTION_REFRESH = "Refresh" as const;
 export const IMPACT_PREVIEW_ACTION_REFRESHING = "Refreshing…" as const;
+
+export const IMPACT_PREVIEW_LOADING_STATUS = "Loading impact preview…";
+
+export const IMPACT_PREVIEW_LIST_LOAD_RETRY_LABEL = "Try again";
+
+export const IMPACT_PREVIEW_DETAIL_LOAD_RETRY_LABEL = "Retry loading results";
+
+export const IMPACT_PREVIEW_SIMULATE_RETRY_LABEL = "Retry simulation";
 export const IMPACT_PREVIEW_ACTION_SIMULATE = "Simulate impact" as const;
 export const IMPACT_PREVIEW_ACTION_CREATE_PROPOSED_CHANGE = "Create proposed change" as const;
 export const IMPACT_PREVIEW_ACTION_OPEN_PLANNING = "Open Planning" as const;

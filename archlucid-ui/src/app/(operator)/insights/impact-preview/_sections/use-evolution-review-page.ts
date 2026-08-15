@@ -227,6 +227,14 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
     setComparisonScope((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
 
+  const retryDetailLoad = useCallback(async () => {
+    if (selectedId === null || selectedId === "") {
+      return;
+    }
+
+    await loadDetail(selectedId);
+  }, [loadDetail, selectedId]);
+
   const onSimulate = useCallback(async () => {
     if (selectedId === null || selectedId === "") {
       return;
@@ -273,6 +281,7 @@ export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad
     detailFailure,
     simulateFailure,
     loadList,
+    loadDetail: retryDetailLoad,
     onSimulate,
     planSnapshot,
     lastRefreshedAt,

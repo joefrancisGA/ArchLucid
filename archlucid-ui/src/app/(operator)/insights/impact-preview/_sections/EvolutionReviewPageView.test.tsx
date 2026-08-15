@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
   IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY,
   IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE,
   IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_TITLE,
+  IMPACT_PREVIEW_LIST_LOAD_RETRY_LABEL,
   IMPACT_PREVIEW_ORIENTATION,
   IMPACT_PREVIEW_PAGE_TITLE,
   IMPACT_PREVIEW_SCOPE_WHAT_IT_IS,
@@ -48,6 +49,7 @@ function buildModel(overrides: Partial<EvolutionReviewPageViewModel> = {}): Evol
     detailFailure: null,
     simulateFailure: null,
     loadList: vi.fn(),
+    loadDetail: vi.fn(),
     onSimulate: vi.fn(),
     planSnapshot: null,
     lastRefreshedAt: null,
@@ -114,5 +116,31 @@ describe("EvolutionReviewPageView", () => {
     expect(screen.queryByText(IMPACT_PREVIEW_SCOPE_WHAT_IT_IS)).not.toBeInTheDocument();
     expect(screen.queryByTestId("impact-preview-setup-card")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-capability-boundary")).not.toBeInTheDocument();
+  });
+
+  it("offers retry when proposed changes fail to load", () => {
+    baselineAvailabilityMock.mockReturnValue({ loading: false, finalizedCount: 2 });
+    const loadList = vi.fn();
+
+    render(
+      <EvolutionReviewPageView
+        model={buildModel({
+          listFailure: {
+            message: "Could not load proposed changes.",
+            problem: null,
+            correlationId: null,
+            httpStatus: 503,
+            retryAfterSeconds: null,
+          },
+          loadList,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("impact-preview-list-load-failure")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("impact-preview-list-load-retry"));
+
+    expect(loadList).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: IMPACT_PREVIEW_LIST_LOAD_RETRY_LABEL })).toBeInTheDocument();
   });
 });

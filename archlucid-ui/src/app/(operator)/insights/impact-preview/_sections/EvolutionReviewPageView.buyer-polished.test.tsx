@@ -59,6 +59,7 @@ function buildModel(overrides: Partial<EvolutionReviewPageViewModel> = {}): Evol
     detailFailure: null,
     simulateFailure: null,
     loadList: vi.fn(),
+    loadDetail: vi.fn(),
     onSimulate: vi.fn(),
     planSnapshot: null,
     lastRefreshedAt: null,
@@ -93,6 +94,7 @@ describe("EvolutionReviewPageView buyer-polished shell", () => {
     expect(screen.queryByText(IMPACT_PREVIEW_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-refresh-button")).toBeInTheDocument();
+    expect(screen.getByTestId("impact-preview-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
     expect(screen.queryByText(IMPACT_PREVIEW_SCOPE_DETAILS_TRIGGER)).toBeNull();
     expect(screen.queryByText(IMPACT_PREVIEW_TRUST_NOTICE)).not.toBeInTheDocument();
