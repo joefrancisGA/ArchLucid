@@ -19,7 +19,7 @@ describe("governance-setup-guide-steps", () => {
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[0]?.tracked).toBe(true);
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[1]?.tracked).toBe(false);
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[2]?.tracked).toBe(true);
-    expect(GOVERNANCE_SETUP_GUIDE_STEPS[4]?.primaryActionLabel).toBe("Open workspace overview");
+    expect(GOVERNANCE_SETUP_GUIDE_STEPS[4]?.primaryActionLabel).toBe("Open workspace health");
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[4]?.primaryActionHref).toBe(GOVERNANCE_WORKSPACE_HEALTH_HREF);
   });
 

@@ -111,11 +111,11 @@ describe("HelpAdminDiagnosticsGuideView (HAE)", () => {
     const content = screen.getByTestId("help-admin-diagnostics-content");
 
     expect(within(content).queryByRole("link", { name: "System health" })).toBeNull();
-    expect(within(content).queryByRole("link", { name: "Workspace overview" })).toBeNull();
+    expect(within(content).queryByRole("link", { name: "Workspace health" })).toBeNull();
     expect(content.textContent ?? "").not.toContain("archlucid doctor");
     expect(content.textContent ?? "").not.toMatch(/`\/administration\/system-health`/);
     expect(content.textContent ?? "").not.toContain("System status");
-    expect(content.textContent ?? "").not.toContain("Workspace Overview");
+    expect(content.textContent ?? "").not.toContain("Workspace health");
     expect(content.textContent ?? "").not.toContain("claim discipline");
     expect(content.textContent ?? "").not.toContain("Sources package");
     expect(content.textContent ?? "").not.toContain("sealed-review diligence");

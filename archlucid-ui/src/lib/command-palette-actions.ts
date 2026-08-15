@@ -1,13 +1,19 @@
 /**
  * Action-oriented command palette entries (navigate + pre-filled intent).
+ *
+ * Verb phrasing is intentional here — these sit beside destination rows, so "Open …" / "Search …"
+ * signals an action. The **noun** inside the phrase still comes from the destination's own name via
+ * {@link getRouteTitle}, so an action cannot outlive a page rename (this row previously offered
+ * "Open value report" for the page titled "Sponsor report", and labelled review intake
+ * "Create architecture", which is the name of the separate architecture-draft route).
  */
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   FIRST_REVIEW_GUIDE_PATH,
   ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
 } from "@/lib/first-review-guide-route";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { getRouteTitle } from "@/lib/route-titles";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 
 export type CommandPaletteAction = {
@@ -17,22 +23,27 @@ export type CommandPaletteAction = {
   searchValue: string;
 };
 
+/** "Open" + the destination's canonical name, lower-cased so the phrase stays sentence-case. */
+function openDestinationLabel(href: string): string {
+  return `Open ${getRouteTitle(href).toLowerCase()}`;
+}
+
 export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
   {
     id: "action-create-review",
-    label: CREATE_ARCHITECTURE_LABEL,
+    label: getRouteTitle("/architecture/reviews/new"),
     href: "/architecture/reviews/new",
-    searchValue: "action create new review wizard",
+    searchValue: "action create new review wizard intake",
   },
   {
     id: "action-open-reviews",
-    label: "Open reviews list",
+    label: openDestinationLabel("/architecture/reviews"),
     href: "/architecture/reviews",
     searchValue: "action open list reviews packages",
   },
   {
     id: "action-export-value",
-    label: "Open value report",
+    label: openDestinationLabel(SPONSOR_REPORT_PATH),
     href: SPONSOR_REPORT_PATH,
     searchValue: "action export roi sponsor value report",
   },

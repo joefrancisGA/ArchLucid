@@ -44,6 +44,7 @@ import { formatSponsorWorkspaceScopeDescription } from "@/lib/workspace-health-s
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   executiveWorkspaceHealthKpiTitle,
+  SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE,
   SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY,
 } from "@/lib/sponsor-workspace-health-page-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
@@ -92,7 +93,7 @@ function resolveWorkspaceHealthLoadError(error: unknown): WorkspaceHealthLoadErr
 }
 
 /**
- * Sponsor-oriented **Sponsor Workspace Health**: five KPI blocks composed from existing governance, audit, compliance-drift, and pilot-value APIs (current scope only).
+ * Sponsor-oriented **Workspace health**: five KPI blocks composed from existing governance, audit, compliance-drift, and pilot-value APIs (current scope only).
  */
 export function SponsorWorkspaceHealthDashboard() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -220,7 +221,7 @@ export function SponsorWorkspaceHealthDashboard() {
         <SponsorWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
 <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          {buyerPolishedShell ? "Loading workspace overview…" : "Loading sponsor workspace health…"}
+          {`Loading ${SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE.toLowerCase()}…`}
         </p>
       </div>
     );

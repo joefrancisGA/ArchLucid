@@ -34,7 +34,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
     mutationCapability: false,
     layerGuidance: {
       layerBadge: "Governance",
-      headline: "Sponsor Workspace Health — governance and value signals in your current scope.",
+      headline: "Workspace health — governance and value signals in your current scope.",
       useWhen: "Use after Pilot proof when sponsors need pre-finalization outcomes.",
       firstPilotNote: null,
       enterpriseFootnote: "Read-only tiles; writes stay in workflow, findings queue, and audit.",
@@ -168,12 +168,12 @@ describe("SponsorWorkspaceHealthDashboard", () => {
     vi.clearAllMocks();
   });
 
-  it("shows h1 on loading before data resolves", () => {
+  it("shows the workspace-health heading on loading before data resolves", () => {
     renderWithOperatorQuery(<SponsorWorkspaceHealthDashboard />);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Workspace overview" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Workspace health" })).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByText("Loading workspace overview…")).toBeInTheDocument();
+    expect(screen.getByText("Loading workspace health…")).toBeInTheDocument();
   });
 
   it("renders buyer KPI titles without numbered prefixes when ready", async () => {

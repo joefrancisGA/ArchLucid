@@ -20,6 +20,7 @@ import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-r
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
+import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 import { StatusTag } from "@/components/ui/status-tag";
 
 const NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_core_pilot_next_steps_minimized_v1";
@@ -326,7 +327,7 @@ export function CorePilotNextStepsCard() {
             href={GOVERNANCE_WORKSPACE_HEALTH_HREF}
             className="text-neutral-600 underline decoration-neutral-400 underline-offset-2 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
           >
-            Workspace health (sponsor view)
+            {TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK.label}
           </Link>
           <Link href="/insights/ask-review-questions" className={OPERATOR_LINK.nav}>
             Open Ask (Operate)
