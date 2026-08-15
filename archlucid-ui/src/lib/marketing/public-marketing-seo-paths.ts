@@ -1,5 +1,6 @@
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import { LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH } from "@/lib/legacy-architecture-graph-route";
 import { LEGACY_QUICK_START_PATH } from "@/lib/legacy-quick-start-route";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -45,6 +46,7 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   "/governance/",
   "/governance/standards-and-rules/",
   LEGACY_QUICK_START_PATH,
+  LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
   `${FIRST_REVIEW_GUIDE_PATH}/`,
   "/insights/improvement-planning/",
   "/internal/product-learning/",
@@ -68,6 +70,5 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   "/swagger/",
   "/scalar/",
   "/metrics",
-  "/live-demo",
   "/snapshot",
 ];
