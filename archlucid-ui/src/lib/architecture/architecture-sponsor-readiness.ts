@@ -1,6 +1,7 @@
 import type { ArchitectureStructuredParseResult, ArchitectureStructuredSectionKey } from "@/lib/architecture/architecture-structured-content-types";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
+import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 
@@ -117,7 +118,12 @@ export function resolveArchitectureConfidentialityLabel(sourceText: string): str
 }
 
 function countHighSeverityFindings(findings: readonly QuickDecisionFinding[]): number {
-  return findings.filter((finding) => finding.severityValue >= HIGH_SEVERITY_THRESHOLD).length;
+  return findings.filter(
+    (finding) =>
+      !finding.isMuted
+      && !isReviewFindingDispositionClosed(finding)
+      && finding.severityValue >= HIGH_SEVERITY_THRESHOLD,
+  ).length;
 }
 
 function deriveReadinessStatus(issues: readonly SponsorReadinessIssue[]): SponsorReadinessStatus {
