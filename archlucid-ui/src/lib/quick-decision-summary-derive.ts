@@ -160,7 +160,7 @@ function normalizedSeverity(severityValue: number): number {
   return n;
 }
 
-function coerceArchitectureFindingSeverity(raw: unknown): number {
+export function coerceArchitectureFindingSeverity(raw: unknown): number {
   if (typeof raw === "number" && Number.isFinite(raw)) {
     return normalizedSeverity(raw);
   }

@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { FindingCrossReviewLifecycleHint } from "@/components/findings/FindingCrossReviewLifecycleHint";
+import { FindingJobViewLaneCallout } from "@/components/findings/FindingJobViewLaneCallout";
 import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeverityConstraintNote";
 import { FindingInspectContextDebugPanel } from "@/components/findings/FindingInspectContextDebugPanel";
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
@@ -47,6 +48,7 @@ import {
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/findings/finding-policy-evidence-citations";
 import { buildSeverityConstraintNoteForInspectPayload } from "@/lib/review-quality/finding-severity-constraint-note";
+import { classifyInspectPayloadJobView } from "@/lib/findings/finding-inspect-job-view";
 
 import { FindingInspectAuditSection } from "../FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "../FindingInspectEvidenceSection";
@@ -107,6 +109,8 @@ export function FindingDetailPageView(props: Props) {
     inspectPayload !== null
       ? buildSeverityConstraintNoteForInspectPayload(inspectPayload, statedConstraintContext)
       : null;
+  const findingJobView =
+    inspectPayload !== null ? classifyInspectPayloadJobView(inspectPayload) : null;
 
   const confidenceLevel = inspectPayload?.confidenceLevel ?? null;
   const evaluationScore = inspectPayload?.evaluationConfidenceScore ?? null;
@@ -244,6 +248,8 @@ export function FindingDetailPageView(props: Props) {
               severityConstraintNote={severityConstraintNote}
             />
           ) : null}
+
+          {findingJobView !== null ? <FindingJobViewLaneCallout jobView={findingJobView} /> : null}
 
           {inspectPayload !== null ? (
             <FindingDetailOperationalActions
@@ -474,6 +480,8 @@ export function FindingDetailPageView(props: Props) {
           ) : null}
 
           {severityConstraintNote !== null ? <FindingSeverityConstraintNote note={severityConstraintNote} /> : null}
+
+          {findingJobView !== null ? <FindingJobViewLaneCallout jobView={findingJobView} /> : null}
 
           {graphEvidenceHref !== null ? (
             <p className="m-0">
