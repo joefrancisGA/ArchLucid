@@ -1920,6 +1920,12 @@
               "string"
             ]
           },
+          "providerConnectionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "qualityGateDefinitionContentHashSha256": {
             "type": [
               "null",
@@ -28381,6 +28387,138 @@
         },
         "type": "object"
       },
+      "TenantAzureOpenAiConnectionProbeResponse": {
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAzureOpenAiConnectionResponse": {
+        "properties": {
+          "apiKeyKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "authMode": {
+            "type": "string"
+          },
+          "deploymentsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "endpoint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastProbeMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastProbeSucceeded": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "lastProbeUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "providerConnectionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantAzureOpenAiConnectionUpsertRequest": {
+        "properties": {
+          "apiKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "apiKeyKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "authMode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "deploymentsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "endpoint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "TenantBaselineGetResponse": {
         "properties": {
           "baselineReviewCycleCapturedUtc": {
@@ -37412,6 +37550,9 @@
     },
     {
       "name": "AdminAuthDiagnostics"
+    },
+    {
+      "name": "AdminAzureOpenAiConnection"
     },
     {
       "name": "AdminCrossTenantUsageRollup"
