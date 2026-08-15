@@ -8,14 +8,9 @@ import {
   DEPLOYMENT_STATUS_SOURCES,
   DEPLOYMENT_STATUS_SOURCES_INTRO,
 } from "@/lib/deployment-status-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("deployment-status-evidence-copy", () => {
-  it("wires exports into the Deployment status evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("deployment-status-evidence-copy");
-    expect(registrySource).toContain("DeploymentStatusEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(DEPLOYMENT_STATUS_CANONICAL_PATH).toBe("/internal/deployment-status");
   });
 

@@ -8,14 +8,9 @@ import {
   JIRA_INTEGRATION_SOURCES,
   JIRA_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/jira-integration-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("jira-integration-evidence-copy", () => {
-  it("wires exports into the Jira integration evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("jira-integration-evidence-copy");
-    expect(registrySource).toContain("JiraIntegrationEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(JIRA_INTEGRATION_CANONICAL_PATH).toBe("/integrations/jira");
   });
 

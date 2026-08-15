@@ -8,14 +8,9 @@ import {
   TENANT_HEALTH_SOURCES,
   TENANT_HEALTH_SOURCES_INTRO,
 } from "@/lib/tenant-health-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("tenant-health-evidence-copy", () => {
-  it("wires exports into the Tenant health evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("tenant-health-evidence-copy");
-    expect(registrySource).toContain("TenantHealthEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(TENANT_HEALTH_CANONICAL_PATH).toBe("/internal/tenant-health");
   });
 

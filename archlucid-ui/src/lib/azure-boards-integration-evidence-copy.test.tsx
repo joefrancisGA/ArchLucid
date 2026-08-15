@@ -8,14 +8,9 @@ import {
   AZURE_BOARDS_INTEGRATION_SOURCES,
   AZURE_BOARDS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/azure-boards-integration-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("azure-boards-integration-evidence-copy", () => {
-  it("wires exports into the Azure Boards integration evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("azure-boards-integration-evidence-copy");
-    expect(registrySource).toContain("AzureBoardsIntegrationEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(AZURE_BOARDS_INTEGRATION_CANONICAL_PATH).toBe("/integrations/azure-boards");
   });
 

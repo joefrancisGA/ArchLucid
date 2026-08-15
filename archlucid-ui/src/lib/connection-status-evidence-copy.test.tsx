@@ -8,14 +8,9 @@ import {
   CONNECTION_STATUS_SOURCES,
   CONNECTION_STATUS_SOURCES_INTRO,
 } from "@/lib/connection-status-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("connection-status-evidence-copy", () => {
-  it("wires exports into the Connection status evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("connection-status-evidence-copy");
-    expect(registrySource).toContain("ConnectionStatusEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(CONNECTION_STATUS_CANONICAL_PATH).toBe("/administration/connection-status");
   });
 

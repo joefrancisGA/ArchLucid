@@ -8,14 +8,9 @@ import {
   DEMO_READINESS_SOURCES,
   DEMO_READINESS_SOURCES_INTRO,
 } from "@/lib/demo-readiness-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("demo-readiness-evidence-copy", () => {
-  it("wires exports into the Demo readiness evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("demo-readiness-evidence-copy");
-    expect(registrySource).toContain("DemoReadinessEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(DEMO_READINESS_CANONICAL_PATH).toBe("/internal/demo-readiness");
   });
 

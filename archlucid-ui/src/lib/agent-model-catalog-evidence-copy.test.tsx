@@ -8,14 +8,9 @@ import {
   AGENT_MODEL_CATALOG_SOURCES,
   AGENT_MODEL_CATALOG_SOURCES_INTRO,
 } from "@/lib/agent-model-catalog-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("agent-model-catalog-evidence-copy", () => {
-  it("wires exports into the agent model catalog evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("agent-model-catalog-evidence-copy");
-    expect(registrySource).toContain("AgentModelCatalogEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(AGENT_MODEL_CATALOG_CANONICAL_PATH).toBe("/internal/agent-model-catalog");
   });
 

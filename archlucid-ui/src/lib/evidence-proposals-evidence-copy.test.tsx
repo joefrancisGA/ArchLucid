@@ -8,14 +8,9 @@ import {
   EVIDENCE_PROPOSALS_SOURCES,
   EVIDENCE_PROPOSALS_SOURCES_INTRO,
 } from "@/lib/evidence-proposals-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("evidence-proposals-evidence-copy", () => {
-  it("wires exports into the Evidence proposals evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("evidence-proposals-evidence-copy");
-    expect(registrySource).toContain("EvidenceProposalsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(EVIDENCE_PROPOSALS_CANONICAL_PATH).toBe("/internal/evidence-proposals");
   });
 

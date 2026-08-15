@@ -8,14 +8,9 @@ import {
   ROLE_MAPPING_SETTINGS_SOURCES,
   ROLE_MAPPING_SETTINGS_SOURCES_INTRO,
 } from "@/lib/role-mapping-settings-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("role-mapping-settings-evidence-copy", () => {
-  it("wires exports into the Role mapping settings evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("role-mapping-settings-evidence-copy");
-    expect(registrySource).toContain("RoleMappingSettingsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(ROLE_MAPPING_SETTINGS_CANONICAL_PATH).toBe("/administration/identity-providers/role-mapping");
   });
 

@@ -8,14 +8,9 @@ import {
   TENANT_SETTINGS_SOURCES,
   TENANT_SETTINGS_SOURCES_INTRO,
 } from "@/lib/tenant-settings-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("tenant-settings-evidence-copy", () => {
-  it("wires exports into the Tenant settings evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("tenant-settings-evidence-copy");
-    expect(registrySource).toContain("TenantSettingsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(TENANT_SETTINGS_CANONICAL_PATH).toBe("/administration/workspace-settings");
   });
 

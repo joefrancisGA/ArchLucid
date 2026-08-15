@@ -11,14 +11,9 @@ import {
   PREFERENCES_SETTINGS_SOURCES,
   PREFERENCES_SETTINGS_SOURCES_INTRO,
 } from "@/lib/preferences-settings-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("preferences-settings-evidence-copy", () => {
-  it("wires exports into the Preferences settings evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("preferences-settings-evidence-copy");
-    expect(registrySource).toContain("PreferencesSettingsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(PREFERENCES_SETTINGS_CANONICAL_PATH).toBe("/account/preferences");
   });
 

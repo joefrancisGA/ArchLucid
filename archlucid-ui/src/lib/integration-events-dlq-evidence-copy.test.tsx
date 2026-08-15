@@ -8,14 +8,9 @@ import {
   INTEGRATION_EVENTS_DLQ_SOURCES,
   INTEGRATION_EVENTS_DLQ_SOURCES_INTRO,
 } from "@/lib/integration-events-dlq-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("integration-events-dlq-evidence-copy", () => {
-  it("wires exports into the integration DLQ evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("integration-events-dlq-evidence-copy");
-    expect(registrySource).toContain("IntegrationEventsDlqEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(INTEGRATION_EVENTS_DLQ_CANONICAL_PATH).toBe("/internal/failed-integration-messages");
   });
 

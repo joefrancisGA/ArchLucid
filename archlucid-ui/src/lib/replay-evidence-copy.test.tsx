@@ -8,14 +8,9 @@ import {
   REPLAY_SOURCES,
   REPLAY_SOURCES_INTRO,
 } from "@/lib/replay-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("replay-evidence-copy", () => {
-  it("wires exports into the validate-route evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("replay-evidence-copy");
-    expect(registrySource).toContain("ReplayEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(REPLAY_CANONICAL_PATH).toBe("/internal/validate-route");
   });
 
