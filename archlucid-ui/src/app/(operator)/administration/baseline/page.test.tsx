@@ -185,7 +185,7 @@ describe("BaselineSettingsPage", () => {
     vi.unstubAllGlobals();
   });
 
-  it("blocks save when hours are not positive", async () => {
+  it("blocks save when hours are not positive without validation toast (TB-2009)", async () => {
     const fetchMock = createFetchMock();
     vi.stubGlobal("fetch", fetchMock);
     render(<BaselineSettingsClient />);

@@ -81,7 +81,13 @@ import {
 import { latestAlertRulesConfigChange } from "@/lib/alert-rules-config-change";
 import { ALERT_RULES_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_FORM_FIELD_HELPER_CLASS,
+  OPERATOR_FORM_FIELD_STACK_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import {
   alertRulesCreateButtonLabelReaderRank,
@@ -373,7 +379,7 @@ export function AlertRulesContent() {
               </h2>
 
               <div className="grid max-w-2xl gap-4">
-              <div>
+              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                 <Label htmlFor="alert-rule-name">{ALERT_RULES_NAME_LABEL}</Label>
                 <Input
                   ref={nameInputRef}
@@ -382,16 +388,15 @@ export function AlertRulesContent() {
                   onChange={(event) => setName(event.target.value)}
                   onBlur={() => setFieldTouched((current) => ({ ...current, name: true }))}
                   disabled={!canEdit || creating}
-                  className="mt-1"
                 />
                 {fieldTouched.name && fieldErrors.name ? (
-                  <p className={cn("mt-1 text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+                  <p className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-red-600 dark:text-red-400")} role="alert">
                     {fieldErrors.name}
                   </p>
                 ) : null}
               </div>
 
-              <div>
+              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                 <Label htmlFor="alert-rule-type">{ALERT_RULES_RULE_TYPE_LABEL}</Label>
                 <Select
                   value={ruleType}
@@ -400,7 +405,6 @@ export function AlertRulesContent() {
                 >
                   <SelectTrigger
                     id="alert-rule-type"
-                    className="mt-1"
                     aria-label={ALERT_RULES_RULE_TYPE_LABEL}
                     data-testid="alert-rule-type-select"
                   >
@@ -414,12 +418,12 @@ export function AlertRulesContent() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                <p className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-al-text-secondary")}>
                   {ALERT_RULES_RULE_TYPE_HELP}
                 </p>
               </div>
 
-              <div>
+              <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                 <Label htmlFor="alert-rule-priority">{ALERT_RULES_ALERT_PRIORITY_LABEL}</Label>
                 <Select
                   value={alertPriority}
@@ -428,7 +432,6 @@ export function AlertRulesContent() {
                 >
                   <SelectTrigger
                     id="alert-rule-priority"
-                    className="mt-1"
                     aria-label={ALERT_RULES_ALERT_PRIORITY_LABEL}
                     data-testid="alert-rule-priority-select"
                   >
@@ -442,13 +445,13 @@ export function AlertRulesContent() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                <p className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-al-text-secondary")}>
                   {ALERT_RULES_ALERT_PRIORITY_HELP}
                 </p>
               </div>
 
               {ruleType !== "RejectedSecurityRecommendation" ? (
-                <div>
+                <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
                   <Label htmlFor="alert-rule-threshold">{describeThresholdComparison(ruleType)}</Label>
                   <Input
                     id="alert-rule-threshold"
@@ -465,10 +468,9 @@ export function AlertRulesContent() {
                     }}
                     onBlur={() => setFieldTouched((current) => ({ ...current, threshold: true }))}
                     disabled={!canEdit || creating}
-                    className="mt-1"
                   />
                   {fieldTouched.threshold && fieldErrors.thresholdValue ? (
-                    <p className={cn("mt-1 text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+                    <p className={cn(OPERATOR_FORM_FIELD_HELPER_CLASS, "text-red-600 dark:text-red-400")} role="alert">
                       {fieldErrors.thresholdValue}
                     </p>
                   ) : null}

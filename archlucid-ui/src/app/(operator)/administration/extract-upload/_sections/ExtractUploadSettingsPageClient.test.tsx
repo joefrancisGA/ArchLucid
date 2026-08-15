@@ -18,6 +18,7 @@ import {
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
 } from "@/lib/extract-upload-settings-page-copy";
 import { ExtractUploadSettingsPageClient } from "./ExtractUploadSettingsPageClient";
+import { showError } from "@/lib/toast";
 
 function baselineArtifactsResponse(payload: {
   hasBaselineArtifacts: boolean;
@@ -190,7 +191,7 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.getByText("Invalid ZIP archive")).toBeInTheDocument();
   });
 
-  it("blocks unsupported schemaVersion client-side without calling upload API", async () => {
+  it("blocks unsupported schemaVersion client-side without calling upload API or validation toast (TB-2009)", async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
 
@@ -229,5 +230,6 @@ describe("ExtractUploadSettingsPageClient", () => {
     });
 
     expect(fetchMock).not.toHaveBeenCalledWith(expect.stringContaining("/v1/azure-extractor/upload"), expect.anything());
+    expect(showError).not.toHaveBeenCalled();
   });
 });

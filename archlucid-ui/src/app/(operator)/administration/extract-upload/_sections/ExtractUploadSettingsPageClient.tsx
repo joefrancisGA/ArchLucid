@@ -165,7 +165,6 @@ export function ExtractUploadSettingsPageClient() {
         problem: null,
         correlationId: null,
       });
-      showError("Azure upload", built.message);
 
       return;
     }
@@ -187,7 +186,6 @@ export function ExtractUploadSettingsPageClient() {
         problem: null,
         correlationId: null,
       });
-      showError("Azure upload", validation.message);
 
       return;
     }
@@ -210,7 +208,6 @@ export function ExtractUploadSettingsPageClient() {
         problem: null,
         correlationId: null,
       });
-      showError("Azure upload", validation.message);
 
       return;
     }

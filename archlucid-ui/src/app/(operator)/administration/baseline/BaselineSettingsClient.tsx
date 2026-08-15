@@ -238,14 +238,10 @@ export function BaselineSettingsClient() {
     const noteTrim = reviewNote.trim();
 
     if (reviewValidation.error || prepValidation.error || peopleValidation.error) {
-      showError("Baseline", "Fix the highlighted fields before saving.");
-
       return;
     }
 
     if (noteTrim.length > 500) {
-      showError("Baseline", "Review-cycle estimate note must be 500 characters or fewer.");
-
       return;
     }
 
@@ -261,21 +257,15 @@ export function BaselineSettingsClient() {
       reviewParsed = parseNumberOrNull(reviewTrim);
 
       if (Number.isNaN(reviewParsed) || reviewParsed === null || reviewParsed <= 0 || reviewParsed > 10_000) {
-        showError("Baseline", "Median review-cycle hours must be a positive number up to 10,000.");
-
         return;
       }
     }
 
     if (prepTrim.length > 0 && (Number.isNaN(prepN) || prepN === null || prepN <= 0 || prepN > 10_000)) {
-      showError("Baseline", "Manual preparation hours must be a positive number up to 10,000.");
-
       return;
     }
 
     if (peopleTrim.length > 0 && (Number.isNaN(peopleN) || peopleN === null || peopleN <= 0 || peopleN > 10_000)) {
-      showError("Baseline", "People involved must be a positive number up to 10,000.");
-
       return;
     }
 

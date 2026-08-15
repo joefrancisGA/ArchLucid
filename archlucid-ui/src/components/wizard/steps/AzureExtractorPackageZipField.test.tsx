@@ -1,6 +1,12 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/toast", () => ({
+  showError: vi.fn(),
+  showSuccess: vi.fn(),
+}));
+
+import { showError } from "@/lib/toast";
 import { AzureExtractorPackageZipField } from "@/components/wizard/steps/AzureExtractorPackageZipField";
 import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-utils";
 
@@ -32,5 +38,24 @@ describe("AzureExtractorPackageZipField (TB-495)", () => {
 
     expect(panel).toHaveAttribute("data-platform", "azure");
     expect(screen.getByText("Azure inventory script")).toBeInTheDocument();
+  });
+
+  it("shows inline ZIP validation without dual toast (TB-2009)", async () => {
+    render(
+      <WizardFormTestHarness>
+        <AzureExtractorPackageZipField variant="ingest" />
+      </WizardFormTestHarness>,
+    );
+
+    const fileInput = screen.getByTestId("wizard-azure-zip-field-input");
+    const file = new File([new Uint8Array([1, 2, 3])], "not-a-zip.zip", { type: "application/zip" });
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-azure-zip-error")).toBeInTheDocument();
+    });
+
+    expect(showError).not.toHaveBeenCalled();
   });
 });
