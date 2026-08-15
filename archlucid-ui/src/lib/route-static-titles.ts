@@ -56,7 +56,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/governance/findings/assigned-to-me": OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
   [GOVERNANCE_EXCEPTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.riskExceptions,
   "/governance/decision-register": OPERATOR_NAV_LINK_LABELS.decisionRegister,
-  [SIGNED_RECORDS_LIST_PATH]: OPERATOR_NAV_LINK_LABELS.signedReviewRecords,
+  [SIGNED_RECORDS_LIST_PATH]: OPERATOR_NAV_LINK_LABELS.sealedReviewRecords,
   "/governance/policy-packs": OPERATOR_NAV_LINK_LABELS.policyPacks,
   [GOVERNANCE_STANDARDS_AND_RULES_PATH]: OPERATOR_NAV_LINK_LABELS.governanceResolution,
   "/governance/audit": AUDIT_TRAIL_PAGE_TITLE,

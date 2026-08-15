@@ -30,11 +30,11 @@ const ROW_IDS: readonly ReviewPackageShareWhenToShareRowId[] = [
 
 /** Stable when-to-share matrix for the review-package share row. */
 export function buildReviewPackageShareWhenToSharePreview(): ReviewPackageShareWhenToSharePreview {
-  const signedReviewRecord = BUYER_SURFACE_VOCABULARY.signedReviewRecord;
+  const sealedReviewRecord = BUYER_SURFACE_VOCABULARY.sealedReviewRecord;
 
   return {
     title: REVIEW_PACKAGE_SHARE_WHEN_TO_SHARE_TITLE,
-    summary: `Choose how to hand off this ${signedReviewRecord.toLowerCase()} — a URL, a printable summary, or an operator deliverable export.`,
+    summary: `Choose how to hand off this ${sealedReviewRecord.toLowerCase()} — a URL, a printable summary, or an operator deliverable export.`,
     rows: [
       {
         id: "shareLink",

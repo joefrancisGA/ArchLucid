@@ -105,7 +105,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: SIGNED_RECORDS_LIST_PATH,
-          label: OPERATOR_NAV_LINK_LABELS.signedReviewRecords,
+          label: OPERATOR_NAV_LINK_LABELS.sealedReviewRecords,
           title: "Browse finalized sealed review records across reviews",
           icon: FileText,
           tier: "extended",

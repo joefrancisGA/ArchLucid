@@ -20,7 +20,7 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle("/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);
     expect(getRouteTitle("/architecture/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);
     expect(getRouteTitle("/governance/approval-queue")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
-    expect(getRouteTitle(SIGNED_RECORDS_LIST_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.signedReviewRecords);
+    expect(getRouteTitle(SIGNED_RECORDS_LIST_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.sealedReviewRecords);
     expect(getRouteTitle(SPONSOR_DASHBOARD_HREF)).toBe(BUYER_SPONSOR_SUMMARY_VOCABULARY.pageTitle);
     expect(getRouteTitle(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF)).toBe(
       OPERATOR_NAV_LINK_LABELS.workspaceHealth,
