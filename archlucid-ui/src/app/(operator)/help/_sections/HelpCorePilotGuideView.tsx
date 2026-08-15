@@ -25,6 +25,8 @@ import {
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -148,7 +150,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                 <li key={guide.href}>
                   <Link
                     href={guide.href}
-                    className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+                    className={OPERATOR_BODY_INLINE_LINK_CLASS}
                   >
                     {guide.label}
                   </Link>

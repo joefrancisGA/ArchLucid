@@ -33,6 +33,8 @@ import {
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -147,7 +149,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
                         </span>
                         <Link
                           href={branch.href}
-                          className={cn("font-medium underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+                          className={OPERATOR_BODY_INLINE_LINK_CLASS}
                         >
                           {branch.linkLabel}
                         </Link>

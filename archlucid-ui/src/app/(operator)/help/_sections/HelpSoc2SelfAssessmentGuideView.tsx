@@ -23,6 +23,8 @@ import {
 import { SOC2_SELF_ASSESSMENT_HELP_PATH } from "@/lib/soc2-self-assessment-help-route";
 import {
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -98,11 +100,7 @@ export function HelpSoc2SelfAssessmentGuideView(
             </Button>
             <Link
               href={SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openProcurement.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               {SOC2_SELF_ASSESSMENT_HELP_PRIMARY_ACTIONS.openProcurement.label}
             </Link>

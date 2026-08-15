@@ -126,7 +126,7 @@ export function FirstPilotProofStatusStrip() {
           <li key={link.path}>
             <Link
               href={resolveInAppDocHref(link.path)}
-              className="font-medium underline underline-offset-2"
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               {link.label}
             </Link>

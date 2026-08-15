@@ -9,6 +9,7 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import {
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -117,7 +118,7 @@ export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideVi
                     {item.href === undefined ? (
                       item.label
                     ) : (
-                      <Link className="text-al-text-primary underline-offset-2 hover:underline" href={item.href}>
+                      <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={item.href}>
                         {item.label}
                       </Link>
                     )}

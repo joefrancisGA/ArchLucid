@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -97,11 +98,7 @@ export function HelpEnterpriseOnboardingGuideView(
             </Button>
             <Link
               href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCloudConnections.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCloudConnections.label}
             </Link>

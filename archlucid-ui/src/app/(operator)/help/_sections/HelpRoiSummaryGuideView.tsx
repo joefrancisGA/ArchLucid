@@ -14,6 +14,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import {
   CTA_WIDTH,
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -224,7 +225,7 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {ROI_SUMMARY_HELP_DIRECTIONAL_DISCLAIMER}
               </p>
-              <Link className="text-sm underline-offset-2 hover:underline" href={SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF}>
+              <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF}>
                 Review pilot ROI measurement methodology
               </Link>
             </div>

@@ -13,7 +13,7 @@ import {
   type CorePilotHelpWorkflowStep,
 } from "@/lib/core-pilot-help-guide-content";
 import { cn } from "@/lib/utils";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
@@ -100,7 +100,7 @@ function StepSecondaryLinks(props: {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         <Link
           href={buildReviewDetailTabHref(runId, "findings")}
-          className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
           data-testid="core-pilot-step-3-findings-link"
         >
           Review findings
@@ -108,7 +108,7 @@ function StepSecondaryLinks(props: {
         {" · "}
         <Link
           href={inAppHelpHref("evidence-trail")}
-          className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
           data-testid="core-pilot-step-3-evidence-trail-link"
         >
           Evidence trail guide

@@ -32,6 +32,7 @@ import { GovernanceApprovalHelpEvidenceOrientationStrip } from "@/components/hel
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -172,7 +173,7 @@ function TroubleshootingList(): React.ReactElement {
               {item.href !== undefined && item.linkLabel !== undefined ? (
                 <>
                   {" "}
-                  <Link href={item.href} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
+                  <Link href={item.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                     {item.linkLabel}
                   </Link>
                   .
@@ -224,11 +225,7 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
             </Button>
             <Link
               href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.label}
             </Link>
@@ -335,7 +332,7 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
                 >
                   <Link
                     href={action.href}
-                    className={cn("font-semibold underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+                    className={OPERATOR_BODY_INLINE_LINK_CLASS}
                   >
                     {action.label}
                   </Link>

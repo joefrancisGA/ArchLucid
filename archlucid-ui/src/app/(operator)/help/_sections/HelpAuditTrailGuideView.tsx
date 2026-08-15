@@ -27,6 +27,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -135,7 +136,7 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
               {AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT}{" "}
               <Link
                 href={`#${AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT_ANCHOR}`}
-                className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
               >
                 Technical reference
               </Link>
@@ -152,7 +153,7 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
                     Related guidance:{" "}
                     <Link
                       href={row.relatedGuidanceHref}
-                      className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+                      className={OPERATOR_BODY_INLINE_LINK_CLASS}
                     >
                       {row.relatedGuidanceLabel}
                     </Link>
@@ -214,7 +215,7 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
           <p className={cn("m-0 pt-2", OPERATOR_TYPOGRAPHY.label)}>
             <Link
               href={AUDIT_TRAIL_HELP_RELATED_PRODUCT_DOCS.href}
-              className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               {AUDIT_TRAIL_HELP_RELATED_PRODUCT_DOCS.label}
             </Link>

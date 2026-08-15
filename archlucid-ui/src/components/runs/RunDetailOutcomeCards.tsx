@@ -331,7 +331,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           {props.hasGoldenManifest && hasManifest ? (
             <Link
               href={signedRecordDetailPath(trimmedManifestId)}
-              className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
               data-testid="run-detail-finalized-package-link"
             >
               {packageBody}
@@ -351,7 +351,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           <div className="mt-1">
             <Link
               href={props.showcasePolicyPackStrip.href.trim()}
-              className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
             >
               <p className={valueClass}>{props.showcasePolicyPackStrip.label.trim()}</p>
               <p className={detailClass}>Read-only pack rules and version</p>
@@ -366,7 +366,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           {hasManifest ? (
             <Link
               href="#run-explanation"
-              className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
             >
               {findingsBody}
             </Link>
@@ -382,7 +382,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           {hasManifest ? (
             <Link
               href="#artifacts-exports"
-              className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
             >
               <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
               <p className={detailClass}>Sponsor-ready deliverables</p>

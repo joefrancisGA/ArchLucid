@@ -37,6 +37,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -227,11 +228,7 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
                 </Button>
                 <Link
                   href="/administration/billing"
-                  className={cn(
-                    "mt-3 inline-block text-sm underline-offset-2 hover:underline",
-                    DESIGN_TOKENS.accent.link,
-                    HELP_PAGE_LAYOUT.readingBody,
-                  )}
+                  className={cn("mt-3 inline-block", OPERATOR_BODY_INLINE_LINK_CLASS)}
                 >
                   Open Billing and plans
                 </Link>

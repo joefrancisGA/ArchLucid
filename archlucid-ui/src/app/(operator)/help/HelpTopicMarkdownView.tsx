@@ -36,7 +36,7 @@ import {
 
 } from "@/lib/caiq-sig-response-help-presentation";
 
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION } from "@/lib/caiq-sig-response-help-evidence-copy";
 import { INTEGRATION_READINESS_HELP_PRIMARY_ACTION } from "@/lib/integration-readiness-help-evidence-copy";
@@ -288,7 +288,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
           open{" "}
 
-          <Link href={inAppHelpHref("troubleshooting")} className={`underline-offset-2 hover:underline ${DESIGN_TOKENS.accent.link}`}>
+          <Link href={inAppHelpHref("troubleshooting")} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
 
             Troubleshooting
 
