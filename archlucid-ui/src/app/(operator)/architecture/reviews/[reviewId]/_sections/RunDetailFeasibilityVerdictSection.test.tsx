@@ -42,7 +42,9 @@ describe("RunDetailFeasibilityVerdictSection", () => {
     expect(screen.getByText(/remediate/i)).toBeInTheDocument();
     expect(screen.getByText(verdict.summary)).toBeInTheDocument();
     expect(screen.getByText(/asserted \(1\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/skipped \(1\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/skipped must intake question/i)).toBeInTheDocument();
+    expect(screen.getByText("l0.pillar.security")).toBeInTheDocument();
+    expect(screen.queryByText(/skipped \(1\)/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("decision-receipt-export")).toBeInTheDocument();
   });
 });

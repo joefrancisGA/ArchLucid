@@ -7,6 +7,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import {
   filterFeasibilityTransparencyTrailInferred,
+  filterFeasibilityTransparencyTrailSkipped,
   parseFeasibilityVerdictDrivers,
   type FeasibilityVerdictDriver,
   type FeasibilityVerdictDriverKind,
@@ -52,6 +53,9 @@ function driverKindLabel(kind: FeasibilityVerdictDriverKind): string {
     case "uncovered-requirement":
       return "Uncovered requirement";
 
+    case "skipped-must-question":
+      return "Skipped MUST intake question";
+
     default:
       return "Driver";
   }
@@ -89,6 +93,8 @@ export function RunDetailFeasibilityVerdictSection(
   const verdictDrivers = parseFeasibilityVerdictDrivers(trail);
   const inferredTrailEntries =
     trail !== undefined ? filterFeasibilityTransparencyTrailInferred(trail) : [];
+  const skippedTrailEntries =
+    trail !== undefined ? filterFeasibilityTransparencyTrailSkipped(trail) : [];
 
   return (
     <section id="feasibility-verdict" className="scroll-mt-24" data-testid="run-detail-feasibility-verdict">
@@ -173,11 +179,11 @@ export function RunDetailFeasibilityVerdictSection(
                 </ul>
               </div>
             ) : null}
-            {trail.skipped.length > 0 ? (
+            {skippedTrailEntries.length > 0 ? (
               <div>
-                <p className="m-0 font-medium">Skipped ({trail.skipped.length})</p>
+                <p className="m-0 font-medium">Skipped ({skippedTrailEntries.length})</p>
                 <ul className="mt-1 list-disc pl-5">
-                  {trail.skipped.map((entry) => (
+                  {skippedTrailEntries.map((entry) => (
                     <li key={entry.questionKey}>
                       {entry.questionKey} ({entry.tier})
                     </li>

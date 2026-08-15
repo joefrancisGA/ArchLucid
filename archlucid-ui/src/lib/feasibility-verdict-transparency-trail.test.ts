@@ -64,4 +64,23 @@ describe("feasibility-verdict-transparency-trail", () => {
     expect(isStructuredFeasibilityDriverKey("policy.violation.foo")).toBe(true);
     expect(isStructuredFeasibilityDriverKey("other")).toBe(false);
   });
+
+  it("includes skipped MUST intake questions as drivers", () => {
+    const trail: TransparencyTrail = {
+      asserted: [],
+      inferred: [],
+      skipped: [
+        { questionKey: "l0.pillar.security", tier: "Must" },
+        { questionKey: "l1.optional.detail", tier: "Should" },
+      ],
+    };
+
+    const drivers = parseFeasibilityVerdictDrivers(trail);
+
+    expect(drivers).toHaveLength(1);
+    expect(drivers[0]).toMatchObject({
+      kind: "skipped-must-question",
+      label: "l0.pillar.security",
+    });
+  });
 });

@@ -7,7 +7,8 @@ export type FeasibilityVerdictDriverKind =
   | "blocking-finding"
   | "policy-violation"
   | "manifest-issue"
-  | "uncovered-requirement";
+  | "uncovered-requirement"
+  | "skipped-must-question";
 
 export type FeasibilityVerdictDriver = {
   readonly kind: FeasibilityVerdictDriverKind;
@@ -81,6 +82,24 @@ export function parseFeasibilityVerdictDrivers(
     }
   }
 
+  for (const skipped of trail.skipped) {
+    if (skipped.tier !== "Must") {
+      continue;
+    }
+
+    const questionKey = skipped.questionKey.trim();
+
+    if (questionKey.length === 0) {
+      continue;
+    }
+
+    drivers.push({
+      kind: "skipped-must-question",
+      key: `skipped.must.${questionKey}`,
+      label: questionKey,
+    });
+  }
+
   return drivers;
 }
 
@@ -89,6 +108,12 @@ export function filterFeasibilityTransparencyTrailInferred(
   trail: TransparencyTrail,
 ): readonly InferredTrailEntry[] {
   return trail.inferred.filter((entry) => !isStructuredFeasibilityDriverKey(entry.key));
+}
+
+export function filterFeasibilityTransparencyTrailSkipped(
+  trail: TransparencyTrail,
+): readonly TransparencyTrail["skipped"][number][] {
+  return trail.skipped.filter((entry) => entry.tier !== "Must");
 }
 
 export function isStructuredFeasibilityDriverKey(key: string): boolean {
