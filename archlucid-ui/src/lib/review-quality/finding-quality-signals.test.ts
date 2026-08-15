@@ -48,6 +48,19 @@ describe("finding-quality-signals", () => {
     expect(isVerifyHypothesisReviewFinding(row)).toBe(true);
   });
 
+  it("detects adversarial open-question phrasing in verify-hypothesis lane", () => {
+    const row = finding({
+      findingId: "f-adv",
+      title: "Adversarial challenge: cross-region failover may be overstated",
+      recommendation: "Falsify/confirm with: inventory-backed recovery tier evidence",
+      aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+      evidenceRefCount: 0,
+      trustLabel: "MissingCitation",
+    });
+
+    expect(isVerifyHypothesisReviewFinding(row)).toBe(true);
+  });
+
   it("detects contradiction findings", () => {
     const row = finding({
       findingId: "f-3",
