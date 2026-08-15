@@ -64,6 +64,12 @@ function readAssumptionLabelFromFinding(finding: QuickDecisionFinding): string |
     return trimmedRecommendation;
   }
 
+  const trimmedReasoning = finding.aiReasoning.reasoningTrace.trim();
+
+  if (trimmedReasoning.length > 0) {
+    return trimmedReasoning;
+  }
+
   return null;
 }
 

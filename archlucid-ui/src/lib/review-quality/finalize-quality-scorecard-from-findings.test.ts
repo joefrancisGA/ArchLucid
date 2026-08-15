@@ -204,6 +204,25 @@ describe("finalize-quality-scorecard-from-findings", () => {
     expect(input.unverifiedAssumptionCount).toBe(3);
   });
 
+  it("counts assumption findings when assumption language is only in reasoning trace", () => {
+    const input = deriveFinalizeQualityScorecardInput(
+      [
+        sampleFinding({
+          findingId: "a-trace",
+          title: "",
+          recommendation: "",
+          aiReasoning: {
+            reasoningTrace: "Unverified assumption about regional failover",
+            wireJson: "{}",
+          },
+        }),
+      ],
+      0,
+    );
+
+    expect(input.unverifiedAssumptionCount).toBe(1);
+  });
+
   it("derives approved decision titles from approved human review rows", () => {
     const titles = deriveApprovedDecisionTitlesFromFindings([
       sampleFinding({
