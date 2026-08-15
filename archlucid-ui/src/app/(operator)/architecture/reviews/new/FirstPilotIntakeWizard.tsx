@@ -29,6 +29,7 @@ import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
+import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
@@ -608,6 +609,10 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               presentation="choice"
               enabled={focusedPilotModeEnabled}
               onEnabledChange={setFocusedPilotModeEnabled}
+            />
+            <FocusedPilotScopeDisclosureBanner
+              focusedModeEnabled={focusedPilotModeEnabled}
+              className="mt-3"
             />
             <div
               className="mt-3 flex items-start gap-3 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/40"

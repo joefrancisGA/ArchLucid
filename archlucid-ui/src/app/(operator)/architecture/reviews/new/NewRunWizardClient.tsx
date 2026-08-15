@@ -12,6 +12,7 @@ import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
+import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
@@ -603,6 +604,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
                 enabled={focusedPilotModeEnabled}
                 onEnabledChange={setFocusedPilotModeEnabled}
               />
+              <FocusedPilotScopeDisclosureBanner focusedModeEnabled={focusedPilotModeEnabled} />
               <WizardStepIdentity />
               <WizardStepDescription />
             </div>

@@ -7,6 +7,7 @@ import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion"
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
+import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
 import { WizardStepHeading } from "@/components/wizard/WizardStepHeading";
 import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
 import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
@@ -118,6 +119,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
             enabled={focusedPilotModeEnabled}
             onEnabledChange={setFocusedPilotModeEnabled}
           />
+          <FocusedPilotScopeDisclosureBanner focusedModeEnabled={focusedPilotModeEnabled} />
           <WizardStepIdentity />
           <WizardStepDescription />
           <AdvancedOptionsAccordion triggerLabel="Advanced configuration">

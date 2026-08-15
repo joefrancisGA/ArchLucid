@@ -7,6 +7,7 @@ import { useFormContext } from "react-hook-form";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
+import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
 import { WizardStepHeading } from "@/components/wizard/WizardStepHeading";
 import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
@@ -174,6 +175,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
             enabled={focusedPilotModeEnabled}
             onEnabledChange={setFocusedPilotModeEnabled}
           />
+          <FocusedPilotScopeDisclosureBanner focusedModeEnabled={focusedPilotModeEnabled} />
           <WizardStepIdentity />
         </div>
       ) : null}

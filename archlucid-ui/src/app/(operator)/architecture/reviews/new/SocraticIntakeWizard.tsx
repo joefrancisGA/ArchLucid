@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
+import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
@@ -364,6 +365,7 @@ export function SocraticIntakeWizard() {
               presentation={isCreateArchitectureFlow ? "scope-card" : "checkbox"}
               className={isCreateArchitectureFlow ? "max-w-md" : undefined}
             />
+            <FocusedPilotScopeDisclosureBanner focusedModeEnabled={focusedPilotModeEnabled} />
 
             <ArchitectureScopeUnderstandingCheckPanel
               input={scopeUnderstandingInput}
