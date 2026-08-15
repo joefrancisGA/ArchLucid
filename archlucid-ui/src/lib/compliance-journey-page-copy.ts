@@ -1,7 +1,12 @@
 export const COMPLIANCE_JOURNEY_PAGE_TITLE = "Compliance journey" as const;
 
 export const COMPLIANCE_JOURNEY_PAGE_LEAD =
-  "ArchLucid is not SOC 2 attested today. We publish self-assessment material, questionnaires, and engineering controls so buyers can diligence the product without mistaking roadmap for certification. This page summarizes what is in scope now — no new certifications are claimed here.";
+  "ArchLucid is not SOC 2 attested today. We publish self-assessment material, questionnaires, and engineering controls so buyers can diligence the product without mistaking roadmap for certification.";
+
+export const COMPLIANCE_JOURNEY_HERO_ORIENTATION =
+  "Posture orientation only — use Trust Center downloads for artifacts that exist today." as const;
+
+export const COMPLIANCE_JOURNEY_LAST_REVIEWED_LABEL = "2026-08-15" as const;
 
 export const COMPLIANCE_JOURNEY_PRIMARY_TRUST_CENTER_CTA_LABEL = "Open Trust Center" as const;
 
@@ -20,7 +25,7 @@ export const COMPLIANCE_JOURNEY_STAGES: readonly ComplianceJourneyStage[] = [
     id: "where-we-are",
     title: "Where we are today",
     intro:
-      "We document honest posture and engineering controls. Self-assessment and procurement downloads are available; CPA SOC 2 attestation and third-party pen-test publication are not claimed here.",
+      "We document honest posture, engineering controls, and what buyers can verify today. Start with Assurance status for the public ladder, then open the Trust Center for consolidated downloads.",
   },
   {
     id: "what-we-publish",

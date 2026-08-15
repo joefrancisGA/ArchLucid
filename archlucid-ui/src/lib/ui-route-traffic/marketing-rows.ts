@@ -20,8 +20,8 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "COM",
     path: "/compliance-journey",
     section: "Marketing",
-    note: "Compliance journey (Marketing) - ComplianceJourneyPage with ComplianceJourneyEvidenceOrientationStrip (evaluation Sources + claim-discipline: posture summary only). Not an operator PageContextualHelp surface. Sibling TXX = /trust; SEC = /security-trust.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["ComplianceJourneyEvidenceOrientationStrip", "cannot improve further toward 80"],
+    note: "Compliance journey (Marketing) - ComplianceJourneyPageBody on /compliance-journey with skip link, hero last-reviewed meta, Assurance status links in Where we are today, demoted What this page is not disclosure, revision history, staged journey sections, and Sources-only ComplianceJourneyEvidenceOrientationStrip footer (amber posture callout removed). Not an operator PageContextualHelp surface. Score 58/100 Evidence (marketing assurance ceiling); UX 77/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: ["ComplianceJourneyPageBody", "Sources-only", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Compare two reviews. Owner backlog shorthand: CXX. */
   {

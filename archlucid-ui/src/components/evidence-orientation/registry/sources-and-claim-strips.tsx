@@ -27,7 +27,6 @@ import {
   ACCESSIBILITY_SOURCES_INTRO,
 } from "@/lib/accessibility-evidence-copy";
 import {
-  COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE,
   COMPLIANCE_JOURNEY_SOURCES,
   COMPLIANCE_JOURNEY_SOURCES_INTRO,
 } from "@/lib/compliance-journey-evidence-copy";
@@ -154,12 +153,14 @@ export function ComplianceJourneyEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="compliance-journey"
-      margin="mt-6"
+      part="sources"
+      margin="mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800"
       align="text-left"
       sourcesIntro={COMPLIANCE_JOURNEY_SOURCES_INTRO}
       sources={COMPLIANCE_JOURNEY_SOURCES}
-      claimHeading="Posture summary only"
-      claim={COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
+      claimHeading=""
+      claim=""
     />
   );
 }
