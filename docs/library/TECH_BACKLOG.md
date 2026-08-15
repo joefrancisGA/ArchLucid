@@ -12,12 +12,12 @@ Regenerate after opening or closing summary-table rows:
 | Architectural quality | Open |
 | --- | ---: |
 | Correctness | 3 |
-| Testability | 23 |
+| Testability | 9 |
 | Reliability | 5 |
 | Deployability | 2 |
 | AI/Agent readiness | 4 |
 | Architectural integrity | 5 |
-| Adoption friction | 9 |
+| Adoption friction | 7 |
 | Cutting-edge AI | 3 |
 | Explainability | 2 |
 | Trustworthiness | 3 |
@@ -28,9 +28,9 @@ Regenerate after opening or closing summary-table rows:
 | Stickiness | 4 |
 | Differentiability | 3 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **86** |
+| **Total (unique open)** | **70** |
 
-**By priority band:** P0 **0** | P1 **8** | P2 **62** | P3 **9** | unlabeled **7**.
+**By priority band:** P0 **0** | P1 **8** | P2 **46** | P3 **9** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1803,7 +1803,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1517 | ~~Example ROI bulletin ? ISR `revalidate=300` + surface test id~~ **Done** 2026-08-09 ? `revalidate = 300` + `data-testid="example-roi-bulletin-page"`; Vitest ISR inventory; see ## TB-1517 below | Performance / testability P0 ? **V1** (promoted P0 2026-08-09 with perf wave 6; was P2); with **TB-1516**; pairs **TB-1484**/**TB-567** | XS |
 | TB-1520 | ~~Example ROI bulletin ? contributor-path / admin-proxy honesty (+ index policy)~~ **Done** 2026-07-30 ? noindex + operator-only admin CTA; pilot-roi help link; Vitest | Trustworthiness P0 ? **V1**; with **TB-1516**; pairs **TB-1389**/**TB-1463** | S |
 | TB-1527 | ~~Owner traffic workbook ? mark EDA redirect-only (inherit `/architecture/sponsor-dashboard`)~~ **Done** 2026-08-14 | Adoption friction P2 ? **V1**; with **TB-1525**; pairs **TB-1493**/**TB-1443** | XS |
-| TB-1528 | CI ? forbid `/sponsor/dashboard` page + permanent next.config redirect coexistence; see ## TB-1528 below | Testability P2 ? **V1**; after **TB-1525**; pairs **TB-1494** | S |
+| TB-1528 | **Done** (2026-08-14) ? CI dual-SoT guard for `/sponsor/dashboard` redirect vs portfolio page; `sponsor-dashboard-dual-sot-guard.test.ts`; see ## TB-1528 below | Testability P2 ? **V1**; after **TB-1525**; pairs **TB-1494** | S |
 | TB-1534 | ~~Sponsor scorecard ? hours-saved honesty (no silent 3h?reviews fallback)~~ **Done** 2026-07-30 ? em dash when weighted hours zero (buyer-polished); labeled Est. fallback in operator shell; Vitest | Trustworthiness P0 ? **V1**; with **TB-1532**; pairs BDA-080 | S |
 | TB-1553 | **Done** (2026-07-30) ? Reviews hub empty ? `EnterpriseCompactEmptyState` + sample outline only (no second Start); see `## TB-1553` below | Adoption friction P3 ? **V1**; with **TB-1541** / **TB-1552** | S |
 | TB-1556 | **Done** (2026-08-12) ? `operator-empty-state-contract.test.ts` + compact preset kind map / migrated inventory guard; see ## TB-1556 below | Testability P2 ? **V1**; after **TB-1553**?**TB-1555**; pairs **TB-1552** / **TB-1482** | S |
@@ -1879,16 +1879,16 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1862 | **Done** (2026-07-31) ? Overview Continue clarifying uses run-scoped correctionHref; Vitest; see `## TB-1862` below | Trustworthiness P0 ? **V1**; with **TB-1861**; pairs **TB-1837** | S |
 | TB-1865 | **Done** (2026-08-10) ? Overview Vitest CTA + empty/failure/sources/provenance; see ## TB-1865 below | Testability P2 ? **V1**; with **TB-1861**; al-ui-rate **REO** | S |
 | TB-1870 | **Done** (2026-08-14) ? Detailed path Vitest band (`reviews-new-detailed-band.test.ts`); see ## TB-1870 below | Testability P2 ? **V1**; with **TB-1866** | S |
-| TB-1875 | Quick start ? Vitest URL sync + traffic honesty; see ## TB-1875 below | Testability P2 ? **V1**; with **TB-1871** | S |
+| TB-1875 | **Done** (2026-08-14) ? Quick start Vitest band (`reviews-new-quick-review-band.test.ts`); see ## TB-1875 below | Testability P2 ? **V1**; with **TB-1871** | S |
 | TB-1880 | **Done** (2026-08-10) ? guided-intake band Vitest regression bundle (TB-1876?TB-1879); see ## TB-1880 below | Testability P2 ? **V1**; with **TB-1876** | S |
 | TB-1882 | **Done** (2026-07-31) ? Account security in-flight disable on challenge/verify/confirm/remove; Vitest; see `## TB-1882` below | Correctness P0 ? **V1**; with **TB-1881** | S |
-| TB-1885 | Account security ? Vitest scope + busy + remove + empty; see ## TB-1885 below | Testability P2 ? **V1**; with **TB-1881** | S |
+| TB-1885 | **Done** (2026-08-14) ? Account security Vitest band (`account-security-band.test.ts`); see ## TB-1885 below | Testability P2 ? **V1**; with **TB-1881** | S |
 | TB-1890 | **Done** (2026-08-01) ? Vitest anti-reintro: no `/settings/alerts` redirect/page/SEL row; see `## TB-1890` below | Testability P2 ? **V1**; with **TB-1886** | S |
 | TB-1892 | **Done** (2026-07-31) ? Sign-in domains in-flight disable on propose/verify/routing/enforcement; Vitest; see `## TB-1892` below | Correctness P0 ? **V1**; with **TB-1891** | S |
-| TB-1895 | Sign-in domains ? Vitest enum labels + busy + confirms + empty; see ## TB-1895 below | Testability P2 ? **V1**; with **TB-1891** | S |
+| TB-1895 | **Done** (2026-08-14) ? Sign-in domains Vitest band (`auth-domains-band.test.ts`); see ## TB-1895 below | Testability P2 ? **V1**; with **TB-1891** | S |
 | TB-1897 | **Done** (2026-07-31) ? Internal developer tools catalog/page copy matches theme+CLI inventory; Vitest; see `## TB-1897` below | Trustworthiness P0 ? **V1**; with **TB-1896** | S |
 | TB-1898 | **Done** (2026-07-31) ? Internal developer tools demote TryCliDemoCard behind local CLI disclosure; Vitest; see `## TB-1898` below | Trustworthiness P0 ? **V1**; with **TB-1896**; pairs **TB-1357** (do not reopen) | S |
-| TB-1900 | Internal developer tools ? Vitest gate + catalog + CLI copy; see ## TB-1900 below | Testability P2 ? **V1**; with **TB-1896** | S |
+| TB-1900 | **Done** (2026-08-14) ? Internal developer tools Vitest band (`developer-settings-band.test.ts`); see ## TB-1900 below | Testability P2 ? **V1**; with **TB-1896** | S |
 | TB-1905 | **Done** (2026-08-01) ? Vitest anti-reintro: no `/settings/exec-digest` redirect/page/SEX row; see `## TB-1905` below | Testability P2 ? **V1**; with **TB-1901**; pairs **TB-1494** | S |
 | TB-1910 | **Done** (2026-08-14) ? Identity diagnostics Vitest band (`identity-providers-diagnostics-band.test.ts`); see ## TB-1910 below | Testability P2 ? **V1**; with **TB-1906** | S |
 | TB-1915 | **Done** (2026-08-14) ? OIDC/JWT tab Vitest band (`identity-providers-oidc-band.test.ts`); see ## TB-1915 below | Testability P2 ? **V1**; with **TB-1911** | S |
@@ -1911,7 +1911,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1967 | **Done** (2026-07-31) ? Pilot outcomes empty CTA deep-links most recent finalized run; Vitest; see `## TB-1967` below | Correctness P0 ? **V1**; with **TB-1966** | S |
 | TB-1970 | **Done** (2026-08-01) ? Pilot outcomes Vitest regression bundle for **TB-1966**?**TB-1969**; see `## TB-1970` below | Testability P2 ? **V1**; with **TB-1966** | S |
 | TB-1975 | **Done** (2026-08-01) ? ROI summary Vitest regression bundle for **TB-1971**?**TB-1974**; see `## TB-1975` below | Testability P2 ? **V1**; with **TB-1971** | S |
-| TB-1995 | Overview empty ? Vitest ?1 above-fold secondary to `/help/core-pilot`; see ## TB-1995 below | Testability P2 ? **V1**; with **TB-1994** | S |
+| TB-1995 | **Done** (2026-08-14) ? Overview empty Vitest band (`operator-home-core-pilot-education-band.test.ts`); see ## TB-1995 below | Testability P2 ? **V1**; with **TB-1994** | S |
 | TB-1998 | Buyer proof summary ? Vitest label emphasis on `Label: value` rows; see ## TB-1998 below | Testability P2 ? **V1**; with **TB-1997** | S |
 | TB-1999 | **Done** (2026-08-04) ? Follow-up inventory ? remaining flat `Label: value` metadata surfaces; Vitest band; see ## TB-1999 below | Adoption friction P2 ? **V1**; after **TB-1996**/**TB-1997** | M |
 | TB-2003 | **Done** (2026-08-14) ? Form/helper breathing room ? Vitest contract + Guided intake golden; see ## TB-2003 below | Testability P2 ? **V1**; after **TB-2000**?**TB-2002** | S |
@@ -38874,7 +38874,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-14).
 
 **Priority:** P0.
 
@@ -38882,10 +38882,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** This regression already returned after **TB-608** Done ? CI must prevent page+redirect dual-SoT.
 
-**Approach:**
-
-1. CI/Vitest: if `next.config` has permanent source `/sponsor/dashboard`, App Router product page must be absent (or only a minimal redirect helper with no portfolio view); inverse if product page is the SoT.
-2. Fail with pointer to **TB-1525** / **TB-608**.
+**Shipped:** `sponsor-dashboard-dual-sot-guard.test.ts` fails when a permanent `next.config` redirect for `/sponsor/dashboard` coexists with an App Router portfolio page (`SponsorRoiDashboardPageView` / `ExecutiveRoiDashboardPageView`); keeps redirect inventory aligned with `next.config`; error text points to **TB-1525** / **TB-608**.
 
 **Acceptance:** Reintroducing dual-SoT fails CI.
 
@@ -44604,9 +44601,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1885 ? Account security ? Vitest scope + busy + remove + empty (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
 **Approach:** Vitest covers **TB-1881**?**TB-1884** (banned SSO/fresh-sign-in overclaim strings as applicable; busy; in-page remove; empty/help).
+
+**Shipped:** `account-security-band.test.ts` consolidates anti-regress checks for **TB-1881**?**TB-1884**; inventories sibling Vitest guards in `account-security-page-copy.test.ts`, `sign-in-method-remove-blocked-copy.test.ts`, and `AccountSecurityPageClient.test.tsx`.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
@@ -44726,9 +44725,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1895 ? Sign-in domains ? Vitest enum labels + busy + confirms + empty (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
 **Approach:** Vitest covers **TB-1891**?**TB-1894**.
+
+**Shipped:** `auth-domains-band.test.ts` consolidates anti-regress checks for **TB-1891**?**TB-1894**; inventories sibling Vitest guards in `auth-domains-enum-labels.test.ts` and `AuthDomainsPageClient.test.tsx`.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
@@ -44790,9 +44791,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1900 ? Internal developer tools ? Vitest gate + catalog + CLI copy (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
 **Approach:** Extend existing `page.test.tsx` / client tests for **TB-1896**?**TB-1899**.
+
+**Shipped:** `developer-settings-band.test.ts` consolidates anti-regress checks for **TB-1896**?**TB-1899**; inventories sibling Vitest guards for traffic honesty, catalog inventory, CLI disclosure, internal-shell gate, and page client coverage.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
@@ -46041,7 +46044,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-14).
 
 **Priority:** P2.
 
@@ -46050,6 +46053,8 @@ Operators must read three intros before reaching the Trust Center link list.
 **Problem:** `OperatorHomeDoThisNextCard.test.tsx` currently asserts both Learn how and View workflow secondaries ? locking in the duplicate.
 
 **Approach:** After **TB-1994**, assert Do-this-next secondary nav has ?1 link to `/help/core-pilot`; optional page-level count of visible (non-collapsed) core-pilot links ?1.
+
+**Shipped:** `operator-home-core-pilot-education-band.test.ts` consolidates anti-regress checks for **TB-1994**/**TB-1995**; inventories sibling Vitest guards in `OperatorHomeDoThisNextCard.test.tsx`, `OperatorHomeAdvancedGuidanceSection.test.tsx`, and `OperatorHomeWorkspaceEmptyState.test.tsx`.
 
 **Acceptance:** Vitest fails if empty Overview ships two same-href educational secondaries again.
 
