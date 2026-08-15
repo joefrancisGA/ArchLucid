@@ -13808,6 +13808,15 @@
         },
         "type": "object"
       },
+      "GovernanceAssignedToMeFindingsCountResponse": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "GovernanceBatchReviewItemResult": {
         "properties": {
           "approvalRequestId": {
