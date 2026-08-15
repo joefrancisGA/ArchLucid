@@ -19,7 +19,7 @@ export type SponsorRoiHistoryPoint = {
 
 async function fetchSponsorRoiSummaryHistory(): Promise<SponsorRoiHistoryPoint[]> {
   const response = await fetch(
-    `/api/proxy/${ApiV1Routes.roiSponsorSummary}/history`,
+    `/api/proxy/${ApiV1Routes.roiSponsorReport}/history`,
     mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
   );
 

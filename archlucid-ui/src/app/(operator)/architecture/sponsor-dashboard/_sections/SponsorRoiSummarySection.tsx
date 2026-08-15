@@ -58,7 +58,7 @@ import {
   resolveRunSavingsUsd,
 } from "@/lib/roi-resolution-priority";
 
-const SPONSOR_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiSponsorSummary}`;
+const SPONSOR_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiSponsorReport}`;
 
 function sponsorRoiSummaryCardTitle(): string {
   if (isBuyerPolishedOperatorShellEnv()) {

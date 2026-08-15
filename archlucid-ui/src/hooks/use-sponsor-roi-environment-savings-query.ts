@@ -14,7 +14,7 @@ export type SponsorRoiEnvironmentSlice = {
 
 export async function fetchSponsorRoiEnvironmentSavings(): Promise<SponsorRoiEnvironmentSlice[]> {
   const response = await fetch(
-    `/api/proxy/${ApiV1Routes.roiSponsorSummary}/export`,
+    `/api/proxy/${ApiV1Routes.roiSponsorReport}/export`,
     mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
   );
 
