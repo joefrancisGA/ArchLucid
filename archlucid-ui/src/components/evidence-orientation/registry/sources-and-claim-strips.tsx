@@ -29,11 +29,21 @@ import {
   COMPLIANCE_JOURNEY_SOURCES_INTRO,
 } from "@/lib/compliance-journey-evidence-copy";
 import {
+  DEMO_PREVIEW_CLAIM_DISCIPLINE,
+  DEMO_PREVIEW_SOURCES,
+  DEMO_PREVIEW_SOURCES_INTRO,
+} from "@/lib/demo-preview-evidence-copy";
+import {
   EXAMPLE_ROI_BULLETIN_CLAIM_DISCIPLINE,
   EXAMPLE_ROI_BULLETIN_SOURCES,
   EXAMPLE_ROI_BULLETIN_SOURCES_INTRO,
 } from "@/lib/example-roi-bulletin-evidence-copy";
 import { FAQ_CLAIM_DISCIPLINE, FAQ_SOURCES, FAQ_SOURCES_INTRO } from "@/lib/faq-evidence-copy";
+import {
+  LIVE_DEMO_CLAIM_DISCIPLINE,
+  LIVE_DEMO_SOURCES,
+  LIVE_DEMO_SOURCES_INTRO,
+} from "@/lib/live-demo-evidence-copy";
 import {
   GET_STARTED_CLAIM_DISCIPLINE,
   GET_STARTED_SOURCES,
@@ -82,6 +92,7 @@ import {
   TRUST_CENTER_SOURCES,
   TRUST_CENTER_SOURCES_INTRO,
 } from "@/lib/trust-center-evidence-copy";
+import { TRY_CLAIM_DISCIPLINE, TRY_SOURCES, TRY_SOURCES_INTRO } from "@/lib/try-evidence-copy";
 import {
   WELCOME_CLAIM_DISCIPLINE,
   WELCOME_SOURCES,
@@ -158,6 +169,20 @@ export function ComplianceJourneyEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
+export function DemoPreviewEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationSourcesAndClaimStrip
+      slug="demo-preview"
+      margin="mt-8"
+      align="text-left"
+      sourcesIntro={DEMO_PREVIEW_SOURCES_INTRO}
+      sources={DEMO_PREVIEW_SOURCES}
+      claimHeading="Sample demo only"
+      claim={DEMO_PREVIEW_CLAIM_DISCIPLINE}
+    />
+  );
+}
+
 export function ExampleRoiBulletinEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
@@ -196,6 +221,20 @@ export function GetStartedEvidenceOrientationStrip(): React.JSX.Element {
       sources={GET_STARTED_SOURCES}
       claimHeading="First-run orientation only"
       claim={GET_STARTED_CLAIM_DISCIPLINE}
+    />
+  );
+}
+
+export function LiveDemoEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationSourcesAndClaimStrip
+      slug="live-demo"
+      margin="mt-6"
+      align="text-left"
+      sourcesIntro={LIVE_DEMO_SOURCES_INTRO}
+      sources={LIVE_DEMO_SOURCES}
+      claimHeading="Illustrative sample only"
+      claim={LIVE_DEMO_CLAIM_DISCIPLINE}
     />
   );
 }
@@ -320,6 +359,20 @@ export function TrustCenterEvidenceOrientationStrip(): React.JSX.Element {
       sources={TRUST_CENTER_SOURCES}
       claimHeading="Public assurance posture only"
       claim={TRUST_CENTER_CLAIM_DISCIPLINE}
+    />
+  );
+}
+
+export function TryEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationSourcesAndClaimStrip
+      slug="try"
+      margin="mt-6"
+      align="text-left"
+      sourcesIntro={TRY_SOURCES_INTRO}
+      sources={TRY_SOURCES}
+      claimHeading="Illustrative sample only"
+      claim={TRY_CLAIM_DISCIPLINE}
     />
   );
 }

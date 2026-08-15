@@ -11,6 +11,7 @@ import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import type { TenantTrialStatusClientPayload } from "@/lib/tenant-trial-status-client";
 
 /**
  * Render variant for the BeforeAfterDeltaPanel:
@@ -45,13 +46,6 @@ export type BeforeAfterDeltaPanelProps = {
 
   /** Top / sidebar variants only — number of recent committed runs to aggregate (default 5; server clamps to [1, 25]). */
   count?: number;
-};
-
-type TrialStatusPayload = {
-  trialWelcomeRunId?: string | null;
-  baselineReviewCycleHours?: number | null;
-  baselineReviewCycleSource?: string | null;
-  baselineReviewCycleCapturedUtc?: string | null;
 };
 
 type PilotRunDeltasPayload = {
@@ -119,7 +113,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
 
     let canceled = false;
 
-    async function load(trial: TrialStatusPayload | null): Promise<void> {
+    async function load(trial: TenantTrialStatusClientPayload | null): Promise<void> {
       try {
         const baselineHours =
           typeof trial?.baselineReviewCycleHours === "number" && Number.isFinite(trial.baselineReviewCycleHours)
