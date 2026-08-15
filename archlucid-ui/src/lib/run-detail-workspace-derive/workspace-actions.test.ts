@@ -103,3 +103,37 @@ describe("deriveBlockingApprovalCount", () => {
     expect(count).toBe(0);
   });
 });
+
+describe("deriveRecommendedWorkspaceActions blocking counts", () => {
+  it("honors blockingFindingCount for medium-severity coverage failures", () => {
+    const findings = [
+      sampleFinding({
+        findingId: "f-medium-policy",
+        severityValue: 1,
+        enforcementTier: "PolicyViolation",
+      }),
+    ];
+    const blockingApprovalCount = deriveBlockingApprovalCount({
+      unresolvedIssueCount: 0,
+      hasCommitBlockingFailures: true,
+      findings,
+    });
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings,
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: true,
+      blockingFindingCount: blockingApprovalCount,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    const blocking = actions.find((action) => action.id === "review-blocking");
+
+    expect(blockingApprovalCount).toBe(1);
+    expect(blocking?.relatedFindingCount).toBe(1);
+  });
+});

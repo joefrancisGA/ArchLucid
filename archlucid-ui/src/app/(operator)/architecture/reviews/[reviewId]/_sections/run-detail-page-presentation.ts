@@ -246,7 +246,7 @@ export async function buildRunDetailPresentation(
     model.resolvedDetail,
     model.explanationSummary,
   );
-  const severityCounts = countFindingsBySeverity(quickDecisionFindings);
+  const severityCounts = countFindingsBySeverity(filterUnresolvedFindings(quickDecisionFindings));
   const reviewDisplayTitle = deriveReviewDisplayTitle(runSummaryForBadge, model.headline);
   const systemName = deriveArchitectureSystemName(runSummaryForBadge, reviewDisplayTitle);
   const highestSeverity = deriveHighestFindingSeverityLabel(
@@ -295,7 +295,7 @@ export async function buildRunDetailPresentation(
     manifestId: model.manifestId,
     showProgressTracker: model.showProgressTracker,
     hasCommitBlockingFailures: coverageBlocking,
-    blockingFindingCount: model.manifestSummary?.unresolvedIssueCount ?? 0,
+    blockingFindingCount: blockingApprovalCount,
     buyerPolishedArtifactTable: model.buyerPolishedArtifactTable,
     operatorGovernanceDecision: model.resolvedDetail.run.operatorGovernanceDecision,
     manifestStatus: model.manifestSummary?.status ?? null,
@@ -408,7 +408,11 @@ export async function buildRunDetailPresentation(
     overallPosture,
     blockingApprovalCount,
     lowExtractionConfidenceCount: quickDecisionFindings.filter(
-      (finding) => !finding.isMuted && finding.severityValue >= 2 && finding.confidenceLevel === "Low",
+      (finding) =>
+        !finding.isMuted &&
+        !isReviewFindingDispositionClosed(finding) &&
+        finding.severityValue >= 2 &&
+        finding.confidenceLevel === "Low",
     ).length,
     workspaceStatus,
     recommendedActions,

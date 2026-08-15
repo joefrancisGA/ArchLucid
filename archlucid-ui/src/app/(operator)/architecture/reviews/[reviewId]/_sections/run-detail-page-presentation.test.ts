@@ -148,4 +148,44 @@ describe("buildRunDetailPresentation", () => {
 
     expect(presentation.pendingDecisionCount).toBe(0);
   });
+
+  it("does not count disposition-closed findings toward low extraction confidence gate", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        findings: [
+          {
+            findingId: "f-low-conf-accepted",
+            message: "Low confidence accepted",
+            severity: 2,
+            confidenceLevel: "Low",
+            humanReviewStatus: 1,
+            latestDisposition: "Accepted",
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.lowExtractionConfidenceCount).toBe(0);
+  });
+
+  it("does not surface disposition-closed findings in material severity strip", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        findings: [
+          {
+            findingId: "f-critical-accepted",
+            message: "Critical accepted",
+            severity: 3,
+            latestDisposition: "Accepted",
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.materialSeverityLine).toBeNull();
+  });
 });
