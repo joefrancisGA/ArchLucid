@@ -1,5 +1,7 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+
+import { MARKETING_FAQ_ITEMS, MARKETING_FAQ_MOST_ASKED_ITEM_IDS } from "@/lib/marketing-faq";
 
 import { MarketingFaqPageClient } from "./MarketingFaqPageClient";
 
@@ -22,28 +24,37 @@ describe("MarketingFaqPageClient", () => {
     expect(screen.getByTestId("faq-orientation")).toBeInTheDocument();
   });
 
-  it("filters accordion items and the table of contents when searching", () => {
+  it("browses by category without an in-page search box", () => {
     render(<MarketingFaqPageClient />);
 
-    fireEvent.change(screen.getByTestId("marketing-faq-search"), { target: { value: "one architect" } });
-
-    expect(screen.getByTestId("marketing-faq-item-one-architect-license")).toBeInTheDocument();
-    expect(screen.queryByTestId("marketing-faq-item-what-is-archlucid")).not.toBeInTheDocument();
-    expect(screen.getByTestId("marketing-faq-search-status")).toHaveTextContent("Showing 1 of 21 questions.");
+    expect(screen.queryByTestId("marketing-faq-search")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("marketing-faq-search-status")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("marketing-faq-empty")).not.toBeInTheDocument();
 
     const toc = screen.getByTestId("marketing-faq-toc");
 
+    expect(within(toc).getByRole("link", { name: "Product basics" })).toBeInTheDocument();
     expect(within(toc).getByRole("link", { name: "Evaluation and first review" })).toBeInTheDocument();
-    expect(within(toc).queryByRole("link", { name: "Product basics" })).not.toBeInTheDocument();
   });
 
-  it("announces the empty search state with a clear-search action", () => {
+  // Each panel id doubles as the /faq#<id> deep-link target, so a duplicate render
+  // would emit duplicate DOM ids and send the anchor to the wrong panel.
+  it("renders every question exactly once so hash deep-link ids stay unique", () => {
     render(<MarketingFaqPageClient />);
 
-    fireEvent.change(screen.getByTestId("marketing-faq-search"), { target: { value: "zzzz-no-match" } });
+    MARKETING_FAQ_ITEMS.forEach((item) => {
+      expect(screen.getAllByTestId(`marketing-faq-item-${item.id}`), item.id).toHaveLength(1);
+    });
+  });
 
-    expect(screen.getByTestId("marketing-faq-empty")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Clear search" })).toBeInTheDocument();
+  it("promotes most-asked questions out of their category sections", () => {
+    render(<MarketingFaqPageClient />);
+
+    const mostAsked = screen.getByTestId("marketing-faq-most-asked");
+
+    MARKETING_FAQ_MOST_ASKED_ITEM_IDS.forEach((itemId) => {
+      expect(within(mostAsked).getByTestId(`marketing-faq-item-${itemId}`)).toBeInTheDocument();
+    });
   });
 
   it("renders related links for comparison and procurement answers", () => {

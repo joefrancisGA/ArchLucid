@@ -7,29 +7,12 @@ export const MARKETING_FAQ_BACK_TO_OVERVIEW_LABEL = "Back to overview" as const;
 
 export const MARKETING_FAQ_VIEW_PRICING_LABEL = "View pricing" as const;
 
-export const MARKETING_FAQ_SEARCH_LABEL = "Search FAQ" as const;
-
-export const MARKETING_FAQ_SEARCH_PLACEHOLDER =
-  "Search questions about evaluation, pricing, evidence, or security" as const;
-
-export const MARKETING_FAQ_EMPTY_SEARCH_MESSAGE = "No questions match your search." as const;
-
-export const MARKETING_FAQ_CLEAR_SEARCH_LABEL = "Clear search" as const;
-
-export function formatMarketingFaqSearchStatus(shownCount: number, totalCount: number): string {
-  if (shownCount === totalCount) {
-    return `Showing all ${totalCount} questions.`;
-  }
-
-  return `Showing ${shownCount} of ${totalCount} questions.`;
-}
-
 export const MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL = "Open Security & assurance" as const;
 
 export const MARKETING_FAQ_MOST_ASKED_HEADING = "Most asked" as const;
 
 export const MARKETING_FAQ_MOST_ASKED_INTRO =
-  "Start with these three questions — then browse by category or search below." as const;
+  "Start with these three questions — then browse by category." as const;
 
 export const MARKETING_FAQ_DILIGENCE_HEADING = "Procurement and assurance follow-ups" as const;
 
