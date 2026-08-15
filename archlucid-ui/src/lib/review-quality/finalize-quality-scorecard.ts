@@ -5,6 +5,7 @@ export type FinalizeQualityScorecardInput = {
   readonly uncoveredMandatoryRequirementCount: number;
   readonly openCannotDetermineCount: number;
   readonly lowExtractionConfidenceCount: number;
+  readonly unresolvedHighSeverityDispositionCount: number;
 };
 
 export type FinalizeQualityScorecardResult = {
@@ -54,6 +55,15 @@ export function evaluateFinalizeQualityScorecard(input: FinalizeQualityScorecard
   if (input.lowExtractionConfidenceCount > 0) {
     blockingReasons.push(
       `${input.lowExtractionConfidenceCount} critical model field${input.lowExtractionConfidenceCount === 1 ? "" : "s"} were extracted with low confidence — caveat or re-ingest before sponsor export.`,
+    );
+  }
+
+  if (input.unresolvedHighSeverityDispositionCount > 0) {
+    const noun =
+      input.unresolvedHighSeverityDispositionCount === 1 ? "finding" : "findings";
+
+    blockingReasons.push(
+      `${input.unresolvedHighSeverityDispositionCount} high-severity ${noun} still need an accepted-risk disposition or decision-register row before finalize.`,
     );
   }
 

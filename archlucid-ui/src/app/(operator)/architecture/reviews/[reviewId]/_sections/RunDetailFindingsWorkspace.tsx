@@ -9,6 +9,7 @@ import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExp
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import { ReviewAssumptionConfirmationStrip } from "@/components/findings/ReviewAssumptionConfirmationStrip";
+import { RootCauseClusterDispositionStrip } from "@/components/findings/RootCauseClusterDispositionStrip";
 import {
   RunDetailFindingsToolbar,
   filterFindingsForToolbar,
@@ -230,6 +231,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         findings={props.findings}
         requestAssumptionTexts={props.requestAssumptionTexts}
       />
+      {!createHomeSurface ? <RootCauseClusterDispositionStrip findings={props.findings} /> : null}
       {createHomeSurface ? (
         <>
           {findingsSummaryEl}

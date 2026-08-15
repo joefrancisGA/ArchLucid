@@ -224,6 +224,25 @@ describe("finalize-quality-scorecard-from-findings", () => {
     expect(input.unverifiedAssumptionCount).toBe(1);
   });
 
+  it("counts unresolved high-severity findings without disposition", () => {
+    const input = deriveFinalizeQualityScorecardInput(
+      [
+        sampleFinding({
+          findingId: "h1",
+          severityValue: 2,
+        }),
+        sampleFinding({
+          findingId: "h2",
+          severityValue: 3,
+          humanReviewStatus: 2,
+        }),
+      ],
+      0,
+    );
+
+    expect(input.unresolvedHighSeverityDispositionCount).toBe(1);
+  });
+
   it("derives approved decision titles from approved human review rows", () => {
     const titles = deriveApprovedDecisionTitlesFromFindings([
       sampleFinding({
