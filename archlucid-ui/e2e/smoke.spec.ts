@@ -164,5 +164,10 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(page.getByRole("heading", { level: 2, name: /^Impact preview$/i })).toBeVisible();
     await expect(page.getByTestId("impact-preview-breadcrumb")).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/insights/improvement-planning");
+    await expect(page.getByRole("heading", { level: 2, name: /^Improvement planning$/i })).toBeVisible();
+    await expect(page.getByTestId("improvement-planning-breadcrumb")).toBeVisible();
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
   });
 });
