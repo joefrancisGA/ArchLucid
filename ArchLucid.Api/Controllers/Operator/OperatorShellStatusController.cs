@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Operator;
 
-/// <summary>Aggregated operator shell status read-model (trial, migration, LLM budget, alerts inbox).</summary>
+/// <summary>Aggregated operator shell status read-model (trial, migration, LLM budget, alerts inbox, home bundle).</summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.AuthenticatedUserOnly)]
 [ApiVersion("1.0")]

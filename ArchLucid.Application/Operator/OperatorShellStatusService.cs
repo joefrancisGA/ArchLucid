@@ -1,7 +1,12 @@
 using ArchLucid.Application.Budgeting;
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Governance;
+using ArchLucid.Application.OperatorHome;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Contracts.Alerts;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Alerts;
@@ -12,22 +17,47 @@ namespace ArchLucid.Application.Operator;
 
 public sealed class OperatorShellStatusService(
     IScopeContextProvider scopeProvider,
+    IActorContext actorContext,
     ITenantRepository tenantRepository,
     ITenantMigrationStatusService tenantMigrationStatusService,
     ILlmMonthlyTenantDollarBudgetStatusService llmMonthlyBudgetStatusService,
     IAlertRecordRepository alertRecordRepository,
     ITenantUsageStatusService tenantUsageStatusService,
+    IFeaturedCompletedSampleService featuredCompletedSampleService,
+    IOperatorStickinessSnapshotReader stickinessSnapshotReader,
+    IArchitectureRiskRegisterService architectureRiskRegisterService,
+    IReviewsAwaitingActionQueryService reviewsAwaitingActionQueryService,
     IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleSchedulerOptions) : IOperatorShellStatusService
 {
+    private const int AssignedToMeFindingsMaxRows = 500;
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
     private readonly IAlertRecordRepository _alertRecordRepository =
         alertRecordRepository ?? throw new ArgumentNullException(nameof(alertRecordRepository));
+
+    private readonly IArchitectureRiskRegisterService _architectureRiskRegisterService =
+        architectureRiskRegisterService
+        ?? throw new ArgumentNullException(nameof(architectureRiskRegisterService));
+
+    private readonly IFeaturedCompletedSampleService _featuredCompletedSampleService =
+        featuredCompletedSampleService
+        ?? throw new ArgumentNullException(nameof(featuredCompletedSampleService));
 
     private readonly ILlmMonthlyTenantDollarBudgetStatusService _llmMonthlyBudgetStatusService =
         llmMonthlyBudgetStatusService
         ?? throw new ArgumentNullException(nameof(llmMonthlyBudgetStatusService));
 
+    private readonly IReviewsAwaitingActionQueryService _reviewsAwaitingActionQueryService =
+        reviewsAwaitingActionQueryService
+        ?? throw new ArgumentNullException(nameof(reviewsAwaitingActionQueryService));
+
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IOperatorStickinessSnapshotReader _stickinessSnapshotReader =
+        stickinessSnapshotReader ?? throw new ArgumentNullException(nameof(stickinessSnapshotReader));
 
     private readonly ITenantMigrationStatusService _tenantMigrationStatusService =
         tenantMigrationStatusService ?? throw new ArgumentNullException(nameof(tenantMigrationStatusService));
@@ -58,8 +88,23 @@ public sealed class OperatorShellStatusService(
             : Task.FromResult<AlertsInboxSummaryDto?>(null);
         Task<TenantUsageStatusSnapshot?> usageTask =
             GetUsageStatusAsync(scope.TenantId, cancellationToken);
+        Task<FeaturedCompletedSampleSnapshot?> homepageTask = GetHomepageSettingsAsync(cancellationToken);
+        Task<OperatorShellStickinessSnapshot?> stickinessTask = GetStickinessSnapshotAsync(scope, cancellationToken);
+        Task<int?> assignedToMeCountTask = GetAssignedToMeFindingsCountAsync(scope, cancellationToken);
+        Task<GovernanceReviewsAwaitingActionResponse?> reviewsAwaitingTask =
+            GetReviewsAwaitingActionAsync(scope, cancellationToken);
 
-        await Task.WhenAll(trialTask, migrationTask, llmTask, inboxTask, usageTask).ConfigureAwait(false);
+        await Task.WhenAll(
+                trialTask,
+                migrationTask,
+                llmTask,
+                inboxTask,
+                usageTask,
+                homepageTask,
+                stickinessTask,
+                assignedToMeCountTask,
+                reviewsAwaitingTask)
+            .ConfigureAwait(false);
 
         return new OperatorShellStatusResult
         {
@@ -68,7 +113,108 @@ public sealed class OperatorShellStatusService(
             LlmMonthlyBudgetStatus = await llmTask.ConfigureAwait(false),
             AlertsInboxSummary = await inboxTask.ConfigureAwait(false),
             UsageStatus = await usageTask.ConfigureAwait(false),
+            HomepageSettings = await homepageTask.ConfigureAwait(false),
+            StickinessSnapshot = await stickinessTask.ConfigureAwait(false),
+            AssignedToMeFindingsCount = await assignedToMeCountTask.ConfigureAwait(false),
+            ReviewsAwaitingAction = await reviewsAwaitingTask.ConfigureAwait(false),
         };
+    }
+
+    private async Task<FeaturedCompletedSampleSnapshot?> GetHomepageSettingsAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _featuredCompletedSampleService.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private async Task<OperatorShellStickinessSnapshot?> GetStickinessSnapshotAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            PilotFunnelSnapshot funnel = await _stickinessSnapshotReader
+                .GetFunnelSnapshotAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
+                .ConfigureAwait(false);
+            OperatorStickinessSignals signals = await _stickinessSnapshotReader
+                .GetOperatorSignalsAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
+                .ConfigureAwait(false);
+
+            return OperatorShellStickinessSnapshotMapper.Map(funnel, signals);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private async Task<int?> GetAssignedToMeFindingsCountAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            IReadOnlyList<string> identities = ArchitectureRiskRegisterAssignedToMeIdentityResolver.Resolve(_actorContext);
+
+            if (identities.Count == 0)
+                return 0;
+
+            ArchitectureRiskRegisterListOptions options = new()
+            {
+                AssignedToUserIds = identities,
+                OpenFindingsOnly = true,
+            };
+
+            ArchitectureRiskRegisterResponse response = await _architectureRiskRegisterService
+                .GetRegisterAsync(
+                    scope.TenantId,
+                    scope.ProjectId,
+                    AssignedToMeFindingsMaxRows,
+                    options,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            return response.Entries.Count;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private async Task<GovernanceReviewsAwaitingActionResponse?> GetReviewsAwaitingActionAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _reviewsAwaitingActionQueryService.ListAsync(scope, cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private async Task<TenantUsageStatusSnapshot?> GetUsageStatusAsync(

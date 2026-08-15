@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useMemo, type ReactNode } from "r
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { useOperatorShellStatusQueriesEnabled } from "@/hooks/use-operator-shell-status-queries-enabled";
 import {
-  fetchOperatorShellStatus,
+  fetchAndHydrateOperatorShellStatus,
   hydrateOperatorShellStatusCaches,
 } from "@/lib/operator/operator-shell-status-client";
 import {
@@ -45,7 +45,16 @@ export function OperatorShellStatusQueryGate(props: OperatorShellStatusQueryGate
 
   const bootstrap = useQuery({
     queryKey: operatorQueryKeys.operatorShellStatus(scope),
-    queryFn: fetchOperatorShellStatus,
+    queryFn: async () => {
+      const payload = await fetchAndHydrateOperatorShellStatus(queryClient, scope);
+      writeOperatorShellStableCache({
+        trialStatus: payload.trialStatus,
+        catalogMigration: payload.catalogMigration ?? undefined,
+        llmMonthlyBudgetStatus: payload.llmMonthlyBudgetStatus ?? undefined,
+        alertsInboxSummary: payload.alertsInboxSummary ?? undefined,
+      });
+      return payload;
+    },
     enabled: shellQueriesEnabled,
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
@@ -57,13 +66,8 @@ export function OperatorShellStatusQueryGate(props: OperatorShellStatusQueryGate
       return;
     }
 
+    // Persist restore and Strict Mode remounts can skip queryFn; keep caches aligned.
     hydrateOperatorShellStatusCaches(queryClient, scope, bootstrap.data);
-    writeOperatorShellStableCache({
-      trialStatus: bootstrap.data.trialStatus,
-      catalogMigration: bootstrap.data.catalogMigration ?? undefined,
-      llmMonthlyBudgetStatus: bootstrap.data.llmMonthlyBudgetStatus ?? undefined,
-      alertsInboxSummary: bootstrap.data.alertsInboxSummary ?? undefined,
-    });
   }, [bootstrap.data, queryClient, scope]);
 
   const value = useMemo<OperatorShellStatusQueryGateValue>(
