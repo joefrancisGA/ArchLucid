@@ -4,6 +4,7 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 import {
   classifyGovernanceFindingJobView,
   classifyReviewFindingJobView,
+  countReviewFindingsForJobView,
   filterGovernanceRowsForJobView,
   filterReviewFindingsForJobView,
   matchesReviewFindingJobView,
@@ -112,6 +113,23 @@ describe("finding-job-view", () => {
     });
 
     expect(classifyReviewFindingJobView(finding)).toBe("needs-my-decision");
+  });
+
+  it("does not classify disposition-accepted findings without sponsor trust as needs-my-decision", () => {
+    const finding = reviewFinding({
+      findingId: "f-accepted-ungrounded",
+      humanReviewStatus: 1,
+      trustLabel: "MissingCitation",
+      evidenceRefCount: 0,
+      aiReasoning: {
+        wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+        reasoningTrace: "",
+      },
+    });
+
+    expect(classifyReviewFindingJobView(finding)).toBe("disposition-closed");
+    expect(matchesReviewFindingJobView(finding, "needs-my-decision")).toBe(false);
+    expect(countReviewFindingsForJobView([finding], "needs-my-decision")).toBe(0);
   });
 
   it("maps needs-evidence governance rows to needs-governance", () => {
