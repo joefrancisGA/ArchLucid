@@ -24,4 +24,26 @@ describe("CompareQualityDeltaPanel", () => {
     expect(screen.getByText("Unsupported assumptions")).toBeTruthy();
     expect(screen.getByText("9 → 2")).toBeTruthy();
   });
+
+  it("renders new-finding trust lane breakdown when provided", () => {
+    render(
+      <CompareQualityDeltaPanel
+        counts={{
+          unsupportedAssumptionsBefore: 1,
+          unsupportedAssumptionsAfter: 0,
+          highSeverityBefore: 1,
+          highSeverityAfter: 0,
+          uncoveredMandatoryBefore: 0,
+          uncoveredMandatoryAfter: 0,
+          evidenceBackedDecisionsBefore: 0,
+          evidenceBackedDecisionsAfter: 1,
+        }}
+        newFindingTrustLanes={[{ label: "Policy / compliance engine", count: 2 }]}
+      />,
+    );
+
+    expect(screen.getByTestId("compare-quality-delta-trust-lanes")).toBeTruthy();
+    expect(screen.getByText("Policy / compliance engine")).toBeTruthy();
+    expect(screen.getByText("2")).toBeTruthy();
+  });
 });

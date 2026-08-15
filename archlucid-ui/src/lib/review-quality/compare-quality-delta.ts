@@ -1,5 +1,19 @@
+import type { CompareFindingLifecycleRecord } from "@/lib/compare-finding-lifecycle";
+import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { GoldenManifestComparison } from "@/types/comparison";
+
+export type CompareTrustLaneBreakdownRow = {
+  readonly label: string;
+  readonly count: number;
+};
+
+export type RootCauseClusterSummary = {
+  readonly key: string;
+  readonly label: string;
+  readonly findingIds: readonly string[];
+  readonly openCount: number;
+};
 
 export type CompareQualityDeltaCounts = {
   readonly unsupportedAssumptionsBefore: number;
@@ -117,6 +131,77 @@ export function clusterReviewFindingsByRootCause(
 
 export function countHighSeverityFindings(findings: readonly QuickDecisionFinding[]): number {
   return findings.filter((finding) => !finding.isMuted && finding.severityValue >= 2).length;
+}
+
+/** Maps lifecycle sourceAgent to auditable trust lanes for compare (TB-2135 extension). */
+export function compareLifecycleSourceAgentTrustLaneLabel(sourceAgent: string): string {
+  const normalized = sourceAgent.trim().toLowerCase();
+
+  switch (normalized) {
+    case "compliance":
+      return "Policy / compliance engine";
+    case "topology":
+      return "Topology / structural engine";
+    case "cost":
+      return "Cost engine";
+    case "critic":
+      return "Peer challenge (verify before sign-off)";
+    default:
+      return sourceAgent.trim().length > 0 ? sourceAgent.trim() : "Unattributed lane";
+  }
+}
+
+/** Stratified counts for newly identified findings — inspect shows origin × grounding per row. */
+export function buildCompareNewFindingTrustLaneRows(
+  records: readonly CompareFindingLifecycleRecord[],
+): readonly CompareTrustLaneBreakdownRow[] {
+  const counts = new Map<string, number>();
+
+  for (const record of records) {
+    if (record.state !== "NewlyIdentified") {
+      continue;
+    }
+
+    const label = compareLifecycleSourceAgentTrustLaneLabel(record.sourceAgent);
+    counts.set(label, (counts.get(label) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([label, count]) => ({ label, count }))
+    .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
+}
+
+/** Root-cause clusters with two or more open findings eligible for one shared disposition (TB-2326). */
+export function listOpenRootCauseClusters(
+  findings: readonly QuickDecisionFinding[],
+): readonly RootCauseClusterSummary[] {
+  const clusters = clusterReviewFindingsByRootCause(findings);
+  const summaries: RootCauseClusterSummary[] = [];
+
+  for (const [key, members] of clusters) {
+    if (members.length < 2) {
+      continue;
+    }
+
+    const openMembers = members.filter((finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding));
+
+    if (openMembers.length < 2) {
+      continue;
+    }
+
+    const anchor = members[0];
+    const rule = (anchor.policyRuleId ?? "").trim();
+    const label = rule.length > 0 ? rule : anchor.title.trim().slice(0, 72);
+
+    summaries.push({
+      key,
+      label,
+      findingIds: openMembers.map((finding) => finding.findingId),
+      openCount: openMembers.length,
+    });
+  }
+
+  return summaries.sort((left, right) => right.openCount - left.openCount || left.label.localeCompare(right.label));
 }
 
 /** Derives directional compare counts from golden manifest deltas when API metrics are absent. */

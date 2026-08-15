@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildCompareNewFindingTrustLaneRows,
   buildCompareQualityDeltaRows,
   buildWithinReviewClusterKey,
   clusterReviewFindingsByRootCause,
+  compareLifecycleSourceAgentTrustLaneLabel,
   deriveCompareQualityDeltaFromGolden,
+  listOpenRootCauseClusters,
 } from "@/lib/review-quality/compare-quality-delta";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -91,5 +94,47 @@ describe("compare-quality-delta", () => {
       evidenceBackedDecisionsBefore: 1,
       evidenceBackedDecisionsAfter: 2,
     });
+  });
+
+  it("builds trust lane rows for newly identified lifecycle records", () => {
+    const rows = buildCompareNewFindingTrustLaneRows([
+      {
+        state: "NewlyIdentified",
+        resolutionBasis: "NotApplicable",
+        priorFindingId: null,
+        currentFindingId: "f-1",
+        correlationMethod: "PolicyRuleAndFingerprint",
+        severity: "High",
+        category: "Security",
+        message: "TLS gap",
+        sourceAgent: "Compliance",
+        latestDisposition: null,
+      },
+      {
+        state: "PreviouslyIdentifiedStillPresent",
+        resolutionBasis: "NotApplicable",
+        priorFindingId: "f-0",
+        currentFindingId: "f-2",
+        correlationMethod: "PolicyRuleAndFingerprint",
+        severity: "Medium",
+        category: "Cost",
+        message: "Budget",
+        sourceAgent: "Cost",
+        latestDisposition: null,
+      },
+    ]);
+
+    expect(rows).toEqual([{ label: compareLifecycleSourceAgentTrustLaneLabel("Compliance"), count: 1 }]);
+  });
+
+  it("lists open root-cause clusters with two or more unresolved findings", () => {
+    const clusters = listOpenRootCauseClusters([
+      finding({ findingId: "a", policyRuleId: "cost.budget" }),
+      finding({ findingId: "b", policyRuleId: "cost.budget" }),
+      finding({ findingId: "c", policyRuleId: "security.tls" }),
+    ]);
+
+    expect(clusters.length).toBe(1);
+    expect(clusters[0]?.openCount).toBe(2);
   });
 });
