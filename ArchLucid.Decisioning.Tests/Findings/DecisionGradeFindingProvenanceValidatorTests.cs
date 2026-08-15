@@ -157,6 +157,38 @@ public sealed class DecisionGradeFindingProvenanceValidatorTests
     }
 
     [Fact]
+    public void GetViolations_allows_security_coverage_with_rules_graph_nodes_and_payload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "security-1",
+                    FindingType = "SecurityCoverageFinding",
+                    EngineType = "security-coverage",
+                    Category = "Security",
+                    Payload = new SecurityCoverageFindingPayload
+                    {
+                        SecurityNodeCount = 2,
+                        ProtectedResourceCount = 1,
+                        UnprotectedResourceCount = 2,
+                        UnprotectedResources = ["res-a", "res-b"],
+                    },
+                    Trace = new ExplainabilityTrace
+                    {
+                        GraphNodeIdsExamined = ["res-a", "res-b"],
+                        RulesApplied = ["security-coverage-protection"],
+                    },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
+
+    [Fact]
     public void GetViolations_allows_policy_coverage_with_rules_graph_nodes_and_payload()
     {
         FindingsSnapshot snapshot = new()

@@ -65,6 +65,7 @@ public sealed class SecurityCoverageFindingEngineTests
         payload.UnprotectedResources.Should().Equal("res-a", "res-b");
 
         finding.Trace.GraphNodeIdsExamined.Should().Equal("res-a", "res-b");
+        finding.RelatedNodeIds.Should().Equal("res-a", "res-b");
         finding.Trace.RulesApplied.Should().Contain("security-coverage-protection");
         finding.Trace.Notes.Should().Contain(n => n.Contains("Security nodes: 3", StringComparison.Ordinal));
         finding.Trace.Notes.Should().Contain(n => n.Contains("Protected: 1", StringComparison.Ordinal) && n.Contains("Unprotected: 2", StringComparison.Ordinal));
