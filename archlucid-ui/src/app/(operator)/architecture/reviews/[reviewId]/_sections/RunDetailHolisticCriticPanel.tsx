@@ -17,11 +17,10 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type RunDetailHolisticCriticPanelProps = {
   readonly runId: string;
-  readonly hasGoldenManifest: boolean;
 };
 
 export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanelProps) {
-  const { runId, hasGoldenManifest } = props;
+  const { runId } = props;
   const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
 
   const [focus, setFocus] = useState("");
@@ -30,18 +29,14 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
   const [disclaimer, setDisclaimer] = useState<string | null>(null);
   const [critiqueMarkdown, setCritiqueMarkdown] = useState<string | null>(null);
 
-  if (!hasGoldenManifest) {
-    return null;
-  }
-
   return (
     <Card className="border border-neutral-200 dark:border-neutral-700" data-testid="run-holistic-critic-panel">
       <CardHeader className="pb-3">
         <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Holistic critic
+          Holistic critic (exploratory)
         </CardTitle>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Free-form principal-architect critique beyond structured findings — blind spots, alternatives, and pushback.
+          Exploratory principal-architect critique beyond structured findings — blind spots, alternatives, and pushback. Not a substitute for disposition or finalize gates.
         </p>
       </CardHeader>
       <CardContent className="space-y-3 pt-0">

@@ -28,12 +28,11 @@ vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
 }));
 
 describe("RunDetailHolisticCriticPanel", () => {
-  it("renders nothing when the review is not committed", () => {
-    const { container } = render(
-      <RunDetailHolisticCriticPanel runId="run-1" hasGoldenManifest={false} />,
-    );
+  it("renders for in-progress reviews without a committed manifest", () => {
+    render(<RunDetailHolisticCriticPanel runId="run-1" />);
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByTestId("run-holistic-critic-panel")).toBeInTheDocument();
+    expect(screen.getByText("Holistic critic (exploratory)")).toBeInTheDocument();
   });
 
   it("shows advisory governance label after critique is generated", async () => {
@@ -43,7 +42,7 @@ describe("RunDetailHolisticCriticPanel", () => {
       critiqueMarkdown: "Consider regional failover.",
     });
 
-    render(<RunDetailHolisticCriticPanel runId="run-1" hasGoldenManifest={true} />);
+    render(<RunDetailHolisticCriticPanel runId="run-1" />);
 
     expect(screen.getByTestId("holistic-critic-budget-notice")).toHaveTextContent(
       "Holistic critique uses AI budget.",

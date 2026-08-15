@@ -585,10 +585,7 @@ export async function RunDetailPageView(props: {
             </Suspense>
           ) : null}
 
-          <RunDetailHolisticCriticPanelDeferred
-            runId={m.resolvedDetail.run.runId}
-            hasGoldenManifest={Boolean(m.manifestId)}
-          />
+          <RunDetailHolisticCriticPanelDeferred runId={m.resolvedDetail.run.runId} />
           {buyerFinalizedPackage ? null : showGovernanceCtaCard ? governanceCtaEl : null}
 
           <RunDetailLastFailureCardDeferred

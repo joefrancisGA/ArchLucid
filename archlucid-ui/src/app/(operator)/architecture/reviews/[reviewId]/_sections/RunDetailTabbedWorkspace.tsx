@@ -340,10 +340,7 @@ const architectureTabPanelEl = (
               <RunDetailExplanationConfidenceBannerDeferred summary={m.explanationSummary} />
             ) : null}
             {explanationDeferredEl}
-            <RunDetailHolisticCriticPanelDeferred
-              runId={m.resolvedDetail.run.runId}
-              hasGoldenManifest={Boolean(m.manifestId)}
-            />
+            <RunDetailHolisticCriticPanelDeferred runId={m.resolvedDetail.run.runId} />
           </>
         ),
         evidence: evidenceTabPanelEl,
