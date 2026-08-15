@@ -37,4 +37,10 @@ public class EvidenceValidationResult
         get;
         set;
     }
+
+    public EvidenceSupportTier SupportTier
+    {
+        get;
+        set;
+    } = EvidenceSupportTier.Unverified;
 }

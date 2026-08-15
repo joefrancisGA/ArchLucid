@@ -29,6 +29,12 @@ public sealed class AdversarialReviewService : IAdversarialReviewService
             if (substantiated)
             {
                 substantiatedFindings.Add(finding);
+
+                if (SelectiveHighSeverityAdversarialPolicy.RequiresRecheck(finding))
+                {
+                    challenges.Add(SelectiveHighSeverityAdversarialPolicy.CreateRecheckChallenge(finding));
+                }
+
                 continue;
             }
 
@@ -81,6 +87,7 @@ public sealed class AdversarialReviewService : IAdversarialReviewService
         return new AdversarialChallenge
         {
             ChallengeId = Guid.NewGuid().ToString("N"),
+            SourceFindingId = finding.FindingId,
             Hypothesis = $"Challenge finding: {finding.Title}",
             FalsificationEvidenceNeeded = falsificationEvidence,
             Confidence = finding.Confidence,

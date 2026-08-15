@@ -183,6 +183,20 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         // No fallback artifact/quote injection — stage-1 must fail closed when citations are absent.
         List<EvidenceValidationResult> validationResults = await ValidateFindingsAsync(allFindings, cancellationToken);
+
+        Dictionary<string, EvidenceValidationResult> validationByFindingId = validationResults
+            .ToDictionary(result => result.FindingId, StringComparer.Ordinal);
+
+        foreach (SpecialistReviewFinding finding in allFindings)
+        {
+            if (!validationByFindingId.TryGetValue(finding.FindingId, out EvidenceValidationResult? validation))
+            {
+                continue;
+            }
+
+            EvidenceSupportTierResolver.ApplyToFinding(finding, validation);
+        }
+
         HashSet<string> integrityPassedIds = validationResults
             .Where(result => result.OverallPassedIntegrity)
             .Select(result => result.FindingId)
@@ -268,8 +282,6 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         string workspaceId = request.WorkspaceId ?? tenantId;
         string projectId = request.ProjectId ?? tenantId;
-        Dictionary<string, EvidenceValidationResult> validationByFindingId = validationResults
-            .ToDictionary(result => result.FindingId, StringComparer.Ordinal);
 
         ClosedLoopReasoningResult result = new()
         {

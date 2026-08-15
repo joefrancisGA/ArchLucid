@@ -43,4 +43,11 @@ public class AdversarialChallenge
         get;
         set;
     }
+
+    /// <summary>Finding challenged by this row when the challenge targets a specific defect (TB-2340 item 45).</summary>
+    public string? SourceFindingId
+    {
+        get;
+        set;
+    }
 }

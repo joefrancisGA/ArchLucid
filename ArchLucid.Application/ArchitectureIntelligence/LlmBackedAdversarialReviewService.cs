@@ -27,12 +27,29 @@ public sealed class LlmBackedAdversarialReviewService : IAsyncAdversarialReviewS
 
         AdversarialReviewResult heuristic = _heuristicService.Review(findings, integrityPassedFindingIds);
 
-        // Candidates for LLM challenge generation: findings that did not pass integrity.
         List<SpecialistReviewFinding> challengeCandidates = findings
             .Where(finding => integrityPassedFindingIds is null
                 || !integrityPassedFindingIds.Contains(finding.FindingId))
             .Where(finding => finding.Conclusion != ReviewConclusion.Pass)
             .ToList();
+
+        if (integrityPassedFindingIds is not null)
+        {
+            foreach (SpecialistReviewFinding finding in findings)
+            {
+                if (!integrityPassedFindingIds.Contains(finding.FindingId))
+                {
+                    continue;
+                }
+
+                if (!SelectiveHighSeverityAdversarialPolicy.RequiresRecheck(finding))
+                {
+                    continue;
+                }
+
+                challengeCandidates.Add(finding);
+            }
+        }
 
         if (challengeCandidates.Count == 0)
         {
@@ -51,6 +68,23 @@ public sealed class LlmBackedAdversarialReviewService : IAsyncAdversarialReviewS
             .Where(challenge => !challenge.Suppressed)
             .Where(challenge => !string.IsNullOrWhiteSpace(challenge.FalsificationEvidenceNeeded))
             .ToList();
+
+        List<AdversarialChallenge> selectiveChallenges = heuristic.Challenges
+            .Where(challenge => !string.IsNullOrWhiteSpace(challenge.SourceFindingId))
+            .Where(challenge =>
+                challenge.Hypothesis.StartsWith("Selective High/Critical re-check:", StringComparison.Ordinal))
+            .ToList();
+
+        foreach (AdversarialChallenge selective in selectiveChallenges)
+        {
+            if (mergedChallenges.Any(challenge =>
+                    string.Equals(challenge.SourceFindingId, selective.SourceFindingId, StringComparison.Ordinal)))
+            {
+                continue;
+            }
+
+            mergedChallenges.Add(selective);
+        }
 
         if (mergedChallenges.Count == 0)
         {

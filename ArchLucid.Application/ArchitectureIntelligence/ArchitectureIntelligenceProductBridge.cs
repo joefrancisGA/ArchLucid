@@ -107,6 +107,7 @@ public static class ArchitectureIntelligenceProductBridge
             ["architectureIntelligence.dimension"] = finding.Dimension.ToString(),
             ["architectureIntelligence.reviewConclusion"] = finding.Conclusion.ToString(),
             ["architectureIntelligence.evidenceCondition"] = finding.EvidenceCondition.ToString(),
+            ["architectureIntelligence.evidenceSupportTier"] = finding.EvidenceSupportTier.ToString(),
             ["architectureIntelligence.governanceDisposition"] = finding.GovernanceDisposition.ToString(),
             ["architectureIntelligence.conclusion"] = finding.Conclusion.ToString(),
             ["architectureIntelligence.provenance"] = JsonSerializer.Serialize(finding.Provenance),
@@ -147,6 +148,7 @@ public static class ArchitectureIntelligenceProductBridge
             && validation is not null)
         {
             properties["architectureIntelligence.integrityPassed"] = validation.OverallPassedIntegrity.ToString();
+            properties["architectureIntelligence.evidenceSupportTier"] = validation.SupportTier.ToString();
             properties["architectureIntelligence.escalated"] = validation.Escalated.ToString();
             properties["architectureIntelligence.semanticAssessment"] =
                 validation.SemanticAssessment?.ToString() ?? string.Empty;

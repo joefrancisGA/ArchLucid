@@ -45,6 +45,7 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                     ElementId = entry.ElementId,
                     ImpactKind = entry.ElementKind.ToString(),
                     Description = $"{entry.ChangeKind}: {entry.Description}",
+                    Category = ChangeImpactCategory.ModelDiffChange,
                 });
 
                 visitedElementIds.Add(entry.ElementId);
@@ -68,6 +69,7 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                 ElementId = element.ElementId,
                 ImpactKind = element.Kind.ToString(),
                 Description = $"Recommendation may affect {element.Name}.",
+                Category = ChangeImpactCategoryMapper.FromElementKind(element.Kind),
             });
         }
 
@@ -93,6 +95,7 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                     ElementId = relatedElement.ElementId,
                     ImpactKind = relatedElement.Kind.ToString(),
                     Description = $"Related element {relatedElement.Name} may be indirectly impacted.",
+                    Category = ChangeImpactCategoryMapper.FromElementKind(relatedElement.Kind),
                 });
             }
         }

@@ -159,7 +159,7 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
             IsDeterministic = false,
         };
 
-        return new EvidenceValidationResult
+        EvidenceValidationResult result = new()
         {
             FindingId = findingId,
             StageResults =
@@ -175,6 +175,10 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
             CompletenessNotes = completenessNotes,
             Escalated = escalated,
         };
+
+        result.SupportTier = EvidenceSupportTierResolver.Resolve(result);
+
+        return result;
     }
 
     private static bool ValidateIntegrity(
