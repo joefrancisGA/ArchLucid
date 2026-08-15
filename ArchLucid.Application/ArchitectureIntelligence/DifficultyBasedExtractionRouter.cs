@@ -82,6 +82,44 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 "Recovery objective signal detected."));
         }
 
+        int? backupIntervalMinutes = SpecialistReviewModelAdequacy.TryParseBackupIntervalMinutes(sourceText);
+
+        if (backupIntervalMinutes is not null)
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Constraint,
+                $"Documented backup interval: {backupIntervalMinutes} minutes",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Backup interval extracted from source text."));
+        }
+
+        decimal? monthlyCeilingUsd = SpecialistReviewModelAdequacy.TryParseMonthlyCostCeilingUsd(sourceText);
+
+        if (monthlyCeilingUsd is not null)
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Constraint,
+                $"Monthly cost ceiling: ${monthlyCeilingUsd:0}",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Monthly cost ceiling extracted from source text."));
+        }
+
+        if (sourceText.Contains("cost driver", StringComparison.OrdinalIgnoreCase)
+            || sourceText.Contains("primary cost", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.CostDriver,
+                "Primary cost drivers",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Cost driver signal detected."));
+        }
+
         if (sourceText.Contains("trust boundary", StringComparison.OrdinalIgnoreCase))
         {
             elements.Add(CreateElement(
