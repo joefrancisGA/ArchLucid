@@ -35,6 +35,7 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
     {
         List<ChangeImpactItem> impactedItems = [];
         HashSet<string> visitedElementIds = new(StringComparer.Ordinal);
+        HashSet<string> directlyImpactedElementIds = new(StringComparer.Ordinal);
 
         if (diffEntries is not null)
         {
@@ -49,6 +50,7 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                 });
 
                 visitedElementIds.Add(entry.ElementId);
+                directlyImpactedElementIds.Add(entry.ElementId);
             }
         }
 
@@ -64,6 +66,8 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                 continue;
             }
 
+            directlyImpactedElementIds.Add(element.ElementId);
+
             impactedItems.Add(new ChangeImpactItem
             {
                 ElementId = element.ElementId,
@@ -75,6 +79,11 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
 
         foreach (ArchitectureModelElement element in model.Elements)
         {
+            if (!directlyImpactedElementIds.Contains(element.ElementId))
+            {
+                continue;
+            }
+
             foreach (string relatedElementId in element.RelatedElementIds)
             {
                 if (!visitedElementIds.Add(relatedElementId))
