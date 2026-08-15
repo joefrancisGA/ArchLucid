@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
-import { deriveFindingsToolbarStatusCounts } from "./RunDetailFindingsToolbar";
+import { deriveFindingsToolbarStatusCounts, deriveFindingsToolbarSeverityCounts } from "./RunDetailFindingsToolbar";
 
 function sampleFinding(
   partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,
@@ -42,5 +42,25 @@ describe("RunDetailFindingsToolbar helpers", () => {
     ]);
 
     expect(counts).toEqual({ unresolved: 0, awaitingDecision: 1, resolved: 1 });
+  });
+
+  it("does not count disposition-closed findings in severity chips", () => {
+    const counts = deriveFindingsToolbarSeverityCounts([
+      sampleFinding({
+        findingId: "f-critical-accepted",
+        severityValue: 3,
+        aiReasoning: {
+          reasoningTrace: "",
+          wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+        },
+      }),
+      sampleFinding({
+        findingId: "f-high-open",
+        severityValue: 2,
+        humanReviewStatus: 1,
+      }),
+    ]);
+
+    expect(counts).toEqual({ critical: 0, high: 1, medium: 0, low: 0 });
   });
 });

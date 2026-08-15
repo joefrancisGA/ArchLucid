@@ -216,19 +216,19 @@ export function filterFindingsForToolbar(
       return false;
     }
 
-    if (filter === "critical" && finding.severityValue < 3) {
+    if (filter === "critical" && (finding.severityValue < 3 || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
-    if (filter === "high" && finding.severityValue !== 2) {
+    if (filter === "high" && (finding.severityValue !== 2 || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
-    if (filter === "medium" && finding.severityValue !== 1) {
+    if (filter === "medium" && (finding.severityValue !== 1 || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
-    if (filter === "low" && finding.severityValue > 0) {
+    if (filter === "low" && (finding.severityValue > 0 || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
@@ -331,29 +331,39 @@ export function deriveFindingsToolbarStatusCounts(findings: readonly QuickDecisi
   return { unresolved, awaitingDecision, resolved };
 }
 
-export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
-  const layout = props.layout ?? "full";
-  const severityCounts = useMemo(() => {
-    const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+export function deriveFindingsToolbarSeverityCounts(findings: readonly QuickDecisionFinding[]): {
+  readonly critical: number;
+  readonly high: number;
+  readonly medium: number;
+  readonly low: number;
+} {
+  const counts = { critical: 0, high: 0, medium: 0, low: 0 };
 
-    for (const finding of props.findings) {
-      if (finding.isMuted) {
-        continue;
-      }
-
-      if (finding.severityValue >= 3) {
-        counts.critical += 1;
-      } else if (finding.severityValue === 2) {
-        counts.high += 1;
-      } else if (finding.severityValue === 1) {
-        counts.medium += 1;
-      } else {
-        counts.low += 1;
-      }
+  for (const finding of findings) {
+    if (finding.isMuted || isReviewFindingDispositionClosed(finding)) {
+      continue;
     }
 
-    return counts;
-  }, [props.findings]);
+    if (finding.severityValue >= 3) {
+      counts.critical += 1;
+    } else if (finding.severityValue === 2) {
+      counts.high += 1;
+    } else if (finding.severityValue === 1) {
+      counts.medium += 1;
+    } else {
+      counts.low += 1;
+    }
+  }
+
+  return counts;
+}
+
+export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
+  const layout = props.layout ?? "full";
+  const severityCounts = useMemo(
+    () => deriveFindingsToolbarSeverityCounts(props.findings),
+    [props.findings],
+  );
 
   const statusCounts = useMemo(
     () => deriveFindingsToolbarStatusCounts(props.findings),
