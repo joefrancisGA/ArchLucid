@@ -116,6 +116,24 @@ export const RESPONSIBLE_AI_EVIDENCE_REQUIRED_ITEMS: readonly string[] = [
 
 export const RESPONSIBLE_AI_POLICY_PACK_NOT_FOUND_TITLE = "Policy pack not found";
 
+export const POLICY_PACK_DETAIL_LOAD_ERROR_TITLE = "Unable to load policy pack";
+
+export const POLICY_PACK_DETAIL_LOAD_ERROR_BODY =
+  "The policy pack catalog could not be loaded. Check your connection and try again.";
+
+export const POLICY_PACK_DETAIL_RETRY_ACTION = "Retry";
+
+export function buildPolicyPackDetailNotFoundBody(policyPackId: string): string {
+  const trimmedId = policyPackId.trim();
+
+  if (trimmedId.length === 0) {
+    return "This policy pack is unavailable or not enabled for the current workspace.";
+  }
+
+  return `No policy pack matches "${trimmedId}" in the current workspace, or it is not enabled for this scope.`;
+}
+
+/** @deprecated Prefer {@link buildPolicyPackDetailNotFoundBody}. */
 export const RESPONSIBLE_AI_POLICY_PACK_NOT_FOUND_BODY =
   "This policy pack is unavailable or not enabled for the current workspace.";
 

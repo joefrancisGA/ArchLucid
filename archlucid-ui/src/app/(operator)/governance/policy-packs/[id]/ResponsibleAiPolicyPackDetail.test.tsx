@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ResponsibleAiPolicyPackDetail } from "@/app/(operator)/governance/policy-packs/[id]/ResponsibleAiPolicyPackDetail";
+import { BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID } from "@/lib/policy/policy-pack-detail-resolver";
 
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
@@ -15,7 +16,7 @@ describe("ResponsibleAiPolicyPackDetail", () => {
   it("shows bundled default provenance (not Sample) when pack record is not yet loaded", () => {
     render(
       <ResponsibleAiPolicyPackDetail
-        policyPackId="1"
+        policyPackId={BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID}
         packRecord={null}
         packContent={null}
         isEnabled={false}
@@ -26,11 +27,11 @@ describe("ResponsibleAiPolicyPackDetail", () => {
     expect(screen.getByTestId("governance-policy-pack-breadcrumb")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Assign to workspace" })).toHaveAttribute(
       "href",
-      "/governance/policy-packs?packId=1",
+      `/governance/policy-packs?packId=${BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID}`,
     );
     expect(screen.getByRole("link", { name: "Start review with this pack" })).toHaveAttribute(
       "href",
-      "/architecture/reviews/new?packId=1",
+      `/architecture/reviews/new?packId=${BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID}`,
     );
     expect(screen.getByRole("link", { name: "Open policy pack library" })).toHaveAttribute(
       "href",
@@ -84,6 +85,8 @@ describe("ResponsibleAiPolicyPackDetail", () => {
     expect(screen.getByText("Enabled")).toBeInTheDocument();
     expect(screen.getByText("Workspace")).toBeInTheDocument();
     expect(screen.getByText("Ai Gov 001")).toBeInTheDocument();
-    expect(screen.queryByTestId("policy-pack-rules-source-qualifier")).not.toBeInTheDocument();
+    expect(screen.getByTestId("policy-pack-rules-source-qualifier")).toHaveTextContent(
+      "Published pack lists rule keys only; severity is not specified in pack metadata.",
+    );
   });
 });

@@ -26,7 +26,10 @@ describe("resolveResponsibleAiPolicyRuleRows", () => {
 
     expect(result.rows).toHaveLength(2);
     expect(result.rows[0]?.ruleKey).toBe("ai-gov-001");
-    expect(result.rulesSourceQualifier).toBeNull();
+    expect(result.rulesSourceQualifier).toBe(
+      "Published pack lists rule keys only; severity is not specified in pack metadata.",
+    );
+    expect(result.rows[0]?.severity).toBe("Low");
   });
 
   it("prefers curated rules from pack metadata when present", () => {
@@ -76,5 +79,17 @@ describe("resolveResponsibleAiPolicyRuleRows", () => {
 
     expect(result.rows.length).toBeGreaterThan(0);
     expect(result.rulesSourceQualifier).toBe("Published pack content unavailable — platform template baseline");
+  });
+
+  it("returns empty rows for generic packs when platform template fallback is disabled", () => {
+    const result = resolveResponsibleAiPolicyRuleRows(null, {
+      hasPackRecord: true,
+      usePlatformTemplateFallback: false,
+    });
+
+    expect(result.rows).toHaveLength(0);
+    expect(result.rulesSourceQualifier).toBe(
+      "Published pack content unavailable — no rule rows are shown until content loads.",
+    );
   });
 });

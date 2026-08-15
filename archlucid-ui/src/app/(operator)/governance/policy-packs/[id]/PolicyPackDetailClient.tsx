@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import { getPolicyPackVersion, listPolicyPacks, listPolicyPackWorkspaceSelection } from "@/lib/api";
 import { parsePolicyPackContentDocument } from "@/lib/policy/policy-pack-impact-preview";
+import { resolvePolicyPackDetailKind } from "@/lib/policy/policy-pack-detail-resolver";
 import type { PolicyPack, PolicyPackContentDocument, PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
 
 import { HealthcareClaimsPolicyPackDetail } from "./HealthcareClaimsPolicyPackDetail";
 import { PolicyPackDetailEvidenceChrome } from "./PolicyPackDetailEvidenceChrome";
+import { PolicyPackDetailLoadError } from "./PolicyPackDetailLoadError";
 import { PolicyPackGenericDetail } from "./PolicyPackGenericDetail";
-import { resolvePolicyPackDetailKind } from "@/lib/policy/policy-pack-detail-resolver";
 import { PolicyPackDetailNotFound } from "./PolicyPackDetailNotFound";
 import { ResponsibleAiPolicyPackDetail } from "./ResponsibleAiPolicyPackDetail";
 
@@ -44,6 +45,12 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
   const [packContent, setPackContent] = useState<PolicyPackContentDocument | null>(null);
   const [workspaceSelection, setWorkspaceSelection] = useState<PolicyPackWorkspaceSelectionItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const handleRetry = useCallback(() => {
+    setReloadToken((token) => token + 1);
+  }, []);
 
   useEffect(() => {
     let canceled = false;
@@ -52,6 +59,7 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
     setPackContent(null);
     setWorkspaceSelection([]);
     setLoading(true);
+    setLoadFailed(false);
 
     void (async () => {
       try {
@@ -92,6 +100,7 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
           setPackRecord(null);
           setPackContent(null);
           setWorkspaceSelection([]);
+          setLoadFailed(true);
         }
       } finally {
         if (!canceled) {
@@ -103,7 +112,7 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
     return () => {
       canceled = true;
     };
-  }, [policyPackId]);
+  }, [policyPackId, reloadToken]);
 
   const kind = resolvePolicyPackDetailKind(policyPackId, packRecord);
   const { isEnabled, isGloballyActive } = resolveWorkspaceEnablement(policyPackId, workspaceSelection);
@@ -114,6 +123,10 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         <p className="m-0 text-al-text-secondary">Loading policy pack…</p>
       </div>
     );
+  }
+
+  if (loadFailed) {
+    return withEvidenceChrome(<PolicyPackDetailLoadError onRetry={handleRetry} />);
   }
 
   if (kind === "healthcare-claims") {
@@ -137,6 +150,7 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
       <PolicyPackGenericDetail
         policyPackId={policyPackId}
         packRecord={packRecord}
+        packContent={packContent}
         isEnabled={isEnabled}
         isGloballyActive={isGloballyActive}
       />,
