@@ -16,7 +16,7 @@ import {
   mergeUniqueStrings,
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type ListFieldKey =
@@ -254,7 +254,7 @@ export function ArchitectureDraftStructuredBriefFields(
   return (
     <div className="space-y-6" data-testid="architecture-draft-structured-brief-fields">
       <div className="space-y-2">
-        <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}>
           Structured brief
         </p>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
