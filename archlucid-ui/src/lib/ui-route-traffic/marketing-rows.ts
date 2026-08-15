@@ -53,8 +53,8 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "GXX",
     path: "/get-started",
     section: "Marketing",
-    note: "Get started (Marketing) - GetStartedPageClient with GetStartedEvidenceOrientationStrip (evaluation Sources + claim-discipline: first-run orientation only). Not an operator PageContextualHelp surface. Legacy /quick-start retired toward this path.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["GetStartedPageClient", "Sources", "cannot improve further toward 80"],
+    note: "Get started (Marketing) - GetStartedPageClient on /get-started with skip link, hero last-reviewed meta, dual-path sample vs guided trial, demoted What this page is not disclosure, revision history, milestone stepper, and Sources-only GetStartedEvidenceOrientationStrip footer (amber orientation callout removed). Not an operator PageContextualHelp surface. Score 58/100 Evidence (marketing first-run ceiling); UX 80/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: ["GetStartedPageClient", "Sources-only", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Pricing. Owner backlog shorthand: P. */
   {

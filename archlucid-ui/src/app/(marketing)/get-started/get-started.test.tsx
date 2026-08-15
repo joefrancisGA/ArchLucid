@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { GetStartedPageClient } from "./GetStartedPageClient";
 import {
+  GET_STARTED_LAST_REVIEWED_LABEL,
   GET_STARTED_PAGE_TITLE,
   GET_STARTED_SAMPLE_DISCLOSURE,
   GET_STARTED_VERTICAL_PRESENTATIONS,
@@ -34,6 +35,13 @@ describe("GetStartedPageClient", () => {
     render(<GetStartedPageClient />);
 
     expect(screen.getByRole("heading", { name: GET_STARTED_PAGE_TITLE, level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Skip to get started content/i })).toHaveAttribute(
+      "href",
+      "#get-started-primary-content",
+    );
+    expect(screen.getByTestId("get-started-hero-meta")).toHaveTextContent(GET_STARTED_LAST_REVIEWED_LABEL);
+    expect(screen.getByTestId("get-started-scope-disclosure")).toBeInTheDocument();
+    expect(screen.getByTestId("trust-center-revision-history")).toBeInTheDocument();
     expect(screen.getByTestId("get-started-primary-trial-cta")).toBeInTheDocument();
     expect(screen.getByTestId("get-started-sample-path")).toBeInTheDocument();
     expect(screen.getByTestId("get-started-guided-path")).toBeInTheDocument();

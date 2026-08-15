@@ -37,7 +37,6 @@ import {
 } from "@/lib/example-roi-bulletin-evidence-copy";
 import { FAQ_CLAIM_DISCIPLINE, FAQ_SOURCES, FAQ_SOURCES_INTRO } from "@/lib/faq-evidence-copy";
 import {
-  GET_STARTED_CLAIM_DISCIPLINE,
   GET_STARTED_SOURCES,
   GET_STARTED_SOURCES_INTRO,
 } from "@/lib/get-started-evidence-copy";
@@ -201,12 +200,14 @@ export function GetStartedEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="get-started"
-      margin="mt-10"
+      part="sources"
+      margin="mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800"
       align="text-left"
       sourcesIntro={GET_STARTED_SOURCES_INTRO}
       sources={GET_STARTED_SOURCES}
-      claimHeading="First-run orientation only"
-      claim={GET_STARTED_CLAIM_DISCIPLINE}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
+      claimHeading=""
+      claim=""
     />
   );
 }
