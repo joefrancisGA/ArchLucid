@@ -1,12 +1,23 @@
 ---
-description: Preview then ship one P0/P1 backlog or assessment item, rescore, or run a fresh assessment
+description: Preview then ship one P0/P1 backlog or assessment item, rescore, stop when queue exhausted, or refresh assessment on request
 ---
 
 # Ship next improvement (single pass)
 
-Run this workflow **once per invocation**. Execute **at most one** implementation from steps 1–4, then steps 5–6 as applicable. Do **not** batch multiple backlog items in one run unless the user explicitly asks.
+Run this workflow **once per invocation**. Execute **at most one** implementation from steps 1–4, then steps 5–7 as applicable. Do **not** batch multiple backlog items in one run unless the user explicitly asks.
 
 **Default git target:** `master` (user may override by naming another branch in the same message).
+
+---
+
+## Flags (optional)
+
+| Flag | Effect |
+| --- | --- |
+| **`--refresh-assessment`** | When steps 1–4 find **no** candidate, run **Step 7 — Fresh assessment** instead of **Step 6 — Queue exhausted**. |
+| *(none)* | Empty queue → **Step 6 — Queue exhausted** (stop; no commit; kill active `/loop` wake). |
+
+The user may also say “refresh assessment” or “run fresh assessment” in the same message — treat that as **`--refresh-assessment`**.
 
 ---
 
@@ -76,21 +87,20 @@ Map assessment IDs to backlog when present (e.g. **TB-600**). Prefer implementin
 4. **Print the preview block** (format below) under the heading **## Proposed next improvement** — this is what `/show-next-improvement` would show for the same repo state.
 5. Optionally list **2–3 runners-up** in one line each.
 6. **Proceed or stop:**
-   - **Blocked** (dirty target paths, open dependency, or not Cursor-shippable with no alternate candidate) → **stop after the preview**; do not implement. Tell the user how to unblock (commit/stash, close dependency, or `ARCHLUCID_AGENT_ALLOW_DIRTY=1` only when they explicitly override).
+   - **Blocked** (dirty target paths, open dependency, or not Cursor-shippable with no alternate candidate) → **stop after the preview**; do not implement. Tell the user how to unblock (commit/stash, close dependency, or `ARCHLUCID_AGENT_ALLOW_DIRTY=1` only when they explicitly override). If this run was started from **`/loop`** or **`/ship-loop`**, **kill the loop sleeper** and do **not** arm the next wake.
    - **Ready** → continue to the matching implementation step below (Step 1–4) for **that same candidate** — do not re-scan and pick a different item.
 
-If steps 1–4 preview finds **no** engineering candidate, print the preview block with **Step: 5 (nothing found)** and add:
+If steps 1–4 preview finds **no** engineering candidate:
 
-**Next ship action:** this run will continue to **Step 6 — Fresh assessment**.
-
-Then go to **Step 6** (do not implement).
+- **Default:** print the preview block with **Step: 6 (queue exhausted)** and **Next:** `Stop session — no Cursor-shippable work (Step 6).` Then go to **Step 6** (do not implement).
+- **`--refresh-assessment`:** print **Step: 7 (fresh assessment)** and **Next:** `Run fresh assessment (Step 7).` Then go to **Step 7** (do not implement steps 1–4).
 
 ### Preview block format (required output)
 
 ```markdown
 ## Proposed next improvement
 
-**Step:** 1 | 2 | 3 | 4 | 5 (nothing found) | 6 (fresh assessment)
+**Step:** 1 | 2 | 3 | 4 | 6 (queue exhausted) | 7 (fresh assessment)
 **Candidate:** TB-### — <title> (or assessment §17/§20 title if no TB yet)
 **Priority:** P0 | P1 | P2 | P3 | Tier 1 | Tier 2 | Tier 3 (exposure only) | Promoted V1
 **Why this one:** <one sentence — first open row in band per backlog/assessment order>
@@ -99,7 +109,9 @@ Then go to **Step 6** (do not implement).
 **Next:** Implement this item in this run (targets `master` by default).
 ```
 
-For **Step 5 / Step 6** preview only, set **Next:** to `Run fresh assessment (Step 6).`
+For **Step 6** preview only, set **Next:** to `Stop session — queue exhausted (Step 6).`
+
+For **Step 7** preview only, set **Next:** to `Run fresh assessment (Step 7).`
 
 ---
 
@@ -154,7 +166,10 @@ If Step 0 selected a **P2/P3 or unlabeled** backlog candidate:
 4. Run the **CI gate** (below).
 5. Go to **Step 5**.
 
-Otherwise → **Step 6**.
+Otherwise:
+
+- If **`--refresh-assessment`** → **Step 7**.
+- Else → **Step 6**.
 
 ### Step 5 — Rescore (only if steps 1–4 shipped something)
 
@@ -173,9 +188,27 @@ If the shipped item came from `LATEST_EXPOSURE.md` §20 instead, update `docs/as
 3. Commit and push the assessment update to **`master`**.
 4. **Display the rescoring in chat:** show before/after RYG for the affected exposure level(s) and one-line rationale.
 
-### Step 6 — Fresh assessment (only if steps 1–4 did nothing)
+### Step 6 — Queue exhausted (default when steps 1–4 did nothing)
 
-If **no** implementation occurred in steps 1–4:
+If **no** implementation occurred in steps 1–4 and **`--refresh-assessment` is not set**:
+
+1. Print exactly this line on its own line (plain text, for loop/automation sentinels):
+
+```text
+SHIP QUEUE EXHAUSTED — STOPPING
+```
+
+2. **Do not** implement, commit, or push.
+3. **Do not** run a fresh assessment (that is **Step 7** only).
+4. Summarize in chat:
+   - No open P0 / P1 / Tier-1/2 / backlog engineering candidates passed guardrails.
+   - Short **Excluded** footnote (counts): V2, DEFERRED/Hold, GTM/validation-first, owner-only (optional 2–3 examples).
+   - Remind: run **`/show-all-improvements`** for the full ranked queue, or **`/ship-next-improvement --refresh-assessment`** for a one-off reassessment.
+5. **Loop / ship-loop:** if this run was started from **`/loop`** or **`.cursor/skills/ship-loop`**, **kill any active loop sleeper** (`AGENT_LOOP_WAKE_*`) and **do not** arm the next wake. End the turn.
+
+### Step 7 — Fresh assessment (only with `--refresh-assessment`)
+
+If **no** implementation occurred in steps 1–4 **and** the user passed **`--refresh-assessment`** (or explicitly asked for a fresh assessment):
 
 1. Print exactly these three lines (markdown bold), each on its own line:
 
@@ -190,6 +223,20 @@ If **no** implementation occurred in steps 1–4:
 4. Apply the verify-before-listing gate from v3 — do not replay already-shipped TB rows as open §17 items.
 5. Commit and push the new assessment to **`master`**.
 6. Display the new **(A) Headline readiness** % and top 3 weighted deficiencies in chat.
+7. **Loop / ship-loop:** after a fresh assessment, **stop the loop** unless the user explicitly asked to continue looping after refresh. Default: kill sleeper; reassessment is a one-shot, not an overnight tick.
+
+---
+
+## Loop integration
+
+When chained with **`/loop`** or **`.cursor/skills/ship-loop`**:
+
+| Ship outcome | Loop behavior |
+| --- | --- |
+| Shipped (steps 1–4 + push) | Re-arm next wake per loop skill |
+| **Step 6 — Queue exhausted** | **Stop loop** — print sentinel, kill sleeper |
+| Blocked at Step 0 | **Stop loop** — kill sleeper |
+| **Step 7 — Fresh assessment** | **Stop loop** after assessment unless user asked to continue |
 
 ---
 
@@ -208,12 +255,12 @@ Run in this order once the candidate is implemented. Fix issues from each step b
 
 ## CI gate (after push)
 
-Run **`/fix-ci`** right after the push in Steps 1–4, before moving on to Step 5/6:
+Run **`/fix-ci`** right after the push in Steps 1–4, before moving on to Step 5/6/7:
 
 1. If the push opened or updated a PR, follow `/fix-ci`: inspect `gh pr checks`, fix the first actionable failure, push, repeat until green.
 2. If this pushed directly to `master` with no open PR, check the run for that commit instead (`gh run list --branch master --limit 1`, then `gh run view --log-failed` on it) and apply the same fix-one-failure-at-a-time loop.
 3. **CodeQL is post-push only.** When `/fix-ci` reports `CodeQL (csharp)` or `CodeQL (javascript)` failures, fix SARIF findings and push again — do not backfill local CodeQL runs into the pre-push **Quality gate**.
-4. Do not proceed to Step 5/6 with known-red CI for this change.
+4. Do not proceed to Step 5 with known-red CI for this change.
 
 ---
 
@@ -230,12 +277,12 @@ Use one concise sentence focused on **why**, referencing the TB-ID when applicab
 Always end with:
 
 - The **## Proposed next improvement** preview block (repeat or reference what was shown at Step 0)
-- Which implementation step (1–6) ran, or **stopped at preview** if blocked
+- Which implementation step (1–7) ran, or **stopped at preview** if blocked
 - TB-ID / assessment title (if any)
 - **Quality gate:** findings from compiler check, deslop, and Bugbot, and what was fixed
 - Commit SHA(s) and branch pushed (if implementation occurred)
 - **CI gate:** final CI status for the push (green, or fixes applied via `/fix-ci`)
-- Rescore summary (step 5) **or** new assessment headline (step 6) **or** explicit blocker reason when stopped after preview
+- Rescore summary (step 5) **or** queue-exhausted summary (step 6) **or** new assessment headline (step 7) **or** explicit blocker reason when stopped after preview
 
 If the user did **not** name a branch in this message, remind them in ALL CAPS:
 

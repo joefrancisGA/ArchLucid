@@ -95,7 +95,7 @@ Do **not** list closed rows. Do **not** invent phantom IDs from stale `TECH_BACK
 
 ### Empty queue
 
-If bands 1–4 yield **zero** Cursor-shippable candidates, report that `/ship-next-improvement` would fall through to **Step 6 — Fresh assessment**. Do **not** run the assessment.
+If bands 1–4 yield **zero** Cursor-shippable candidates, report that `/ship-next-improvement` would fall through to **Step 6 — Queue exhausted** (stop; no assessment). Mention **`--refresh-assessment`** for an opt-in **Step 7** fresh assessment. Do **not** run either step from this read-only command.
 
 ---
 
@@ -147,7 +147,7 @@ If the queue is empty:
 ## Show all improvements
 
 **Queue size:** 0
-**Next ship action:** `/ship-next-improvement` would run a fresh assessment (Step 6) — no open P0/P1/Tier-1/2/backlog engineering candidate found.
+**Next ship action:** `/ship-next-improvement` would **stop** (Step 6 — queue exhausted). Use `/ship-next-improvement --refresh-assessment` for a one-off reassessment.
 ```
 
 ### Optional footnote (keep short)
