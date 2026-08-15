@@ -208,4 +208,29 @@ describe("buildRunDetailPresentation", () => {
     expect(presentation.overallPosture).toBe("Not assessed");
     expect(presentation.reviewStatusSummary.highestUnresolvedSeverity).toBeNull();
   });
+
+  it("does not count disposition-closed findings in findings triage tab badge", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        findings: [
+          {
+            findingId: "f-open",
+            message: "Still open",
+            severity: 2,
+            humanReviewStatus: 1,
+          },
+          {
+            findingId: "f-accepted",
+            message: "Accepted",
+            severity: 3,
+            latestDisposition: "Accepted",
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.findingsTriageVisibleCount).toBe(1);
+  });
 });
