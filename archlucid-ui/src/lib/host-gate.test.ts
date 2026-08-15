@@ -9,6 +9,7 @@ import {
   RETIRED_ONBOARDING_START_BOOKMARK_PATH,
   RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
 } from "@/lib/ui-route-traffic-retired-redirect-shims";
+import { RETIRED_PILOT_OUTCOMES_PATH, RETIRED_SPONSOR_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
 const ENV_KEYS = [
   "ARCHLUCID_PUBLIC_SITE_URL",
@@ -45,6 +46,8 @@ describe("host-gate path classifiers", () => {
     expect(isOperatorPath(RETIRED_ONBOARD_BOOKMARK_PATH)).toBe(true);
     expect(isOperatorPath(RETIRED_ONBOARDING_START_BOOKMARK_PATH)).toBe(true);
     expect(isOperatorPath(RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH)).toBe(true);
+    expect(isOperatorPath(RETIRED_PILOT_OUTCOMES_PATH)).toBe(true);
+    expect(isOperatorPath(RETIRED_SPONSOR_SUMMARY_PATH)).toBe(true);
     expect(isOperatorPath(LEGACY_ONBOARDING_PATH)).toBe(true);
     expect(isOperatorPath(LEGACY_GETTING_STARTED_PATH)).toBe(true);
   });

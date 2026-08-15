@@ -7,6 +7,7 @@ import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer/buyer-polish-copy"
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
   RETIRED_PILOT_OUTCOMES_PATH,
+  RETIRED_SPONSOR_SUMMARY_PATH,
   SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
@@ -59,6 +60,10 @@ describe("buyerPolishedRouteOrientation", () => {
 
   it("returns null for the retired pilot outcomes route (merged into the sponsor report)", () => {
     expect(buyerPolishedRouteOrientation(RETIRED_PILOT_OUTCOMES_PATH)).toBeNull();
+  });
+
+  it("returns null for the retired sponsor-summary route (merged into the sponsor report)", () => {
+    expect(buyerPolishedRouteOrientation(RETIRED_SPONSOR_SUMMARY_PATH)).toBeNull();
   });
 
   it("returns null for ask — the page carries its own hero copy", () => {
