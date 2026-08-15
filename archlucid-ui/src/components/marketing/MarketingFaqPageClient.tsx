@@ -77,8 +77,6 @@ export function MarketingFaqPageClient(): React.JSX.Element {
       <div className="min-w-0">
         <MarketingFaqPageHero />
 
-        <FaqEvidenceOrientationStrip part="claim" />
-
         <section
           aria-labelledby="marketing-faq-most-asked-heading"
           className="mt-8 scroll-mt-24"
@@ -91,97 +89,6 @@ export function MarketingFaqPageClient(): React.JSX.Element {
           <div className="mt-4 space-y-3">
             {mostAskedItems.map((item) => (
               <MarketingFaqItemPanel key={item.id} item={item} forceOpen={item.id === hashTargetId} defaultOpen />
-        <label className={cn("mt-8 block font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)} htmlFor="marketing-faq-search">
-          {MARKETING_FAQ_SEARCH_LABEL}
-        </label>
-        <Input
-          id="marketing-faq-search"
-          type="search"
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-          }}
-          placeholder={MARKETING_FAQ_SEARCH_PLACEHOLDER}
-          className="mt-2 max-w-xl"
-          autoComplete="off"
-          aria-describedby={searchStatusId}
-          data-testid="marketing-faq-search"
-        />
-        <p
-          id={searchStatusId}
-          role="status"
-          aria-live="polite"
-          className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}
-          data-testid="marketing-faq-search-status"
-        >
-          {formatMarketingFaqSearchStatus(filteredItems.length, MARKETING_FAQ_ITEMS.length)}
-        </p>
-
-        {showMostAsked ? (
-          <section
-            aria-labelledby="marketing-faq-most-asked-heading"
-            className="mt-8 scroll-mt-24"
-            data-testid="marketing-faq-most-asked"
-          >
-            <h2 id="marketing-faq-most-asked-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
-              {MARKETING_FAQ_MOST_ASKED_HEADING}
-            </h2>
-            <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{MARKETING_FAQ_MOST_ASKED_INTRO}</p>
-            <div className="mt-4 space-y-3">
-              {mostAskedItems.map((item) => (
-                <MarketingFaqItemPanel
-                  key={item.id}
-                  item={item}
-                  forceOpen={item.id === hashTargetId}
-                  defaultOpen
-                />
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {grouped.length === 0 ? (
-          <div className="mt-8 space-y-3" data-testid="marketing-faq-empty">
-            <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{MARKETING_FAQ_EMPTY_SEARCH_MESSAGE}</p>
-            <button
-              type="button"
-              className={cn(MARKETING_SURFACES.inlineLink, "bg-transparent p-0")}
-              onClick={() => {
-                setQuery("");
-              }}
-            >
-              {MARKETING_FAQ_CLEAR_SEARCH_LABEL}
-            </button>
-          </div>
-        ) : (
-          <div className="mt-8 space-y-10">
-            {grouped.map((group) => (
-              <section
-                key={group.category.id}
-                id={group.category.id}
-                aria-labelledby={`marketing-faq-category-${group.category.id}`}
-                className="scroll-mt-24"
-              >
-                {group.category.id === "security-trust" && !isSearchActive ? (
-                  <div className="mb-6">
-                    <MarketingFaqDiligenceCtaSection />
-                  </div>
-                ) : null}
-                <h2 id={`marketing-faq-category-${group.category.id}`} className={MARKETING_TYPOGRAPHY.sectionTitle}>
-                  {group.category.title}
-                </h2>
-                <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{group.category.intro}</p>
-                <div className="mt-4 space-y-3">
-                  {group.items.map((item, index) => (
-                    <MarketingFaqItemPanel
-                      key={item.id}
-                      item={item}
-                      forceOpen={isSearchActive || item.id === hashTargetId}
-                      defaultOpen={!isSearchActive && index === 0}
-                    />
-                  ))}
-                </div>
-              </section>
             ))}
           </div>
         </section>
