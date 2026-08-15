@@ -1,11 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import {
-  LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_ARIA,
-  LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_LINK,
-} from "@/lib/live-demo-see-it-ladder-copy";
-import { SEE_IT_GUIDED_WALKTHROUGH_HREF, SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
+import { SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 
 import { SEE_IT_HERO_LEAD, SeeItHeroSection } from "./SeeItHeroSection";
@@ -24,14 +20,12 @@ describe("SeeItHeroSection (TB-1281 / TB-1282)", () => {
     );
   });
 
-  it("links the live-demo ladder without manifest jargon in customer copy", () => {
+  it("does not surface retired /live-demo or /demo/preview ladder links", () => {
     render(<SeeItHeroSection />);
 
-    const walkthrough = screen.getByTestId("see-it-guided-walkthrough-link");
-
-    expect(walkthrough).toHaveAttribute("href", SEE_IT_GUIDED_WALKTHROUGH_HREF);
-    expect(walkthrough).toHaveAttribute("aria-label", LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_ARIA);
-    expect(walkthrough).toHaveTextContent(LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_LINK);
+    expect(screen.queryByTestId("see-it-guided-walkthrough-link")).toBeNull();
+    expect(document.body.innerHTML).not.toContain("/live-demo");
+    expect(document.body.innerHTML).not.toContain("/demo/preview");
 
     const visible = document.body.textContent ?? "";
 

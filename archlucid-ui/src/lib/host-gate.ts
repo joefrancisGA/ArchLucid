@@ -23,9 +23,7 @@ import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigi
 /** Extra marketing paths not always in the sitemap (noindex / funnel). */
 const EXTRA_MARKETING_EXACT_PATHS: readonly string[] = [
   "/faq",
-  "/try",
   "/quick-scan",
-  "/live-demo",
   "/example-roi-bulletin",
 ];
 

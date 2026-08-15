@@ -9,10 +9,7 @@ const SRC_ROOT = join(process.cwd(), "src");
 
 const TB_2292_MIGRATED_MODULES = [
   "app/(marketing)/showcase/[runId]/ShowcaseBottomCTA.tsx",
-  "app/(marketing)/demo/preview/_sections/DemoPreviewUnavailable.tsx",
-  "app/(marketing)/live-demo/LiveDemoWalkthroughNav.tsx",
-  "app/(marketing)/live-demo/LiveDemoContinuousWalkthrough.tsx",
-  "app/(marketing)/live-demo/LiveDemoEvidenceChainPreview.tsx",
+  "app/(marketing)/see-it/SeeItHeroSection.tsx",
 ] as const;
 
 describe("TB-2292 marketing primary CTA token alignment", () => {
@@ -26,6 +23,10 @@ describe("TB-2292 marketing primary CTA token alignment", () => {
     const source = readFileSync(join(SRC_ROOT, ...relativePath.split("/")), "utf8");
 
     expect(source).not.toMatch(/bg-teal-[678]00.*px-4 py-2/);
-    expect(source).toMatch(/MARKETING_PRIMARY_CTA_CLASS|MARKETING_PRIMARY_FILL_CLASS/);
+    // `<Button variant="primary">` renders `bg-[var(--al-primary-action-bg)]`, the same
+    // primary-action tokens these constants wrap, so it satisfies TB-2292 without the class string.
+    expect(source).toMatch(
+      /MARKETING_PRIMARY_CTA_CLASS|MARKETING_PRIMARY_FILL_CLASS|variant="primary"/,
+    );
   });
 });

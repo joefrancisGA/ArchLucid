@@ -1,5 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { LIVE_DEMO_PAGE_TITLE } from "@/lib/live-demo-page-copy";
+import { SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const DEMO_READINESS_CANONICAL_PATH = "/internal/demo-readiness" as const;
@@ -35,6 +35,6 @@ export const DEMO_READINESS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "System health", href: "/administration/system-health" },
   { label: "Trial funnel", href: "/internal/trial-funnel" },
   { label: "Tenant health", href: "/internal/tenant-health" },
-  { label: LIVE_DEMO_PAGE_TITLE, href: "/live-demo" },
+  { label: SEE_IT_PAGE_TITLE, href: "/see-it" },
   { label: "Choose your next step", href: inAppHelpHref("choose-your-next-step") },
 ] as const;

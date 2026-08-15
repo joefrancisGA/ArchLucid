@@ -51,17 +51,15 @@ def _write_clean_surfaces(root: Path) -> None:
     brief.parent.mkdir(parents=True, exist_ok=True)
     brief.write_text("Do not use two weeks to two hours without M-245.\n", encoding="utf-8")
 
-    live_demo = root / "archlucid-ui/src/lib/live-demo-page-copy.ts"
-    live_demo.parent.mkdir(parents=True, exist_ok=True)
-    live_demo.write_text(
-        'export const LIVE_DEMO_PAGE_TITLE = "Guided sample walkthrough";\n',
-        encoding="utf-8",
-    )
-
     see_it = root / "archlucid-ui/src/lib/see-it-page-copy.ts"
     see_it.parent.mkdir(parents=True, exist_ok=True)
     see_it.write_text(
-        'export const SEE_IT_MARKETING_PDF_DOWNLOAD_LABEL = "Download sample overview (PDF)";\n',
+        "\n".join(
+            [
+                'export const SEE_IT_PAGE_TITLE = "See a finalized sample review";',
+                'export const SEE_IT_MARKETING_PDF_DOWNLOAD_LABEL = "Download sample overview (PDF)";',
+            ]
+        ),
         encoding="utf-8",
     )
 
@@ -96,14 +94,14 @@ class TestWeeklyBuyerClaimDriftHonesty(unittest.TestCase):
 
             self.assertTrue(any("C3" in item for item in errors))
 
-    def test_live_demo_title_regression_fails(self):
+    def test_see_it_title_regression_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             _write_inventory(root)
             _write_clean_surfaces(root)
 
-            live_demo = root / "archlucid-ui/src/lib/live-demo-page-copy.ts"
-            live_demo.write_text('export const LIVE_DEMO_PAGE_TITLE = "Live demo";\n', encoding="utf-8")
+            see_it = root / "archlucid-ui/src/lib/see-it-page-copy.ts"
+            see_it.write_text('export const SEE_IT_PAGE_TITLE = "Live demo";\n', encoding="utf-8")
 
             errors = G.weekly_buyer_claim_drift_honesty_errors(root)
 

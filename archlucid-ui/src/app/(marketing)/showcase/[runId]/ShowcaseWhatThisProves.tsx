@@ -234,10 +234,6 @@ export function ShowcaseWhatThisProves({
 
         <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
           <span className="font-semibold text-neutral-700 dark:text-neutral-300">See also:</span>{" "}
-          <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
-            Demo preview
-          </Link>
-          ,{" "}
           <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
             See it in 30 seconds
           </Link>

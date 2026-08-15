@@ -13,7 +13,7 @@ export const SHOWCASE_SOURCES_INTRO =
 export const SHOWCASE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
-  { label: "Demo preview", href: "/demo/preview" },
+  { label: "See it in 30 seconds", href: "/see-it" },
   { label: "Assurance status", href: "/security-trust" },
   { label: "Product FAQ", href: "/faq" },
 ] as const;
