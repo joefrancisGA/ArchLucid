@@ -3,6 +3,7 @@ import {
   formatFindingTrustCompareDeltaLabels,
   type FindingTrustChipSet,
 } from "@/lib/findings/finding-trust-presentation";
+import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import {
   severityBadgeLabel,
   sortQuickDecisionFindings,
@@ -46,7 +47,9 @@ export function selectMaterialDecisionDeltaFindings(
   findings: readonly QuickDecisionFinding[],
   limit = RUN_DETAIL_DECISION_DELTA_TOP_N,
 ): QuickDecisionFinding[] {
-  const active = findings.filter((finding) => !finding.isMuted);
+  const active = findings.filter(
+    (finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding),
+  );
 
   return sortQuickDecisionFindings(active).slice(0, Math.max(0, limit));
 }
