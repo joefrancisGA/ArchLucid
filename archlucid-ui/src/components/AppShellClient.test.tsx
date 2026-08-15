@@ -93,6 +93,15 @@ vi.mock("@/components/shell/app-shell-deferred-chunks", async () => {
   const { AuthPanel } = await import("@/components/AuthPanel");
   const { SyncActiveRunFromPathname } = await import("@/components/SyncActiveRunFromPathname");
   const { AppShellMainContentGate } = await import("@/components/shell/AppShellMainContentGate");
+  const { AppShellKeyboardShortcutBoundary } = await import("@/components/shell/AppShellKeyboardShortcutBoundary");
+  const { OperatorShellAccessRedirectsHost } = await import("@/components/shell/OperatorShellAccessRedirectsHost");
+  const { AppToaster } = await import("@/components/AppToaster");
+  const { RouteAnnouncer } = await import("@/components/RouteAnnouncer");
+  const { ColorModeToggle } = await import("@/components/ColorModeToggle");
+  const { AuthorityThemeToggle } = await import("@/components/AuthorityThemeToggle");
+  const { ShellThemePreferencesAppearanceVocabularyRail } = await import(
+    "@/components/ShellThemePreferencesAppearanceVocabularyRail"
+  );
 
   return {
     OperatorShellTopBarDeferred: OperatorShellTopBar,
@@ -104,6 +113,13 @@ vi.mock("@/components/shell/app-shell-deferred-chunks", async () => {
     AuthPanelDeferred: AuthPanel,
     SyncActiveRunFromPathnameDeferred: SyncActiveRunFromPathname,
     AppShellMainContentGateDeferred: AppShellMainContentGate,
+    AppShellKeyboardShortcutBoundaryDeferred: AppShellKeyboardShortcutBoundary,
+    OperatorShellAccessRedirectsHostDeferred: OperatorShellAccessRedirectsHost,
+    AppToasterDeferred: AppToaster,
+    RouteAnnouncerDeferred: RouteAnnouncer,
+    ColorModeToggleDeferred: ColorModeToggle,
+    AuthorityThemeToggleDeferred: AuthorityThemeToggle,
+    ShellThemePreferencesAppearanceVocabularyRailDeferred: ShellThemePreferencesAppearanceVocabularyRail,
   };
 });
 
