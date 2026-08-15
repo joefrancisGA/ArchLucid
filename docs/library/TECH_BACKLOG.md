@@ -13,7 +13,7 @@ Regenerate after opening or closing summary-table rows:
 | --- | ---: |
 | Correctness | 3 |
 | Testability | 5 |
-| Reliability | 4 |
+| Reliability | 3 |
 | Deployability | 2 |
 | AI/Agent readiness | 4 |
 | Architectural integrity | 3 |
@@ -23,14 +23,14 @@ Regenerate after opening or closing summary-table rows:
 | Trustworthiness | 1 |
 | Interoperability | 4 |
 | Performance | 2 |
-| Cost-effectiveness | 5 |
+| Cost-effectiveness | 4 |
 | Code hygiene | 1 |
 | Stickiness | 4 |
 | Differentiability | 3 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **60** |
+| **Total (unique open)** | **58** |
 
-**By priority band:** P0 **0** | P1 **7** | P2 **37** | P3 **9** | unlabeled **7**.
+**By priority band:** P0 **0** | P1 **7** | P2 **36** | P3 **8** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -2159,7 +2159,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-869 | **Done** (2026-07-18) ? Model alias & capability registry ? customer-facing aliases + capability tags + approved-task lists decoupled from deployment names; `ConfigAgentModelAliasRegistry` + `AgentModelAliasResolver`; alias bound on tier router resolve and recorded on `AgentExecutionTrace.ModelAlias`; fail-closed task approval; see `## TB-869` below | AI/Agent readiness P1 ? **V1.1**; ADR 0060 D2 | M |
 | TB-870 | **Done** (2026-07-18) ? workspace model-governance policy: Economy/Balanced/HighAssurance workspace default + per-review override resolved server-side; `RunStarterTaskFactory` tier policy; admin settings API + audit events; see `## TB-870` below | AI/Agent readiness P1 ? **V1.1**; depends on **TB-869**; ADR 0060 D2/D7 | M |
 | TB-871 | **Done** (2026-07-19) ? Settings ? AI and Model Governance admin UI + model visibility: `/administration/settings/model-governance`, catalog API, wizard profile override, generated-by alias disclosure, audit-trail titles; see `## TB-871` below | Adoption friction P1 ? **V1.1**; depends on **TB-869**, **TB-870** | M |
-| TB-872 | Customer-provided Azure OpenAI connection (first BYO path) ? ADR 0060 Accepted (gate cleared); per-tenant endpoint/deployment/credential via `ISecretProvider` / Key Vault; per-tenant client resolution on the existing adapter; usage recorded, wallet enforcement skipped per ADR 0060 D6; **re-sequenced to ship first by ADR 0065 D7** (builds the per-tenant connection entity + Key Vault boundary + connection-scoped health that every later engine reuses); see `## TB-872` below | Cost-effectiveness P2 ? **V1.1**; depends on **TB-869**?**TB-871** | L |
+| TB-872 | Customer-provided Azure OpenAI connection (first BYO path) ? **Done** (2026-08-14); ADR 0060 D3/D5/D6; per-tenant endpoint/deployment/credential via `ISecretProvider` / Key Vault; per-tenant client resolution; wallet enforcement skipped when active; see `## TB-872` below | Cost-effectiveness P2 ? **V1.1**; depends on **TB-869**?**TB-871** | L |
 | TB-793 | **Done** (2026-07-15) ? `UsersAdminController` (`POST/GET/DELETE /v1/admin/users/invite|invitations`); `dbo.UserInvitations` migration **277**; Dapper + in-memory repositories; `UserInvitationAdminService`; API integration tests; see `## TB-793` below | Trustworthiness P0 ? **V1**; confirmed private-beta access-path blocker (Assessment 2026-07-15, P0-1) | M |
 | TB-794 | **Done** (2026-07-15) ? removed invite/role preview-success toasts; `admin-user-invitations.ts` + `PendingInvitationsPanel` wired to TB-793 list/revoke APIs; Vitest guards; see `## TB-794` below | Trustworthiness P0 ? **V1**; depends on **TB-793** | S |
 | TB-795 | **Done** (2026-07-15) ? invite API integration test matrix + `live-api-invite-flow.spec.ts` in JwtBearer/ApiKey CI jobs; expired invite status mapping; see `## TB-795` below | Correctness P0 ? **V1**; depends on **TB-793**, **TB-794** | S |
@@ -2467,7 +2467,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-920 | ~~Shared outbox processor/hosted-service abstraction — dedup the 6 near-identical hand-rolled outboxes (entry/repo/processor/hosted-service/dead-letter/metrics) onto one generic base; see `## TB-920` below~~ **Done** (2026-08-14) | Architectural integrity P1 ? **V1**; TB-302/DTF follow-up 2026-07-20 | M |
 | TB-921 | **Done** (2026-08-14) — Formalize DTF-adoption trigger criteria as a living decision gate; see `## TB-921` below | Architectural integrity P2 ? **V1**; TB-302/DTF follow-up 2026-07-20 | S |
 | TB-922 | **Done** (2026-08-14) — CI smoke coverage for the dormant DTF orchestrator seam; see `## TB-922` below | Reliability P2 ? **V1**; TB-302/DTF follow-up 2026-07-20 | S |
-| TB-923 | Governance approval SLA breach ? notify-only vs auto-act decision (assessment-only) ? `SlaDeadlineUtc`/`SlaBreachNotifiedUtc` today only notify; decide before scope grows into ad hoc escalation logic; see `## TB-923` below | Reliability P3 ? **V1**; TB-302/DTF follow-up 2026-07-20 | XS |
+| TB-923 | Governance approval SLA breach ? notify-only vs auto-act decision (assessment-only) ? **Done** 2026-08-14 ? owner **(a) keep notify-only** recorded **PENDING_QUESTIONS #41**; see `## TB-923` below | Reliability P3 ? **V1**; TB-302/DTF follow-up 2026-07-20 | XS |
 | TB-924 | DTF cutover for authority-pipeline orchestration (gated epic) ? move `AuthorityRunOrchestrator` to the Durable Task Framework via the existing `DtfAuthorityRunOrchestrator` seam; **blocked until TB-921's gate fires**; see `## TB-924` below | Architectural integrity P1-when-gated ? **V1.1 contingent**; not required for V1 GA per `V1_DEFERRED.md` ?6f | L |
 | | **Done V2 (kept for grep; not shippable)** | | |
 | TB-397 | `IExternalTicketConnector` plugin boundary ??? shared port + provider registry; refactor `JiraOutboundIssueClient` / `ServiceNowOutboundIncidentClient` behind it without changing Authority event payloads | Architectural integrity P2 ? **V2** prerequisite | M |
@@ -23404,6 +23404,8 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 ## TB-872 ? Customer-provided Azure OpenAI connection (first BYO path) (P2)
 
+**Status:** **Done** (2026-08-14) ? per-tenant `TenantAzureOpenAiConnections` row + admin API (`GET/POST/DELETE/probe` `/v1/admin/settings/azure-openai-connection`); Key Vault secret boundary via `IIntegrationSecretWriter`; tier router + schema remediation route BYO completions without ArchLucid-paid fallback when an enabled row exists; `LlmCompletionAccountingClient` skips daily/monthly wallet reserve when `CustomerAiProviderConfigured`; `ProviderConnectionId` on traces; model governance UI connection card.
+
 **Window:** V1.1 ? ADR 0060 Accepted (2026-07-18); ADR-acceptance gate **cleared**. Do not start until **TB-869**?**TB-871** foundations land (or land in the same sequenced PR train).
 
 **Why:** Highest-value BYO ask (customer tenancy, customer spend) with the least new code: reuses the existing `AzureOpenAiCompletionClient` shape with per-tenant client resolution, stays inside the ADR 0020 Azure-primary posture, and needs no new vendor SDK.
@@ -24683,17 +24685,17 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 **Why:** `dbo.GovernanceApprovalRequests.SlaDeadlineUtc` / `SlaBreachNotifiedUtc` (+ `IX_GovernanceApprovalRequests_PendingSlaBreached`) already implement a hand-rolled durable-timer-equivalent for approval SLAs, but only to *notify* on breach. This is the concrete, already-shipped instance of the "approval workflow with timeout" scenario `V1_DEFERRED.md` ?6f names as a DTF trigger. Whether it should grow to *auto-act* (escalate, reroute, auto-expire) rather than stay notify-only is an owner/product decision, not an engineering default ? deciding it now avoids scope creep into ad hoc SQL-polling escalation logic that would make a later DTF migration harder to justify not having already half-duplicated.
 
-**Approach:**
+**Shipped (2026-08-14):**
 
-1. Document current behavior precisely: what happens today when `SlaBreachNotifiedUtc` is set ? who is notified, and whether anything changes about the approval request's actionability.
-2. Present the owner with the explicit choice: **(a)** keep notify-only, **(b)** add auto-act semantics via an incremental SQL-polling extension, **(c)** treat this as satisfying **TB-921** trigger criterion (a) if true durable-timer-with-action semantics are wanted, promoting **TB-924**.
-3. Record the decision in `PENDING_QUESTIONS.md` (matching **TB-914**'s pattern) so it isn't silently re-litigated.
+1. **Current behavior documented** in [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **#41** ? **`ApprovalSlaMonitor`**: audit **`GovernanceApprovalSlaBreached`**, optional HMAC webhook, **`SlaBreachNotifiedUtc`**; approval request remains pending/actionable.
+2. **Owner decision recorded:** **(a) keep notify-only for V1 GA** ? *Resolved 2026-08-14 (TB-923 ? governance approval SLA notify-only)* in **`PENDING_QUESTIONS.md`** with rationale.
+3. **No follow-up implementation TB** ? options **(b)** SQL-polling auto-act and **(c)** **TB-921** / **TB-924** promotion deferred until a separate product requirement for durable-timer-with-action.
 
-**Acceptance:** Owner decision recorded in `PENDING_QUESTIONS.md` with rationale; if (b) or (c), a follow-up implementation TB is opened.
+**Acceptance:** Met ? owner decision in **`PENDING_QUESTIONS.md`** with rationale; no **(b)** or **(c)** follow-up TB opened.
 
-**Affected files:** `docs/library/PENDING_QUESTIONS.md` (reference only: `ArchLucid.Persistence/Data/Repositories/GovernanceApprovalRequestRepository.cs`, no code change in this item).
+**Affected files:** `docs/PENDING_QUESTIONS.md` (reference only: `ArchLucid.Application/Governance/ApprovalSlaMonitor.cs`, `ArchLucid.Persistence/Data/Repositories/GovernanceApprovalRequestRepository.cs`).
 
-**Refs:** TB-921; `docs/library/V1_DEFERRED.md` ?6f; migrations DbUp 058/059.
+**Refs:** TB-921; TB-924; `docs/library/V1_DEFERRED.md` ?6f; [`PRE_COMMIT_GOVERNANCE_GATE.md`](PRE_COMMIT_GOVERNANCE_GATE.md) § Approval SLA; migrations DbUp 058/059.
 
 **Size estimate:** XS.
 

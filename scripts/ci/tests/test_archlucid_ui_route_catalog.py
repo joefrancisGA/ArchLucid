@@ -242,7 +242,7 @@ def test_build_catalog_skips_demo_entry_redirect_page() -> None:
     catalog = build_catalog()
     assert "/demo" not in catalog
     assert "/demo/explain" in catalog
-    assert "/demo/preview" not in catalog
+    assert "/demo/preview" in catalog
 
 
 def test_build_catalog_does_not_invent_alerts_inbox_tab_query() -> None:

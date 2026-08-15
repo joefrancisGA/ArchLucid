@@ -20,8 +20,8 @@ UI_SCAN_ROOTS: tuple[Path, ...] = (
     Path("archlucid-ui/src/components/reviews/RunDetailDeferredScopeNoticeClient.tsx"),
     Path("archlucid-ui/src/app/(marketing)/pricing"),
     Path("archlucid-ui/src/app/(marketing)/see-it"),
-    Path("archlucid-ui/src/app/(marketing)/showcase"),
     Path("archlucid-ui/src/app/(marketing)/welcome"),
+    Path("archlucid-ui/src/app/(marketing)/live-demo"),
     Path("archlucid-ui/src/app/(marketing)/why"),
 )
 

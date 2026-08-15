@@ -21,11 +21,13 @@ describe("marketing-entry-spine (TB-2236)", () => {
     expect(MARKETING_SITEMAP_PATHNAMES).toContain(MARKETING_CANONICAL_GET_STARTED_PATH);
   });
 
-  it("lets retired try-it routes 404 instead of costing visitors a redirect hop", () => {
-    const sources = BOOKMARK_PERMANENT_REDIRECTS.map((rule) => rule.source);
+  it("ships permanent redirects from retired try-it bookmarks to the canonical spine", () => {
+    const bySource = Object.fromEntries(
+      BOOKMARK_PERMANENT_REDIRECTS.map((rule) => [rule.source, rule.destination]),
+    );
 
-    expect(sources).not.toContain("/try");
-    expect(sources).not.toContain("/live-demo");
-    expect(sources).not.toContain("/demo/preview");
+    expect(bySource["/try"]).toBe(MARKETING_CANONICAL_GET_STARTED_PATH);
+    expect(bySource["/live-demo"]).toBe(MARKETING_CANONICAL_DEMO_PATH);
+    expect(bySource["/demo/preview"]).toBe(MARKETING_CANONICAL_DEMO_PATH);
   });
 });

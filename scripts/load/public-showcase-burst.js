@@ -22,7 +22,7 @@ const holdDuration = __ENV.K6_SHOWCASE_HOLD || "3m";
 
 const showcasePaths = [
   "/showcase/claims-intake-modernization",
-  "/see-it",
+  "/demo/preview",
   "/welcome",
 ];
 

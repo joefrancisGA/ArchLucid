@@ -11,7 +11,7 @@ import { MARKETING_PUBLIC_NAV_LINK_CLASS } from "@/lib/marketing-public-nav-link
 import { appSiteHref } from "@/lib/site-urls";
 
 type MarketingPublicHeaderProps = {
-  readonly seeItLinked: boolean;
+  readonly liveDemoLinked: boolean;
 };
 
 /**
@@ -57,7 +57,7 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
                 Request demo
               </Link>
               <span className="mx-0.5 hidden h-5 w-px shrink-0 bg-neutral-200 dark:bg-neutral-700 sm:block" aria-hidden />
-              <MarketingResourcesMenu seeItLinked={props.seeItLinked} />
+              <MarketingResourcesMenu liveDemoLinked={props.liveDemoLinked} />
             </nav>
           )}
         </div>
@@ -76,5 +76,5 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
 export function MarketingPublicHeaderSlot(props: MarketingPublicHeaderProps & { readonly children?: ReactNode }): React.JSX.Element {
   void props.children;
 
-  return <MarketingPublicHeader seeItLinked={props.seeItLinked} />;
+  return <MarketingPublicHeader liveDemoLinked={props.liveDemoLinked} />;
 }

@@ -1,6 +1,6 @@
 /**
  * Incremental static regeneration for public marketing pages with no session data.
- * Parity with `/see-it` and `/showcase/[runId]` (PERF-08 / TB-567).
+ * Parity with `/see-it` and `/live-demo` (PERF-08 / TB-567).
  *
  * Route modules must use `export const revalidate = 300` inline — Next.js does not honor re-exports.
  */

@@ -2,15 +2,10 @@
 """TB-1428 / M-259: Anti-live-demo-as-live-product / ladder-closed honesty CI.
 
 Fails dishonest stubs that:
-- Call the guided sample walkthrough a live / Real / tenant product demo without
-  fabricated-sample caveats.
+- Call `/live-demo` a live / Real / tenant product demo without fabricated-sample caveats.
 - Narrate offline curated fallback as a live API session.
 - Claim the see-it ladder or live-demo honesty is done while open ladder rows remain.
-- Pair Contoso preview routes with Healthcare Claims chrome on marketing proof surfaces.
-
-The legacy `/live-demo` and `/try` routes were retired; the scanned surface is now `/see-it`
-plus its copy modules. Doc claim scanning is unchanged because buyer docs still discuss the
-live-demo ladder by name.
+- Pair Contoso preview routes with Healthcare Claims chrome on `/live-demo` surfaces.
 
 Contract: docs/library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md (TB-1427 / TB-1428).
 """
@@ -29,11 +24,12 @@ ALLOWLIST_MARKER = "live-demo-see-it-ladder-honesty: allow"
 
 CONTRACT_REL = Path("docs/library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md")
 
-SEE_IT_SCAN_ROOT = Path("archlucid-ui/src/app/(marketing)/see-it")
+LIVE_DEMO_SCAN_ROOT = Path("archlucid-ui/src/app/(marketing)/live-demo")
 
-EXTRA_SEE_IT_COPY_FILES: tuple[Path, ...] = (
-    Path("archlucid-ui/src/lib/see-it-page-copy.ts"),
-    Path("archlucid-ui/src/lib/see-it-evidence-copy.ts"),
+EXTRA_LIVE_DEMO_FILES: tuple[Path, ...] = (
+    Path("archlucid-ui/src/lib/live-demo-page-copy.ts"),
+    Path("archlucid-ui/src/lib/live-demo-see-it-ladder-copy.ts"),
+    Path("archlucid-ui/src/lib/live-demo-evidence-copy.ts"),
 )
 
 DOCS_TO_SCAN: tuple[Path, ...] = (
@@ -70,15 +66,9 @@ REQUIRED_PROCUREMENT_ANCHORS: tuple[str, ...] = (
     "Guided fabricated sample walkthrough",
 )
 
-SEE_IT_COPY_MARKER_CHECKS: tuple[tuple[Path, tuple[str, ...]], ...] = (
-    (
-        Path("archlucid-ui/src/lib/see-it-page-copy.ts"),
-        ('SEE_IT_PAGE_TITLE = "See a finalized sample review"',),
-    ),
-    (
-        Path("archlucid-ui/src/lib/see-it-evidence-copy.ts"),
-        ("fabricated",),
-    ),
+REQUIRED_LIVE_DEMO_COPY_MARKERS: tuple[str, ...] = (
+    'LIVE_DEMO_PAGE_TITLE = "Guided sample walkthrough"',
+    "fabricated",
 )
 
 OPEN_LADDER_ROW_PATTERN = re.compile(
@@ -338,32 +328,25 @@ def procurement_anchor_violations(root: Path) -> list[str]:
     return violations
 
 
-def see_it_copy_violations(root: Path) -> list[str]:
+def live_demo_copy_violations(root: Path) -> list[str]:
     violations: list[str] = []
+    rel = Path("archlucid-ui/src/lib/live-demo-page-copy.ts")
+    path = root / rel
 
-    for rel, markers in SEE_IT_COPY_MARKER_CHECKS:
-        path = root / rel
+    if not path.is_file():
+        return [f"{rel.as_posix()}: missing live-demo page copy module (TB-1265)."]
 
-        if not path.is_file():
-            violations.append(f"{rel.as_posix()}: missing see-it marketing copy module (TB-1281).")
-            continue
+    text = path.read_text(encoding="utf-8", errors="replace")
 
-        text = path.read_text(encoding="utf-8", errors="replace")
+    for marker in _missing_markers(text, REQUIRED_LIVE_DEMO_COPY_MARKERS):
+        violations.append(
+            f"{rel.as_posix()}: missing required honest title marker {marker!r} (TB-1265 / TB-1428)."
+        )
 
-        for marker in _missing_markers(text, markers):
-            violations.append(
-                f"{rel.as_posix()}: missing required honest marketing marker {marker!r} (TB-1281 / TB-1428)."
-            )
-
-    page_copy = root / "archlucid-ui/src/lib/see-it-page-copy.ts"
-
-    if page_copy.is_file():
-        text = page_copy.read_text(encoding="utf-8", errors="replace")
-
-        if re.search(r'SEE_IT_PAGE_TITLE\s*=\s*["\']Live demo["\']', text, re.IGNORECASE):
-            violations.append(
-                f"{page_copy.relative_to(root).as_posix()}: SEE_IT_PAGE_TITLE must not be Live demo (TB-1281 / TB-1428)."
-            )
+    if re.search(r'LIVE_DEMO_PAGE_TITLE\s*=\s*["\']Live demo["\']', text, re.IGNORECASE):
+        violations.append(
+            f"{rel.as_posix()}: LIVE_DEMO_PAGE_TITLE must not be Live demo (TB-1265 / TB-1428)."
+        )
 
     return violations
 
@@ -373,16 +356,16 @@ def _should_skip(path: Path) -> bool:
     return any(fragment in name for fragment in GLOB_EXCLUDES)
 
 
-def _collect_see_it_surface_files(root: Path) -> list[Path]:
+def _collect_live_demo_files(root: Path) -> list[Path]:
     files: list[Path] = []
 
-    for rel in EXTRA_SEE_IT_COPY_FILES:
+    for rel in EXTRA_LIVE_DEMO_FILES:
         path = root / rel
 
         if path.is_file():
             files.append(path)
 
-    scan_root = root / SEE_IT_SCAN_ROOT
+    scan_root = root / LIVE_DEMO_SCAN_ROOT
 
     if scan_root.is_dir():
         for candidate in scan_root.rglob("*"):
@@ -400,7 +383,7 @@ def _collect_see_it_surface_files(root: Path) -> list[Path]:
     return sorted(set(files))
 
 
-def scan_see_it_surface_file(root: Path, path: Path) -> list[str]:
+def scan_live_demo_file(root: Path, path: Path) -> list[str]:
     text = path.read_text(encoding="utf-8", errors="replace")
     display = path.relative_to(root).as_posix() if path.is_relative_to(root) else str(path)
     violations: list[str] = []
@@ -413,13 +396,13 @@ def scan_see_it_surface_file(root: Path, path: Path) -> list[str]:
 
         if re.search(r'["\']Live demo["\']', line) and "not" not in line_lower:
             violations.append(
-                f"{display}:{line_no}: customer-facing Live demo title on marketing proof surface (TB-1281 / TB-1428)."
+                f"{display}:{line_no}: customer-facing Live demo title on `/live-demo` surface (TB-1265 / TB-1428)."
             )
 
-        if "/showcase/" in line and "contoso" in line_lower and "claims" in line_lower:
+        if "/demo/preview" in line and "contoso" in line_lower and "claims" in line_lower:
             if not _line_has_caveat(line_lower):
                 violations.append(
-                    f"{display}:{line_no}: Contoso preview must not pair with Claims chrome on marketing proof surfaces (TB-1428)."
+                    f"{display}:{line_no}: Contoso preview must not pair with Claims chrome on `/live-demo` (TB-1428)."
                 )
 
     return violations
@@ -468,7 +451,7 @@ def live_demo_see_it_ladder_honesty_violations(root: Path) -> list[str]:
     violations: list[str] = []
     violations.extend(contract_violations(root))
     violations.extend(procurement_anchor_violations(root))
-    violations.extend(see_it_copy_violations(root))
+    violations.extend(live_demo_copy_violations(root))
 
     contract_path = root / CONTRACT_REL
     open_row_ids: list[str] = []
@@ -477,8 +460,8 @@ def live_demo_see_it_ladder_honesty_violations(root: Path) -> list[str]:
         contract_text = contract_path.read_text(encoding="utf-8", errors="replace")
         open_row_ids = _parse_open_ladder_row_ids(contract_text)
 
-    for path in _collect_see_it_surface_files(root):
-        violations.extend(scan_see_it_surface_file(root, path))
+    for path in _collect_live_demo_files(root):
+        violations.extend(scan_live_demo_file(root, path))
 
     for rel in DOCS_TO_SCAN:
         violations.extend(scan_doc_claims(root, rel, open_row_ids))

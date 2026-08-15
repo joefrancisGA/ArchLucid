@@ -2,7 +2,6 @@ import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import { SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export const DEMO_EXPLAIN_STATUS_BANNER_TECHNICAL_DETAILS_LABEL = "Technical details";
 
@@ -56,9 +55,9 @@ export const DEMO_EXPLAIN_INTERNAL_PUBLIC_PROOF_LINK_LABEL = SEE_IT_PAGE_TITLE;
 
 export const DEMO_EXPLAIN_LADDER_PRIMARY_LABEL = SEE_IT_PAGE_TITLE;
 
-export const DEMO_EXPLAIN_LADDER_SHOWCASE_HREF = `/showcase/${SHOWCASE_STATIC_DEMO_RUN_ID}` as const;
+export const DEMO_EXPLAIN_LADDER_LIVE_DEMO_HREF = "/live-demo" as const;
 
-export const DEMO_EXPLAIN_LADDER_SHOWCASE_LABEL = "Prefer a longer walkthrough?";
+export const DEMO_EXPLAIN_LADDER_LIVE_DEMO_LABEL = "Prefer a longer walkthrough?";
 
 export const DEMO_EXPLAIN_LADDER_WELCOME_HREF = "/welcome" as const;
 

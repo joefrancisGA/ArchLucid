@@ -27,6 +27,14 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     noteMustContain: ["CompareForm", "Score 68", "cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
   },
+  /** Traffic workbook row ID for Demo preview. Owner backlog shorthand: DPX. */
+  {
+    rowId: "DPX",
+    path: "/demo/preview",
+    section: "Marketing",
+    note: "Demo preview (Marketing) - DemoPreviewMarketingPage with DemoPreviewEvidenceOrientationStrip (evaluation Sources + claim-discipline: sample demo only). Not an operator PageContextualHelp surface. Sibling DXX = /demo entry redirect.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: ["DemoPreviewEvidenceOrientationStrip", "Sources", "cannot improve further toward 80"],
+  },
   /** Traffic workbook row ID for example-roi-bulletin marketing page. Owner backlog shorthand: EXA. */
   {
     rowId: "EXA",
@@ -50,6 +58,14 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     section: "Marketing",
     note: "Get started (Marketing) - GetStartedPageClient with GetStartedEvidenceOrientationStrip (evaluation Sources + claim-discipline: first-run orientation only). Not an operator PageContextualHelp surface. Legacy /quick-start retired toward this path.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["GetStartedPageClient", "Sources", "cannot improve further toward 80"],
+  },
+  /** Traffic workbook row ID for live-demo marketing page. Owner backlog shorthand: LXX. */
+  {
+    rowId: "LXX",
+    path: "/live-demo",
+    section: "Marketing",
+    note: "Live demo (Marketing) - LiveDemoMarketingPage with LiveDemoEvidenceOrientationStrip (evaluation Sources + claim-discipline: fabricated guided walkthrough only). Not an operator PageContextualHelp surface. Sibling DPX = /demo/preview; TRY = /try.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: ["LiveDemoMarketingPage", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Pricing. Owner backlog shorthand: P. */
   {
@@ -105,8 +121,8 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "SEE",
     path: "/see-it",
     section: "Marketing",
-    note: "See it (Marketing) - SeeItMarketingPage with SeeItHeroSection (first-viewport H1 + lead + single primary CTA + deliverable preview rail — TB-1281), SeeItEvidenceOrientationStrip below sample body (evaluation Sources + claim-discipline: fabricated sample proof only), secondary row PDF only (no duplicate preview CTA). Not an operator PageContextualHelp surface. Sibling SRH = /showcase/[reviewId]. Score 68/100 (2026-08-11) after TB-1281–TB-1282 hero budget — marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.; 2026-08-11 al-ui-rate: First viewport stacked proof strip + duplicate preview CTAs + manifest jargon; shipped TB-1281–TB-1282 (batch 21–24); open: TB-1280",
-    noteMustContain: ["SeeItHeroSection", "TB-1281", "cannot improve further toward 80"],
+    note: "See it (Marketing) - SeeItMarketingPage with SeeItHeroSection (first-viewport H1 + lead + single primary CTA + deliverable preview rail — TB-1281), SeeItEvidenceOrientationStrip below sample body (evaluation Sources + claim-discipline: fabricated sample proof only), quiet `/live-demo` ladder link in hero (TB-1282 / TB-1267), secondary row PDF only (no duplicate preview CTA). Not an operator PageContextualHelp surface. Sibling LXX = /live-demo; DPX = /demo/preview; SRH = /showcase/[reviewId]. Score 68/100 (2026-08-11) after TB-1281–TB-1282 hero budget + CTA ladder — marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.; 2026-08-11 al-ui-rate: First viewport stacked proof strip + duplicate preview CTAs + manifest jargon; shipped TB-1281–TB-1282 (batch 21–24); open: TB-1280",
+    noteMustContain: ["SeeItHeroSection", "TB-1281", "TB-1282", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Signup. Owner backlog shorthand: SIG. */
   {
@@ -140,6 +156,14 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     note: "Search review evidence (Insights) - SearchPageView with PageContextualHelpButton (topic map; Category-1 registry), optional SearchReviewEvidenceCiteStrip when scoped to a review. Not a signed-record Sources trail by itself. Score 68/100 (2026-08-08) - retrieval launcher at SCX Insights Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
+  },
+  /** Traffic workbook row ID for try marketing page. Owner backlog shorthand: TRY. */
+  {
+    rowId: "TRY",
+    path: "/try",
+    section: "Marketing",
+    note: "Try (Marketing) - TryPage with TryEvidenceOrientationStrip (evaluation Sources + claim-discipline: frictionless sample only). Not an operator PageContextualHelp surface. Sibling GXX = /get-started; SRH = /showcase/[reviewId].marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: ["TryPage", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Trust Center marketing page. Owner backlog shorthand: TXX. */
   {

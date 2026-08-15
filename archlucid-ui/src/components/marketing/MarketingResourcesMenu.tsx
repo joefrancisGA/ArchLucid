@@ -12,10 +12,10 @@ import { cn } from "@/lib/utils";
 const resourcesMenuId = "marketing-resources-menu";
 
 type MarketingResourcesMenuProps = {
-  seeItLinked: boolean;
+  liveDemoLinked: boolean;
 };
 
-export function MarketingResourcesMenu({ seeItLinked }: MarketingResourcesMenuProps) {
+export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMenuProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -158,7 +158,7 @@ export function MarketingResourcesMenu({ seeItLinked }: MarketingResourcesMenuPr
           >
             Why ArchLucid
           </Link>
-          {seeItLinked ? (
+          {liveDemoLinked ? (
             <Link
               href={MARKETING_CANONICAL_DEMO_PATH}
               role="menuitem"

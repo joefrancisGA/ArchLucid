@@ -33,6 +33,7 @@ export const TB_2288_DEFERRED_AD_HOC_PILL_MODULES = [
   "components/usability/NewSinceLastVisitMarker.tsx",
   "app/(operator)/governance/_sections/GovernanceOverviewWorkflowStrip.tsx",
   "app/(marketing)/demo/preview/_sections/DemoPreviewCompactTimeline.tsx",
+  "app/(marketing)/live-demo/LiveDemoAuditTrailStepContent.tsx",
   "app/(marketing)/signup/verify/SignupVerifyClient.tsx",
   "app/(operator)/architecture/first-review-guide/_sections/FirstReviewGuideProgressSummary.tsx",
   "app/(operator)/help/_sections/HelpApiContractsGuideView.tsx",

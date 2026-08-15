@@ -1,11 +1,11 @@
 /**
- * Public marketing `/showcase/[runId]` and `/see-it` — static offline payload when API is unavailable (matches production fallback).
+ * Public marketing `/demo/preview` and `/see-it` CTAs — static offline payload when API is unavailable (matches production fallback).
  */
 import { expect, test } from "@playwright/test";
 
 test.describe("marketing-demo-preview", () => {
-  test("/showcase/customer-intake-modernization loads hero and signup CTA without auth", async ({ page }) => {
-    await page.goto("/showcase/customer-intake-modernization", { waitUntil: "load" });
+  test("/demo/preview loads hero, result panel, artifact navigation, and signup CTA without auth", async ({ page }) => {
+    await page.goto("/demo/preview", { waitUntil: "load" });
     await expect(page.getByRole("heading", { name: "See a finalized architecture review", level: 1 })).toBeVisible({
       timeout: 60_000,
     });

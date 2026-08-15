@@ -66,16 +66,16 @@ def _write_procurement_packet(root: Path) -> None:
     )
 
 
-def _write_see_it_copy(root: Path) -> None:
-    page_copy = root / "archlucid-ui/src/lib/see-it-page-copy.ts"
-    evidence_copy = root / "archlucid-ui/src/lib/see-it-evidence-copy.ts"
-    page_copy.parent.mkdir(parents=True, exist_ok=True)
-    page_copy.write_text(
-        'export const SEE_IT_PAGE_TITLE = "See a finalized sample review";\n',
-        encoding="utf-8",
-    )
-    evidence_copy.write_text(
-        'export const SEE_IT_CLAIM_DISCIPLINE = "fabricated sample finalized review";\n',
+def _write_live_demo_copy(root: Path) -> None:
+    path = root / "archlucid-ui/src/lib/live-demo-page-copy.ts"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "\n".join(
+            [
+                'export const LIVE_DEMO_PAGE_TITLE = "Guided sample walkthrough";',
+                'export const LIVE_DEMO_FABRICATED_DISCLOSURE = "fabricated sample data";',
+            ]
+        ),
         encoding="utf-8",
     )
 
@@ -83,7 +83,7 @@ def _write_see_it_copy(root: Path) -> None:
 def _write_scan_targets(root: Path, *, body: str) -> None:
     _write_contract(root)
     _write_procurement_packet(root)
-    _write_see_it_copy(root)
+    _write_live_demo_copy(root)
 
     for rel in G.DOCS_TO_SCAN:
         if rel.as_posix() == "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md":

@@ -5,7 +5,7 @@ import { DemoExplainNextStepLadder } from "@/app/(operator)/demo/explain/_sectio
 import {
   DEMO_EXPLAIN_LADDER_GET_STARTED_HREF,
   DEMO_EXPLAIN_LADDER_HELP_HREF,
-  DEMO_EXPLAIN_LADDER_SHOWCASE_HREF,
+  DEMO_EXPLAIN_LADDER_LIVE_DEMO_HREF,
   DEMO_EXPLAIN_LADDER_PRIMARY_HREF,
   DEMO_EXPLAIN_LADDER_WELCOME_HREF,
   DEMO_EXPLAIN_RETRY_LABEL,
@@ -18,7 +18,7 @@ describe("DemoExplainNextStepLadder (TB-1321)", () => {
     expect(screen.getByTestId("demo-explain-ladder-primary")).toHaveAttribute("href", DEMO_EXPLAIN_LADDER_PRIMARY_HREF);
     expect(screen.getByRole("link", { name: /Prefer a longer walkthrough/i })).toHaveAttribute(
       "href",
-      DEMO_EXPLAIN_LADDER_SHOWCASE_HREF,
+      DEMO_EXPLAIN_LADDER_LIVE_DEMO_HREF,
     );
     expect(screen.getByRole("link", { name: /Back to ArchLucid/i })).toHaveAttribute("href", DEMO_EXPLAIN_LADDER_WELCOME_HREF);
     expect(screen.getByRole("link", { name: /Getting started/i })).toHaveAttribute(

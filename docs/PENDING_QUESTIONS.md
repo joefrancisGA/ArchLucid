@@ -45,7 +45,7 @@
 - **2026-04-27:** (1) Auth default: Entra ID or explicit API keys (Resolved). (2) Hidden UI features: **404** (Resolved).
 - **2026-07-12 — Help evidence-intake / review-packages de-dup (PQ-HELP-01 / TB-761):** **Path 2** — relocate persona API/CLI recipes out of buyer/operator `/help`; rewrite both help slugs to match their titles. See *Resolved 2026-07-12 (PQ-HELP-01 — TB-761 Path 2)* below.
 
-**Last updated:** 2026-07-12 — **PQ-HELP-01 TB-761 Path 2** (*Resolved 2026-07-12* — persona recipes out of buyer `/help`). Prior **2026-06-28** — **PQ-NAV-01 tenant admin URL namespace** (*Resolved 2026-06-28 — `/settings/*` for Administration; TB-406*). Prior **2026-06-27** — **PQ-CLOUD-01 AWS/GCP Tier 2 credential model** (*Resolved 2026-06-27*). Prior **2026-05-30** — Azure AI Search index field contract · Enterprise UI design system rollout sequencing · Team self-serve bundled Stripe SKU at launch · **`signup.archlucid.net` DNS readiness**. Prior **2026-05-18 — Connectors + integration contract:** first-party **Jira** / **ServiceNow** / **Confluence** / **Slack** and **Teams** / **webhooks** / **recipes** as **buyer-contract** paths → **V1.1** (*Resolved 2026-05-18* + scope clarification same day). **V1** buyer bar: **REST** / **CLI** / **architect workspace** / **§2.16+**. Prior **2026-05-05** commerce / breadth / WCAG / pricing block unchanged except connector window.
+**Last updated:** 2026-08-14 — **TB-923 governance approval SLA notify-only vs auto-act** (*Resolved 2026-08-14 — item **41**; keep notify-only for V1 GA*). Prior **2026-07-12** — **PQ-HELP-01 TB-761 Path 2** (*Resolved 2026-07-12* — persona recipes out of buyer `/help`). Prior **2026-06-28** — **PQ-NAV-01 tenant admin URL namespace** (*Resolved 2026-06-28 — `/settings/*` for Administration; TB-406*). Prior **2026-06-27** — **PQ-CLOUD-01 AWS/GCP Tier 2 credential model** (*Resolved 2026-06-27*). Prior **2026-05-30** — Azure AI Search index field contract · Enterprise UI design system rollout sequencing · Team self-serve bundled Stripe SKU at launch · **`signup.archlucid.net` DNS readiness**. Prior **2026-05-18 — Connectors + integration contract:** first-party **Jira** / **ServiceNow** / **Confluence** / **Slack** and **Teams** / **webhooks** / **recipes** as **buyer-contract** paths → **V1.1** (*Resolved 2026-05-18* + scope clarification same day). **V1** buyer bar: **REST** / **CLI** / **architect workspace** / **§2.16+**. Prior **2026-05-05** commerce / breadth / WCAG / pricing block unchanged except connector window.
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
@@ -578,6 +578,12 @@ These came out of the 2026-04-23 owner clarification — *"the user will never h
 
 ---
 
+## Surfaced by TB-923 (governance approval SLA — 2026-08-14)
+
+41. **Governance approval SLA breach — notify-only vs auto-act.** *(Assessment-only **TB-923**; matching **TB-914**'s record-the-decision pattern.)* When **`ArchLucid:Governance:ApprovalSlaHours`** is set, new governance approval requests receive **`SlaDeadlineUtc`**. **`ApprovalSlaMonitor`** (see [`PRE_COMMIT_GOVERNANCE_GATE.md`](library/PRE_COMMIT_GOVERNANCE_GATE.md) § Approval SLA) polls pending rows past deadline with null **`SlaBreachNotifiedUtc`** (index **`IX_GovernanceApprovalRequests_PendingSlaBreached`**, migrations DbUp 058/059): emits durable audit **`GovernanceApprovalSlaBreached`**; optionally POSTs an HMAC-signed payload to **`ApprovalSlaEscalationWebhookUrl`**; sets **`SlaBreachNotifiedUtc`** so the breach is notified once. The approval request **stays pending and actionable** — no auto-approve, auto-reject, reroute, or expiry. **Resolved 2026-08-14: (a) keep notify-only for V1 GA** — see *Resolved 2026-08-14 (TB-923 — governance approval SLA notify-only)* below. Revisit **(b)** incremental SQL-polling auto-act or **(c)** durable-timer-with-action via **TB-921** criterion (a) → **TB-924** only if a future product requirement needs state-changing SLA semantics beyond today's webhook/audit path.
+
+---
+
 ## Quality-assessment cadence (Resolved 2026-04-21)
 
 - **Cadence:** **Weekly.** Each pass produces a `QUALITY_ASSESSMENT_<date>_INDEPENDENT_<score>.md` plus a paired `CURSOR_PROMPTS_<...>.md` and updates this file.
@@ -603,6 +609,20 @@ These came out of the 2026-04-23 owner clarification — *"the user will never h
 |---|---|---|
 | **Legacy pilot posture** | **No** existing pilots rely on **header-only** tenant selection (`x-tenant-id` / scope headers without API-key or token claims). | TB-072, assessment improvement #2 |
 | **TB-072 implementation** | Enforce scope-to-identity binding at API ingress **without** a grandfather carve-out for “legacy” ApiKey pilots. Document breaking-change posture only for **future** misconfigured clients. | `ArchLucid.Api` ingress, [`CUSTOMER_TRUST_AND_ACCESS.md`](library/CUSTOMER_TRUST_AND_ACCESS.md) |
+
+---
+
+## Resolved 2026-08-14 (TB-923 — governance approval SLA notify-only)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Notify-only vs auto-act on SLA breach** | **(a) Keep notify-only for V1 GA.** Shipped **`ApprovalSlaMonitor`** behavior (audit + optional signed webhook + **`SlaBreachNotifiedUtc`** idempotency) is sufficient; do **not** add auto-escalate, auto-expire, reroute, or approval-state mutation in V1. | **TB-923** closed; no follow-up implementation TB |
+| **DTF / TB-921 gate** | Notify-only SLA breach does **not** satisfy **TB-921** criterion **(a)** (durable timer **with action**). Documented in [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6f. | **TB-924** remains gated; no DTF cutover triggered by approval SLA |
+| **Deferred paths (not chosen)** | **(b)** Hand-rolled SQL-polling auto-act extension — **not** scheduled. **(c)** Promote to **TB-924** — **not** triggered until a separate owner decision records a true durable-timer-with-action requirement. | Future backlog only if product scope changes |
+
+**Rationale:** V1 governance SLA is an **advisory / routing** signal for operators (audit trail + optional external webhook), not an autonomous approval actor. Auto-act would change procurement, SoD, and rollback posture without a committed buyer requirement. Keeping notify-only avoids duplicating orchestration semantics that **TB-924** would subsume if the **TB-921** gate ever fires.
+
+**Refs:** `ArchLucid.Application/Governance/ApprovalSlaMonitor.cs`, `ArchLucid.Persistence/Data/Repositories/GovernanceApprovalRequestRepository.cs`, [`PRE_COMMIT_GOVERNANCE_GATE.md`](library/PRE_COMMIT_GOVERNANCE_GATE.md), **TB-921**, **TB-924**.
 
 ---
 
