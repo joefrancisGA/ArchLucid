@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
@@ -27,9 +27,7 @@ export function InAppHelpLink(props: InAppHelpLinkProps) {
     return (
       <Link
         href={href}
-        className={cn("font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body,
-          props.className,
-        )}
+        className={cn(OPERATOR_BODY_INLINE_LINK_CLASS, props.className)}
       >
         {props.label}
       </Link>

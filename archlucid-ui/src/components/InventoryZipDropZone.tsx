@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { UploadCloud } from "lucide-react";
 import { useId, useRef, useState, type ReactNode } from "react";
@@ -167,7 +167,7 @@ export function InventoryZipDropZone(props: InventoryZipDropZoneProps) {
           />
           <button
             type="button"
-            className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
             disabled={isDisabled}
             onClick={() => folderInputRef.current?.click()}
           >

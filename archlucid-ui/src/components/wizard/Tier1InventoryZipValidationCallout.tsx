@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 
 type Tier1InventoryZipValidationCalloutProps = {
@@ -19,7 +19,7 @@ export function Tier1InventoryZipValidationCallout(props: Tier1InventoryZipValid
         <p className={cn("mt-2.5", OPERATOR_TYPOGRAPHY.body)}>
           <Link
             href="/help/cloud-connections"
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
             data-testid="tier1-inventory-zip-help-link"
           >
             Open cloud connections guide

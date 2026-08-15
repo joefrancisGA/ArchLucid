@@ -12,7 +12,7 @@ import {
   ARCHITECTURE_CREATED_SUMMARY_HEADING,
 } from "@/lib/architecture/architecture-created-home-copy";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedHomeViewportProps = {
   readonly model: ArchitectureCreatedHomeModel;
@@ -120,7 +120,7 @@ export function ArchitectureCreatedHomeViewport(
                   <li key={item.id}>
                     <Link
                       href={item.href}
-                      className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                      className={OPERATOR_BODY_INLINE_LINK_CLASS}
                     >
                       {item.label}
                     </Link>

@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useCallback, useMemo, useState, type FormEvent, type ReactElement } from "react";
@@ -357,7 +357,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
         <DialogFooter className="space-y-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             You can update this later in{" "}
-            <Link href="/administration/baseline" className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400">
+            <Link href="/administration/baseline" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
               Settings → Baseline
             </Link>
             .

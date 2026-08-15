@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -92,7 +92,7 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
           {blockSummary !== null ? (
             <p className={cn("m-0 mt-2 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} role="status">
               {blockSummary}{" "}
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={QUALITY_GATE_REJECTION_RUNBOOK_PATH}>
+              <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={QUALITY_GATE_REJECTION_RUNBOOK_PATH}>
                 Quality gate recovery runbook
               </Link>
             </p>
