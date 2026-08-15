@@ -91,9 +91,10 @@ regexes = [
 ]
 
 [[allowlists]]
-description = "Feasibility verdict Vitest fixture: transparency trail inferred keys are policy control ids, not API secrets"
+description = "Feasibility verdict Vitest fixtures: transparency trail inferred keys are policy control ids, not API secrets"
 paths = [
-  '''(?:^|/)archlucid-ui/src/app/\(operator\)/reviews/\[runId\]/_sections/RunDetailFeasibilityVerdictSection\.test\.tsx$''',
+  '''(?:^|/)archlucid-ui/src/app/\(operator\)/architecture/reviews/\[reviewId\]/_sections/RunDetailFeasibilityVerdictSection\.test\.tsx$''',
+  '''(?:^|/)archlucid-ui/src/lib/feasibility-verdict-transparency-trail\.test\.ts$''',
 ]
 
 [[allowlists]]
