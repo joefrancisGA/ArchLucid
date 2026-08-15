@@ -3,10 +3,10 @@ using System.Security.Claims;
 using ArchLucid.Api.Controllers.Alerts;
 using ArchLucid.Application.Alerts;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Persistence.ApplicationPorts.Queries;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 

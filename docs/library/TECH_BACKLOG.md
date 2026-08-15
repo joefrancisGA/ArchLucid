@@ -1889,18 +1889,18 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1898 | **Done** (2026-07-31) ? Internal developer tools demote TryCliDemoCard behind local CLI disclosure; Vitest; see `## TB-1898` below | Trustworthiness P0 ? **V1**; with **TB-1896**; pairs **TB-1357** (do not reopen) | S |
 | TB-1900 | Internal developer tools ? Vitest gate + catalog + CLI copy; see ## TB-1900 below | Testability P2 ? **V1**; with **TB-1896** | S |
 | TB-1905 | **Done** (2026-08-01) ? Vitest anti-reintro: no `/settings/exec-digest` redirect/page/SEX row; see `## TB-1905` below | Testability P2 ? **V1**; with **TB-1901**; pairs **TB-1494** | S |
-| TB-1910 | Identity diagnostics ? Vitest shell honesty + StatusTag + loading; see ## TB-1910 below | Testability P2 ? **V1**; with **TB-1906** | S |
-| TB-1915 | OIDC/JWT tab ? Vitest title + shell + StatusTag + loading; see ## TB-1915 below | Testability P2 ? **V1**; with **TB-1911** | S |
+| TB-1910 | **Done** (2026-08-14) ? Identity diagnostics Vitest band (`identity-providers-diagnostics-band.test.ts`); see ## TB-1910 below | Testability P2 ? **V1**; with **TB-1906** | S |
+| TB-1915 | **Done** (2026-08-14) ? OIDC/JWT tab Vitest band (`identity-providers-oidc-band.test.ts`); see ## TB-1915 below | Testability P2 ? **V1**; with **TB-1911** | S |
 | TB-1920 | **Done** (2026-08-14) ? Role mapping tab Vitest band (`identity-providers-role-mapping-band.test.ts`); see ## TB-1920 below | Testability P2 ? **V1**; with **TB-1916** | S |
 | TB-1925 | **Done** (2026-08-14) ? SAML tab Vitest band (`identity-providers-saml-band.test.ts`); see ## TB-1925 below | Testability P2 ? **V1**; with **TB-1921** | S |
 | TB-1926 | **Done** (2026-07-31) ? Model governance buyer-safe blocked notes; purge AdminAuthority/HTTP from alerts; Vitest; see `## TB-1926` below | Trustworthiness P0 ? **V1**; owner review ~48/100 2026-07-27; traffic **SEM**; after Done **TB-871** | S |
 | TB-1930 | **Done** (2026-08-14) ? Model governance Vitest band (`model-governance-band.test.ts`); see ## TB-1930 below | Testability P2 ? **V1**; with **TB-1926** | S |
 | TB-1935 | **Done** (2026-08-14) ? Users API keys tab Vitest band (`settings-users-keys-tab-band.test.ts`); see ## TB-1935 below | Testability P2 ? **V1**; with **TB-1931** | S |
-| TB-1940 | Users tab ? Vitest URL sync + empty composition; see ## TB-1940 below | Testability P2 ? **V1**; with **TB-1936** | S |
+| TB-1940 | **Done** (2026-08-14) ? Users tab Vitest band (`settings-users-tab-band.test.ts`); see ## TB-1940 below | Testability P2 ? **V1**; with **TB-1936** | S |
 | TB-1943 | **Done** (2026-07-31) ? Sealed records list shows Record unavailable + Retry when signedRecordHref missing; Vitest; see `## TB-1943` below | Trustworthiness P0 ? **V1**; with **TB-1941** | S |
 | TB-1941 | **Done** (2026-08-10) ? Sealed records list traffic **SI** Alerts/gov section honesty; Vitest; see `## TB-1941` below | Trustworthiness P1 ? **V1**; owner review ~50/100 2026-07-27; traffic **SI** | XS |
 | TB-1942 | **Done** (2026-08-10) ? Empty Browse reviews drops `projectId=default`; Vitest; see `## TB-1942` below | Trustworthiness P1 ? **V1**; with **TB-1941** | S |
-| TB-1945 | Sealed records list ? Vitest empty href + row honesty + traffic note; see ## TB-1945 below | Testability P2 ? **V1**; with **TB-1941** | S |
+| TB-1945 | **Done** (2026-08-14) ? Sealed records list Vitest band (`sealed-records-list-band.test.ts`); see ## TB-1945 below | Testability P2 ? **V1**; with **TB-1941** | S |
 | TB-1947 | **Done** (2026-08-03) ? Execute **TB-1824** ? signed-records artifact preview page (MAM); contract Vitest; see ## TB-1947 below | Adoption friction P0 ? **V1**; with **TB-1946**; do not reopen **TB-1821**/**TB-1824** | M |
 | TB-1948 | **Done** (2026-08-03) ? Manifest-scoped Preview hrefs resolve via `signedRecordArtifactPath` / `artifactPreviewHref`; Vitest; see ## TB-1948 below |
 | TB-1950 | ~~MAM ? Vitest App Router existence with **TB-1825**~~ **Done** 2026-08-11 ? GAR existence in same guard | Testability P2 ? **V1**; with **TB-1946**; do not reopen **TB-1825** | S |
@@ -28091,6 +28091,33 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 **Size estimate:** M.
 ---
 
+## TB-2301 — Refresh `/why` hero product screenshot after operator Home IA drift (P2) — **V1.1**
+
+**Window:** V1.1 — Adoption friction (marketing `/why` hero).
+
+**Priority:** P2.
+
+**Source:** Owner UX pass on public `/why` (2026-08-14); hero ships static PNG `archlucid-ui/public/marketing/why/why-hero-operator-home-2026-08.png` captured from Claims Intake Demo operator Home.
+
+**Problem:** The hero screenshot will drift when operator Home IA, navigation labels, sample review card copy, or status badges change. A stale screenshot undermines the “see the proof” argument faster than stale marketing prose.
+
+**Approach:**
+
+1. Re-capture from the canonical demo tenant (Claims Intake Demo / Healthcare Claims sample path) after material Home or review-card UI changes.
+2. Replace `why-hero-operator-home-2026-08.png` (or add dated successor + update `WHY_HERO_PRODUCT_SCREENSHOT_SRC` in `why-page-copy.ts`).
+3. Refresh `WHY_HERO_PRODUCT_SCREENSHOT_ALT` / caption if visible labels changed.
+4. Keep Vitest guards (`why-hero-product-screenshot`, `why-hero-proof-card`) green; update snapshot if layout chrome changes.
+
+**Acceptance:** Hero image matches current operator Home sample-review card; no outdated nav section titles or retired CTAs visible; honest caption still references fabricated demo data.
+
+**Out of scope:** Animated hero, live iframe embed, or auto-generated screenshots in CI.
+
+**Peers:** Done **TB-1301**–**TB-1305** (`/why` adoption cluster); **TB-652** UX audit harness.
+
+**Size estimate:** XS.
+
+---
+
 ## TB-1040 ? `/help/core-pilot` single primary CTA + remove recursive View pilot guide (P0)
 
 **Window:** V1 ? Adoption friction.
@@ -44890,9 +44917,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1910 ? Identity diagnostics ? Vitest shell honesty + StatusTag + loading (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
-**Approach:** Vitest covers **TB-1906**?**TB-1909**.
+**Shipped:** `identity-providers-diagnostics-band.test.ts` inventories sibling guards for **TB-1906**?**TB-1909** and asserts diagnostics shell subtitle honesty, bundle loading copy, and probe StatusTag Vitest coverage.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
@@ -44958,9 +44985,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1915 ? OIDC/JWT tab ? Vitest title + shell + StatusTag + loading (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
-**Approach:** Vitest covers **TB-1911**?**TB-1914**.
+**Shipped:** `identity-providers-oidc-band.test.ts` inventories sibling guards for **TB-1911**?**TB-1914** and asserts status title/subtitle honesty, loading copy, and CTA hierarchy routing.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
@@ -45290,9 +45317,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1940 ? Users tab ? Vitest URL sync + empty composition (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
-**Approach:** Vitest covers **TB-1936**?**TB-1939**.
+**Shipped:** `settings-users-tab-band.test.ts` inventories sibling guards for **TB-1936**?**TB-1939** and asserts `?tab=users` deep link, member-oriented empty copy, and invite-first composition Vitest coverage.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
@@ -45352,9 +45379,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1945 ? Sealed records list ? Vitest empty href + row honesty + traffic note (P2)
 
-**Window:** V1 ? Testability. **Status:** Not started. **Priority:** P2.
+**Window:** V1 ? Testability. **Status:** **Done** (2026-08-14). **Priority:** P2.
 
-**Approach:** Extend list tests for **TB-1941**?**TB-1944**.
+**Shipped:** `sealed-records-list-band.test.ts` inventories sibling guards for **TB-1941**?**TB-1944** and asserts scope-neutral Browse reviews href, Alerts/gov traffic section, and list client/enrich Vitest coverage.
 
 **Acceptance:** Anti-regress tests green. **Size estimate:** S.
 
