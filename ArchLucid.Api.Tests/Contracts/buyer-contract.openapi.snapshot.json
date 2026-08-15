@@ -11969,6 +11969,46 @@
         ],
         "type": "object"
       },
+      "FeaturedCompletedSampleSnapshot": {
+        "properties": {
+          "architectureName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "completedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "isSampleApproved": {
+            "type": "boolean"
+          },
+          "reviewTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "selectedRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "FileContentResult": {
         "properties": {
           "contentType": {
@@ -17901,161 +17941,6 @@
         },
         "type": "object"
       },
-      "OperatorShellStatusResult": {
-        "properties": {
-          "alertsInboxSummary": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/AlertsInboxSummaryDto"
-              }
-            ]
-          },
-          "catalogMigration": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/TenantMigrationStatusSnapshot"
-              }
-            ]
-          },
-          "llmMonthlyBudgetStatus": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/LlmMonthlyTenantDollarBudgetStatusResult"
-              }
-            ]
-          },
-          "trialStatus": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/OperatorShellTrialStatusSnapshot"
-              }
-            ]
-          },
-          "usageStatus": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/TenantUsageStatusSnapshot"
-              }
-            ]
-          },
-          "assignedToMeFindingsCount": {
-            "format": "int32",
-            "type": [
-              "null",
-              "integer"
-            ]
-          },
-          "homepageSettings": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/FeaturedCompletedSampleSnapshot"
-              }
-            ]
-          },
-          "reviewsAwaitingAction": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/GovernanceReviewsAwaitingActionResponse"
-              }
-            ]
-          },
-          "stickinessSnapshot": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/OperatorShellStickinessSnapshot"
-              }
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "FeaturedCompletedSampleSnapshot": {
-        "properties": {
-          "architectureName": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "completedUtc": {
-            "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "isConfigured": {
-            "type": "boolean"
-          },
-          "isSampleApproved": {
-            "type": "boolean"
-          },
-          "reviewTitle": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "selectedRunId": {
-            "format": "uuid",
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "OperatorShellStickinessSnapshot": {
-        "properties": {
-          "comparisonEventsLast30Days": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "latestRunId": {
-            "format": "uuid",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "pendingGovernanceApprovals": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "pilotFunnel": {
-            "$ref": "#/components/schemas/OperatorShellPilotFunnelSnapshot"
-          }
-        },
-        "type": "object"
-      },
       "OperatorShellPilotFunnelSnapshot": {
         "properties": {
           "committedRunsInScope": {
@@ -18104,6 +17989,121 @@
           "totalRunsInScope": {
             "format": "int32",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "OperatorShellStatusResult": {
+        "properties": {
+          "alertsInboxSummary": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AlertsInboxSummaryDto"
+              }
+            ]
+          },
+          "assignedToMeFindingsCount": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "catalogMigration": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TenantMigrationStatusSnapshot"
+              }
+            ]
+          },
+          "homepageSettings": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FeaturedCompletedSampleSnapshot"
+              }
+            ]
+          },
+          "llmMonthlyBudgetStatus": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LlmMonthlyTenantDollarBudgetStatusResult"
+              }
+            ]
+          },
+          "reviewsAwaitingAction": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/GovernanceReviewsAwaitingActionResponse"
+              }
+            ]
+          },
+          "stickinessSnapshot": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OperatorShellStickinessSnapshot"
+              }
+            ]
+          },
+          "trialStatus": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OperatorShellTrialStatusSnapshot"
+              }
+            ]
+          },
+          "usageStatus": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TenantUsageStatusSnapshot"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "OperatorShellStickinessSnapshot": {
+        "properties": {
+          "comparisonEventsLast30Days": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "latestRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pendingGovernanceApprovals": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pilotFunnel": {
+            "$ref": "#/components/schemas/OperatorShellPilotFunnelSnapshot"
           }
         },
         "type": "object"
