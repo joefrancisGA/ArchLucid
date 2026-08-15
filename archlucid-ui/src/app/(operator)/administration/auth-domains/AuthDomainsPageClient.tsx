@@ -22,6 +22,7 @@ import {
   PageContextualHelpButton,
   PAGE_HELP_SHORT_TRIGGER_TEXT,
 } from "@/components/usability/PageContextualHelpButton";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   AuthDomainsActionConfirmDialog,
   type AuthDomainsPendingConfirm,
@@ -35,6 +36,7 @@ import {
 } from "@/lib/auth-domains-enum-labels";
 import { AUTH_DOMAINS_ENFORCEMENT_WARNING, AUTH_DOMAINS_ZERO_DOMAIN_ENFORCEMENT_CALLOUT } from "@/lib/auth-domains-confirm-copy";
 import {
+  AUTH_DOMAINS_ADMIN_AUTHORITY_READY_LABEL,
   AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_ITEMS,
   AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_TITLE,
   AUTH_DOMAINS_ADD_DOMAIN_READINESS,
@@ -83,6 +85,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { whyDisabledNeedsRole } from "@/lib/why-disabled-cta";
 
 type RefreshOptions = {
   readonly surfaceError?: boolean;
@@ -122,6 +125,15 @@ export function AuthDomainsPageClient() {
   const tenantScopeLine = authDomainsTenantScopeLine(currentWorkspaceLabel);
   const hasAdminAuthority = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const adminAuthorityPresentation = authDomainsAdminAuthorityPresentation(hasAdminAuthority);
+  /**
+   * Every endpoint on this page lives under `/admin/identity/domains`, so a viewer below admin rank
+   * cannot complete any of these actions. Disabling the controls and naming the reason is honest;
+   * leaving them live only trades a clear precondition for a generic mutation error after the click.
+   */
+  const adminAuthorityDisabledReason = hasAdminAuthority
+    ? null
+    : whyDisabledNeedsRole(AUTH_DOMAINS_ADMIN_AUTHORITY_READY_LABEL);
+  const mutationsBlocked = busy || !hasAdminAuthority;
   const signInPosture = authDomainsTenantSignInPosture(domains);
   const newDomainValid = isPlausibleAuthDomainInput(newDomain);
   const showNewDomainFormatError = newDomainTouched && newDomain.trim().length > 0 && !newDomainValid;
@@ -228,7 +240,7 @@ export function AuthDomainsPageClient() {
   async function handleProposeDomain() {
     setNewDomainTouched(true);
 
-    if (busy || !newDomainValid) {
+    if (mutationsBlocked || !newDomainValid) {
       return;
     }
 
@@ -256,7 +268,7 @@ export function AuthDomainsPageClient() {
     action: (domain: string) => Promise<{ dnsVerificationInstruction?: string }>,
     successLabel: string,
   ) {
-    if (selectedDomain === null || busy || selected === null) {
+    if (selectedDomain === null || mutationsBlocked || selected === null) {
       return;
     }
 
@@ -282,7 +294,7 @@ export function AuthDomainsPageClient() {
   }
 
   async function handlePreviewRouting() {
-    if (selectedDomain === null || busy || selected === null) {
+    if (selectedDomain === null || mutationsBlocked || selected === null) {
       return;
     }
 
@@ -306,7 +318,7 @@ export function AuthDomainsPageClient() {
   }
 
   async function handleMarkRoutingTested() {
-    if (selectedDomain === null || busy || selected === null) {
+    if (selectedDomain === null || mutationsBlocked || selected === null) {
       return;
     }
 
@@ -329,7 +341,7 @@ export function AuthDomainsPageClient() {
   }
 
   function requestEnableEnforcement() {
-    if (selectedDomain === null || busy) {
+    if (selectedDomain === null || mutationsBlocked) {
       return;
     }
 
@@ -337,7 +349,7 @@ export function AuthDomainsPageClient() {
   }
 
   function requestSetEnforcementMode(request: EnforcementModeRequest) {
-    if (selectedDomain === null || busy || selected === null) {
+    if (selectedDomain === null || mutationsBlocked || selected === null) {
       return;
     }
 
@@ -350,7 +362,7 @@ export function AuthDomainsPageClient() {
   }
 
   async function executeSetEnforcementMode(request: EnforcementModeRequest) {
-    if (selectedDomain === null || busy || selected === null) {
+    if (selectedDomain === null || mutationsBlocked || selected === null) {
       return;
     }
 
@@ -378,7 +390,7 @@ export function AuthDomainsPageClient() {
   }
 
   async function executeEnableEnforcement() {
-    if (selectedDomain === null || busy || selected === null) {
+    if (selectedDomain === null || mutationsBlocked || selected === null) {
       return;
     }
 
@@ -400,7 +412,7 @@ export function AuthDomainsPageClient() {
   }
 
   async function handleConfirmPendingAction() {
-    if (pendingConfirm === null || busy) {
+    if (pendingConfirm === null || mutationsBlocked) {
       return;
     }
 
@@ -450,7 +462,7 @@ export function AuthDomainsPageClient() {
   }
 
   async function handleRemoveRecoveryAdmin(row: TenantAuthDomainRecoveryAdminRecord) {
-    if (selectedDomain === null || busy) {
+    if (selectedDomain === null || mutationsBlocked) {
       return;
     }
 
@@ -486,7 +498,7 @@ export function AuthDomainsPageClient() {
   }
 
   async function handleAddRecoveryAdmin() {
-    if (selectedDomain === null || busy || !recoveryEmail.trim()) {
+    if (selectedDomain === null || mutationsBlocked || !recoveryEmail.trim()) {
       return;
     }
 
@@ -580,6 +592,11 @@ export function AuthDomainsPageClient() {
       />
 
       <AuthDomainsSettingsEvidenceOrientationStrip />
+
+      <WhyDisabledCtaHint
+        reason={adminAuthorityDisabledReason}
+        testId="auth-domains-admin-authority-disabled-hint"
+      />
 
       {!loading && errorState === null ? (
         <>
@@ -727,7 +744,7 @@ export function AuthDomainsPageClient() {
                   type="button"
                   variant="primary"
                   onClick={() => void handleProposeDomain()}
-                  disabled={busy || !newDomainValid}
+                  disabled={mutationsBlocked || !newDomainValid}
                   data-testid="auth-domains-add"
                 >
                   Add domain
@@ -816,7 +833,7 @@ export function AuthDomainsPageClient() {
               <Button
                 type="button"
                 variant="secondary"
-                disabled={busy}
+                disabled={mutationsBlocked}
                 data-testid="auth-domains-start-verification"
                 onClick={() => void runForSelected(startTenantAuthDomainVerification, "DNS verification started")}
               >
@@ -825,7 +842,7 @@ export function AuthDomainsPageClient() {
               <Button
                 type="button"
                 variant="secondary"
-                disabled={busy}
+                disabled={mutationsBlocked}
                 data-testid="auth-domains-check-dns"
                 onClick={() => void runForSelected(checkTenantAuthDomainVerification, "DNS verification checked")}
               >
@@ -852,7 +869,7 @@ export function AuthDomainsPageClient() {
                 <Button
                   type="button"
                   variant="secondary"
-                  disabled={busy}
+                  disabled={mutationsBlocked}
                   data-testid="auth-domains-preview-routing"
                   onClick={() => void handlePreviewRouting()}
                 >
@@ -861,7 +878,7 @@ export function AuthDomainsPageClient() {
                 <Button
                   type="button"
                   variant="secondary"
-                  disabled={busy}
+                  disabled={mutationsBlocked}
                   data-testid="auth-domains-mark-routing-tested"
                   onClick={() => void handleMarkRoutingTested()}
                 >
@@ -907,7 +924,7 @@ export function AuthDomainsPageClient() {
                   type="checkbox"
                   checked={sessionAcknowledged}
                   onChange={(event) => setSessionAcknowledged(event.target.checked)}
-                  disabled={busy}
+                  disabled={mutationsBlocked}
                   data-testid="auth-domains-session-ack"
                 />
                 I confirm I am signed in with authority to enable SSO enforcement for this organization.
@@ -928,7 +945,7 @@ export function AuthDomainsPageClient() {
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={busy}
+                  disabled={mutationsBlocked}
                   data-testid="auth-domains-enforcement-optional"
                   onClick={() =>
                     requestSetEnforcementMode({
@@ -942,7 +959,7 @@ export function AuthDomainsPageClient() {
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={busy}
+                  disabled={mutationsBlocked}
                   data-testid="auth-domains-enforcement-required"
                   onClick={() =>
                     requestSetEnforcementMode({
@@ -956,7 +973,7 @@ export function AuthDomainsPageClient() {
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={busy}
+                  disabled={mutationsBlocked}
                   data-testid="auth-domains-enforcement-recovery"
                   onClick={() =>
                     requestSetEnforcementMode({
@@ -981,7 +998,7 @@ export function AuthDomainsPageClient() {
                 type="button"
                 variant="primary"
                 data-testid="auth-domains-enable-enforcement"
-                disabled={busy || !sessionAcknowledged || readiness?.canEnableEnforcement === false}
+                disabled={mutationsBlocked || !sessionAcknowledged || readiness?.canEnableEnforcement === false}
                 onClick={() => requestEnableEnforcement()}
               >
                 Enable enforcement
@@ -1000,7 +1017,7 @@ export function AuthDomainsPageClient() {
                         type="button"
                         variant="outline"
                         className="ml-2"
-                        disabled={busy}
+                        disabled={mutationsBlocked}
                         data-testid={`auth-domains-remove-recovery-${row.normalizedRecoveryAdminEmail}`}
                         onClick={() => void handleRemoveRecoveryAdmin(row)}
                       >
@@ -1019,7 +1036,7 @@ export function AuthDomainsPageClient() {
                   <Button
                     type="button"
                     variant="secondary"
-                    disabled={busy || !recoveryEmail.trim()}
+                    disabled={mutationsBlocked || !recoveryEmail.trim()}
                     data-testid="auth-domains-add-recovery-admin"
                     onClick={() => void handleAddRecoveryAdmin()}
                   >

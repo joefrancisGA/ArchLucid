@@ -49,7 +49,14 @@ vi.mock("@/lib/api", () => ({
 
 import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-nav-group-builder";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
-import { WEBHOOKS_BANNED_UI_PATTERNS, WEBHOOKS_EMPTY_TITLE, WEBHOOKS_PAGE_TITLE } from "@/lib/webhooks-page-copy";
+import {
+  WEBHOOKS_BANNED_UI_PATTERNS,
+  WEBHOOKS_EMPTY_TITLE,
+  WEBHOOKS_ENABLE_CONFIRM_LABEL,
+  WEBHOOKS_ENABLE_CONFIRM_TITLE,
+  WEBHOOKS_PAGE_TITLE,
+  webhooksEnableConfirmDescription,
+} from "@/lib/webhooks-page-copy";
 import { WEBHOOKS_INTEGRATION_SOURCES } from "@/lib/webhooks-integration-evidence-copy";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
@@ -611,6 +618,41 @@ describe("WebhooksIntegrationPage", () => {
     expect(apiMocks.toggle).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "Disable" }));
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);
+    });
+  });
+
+  it("requires confirmation before enabling a disabled webhook subscription", async () => {
+    const subscriptionId = "sub-enable-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+    expect(
+      screen.getByText(webhooksEnableConfirmDescription("PagerDuty alerts")),
+    ).toBeInTheDocument();
+    expect(apiMocks.toggle).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL }));
 
     await waitFor(() => {
       expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);

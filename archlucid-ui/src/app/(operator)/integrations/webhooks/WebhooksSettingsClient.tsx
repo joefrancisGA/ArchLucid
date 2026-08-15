@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
@@ -61,6 +62,8 @@ import {
   WEBHOOKS_DELIVERY_CONTRACT_HEADING,
   WEBHOOKS_DESTINATION_URL_HELPER,
   WEBHOOKS_DESTINATION_URL_LABEL,
+  WEBHOOKS_ENABLE_CONFIRM_LABEL,
+  WEBHOOKS_ENABLE_CONFIRM_TITLE,
   WEBHOOKS_EVENTS_HELPER,
   WEBHOOKS_FORM_DESTINATION_HEADING,
   WEBHOOKS_FORM_EVENTS_HEADING,
@@ -84,6 +87,7 @@ import {
   WEBHOOKS_TEST_LABEL,
   WEBHOOKS_TESTING_LABEL,
   describeWebhooksSaveReadinessMessage,
+  webhooksEnableConfirmDescription,
   webhooksConfigurationStatusLabel,
   webhooksConfigurationStatusTagKind,
 } from "@/lib/webhooks-page-copy";
@@ -107,6 +111,11 @@ import {
 } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
+
+type WebhookEnableTarget = {
+  readonly routingSubscriptionId: string;
+  readonly subscriptionName: string;
+};
 
 function isGenericOutboundWebhookChannel(channelType: string): boolean {
   return channelType === "OnCallWebhook";
@@ -133,6 +142,9 @@ export function WebhooksSettingsClient() {
   const [pendingDisable, setPendingDisable] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
   const [disableBusy, setDisableBusy] = useState(false);
   const [disableErrorMessage, setDisableErrorMessage] = useState<string | null>(null);
+  const [pendingEnable, setPendingEnable] = useState<WebhookEnableTarget | null>(null);
+  const [enableBusy, setEnableBusy] = useState(false);
+  const [enableErrorMessage, setEnableErrorMessage] = useState<string | null>(null);
   const [secretVisible, setSecretVisible] = useState(false);
 
   const form = useForm<WebhookSettingsFormValues>({
@@ -236,7 +248,26 @@ export function WebhooksSettingsClient() {
       return;
     }
 
-    await executeToggle(routingSubscriptionId);
+    setEnableErrorMessage(null);
+    setPendingEnable({ routingSubscriptionId, subscriptionName });
+  }
+
+  async function confirmEnableSubscription(): Promise<void> {
+    if (pendingEnable === null || enableBusy) {
+      return;
+    }
+
+    setEnableBusy(true);
+    setEnableErrorMessage(null);
+
+    try {
+      await executeToggle(pendingEnable.routingSubscriptionId);
+      setPendingEnable(null);
+    } catch (error: unknown) {
+      setEnableErrorMessage(formatCustomerApiFailure(toApiLoadFailure(error)));
+    } finally {
+      setEnableBusy(false);
+    }
   }
 
   async function executeToggle(routingSubscriptionId: string): Promise<void> {
@@ -836,6 +867,35 @@ export function WebhooksSettingsClient() {
         onConfirm={() => {
           void confirmDisableSubscription();
         }}
+      />
+
+      <ConfirmationDialog
+        open={pendingEnable !== null}
+        onOpenChange={(open) => {
+          if (!open && !enableBusy) {
+            setPendingEnable(null);
+            setEnableErrorMessage(null);
+          }
+        }}
+        title={WEBHOOKS_ENABLE_CONFIRM_TITLE}
+        description={webhooksEnableConfirmDescription(pendingEnable?.subscriptionName ?? "")}
+        confirmLabel={WEBHOOKS_ENABLE_CONFIRM_LABEL}
+        variant="default"
+        busy={enableBusy}
+        onConfirm={() => {
+          void confirmEnableSubscription();
+        }}
+        extraContent={
+          enableErrorMessage !== null ? (
+            <p
+              className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")}
+              role="alert"
+              data-testid="webhook-subscription-enable-error"
+            >
+              {enableErrorMessage}
+            </p>
+          ) : null
+        }
       />
     </div>
   );

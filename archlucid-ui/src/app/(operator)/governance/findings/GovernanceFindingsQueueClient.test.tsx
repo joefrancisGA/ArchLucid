@@ -363,6 +363,9 @@ describe("GovernanceFindingsQueueClient", () => {
 
 describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
   beforeEach(() => {
+    // Without this reset the cached success from the previous describe block satisfies the render,
+    // so a rejecting mock never reaches the component.
+    resetOperatorQueryClientForTests();
     searchParamsState.current = new URLSearchParams();
     vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue({
       tenantId: "tenant-1",

@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import { ModelGovernanceSettingsCard } from "@/app/(operator)/administration/model-governance/_sections/ModelGovernanceSettingsCard";
 import {
   MODEL_GOVERNANCE_ADMIN_REQUIRED_COPY,
+  MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_LABEL_COPY,
+  MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_TITLE_COPY,
   MODEL_GOVERNANCE_CATALOG_UNAVAILABLE_COPY,
   MODEL_GOVERNANCE_CLEAR_OVERRIDE_FAILED_COPY,
   MODEL_GOVERNANCE_LOAD_UNAVAILABLE_COPY,
@@ -559,6 +561,84 @@ describe("ModelGovernanceSettingsCard", () => {
       expect(screen.getByTestId("model-execution-profile-mutation-error")).toHaveTextContent(
         MODEL_GOVERNANCE_CLEAR_OVERRIDE_FAILED_COPY,
       );
+    });
+  });
+
+  it("confirms before resetting the allowed engine set to catalog default", async () => {
+    const allowedSetDeletes: string[] = [];
+
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      const method = init?.method ?? "GET";
+
+      if (url.includes("allowed-engine-set")) {
+        if (method === "DELETE") {
+          allowedSetDeletes.push(url);
+
+          return new Response(null, { status: 204 });
+        }
+
+        return new Response(
+          JSON.stringify({
+            allowedAliasIds: ["balanced-reasoning"],
+            defaultAliasId: "balanced-reasoning",
+            source: "TenantOverride",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      if (url.includes("model-execution-profile")) {
+        return new Response(JSON.stringify(profileResponse()), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (url.includes("model-governance-catalog")) {
+        return new Response(
+          JSON.stringify(
+            catalogResponse({
+              registryEntries: [
+                {
+                  aliasId: "balanced-reasoning",
+                  providerConnectionKind: "ArchLucidManaged",
+                  capabilityTags: ["structured-output"],
+                  approvedTaskTypes: ["Topology"],
+                },
+              ],
+            }),
+          ),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ModelGovernanceSettingsCard />);
+
+    const resetTrigger = await screen.findByTestId("model-governance-allowed-set-reset");
+
+    fireEvent.click(resetTrigger);
+
+    expect(
+      screen.getByText(MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_TITLE_COPY),
+    ).toBeInTheDocument();
+    expect(allowedSetDeletes).toHaveLength(0);
+
+    const dialog = screen.getByRole("alertdialog");
+
+    fireEvent.click(
+      within(dialog).getByRole("button", {
+        name: MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_LABEL_COPY,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(allowedSetDeletes).toHaveLength(1);
     });
   });
 });

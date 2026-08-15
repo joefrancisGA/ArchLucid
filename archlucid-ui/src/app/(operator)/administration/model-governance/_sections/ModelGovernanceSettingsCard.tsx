@@ -27,6 +27,9 @@ import {
   type ModelExecutionProfile,
 } from "@/lib/model-execution-profile";
 import {
+  MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_DESCRIPTION_COPY,
+  MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_LABEL_COPY,
+  MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_TITLE_COPY,
   MODEL_GOVERNANCE_CLEAR_OVERRIDE_FAILED_COPY,
   MODEL_GOVERNANCE_CATALOG_UNAVAILABLE_COPY,
   MODEL_GOVERNANCE_CONNECTION_STATEMENT_COPY,
@@ -341,6 +344,7 @@ function AllowedEngineSetControls(props: {
   const [allowedIds, setAllowedIds] = useState<string[]>(allowedEngineSet?.allowedAliasIds ?? []);
   const [defaultAliasId, setDefaultAliasId] = useState(allowedEngineSet?.defaultAliasId ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
 
   useEffect(() => {
     setAllowedIds(allowedEngineSet?.allowedAliasIds ?? []);
@@ -395,6 +399,7 @@ function AllowedEngineSetControls(props: {
 
   const clearOverride = async () => {
     setError(null);
+    setResetConfirmOpen(false);
 
     try {
       const res = await fetch(allowedEngineSetEndpoint, {
@@ -468,8 +473,15 @@ function AllowedEngineSetControls(props: {
           Save allowed set
         </Button>
         {allowedEngineSet?.source === "TenantOverride" ? (
-          <Button type="button" size="sm" variant="outline" disabled={saving} onClick={() => void clearOverride()}>
-            Reset to catalog default
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={saving}
+            onClick={() => setResetConfirmOpen(true)}
+            data-testid="model-governance-allowed-set-reset"
+          >
+            {MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_LABEL_COPY}
           </Button>
         ) : null}
       </div>
@@ -478,6 +490,15 @@ function AllowedEngineSetControls(props: {
           {error}
         </p>
       ) : null}
+      <ConfirmationDialog
+        open={resetConfirmOpen}
+        onOpenChange={setResetConfirmOpen}
+        title={MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_TITLE_COPY}
+        description={MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_DESCRIPTION_COPY}
+        confirmLabel={MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_LABEL_COPY}
+        busy={saving}
+        onConfirm={() => void clearOverride()}
+      />
     </div>
   );
 }
