@@ -243,7 +243,9 @@ export function FindingInspectView({
           <FindingSeverityConstraintNote note={severityConstraintNote} />
         ) : null}
 
-        {findingJobView !== null ? <FindingJobViewLaneCallout jobView={findingJobView} /> : null}
+        {findingJobView !== null ? (
+          <FindingJobViewLaneCallout jobView={findingJobView} runId={runId} />
+        ) : null}
       </section>
 
       <section

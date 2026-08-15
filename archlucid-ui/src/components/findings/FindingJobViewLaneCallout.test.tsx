@@ -11,10 +11,14 @@ describe("FindingJobViewLaneCallout", () => {
   });
 
   it("renders lane label and lead for verify-hypotheses", () => {
-    render(<FindingJobViewLaneCallout jobView="verify-hypotheses" />);
+    render(<FindingJobViewLaneCallout jobView="verify-hypotheses" runId="run-1" />);
 
     expect(screen.getByTestId("finding-job-view-lane-callout")).toBeInTheDocument();
     expect(screen.getByText("Verify hypotheses")).toBeInTheDocument();
     expect(screen.getByText(/adversarial signal/i)).toBeInTheDocument();
+    expect(screen.getByTestId("finding-job-view-lane-open-list")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-1?reviewTab=findings&findingJobView=verify-hypotheses",
+    );
   });
 });

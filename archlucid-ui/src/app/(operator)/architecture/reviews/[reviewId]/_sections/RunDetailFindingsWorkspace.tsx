@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { ReactElement } from "react";
 
@@ -34,6 +35,10 @@ import {
   deriveRunDetailFindingsTriageCounts,
   formatFindingsExcludedSummaryLine,
 } from "@/lib/runs/run-detail-findings-triage-counts";
+import {
+  resolveFindingJobViewFromSearchParam,
+  REVIEW_FINDINGS_JOB_VIEW_PARAM,
+} from "@/lib/findings/review-findings-job-view-url";
 
 export type RunDetailFindingsWorkspaceProps = {
   readonly runId: string;
@@ -60,7 +65,11 @@ export type RunDetailFindingsWorkspaceProps = {
 
 /** Findings list with workspace toolbar filters for the review detail page. */
 export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProps): ReactElement {
-  const toolbar = useRunDetailFindingsToolbarState();
+  const searchParams = useSearchParams();
+  const initialJobView = resolveFindingJobViewFromSearchParam(
+    searchParams?.get(REVIEW_FINDINGS_JOB_VIEW_PARAM),
+  );
+  const toolbar = useRunDetailFindingsToolbarState({ initialJobView });
 
   function applyNaturalLanguageFacets(facets: FindingsNaturalLanguageFacets): void {
 

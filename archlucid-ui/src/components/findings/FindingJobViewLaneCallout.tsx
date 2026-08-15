@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -7,10 +8,12 @@ import {
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
 import { findingJobViewLaneLead } from "@/lib/findings/finding-job-view-lane-lead";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buildReviewFindingsTabHref } from "@/lib/findings/review-findings-job-view-url";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingJobViewLaneCalloutProps = {
   readonly jobView: FindingJobView;
+  readonly runId?: string;
 };
 
 /** TB-2315 / TB-2179 — surfaces triage lane on finding detail and inspect (parity with findings workspace). */
@@ -18,6 +21,9 @@ export function FindingJobViewLaneCallout(props: FindingJobViewLaneCalloutProps)
   if (props.jobView === DEFAULT_FINDING_JOB_VIEW) {
     return null;
   }
+
+  const runId = props.runId?.trim() ?? "";
+  const findingsLaneHref = runId.length > 0 ? buildReviewFindingsTabHref(runId, props.jobView) : null;
 
   return (
     <div
@@ -33,6 +39,17 @@ export function FindingJobViewLaneCallout(props: FindingJobViewLaneCalloutProps)
       <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {findingJobViewLaneLead(props.jobView)}
       </p>
+      {findingsLaneHref !== null ? (
+        <p className="m-0 mt-2">
+          <Link
+            href={findingsLaneHref}
+            className={cn(OPERATOR_LINK.inline, "font-medium")}
+            data-testid="finding-job-view-lane-open-list"
+          >
+            Open this lane on the findings list
+          </Link>
+        </p>
+      ) : null}
     </div>
   );
 }

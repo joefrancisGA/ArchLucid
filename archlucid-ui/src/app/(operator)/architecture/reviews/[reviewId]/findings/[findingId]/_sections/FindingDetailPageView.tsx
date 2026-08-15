@@ -249,7 +249,9 @@ export function FindingDetailPageView(props: Props) {
             />
           ) : null}
 
-          {findingJobView !== null ? <FindingJobViewLaneCallout jobView={findingJobView} /> : null}
+          {findingJobView !== null ? (
+            <FindingJobViewLaneCallout jobView={findingJobView} runId={runId} />
+          ) : null}
 
           {inspectPayload !== null ? (
             <FindingDetailOperationalActions
@@ -481,7 +483,9 @@ export function FindingDetailPageView(props: Props) {
 
           {severityConstraintNote !== null ? <FindingSeverityConstraintNote note={severityConstraintNote} /> : null}
 
-          {findingJobView !== null ? <FindingJobViewLaneCallout jobView={findingJobView} /> : null}
+          {findingJobView !== null ? (
+            <FindingJobViewLaneCallout jobView={findingJobView} runId={runId} />
+          ) : null}
 
           {graphEvidenceHref !== null ? (
             <p className="m-0">

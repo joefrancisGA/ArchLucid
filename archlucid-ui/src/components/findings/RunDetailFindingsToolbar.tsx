@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ import {
   isReviewFindingDispositionClosed,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
+import { writeFindingJobViewToUrl } from "@/lib/findings/review-findings-job-view-url";
 import {
   compareFindingsByTrustThenSeverity,
   reviewFindingMatchesProvenanceFilter,
@@ -679,7 +680,9 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
   );
 }
 
-export function useRunDetailFindingsToolbarState(): {
+export function useRunDetailFindingsToolbarState(options?: {
+  readonly initialJobView?: FindingJobView;
+}): {
   readonly filter: RunDetailFindingsFilterKind;
   readonly setFilter: (filter: RunDetailFindingsFilterKind) => void;
   readonly jobView: FindingJobView;
@@ -698,7 +701,13 @@ export function useRunDetailFindingsToolbarState(): {
   readonly setGroundingFilter: (filter: FindingGroundingFilter) => void;
 } {
   const [filter, setFilter] = useState<RunDetailFindingsFilterKind>("all");
-  const [jobView, setJobView] = useState<FindingJobView>(DEFAULT_FINDING_JOB_VIEW);
+  const [jobView, setJobViewState] = useState<FindingJobView>(
+    options?.initialJobView ?? DEFAULT_FINDING_JOB_VIEW,
+  );
+  const setJobView = useCallback((next: FindingJobView): void => {
+    setJobViewState(next);
+    writeFindingJobViewToUrl(next);
+  }, []);
   const [ownerFilter, setOwnerFilter] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
