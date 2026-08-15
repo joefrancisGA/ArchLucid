@@ -54,6 +54,7 @@ public sealed class ExecDigestWeeklyArchLucidJobTests
         services.AddSingleton(Mock.Of<IExecDigestEmailDispatcher>());
         services.AddSingleton(Mock.Of<ITenantTrialEmailContactLookup>());
         services.AddSingleton(Mock.Of<IExecDigestUnsubscribeTokenFactory>());
+        services.AddSingleton(Mock.Of<IExecDigestSponsorDeepLinkTokenFactory>());
         services.AddSingleton(Mock.Of<IOptionsMonitor<EmailNotificationOptions>>());
         services.AddScoped<ExecDigestWeeklyDeliveryScanner>();
         services.AddSingleton<ILogger<ExecDigestWeeklyDeliveryScanner>>(

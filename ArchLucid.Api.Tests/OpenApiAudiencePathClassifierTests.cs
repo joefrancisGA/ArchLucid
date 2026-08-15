@@ -44,6 +44,7 @@ public sealed class OpenApiAudiencePathClassifierTests
     [InlineData("v1/admin/client-errors", OpenApiAudience.Internal)]
     [InlineData("v1/e2e/harness", OpenApiAudience.Internal)]
     [InlineData("v1/notifications/exec-digest/unsubscribe", OpenApiAudience.Internal)]
+    [InlineData("v1/notifications/exec-digest/sponsor-view", OpenApiAudience.Internal)]
     public void Classify_maps_anonymous_internal_routes(string relativePath, string expectedAudience)
     {
         OpenApiAudiencePathClassifier.Classify(relativePath, allowsAnonymous: true).Should().Be(expectedAudience);

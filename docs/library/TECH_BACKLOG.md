@@ -25,11 +25,11 @@ Regenerate after opening or closing summary-table rows:
 | Performance | 5 |
 | Cost-effectiveness | 4 |
 | Code hygiene | 1 |
-| Stickiness | 4 |
+| Stickiness | 3 |
 | Differentiability | 3 |
-| **Total (unique open)** | **46** |
+| **Total (unique open)** | **45** |
 
-**By priority band:** P0 **0** | P1 **2** | P2 **35** | P3 **9**.
+**By priority band:** P0 **0** | P1 **2** | P2 **34** | P3 **9**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1298,7 +1298,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2193 | **Done** (2026-08-13) ? leader-elected waiver expiry scanner + escalating email reminders; `WaiverExpiryNotificationHostedService`; Application.Tests; see ## TB-2193 below | Stickiness P1 ? **V1**; owner stickiness ask 2026-08-12; pattern from SamlCertExpiryNotificationHostedService; complements **TB-226** in-app tile | M |
 | TB-2194 | **Done** (2026-08-13) - cross-review finding lifecycle across reviews; per-finding state on compare + inspect + governance queue + recurrence email; see ## TB-2194 below | Stickiness P1 - **V1**; owner stickiness ask 2026-08-12; surfaces `CrossReviewFindingCorrelationService` beyond compare counts; pairs **TB-224**/**TB-261** | M |
 | TB-2195 | **Done** (2026-08-13) ? Personal assigned-to-me findings queue + assignment notification; see ## TB-2195 below | Stickiness P1 ? **V1**; owner stickiness ask 2026-08-12; `Finding.AssignedToUserId` exists with no per-user route/filter; seat-breadth lever | M |
-| TB-2196 | Tokenized read-only sponsor deep links from digest email so exec CTAs do not dead-end at sign-in; see ## TB-2196 below | Stickiness P2 ? **V1.1**; owner stickiness ask 2026-08-12; INV-001 tenant-isolation review required; extends `ExecDigestUnsubscribeController` token pattern, not the `/showcase` demo path | L |
+| TB-2196 | **Done** (2026-08-15) — Tokenized read-only sponsor deep links from digest email so exec CTAs do not dead-end at sign-in | Stickiness P2 **V1.1**; `ExecDigestSponsorDeepLinkTokenFactory` + `GET /v1/notifications/exec-digest/sponsor-view`; marketing `/digest/sponsor` routes; digest scanner rewrites dashboard/collateral CTAs | L |
 | TB-2197 | Two-way Microsoft Teams governance actions + Slack action surface beyond approve/reject; see ## TB-2197 below | Interoperability P2 ? **V1.1**; owner stickiness ask 2026-08-12; Teams notification-only today; mirrors shipped `SlackInteractivityController` | L |
 | TB-2198 | GitHub App + Check Runs for pull-request architecture review; see ## TB-2198 below | Interoperability P2 ? **V1.1**; owner stickiness ask 2026-08-12; GitHub is client-side Actions only vs server-side `AzureDevOpsPullRequestDecorator`; needs scoped incremental analysis for per-PR cost | L |
 | TB-2199 | Tenant-authored approved-architecture registry ? persistent golden-path / approved-technology library referenced by findings; see ## TB-2199 below | Stickiness P2 ? **V1.1**; owner stickiness ask 2026-08-12; policy packs already authorable, pattern library + technology ledger are not; switching-cost lever | L |

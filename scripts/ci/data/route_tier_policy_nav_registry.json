@@ -1522,6 +1522,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Notifications/ExecDigestSponsorDeepLinkController.cs",
+      "class_name": "ExecDigestSponsorDeepLinkController",
+      "route_template": "v{version:apiVersion}/notifications/exec-digest",
+      "normalized_prefix": "/v1/notifications/exec-digest",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "signed_token_sponsor_view",
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Operator/OperatorSavedViewsController.cs",
       "class_name": "OperatorSavedViewsController",
       "route_template": "v{version:apiVersion}/operator/saved-views",
