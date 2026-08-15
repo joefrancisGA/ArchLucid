@@ -212,7 +212,7 @@ export function PilotRoiValidationHandoffClient(props: PilotRoiValidationHandoff
     return () => {
       canceled = true;
     };
-  }, [reviewId]);
+  }, [runId]);
 
   if (loadState.status === "loading") {
     return (

@@ -63,7 +63,7 @@ export function RecurrenceSchedulePostCommitCard({
       setDeclined(true);
       setOpen(false);
     }
-  }, [reviewId]);
+  }, [runId]);
 
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listArchitectureReviewRecurrenceSchedules();

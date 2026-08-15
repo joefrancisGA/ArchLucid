@@ -235,7 +235,7 @@ export function EmailRunToSponsorBanner({
     return () => {
       canceled = true;
     };
-  }, [reviewId]);
+  }, [runId]);
 
   useEffect(() => {
     if (proofGate.status !== "loading") {

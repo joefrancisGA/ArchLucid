@@ -43,7 +43,7 @@ export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButt
     } finally {
       setBusy(false);
     }
-  }, [reviewId]);
+  }, [runId]);
 
   return (
     <>

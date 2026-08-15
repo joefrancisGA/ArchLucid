@@ -89,7 +89,7 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [reviewId]);
+  }, [runId]);
 
   useEffect(() => {
     if (runId === null || finalized || pollStalled) {

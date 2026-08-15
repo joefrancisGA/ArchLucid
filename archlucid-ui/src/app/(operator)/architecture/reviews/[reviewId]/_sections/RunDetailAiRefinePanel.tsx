@@ -88,7 +88,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
     return () => {
       canceled = true;
     };
-  }, [reviewId]);
+  }, [runId]);
 
   const canRefine =
     contextStatus === "ready" &&

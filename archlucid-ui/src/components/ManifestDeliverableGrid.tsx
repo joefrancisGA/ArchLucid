@@ -69,7 +69,7 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
     } finally {
       setPdfBusy(false);
     }
-  }, [reviewId]);
+  }, [runId]);
 
   const onMarkdownDownload = useCallback(() => {
     const headline = systemName?.trim() ?? "Signed review";

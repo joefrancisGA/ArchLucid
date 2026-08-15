@@ -203,7 +203,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
     return () => {
       canceled = true;
     };
-  }, [reviewId]);
+  }, [runId]);
 
   if (state.status === "loading" || state.status === "skipped" || state.status === "error") return null;
 

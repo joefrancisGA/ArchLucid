@@ -216,7 +216,7 @@ export function GraphPageContent() {
 
   useLayoutEffect(() => {
     setGraph(null);
-  }, [reviewId]);
+  }, [runId]);
 
   const seededProvenanceGraphVm = useMemo((): GraphViewModel | null => {
     if (mode !== "provenance-full") {
