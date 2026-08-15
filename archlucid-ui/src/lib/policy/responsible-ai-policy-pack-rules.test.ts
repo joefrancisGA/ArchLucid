@@ -92,4 +92,66 @@ describe("resolveResponsibleAiPolicyRuleRows", () => {
       "Published pack content unavailable — no rule rows are shown until content loads.",
     );
   });
+
+  it("shows keys-only rows when curated metadata does not include published compliance keys", () => {
+    const curatedJson = JSON.stringify({
+      schemaVersion: 1,
+      kind: "archlucid.policyPack.curatedRules.v1",
+      pack: {
+        name: "Responsible AI",
+        description: "",
+        version: "1.0.0",
+        category: "AI Governance",
+        isDefault: true,
+        suggestedPackType: "PlatformDefault",
+        policyPackContentDocumentPath: "",
+      },
+      rules: [
+        {
+          id: "ai-gov-001",
+          title: "AI model registry documented",
+          description: "Inventory models in the manifest.",
+          severity: "Medium",
+          remediationGuidance: "Add services.",
+          evidenceHints: ["services[].ServiceName"],
+          frameworkMappings: [],
+        },
+      ],
+    });
+
+    const content: PolicyPackContentDocument = {
+      complianceRuleIds: [],
+      complianceRuleKeys: ["ai-gov-999"],
+      alertRuleIds: [],
+      compositeAlertRuleIds: [],
+      advisoryDefaults: {},
+      metadata: { [POLICY_PACK_CURATED_RULES_METADATA_V1]: curatedJson },
+    };
+
+    const result = resolveResponsibleAiPolicyRuleRows(content, { hasPackRecord: true });
+
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0]?.ruleKey).toBe("ai-gov-999");
+    expect(result.rulesSourceQualifier).toBe(
+      "Published pack lists rule keys only; severity is not specified in pack metadata.",
+    );
+  });
+
+  it("does not show platform template rows when published content has no rule keys", () => {
+    const content: PolicyPackContentDocument = {
+      complianceRuleIds: [],
+      complianceRuleKeys: [],
+      alertRuleIds: [],
+      compositeAlertRuleIds: [],
+      advisoryDefaults: {},
+      metadata: {},
+    };
+
+    const result = resolveResponsibleAiPolicyRuleRows(content, { hasPackRecord: true });
+
+    expect(result.rows).toHaveLength(0);
+    expect(result.rulesSourceQualifier).toBe(
+      "Published pack has no compliance rule keys in pack content.",
+    );
+  });
 });
