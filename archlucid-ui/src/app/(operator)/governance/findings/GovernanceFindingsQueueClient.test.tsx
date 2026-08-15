@@ -356,12 +356,14 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     const empty = await screen.findByTestId("governance-findings-empty-state");
     expect(empty).toHaveAttribute("role", "status");
     expect(screen.getByText("No findings assigned to you")).toBeInTheDocument();
-    expect(within(empty).getByText(/Jordan Lee/)).toBeInTheDocument();
+    expect(within(empty).getByText(/Jordan Lee \(Architect\)/)).toBeInTheDocument();
     expect(within(empty).getByText(/Claims Intake Demo/)).toBeInTheDocument();
     expect(screen.getByTestId("governance-assigned-to-me-empty-checked-at")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-empty-basis")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open findings queue" })).toHaveAttribute("href", "/governance/findings");
-    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-header-actions")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Refresh" }).length).toBeGreaterThan(0);
     expect(screen.queryByRole("link", { name: "Open reviews" })).not.toBeInTheDocument();
   });
 
@@ -379,16 +381,39 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(workspace).toHaveTextContent("Claims Intake Demo");
   });
 
-  it("renders job router and tenant findings queue link", async () => {
+  it("renders related queues disclosure, breadcrumb, and queue status after the work object", async () => {
     renderGovernanceFindingsQueue("assigned-to-me");
 
-    expect(screen.getByTestId("governance-assigned-to-me-breadcrumb")).toBeInTheDocument();
+    expect(await screen.findByTestId("governance-assigned-to-me-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Governance" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
     expect(screen.getByTestId("governance-assigned-to-me-workspace")).toHaveTextContent("Claims Intake Demo");
-    expect(screen.getByTestId("governance-job-router")).toHaveAttribute("data-current-job", "assigned-to-me-findings");
-    expect(screen.getByTestId("governance-job-router")).toHaveAttribute("data-layout", "compact");
-    expect(screen.queryByTestId("governance-job-router-option-assigned-to-me-findings")).not.toBeInTheDocument();
-    expect(screen.getByTestId("governance-findings-related-queues-disclosure")).toBeInTheDocument();
+    expect(await screen.findByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
+      "0 open findings assigned",
+    );
+    expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
+
+    const body = screen.getByTestId("governance-findings-queue-body");
+    const empty = within(body).getByTestId("governance-findings-empty-state");
+    const disclosure = within(body).getByTestId("governance-findings-related-queues-disclosure");
+    expect(within(disclosure).getByTestId("governance-job-router")).toHaveAttribute(
+      "data-current-job",
+      "assigned-to-me-findings",
+    );
+    expect(empty.compareDocumentPosition(disclosure) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("keeps header refresh visible while loading", () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockImplementation(
+      () => new Promise(() => undefined),
+    );
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(screen.getByTestId("governance-assigned-to-me-header-actions")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-assigned-to-me-queue-status")).not.toBeInTheDocument();
   });
 
   it("surfaces failure diagnostics for assigned-to-me loads", async () => {
@@ -405,6 +430,20 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(await screen.findByTestId("enterprise-inline-error-diagnostics")).toBeInTheDocument();
     expect(screen.getByText("corr-assigned-ui")).toBeInTheDocument();
     expect(screen.getByText("DATABASE_UNAVAILABLE")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-header-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
+  });
+
+  it("shows assigned queue status and header refresh while populated", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
+      "1 open finding assigned",
+    );
+    expect(screen.getByTestId("governance-assigned-to-me-header-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
   });
 
   it("shows job view filter chip when the filter bar is visible and job view is non-default", async () => {

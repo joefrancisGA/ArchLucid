@@ -16,6 +16,11 @@ import {
   traceRowsForRun,
 } from "@/components/governance/findings/governance-findings-row-mappers";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  architectureRiskRegisterEntryMatchesAssigneeIdentities,
+} from "@/lib/governance/governance-assigned-to-me-identities";
+import type { GovernanceAssignedToMeFetchBasis } from "@/lib/governance/governance-assigned-to-me-fetch-basis";
+import type { ArchitectureRiskRegisterEntry } from "@/lib/api/governance-stickiness-api";
 
 /** Maximum runs considered when register APIs return no rows (fallback path). */
 export const GOVERNANCE_FINDINGS_FALLBACK_MAX_RUNS = 12;
@@ -34,6 +39,7 @@ export type GovernanceFindingsFetchResult = {
   readonly rows: GovernanceFindingQueueRow[];
   readonly loadFailed: boolean;
   readonly failure: GovernanceFindingsFetchFailure | null;
+  readonly assignedToMeBasis?: GovernanceAssignedToMeFetchBasis;
 };
 
 function captureGovernanceFindingsFetchFailure(error: unknown, attemptedAtUtc: string): GovernanceFindingsFetchFailure {
@@ -89,14 +95,62 @@ export async function fetchGovernanceFindingQueueRows(
   }
 }
 
-export async function fetchAssignedToMeFindingQueueRows(): Promise<GovernanceFindingsFetchResult> {
+export type FetchAssignedToMeFindingQueueRowsOptions = {
+  readonly assigneeIdentities?: readonly string[];
+};
+
+function filterAssignedRiskRegisterEntries(
+  entries: readonly ArchitectureRiskRegisterEntry[],
+  assigneeIdentities: readonly string[],
+): ArchitectureRiskRegisterEntry[] {
+  return entries.filter((entry) =>
+    architectureRiskRegisterEntryMatchesAssigneeIdentities(entry, assigneeIdentities),
+  );
+}
+
+export async function fetchAssignedToMeFindingQueueRows(
+  options?: FetchAssignedToMeFindingQueueRowsOptions,
+): Promise<GovernanceFindingsFetchResult> {
   const attemptedAtUtc = new Date().toISOString();
+  const assigneeIdentities = options?.assigneeIdentities ?? [];
 
   try {
     const riskRegister = await getArchitectureRiskRegister({ assignedToMe: true });
     const registerRows = dedupeGovernanceFindingRows(riskRegisterRows(riskRegister.entries ?? []));
 
-    return { rows: registerRows, loadFailed: false, failure: null };
+    if (registerRows.length > 0) {
+      return {
+        rows: registerRows,
+        loadFailed: false,
+        failure: null,
+        assignedToMeBasis: "assigned-register",
+      };
+    }
+
+    if (assigneeIdentities.length > 0) {
+      const broadRegister = await getArchitectureRiskRegister({ maxRows: 500 });
+      const broadEntries = filterAssignedRiskRegisterEntries(
+        broadRegister.entries ?? [],
+        assigneeIdentities,
+      );
+      const broadRows = dedupeGovernanceFindingRows(riskRegisterRows(broadEntries));
+
+      if (broadRows.length > 0) {
+        return {
+          rows: broadRows,
+          loadFailed: false,
+          failure: null,
+          assignedToMeBasis: "register-broad-filter",
+        };
+      }
+    }
+
+    return {
+      rows: [],
+      loadFailed: false,
+      failure: null,
+      assignedToMeBasis: "register-only",
+    };
   } catch (error) {
     return {
       rows: [],

@@ -8,12 +8,15 @@ import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
+import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import type { PageCapabilityBoundarySurfaceId } from "@/lib/page-capability-boundary";
 import { cn } from "@/lib/utils";
 
 export type GovernanceFindingsRelatedQueuesDisclosureProps = {
   readonly capabilitySurfaceId: PageCapabilityBoundarySurfaceId;
   readonly className?: string;
+  readonly jobRouterCurrentJobId?: GovernanceJobId;
 };
 
 /** Collapses vocabulary rails and capability boundary above the findings work object (GOF P0-6). */
@@ -32,6 +35,9 @@ export function GovernanceFindingsRelatedQueuesDisclosure(
         <span className={OPERATOR_TYPOGRAPHY.helper}>Related queues</span>
       </summary>
       <div className="mt-3 space-y-2">
+        {props.jobRouterCurrentJobId !== undefined ? (
+          <GovernanceJobRouterStrip currentJobId={props.jobRouterCurrentJobId} layout="compact" />
+        ) : null}
         <AlertsFindingsVocabularyRail currentSurfaceId="findings-queue" />
         <DecisionRegisterFindingsVocabularyRail currentSurfaceId="findings-queue" />
         <RiskExceptionsFindingsVocabularyRail currentSurfaceId="findings-queue" />

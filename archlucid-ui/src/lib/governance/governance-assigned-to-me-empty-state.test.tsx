@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   buildGovernanceAssignedToMeEmptyDescription,
   formatGovernanceAssignedToMeCheckedAtRelative,
+  formatGovernanceAssignedToMeIdentityAttestation,
   resolveGovernanceAssignedToMeAssigneeLabel,
   resolveGovernanceAssignedToMeWorkspaceLabel,
 } from "@/lib/governance/governance-assigned-to-me-empty-state";
@@ -19,30 +20,42 @@ describe("governance-assigned-to-me-empty-state", () => {
     expect(formatGovernanceAssignedToMeCheckedAtRelative(checkedAt, nowMs)).toBe("2 minutes ago");
   });
 
-  it("names assignee, workspace, and freshness in the empty description", () => {
+  it("names assignee role, workspace, basis, and freshness in the empty description", () => {
     render(
       <>
         {buildGovernanceAssignedToMeEmptyDescription(
           {
             assigneeDisplayName: "Jordan Lee",
+            assigneeRoleLabel: "Architect",
             checkedAt: new Date("2026-08-14T18:03:00.000Z"),
+            fetchBasis: "register-only",
           },
           { nowMs: new Date("2026-08-14T18:05:00.000Z").getTime() },
         )}
       </>,
     );
 
-    expect(screen.getByText(/Jordan Lee/)).toBeInTheDocument();
+    expect(screen.getByText(/Jordan Lee \(Architect\)/)).toBeInTheDocument();
     expect(screen.getByText(/Claims Intake Demo/)).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-empty-basis")).toHaveTextContent(
+      /assigned-to-me risk register only/i,
+    );
+    expect(screen.getByTestId("governance-assigned-to-me-empty-basis")).toHaveTextContent(
+      /Closed findings and findings assigned to other operators are excluded/i,
+    );
+    expect(screen.getByRole("link", { name: "View audit trail" })).toHaveAttribute("href", "/governance/audit");
 
     const checkedAt = screen.getByTestId("governance-assigned-to-me-empty-checked-at");
     expect(checkedAt).toHaveTextContent("Checked 2 minutes ago");
-    expect(checkedAt.querySelector("time")).toHaveAttribute("dateTime", "2026-08-14T18:03:00.000Z");
-    expect(checkedAt.querySelector("time")).toHaveAttribute("title");
+    const time = checkedAt.querySelector("time");
+    expect(time).toHaveAttribute("dateTime", "2026-08-14T18:03:00.000Z");
+    expect(time).toHaveAttribute("aria-label");
+    expect(time).not.toHaveAttribute("title");
   });
 
   it("falls back to neutral labels when identity fields are missing", () => {
     expect(resolveGovernanceAssignedToMeAssigneeLabel(null)).toBe("you");
+    expect(formatGovernanceAssignedToMeIdentityAttestation("", null)).toBe("you");
     expect(resolveGovernanceAssignedToMeWorkspaceLabel()).toBe("Claims Intake Demo");
   });
 
@@ -66,3 +79,4 @@ describe("governance-assigned-to-me-empty-state", () => {
     expect(screen.getByText(/Claims Intake Demo/)).toBeInTheDocument();
   });
 });
+

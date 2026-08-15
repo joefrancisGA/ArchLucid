@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { useEffect, useState, type ReactElement } from "react";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
+import { GovernanceAssignedToMeFindingsNavBadge } from "@/components/governance/findings/GovernanceAssignedToMeFindingsNavBadge";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
@@ -13,6 +14,7 @@ import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-toke
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import {
@@ -35,6 +37,10 @@ function sidebarNavLinkAfterLabel(href: string): ReactElement | null {
 
   if (href === GOVERNANCE_ALERTS_PATH) {
     return <AlertsOutstandingNavBadge />;
+  }
+
+  if (href === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH) {
+    return <GovernanceAssignedToMeFindingsNavBadge />;
   }
 
   return null;

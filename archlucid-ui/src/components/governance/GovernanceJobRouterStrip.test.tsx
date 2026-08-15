@@ -25,6 +25,8 @@ describe("GovernanceJobRouterStrip (TB-2199 / TB-2230)", () => {
 
     expect(triage).toHaveAttribute("data-current", "true");
     expect(triage).toHaveAttribute("aria-current", "page");
+    expect(triage).toHaveAttribute("aria-labelledby", "governance-job-router-option-triage-findings-title");
+    expect(triage).toHaveAttribute("aria-describedby", "governance-job-router-option-triage-findings-description");
     expect(triage.tagName.toLowerCase()).toBe("a");
     expect(triage).toHaveTextContent(GOVERNANCE_JOB_TRIAGE_FINDINGS.label);
     expect(triage).toHaveTextContent(GOVERNANCE_JOB_TRIAGE_FINDINGS.whenToUse);

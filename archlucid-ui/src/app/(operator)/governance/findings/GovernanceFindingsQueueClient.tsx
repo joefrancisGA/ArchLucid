@@ -11,6 +11,7 @@ import { EnterpriseInlineErrorNotification } from "@/components/EnterpriseInline
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import { GovernanceFindingsAssignedToMeBreadcrumb } from "@/components/governance/findings/GovernanceFindingsAssignedToMeBreadcrumb";
@@ -23,9 +24,11 @@ import { GovernanceFindingsList } from "@/components/governance/findings/Governa
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
 import { useAssignedToMeFindingsQuery } from "@/components/governance/findings/use-assigned-to-me-findings-query";
+import { useAssignedToMeFindingsCountQuery } from "@/hooks/use-assigned-to-me-findings-count-query";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import {
   ARCHITECTURE_RISK_REGISTER_EMPTY_BODY,
@@ -58,8 +61,13 @@ import {
   buildGovernanceAssignedToMeEmptyDescription,
   GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF,
   GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL,
+  GOVERNANCE_ASSIGNED_TO_ME_LAST_CHECKED_PREFIX,
+  GOVERNANCE_ASSIGNED_TO_ME_REFRESHING_LABEL,
   resolveGovernanceAssignedToMeWorkspaceLabel,
 } from "@/lib/governance/governance-assigned-to-me-empty-state";
+import {
+  operatorFreshnessMetadataWithClockLabel,
+} from "@/lib/operator/operator-last-refreshed-label";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { comparePageHrefWithLifecycleAnchor, COMPARE_FINDING_LIFECYCLE_ANCHOR } from "@/lib/compare-finding-lifecycle";
 import { fetchRunDetailWorkspaceContextBundle } from "@/lib/fetch-run-detail-page-bundle-client";
@@ -118,8 +126,10 @@ export default function GovernanceFindingsQueueClient({
   const assignedToMeWorkspaceLabel = useMemo(() => resolveGovernanceAssignedToMeWorkspaceLabel(), [scopeKey.workspaceId]);
   const tenantQuery = useGovernanceFindingsQuery(!isAssignedToMe);
   const assignedToMeQuery = useAssignedToMeFindingsQuery(isAssignedToMe);
+  const assignedToMeCountQuery = useAssignedToMeFindingsCountQuery({ enabled: isAssignedToMe });
   const activeQuery = isAssignedToMe ? assignedToMeQuery : tenantQuery;
   const { rows, loading, loadFailed, refresh } = activeQuery;
+  const assignedToMeFetchBasis = isAssignedToMe ? assignedToMeQuery.fetchBasis : null;
   const assignedToMeCheckedAt =
     isAssignedToMe && assignedToMeQuery.dataUpdatedAt > 0
       ? new Date(assignedToMeQuery.dataUpdatedAt)
@@ -257,6 +267,54 @@ export default function GovernanceFindingsQueueClient({
     !loadFailed &&
     !isAssignedToMe &&
     hasGovernanceApprovalProvenance(governanceApprovalProvenance);
+  const assignedToMeCount = assignedToMeCountQuery.data ?? rows.length;
+  const assignedToMeStatusBadge =
+    isAssignedToMe && !loading ? (
+      <StatusTag
+        kind={assignedToMeCount > 0 ? "needs-attention" : "ready"}
+        label={
+          assignedToMeCount === 1
+            ? "1 open finding assigned"
+            : `${assignedToMeCount} open findings assigned`
+        }
+        data-testid="governance-assigned-to-me-queue-status"
+      />
+    ) : null;
+  const assignedToMeFreshnessLabel = assignedToMeQuery.refreshing
+    ? GOVERNANCE_ASSIGNED_TO_ME_REFRESHING_LABEL
+    : operatorFreshnessMetadataWithClockLabel({
+        prefix: GOVERNANCE_ASSIGNED_TO_ME_LAST_CHECKED_PREFIX,
+        lastRefreshedAt: assignedToMeCheckedAt,
+        refreshingLabel: null,
+      });
+  const assignedToMeHeaderActions = isAssignedToMe ? (
+    <div className="flex flex-wrap items-center gap-2" data-testid="governance-assigned-to-me-header-actions">
+      <PageContextualHelpButton />
+      <RefreshButton
+        variant="outline"
+        busy={assignedToMeQuery.refreshing}
+        onClick={() => {
+          refresh();
+        }}
+      />
+    </div>
+  ) : (
+    <PageContextualHelpButton />
+  );
+  const assignedToMeHeaderMetadata = isAssignedToMe ? (
+    <>
+      <span className="text-al-text-secondary" data-testid="governance-assigned-to-me-workspace">
+        Workspace:{" "}
+        <span className="font-medium text-al-text-primary">{assignedToMeWorkspaceLabel}</span>
+      </span>
+      <OperatorPageFreshnessMetadata
+        testId="governance-assigned-to-me-last-checked"
+        lastRefreshedAt={assignedToMeQuery.refreshing ? null : assignedToMeCheckedAt}
+      >
+        {assignedToMeFreshnessLabel}
+      </OperatorPageFreshnessMetadata>
+    </>
+  ) : undefined;
 
   return (
     <div className="w-full max-w-[1440px]">
@@ -277,12 +335,10 @@ export default function GovernanceFindingsQueueClient({
         subtitle={pageSubtitle}
         titleTestId="architecture-risk-register-page-title"
         breadcrumb={isAssignedToMe ? <GovernanceFindingsAssignedToMeBreadcrumb /> : undefined}
+        statusBadge={assignedToMeStatusBadge}
         metadata={
           isAssignedToMe ? (
-            <span className="text-al-text-secondary" data-testid="governance-assigned-to-me-workspace">
-              Workspace:{" "}
-              <span className="font-medium text-al-text-primary">{assignedToMeWorkspaceLabel}</span>
-            </span>
+            assignedToMeHeaderMetadata
           ) : !buyerPolishedShell && !loading ? (
             <>
               <SelfDescribingMetricCount
@@ -328,15 +384,12 @@ export default function GovernanceFindingsQueueClient({
             </>
           ) : undefined
         }
-        actions={<PageContextualHelpButton />}
+        actions={assignedToMeHeaderActions}
       />
-      <GovernanceJobRouterStrip
-        currentJobId={currentJobId}
-        layout={isAssignedToMe ? "compact" : "default"}
-      />
-      {isAssignedToMe ? (
-        <GovernanceFindingsRelatedQueuesDisclosure capabilitySurfaceId="assignedFindings" />
-      ) : (
+      {!isAssignedToMe ? (
+        <GovernanceJobRouterStrip currentJobId={currentJobId} layout="default" />
+      ) : null}
+      {!isAssignedToMe ? (
         <>
           <AlertsFindingsVocabularyRail currentSurfaceId="findings-queue" />
           <DecisionRegisterFindingsVocabularyRail currentSurfaceId="findings-queue" />
@@ -344,8 +397,8 @@ export default function GovernanceFindingsQueueClient({
           <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="findings-queue" />
           <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
         </>
-      )}
-      <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
+      ) : null}
+      <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)} data-testid="governance-findings-queue-body">
         {secondaryViewPresentation !== null ? (
           <CanonicalObjectSecondaryViewStrip
             presentation={secondaryViewPresentation}
@@ -483,7 +536,9 @@ export default function GovernanceFindingsQueueClient({
               isAssignedToMe
                 ? buildGovernanceAssignedToMeEmptyDescription({
                     assigneeDisplayName: currentPrincipal.name ?? "",
+                    assigneeRoleLabel: currentPrincipal.primaryAppRole,
                     checkedAt: assignedToMeCheckedAt,
+                    fetchBasis: assignedToMeFetchBasis,
                   })
                 : buyerPolishedShell
                   ? BUYER_RISK_REGISTER_EMPTY_BODY
@@ -503,26 +558,24 @@ export default function GovernanceFindingsQueueClient({
             }
             footer={
               isAssignedToMe ? (
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button asChild size="sm" variant="primary">
-                    <Link href={GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF}>
-                      {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}
-                    </Link>
-                  </Button>
-                  <RefreshButton
-                    variant="outline"
-                    busy={assignedToMeQuery.refreshing}
-                    onClick={() => {
-                      refresh();
-                    }}
-                  />
-                </div>
+                <Button asChild size="sm" variant="primary">
+                  <Link href={GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF}>
+                    {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}
+                  </Link>
+                </Button>
               ) : !buyerPolishedShell ? (
                 <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>
                   View policy packs
                 </Link>
               ) : undefined
             }
+          />
+        ) : null}
+
+        {isAssignedToMe ? (
+          <GovernanceFindingsRelatedQueuesDisclosure
+            capabilitySurfaceId="assignedFindings"
+            jobRouterCurrentJobId={currentJobId}
           />
         ) : null}
       </div>

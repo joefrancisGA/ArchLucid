@@ -10,7 +10,7 @@ import {
   type GovernanceJobRouter,
   type GovernanceJobRouterOption,
 } from "@/lib/governance/governance-job-router";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type GovernanceJobRouterStripProps = {
@@ -28,7 +28,9 @@ function GovernanceJobRouterCard(props: {
   readonly isCurrent: boolean;
 }): JSX.Element {
   const { option, isCurrent } = props;
-  const labelClassName = cn(OPERATOR_TYPOGRAPHY.body, "m-0 font-medium", OPERATOR_LINK.nav);
+  const titleId = `governance-job-router-option-${option.id}-title`;
+  const descriptionId = `governance-job-router-option-${option.id}-description`;
+  const labelClassName = cn(OPERATOR_TYPOGRAPHY.body, "m-0 font-medium text-al-text-primary no-underline");
   const helperClassName = cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper);
 
   if (isCurrent) {
@@ -36,6 +38,8 @@ function GovernanceJobRouterCard(props: {
       <Link
         href={option.href}
         aria-current="page"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
         className={cn(
           "block min-w-0 flex-1 rounded-md border bg-al-surface-raised px-3 py-2 no-underline",
           "border-[var(--al-accent-interactive)] ring-1 ring-[var(--al-accent-interactive)]/35",
@@ -45,8 +49,12 @@ function GovernanceJobRouterCard(props: {
         data-current="true"
         prefetch={false}
       >
-        <p className={labelClassName}>{option.label}</p>
-        <p className={helperClassName}>{option.whenToUse}</p>
+        <p id={titleId} className={labelClassName}>
+          {option.label}
+        </p>
+        <p id={descriptionId} className={helperClassName}>
+          {option.whenToUse}
+        </p>
       </Link>
     );
   }
@@ -54,6 +62,8 @@ function GovernanceJobRouterCard(props: {
   return (
     <Link
       href={option.href}
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       className={cn(
         "block min-w-0 flex-1 rounded-md border border-neutral-200 bg-white px-3 py-2 no-underline transition-colors",
         "hover:border-[var(--al-accent-interactive)] hover:bg-al-surface-raised",
@@ -64,8 +74,12 @@ function GovernanceJobRouterCard(props: {
       data-current="false"
       prefetch
     >
-      <p className={labelClassName}>{option.label}</p>
-      <p className={helperClassName}>{option.whenToUse}</p>
+      <p id={titleId} className={labelClassName}>
+        {option.label}
+      </p>
+      <p id={descriptionId} className={helperClassName}>
+        {option.whenToUse}
+      </p>
     </Link>
   );
 }
