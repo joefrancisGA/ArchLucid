@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Cosmos;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
@@ -15,7 +16,17 @@ internal static class CosmosPolyglotRules
         if (!opts.AnyCosmosFeatureEnabled)
             return;
 
-        if (string.IsNullOrWhiteSpace(opts.ConnectionString))
+        if (CosmosDbConfigurationProbe.UsesManagedIdentity(opts))
+        {
+            if (string.IsNullOrWhiteSpace(opts.AccountEndpoint))
+            {
+                errors.Add(
+                    "CosmosDb:AccountEndpoint is required when CosmosDb:AuthenticationMode=ManagedIdentity and any CosmosDb feature flag is enabled.");
+
+                return;
+            }
+        }
+        else if (string.IsNullOrWhiteSpace(opts.ConnectionString))
         {
             errors.Add(
                 "CosmosDb:ConnectionString is required when any CosmosDb feature flag is enabled (GraphSnapshotsEnabled, AgentTracesEnabled, AuditEventsEnabled).");
@@ -23,13 +34,15 @@ internal static class CosmosPolyglotRules
             return;
         }
 
-        if (environment.IsProduction() && ConnectionStringLooksLikeEmulator(opts.ConnectionString))
+        if (!CosmosDbConfigurationProbe.UsesManagedIdentity(opts)
+            && environment.IsProduction()
+            && ConnectionStringLooksLikeEmulator(opts.ConnectionString))
 
             errors.Add(
                 "CosmosDb:ConnectionString must not target the Cosmos Emulator (localhost / 127.0.0.1) in Production.");
     }
 
-    private static bool ConnectionStringLooksLikeEmulator(string connectionString)
+    private static bool ConnectionStringLooksLikeEmulator(string? connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
             return false;

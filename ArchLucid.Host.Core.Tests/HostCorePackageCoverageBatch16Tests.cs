@@ -59,6 +59,29 @@ public sealed class HostCorePackageCoverageBatch16Tests
     }
 
     [Fact]
+    public void StartupConfigurationFactsReader_summarizes_managed_identity_cosmos_connectivity()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            [$"{CosmosDbOptions.SectionName}:GraphSnapshotsEnabled"] = "true",
+            [$"{CosmosDbOptions.SectionName}:AuthenticationMode"] = "ManagedIdentity",
+            [$"{CosmosDbOptions.SectionName}:AccountEndpoint"] = "https://contoso.documents.azure.com:443/",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IHostEnvironment> environment = new();
+        environment.SetupGet(e => e.EnvironmentName).Returns(Environments.Development);
+        environment.SetupGet(e => e.ContentRootPath).Returns(AppContext.BaseDirectory);
+
+        StartupConfigurationFacts facts = StartupConfigurationFactsReader.FromConfiguration(
+            configuration,
+            environment.Object,
+            HostAssembly);
+
+        facts.CosmosDbConnectivitySummary.Should().Be("managed-identity");
+    }
+
+    [Fact]
     public void ContextBuilder_BuildContext_with_manifest_and_comparison_surfaces_compliance_cost_and_provenance_ids()
     {
         ManifestDocument manifest = new()

@@ -22,6 +22,19 @@ output "cosmos_private_endpoint_id" {
   value = try(azurerm_private_endpoint.cosmos[0].id, null)
 }
 
+output "cosmos_container_app_env_managed_identity" {
+  value = local.cosmos_managed_identity_data_plane ? {
+    "CosmosDb__AuthenticationMode" = "ManagedIdentity"
+    "CosmosDb__AccountEndpoint"    = azurerm_cosmosdb_account.polyglot[0].endpoint
+  } : {}
+  description = "Non-secret Container Apps env vars for Cosmos MI data plane (TB-906)."
+}
+
+output "cosmos_managed_identity_data_plane_enabled" {
+  value       = local.cosmos_managed_identity_data_plane
+  description = "True when workload principals were granted Cosmos SQL Data Contributor."
+}
+
 output "cosmos_assessment_note" {
   value       = "Production-like pilots keep CosmosDb feature flags off; enable this root only when GraphSnapshotsEnabled, AgentTracesEnabled, or AuditEventsEnabled are true."
   description = "TB-095 assessment: optional polyglot path, not default hosted footprint."

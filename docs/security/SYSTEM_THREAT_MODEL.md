@@ -22,7 +22,9 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 
 ## 4. Architecture overview
 
-**Nodes:** Browser / CLI → optional **edge (Front Door, APIM)** → **ArchLucid.Api** / **ArchLucid.Worker** → **SQL**, **Blob**, **Azure OpenAI**, optional **Service Bus**, **Redis**.
+**Nodes:** Browser / CLI → optional **edge (Front Door, APIM)** → **ArchLucid.Api** / **ArchLucid.Worker** → **SQL**, **Blob**, **Azure OpenAI**, optional **Service Bus**, **Redis**, optional **Cosmos DB** (polyglot persistence).
+
+**Data-plane auth posture (TB-906):** Azure OpenAI and Logic Apps storage use **managed identity** where supported. Optional **Cosmos DB** polyglot features accept **`CosmosDb:AuthenticationMode=ManagedIdentity`** with Entra **Built-in Data Contributor** RBAC (connection-string KV secret skipped when MI principals are wired). **HotPath Redis** remains **connection-string / Key Vault** on Standard SKU — Entra token auth is a documented residual until SKU or client wiring supports it in production.
 
 **Trust boundaries:** Client ↔ Edge, Edge ↔ API, API ↔ SQL/Blob/LLM, Worker ↔ SQL/queues.
 

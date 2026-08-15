@@ -115,3 +115,14 @@ variable "tags" {
   default     = {}
   description = "Tags applied to created resources."
 }
+
+variable "managed_key_vault_secret_ttl_days" {
+  type        = number
+  description = "Expiration offset in days for Terraform-managed Key Vault secrets (TB-907). Prefer TB-906 MI elimination over rotation where feasible."
+  default     = 365
+
+  validation {
+    condition     = var.managed_key_vault_secret_ttl_days >= 30 && var.managed_key_vault_secret_ttl_days <= 730
+    error_message = "managed_key_vault_secret_ttl_days must be between 30 and 730."
+  }
+}

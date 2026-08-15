@@ -42,6 +42,49 @@ public sealed partial class ArchLucidConfigurationRulesTests
     }
 
     [SkippableFact]
+    public void CollectErrors_WhenCosmosManagedIdentityWithoutEndpoint_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["CosmosDb:GraphSnapshotsEnabled"] = "true",
+            ["CosmosDb:AuthenticationMode"] = "ManagedIdentity",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("CosmosDb:AccountEndpoint", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenCosmosManagedIdentityWithEndpoint_does_not_require_connection_string()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["CosmosDb:GraphSnapshotsEnabled"] = "true",
+            ["CosmosDb:AuthenticationMode"] = "ManagedIdentity",
+            ["CosmosDb:AccountEndpoint"] = "https://contoso.documents.azure.com:443/",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("CosmosDb:ConnectionString", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndCosmosEmulatorEndpoint_contains_error()
     {
         Dictionary<string, string?> data = new()

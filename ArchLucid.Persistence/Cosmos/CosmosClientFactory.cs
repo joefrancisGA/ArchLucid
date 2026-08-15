@@ -1,6 +1,10 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Configuration;
+
+using Azure.Identity;
+
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -46,9 +50,10 @@ public sealed class CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> options
 
             CosmosDbOptions opts = _optionsMonitor.CurrentValue;
 
-            if (string.IsNullOrWhiteSpace(opts.ConnectionString))
+            if (!CosmosDbConfigurationProbe.IsPolyglotCredentialConfigured(opts))
                 throw new InvalidOperationException(
-                    "CosmosDb:ConnectionString is required when Cosmos features are enabled.");
+                    "CosmosDb credentials are required when Cosmos features are enabled "
+                    + "(CosmosDb:ConnectionString or CosmosDb:AccountEndpoint with AuthenticationMode=ManagedIdentity).");
 
             _client ??= CreateClient(opts);
             _database ??= await _client.CreateDatabaseIfNotExistsAsync(opts.DatabaseName, cancellationToken: ct);
@@ -91,9 +96,10 @@ public sealed class CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> options
 
             CosmosDbOptions opts = _optionsMonitor.CurrentValue;
 
-            if (string.IsNullOrWhiteSpace(opts.ConnectionString))
+            if (!CosmosDbConfigurationProbe.IsPolyglotCredentialConfigured(opts))
                 throw new InvalidOperationException(
-                    "CosmosDb:ConnectionString is required when Cosmos features are enabled.");
+                    "CosmosDb credentials are required when Cosmos features are enabled "
+                    + "(CosmosDb:ConnectionString or CosmosDb:AccountEndpoint with AuthenticationMode=ManagedIdentity).");
 
             _client ??= CreateClient(opts);
             _database ??= await _client.CreateDatabaseIfNotExistsAsync(opts.DatabaseName, cancellationToken: ct);
@@ -149,6 +155,31 @@ public sealed class CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> options
             ConnectionMode = ConnectionMode.Direct,
             ConsistencyLevel = ParseConsistency(opts.DefaultConsistencyLevel)
         };
+
+        if (CosmosDbConfigurationProbe.UsesManagedIdentity(opts))
+        {
+            if (string.IsNullOrWhiteSpace(opts.AccountEndpoint))
+                throw new InvalidOperationException(
+                    "CosmosDb:AccountEndpoint is required when AuthenticationMode=ManagedIdentity.");
+
+            CosmosClient managedIdentityClient = new(
+                opts.AccountEndpoint.Trim(),
+                new DefaultAzureCredential(),
+                clientOptions);
+
+            if (_logger.IsEnabled(LogLevel.Information))
+
+                _logger.LogInformation(
+                    "CosmosClient initialized via managed identity (database {Database}, consistency {Consistency}, endpoint configured).",
+                    opts.DatabaseName,
+                    clientOptions.ConsistencyLevel);
+
+            return managedIdentityClient;
+        }
+
+        if (string.IsNullOrWhiteSpace(opts.ConnectionString))
+            throw new InvalidOperationException(
+                "CosmosDb:ConnectionString is required when AuthenticationMode=ConnectionString.");
 
         if (IsEmulatorConnection(opts.ConnectionString))
 

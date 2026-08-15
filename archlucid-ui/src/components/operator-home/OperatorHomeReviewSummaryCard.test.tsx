@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { OperatorHomeReviewSummaryCard } from "@/components/operator-home/OperatorHomeReviewSummaryCard";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 describe("OperatorHomeReviewSummaryCard", () => {
@@ -32,9 +33,9 @@ describe("OperatorHomeReviewSummaryCard", () => {
     );
   });
 
-  it("renders featured showcase proof metadata with medium metadata labels (TB-1997)", () => {
+  it("emphasizes buyer proof metadata labels on Label: value rows (TB-1998)", () => {
     const run: RunSummary = {
-      runId: "claims-intake-modernization",
+      runId: SHOWCASE_STATIC_DEMO_RUN_ID,
       projectId: "default",
       description: "Claims Intake sample",
       createdUtc: "2026-01-15T12:00:00.000Z",
@@ -48,10 +49,10 @@ describe("OperatorHomeReviewSummaryCard", () => {
     render(
       <OperatorHomeReviewSummaryCard
         run={run}
-        href="/architecture/reviews/claims-intake-modernization"
+        href={`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`}
         buyerPolishedShell
         variant="featured"
-        primaryAction={{ href: "/architecture/reviews/claims-intake-modernization", label: "Open review" }}
+        primaryAction={{ href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`, label: "Open review" }}
       />,
     );
 
@@ -70,7 +71,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
 
   it("states the governance verdict once, on the status tag", () => {
     const run: RunSummary = {
-      runId: "claims-intake-modernization",
+      runId: SHOWCASE_STATIC_DEMO_RUN_ID,
       projectId: "default",
       description: "Claims Intake sample",
       createdUtc: "2026-01-15T12:00:00.000Z",
@@ -84,13 +85,13 @@ describe("OperatorHomeReviewSummaryCard", () => {
     render(
       <OperatorHomeReviewSummaryCard
         run={run}
-        href="/architecture/reviews/claims-intake-modernization"
+        href={`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`}
         buyerPolishedShell
         variant="featured"
       />,
     );
 
-    expect(screen.getByTestId("run-home-status-tag-claims-intake-modernization")).toHaveTextContent(
+    expect(screen.getByTestId(`run-home-status-tag-${SHOWCASE_STATIC_DEMO_RUN_ID}`)).toHaveTextContent(
       "Approved with monitoring",
     );
     expect(screen.getAllByText(/Approved with monitoring/)).toHaveLength(1);
@@ -98,19 +99,20 @@ describe("OperatorHomeReviewSummaryCard", () => {
 
   it("labels package origin so it does not read as a second verdict", () => {
     const run: RunSummary = {
-      runId: "claims-intake-modernization",
+      runId: SHOWCASE_STATIC_DEMO_RUN_ID,
       projectId: "default",
       description: "Claims Intake sample",
       createdUtc: "2026-01-15T12:00:00.000Z",
       hasFindingsSnapshot: true,
       hasGoldenManifest: true,
       hasGovernanceWarnings: true,
+      packageOrigin: "Reviewed",
     };
 
     render(
       <OperatorHomeReviewSummaryCard
         run={run}
-        href="/architecture/reviews/claims-intake-modernization"
+        href={`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`}
         buyerPolishedShell
       />,
     );

@@ -413,6 +413,23 @@ public sealed class ConfigurationRulesCollectCoverageTests
     }
 
     [Fact]
+    public void CosmosPolyglotRules_requires_account_endpoint_for_managed_identity_mode()
+    {
+        Dictionary<string, string?> settings = new()
+        {
+            ["CosmosDb:GraphSnapshotsEnabled"] = "true",
+            ["CosmosDb:AuthenticationMode"] = "ManagedIdentity",
+        };
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(settings!).Build();
+        TestWebHostEnvironment environment = new() { EnvironmentName = Environments.Development };
+        List<string> errors = [];
+
+        CosmosPolyglotRules.Collect(configuration, environment, errors);
+
+        errors.Should().ContainSingle(e => e.Contains("CosmosDb:AccountEndpoint", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void ArchLucidSecretProviderRules_requires_key_vault_in_production_like_hosts()
     {
         Dictionary<string, string?> settings = new()

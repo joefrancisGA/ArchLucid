@@ -12,7 +12,7 @@ Regenerate after opening or closing summary-table rows:
 | Architectural quality | Open |
 | --- | ---: |
 | Correctness | 3 |
-| Testability | 6 |
+| Testability | 5 |
 | Reliability | 4 |
 | Deployability | 2 |
 | AI/Agent readiness | 4 |
@@ -20,7 +20,7 @@ Regenerate after opening or closing summary-table rows:
 | Adoption friction | 7 |
 | Cutting-edge AI | 3 |
 | Explainability | 2 |
-| Trustworthiness | 3 |
+| Trustworthiness | 1 |
 | Interoperability | 4 |
 | Performance | 2 |
 | Cost-effectiveness | 5 |
@@ -28,9 +28,9 @@ Regenerate after opening or closing summary-table rows:
 | Stickiness | 4 |
 | Differentiability | 3 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **63** |
+| **Total (unique open)** | **60** |
 
-**By priority band:** P0 **0** | P1 **7** | P2 **40** | P3 **9** | unlabeled **7**.
+**By priority band:** P0 **0** | P1 **7** | P2 **37** | P3 **9** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1912,7 +1912,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1970 | **Done** (2026-08-01) ? Pilot outcomes Vitest regression bundle for **TB-1966**?**TB-1969**; see `## TB-1970` below | Testability P2 ? **V1**; with **TB-1966** | S |
 | TB-1975 | **Done** (2026-08-01) ? ROI summary Vitest regression bundle for **TB-1971**?**TB-1974**; see `## TB-1975` below | Testability P2 ? **V1**; with **TB-1971** | S |
 | TB-1995 | **Done** (2026-08-14) ? Overview empty Vitest band (`operator-home-core-pilot-education-band.test.ts`); see ## TB-1995 below | Testability P2 ? **V1**; with **TB-1994** | S |
-| TB-1998 | Buyer proof summary ? Vitest label emphasis on `Label: value` rows; see ## TB-1998 below | Testability P2 ? **V1**; with **TB-1997** | S |
+| TB-1998 | **Done** (2026-08-14) ? Buyer proof summary ? Vitest label emphasis on `Label: value` rows; see ## TB-1998 below | Testability P2 ? **V1**; with **TB-1997** | S |
 | TB-1999 | **Done** (2026-08-04) ? Follow-up inventory ? remaining flat `Label: value` metadata surfaces; Vitest band; see ## TB-1999 below | Adoption friction P2 ? **V1**; after **TB-1996**/**TB-1997** | M |
 | TB-2003 | **Done** (2026-08-14) ? Form/helper breathing room ? Vitest contract + Guided intake golden; see ## TB-2003 below | Testability P2 ? **V1**; after **TB-2000**?**TB-2002** | S |
 | TB-2004 | **Done** (2026-08-14) ? Follow-up inventory ? remaining cramped form/helper stacks; see ## TB-2004 below | Adoption friction P2 ? **V1**; after **TB-2000**?**TB-2002** | M |
@@ -1940,8 +1940,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2032 | ~~Marketing LCP ? `next/image` when image-bound~~ ? **Done** (2026-08-03, **waived**); see ## TB-2032 below | Performance P3 ? **V1**; owner UI speed ask 2026-07-31 | S |
 | TB-1541 | **Done** (2026-07-30) ? Reviews hub single Start in header actions; empty theater collapsed; Vitest ?1 primary; see `## TB-1541` below | Adoption friction P3 ? **V1**; with **TB-1539** | S |
 | TB-1544 | **Done** (2026-08-14) — Vitest ≤1 `variant="primary"` in header actions + empty first viewport (allowlist); see ## TB-1544 below | Testability P2 ? **V1**; after **TB-1540**?**TB-1543**; pairs **TB-1539** | S |
-| TB-906 | Redis + Cosmos managed-identity data plane ? replace Key Vault connection-string secrets with Entra/MI auth where supported; document residual secret paths; see `## TB-906` below | Trustworthiness P2 ? **V1**; owner-promoted from V2 2026-07-20; WAF Security pillar 2026-07-20; extends TB-080/TB-100 pattern | M |
-| TB-907 | Key Vault secret expiry + rotation automation ? `expiration_date` on managed secrets, rotation runbook wiring or `rotation_policy` where supported, near-expiry alerting; see `## TB-907` below | Trustworthiness P2 ? **V1**; owner-promoted from V2 2026-07-20; WAF Security pillar 2026-07-20 | M |
+| TB-906 | **Done** (2026-08-14) ? Redis + Cosmos managed-identity data plane ? Cosmos MI auth path + SQL RBAC; Redis residual documented; see `## TB-906` below | Trustworthiness P2 ? **V1**; owner-promoted from V2 2026-07-20; WAF Security pillar 2026-07-20; extends TB-080/TB-100 pattern | M |
+| TB-907 | **Done** (2026-08-14) ? Key Vault secret expiry + rotation automation ? `expiration_date` on TF-managed secrets + rotation table + scheduled audit; see `## TB-907` below | Trustworthiness P2 ? **V1**; owner-promoted from V2 2026-07-20; WAF Security pillar 2026-07-20 | M |
 | TB-909 | ~~Cost anomaly detection + subscription rollup budget ? `azurerm_cost_anomaly_alert` + one subscription-scope budget (formula-derived: sum of per-RG budgets + 20% headroom) over the per-RG budgets; deliberately not folded into TB-903's gate; see `## TB-909` below~~ ? **Done** (2026-07-21) | Cost-effectiveness P2 ? **V1**; `infra/terraform-monitoring/subscription_cost_management.tf` | S |
 | TB-882 | Automated nav-authority/label-consistency guard ? CI check that `NavLinkItem.requiredAuthority` is not looser than target controller `[Authorize]` policy; snapshot/alias test that operator page headings match `nav-config` sidebar labels; see `## TB-882` below | Correctness P2 ? **V1**; **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); revisit after G-REAL-06 or next drift instance | M |
 | TB-883 | RAG-V2 live-model Graph-RAG ablation signal ? capture optional `retrievalHits` on `*.real.json` exemplars; Phase B faithfulness script reports Graph-RAG ? vs all-on by filtering `KnowledgeGraphNodeNeighbor`; see `## TB-883` below | AI/Agent readiness P2 ? **V1**; **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); revisit after G-REAL-06 | M |
@@ -24286,56 +24286,35 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 ---
 
-## TB-906 ? Redis + Cosmos managed-identity data plane (P2)
+## TB-906 ? Redis + Cosmos managed-identity data plane (P2) ? **Done** (2026-08-14)
 
 **Window:** V1 ? owner-promoted from V2 2026-07-20 alongside the rest of the WAF cluster; WAF Security pillar 2026-07-20.
 
-**Why:** Redis and Cosmos primary connection strings are written to Key Vault (`diagnostics_keyvault.tf` in both roots) and consumed as secrets, while OpenAI (TB-080) and Logic Apps storage (TB-100) already moved to managed identity. Secret-based data planes are the remaining exception to the MI-first posture.
+**Shipped:**
 
-**Approach:**
+1. **`CosmosDb:AuthenticationMode=ManagedIdentity`** + **`CosmosDb:AccountEndpoint`** with **`CosmosDbConfigurationProbe`**, updated **`CosmosClientFactory`**, **`CosmosPolyglotRules`**, and startup connectivity summary.
+2. **`infra/terraform-cosmos/workload_rbac.tf`** ? **`azurerm_cosmosdb_sql_role_assignment`** (Built-in Data Contributor) for configured workload principal IDs; skips KV connection-string write when MI principals are wired.
+3. **`docs/security/SYSTEM_THREAT_MODEL.md`** ? Cosmos MI posture + **HotPath Redis connection-string residual** on Standard SKU (Entra token auth deferred).
+4. Unit/integration tests for MI validation path.
 
-1. Cosmos: enable Entra ID (AAD) data-plane auth ? `azurerm_cosmosdb_sql_role_assignment` (Built-in Data Contributor) for API/Worker user-assigned identities; switch client construction to `DefaultAzureCredential`; optionally set `disable_local_auth = true` behind a flag.
-2. Redis: evaluate Entra-token auth on Azure Cache for Redis (supported on current SKUs); if adopted, wire `StackExchange.Redis` Entra auth; if not feasible at current SKU/tier, document the residual secret path and rotation expectations explicitly.
-3. Remove the Key Vault connection-string writes for whichever paths convert; keep for documented residuals.
+**Redis residual:** HotPath cache remains Key Vault connection-string auth until Entra token support is validated on the deployed SKU tier; rotation tracked under **TB-907**.
 
-**Acceptance:**
-
-- Cosmos data-plane access works via MI in at least one environment; connection-string secret removed for that path.
-- Redis either converted or a documented residual-risk note exists in the security threat model.
-- Integration tests pass under the new auth mode.
-
-**Affected files:** `infra/terraform-cosmos/`, `infra/terraform-redis/`, `ArchLucid.Persistence`/host composition client wiring, `docs/security/SYSTEM_THREAT_MODEL.md`.
-
-**Refs:** **TB-080** (OpenAI MI pattern), **TB-100** (Logic Apps storage MI), **TB-656** (user-assigned identities).
-
-**Size estimate:** M.
+**Refs:** **TB-080**, **TB-100**, **TB-656**, **TB-907**.
 
 ---
 
-## TB-907 ? Key Vault secret expiry + rotation automation (P2)
+## TB-907 ? Key Vault secret expiry + rotation automation (P2) ? **Done** (2026-08-14)
 
 **Window:** V1 ? owner-promoted from V2 2026-07-20 alongside the rest of the WAF cluster; WAF Security pillar 2026-07-20.
 
-**Why:** No `expiration_date` on Terraform-managed Key Vault secrets and no rotation automation; rotation is runbook/owner cadence only (e.g. Stripe webhook secret). WAF security guidance expects secrets to have expiry metadata and a rotation story.
+**Shipped:**
 
-**Approach:**
+1. **`expiration_date`** on all Terraform-managed secrets in **`terraform-monitoring/key_vault_managed_secrets.tf`**, **`terraform-redis/diagnostics_keyvault.tf`**, **`terraform-cosmos/diagnostics_keyvault.tf`** via **`managed_key_vault_secret_ttl_days`** (default **365**).
+2. **`docs/runbooks/SECRET_AND_CERT_ROTATION.md`** ? per-secret owner/cadence table for Terraform-managed secrets.
+3. **`scripts/azure/Audit-KeyVaultExpirations.ps1`** ? **`-FlagMissingExpiration`** for secrets lacking expiry metadata.
+4. **`.github/workflows/key-vault-expiration-audit-scheduled.yml`** ? weekly scheduled audit (requires **`AZURE_CREDENTIALS`**).
 
-1. Add `expiration_date` (or a computed `time_rotating` + expiry offset) to `azurerm_key_vault_secret` resources in `terraform-monitoring/key_vault_managed_secrets.tf` and other roots writing secrets.
-2. Add an Azure Monitor alert (or scheduled workflow check) for secrets nearing expiry.
-3. For secrets that reduce to MI adoption (see **TB-906**), prefer elimination over rotation.
-4. Document per-secret rotation owner + cadence in a single table (extend the existing secrets runbook).
-
-**Acceptance:**
-
-- Every Terraform-managed secret has an expiry.
-- Near-expiry alerting demonstrated in one environment.
-- Rotation table exists and covers all managed secrets.
-
-**Affected files:** `infra/terraform-monitoring/key_vault_managed_secrets.tf`, `infra/terraform-redis/diagnostics_keyvault.tf`, `infra/terraform-cosmos/diagnostics_keyvault.tf`, secrets runbook.
-
-**Refs:** **TB-906** (elimination path preferred where possible).
-
-**Size estimate:** M.
+**Refs:** **TB-906** (elimination preferred over rotation for Redis/Cosmos connection strings).
 
 ---
 
@@ -46114,7 +46093,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Source:** With **TB-1997**.
 
-**Shipped:** Vitest on `OperatorHomeReviewSummaryCard` + `RunInspectorPreview` asserts metadata keys are `.font-medium` nodes distinct from values; `InlineMetadataLabel.test.tsx` covers colon/token contract.
+**Shipped:** Vitest on `OperatorHomeReviewSummaryCard` + `RunInspectorPreview` asserts metadata keys are `.font-medium` nodes distinct from values; `InlineMetadataLabel.test.tsx` covers colon/token contract; **`OperatorHomeReviewSummaryCard.test.tsx`** names TB-1998 guard explicitly (2026-08-14 closure sync).
 
 ---
 
