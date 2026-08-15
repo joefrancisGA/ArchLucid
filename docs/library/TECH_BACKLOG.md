@@ -12,25 +12,25 @@ Regenerate after opening or closing summary-table rows:
 | Architectural quality | Open |
 | --- | ---: |
 | Correctness | 3 |
-| Testability | 8 |
-| Reliability | 5 |
+| Testability | 6 |
+| Reliability | 4 |
 | Deployability | 2 |
 | AI/Agent readiness | 4 |
-| Architectural integrity | 4 |
+| Architectural integrity | 3 |
 | Adoption friction | 7 |
 | Cutting-edge AI | 3 |
 | Explainability | 2 |
 | Trustworthiness | 3 |
 | Interoperability | 4 |
-| Performance | 3 |
+| Performance | 2 |
 | Cost-effectiveness | 5 |
 | Code hygiene | 1 |
 | Stickiness | 4 |
 | Differentiability | 3 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **68** |
+| **Total (unique open)** | **63** |
 
-**By priority band:** P0 **0** | P1 **7** | P2 **45** | P3 **9** | unlabeled **7**.
+**By priority band:** P0 **0** | P1 **7** | P2 **40** | P3 **9** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1920,7 +1920,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2009 | **Done** (2026-08-14) ? Dual toast+inline cleanup ? extract-upload + extractor ZIP + baseline leftover; see ## TB-2009 below | Adoption friction P2 ? **V1**; with **TB-2005** | S |
 | TB-2010 | Follow-up inventory ? disable-until-ready where inline already exists; see ## TB-2010 below | Adoption friction P2 ? **V1**; after **TB-2005**; Signup / Webhooks / Alert routing / wizards | M |
 | TB-2011 | Form validation affordances ? Vitest contract + dead validation-toast cleanup; see ## TB-2011 below | Testability P2 ? **V1**; after **TB-2006**?**TB-2008** | S |
-| TB-2015 | Date-range filter labels/width ? Vitest contract; see ## TB-2015 below | Testability P2 ? **V1**; after **TB-2013**/**TB-2014** | S |
+| TB-2015 | **Done** (2026-08-14) ? Date-range filter labels/width Vitest contract; `operator-date-range-filter-contract.test.ts`; see ## TB-2015 below | Testability P2 ? **V1**; after **TB-2013**/**TB-2014** | S |
 | TB-2016 | **Done** (2026-07-31) ? Marketing UI Container App (`ui_marketing`), same `ui_container_image`, no Front Door; see ## TB-2016 below | Deployability P1 ? **V1**; owner dual-CA override; pairs **TB-2017**?**TB-2020** | M |
 | TB-2017 | **Done** (2026-07-31) ? Custom-domain vars/outputs + CLI bind runbook (apex marketing / `app.` operator); see ## TB-2017 below | Deployability P1 ? **V1**; with **TB-2016** | S |
 | TB-2018 | **Done** (2026-07-31) ? `site-urls.ts` + cross-host Sign in / welcome / signup CTAs; Vitest; see ## TB-2018 below | Adoption friction P1 ? **V1**; with **TB-2016** | S |
@@ -46531,7 +46531,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 ? Testability.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-14) ? `operator-date-range-filter-contract.test.ts` guards Decision Register, Audit search, and pilot value report surfaces for canonical **Start date** / **End date** copy imports and bans `Recorded after` / `Recorded before`; Decision Register component regression remains in `DecisionRegisterFiltersPanel.test.tsx` (**TB-2013**).
 
 **Priority:** P2.
 
@@ -46539,15 +46539,15 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Problem:** Without a guard, after/before or bare From/To labels and full-bleed date inputs can return on high-traffic filter bars.
 
-**Approach:**
+**Approach (shipped):**
 
-1. Vitest: Decision Register filter panel asserts **Start date** / **End date** (not Recorded after/before).
-2. Optional: Audit and/or Value report label assertions after **TB-2014**.
-3. Optional pragmatic grep/allowlist: flag new `Recorded after` / `Recorded before` / standalone filter labels `From`+`To` next to `type="date"` / `datetime-local` (do not ban From/To in non-filter prose).
+1. Vitest contract on apply surfaces from **TB-2013**/**TB-2014** (`DecisionRegisterFiltersPanel`, `AuditSearchSection`, `PilotValueReportPageView`).
+2. Assert each surface imports `operator-date-range-copy` and contains no `Recorded after` / `Recorded before` strings.
+3. Inventory pointer to existing **TB-2013** Decision Register render test.
 
-**Acceptance:** Regression fails if Decision Register reintroduces after/before range labels; apply surfaces from **TB-2013**/**TB-2014** covered or explicitly deferred.
+**Acceptance:** Regression fails if apply surfaces drop canonical copy imports or reintroduce after/before range labels.
 
-**Depends on:** Prefer after **TB-2013** (and **TB-2014** if asserting those surfaces).
+**Depends on:** **TB-2013** / **TB-2014** (Done).
 
 **Size estimate:** S.
 
