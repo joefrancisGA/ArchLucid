@@ -46,7 +46,6 @@ import {
   PRIVACY_SOURCES_INTRO,
 } from "@/lib/privacy-evidence-copy";
 import {
-  QUICK_SCAN_CLAIM_DISCIPLINE,
   QUICK_SCAN_SOURCES,
   QUICK_SCAN_SOURCES_INTRO,
 } from "@/lib/quick-scan-evidence-copy";
@@ -228,19 +227,18 @@ export function PrivacyEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function QuickScanEvidenceOrientationStrip({
-  part,
-}: SplitEvidenceOrientationStripProps = {}): React.JSX.Element {
+export function QuickScanEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="quick-scan"
-      part={part}
-      margin={part === "sources" ? "mt-10" : undefined}
+      part="sources"
+      margin="mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800"
       align="text-left"
       sourcesIntro={QUICK_SCAN_SOURCES_INTRO}
       sources={QUICK_SCAN_SOURCES}
-      claimHeading="Demo scan only"
-      claim={QUICK_SCAN_CLAIM_DISCIPLINE}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
+      claimHeading=""
+      claim=""
     />
   );
 }
