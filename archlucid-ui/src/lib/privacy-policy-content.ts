@@ -1,4 +1,3 @@
-import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   rewriteHelpMarkdownDocLinks,
@@ -6,14 +5,10 @@ import {
 } from "@/lib/help/help-markdown-presentation";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
-import {
-  parsePrivacyPolicyLastReviewedUtc,
-  readPrivacyPolicyMarkdown,
-} from "@/lib/privacy-policy-marketing";
-
 /** Canonical controlled source for public privacy policy wording (legal review diffs target this path). */
 export const PRIVACY_POLICY_CONTROLLED_SOURCE_PATH = "docs/go-to-market/PRIVACY_POLICY.md" as const;
 
+const LAST_REVIEWED_PATTERN = /<!--\s*PRIVACY_POLICY_LAST_REVIEWED_UTC:([^>]+)\s*-->/;
 const EFFECTIVE_DATE_PATTERN = /\*\*Effective date:\*\*\s*([^\n]+)/;
 const LAST_REVIEWED_INLINE_PATTERN = /\*\*Last reviewed \(UTC\):\*\*\s*([^\n]+)/;
 const RELATED_DOCUMENTS_HEADING = "## Related documents";
@@ -93,6 +88,12 @@ export const PRIVACY_POLICY_RELATED_DOCUMENTS: readonly PrivacyPolicyRelatedDocu
     href: "/security-trust",
   },
 ] as const;
+
+export function parsePrivacyPolicyLastReviewedUtc(markdown: string): string | null {
+  const match = markdown.match(LAST_REVIEWED_PATTERN);
+
+  return match !== null ? match[1]!.trim() : null;
+}
 
 export function parsePrivacyPolicyEffectiveDate(markdown: string): string | null {
   const match = markdown.match(EFFECTIVE_DATE_PATTERN);
@@ -278,20 +279,3 @@ export type PrivacyPolicyPreparedContent = {
   readonly quickNavLinks: ReadonlyArray<{ readonly label: string; readonly href: string }>;
   readonly relatedDocuments: readonly PrivacyPolicyRelatedDocument[];
 };
-
-export function preparePrivacyPolicyContent(): PrivacyPolicyPreparedContent {
-  const markdown = readPrivacyPolicyMarkdown();
-  const metadata = parsePrivacyPolicyMetadata(markdown);
-  const bodyMarkdown = preparePrivacyPolicyBodyMarkdown(markdown);
-  const headings = extractHelpMarkdownHeadings(bodyMarkdown);
-  const quickNavLinks = resolvePrivacyPolicyQuickNavLinks(headings);
-  const relatedDocuments = resolvePrivacyPolicyRelatedDocuments(headings);
-
-  return {
-    metadata,
-    bodyMarkdown,
-    headings,
-    quickNavLinks,
-    relatedDocuments,
-  };
-}

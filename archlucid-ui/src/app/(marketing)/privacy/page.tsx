@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { PrivacyPolicyPageClient } from "@/components/marketing/privacy-policy/PrivacyPolicyPageClient";
-import { preparePrivacyPolicyContent, type PrivacyPolicyPreparedContent } from "@/lib/privacy-policy-content";
+import type { PrivacyPolicyPreparedContent } from "@/lib/privacy-policy-content";
+import { preparePrivacyPolicyContent } from "@/lib/privacy-policy-prepare.server";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
