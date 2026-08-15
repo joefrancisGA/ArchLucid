@@ -1,5 +1,7 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
+import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
+
 import { stableAssumptionIdFromText } from "./stable-assumption-id";
 
 export type UnverifiedAssumption = {
@@ -118,6 +120,20 @@ export function mergeUnverifiedAssumptionTexts(
   }
 
   return merged;
+}
+
+/** Open assumption labels for finalize scorecard and the confirmation strip (TB-2314). */
+export function deriveOpenUnverifiedAssumptionTextsForReview(
+  findings: readonly QuickDecisionFinding[],
+  requestAssumptionTexts: readonly string[] = [],
+): string[] {
+  return mergeUnverifiedAssumptionTexts(
+    deriveUnverifiedAssumptionTextsFromFindings(
+      findings,
+      (finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding),
+    ),
+    requestAssumptionTexts,
+  );
 }
 
 export type StatedConstraintContext = {

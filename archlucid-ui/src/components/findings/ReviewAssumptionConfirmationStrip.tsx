@@ -9,8 +9,7 @@ import { useReviewAssumptionAcknowledgements } from "@/hooks/use-review-assumpti
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   countExistentialUnverifiedAssumptions,
-  deriveUnverifiedAssumptionTextsFromFindings,
-  mergeUnverifiedAssumptionTexts,
+  deriveOpenUnverifiedAssumptionTextsForReview,
   parseUnverifiedAssumptions,
   type UnverifiedAssumption,
 } from "@/lib/review-quality/assumption-and-severity";
@@ -30,11 +29,8 @@ export function ReviewAssumptionConfirmationStrip(
   const assumptions = useMemo(
     () =>
       parseUnverifiedAssumptions(
-        mergeUnverifiedAssumptionTexts(
-          deriveUnverifiedAssumptionTextsFromFindings(
-            props.findings,
-            (finding) => !finding.isMuted,
-          ),
+        deriveOpenUnverifiedAssumptionTextsForReview(
+          props.findings,
           props.requestAssumptionTexts ?? [],
         ),
       ),

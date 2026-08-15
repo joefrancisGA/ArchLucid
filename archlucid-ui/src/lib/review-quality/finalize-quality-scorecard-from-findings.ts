@@ -4,8 +4,7 @@ import {
 import { humanReviewStatusDisplay, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 import {
-  deriveUnverifiedAssumptionTextsFromFindings,
-  mergeUnverifiedAssumptionTexts,
+  deriveOpenUnverifiedAssumptionTextsForReview,
   parseUnverifiedAssumptions,
 } from "./assumption-and-severity";
 import type { FinalizeQualityScorecardInput } from "./finalize-quality-scorecard";
@@ -49,21 +48,14 @@ function isFinalizeResolvedReviewFinding(finding: QuickDecisionFinding): boolean
   return disposition !== null && FINALIZE_RESOLVED_DISPOSITIONS.has(disposition);
 }
 
-function deriveUnverifiedAssumptionTexts(findings: readonly QuickDecisionFinding[]): string[] {
-  return deriveUnverifiedAssumptionTextsFromFindings(
-    findings,
-    (finding) => !finding.isMuted && !isFinalizeResolvedReviewFinding(finding),
-  );
-}
-
 /** TB-2321: derive finalize scorecard inputs from live finding rows when API metrics are absent. */
 export function deriveFinalizeQualityScorecardInput(
   findings: readonly QuickDecisionFinding[],
   blockingFindingCount: number,
   options?: DeriveFinalizeQualityScorecardOptions,
 ): FinalizeQualityScorecardInput {
-  const mergedAssumptionTexts = mergeUnverifiedAssumptionTexts(
-    deriveUnverifiedAssumptionTexts(findings),
+  const mergedAssumptionTexts = deriveOpenUnverifiedAssumptionTextsForReview(
+    findings,
     options?.requestAssumptionTexts ?? [],
   );
   let assumptions = parseUnverifiedAssumptions(mergedAssumptionTexts);
