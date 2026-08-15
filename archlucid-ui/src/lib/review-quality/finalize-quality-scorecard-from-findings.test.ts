@@ -61,6 +61,29 @@ describe("finalize-quality-scorecard-from-findings", () => {
     expect(input.uncoveredMandatoryRequirementCount).toBe(1);
   });
 
+  it("does not count cannot-determine findings as uncovered mandatory requirements", () => {
+    const input = deriveFinalizeQualityScorecardInput(
+      [
+        sampleFinding({
+          findingId: "q1",
+          title: "Cannot determine recovery target",
+          recommendation: "Insufficient evidence to verify RTO",
+          severityValue: 2,
+          trustLabel: "Heuristic",
+          evidenceRefCount: 0,
+          aiReasoning: {
+            reasoningTrace: "cannot determine failover path",
+            wireJson: "{}",
+          },
+        }),
+      ],
+      0,
+    );
+
+    expect(input.openCannotDetermineCount).toBe(1);
+    expect(input.uncoveredMandatoryRequirementCount).toBe(0);
+  });
+
   it("derives approved decision titles from approved human review rows", () => {
     const titles = deriveApprovedDecisionTitlesFromFindings([
       sampleFinding({

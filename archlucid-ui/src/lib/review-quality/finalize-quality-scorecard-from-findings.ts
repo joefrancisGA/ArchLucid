@@ -1,6 +1,5 @@
 import {
   classifyReviewFindingJobView,
-  type FindingJobView,
 } from "@/lib/findings/finding-job-view";
 import { humanReviewStatusDisplay, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -9,29 +8,6 @@ import {
   parseUnverifiedAssumptions,
 } from "./assumption-and-severity";
 import type { FinalizeQualityScorecardInput } from "./finalize-quality-scorecard";
-
-const OPEN_QUALITY_JOB_VIEWS: readonly FindingJobView[] = [
-  "answer-these-questions",
-  "coverage-gaps",
-];
-
-function countOpenFindingsForJobViews(findings: readonly QuickDecisionFinding[]): number {
-  let count = 0;
-
-  for (const finding of findings) {
-    if (finding.isMuted) {
-      continue;
-    }
-
-    const jobView = classifyReviewFindingJobView(finding);
-
-    if (OPEN_QUALITY_JOB_VIEWS.includes(jobView)) {
-      count += 1;
-    }
-  }
-
-  return count;
-}
 
 function deriveUnverifiedAssumptionTexts(findings: readonly QuickDecisionFinding[]): string[] {
   const texts: string[] = [];
@@ -62,7 +38,6 @@ export function deriveFinalizeQualityScorecardInput(
   findings: readonly QuickDecisionFinding[],
   blockingFindingCount: number,
 ): FinalizeQualityScorecardInput {
-  const openQualityGaps = countOpenFindingsForJobViews(findings);
   const assumptions = parseUnverifiedAssumptions(deriveUnverifiedAssumptionTexts(findings));
   const existentialAssumptions = countExistentialUnverifiedAssumptions(assumptions);
   let lowExtractionConfidenceCount = 0;
@@ -87,8 +62,7 @@ export function deriveFinalizeQualityScorecardInput(
   return {
     blockingFindingCount: Math.max(0, Math.trunc(blockingFindingCount)),
     unverifiedAssumptionCount: existentialAssumptions > 0 ? existentialAssumptions : assumptions.length,
-    uncoveredMandatoryRequirementCount:
-      uncoveredMandatoryRequirementCount > 0 ? uncoveredMandatoryRequirementCount : openQualityGaps,
+    uncoveredMandatoryRequirementCount,
     openCannotDetermineCount,
     lowExtractionConfidenceCount,
   };
