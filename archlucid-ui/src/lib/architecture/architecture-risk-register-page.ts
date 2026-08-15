@@ -399,6 +399,9 @@ export function matchesRiskRegisterFilter(
   return true;
 }
 
+/** Shown when a finding has no recorded disposition yet, so the cell never repeats the Status column. */
+export const GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL = "Not recorded";
+
 export function governanceQueueDispositionLabel(row: GovernanceFindingQueueRow): string {
   if (row.recordKind === "decision") {
     return "Recorded decision";
@@ -410,11 +413,5 @@ export function governanceQueueDispositionLabel(row: GovernanceFindingQueueRow):
     return latestDisposition;
   }
 
-  const statusSegment = row.status.split("·")[0]?.trim() ?? "";
-
-  if (statusSegment.length > 0) {
-    return statusSegment;
-  }
-
-  return row.status;
+  return GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL;
 }

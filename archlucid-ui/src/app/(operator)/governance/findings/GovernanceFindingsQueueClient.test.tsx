@@ -14,16 +14,16 @@ import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 import { BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL } from "@/lib/buyer/buyer-polish-copy";
 
+/** Mutable so a test can put the page in review scope (`?runId=`) without re-mocking the module. */
+const searchParamsState = vi.hoisted(() => ({ current: new URLSearchParams() }));
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
   usePathname: () => "/governance/findings",
-  useSearchParams: () => ({
-    get: () => null,
-    toString: () => "",
-  }),
+  useSearchParams: () => searchParamsState.current,
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -175,6 +175,7 @@ const loadedRiskRow = {
 describe("GovernanceFindingsQueueClient", () => {
   beforeEach(() => {
     resetOperatorQueryClientForTests();
+    searchParamsState.current = new URLSearchParams();
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
   });
@@ -320,10 +321,49 @@ describe("GovernanceFindingsQueueClient", () => {
     expect(screen.getByTestId("architecture-risk-register-summary-open-value")).toHaveTextContent("1");
     expect(screen.getByTestId("bulk-triage-remaining-progress")).toHaveTextContent("1 of 1 left");
   });
+
+  /**
+   * Each header metric is labelled "in this review" and drills in with the same `runId`, so it must
+   * count only the scoped review — a workspace-wide count read as a review count.
+   */
+  it("counts only the scoped review in the header metrics", async () => {
+    searchParamsState.current = new URLSearchParams({ runId: "run-1" });
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({
+      entries: [
+        { ...loadedRiskRow, findingId: "finding-1", statusLabel: "Open", latestDisposition: null },
+        {
+          ...loadedRiskRow,
+          runId: "run-2",
+          findingId: "finding-2",
+          statusLabel: "Open",
+          latestDisposition: null,
+        },
+      ],
+    });
+
+    renderGovernanceFindingsQueue();
+
+    expect(await screen.findByTestId("architecture-risk-register-filters")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-risk-register-summary-open-value")).toHaveTextContent("1");
+  });
+
+  /** The rows are findings everywhere else in the product; "risks" here read as a different object. */
+  it("calls the scoped rows findings in the run-scope banner", async () => {
+    searchParamsState.current = new URLSearchParams({ runId: "run-1" });
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
+
+    renderGovernanceFindingsQueue();
+
+    const banner = await screen.findByTestId("governance-findings-run-scope-banner");
+
+    expect(banner).toHaveTextContent("Showing findings for review");
+    expect(banner.textContent ?? "").not.toContain("Showing risks");
+  });
 });
 
 describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
   beforeEach(() => {
+    searchParamsState.current = new URLSearchParams();
     vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue({
       tenantId: "tenant-1",
       workspaceId: "ws-1",

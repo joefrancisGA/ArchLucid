@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import {
   computeArchitectureRiskRegisterSummary,
+  GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL,
   governanceQueueDispositionLabel,
   matchesGovernanceFindingsRunScope,
   matchesRiskRegisterFilter,
@@ -130,12 +131,25 @@ describe("architecture-risk-register-page", () => {
     expect(riskRegisterFilterFromQuery("remediated-recent")).toBe("remediated-recent");
   });
 
-  it("derives disposition label from latest disposition or status", () => {
+  it("derives disposition label from latest disposition", () => {
     expect(
       governanceQueueDispositionLabel(
         sampleRow({ latestDisposition: "Accepted", status: "Accepted · monitoring" }),
       ),
     ).toBe("Accepted");
     expect(governanceQueueDispositionLabel(sampleRow({ recordKind: "decision" }))).toBe("Recorded decision");
+  });
+
+  /**
+   * The queue shows Disposition beside Status. Falling back to the status text made both cells read
+   * the same value, so an un-triaged finding looked as if a reviewer had already dispositioned it.
+   */
+  it("says the disposition is not recorded instead of echoing status", () => {
+    expect(
+      governanceQueueDispositionLabel(sampleRow({ latestDisposition: null, status: "Open · unassigned" })),
+    ).toBe(GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL);
+    expect(
+      governanceQueueDispositionLabel(sampleRow({ latestDisposition: "   ", status: "Open" })),
+    ).toBe(GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL);
   });
 });

@@ -243,7 +243,14 @@ export default function GovernanceFindingsQueueClient({
 
     return filterGovernanceRowsForJobView(facetFilteredRows, effectiveJobView);
   }, [scopedRows, registerFilter, effectiveJobView, nlFacets]);
-  const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(rows), [rows]);
+  /**
+   * Scoped rows, not all rows: when `?runId=` is set, each header metric is labelled "in this review"
+   * by {@link governanceRegisterMetricPresentation} and its drill-in href carries the same `runId`, so a
+   * tenant-wide count here would read as a review count and disagree with the list below it.
+   * Facet filters (register filter, job view, natural-language) are deliberately excluded — the header
+   * describes the review, and the filter chips describe the narrowed list.
+   */
+  const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(scopedRows), [scopedRows]);
   const findingIds = useMemo(
     () => displayedRows.filter((row) => row.recordKind === "finding").map((row) => row.findingId),
     [displayedRows],
@@ -391,7 +398,7 @@ export default function GovernanceFindingsQueueClient({
                 testId="architecture-risk-register-summary-open"
                 presentation={governanceRegisterMetricPresentation({
                   count: registerSummary.openRisks,
-                  noun: registerSummary.openRisks === 1 ? "open risk" : "open risks",
+                  noun: registerSummary.openRisks === 1 ? "open finding" : "open findings",
                   filter: "open",
                   runId: scopedRunId,
                 })}
@@ -457,7 +464,7 @@ export default function GovernanceFindingsQueueClient({
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="governance-findings-run-scope-banner"
           >
-            {isAssignedToMe ? "Showing findings for review " : "Showing risks for review "}
+            {"Showing findings for review "}
             <span className="font-mono text-al-text-primary">{scopedRunId}</span>
             {" · "}
             <Link className={OPERATOR_LINK.inline} href={navHref}>
