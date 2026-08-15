@@ -1564,6 +1564,12 @@ export type WorkspaceSettingsHelpEvidenceOrientationStripProps = {
 export function WorkspaceSettingsHelpEvidenceOrientationStrip(
   props: WorkspaceSettingsHelpEvidenceOrientationStripProps = {},
 ): React.JSX.Element {
+  const sectionHeadingClass = cn(
+    OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+    OPERATOR_TYPOGRAPHY.sectionTitle,
+    "m-0 scroll-mt-24",
+  );
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-workspace-settings"
@@ -1575,10 +1581,11 @@ export function WorkspaceSettingsHelpEvidenceOrientationStrip(
       sourcesTitle={WORKSPACE_SETTINGS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={WORKSPACE_SETTINGS_HELP_SOURCES_INTRO}
       sources={WORKSPACE_SETTINGS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
+      sourcesLayout="wrap"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+      headingClassName={sectionHeadingClass}
     />
   );
 }

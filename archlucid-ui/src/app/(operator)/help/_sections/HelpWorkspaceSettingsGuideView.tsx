@@ -8,8 +8,8 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  DESIGN_TOKENS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -19,15 +19,22 @@ import {
   WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION,
   WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID,
   WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_LABEL,
+  WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_BODY,
+  WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_SECTION_ID,
+  WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_TITLE,
   WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE,
   WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS,
   WORKSPACE_SETTINGS_HELP_HOW_TO_READ_STEPS,
   WORKSPACE_SETTINGS_HELP_OVERVIEW,
+  WORKSPACE_SETTINGS_HELP_PAGE_EYEBROW,
   WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE,
   WORKSPACE_SETTINGS_HELP_PAGE_TITLE,
   WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION,
   WORKSPACE_SETTINGS_HELP_START_HERE_CARD_TITLE,
   WORKSPACE_SETTINGS_HELP_TILE_ITEMS,
+  WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE,
+  WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE_SECTION_ID,
+  WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE_TITLE,
 } from "@/lib/workspace-settings-help-guide-content";
 import { WORKSPACE_SETTINGS_HELP_CANONICAL_PATH } from "@/lib/workspace-settings-help-evidence-copy";
 import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
@@ -64,6 +71,7 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
+        eyebrow={WORKSPACE_SETTINGS_HELP_PAGE_EYEBROW}
         title={WORKSPACE_SETTINGS_HELP_PAGE_TITLE}
         titleTestId="help-workspace-settings-page-title"
         subtitle={WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE}
@@ -71,7 +79,6 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
         headingLevel="h1"
         breadcrumb={<HelpTopicBreadcrumb topicTitle={WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE} />}
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
       />
 
       <div className={contentGridClass}>
@@ -85,7 +92,7 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
             data-testid="help-workspace-settings-action-panel"
           >
             <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h2" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {WORKSPACE_SETTINGS_HELP_START_HERE_CARD_TITLE}
               </CardTitle>
             </CardHeader>
@@ -100,7 +107,7 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
               </Button>
               <p
                 id={WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID}
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
                 data-testid="help-workspace-settings-admin-precondition"
               >
                 <span className="font-medium text-al-text-primary">{WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_LABEL}</span>{" "}
@@ -142,7 +149,58 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
             </ol>
           </section>
 
-          <WorkspaceSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          <section
+            aria-labelledby={WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE_SECTION_ID}
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id={WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE_SECTION_ID}>
+              {WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE_TITLE}
+            </HelpSectionHeading>
+            <div
+              className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")}
+              data-testid="help-workspace-settings-worked-example"
+            >
+              <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}>
+                <div>
+                  <dt className="font-medium text-al-text-primary">Gate</dt>
+                  <dd className="m-0 mt-1 text-al-text-secondary">{WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE.gateName}</dd>
+                </div>
+                <div>
+                  <dt className="font-medium text-al-text-primary">Before</dt>
+                  <dd className="m-0 mt-1 text-al-text-secondary">{WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE.before}</dd>
+                </div>
+                <div>
+                  <dt className="font-medium text-al-text-primary">After</dt>
+                  <dd className="m-0 mt-1 text-al-text-secondary">{WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE.after}</dd>
+                </div>
+                <div className="sm:col-span-2">
+                  <dt className="font-medium text-al-text-primary">Downstream on the next review</dt>
+                  <dd className="m-0 mt-1 text-al-text-secondary">
+                    {WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE.downstreamEffect}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </section>
+
+          <section
+            aria-labelledby={WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_SECTION_ID}
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id={WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_SECTION_ID}>
+              {WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_TITLE}
+            </HelpSectionHeading>
+            <p
+              className={readingBodyClass}
+              data-testid="help-workspace-settings-audit-trail-effect"
+            >
+              {WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_BODY}
+            </p>
+          </section>
+
+          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+            <WorkspaceSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          </div>
         </div>
 
         <HelpTopicTableOfContents headings={WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS} />
