@@ -2232,7 +2232,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-393 | ~~Tenant ITSM outbound settings write API + admin UI ??? upsert `TenantItsmOutboundSettings` (project key override, severity filters, issue-type map); `PUT /v1/integrations/itsm/settings`; `/integrations/itsm` settings page; `ExecuteAuthority` gate~~ ? **Done** (2026-06-27) | Adoption friction P1 ? **V1** | M |
 | TB-394 | Durable async ITSM outbound ticket creation ??? enqueue outbound create on existing outbox/background-job infrastructure; retry/DLQ after HTTP Polly exhaustion; operator-visible pending/failed state | Reliability P2 ? **V1.1** | M |
 | TB-395 | Finding assignee + general remediation due date ??? add `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL; expose on inspect/risk-register; map in outbound payload builder | Architectural integrity P2 ? **V1.1** | M |
-| TB-396 | Inbound ITSM disposition sync ??? extend inbound webhook mapping beyond `HumanReviewStatus` to update latest `FindingDisposition` where configured; document status???disposition map in inbound options | Interoperability P2 ? **V1.1** | M |
+| TB-396 | ~~Inbound ITSM disposition sync — extend inbound webhook mapping beyond `HumanReviewStatus` to update latest `FindingDisposition` where configured; document status→disposition map in inbound options~~ — **Done** (2026-06-27; config ref **2026-08-14**) | Interoperability P2 ? **V1.1** | M |
 | TB-196 | ~~Reasoning token cost underreporting fix ? update `AgentExecutionTraceRunLlmCostAggregator.Compute()` to pass `trace.ReasoningTokenCount ?? 0` (not literal `0`) to `costEstimator.EstimateUsd`; add test covering reasoning-token cost path~~ ? **Done** (2026-06-02, batch 5R): aggregator forwards reasoning tokens (shipped 5J); `AgentExecutionTraceRunLlmCostAggregatorTests`; `test_correctness_batch_5r.py` drift guard | Reliability P1 ? **V1** | XS |
 | TB-197 | ~~`GovernanceWorkflowService.PromoteAsync` ? wrap `approvalRepo.UpdateAsync` + `promotionRepo.CreateAsync` in single `IArchLucidUnitOfWork`; add atomicity test~~ ? **Done** (2026-06-02, batch 5J): single UoW commit/rollback; `IGovernanceApprovalRequestRepository.UpdateAsync` accepts external connection/transaction | Reliability P1 ? **V1** | S |
 | TB-198 | ~~`CostConstraintFindingEngine` unit tests ? add 7 scenarios covering severity, budget parsing, null properties, empty graph, multi-node~~ ? **Done** (2026-06-02, batch 5K): `CostConstraintFindingEngineTests` (7 scenarios) | Maintainability P2 ? **V1** | S |
@@ -13370,7 +13370,7 @@ Core `Finding` has no `AssignedToUserId` or general remediation due date. Risk-r
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 
-**Shipped:** Optional `JiraStatusDispositionMap` / `ServiceNowStateDispositionMap` on `Integrations:ItsmInbound`; `ItsmInboundDispositionSync` records disposition via `FindingDispositionService` when mapped; loop guard skips unchanged latest disposition; audit payloads include disposition sync fields. See `API_CONTRACTS.md` ITSM inbound row.
+**Shipped:** Optional `JiraStatusDispositionMap` / `ServiceNowStateDispositionMap` on `Integrations:ItsmInbound`; `ItsmInboundDispositionSync` records disposition via `FindingDispositionService` when mapped; loop guard skips unchanged latest disposition; audit payloads include disposition sync fields. Status→disposition map documented in [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) § ITSM inbound webhooks (**2026-08-14**). See `API_CONTRACTS.md` ITSM inbound row.
 
 **Size estimate:** **M**
 
@@ -24684,7 +24684,7 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 ---
 
-## TB-923 ? Governance approval SLA breach: notify-only vs auto-act decision (assessment-only) (P3)
+## TB-923 ? Governance approval SLA breach: notify-only vs auto-act decision (assessment-only) (P3) ? **Done** (2026-08-14)
 
 **Window:** V1 ? TB-302/DTF orchestration follow-up 2026-07-20 (sonnet_questions Q15). **Assessment-only; do not implement auto-escalation in this item.**
 
