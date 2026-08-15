@@ -195,6 +195,9 @@ function mapGovernanceRowForJobViewClassification(row: GovernanceFindingQueueRow
     confidenceLevel: row.traceConfidenceLevel ?? null,
     humanReviewStatus: null,
     trustLabel: null,
+    // The queue row carries no tier and lane classification does not read one. Deriving it from the
+    // policy rule keeps this synthetic finding honest if a future lane rule starts consulting it.
+    enforcementTier: (row.policyRuleId ?? "").length > 0 ? "PolicyViolation" : "Advisory",
   };
 }
 
