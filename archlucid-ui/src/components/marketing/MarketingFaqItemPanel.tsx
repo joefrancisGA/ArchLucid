@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { MarketingFaqItem } from "@/lib/marketing-faq";
@@ -12,13 +13,25 @@ export type MarketingFaqItemPanelProps = {
 
 export function MarketingFaqItemPanel(props: MarketingFaqItemPanelProps): React.JSX.Element {
   const { item, forceOpen = false, defaultOpen = false } = props;
-  const detailsProps =
-    forceOpen ? { open: true } : defaultOpen ? { defaultOpen: true as const } : {};
+  const [open, setOpen] = useState(defaultOpen);
+
+  useEffect(() => {
+    if (forceOpen) {
+      setOpen(true);
+    }
+  }, [forceOpen]);
 
   return (
     <details
       id={item.id}
-      {...detailsProps}
+      open={forceOpen || open}
+      onToggle={(event) => {
+        if (forceOpen) {
+          return;
+        }
+
+        setOpen(event.currentTarget.open);
+      }}
       className="group scroll-mt-24 rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm open:shadow-md dark:border-neutral-800 dark:bg-neutral-950"
       data-testid={`marketing-faq-item-${item.id}`}
     >
