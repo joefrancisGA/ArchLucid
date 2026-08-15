@@ -76,7 +76,15 @@ public static class AgentTopologyProposalGraphMerge
                     if (TopologyProposalRelationshipEndpointIndex.TryClaimService(svc, seenTopologyKeys))
                     {
                         if (materializeNodes)
+                        {
                             added.Add(TopologyServiceNode(svc, reasoning));
+                        }
+                        else
+                        {
+                            TopologyProposalRelationshipEndpointIndex.AddDeclaredManifestServiceEndpointAliases(
+                                endpointAliases,
+                                svc);
+                        }
 
                         continue;
                     }
@@ -95,7 +103,15 @@ public static class AgentTopologyProposalGraphMerge
                     if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(ds, seenTopologyKeys))
                     {
                         if (materializeNodes)
+                        {
                             added.Add(TopologyDatastoreNode(ds, reasoning));
+                        }
+                        else
+                        {
+                            TopologyProposalRelationshipEndpointIndex.AddDeclaredManifestDatastoreEndpointAliases(
+                                endpointAliases,
+                                ds);
+                        }
 
                         continue;
                     }
