@@ -11,6 +11,8 @@ export type FinishSetupWizardContext = {
   readonly healthReady: boolean;
   readonly healthLoadFailed: boolean;
   readonly principalAdmin: boolean;
+  /** `true` when corporate OIDC/SAML is configured; `null` when diagnostics are unavailable. */
+  readonly identityConfigured?: boolean | null;
 };
 
 export type FinishSetupWizardStep = {
@@ -38,7 +40,7 @@ export const FINISH_SETUP_WIZARD_STEPS: readonly FinishSetupWizardStep[] = [
     description: "Wire your IdP so operators sign in with corporate credentials.",
     href: "/administration/identity/sso-wizard",
     cta: "Open SSO wizard",
-    isDone: () => false,
+    isDone: (ctx) => ctx.identityConfigured === true,
   },
   {
     id: "admin-role",
