@@ -24,7 +24,6 @@ INVENTORY_REL = Path("docs/library/WEEKLY_BUYER_CLAIM_DRIFT_2026_07_27.md")
 FILES_TO_SCAN: tuple[Path, ...] = (
     Path("docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md"),
     Path("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md"),
-    Path("archlucid-ui/src/lib/live-demo-page-copy.ts"),
     Path("archlucid-ui/src/lib/see-it-page-copy.ts"),
 )
 
@@ -84,17 +83,17 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
     ),
     ClaimPattern(
         re.compile(
-            r'LIVE_DEMO_PAGE_TITLE\s*=\s*["\']Live demo["\']',
+            r'SEE_IT_PAGE_TITLE\s*=\s*["\']Live demo["\']',
             re.IGNORECASE,
         ),
-        "Live demo must not be the primary H1/title — use sample-walkthrough honesty (C4 / TB-1265).",
+        "Live demo must not be the primary see-it title — use sample-walkthrough honesty (C4 / TB-1281).",
     ),
     ClaimPattern(
         re.compile(
-            r'LIVE_DEMO_PAGE_METADATA_TITLE[^"\n]*["\'][^"\n]*\blive demo\b',
+            r'SEE_IT_PAGE_METADATA_TITLE[^"\n]*["\'][^"\n]*\blive demo\b',
             re.IGNORECASE,
         ),
-        "Live demo must not appear in metadata title (C4 / TB-1265).",
+        "Live demo must not appear in see-it metadata title (C4 / TB-1281).",
     ),
     ClaimPattern(
         re.compile(
