@@ -37,6 +37,27 @@ export type PrivacyPolicyRelatedDocument = {
   readonly href: string;
 };
 
+export type PrivacyPolicyRevisionEntry = {
+  readonly documentVersion: string;
+  readonly effectiveDate: string;
+  readonly summary: string;
+};
+
+/** Published revision log — align entries when the controlled policy changes materially. */
+export const PRIVACY_POLICY_REVISION_HISTORY: readonly PrivacyPolicyRevisionEntry[] = [
+  {
+    documentVersion: "2026-07-25",
+    effectiveDate: "2026-07-25",
+    summary:
+      "Clarified marketing analytics consent, subprocessors, international transfers, and GDPR/CCPA rights wording.",
+  },
+  {
+    documentVersion: "2026-04-26",
+    effectiveDate: "2026-04-26",
+    summary: "Initial public privacy policy published for archlucid.net and the ArchLucid platform.",
+  },
+] as const;
+
 export const PRIVACY_POLICY_QUICK_NAV_ITEMS: readonly PrivacyPolicyQuickNavItem[] = [
   { label: "Information we collect", sectionPrefix: "2." },
   { label: "How we use information", sectionPrefix: "3." },

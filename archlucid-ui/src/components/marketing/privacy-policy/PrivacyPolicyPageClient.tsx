@@ -4,11 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { PrivacyEvidenceOrientationStrip } from "@/components/marketing/PrivacyEvidenceOrientationStrip";
+import { PrivacyPolicyAtGlanceSummary } from "@/components/marketing/privacy-policy/PrivacyPolicyAtGlanceSummary";
 import { PrivacyPolicyRelatedDocuments } from "@/components/marketing/privacy-policy/PrivacyPolicyRelatedDocuments";
+import { PrivacyPolicyRevisionHistory } from "@/components/marketing/privacy-policy/PrivacyPolicyRevisionHistory";
 import { PrivacyPolicyTableOfContents } from "@/components/marketing/privacy-policy/PrivacyPolicyTableOfContents";
 import { MARKETING_SURFACES } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import type { PrivacyPolicyMetadata, PrivacyPolicyRelatedDocument } from "@/lib/privacy-policy-content";
+import { PRIVACY_POLICY_REVISION_HISTORY } from "@/lib/privacy-policy-content";
 import { PRIVACY_POLICY_LAYOUT } from "@/lib/privacy-policy-layout";
 
 const PRIVACY_FOCUSED_READING_BODY_CLASS = "privacy-focused-reading";
@@ -108,11 +111,7 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
 
       <div
         className={PRIVACY_POLICY_LAYOUT.progressTrack}
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={Math.round(scrollProgress)}
-        aria-label="Reading progress"
+        aria-hidden="true"
         data-testid="privacy-policy-reading-progress"
       >
         <div className={PRIVACY_POLICY_LAYOUT.progressBar} style={{ width: `${scrollProgress}%` }} />
@@ -127,9 +126,15 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
               and product users.
             </p>
             <div className={PRIVACY_POLICY_LAYOUT.metaRow}>
-              {effectiveLabel !== null ? <span>{effectiveLabel}</span> : null}
-              {reviewedLabel !== null ? <span>{reviewedLabel}</span> : null}
-              <span>Document version: {props.metadata.documentVersion}</span>
+              {effectiveLabel !== null ? (
+                <span className={PRIVACY_POLICY_LAYOUT.effectiveDate}>{effectiveLabel}</span>
+              ) : null}
+              {reviewedLabel !== null ? (
+                <span className={PRIVACY_POLICY_LAYOUT.metaSecondary}>{reviewedLabel}</span>
+              ) : null}
+              <span className={PRIVACY_POLICY_LAYOUT.metaSecondary}>
+                Document version: {props.metadata.documentVersion}
+              </span>
             </div>
 
             <div className={PRIVACY_POLICY_LAYOUT.utilities}>
@@ -179,6 +184,9 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
               <PrivacyPolicyTableOfContents headings={props.headings} variant="mobile" />
             </div>
           </header>
+
+          <PrivacyPolicyAtGlanceSummary />
+          <PrivacyPolicyRevisionHistory entries={PRIVACY_POLICY_REVISION_HISTORY} />
 
           {props.bodyMarkdown.length > 0 ? (
             <div className="mt-8" data-testid="privacy-policy-body">
