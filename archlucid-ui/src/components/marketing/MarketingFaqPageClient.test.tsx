@@ -19,8 +19,7 @@ describe("MarketingFaqPageClient", () => {
     );
     expect(screen.getByTestId("marketing-faq-most-asked")).toBeInTheDocument();
     expect(screen.getByTestId("marketing-faq-diligence-ctas")).toBeInTheDocument();
-    expect(screen.getByTestId("faq-orientation-claim")).toBeInTheDocument();
-    expect(screen.getByTestId("faq-orientation-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("faq-orientation")).toBeInTheDocument();
   });
 
   it("filters accordion items and the table of contents when searching", () => {

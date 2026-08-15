@@ -117,8 +117,6 @@ export function MarketingFaqPageClient(): React.JSX.Element {
           {formatMarketingFaqSearchStatus(filteredItems.length, MARKETING_FAQ_ITEMS.length)}
         </p>
 
-        <FaqEvidenceOrientationStrip part="claim" />
-
         {showMostAsked ? (
           <section
             aria-labelledby="marketing-faq-most-asked-heading"
@@ -188,7 +186,7 @@ export function MarketingFaqPageClient(): React.JSX.Element {
           </div>
         )}
 
-        <FaqEvidenceOrientationStrip part="sources" />
+        <FaqEvidenceOrientationStrip />
 
         <footer className="mt-10 space-y-4 border-t border-neutral-200 pt-8 dark:border-neutral-800">
           <MarketingFaqCtaRow testId="marketing-faq-cta-bottom" />

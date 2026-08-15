@@ -113,8 +113,6 @@ export function WhyArchlucidMarketingView({ frontDoorRows }: WhyArchlucidMarketi
         </p>
       </section>
 
-      <WhyEvidenceOrientationStrip />
-
       <section className="mt-12" aria-labelledby="why-vs-chat-assistant-heading" data-testid="why-vs-chat-assistant">
         <h2 id="why-vs-chat-assistant-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
           vs a chat assistant (ChatGPT, Copilot, Claude)
@@ -394,6 +392,8 @@ export function WhyArchlucidMarketingView({ frontDoorRows }: WhyArchlucidMarketi
           .
         </p>
       </section>
+
+      <WhyEvidenceOrientationStrip />
     </MarketingPageShell>
   );
 }

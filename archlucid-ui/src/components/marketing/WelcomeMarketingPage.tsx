@@ -75,7 +75,6 @@ export function WelcomeMarketingPage(props: {
     <>
       <WelcomeMarketingHeroSection />
       <MarketingPageShell>
-        <WelcomeEvidenceOrientationStrip />
         <WelcomeMarketingProblemSolutionSection />
 
         <WelcomeMarketingWorkflowSection />
@@ -124,6 +123,8 @@ export function WelcomeMarketingPage(props: {
             initialPricing={initialPricing}
           />
         </section>
+
+        <WelcomeEvidenceOrientationStrip />
       </MarketingPageShell>
     </>
   );
