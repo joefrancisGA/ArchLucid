@@ -15,7 +15,7 @@ class TestAdoptionBatch5AR(unittest.TestCase):
         self.assertIn("/governance/exceptions", text)
 
     def test_tb_223_dashboard_still_wires_summary(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "ExecutiveWorkspaceHealthDashboard.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "SponsorWorkspaceHealthDashboard.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("DecisionsNeededSummaryCard", text)
         self.assertIn("useGovernanceDecisionsNeededSummaryQuery", text)
