@@ -36,6 +36,8 @@ PREFERRED_NEW_ROW_IDS: dict[str, str] = {
     "/architecture/reviews/[reviewId]?archTab=findings": "REF",
     "/architecture/reviews/[reviewId]?archTab=governance": "REG",
     "/architecture/reviews/[reviewId]?archTab=overview": "REO",
+    "/insights/pilot-outcomes": "SPP",
+    "/insights/sponsor-report": "SPE",
 }
 
 # When workbook path migrations collide, keep the canonical tab/hub row id (ADV hub retired → ADT).
@@ -194,7 +196,6 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     # folds into the SPE row rather than tracking a dead path. Migrations resolve in a single pass,
     # so the older `/value-report/pilot` bookmark has to name the final destination too.
     "/value-report/pilot": "/insights/sponsor-report",
-    "/insights/pilot-outcomes": "/insights/sponsor-report",
     # Validate review (replay) under Internal Operations.
     "/replay": "/internal/validate-route",
     "/internal/replay": "/internal/validate-route",
@@ -434,6 +435,7 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
     if (
         path.startswith("/insights/sponsor-report")
         or path.startswith("/insights/roi-summary")
+        or path.startswith("/insights/pilot-outcomes")
     ):
         return "Sponsor report"
     if path.startswith("/architecture/digests") or path.startswith("/digests") or path == "/digest-subscriptions":
