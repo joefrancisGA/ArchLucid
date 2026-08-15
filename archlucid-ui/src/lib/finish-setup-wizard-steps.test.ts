@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  countFinishSetupReadySteps,
   FINISH_SETUP_SYSTEM_HEALTH_PATH,
   FINISH_SETUP_WIZARD_STEPS,
   resolveFinishSetupWizardSteps,
@@ -32,5 +33,44 @@ describe("finish-setup-wizard-steps", () => {
   it("does not include cloud inventory evidence — Core Pilot walkthrough owns that link", () => {
     expect(FINISH_SETUP_WIZARD_STEPS.some((step) => step.id === "extract")).toBe(false);
     expect(FINISH_SETUP_WIZARD_STEPS.some((step) => step.href === "/administration/extract-upload")).toBe(false);
+  });
+
+  it("counts identity as ready only when identityConfigured is explicitly true", () => {
+    const managedSaas = { selfHosted: false } as const;
+
+    expect(
+      countFinishSetupReadySteps(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: true,
+          identityConfigured: true,
+        },
+        managedSaas,
+      ),
+    ).toEqual({ ready: 2, total: 2 });
+
+    expect(
+      countFinishSetupReadySteps(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: true,
+          identityConfigured: false,
+        },
+        managedSaas,
+      ),
+    ).toEqual({ ready: 1, total: 2 });
+
+    expect(
+      countFinishSetupReadySteps(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: true,
+        },
+        managedSaas,
+      ),
+    ).toEqual({ ready: 1, total: 2 });
   });
 });

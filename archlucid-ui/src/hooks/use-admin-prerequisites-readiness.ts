@@ -10,6 +10,7 @@ import { fetchAdminPrerequisitesCloudConnectionsSummary } from "@/lib/fetch-admi
 import { fetchIdentityProvidersPageBundle } from "@/lib/fetch-identity-providers-page-bundle-client";
 import type { FinishSetupWizardContext } from "@/lib/finish-setup-wizard-steps";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
+import { resolveCorporateSignInConfigured } from "@/lib/resolve-corporate-sign-in-configured";
 import {
   resolveAdminPrerequisitesReadiness,
   type AdminPrerequisiteRow,
@@ -100,12 +101,6 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
 
     const healthReady = health !== null && health !== undefined && health.status.toLowerCase().includes("healthy");
     const healthLoadFailed = health === null;
-    const finishSetupContext: FinishSetupWizardContext = {
-      healthReady,
-      healthLoadFailed,
-      principalAdmin: currentPrincipal.authorityRank >= AUTHORITY_RANK.AdminAuthority,
-    };
-
     let canceled = false;
 
     void (async () => {
@@ -115,6 +110,15 @@ export function useAdminPrerequisitesReadiness(enabled: boolean): AdminPrerequis
         fetchIdentityDiagnostics(),
         fetchCloudSummary(),
       ]);
+      const finishSetupContext: FinishSetupWizardContext = {
+        healthReady,
+        healthLoadFailed,
+        principalAdmin: currentPrincipal.authorityRank >= AUTHORITY_RANK.AdminAuthority,
+        identityConfigured: resolveCorporateSignInConfigured(
+          identityDiagnostics.identity,
+          identityDiagnostics.identityLoadFailed,
+        ),
+      };
 
       if (!canceled) {
         setInput({
