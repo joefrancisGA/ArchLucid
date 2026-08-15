@@ -37,30 +37,30 @@ function baseArchitecture(
   };
 }
 
-function finding(severityValue: number): QuickDecisionFinding {
+function finding(severityValue: number, wireJson = "{}"): QuickDecisionFinding {
   return {
     findingId: "finding-1",
     title: "Encrypt data at rest",
     recommendation: "Enable encryption.",
     severityValue,
     findingOrder: 0,
-    aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+    aiReasoning: { wireJson, reasoningTrace: "" },
     isMuted: false,
     muteReason: null,
     enforcementTier: "blocking",
   };
 }
 
+const completeArchitectureSourceText =
+  "## Trust boundaries\nPrivate networking between ingress and data stores.\n" +
+  "## Assumptions\n99.9% availability target.\n" +
+  "## External integrations\nPayment gateway";
+
 describe("architecture-sponsor-readiness", () => {
   it("rates a complete architecture as ready", () => {
-    const architectureSourceText =
-      "## Trust boundaries\nPrivate networking between ingress and data stores.\n" +
-      "## Assumptions\n99.9% availability target.\n" +
-      "## External integrations\nPayment gateway";
-
     const assessment = assessArchitectureSponsorReadiness({
       architecture: baseArchitecture(),
-      architectureSourceText,
+      architectureSourceText: completeArchitectureSourceText,
       findings: [],
       canShare: true,
     });
@@ -85,6 +85,20 @@ describe("architecture-sponsor-readiness", () => {
     expect(assessment.status).toBe("preliminary-only");
     expect(assessment.issues.length).toBeGreaterThan(0);
     expect(assessment.issues.some((issue) => issue.id === "missing-business-owner")).toBe(true);
+  });
+
+  it("does not treat disposition-closed critical findings as unresolved high-severity risks", () => {
+    const assessment = assessArchitectureSponsorReadiness({
+      architecture: baseArchitecture(),
+      architectureSourceText: completeArchitectureSourceText,
+      findings: [
+        finding(4, JSON.stringify({ latestDisposition: "Accepted" })),
+      ],
+      canShare: true,
+    });
+
+    expect(assessment.status).toBe("ready");
+    expect(assessment.issues.some((issue) => issue.id === "unresolved-high-severity-risks")).toBe(false);
   });
 
   it("blocks sharing when policy prohibits external sponsor distribution", () => {
