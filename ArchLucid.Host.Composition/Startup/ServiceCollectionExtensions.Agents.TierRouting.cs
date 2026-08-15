@@ -34,6 +34,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Agents;
+using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -121,6 +122,8 @@ public static partial class ServiceCollectionExtensions
 
     private static void RegisterTieredAzureCompletionRouter(IServiceCollection services)
     {
+        services.AddScoped<ITenantAzureOpenAiCompletionClientFactory, TenantAzureOpenAiCompletionClientFactory>();
+
         services.AddScoped<IAgentTierCompletionRouter>(sp =>
         {
             IAgentModelTierResolver resolver = sp.GetRequiredService<IAgentModelTierResolver>();
@@ -135,6 +138,10 @@ public static partial class ServiceCollectionExtensions
             IAgentCompletionDeploymentResolver deploymentResolver =
                 sp.GetRequiredService<IAgentCompletionDeploymentResolver>();
             Guid tenantId = sp.GetRequiredService<IScopeContextProvider>().GetCurrentScope().TenantId;
+            ITenantAzureOpenAiCompletionClientFactory tenantFactory =
+                sp.GetRequiredService<ITenantAzureOpenAiCompletionClientFactory>();
+            ITenantAzureOpenAiConnectionRepository tenantConnectionRepository =
+                sp.GetRequiredService<ITenantAzureOpenAiConnectionRepository>();
 
             string ResolveEffectiveDeployment(string tierDeployment)
             {
@@ -150,6 +157,34 @@ public static partial class ServiceCollectionExtensions
                 tier =>
                 {
                     string tierDeployment = resolver.ResolveDeploymentName(tier);
+
+                    AzureOpenAiCompletionClient? tenantClient = tenantFactory
+                        .TryCreateAsync(tenantId, tierDeployment, CancellationToken.None)
+                        .ConfigureAwait(false)
+                        .GetAwaiter()
+                        .GetResult();
+
+                    if (tenantClient is not null)
+                    {
+                        TenantAzureOpenAiConnectionRecord? tenantConnection = tenantConnectionRepository
+                            .GetAsync(tenantId, CancellationToken.None)
+                            .ConfigureAwait(false)
+                            .GetAwaiter()
+                            .GetResult();
+
+                        string tenantDeployment = tenantConnection is not null
+                            ? TenantAzureOpenAiDeploymentsCatalog.ResolveDeploymentName(
+                                tenantConnection.DeploymentsJson,
+                                tierDeployment)
+                            : tierDeployment;
+
+                        return BuildAzureOpenAiScopedCompletionChain(
+                            sp,
+                            tenantClient,
+                            primaryGate,
+                            tenantDeployment);
+                    }
+
                     string effectiveDeployment = ResolveEffectiveDeployment(tierDeployment);
                     bool isPrimaryTierDeployment = string.Equals(
                         tierDeployment,

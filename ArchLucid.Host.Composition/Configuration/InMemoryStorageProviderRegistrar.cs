@@ -26,6 +26,7 @@ using ArchLucid.Core.Feedback;
 using ArchLucid.Core.GoToMarket;
 using ArchLucid.Core.Marketing;
 using ArchLucid.Core.Admin;
+using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.AzureExtractor;
@@ -181,6 +182,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<ISupportProblemReportRepository, InMemorySupportProblemReportRepository>();
         services.AddSingleton<IDraftRequestRepository, InMemoryDraftRequestRepository>();
         services.AddSingleton<ITenantTeamsIncomingWebhookConnectionRepository, InMemoryTenantTeamsIncomingWebhookConnectionRepository>();
+        services.AddSingleton<ITenantAzureOpenAiConnectionRepository, InMemoryTenantAzureOpenAiConnectionRepository>();
         services.AddSingleton<ITenantExecDigestPreferencesRepository, InMemoryTenantExecDigestPreferencesRepository>();
         services.AddSingleton<IWeeklyArchitectureCriticalFindingSummaryRepository,
             InMemoryWeeklyArchitectureCriticalFindingSummaryRepository>();

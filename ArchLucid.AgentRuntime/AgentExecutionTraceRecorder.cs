@@ -203,6 +203,7 @@ public sealed class AgentExecutionTraceRecorder(
             ModelAlias = resolvedModelAlias,
             ModelDeploymentName = resolvedDeployment,
             ModelVersion = resolvedVersion,
+            ProviderConnectionId = TenantAzureOpenAiProviderConnectionAmbient.TryConsume(),
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 

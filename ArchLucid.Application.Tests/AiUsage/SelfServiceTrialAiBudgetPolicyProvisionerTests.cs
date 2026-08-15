@@ -1,4 +1,5 @@
 using ArchLucid.Application.AiUsage;
+using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
@@ -196,6 +197,7 @@ public sealed class TenantAiBudgetPolicyResolverSelfServiceTrialTests
             tenantRepository,
             policyRepository,
             budgetRepository,
+            new InMemoryTenantAzureOpenAiConnectionRepository(),
             aiUsageOptions.Object,
             monthlyOptions.Object,
             configuration,

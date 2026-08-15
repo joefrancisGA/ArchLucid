@@ -29,6 +29,7 @@ using ArchLucid.Core.Feedback;
 using ArchLucid.Core.GoToMarket;
 using ArchLucid.Core.Marketing;
 using ArchLucid.Core.Admin;
+using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Search;
@@ -519,6 +520,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ISupportProblemReportRepository, DapperSupportProblemReportRepository>();
         services.AddScoped<IDraftRequestRepository, DapperDraftRequestRepository>();
         services.AddScoped<ITenantTeamsIncomingWebhookConnectionRepository, DapperTenantTeamsIncomingWebhookConnectionRepository>();
+        services.AddScoped<ITenantAzureOpenAiConnectionRepository, DapperTenantAzureOpenAiConnectionRepository>();
         services.AddScoped<ITenantExecDigestPreferencesRepository, DapperTenantExecDigestPreferencesRepository>();
         services.AddScoped<ITenantHardPurgeService, SqlTenantHardPurgeService>();
         services.AddScoped<IPlatformAuditRepository, DapperPlatformAuditRepository>();

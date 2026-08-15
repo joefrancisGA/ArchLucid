@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application.AiProviders;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Findings;
@@ -205,6 +206,7 @@ public static partial class ServiceCollectionExtensions
             .AddOutboundExternalHttpResilience();
         services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
         services.AddScoped<ITenantItsmOutboundSettingsService, TenantItsmOutboundSettingsService>();
+        services.AddScoped<ITenantAzureOpenAiConnectionService, TenantAzureOpenAiConnectionService>();
         services.AddScoped<IItsmTenantConnectorCredentialResolver, ItsmTenantConnectorCredentialResolver>();
         services.AddSingleton<IItsmInboundWebhookReplayGuard, MemoryCacheItsmInboundWebhookReplayGuard>();
         services.AddSingleton<ItsmConnectorOAuthAccessTokenCache>();

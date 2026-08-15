@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
 import { ModelGovernanceSettingsCard } from "./_sections/ModelGovernanceSettingsCard";
+import { ModelGovernanceAzureOpenAiConnectionCard } from "./_sections/ModelGovernanceAzureOpenAiConnectionCard";
 
 /** Admin workspace model governance: default execution profile, alias registry, and profile mappings (TB-871). */
 export default function ModelGovernanceSettingsPage() {
@@ -23,6 +24,7 @@ export default function ModelGovernanceSettingsPage() {
       />
       <ModelGovernanceSettingsEvidenceOrientationStrip />
       <ModelGovernanceAiUsageVocabularyRail currentSurfaceId="model-governance" />
+      <ModelGovernanceAzureOpenAiConnectionCard />
       <ModelGovernanceSettingsCard />
     </OperatorPageContainer>
   );

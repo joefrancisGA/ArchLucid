@@ -42,7 +42,8 @@ internal static class AgentExecutionTraceSql
                                      EstimatedCostUsd,
                                      ModelAlias,
                                      QualityWarning,
-                                     QualityRejected
+                                     QualityRejected,
+                                     ProviderConnectionId
                                  )
                                  VALUES
                                  (
@@ -67,7 +68,8 @@ internal static class AgentExecutionTraceSql
                                      @EstimatedCostUsd,
                                      @ModelAlias,
                                      @QualityWarning,
-                                     @QualityRejected
+                                     @QualityRejected,
+                                     @ProviderConnectionId
                                  );
                                  """;
 
