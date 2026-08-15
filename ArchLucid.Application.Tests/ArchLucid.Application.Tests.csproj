@@ -65,6 +65,7 @@
     </None>
     <None Include="Exports\ArchitectureReviewBoard\Golden\architecture-review-board-section-headings-order.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Exports\Golden\sponsor-review-packet-demo-run.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="ArchitectureIntelligence\Fixtures\GoldenPlantedDefectRecallBaseline.v1.json" Link="ArchitectureIntelligence\Fixtures\GoldenPlantedDefectRecallBaseline.v1.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

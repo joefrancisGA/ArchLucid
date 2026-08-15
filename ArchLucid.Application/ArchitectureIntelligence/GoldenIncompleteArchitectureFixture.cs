@@ -71,6 +71,17 @@ public static class GoldenIncompleteArchitectureFixture
         {
             TenantId = tenantId,
             DeclaredPriorities = ["Security", "Reliability", "Cost"],
+            FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["business-outcome"] = "Process insurance claims submissions for US customers.",
+                ["system-boundary"] =
+                    "Public API, billing worker, and SQL database are in scope; external identity provider is out of scope.",
+                ["fixed-decisions"] = "Azure App Service hosting is fixed.",
+                ["critical-quality-attributes"] = "Security is critical; cost is secondary.",
+                ["unacceptable-failures"] =
+                    "Customer PII breach and inability to process claims are unacceptable.",
+                ["architecture-kind"] = "Greenfield claims intake service.",
+            },
             SourceTexts =
             [
                 new ClosedLoopReasoningSourceText

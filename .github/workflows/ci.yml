@@ -1973,7 +1973,20 @@ jobs:
         run: |
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj \
             -c Release --no-build \
-            --filter "FullyQualifiedName~ArchitectureIntelligenceGoldenRegression"
+            --filter "FullyQualifiedName~ArchitectureIntelligenceGoldenRegression|FullyQualifiedName~ArchitectureIntelligenceBatch48"
+
+      - name: Setup Node.js (architecture lifecycle batch helpers)
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Architecture lifecycle batch helper unit tests
+        working-directory: archlucid-ui
+        run: |
+          npm ci
+          npm run test:vitest-single-worker -- e2e/helpers/architecture-lifecycle-batch-*.test.ts
 
       - name: Upload agent eval scorecard
         if: always() && steps.eval_corpus.outcome != 'skipped'

@@ -65,8 +65,8 @@ public sealed class GoldenArchitectureTestRunner : IGoldenArchitectureTestRunner
             || result.ReReview?.SpecialistResults.Count > 0;
 
         // Release gate: mutation sensitivity + category scores + non-empty closed-loop output.
-        // Planted-defect recall is reported for trend tracking; title matching is heuristic and
-        // must not alone fail CI when extraction wording drifts.
+        // Planted-defect recall floor is enforced in ArchitectureIntelligenceGoldenRegressionTests
+        // (heuristic title-pattern matching; baseline tracked in GoldenPlantedDefectRecallBaseline.v1.json).
         bool passed = mutationChangedFindings
             && categoryScores.Count == 4
             && (findings.Count + result.Recommendations.Count) > 0;

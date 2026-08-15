@@ -164,7 +164,7 @@ public sealed class ArchitectureIntelligenceBenchmarkTests
 
         IReadOnlyList<ArchitectureIntelligenceDeepCase> deepCases = sut.GetDeepCases();
 
-        deepCases.Should().HaveCount(5);
+        deepCases.Should().HaveCountGreaterThanOrEqualTo(8);
         deepCases.Should().Contain(deepCase =>
             deepCase.CaseId == GoldenIncompleteArchitectureFixture.DeepCaseId
             && deepCase.PlantedDefects.Count >= 3);

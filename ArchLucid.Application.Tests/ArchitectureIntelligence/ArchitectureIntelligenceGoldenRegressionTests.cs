@@ -39,5 +39,14 @@ public sealed class ArchitectureIntelligenceGoldenRegressionTests
         result.AfterCounts.Should().ContainKey(ArchitectureKnowledgeModelMetrics.HighSeverityFindings);
         result.PlantedDefectsDetected.Should().NotBeNull();
         result.PlantedDefectsMissed.Should().NotBeNull();
+
+        ArchitectureIntelligenceGoldenRecallBaseline.GoldenPlantedDefectRecallBaselineDocument baseline =
+            ArchitectureIntelligenceGoldenRecallBaseline.Load();
+
+        result.PlantedDefectRecall.Should().BeGreaterThanOrEqualTo(
+            baseline.MinimumPlantedDefectRecall,
+            "golden planted-defect recall must meet the committed CI floor");
+        result.PlantedDefectRecall.Should().BeGreaterThanOrEqualTo(
+            ArchitectureIntelligenceGoldenRecallPolicy.GoldenIncompleteMinimumRecall);
     }
 }
