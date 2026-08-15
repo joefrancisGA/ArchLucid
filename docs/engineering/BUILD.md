@@ -166,6 +166,15 @@ Shared resolution lives in **`ArchLucid.TestSupport`** (`SqlServerIntegrationTes
 
 **CI:** The **`dotnet-full-regression`** job in **`.github/workflows/ci.yml`** sets **`ARCHLUCID_SQL_TEST`** against the **SQL Server 2022** service container (corset build/test shards do not start SQL). **`guards-pre-corset`** runs text/Python guards in parallel with Tier **0.x** Terraform/OpenAPI; **`dotnet-fast-core-build`** **`needs`** that job plus Terraform validate so invalid IaC or policy drift fails before corset **restore/build** and parallel **fast-core test** shards.
 
+### Terraform posture tier (`posture_tier`, TB-903)
+
+Each production-like Terraform root under **`infra/terraform-*`** declares **`posture_tier`** (`dev` | `staging` | `production`) and **`check`** blocks in **`posture_checks.tf`** that fail **`terraform plan`** when production or staging posture-critical flags are off (monitoring stack, per-RG consumption budgets, Front Door WAF, secondary region stack, SQL failover group, private endpoints / public-access closure).
+
+- Set **`posture_tier`** explicitly in environment **`*.tfvars`** (see **`production.tfvars.example`** / **`staging.tfvars.example`** per root).
+- Documented exceptions use **`posture_waivers`** (each entry requires **`id`** + **`reason`**); staging SQL failover drill windows may use waiver id **`staging-sql-failover-drill-window`** (pairs **TB-905**).
+- **`infra/terraform-private`** closes public network access on SQL, storage, and Key Vault when **`enable_private_data_plane = true`** (`public_access_closure.tf`).
+- CI drift guard: `python scripts/ci/assert_terraform_posture_tier_examples.py` (unit tests in **`scripts/ci/tests/test_assert_terraform_posture_tier_examples.py`**).
+
 **API latency tiers (TB-2079):** Machine-readable route tiers live in **`scripts/ci/data/api_latency_tiers.v1.json`** (sourced from **`docs/library/LONG_RUNNING_OPERATIONS_CONTRACT.md`**). Regenerate or edit that JSON when adding Tier C/D HTTP surfaces, mark async accepts with **`[AsyncRequired]`** + **`ProducesResponseType(Status202Accepted)`**, and keep Simulator/CI sync execute/replay on **`tierCSyncPathAllowlist`**. Local check:
 
 ```bash

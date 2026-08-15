@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Roi;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
@@ -172,7 +173,8 @@ public sealed class RoiControllerTests
     private static RoiController CreateController(
         ISponsorRoiSummaryService SponsorRoiSummaryService,
         ISponsorRoiBoardPackExporter boardPackExporter,
-        IAuditService? audit = null)
+        IAuditService? audit = null,
+        IComplianceDriftTrendService? complianceDriftTrendService = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -186,7 +188,8 @@ public sealed class RoiControllerTests
                 SponsorRoiSummaryService,
                 boardPackExporter,
                 audit ?? Mock.Of<IAuditService>(),
-                scopeProvider.Object)
+                scopeProvider.Object,
+                complianceDriftTrendService ?? Mock.Of<IComplianceDriftTrendService>())
             {
                 ControllerContext = new ControllerContext { HttpContext = httpContext }
             };
