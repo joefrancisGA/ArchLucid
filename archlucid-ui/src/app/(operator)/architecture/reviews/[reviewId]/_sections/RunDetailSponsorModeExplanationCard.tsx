@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
+import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
@@ -26,7 +27,7 @@ function firstNonEmptyLine(value: string | null | undefined): string {
 
 function topFindings(findings: readonly QuickDecisionFinding[]): readonly QuickDecisionFinding[] {
   return [...findings]
-    .filter((finding) => !finding.isMuted)
+    .filter((finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding))
     .sort((a, b) => {
       const severityDelta = b.severityValue - a.severityValue;
 
