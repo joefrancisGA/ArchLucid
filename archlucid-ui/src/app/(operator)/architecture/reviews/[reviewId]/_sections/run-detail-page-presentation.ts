@@ -1,6 +1,7 @@
 import type { ArchitectureCreatedHomeModel, BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
+import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer/buyer-golden-spine-run-id";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
@@ -188,8 +189,13 @@ function resolveReviewPolicyPackCallout(model: RunDetailPageModel): ReviewPolicy
 }
 
 function countPendingDecisions(findings: readonly QuickDecisionFinding[]): number {
-  return findings.filter((finding) => humanReviewStatusDisplay(finding.humanReviewStatus)?.label === "Pending review")
-    .length;
+  return findings.filter((finding) => {
+    if (finding.isMuted || isReviewFindingDispositionClosed(finding)) {
+      return false;
+    }
+
+    return humanReviewStatusDisplay(finding.humanReviewStatus)?.label === "Pending review";
+  }).length;
 }
 
 function guidedIntakeRerunHref(runId: string): string {
@@ -228,6 +234,7 @@ export async function buildRunDetailPresentation(
     deriveSubmittedArchitectureText,
     formatDecisionSnapshotFindingsLine,
     formatDecisionSnapshotGovernanceOutcome,
+    filterUnresolvedFindings,
   } = await import("@/lib/run-detail-workspace-derive");
 
   const runSummaryForBadge = model.progressForPipelineUi;
@@ -273,7 +280,9 @@ export async function buildRunDetailPresentation(
     runCreatedUtc: model.resolvedDetail.run.createdUtc,
     submittedArchitecturePresent: hasSubmittedArchitecture,
   });
-  const evidenceGapsCount = quickDecisionFindings.filter((finding) => (finding.evidenceRefCount ?? 0) === 0).length;
+  const evidenceGapsCount = filterUnresolvedFindings(quickDecisionFindings).filter(
+    (finding) => (finding.evidenceRefCount ?? 0) === 0,
+  ).length;
   const evidenceCoverageComplete =
     evidenceGapsCount === 0 &&
     model.artifacts.length > 0 &&
