@@ -1,17 +1,17 @@
 ---
-description: Rate a UI screenshot with Opus High, ship the P0 fixes with Composer 2.5, commit to master, and update traffic estimates
+description: Rate a UI screenshot with Opus High, ship every fix in the backlog with Composer 2.5, commit to master, and update traffic estimates
 ---
 
 # Rate UI from screenshot (`/al-ui-rate`)
 
-Owner/operator screenshot critique **plus remediation pipeline** for ArchLucid UI surfaces. Distinct from `/al-ui-score` (workbook score write only) and `/lucid-ui-audit` (persona screenshot suite). This command rates **what is visible in the attached screenshot**, then fixes it.
+Owner/operator screenshot critique **plus remediation pipeline** for ArchLucid UI surfaces. Distinct from `/al-ui-score` (workbook score write only) and `/lucid-ui-audit` (persona screenshot suite). This command rates **what is visible in the attached screenshot**, then fixes **every concrete issue** in the critique backlog — P0, P1, and P2 — not only ship-blockers.
 
 One invocation runs four phases end to end, with **no owner approval gate between them**:
 
 | Phase | Who runs it | Output |
 |-------|-------------|--------|
-| **1 — Rate** | **Opus High** subagent (`claude-opus-5-thinking-high`) | Critique + P0 backlog + current/projected scores |
-| **2 — Implement** | **Composer 2.5** subagent (`composer-2.5`) | Code changes for the P0 backlog + scoped verification |
+| **1 — Rate** | **Opus High** subagent (`claude-opus-5-thinking-high`) | Critique + full prioritized fix backlog + current/projected scores |
+| **2 — Implement** | **Composer 2.5** subagent (`composer-2.5`) | Code changes for the **entire** fix backlog + scoped verification |
 | **3 — Ship** | Parent agent | Commit + push to **`master`**, CI gate |
 | **4 — Score** | Parent agent | UX + Evidence scores and Note in the owner traffic workbook |
 
@@ -61,6 +61,7 @@ If **no screenshot** is attached, stop:
 - **Do not** invent backend defects you cannot see; if a failure mode is only suspected, mark it **hypothesis** and exclude it from Phase 2 scope.
 - **Do not** create `TB-###` / `PD-###` rows unless the user explicitly asks (e.g. "escalate to TB"). Committing UI fixes to `master` and writing the workbook **are** in scope for this command.
 - **Do not** treat decorative marketing polish as enterprise readiness when the screen is an operator/architect surface.
+- **Do not** leave P1/P2 backlog items unimplemented when they are safe, surface-scoped UI fixes — this command ships **all** backlog items, not P0-only.
 - Follow `.cursor/rules/Agent-Working-Tree-Safety.mdc` before editing tracked files; stage **only** paths changed for this run — never `git add -A`.
 - Follow `.cursor/rules/shell-hygiene.mdc` and `.cursor/rules/shell-heartbeat.mdc` for every shell.
 
@@ -70,9 +71,9 @@ If **no screenshot** is attached, stop:
 
 This brief is the evaluation stance for Phase 1 — pass it to the Opus High subagent **exactly**, without paraphrase or softening:
 
-> Critique this as if you were the design lead for Microsoft Azure Portal. Be brutally honest. Focus on enterprise UX, information architecture, visual hierarchy, trustworthiness, accessibility, discoverability, and buyer confidence. Produce a P0 backlog.
+> Critique this as if you were the design lead for Microsoft Azure Portal. Be brutally honest. Focus on enterprise UX, information architecture, visual hierarchy, trustworthiness, accessibility, discoverability, and buyer confidence. Produce a complete prioritized fix backlog covering every concrete issue you find on this screen, no matter how small. Tag each item P0, P1, or P2 by severity.
 
-Apply that stance to **each** attached screenshot. If multiple images show a flow, critique the flow as a sequence and still emit one consolidated P0 backlog.
+Apply that stance to **each** attached screenshot. If multiple images show a flow, critique the flow as a sequence and still emit one consolidated fix backlog.
 
 ---
 
@@ -105,7 +106,7 @@ The subagent prompt must contain:
 2. The route ID / path / section / current scores when known, and the user's context text.
 3. The product-language and Carbon/Fluent grounding rules from **Guardrails**, plus pointers to `docs/library/UI_DESIGN_SYSTEM.md` and (only when buyer confidence is in play) `docs/go-to-market/BUYER_PERSONAS.md`.
 4. Instruction to skim the matching route component(s) via Grep/Glob **only** to name concrete fix targets — file paths make Phase 2 implementable.
-5. The seven critique lenses and the P0 item schema below.
+5. The seven critique lenses and the fix backlog item schema below.
 6. The **rating output contract** below — the subagent's final message must end with it.
 
 #### Critique lenses (subagent must cover all)
@@ -122,37 +123,52 @@ The subagent prompt must contain:
 
 Be concrete: cite **what is visible** (regions, labels, spacing, competing CTAs). No generic "improve UX" advice.
 
-#### P0 item schema
+#### Fix backlog item schema
 
-**P0** means ship-blocking for enterprise credibility on this surface — broken trust, blocked primary task, severe a11y, or buyer-demo embarrassment. Not niceties.
+Every concrete issue goes in the backlog. Tag severity honestly — **do not** park small fixes outside the backlog as "optional commentary."
 
 | Field | Content |
 |-------|---------|
+| **Severity** | `P0`, `P1`, or `P2` |
 | **Title** | Imperative, specific (≤12 words) |
-| **Why P0** | One sentence: what fails for enterprise / buyer if unfixed |
+| **Why** | One sentence: what fails for enterprise / buyer if unfixed (scale urgency to severity) |
 | **Evidence** | What in the screenshot proves it (inferred as needed) |
 | **Fix direction** | Concrete UI/IA change; name likely file/component when known |
 | **Acceptance** | Observable pass condition on this screen |
 
-Rules: prefer **3–8** P0 items; if nothing is truly P0, say so explicitly and list **P1** candidates separately — do **not** inflate. Merge duplicates across screenshots. Order by severity (trust/task-blockers first).
+Severity guide:
+
+| Tag | Meaning |
+|-----|---------|
+| **P0** | Ship-blocking — broken trust, blocked primary task, severe a11y, or buyer-demo embarrassment |
+| **P1** | Meaningful polish — visible hierarchy, spacing, copy, or discoverability gaps that hurt scanability |
+| **P2** | Small but real — minor contrast, label consistency, disclosure placement, redundant chrome |
+
+Rules:
+
+- Include **every** concrete issue you can ground in the screenshot or named components — no matter how small.
+- Prefer **5–15** backlog items when the screen warrants it; sparse screens may have fewer. Do **not** inflate with vague advice.
+- List **hypothesis** / needs-repro items separately — they are **not** part of `fix_count`.
+- Merge duplicates across screenshots. Order by severity (P0 first, then P1, then P2).
 
 #### Rating output contract (required tail of the subagent's reply)
 
 ```text
 RATING
 evidence_current: <0-100>
-evidence_projected: <0-100>   # if every P0 below ships
+evidence_projected: <0-100>   # if every backlog item below ships
 ux_current: <0-100>
-ux_projected: <0-100>         # if every P0 below ships
-p0_count: <n>
+ux_projected: <0-100>         # if every backlog item below ships
+fix_count: <n>               # non-hypothesis backlog items (P0+P1+P2)
+p0_count: <n>                # P0 subset only (reporting)
 one_line_verdict: <=15 words
 ```
 
 Both dimensions match the workbook's Scores series: **Evidence** is position 1 (traceability, provenance, sponsor-safe citations); **UX** is position 2, scored against `docs/library/UI_UX_SCORING_RUBRIC.md` when that rubric exists and against the seven lenses above when it does not. `*_projected` must never be below `*_current`.
 
-**Print the full critique and P0 backlog in chat** before starting Phase 2 — the owner reads it while the work proceeds; it is not an approval gate.
+**Print the full critique and fix backlog in chat** before starting Phase 2 — the owner reads it while the work proceeds; it is not an approval gate.
 
-**Stop here** when `--rate-only` was requested, when the subagent found **no P0 items**, or when every P0 is marked **hypothesis** / needs-repro. In the no-P0 case, still run Phase 4 with `shipped = 0` (see the cap formula) so the workbook records the rating.
+**Stop here** when `--rate-only` was requested, when `fix_count` is **0** (only hypothesis items), or when every backlog item is marked **hypothesis** / needs-repro. In the zero-fix case, still run Phase 4 with `shipped = 0` (see the cap formula) so the workbook records the rating.
 
 ---
 
@@ -165,16 +181,16 @@ Launch **one** `Task` subagent:
 | `subagent_type` | `generalPurpose` |
 | `model` | **`composer-2.5`** |
 | `run_in_background` | `false` |
-| `description` | `Ship UI P0 fixes (Composer)` |
+| `description` | `Ship UI fix backlog (Composer)` |
 
 The subagent prompt must contain:
 
-1. The **P0 backlog verbatim** from Phase 1, including each item's Fix direction and Acceptance.
+1. The **full fix backlog verbatim** from Phase 1 (P0, P1, and P2), including each item's Fix direction and Acceptance.
 2. Route ID, path, and the named component files.
 3. Repo conventions it cannot infer: `archlucid-ui/AGENTS.md`, `docs/library/UI_DESIGN_SYSTEM.md`, `.cursor/rules/UI-Enterprise-Design-Standard.mdc`, `.cursor/rules/Agent-Working-Tree-Safety.mdc`.
-4. Scope fence: implement **only** the P0 items; no refactors, no `TB-###` edits, no commits, no pushes — the parent commits.
+4. Scope fence: implement **every** backlog item (P0, P1, P2) except hypothesis / needs-repro; no drive-by refactors beyond what backlog items require; no `TB-###` edits; no commits or pushes — the parent commits.
 5. Verification duty: update or add unit tests / snapshots for changed components and run the scoped checks below.
-6. Reporting duty: return **per P0 item** a status of `shipped` / `partial` / `skipped` with a one-line reason, plus the exact list of changed file paths.
+6. Reporting duty: return **per backlog item** a status of `shipped` / `partial` / `skipped` with a one-line reason, plus the exact list of changed file paths.
 
 #### Quality gate (Composer runs, parent verifies before commit)
 
@@ -184,7 +200,7 @@ The subagent prompt must contain:
 4. **`/review-security`** — Security Review subagent with `Diff: uncommitted changes`. Fix Critical/High findings.
 5. Re-run step 1 once if steps 2–4 changed code.
 
-If a P0 cannot be shipped safely (needs backend work, blocked by a dirty tracked path, or the fix is larger than this surface), mark it **skipped** with the reason rather than half-landing it. Skipped items lower the Phase 4 score cap, which is the intended honest outcome.
+If a backlog item cannot be shipped safely (needs backend work, blocked by a dirty tracked path, or the fix is larger than this surface), mark it **skipped** with the reason rather than half-landing it. Skipped items lower the Phase 4 score cap, which is the intended honest outcome.
 
 ---
 
@@ -194,7 +210,7 @@ If a P0 cannot be shipped safely (needs backend work, blocked by a dirty tracked
 2. Stage **only** those paths. Never `git add -A`.
 3. Confirm the working tree is on **`master`** (or the branch the user named); tell the user before switching branches.
 4. Commit with one concise why-focused sentence naming the surface, e.g.
-   `al-ui-rate ASK: raise primary CTA above the fold and fix status tag contrast.`
+   `al-ui-rate ASK: raise primary CTA, status tag contrast, and spacing polish.`
 5. Push to **`master`**.
 6. **CI gate** — follow `/fix-ci`: `gh run list --branch master --limit 1`, then `gh run view --log-failed` on that run. Fix one failure at a time and push until green. Do not proceed to Phase 4 with known-red CI for this change.
 
@@ -217,7 +233,7 @@ Exit code **2** → stop Phase 4 and report the block. If the workbook is missin
 python .\scripts\ci\bootstrap-ui-route-traffic-owner-workbook.py
 ```
 
-3. **Compute the shipped-capped scores.** With `shipped` = P0 items Composer reported as `shipped` (count `partial` as 0.5) and `total` = `p0_count` from the rating:
+3. **Compute the shipped-capped scores.** With `shipped` = backlog items Composer reported as `shipped` (count `partial` as 0.5) and `total` = `fix_count` from the rating:
 
 ```text
 final = round(current + (projected - current) * shipped / total)
@@ -235,7 +251,7 @@ python .\scripts\ci\set-archlucid-ui-route-score.py <ID> <evidence_final> --dime
 5. **Write a dated Note** carrying the verdict and what remains:
 
 ```powershell
-python .\scripts\ci\set-archlucid-ui-route-note.py <ID> "<YYYY-MM-DD> al-ui-rate: <one_line_verdict>; shipped <n>/<total> P0 (<commit sha>); open: <skipped titles or none>"
+python .\scripts\ci\set-archlucid-ui-route-note.py <ID> "<YYYY-MM-DD> al-ui-rate: <one_line_verdict>; shipped <n>/<total> fixes (<commit sha>); open: <skipped titles or none>"
 ```
 
 Use `--replace` only when the user asks; the default append keeps prior owner notes.
@@ -261,18 +277,17 @@ Use `--replace` only when the user asks; the default append keeps prior owner no
 
 <Opus High critique across the seven lenses; brutal, specific, pixel-grounded>
 
-### P0 backlog and disposition
+### Fix backlog and disposition
 
-| # | P0 | Status | Note |
-|---|----|--------|------|
-| 1 | <title> | shipped / partial / skipped | <reason if not shipped> |
+| # | Severity | Item | Status | Note |
+|---|----------|------|--------|------|
+| 1 | P0 | <title> | shipped / partial / skipped | <reason if not shipped> |
 
-<full P0 detail — Why P0 / Evidence / Fix direction / Acceptance — beneath the table>
+<full backlog detail — Why / Evidence / Fix direction / Acceptance — beneath the table>
 
-### Not P0 (optional)
+### Hypothesis / needs repro (optional)
 
-- P1: …
-- Hypothesis / needs repro: …
+- …
 
 ### Shipped
 
@@ -294,7 +309,7 @@ Use `--replace` only when the user asks; the default append keeps prior owner no
 **Note written:** `<note text>`
 ```
 
-When a phase is skipped (rate-only, no P0s, blocked path, unresolvable ID, red CI), state which phase stopped and why — never report a phase as done that did not run.
+When a phase is skipped (rate-only, zero fix items, blocked path, unresolvable ID, red CI), state which phase stopped and why — never report a phase as done that did not run.
 
 ---
 
@@ -306,7 +321,7 @@ When a phase is skipped (rate-only, no P0s, blocked path, unresolvable ID, red C
 | Opus High subagent unavailable | Stop and tell the user; do **not** rate with a substitute model |
 | Composer 2.5 unavailable | Report the rating, skip Phases 2–3, run Phase 4 with `shipped = 0` |
 | Quality gate cannot go green | Do not commit; report the failing gate and leave changes uncommitted for the owner |
-| Target path dirty at session start | Per `Agent-Working-Tree-Safety.mdc`, skip that P0 as `blocked` and name the path |
+| Target path dirty at session start | Per `Agent-Working-Tree-Safety.mdc`, skip that backlog item as `blocked` and name the path |
 | CI red after push | Loop `/fix-ci` before Phase 4; if still red, report red and write scores with `shipped` reduced accordingly |
 
 ---
@@ -325,6 +340,7 @@ When a phase is skipped (rate-only, no P0s, blocked path, unresolvable ID, red C
 - `/al-ui-score` — set Evidence or UX score by ID without a critique
 - `/al-ui-note` — capture notes by ID
 - `/al-ui-lowest` — list lowest buyer-facing UX scores
+- `/al-ui-rate-lowest` — rate + ship full backlog for lowest UX routes (no screenshot required)
 - `/al-ui-tableupdate` — reconcile workbook with live routes
 - `/al-defect` — production defect intake (broken behavior, not design critique)
 - `/lucid-ui-audit` — full persona screenshot suite + dated audit report
