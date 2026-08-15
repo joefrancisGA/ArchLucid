@@ -91,7 +91,11 @@ describe("SidebarNav (primary navigation)", () => {
   });
 
   beforeEach(() => {
-    buyerPolishedMock.value = false;
+    // These are disclosure/authority tests, so they need the full destination catalog rather than the
+    // pre-commit spine. Buyer-polished satisfies the pre-commit gate and is what the real
+    // `isBuyerPolishedOperatorShellEnv()` always returns, so `false` is not a reachable configuration.
+    // Engineering chrome (the "full operator shell" this suite covers) is `NEXT_PUBLIC_OPERATOR_EXPERIENCE`.
+    buyerPolishedMock.value = true;
     committedReviewMock.value = false;
     governanceModeMock.enabled = true;
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";

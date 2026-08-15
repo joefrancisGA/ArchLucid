@@ -22,8 +22,9 @@ import {
   commandPaletteOpenAriaLabel,
   isApplePlatformShortcutModifier,
 } from "@/lib/keyboard-shortcut-display";
-import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview, useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank, useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
+import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effective-nav-committed-architecture-review";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";
 import { scopeOperatorShellHrefSet, scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
@@ -465,7 +466,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const auditRunId = useOperatorShellAuditRunId();
   // Tier disclosure retired: palette lists every authority-eligible href (same as sidebar).
   const callerAuthorityRank = useNavCallerAuthorityRank();
-  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
+  const effectiveHasCommittedArchitectureReview = useEffectiveNavCommittedArchitectureReview();
   const { currentPrincipal } = useOperatorNavAuthority();
   const { showFullNav: roleNavDensityShowFullNav } = useRoleNavDensityExpanded();
   const roleNavDensityPersona = resolveRoleNavDensityPersona(currentPrincipal.roleClaimValues);
@@ -475,7 +476,12 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const visibleHrefs = useMemo(() => {
     const shellRows = applyPatternLibraryNavGate(
       scopeOperatorShellNavRows(
-        listNavGroupsVisibleInOperatorShell(NAV_GROUPS, callerAuthorityRank, "all", hasCommittedArchitectureReview),
+        listNavGroupsVisibleInOperatorShell(
+          NAV_GROUPS,
+          callerAuthorityRank,
+          "all",
+          effectiveHasCommittedArchitectureReview,
+        ),
         auditRunId,
       ),
       patternLibraryNavVisible,
@@ -499,7 +505,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   }, [
     auditRunId,
     callerAuthorityRank,
-    hasCommittedArchitectureReview,
+    effectiveHasCommittedArchitectureReview,
     patternLibraryNavVisible,
     roleNavDensityPersona,
     roleNavDensityShowFullNav,
@@ -645,7 +651,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           </CommandEmpty>
           <CommandPaletteNavGroups
             callerAuthorityRank={callerAuthorityRank}
-            hasCommittedArchitectureReview={hasCommittedArchitectureReview}
+            hasCommittedArchitectureReview={effectiveHasCommittedArchitectureReview}
             buyerPolishedShell={buyerPolishedShell}
             auditRunId={auditRunId}
             patternLibraryNavVisible={patternLibraryNavVisible}
