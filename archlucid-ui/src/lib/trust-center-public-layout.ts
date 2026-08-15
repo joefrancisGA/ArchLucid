@@ -25,7 +25,7 @@ export const TRUST_CENTER_PUBLIC_LAYOUT = {
     "rounded-lg border border-neutral-200 dark:border-neutral-800 print:hidden",
   vocabularySummary: cn("cursor-pointer px-4 py-2", MARKETING_TYPOGRAPHY.cardTitle),
   vocabularyBody: "space-y-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800",
-  vocabularyIntro: cn("m-0 text-al-text-secondary", MARKETING_TYPOGRAPHY.helper),
+  vocabularyIntro: cn("m-0 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta),
   vocabularyPeerList: cn("m-0 list-none space-y-3 p-0", MARKETING_TYPOGRAPHY.body),
-  vocabularyPeerWhen: cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.helper),
+  vocabularyPeerWhen: cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.meta),
 } as const;

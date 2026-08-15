@@ -14,7 +14,6 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableHeaderCell,
 } from "@/components/ui/enterprise-table";
-import { Button } from "@/components/ui/button";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   governanceFindingInspectHref,
@@ -76,11 +75,12 @@ function GovernanceFindingsQueueSortHeaderCell(props: {
 
   return (
     <EnterpriseTableHeaderCell>
-      <Button
+      <button
         type="button"
-        variant="ghost"
-        size="sm"
-        className={cn("h-auto px-0 font-semibold", isActive ? "text-al-text-primary" : undefined)}
+        className={cn(
+          "font-inherit text-left font-semibold text-al-text-secondary hover:text-al-text-primary",
+          isActive ? "text-al-text-primary" : undefined,
+        )}
         aria-label={
           isActive ? `Sort by ${props.label}, ${directionLabel}` : `Sort by ${props.label}`
         }
@@ -90,7 +90,7 @@ function GovernanceFindingsQueueSortHeaderCell(props: {
       >
         {props.label}
         {isActive ? (props.sortAsc ? " ↑" : " ↓") : null}
-      </Button>
+      </button>
     </EnterpriseTableHeaderCell>
   );
 }

@@ -36,7 +36,7 @@ export function DecisionRegisterSummaryRow(props: DecisionRegisterSummaryRowProp
       data-testid="decision-register-summary-row"
       aria-label="Decision register summary"
     >
-      <SummaryMetric label={DECISION_REGISTER_SUMMARY_SIGNED_LABEL} value={finiteIntegerCountDisplay(summary.signedDecisions)} />
+      <SummaryMetric label={DECISION_REGISTER_SUMMARY_SIGNED_LABEL} value={finiteIntegerCountDisplay(summary.recordedDecisions)} />
       <SummaryMetric label={DECISION_REGISTER_SUMMARY_RECENT_LABEL} value={finiteIntegerCountDisplay(summary.recentDecisions)} />
       <SummaryMetric
         label={DECISION_REGISTER_SUMMARY_HIGH_CONFIDENCE_LABEL}
