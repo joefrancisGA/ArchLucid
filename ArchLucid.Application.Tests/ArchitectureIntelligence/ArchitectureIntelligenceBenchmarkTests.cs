@@ -60,6 +60,104 @@ public sealed class ArchitectureIntelligenceBenchmarkTests
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void MutationChangesFindings_detects_authentication_evidence_change()
+    {
+        ArchitectureIntelligenceBenchmark sut = new(new ExtractionFidelityBenchmark());
+        SpecialistReviewService specialist = new();
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = Guid.NewGuid().ToString("N"),
+            TenantId = Guid.NewGuid().ToString("N"),
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = Guid.NewGuid().ToString("N"),
+                    Kind = ArchitectureElementKind.Interface,
+                    Name = "public HTTPS API",
+                    ExtractionConfidence = 0.9,
+                    Provenance = new ClaimProvenance
+                    {
+                        Origin = ClaimOrigin.DirectlyExtracted,
+                        SupportStatus = SupportStatus.DirectlyEstablished,
+                        Confidence = 0.9
+                    }
+                }
+            ]
+        };
+
+        BenchmarkMutation mutation = sut.GetMutationTests().First(m => m.MutationId == "mutate-add-authentication");
+
+        bool changed = sut.MutationChangesFindings(model, mutation, specialist);
+
+        changed.Should().BeTrue();
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void MutationChangesFindings_detects_replication_removal()
+    {
+        ArchitectureIntelligenceBenchmark sut = new(new ExtractionFidelityBenchmark());
+        SpecialistReviewService specialist = new();
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = Guid.NewGuid().ToString("N"),
+            TenantId = Guid.NewGuid().ToString("N"),
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = Guid.NewGuid().ToString("N"),
+                    Kind = ArchitectureElementKind.RecoveryObjective,
+                    Name = "RTO 30 minutes",
+                    Description = "RTO is 30 minutes",
+                    ExtractionConfidence = 0.9,
+                    Provenance = new ClaimProvenance
+                    {
+                        Origin = ClaimOrigin.DirectlyExtracted,
+                        SupportStatus = SupportStatus.DirectlyEstablished,
+                        Confidence = 0.9
+                    }
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = Guid.NewGuid().ToString("N"),
+                    Kind = ArchitectureElementKind.Evidence,
+                    Name = "backup replication every 15 minutes",
+                    Description = "geo-replication interval 15m",
+                    ExtractionConfidence = 0.9,
+                    Provenance = new ClaimProvenance
+                    {
+                        Origin = ClaimOrigin.DirectlyExtracted,
+                        SupportStatus = SupportStatus.DirectlyEstablished,
+                        Confidence = 0.9
+                    }
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = Guid.NewGuid().ToString("N"),
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "database",
+                    ExtractionConfidence = 0.8,
+                    Provenance = new ClaimProvenance
+                    {
+                        Origin = ClaimOrigin.DirectlyExtracted,
+                        SupportStatus = SupportStatus.IndirectlySupported,
+                        Confidence = 0.8
+                    }
+                }
+            ]
+        };
+
+        BenchmarkMutation mutation = sut.GetMutationTests().First(m => m.MutationId == "mutate-remove-replication");
+
+        bool changed = sut.MutationChangesFindings(model, mutation, specialist);
+
+        changed.Should().BeTrue();
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void GetDeepCases_includes_golden_incomplete_fixture()
     {
         ArchitectureIntelligenceBenchmark sut = new(new ExtractionFidelityBenchmark());
