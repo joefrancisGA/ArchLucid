@@ -40,6 +40,10 @@ public static class AgentTopologyProposalGraphMerge
         if (validatedResults.Count == 0)
             return graph;
 
+        validatedResults = validatedResults
+            .OrderBy(static result => GetMergeOrder(result.AgentType))
+            .ToList();
+
         HashSet<string> seenTopologyKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode node in graph.Nodes)
@@ -245,4 +249,14 @@ public static class AgentTopologyProposalGraphMerge
             target.TryAdd(alias.Key, alias.Value);
         }
     }
+
+    private static int GetMergeOrder(AgentType agentType) =>
+        agentType switch
+        {
+            AgentType.Topology => 10,
+            AgentType.Cost => 20,
+            AgentType.Compliance => 30,
+            AgentType.Critic => 40,
+            _ => 100,
+        };
 }
