@@ -14,6 +14,7 @@ export type FindingDetailDecisionSummaryProps = {
   readonly summary: FindingDecisionSummary;
   readonly runId: string;
   readonly findingId: string;
+  readonly severityConstraintNote?: string | null;
 };
 
 /** Compact sponsor decision summary near the top of the finding detail page. */
@@ -32,8 +33,13 @@ export function FindingDetailDecisionSummary(props: FindingDetailDecisionSummary
       <dl className={cn("m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-4", OPERATOR_TYPOGRAPHY.body)}>
         <div>
           <dt className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_KPI_CARD_TITLE)}>Severity</dt>
-          <dd className="m-0 mt-0.5">
+          <dd className="m-0 mt-0.5 space-y-1">
             <SeverityTag severity={summary.severity} />
+            {props.severityConstraintNote !== null && props.severityConstraintNote !== undefined ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {props.severityConstraintNote}
+              </p>
+            ) : null}
           </dd>
         </div>
         <div>

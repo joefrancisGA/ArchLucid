@@ -359,6 +359,17 @@ export async function restoreArchitectureRequest(requestId: string): Promise<voi
   return apiPostNoContent(`/v1/architecture/request/${encodeURIComponent(requestId)}/restore`, {});
 }
 
+/** Loads a persisted architecture request (constraints + intake answers for review calibration). */
+export async function getArchitectureRequest(
+  requestId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<components["schemas"]["ArchitectureRequest"]> {
+  return apiGet<components["schemas"]["ArchitectureRequest"]>(
+    `/v1/architecture/request/${encodeURIComponent(requestId)}`,
+    options,
+  );
+}
+
 /** Fetches the lightweight summary for a single run. */
 export async function getRunSummary(
   runId: string,

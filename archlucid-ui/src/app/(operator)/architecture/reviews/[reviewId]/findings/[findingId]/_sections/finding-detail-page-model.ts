@@ -1,5 +1,6 @@
 import type { OperatorEvidenceLimitsExecutionProps } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import type { StatedConstraintContext } from "@/lib/review-quality/assumption-and-severity";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 /** Preloaded data for {@link FindingDetailPageView} after inspect load succeeds for the route. */
@@ -15,4 +16,5 @@ export type FindingDetailPageModel = {
   readonly pageTitle: string;
   readonly findingIsPhi: boolean;
   readonly runExecutionFootnote: OperatorEvidenceLimitsExecutionProps | null;
+  readonly statedConstraintContext: StatedConstraintContext | null;
 };

@@ -36,10 +36,13 @@ import {
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/findings/finding-policy-evidence-citations";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { StatedConstraintContext } from "@/lib/review-quality/assumption-and-severity";
+import { buildSeverityConstraintNoteForInspectPayload } from "@/lib/review-quality/finding-severity-constraint-note";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { findingRecommendedActionParagraph } from "./_sections/finding-detail-route-display";
 
+import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeverityConstraintNote";
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
@@ -58,6 +61,7 @@ export type FindingInspectViewProps = {
   failure: ApiLoadFailureState | null;
   runExecutionFootnote?: OperatorEvidenceLimitsExecutionProps | null;
   readonly approvedDecisionTitles?: readonly string[];
+  readonly statedConstraintContext?: StatedConstraintContext | null;
 };
 
 /**
@@ -71,6 +75,7 @@ export function FindingInspectView({
   failure,
   runExecutionFootnote = null,
   approvedDecisionTitles = [],
+  statedConstraintContext = null,
 }: FindingInspectViewProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
@@ -162,6 +167,10 @@ export function FindingInspectView({
   const policyTraceExcerpt = resolvePolicyTraceExcerptFromInspect(payload);
   const recommendedActionText =
     payload !== null ? findingRecommendedActionParagraph(payload, decodedFindingId) : "";
+  const severityConstraintNote =
+    payload !== null
+      ? buildSeverityConstraintNoteForInspectPayload(payload, statedConstraintContext)
+      : null;
 
   return (
     <div className={cn("w-full max-w-[1440px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="finding-inspect-view">
@@ -226,6 +235,10 @@ export function FindingInspectView({
           payload={payload}
           variant="inspect"
         />
+
+        {severityConstraintNote !== null ? (
+          <FindingSeverityConstraintNote note={severityConstraintNote} />
+        ) : null}
       </section>
 
       <section

@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { FindingCrossReviewLifecycleHint } from "@/components/findings/FindingCrossReviewLifecycleHint";
+import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeverityConstraintNote";
 import { FindingInspectContextDebugPanel } from "@/components/findings/FindingInspectContextDebugPanel";
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
@@ -45,6 +46,7 @@ import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/findings/finding-policy-evidence-citations";
+import { buildSeverityConstraintNoteForInspectPayload } from "@/lib/review-quality/finding-severity-constraint-note";
 
 import { FindingInspectAuditSection } from "../FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "../FindingInspectEvidenceSection";
@@ -88,6 +90,7 @@ export function FindingDetailPageView(props: Props) {
     pageTitle,
     findingIsPhi,
     runExecutionFootnote,
+    statedConstraintContext,
   } = model;
 
   const labels = inspectPayload !== null ? findingInspectPrimaryLabels(inspectPayload) : null;
@@ -100,6 +103,10 @@ export function FindingDetailPageView(props: Props) {
   const severityHeadline = fallbackSeverity(inspectPayload, decodedFindingId);
   const severityRationale =
     severityHeadline.trim().length > 0 ? findingSeverityAudienceCopy(severityHeadline).meaningForOperators : "";
+  const severityConstraintNote =
+    inspectPayload !== null
+      ? buildSeverityConstraintNoteForInspectPayload(inspectPayload, statedConstraintContext)
+      : null;
 
   const confidenceLevel = inspectPayload?.confidenceLevel ?? null;
   const evaluationScore = inspectPayload?.evaluationConfidenceScore ?? null;
@@ -234,6 +241,7 @@ export function FindingDetailPageView(props: Props) {
               summary={decisionSummary}
               runId={runId}
               findingId={decodedFindingId}
+              severityConstraintNote={severityConstraintNote}
             />
           ) : null}
 
@@ -464,6 +472,8 @@ export function FindingDetailPageView(props: Props) {
           {inspectPayload !== null && severityRationale.length > 0 ? (
             <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{severityRationale}</p>
           ) : null}
+
+          {severityConstraintNote !== null ? <FindingSeverityConstraintNote note={severityConstraintNote} /> : null}
 
           {graphEvidenceHref !== null ? (
             <p className="m-0">

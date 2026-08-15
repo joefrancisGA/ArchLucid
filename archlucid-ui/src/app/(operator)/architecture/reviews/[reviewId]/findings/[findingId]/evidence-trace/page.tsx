@@ -6,6 +6,7 @@ import { shouldTreatFindingInspectFailureAsNotFound } from "@/lib/load-finding-i
 import { loadFindingInspectForRouteCached } from "@/lib/load-finding-inspect-for-route-cached";
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
+import { tryLoadStatedConstraintContextForRun } from "@/lib/try-load-stated-constraint-context";
 
 import { FindingInspectView } from "../FindingInspectView";
 
@@ -50,7 +51,10 @@ export default async function FindingEvidenceTracePage({
     notFound();
   }
 
-  const runExecutionFootnote = await tryLoadRunExecutionFootnote(runId);
+  const [runExecutionFootnote, statedConstraintContext] = await Promise.all([
+    tryLoadRunExecutionFootnote(runId),
+    tryLoadStatedConstraintContextForRun(runId),
+  ]);
 
   return (
     <FindingInspectView
@@ -59,6 +63,7 @@ export default async function FindingEvidenceTracePage({
       payload={payload}
       failure={failure}
       runExecutionFootnote={runExecutionFootnote}
+      statedConstraintContext={statedConstraintContext}
     />
   );
 }

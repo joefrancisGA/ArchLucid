@@ -8,6 +8,7 @@ import { findingLinkedManifestDetailHrefForRun } from "@/lib/findings/finding-li
 import { shouldTreatFindingInspectFailureAsNotFound } from "@/lib/load-finding-inspect-for-route";
 import { loadFindingInspectForRouteCached } from "@/lib/load-finding-inspect-for-route-cached";
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
+import { tryLoadStatedConstraintContextForRun } from "@/lib/try-load-stated-constraint-context";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import type { FindingDetailPageModel } from "./finding-detail-page-model";
@@ -28,9 +29,10 @@ export async function loadFindingDetailPageModel(
 ): Promise<LoadFindingDetailPageModelResult> {
   // Detail first paint: omit PayloadJson LOB; title/rationale still projected for narrative (TB-931).
   // Cached so generateMetadata on the same request reuses this inspect (no second API call).
-  const [inspectResult, runExecutionFootnote] = await Promise.all([
+  const [inspectResult, runExecutionFootnote, statedConstraintContext] = await Promise.all([
     loadFindingInspectForRouteCached(runId, decodedFindingId, false),
     tryLoadRunExecutionFootnote(runId),
+    tryLoadStatedConstraintContextForRun(runId),
   ]);
 
   const { payload: inspectPayloadRaw, failure: inspectFailureRaw, invalidRouteAlignment } =
@@ -62,6 +64,7 @@ export async function loadFindingDetailPageModel(
     pageTitle,
     findingIsPhi,
     runExecutionFootnote,
+    statedConstraintContext,
   };
 
   return { kind: "success", model };
