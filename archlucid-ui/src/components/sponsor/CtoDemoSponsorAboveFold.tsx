@@ -10,7 +10,7 @@ import {
   formatCtoDemoHeroSubStat,
 } from "@/lib/buyer/buyer-cto-demo-recap";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
 import { getFindingEvidenceInspectHref } from "@/lib/findings/finding-evidence-navigation";
 import { severityFromTrace, severitySortRank } from "@/lib/sponsor-finding-severity";
 import { decisionGradeSponsorTraceRows } from "@/lib/sponsor-decision-grade-trace-rows";
@@ -131,7 +131,7 @@ export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): Re
                     </span>
                     <Link
                       href={governanceStepHref}
-                      className={cn("font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}
+                      className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
                       data-testid={`finding-governance-link-${risk.findingId}`}
                     >
                       Review controls
@@ -182,7 +182,7 @@ export function CtoDemoFindingEvidenceLink(props: { readonly runId: string; read
   return (
     <Link
       href={href}
-      className={cn("font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}
+      className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
       data-testid={`finding-evidence-link-${props.findingId}`}
     >
       View evidence

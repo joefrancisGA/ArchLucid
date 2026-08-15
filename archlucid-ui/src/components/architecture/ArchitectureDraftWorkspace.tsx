@@ -78,7 +78,7 @@ import {
   ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
   ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
-import { OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
@@ -475,7 +475,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             {linkedReviewId !== null ? (
               <Link
                 href={reviewDetailPath(linkedReviewId)}
-                className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium text-teal-800 underline dark:text-teal-300")}
+                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
               >
                 Open linked review
               </Link>

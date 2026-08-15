@@ -329,10 +329,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
                     {entry.linkedReviewId !== null ? (
                       <Link
                         href={reviewDetailPath(entry.linkedReviewId)}
-                        className={cn(
-                          OPERATOR_TYPOGRAPHY.helper,
-                          "font-medium text-teal-800 underline dark:text-teal-300",
-                        )}
+                        className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
                       >
                         Review linked
                       </Link>

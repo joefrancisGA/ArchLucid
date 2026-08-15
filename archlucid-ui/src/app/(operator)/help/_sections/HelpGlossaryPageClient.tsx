@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
+import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
+
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Input } from "@/components/ui/input";
@@ -88,13 +90,13 @@ function GlossaryTermEntry(props: GlossaryTermEntryProps): React.ReactElement {
               <span key={relatedId}>
                 {index > 0 ? ", " : ""}
                 {isVisible ? (
-                  <Link href={`#term-${relatedId}`} className="text-teal-700 underline dark:text-teal-400">
+                  <Link href={`#term-${relatedId}`} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                     {label}
                   </Link>
                 ) : (
                   <button
                     type="button"
-                    className="text-teal-700 underline dark:text-teal-400"
+                    className={OPERATOR_BODY_INLINE_LINK_CLASS}
                     onClick={() => props.onRelatedTermNavigate(relatedId)}
                   >
                     {label}

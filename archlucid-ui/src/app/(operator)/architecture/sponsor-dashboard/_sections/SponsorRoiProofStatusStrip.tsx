@@ -6,7 +6,7 @@ import type { ReactElement } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
 import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor-report-pilot-roi-measurement-help";
 import {
@@ -83,7 +83,7 @@ export function SponsorRoiProofStatusStrip(props: SponsorRoiProofStatusStripProp
         {systemRowScopeLabel}{" "}
         <Link
           href={SPONSOR_ROI_PROOF_STATUS_HELP_HREF}
-          className="font-medium text-teal-800 underline dark:text-teal-300"
+          className={OPERATOR_LINK.inline}
           data-testid="exec-roi-proof-roi-methodology-link"
         >
           ROI methodology
@@ -91,7 +91,7 @@ export function SponsorRoiProofStatusStrip(props: SponsorRoiProofStatusStripProp
         {" · "}
         <Link
           href="/administration/baseline"
-          className="font-medium text-teal-800 underline dark:text-teal-300"
+          className={OPERATOR_LINK.inline}
           data-testid="exec-roi-proof-baseline-settings-link"
         >
           Baseline settings
@@ -106,7 +106,7 @@ export function SponsorRoiProofStatusStrip(props: SponsorRoiProofStatusStripProp
               {" "}
               <Link
                 href={toDocsBlobUrl(costFreshness.runbookHref)}
-                className="font-medium text-teal-800 underline dark:text-teal-300"
+                className={OPERATOR_LINK.inline}
                 data-testid="exec-roi-proof-extractor-runbook-link"
               >
                 Azure inventory upload

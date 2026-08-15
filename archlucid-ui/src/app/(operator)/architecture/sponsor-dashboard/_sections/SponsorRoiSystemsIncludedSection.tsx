@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
 import { presentSponsorEstimatedSavings } from "@/lib/sponsor-estimated-savings-display";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveSponsorSystemRowScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 
 type SponsorRoiSystemsIncludedSectionProps = {
@@ -80,7 +80,7 @@ export function SponsorRoiSystemsIncludedSection(
                 <EnterpriseTableCell>
                   <Link
                     href={`/architecture/reviews/${encodeURIComponent(system.runId)}`}
-                    className="text-teal-700 underline dark:text-teal-400"
+                    className={OPERATOR_BODY_INLINE_LINK_CLASS}
                   >
                     {system.runId}
                   </Link>

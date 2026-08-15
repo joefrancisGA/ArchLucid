@@ -5,7 +5,7 @@ import { HelpUsersAndRolesManageAction } from "@/app/(operator)/help/_sections/H
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { UsersAndRolesHelpEvidenceOrientationStrip } from "@/components/help/UsersAndRolesHelpEvidenceOrientationStrip";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
@@ -185,7 +185,7 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
               className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
             >
               {USERS_AND_ROLES_WORKSPACE_ACCESS_BODY}{" "}
-              <Link href={USERS_AND_ROLES_SCOPE_GUIDE_HREF} className="text-teal-700 underline dark:text-teal-400">
+              <Link href={USERS_AND_ROLES_SCOPE_GUIDE_HREF} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                 {USERS_AND_ROLES_SCOPE_GUIDE_LINK_LABEL}
               </Link>
               .
@@ -225,7 +225,7 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
               ))}
             </ul>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link href={USERS_AND_ROLES_SECURITY_TRUST_HREF} className="text-teal-700 underline dark:text-teal-400">
+              <Link href={USERS_AND_ROLES_SECURITY_TRUST_HREF} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                 {USERS_AND_ROLES_SECURITY_TRUST_LINK_LABEL}
               </Link>
             </p>

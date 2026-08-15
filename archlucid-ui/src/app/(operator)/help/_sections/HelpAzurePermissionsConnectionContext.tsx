@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
+import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
+
 import { HelpCopyableValue } from "@/components/help/HelpCopyableValue";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -50,7 +52,7 @@ export function HelpAzurePermissionsConnectionContext(): React.ReactElement {
         {!hasContext ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {AZURE_PERMISSIONS_CONTEXT_MISSING}{" "}
-            <Link href={returnHref} className="text-teal-700 underline dark:text-teal-400">
+            <Link href={returnHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
               Open Azure connection setup
             </Link>
             .

@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -191,7 +191,7 @@ export function OnboardingTour() {
           {step.id === "done" ? (
             <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>
               <Link
-                className="font-semibold text-teal-800 underline dark:text-teal-300"
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
                 href={ONBOARDING_TOUR_DONE_LINK_HREF}
               >
                 {ONBOARDING_TOUR_DONE_LINK_LABEL}

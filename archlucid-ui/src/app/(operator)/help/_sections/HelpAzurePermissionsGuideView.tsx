@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
+
 import { Suspense } from "react";
 
 import { AzureCloudConnectionRolesTable } from "@/components/help/AzureCloudConnectionRolesTable";
@@ -171,11 +173,11 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-2">
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link href={returnHref} className="text-teal-700 underline dark:text-teal-400">
+              <Link href={returnHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                 ← {AZURE_PERMISSIONS_BACK_TO_CONNECTIONS}
               </Link>
               <span aria-hidden="true"> · </span>
-              <a href="#troubleshoot" className="text-teal-700 underline dark:text-teal-400">
+              <a href="#troubleshoot" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                 Fix a failed permission check
               </a>
             </p>
@@ -381,7 +383,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             <ul className={HELP_PAGE_LAYOUT.bulletList}>
               {otherProviders.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-teal-700 underline dark:text-teal-400">
+                  <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                     {link.label}
                   </Link>
                 </li>

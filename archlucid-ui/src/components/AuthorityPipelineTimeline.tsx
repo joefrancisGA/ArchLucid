@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CheckCircle2, Circle } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -133,7 +133,7 @@ export function AuthorityPipelineTimeline({
               </span>
               {omitEventTechnicalDetails ? null : (
               <details className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                <summary className="cursor-pointer select-none text-teal-800 underline dark:text-teal-300">
+                <summary className={cn("cursor-pointer select-none", OPERATOR_LINK.inline)}>
                   Technical details
                 </summary>
                 <div className="mt-2 space-y-1 border-s border-neutral-200 ps-3 dark:border-neutral-700">
