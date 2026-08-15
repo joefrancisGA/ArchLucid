@@ -3,20 +3,24 @@ import { describe, expect, it, vi } from "vitest";
 
 import { signedRecordArtifactPageSubtitle } from "@/lib/signed-record-artifact-page-copy";
 
-const refresh = vi.fn();
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh }),
-  usePathname: () => "/governance/sealed-records/manifest-1/artifacts/artifact-1",
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
 import { SignedRecordArtifactPageHeader } from "./SignedRecordArtifactPageHeader";
 
 describe("SignedRecordArtifactPageHeader", () => {
   it("renders h1, refresh, and last-refreshed metadata", () => {
-    refresh.mockReset();
+    const onRefresh = vi.fn();
 
-    render(<SignedRecordArtifactPageHeader subtitle={signedRecordArtifactPageSubtitle(false)} />);
+    render(
+      <SignedRecordArtifactPageHeader
+        subtitle={signedRecordArtifactPageSubtitle(false)}
+        refreshing={false}
+        onRefresh={onRefresh}
+        lastRefreshedAt={new Date("2026-07-01T12:00:00.000Z")}
+      />,
+    );
 
     expect(screen.getByTestId("signed-record-artifact-page-title")).toHaveTextContent("Artifact preview");
     expect(screen.getByTestId("signed-record-artifact-refresh-button")).toBeInTheDocument();
@@ -24,6 +28,6 @@ describe("SignedRecordArtifactPageHeader", () => {
 
     fireEvent.click(screen.getByTestId("signed-record-artifact-refresh-button"));
 
-    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 });

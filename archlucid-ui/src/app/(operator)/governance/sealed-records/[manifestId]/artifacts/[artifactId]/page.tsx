@@ -1,11 +1,19 @@
 import { notFound } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
-import { OperatorBrandedNotFound } from "@/components/operator/OperatorBrandedNotFound";
 import { OperatorMalformedCallout } from "@/components/operator/OperatorShellMessage";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { isInvalidDynamicRouteToken, isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
+import {
+  SIGNED_RECORD_ARTIFACT_DESCRIPTOR_ERROR_BODY,
+  SIGNED_RECORD_ARTIFACT_DESCRIPTOR_ERROR_HEADING,
+  SIGNED_RECORD_ARTIFACT_NOT_FOUND_BODY,
+  SIGNED_RECORD_ARTIFACT_NOT_FOUND_HEADING,
+} from "@/lib/signed-record-artifact-page-copy";
 
 import { loadSignedRecordArtifactPageModel } from "./_sections/load-signed-record-artifact-page-model";
+import { SignedRecordArtifactPageErrorFrame } from "./_sections/SignedRecordArtifactPageErrorFrame";
 import { SignedRecordArtifactPageView } from "./_sections/SignedRecordArtifactPageView";
 
 /** Server signed-record artifact preview route (GAR / TB-1947). */
@@ -24,25 +32,52 @@ export default async function SignedRecordArtifactPage({
 
   if (result.kind === "not-found") {
     return (
-      <div className="w-full max-w-[1200px] px-1 py-2 sm:px-0">
-        <OperatorBrandedNotFound showProcessingHint retryLabel="Retry loading artifact" />
-      </div>
+      <SignedRecordArtifactPageErrorFrame
+        manifestId={manifestId}
+        artifactId={artifactId}
+        artifactType="Artifact"
+        runId={null}
+        buyerPolishedLayout={false}
+      >
+        <div data-testid="signed-record-artifact-not-found">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{SIGNED_RECORD_ARTIFACT_NOT_FOUND_HEADING}</p>
+          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {SIGNED_RECORD_ARTIFACT_NOT_FOUND_BODY}
+          </p>
+        </div>
+      </SignedRecordArtifactPageErrorFrame>
     );
   }
 
   if (result.kind === "descriptor-error") {
     return (
-      <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
+      <SignedRecordArtifactPageErrorFrame
+        manifestId={manifestId}
+        artifactId={artifactId}
+        artifactType="Artifact"
+        runId={null}
+        buyerPolishedLayout={result.buyerPolishedLayout}
+      >
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{SIGNED_RECORD_ARTIFACT_DESCRIPTOR_ERROR_HEADING}</p>
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {SIGNED_RECORD_ARTIFACT_DESCRIPTOR_ERROR_BODY}
+        </p>
         <OperatorApiProblem failure={result.failure} />
-      </div>
+      </SignedRecordArtifactPageErrorFrame>
     );
   }
 
   if (result.kind === "descriptor-malformed") {
     return (
-      <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
+      <SignedRecordArtifactPageErrorFrame
+        manifestId={manifestId}
+        artifactId={artifactId}
+        artifactType="Artifact"
+        runId={null}
+        buyerPolishedLayout={result.buyerPolishedLayout}
+      >
         <OperatorMalformedCallout>{result.message}</OperatorMalformedCallout>
-      </div>
+      </SignedRecordArtifactPageErrorFrame>
     );
   }
 

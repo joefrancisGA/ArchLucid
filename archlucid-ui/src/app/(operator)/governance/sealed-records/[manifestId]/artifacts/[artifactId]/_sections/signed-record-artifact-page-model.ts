@@ -13,4 +13,5 @@ export type SignedRecordArtifactPageSuccessModel = {
   readonly truncated: boolean;
   readonly contentError: string | null;
   readonly runId: string | null;
+  readonly usedStaticDemoFallback: boolean;
 };

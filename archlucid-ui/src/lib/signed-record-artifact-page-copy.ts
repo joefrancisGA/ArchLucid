@@ -28,3 +28,22 @@ export const SIGNED_RECORD_ARTIFACT_SCOPE_OVERVIEW =
 export const SIGNED_RECORD_ARTIFACT_WHAT_IS_THIS_HEADING = "What this artifact is";
 
 export const SIGNED_RECORD_ARTIFACT_SIBLINGS_HEADING = "Artifacts in this sealed record";
+
+export const SIGNED_RECORD_ARTIFACT_CONTENT_HASH_LABEL = "Content hash";
+
+export const SIGNED_RECORD_ARTIFACT_GENERATED_LABEL = "Generated";
+
+export const SIGNED_RECORD_ARTIFACT_PREVIEW_RETRY = "Retry preview load";
+
+export const SIGNED_RECORD_ARTIFACT_DOWNLOAD_UNAVAILABLE =
+  "Download is unavailable until the artifact descriptor loads successfully.";
+
+export const SIGNED_RECORD_ARTIFACT_NOT_FOUND_HEADING = "Artifact not found";
+
+export const SIGNED_RECORD_ARTIFACT_NOT_FOUND_BODY =
+  "This artifact is not on the sealed review record, or the link is outdated. Return to the sealed record or list and open Preview again.";
+
+export const SIGNED_RECORD_ARTIFACT_DESCRIPTOR_ERROR_HEADING = "Artifact metadata could not be loaded";
+
+export const SIGNED_RECORD_ARTIFACT_DESCRIPTOR_ERROR_BODY =
+  "Try refresh once. If the problem continues, open the sealed record from review detail instead of a pasted link.";

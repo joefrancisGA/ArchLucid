@@ -40,6 +40,10 @@ const PAGES = [
     path: `/architecture/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}/inspect`,
   },
   { name: "Manifest detail", path: `/governance/sealed-records/${FIXTURE_MANIFEST_ID}` },
+  {
+    name: "Artifact preview (fixture manifest)",
+    path: `/governance/sealed-records/${FIXTURE_MANIFEST_ID}/artifacts/art-fixture-001`,
+  },
   { name: "Manifest detail (empty artifacts fixture)", path: `/governance/sealed-records/${FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID}` },
   { name: "Compare", path: "/insights/compare-two-reviews" },
   { name: "Replay", path: "/internal/validate-route" },
