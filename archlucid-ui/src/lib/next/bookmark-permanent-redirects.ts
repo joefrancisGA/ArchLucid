@@ -1,9 +1,11 @@
 import type { Redirect } from "next/dist/lib/load-custom-routes";
 
+// Relative path required: next.config.ts loads this file via Node/transpile-config,
+// which does not resolve the `@/` tsconfig alias.
 import {
   MARKETING_CANONICAL_DEMO_PATH,
   MARKETING_CANONICAL_GET_STARTED_PATH,
-} from "@/lib/marketing/marketing-entry-spine";
+} from "../marketing/marketing-entry-spine";
 
 /**
  * TB-2234 / TB-2236 — Allowlisted permanent bookmark redirects.
