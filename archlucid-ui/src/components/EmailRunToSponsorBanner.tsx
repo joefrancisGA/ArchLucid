@@ -42,6 +42,7 @@ import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
+import { fetchTenantTrialStatusCached } from "@/lib/tenant-trial-status-client";
 
 export type EmailRunToSponsorBannerProps = {
   runId: string;
@@ -55,11 +56,6 @@ export type EmailRunToSponsorBannerProps = {
    * Curated static demo / golden-path review — avoid “preparing…” copy that reads like an unresolved check in screenshots.
    */
   curatedSampleRun?: boolean;
-};
-
-type TrialStatusPayload = {
-  firstCommitUtc?: string | null;
-  timeToFirstCommittedManifestTotalSeconds?: number | null;
 };
 
 type TenantBaselineRoiGatePayload = {
@@ -140,8 +136,8 @@ export function EmailRunToSponsorBanner({
       const deltasUrl = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/pilot-run-deltas`;
 
       try {
-        const [trialRes, deltasRes, baselineRes] = await Promise.all([
-          fetch("/api/proxy/v1/tenant/trial-status", headers),
+        const [trialPayload, deltasRes, baselineRes] = await Promise.all([
+          fetchTenantTrialStatusCached(),
           fetch(deltasUrl, headers),
           fetch("/api/proxy/v1/tenant/baseline", headers),
         ]);
@@ -167,15 +163,14 @@ export function EmailRunToSponsorBanner({
           setRoiBaselineGate(null);
         }
 
-        if (trialRes.ok) {
+        if (trialPayload !== null) {
           try {
-            const json = (await trialRes.json()) as TrialStatusPayload;
-            const iso = json.firstCommitUtc;
+            const iso = trialPayload.firstCommitUtc;
 
-            if (typeof json.timeToFirstCommittedManifestTotalSeconds === "number" &&
-                Number.isFinite(json.timeToFirstCommittedManifestTotalSeconds) &&
-                json.timeToFirstCommittedManifestTotalSeconds > 0) {
-              setTimeToFirstCommitHours(json.timeToFirstCommittedManifestTotalSeconds / 3600);
+            if (typeof trialPayload.timeToFirstCommittedManifestTotalSeconds === "number" &&
+                Number.isFinite(trialPayload.timeToFirstCommittedManifestTotalSeconds) &&
+                trialPayload.timeToFirstCommittedManifestTotalSeconds > 0) {
+              setTimeToFirstCommitHours(trialPayload.timeToFirstCommittedManifestTotalSeconds / 3600);
             } else {
               setTimeToFirstCommitHours(null);
             }

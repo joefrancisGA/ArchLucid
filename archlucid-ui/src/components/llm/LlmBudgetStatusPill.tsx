@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { LlmBudgetUtilizationMeter } from "@/components/llm/LlmBudgetUtilizationMeter";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -63,10 +64,13 @@ function isOperatorShellAuthenticated(): boolean {
 
 /** Compact UTC-month LLM budget indicator for the operator shell top bar. */
 export function LlmBudgetStatusPill() {
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const [open, setOpen] = useState(false);
   const queryEnabled =
-    isOperatorShellAuthenticated() && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+    concernFetchEnabled &&
+    isOperatorShellAuthenticated() &&
+    callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const { data: status } = useLlmMonthlyBudgetStatusQuery({ enabled: queryEnabled });
 
   if (!queryEnabled) {

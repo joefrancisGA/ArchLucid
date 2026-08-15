@@ -17,8 +17,8 @@ export const operatorQueryKeys = {
   operatorAiQualitySnapshot: ["operator", "assistant", "ai-quality-snapshot"] as const,
   operatorTaskSuccessRates: ["operator", "diagnostics", "task-success-rates"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
-  /** Throws when readiness cannot be loaded — preserves last payload on refetch errors. */
-  healthReadySummaryStrict: ["operator", "health", "ready-summary", "strict"] as const,
+  devTestingQuickJumpSnapshot: (runIdsKey: string) =>
+    ["operator", "dev-testing", "quick-jump", runIdsKey] as const,
   tenantCatalogMigrationStatus: ["operator", "tenant", "catalog-migration-status"] as const,
   operatorShellStatus: (scope: OperatorScopeQueryKey) =>
     ["operator", "shell-status", scope] as const,

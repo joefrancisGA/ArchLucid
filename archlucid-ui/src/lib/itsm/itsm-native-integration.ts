@@ -24,17 +24,21 @@ let inFlightReadiness: Promise<ItsmNativeCreateReadiness> | undefined;
 
 async function loadItsmNativeCreateReadiness(): Promise<ItsmNativeCreateReadiness> {
   try {
-    const health = await fetchItsmIntegrationHealth();
+    const [healthResult, azureSettingsResult] = await Promise.allSettled([
+      fetchItsmIntegrationHealth(),
+      fetchAzureBoardsSettings(),
+    ]);
+    const health = healthResult.status === "fulfilled" ? healthResult.value : null;
+
+    if (health === null) {
+      throw healthResult.status === "rejected" ? healthResult.reason : new Error("itsm-health-unavailable");
+    }
+
     const deploymentEnabled = health.nativeEnabled === true;
     let azureBoardsReady = false;
 
-    if (deploymentEnabled) {
-      try {
-        const azureSettings = await fetchAzureBoardsSettings();
-        azureBoardsReady = isAzureBoardsNativeCreateReady(azureSettings);
-      } catch {
-        azureBoardsReady = false;
-      }
+    if (deploymentEnabled && azureSettingsResult.status === "fulfilled") {
+      azureBoardsReady = isAzureBoardsNativeCreateReady(azureSettingsResult.value);
     }
 
     const defaultPathReady =

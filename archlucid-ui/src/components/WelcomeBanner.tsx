@@ -9,6 +9,7 @@ import type { CSSProperties } from "react";
 import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Button } from "@/components/ui/button";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -40,10 +41,11 @@ export function WelcomeBanner() {
   const [dismissed, setDismissed] = useState(true);
   const [hydrated, setHydrated] = useState(false);
 
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const skipShellProbes = shouldSkipTenantTrialStatusFetch();
   const runsQueryEnabled = hydrated && !dismissed && !skipShellProbes;
 
-  const trialQuery = useTenantTrialStatusQuery();
+  const trialQuery = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const runsQuery = useAskProjectRunsQuery(DEFAULT_PROJECT_ID, { enabled: runsQueryEnabled });
 
   const trialStatusResolved = skipShellProbes || !trialQuery.isPending;

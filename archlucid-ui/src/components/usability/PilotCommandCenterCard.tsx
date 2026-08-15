@@ -114,7 +114,9 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   );
   const hasWorkspaceReviews =
     (useSsrSeedCounts && props.hasWorkspaceReviews === true) || workspaceActivity.hasWorkspaceReviews;
-  const commitQuery = useCorePilotCommitContextQuery();
+  const commitQuery = useCorePilotCommitContextQuery({
+    seedRunItems: runsDashboard?.items,
+  });
   const setupReadiness = useFinishSetupReadinessContext();
   const emptyNext = useOperatorHomeEmptyDoThisNextAction();
 

@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { isDevTestingOverridesEnabled } from "@/lib/dev-testing-overrides";
 import {
@@ -6,6 +7,11 @@ import {
   loadDevTestingQuickJumpSnapshot,
   type DevTestingQuickJumpSnapshot,
 } from "@/lib/load-dev-testing-quick-jump-snapshot";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import {
+  OPERATOR_QUERY_GC_MS,
+  OPERATOR_QUERY_STALE_MS,
+} from "@/lib/query/operator-query-stale-time";
 
 function normalizeRunIds(runIds: readonly string[]): string[] {
   const seen = new Set<string>();
@@ -31,44 +37,27 @@ export function useDevTestingQuickJumpSnapshot(runIds: readonly string[]): {
 } {
   const normalizedRunIds = useMemo(() => normalizeRunIds(runIds), [runIds]);
   const runIdsKey = useMemo(() => normalizedRunIds.join("|"), [normalizedRunIds]);
-  const [snapshot, setSnapshot] = useState<DevTestingQuickJumpSnapshot>(() =>
-    buildEmptyDevTestingQuickJumpSnapshot(normalizedRunIds),
-  );
-  const [loading, setLoading] = useState(true);
+  const devEnabled = isDevTestingOverridesEnabled();
 
-  useEffect(() => {
-    if (!isDevTestingOverridesEnabled()) {
-      setSnapshot(buildEmptyDevTestingQuickJumpSnapshot(normalizedRunIds));
-      setLoading(false);
+  const query = useQuery({
+    queryKey: operatorQueryKeys.devTestingQuickJumpSnapshot(runIdsKey),
+    queryFn: () => loadDevTestingQuickJumpSnapshot(normalizedRunIds),
+    enabled: devEnabled,
+    staleTime: OPERATOR_QUERY_STALE_MS,
+    gcTime: OPERATOR_QUERY_GC_MS,
+    retry: false,
+  });
 
-      return;
+  const snapshot = useMemo(() => {
+    if (!devEnabled) {
+      return buildEmptyDevTestingQuickJumpSnapshot(normalizedRunIds);
     }
 
-    let cancelled = false;
+    return query.data ?? buildEmptyDevTestingQuickJumpSnapshot(normalizedRunIds);
+  }, [devEnabled, normalizedRunIds, query.data]);
 
-    setLoading(true);
-
-    void loadDevTestingQuickJumpSnapshot(normalizedRunIds)
-      .then((loaded) => {
-        if (!cancelled) {
-          setSnapshot(loaded);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setSnapshot(buildEmptyDevTestingQuickJumpSnapshot(normalizedRunIds));
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [normalizedRunIds, runIdsKey]);
-
-  return { snapshot, loading };
+  return {
+    snapshot,
+    loading: devEnabled && query.isPending,
+  };
 }

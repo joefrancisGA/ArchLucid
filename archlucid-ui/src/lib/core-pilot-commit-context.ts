@@ -85,6 +85,19 @@ export function buildCorePilotCommitContextFromRunItems(
   };
 }
 
+/** Derives commit signals from an already-loaded run page (avoids a second runs list fetch). */
+export async function resolveCorePilotCommitContextFromRunItems(
+  items: readonly RunSummary[],
+): Promise<CorePilotCommitContext> {
+  if (isPublicDemoModeEnv()) {
+    return PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT;
+  }
+
+  const trialAnchoredCommit = await fetchTrialAnchoredCommit();
+
+  return buildCorePilotCommitContextFromRunItems(items, trialAnchoredCommit);
+}
+
 /**
  * Client-only: resolves Core Pilot “commit happened” signals without new API routes.
  * Prefer `GET /v1/tenant/trial-status.firstCommitUtc`; fall back to scanning run summaries.

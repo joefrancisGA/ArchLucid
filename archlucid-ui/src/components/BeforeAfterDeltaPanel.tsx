@@ -8,6 +8,8 @@ import { BeforeAfterDeltaInlinePanel } from "@/components/BeforeAfterDelta/Befor
 import { BeforeAfterDeltaSidebarPanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaSidebarPanel";
 import { BeforeAfterDeltaTopPanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaTopPanel";
 import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
+import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 /**
@@ -50,7 +52,6 @@ type TrialStatusPayload = {
   baselineReviewCycleHours?: number | null;
   baselineReviewCycleSource?: string | null;
   baselineReviewCycleCapturedUtc?: string | null;
-  firstCommitUtc?: string | null;
 };
 
 type PilotRunDeltasPayload = {
@@ -102,40 +103,33 @@ export function BeforeAfterDeltaPanel({ runId, variant, count }: BeforeAfterDelt
 }
 
 function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const { data: trialPayload, isFetched: trialFetched } = useTenantTrialStatusQuery({
+    enabled: concernFetchEnabled,
+  });
   const [state, setState] = useState<{ status: "loading" | "ready" | "error" | "skipped"; data: PanelData | null }>({
     status: "loading",
     data: null,
   });
 
   useEffect(() => {
+    if (!trialFetched) {
+      return;
+    }
+
     let canceled = false;
 
-    async function load(): Promise<void> {
+    async function load(trial: TrialStatusPayload | null): Promise<void> {
       try {
-        const trialRes = await fetch(
-          "/api/proxy/v1/tenant/trial-status",
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (!trialRes.ok) {
-          if (!canceled) setState({ status: "skipped", data: null });
-
-          return;
-        }
-
-        const trial = (await trialRes.json()) as TrialStatusPayload;
-
-        if (canceled) return;
-
         const baselineHours =
-          typeof trial.baselineReviewCycleHours === "number" && Number.isFinite(trial.baselineReviewCycleHours)
+          typeof trial?.baselineReviewCycleHours === "number" && Number.isFinite(trial.baselineReviewCycleHours)
             ? trial.baselineReviewCycleHours
             : null;
-        const baselineSource = typeof trial.baselineReviewCycleSource === "string" ? trial.baselineReviewCycleSource : null;
+        const baselineSource = typeof trial?.baselineReviewCycleSource === "string" ? trial.baselineReviewCycleSource : null;
         const baselineCapturedUtc =
-          typeof trial.baselineReviewCycleCapturedUtc === "string" ? trial.baselineReviewCycleCapturedUtc : null;
+          typeof trial?.baselineReviewCycleCapturedUtc === "string" ? trial.baselineReviewCycleCapturedUtc : null;
 
-        const effectiveRunId = (runId ?? trial.trialWelcomeRunId) || null;
+        const effectiveRunId = (runId ?? trial?.trialWelcomeRunId) || null;
 
         if (effectiveRunId === null) {
           if (!canceled) {
@@ -198,12 +192,12 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
       }
     }
 
-    void load();
+    void load(trialPayload ?? null);
 
     return () => {
       canceled = true;
     };
-  }, [runId]);
+  }, [runId, trialFetched, trialPayload]);
 
   if (state.status === "loading" || state.status === "skipped" || state.status === "error") return null;
 
