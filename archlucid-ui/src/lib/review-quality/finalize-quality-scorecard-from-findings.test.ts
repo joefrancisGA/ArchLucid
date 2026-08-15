@@ -84,6 +84,36 @@ describe("finalize-quality-scorecard-from-findings", () => {
     expect(input.uncoveredMandatoryRequirementCount).toBe(0);
   });
 
+  it("counts all unverified assumptions when existential assumptions are present", () => {
+    const input = deriveFinalizeQualityScorecardInput(
+      [
+        sampleFinding({
+          findingId: "a1",
+          title: "RTO assumption not documented",
+          recommendation: "Recovery target is assumed without evidence",
+        }),
+        sampleFinding({
+          findingId: "a2",
+          title: "Assumption about logging retention",
+          recommendation: "Logging retention period is assumed",
+        }),
+        sampleFinding({
+          findingId: "a3",
+          title: "Assumption about API auth model",
+          recommendation: "Auth model is assumed from intake notes",
+        }),
+        sampleFinding({
+          findingId: "a4",
+          title: "Assumption about region failover",
+          recommendation: "Failover region is assumed",
+        }),
+      ],
+      0,
+    );
+
+    expect(input.unverifiedAssumptionCount).toBe(4);
+  });
+
   it("derives approved decision titles from approved human review rows", () => {
     const titles = deriveApprovedDecisionTitlesFromFindings([
       sampleFinding({

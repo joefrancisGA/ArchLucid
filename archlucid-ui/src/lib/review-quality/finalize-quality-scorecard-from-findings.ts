@@ -4,7 +4,6 @@ import {
 import { humanReviewStatusDisplay, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 import {
-  countExistentialUnverifiedAssumptions,
   parseUnverifiedAssumptions,
 } from "./assumption-and-severity";
 import type { FinalizeQualityScorecardInput } from "./finalize-quality-scorecard";
@@ -39,7 +38,6 @@ export function deriveFinalizeQualityScorecardInput(
   blockingFindingCount: number,
 ): FinalizeQualityScorecardInput {
   const assumptions = parseUnverifiedAssumptions(deriveUnverifiedAssumptionTexts(findings));
-  const existentialAssumptions = countExistentialUnverifiedAssumptions(assumptions);
   let lowExtractionConfidenceCount = 0;
 
   for (const finding of findings) {
@@ -61,7 +59,7 @@ export function deriveFinalizeQualityScorecardInput(
 
   return {
     blockingFindingCount: Math.max(0, Math.trunc(blockingFindingCount)),
-    unverifiedAssumptionCount: existentialAssumptions > 0 ? existentialAssumptions : assumptions.length,
+    unverifiedAssumptionCount: assumptions.length,
     uncoveredMandatoryRequirementCount,
     openCannotDetermineCount,
     lowExtractionConfidenceCount,
