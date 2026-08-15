@@ -1,4 +1,4 @@
-> **Scope:** TB-952 — outbound capabilities reachable from agent handlers; pairs GTM **M-115** / **M-116**.
+> **Scope:** Contributor-reference — TB-952 outbound capabilities reachable from agent handlers; pairs GTM **M-115** / **M-116**.
 
 **Audience:** Contributors and internal assurance reviewers.
 

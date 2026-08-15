@@ -285,7 +285,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/insights/ask-review-questions",
     topic: { slug: "prior-manifest-retrieval", label: PRIOR_MANIFEST_RETRIEVAL_HELP_TOPIC_LABEL },
   },
-  { prefix: "/insights/evidence-graph", topic: { slug: "evidence-graph", label: EVIDENCE_GRAPH_HELP_TOPIC_LABEL } },
+  { prefix: "/insights/evidence-graph", topic: { slug: "evidence-graph", label: OPERATOR_NAV_LINK_LABELS.evidenceGraph } },
   {
     prefix: "/insights/search-review-evidence",
     topic: { slug: "search-review-evidence", label: SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL },
@@ -307,7 +307,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: INTERNAL_REPLAY_PATH,
     topic: { slug: "comparison-replay", label: COMPARISON_REPLAY_HELP_TOPIC_LABEL },
   },
-  { prefix: "/governance/findings", topic: { slug: "findings", label: FINDINGS_HELP_TOPIC_LABEL } },
+  { prefix: "/governance/findings", topic: { slug: "findings", label: OPERATOR_NAV_LINK_LABELS.findings } },
   {
     prefix: GOVERNANCE_SETUP_HREF,
     topic: { slug: "governance-approval", label: GOVERNANCE_SETUP_PAGE_TITLE },
@@ -778,7 +778,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   },
   {
     prefix: "/administration/workspace-settings",
-    topic: { slug: "workspace-settings", label: WORKSPACE_SETTINGS_HELP_TOPIC_LABEL },
+    topic: { slug: "workspace-settings", label: OPERATOR_NAV_LINK_LABELS.workspaceSettings },
   },
   {
     prefix: "/administration/baseline",

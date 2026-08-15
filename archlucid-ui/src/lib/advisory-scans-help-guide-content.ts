@@ -15,7 +15,7 @@ export const ADVISORY_SCANS_HELP_PAGE_SUBTITLE =
   "Generate prioritized follow-up recommendations from finalized architecture reviews.";
 
 export const ADVISORY_SCANS_HELP_OVERVIEW =
-  "Advisory scans prioritize follow-up work after a review is finalized. Scan output is recommendations — not a sealed diligence package.";
+  "Advisory scans prioritize follow-up work after a review is finalized. Scan output is recommendations — not a sealed review export bundle.";
 
 /** Hub screen-reader hint on Schedules tab when the caller cannot mutate advisory schedules. */
 export const ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION =
