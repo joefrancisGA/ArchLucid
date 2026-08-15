@@ -1,6 +1,6 @@
 # Operator shell navigation contract (`nav-config`)
 
-Canonical implementation: `src/lib/nav-config.ts`, built by **`NavGroupBuilder`** classes in `src/lib/pilot-nav-group-builder.ts`, `operate-analysis-nav-group-builder.ts`, `operate-governance-nav-group-builder.ts`, and `operator-admin-nav-group-builder.ts`.
+Canonical implementation: `src/lib/nav-config.ts`, built by the **six** **`NavGroupBuilder`** classes in `src/lib/pilot-nav-group-builder.ts`, `operate-analysis-nav-group-builder.ts`, `operate-governance-nav-group-builder.ts`, `operate-integrations-nav-group-builder.ts`, `operator/operator-admin-nav-group-builder.ts`, and `operator/operator-system-admin-nav-group-builder.ts`.
 
 This document replaces the historical mega-comment on `nav-config.ts`. **API authorization stays on the server**; this file describes **UI shaping only**.
 
@@ -38,12 +38,18 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 
 ## Nav groups → buyer layers
 
-| Group `id`           | `surface`           | Layer    | Notes |
-|----------------------|---------------------|----------|--------|
-| `pilot`              | `review-workflow`   | Pilot    | request · run · finalize · review |
-| `operate-analysis`   | `review-workflow`   | Operate  | analysis slice — compare, replay, graph, Q&A, advisory, … |
-| `operate-governance` | `review-workflow`   | Operate  | governance slice — policy, audit, alerts, trust — Execute+ for writes where noted |
-| `operator-admin`     | `platform-admin`    | Admin    | system health, tenant cost, settings, support, users |
+**6** groups, **69** configured links (`flattenNavLinks()`). Group `id`s are stable (used as `localStorage` keys); only the label is user-visible.
+
+| Group `id`              | Label          | `surface`         | Layer   | Links | Notes |
+|-------------------------|----------------|-------------------|---------|------:|--------|
+| `pilot`                 | Architecture   | `review-workflow` | Pilot   | 6 | request · run · finalize · review; essentials omit `requiredAuthority` |
+| `operate-analysis`      | Insights       | `review-workflow` | Operate | 10 | analysis slice — compare, replay, graph, Q&A, advisory, … |
+| `operate-governance`    | Governance     | `review-workflow` | Operate | 15 | governance slice — policy, audit, alerts, trust — Execute+ for writes where noted |
+| `operate-integrations`  | Integrations   | `review-workflow` | Operate | 7 | connector configuration and outbound event surfaces |
+| `operator-admin`        | Administration | `platform-admin`  | Admin   | 14 | system health, tenant cost, settings, support, users |
+| `operator-system-admin` | Internal       | `system-admin`    | Admin   | 17 | employee-only; behind `isShowSystemAdministrationNavEnabled()` |
+
+Group labels come from `OPERATOR_NAV_GROUP_LABELS` in `src/lib/i18n.ts` except `operator-admin` and `operator-system-admin`, which inline their labels. `OPERATOR_NAV_GROUP_LABELS` still exports `reports`, `operations`, and `help` values that no live group consumes.
 
 **Shell filter:** `listNavGroupsVisibleInOperatorShell(..., surfaceFilter)` can target **`review-workflow`** vs **`platform-admin`** so buyer-first chrome (sidebar, palette) can separate review work from administration without duplicating hrefs.
 
@@ -53,17 +59,18 @@ When adding or moving a route, follow the **ordered checklist** in **`docs/libra
 
 ### Route namespace policy (TB-404)
 
-Operator sidebar groups imply a URL prefix in the address bar. **57** nav hrefs span **7** groups; **23** intentional cross-namespace hrefs remain until **TB-405–408** route moves land.
+Operator sidebar groups imply a URL prefix in the address bar. **69** nav hrefs span **6** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.
 
 | Nav group `id` | Canonical prefix(es) | Notes |
 |----------------|----------------------|--------|
-| `pilot` | *(none — heterogeneous top-level review paths)* | Portfolio overview may use CTO demo sponsor showcase href (registered exception). |
-| `operate-analysis` | *(none)* | `/insights/ask-review-questions`, `/insights/compare-two-reviews`, `/insights/impact-preview`, … |
-| `operate-governance` | `/governance` | All governance nav hrefs are under `/governance/*` (TB-405). |
-| `operate-reports` | `/sponsor-report`, `/value-report` | Architecture scorecard is Insights-only (`/insights/architecture-scorecard`); digests exception in registry |
+| `pilot` | *(none — heterogeneous top-level review paths)* | Prefix enforcement skipped; review paths live at `/`, `/architecture/*`. |
+| `operate-analysis` | *(none)* | Prefix enforcement skipped: `/insights/ask-review-questions`, `/insights/compare-two-reviews`, `/insights/impact-preview`, … |
+| `operate-governance` | `/governance` | All governance nav hrefs under `/governance/*` (TB-405), except the one registered exception below. |
 | `operate-integrations` | `/integrations` | All Integrations nav hrefs under `/integrations/*` (TB-407). |
 | `operator-admin` | `/administration` | All Administration nav hrefs under `/administration/*` (TB-406). |
-| `operator-system-admin` | `/admin` | Settings, operate, replay, digests, and value-report variants — see exception registry |
+| `operator-system-admin` | `/internal` | Internal operations moved `/admin/*` → `/internal/*`; legacy `/admin/*` are redirects only. |
+
+**Registered exceptions (1):** `operate-governance` → `GOVERNANCE_WORKSPACE_HEALTH_HREF`. Workspace-health KPIs were merged onto the sponsor dashboard when standalone `/governance/dashboard` was retired, so the nav row deep-links to the `#workspace-health` anchor instead of owning a `/governance/*` page.
 
 **Exception registry (source of truth):** `src/lib/nav-route-namespace-exceptions.ts`  
 **Prefix matcher + policies:** `src/lib/nav-route-namespace-policy.ts`  
