@@ -34,16 +34,16 @@ const ROW_IDS: readonly FinalizeConsequencePreviewRowId[] = [
 
 /** Stable consequence matrix for the Finalize confirm dialog. */
 export function buildFinalizeConsequencePreview(): FinalizeConsequencePreview {
-  const signedReviewRecord = BUYER_SURFACE_VOCABULARY.signedReviewRecord;
+  const sealedReviewRecord = BUYER_SURFACE_VOCABULARY.sealedReviewRecord;
 
   return {
     title: FINALIZE_CONSEQUENCE_PREVIEW_TITLE,
-    summary: `Finalizing locks this architecture review as a ${signedReviewRecord.toLowerCase()}.`,
+    summary: `Finalizing locks this architecture review as a ${sealedReviewRecord.toLowerCase()}.`,
     rows: [
       {
         id: "locks",
         label: "What locks",
-        detail: `The reviewed architecture snapshot and decision traces become the ${signedReviewRecord.toLowerCase()} for this review.`,
+        detail: `The reviewed architecture snapshot and decision traces become the ${sealedReviewRecord.toLowerCase()} for this review.`,
       },
       {
         id: "staysEditable",

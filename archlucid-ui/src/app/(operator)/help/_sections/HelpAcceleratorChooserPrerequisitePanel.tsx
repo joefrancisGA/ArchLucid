@@ -109,7 +109,7 @@ export function HelpAcceleratorChooserPrerequisitePanel(
               className={OPERATOR_LINK.optional}
               data-testid="help-accelerator-chooser-prerequisite-signed-record-link"
             >
-              Open most recent {BUYER_SURFACE_VOCABULARY.signedReviewRecord.toLowerCase()}
+              Open most recent {BUYER_SURFACE_VOCABULARY.sealedReviewRecord.toLowerCase()}
             </Link>
           ) : null}
         </div>

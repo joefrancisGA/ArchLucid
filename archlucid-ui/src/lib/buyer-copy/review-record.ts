@@ -40,7 +40,7 @@ export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download finalize
 export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE = "Delivered as a ZIP archive for diligence and archiving.";
 
 /**
- * @deprecated Prefer {@link SIGNED_MANIFEST_LABEL} / `BUYER_SURFACE_VOCABULARY.signedReviewRecord`.
+ * @deprecated Prefer {@link SIGNED_MANIFEST_LABEL} / `BUYER_SURFACE_VOCABULARY.sealedReviewRecord`.
  * Kept so older imports resolve to the canonical package noun (not a Decision register row).
  */
 export const BUYER_SIGNED_DECISION_RECORD_LABEL = "Sealed review record";

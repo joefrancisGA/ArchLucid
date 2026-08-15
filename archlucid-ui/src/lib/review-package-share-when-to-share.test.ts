@@ -16,7 +16,7 @@ describe("review-package-share-when-to-share (TB-2243)", () => {
 
     expect(preview.title).toBe(REVIEW_PACKAGE_SHARE_WHEN_TO_SHARE_TITLE);
     expect(preview.summary.toLowerCase()).toContain(
-      BUYER_SURFACE_VOCABULARY.signedReviewRecord.toLowerCase(),
+      BUYER_SURFACE_VOCABULARY.sealedReviewRecord.toLowerCase(),
     );
 
     const shareLink = reviewPackageShareWhenToShareRowById("shareLink");
