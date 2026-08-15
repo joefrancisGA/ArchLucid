@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
-import { deriveRecommendedWorkspaceActions } from "./workspace-actions";
+import { deriveBlockingApprovalCount, deriveRecommendedWorkspaceActions } from "./workspace-actions";
 
 function sampleFinding(
   partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,
@@ -51,5 +51,55 @@ describe("deriveRecommendedWorkspaceActions", () => {
     });
 
     expect(actions.some((action) => action.id === "assign-owners")).toBe(false);
+  });
+
+  it("does not recommend reviewing critical/high findings when disposition already closed them", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [
+        sampleFinding({
+          findingId: "f-accepted-high",
+          severityValue: 2,
+          humanReviewStatus: null,
+          aiReasoning: {
+            reasoningTrace: "",
+            wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+          },
+        }),
+      ],
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    expect(actions.some((action) => action.id === "review-critical-high")).toBe(false);
+  });
+});
+
+describe("deriveBlockingApprovalCount", () => {
+  it("ignores disposition-closed findings when coverage failures force a client-side count", () => {
+    const count = deriveBlockingApprovalCount({
+      unresolvedIssueCount: 0,
+      hasCommitBlockingFailures: true,
+      findings: [
+        sampleFinding({
+          findingId: "f-accepted-blocking",
+          severityValue: 2,
+          enforcementTier: "PolicyViolation",
+          humanReviewStatus: null,
+          aiReasoning: {
+            reasoningTrace: "",
+            wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+          },
+        }),
+      ],
+    });
+
+    expect(count).toBe(0);
   });
 });

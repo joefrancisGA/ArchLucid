@@ -27,7 +27,7 @@ const PRODUCT_BRAND_NAME = "ArchLucid";
 import type {
   RunDetailWorkspaceRecommendedAction
 } from "./types";
-import { countFindingsBySeverity, derivePrimaryConcernFinding } from "./finding-metrics";
+import { countFindingsBySeverity, derivePrimaryConcernFinding, filterUnresolvedFindings } from "./finding-metrics";
 import { isFindingResolved } from "./internal";
 export function deriveBlockingApprovalCount(input: {
   readonly unresolvedIssueCount: number | null | undefined;
@@ -43,7 +43,12 @@ export function deriveBlockingApprovalCount(input: {
   }
 
   if (input.hasCommitBlockingFailures) {
-    return input.findings.filter((finding) => !finding.isMuted && finding.enforcementTier !== "Advisory").length;
+    return input.findings.filter(
+      (finding) =>
+        !finding.isMuted &&
+        finding.enforcementTier !== "Advisory" &&
+        !isFindingResolved(finding),
+    ).length;
   }
 
   return 0;
@@ -64,7 +69,8 @@ export function deriveRecommendedWorkspaceActions(input: {
   readonly skipDuplicateFindingsActions?: boolean;
 }): RunDetailWorkspaceRecommendedAction[] {
   const actions: RunDetailWorkspaceRecommendedAction[] = [];
-  const severityCounts = countFindingsBySeverity(input.findings);
+  const unresolvedFindings = filterUnresolvedFindings(input.findings);
+  const severityCounts = countFindingsBySeverity(unresolvedFindings);
   const unassignedHigh = input.findings.filter(
     (finding) =>
       !finding.isMuted &&
