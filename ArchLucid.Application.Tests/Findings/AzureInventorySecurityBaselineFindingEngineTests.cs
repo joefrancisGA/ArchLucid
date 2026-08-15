@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
@@ -54,6 +55,47 @@ public sealed class AzureInventorySecurityBaselineFindingEngineTests
         findings[0].EngineType.Should().Be("azure-inventory-security-baseline");
         findings[0].Category.Should().Be("Security");
         findings[0].Payload.Should().BeOfType<RequirementFindingPayload>();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_links_related_topology_node_when_resource_id_matches_graph()
+    {
+        const string resourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/publicsa";
+
+        const string resourcesJson =
+            $$"""
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "{{resourceId}}",
+                "properties": {
+                  "allowBlobPublicAccess": true
+                }
+              }
+            ]
+            """;
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "topology-storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "publicsa",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = resourceId },
+                },
+            ],
+        };
+
+        AzureInventorySecurityBaselineFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].RelatedNodeIds.Should().ContainSingle().Which.Should().Be("topology-storage-1");
     }
 
     [Fact]

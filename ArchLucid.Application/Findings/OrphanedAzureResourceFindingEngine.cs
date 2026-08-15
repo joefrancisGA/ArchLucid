@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
@@ -37,7 +38,7 @@ public sealed class OrphanedAzureResourceFindingEngine(
     /// <inheritdoc />
     public async Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
     {
-        _ = graphSnapshot;
+        ArgumentNullException.ThrowIfNull(graphSnapshot);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         DateTime? collectionUtc = await _packageRepository
@@ -105,6 +106,9 @@ public sealed class OrphanedAzureResourceFindingEngine(
             extractorOrphansByResourceId.TryAdd(candidate.ResourceId, candidate);
         }
 
+        InventoryTopologyResourceNodeIndex topologyNodes =
+            InventoryTopologyResourceNodeIndex.Build(graphSnapshot, InventoryTopologyCloudProvider.Azure);
+
         return orphans
             .Select(orphan =>
             {
@@ -124,7 +128,7 @@ public sealed class OrphanedAzureResourceFindingEngine(
                     Severity = FindingSeverity.Warning,
                     Title = $"Orphaned resource: {orphan.ResourceType}",
                     Rationale = orphan.Message,
-                    RelatedNodeIds = [],
+                    RelatedNodeIds = topologyNodes.Resolve(orphan.ResourceId).ToList(),
                     PayloadType = extractorOrphanCandidatesGrounded
                         ? nameof(ExtractorOrphanCandidateFindingPayload)
                         : nameof(RequirementFindingPayload),

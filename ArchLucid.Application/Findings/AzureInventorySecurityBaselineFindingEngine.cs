@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -36,7 +37,7 @@ public sealed class AzureInventorySecurityBaselineFindingEngine(
     /// <inheritdoc />
     public async Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
     {
-        _ = graphSnapshot;
+        ArgumentNullException.ThrowIfNull(graphSnapshot);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         DateTime? collectionUtc = await _packageRepository
@@ -69,12 +70,16 @@ public sealed class AzureInventorySecurityBaselineFindingEngine(
         IReadOnlyList<InventorySecurityBaselineFinding> gaps =
             AzureInventorySecurityBaselineClassifier.ClassifyFromResourcesJson(resourcesJson);
 
+        InventoryTopologyResourceNodeIndex topologyNodes =
+            InventoryTopologyResourceNodeIndex.Build(graphSnapshot, InventoryTopologyCloudProvider.Azure);
+
         return gaps
             .Select(gap => InventorySecurityBaselineFindingMapper.ToFinding(
                 gap,
                 EngineType,
                 "AzureInventorySecurityBaseline",
-                "Azure"))
+                "Azure",
+                topologyNodes))
             .ToList();
     }
 }
