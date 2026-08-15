@@ -46,6 +46,8 @@ public sealed class TopologyWaveFindingEngineTests
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("requirement-expectation");
+        findings[0].RelatedNodeIds.Should().Contain("cmp-1");
+        findings[0].RelatedNodeIds.Should().Contain("ctx-1");
         RequirementExpectationFindingPayload? payload = findings[0].Payload as RequirementExpectationFindingPayload;
         payload.Should().NotBeNull();
         payload!.MissingThemes.Should().Contain("identity-access");
@@ -75,6 +77,7 @@ public sealed class TopologyWaveFindingEngineTests
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("security-baseline-expectation");
+        findings[0].RelatedNodeIds.Should().Contain("cmp-1");
         SecurityBaselineExpectationFindingPayload? payload =
             findings[0].Payload as SecurityBaselineExpectationFindingPayload;
         payload.Should().NotBeNull();
@@ -115,6 +118,8 @@ public sealed class TopologyWaveFindingEngineTests
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("security-baseline-completeness");
+        findings[0].RelatedNodeIds.Should().Contain("cmp-1");
+        findings[0].RelatedNodeIds.Should().Contain("ctx-1");
         SecurityBaselineCompletenessFindingPayload? payload =
             findings[0].Payload as SecurityBaselineCompletenessFindingPayload;
         payload.Should().NotBeNull();

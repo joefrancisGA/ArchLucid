@@ -21,6 +21,8 @@ public sealed class SecurityBaselineExpectationFindingEngine(IGraphCoverageAnaly
         if (result.TopologyNodeCount == 0 || result.MissingCategories.Count == 0)
             return Task.FromResult<IReadOnlyList<Finding>>([]);
 
+        List<string> scopeNodeIds = WorkloadExpectationFindingGraphScope.CollectScopeNodeIds(graphSnapshot);
+
         Finding finding = new()
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -44,8 +46,10 @@ public sealed class SecurityBaselineExpectationFindingEngine(IGraphCoverageAnaly
             [
                 "Add or extend security baseline PROTECTS mappings for resources in the missing categories."
             ],
+            RelatedNodeIds = scopeNodeIds,
             Trace = new ExplainabilityTrace
             {
+                GraphNodeIdsExamined = scopeNodeIds,
                 RulesApplied = ["security-baseline-category-expectation"],
                 DecisionsTaken =
                 [

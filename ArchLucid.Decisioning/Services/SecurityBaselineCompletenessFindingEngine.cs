@@ -20,6 +20,8 @@ public sealed class SecurityBaselineCompletenessFindingEngine(IGraphCoverageAnal
         if (result.TopologyNodeCount == 0 || result.MissingControlFamilies.Count == 0)
             return Task.FromResult<IReadOnlyList<Finding>>([]);
 
+        List<string> scopeNodeIds = WorkloadExpectationFindingGraphScope.CollectScopeNodeIds(graphSnapshot);
+
         Finding finding = new()
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -51,8 +53,10 @@ public sealed class SecurityBaselineCompletenessFindingEngine(IGraphCoverageAnal
             [
                 "Add or extend security baseline controls with PROTECTS edges for each missing control family."
             ],
+            RelatedNodeIds = scopeNodeIds,
             Trace = new ExplainabilityTrace
             {
+                GraphNodeIdsExamined = scopeNodeIds,
                 RulesApplied = ["security-baseline-completeness-matrix"],
                 DecisionsTaken =
                 [

@@ -157,6 +157,35 @@ public sealed class DecisionGradeFindingProvenanceValidatorTests
     }
 
     [Fact]
+    public void GetViolations_allows_requirement_expectation_with_rules_and_payload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "req-exp-1",
+                    FindingType = "RequirementExpectationFinding",
+                    EngineType = "requirement-expectation",
+                    Category = "Requirement",
+                    Payload = new RequirementExpectationFindingPayload
+                    {
+                        TopologyNodeCount = 1,
+                        MissingThemes = ["identity-access"],
+                    },
+                    Trace = new ExplainabilityTrace
+                    {
+                        RulesApplied = ["requirement-expectation-workload-scope"],
+                    },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
+
+    [Fact]
     public void GetViolations_allows_security_coverage_with_rules_graph_nodes_and_payload()
     {
         FindingsSnapshot snapshot = new()

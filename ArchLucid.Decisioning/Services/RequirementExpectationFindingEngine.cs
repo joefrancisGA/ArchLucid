@@ -20,6 +20,8 @@ public sealed class RequirementExpectationFindingEngine(IGraphCoverageAnalyzer a
         if (result.TopologyNodeCount == 0 || result.MissingThemes.Count == 0)
             return Task.FromResult<IReadOnlyList<Finding>>([]);
 
+        List<string> scopeNodeIds = WorkloadExpectationFindingGraphScope.CollectScopeNodeIds(graphSnapshot);
+
         Finding finding = new()
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -43,8 +45,10 @@ public sealed class RequirementExpectationFindingEngine(IGraphCoverageAnalyzer a
             [
                 "Add requirement nodes that cover the missing workload-conditioned themes."
             ],
+            RelatedNodeIds = scopeNodeIds,
             Trace = new ExplainabilityTrace
             {
+                GraphNodeIdsExamined = scopeNodeIds,
                 RulesApplied = ["requirement-expectation-workload-scope"],
                 DecisionsTaken =
                 [
