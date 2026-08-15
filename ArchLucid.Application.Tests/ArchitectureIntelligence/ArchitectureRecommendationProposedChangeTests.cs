@@ -58,4 +58,28 @@ public sealed class ArchitectureRecommendationProposedChangeTests
         recommendations[0].ProposedChange.Should().Contain("stated RTO");
         recommendations[0].ProposedChange.Should().NotContain("Address finding:");
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void BuildRecommendations_marks_implementation_estimate_unavailable()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "f-effort",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [finding],
+            ["Security"]);
+
+        recommendations[0].Effort.ImplementationEstimateAvailable.Should().BeFalse();
+        recommendations[0].Effort.BasisNotes.Should().Contain("implementation estimate unavailable");
+    }
 }
