@@ -28,6 +28,7 @@ import type {
   RunDetailWorkspaceRecommendedAction
 } from "./types";
 import { countFindingsBySeverity, derivePrimaryConcernFinding } from "./finding-metrics";
+import { isFindingResolved } from "./internal";
 export function deriveBlockingApprovalCount(input: {
   readonly unresolvedIssueCount: number | null | undefined;
   readonly hasCommitBlockingFailures: boolean;
@@ -67,15 +68,22 @@ export function deriveRecommendedWorkspaceActions(input: {
   const unassignedHigh = input.findings.filter(
     (finding) =>
       !finding.isMuted &&
+      !isFindingResolved(finding) &&
       finding.severityValue >= 2 &&
       (finding.assignedToUserId?.trim() ?? "").length === 0,
   ).length;
   const pendingDecision = input.findings.filter((finding) => {
+    if (finding.isMuted || isFindingResolved(finding)) {
+      return false;
+    }
+
     const status = humanReviewStatusDisplay(finding.humanReviewStatus);
 
     return status?.label === "Pending review";
   }).length;
-  const evidenceGaps = input.findings.filter((finding) => (finding.evidenceRefCount ?? 0) === 0).length;
+  const evidenceGaps = input.findings.filter(
+    (finding) => !finding.isMuted && !isFindingResolved(finding) && (finding.evidenceRefCount ?? 0) === 0,
+  ).length;
 
   if (input.showProgressTracker) {
     actions.push({
