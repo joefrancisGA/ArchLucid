@@ -144,5 +144,9 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await page.goto("/governance/policy-packs");
     await expect(page.getByRole("heading", { level: 2, name: /^Policy packs$/i })).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/governance/sealed-records");
+    await expect(page.getByTestId("signed-records-list-page-title")).toHaveText("Sealed review records");
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
   });
 });

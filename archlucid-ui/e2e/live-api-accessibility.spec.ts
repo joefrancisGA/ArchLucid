@@ -60,6 +60,7 @@ const PAGES = [
   { name: "Standards & rules", path: "/governance/standards-and-rules" },
   { name: "Governance findings queue", path: "/governance/findings" },
   { name: "Governance policy packs", path: "/governance/policy-packs" },
+  { name: "Sealed review records list", path: "/governance/sealed-records" },
   {
     name: "Governance policy pack detail (marketing slug)",
     path: `/governance/policy-packs/${encodeURIComponent(SCREENSHOT_POLICY_PACK_ID)}`,

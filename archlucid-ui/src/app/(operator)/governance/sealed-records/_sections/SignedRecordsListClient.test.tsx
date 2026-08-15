@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const listRunsByProjectPaged = vi.fn();
 const enrichSignedRecordsListRows = vi.fn();
 const areSpineStaticDemoPayloadsAvailable = vi.fn();
+const tryStaticDemoRunSummariesPaged = vi.fn();
 
 vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: (...args: unknown[]) => listRunsByProjectPaged(...args),
@@ -15,7 +16,30 @@ vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
   return {
     ...actual,
     areSpineStaticDemoPayloadsAvailable: (...args: unknown[]) => areSpineStaticDemoPayloadsAvailable(...args),
-    tryStaticDemoRunSummariesPaged: () => null,
+    tryStaticDemoRunSummariesPaged: (...args: unknown[]) => tryStaticDemoRunSummariesPaged(...args),
+  };
+});
+
+vi.mock("@/components/operator/OperatorDemoStaticBanner", () => ({
+  OperatorDemoStaticBanner: () => <div data-testid="operator-demo-static-banner" />,
+}));
+
+vi.mock("./signed-records-list-deferred-chunks", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./signed-records-list-deferred-chunks")>();
+  const { SignedRecordsListTable } = await import("./SignedRecordsListTable");
+
+  return {
+    ...actual,
+    SignedRecordsListTableDeferred: SignedRecordsListTable,
+  };
+});
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isOperatorExperienceFullShellEnv: () => true,
   };
 });
 
@@ -52,8 +76,8 @@ const enrichedRow = {
   reviewHref: `/architecture/reviews/${finalizedRun.runId}`,
   signedRecordHref: "/governance/sealed-records/manifest-abc",
   sealIntegrity: { kind: "ready" as const, label: "Sealed" },
-  sealSigner: null,
   sealDigestTruncated: "sha256-d…34567890",
+  sealDigestFull: "sha256-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
   recordLookupFailure: null,
 };
 
@@ -61,6 +85,7 @@ beforeEach(() => {
   listRunsByProjectPaged.mockReset();
   enrichSignedRecordsListRows.mockReset();
   areSpineStaticDemoPayloadsAvailable.mockReturnValue(true);
+  tryStaticDemoRunSummariesPaged.mockReturnValue(null);
 });
 
 describe("SignedRecordsListClient", () => {
@@ -90,7 +115,9 @@ describe("SignedRecordsListClient", () => {
       expect(screen.getByRole("link", { name: "Claims modernization" })).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("signed-records-list-record-count")).toHaveTextContent("1 sealed review record");
+    expect(screen.getByTestId("signed-records-list-record-count")).toHaveTextContent(
+      "1 sealed review record on this page",
+    );
 
     expect(listRunsByProjectPaged).toHaveBeenCalled();
     const listOptions = listRunsByProjectPaged.mock.calls[0]?.[3] as Record<string, unknown> | undefined;
@@ -155,6 +182,7 @@ describe("SignedRecordsListClient", () => {
         signedRecordHref: null,
         sealIntegrity: null,
         sealDigestTruncated: null,
+        sealDigestFull: null,
         recordLookupFailure: "pending-resolution" as const,
       })),
     );
@@ -197,5 +225,35 @@ describe("SignedRecordsListClient", () => {
     expect(browseReviewsLink.getAttribute("href")).not.toMatch(/projectId=/i);
 
     expect(screen.getByRole("link", { name: "View sample sealed record" })).toBeInTheDocument();
+  });
+
+  it("shows the demo static banner when live list is empty and static fallback rows are injected", async () => {
+    listRunsByProjectPaged.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    });
+    tryStaticDemoRunSummariesPaged.mockReturnValue({
+      items: [finalizedRun],
+      totalCount: 1,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    });
+    enrichSignedRecordsListRows.mockImplementation(async (rows: readonly { runId: string }[]) =>
+      rows.map((row) => ({
+        ...enrichedRow,
+        runId: row.runId,
+        reviewHref: `/architecture/reviews/${row.runId}`,
+      })),
+    );
+
+    render(<SignedRecordsListClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-demo-static-banner")).toBeInTheDocument();
+    });
   });
 });

@@ -59,8 +59,8 @@ async function enrichSignedRecordsListRow(row: SignedRecordsListRow): Promise<Si
       manifestId: null,
       signedRecordHref: null,
       sealIntegrity: null,
-      sealSigner: null,
       sealDigestTruncated: null,
+      sealDigestFull: null,
       recordLookupFailure: "pending-resolution",
     };
   }

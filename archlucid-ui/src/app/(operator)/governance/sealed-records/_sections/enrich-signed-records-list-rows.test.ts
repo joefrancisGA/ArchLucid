@@ -28,8 +28,8 @@ const baseRow: SignedRecordsListRow = {
   reviewHref: "/architecture/reviews/00000000-0000-0000-0000-000000000099",
   signedRecordHref: null,
   sealIntegrity: null,
-  sealSigner: null,
   sealDigestTruncated: null,
+  sealDigestFull: null,
   recordLookupFailure: "pending-resolution",
 };
 
