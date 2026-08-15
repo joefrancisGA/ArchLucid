@@ -105,9 +105,10 @@ public static class ArchitectureIntelligenceProductBridge
         Dictionary<string, string> properties = new()
         {
             ["architectureIntelligence.dimension"] = finding.Dimension.ToString(),
-            ["architectureIntelligence.conclusion"] = finding.Conclusion.ToString(),
+            ["architectureIntelligence.reviewConclusion"] = finding.Conclusion.ToString(),
             ["architectureIntelligence.evidenceCondition"] = finding.EvidenceCondition.ToString(),
             ["architectureIntelligence.governanceDisposition"] = finding.GovernanceDisposition.ToString(),
+            ["architectureIntelligence.conclusion"] = finding.Conclusion.ToString(),
             ["architectureIntelligence.provenance"] = JsonSerializer.Serialize(finding.Provenance),
             ["architectureIntelligence.provenancePresentation"] = presentationBucket.ToString(),
         };
@@ -146,7 +147,21 @@ public static class ArchitectureIntelligenceProductBridge
             Title = finding.Title,
             Rationale = finding.Rationale,
             ConfidenceScore = finding.Confidence,
+            HumanReviewStatus = MapHumanReviewStatus(finding.GovernanceDisposition),
             Properties = properties,
+        };
+    }
+
+    private static FindingHumanReviewStatus MapHumanReviewStatus(GovernanceDisposition disposition)
+    {
+        return disposition switch
+        {
+            GovernanceDisposition.HumanDecisionRequired => FindingHumanReviewStatus.Pending,
+            GovernanceDisposition.ExceptionGranted => FindingHumanReviewStatus.Overridden,
+            GovernanceDisposition.Accepted => FindingHumanReviewStatus.Approved,
+            GovernanceDisposition.Deferred => FindingHumanReviewStatus.Pending,
+            GovernanceDisposition.RemediationPlanned => FindingHumanReviewStatus.Pending,
+            _ => FindingHumanReviewStatus.NotRequired,
         };
     }
 
