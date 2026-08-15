@@ -4256,6 +4256,15 @@
         },
         "type": "object"
       },
+      "ArchitectureLifecycleScope": {
+        "enum": [
+          "Unspecified",
+          "CurrentState",
+          "TargetState",
+          "Transition"
+        ],
+        "type": "string"
+      },
       "ArchitectureLinkageEdge": {
         "properties": {
           "fromNodeId": {
@@ -4372,6 +4381,9 @@
           },
           "kind": {
             "$ref": "#/components/schemas/ArchitectureElementKind"
+          },
+          "lifecycleScope": {
+            "$ref": "#/components/schemas/ArchitectureLifecycleScope"
           },
           "name": {
             "type": "string"
