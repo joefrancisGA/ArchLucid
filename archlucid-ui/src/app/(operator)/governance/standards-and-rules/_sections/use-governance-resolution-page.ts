@@ -20,6 +20,9 @@ export function useGovernanceResolutionPage(
   const [data, setData] = useState<EffectiveGovernanceResolutionResult | null>(serverLoad.data);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(serverLoad.failure);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(
+    serverLoad.failure === null && serverLoad.data !== null ? new Date() : null,
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -28,6 +31,7 @@ export function useGovernanceResolutionPage(
     try {
       const r = await getGovernanceResolution();
       setData(r);
+      setLastRefreshedAt(new Date());
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
@@ -41,6 +45,7 @@ export function useGovernanceResolutionPage(
     data,
     loading,
     failure,
+    lastRefreshedAt,
     load,
   };
 }

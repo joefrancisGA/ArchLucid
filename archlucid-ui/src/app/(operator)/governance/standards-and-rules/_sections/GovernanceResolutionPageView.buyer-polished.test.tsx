@@ -28,6 +28,8 @@ function buildModel(overrides: Partial<GovernanceResolutionPageViewModel> = {}):
 
     failure: null,
 
+    lastRefreshedAt: null,
+
     load: vi.fn(async () => undefined),
 
     ...overrides,
@@ -47,6 +49,12 @@ describe("GovernanceResolutionPageView buyer-polished shell", () => {
 
 
     expect(screen.getByTestId("standards-rules-governance-status-banner")).toBeInTheDocument();
+
+    expect(screen.getByTestId("governance-standards-rules-breadcrumb")).toBeInTheDocument();
+
+    expect(screen.getByTestId("operator-demo-static-banner")).toBeInTheDocument();
+
+    expect(screen.getByTestId("standards-rules-last-refreshed")).toBeInTheDocument();
 
     expect(screen.getByRole("heading", { name: "Standards & rules", level: 2 })).toBeInTheDocument();
 
@@ -141,6 +149,8 @@ describe("GovernanceResolutionPageView buyer-polished shell", () => {
     expect(screen.queryByTestId("standards-rules-governance-status-banner")).not.toBeInTheDocument();
 
     expect(screen.queryByTestId("standards-rules-review-context-row")).not.toBeInTheDocument();
+
+    expect(screen.getByTestId("standards-rules-load-retry")).toBeInTheDocument();
 
     expect(screen.getByTestId("governance-resolution-export-rules")).toBeDisabled();
 

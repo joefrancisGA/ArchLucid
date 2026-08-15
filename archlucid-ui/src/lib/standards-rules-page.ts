@@ -50,4 +50,17 @@ export const STANDARDS_RULES_EVIDENCE_NOT_EVIDENCED_LABEL = "Not evidenced";
 
 export const STANDARDS_RULES_FILTER_COUNT_TEMPLATE = "Showing {visible} of {total} rules";
 
+export const STANDARDS_RULES_FILTER_NO_MATCH_TITLE = "No rules match your filters";
+
+export const STANDARDS_RULES_FILTER_NO_MATCH_BODY =
+  "Try clearing search text or widening severity, enforcement, or evidence filters to see the full enforced rule set.";
+
+export const STANDARDS_RULES_LOADING_STATUS = "Loading standards and enforced rules…";
+
+export const STANDARDS_RULES_LAST_REFRESHED_PREFIX = "Last refreshed";
+
+export const STANDARDS_RULES_REFRESHING_STATUS = "Refreshing enforced rules…";
+
+export const STANDARDS_RULES_LOAD_RETRY_LABEL = "Try again";
+
 export const STANDARDS_RULES_RESOLUTION_DISCLOSURE_SUMMARY = "How rules were resolved";

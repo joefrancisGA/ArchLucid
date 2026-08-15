@@ -61,11 +61,10 @@ export function StandardsRulesReviewContextRow(props: StandardsRulesReviewContex
         </div>
 
         <div>
-
           <dt className="m-0 text-al-text-secondary">Resolved</dt>
-
-          <dd className="m-0 mt-0.5 text-al-text-primary">{context.resolvedAtLabel}</dd>
-
+          <dd className="m-0 mt-0.5 text-al-text-primary">
+            <time dateTime={context.resolvedAtUtc}>{context.resolvedAtLabel}</time>
+          </dd>
         </div>
 
         <div className="sm:col-span-2 lg:col-span-1">
