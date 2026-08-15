@@ -7,16 +7,21 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "AXX",
     path: "/accessibility",
     section: "Marketing",
-    note: "Accessibility (Marketing) - AccessibilityMarketingPublicView with AccessibilityEvidenceOrientationStrip (evaluation Sources + claim-discipline: public accessibility statement only / completed VPAT download), status card, WCAG target, known limitations, barrier reporting. Not an operator PageContextualHelp surface.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["AccessibilityEvidenceOrientationStrip", "cannot improve further toward 80"],
+    note: "Accessibility (Marketing) - AccessibilityMarketingPublicView on trust-center rail with at-a-glance summary, revision history, skip link, header report CTA, and AccessibilityEvidenceOrientationStrip below body content (evaluation Sources + claim-discipline: public accessibility statement only). WCAG 2.1 Level AA target, known limitations, barrier reporting. Not an operator PageContextualHelp surface. Score 58/100 Evidence (marketing statement ceiling); UX 84/100 (2026-08-15) after layout pass — evidence strip moved below content, status card folded into at-a-glance. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: [
+      "AccessibilityMarketingPublicView",
+      "AccessibilityEvidenceOrientationStrip",
+      "at-a-glance",
+      "cannot improve further toward 80",
+    ],
   },
   /** Traffic workbook row ID for compliance-journey marketing page. Owner backlog shorthand: COM. */
   {
     rowId: "COM",
     path: "/compliance-journey",
     section: "Marketing",
-    note: "Compliance journey (Marketing) - ComplianceJourneyPage with ComplianceJourneyEvidenceOrientationStrip (evaluation Sources + claim-discipline: posture summary only). Not an operator PageContextualHelp surface. Sibling TXX = /trust; SEC = /security-trust.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["ComplianceJourneyEvidenceOrientationStrip", "cannot improve further toward 80"],
+    note: "Compliance journey (Marketing) - ComplianceJourneyPageBody on /compliance-journey with skip link, hero last-reviewed meta, Assurance status links in Where we are today, demoted What this page is not disclosure, revision history, staged journey sections, and Sources-only ComplianceJourneyEvidenceOrientationStrip footer (amber posture callout removed). Not an operator PageContextualHelp surface. Score 58/100 Evidence (marketing assurance ceiling); UX 77/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: ["ComplianceJourneyPageBody", "Sources-only", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Compare two reviews. Owner backlog shorthand: CXX. */
   {
@@ -26,14 +31,6 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     note: "Compare two reviews (Insights) - CompareForm with OperatorPageHeader PageContextualHelpButton (topic map comparison-replay; Category-1 registry), pair Cite Sources after Compare (ComparePairEvidenceCiteStrip), run pickers/results. Formerly /compare (retired; no redirect). Not a signed-record Sources trail by itself. Score 68/100 (2026-08-08) - comparison launcher at SCX Insights Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["CompareForm", "Score 68", "cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
-  },
-  /** Traffic workbook row ID for Demo preview. Owner backlog shorthand: DPX. */
-  {
-    rowId: "DPX",
-    path: "/demo/preview",
-    section: "Marketing",
-    note: "Demo preview (Marketing) - DemoPreviewMarketingPage with DemoPreviewEvidenceOrientationStrip (evaluation Sources + claim-discipline: sample demo only). Not an operator PageContextualHelp surface. Sibling DXX = /demo entry redirect.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["DemoPreviewEvidenceOrientationStrip", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for example-roi-bulletin marketing page. Owner backlog shorthand: EXA. */
   {
@@ -56,24 +53,17 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "GXX",
     path: "/get-started",
     section: "Marketing",
-    note: "Get started (Marketing) - GetStartedPageClient with GetStartedEvidenceOrientationStrip (evaluation Sources + claim-discipline: first-run orientation only). Not an operator PageContextualHelp surface. Legacy /quick-start retired toward this path.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["GetStartedPageClient", "Sources", "cannot improve further toward 80"],
-  },
-  /** Traffic workbook row ID for live-demo marketing page. Owner backlog shorthand: LXX. */
-  {
-    rowId: "LXX",
-    path: "/live-demo",
-    section: "Marketing",
-    note: "Live demo (Marketing) - LiveDemoMarketingPage with LiveDemoEvidenceOrientationStrip (evaluation Sources + claim-discipline: fabricated guided walkthrough only). Not an operator PageContextualHelp surface. Sibling DPX = /demo/preview; TRY = /try.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["LiveDemoMarketingPage", "Sources", "cannot improve further toward 80"],
+    note: "Get started (Marketing) - GetStartedPageClient on /get-started with skip link, hero last-reviewed meta, dual-path sample vs guided trial, demoted What this page is not disclosure, revision history, milestone stepper, and Sources-only GetStartedEvidenceOrientationStrip footer (amber orientation callout removed). Not an operator PageContextualHelp surface. Score 58/100 Evidence (marketing first-run ceiling); UX 80/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: ["GetStartedPageClient", "Sources-only", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Pricing. Owner backlog shorthand: P. */
   {
     rowId: "P",
     path: "/pricing",
     section: "Marketing",
-    note: "Pricing (Marketing) - PricingPageHero + tier grid/FAQ/quote with PricingEvidenceOrientationStrip (evaluation Sources + claim-discipline: commercial packaging only). Not an operator PageContextualHelp surface. Score 58/100 (2026-08-08) - marketing commercial packaging ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Pricing (Marketing) - PricingPageHero + tier grid/FAQ/quote with PricingEvidenceOrientationStrip (evaluation Sources only; claim-discipline band retired - tier cards make no assurance claim to disclaim, per the TB-2091/TB-2092 sweep). Not an operator PageContextualHelp surface. Score 58/100 (2026-08-08) - marketing commercial packaging ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["PricingEvidenceOrientationStrip", "Score 58", "cannot improve further toward 80"],
+    noteMustNotContain: ["commercial packaging only"],
   },
   /** Traffic workbook row ID for Improvement planning. Owner backlog shorthand: PLA. */
   {
@@ -97,7 +87,7 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "QXX",
     path: "/quick-scan",
     section: "Marketing",
-    note: "Quick scan (Marketing) - QuickScanMarketingPage with QuickScanEvidenceOrientationStrip (evaluation Sources + claim-discipline: sample scan only). Not an operator PageContextualHelp surface.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Quick scan (Marketing) - QuickScanClient on /quick-scan with skip link, hero last-reviewed meta, demoted What this page is not disclosure, revision history, touched-field validation, Enter-to-submit, analysis progress and cancel, result focus, privacy disclosure below CTA, and Sources-only QuickScanEvidenceOrientationStrip footer (amber demo callout removed). Not an operator PageContextualHelp surface. Score 58/100 Evidence (marketing demonstration ceiling); UX 86/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Validate review / replay. Owner backlog shorthand: REP. */
@@ -111,9 +101,9 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for Security & Trust marketing page. Owner backlog shorthand: SEC. */
   {
     rowId: "SEC",
-    path: "/security-trust",
+    path: "/assurance-status",
     section: "Marketing",
-    note: "Assurance status (Marketing) - MarketingSecurityTrustView with SecurityTrustEvidenceOrientationStrip (evaluation Sources + claim-discipline: engagement metadata only; not diligence Sources trail / CPA SOC 2 / third-party pen-test), assurance ladder + public/NDA CTAs. Not an operator PageContextualHelp surface. Score 58/100 (2026-08-08) - marketing assurance ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Assurance status (Marketing) - MarketingSecurityTrustView on /assurance-status with skip link, hero last-reviewed meta, assurance ladder primary IA, Related trust surfaces disclosure, revision history, StatusTag engagement cards, Sources-only SecurityTrustEvidenceOrientationStrip footer, and permanent redirect from /security-trust. Not an operator PageContextualHelp surface. Score 58/100 Evidence (marketing assurance ceiling); UX 78/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["MarketingSecurityTrustView", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for see-it marketing page. Owner backlog shorthand: SEE. */
@@ -121,8 +111,8 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "SEE",
     path: "/see-it",
     section: "Marketing",
-    note: "See it (Marketing) - SeeItMarketingPage with SeeItHeroSection (first-viewport H1 + lead + single primary CTA + deliverable preview rail — TB-1281), SeeItEvidenceOrientationStrip below sample body (evaluation Sources + claim-discipline: fabricated sample proof only), quiet `/live-demo` ladder link in hero (TB-1282 / TB-1267), secondary row PDF only (no duplicate preview CTA). Not an operator PageContextualHelp surface. Sibling LXX = /live-demo; DPX = /demo/preview; SRH = /showcase/[reviewId]. Score 68/100 (2026-08-11) after TB-1281–TB-1282 hero budget + CTA ladder — marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.; 2026-08-11 al-ui-rate: First viewport stacked proof strip + duplicate preview CTAs + manifest jargon; shipped TB-1281–TB-1282 (batch 21–24); open: TB-1280",
-    noteMustContain: ["SeeItHeroSection", "TB-1281", "TB-1282", "cannot improve further toward 80"],
+    note: "See it (Marketing) - SeeItMarketingPage with SeeItHeroSection (first-viewport H1 + lead + single primary CTA + deliverable preview rail — TB-1281), SeeItEvidenceOrientationStrip below sample body (evaluation Sources + claim-discipline: fabricated sample proof only), secondary row PDF only (no duplicate preview CTA). Not an operator PageContextualHelp surface. Sibling SRH = /showcase/[reviewId]. Score 68/100 (2026-08-11) after TB-1281–TB-1282 hero budget — marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.; 2026-08-11 al-ui-rate: First viewport stacked proof strip + duplicate preview CTAs + manifest jargon; shipped TB-1281–TB-1282 (batch 21–24); open: TB-1280",
+    noteMustContain: ["SeeItHeroSection", "TB-1281", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Signup. Owner backlog shorthand: SIG. */
   {
@@ -157,20 +147,12 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     noteMustContain: ["cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
   },
-  /** Traffic workbook row ID for try marketing page. Owner backlog shorthand: TRY. */
-  {
-    rowId: "TRY",
-    path: "/try",
-    section: "Marketing",
-    note: "Try (Marketing) - TryPage with TryEvidenceOrientationStrip (evaluation Sources + claim-discipline: frictionless sample only). Not an operator PageContextualHelp surface. Sibling GXX = /get-started; SRH = /showcase/[reviewId].marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["TryPage", "Sources", "cannot improve further toward 80"],
-  },
   /** Traffic workbook row ID for Trust Center marketing page. Owner backlog shorthand: TXX. */
   {
     rowId: "TXX",
     path: "/trust",
     section: "Marketing",
-    note: "Trust Center (Marketing) - MarketingTrustCenterBuyerBody with TrustCenterEvidenceOrientationStrip (evaluation Sources + claim-discipline: public assurance downloads only; not CPA SOC 2 / third-party pen-test unless linked artifact says so), public evidence pack + diligence contact. Not an operator PageContextualHelp surface. Score 58/100 (2026-08-08) - marketing Trust Center ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Trust Center (Marketing) - MarketingTrustCenterBuyerBody on trust-center rail with skip link, hero last-reviewed meta, primary ZIP CTA, merged trust content + help topics, revision history, Related trust surfaces disclosure, and TrustCenterEvidenceOrientationStrip Sources-only footer (claim callout removed). Public evidence pack + diligence contact. Not an operator PageContextualHelp surface. Score 58/100 Evidence (marketing Trust Center ceiling); UX 80/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["MarketingTrustCenterBuyerBody", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for why marketing page. Owner backlog shorthand: WHY. */
