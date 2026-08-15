@@ -10,14 +10,19 @@ import {
   pathMatchesSettingsWorkspaceSettings,
 } from "@/lib/settings-admin-route-paths";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 
 /**
  * Whether a sidebar / drawer link should show the active style for the current pathname.
- * Query strings on `href` are ignored; pathname never includes query in Next.js App Router.
+ * Query strings and fragments on `href` are ignored; pathname never includes those in Next.js App Router.
  */
 export function isNavLinkActive(pathname: string, href: string): boolean {
-  const pathPart = href.split("?")[0] ?? "/";
+  const pathPart = navHrefPathPart(href);
+
+  if (pathPart.length === 0) {
+    return false;
+  }
 
   if (pathPart === "/") {
     return pathname === "/";
