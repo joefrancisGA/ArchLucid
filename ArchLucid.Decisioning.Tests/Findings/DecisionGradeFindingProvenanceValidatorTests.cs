@@ -125,4 +125,34 @@ public sealed class DecisionGradeFindingProvenanceValidatorTests
 
         DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
     }
+
+    [Fact]
+    public void GetViolations_allows_azure_inventory_security_baseline_with_rules_and_requirement_payload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "azure-baseline-1",
+                    FindingType = "AzureInventorySecurityBaseline",
+                    EngineType = "azure-inventory-security-baseline",
+                    Category = "Security",
+                    Payload = new RequirementFindingPayload
+                    {
+                        RequirementName =
+                            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1",
+                        RequirementText = "Storage account allows blob public access.",
+                    },
+                    Trace = new ExplainabilityTrace
+                    {
+                        RulesApplied = ["azure-inventory-security-baseline-classifier"],
+                    },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
 }

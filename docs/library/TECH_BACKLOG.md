@@ -4,7 +4,7 @@
 
 <!-- tech-backlog-open-by-category:start -->
 
-**Open counts by architectural quality** (auto-maintained; last refreshed **2026-08-14**).
+**Open counts by architectural quality** (auto-maintained; last refreshed **2026-08-15**).
 
 Regenerate after opening or closing summary-table rows:
 `python scripts/ci/refresh_tech_backlog_category_counts.py --write`
@@ -21,16 +21,16 @@ Regenerate after opening or closing summary-table rows:
 | Cutting-edge AI | 3 |
 | Explainability | 2 |
 | Trustworthiness | 1 |
-| Interoperability | 4 |
+| Interoperability | 3 |
 | Performance | 5 |
 | Cost-effectiveness | 4 |
 | Code hygiene | 1 |
 | Stickiness | 4 |
 | Differentiability | 3 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **60** |
+| **Total (unique open)** | **59** |
 
-**By priority band:** P0 **0** | P1 **7** | P2 **37** | P3 **9** | unlabeled **7**.
+**By priority band:** P0 **0** | P1 **7** | P2 **36** | P3 **9** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -51495,6 +51495,22 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Acceptance:** Quick scan request accepts Aws/Gcp primary environment labels where product exposes the field.
 
 **Size estimate:** S.
+
+---
+
+## TB-2210 — Inventory-backed security baseline validation (P2)
+
+**Window:** V1.
+
+**Status:** **Done** 2026-08-14 — `AzureInventorySecurityBaselineClassifier` + `azure-inventory-security-baseline` finding engine; `InventorySecurityBaselineFindingMapper` reuse; DI registration; `DecisionGradeFindingProvenanceValidator` inventory-engine allowlist (Azure + Aws/Gcp peers); ArtifactSynthesis/Application/Decisioning tests.
+
+**Why:** Non-policy-pack assessment wave required deterministic security-baseline cross-checks grounded in Azure extractor `resources.json`, parallel to graph `security-baseline` engines.
+
+**Approach:** Classify storage public access, NSG open admin ingress, and weak SQL server TLS/public access from inventory rows; emit typed `RequirementFindingPayload` findings with rules-applied trace.
+
+**Peers:** Done **TB-2262** (Aws/Gcp parity), **TB-2219** (freshness gate).
+
+**Size estimate:** L.
 
 ---
 

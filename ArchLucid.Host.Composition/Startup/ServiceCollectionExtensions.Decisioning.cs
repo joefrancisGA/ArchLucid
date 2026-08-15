@@ -70,6 +70,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.GraphGcpInventoryReconciliationFindingEngine>();
         services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.OrphanedAwsResourceFindingEngine>();
         services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.OrphanedGcpResourceFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.AzureInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.AwsInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.GcpInventorySecurityBaselineFindingEngine>();
 

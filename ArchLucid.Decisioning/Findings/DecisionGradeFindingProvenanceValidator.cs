@@ -102,6 +102,9 @@ public static class DecisionGradeFindingProvenanceValidator
         string.Equals(engineType, "azure-inventory-reconciliation", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "aws-inventory-reconciliation", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "gcp-inventory-reconciliation", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "azure-inventory-security-baseline", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "aws-inventory-security-baseline", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "gcp-inventory-security-baseline", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "orphaned-azure-resource", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "orphaned-aws-resource", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "orphaned-gcp-resource", StringComparison.OrdinalIgnoreCase);
