@@ -116,5 +116,11 @@ public class DefaultGraphBuilder(
         {
             properties[ContextGraphPropertyKeys.PriorTopologyCategories] = priorCategories;
         }
+
+        if (sourceHashes.TryGetValue(ContextScopeMetadataKeys.PriorRequirementNames, out string? priorRequirements)
+            && !string.IsNullOrWhiteSpace(priorRequirements))
+        {
+            properties[ContextGraphPropertyKeys.PriorRequirementNames] = priorRequirements;
+        }
     }
 }

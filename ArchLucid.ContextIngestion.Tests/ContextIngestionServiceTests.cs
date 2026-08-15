@@ -5,6 +5,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Repositories;
 using ArchLucid.ContextIngestion.Services;
 using ArchLucid.ContextIngestion.Summaries;
+using ArchLucid.Contracts.Persistence.Context;
 
 using FluentAssertions;
 
@@ -43,6 +44,53 @@ public sealed class ContextIngestionServiceTests
         snapshot.DeltaSummary.Should().Contain("test-connector");
         snapshot.DeltaSummary.Should().Contain("1 produced");
         snapshot.DeltaSummary.Should().Contain("Requirement×1");
+    }
+
+    [Fact]
+    public async Task IngestAsync_WhenPreviousSnapshotHadRequirements_StoresPriorRequirementNames()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "proj-prior-req",
+            CreatedUtc = DateTime.UtcNow,
+            CanonicalObjects =
+            [
+                new CanonicalObject
+                {
+                    ObjectType = "Requirement",
+                    Name = "availability",
+                    SourceType = "Test",
+                    SourceId = "prior-1"
+                },
+                new CanonicalObject
+                {
+                    ObjectType = "Requirement",
+                    Name = "encryption",
+                    SourceType = "Test",
+                    SourceId = "prior-2"
+                }
+            ]
+        };
+
+        await repo.SaveAsync(previous, CancellationToken.None);
+
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        ContextIngestionRequest request = new() { RunId = Guid.NewGuid(), ProjectId = "proj-prior-req" };
+
+        ContextSnapshot snapshot = await sut.IngestAsync(request, CancellationToken.None);
+
+        snapshot.SourceHashes.Should().ContainKey(ContextScopeMetadataKeys.PriorRequirementNames);
+        snapshot.SourceHashes[ContextScopeMetadataKeys.PriorRequirementNames].Should().Be("availability|encryption");
     }
 
     private sealed class CountingConnector : IContextConnector

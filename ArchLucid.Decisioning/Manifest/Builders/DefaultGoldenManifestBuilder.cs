@@ -257,6 +257,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
         foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementCoverageFinding))
         {
+            if (IsRequirementCrossRunDiffFinding(finding))
+                continue;
+
             RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
 
             if (payload is null)
@@ -709,6 +712,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
         foreach (Finding finding in findingsByType.GetByType(FindingTypes.RequirementCoverageFinding))
         {
+            if (IsRequirementCrossRunDiffFinding(finding))
+                continue;
+
             RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
 
             if (payload is null)
@@ -797,6 +803,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     {
         manifest.Warnings.Add(
             $"Manifest section '{section}' skipped finding '{finding.FindingId}' ({finding.Title}): typed payload could not be resolved.");
+    }
+
+    private static bool IsRequirementCrossRunDiffFinding(Finding finding)
+    {
+        return string.Equals(finding.EngineType, "requirement-cross-run-diff", StringComparison.OrdinalIgnoreCase);
     }
 }
 

@@ -83,9 +83,20 @@ public class ContextIngestionService(
             .OrderBy(static c => c, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        if (priorCategories.Count == 0)
+        if (priorCategories.Count > 0)
+            snapshot.SourceHashes[ContextScopeMetadataKeys.PriorTopologyCategories] = string.Join('|', priorCategories);
+
+        List<string> priorRequirementNames = previous.CanonicalObjects
+            .Where(static o => string.Equals(o.ObjectType, "Requirement", StringComparison.OrdinalIgnoreCase))
+            .Select(static o => o.Name)
+            .Where(static name => !string.IsNullOrWhiteSpace(name))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(static name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (priorRequirementNames.Count == 0)
             return;
 
-        snapshot.SourceHashes[ContextScopeMetadataKeys.PriorTopologyCategories] = string.Join('|', priorCategories);
+        snapshot.SourceHashes[ContextScopeMetadataKeys.PriorRequirementNames] = string.Join('|', priorRequirementNames);
     }
 }
