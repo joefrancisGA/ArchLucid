@@ -119,6 +119,29 @@ public static class ArchitectureIntelligenceProductBridge
                 JsonSerializer.Serialize(finding.EvidenceArtifactIds);
         }
 
+        if (finding.LifecycleScope != ArchitectureLifecycleScope.Unspecified)
+        {
+            properties["architectureIntelligence.lifecycleScope"] = finding.LifecycleScope.ToString();
+        }
+
+        if (finding.RelatedModelElementIds.Count > 0)
+        {
+            properties["architectureIntelligence.relatedModelElementIds"] =
+                JsonSerializer.Serialize(finding.RelatedModelElementIds);
+        }
+
+        if (finding.RelatedRequirementElementIds.Count > 0)
+        {
+            properties["architectureIntelligence.relatedRequirementElementIds"] =
+                JsonSerializer.Serialize(finding.RelatedRequirementElementIds);
+        }
+
+        if (finding.RelatedDecisionElementIds.Count > 0)
+        {
+            properties["architectureIntelligence.relatedDecisionElementIds"] =
+                JsonSerializer.Serialize(finding.RelatedDecisionElementIds);
+        }
+
         if (validationByFindingId is not null
             && validationByFindingId.TryGetValue(finding.FindingId, out EvidenceValidationResult? validation)
             && validation is not null)

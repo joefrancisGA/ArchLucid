@@ -181,14 +181,11 @@ export function ExampleRoiBulletinEvidenceOrientationStrip({
   );
 }
 
-export function FaqEvidenceOrientationStrip({
-  part,
-}: SplitEvidenceOrientationStripProps = {}): React.JSX.Element {
+export function FaqEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="faq"
-      part={part}
-      margin={part === "sources" ? "mt-10" : "mt-8"}
+      margin="mt-10"
       align="text-left"
       sourcesIntro={FAQ_SOURCES_INTRO}
       sources={FAQ_SOURCES}
@@ -326,10 +323,12 @@ export function TrustCenterEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="trust-center"
+      part="sources"
+      margin="mt-8"
       sourcesIntro={TRUST_CENTER_SOURCES_INTRO}
       sources={TRUST_CENTER_SOURCES}
-      claimHeading="Public assurance posture only"
-      claim={TRUST_CENTER_CLAIM_DISCIPLINE}
+      claimHeading=""
+      claim=""
     />
   );
 }

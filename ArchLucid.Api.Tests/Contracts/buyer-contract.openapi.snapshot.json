@@ -26724,11 +26724,32 @@
           "governanceDisposition": {
             "$ref": "#/components/schemas/GovernanceDisposition"
           },
+          "lifecycleScope": {
+            "$ref": "#/components/schemas/ArchitectureLifecycleScope"
+          },
           "provenance": {
             "$ref": "#/components/schemas/ClaimProvenance"
           },
           "rationale": {
             "type": "string"
+          },
+          "relatedDecisionElementIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "relatedModelElementIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "relatedRequirementElementIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "severity": {
             "type": "string"

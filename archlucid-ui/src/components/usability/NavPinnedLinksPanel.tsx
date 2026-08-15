@@ -11,6 +11,7 @@ import { FavoriteReviewsVsNavPinsVocabularyRail } from "@/components/FavoriteRev
 import { Button } from "@/components/ui/button";
 import { useNavPinnedLinks } from "@/hooks/use-nav-pinned-links";
 import { flattenNavLinks } from "@/lib/nav-config";
+import { findNavLinkMatchingPathname } from "@/lib/nav-pin-current-match";
 
 /** Pinned + pin-current controls in the sidebar (V1.1+; not mounted in V1 {@link SidebarNav}). */
 export function NavPinnedLinksPanel() {
@@ -19,11 +20,7 @@ export function NavPinnedLinksPanel() {
 
   const pinCurrent = useCallback(() => {
     const links = flattenNavLinks();
-    const match = links.find((link) => {
-      const path = link.href.split("?")[0] ?? "";
-
-      return path === pathname || pathname.startsWith(`${path}/`);
-    });
+    const match = findNavLinkMatchingPathname(links, pathname);
 
     if (match === undefined) {
       return;

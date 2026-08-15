@@ -190,12 +190,12 @@ export function PilotGuideHelpEvidenceOrientationStrip(): React.JSX.Element {
  * the sweep to operator surfaces. The Sources index stays: pricing questions do turn into security
  * and packaging questions, and Assurance status / Trust Center are the honest next click.
  *
- * Uses the shell for page rhythm (`mb-10`) rather than the shared sources-and-claim strip, whose
+ * Uses the shell for page rhythm (`mt-10`) rather than the shared sources-and-claim strip, whose
  * claim props are required.
  */
 export function PricingEvidenceOrientationStrip(): React.JSX.Element {
   return (
-    <EvidenceOrientationStripShell testId="pricing-orientation" margin="mb-10">
+    <EvidenceOrientationStripShell testId="pricing-orientation" margin="mt-10">
       <EvidenceOrientationSourcesSection
         testId="pricing-sources"
         headingId="pricing-sources-heading"

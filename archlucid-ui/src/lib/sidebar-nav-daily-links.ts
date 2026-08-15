@@ -5,7 +5,23 @@ import {
   SETTINGS_ROOT_PATH,
   SETTINGS_WORKSPACE_SETTINGS_PATH,
 } from "@/lib/settings-admin-route-paths";
+import { navHrefPathPart } from "@/lib/nav-href-path-part";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+
+function sidebarLinkMatchesPathname(pathname: string, href: string): boolean {
+  const linkPath = navHrefPathPart(href);
+  const currentPath = navHrefPathPart(pathname);
+
+  if (linkPath.length === 0) {
+    return pathname === href;
+  }
+
+  if (currentPath === linkPath) {
+    return true;
+  }
+
+  return currentPath.startsWith(`${linkPath}/`);
+}
 
 /**
  * Daily destinations shown first in dense sidebar groups; the rest sit behind “N more”.
@@ -67,9 +83,7 @@ export function splitSidebarLinksDailyVsMore(
   // Preserve configured daily order.
   daily.sort((a, b) => dailyHrefs.indexOf(a.href) - dailyHrefs.indexOf(b.href));
 
-  const activeInMore = more.find(
-    (link) => pathname === link.href || pathname.startsWith(`${link.href.split("?")[0]}/`),
-  );
+  const activeInMore = more.find((link) => sidebarLinkMatchesPathname(pathname, link.href));
 
   if (activeInMore !== undefined) {
     return {

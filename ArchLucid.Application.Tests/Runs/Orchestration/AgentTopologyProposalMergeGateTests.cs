@@ -8,6 +8,7 @@ using ArchLucid.KnowledgeGraph.Models;
 using FluentAssertions;
 
 using static ArchLucid.Application.Tests.Runs.Orchestration.AgentTopologyProposalTestGraph;
+using static ArchLucid.Application.Tests.Runs.Orchestration.AgentTopologyProposalTestResult;
 
 namespace ArchLucid.Application.Tests.Runs.Orchestration;[Trait("Category", "Unit")]
 public sealed class AgentTopologyProposalMergeGateTests
@@ -189,23 +190,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-1",
-                        TargetId = "ds-1",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-1", "ds-1")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -329,23 +314,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(nodeId: "t1", label: "vm-graph", sourceId: null, sourceType: null, properties: new Dictionary<string, string> { ["resourceId"] = vmResourceId }),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = vmResourceId,
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(vmResourceId)));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -359,23 +328,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     {
         GraphSnapshot graph = Graph(ComputeNode(nodeId: "t1"), DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-api")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -391,23 +344,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(nodeId: "t1"),
             Node("blob-1", "artifacts", category: GraphTopologyCategories.Storage, sourceId: "azurerm_storage_account.main", sourceType: "Terraform"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-artifacts",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-artifacts")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -464,23 +401,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(nodeId: "svc-worker", label: "worker", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "worker",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("worker")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -498,23 +419,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "ds-cache", label: "cache", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "worker",
-                        TargetId = "cache",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("worker", "cache")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -651,24 +556,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             }
         };
 
-        AgentResult cost = new()
-        {
-            ResultId = "cost-1",
-            AgentType = AgentType.Cost,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Cost,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "renamed-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult cost = ResultFor(AgentType.Cost, ProposalFor(AgentType.Cost, Relationship("renamed-api")), resultId: "cost-1");
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology, cost]);
@@ -684,23 +572,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(nodeId: "svc-worker", label: "worker", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)),
             DataNode(nodeId: "ds-cache", label: "cache", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "worker",
-                        TargetId = "phantom",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("worker", "phantom")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -715,23 +587,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(nodeId: "svc-worker", label: "worker", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)),
             DataNode(nodeId: "ds-cache", label: "cache", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "worker",
-                        TargetId = "cache",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("worker", "cache")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -829,23 +685,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     {
         GraphSnapshot graph = Graph();
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "phantom",
-                        TargetId = "other",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("phantom", "other")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -985,24 +825,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             }
         };
 
-        AgentResult cost = new()
-        {
-            ResultId = "cost-1",
-            AgentType = AgentType.Cost,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Cost,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "renamed-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult cost = ResultFor(AgentType.Cost, ProposalFor(AgentType.Cost, Relationship("renamed-api")), resultId: "cost-1");
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology, cost]);
@@ -1053,24 +876,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             }
         };
 
-        AgentResult cost = new()
-        {
-            ResultId = "cost-1",
-            AgentType = AgentType.Cost,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Cost,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "renamed-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult cost = ResultFor(AgentType.Cost, ProposalFor(AgentType.Cost, Relationship("renamed-api")), resultId: "cost-1");
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost, topology]);
@@ -1121,24 +927,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             }
         };
 
-        AgentResult followUpTopology = new()
-        {
-            ResultId = "topology-2",
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "renamed-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult followUpTopology = TopologyResult(RelationshipProposal(Relationship("renamed-api")), resultId: "topology-2");
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [followUpTopology, firstTopology]);
@@ -1183,24 +972,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             }
         };
 
-        AgentResult followUp = new()
-        {
-            ResultId = "topology-2",
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "renamed-api",
-                        TargetId = "renamed-sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult followUp = TopologyResult(RelationshipProposal(Relationship("renamed-api", "renamed-sql")), resultId: "topology-2");
 
         AgentResult[] results = [followUp, declaration];
         CrossAgentProposalConsistencyGate.ApplyToResults(results);
@@ -1222,23 +994,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(sourceId: null, sourceType: null, properties: new Dictionary<string, string> { ["resourceId"] = rawArmId }),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = paddedArmId,
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(paddedArmId)));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1258,23 +1014,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(sourceId: null, sourceType: null, properties: new Dictionary<string, string> { ["resourceId"] = paddedArmId }),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = rawArmId,
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(rawArmId)));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1291,23 +1031,7 @@ public sealed class AgentTopologyProposalMergeGateTests
 
         GraphSnapshot graph = Graph(ComputeNode(sourceId: paddedTerraformSourceId), DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = rawTerraformSourceId,
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(rawTerraformSourceId)));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1323,23 +1047,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             Node("ds-1", "sql", sourceId: "azurerm_mssql_server.main", sourceType: "Terraform"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sql")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1355,23 +1063,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "ds-1", label: "sql", sourceId: "azurerm_mssql_server.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sql")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1387,23 +1079,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_app_service.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-api")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1460,23 +1136,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "apim-1", label: "apim", sourceId: "azurerm_api_management.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-apim",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-apim")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1492,23 +1152,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "web-1", label: "frontend", sourceId: "azurerm_static_site.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-frontend",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-frontend")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1524,23 +1168,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "signalr-1", label: "realtime", sourceId: "azurerm_signalr_service.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-realtime",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-realtime")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1556,23 +1184,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "logic-1", label: "workflow", sourceId: "azurerm_logic_app_workflow.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-workflow",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-workflow")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1588,23 +1200,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "kv-1", label: "secrets", sourceId: "azurerm_key_vault.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-secrets",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-secrets")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1620,23 +1216,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "plan-1", label: "hosting", sourceId: "azurerm_service_plan.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-hosting",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-hosting")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1652,23 +1232,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "spring-1", label: "backend", sourceId: "azurerm_spring_cloud_service.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-backend",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-backend")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1684,23 +1248,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "search-1", label: "catalog", sourceId: "azurerm_search_service.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-catalog",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-catalog")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1716,23 +1264,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "sb-1", label: "orders", sourceId: "azurerm_servicebus_namespace.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-orders",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-orders")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1748,23 +1280,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "eh-1", label: "events", sourceId: "azurerm_eventhub_namespace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-events",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-events")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1780,23 +1296,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "acr-1", label: "acr", sourceId: "azurerm_container_registry.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-acr",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-acr")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1812,23 +1312,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "cog-1", label: "openai", sourceId: "azurerm_cognitive_account.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-openai",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-openai")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1844,23 +1328,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "sf-1", label: "fabric", sourceId: "azurerm_service_fabric_cluster.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-fabric",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-fabric")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1876,23 +1344,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "syn-1", label: "synapse", sourceId: "azurerm_synapse_workspace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-synapse",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-synapse")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1908,23 +1360,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "agw-1", label: "gateway", sourceId: "azurerm_application_gateway.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-gateway",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-gateway")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1940,23 +1376,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "adf-1", label: "etl", sourceId: "azurerm_data_factory.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-etl",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-etl")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1972,23 +1392,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "vm-1", label: "worker", sourceId: "azurerm_linux_virtual_machine.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-worker",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-worker")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2004,23 +1408,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "mdb-1", label: "mariadb", sourceId: "azurerm_mariadb_server.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-mariadb",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-mariadb")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2036,23 +1424,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             Node("batch-1", "batch", category: GraphTopologyCategories.Storage, sourceId: "azurerm_batch_account.main", sourceType: "Terraform"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-batch",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-batch")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2068,23 +1440,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "ml-1", label: "ml", sourceId: "azurerm_machine_learning_workspace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-ml",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-ml")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2100,23 +1456,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "tm-1", label: "traffic", sourceId: "azurerm_traffic_manager_profile.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-traffic",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-traffic")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2132,23 +1472,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "dbx-1", label: "lakehouse", sourceId: "azurerm_databricks_workspace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-lakehouse",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-lakehouse")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2162,23 +1486,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     {
         GraphSnapshot graph = Graph(DataNode(nodeId: "lb-1", label: "public", sourceId: "azurerm_lb.main"), DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-public",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-public")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2194,23 +1502,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "kusto-1", label: "logs", sourceId: "azurerm_kusto_cluster.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-logs",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-logs")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2226,23 +1518,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "fd-1", label: "edge", sourceId: "azurerm_cdn_frontdoor_profile.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-edge",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edge")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2258,23 +1534,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "appcfg-1", label: "config", sourceId: "azurerm_app_configuration.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-config",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-config")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2290,23 +1550,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "fw-1", label: "perimeter", sourceId: "azurerm_firewall.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-perimeter",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-perimeter")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2322,23 +1566,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "netapp-1", label: "files", sourceId: "azurerm_netapp_volume.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-files",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-files")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2354,23 +1582,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "cg-1", label: "worker", sourceId: "azurerm_container_group.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-worker",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-worker")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2386,23 +1598,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "rsv-1", label: "backup", sourceId: "azurerm_recovery_services_vault.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-backup",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-backup")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2418,23 +1614,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "er-1", label: "wan", sourceId: "azurerm_express_route_circuit.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-wan",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-wan")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2450,23 +1630,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "pe-1", label: "storage-pe", sourceId: "azurerm_private_endpoint.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-storage-pe",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-storage-pe")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2482,23 +1646,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "aa-1", label: "runbooks", sourceId: "azurerm_automation_account.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-runbooks",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-runbooks")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2514,23 +1662,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "law-1", label: "logs", sourceId: "azurerm_log_analytics_workspace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-logs",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-logs")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2546,23 +1678,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "vng-1", label: "vpn", sourceId: "azurerm_virtual_network_gateway.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-vpn",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-vpn")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2578,23 +1694,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "ai-1", label: "telemetry", sourceId: "azurerm_application_insights.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-telemetry",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-telemetry")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2610,23 +1710,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "dns-1", label: "corp", sourceId: "azurerm_dns_zone.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-corp",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-corp")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2642,23 +1726,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "disk-1", label: "data-disk", sourceId: "azurerm_managed_disk.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-data-disk",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-data-disk")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2674,23 +1742,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "bastion-1", label: "jump", sourceId: "azurerm_bastion_host.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-jump",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-jump")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2706,23 +1758,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "asa-1", label: "events", sourceId: "azurerm_stream_analytics_job.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-events",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-events")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2738,23 +1774,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "nat-1", label: "egress", sourceId: "azurerm_nat_gateway.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-egress",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-egress")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2770,23 +1790,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "iot-1", label: "devices", sourceId: "azurerm_iothub.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-devices",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-devices")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2802,23 +1806,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "idp-1", label: "idp", sourceId: "azuread_application.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-idp",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-idp")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2834,23 +1822,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "pbi-1", label: "bi", sourceId: "azurerm_powerbi_embedded.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-bi",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-bi")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2866,23 +1838,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "conn-1", label: "sharepoint", sourceId: "azurerm_api_connection.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-sharepoint",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-sharepoint")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2898,23 +1854,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "eg-1", label: "orders", sourceId: "azurerm_eventgrid_topic.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-orders",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-orders")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2930,23 +1870,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "mag-1", label: "alerts", sourceId: "azurerm_monitor_action_group.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-alerts",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-alerts")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2962,23 +1886,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "redis-1", label: "cache", sourceId: "azurerm_redis_enterprise_cache.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-cache",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-cache")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2994,23 +1902,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "acs-1", label: "sms", sourceId: "azurerm_communication_service.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-sms",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-sms")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3026,23 +1918,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "maps-1", label: "geo", sourceId: "azurerm_maps_account.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-geo",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-geo")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3058,23 +1934,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "wps-1", label: "realtime", sourceId: "azurerm_web_pubsub.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-realtime",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-realtime")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3090,23 +1950,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "share-1", label: "partner", sourceId: "azurerm_data_share.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-partner",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-partner")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3122,23 +1966,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "hb-1", label: "carebot", sourceId: "azurerm_healthbot_healthbot.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-carebot",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-carebot")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3154,23 +1982,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "dt-1", label: "factory", sourceId: "azurerm_digital_twins_instance.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-factory",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-factory")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3186,23 +1998,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "nh-1", label: "push", sourceId: "azurerm_notification_hub_namespace.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-push",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-push")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3218,23 +2014,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "ams-1", label: "stream", sourceId: "azurerm_media_services_account.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-stream",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-stream")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3250,23 +2030,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "fr-1", label: "collab", sourceId: "azurerm_fluid_relay_server.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-collab",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-collab")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3282,23 +2046,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "esan-1", label: "vol", sourceId: "azurerm_elastic_san.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-vol",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-vol")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3314,23 +2062,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "orb-1", label: "sat", sourceId: "azurerm_orbital_spacecraft.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-sat",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-sat")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3346,23 +2078,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "hc-1", label: "fhir", sourceId: "azurerm_healthcare_workspace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-fhir",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-fhir")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3378,23 +2094,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "vh-1", label: "wan", sourceId: "azurerm_virtual_hub.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-wan",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-wan")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3410,23 +2110,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "ml-1", label: "hpc", sourceId: "azurerm_managed_lustre_file_system.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-hpc",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-hpc")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3442,23 +2126,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "lab-1", label: "devbox", sourceId: "azurerm_lab_service.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-devbox",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-devbox")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3474,23 +2142,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "vi-1", label: "media", sourceId: "azurerm_video_indexer.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-media",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-media")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3506,23 +2158,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "lt-1", label: "perf", sourceId: "azurerm_load_test.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-perf",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-perf")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3538,23 +2174,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "hpc-1", label: "scratch", sourceId: "azurerm_hpc_cache.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-scratch",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-scratch")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3570,23 +2190,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "dt-1", label: "apm", sourceId: "azurerm_dynatrace_monitor.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-apm",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-apm")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3602,23 +2206,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "bv-1", label: "archive", sourceId: "azurerm_backup_vault.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-archive",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-archive")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3634,23 +2222,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "kf-1", label: "fleet", sourceId: "azurerm_kubernetes_fleet_manager.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-fleet",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-fleet")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3666,23 +2238,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "mn-1", label: "ran", sourceId: "azurerm_mobile_network.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-ran",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-ran")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3698,23 +2254,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "relay-1", label: "bridge", sourceId: "azurerm_relay_namespace.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-bridge",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-bridge")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3730,23 +2270,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "adc-1", label: "portal", sourceId: "azurerm_dev_center.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-portal",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-portal")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3762,23 +2286,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "apc-1", label: "catalog", sourceId: "azurerm_api_center.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-catalog",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-catalog")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3794,23 +2302,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "ga-1", label: "identity", sourceId: "azurerm_graph_account.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-identity",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-identity")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3826,23 +2318,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "graf-1", label: "metrics", sourceId: "azurerm_dashboard_grafana.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-metrics",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-metrics")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3858,23 +2334,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "fab-1", label: "analytics", sourceId: "azurerm_fabric_capacity.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-analytics",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-analytics")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3890,23 +2350,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "chaos-1", label: "resilience", sourceId: "azurerm_chaos_studio_target.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-resilience",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-resilience")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3922,23 +2366,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "cl-1", label: "ledger", sourceId: "azurerm_confidential_ledger.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-ledger",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-ledger")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3954,23 +2382,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "hci-1", label: "edge", sourceId: "azurerm_stack_hci_cluster.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-edge",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edge")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3986,23 +2398,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "pc-1", label: "vectors", sourceId: "azurerm_pinecone.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-vectors",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-vectors")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4018,23 +2414,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "vs-1", label: "telephony", sourceId: "azurerm_voice_services_communications_gateway.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-telephony",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-telephony")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4050,23 +2430,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "mc-1", label: "documents", sourceId: "azurerm_mongo_cluster.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-documents",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-documents")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4082,23 +2446,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "sap-1", label: "discovery", sourceId: "azurerm_workloads_sap_discovery_site.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-discovery",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-discovery")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4114,23 +2462,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "es-1", label: "search", sourceId: "azurerm_elastic_cloud_elasticsearch.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-search",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-search")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4146,23 +2478,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "pa-1", label: "firewall", sourceId: "azurerm_palo_alto_local_rulestack.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-firewall",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-firewall")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4178,23 +2494,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "np-1", label: "graph", sourceId: "azurerm_neptune_cluster.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-graph",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-graph")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4210,23 +2510,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "va-1", label: "ztna", sourceId: "azurerm_verifiedaccess_instance.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-ztna",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-ztna")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4242,23 +2526,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "ora-1", label: "oracle", sourceId: "azurerm_oracle_cloud_vmcluster.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-oracle",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-oracle")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4274,23 +2542,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "wo-1", label: "orchestrator", sourceId: "azurerm_workloads_orchestrator.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-orchestrator",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-orchestrator")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4306,23 +2558,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "oad-1", label: "autonomous", sourceId: "azurerm_oracle_autonomous_database.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-autonomous",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-autonomous")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4338,23 +2574,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             DataNode(nodeId: "el-1", label: "edgezone", sourceId: "azurerm_extended_location_custom.main"),
             DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-edgezone",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edgezone")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4370,23 +2590,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(),
             ComputeNode(nodeId: "sm-1", label: "mover", sourceId: "azurerm_storage_mover.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-mover",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-mover")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);

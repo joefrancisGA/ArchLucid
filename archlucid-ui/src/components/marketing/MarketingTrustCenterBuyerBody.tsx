@@ -4,7 +4,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { TrustCenterEvidenceOrientationStrip } from "@/components/marketing/TrustCenterEvidenceOrientationStrip";
-import { TrustAssuranceSecurityTrustVocabularyRail } from "@/components/TrustAssuranceSecurityTrustVocabularyRail";
+import { TrustCenterRevisionHistory } from "@/components/marketing/trust-center/TrustCenterRevisionHistory";
+import { TrustCenterVocabularyDisclosure } from "@/components/marketing/trust-center/TrustCenterVocabularyDisclosure";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -19,6 +20,8 @@ import {
   TRUST_SECURITY_CONTACT,
   type TrustAssuranceClassification,
 } from "@/lib/trust-center-buyer-content";
+import { TRUST_CENTER_REVISION_HISTORY } from "@/lib/trust-center-marketing-revision-history";
+import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import {
   TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF,
   TRUST_CENTER_PAGE_PURPOSE,
@@ -29,6 +32,10 @@ import {
 export type MarketingTrustCenterBuyerBodyProps = {
   readonly lastReviewedUtc: string | null;
 };
+
+const TRUST_PUBLIC_DOWNLOAD_ARTIFACTS = TRUST_PUBLIC_ASSURANCE_ARTIFACTS.filter(
+  (artifact) => artifact.id !== "evidence-pack-zip",
+);
 
 function AssuranceClassificationTag(props: {
   readonly classification: TrustAssuranceClassification;
@@ -70,7 +77,11 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
   const reviewedLabel: string = formatTrustReviewDate(lastReviewedUtc);
 
   return (
-    <div className="space-y-12" data-testid="trust-center-body">
+    <div className={cn("space-y-12", TRUST_CENTER_PUBLIC_LAYOUT.page)} data-testid="trust-center-body">
+      <a href="#trust-primary-content-heading" className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
+        Skip to Trust Center content
+      </a>
+
       <header className="space-y-5" data-testid="trust-center-hero">
         <div className="max-w-3xl">
           <h1 className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
@@ -88,11 +99,25 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           >
             {TRUST_CENTER_PAGE_PURPOSE}
           </p>
+          <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="trust-center-hero-meta">
+            <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
+              Last reviewed{" "}
+              <time dateTime={reviewedLabel}>{reviewedLabel}</time>
+            </span>
+            <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
+              Evidence pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
+            </span>
+          </div>
         </div>
 
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
           <Button variant="primary" size="default" asChild data-testid="trust-center-primary-action">
             <Link href={`mailto:${TRUST_CENTER_SECURITY_EMAIL}`}>Request diligence materials</Link>
+          </Button>
+          <Button variant="outline" size="default" asChild>
+            <Link href={TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF} data-testid="trust-center-evidence-pack-link">
+              Download evidence pack (ZIP)
+            </Link>
           </Button>
           <nav
             className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
@@ -115,7 +140,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </div>
       </header>
 
-      <TrustAssuranceSecurityTrustVocabularyRail currentSurfaceId="trust-center" />
+      <TrustCenterVocabularyDisclosure />
 
       <section aria-labelledby="trust-assurance-glance-heading" data-testid="trust-center-assurance-glance">
         <h2
@@ -148,6 +173,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                   <Link
                     href={panel.actionHref}
                     className={MARKETING_SURFACES.inlineLink}
+                    data-testid={panel.id === "available-now" ? "trust-glance-evidence-pack-link" : undefined}
                   >
                     {panel.actionLabel}
                   </Link>
@@ -171,11 +197,11 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </h2>
         <p className={cn("m-0 mt-2 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           CAIQ, SOC 2 self-assessment, SIG Core, and owner-conducted pen-test materials are included in the
-          anonymous evidence pack ZIP below. Individual help topics may require sign-in; the ZIP does not.
+          anonymous evidence pack ZIP above. Individual help topics may require sign-in; the ZIP does not.
           Independent third-party penetration testing is planned, not yet scheduled — not implied by these artifacts.
         </p>
         <ul className="m-0 mt-5 grid list-none gap-4 p-0 md:grid-cols-2">
-          {TRUST_PUBLIC_ASSURANCE_ARTIFACTS.map((artifact) => (
+          {TRUST_PUBLIC_DOWNLOAD_ARTIFACTS.map((artifact) => (
             <li key={artifact.id}>
               <article
                 className="flex h-full flex-col rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
@@ -195,32 +221,10 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                     rel={artifact.href.startsWith("http") ? "noopener noreferrer" : undefined}
                     target={artifact.href.startsWith("http") ? "_blank" : undefined}
                   >
-                    {artifact.id === "evidence-pack-zip" ? "Download ZIP" : "View document"}
+                    View document
                   </Link>
                 </p>
               </article>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section aria-labelledby="trust-related-help-heading" data-testid="trust-center-related-help">
-        <h2
-          id="trust-related-help-heading"
-          className={cn("font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}
-        >
-          Related product documentation
-        </h2>
-        <ul className={cn("m-0 mt-4 flex flex-wrap gap-x-4 gap-y-2", OPERATOR_TYPOGRAPHY.body)}>
-          {TRUST_CENTER_RELATED_HELP_LINKS.map((link) => (
-            <li key={link.id}>
-              <Link
-                href={link.href}
-                className={MARKETING_SURFACES.inlineLink}
-                data-testid={`trust-related-help-${link.id}`}
-              >
-                {link.label}
-              </Link>
             </li>
           ))}
         </ul>
@@ -251,15 +255,34 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
                 {card.description}
               </p>
               <p className="mt-4">
-                <Link
-                  href={card.actionHref}
-                  className={MARKETING_SURFACES.inlineLink}
-                >
+                <Link href={card.actionHref} className={MARKETING_SURFACES.inlineLink}>
                   {card.actionLabel}
                 </Link>
               </p>
             </article>
           ))}
+        </div>
+
+        <div className="mt-10" data-testid="trust-center-related-help">
+          <h3
+            id="trust-related-help-heading"
+            className={cn("font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.cardTitle)}
+          >
+            Related product documentation
+          </h3>
+          <ul className={TRUST_CENTER_PUBLIC_LAYOUT.relatedHelpList}>
+            {TRUST_CENTER_RELATED_HELP_LINKS.map((link) => (
+              <li key={link.id}>
+                <Link
+                  href={link.href}
+                  className={TRUST_CENTER_PUBLIC_LAYOUT.relatedHelpLink}
+                  data-testid={`trust-related-help-${link.id}`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -356,15 +379,6 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </p>
         <p className="mt-4">
           <Link
-            href={TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF}
-            className={MARKETING_SURFACES.inlineLink}
-            data-testid="trust-center-evidence-pack-link"
-          >
-            Download evidence pack (ZIP)
-          </Link>
-        </p>
-        <p className="mt-4">
-          <Link
             href={`mailto:${TRUST_CENTER_SECURITY_EMAIL}?subject=${encodeURIComponent(TRUST_PUBLIC_EVIDENCE_RELEASE.requestSubject)}`}
             className={MARKETING_SURFACES.inlineLink}
             data-testid="trust-center-evidence-request-link"
@@ -373,6 +387,8 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           </Link>
         </p>
       </section>
+
+      <TrustCenterRevisionHistory entries={TRUST_CENTER_REVISION_HISTORY} />
 
       <section
         id="trust-contact-review"
@@ -403,4 +419,3 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
     </div>
   );
 }
-

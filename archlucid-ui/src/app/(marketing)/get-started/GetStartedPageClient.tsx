@@ -64,8 +64,6 @@ export function GetStartedPageClient(): ReactElement {
         </p>
       </header>
 
-      <GetStartedEvidenceOrientationStrip />
-
       <section aria-labelledby="path-selection-heading">
         <h2 id="path-selection-heading" className="sr-only">
           Choose your path
@@ -292,6 +290,8 @@ export function GetStartedPageClient(): ReactElement {
           </Link>
         </p>
       </section>
+
+      <GetStartedEvidenceOrientationStrip />
     </div>
   );
 }

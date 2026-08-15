@@ -123,6 +123,8 @@ internal static class SpecialistReviewFindingFactory
             finding.Provenance.Origin = ClaimOrigin.DirectlyExtracted;
         }
 
+        SpecialistReviewFindingTraceBuilder.ApplyTrace(finding, model, supportingElement);
+
         return finding;
     }
 }

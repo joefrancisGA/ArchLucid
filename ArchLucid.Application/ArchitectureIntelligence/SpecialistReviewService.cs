@@ -263,6 +263,8 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
             finding.Provenance.Origin = ClaimOrigin.DirectlyExtracted;
         }
 
+        SpecialistReviewFindingTraceBuilder.ApplyTrace(finding, model, supportingElement);
+
         return finding;
     }
 }
