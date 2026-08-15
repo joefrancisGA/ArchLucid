@@ -21,8 +21,10 @@ import {
   reviewsNewWithPackHref,
 } from "@/lib/policy/policy-packs-deep-link";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy/policy-pack-detail-resolver";
-import type { PolicyPack } from "@/types/policy-packs";
+import { resolveResponsibleAiPolicyRuleRows } from "@/lib/policy/responsible-ai-policy-pack-rules";
+import type { PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
+import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
 import {
   RESPONSIBLE_AI_ACTION_GOVERNANCE,
   RESPONSIBLE_AI_ACTION_ASSIGN_TO_WORKSPACE,
@@ -31,9 +33,13 @@ import {
   RESPONSIBLE_AI_VIEW_TECHNICAL_DETAILS,
 } from "@/lib/responsible-ai-policy-pack-detail-content";
 
+const GENERIC_RULES_INTRO =
+  "Published rules for this pack are listed from pack content only — no platform template is substituted.";
+
 type PolicyPackGenericDetailProps = {
   readonly policyPackId: string;
   readonly packRecord: PolicyPack;
+  readonly packContent: PolicyPackContentDocument | null;
   readonly isEnabled: boolean;
   readonly isGloballyActive: boolean;
 };
@@ -73,12 +79,16 @@ function resolveEnablementStatusTag(isEnabled: boolean, isGloballyActive: boolea
 }
 
 export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): React.JSX.Element {
-  const { policyPackId, packRecord, isEnabled, isGloballyActive } = props;
+  const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
   const packName = packRecord.name.trim().length > 0 ? packRecord.name.trim() : "Policy pack";
   const description =
     packRecord.description.trim().length > 0
       ? packRecord.description.trim()
       : "Review published versions, inspect how rules apply to this scope, and continue governance workflow steps from the policy pack library.";
+  const rulesResolution = resolveResponsibleAiPolicyRuleRows(packContent, {
+    hasPackRecord: true,
+    usePlatformTemplateFallback: false,
+  });
 
   return (
     <div className={cn("w-full max-w-[1200px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="policy-pack-generic-detail">
@@ -110,6 +120,14 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
           <InlineMetadataLine label="Version" value={packRecord.currentVersion?.trim() || "—"} />
         </CardContent>
       </Card>
+
+      <PolicyPackRulesTableSection
+        headingId="policy-pack-generic-rules-heading"
+        heading="Rules and controls"
+        intro={GENERIC_RULES_INTRO}
+        rulesResolution={rulesResolution}
+        ariaLabel="Policy pack rules"
+      />
 
       <nav className="flex flex-wrap gap-x-4 gap-y-2" aria-label="Policy pack actions">
         <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_POLICY_PACKS_PATH}>

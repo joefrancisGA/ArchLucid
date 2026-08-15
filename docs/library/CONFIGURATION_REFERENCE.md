@@ -55,6 +55,44 @@ Signup first-touch uses a first-party cookie (`marketing-first-touch.ts`) propag
 
 Outbound vendor credentials are configured through deployment-level ITSM outbound and inbound connector settings (unchanged).
 
+## ITSM inbound webhooks (`Integrations:ItsmInbound`, TB-396)
+
+Jira and ServiceNow inbound status webhooks authenticate with shared secrets (or per-tenant connector secrets when `AllowDeploymentWideWebhookSecrets` is `false`). When a correlated external ticket changes state, ArchLucid updates **`FindingRecords.HumanReviewStatus`** on the scoped snapshot row. Optional disposition maps (**TB-396**) also append a **`FindingDisposition`** event via the disposition trail when the external status maps to a known disposition value.
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `Integrations:ItsmInbound:JiraWebhookSecret` | *(empty)* | Shared secret for `X-Jira-Token` on `POST /v1/integrations/webhooks/jira`. Empty disables the deployment-wide Jira inbound route. |
+| `Integrations:ItsmInbound:ServiceNowWebhookSecret` | *(empty)* | Shared secret for `X-ServiceNow-Token` on ServiceNow inbound webhooks. Empty disables the deployment-wide ServiceNow inbound route. |
+| `Integrations:ItsmInbound:AllowDeploymentWideWebhookSecrets` | `true` | When `false` (hosted multi-tenant SaaS), inbound webhooks must use tenant-scoped routes with per-connector secrets. |
+| `Integrations:ItsmInbound:JiraStatusHumanReviewMap` | *(empty)* | Optional map: Jira workflow status **name** → `FindingHumanReviewStatus` enum name (e.g. `"In Review": "Pending"`). Keys match case-insensitively; built-in defaults apply for unmapped statuses. |
+| `Integrations:ItsmInbound:ServiceNowStateHumanReviewMap` | *(empty)* | Optional map: ServiceNow `state` / `incident_state` raw value → `FindingHumanReviewStatus` enum name. Keys match case-insensitively. |
+| `Integrations:ItsmInbound:JiraStatusDispositionMap` | *(empty)* | Optional map (**TB-396**): Jira workflow status **name** → `FindingDisposition` enum name (e.g. `"Done": "Remediated"`, `"Won't Do": "RejectedAsNotApplicable"`). When absent or unmapped, inbound webhooks update human review only. |
+| `Integrations:ItsmInbound:ServiceNowStateDispositionMap` | *(empty)* | Optional map (**TB-396**): ServiceNow state raw value → `FindingDisposition` enum name. Unmapped values do not change disposition. |
+| `Integrations:ItsmInbound:RequireBodyHmacSignature` | `false` | When `true`, require HMAC-SHA256 over the raw UTF-8 body (`X-ArchLucid-Webhook-Signature` or legacy `X-ArchLucid-Signature`) in addition to the vendor token header. |
+| `Integrations:ItsmInbound:WebhookTimestampSkewSeconds` | `300` | Maximum acceptable \|now − payload\| skew when `X-ArchLucid-Timestamp` (Unix seconds) is present (**TB-968**). |
+
+**Disposition map values** must parse to [`FindingDisposition`](../../ArchLucid.Contracts/Findings/FindingDisposition.cs): `Accepted`, `Deferred`, `NeedsEvidence`, `Remediated`, `RejectedAsNotApplicable`. **`ItsmInboundDispositionSync`** skips recording when the latest disposition trail event already matches the mapped value (loop guard). **`HumanReviewStatus`** and disposition trail updates are independent — see [`FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md`](FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md).
+
+Example (`appsettings.Production.json` fragment):
+
+```json
+"Integrations": {
+  "ItsmInbound": {
+    "JiraWebhookSecret": "***",
+    "JiraStatusHumanReviewMap": {
+      "In Review": "Pending",
+      "Approved": "Approved"
+    },
+    "JiraStatusDispositionMap": {
+      "Done": "Remediated",
+      "Won't Fix": "RejectedAsNotApplicable"
+    }
+  }
+}
+```
+
+Contract row: [`API_CONTRACTS.md`](API_CONTRACTS.md) ITSM inbound. Smoke: [`../integrations/smoke/CONNECTOR_SMOKE_JIRA.md`](../integrations/smoke/CONNECTOR_SMOKE_JIRA.md), [`../integrations/smoke/CONNECTOR_SMOKE_SERVICENOW.md`](../integrations/smoke/CONNECTOR_SMOKE_SERVICENOW.md).
+
 ## Tooling
 
 - Validate locally: `archlucid config check` (add `--no-api` to skip the API snapshot; use global `--json` for machine-readable output; exit `0` when all *required* keys for the current mode are set, exit `4` when not).

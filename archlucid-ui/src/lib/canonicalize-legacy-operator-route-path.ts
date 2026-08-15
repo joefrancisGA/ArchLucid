@@ -42,7 +42,7 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   LEGACY_SPONSOR_REPORT_ROOT_PATH,
   RETIRED_ROI_SUMMARY_PATH,
-  SPONSOR_REPORT_SPONSOR_SUMMARY_PATH,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
@@ -83,7 +83,6 @@ const LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH = "/operate/integration-events/
 const LEGACY_INTERNAL_INTEGRATION_EVENTS_DLQ_PATH = "/internal/integration-events/dlq";
 const LEGACY_REPLAY_PATH = "/replay";
 const LEGACY_INTERNAL_REPLAY_PATH = "/internal/replay";
-const LEGACY_INSIGHTS_SPONSOR_SUMMARY_PATH = "/insights/sponsor-summary";
 const LEGACY_INSIGHTS_EXECUTIVE_SUMMARY_PATH = "/insights/executive-summary";
 const LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH = "/architecture/executive-dashboard";
 const LEGACY_EXECUTIVE_DASHBOARD_PATH = "/executive/dashboard";
@@ -223,9 +222,8 @@ export function canonicalizeLegacyOperatorRoutePath(pathname: string): string {
   }
 
   if (
-    normalized === LEGACY_INSIGHTS_SPONSOR_SUMMARY_PATH
-    || normalized === LEGACY_INSIGHTS_EXECUTIVE_SUMMARY_PATH
-    || normalized === SPONSOR_REPORT_SPONSOR_SUMMARY_PATH
+    normalized === LEGACY_INSIGHTS_EXECUTIVE_SUMMARY_PATH
+    || normalized === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH
   ) {
     return SPONSOR_REPORT_PATH;
   }

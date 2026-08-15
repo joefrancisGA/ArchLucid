@@ -153,7 +153,21 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             interview = _interviewService.ApplyAnswers(model, interview, request.FramingAnswers);
         }
 
-        List<SpecialistReviewResult> specialistReviews = await RunSpecialistReviewsAsync(model, cancellationToken);
+        List<SpecialistReviewResult> specialistReviews = await RunSpecialistReviewsAsync(
+            model,
+            request.DeclaredPriorities,
+            cancellationToken);
+
+        if (!interview.IsFramingComplete)
+        {
+            model.IsProvisionalSynthesis = true;
+            SpecialistReviewProvisionalGating.ApplyWhileFramingIncomplete(specialistReviews);
+        }
+        else
+        {
+            model.IsProvisionalSynthesis = false;
+        }
+
         List<SpecialistReviewFinding> allFindings = specialistReviews
             .SelectMany(review => review.Findings)
             .ToList();
@@ -169,6 +183,20 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         // No fallback artifact/quote injection — stage-1 must fail closed when citations are absent.
         List<EvidenceValidationResult> validationResults = await ValidateFindingsAsync(allFindings, cancellationToken);
+
+        Dictionary<string, EvidenceValidationResult> validationByFindingId = validationResults
+            .ToDictionary(result => result.FindingId, StringComparer.Ordinal);
+
+        foreach (SpecialistReviewFinding finding in allFindings)
+        {
+            if (!validationByFindingId.TryGetValue(finding.FindingId, out EvidenceValidationResult? validation))
+            {
+                continue;
+            }
+
+            EvidenceSupportTierResolver.ApplyToFinding(finding, validation);
+        }
+
         HashSet<string> integrityPassedIds = validationResults
             .Where(result => result.OverallPassedIntegrity)
             .Select(result => result.FindingId)
@@ -209,32 +237,46 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 ? adversarial.SubstantiatedFindings
                 : allFindings;
 
-        List<ArchitectureRecommendation> recommendations = (await _recommendationEngine
-            .BuildRecommendationsAsync(model, recommendationSourceFindings, request.DeclaredPriorities, cancellationToken))
-            .ToList();
-
+        List<ArchitectureRecommendation> recommendations = [];
         List<ChangeImpactResult> impactResults = [];
         List<ArchitectureModelDiff> modelDiffs = [];
         IncrementalReReviewResult? reReview = null;
 
-        if (recommendations.Count > 0)
+        if (interview.IsFramingComplete)
         {
-            ArchitectureRecommendation firstRecommendation = recommendations[0];
-            ArchitectureModelDiff diff = _modelDiffApplier.ApplyRecommendation(model, firstRecommendation);
-            modelDiffs.Add(diff);
+            recommendations = (await _recommendationEngine
+                .BuildRecommendationsAsync(
+                    model,
+                    recommendationSourceFindings,
+                    request.DeclaredPriorities,
+                    cancellationToken))
+                .ToList();
 
-            ChangeImpactResult impact = _changeImpactAnalyzer.Analyze(diff, firstRecommendation);
-            impactResults.Add(impact);
-
-            ReReviewScope scope = new()
+            if (recommendations.Count > 0)
             {
-                AffectedElementIds = impact.ImpactedItems.Select(item => item.ElementId).Distinct(StringComparer.Ordinal).ToList(),
-                IncludeGlobalInvariantChecks = true,
-                FullReReview = impact.RequiresFullReReview,
-                Trigger = ResolveReReviewTrigger(impact, firstRecommendation),
-            };
+                ArchitectureRecommendation firstRecommendation = recommendations[0];
+                ArchitectureModelDiff diff = _modelDiffApplier.ApplyRecommendation(model, firstRecommendation);
+                modelDiffs.Add(diff);
 
-            reReview = _incrementalReReviewService.ReReview(diff.AfterModel, scope, _heuristicSpecialistReviewService);
+                ChangeImpactResult impact = _changeImpactAnalyzer.Analyze(diff, firstRecommendation);
+                impactResults.Add(impact);
+
+                ReReviewScope scope = new()
+                {
+                    AffectedElementIds = impact.ImpactedItems
+                        .Select(item => item.ElementId)
+                        .Distinct(StringComparer.Ordinal)
+                        .ToList(),
+                    IncludeGlobalInvariantChecks = true,
+                    FullReReview = impact.RequiresFullReReview,
+                    Trigger = ResolveReReviewTrigger(impact, firstRecommendation),
+                };
+
+                reReview = _incrementalReReviewService.ReReview(
+                    diff.AfterModel,
+                    scope,
+                    _heuristicSpecialistReviewService);
+            }
         }
 
         List<MustNotFailViolation> mustNotFailViolations = _mustNotFailEnforcer
@@ -247,6 +289,13 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             validationResults,
             mustNotFailViolations);
 
+        if (!interview.IsFramingComplete)
+        {
+            publishDecision = ArchitectureFramingMustGate.MergeFramingIncompletePublishBlock(
+                interview,
+                publishDecision);
+        }
+
         if (_persistence is not null)
         {
             await _persistence.SaveModelAsync(model, cancellationToken);
@@ -254,8 +303,6 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         string workspaceId = request.WorkspaceId ?? tenantId;
         string projectId = request.ProjectId ?? tenantId;
-        Dictionary<string, EvidenceValidationResult> validationByFindingId = validationResults
-            .ToDictionary(result => result.FindingId, StringComparer.Ordinal);
 
         ClosedLoopReasoningResult result = new()
         {
@@ -270,6 +317,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             MustNotFailViolations = mustNotFailViolations,
             ValidationResults = validationResults,
             PublishBlocked = publishDecision.PublishBlocked,
+            ReviewCompleteBlocked = !interview.IsFramingComplete,
             PublishBlockReasons = publishDecision.BlockReasons,
             IntegrityPassedFindingIds = publishDecision.IntegrityPassedFindingIds.ToList(),
             RunId = request.RunId,
@@ -394,14 +442,12 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
     private async Task<List<SpecialistReviewResult>> RunSpecialistReviewsAsync(
         ArchitectureKnowledgeModel model,
+        IReadOnlyList<string> declaredPriorities,
         CancellationToken cancellationToken)
     {
-        QualityDimension[] dimensions =
-        [
-            QualityDimension.Reliability,
-            QualityDimension.Security,
-            QualityDimension.Cost,
-        ];
+        QualityDimension[] dimensions = DeclaredPrioritySpecialistDepthSelector
+            .SelectDimensions(declaredPriorities)
+            .ToArray();
 
         SpecialistReviewResult[] reviews = await BoundedParallelMap.MapAsync(
             dimensions,
@@ -445,6 +491,11 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 {
                     citedQuotes.Add(finding.Provenance.PassageLocator.Quote);
                 }
+
+                citedQuotes = EvidenceValidationSourceReread.AugmentCitedQuotesForHighSeverity(
+                    finding,
+                    citedQuotes,
+                    _sourceStore);
 
                 string claimedConclusion = $"{finding.Conclusion}:{finding.Severity}:{finding.Title}";
 

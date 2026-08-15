@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   compareFindingsByTrustThenSeverity,
+  extractionFidelitySortPenalty,
   isFindingSponsorPacketTrustEligible,
   reviewFindingMatchesProvenanceFilter,
 } from "@/lib/findings/finding-trust-triage";
@@ -67,6 +68,27 @@ describe("finding-trust-triage", () => {
     });
 
     expect(compareFindingsByTrustThenSeverity(rule, ungrounded)).toBeLessThan(0);
+  });
+
+  it("sorts low-confidence ungrounded findings below same-band evidence-backed peers", () => {
+    const evidenceBacked = finding({
+      findingId: "evidence",
+      severityValue: 2,
+      trustLabel: "EvidenceBacked",
+      evidenceRefCount: 2,
+    });
+    const ungroundedLow = finding({
+      findingId: "ungrounded",
+      severityValue: 3,
+      trustLabel: "MissingCitation",
+      evidenceRefCount: 0,
+      confidenceLevel: "Low",
+    });
+
+    expect(extractionFidelitySortPenalty(ungroundedLow)).toBeGreaterThan(
+      extractionFidelitySortPenalty(evidenceBacked),
+    );
+    expect(compareFindingsByTrustThenSeverity(evidenceBacked, ungroundedLow)).toBeLessThan(0);
   });
 
   it("filters by origin", () => {

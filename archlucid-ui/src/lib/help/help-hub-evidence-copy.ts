@@ -22,6 +22,6 @@ export const HELP_HUB_SOURCES: readonly EvidenceSourceLink[] = [
  { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
  { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
  { label: "Product FAQ", href: "/faq" },
- { label: "Assurance status", href: "/security-trust" },
+ { label: "Assurance status", href: "/assurance-status" },
  { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
 ] as const;

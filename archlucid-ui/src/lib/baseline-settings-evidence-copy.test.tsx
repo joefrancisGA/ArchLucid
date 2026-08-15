@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -11,14 +8,11 @@ import {
   BASELINE_SETTINGS_SOURCES,
   BASELINE_SETTINGS_SOURCES_INTRO,
 } from "@/lib/baseline-settings-evidence-copy";
+import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("baseline-settings-evidence-copy", () => {
   it("wires exports into the Baseline settings evidence strip registry", () => {
-    const registryPath = path.join(
-      process.cwd(),
-      "src/components/evidence-orientation/registry/claim-and-sources-strips.tsx",
-    );
-    const registrySource = readFileSync(registryPath, "utf8");
+    const registrySource = readClaimAndSourcesRegistrySource();
 
     expect(registrySource).toContain("baseline-settings-evidence-copy");
     expect(registrySource).toContain("BaselineSettingsEvidenceOrientationStrip");

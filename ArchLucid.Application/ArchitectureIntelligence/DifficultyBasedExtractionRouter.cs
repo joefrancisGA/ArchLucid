@@ -56,7 +56,8 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 artifactId,
                 supportStatus,
                 confidence,
-                "Component mention extracted from source text."));
+                "Component mention extracted from source text.",
+                InferLifecycleScopeForIndex(sourceText, match.Index)));
         }
 
         foreach (Match match in RequirementLinePattern().Matches(sourceText))
@@ -67,7 +68,8 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 artifactId,
                 supportStatus,
                 confidence,
-                "Functional requirement extracted from source text."));
+                "Functional requirement extracted from source text.",
+                InferLifecycleScopeForIndex(sourceText, match.Index)));
         }
 
         if (sourceText.Contains("RTO", StringComparison.OrdinalIgnoreCase)
@@ -80,6 +82,44 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 supportStatus,
                 confidence,
                 "Recovery objective signal detected."));
+        }
+
+        int? backupIntervalMinutes = SpecialistReviewModelAdequacy.TryParseBackupIntervalMinutes(sourceText);
+
+        if (backupIntervalMinutes is not null)
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Constraint,
+                $"Documented backup interval: {backupIntervalMinutes} minutes",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Backup interval extracted from source text."));
+        }
+
+        decimal? monthlyCeilingUsd = SpecialistReviewModelAdequacy.TryParseMonthlyCostCeilingUsd(sourceText);
+
+        if (monthlyCeilingUsd is not null)
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Constraint,
+                $"Monthly cost ceiling: ${monthlyCeilingUsd:0}",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Monthly cost ceiling extracted from source text."));
+        }
+
+        if (sourceText.Contains("cost driver", StringComparison.OrdinalIgnoreCase)
+            || sourceText.Contains("primary cost", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.CostDriver,
+                "Primary cost drivers",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Cost driver signal detected."));
         }
 
         if (sourceText.Contains("trust boundary", StringComparison.OrdinalIgnoreCase))
@@ -126,7 +166,8 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 artifactId,
                 supportStatus,
                 confidence,
-                "Current and target state markers detected."));
+                "Current and target state markers detected.",
+                ArchitectureLifecycleScope.Transition));
         }
 
         if (sourceText.Contains("contradict", StringComparison.OrdinalIgnoreCase))
@@ -138,6 +179,42 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 supportStatus,
                 confidence,
                 "Contradiction marker detected."));
+        }
+
+        if (sourceText.Contains("backup", StringComparison.OrdinalIgnoreCase)
+            && elements.All(element =>
+                !element.Name.Contains("backup", StringComparison.OrdinalIgnoreCase)))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Constraint,
+                "Database backup schedule",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Backup schedule mention detected."));
+        }
+
+        if (sourceText.Contains("trade-off", StringComparison.OrdinalIgnoreCase)
+            || sourceText.Contains("trade off", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.TradeOff,
+                "Approved trade-off",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Trade-off marker detected."));
+        }
+
+        if (sourceText.Contains("single-region", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Decision,
+                "Single-region deployment",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Single-region deployment decision detected."));
         }
 
         if (elements.Count == 0)
@@ -236,7 +313,8 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
         string artifactId,
         SupportStatus supportStatus,
         double confidence,
-        string notes)
+        string notes,
+        ArchitectureLifecycleScope lifecycleScope = ArchitectureLifecycleScope.Unspecified)
     {
         return new ArchitectureModelElement
         {
@@ -244,6 +322,7 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
             Kind = kind,
             Name = name,
             ExtractionConfidence = confidence,
+            LifecycleScope = lifecycleScope,
             SourcePassageIds = [artifactId],
             Provenance = new ClaimProvenance
             {
@@ -254,6 +333,29 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 Notes = notes,
             },
         };
+    }
+
+    private static ArchitectureLifecycleScope InferLifecycleScopeForIndex(string sourceText, int matchIndex)
+    {
+        int targetStateIndex = sourceText.IndexOf("target state", StringComparison.OrdinalIgnoreCase);
+        int currentStateIndex = sourceText.IndexOf("current state", StringComparison.OrdinalIgnoreCase);
+        int asIsIndex = sourceText.IndexOf("as-is", StringComparison.OrdinalIgnoreCase);
+        int toBeIndex = sourceText.IndexOf("to-be", StringComparison.OrdinalIgnoreCase);
+
+        int targetBoundary = targetStateIndex >= 0 ? targetStateIndex : toBeIndex;
+
+        if (targetBoundary >= 0 && matchIndex > targetBoundary)
+        {
+            return ArchitectureLifecycleScope.TargetState;
+        }
+
+        if (currentStateIndex >= 0 && matchIndex > currentStateIndex
+            || asIsIndex >= 0 && matchIndex > asIsIndex)
+        {
+            return ArchitectureLifecycleScope.CurrentState;
+        }
+
+        return ArchitectureLifecycleScope.Unspecified;
     }
 
     [GeneratedRegex(@"(?im)^(?:component|service)\s*[:\-]\s*(?<name>.+)$")]

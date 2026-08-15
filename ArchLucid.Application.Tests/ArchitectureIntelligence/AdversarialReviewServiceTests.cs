@@ -71,7 +71,7 @@ public sealed class AdversarialReviewServiceTests
             Rationale = "Integrity passed.",
             Conclusion = ReviewConclusion.Fail,
             EvidenceCondition = EvidenceCondition.Sufficient,
-            Severity = "High",
+            Severity = "Medium",
         };
 
         AdversarialReviewResult result = _service.Review(
@@ -81,6 +81,31 @@ public sealed class AdversarialReviewServiceTests
         result.SubstantiatedFindings.Should().ContainSingle(finding => finding.FindingId == "finding-pass-integrity");
         result.Challenges.Should().ContainSingle(challenge =>
             challenge.Hypothesis.Contains("Looks evidenced", StringComparison.Ordinal));
+        result.Challenges.Should().NotContain(challenge =>
+            challenge.Hypothesis.StartsWith("Selective High/Critical re-check:", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Review_adds_selective_challenge_when_integrity_passed_and_severity_is_high()
+    {
+        SpecialistReviewFinding integrityPassedHigh = new()
+        {
+            FindingId = "finding-pass-integrity-high",
+            Dimension = QualityDimension.Security,
+            Title = "Verified high",
+            Rationale = "Integrity passed but severity warrants re-check.",
+            Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Severity = "High",
+        };
+
+        AdversarialReviewResult result = _service.Review(
+            [integrityPassedHigh],
+            new HashSet<string>(StringComparer.Ordinal) { integrityPassedHigh.FindingId });
+
+        result.SubstantiatedFindings.Should().ContainSingle();
+        result.Challenges.Should().ContainSingle(challenge =>
+            challenge.SourceFindingId == integrityPassedHigh.FindingId);
     }
 }
 

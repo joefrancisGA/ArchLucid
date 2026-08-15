@@ -47,6 +47,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.RequirementFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementExpectationFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementGapFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.RequirementCrossRunDiffFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyStructureFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCrossRunDiffFindingEngine>();
@@ -69,6 +70,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.GraphGcpInventoryReconciliationFindingEngine>();
         services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.OrphanedAwsResourceFindingEngine>();
         services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.OrphanedGcpResourceFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.AzureInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.AwsInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.GcpInventorySecurityBaselineFindingEngine>();
 

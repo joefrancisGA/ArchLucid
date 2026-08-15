@@ -10,7 +10,6 @@ import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-co
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeCanonicalNextActionSlot } from "@/components/operator-home/OperatorHomeCanonicalNextActionSlot";
-import { GoldenSponsorPackageWalkthroughPanel } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPanel";
 import { InviteeFirstOrientationPanel } from "@/components/operator/InviteeFirstOrientationPanel";
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
@@ -225,9 +224,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
         <div className={cn("space-y-4", OPERATOR_LAYOUT.inlineGap)}>
           {isInviteeReviewer ? (
             <InviteeFirstOrientationPanel copy={resolveInviteeHomeOrientationCopy()} />
-          ) : (
-            <GoldenSponsorPackageWalkthroughPanel />
-          )}
+          ) : null}
           <OperatorHomeCanonicalNextActionSlot
             clientFallback={toOperatorCanonicalNextActionFromEmptyHome(emptyNext.action)}
             sampleLoading={emptyNext.sampleLoading}

@@ -3,7 +3,13 @@ import type { ReactElement } from "react";
 
 import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { FeasibilityVerdictDriversPanel } from "@/components/feasibility/FeasibilityVerdictDriversPanel";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
+import {
+  filterFeasibilityTransparencyTrailInferred,
+  filterFeasibilityTransparencyTrailSkipped,
+  parseFeasibilityVerdictDrivers,
+} from "@/lib/feasibility-verdict-transparency-trail";
 import {
   feasibilityVerdictKindLabel,
   feasibilityVerdictTone,
@@ -34,8 +40,14 @@ export function RunDetailFeasibilityVerdictSection(
   props: RunDetailFeasibilityVerdictSectionProps,
 ): ReactElement {
   const { verdict } = props;
+  const reviewId = props.runId.trim();
   const tone = feasibilityVerdictTone(verdict.kind);
   const trail = verdict.transparencyTrail;
+  const verdictDrivers = parseFeasibilityVerdictDrivers(trail);
+  const inferredTrailEntries =
+    trail !== undefined ? filterFeasibilityTransparencyTrailInferred(trail) : [];
+  const skippedTrailEntries =
+    trail !== undefined ? filterFeasibilityTransparencyTrailSkipped(trail) : [];
 
   return (
     <section id="feasibility-verdict" className="scroll-mt-24" data-testid="run-detail-feasibility-verdict">
@@ -43,6 +55,12 @@ export function RunDetailFeasibilityVerdictSection(
         <h4 className={`${runDetailSectionHeadingClass} mb-2`}>Feasibility verdict</h4>
         <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{feasibilityVerdictKindLabel(verdict.kind)}</p>
         <p className={cn("mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{verdict.summary}</p>
+
+        <FeasibilityVerdictDriversPanel
+          drivers={verdictDrivers}
+          reviewId={reviewId}
+          className="mt-4"
+        />
 
         {verdict.softEnvelope !== undefined && verdict.softEnvelope !== null ? (
           <dl className={cn("mt-4 grid gap-2 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-4", OPERATOR_TYPOGRAPHY.body)}>
@@ -91,11 +109,11 @@ export function RunDetailFeasibilityVerdictSection(
                 </ul>
               </div>
             ) : null}
-            {trail.inferred.length > 0 ? (
+            {inferredTrailEntries.length > 0 ? (
               <div>
-                <p className="m-0 font-medium">Inferred ({trail.inferred.length})</p>
+                <p className="m-0 font-medium">Inferred ({inferredTrailEntries.length})</p>
                 <ul className="mt-1 list-disc pl-5">
-                  {trail.inferred.map((entry) => (
+                  {inferredTrailEntries.map((entry) => (
                     <li key={entry.key}>
                       {entry.key}: {entry.value} (confidence {entry.confidence})
                     </li>
@@ -103,11 +121,11 @@ export function RunDetailFeasibilityVerdictSection(
                 </ul>
               </div>
             ) : null}
-            {trail.skipped.length > 0 ? (
+            {skippedTrailEntries.length > 0 ? (
               <div>
-                <p className="m-0 font-medium">Skipped ({trail.skipped.length})</p>
+                <p className="m-0 font-medium">Skipped ({skippedTrailEntries.length})</p>
                 <ul className="mt-1 list-disc pl-5">
-                  {trail.skipped.map((entry) => (
+                  {skippedTrailEntries.map((entry) => (
                     <li key={entry.questionKey}>
                       {entry.questionKey} ({entry.tier})
                     </li>

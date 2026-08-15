@@ -54,6 +54,7 @@ export async function loadSignedRecordArtifactPageModel(
     serverManifestScopeHeaders !== null ? { scopeHeaders: serverManifestScopeHeaders } : undefined;
 
   let summaryRunId: string | null = null;
+  let usedStaticDemoFallback = false;
 
   try {
     const rawSummary: unknown = await getManifestSummary(manifestId, manifestScopeOptions);
@@ -67,6 +68,7 @@ export async function loadSignedRecordArtifactPageModel(
 
     if (staticSummary !== null) {
       summaryRunId = staticSummary.runId.trim();
+      usedStaticDemoFallback = true;
     }
   }
 
@@ -107,6 +109,7 @@ export async function loadSignedRecordArtifactPageModel(
 
       if (staticArtifacts !== null) {
         siblings = staticArtifacts;
+        usedStaticDemoFallback = true;
       }
     }
   }
@@ -121,6 +124,7 @@ export async function loadSignedRecordArtifactPageModel(
     if (staticArtifacts !== null) {
       siblings = staticArtifacts;
       descriptor = findArtifactInList(staticArtifacts, artifactId);
+      usedStaticDemoFallback = true;
     }
   }
 
@@ -181,6 +185,7 @@ export async function loadSignedRecordArtifactPageModel(
       truncated,
       contentError,
       runId: runId !== null && runId.length > 0 ? runId : null,
+      usedStaticDemoFallback,
     },
   };
 }

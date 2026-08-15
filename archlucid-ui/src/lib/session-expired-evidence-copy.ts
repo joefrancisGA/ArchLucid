@@ -14,6 +14,6 @@ export const SESSION_EXPIRED_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
   { label: "See a sample review", href: "/see-it" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Product FAQ", href: "/faq" },
 ] as const;

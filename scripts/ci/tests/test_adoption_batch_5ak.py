@@ -17,8 +17,8 @@ class TestAdoptionBatch5AK(unittest.TestCase):
         self.assertIn("decisions-needed-summary-card", text)
         self.assertIn("waiversExpiringWithin14Days", text)
 
-    def test_tb_223_executive_dashboard_wires_card(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "ExecutiveWorkspaceHealthDashboard.tsx"
+    def test_tb_223_sponsor_dashboard_wires_card(self) -> None:
+        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "SponsorWorkspaceHealthDashboard.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("DecisionsNeededSummaryCard", text)
         self.assertIn("useGovernanceDecisionsNeededSummaryQuery", text)

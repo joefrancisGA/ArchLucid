@@ -30,6 +30,8 @@ import {
   GLOSSARY_HELP_FOLLOW_UP_LINKS,
 } from "@/lib/glossary-help-evidence-copy";
 import { PILOT_GUIDE_HELP_CLAIM_DISCIPLINE } from "@/lib/pilot-guide-help-evidence-copy";
+import { EVALUATION_SOURCES_TITLE } from "@/lib/evaluation-sources-title";
+import { PRICING_SOURCES, PRICING_SOURCES_INTRO } from "@/lib/pricing-evidence-copy";
 import { ProcurementHelpDiligenceCtaSection } from "@/components/help/ProcurementHelpDiligenceCtaSection";
 import { ProcurementHelpPostureSummary } from "@/components/help/ProcurementHelpPostureSummary";
 import { PROCUREMENT_HELP_CLAIM_DISCIPLINE, PROCUREMENT_HELP_LEAD } from "@/lib/procurement-help-evidence-copy";
@@ -179,6 +181,33 @@ export function PilotGuideHelpEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
+/**
+ * Sources only — `/pricing` carries no claim-discipline band.
+ *
+ * Tier cards, the FAQ, and the quote panel make no assurance claim, so a "not procurement evidence"
+ * caution would hedge against something the page never says. That is the disclaimer-dilution the
+ * owner ruled out in **TB-2091** / **TB-2092**; pricing kept its band only because TB-2092 scoped
+ * the sweep to operator surfaces. The Sources index stays: pricing questions do turn into security
+ * and packaging questions, and Assurance status / Trust Center are the honest next click.
+ *
+ * Uses the shell for page rhythm (`mt-10`) rather than the shared sources-and-claim strip, whose
+ * claim props are required.
+ */
+export function PricingEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationStripShell testId="pricing-orientation" margin="mt-10">
+      <EvidenceOrientationSourcesSection
+        testId="pricing-sources"
+        headingId="pricing-sources-heading"
+        title={EVALUATION_SOURCES_TITLE}
+        intro={PRICING_SOURCES_INTRO}
+        links={PRICING_SOURCES}
+        style={EVIDENCE_SOURCES_STYLE.evaluationMuted}
+      />
+    </EvidenceOrientationStripShell>
+  );
+}
+
 export function ProcurementHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationStripShell testId="procurement-help-orientation">
@@ -214,13 +243,10 @@ export function TroubleshootingHelpEvidenceOrientationStrip(): React.JSX.Element
       claimHeading={TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={TROUBLESHOOTING_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
-      claimElement="div"
       sourcesTitle={TROUBLESHOOTING_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={TROUBLESHOOTING_HELP_SOURCES_INTRO}
       sources={TROUBLESHOOTING_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }

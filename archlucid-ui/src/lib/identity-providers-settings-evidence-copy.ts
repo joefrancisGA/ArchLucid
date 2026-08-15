@@ -17,5 +17,5 @@ export const IDENTITY_PROVIDERS_SETTINGS_SOURCES: readonly EvidenceSourceLink[] 
   { label: "Sign-in domains", href: "/administration/auth-domains" },
   { label: "Role mapping", href: "/administration/identity-providers/role-mapping" },
   { label: "Users and roles", href: "/administration/users" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

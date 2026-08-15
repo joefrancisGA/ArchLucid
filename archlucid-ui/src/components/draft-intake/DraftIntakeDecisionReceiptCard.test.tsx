@@ -9,7 +9,15 @@ describe("DraftIntakeDecisionReceiptCard", () => {
       <DraftIntakeDecisionReceiptCard
         draftId="draft-1"
         redirectReason="I need at least one kind of user."
-        verdict={{ kind: "SoftInfeasible", summary: "Actor set is required." }}
+        verdict={{
+          kind: "SoftInfeasible",
+          summary: "Actor set is required.",
+          transparencyTrail: {
+            asserted: [],
+            inferred: [{ key: "policy.violation.rto", value: "RTO exceeds stated ceiling", confidence: 0.9 }],
+            skipped: [{ questionKey: "l0.must.actor", tier: "Must" }],
+          },
+        }}
         freeTextIntent="Build a workflow."
         businessOutcome="Faster triage."
         systemName=""
@@ -18,6 +26,7 @@ describe("DraftIntakeDecisionReceiptCard", () => {
 
     expect(screen.getByTestId("draft-intake-decision-receipt-card")).toBeInTheDocument();
     expect(screen.getByText(/actor set is required/i)).toBeInTheDocument();
+    expect(screen.getByTestId("feasibility-verdict-drivers")).toBeInTheDocument();
 
     const exportLink = screen.getByTestId("decision-receipt-export");
     expect(exportLink).toHaveAttribute(

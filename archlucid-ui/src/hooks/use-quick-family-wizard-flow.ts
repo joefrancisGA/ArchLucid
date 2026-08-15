@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import {
   useReviewCreationProgress,
@@ -11,7 +11,7 @@ import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
 import { trackWizardValidationFailed } from "@/lib/telemetry";
 import { submitQuickFamilyWizardCreateRun } from "@/lib/wizard-form-create-run-submit";
-import type { WizardCreateRunPayloadOptions } from "@/lib/wizard-payload";
+import { deriveWizardPolicyPackCloudMismatch, type WizardCreateRunPayloadOptions } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 import {
   isLastWizardStepIndex,
@@ -81,7 +81,14 @@ export function useQuickFamilyWizardFlow(
   const [stepValidationMessage, setStepValidationMessage] = useState<string | null>(null);
   const creationProgress = useReviewCreationProgress();
 
-  const { trigger, getValues } = useFormContext<WizardFormValues>();
+  const { trigger, getValues, control } = useFormContext<WizardFormValues>();
+  const watchedValues = useWatch({ control }) as WizardFormValues | undefined;
+
+  const policyPackCloudMismatch = useMemo(() => {
+    const values = watchedValues ?? getValues();
+
+    return deriveWizardPolicyPackCloudMismatch(values, buildPayloadOptions());
+  }, [buildPayloadOptions, getValues, watchedValues]);
 
   const isReviewStep = navigation.isReviewStep;
 
@@ -157,7 +164,7 @@ export function useQuickFamilyWizardFlow(
     isReviewStep,
     isCreating,
     canProceed: !isCreating,
-    canSubmit: !isCreating && !blocksLlmExecution,
+    canSubmit: !isCreating && !blocksLlmExecution && policyPackCloudMismatch === null,
     stepValidationMessage,
     submitError,
     creationProgress,

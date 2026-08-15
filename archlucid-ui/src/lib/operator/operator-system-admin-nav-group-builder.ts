@@ -4,6 +4,8 @@ import {
 
   BookOpen,
 
+  Boxes,
+
   Building2,
 
   ClipboardList,
@@ -146,7 +148,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           title: "Agent model catalog — platform alias curation, lifecycle, and evaluation evidence",
 
-          icon: ServerCog,
+          icon: Boxes,
 
           tier: "advanced",
 

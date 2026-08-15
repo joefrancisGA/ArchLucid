@@ -56,4 +56,11 @@ public class ArchitectureModelElement
         get;
         set;
     } = new();
+
+    /// <summary>Whether the element describes as-is, to-be, or transitional architecture state.</summary>
+    public ArchitectureLifecycleScope LifecycleScope
+    {
+        get;
+        set;
+    } = ArchitectureLifecycleScope.Unspecified;
 }

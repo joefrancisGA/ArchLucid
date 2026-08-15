@@ -15,7 +15,7 @@ describe("MarketingPublicFooter", () => {
     render(<MarketingPublicFooter />);
 
     expect(screen.getByRole("link", { name: "Trust Center" })).toHaveAttribute("href", "/trust");
-    expect(screen.getByRole("link", { name: "Assurance status" })).toHaveAttribute("href", "/security-trust");
+    expect(screen.getByRole("link", { name: "Assurance status" })).toHaveAttribute("href", "/assurance-status");
     expect(screen.queryByRole("link", { name: "Privacy policy" })).toBeNull();
     expect(screen.getByRole("link", { name: "Product FAQ" })).toHaveAttribute("href", "/faq");
   });

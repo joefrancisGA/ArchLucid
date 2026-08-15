@@ -12,7 +12,7 @@ export const PRIVACY_SOURCES_INTRO =
 
 /** Marketing Sources — no self-href to /privacy. */
 export const PRIVACY_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Trust Center", href: "/trust" },
   { label: "Data handling", href: inAppHelpHref("data-handling") },
   { label: "FAQ", href: "/faq" },

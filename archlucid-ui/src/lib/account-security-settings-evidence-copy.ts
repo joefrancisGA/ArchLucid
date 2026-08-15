@@ -27,5 +27,5 @@ export const ACCOUNT_SECURITY_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = 
   { label: "Preferences", href: ACCOUNT_PREFERENCES_PATH },
   { label: "SSO and identity", href: "/administration/identity-providers" },
   { label: "Users and roles", href: "/administration/users" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

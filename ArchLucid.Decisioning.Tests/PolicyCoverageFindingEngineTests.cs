@@ -87,6 +87,7 @@ public sealed class PolicyCoverageFindingEngineTests
         payload.PolicyNodeCount.Should().Be(1);
         findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
         findings[0].Trace.GraphNodeIdsExamined.Should().Equal("storage-1", "vm-2");
+        findings[0].RelatedNodeIds.Should().Equal("storage-1", "vm-2");
         findings[0].Trace.RulesApplied.Should().Contain("policy-coverage-applicability");
         findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(2);
         findings[0].Trace.Notes.Should().NotBeEmpty();

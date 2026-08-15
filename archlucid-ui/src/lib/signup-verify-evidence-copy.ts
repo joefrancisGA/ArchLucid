@@ -15,6 +15,6 @@ export const SIGNUP_VERIFY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Product FAQ", href: "/faq" },
   { label: "Pricing", href: "/pricing" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
 ] as const;

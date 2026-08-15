@@ -49,6 +49,8 @@ public sealed class GoldenArchitectureTestRunner : IGoldenArchitectureTestRunner
 
         PlantedDefectMatchResult planted = MatchPlantedDefects(findings);
         int falsePositiveCount = CountMeasuredFalsePositives(findings, planted.DetectedDefectIds);
+        Dictionary<string, int> falsePositivesByDimension =
+            CountFalsePositivesByDimension(findings, planted.DetectedDefectIds);
 
         bool mutationChangedFindings = EvaluateMutationSensitivity(beforeModel);
 
@@ -65,8 +67,8 @@ public sealed class GoldenArchitectureTestRunner : IGoldenArchitectureTestRunner
             || result.ReReview?.SpecialistResults.Count > 0;
 
         // Release gate: mutation sensitivity + category scores + non-empty closed-loop output.
-        // Planted-defect recall is reported for trend tracking; title matching is heuristic and
-        // must not alone fail CI when extraction wording drifts.
+        // Planted-defect recall floor is enforced in ArchitectureIntelligenceGoldenRegressionTests
+        // (heuristic title-pattern matching; baseline tracked in GoldenPlantedDefectRecallBaseline.v1.json).
         bool passed = mutationChangedFindings
             && categoryScores.Count == 4
             && (findings.Count + result.Recommendations.Count) > 0;
@@ -80,6 +82,7 @@ public sealed class GoldenArchitectureTestRunner : IGoldenArchitectureTestRunner
             PlantedDefectsDetected = planted.DetectedDefectIds,
             PlantedDefectsMissed = planted.MissedDefectIds,
             FalsePositiveCount = falsePositiveCount,
+            FalsePositivesByDimension = falsePositivesByDimension,
             CategoryScores = categoryScores,
             MutationChangedFindings = mutationChangedFindings,
             ReReviewTriggered = reReviewTriggered,
@@ -246,6 +249,39 @@ public sealed class GoldenArchitectureTestRunner : IGoldenArchitectureTestRunner
         }
 
         return count;
+    }
+
+    private static Dictionary<string, int> CountFalsePositivesByDimension(
+        IReadOnlyList<SpecialistReviewFinding> findings,
+        IReadOnlyList<string> detectedDefectIds)
+    {
+        Dictionary<string, int> byDimension = new(StringComparer.Ordinal);
+
+        foreach (SpecialistReviewFinding finding in findings)
+        {
+            if (finding.Conclusion != ReviewConclusion.Fail)
+            {
+                continue;
+            }
+
+            if (!MeetsMinSeverity(finding.Severity, "High"))
+            {
+                continue;
+            }
+
+            bool explainsPlanted = GoldenIncompleteArchitectureFixture.ExpectedPlantedDefects
+                .Any(expectation =>
+                    detectedDefectIds.Contains(expectation.DefectId, StringComparer.Ordinal)
+                    && MatchesExpectation(finding, expectation));
+
+            if (!explainsPlanted)
+            {
+                string dimensionKey = finding.Dimension.ToString();
+                byDimension[dimensionKey] = byDimension.GetValueOrDefault(dimensionKey) + 1;
+            }
+        }
+
+        return byDimension;
     }
 
     private static List<CategoryBenchmarkScore> ScoreCategories(

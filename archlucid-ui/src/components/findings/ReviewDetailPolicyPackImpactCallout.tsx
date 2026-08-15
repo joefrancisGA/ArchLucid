@@ -7,6 +7,7 @@ import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { policyPacksAuthorHref, policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
+import { POLICY_PACK_CLOUD_MISMATCH_MESSAGE } from "@/lib/review-quality/review-intake-quality-gates";
 
 export type ReviewDetailPolicyPackImpactCalloutProps = {
   readonly ruleSetId: string;
@@ -14,6 +15,8 @@ export type ReviewDetailPolicyPackImpactCalloutProps = {
   readonly runId: string;
   readonly mappedFindingCount?: number | null;
   readonly totalFindingCount?: number | null;
+  /** TB-2322 — detail line when packs do not match stated cloud target. */
+  readonly cloudMismatchDetail?: string | null;
   /** Secondary instances on the same route must not reuse the canonical Playwright test id. */
   readonly variant?: "canonical" | "secondary";
 };
@@ -69,6 +72,14 @@ export function ReviewDetailPolicyPackImpactCallout(
             <span className="font-semibold text-neutral-900 dark:text-neutral-100">{packLabel}</span>. Findings below
             should cite curated pack rules, evidence, and explainability traces — not generic model advice alone.
           </p>
+          {props.cloudMismatchDetail !== null && props.cloudMismatchDetail !== undefined ? (
+            <p
+              className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="review-detail-policy-pack-cloud-mismatch"
+            >
+              {POLICY_PACK_CLOUD_MISMATCH_MESSAGE} {props.cloudMismatchDetail}
+            </p>
+          ) : null}
           {mappedCount !== null && totalCount !== null ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-detail-policy-pack-impact-counts">
               {mappedCount} of {totalCount} surfaced finding{totalCount === 1 ? "" : "s"} map to a policy rule on this

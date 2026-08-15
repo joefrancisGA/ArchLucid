@@ -88,6 +88,12 @@ test.describe("operator shell smoke — core proof path", () => {
     await expect(page.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN })).toBeVisible();
 
     await page.goto(
+      `/governance/sealed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}/artifacts/cost-summary`,
+    );
+    await expect(page.getByTestId("signed-record-artifact-page-title")).toBeVisible();
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto(
       `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent(SCREENSHOT_FINDING_ID)}`,
     );
     await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
@@ -143,6 +149,15 @@ test.describe("operator shell smoke — advanced surface path", () => {
 
     await page.goto("/governance/policy-packs");
     await expect(page.getByRole("heading", { level: 2, name: /^Policy packs$/i })).toBeVisible();
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/governance/sealed-records");
+    await expect(page.getByTestId("signed-records-list-page-title")).toHaveText("Sealed review records");
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/governance/standards-and-rules");
+    await expect(page.getByRole("heading", { level: 2, name: /^Standards & rules$/i })).toBeVisible();
+    await expect(page.getByTestId("governance-standards-rules-breadcrumb")).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
   });
 });

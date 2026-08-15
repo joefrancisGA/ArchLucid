@@ -1,14 +1,14 @@
-"use client";
+﻿"use client";
 
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { clusterReviewFindingsByRootCause } from "@/lib/review-quality/compare-quality-delta";
+import { listOpenRootCauseClusters } from "@/lib/review-quality/compare-quality-delta";
 import { formatFindingsVisibilitySummaryLine } from "@/lib/findings/finding-confidence-filter";
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
@@ -19,6 +19,7 @@ import {
   isReviewFindingDispositionClosed,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
+import { writeFindingJobViewToUrl } from "@/lib/findings/review-findings-job-view-url";
 import {
   compareFindingsByTrustThenSeverity,
   reviewFindingMatchesProvenanceFilter,
@@ -118,7 +119,7 @@ function FindingsSortSelect(props: {
         <option value="trust-then-severity">Trust then severity</option>
         <option value="severity-desc">Severity (high first)</option>
         <option value="severity-asc">Severity (low first)</option>
-        <option value="title-asc">Title (A–Z)</option>
+        <option value="title-asc">Title (AΓÇôZ)</option>
       </select>
     </div>
   );
@@ -216,19 +217,19 @@ export function filterFindingsForToolbar(
       return false;
     }
 
-    if (filter === "critical" && finding.severityValue < 3) {
+    if (filter === "critical" && (finding.severityValue < 3 || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
-    if (filter === "high" && finding.severityValue !== 2) {
+    if (filter === "high" && (finding.severityValue !== 2 || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
-    if (filter === "medium" && finding.severityValue !== 1) {
+    if (filter === "medium" && (finding.severityValue !== 1 || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
-    if (filter === "low" && finding.severityValue > 0) {
+    if (filter === "low" && (finding.severityValue > 0 || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
@@ -331,39 +332,52 @@ export function deriveFindingsToolbarStatusCounts(findings: readonly QuickDecisi
   return { unresolved, awaitingDecision, resolved };
 }
 
-export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
-  const layout = props.layout ?? "full";
-  const severityCounts = useMemo(() => {
-    const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+export function deriveFindingsToolbarSeverityCounts(findings: readonly QuickDecisionFinding[]): {
+  readonly critical: number;
+  readonly high: number;
+  readonly medium: number;
+  readonly low: number;
+} {
+  const counts = { critical: 0, high: 0, medium: 0, low: 0 };
 
-    for (const finding of props.findings) {
-      if (finding.isMuted) {
-        continue;
-      }
-
-      if (finding.severityValue >= 3) {
-        counts.critical += 1;
-      } else if (finding.severityValue === 2) {
-        counts.high += 1;
-      } else if (finding.severityValue === 1) {
-        counts.medium += 1;
-      } else {
-        counts.low += 1;
-      }
+  for (const finding of findings) {
+    if (finding.isMuted || isReviewFindingDispositionClosed(finding)) {
+      continue;
     }
 
-    return counts;
-  }, [props.findings]);
+    if (finding.severityValue >= 3) {
+      counts.critical += 1;
+    } else if (finding.severityValue === 2) {
+      counts.high += 1;
+    } else if (finding.severityValue === 1) {
+      counts.medium += 1;
+    } else {
+      counts.low += 1;
+    }
+  }
+
+  return counts;
+}
+
+export function deriveOpenRootCauseClusterCount(findings: readonly QuickDecisionFinding[]): number {
+  return listOpenRootCauseClusters(findings).length;
+}
+
+export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
+  const layout = props.layout ?? "full";
+  const severityCounts = useMemo(
+    () => deriveFindingsToolbarSeverityCounts(props.findings),
+    [props.findings],
+  );
 
   const statusCounts = useMemo(
     () => deriveFindingsToolbarStatusCounts(props.findings),
     [props.findings],
   );
-  const rootCauseClusterCount = useMemo(() => {
-    const clusters = clusterReviewFindingsByRootCause(props.findings);
-
-    return [...clusters.values()].filter((members) => members.length > 1).length;
-  }, [props.findings]);
+  const rootCauseClusterCount = useMemo(
+    () => deriveOpenRootCauseClusterCount(props.findings),
+    [props.findings],
+  );
   const visibilitySummaryLine = formatFindingsVisibilitySummaryLine(
     props.renderedFindingCount ?? props.findings.length,
     props.toolbarFilteredCount ?? props.findings.length,
@@ -666,7 +680,9 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
   );
 }
 
-export function useRunDetailFindingsToolbarState(): {
+export function useRunDetailFindingsToolbarState(options?: {
+  readonly initialJobView?: FindingJobView;
+}): {
   readonly filter: RunDetailFindingsFilterKind;
   readonly setFilter: (filter: RunDetailFindingsFilterKind) => void;
   readonly jobView: FindingJobView;
@@ -685,7 +701,13 @@ export function useRunDetailFindingsToolbarState(): {
   readonly setGroundingFilter: (filter: FindingGroundingFilter) => void;
 } {
   const [filter, setFilter] = useState<RunDetailFindingsFilterKind>("all");
-  const [jobView, setJobView] = useState<FindingJobView>(DEFAULT_FINDING_JOB_VIEW);
+  const [jobView, setJobViewState] = useState<FindingJobView>(
+    options?.initialJobView ?? DEFAULT_FINDING_JOB_VIEW,
+  );
+  const setJobView = useCallback((next: FindingJobView): void => {
+    setJobViewState(next);
+    writeFindingJobViewToUrl(next);
+  }, []);
   const [ownerFilter, setOwnerFilter] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");

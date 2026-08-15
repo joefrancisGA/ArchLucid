@@ -2,13 +2,16 @@ import type { PolicyPack } from "@/types/policy-packs";
 
 import { isActiveSamplePolicyPackId } from "@/lib/samples/registry";
 import { RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL } from "@/lib/responsible-ai-policy-pack-detail-content";
+import { POLICY_PACK_TYPE_PLATFORM_DEFAULT } from "@/lib/policy/policy-pack-type-label";
 
 export type PolicyPackDetailKind = "responsible-ai" | "healthcare-claims" | "unknown";
 
+/** Canonical bundled Responsible AI template id (DEFAULT_POLICY_PACKS_V1.md). */
+export const BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID = "ai-governance-responsible-ai-v1";
+
 const RESPONSIBLE_AI_POLICY_PACK_ID_ALIASES = new Set([
-  "1",
+  BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID,
   "ai-governance-responsible-ai",
-  "ai-governance-responsible-ai-v1",
   "responsible-ai",
   "responsible-ai-v1",
 ]);
@@ -21,20 +24,18 @@ function isHealthcareClaimsPolicyPackId(policyPackId: string): boolean {
   return isActiveSamplePolicyPackId(policyPackId);
 }
 
-function isResponsibleAiPolicyPackName(name: string): boolean {
-  const normalized = normalizePolicyPackToken(name);
-
-  return normalized.includes("responsible ai") || normalized.includes("ai governance");
+export function isResponsibleAiPolicyPackId(policyPackId: string): boolean {
+  return RESPONSIBLE_AI_POLICY_PACK_ID_ALIASES.has(normalizePolicyPackToken(policyPackId));
 }
 
-export function isResponsibleAiPolicyPackId(policyPackId: string): boolean {
-  const normalized = normalizePolicyPackToken(policyPackId);
+function isPlatformDefaultResponsibleAiPack(pack: PolicyPack): boolean {
+  const packType = pack.packType?.trim() ?? "";
 
-  if (RESPONSIBLE_AI_POLICY_PACK_ID_ALIASES.has(normalized)) {
-    return true;
+  if (packType !== POLICY_PACK_TYPE_PLATFORM_DEFAULT) {
+    return false;
   }
 
-  return normalized.includes("responsible-ai") || normalized.includes("ai-governance");
+  return isResponsibleAiPolicyPackId(pack.policyPackId);
 }
 
 export function resolvePolicyPackDetailKind(policyPackId: string, pack: PolicyPack | null): PolicyPackDetailKind {
@@ -46,12 +47,8 @@ export function resolvePolicyPackDetailKind(policyPackId: string, pack: PolicyPa
     return "responsible-ai";
   }
 
-  if (pack !== null && isResponsibleAiPolicyPackName(pack.name)) {
+  if (pack !== null && isPlatformDefaultResponsibleAiPack(pack)) {
     return "responsible-ai";
-  }
-
-  if (pack !== null && isHealthcareClaimsPolicyPackId(pack.name)) {
-    return "healthcare-claims";
   }
 
   return "unknown";
@@ -83,7 +80,7 @@ export function resolvePolicyPackDetailBreadcrumbLabel(policyPackId: string, pac
  */
 export function isBundledResponsibleAiPlatformPack(policyPackId: string, pack: PolicyPack | null): boolean {
   if (pack !== null) {
-    return (pack.packType?.trim() ?? "") === "PlatformDefault";
+    return isPlatformDefaultResponsibleAiPack(pack);
   }
 
   return isResponsibleAiPolicyPackId(policyPackId);

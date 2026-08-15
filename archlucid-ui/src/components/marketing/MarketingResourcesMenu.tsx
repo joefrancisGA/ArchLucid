@@ -12,10 +12,10 @@ import { cn } from "@/lib/utils";
 const resourcesMenuId = "marketing-resources-menu";
 
 type MarketingResourcesMenuProps = {
-  liveDemoLinked: boolean;
+  seeItLinked: boolean;
 };
 
-export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMenuProps) {
+export function MarketingResourcesMenu({ seeItLinked }: MarketingResourcesMenuProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -126,7 +126,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
             Trust Center
           </Link>
           <Link
-            href="/security-trust"
+            href="/assurance-status"
             role="menuitem"
             className={cn(
               "block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900",
@@ -158,7 +158,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
           >
             Why ArchLucid
           </Link>
-          {liveDemoLinked ? (
+          {seeItLinked ? (
             <Link
               href={MARKETING_CANONICAL_DEMO_PATH}
               role="menuitem"

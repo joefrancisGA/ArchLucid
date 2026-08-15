@@ -32,14 +32,14 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
                 CaseId = "holdout-rpo-backup-mismatch",
                 SourceText = "RPO is 15 minutes. Database backups run nightly only. No transaction log shipping.",
                 ExpectedElementKinds = [ArchitectureElementKind.RecoveryObjective, ArchitectureElementKind.Constraint],
-                ExpectedNames = ["RPO", "backup"]
+                ExpectedNames = ["Recovery objective", "backup"]
             },
             new ExtractionFidelityCase
             {
                 CaseId = "holdout-intentional-tradeoff",
                 SourceText = "We accept single-region deployment to reduce cost; regional outage risk is an approved trade-off.",
                 ExpectedElementKinds = [ArchitectureElementKind.TradeOff, ArchitectureElementKind.Decision],
-                ExpectedNames = ["trade-off", "single-region"]
+                ExpectedNames = ["trade-off", "Single-region"]
             }
         ];
     }
@@ -71,7 +71,19 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
                 MutationId = "mutate-data-regulated",
                 Description = "Change data from public to regulated.",
                 ApplyDelta = "data-classification:regulated"
-            }
+            },
+            new BenchmarkMutation
+            {
+                MutationId = "mutate-add-authentication",
+                Description = "Add explicit authentication control evidence.",
+                ApplyDelta = "add:authentication:required"
+            },
+            new BenchmarkMutation
+            {
+                MutationId = "mutate-remove-replication",
+                Description = "Remove replication evidence.",
+                ApplyDelta = "remove:replication"
+            },
         ];
     }
 
@@ -154,6 +166,13 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
         return _extractionFidelityBenchmark.Score(router);
     }
 
+    public IReadOnlyList<ExtractionFidelityScore> ScoreHeldOutExtraction(IDifficultyBasedExtractionRouter router)
+    {
+        ArgumentNullException.ThrowIfNull(router);
+
+        return _extractionFidelityBenchmark.ScoreCases(router, GetHeldOutMicrocases());
+    }
+
     public bool MutationChangesFindings(
         ArchitectureKnowledgeModel beforeModel,
         BenchmarkMutation mutation,
@@ -203,7 +222,8 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
                     ExtractionConfidence = e.ExtractionConfidence,
                     SourcePassageIds = [.. e.SourcePassageIds],
                     RelatedElementIds = [.. e.RelatedElementIds],
-                    Properties = new Dictionary<string, string>(e.Properties)
+                    Properties = new Dictionary<string, string>(e.Properties),
+                    LifecycleScope = e.LifecycleScope,
                 })
                 .ToList(),
             DeclaredPriorities = [.. source.DeclaredPriorities],
@@ -284,6 +304,37 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
                     Confidence = 1.0
                 }
             });
+
+            return;
+        }
+
+        if (applyDelta.StartsWith("add:authentication:", StringComparison.OrdinalIgnoreCase))
+        {
+            model.Elements.Add(new ArchitectureModelElement
+            {
+                ElementId = Guid.NewGuid().ToString("N"),
+                Kind = ArchitectureElementKind.TrustBoundary,
+                Name = "Authentication required",
+                Description = applyDelta,
+                ExtractionConfidence = 1.0,
+                Properties = new Dictionary<string, string> { ["authentication"] = "required" },
+                Provenance = new ClaimProvenance
+                {
+                    Origin = ClaimOrigin.UserAsserted,
+                    SupportStatus = SupportStatus.DirectlyEstablished,
+                    Confidence = 1.0
+                }
+            });
+
+            return;
+        }
+
+        if (applyDelta.StartsWith("remove:replication", StringComparison.OrdinalIgnoreCase))
+        {
+            model.Elements.RemoveAll(element =>
+                element.Name.Contains("replication", StringComparison.OrdinalIgnoreCase));
+
+            return;
         }
     }
 

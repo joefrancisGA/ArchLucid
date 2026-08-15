@@ -1,32 +1,13 @@
 import type { Redirect } from "next/dist/lib/load-custom-routes";
 
-// Relative path required: next.config.ts loads this file via Node/transpile-config,
-// which does not resolve the `@/` tsconfig alias.
-import {
-  MARKETING_CANONICAL_DEMO_PATH,
-  MARKETING_CANONICAL_GET_STARTED_PATH,
-} from "../marketing/marketing-entry-spine";
-
 /**
  * TB-2234 / TB-2236 — Allowlisted permanent bookmark redirects.
  * IA batch 4 retired blanket next.config redirects; these rows are explicit owner-approved shims only.
+ *
+ * The retired try-it routes (`/try`, `/live-demo`, `/demo/preview`) are deliberately absent: they
+ * were never durable bookmarks, so they 404 instead of costing every visitor a redirect hop.
  */
 export const BOOKMARK_PERMANENT_REDIRECTS: Redirect[] = [
-  {
-    source: "/try",
-    destination: MARKETING_CANONICAL_GET_STARTED_PATH,
-    permanent: true,
-  },
-  {
-    source: "/live-demo",
-    destination: MARKETING_CANONICAL_DEMO_PATH,
-    permanent: true,
-  },
-  {
-    source: "/demo/preview",
-    destination: MARKETING_CANONICAL_DEMO_PATH,
-    permanent: true,
-  },
   {
     source: "/runs/:reviewId",
     destination: "/architecture/reviews/:reviewId",
@@ -55,6 +36,11 @@ export const BOOKMARK_PERMANENT_REDIRECTS: Redirect[] = [
   {
     source: "/governance/signed-records/:path*",
     destination: "/governance/sealed-records/:path*",
+    permanent: true,
+  },
+  {
+    source: "/security-trust",
+    destination: "/assurance-status",
     permanent: true,
   },
 ];

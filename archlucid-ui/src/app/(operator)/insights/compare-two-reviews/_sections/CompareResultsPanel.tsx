@@ -36,8 +36,12 @@ import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-
 import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
 import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
 import { resolveCompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
-import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
+import {
+  buildCompareNewFindingTrustLaneRows,
+  deriveCompareQualityDeltaFromGolden,
+} from "@/lib/review-quality/compare-quality-delta";
 import { useCompareGovernanceDiff } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff";
+import { useCompareFindingCorrelation } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFindingCorrelation";
 
 export type CompareResultsPanelProps = {
   showStaleInputsWarning: boolean;
@@ -128,6 +132,12 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
     golden !== null ? golden.baseRunId : null,
     golden !== null ? golden.targetRunId : null,
   );
+  const findingCorrelationState = useCompareFindingCorrelation(
+    golden !== null ? golden.baseRunId : null,
+    golden !== null ? golden.targetRunId : null,
+  );
+  const newFindingTrustLanes =
+    golden !== null ? buildCompareNewFindingTrustLaneRows(findingCorrelationState.lifecycleRecords) : [];
   const usesCurrentEffectiveOnly = governanceDiffState.view?.usesCurrentEffectiveOnly === true;
   const hasAiNarrative = comparisonNarrative !== null || aiExplanation !== null;
   // Keep trust + verdict tied to loaded golden results, not picker match — otherwise
@@ -200,7 +210,10 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       ) : null}
 
       {golden !== null ? (
-        <CompareQualityDeltaPanel counts={deriveCompareQualityDeltaFromGolden(golden)} />
+        <CompareQualityDeltaPanel
+          counts={deriveCompareQualityDeltaFromGolden(golden)}
+          newFindingTrustLanes={newFindingTrustLanes}
+        />
       ) : null}
 
       {showStaleInputsWarning && (
@@ -429,6 +442,8 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             baselineRunId={golden.baseRunId}
             targetRunId={golden.targetRunId}
             preloaded={governanceDiffState}
+            baselineRequestId={leftPickedSummary?.requestId}
+            targetRequestId={rightPickedSummary?.requestId}
           />
         ) : null}
 

@@ -3,7 +3,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const GET_STARTED_CANONICAL_PATH = "/get-started" as const;
 
-export const GET_STARTED_CLAIM_DISCIPLINE =
+/** Body for demoted scope disclosure (replaces footer amber orientation callout). */
+export const GET_STARTED_SCOPE_DISCLOSURE_BODY =
   "This get-started page orients buyers toward a guided trial or illustrative sample review — it is marketing first-run orientation, not a sealed-review diligence Sources package from your tenant. Open Assurance status or start an evaluation when you need live workspace evidence.";
 
 export const GET_STARTED_SOURCES_INTRO =
@@ -14,7 +15,7 @@ export const GET_STARTED_SOURCES_INTRO =
 export const GET_STARTED_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Product FAQ", href: "/faq" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Trust Center", href: "/trust" },
   { label: "Getting started help", href: inAppHelpHref("getting-started") },
 ] as const;

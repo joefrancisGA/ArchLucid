@@ -6,15 +6,18 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildCompareQualityDeltaRows,
   type CompareQualityDeltaCounts,
+  type CompareTrustLaneBreakdownRow,
 } from "@/lib/review-quality/compare-quality-delta";
 
 export type CompareQualityDeltaPanelProps = {
   readonly counts: CompareQualityDeltaCounts;
+  readonly newFindingTrustLanes?: readonly CompareTrustLaneBreakdownRow[];
 };
 
 /** TB-2317: stratified auditable improvement counts on compare. */
 export function CompareQualityDeltaPanel(props: CompareQualityDeltaPanelProps): React.JSX.Element {
   const rows = buildCompareQualityDeltaRows(props.counts);
+  const trustLanes = props.newFindingTrustLanes ?? [];
 
   return (
     <section
@@ -44,6 +47,29 @@ export function CompareQualityDeltaPanel(props: CompareQualityDeltaPanelProps): 
           </div>
         ))}
       </dl>
+      {trustLanes.length > 0 ? (
+        <div className="mt-4" data-testid="compare-quality-delta-trust-lanes">
+          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+            New findings by producing lane
+          </h3>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Origin × grounding for each finding appears on inspect — these counts are lane stratification only.
+          </p>
+          <dl className="m-0 mt-2 grid gap-2 sm:grid-cols-2">
+            {trustLanes.map((lane) => (
+              <div
+                key={lane.label}
+                className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+              >
+                <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{lane.label}</dt>
+                <dd className={cn("m-0 mt-0.5 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  {lane.count}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ) : null}
     </section>
   );
 }

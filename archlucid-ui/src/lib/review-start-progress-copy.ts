@@ -60,6 +60,10 @@ export const REVIEW_START_STEP_VALIDATION_MESSAGE = "Fix the highlighted fields 
 export const REVIEW_START_SUBMIT_VALIDATION_MESSAGE =
   "Fix validation errors before creating the architecture review.";
 
+import { POLICY_PACK_CLOUD_MISMATCH_MESSAGE } from "@/lib/review-quality/review-intake-quality-gates";
+
+export const REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE = POLICY_PACK_CLOUD_MISMATCH_MESSAGE;
+
 export const REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE =
   "LLM Execution budget exceeded for this month. You may still view previous reviews.";
 

@@ -127,6 +127,34 @@ public sealed class SqlImmutableSourceStore : IImmutableSourceStore
         return contentText.Contains(expectedQuote, StringComparison.OrdinalIgnoreCase);
     }
 
+    public string? TryReadSourceExcerpt(string artifactId, int maxChars = 512)
+    {
+        return TryReadSourceExcerptAsync(artifactId, maxChars).GetAwaiter().GetResult();
+    }
+
+    public async Task<string?> TryReadSourceExcerptAsync(
+        string artifactId,
+        int maxChars = 512,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(artifactId))
+        {
+            return null;
+        }
+
+        (ImmutableSourceArtifact Artifact, byte[] Content)? stored =
+            await _persistence.GetSourceByArtifactIdAsync(artifactId, cancellationToken);
+
+        if (stored is null)
+        {
+            return null;
+        }
+
+        string contentText = Encoding.UTF8.GetString(stored.Value.Content);
+
+        return ImmutableSourceExcerptReader.Trim(contentText, maxChars);
+    }
+
     private static string ComputeSha256Hex(byte[] content)
     {
         byte[] hash = SHA256.HashData(content);

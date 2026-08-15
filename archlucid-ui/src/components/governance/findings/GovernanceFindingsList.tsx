@@ -16,6 +16,8 @@ import { GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE } from "@/lib/governance/go
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
+import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
+
 import { GovernanceFindingsQueueDesktopTable } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueDesktopTable";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
@@ -25,6 +27,7 @@ export type GovernanceFindingsListProps = {
   readonly displayedRows: readonly GovernanceFindingQueueRow[];
   readonly buyerPolishedShell: boolean;
   readonly groupByResource: boolean;
+  readonly queueMode?: GovernanceFindingsQueueMode;
   readonly selectedFindingIds: ReadonlySet<string>;
   readonly onSelectionChange: (next: ReadonlySet<string>) => void;
   readonly onBulkApplied: () => void;
@@ -35,6 +38,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
     displayedRows,
     buyerPolishedShell,
     groupByResource,
+    queueMode = "tenant",
     selectedFindingIds,
     onSelectionChange,
     onBulkApplied,
@@ -177,6 +181,7 @@ function GovernanceFindingsListComponent(props: GovernanceFindingsListProps): Re
         rows={displayedRows}
         buyerPolishedShell={buyerPolishedShell}
         groupByResource={groupByResource}
+        queueMode={queueMode}
         selectedFindingIds={selectedFindingIds}
         onSelectionChange={onSelectionChange}
         isRowNewSinceLastVisit={isGovernanceRowNewSinceLastVisit}

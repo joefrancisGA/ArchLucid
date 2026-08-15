@@ -13,7 +13,7 @@ export const MARKETING_SITEMAP_PATHNAMES: readonly string[] = [
   "/trust",
   "/privacy",
   "/accessibility",
-  "/security-trust",
+  "/assurance-status",
   "/compliance-journey",
   "/example-roi-bulletin",
   "/signup",

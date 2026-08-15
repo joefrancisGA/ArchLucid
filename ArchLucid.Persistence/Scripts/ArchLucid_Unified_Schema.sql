@@ -213,6 +213,9 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ProvenanceCorrelationId') IS NULL
         ALTER TABLE dbo.AgentExecutionTraces ADD ProvenanceCorrelationId NVARCHAR(260) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ProviderConnectionId') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD ProviderConnectionId NVARCHAR(64) NULL;
 END
 
 GO
@@ -4981,6 +4984,36 @@ BEGIN
         CONSTRAINT CK_TenantItsmConnectorConnections_OAuthRefreshNoUrl2
             CHECK (OAuthRefreshTokenKeyVaultSecretName IS NULL OR OAuthRefreshTokenKeyVaultSecretName NOT LIKE N'%://%'),
         CONSTRAINT FK_TenantItsmConnectorConnections_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+END;
+
+GO
+
+/* 313: Per-tenant Azure OpenAI BYO connection references (see Migrations/313_TenantAzureOpenAiConnections.sql). */
+IF OBJECT_ID(N'dbo.TenantAzureOpenAiConnections', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantAzureOpenAiConnections
+    (
+        TenantId                   UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_TenantAzureOpenAiConnections2 PRIMARY KEY,
+        Endpoint                   NVARCHAR(500)    NOT NULL,
+        AuthMode                   NVARCHAR(32)     NOT NULL
+            CONSTRAINT DF_TenantAzureOpenAiConnections_AuthMode2 DEFAULT (N'ApiKey'),
+        ApiKeyKeyVaultSecretName   NVARCHAR(500)    NOT NULL,
+        DeploymentsJson            NVARCHAR(MAX)    NOT NULL,
+        IsEnabled                  BIT              NOT NULL
+            CONSTRAINT DF_TenantAzureOpenAiConnections_IsEnabled2 DEFAULT (1),
+        Label                      NVARCHAR(200)    NULL,
+        LastProbeSucceeded         BIT              NULL,
+        LastProbeMessage           NVARCHAR(1000)   NULL,
+        LastProbeUtc               DATETIME2(7)     NULL,
+        UpdatedUtc                 DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_TenantAzureOpenAiConnections_UpdatedUtc2 DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT CK_TenantAzureOpenAiConnections_AuthMode2
+            CHECK (AuthMode IN (N'ApiKey')),
+        CONSTRAINT CK_TenantAzureOpenAiConnections_ApiKeyNoUrl2
+            CHECK (ApiKeyKeyVaultSecretName NOT LIKE N'%://%'),
+        CONSTRAINT FK_TenantAzureOpenAiConnections_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
     );
 END;
 

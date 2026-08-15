@@ -16,5 +16,5 @@ export const SCIM_PROVISIONING_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Enterprise onboarding help", href: inAppHelpHref("enterprise-onboarding") },
   { label: "SSO wizard", href: "/administration/identity/sso-wizard" },
   { label: "Users", href: "/administration/users" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

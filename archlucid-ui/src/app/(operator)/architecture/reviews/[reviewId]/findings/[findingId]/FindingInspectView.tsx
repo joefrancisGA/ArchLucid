@@ -38,11 +38,13 @@ import {
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { StatedConstraintContext } from "@/lib/review-quality/assumption-and-severity";
 import { buildSeverityConstraintNoteForInspectPayload } from "@/lib/review-quality/finding-severity-constraint-note";
+import { classifyInspectPayloadJobView } from "@/lib/findings/finding-inspect-job-view";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { findingRecommendedActionParagraph } from "./_sections/finding-detail-route-display";
 
 import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeverityConstraintNote";
+import { FindingJobViewLaneCallout } from "@/components/findings/FindingJobViewLaneCallout";
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
@@ -171,6 +173,7 @@ export function FindingInspectView({
     payload !== null
       ? buildSeverityConstraintNoteForInspectPayload(payload, statedConstraintContext)
       : null;
+  const findingJobView = payload !== null ? classifyInspectPayloadJobView(payload) : null;
 
   return (
     <div className={cn("w-full max-w-[1440px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="finding-inspect-view">
@@ -238,6 +241,10 @@ export function FindingInspectView({
 
         {severityConstraintNote !== null ? (
           <FindingSeverityConstraintNote note={severityConstraintNote} />
+        ) : null}
+
+        {findingJobView !== null ? (
+          <FindingJobViewLaneCallout jobView={findingJobView} runId={runId} />
         ) : null}
       </section>
 

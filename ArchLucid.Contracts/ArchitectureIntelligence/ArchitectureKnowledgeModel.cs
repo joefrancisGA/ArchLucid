@@ -55,4 +55,13 @@ public class ArchitectureKnowledgeModel
         get;
         set;
     } = new();
+
+    /// <summary>
+    /// True when framing questions remain unanswered; specialist Fail conclusions are held as Indeterminate until complete.
+    /// </summary>
+    public bool IsProvisionalSynthesis
+    {
+        get;
+        set;
+    }
 }

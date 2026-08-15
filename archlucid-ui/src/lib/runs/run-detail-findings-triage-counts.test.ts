@@ -39,4 +39,21 @@ describe("deriveRunDetailFindingsTriageCounts", () => {
     expect(counts.hiddenByConfidenceCount).toBe(1);
     expect(formatFindingsExcludedSummaryLine(counts)).toBe("+1 muted · 1 low confidence excluded from triage");
   });
+
+  it("excludes disposition-closed findings from triage-visible count", () => {
+    const counts = deriveRunDetailFindingsTriageCounts([
+      finding({ findingId: "f-open", severityValue: 2, humanReviewStatus: 1 }),
+      finding({
+        findingId: "f-accepted",
+        severityValue: 3,
+        aiReasoning: {
+          wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+          reasoningTrace: "",
+        },
+      }),
+    ]);
+
+    expect(counts.triageVisibleCount).toBe(1);
+    expect(counts.dispositionClosedCount).toBe(1);
+  });
 });

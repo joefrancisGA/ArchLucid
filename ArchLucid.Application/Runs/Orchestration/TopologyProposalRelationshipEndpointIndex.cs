@@ -88,6 +88,36 @@ public static class TopologyProposalRelationshipEndpointIndex
         AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(datastore.DatastoreName), nodeId);
     }
 
+    public static void AddDeclaredManifestServiceEndpointAliases(
+        Dictionary<string, string> aliasToNodeId,
+        ManifestService service)
+    {
+        string nodeId = ResolveDeclaredServiceNodeId(service);
+
+        if (string.IsNullOrWhiteSpace(nodeId))
+            return;
+
+        AddResolutionAlias(aliasToNodeId, service.ServiceName, nodeId);
+        AddResolutionAlias(aliasToNodeId, service.ServiceId, nodeId);
+        AddResolutionAlias(aliasToNodeId, BuildSyntheticServiceNodeId(service.ServiceName), nodeId);
+        AddArmResourceIdResolutionAliases(aliasToNodeId, TrimManifestEndpointValue(service.ServiceId), nodeId);
+    }
+
+    public static void AddDeclaredManifestDatastoreEndpointAliases(
+        Dictionary<string, string> aliasToNodeId,
+        ManifestDatastore datastore)
+    {
+        string nodeId = ResolveDeclaredDatastoreNodeId(datastore);
+
+        if (string.IsNullOrWhiteSpace(nodeId))
+            return;
+
+        AddResolutionAlias(aliasToNodeId, datastore.DatastoreName, nodeId);
+        AddResolutionAlias(aliasToNodeId, datastore.DatastoreId, nodeId);
+        AddResolutionAlias(aliasToNodeId, BuildSyntheticDatastoreNodeId(datastore.DatastoreName), nodeId);
+        AddArmResourceIdResolutionAliases(aliasToNodeId, TrimManifestEndpointValue(datastore.DatastoreId), nodeId);
+    }
+
     public static List<ManifestRelationship> FilterKnownRelationships(
         IReadOnlyList<ManifestService> services,
         IReadOnlyList<ManifestDatastore> datastores,
@@ -611,6 +641,30 @@ public static class TopologyProposalRelationshipEndpointIndex
 
     private static string? BuildSyntheticDatastoreNodeId(string? datastoreName) =>
         string.IsNullOrWhiteSpace(datastoreName) ? null : $"ds-{datastoreName}";
+
+    private static string ResolveDeclaredServiceNodeId(ManifestService service)
+    {
+        string? serviceId = TrimManifestEndpointValue(service.ServiceId);
+
+        if (!string.IsNullOrWhiteSpace(serviceId))
+            return serviceId;
+
+        string? syntheticNodeId = BuildSyntheticServiceNodeId(TrimManifestEndpointValue(service.ServiceName));
+
+        return syntheticNodeId ?? string.Empty;
+    }
+
+    private static string ResolveDeclaredDatastoreNodeId(ManifestDatastore datastore)
+    {
+        string? datastoreId = TrimManifestEndpointValue(datastore.DatastoreId);
+
+        if (!string.IsNullOrWhiteSpace(datastoreId))
+            return datastoreId;
+
+        string? syntheticNodeId = BuildSyntheticDatastoreNodeId(TrimManifestEndpointValue(datastore.DatastoreName));
+
+        return syntheticNodeId ?? string.Empty;
+    }
 
     private static bool EndpointKeyIsClaimed(string? value, HashSet<string> claimedEndpointKeys) =>
         !string.IsNullOrWhiteSpace(value) && claimedEndpointKeys.Contains(value.Trim());

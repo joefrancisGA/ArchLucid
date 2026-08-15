@@ -1,9 +1,6 @@
 /** TB-1678 grandfathered `toLocale*` call sites without an explicit `timeZone`. Shrink when migrating to the shared formatters. */
 export const TIMESTAMP_TIMEZONE_BASELINE: readonly string[] = [
-  "app/(marketing)/demo/preview/_sections/DemoPreviewCompactTimeline.tsx",
   "app/(marketing)/demo/preview/_sections/DemoPreviewDeliverablesSection.tsx",
-  "app/(marketing)/live-demo/LiveDemoAuditTrailStepContent.tsx",
-  "app/(marketing)/live-demo/LiveDemoSignedRecordStepContent.tsx",
   "app/(operator)/administration/ai-usage/_sections/ai-usage/AiUsageCostBreakdownPanel.tsx",
   "app/(operator)/administration/ai-usage/_sections/ai-usage/AiUsageDailyUsagePanel.tsx",
   "app/(operator)/administration/billing/OperatorBillingWalletPanel.tsx",

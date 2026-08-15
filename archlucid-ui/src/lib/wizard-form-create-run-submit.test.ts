@@ -4,6 +4,7 @@ import { createArchitectureRun } from "@/lib/api";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
+  REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
   REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
 } from "@/lib/review-start-progress-copy";
 import { trackWizardCompleted } from "@/lib/telemetry";
@@ -25,9 +26,14 @@ vi.mock("@/lib/first-tenant-funnel-telemetry", () => ({
   recordFirstTenantFunnelEvent: vi.fn(),
 }));
 
-vi.mock("@/lib/wizard-payload", () => ({
-  wizardValuesToCreateRunPayload: vi.fn(() => ({ description: "payload" })),
-}));
+vi.mock("@/lib/wizard-payload", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/wizard-payload")>();
+
+  return {
+    ...actual,
+    wizardValuesToCreateRunPayload: vi.fn(() => ({ description: "payload" })),
+  };
+});
 
 const createArchitectureRunMock = vi.mocked(createArchitectureRun);
 const trackWizardCompletedMock = vi.mocked(trackWizardCompleted);
@@ -80,6 +86,23 @@ describe("submitWizardFormCreateRun", () => {
     });
 
     expect(result).toEqual({ ok: false, reason: "llm-budget" });
+    expect(createArchitectureRunMock).not.toHaveBeenCalled();
+  });
+
+  it("returns policy-cloud-mismatch when packs do not match cloud target", async () => {
+    const result = await submitWizardFormCreateRun({
+      trigger: vi.fn().mockResolvedValue(true),
+      getValues: vi.fn(() => ({
+        ...emptyValues(),
+        cloudProvider: "Aws",
+        policyReferences: ["cis-azure"],
+      })),
+      blocksLlmExecution: false,
+      payloadOptions: { requestSource: "wizard", focusedPilotModeEnabled: false },
+      wizardCompletedName: "QuickStart",
+    });
+
+    expect(result).toEqual({ ok: false, reason: "policy-cloud-mismatch" });
     expect(createArchitectureRunMock).not.toHaveBeenCalled();
   });
 
@@ -154,6 +177,27 @@ describe("submitQuickFamilyWizardCreateRun", () => {
     });
 
     expect(setStepValidationMessage).toHaveBeenCalledWith(REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
+    expect(setSubmitting).not.toHaveBeenCalled();
+
+    await submitQuickFamilyWizardCreateRun({
+      trigger: vi.fn().mockResolvedValue(true),
+      getValues: vi.fn(() => ({
+        ...emptyValues(),
+        cloudProvider: "Aws",
+        policyReferences: ["cis-azure"],
+      })),
+      blocksLlmExecution: false,
+      payloadOptions: { requestSource: "wizard", focusedPilotModeEnabled: false },
+      wizardCompletedName: "QuickStart",
+      setSubmitting,
+      setSubmitError,
+      setStepValidationMessage,
+      onRunCreated,
+    });
+
+    expect(setStepValidationMessage).toHaveBeenCalledWith(
+      expect.stringContaining(REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE),
+    );
     expect(setSubmitting).not.toHaveBeenCalled();
   });
 

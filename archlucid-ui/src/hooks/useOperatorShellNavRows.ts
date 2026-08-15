@@ -5,10 +5,10 @@ import { useMemo } from "react";
 
 import {
   useNavCallerAuthorityRank,
-  useNavCommittedArchitectureReview,
   useOperatorNavAuthority,
 } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
+import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effective-nav-committed-architecture-review";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 import { NAV_GROUPS } from "@/lib/nav-config";
@@ -42,7 +42,6 @@ type UseOperatorShellNavRowsResult = {
 export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const auditRunId = useOperatorShellAuditRunId();
   const callerAuthorityRank = useNavCallerAuthorityRank();
-  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const { currentPrincipal } = useOperatorNavAuthority();
   const { showFullNav: roleNavDensityShowFullNav, toggleShowFullNav: toggleRoleNavDensityShowFullNav } =
     useRoleNavDensityExpanded();
@@ -53,17 +52,27 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   // CTO demo presenter pack expands Graph / Governance without role-density collapse (TB-2139).
   const effectiveRoleNavDensityShowFullNav = roleNavDensityShowFullNav || ctoDemoNavExpandedEnv;
   const effectiveOperateUnlockPhase: OperateNavUnlockPhase = 0;
-  const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview || buyerPolishedShell;
+  const effectiveHasCommittedArchitectureReview = useEffectiveNavCommittedArchitectureReview();
   const omitAdminClusters = demoUi && !buyerPolishedShell;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
   return useMemo(() => {
-    const reviewNavRows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, callerAuthorityRank, "review-workflow", true);
+    const reviewNavRows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      callerAuthorityRank,
+      "review-workflow",
+      effectiveHasCommittedArchitectureReview,
+    );
 
     const adminNavRows: NavGroupWithVisibleLinks[] =
       omitAdminClusters
         ? []
-        : listNavGroupsVisibleInOperatorShell(NAV_GROUPS, callerAuthorityRank, "platform-admin", true);
+        : listNavGroupsVisibleInOperatorShell(
+            NAV_GROUPS,
+            callerAuthorityRank,
+            "platform-admin",
+            effectiveHasCommittedArchitectureReview,
+          );
 
     // Internal Operations is already behind the `isShowSystemAdministrationNavEnabled()` feature
     // flag — it is an employee-only surface.
@@ -73,7 +82,12 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     const systemAdminNavRows: NavGroupWithVisibleLinks[] =
       omitAdminClusters || !isShowSystemAdministrationNavEnabled() || hideInternalOperationsNav
         ? []
-        : listNavGroupsVisibleInOperatorShell(NAV_GROUPS, callerAuthorityRank, "system-admin", true);
+        : listNavGroupsVisibleInOperatorShell(
+            NAV_GROUPS,
+            callerAuthorityRank,
+            "system-admin",
+            effectiveHasCommittedArchitectureReview,
+          );
 
     const scopedRows = applyPatternLibraryNavGate(
       scopeOperatorShellNavRows(

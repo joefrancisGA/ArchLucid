@@ -63,7 +63,6 @@ archlucid-ui/src/components/CommandPalette.tsx
 archlucid-ui/src/components/CorePilotBuyerStepHint.tsx
 archlucid-ui/src/components/EmailRunToSponsorBanner.tsx
 archlucid-ui/src/components/ExecutiveValueNarrativeBanner.tsx
-archlucid-ui/src/components/ExecutiveWorkspaceHealthDashboard.tsx
 archlucid-ui/src/components/FindingAskInlinePanel.tsx
 archlucid-ui/src/components/FindingExplainPanel.tsx
 archlucid-ui/src/components/FindingExplainabilityDialog.tsx

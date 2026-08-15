@@ -16,5 +16,5 @@ export const TENANT_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Workspace and scope help", href: inAppHelpHref("scope") },
   { label: "Digests schedule", href: "/architecture/digests?tab=schedule" },
   { label: "Users", href: "/administration/users" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

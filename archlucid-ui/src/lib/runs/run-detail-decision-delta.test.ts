@@ -41,6 +41,43 @@ describe("run-detail-decision-delta", () => {
     expect(selected).toHaveLength(RUN_DETAIL_DECISION_DELTA_TOP_N);
   });
 
+  it("excludes disposition-closed findings from material decision delta selection", () => {
+    const findings: QuickDecisionFinding[] = [
+      makeFinding({
+        findingId: "accepted-critical",
+        severityValue: 4,
+        aiReasoning: {
+          wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+          reasoningTrace: "",
+        },
+      }),
+      makeFinding({ findingId: "open-high", severityValue: 2 }),
+    ];
+
+    const selected = selectMaterialDecisionDeltaFindings(findings);
+
+    expect(selected.map((row) => row.findingId)).toEqual(["open-high"]);
+  });
+
+  it("returns empty message when committed findings are only disposition-closed", () => {
+    const view = resolveRunDetailDecisionDeltaView(
+      [
+        makeFinding({
+          findingId: "accepted-critical",
+          severityValue: 4,
+          aiReasoning: {
+            wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+            reasoningTrace: "",
+          },
+        }),
+      ],
+      true,
+    );
+
+    expect(view?.rows).toEqual([]);
+    expect(view?.emptyMessage).toContain("No active findings");
+  });
+
   it("returns null view when review is not committed", () => {
     const view = resolveRunDetailDecisionDeltaView([makeFinding({ findingId: "a" })], false);
 

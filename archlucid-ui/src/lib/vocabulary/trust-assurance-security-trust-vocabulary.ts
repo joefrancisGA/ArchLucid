@@ -3,7 +3,7 @@
  *
  * Why three surfaces exist:
  * - Trust Center (`/trust`) is the public procurement trust pack and downloads.
- * - Assurance status (`/security-trust`) is the public assurance ladder / engagement
+ * - Assurance status (`/assurance-status`) is the public assurance ladder / engagement
  *   status for diligence reviewers.
  * - Security & Trust (`/administration/security-trust`) is the operator workspace
  *   hub for procurement-ready materials inside the product.

@@ -14,4 +14,7 @@ public static class ContextGraphPropertyKeys
 
     /// <summary>Pipe-separated topology categories from the prior committed context snapshot.</summary>
     public const string PriorTopologyCategories = "priorTopologyCategories";
+
+    /// <summary>Pipe-separated requirement names from the prior committed context snapshot.</summary>
+    public const string PriorRequirementNames = "priorRequirementNames";
 }

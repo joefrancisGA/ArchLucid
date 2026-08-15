@@ -1,7 +1,7 @@
 import type { ArchitectureDecisionRegisterEntry } from "@/lib/api/governance-stickiness-api";
 
 export type DecisionRegisterSummary = {
-  readonly signedDecisions: number;
+  readonly recordedDecisions: number;
   readonly recentDecisions: number;
   readonly highConfidenceDecisions: number;
   readonly decisionsNeedingReview: number;
@@ -38,6 +38,10 @@ function formatRecordedAtLabel(value: string | null | undefined): string {
 }
 
 export function isHighConfidenceDecision(decision: ArchitectureDecisionRegisterEntry): boolean {
+  if (decisionNeedsReview(decision)) {
+    return false;
+  }
+
   if (typeof decision.confidence === "number" && decision.confidence >= HIGH_CONFIDENCE_THRESHOLD) {
     return true;
   }
@@ -89,7 +93,7 @@ export function deriveDecisionRegisterSummary(
   }
 
   return {
-    signedDecisions: decisions.length,
+    recordedDecisions: decisions.length,
     recentDecisions,
     highConfidenceDecisions,
     decisionsNeedingReview,

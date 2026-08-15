@@ -13,20 +13,15 @@ import {
 } from "@/lib/advisory-scans-help-guide-content";
 
 describe("advisory-scans help negation drift guard", () => {
-  it("keeps overview positive-only and claim band as the single diligence negation", () => {
+  it("keeps overview positive-only and claim band as the capability boundary", () => {
     for (const phrase of ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS.overviewMustNotContain) {
       expect(ADVISORY_SCANS_HELP_OVERVIEW, `overview must not contain "${phrase}"`).not.toContain(phrase);
     }
 
-    expect(ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE).toContain(
+    expect(ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE).toBe(
       ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS.claimMustContain,
     );
-
-    const diligenceNegationCount =
-      (ADVISORY_SCANS_HELP_OVERVIEW.match(/Sources package/gi) ?? []).length +
-      (ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE.match(/Sources package/gi) ?? []).length;
-
-    expect(diligenceNegationCount).toBe(1);
+    expect(ADVISORY_SCANS_CLAIM_DISCIPLINE).toBe(ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS.claimMustContain);
   });
 
   it("keeps overview distinct from the page subtitle", () => {
@@ -60,8 +55,11 @@ describe("advisory-scans help negation drift guard", () => {
     const sourceHrefs = ADVISORY_SCANS_SOURCES.map((source) => source.href);
 
     expect(new Set(sourceHrefs).size).toBe(sourceHrefs.length);
+    expect(ADVISORY_SCANS_SOURCES).toHaveLength(4);
     expect(ADVISORY_SCANS_SOURCES.every((source) => source.when !== undefined)).toBe(true);
     expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "AI usage help")).toBe(true);
+    expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "Architecture review guide")).toBe(true);
+    expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "Audit trail help")).toBe(true);
     expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "Architecture reviews")).toBe(false);
     expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "Audit")).toBe(false);
   });

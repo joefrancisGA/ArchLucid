@@ -77,6 +77,30 @@ describe("RunDetailSponsorModeExplanationCard", () => {
     expect(screen.getByText(/not a legal or compliance attestation/i)).toBeInTheDocument();
   });
 
+  it("omits disposition-closed findings from top sponsor talking points", () => {
+    render(
+      <RunDetailSponsorModeExplanationCard
+        explanationSummary={summary}
+        findings={[
+          finding({
+            findingId: "accepted",
+            title: "Already accepted risk",
+            severityValue: 4,
+            aiReasoning: {
+              wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+              reasoningTrace: "",
+            },
+          }),
+          finding({ findingId: "open", title: "Fix public storage", severityValue: 2 }),
+        ]}
+        buyerPolishedArtifactTable={false}
+      />,
+    );
+
+    expect(screen.queryByText(/Already accepted risk/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Fix public storage/i)).toBeInTheDocument();
+  });
+
   it("caveats low-support explanations before sponsor send", () => {
     render(
       <RunDetailSponsorModeExplanationCard

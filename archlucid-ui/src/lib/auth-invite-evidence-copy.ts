@@ -14,6 +14,6 @@ export const AUTH_INVITE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Sign in", href: "/auth/signin" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Product FAQ", href: "/faq" },
 ] as const;

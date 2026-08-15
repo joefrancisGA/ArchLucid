@@ -58,43 +58,35 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         </div>
         <a
           aria-label="See a finalized sample review — open the public proof slice"
-          class="group block rounded-lg border border-neutral-200 bg-al-surface-raised text-left shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 marketing-hero-visual"
+          class="group block overflow-hidden rounded-lg border border-neutral-200 bg-al-surface-raised text-left shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 marketing-hero-visual"
           data-testid="why-hero-proof-card"
           href="/see-it"
         >
           <div
-            class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800"
+            class="relative aspect-[16/10] w-full bg-neutral-100 dark:bg-neutral-950"
           >
-            <p
-              class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
-            >
-              Healthcare Claims intake modernization
-            </p>
-            <p
-              class="m-0 mt-1 text-[15px] font-normal leading-6 text-al-text-secondary"
-            >
-              Review AL-2841 · 12 findings · 3 approvals · 47 evidence references
-            </p>
+            <img
+              alt="ArchLucid operator Home showing a finalized architecture review workspace"
+              class="object-cover object-top"
+              data-nimg="fill"
+              data-testid="why-hero-product-screenshot"
+              decoding="async"
+              sizes="(min-width: 1024px) 40vw, 100vw"
+              src="/_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=3840&q=75"
+              srcset="/_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=256&q=75 256w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=384&q=75 384w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=640&q=75 640w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=750&q=75 750w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=828&q=75 828w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=1080&q=75 1080w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=1200&q=75 1200w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=1920&q=75 1920w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=2048&q=75 2048w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=3840&q=75 3840w"
+              style="position: absolute; height: 100%; width: 100%; left: 0px; top: 0px; right: 0px; bottom: 0px; color: transparent;"
+            />
           </div>
           <div
-            class="space-y-3 px-4 py-4"
+            class="border-t border-neutral-200 px-4 py-3 dark:border-neutral-800"
           >
-            <div
-              class="flex flex-wrap items-center gap-2"
-            >
-              <span
-                class="rounded-md border border-neutral-200 bg-white px-2 py-0.5 text-[13px] font-semibold text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950"
-              >
-                Finalized and signed
-              </span>
-              <span
-                class="text-[15px] font-normal leading-6 text-al-text-secondary"
-              >
-                Sealed review record · Policy pack v1.2 · Fabricated sample data
-              </span>
-            </div>
             <p
-              class="m-0 group-hover:underline dark:text-teal-300 text-[15px] font-normal leading-6 text-al-text-secondary"
+              class="m-0 text-[15px] font-normal leading-6 text-al-text-secondary"
+            >
+              Healthcare Claims intake modernization — sample review with findings, approvals, and evidence trail
+            </p>
+            <p
+              class="m-0 mt-2 underline underline-offset-2 hover:text-[var(--al-accent-link-hover)] text-[15px] font-normal leading-6 text-al-text-secondary"
             >
               Inspect the full sample review →
             </p>
@@ -442,87 +434,6 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       Proof of diligence, not a performance guarantee: every finding traces to evidence, and the finalized package is hash-verified and auditable.
     </p>
   </section>
-  <div
-    class="mt-6 space-y-3 text-left"
-    data-testid="why-orientation"
-  >
-    <section
-      aria-labelledby="why-sources-heading"
-      class="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-      data-testid="why-sources"
-    >
-      <h2
-        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
-        id="why-sources-heading"
-      >
-        Sources for follow-up
-      </h2>
-      <p
-        class="m-0 mt-1 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
-      >
-        Use these evaluation links when the comparison story turns into a sample proof, signup, or assurance review.
-      </p>
-      <ul
-        class="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-[13px] font-normal leading-5 text-al-text-primary"
-      >
-        <li>
-          <a
-            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-            href="/see-it"
-          >
-            See a sample review
-          </a>
-        </li>
-        <li>
-          <a
-            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-            href="/signup"
-          >
-            Start evaluation
-          </a>
-        </li>
-        <li>
-          <a
-            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-            href="/get-started"
-          >
-            Get started
-          </a>
-        </li>
-        <li>
-          <a
-            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-            href="/security-trust"
-          >
-            Assurance status
-          </a>
-        </li>
-        <li>
-          <a
-            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-            href="/trust"
-          >
-            Trust Center
-          </a>
-        </li>
-      </ul>
-    </section>
-    <aside
-      class="rounded-md border border-neutral-200 bg-neutral-50/40 p-3 dark:border-neutral-700 dark:bg-neutral-900/30"
-      data-testid="why-claim-discipline"
-    >
-      <h2
-        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
-      >
-        About these comparisons
-      </h2>
-      <p
-        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
-      >
-        Product differentiation only — use your own evidence for formal evaluation. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.
-      </p>
-    </aside>
-  </div>
   <section
     aria-labelledby="why-vs-chat-assistant-heading"
     class="mt-12"
@@ -1233,7 +1144,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                     </a>
                     <a
                       class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                      href="/security-trust"
+                      href="/assurance-status"
                     >
                       Assurance status
                     </a>
@@ -1549,5 +1460,86 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       .
     </p>
   </section>
+  <div
+    class="mt-10 space-y-3 text-left"
+    data-testid="why-orientation"
+  >
+    <section
+      aria-labelledby="why-sources-heading"
+      class="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="why-sources"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+        id="why-sources-heading"
+      >
+        Sources for follow-up
+      </h2>
+      <p
+        class="m-0 mt-1 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        Use these evaluation links when the comparison story turns into a sample proof, signup, or assurance review.
+      </p>
+      <ul
+        class="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        <li>
+          <a
+            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+            href="/see-it"
+          >
+            See a sample review
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+            href="/signup"
+          >
+            Start evaluation
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+            href="/get-started"
+          >
+            Get started
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+            href="/assurance-status"
+          >
+            Assurance status
+          </a>
+        </li>
+        <li>
+          <a
+            class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+            href="/trust"
+          >
+            Trust Center
+          </a>
+        </li>
+      </ul>
+    </section>
+    <aside
+      class="rounded-md border border-neutral-200 bg-neutral-50/40 p-3 dark:border-neutral-700 dark:bg-neutral-900/30"
+      data-testid="why-claim-discipline"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+      >
+        About these comparisons
+      </h2>
+      <p
+        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        Product differentiation only — use your own evidence for formal evaluation. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.
+      </p>
+    </aside>
+  </div>
 </main>
 `;

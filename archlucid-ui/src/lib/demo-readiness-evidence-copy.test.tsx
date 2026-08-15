@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -11,14 +8,11 @@ import {
   DEMO_READINESS_SOURCES,
   DEMO_READINESS_SOURCES_INTRO,
 } from "@/lib/demo-readiness-evidence-copy";
+import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("demo-readiness-evidence-copy", () => {
   it("wires exports into the Demo readiness evidence strip registry", () => {
-    const registryPath = path.join(
-      process.cwd(),
-      "src/components/evidence-orientation/registry/claim-and-sources-strips.tsx",
-    );
-    const registrySource = readFileSync(registryPath, "utf8");
+    const registrySource = readClaimAndSourcesRegistrySource();
 
     expect(registrySource).toContain("demo-readiness-evidence-copy");
     expect(registrySource).toContain("DemoReadinessEvidenceOrientationStrip");

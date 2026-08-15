@@ -18,5 +18,5 @@ export const ITSM_OAUTH_CALLBACK_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Integration readiness", href: INTEGRATIONS_READINESS_PATH },
   { label: "How integration readiness works", href: inAppHelpHref("integration-readiness") },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

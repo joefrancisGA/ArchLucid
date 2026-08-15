@@ -10,6 +10,8 @@ export type OperatorPageFreshnessMetadataProps = {
   readonly children: ReactNode;
   readonly lastRefreshedAt: Date | null | undefined;
   readonly className?: string;
+  /** Accessible name when visible copy is abbreviated (P0-GOF-6). */
+  readonly ariaLabel?: string;
 };
 
 /**
@@ -23,7 +25,11 @@ export function OperatorPageFreshnessMetadata(
 
   if (props.lastRefreshedAt === null || props.lastRefreshedAt === undefined) {
     return (
-      <span className={className} data-testid={props.testId}>
+      <span
+        className={className}
+        data-testid={props.testId}
+        aria-label={props.ariaLabel}
+      >
         {props.children}
       </span>
     );
@@ -34,6 +40,7 @@ export function OperatorPageFreshnessMetadata(
       className={className}
       data-testid={props.testId}
       dateTime={props.lastRefreshedAt.toISOString()}
+      aria-label={props.ariaLabel}
     >
       {props.children}
     </time>

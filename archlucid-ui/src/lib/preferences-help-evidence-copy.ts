@@ -33,7 +33,7 @@ export const PREFERENCES_HELP_SOURCES: readonly EvidenceOrientationLink[] = [
   },
   {
     label: "Assurance status",
-    href: "/security-trust",
+    href: "/assurance-status",
     when: "Open assurance status when trust cites are needed for procurement",
   },
 ] as const;

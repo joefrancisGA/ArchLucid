@@ -12,6 +12,7 @@
 /coverage
 /playwright-report/
 /test-results/
+/e2e/reports/architecture-lifecycle-batch-*
 /.lighthouseci/
 /.lighthouseci-acceptance/
 

@@ -12,13 +12,15 @@ export const PRIVACY_POLICY_LAYOUT = {
   page: "privacy-policy-page w-full",
   skipLink:
     "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-neutral-900 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-600 dark:focus:bg-neutral-950 dark:focus:text-neutral-50",
-  grid: "grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,50rem)_minmax(12.5rem,15rem)] xl:items-start xl:gap-12",
+  grid: "grid grid-cols-1 gap-12 xl:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)] xl:items-start xl:gap-x-16 xl:gap-y-12",
   article:
-    "min-w-0 max-w-[50rem] flex-1 text-neutral-800 dark:text-neutral-200 print:max-w-none print:text-black",
-  header: "border-b border-neutral-200 pb-6 dark:border-neutral-800 print:border-neutral-300",
+    "min-w-0 flex-1 text-neutral-800 dark:text-neutral-200 print:max-w-none print:text-black",
+  header: "border-b border-neutral-200 pb-8 dark:border-neutral-800 print:border-neutral-300",
   title: cn(MARKETING_TYPOGRAPHY.pageTitle, "text-balance text-neutral-900 dark:text-neutral-50"),
-  lede: cn("mt-2 max-w-prose text-balance text-al-text-secondary", MARKETING_TYPOGRAPHY.body),
-  metaRow: cn("mt-3 flex flex-wrap gap-x-4 gap-y-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta),
+  lede: cn("mt-3 max-w-3xl text-balance text-al-text-secondary", MARKETING_TYPOGRAPHY.body),
+  metaRow: cn("mt-4 flex flex-wrap items-center gap-x-4 gap-y-1", MARKETING_TYPOGRAPHY.meta),
+  effectiveDate: cn("font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.body),
+  metaSecondary: "text-al-text-secondary",
   utilities: "mt-4 flex flex-wrap gap-2 print:hidden",
   utilityButton:
     "inline-flex items-center rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-800 shadow-sm transition-colors hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900",
@@ -41,11 +43,26 @@ export const PRIVACY_POLICY_LAYOUT = {
     "rounded-md border border-neutral-200 bg-white px-4 py-3 shadow-sm transition-colors hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700 dark:hover:bg-neutral-900/60",
   relatedCardTitle: cn("font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle),
   relatedCardPurpose: cn("mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta),
+  atGlance:
+    "mt-8 rounded-md border border-neutral-200 bg-neutral-50/80 px-5 py-4 dark:border-neutral-800 dark:bg-neutral-950/40 print:hidden",
+  atGlanceTitle: cn("font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle),
+  atGlanceNote: cn("mt-2 max-w-[68ch] text-al-text-secondary", MARKETING_TYPOGRAPHY.meta),
+  atGlanceList: cn("m-0 mt-4 max-w-[68ch] list-none space-y-3 p-0", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem] leading-7"),
+  atGlanceItemLabel: "font-semibold text-al-text-primary",
+  revisionSection: "mt-10 border-t border-neutral-200 pt-8 dark:border-neutral-800 print:hidden",
+  revisionTitle: cn(MARKETING_TYPOGRAPHY.cardTitle, "text-al-text-primary"),
+  revisionNote: cn("mt-2 max-w-[68ch] text-al-text-secondary", MARKETING_TYPOGRAPHY.meta),
+  revisionList: cn("m-0 mt-4 max-w-[68ch] list-none space-y-4 p-0", MARKETING_TYPOGRAPHY.body),
+  revisionItem: "border-l-2 border-neutral-200 pl-4 dark:border-neutral-800",
+  revisionItemMeta: cn("flex flex-wrap gap-x-3 gap-y-1", MARKETING_TYPOGRAPHY.meta),
+  revisionItemDate: "font-semibold text-al-text-primary",
+  revisionItemVersion: "text-al-text-secondary",
+  revisionItemSummary: cn("mt-1 leading-7 text-al-text-secondary", MARKETING_TYPOGRAPHY.body),
 } as const;
 
 export const PRIVACY_POLICY_TOC = {
   nav: cn(
-    "xl:sticky xl:self-start print:hidden",
+    "xl:sticky xl:self-start xl:pl-2 print:hidden",
     OPERATOR_SHELL_STICKY_TOP_CLASS,
     "xl:max-h-[calc(100dvh-var(--app-shell-sticky,6rem)-2rem)] xl:overflow-y-auto xl:overscroll-y-contain",
   ),
@@ -60,27 +77,28 @@ export const PRIVACY_POLICY_TOC = {
 
 export const PRIVACY_POLICY_PROSE = {
   root: "flex flex-col",
+  sectionHeadingRow: cn(
+    OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+    "group mt-14 pt-12 first:mt-0 first:pt-0 flex items-start justify-between gap-4",
+  ),
   sectionH2: cn(
-    OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-    "mt-12 border-t border-neutral-200 pt-10 first:mt-0 first:border-t-0 first:pt-0 dark:border-neutral-800",
     MARKETING_TYPOGRAPHY.sectionTitle,
-    "text-neutral-900 dark:text-neutral-50",
+    "min-w-0 flex-1 text-balance text-neutral-900 dark:text-neutral-50",
   ),
-  sectionH3: cn(
+  sectionH3Row: cn(
     OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-    "mt-8",
-    MARKETING_TYPOGRAPHY.cardTitle,
-    "text-al-text-primary",
+    "group mt-10 flex items-start justify-between gap-3",
   ),
-  paragraph: cn("my-4 max-w-prose leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
-  bulletList: cn("my-4 max-w-prose list-disc space-y-2 pl-6 leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
-  orderedList: cn("my-4 max-w-prose list-decimal space-y-2 pl-6 leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
+  sectionH3: cn(MARKETING_TYPOGRAPHY.cardTitle, "min-w-0 flex-1 text-al-text-primary"),
+  paragraph: cn("my-5 max-w-[68ch] leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
+  bulletList: cn("my-5 max-w-[68ch] list-disc space-y-2.5 pl-6 leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
+  orderedList: cn("my-5 max-w-[68ch] list-decimal space-y-2.5 pl-6 leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
   tableWrap:
-    "my-6 -mx-1 overflow-x-auto rounded-md border border-neutral-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-800",
-  table: cn("w-full min-w-[36rem] border-collapse text-left", MARKETING_TYPOGRAPHY.body),
+    "my-8 overflow-x-auto rounded-md border border-neutral-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-800",
+  table: cn("w-full min-w-0 border-collapse text-left sm:min-w-[32rem] xl:min-w-[42rem]", MARKETING_TYPOGRAPHY.body),
   tableHeadCell:
-    "border-b border-neutral-200 bg-neutral-100 px-4 py-3 font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900",
-  tableBodyCell: "border-b border-neutral-200 px-4 py-3 align-top dark:border-neutral-800",
+    "border-b border-neutral-200 bg-neutral-100 px-5 py-3.5 font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900",
+  tableBodyCell: "border-b border-neutral-200 px-5 py-3.5 align-top dark:border-neutral-800",
   tableRowOdd: "bg-white dark:bg-neutral-950",
   tableRowEven: "bg-neutral-50/80 dark:bg-neutral-900/50",
 } as const;

@@ -7,16 +7,6 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import {
-  EnterpriseTable,
-  EnterpriseTableBody,
-  EnterpriseTableCell,
-  EnterpriseTableHead,
-  EnterpriseTableHeadRow,
-  EnterpriseTableHeaderCell,
-  EnterpriseTableRow,
-} from "@/components/ui/enterprise-table";
-import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import {
@@ -32,6 +22,7 @@ import {
 } from "@/lib/policy/policy-packs-deep-link";
 import { resolveResponsibleAiPolicyRuleRows } from "@/lib/policy/responsible-ai-policy-pack-rules";
 import {
+  BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID,
   isBundledResponsibleAiPlatformPack,
 } from "@/lib/policy/policy-pack-detail-resolver";
 import {
@@ -60,6 +51,8 @@ import {
   RESPONSIBLE_AI_TECHNICAL_DETAILS_TITLE,
   RESPONSIBLE_AI_VIEW_TECHNICAL_DETAILS,
 } from "@/lib/responsible-ai-policy-pack-detail-content";
+
+import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
 
 type ResponsibleAiPolicyPackDetailProps = {
   readonly policyPackId: string;
@@ -295,43 +288,13 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{RESPONSIBLE_AI_POLICY_PACK_OVERVIEW}</p>
       </section>
 
-      <section className="space-y-3" aria-labelledby="policy-pack-rules-heading">
-        <div className="space-y-1">
-          <h3 id="policy-pack-rules-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-            Rules and controls
-          </h3>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-rules-intro">
-            {RESPONSIBLE_AI_RULES_TABLE_INTRO}
-          </p>
-          {rulesResolution.rulesSourceQualifier !== null ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-rules-source-qualifier">
-              {rulesResolution.rulesSourceQualifier}
-            </p>
-          ) : null}
-        </div>
-        <EnterpriseTable ariaLabel="Responsible AI policy rules" data-testid="policy-pack-rules-table">
-          <EnterpriseTableHead>
-            <EnterpriseTableHeadRow>
-              <EnterpriseTableHeaderCell>Rule name</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Requirement</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Evidence expected</EnterpriseTableHeaderCell>
-            </EnterpriseTableHeadRow>
-          </EnterpriseTableHead>
-          <EnterpriseTableBody>
-            {rulesResolution.rows.map((row) => (
-              <EnterpriseTableRow key={row.ruleKey}>
-                <EnterpriseTableCell>{row.ruleName}</EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  <SeverityTag severity={row.severity} />
-                </EnterpriseTableCell>
-                <EnterpriseTableCell>{row.requirement}</EnterpriseTableCell>
-                <EnterpriseTableCell>{row.evidenceExpected}</EnterpriseTableCell>
-              </EnterpriseTableRow>
-            ))}
-          </EnterpriseTableBody>
-        </EnterpriseTable>
-      </section>
+      <PolicyPackRulesTableSection
+        headingId="policy-pack-rules-heading"
+        heading="Rules and controls"
+        intro={RESPONSIBLE_AI_RULES_TABLE_INTRO}
+        rulesResolution={rulesResolution}
+        ariaLabel="Responsible AI policy rules"
+      />
 
       <section className="space-y-2" aria-labelledby="policy-pack-evidence-heading">
         <h3 id="policy-pack-evidence-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
@@ -371,7 +334,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
             </div>
             <div>
               <dt className="text-al-text-secondary">Template id</dt>
-              <dd className="m-0 font-mono text-al-text-primary">ai-governance-responsible-ai-v1</dd>
+              <dd className="m-0 font-mono text-al-text-primary">{BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID}</dd>
             </div>
             <div>
               <dt className="text-al-text-secondary">Curated rules artifact</dt>

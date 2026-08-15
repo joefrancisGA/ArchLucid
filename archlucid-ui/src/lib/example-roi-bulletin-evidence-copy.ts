@@ -19,7 +19,7 @@ export const EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF = inAppHelpHref(
 export const EXAMPLE_ROI_BULLETIN_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Pilot ROI measurement (help)", href: EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF },
   { label: "Sponsor report", href: "/insights/sponsor-report" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Product FAQ", href: "/faq" },
 ] as const;

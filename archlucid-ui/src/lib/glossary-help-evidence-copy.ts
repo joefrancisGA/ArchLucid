@@ -15,7 +15,7 @@ export const GLOSSARY_HELP_CLAIM_DISCIPLINE_TAIL =
 /** Inline follow-ups named in claim discipline — not a mid-page Sources block (TB-2092). */
 export const GLOSSARY_HELP_FOLLOW_UP_LINKS: readonly EvidenceSourceLink[] = [
   { label: "Getting started", href: inAppHelpHref("getting-started") },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
 ] as const;
 

@@ -16,11 +16,14 @@ export type NavRouteNamespaceException = {
   readonly exceptionReason: string;
 };
 
-/** Nav group → expected URL prefix(es). Route moves are TB-405–408; exceptions are explicit until then. */
+/**
+ * Nav group → expected URL prefix(es). One row per live group in `NAV_GROUPS`; a group with no row
+ * here fails `nav-route-namespace.test.ts` because `isNavHrefNamespaceAligned` treats a missing
+ * policy as unaligned. Cross-namespace hrefs must be registered in `NAV_ROUTE_NAMESPACE_EXCEPTIONS`.
+ */
 export const NAV_GROUP_CANONICAL_PREFIX_POLICIES: readonly NavGroupCanonicalPrefixPolicy[] = [
   { navGroupId: "pilot", canonicalPrefixes: null },
   { navGroupId: "operate-analysis", canonicalPrefixes: null },
-  { navGroupId: "operate-architect-advanced", canonicalPrefixes: null },
   { navGroupId: "operate-governance", canonicalPrefixes: ["/governance"] },
   { navGroupId: "operate-integrations", canonicalPrefixes: ["/integrations"] },
   { navGroupId: "operator-admin", canonicalPrefixes: ["/administration"] },

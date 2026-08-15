@@ -57,7 +57,6 @@ export default async function PricingPage(props: PricingPageProps) {
     <MarketingPageShell>
       {preferSalesLedQuoteCta ? <TrialNudgePricingQuoteFocus quoteSectionDomId="pricing-quote-request" /> : null}
       <PricingPageHero />
-      <PricingEvidenceOrientationStrip />
       <MarketingTierPricingSection
         sectionHeadingId="pricing-tier-grid-heading"
         sectionTitle="Pricing"
@@ -91,6 +90,7 @@ export default async function PricingPage(props: PricingPageProps) {
         }
         openOnMount={customPolicyPackQuoteInterest}
       />
+      <PricingEvidenceOrientationStrip />
     </MarketingPageShell>
   );
 }

@@ -38,6 +38,7 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
                     UncoveredRequirementCount = result.UnrelatedRequirementCount,
                     UncoveredRequirements = result.UncoveredRequirements
                 },
+                RelatedNodeIds = [.. result.UncoveredRequirements],
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = [.. result.UncoveredRequirements],

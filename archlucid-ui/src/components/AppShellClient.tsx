@@ -8,32 +8,32 @@ import { Suspense, useEffect, useLayoutEffect, useRef, useState, useCallback, ty
 import { usePathname, useRouter } from "next/navigation";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
-import { AppToaster } from "@/components/AppToaster";
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import { OperatorShellStatusQueryGate } from "@/components/shell/OperatorShellStatusQueryGate";
 import {
   AppShellIdleOverlaysDeferred,
+  AppShellKeyboardShortcutBoundaryDeferred,
   AppShellMainContentGateDeferred,
   AppShellTelemetryBundleDeferred,
   AppShellWorkspaceFooterDeferred,
+  AppToasterDeferred,
   AuthPanelDeferred,
+  AuthorityThemeToggleDeferred,
+  ColorModeToggleDeferred,
   DevTestingShellShortcutsDeferred,
+  OperatorShellAccessRedirectsHostDeferred,
   OperatorShellTopBarDeferred,
+  RouteAnnouncerDeferred,
   SessionIdleTimeoutGuardDeferred,
+  ShellThemePreferencesAppearanceVocabularyRailDeferred,
   SyncActiveRunFromPathnameDeferred,
 } from "@/components/shell/app-shell-deferred-chunks";
-import { AppShellKeyboardShortcutBoundary } from "@/components/shell/AppShellKeyboardShortcutBoundary";
-import { OperatorShellAccessRedirectsHost } from "@/components/shell/OperatorShellAccessRedirectsHost";
-import { ColorModeToggle } from "@/components/ColorModeToggle";
-import { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
-import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import {
   OperatorChromeModeProvider,
   useOperatorChromeMode,
 } from "@/components/operator/OperatorChromeModeContext";
 import { OperatorShellProviders } from "@/components/operator/OperatorShellProviders";
 import { OperatorShellDeferredChrome } from "@/components/operator/OperatorShellDeferredChrome";
-import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
@@ -303,8 +303,8 @@ function AppShellInner({ children }: AppShellClientProps) {
         <div className="w-full max-w-[560px]">
           {surfaceChildren}
         </div>
-        <AppToaster />
-        <RouteAnnouncer />
+        <AppToasterDeferred />
+        <RouteAnnouncerDeferred />
       </div>
     );
   }
@@ -313,7 +313,7 @@ function AppShellInner({ children }: AppShellClientProps) {
     return (
       <OperatorShellProviders>
         <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
-          {!deferChrome ? <OperatorShellAccessRedirectsHost /> : null}
+          {!deferChrome ? <OperatorShellAccessRedirectsHostDeferred /> : null}
           <AppShellTelemetryBundleDeferred />
           <SessionIdleTimeoutGuardDeferred />
           <TooltipProvider delayDuration={200}>
@@ -366,11 +366,11 @@ function AppShellInner({ children }: AppShellClientProps) {
                           <CircleHelp className="size-[18px]" aria-hidden />
                         </Button>
                       </ToolbarHelpTooltip>
-                      {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggle /> : null}
+                      {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggleDeferred /> : null}
                       <div className="relative flex items-center" data-testid="shell-theme-toggle-cluster">
-                        <ColorModeToggle />
+                        <ColorModeToggleDeferred />
                         {/* Sticky chrome stays one-row; teaching stays available to AT and tests. */}
-                        <ShellThemePreferencesAppearanceVocabularyRail
+                        <ShellThemePreferencesAppearanceVocabularyRailDeferred
                           currentSurfaceId="shell-theme-toggle"
                           className="sr-only"
                         />
@@ -384,7 +384,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                 className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_MAIN_PADDING_CLASS, "flex flex-1 flex-col")}
               >
                 <AppShellStatusBanners variant="minimal" />
-                <AppShellKeyboardShortcutBoundary onHelpRequested={openHelpSearch}>
+                <AppShellKeyboardShortcutBoundaryDeferred onHelpRequested={openHelpSearch}>
                   <main
                     id="main-content"
                     tabIndex={-1}
@@ -393,11 +393,11 @@ function AppShellInner({ children }: AppShellClientProps) {
                     <SyncActiveRunFromPathnameDeferred />
                     <AppShellMainContentGateDeferred>{children}</AppShellMainContentGateDeferred>
                   </main>
-                </AppShellKeyboardShortcutBoundary>
+                </AppShellKeyboardShortcutBoundaryDeferred>
               </div>
             </div>
-            <AppToaster />
-            <RouteAnnouncer />
+            <AppToasterDeferred />
+            <RouteAnnouncerDeferred />
             <TrialLimitModalHost />
             <AppShellHelpOverlays
               helpDocSearchOpen={helpDocSearchOpen}
@@ -416,7 +416,7 @@ function AppShellInner({ children }: AppShellClientProps) {
   return (
     <OperatorShellProviders>
       <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
-      {!deferChrome ? <OperatorShellAccessRedirectsHost /> : null}
+      {!deferChrome ? <OperatorShellAccessRedirectsHostDeferred /> : null}
       <AppShellTelemetryBundleDeferred />
       <DevTestingShellShortcutsDeferred />
       <SessionIdleTimeoutGuardDeferred />
@@ -452,7 +452,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               className={cn("flex min-h-0 min-w-0 flex-1 flex-col print:px-0", OPERATOR_SHELL_MAIN_PADDING_CLASS)}
             >
               <AppShellStatusBanners variant="full" />
-              <AppShellKeyboardShortcutBoundary onHelpRequested={openHelpSearch}>
+              <AppShellKeyboardShortcutBoundaryDeferred onHelpRequested={openHelpSearch}>
                 <main
                   id="main-content"
                   tabIndex={-1}
@@ -462,15 +462,15 @@ function AppShellInner({ children }: AppShellClientProps) {
                   <SyncActiveRunFromPathnameDeferred />
                   <AppShellMainContentGateDeferred>{children}</AppShellMainContentGateDeferred>
                 </main>
-              </AppShellKeyboardShortcutBoundary>
+              </AppShellKeyboardShortcutBoundaryDeferred>
             </div>
           </div>
           <div className="mt-auto shrink-0">
             <AppShellWorkspaceFooterDeferred hideWorkspaceHealthFooter={hideWorkspaceHealthFooter} />
           </div>
         </div>
-        <AppToaster />
-        <RouteAnnouncer />
+        <AppToasterDeferred />
+        <RouteAnnouncerDeferred />
         <TrialLimitModalHost />
         <AppShellHelpOverlays
           helpDocSearchOpen={helpDocSearchOpen}

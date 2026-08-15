@@ -22,7 +22,7 @@ export const UI_AUTHORITY_THEME_PILOT_ROUTE_PREFIXES = [
   "/architecture/sponsor-dashboard",
   "/insights/sponsor-report",
   "/governance/sealed-records",
-  "/security-trust",
+  "/assurance-status",
   "/administration/security-trust",
 ] as const;
 

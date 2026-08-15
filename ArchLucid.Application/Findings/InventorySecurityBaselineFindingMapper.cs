@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
@@ -11,7 +12,8 @@ internal static class InventorySecurityBaselineFindingMapper
         InventorySecurityBaselineFinding gap,
         string engineType,
         string findingType,
-        string cloudLabel)
+        string cloudLabel,
+        InventoryTopologyResourceNodeIndex topologyNodes)
     {
         return new Finding
         {
@@ -23,7 +25,7 @@ internal static class InventorySecurityBaselineFindingMapper
             Title = $"{cloudLabel} inventory security baseline gap: {gap.ResourceType}",
             Rationale =
                 $"{cloudLabel} inventory resources.json cross-check flagged a security baseline gap grounded in measured inventory.",
-            RelatedNodeIds = [],
+            RelatedNodeIds = topologyNodes.Resolve(gap.ResourceId).ToList(),
             PayloadType = nameof(RequirementFindingPayload),
             Payload = new RequirementFindingPayload
             {

@@ -42,7 +42,7 @@ export function HelpCloudConnectionsClaimDisciplineCallout(): React.ReactElement
         </h3>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           {CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD} {CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_BEFORE_LINKS}{" "}
-          <Link href="/security-trust" className={OPERATOR_LINK.inline}>
+          <Link href="/assurance-status" className={OPERATOR_LINK.inline}>
             Assurance status
           </Link>{" "}
           or the live{" "}

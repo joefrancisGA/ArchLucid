@@ -1,8 +1,10 @@
 import type { NavLinkItem } from "@/lib/nav-config";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
 import { isFirstReviewGuidePath } from "@/lib/first-review-guide-route";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import { navHrefPathPart } from "@/lib/nav-href-path-part";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review
@@ -11,7 +13,9 @@ import { isFirstReviewGuidePath } from "@/lib/first-review-guide-route";
  * Operate destinations (governance, diagnostics, integrations, digests, compare, …) stay out until commit;
  * deep links remain valid at route level.
  */
-export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWithoutQuery: string): boolean {
+export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathnameOrHref: string): boolean {
+  const pathWithoutQuery = navHrefPathPart(pathnameOrHref);
+
   if (pathWithoutQuery === "/" || pathWithoutQuery === "/architecture/reviews") {
     return true;
   }
@@ -56,7 +60,12 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
 }
 
 function navPathWithoutQuery(href: string): string {
-  return href.split("?")[0] ?? "";
+  return navHrefPathPart(href);
+}
+
+/** Operate · governance workspace health uses a sponsor-dashboard fragment href but stays post-commit in the sidebar. */
+function isPreCommitOperateGovernanceOnlyNavLink(href: string): boolean {
+  return href === GOVERNANCE_WORKSPACE_HEALTH_HREF;
 }
 
 /**
@@ -130,9 +139,13 @@ export function filterNavLinksByCommittedArchitectureReviewGate(
     return [...links];
   }
 
-  const eligible = links.filter((link) =>
-    pathnameEligibleBeforeFirstCommittedArchitectureReview(navPathWithoutQuery(link.href)),
-  );
+  const eligible = links.filter((link) => {
+    if (isPreCommitOperateGovernanceOnlyNavLink(link.href)) {
+      return false;
+    }
+
+    return pathnameEligibleBeforeFirstCommittedArchitectureReview(link.href);
+  });
 
   return reorderNavLinksForPreCommitArchitectureReviewGate(eligible);
 }

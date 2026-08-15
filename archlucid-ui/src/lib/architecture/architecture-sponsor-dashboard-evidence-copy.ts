@@ -19,5 +19,5 @@ export const ARCHITECTURE_SPONSOR_DASHBOARD_SOURCES: readonly EvidenceSourceLink
   { label: "Ask review questions", href: "/insights/ask-review-questions" },
   { label: "Architecture scorecard", href: "/insights/architecture-scorecard" },
   { label: "Sponsor report help", href: inAppHelpHref("sponsor-report") },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

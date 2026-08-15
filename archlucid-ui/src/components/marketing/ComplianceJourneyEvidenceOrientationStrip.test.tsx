@@ -5,14 +5,16 @@ import { ComplianceJourneyEvidenceOrientationStrip } from "@/components/marketin
 import {
   COMPLIANCE_JOURNEY_CANONICAL_PATH,
   COMPLIANCE_JOURNEY_SOURCES,
+  COMPLIANCE_JOURNEY_SOURCES_INTRO,
 } from "@/lib/compliance-journey-evidence-copy";
 
 describe("ComplianceJourneyEvidenceOrientationStrip", () => {
-  it("lists follow-up Sources without self-linking compliance journey", () => {
+  it("renders Sources footer without the posture-summary claim callout", () => {
     render(<ComplianceJourneyEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("compliance-journey-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("compliance-journey-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("compliance-journey-claim-discipline")).toBeNull();
+    expect(screen.getByText(COMPLIANCE_JOURNEY_SOURCES_INTRO)).toBeInTheDocument();
 
     for (const link of COMPLIANCE_JOURNEY_SOURCES) {
       expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);

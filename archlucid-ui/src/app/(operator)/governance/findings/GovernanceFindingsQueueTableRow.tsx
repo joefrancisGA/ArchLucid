@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { CSSProperties, ReactElement } from "react";
 
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
 import {
@@ -34,6 +35,7 @@ import {
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { governanceQueueDispositionLabel } from "@/lib/architecture/architecture-risk-register-page";
+import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 
 import {
   formatGovernanceQueueRecordKind,
@@ -58,6 +60,96 @@ function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
     month: "short",
     day: "numeric",
   });
+}
+
+function resolveGovernanceQueueDueUtc(row: GovernanceFindingQueueRow): string | null {
+  const raw = row.revisitDueUtc?.trim() ?? row.waiverExpiresAtUtc?.trim() ?? "";
+
+  if (raw.length === 0) {
+    return null;
+  }
+
+  const parsed = Date.parse(raw);
+
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+
+  return new Date(parsed).toISOString();
+}
+
+function GovernanceFindingsQueueDueCell(props: { readonly row: GovernanceFindingQueueRow }): ReactElement {
+  const dueUtc = resolveGovernanceQueueDueUtc(props.row);
+
+  if (dueUtc === null) {
+    return <span className="text-al-text-secondary">—</span>;
+  }
+
+  return (
+    <time dateTime={dueUtc} className="text-al-text-primary">
+      {formatRiskRegisterUtcLabel(dueUtc)}
+    </time>
+  );
+}
+
+function GovernanceFindingsQueueAssignedToMeRowCells(props: {
+  readonly row: GovernanceFindingQueueRow;
+  readonly showNewSinceLastVisit: boolean;
+  readonly onOpenRow?: () => void;
+}): ReactElement {
+  const { row, showNewSinceLastVisit, onOpenRow } = props;
+  const findingDerivation = findingDerivationFromGovernanceQueueRow(row);
+
+  return (
+    <>
+      <EnterpriseTableCell className="max-w-[18rem] font-medium text-al-text-primary">
+        {showNewSinceLastVisit ? (
+          <span className="mr-2 inline-flex align-middle">
+            <NewSinceLastVisitMarker testId={`governance-table-row-new-${row.findingId}`} />
+          </span>
+        ) : null}
+        <Link
+          className={OPERATOR_LINK.inline}
+          href={governanceFindingInspectHref(row.runId, row.findingId)}
+          prefetch={false}
+          onClick={() => {
+            onOpenRow?.();
+          }}
+        >
+          {row.title}
+        </Link>
+        {findingDerivation !== null ? (
+          <CollapsibleSection
+            title="Derivation"
+            defaultOpen={false}
+            sectionTestId={`governance-table-derivation-${row.findingId}`}
+          >
+            <FindingDerivationLine
+              derivation={findingDerivation}
+              evidenceHref={governanceFindingInspectHref(row.runId, row.findingId)}
+              testId={`governance-table-derivation-line-${row.findingId}`}
+              compact
+            />
+          </CollapsibleSection>
+        ) : null}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
+          {row.runLabel}
+        </Link>
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>{governanceQueueSeverityCell(row, false)}</EnterpriseTableCell>
+      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+        <GovernanceFindingsQueueDueCell row={row} />
+      </EnterpriseTableCell>
+      <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+        {governanceQueueDispositionLabel(row)}
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />
+      </EnterpriseTableCell>
+    </>
+  );
 }
 
 function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buyerPolishedShell: boolean): ReactElement {
@@ -190,6 +282,7 @@ function GovernanceFindingsQueueOperationalRowCells(props: {
 export type GovernanceFindingsQueueTableRowProps = {
   readonly row: GovernanceFindingQueueRow;
   readonly buyerPolishedShell: boolean;
+  readonly queueMode?: GovernanceFindingsQueueMode;
   readonly hasBulkSelect: boolean;
   readonly selectedFindingIds?: ReadonlySet<string>;
   readonly onToggleRow?: (findingId: string) => void;
@@ -204,6 +297,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
   const {
     row,
     buyerPolishedShell,
+    queueMode = "tenant",
     hasBulkSelect,
     selectedFindingIds,
     onToggleRow,
@@ -338,6 +432,12 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
           </EnterpriseTableCell>
           <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>{row.recommended}</EnterpriseTableCell>
         </>
+      ) : queueMode === "assigned-to-me" ? (
+        <GovernanceFindingsQueueAssignedToMeRowCells
+          row={row}
+          showNewSinceLastVisit={showNewSinceLastVisit}
+          onOpenRow={onOpenRow}
+        />
       ) : (
         <GovernanceFindingsQueueOperationalRowCells row={row} />
       )}
@@ -368,7 +468,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
             ) : null}
           </div>
         ) : (
-          <GovernanceFindingsQueueOperationalActions row={row} />
+          <GovernanceFindingsQueueOperationalActions row={row} queueMode={queueMode} />
         )}
       </EnterpriseTableCell>
     </EnterpriseTableRow>

@@ -166,4 +166,25 @@ describe("FindingDetailPageView buyer polish", () => {
     expect(screen.getByRole("link", { name: "Back to findings" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open evidence trace" })).toBeNull();
   });
+
+  it("surfaces verify-hypotheses triage lane for adversarial phrasing (TB-2315)", () => {
+    render(
+      <FindingDetailPageView
+        model={buyerModel({
+          inspectPayload: {
+            ...inspectPayload,
+            trustLabel: "Heuristic",
+            typedPayload: {
+              title: "Challenge failover assumption",
+              severity: "Warning",
+              recommendation: "Adversarial challenge: falsify/confirm with load test evidence.",
+            },
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-job-view-lane-callout")).toBeInTheDocument();
+    expect(screen.getByText("Verify hypotheses")).toBeInTheDocument();
+  });
 });

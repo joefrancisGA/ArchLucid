@@ -11,6 +11,14 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
         QualityDimension.Cost,
     ];
 
+    private readonly SpecialistReviewPerformanceRules _performanceRules = new();
+    private readonly SpecialistReviewOperationsRules _operationsRules = new();
+    private readonly SpecialistReviewDataArchitectureRules _dataArchitectureRules = new();
+    private readonly SpecialistReviewPrivacyComplianceRules _privacyComplianceRules = new();
+    private readonly SpecialistReviewIntegrationRules _integrationRules = new();
+    private readonly SpecialistReviewMaintainabilityRules _maintainabilityRules = new();
+    private readonly SpecialistReviewAiSpecificRiskRules _aiSpecificRiskRules = new();
+
     public SpecialistReviewResult Review(
         ArchitectureKnowledgeModel model,
         IReadOnlyList<QualityDimension>? dimensions = null)
@@ -34,7 +42,7 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
         };
     }
 
-    private static IEnumerable<SpecialistReviewFinding> ReviewDimension(
+    private IEnumerable<SpecialistReviewFinding> ReviewDimension(
         ArchitectureKnowledgeModel model,
         QualityDimension dimension,
         List<string> openQuestions)
@@ -50,8 +58,29 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
             case QualityDimension.Cost:
                 yield return ReviewCost(model, openQuestions);
                 break;
+            case QualityDimension.PerformanceScalability:
+                yield return _performanceRules.Review(model, openQuestions);
+                break;
+            case QualityDimension.Operations:
+                yield return _operationsRules.Review(model, openQuestions);
+                break;
+            case QualityDimension.DataArchitecture:
+                yield return _dataArchitectureRules.Review(model, openQuestions);
+                break;
+            case QualityDimension.PrivacyCompliance:
+                yield return _privacyComplianceRules.Review(model, openQuestions);
+                break;
+            case QualityDimension.Integration:
+                yield return _integrationRules.Review(model, openQuestions);
+                break;
+            case QualityDimension.Maintainability:
+                yield return _maintainabilityRules.Review(model, openQuestions);
+                break;
+            case QualityDimension.AiSpecificRisk:
+                yield return _aiSpecificRiskRules.Review(model, openQuestions);
+                break;
             default:
-                yield return CreateIndeterminateFinding(
+                yield return SpecialistReviewFindingFactory.CreateIndeterminateFinding(
                     model,
                     dimension,
                     $"No specialist rules configured for {dimension}.",
@@ -64,26 +93,50 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
         ArchitectureKnowledgeModel model,
         List<string> openQuestions)
     {
-        ArchitectureModelElement? recoveryObjective = model.Elements.FirstOrDefault(
-            element => element.Kind == ArchitectureElementKind.RecoveryObjective);
+        SpecialistReviewModelAdequacy.RecoveryAdequacyAssessment assessment =
+            SpecialistReviewModelAdequacy.AssessRecovery(model);
 
-        if (recoveryObjective is not null)
+        switch (assessment.Outcome)
         {
-            return CreatePassFinding(
-                model,
-                QualityDimension.Reliability,
-                "Recovery objectives are documented.",
-                "At least one recovery objective element exists in the model.",
-                recoveryObjective);
+            case SpecialistReviewModelAdequacy.RecoveryAdequacyOutcome.MissingObjective:
+                openQuestions.Add("What are the RTO/RPO targets for critical workloads?");
+
+                return SpecialistReviewFindingFactory.CreateIndeterminateFinding(
+                    model,
+                    QualityDimension.Reliability,
+                    "Recovery objectives are missing",
+                    assessment.Summary);
+
+            case SpecialistReviewModelAdequacy.RecoveryAdequacyOutcome.Inadequate:
+                openQuestions.Add("How will backup, replication, or failover meet the stated RTO?");
+
+                return SpecialistReviewFindingFactory.CreateFailFinding(
+                    model,
+                    QualityDimension.Reliability,
+                    "Stated recovery objective may not be achievable",
+                    assessment.Summary,
+                    severity: "High");
+
+            case SpecialistReviewModelAdequacy.RecoveryAdequacyOutcome.CannotVerify:
+                openQuestions.Add("Document backup interval, replication, or failover evidence for the stated RTO.");
+
+                return SpecialistReviewFindingFactory.CreateIndeterminateFinding(
+                    model,
+                    QualityDimension.Reliability,
+                    "Recovery objective adequacy cannot be verified",
+                    assessment.Summary);
+
+            default:
+                ArchitectureModelElement? recoveryObjective = model.Elements.FirstOrDefault(
+                    element => element.Kind == ArchitectureElementKind.RecoveryObjective);
+
+                return SpecialistReviewFindingFactory.CreatePassFinding(
+                    model,
+                    QualityDimension.Reliability,
+                    "Recovery objectives appear adequate for stated targets.",
+                    assessment.Summary,
+                    recoveryObjective);
         }
-
-        openQuestions.Add("What are the RTO/RPO targets for critical workloads?");
-
-        return CreateIndeterminateFinding(
-            model,
-            QualityDimension.Reliability,
-            "Recovery objectives are missing",
-            "No RecoveryObjective element was extracted from the available sources.");
     }
 
     private static SpecialistReviewFinding ReviewSecurity(
@@ -109,9 +162,7 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
                     Title = "Public endpoint lacks documented trust boundary",
                     Rationale = "A public endpoint was identified without a corresponding trust boundary element.",
                     Conclusion = ReviewConclusion.Fail,
-                    // Model contains the public interface element — evidence is model-derived, not absent.
                     EvidenceCondition = EvidenceCondition.Sufficient,
-                    // Conclusion ≠ disposition: Fail stays Open until a human accepts/exceptions.
                     GovernanceDisposition = GovernanceDisposition.Open,
                     Confidence = 0.7,
                     Severity = "High",
@@ -127,7 +178,7 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
                 publicEndpoint);
         }
 
-        return CreatePassFinding(
+        return SpecialistReviewFindingFactory.CreatePassFinding(
             model,
             QualityDimension.Security,
             "No immediate public exposure gap detected",
@@ -138,85 +189,48 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
         ArchitectureKnowledgeModel model,
         List<string> openQuestions)
     {
-        ArchitectureModelElement? costDriver = model.Elements.FirstOrDefault(
-            element => element.Kind == ArchitectureElementKind.CostDriver);
+        SpecialistReviewModelAdequacy.CostAdequacyAssessment assessment =
+            SpecialistReviewModelAdequacy.AssessCost(model);
 
-        if (costDriver is not null)
+        switch (assessment.Outcome)
         {
-            return CreatePassFinding(
-                model,
-                QualityDimension.Cost,
-                "Cost drivers are documented.",
-                "At least one cost driver element exists in the model.",
-                costDriver);
+            case SpecialistReviewModelAdequacy.CostAdequacyOutcome.MissingDrivers:
+                openQuestions.Add("What are the primary cost drivers for this architecture?");
+
+                return SpecialistReviewFindingFactory.CreateIndeterminateFinding(
+                    model,
+                    QualityDimension.Cost,
+                    "Cost drivers are missing",
+                    assessment.Summary);
+
+            case SpecialistReviewModelAdequacy.CostAdequacyOutcome.CeilingNotAddressed:
+                openQuestions.Add("Map major cost drivers to the stated monthly ceiling or revise the ceiling.");
+
+                return SpecialistReviewFindingFactory.CreateFailFinding(
+                    model,
+                    QualityDimension.Cost,
+                    "Stated cost ceiling is not reflected in cost drivers",
+                    assessment.Summary,
+                    severity: "Medium");
+
+            case SpecialistReviewModelAdequacy.CostAdequacyOutcome.CannotVerify:
+                return SpecialistReviewFindingFactory.CreateIndeterminateFinding(
+                    model,
+                    QualityDimension.Cost,
+                    "Cost driver adequacy cannot be verified",
+                    assessment.Summary);
+
+            default:
+                ArchitectureModelElement? costDriver = model.Elements.FirstOrDefault(
+                    element => element.Kind == ArchitectureElementKind.CostDriver);
+
+                return SpecialistReviewFindingFactory.CreatePassFinding(
+                    model,
+                    QualityDimension.Cost,
+                    "Cost drivers align with stated constraints.",
+                    assessment.Summary,
+                    costDriver);
         }
-
-        openQuestions.Add("What are the primary cost drivers for this architecture?");
-
-        return CreateIndeterminateFinding(
-            model,
-            QualityDimension.Cost,
-            "Cost drivers are missing",
-            "No CostDriver element was extracted from the available sources.");
-    }
-
-    private static SpecialistReviewFinding CreatePassFinding(
-        ArchitectureKnowledgeModel model,
-        QualityDimension dimension,
-        string title,
-        string rationale,
-        ArchitectureModelElement? supportingElement = null)
-    {
-        SpecialistReviewFinding finding = new()
-        {
-            FindingId = Guid.NewGuid().ToString("N"),
-            Dimension = dimension,
-            Title = title,
-            Rationale = rationale,
-            Conclusion = ReviewConclusion.Pass,
-            EvidenceCondition = EvidenceCondition.Sufficient,
-            // Pass is a review conclusion, not a governance acceptance (TB-1985).
-            GovernanceDisposition = GovernanceDisposition.Open,
-            Confidence = 0.8,
-            Severity = "Low",
-            Provenance = new ClaimProvenance
-            {
-                Origin = ClaimOrigin.ModelInferred,
-                SupportStatus = SupportStatus.IndirectlySupported,
-                Confidence = 0.8,
-            },
-        };
-
-        return AttachModelEvidence(finding, model, supportingElement);
-    }
-
-    private static SpecialistReviewFinding CreateIndeterminateFinding(
-        ArchitectureKnowledgeModel model,
-        QualityDimension dimension,
-        string title,
-        string rationale)
-    {
-        SpecialistReviewFinding finding = new()
-        {
-            FindingId = Guid.NewGuid().ToString("N"),
-            Dimension = dimension,
-            Title = title,
-            Rationale = rationale,
-            Conclusion = ReviewConclusion.Indeterminate,
-            EvidenceCondition = EvidenceCondition.Insufficient,
-            GovernanceDisposition = GovernanceDisposition.Open,
-            Confidence = 0.5,
-            Severity = "Medium",
-            Provenance = new ClaimProvenance
-            {
-                Origin = ClaimOrigin.ModelInferred,
-                SupportStatus = SupportStatus.Unsupported,
-                Confidence = 0.5,
-                Notes = "Insufficient evidence; absence is not treated as a confirmed defect.",
-            },
-        };
-
-        return AttachModelEvidence(finding, model, supportingElement: null);
     }
 
     private static SpecialistReviewFinding AttachModelEvidence(
@@ -248,6 +262,8 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
             finding.Provenance.SupportStatus = SupportStatus.PartiallySupported;
             finding.Provenance.Origin = ClaimOrigin.DirectlyExtracted;
         }
+
+        SpecialistReviewFindingTraceBuilder.ApplyTrace(finding, model, supportingElement);
 
         return finding;
     }

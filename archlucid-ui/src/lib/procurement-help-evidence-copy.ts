@@ -32,7 +32,7 @@ export const PROCUREMENT_HELP_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to `/help/procurement`. */
 export const PROCUREMENT_HELP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Trust Center", href: "/trust" },
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },
   { label: "DPA template", href: inAppHelpHref("dpa-template") },

@@ -12,6 +12,7 @@ import { SecurityTrustHelpStatusCell } from "@/components/help/SecurityTrustHelp
 import { ProcurementHelpAnswerPosture } from "@/components/help/ProcurementHelpAnswerPosture";
 import { ReviewGuideRequiredStatusCell } from "@/components/help/ReviewGuideRequiredStatusCell";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
+import { PrivacyPolicySectionCopyLink } from "@/components/marketing/privacy-policy/PrivacyPolicySectionCopyLink";
 import {
   CAIQ_SIG_RESPONSE_LITE_PART_HEADING,
   CAIQ_SIG_RESPONSE_SIG_PART_HEADING,
@@ -460,13 +461,18 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       }
 
       blocks.push(
-        <h2
-          key={`h2-${key}`}
-          id={sectionId}
-          className={h2Class}
-        >
-          {renderInline(title, `h2-${key}`, renderOptions)}
-        </h2>,
+        isPrivacy ? (
+          <div key={`h2-wrap-${key}`} className={PRIVACY_POLICY_PROSE.sectionHeadingRow}>
+            <h2 id={sectionId} className={h2Class}>
+              {renderInline(title, `h2-${key}`, renderOptions)}
+            </h2>
+            <PrivacyPolicySectionCopyLink sectionId={sectionId} sectionTitle={title} />
+          </div>
+        ) : (
+          <h2 key={`h2-${key}`} id={sectionId} className={h2Class}>
+            {renderInline(title, `h2-${key}`, renderOptions)}
+          </h2>
+        ),
       );
       key++;
       i++;
@@ -503,13 +509,18 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       }
 
       blocks.push(
-        <h3
-          key={`h3-${key}`}
-          id={sectionId}
-          className={h3Class}
-        >
-          {renderInline(title, `h3-${key}`, renderOptions)}
-        </h3>,
+        isPrivacy ? (
+          <div key={`h3-wrap-${key}`} className={PRIVACY_POLICY_PROSE.sectionH3Row}>
+            <h3 id={sectionId} className={h3Class}>
+              {renderInline(title, `h3-${key}`, renderOptions)}
+            </h3>
+            <PrivacyPolicySectionCopyLink sectionId={sectionId} sectionTitle={title} />
+          </div>
+        ) : (
+          <h3 key={`h3-${key}`} id={sectionId} className={h3Class}>
+            {renderInline(title, `h3-${key}`, renderOptions)}
+          </h3>
+        ),
       );
       key++;
       i++;

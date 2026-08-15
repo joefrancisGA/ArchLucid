@@ -1384,6 +1384,12 @@
           "lane": {
             "$ref": "#/components/schemas/AdversarialLane"
           },
+          "sourceFindingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "suppressed": {
             "type": "boolean"
           },
@@ -1909,6 +1915,12 @@
             ]
           },
           "provenanceCorrelationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "providerConnectionId": {
             "type": [
               "null",
               "string"
@@ -4230,6 +4242,9 @@
             },
             "type": "object"
           },
+          "isProvisionalSynthesis": {
+            "type": "boolean"
+          },
           "modelId": {
             "type": "string"
           },
@@ -4252,6 +4267,15 @@
           }
         },
         "type": "object"
+      },
+      "ArchitectureLifecycleScope": {
+        "enum": [
+          "Unspecified",
+          "CurrentState",
+          "TargetState",
+          "Transition"
+        ],
+        "type": "string"
       },
       "ArchitectureLinkageEdge": {
         "properties": {
@@ -4369,6 +4393,9 @@
           },
           "kind": {
             "$ref": "#/components/schemas/ArchitectureElementKind"
+          },
+          "lifecycleScope": {
+            "$ref": "#/components/schemas/ArchitectureLifecycleScope"
           },
           "name": {
             "type": "string"
@@ -6639,8 +6666,22 @@
         },
         "type": "object"
       },
+      "ChangeImpactCategory": {
+        "enum": [
+          "ModelDiffChange",
+          "Decision",
+          "Risk",
+          "ComplianceMapping",
+          "DeploymentDiagram",
+          "RelatedElement"
+        ],
+        "type": "string"
+      },
       "ChangeImpactItem": {
         "properties": {
+          "category": {
+            "$ref": "#/components/schemas/ChangeImpactCategory"
+          },
           "description": {
             "type": "string"
           },
@@ -7044,6 +7085,9 @@
               "$ref": "#/components/schemas/ArchitectureRecommendation"
             },
             "type": "array"
+          },
+          "reviewCompleteBlocked": {
+            "type": "boolean"
           },
           "runId": {
             "type": [
@@ -11113,6 +11157,14 @@
         },
         "type": "object"
       },
+      "EvidenceSupportTier": {
+        "enum": [
+          "Unverified",
+          "SemanticInferenceFromPartialEvidence",
+          "IntegrityVerified"
+        ],
+        "type": "string"
+      },
       "EvidenceValidationResult": {
         "properties": {
           "completenessNotes": {
@@ -11145,6 +11197,9 @@
               "$ref": "#/components/schemas/EvidenceValidationStageOutcome"
             },
             "type": "array"
+          },
+          "supportTier": {
+            "$ref": "#/components/schemas/EvidenceSupportTier"
           }
         },
         "type": "object"
@@ -11468,6 +11523,81 @@
               "null",
               "array"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "ExecDigestSponsorDeepLinkHighlightedRunDto": {
+        "properties": {
+          "caption": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runIdHex": {
+            "type": "string"
+          },
+          "significanceScore": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "ExecDigestSponsorDeepLinkViewResponse": {
+        "properties": {
+          "committedManifestsInWeek": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "complianceDriftMarkdown": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "decisionNeededMarkdown": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingsDeltaSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runIdHex": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runSummaryMarkdown": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "signInUrl": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "topRuns": {
+            "items": {
+              "$ref": "#/components/schemas/ExecDigestSponsorDeepLinkHighlightedRunDto"
+            },
+            "type": "array"
+          },
+          "weekLabel": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -13606,6 +13736,13 @@
           "falsePositiveCount": {
             "format": "int32",
             "type": "integer"
+          },
+          "falsePositivesByDimension": {
+            "additionalProperties": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "type": "object"
           },
           "mutationChangedFindings": {
             "type": "boolean"
@@ -26628,17 +26765,41 @@
           "evidenceCondition": {
             "$ref": "#/components/schemas/EvidenceCondition"
           },
+          "evidenceSupportTier": {
+            "$ref": "#/components/schemas/EvidenceSupportTier"
+          },
           "findingId": {
             "type": "string"
           },
           "governanceDisposition": {
             "$ref": "#/components/schemas/GovernanceDisposition"
           },
+          "lifecycleScope": {
+            "$ref": "#/components/schemas/ArchitectureLifecycleScope"
+          },
           "provenance": {
             "$ref": "#/components/schemas/ClaimProvenance"
           },
           "rationale": {
             "type": "string"
+          },
+          "relatedDecisionElementIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "relatedModelElementIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "relatedRequirementElementIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "severity": {
             "type": "string"
@@ -28229,6 +28390,138 @@
         "properties": {
           "testEmail": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAzureOpenAiConnectionProbeResponse": {
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAzureOpenAiConnectionResponse": {
+        "properties": {
+          "apiKeyKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "authMode": {
+            "type": "string"
+          },
+          "deploymentsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "endpoint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastProbeMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastProbeSucceeded": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "lastProbeUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "providerConnectionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantAzureOpenAiConnectionUpsertRequest": {
+        "properties": {
+          "apiKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "apiKeyKeyVaultSecretName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "authMode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "deploymentsJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "endpoint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -49749,6 +50042,600 @@
         },
         "tags": [
           "AdminApiKeySettings"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/admin/settings/azure-openai-connection": {
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "AdminAzureOpenAiConnection"
+        ],
+        "x-archlucid-audience": "operator"
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAzureOpenAiConnectionResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAzureOpenAiConnectionResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAzureOpenAiConnectionResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "AdminAzureOpenAiConnection"
+        ],
+        "x-archlucid-audience": "operator"
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantAzureOpenAiConnectionUpsertRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantAzureOpenAiConnectionUpsertRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantAzureOpenAiConnectionUpsertRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAzureOpenAiConnectionResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAzureOpenAiConnectionResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAzureOpenAiConnectionResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "AdminAzureOpenAiConnection"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/admin/settings/azure-openai-connection/probe": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAzureOpenAiConnectionProbeResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAzureOpenAiConnectionProbeResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAzureOpenAiConnectionProbeResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "AdminAzureOpenAiConnection"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -135775,6 +136662,192 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/notifications/exec-digest/sponsor-view": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "runId",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecDigestSponsorDeepLinkViewResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecDigestSponsorDeepLinkViewResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecDigestSponsorDeepLinkViewResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "ExecDigestSponsorDeepLink"
+        ],
+        "x-archlucid-audience": "internal"
+      }
+    },
     "/v1/notifications/exec-digest/unsubscribe": {
       "get": {
         "parameters": [
@@ -158342,6 +159415,9 @@
       "name": "AdminAuthDiagnostics"
     },
     {
+      "name": "AdminAzureOpenAiConnection"
+    },
+    {
       "name": "AdminCrossTenantUsageRollup"
     },
     {
@@ -158556,6 +159632,9 @@
     },
     {
       "name": "Evolution"
+    },
+    {
+      "name": "ExecDigestSponsorDeepLink"
     },
     {
       "name": "ExecDigestUnsubscribe"

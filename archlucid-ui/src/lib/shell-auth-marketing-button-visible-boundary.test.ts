@@ -24,7 +24,7 @@ const SHELL_AUTH_MARKETING_BUTTON_PATHS = [
   "src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx",
   "src/components/ui/welcome-modal.tsx",
   "src/components/marketing/HeroEarlyAccessCta.tsx",
-  "src/app/(marketing)/live-demo/LiveDemoConversionCta.tsx",
+  "src/app/(marketing)/see-it/SeeItHeroSection.tsx",
 ] as const;
 
 describe("shell / auth / marketing button visible-boundary guard (TB-2170)", () => {

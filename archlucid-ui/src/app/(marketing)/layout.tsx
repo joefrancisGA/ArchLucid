@@ -14,8 +14,8 @@ import {
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { MARKETING_LAYOUT } from "@/lib/design-tokens";
 import { getMarketingClarityProjectId } from "@/lib/marketing-analytics-consent";
-import { resolveMarketingLiveDemoApiBase } from "@/lib/marketing-live-demo-api-base";
-import { isMarketingLiveDemoLinkEnabled } from "@/lib/public-demo-mode";
+import { resolveSeeItDemoApiBase } from "@/app/(marketing)/see-it/load-see-it-demo-preview";
+import { isMarketingSeeItLinkEnabled } from "@/lib/public-demo-mode";
 
 export const metadata: Metadata = {
   title: "Welcome",
@@ -26,8 +26,7 @@ export const metadata: Metadata = {
  * Public marketing chrome (no operator sidebar). Root `layout.tsx` still supplies global styles and color script.
  */
 export default function MarketingLayout({ children }: { children: ReactNode }) {
-  const liveDemoLinked =
-    isMarketingLiveDemoLinkEnabled() && resolveMarketingLiveDemoApiBase().length > 0;
+  const seeItLinked = isMarketingSeeItLinkEnabled() && resolveSeeItDemoApiBase().length > 0;
   const clarityProjectId = getMarketingClarityProjectId();
 
   return (
@@ -36,11 +35,11 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
         <MarketingFirstTouchCaptureDeferred />
         <MarketingJsonLd />
         <MicrosoftClarityLoaderDeferred projectId={clarityProjectId} />
-        <MarketingPublicHeader liveDemoLinked={liveDemoLinked} />
+        <MarketingPublicHeader seeItLinked={seeItLinked} />
         {children}
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <MarketingPublicFooterDeferred />
-      </div>
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+          <MarketingPublicFooterDeferred />
+        </div>
         <MarketingAnalyticsConsentBannerDeferred clarityProjectId={clarityProjectId} />
       </MarketingTooltipProvider>
     </ShellReadySurface>

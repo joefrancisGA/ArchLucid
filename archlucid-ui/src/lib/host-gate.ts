@@ -9,7 +9,7 @@ import { LEGACY_PRODUCT_LEARNING_PATH, PRODUCT_LEARNING_PATH } from "@/lib/produ
 import { LEGACY_SEARCH_PATH, SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
-import { RETIRED_PILOT_OUTCOMES_PATH } from "@/lib/sponsor-report-navigation";
+import { RETIRED_PILOT_OUTCOMES_PATH, RETIRED_SPONSOR_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 import {
   RETIRED_LOGIN_BOOKMARK_PATH,
   RETIRED_ONBOARD_BOOKMARK_PATH,
@@ -23,9 +23,7 @@ import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigi
 /** Extra marketing paths not always in the sitemap (noindex / funnel). */
 const EXTRA_MARKETING_EXACT_PATHS: readonly string[] = [
   "/faq",
-  "/try",
   "/quick-scan",
-  "/live-demo",
   "/example-roi-bulletin",
 ];
 
@@ -89,6 +87,7 @@ const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
   LEGACY_PLANNING_PATH,
   LEGACY_INSIGHTS_PLANNING_PATH,
   RETIRED_PILOT_OUTCOMES_PATH,
+  RETIRED_SPONSOR_SUMMARY_PATH,
   RETIRED_LOGIN_BOOKMARK_PATH,
   RETIRED_ONBOARD_BOOKMARK_PATH,
   RETIRED_ONBOARDING_START_BOOKMARK_PATH,

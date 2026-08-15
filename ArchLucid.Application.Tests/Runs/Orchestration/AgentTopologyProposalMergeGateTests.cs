@@ -7,27 +7,16 @@ using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
+using static ArchLucid.Application.Tests.Runs.Orchestration.AgentTopologyProposalTestGraph;
+using static ArchLucid.Application.Tests.Runs.Orchestration.AgentTopologyProposalTestResult;
+
 namespace ArchLucid.Application.Tests.Runs.Orchestration;[Trait("Category", "Unit")]
 public sealed class AgentTopologyProposalMergeGateTests
 {
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_RejectsUninventoriedProposalLabels()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "inv-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "existing-api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "inv-1", label: "existing-api"));
 
         AgentResult topology = new()
         {
@@ -56,21 +45,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void WithMergedTopologyProposals_WhenInventoryExists_AllowsMatchingInventoriedLabelsOnly()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "inv-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "existing-api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "inv-1", label: "existing-api"));
 
         AgentResult topology = new()
         {
@@ -105,21 +80,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_RejectsUninventoriedCostProposalLabels()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "inv-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "existing-api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "inv-1", label: "existing-api"));
 
         AgentResult cost = new()
         {
@@ -148,21 +109,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_RejectsUninventoriedComplianceProposalLabels()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "inv-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "existing-api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "inv-1", label: "existing-api"));
 
         AgentResult compliance = new()
         {
@@ -191,21 +138,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRequiredControlsOnlyComplianceProposal()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "inv-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "existing-api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "inv-1", label: "existing-api"));
 
         AgentResult compliance = new()
         {
@@ -227,21 +160,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_RejectsRelationshipsWithOnlyOneInventoriedEndpoint()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "inv-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "existing-api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "inv-1", label: "existing-api"));
 
         AgentResult topology = new()
         {
@@ -269,48 +188,9 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipsKeyedByInventoriedNodeIds()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-1",
-                        TargetId = "ds-1",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-1", "ds-1")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -322,21 +202,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsServicesKeyedByInventoriedNodeIds()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode());
 
         AgentResult topology = new()
         {
@@ -368,21 +234,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsDatastoresKeyedByInventoriedNodeIds()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(DataNode());
 
         AgentResult topology = new()
         {
@@ -414,30 +266,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipsKeyedByRenamedServiceLabels()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
 
         AgentResult topology = new()
         {
@@ -481,47 +310,11 @@ public sealed class AgentTopologyProposalMergeGateTests
         const string vmResourceId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph";
 
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "t1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "vm-graph",
-                    Category = GraphTopologyCategories.Compute,
-                    Properties = new Dictionary<string, string> { ["resourceId"] = vmResourceId }
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "t1", label: "vm-graph", sourceId: null, sourceType: null, properties: new Dictionary<string, string> { ["resourceId"] = vmResourceId }),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = vmResourceId,
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(vmResourceId)));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -533,48 +326,9 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipsKeyedBySyntheticServiceNodeId()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "t1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "t1"), DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-api")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -586,48 +340,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipsKeyedBySyntheticDatastoreNodeIdForStorageCategory()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "t1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "blob-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "artifacts",
-                    Category = GraphTopologyCategories.Storage,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_storage_account.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "t1"),
+            Node("blob-1", "artifacts", category: GraphTopologyCategories.Storage, sourceId: "azurerm_storage_account.main", sourceType: "Terraform"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-artifacts",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-artifacts")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -639,30 +356,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipsKeyedByRenamedDatastoreLabels()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
 
         AgentResult topology = new()
         {
@@ -703,48 +397,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipOnlyProposalsReferencingAgentProposedGraphEndpoints()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-worker",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "worker",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = nameof(AgentType.Topology),
-                    SourceId = "ProposedChanges"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-worker", label: "worker", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "worker",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("worker")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -757,57 +414,12 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipOnlyProposalsBetweenAgentProposedGraphEndpoints()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-worker",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "worker",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = nameof(AgentType.Topology),
-                    SourceId = "ProposedChanges"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-cache",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "cache",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = nameof(AgentType.Topology),
-                    SourceId = "ProposedChanges"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-worker", label: "worker", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)),
+            DataNode(nodeId: "ds-cache", label: "cache", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "worker",
-                        TargetId = "cache",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("worker", "cache")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -819,30 +431,9 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRenamedServiceOverlayForAgentProposedGraphNode()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-api",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = nameof(AgentType.Topology),
-                    SourceId = "ProposedChanges"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-api", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)),
+            DataNode());
 
         AgentResult topology = new()
         {
@@ -883,30 +474,9 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRenamedDatastoreOverlayForAgentProposedGraphNode()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-api",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-sql",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = nameof(AgentType.Topology),
-                    SourceId = "ProposedChanges"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-api"),
+            DataNode(nodeId: "ds-sql", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)));
 
         AgentResult topology = new()
         {
@@ -947,30 +517,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsCostRelationshipOnlyProposalsReferencingTopologyRenameAliasFromPriorResult()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-api",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-sql",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "svc-api"), DataNode(nodeId: "ds-sql"));
 
         AgentResult topology = new()
         {
@@ -1009,24 +556,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             }
         };
 
-        AgentResult cost = new()
-        {
-            ResultId = "cost-1",
-            AgentType = AgentType.Cost,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Cost,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "renamed-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult cost = ResultFor(AgentType.Cost, ProposalFor(AgentType.Cost, Relationship("renamed-api")), resultId: "cost-1");
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology, cost]);
@@ -1038,48 +568,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenOnlyAgentProposedTopologyExists_RejectsRelationshipToUnknownEndpoint()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-worker",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "worker",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = nameof(AgentType.Topology),
-                    SourceId = "ProposedChanges"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-cache",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "cache",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = nameof(AgentType.Topology),
-                    SourceId = "ProposedChanges"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-worker", label: "worker", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)),
+            DataNode(nodeId: "ds-cache", label: "cache", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "worker",
-                        TargetId = "phantom",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("worker", "phantom")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1090,48 +583,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenOnlyAgentProposedTopologyExists_AllowsRelationshipBetweenAgentProposedEndpoints()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-worker",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "worker",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = nameof(AgentType.Topology),
-                    SourceId = "ProposedChanges"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-cache",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "cache",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = nameof(AgentType.Topology),
-                    SourceId = "ProposedChanges"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-worker", label: "worker", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)),
+            DataNode(nodeId: "ds-cache", label: "cache", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "worker",
-                        TargetId = "cache",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("worker", "cache")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1143,21 +599,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenOnlyAgentProposedTopologyExists_AllowsNewServiceDeclarationsInSameBatch()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-worker",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "worker",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = nameof(AgentType.Topology),
-                    SourceId = "ProposedChanges"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(nodeId: "svc-worker", label: "worker", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)));
 
         AgentResult topology = new()
         {
@@ -1198,30 +640,9 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenMixedGraphExists_AllowsTopologyToDeclareNewServicesAlongsideAgentProposedNodes()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "svc-worker",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "worker",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = nameof(AgentType.Topology),
-                    SourceId = "ProposedChanges"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "svc-worker", label: "worker", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)));
 
         AgentResult topology = new()
         {
@@ -1262,28 +683,9 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenGraphIsEmpty_RejectsRelationshipOnlyProposalsWithoutDeclaredEndpoints()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes = []
-        };
+        GraphSnapshot graph = Graph();
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "phantom",
-                        TargetId = "other",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("phantom", "other")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1294,10 +696,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenGraphIsEmpty_AllowsGreenfieldServiceAndDatastoreProposals()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes = []
-        };
+        GraphSnapshot graph = Graph();
 
         AgentResult topology = new()
         {
@@ -1347,10 +746,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenGraphIsEmpty_StripsRelationshipsReferencingUndeclaredEndpoints()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes = []
-        };
+        GraphSnapshot graph = Graph();
 
         AgentResult topology = new()
         {
@@ -1390,10 +786,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenGraphIsEmpty_AllowsCostRelationshipOnlyProposalsReferencingTopologyRenameAliasFromPriorResult()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes = []
-        };
+        GraphSnapshot graph = Graph();
 
         AgentResult topology = new()
         {
@@ -1432,24 +825,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             }
         };
 
-        AgentResult cost = new()
-        {
-            ResultId = "cost-1",
-            AgentType = AgentType.Cost,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Cost,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "renamed-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult cost = ResultFor(AgentType.Cost, ProposalFor(AgentType.Cost, Relationship("renamed-api")), resultId: "cost-1");
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology, cost]);
@@ -1461,10 +837,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenGraphIsEmpty_AllowsCostRelationshipOnlyProposalsReferencingTopologyRenameAliasWhenCostResultAppearsFirst()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes = []
-        };
+        GraphSnapshot graph = Graph();
 
         AgentResult topology = new()
         {
@@ -1503,24 +876,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             }
         };
 
-        AgentResult cost = new()
-        {
-            ResultId = "cost-1",
-            AgentType = AgentType.Cost,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Cost,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "renamed-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult cost = ResultFor(AgentType.Cost, ProposalFor(AgentType.Cost, Relationship("renamed-api")), resultId: "cost-1");
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost, topology]);
@@ -1532,10 +888,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenGraphIsEmpty_AllowsTopologyRelationshipOnlyFollowUpReferencingPriorTopologyRenameAliasWhenFollowUpAppearsFirst()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes = []
-        };
+        GraphSnapshot graph = Graph();
 
         AgentResult firstTopology = new()
         {
@@ -1574,24 +927,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             }
         };
 
-        AgentResult followUpTopology = new()
-        {
-            ResultId = "topology-2",
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "renamed-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult followUpTopology = TopologyResult(RelationshipProposal(Relationship("renamed-api")), resultId: "topology-2");
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [followUpTopology, firstTopology]);
@@ -1604,30 +940,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_RejectsRelationshipOnlyFollowUpWithUndeclaredRenameLabels()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
 
         AgentResult declaration = new()
         {
@@ -1659,24 +972,7 @@ public sealed class AgentTopologyProposalMergeGateTests
             }
         };
 
-        AgentResult followUp = new()
-        {
-            ResultId = "topology-2",
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "renamed-api",
-                        TargetId = "renamed-sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult followUp = TopologyResult(RelationshipProposal(Relationship("renamed-api", "renamed-sql")), resultId: "topology-2");
 
         AgentResult[] results = [followUp, declaration];
         CrossAgentProposalConsistencyGate.ApplyToResults(results);
@@ -1694,47 +990,11 @@ public sealed class AgentTopologyProposalMergeGateTests
             "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-app";
         const string paddedArmId = $"  {rawArmId}  ";
 
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    Properties = new Dictionary<string, string> { ["resourceId"] = rawArmId }
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(sourceId: null, sourceType: null, properties: new Dictionary<string, string> { ["resourceId"] = rawArmId }),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = paddedArmId,
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(paddedArmId)));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1750,47 +1010,11 @@ public sealed class AgentTopologyProposalMergeGateTests
             "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-app";
         const string paddedArmId = $"  {rawArmId}  ";
 
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    Properties = new Dictionary<string, string> { ["resourceId"] = paddedArmId }
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(sourceId: null, sourceType: null, properties: new Dictionary<string, string> { ["resourceId"] = paddedArmId }),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = rawArmId,
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(rawArmId)));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1805,48 +1029,9 @@ public sealed class AgentTopologyProposalMergeGateTests
         const string rawTerraformSourceId = "azurerm_app_service.main";
         const string paddedTerraformSourceId = $"  {rawTerraformSourceId}  ";
 
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = paddedTerraformSourceId
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(sourceId: paddedTerraformSourceId), DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = rawTerraformSourceId,
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(rawTerraformSourceId)));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1858,47 +1043,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_datastore_node_has_missing_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            Node("ds-1", "sql", sourceId: "azurerm_mssql_server.main", sourceType: "Terraform"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sql")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1910,48 +1059,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_datastore_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "ds-1", label: "sql", sourceId: "azurerm_mssql_server.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sql")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1963,48 +1075,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_service_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_app_service.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-api",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-api")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2016,30 +1091,7 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsRenamedServiceOverlayWhenServiceIdHasSurroundingWhitespace()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
 
         AgentResult compliance = new()
         {
@@ -2080,48 +1132,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_api_management_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "apim-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "apim",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_api_management.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "apim-1", label: "apim", sourceId: "azurerm_api_management.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-apim",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-apim")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2133,48 +1148,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_static_site_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "web-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "frontend",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_static_site.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "web-1", label: "frontend", sourceId: "azurerm_static_site.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-frontend",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-frontend")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2186,48 +1164,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_signalr_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "signalr-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "realtime",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_signalr_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "signalr-1", label: "realtime", sourceId: "azurerm_signalr_service.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-realtime",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-realtime")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2239,48 +1180,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_logic_app_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "logic-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "workflow",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_logic_app_workflow.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "logic-1", label: "workflow", sourceId: "azurerm_logic_app_workflow.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-workflow",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-workflow")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2292,48 +1196,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_key_vault_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "kv-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "secrets",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_key_vault.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "kv-1", label: "secrets", sourceId: "azurerm_key_vault.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-secrets",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-secrets")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2345,48 +1212,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_service_plan_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "plan-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "hosting",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_service_plan.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "plan-1", label: "hosting", sourceId: "azurerm_service_plan.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-hosting",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-hosting")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2398,48 +1228,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_spring_cloud_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "spring-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "backend",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_spring_cloud_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "spring-1", label: "backend", sourceId: "azurerm_spring_cloud_service.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-backend",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-backend")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2451,48 +1244,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_search_service_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "search-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "catalog",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_search_service.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "search-1", label: "catalog", sourceId: "azurerm_search_service.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-catalog",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-catalog")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2504,48 +1260,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_servicebus_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "sb-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "orders",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_servicebus_namespace.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "sb-1", label: "orders", sourceId: "azurerm_servicebus_namespace.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-orders",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-orders")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2557,48 +1276,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_eventhub_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "eh-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "events",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_eventhub_namespace.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "eh-1", label: "events", sourceId: "azurerm_eventhub_namespace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-events",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-events")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2610,48 +1292,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_container_registry_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "acr-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "acr",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_container_registry.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "acr-1", label: "acr", sourceId: "azurerm_container_registry.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-acr",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-acr")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2663,48 +1308,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_cognitive_account_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "cog-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "openai",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_cognitive_account.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "cog-1", label: "openai", sourceId: "azurerm_cognitive_account.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-openai",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-openai")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2716,48 +1324,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_service_fabric_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "sf-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "fabric",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_service_fabric_cluster.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "sf-1", label: "fabric", sourceId: "azurerm_service_fabric_cluster.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-fabric",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-fabric")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2769,48 +1340,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_synapse_workspace_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "syn-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "synapse",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_synapse_workspace.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "syn-1", label: "synapse", sourceId: "azurerm_synapse_workspace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-synapse",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-synapse")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2822,48 +1356,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_application_gateway_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "agw-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "gateway",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_application_gateway.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "agw-1", label: "gateway", sourceId: "azurerm_application_gateway.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-gateway",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-gateway")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2875,48 +1372,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_data_factory_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "adf-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "etl",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_data_factory.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "adf-1", label: "etl", sourceId: "azurerm_data_factory.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-etl",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-etl")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2928,48 +1388,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_linux_virtual_machine_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "vm-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "worker",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_linux_virtual_machine.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "vm-1", label: "worker", sourceId: "azurerm_linux_virtual_machine.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-worker",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-worker")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -2981,48 +1404,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_mariadb_server_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "mdb-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "mariadb",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mariadb_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "mdb-1", label: "mariadb", sourceId: "azurerm_mariadb_server.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-mariadb",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-mariadb")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3034,48 +1420,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_batch_account_node_has_storage_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "batch-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "batch",
-                    Category = GraphTopologyCategories.Storage,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_batch_account.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            Node("batch-1", "batch", category: GraphTopologyCategories.Storage, sourceId: "azurerm_batch_account.main", sourceType: "Terraform"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-batch",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-batch")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3087,48 +1436,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_machine_learning_workspace_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ml-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "ml",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_machine_learning_workspace.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "ml-1", label: "ml", sourceId: "azurerm_machine_learning_workspace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-ml",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-ml")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3140,48 +1452,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_traffic_manager_profile_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "tm-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "traffic",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_traffic_manager_profile.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "tm-1", label: "traffic", sourceId: "azurerm_traffic_manager_profile.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-traffic",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-traffic")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3193,48 +1468,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_databricks_workspace_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "dbx-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "lakehouse",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_databricks_workspace.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "dbx-1", label: "lakehouse", sourceId: "azurerm_databricks_workspace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-lakehouse",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-lakehouse")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3246,48 +1484,9 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_load_balancer_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "lb-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "public",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_lb.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(DataNode(nodeId: "lb-1", label: "public", sourceId: "azurerm_lb.main"), DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-public",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-public")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3299,48 +1498,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_kusto_cluster_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "kusto-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "logs",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_kusto_cluster.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "kusto-1", label: "logs", sourceId: "azurerm_kusto_cluster.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-logs",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-logs")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3352,48 +1514,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_cdn_frontdoor_profile_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "fd-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "edge",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_cdn_frontdoor_profile.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "fd-1", label: "edge", sourceId: "azurerm_cdn_frontdoor_profile.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-edge",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edge")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3405,48 +1530,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_app_configuration_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "appcfg-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "config",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_configuration.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "appcfg-1", label: "config", sourceId: "azurerm_app_configuration.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-config",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-config")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3458,48 +1546,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_firewall_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "fw-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "perimeter",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_firewall.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "fw-1", label: "perimeter", sourceId: "azurerm_firewall.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-perimeter",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-perimeter")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3511,48 +1562,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_netapp_volume_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "netapp-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "files",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_netapp_volume.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "netapp-1", label: "files", sourceId: "azurerm_netapp_volume.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-files",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-files")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3564,48 +1578,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_container_group_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "cg-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "worker",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_container_group.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "cg-1", label: "worker", sourceId: "azurerm_container_group.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-worker",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-worker")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3617,48 +1594,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_recovery_services_vault_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "rsv-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "backup",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_recovery_services_vault.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "rsv-1", label: "backup", sourceId: "azurerm_recovery_services_vault.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-backup",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-backup")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3670,48 +1610,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_express_route_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "er-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "wan",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_express_route_circuit.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "er-1", label: "wan", sourceId: "azurerm_express_route_circuit.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-wan",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-wan")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3723,48 +1626,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_private_endpoint_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "pe-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "storage-pe",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_private_endpoint.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "pe-1", label: "storage-pe", sourceId: "azurerm_private_endpoint.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-storage-pe",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-storage-pe")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3776,48 +1642,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_automation_account_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "aa-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "runbooks",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_automation_account.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "aa-1", label: "runbooks", sourceId: "azurerm_automation_account.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-runbooks",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-runbooks")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3829,48 +1658,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_log_analytics_workspace_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "law-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "logs",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_log_analytics_workspace.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "law-1", label: "logs", sourceId: "azurerm_log_analytics_workspace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-logs",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-logs")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3882,48 +1674,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_virtual_network_gateway_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "vng-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "vpn",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_virtual_network_gateway.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "vng-1", label: "vpn", sourceId: "azurerm_virtual_network_gateway.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-vpn",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-vpn")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3935,48 +1690,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_application_insights_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ai-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "telemetry",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_application_insights.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "ai-1", label: "telemetry", sourceId: "azurerm_application_insights.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-telemetry",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-telemetry")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -3988,48 +1706,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_dns_zone_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "dns-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "corp",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_dns_zone.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "dns-1", label: "corp", sourceId: "azurerm_dns_zone.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-corp",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-corp")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4041,48 +1722,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_managed_disk_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "disk-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "data-disk",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_managed_disk.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "disk-1", label: "data-disk", sourceId: "azurerm_managed_disk.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-data-disk",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-data-disk")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4094,48 +1738,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_bastion_host_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "bastion-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "jump",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_bastion_host.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "bastion-1", label: "jump", sourceId: "azurerm_bastion_host.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-jump",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-jump")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4147,48 +1754,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_stream_analytics_job_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "asa-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "events",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_stream_analytics_job.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "asa-1", label: "events", sourceId: "azurerm_stream_analytics_job.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-events",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-events")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4200,48 +1770,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_nat_gateway_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "nat-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "egress",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_nat_gateway.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "nat-1", label: "egress", sourceId: "azurerm_nat_gateway.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-egress",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-egress")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4253,48 +1786,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_iothub_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "iot-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "devices",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_iothub.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "iot-1", label: "devices", sourceId: "azurerm_iothub.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-devices",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-devices")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4306,48 +1802,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_entra_id_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "idp-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "idp",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azuread_application.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "idp-1", label: "idp", sourceId: "azuread_application.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-idp",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-idp")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4359,48 +1818,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_powerbi_embedded_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "pbi-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "bi",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_powerbi_embedded.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "pbi-1", label: "bi", sourceId: "azurerm_powerbi_embedded.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-bi",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-bi")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4412,48 +1834,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_api_connection_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "conn-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sharepoint",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_api_connection.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "conn-1", label: "sharepoint", sourceId: "azurerm_api_connection.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-sharepoint",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-sharepoint")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4465,48 +1850,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_eventgrid_topic_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "eg-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "orders",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_eventgrid_topic.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "eg-1", label: "orders", sourceId: "azurerm_eventgrid_topic.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-orders",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-orders")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4518,48 +1866,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_monitor_action_group_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "mag-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "alerts",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_monitor_action_group.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "mag-1", label: "alerts", sourceId: "azurerm_monitor_action_group.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-alerts",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-alerts")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4571,48 +1882,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_redis_enterprise_cache_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "redis-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "cache",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_redis_enterprise_cache.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "redis-1", label: "cache", sourceId: "azurerm_redis_enterprise_cache.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-cache",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-cache")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4624,48 +1898,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_communication_service_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "acs-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sms",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_communication_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "acs-1", label: "sms", sourceId: "azurerm_communication_service.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-sms",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-sms")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4677,48 +1914,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_maps_account_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "maps-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "geo",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_maps_account.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "maps-1", label: "geo", sourceId: "azurerm_maps_account.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-geo",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-geo")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4730,48 +1930,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_web_pubsub_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "wps-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "realtime",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_web_pubsub.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "wps-1", label: "realtime", sourceId: "azurerm_web_pubsub.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-realtime",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-realtime")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4783,48 +1946,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_data_share_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "share-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "partner",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_data_share.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "share-1", label: "partner", sourceId: "azurerm_data_share.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-partner",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-partner")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4836,48 +1962,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_healthbot_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "hb-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "carebot",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_healthbot_healthbot.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "hb-1", label: "carebot", sourceId: "azurerm_healthbot_healthbot.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-carebot",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-carebot")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4889,48 +1978,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_digital_twins_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "dt-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "factory",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_digital_twins_instance.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "dt-1", label: "factory", sourceId: "azurerm_digital_twins_instance.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-factory",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-factory")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4942,48 +1994,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_notification_hub_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "nh-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "push",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_notification_hub_namespace.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "nh-1", label: "push", sourceId: "azurerm_notification_hub_namespace.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-push",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-push")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -4995,48 +2010,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_media_services_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ams-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "stream",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_media_services_account.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "ams-1", label: "stream", sourceId: "azurerm_media_services_account.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-stream",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-stream")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5048,48 +2026,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_fluid_relay_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "fr-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "collab",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_fluid_relay_server.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "fr-1", label: "collab", sourceId: "azurerm_fluid_relay_server.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-collab",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-collab")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5101,48 +2042,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_elastic_san_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "esan-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "vol",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_elastic_san.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "esan-1", label: "vol", sourceId: "azurerm_elastic_san.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-vol",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-vol")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5154,48 +2058,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_orbital_spacecraft_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "orb-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sat",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_orbital_spacecraft.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "orb-1", label: "sat", sourceId: "azurerm_orbital_spacecraft.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-sat",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-sat")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5207,48 +2074,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_healthcare_workspace_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "hc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "fhir",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_healthcare_workspace.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "hc-1", label: "fhir", sourceId: "azurerm_healthcare_workspace.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-fhir",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-fhir")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5260,48 +2090,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_virtual_hub_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "vh-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "wan",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_virtual_hub.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "vh-1", label: "wan", sourceId: "azurerm_virtual_hub.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-wan",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-wan")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5313,48 +2106,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_managed_lustre_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ml-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "hpc",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_managed_lustre_file_system.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "ml-1", label: "hpc", sourceId: "azurerm_managed_lustre_file_system.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-hpc",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-hpc")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5366,48 +2122,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_lab_service_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "lab-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "devbox",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_lab_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "lab-1", label: "devbox", sourceId: "azurerm_lab_service.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-devbox",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-devbox")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5419,48 +2138,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_video_indexer_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "vi-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "media",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_video_indexer.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "vi-1", label: "media", sourceId: "azurerm_video_indexer.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-media",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-media")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5472,48 +2154,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_load_test_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "lt-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "perf",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_load_test.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "lt-1", label: "perf", sourceId: "azurerm_load_test.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-perf",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-perf")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5525,48 +2170,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_hpc_cache_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "hpc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "scratch",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_hpc_cache.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "hpc-1", label: "scratch", sourceId: "azurerm_hpc_cache.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-scratch",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-scratch")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5578,48 +2186,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_dynatrace_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "dt-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "apm",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_dynatrace_monitor.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "dt-1", label: "apm", sourceId: "azurerm_dynatrace_monitor.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-apm",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-apm")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5631,48 +2202,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_backup_vault_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "bv-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "archive",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_backup_vault.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "bv-1", label: "archive", sourceId: "azurerm_backup_vault.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-archive",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-archive")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5684,48 +2218,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_kubernetes_fleet_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "kf-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "fleet",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_kubernetes_fleet_manager.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "kf-1", label: "fleet", sourceId: "azurerm_kubernetes_fleet_manager.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-fleet",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-fleet")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5737,48 +2234,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_mobile_network_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "mn-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "ran",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mobile_network.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "mn-1", label: "ran", sourceId: "azurerm_mobile_network.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-ran",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-ran")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5790,48 +2250,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_relay_namespace_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "relay-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "bridge",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_relay_namespace.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "relay-1", label: "bridge", sourceId: "azurerm_relay_namespace.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-bridge",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-bridge")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5843,48 +2266,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_dev_center_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "adc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "portal",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_dev_center.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "adc-1", label: "portal", sourceId: "azurerm_dev_center.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-portal",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-portal")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5896,48 +2282,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_api_center_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "apc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "catalog",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_api_center.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "apc-1", label: "catalog", sourceId: "azurerm_api_center.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-catalog",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-catalog")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -5949,48 +2298,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_graph_account_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ga-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "identity",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_graph_account.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "ga-1", label: "identity", sourceId: "azurerm_graph_account.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-identity",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-identity")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6002,48 +2314,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_dashboard_grafana_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "graf-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "metrics",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_dashboard_grafana.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "graf-1", label: "metrics", sourceId: "azurerm_dashboard_grafana.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-metrics",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-metrics")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6055,48 +2330,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_fabric_capacity_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "fab-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "analytics",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_fabric_capacity.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "fab-1", label: "analytics", sourceId: "azurerm_fabric_capacity.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-analytics",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-analytics")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6108,48 +2346,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_chaos_studio_target_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "chaos-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "resilience",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_chaos_studio_target.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "chaos-1", label: "resilience", sourceId: "azurerm_chaos_studio_target.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-resilience",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-resilience")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6161,48 +2362,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_confidential_ledger_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "cl-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "ledger",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_confidential_ledger.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "cl-1", label: "ledger", sourceId: "azurerm_confidential_ledger.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-ledger",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-ledger")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6214,48 +2378,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_stack_hci_cluster_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "hci-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "edge",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_stack_hci_cluster.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "hci-1", label: "edge", sourceId: "azurerm_stack_hci_cluster.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-edge",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edge")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6267,48 +2394,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_pinecone_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "pc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "vectors",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_pinecone.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "pc-1", label: "vectors", sourceId: "azurerm_pinecone.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-vectors",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-vectors")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6320,48 +2410,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_voice_services_gateway_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "vs-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "telephony",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_voice_services_communications_gateway.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "vs-1", label: "telephony", sourceId: "azurerm_voice_services_communications_gateway.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-telephony",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-telephony")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6373,48 +2426,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_mongo_cluster_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "mc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "documents",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mongo_cluster.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "mc-1", label: "documents", sourceId: "azurerm_mongo_cluster.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-documents",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-documents")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6426,48 +2442,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_workloads_sap_discovery_site_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "sap-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "discovery",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_workloads_sap_discovery_site.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "sap-1", label: "discovery", sourceId: "azurerm_workloads_sap_discovery_site.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-discovery",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-discovery")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6479,48 +2458,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_elastic_cloud_elasticsearch_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "es-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "search",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_elastic_cloud_elasticsearch.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "es-1", label: "search", sourceId: "azurerm_elastic_cloud_elasticsearch.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-search",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-search")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6532,48 +2474,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_palo_alto_local_rulestack_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "pa-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "firewall",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_palo_alto_local_rulestack.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "pa-1", label: "firewall", sourceId: "azurerm_palo_alto_local_rulestack.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-firewall",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-firewall")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6585,48 +2490,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_neptune_cluster_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "np-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "graph",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_neptune_cluster.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "np-1", label: "graph", sourceId: "azurerm_neptune_cluster.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-graph",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-graph")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6638,48 +2506,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_verifiedaccess_instance_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "va-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "ztna",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_verifiedaccess_instance.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "va-1", label: "ztna", sourceId: "azurerm_verifiedaccess_instance.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-ztna",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-ztna")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6691,48 +2522,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_oracle_cloud_vmcluster_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ora-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "oracle",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_oracle_cloud_vmcluster.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "ora-1", label: "oracle", sourceId: "azurerm_oracle_cloud_vmcluster.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-oracle",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-oracle")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6744,48 +2538,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_workloads_orchestrator_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "wo-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "orchestrator",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_workloads_orchestrator.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "wo-1", label: "orchestrator", sourceId: "azurerm_workloads_orchestrator.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-orchestrator",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-orchestrator")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6797,48 +2554,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_oracle_autonomous_database_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "oad-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "autonomous",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_oracle_autonomous_database.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "oad-1", label: "autonomous", sourceId: "azurerm_oracle_autonomous_database.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-autonomous",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-autonomous")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6850,48 +2570,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_extended_location_custom_node_has_data_category_but_synthetic_service_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "el-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "edgezone",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_extended_location_custom.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "ds-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "sql",
-                    Category = GraphTopologyCategories.Data,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_mssql_server.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "el-1", label: "edgezone", sourceId: "azurerm_extended_location_custom.main"),
+            DataNode());
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "svc-edgezone",
-                        TargetId = "sql",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edgezone")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -6903,48 +2586,11 @@ public sealed class AgentTopologyProposalMergeGateTests
     [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_storage_mover_node_has_compute_category_but_synthetic_datastore_id_used()
     {
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "svc-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "api",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_app_service.main"
-                },
-                new GraphNode
-                {
-                    NodeId = "sm-1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "mover",
-                    Category = GraphTopologyCategories.Compute,
-                    SourceType = "Terraform",
-                    SourceId = "azurerm_storage_mover.main"
-                }
-            ]
-        };
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "sm-1", label: "mover", sourceId: "azurerm_storage_mover.main"));
 
-        AgentResult topology = new()
-        {
-            AgentType = AgentType.Topology,
-            ProposedChanges = new AgentTopologyProposal
-            {
-                SourceAgent = AgentType.Topology,
-                AddedRelationships =
-                [
-                    new ManifestRelationship
-                    {
-                        SourceId = "api",
-                        TargetId = "ds-mover",
-                        RelationshipType = RelationshipType.ReadsFrom
-                    }
-                ]
-            }
-        };
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-mover")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);

@@ -252,6 +252,7 @@ public sealed class ArchitectureIntelligenceController(
                     passed = result.Passed,
                     plantedDefectRecall = result.PlantedDefectRecall,
                     falsePositiveCount = result.FalsePositiveCount,
+                    falsePositivesByDimension = result.FalsePositivesByDimension,
                     mutationChangedFindings = result.MutationChangedFindings,
                     sourceCount = prepared.SourceTexts.Count,
                 }),

@@ -26,8 +26,8 @@ export type SignedRecordsListRow = {
   readonly reviewHref: string;
   readonly signedRecordHref: string | null;
   readonly sealIntegrity: SignedRecordsListSealIntegrityPresentation | null;
-  readonly sealSigner: string | null;
   readonly sealDigestTruncated: string | null;
+  readonly sealDigestFull: string | null;
   readonly recordLookupFailure: SignedRecordsListRecordLookupFailure | null;
 };
 
@@ -49,8 +49,8 @@ export function applyManifestSummaryToSignedRecordsListRow(
     committedUtc: summary.createdUtc,
     manifestVersion: version.length > 0 ? version : SIGNED_RECORDS_LIST_VERSION_UNKNOWN,
     sealIntegrity: deriveSignedRecordsListSealIntegrity(summary),
-    sealSigner: null,
     sealDigestTruncated: truncateSignedRecordsListSealDigest(summary.manifestHash),
+    sealDigestFull: summary.manifestHash.trim().length > 0 ? summary.manifestHash.trim() : null,
     recordLookupFailure: null,
   };
 }
@@ -73,8 +73,8 @@ export function buildSignedRecordsListRowsFromRuns(runs: readonly RunSummary[]):
         reviewHref,
         signedRecordHref: hasManifestId ? signedRecordDetailPath(goldenManifestId) : null,
         sealIntegrity: null,
-        sealSigner: null,
         sealDigestTruncated: null,
+        sealDigestFull: null,
         recordLookupFailure: hasManifestId ? null : "pending-resolution",
       };
     });

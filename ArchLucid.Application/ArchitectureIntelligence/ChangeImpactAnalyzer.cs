@@ -35,6 +35,7 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
     {
         List<ChangeImpactItem> impactedItems = [];
         HashSet<string> visitedElementIds = new(StringComparer.Ordinal);
+        HashSet<string> directlyImpactedElementIds = new(StringComparer.Ordinal);
 
         if (diffEntries is not null)
         {
@@ -45,9 +46,11 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                     ElementId = entry.ElementId,
                     ImpactKind = entry.ElementKind.ToString(),
                     Description = $"{entry.ChangeKind}: {entry.Description}",
+                    Category = ChangeImpactCategory.ModelDiffChange,
                 });
 
                 visitedElementIds.Add(entry.ElementId);
+                directlyImpactedElementIds.Add(entry.ElementId);
             }
         }
 
@@ -63,16 +66,24 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                 continue;
             }
 
+            directlyImpactedElementIds.Add(element.ElementId);
+
             impactedItems.Add(new ChangeImpactItem
             {
                 ElementId = element.ElementId,
                 ImpactKind = element.Kind.ToString(),
                 Description = $"Recommendation may affect {element.Name}.",
+                Category = ChangeImpactCategoryMapper.FromElementKind(element.Kind),
             });
         }
 
         foreach (ArchitectureModelElement element in model.Elements)
         {
+            if (!directlyImpactedElementIds.Contains(element.ElementId))
+            {
+                continue;
+            }
+
             foreach (string relatedElementId in element.RelatedElementIds)
             {
                 if (!visitedElementIds.Add(relatedElementId))
@@ -93,6 +104,7 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                     ElementId = relatedElement.ElementId,
                     ImpactKind = relatedElement.Kind.ToString(),
                     Description = $"Related element {relatedElement.Name} may be indirectly impacted.",
+                    Category = ChangeImpactCategoryMapper.FromElementKind(relatedElement.Kind),
                 });
             }
         }

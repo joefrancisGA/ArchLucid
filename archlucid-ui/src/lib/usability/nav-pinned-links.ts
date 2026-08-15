@@ -2,6 +2,8 @@
  * Sidebar pinned links — persisted per browser.
  */
 
+import { navHrefPathPart } from "@/lib/nav-href-path-part";
+
 export const NAV_PINNED_LINKS_STORAGE_KEY = "archlucid.navPinnedLinks.v1";
 
 export type NavPinnedLink = {
@@ -54,18 +56,18 @@ export function writeNavPinnedLinks(links: NavPinnedLink[]): void {
 }
 
 export function toggleNavPinnedLink(current: NavPinnedLink[], link: NavPinnedLink): NavPinnedLink[] {
-  const path = link.href.split("?")[0] ?? "";
-  const exists = current.some((row) => (row.href.split("?")[0] ?? "") === path);
+  const path = navHrefPathPart(link.href);
+  const exists = current.some((row) => navHrefPathPart(row.href) === path);
 
   if (exists) {
-    return current.filter((row) => (row.href.split("?")[0] ?? "") !== path);
+    return current.filter((row) => navHrefPathPart(row.href) !== path);
   }
 
   return [link, ...current].slice(0, 6);
 }
 
 export function isNavLinkPinned(pinned: NavPinnedLink[], href: string): boolean {
-  const path = href.split("?")[0] ?? "";
+  const path = navHrefPathPart(href);
 
-  return pinned.some((row) => (row.href.split("?")[0] ?? "") === path);
+  return pinned.some((row) => navHrefPathPart(row.href) === path);
 }

@@ -11,6 +11,10 @@ import type { BuyerGetStartedVerticalSlug } from "./get-started-verticals";
 
 export const GET_STARTED_PAGE_TITLE = "See what ArchLucid can do in 30 minutes";
 
+export const GET_STARTED_LAST_REVIEWED_LABEL = "2026-08-15" as const;
+
+export const GET_STARTED_PRIMARY_CONTENT_ID = "get-started-primary-content" as const;
+
 export const GET_STARTED_HERO_LEAD =
   "Explore an illustrative review immediately, or sign in to create a guided sample review in your own workspace. No local installation or credit card is required.";
 

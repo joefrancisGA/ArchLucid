@@ -32,7 +32,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
   const manifestIdTrimmed = (manifestId ?? "").trim();
   const signedRecordSecondaryViewPresentation =
     manifestIdTrimmed.length > 0
-      ? buildCanonicalObjectSecondaryView("signedReviewRecord", "reviewPackageAuthorityChain", {
+      ? buildCanonicalObjectSecondaryView("sealedReviewRecord", "reviewPackageAuthorityChain", {
           manifestId: manifestIdTrimmed,
         })
       : null;

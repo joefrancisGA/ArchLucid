@@ -1,6 +1,7 @@
 import type { ArchitectureCreatedHomeModel, BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
+import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer/buyer-golden-spine-run-id";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
@@ -188,8 +189,13 @@ function resolveReviewPolicyPackCallout(model: RunDetailPageModel): ReviewPolicy
 }
 
 function countPendingDecisions(findings: readonly QuickDecisionFinding[]): number {
-  return findings.filter((finding) => humanReviewStatusDisplay(finding.humanReviewStatus)?.label === "Pending review")
-    .length;
+  return findings.filter((finding) => {
+    if (finding.isMuted || isReviewFindingDispositionClosed(finding)) {
+      return false;
+    }
+
+    return humanReviewStatusDisplay(finding.humanReviewStatus)?.label === "Pending review";
+  }).length;
 }
 
 function guidedIntakeRerunHref(runId: string): string {
@@ -210,7 +216,7 @@ export async function buildRunDetailPresentation(
     deriveBlockingApprovalCount,
     deriveEvidenceCoverageSummary,
     deriveSponsorBottomLineContent,
-    deriveHighestFindingSeverityLabel,
+    deriveHighestUnresolvedSeverityLabel,
     derivePrimaryConcernFinding,
     derivePrimaryConcernLabel,
     deriveFinalizedAtUtc,
@@ -228,6 +234,7 @@ export async function buildRunDetailPresentation(
     deriveSubmittedArchitectureText,
     formatDecisionSnapshotFindingsLine,
     formatDecisionSnapshotGovernanceOutcome,
+    filterUnresolvedFindings,
   } = await import("@/lib/run-detail-workspace-derive");
 
   const runSummaryForBadge = model.progressForPipelineUi;
@@ -239,13 +246,13 @@ export async function buildRunDetailPresentation(
     model.resolvedDetail,
     model.explanationSummary,
   );
-  const severityCounts = countFindingsBySeverity(quickDecisionFindings);
+  const severityCounts = countFindingsBySeverity(filterUnresolvedFindings(quickDecisionFindings));
   const reviewDisplayTitle = deriveReviewDisplayTitle(runSummaryForBadge, model.headline);
   const systemName = deriveArchitectureSystemName(runSummaryForBadge, reviewDisplayTitle);
-  const highestSeverity = deriveHighestFindingSeverityLabel(
-    quickDecisionFindings,
-    model.explanationSummary?.riskPosture ?? null,
-  );
+  const highestSeverity =
+    deriveHighestUnresolvedSeverityLabel(quickDecisionFindings) ??
+    model.explanationSummary?.riskPosture ??
+    null;
   const overallPosture = deriveOverallPostureLabel(
     model.explanationSummary?.riskPosture,
     model.governanceGateLabel,
@@ -273,7 +280,9 @@ export async function buildRunDetailPresentation(
     runCreatedUtc: model.resolvedDetail.run.createdUtc,
     submittedArchitecturePresent: hasSubmittedArchitecture,
   });
-  const evidenceGapsCount = quickDecisionFindings.filter((finding) => (finding.evidenceRefCount ?? 0) === 0).length;
+  const evidenceGapsCount = filterUnresolvedFindings(quickDecisionFindings).filter(
+    (finding) => (finding.evidenceRefCount ?? 0) === 0,
+  ).length;
   const evidenceCoverageComplete =
     evidenceGapsCount === 0 &&
     model.artifacts.length > 0 &&
@@ -286,7 +295,7 @@ export async function buildRunDetailPresentation(
     manifestId: model.manifestId,
     showProgressTracker: model.showProgressTracker,
     hasCommitBlockingFailures: coverageBlocking,
-    blockingFindingCount: model.manifestSummary?.unresolvedIssueCount ?? 0,
+    blockingFindingCount: blockingApprovalCount,
     buyerPolishedArtifactTable: model.buyerPolishedArtifactTable,
     operatorGovernanceDecision: model.resolvedDetail.run.operatorGovernanceDecision,
     manifestStatus: model.manifestSummary?.status ?? null,
@@ -399,7 +408,11 @@ export async function buildRunDetailPresentation(
     overallPosture,
     blockingApprovalCount,
     lowExtractionConfidenceCount: quickDecisionFindings.filter(
-      (finding) => !finding.isMuted && finding.severityValue >= 2 && finding.confidenceLevel === "Low",
+      (finding) =>
+        !finding.isMuted &&
+        !isReviewFindingDispositionClosed(finding) &&
+        finding.severityValue >= 2 &&
+        finding.confidenceLevel === "Low",
     ).length,
     workspaceStatus,
     recommendedActions,

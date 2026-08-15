@@ -27,6 +27,13 @@ const bannedStaticImports = [
   '@/components/DemoStrictNavigationGate"',
   '@/components/SponsorShellRedirect"',
   '@/components/operator/OperatorRoleGate"',
+  '@/components/shell/AppShellKeyboardShortcutBoundary"',
+  '@/components/shell/OperatorShellAccessRedirectsHost"',
+  '@/components/AppToaster"',
+  '@/components/RouteAnnouncer"',
+  '@/components/ColorModeToggle"',
+  '@/components/AuthorityThemeToggle"',
+  '@/components/ShellThemePreferencesAppearanceVocabularyRail"',
 ] as const;
 
 const bannedTopBarStaticImports = [
@@ -55,7 +62,13 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(appShellSource).toContain("AuthPanelDeferred");
     expect(appShellSource).toContain("SyncActiveRunFromPathnameDeferred");
     expect(appShellSource).toContain("AppShellMainContentGateDeferred");
-    expect(appShellSource).toContain("AppShellKeyboardShortcutBoundary");
+    expect(appShellSource).toContain("AppShellKeyboardShortcutBoundaryDeferred");
+    expect(appShellSource).toContain("OperatorShellAccessRedirectsHostDeferred");
+    expect(appShellSource).toContain("AppToasterDeferred");
+    expect(appShellSource).toContain("RouteAnnouncerDeferred");
+    expect(appShellSource).toContain("ColorModeToggleDeferred");
+    expect(appShellSource).toContain("AuthorityThemeToggleDeferred");
+    expect(appShellSource).toContain("ShellThemePreferencesAppearanceVocabularyRailDeferred");
   });
 
   it("dynamic-imports deferred shell modules", () => {
@@ -68,6 +81,14 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(deferredSource).toContain('import("@/components/AuthPanel")');
     expect(deferredSource).toContain('import("@/components/SyncActiveRunFromPathname")');
     expect(deferredSource).toContain('import("./AppShellMainContentGate")');
+    expect(deferredSource).toContain('import("./AppShellKeyboardShortcutBoundary")');
+    expect(deferredSource).toContain('import("./OperatorShellAccessRedirectsHost")');
+    expect(deferredSource).toContain('import("@/components/AppToaster")');
+    expect(deferredSource).toContain('import("@/components/RouteAnnouncer")');
+    expect(deferredSource).toContain('import("@/components/ColorModeToggle")');
+    expect(deferredSource).toContain('import("@/components/AuthorityThemeToggle")');
+    expect(deferredSource).toContain('import("@/components/ShellThemePreferencesAppearanceVocabularyRail")');
+    expect(deferredSource).toContain("deferredChunkLoader");
     expect(deferredSource).toContain("next/dynamic");
   });
 

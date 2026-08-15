@@ -61,4 +61,10 @@ describe("isNavLinkActive", () => {
     expect(isNavLinkActive("/administration/workspace-settings", "/administration")).toBe(true);
     expect(isNavLinkActive("/administration", "/administration")).toBe(true);
   });
+
+  it("matches route when href includes a fragment or query string", () => {
+    expect(isNavLinkActive("/help/getting-started", "/help/getting-started#how-archlucid-works")).toBe(true);
+    expect(isNavLinkActive("/architecture/reviews", "/architecture/reviews?status=open")).toBe(true);
+    expect(isNavLinkActive("/architecture/reviews", "/architecture/reviews?status=open#top")).toBe(true);
+  });
 });

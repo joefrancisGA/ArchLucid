@@ -47,4 +47,97 @@ public sealed class ChangeImpactAnalyzerTests
         impact.RequiresFullReReview.Should().BeTrue();
         diff.Entries.Should().Contain(entry => entry.ElementKind == ArchitectureElementKind.TrustBoundary);
     }
+
+    [Fact]
+    public void Analyze_does_not_include_related_elements_from_unimpacted_sources()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-related",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "comp-unrelated",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Legacy batch job",
+                    RelatedElementIds = ["storage-orphan"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "storage-orphan",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Cold archive bucket",
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "comp-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout API",
+                },
+            ],
+        };
+
+        ArchitectureRecommendation recommendation = new()
+        {
+            RecommendationId = "rec-related",
+            Problem = "Checkout latency",
+            Evidence = "Trace data.",
+            AffectedRequirementOrQualityAttribute = "Performance",
+            ConsequenceOfInaction = "Latency remains.",
+            ProposedChange = "Optimize Checkout API caching.",
+            ValidationMethod = "Load test.",
+        };
+
+        ChangeImpactResult impact = _analyzer.Analyze(model, recommendation);
+
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "comp-target");
+        impact.ImpactedItems.Should().NotContain(item => item.ElementId == "storage-orphan");
+        impact.ImpactedItems.Should().NotContain(item => item.ElementId == "comp-unrelated");
+    }
+
+    [Fact]
+    public void Analyze_includes_related_elements_from_directly_impacted_sources()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-related-direct",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "comp-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout API",
+                    RelatedElementIds = ["storage-linked"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "storage-linked",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout cache",
+                },
+            ],
+        };
+
+        ArchitectureRecommendation recommendation = new()
+        {
+            RecommendationId = "rec-related-direct",
+            Problem = "Checkout latency",
+            Evidence = "Trace data.",
+            AffectedRequirementOrQualityAttribute = "Performance",
+            ConsequenceOfInaction = "Latency remains.",
+            ProposedChange = "Optimize Checkout API caching.",
+            ValidationMethod = "Load test.",
+        };
+
+        ChangeImpactResult impact = _analyzer.Analyze(model, recommendation);
+
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "comp-target");
+        impact.ImpactedItems.Should().Contain(item =>
+            item.ElementId == "storage-linked"
+            && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
+    }
 }

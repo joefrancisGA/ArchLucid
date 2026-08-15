@@ -23,6 +23,6 @@ export const AUDIT_TRAIL_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Governance approval", href: inAppHelpHref("governance-approval") },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Findings help", href: inAppHelpHref("findings") },
 ] as const;

@@ -116,7 +116,7 @@ export function buyerPolishedRouteOrientation(
   if (pathMatchesSignedRecordsDetailRoute(path)) {
     return {
       label: SIGNED_MANIFEST_LABEL,
-      line: `${BUYER_SURFACE_VOCABULARY.finalizedSignedManifestRecord} — decisions, findings counts, artifacts, and download bundle.`,
+      line: `${BUYER_SURFACE_VOCABULARY.sealedReviewRecord} — decisions, findings counts, artifacts, and download bundle.`,
     };
   }
 

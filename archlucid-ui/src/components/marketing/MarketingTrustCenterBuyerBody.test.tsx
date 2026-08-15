@@ -33,7 +33,7 @@ describe("MarketingTrustCenterBuyerBody", () => {
     expect(within(secondary).getByRole("link", { name: /Privacy policy/i })).toHaveAttribute("href", "/privacy");
     expect(within(secondary).getByRole("link", { name: /Assurance status/i })).toHaveAttribute(
       "href",
-      "/security-trust",
+      "/assurance-status",
     );
   });
 
@@ -81,10 +81,7 @@ describe("MarketingTrustCenterBuyerBody", () => {
     render(<MarketingTrustCenterBuyerBody lastReviewedUtc="2026-05-01" />);
 
     const downloads = screen.getByTestId("trust-center-public-downloads");
-    expect(within(downloads).getByTestId("trust-public-artifact-link-evidence-pack-zip")).toHaveAttribute(
-      "href",
-      "/v1/marketing/trust-center/evidence-pack.zip",
-    );
+    expect(within(downloads).queryByTestId("trust-public-artifact-link-evidence-pack-zip")).toBeNull();
     expect(within(downloads).getByTestId("trust-public-artifact-link-soc2-self-assessment")).toHaveAttribute(
       "href",
       "/help/soc2-self-assessment",

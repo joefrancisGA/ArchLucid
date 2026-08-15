@@ -5,7 +5,7 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-rout
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 /** Governed operator objects with a single canonical home route (TB-2153 / TB-1026). */
-export type GovernedObjectType = "finding" | "decision" | "signedReviewRecord" | "approvalRequest";
+export type GovernedObjectType = "finding" | "decision" | "sealedReviewRecord" | "approvalRequest";
 
 /** Surfaces where governed objects may appear without being at canonical home. */
 export type SecondaryAppearanceSurface =
@@ -61,7 +61,7 @@ export function canonicalObjectHomeActionLabel(objectType: GovernedObjectType): 
       return "finding record";
     case "decision":
       return "decision register";
-    case "signedReviewRecord":
+    case "sealedReviewRecord":
       return "sealed review record";
     case "approvalRequest":
       return "approval queue";
@@ -96,11 +96,11 @@ export function canonicalObjectHomeHref(
     }
     case "decision":
       return DECISION_REGISTER_CANONICAL_PATH;
-    case "signedReviewRecord": {
+    case "sealedReviewRecord": {
       const manifestId = params.manifestId?.trim() ?? "";
 
       if (manifestId.length === 0) {
-        throw new Error("signedReviewRecord canonical home requires manifestId");
+        throw new Error("sealedReviewRecord canonical home requires manifestId");
       }
 
       return signedRecordDetailPath(manifestId);
@@ -189,7 +189,7 @@ export const GOLDEN_PATH_SECONDARY_OBJECT_SURFACES: readonly {
   },
   {
     id: "review-package-authority-chain",
-    objectType: "signedReviewRecord",
+    objectType: "sealedReviewRecord",
     surface: "reviewPackageAuthorityChain",
     hostTestId: "review-authority-secondary-view-strip",
   },

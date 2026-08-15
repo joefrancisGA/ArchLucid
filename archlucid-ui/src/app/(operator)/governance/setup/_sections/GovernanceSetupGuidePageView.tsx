@@ -1,4 +1,5 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
   PageContextualHelpButton,
@@ -76,6 +77,9 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
             claim={GOVERNANCE_SETUP_CLAIM_DISCIPLINE}
             sourcesIntro={GOVERNANCE_SETUP_SOURCES_INTRO}
             sources={GOVERNANCE_SETUP_SOURCES}
+            claimElement="aside"
+            sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
+            sourcesLayout="wrap"
           />
         </div>
 

@@ -13,7 +13,7 @@ describe("marketing-assurance-public-labels", () => {
   it("keeps canonical public chrome labels stable", () => {
     expect(TRUST_CENTER_PUBLIC_PATH).toBe("/trust");
     expect(TRUST_CENTER_PUBLIC_LABEL).toBe("Trust Center");
-    expect(ASSURANCE_STATUS_PUBLIC_PATH).toBe("/security-trust");
+    expect(ASSURANCE_STATUS_PUBLIC_PATH).toBe("/assurance-status");
     expect(ASSURANCE_STATUS_PUBLIC_LABEL).toBe("Assurance status");
     expect(PRIVACY_POLICY_PUBLIC_PATH).toBe("/privacy");
     expect(PRIVACY_POLICY_PUBLIC_LABEL).toBe("Privacy policy");

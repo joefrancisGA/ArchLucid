@@ -70,6 +70,7 @@ public sealed class TopologyCoverageFindingEngineTests
         findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
         findings[0].Trace.RulesApplied.Should().Contain("topology-coverage-categories");
         findings[0].Trace.GraphNodeIdsExamined.Should().Equal("topo-a", "topo-b", "topo-c");
+        findings[0].RelatedNodeIds.Should().Equal("topo-a", "topo-b", "topo-c");
         findings[0].Trace.Notes.Should().Contain(n => n.StartsWith("Present:", StringComparison.Ordinal));
         findings[0].Trace.Notes.Should().Contain(n => n.StartsWith("Missing:", StringComparison.Ordinal));
         findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(3);

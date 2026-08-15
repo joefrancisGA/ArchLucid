@@ -73,7 +73,13 @@ export function isVerifyHypothesisReviewFinding(finding: QuickDecisionFinding): 
     return true;
   }
 
-  return textIncludesAny(combinedFindingText(finding), ["hypothesis", "exploratory challenge", "speculative"]);
+  return textIncludesAny(combinedFindingText(finding), [
+    "hypothesis",
+    "exploratory challenge",
+    "speculative",
+    "adversarial challenge",
+    "falsify/confirm with",
+  ]);
 }
 
 /** TB-2310: diagram vs narrative and opposite conclusions on shared evidence. */

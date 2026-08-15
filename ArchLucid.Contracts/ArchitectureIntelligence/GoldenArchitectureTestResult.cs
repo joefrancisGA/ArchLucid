@@ -46,6 +46,13 @@ public class GoldenArchitectureTestResult
         set;
     }
 
+    /// <summary>Measured false positives grouped by specialist quality dimension.</summary>
+    public Dictionary<string, int> FalsePositivesByDimension
+    {
+        get;
+        set;
+    } = new();
+
     public List<CategoryBenchmarkScore> CategoryScores
     {
         get;

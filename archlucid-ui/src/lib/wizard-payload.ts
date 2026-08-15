@@ -1,5 +1,7 @@
 import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
+import { evaluatePolicyPackCloudMismatch } from "@/lib/review-quality/review-intake-quality-gates";
+import { normalizeCloudProviderForMismatchCheck } from "@/lib/review-quality/policy-pack-cloud-mismatch-for-review";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 export type WizardCreateRunPayloadOptions = {
@@ -7,6 +9,28 @@ export type WizardCreateRunPayloadOptions = {
   wizardPresetUsed?: string;
   focusedPilotModeEnabled?: boolean;
 };
+
+function resolveWizardPolicyReferences(
+  values: WizardFormValues,
+  options?: WizardCreateRunPayloadOptions,
+): string[] {
+  const focusedPilotModeEnabled = options?.focusedPilotModeEnabled ?? true;
+
+  return applyFocusedPilotModePolicyReferences(values.policyReferences, focusedPilotModeEnabled);
+}
+
+/** TB-2322 — same mismatch rules as guided intake and committed review detail. */
+export function deriveWizardPolicyPackCloudMismatch(
+  values: WizardFormValues,
+  options?: WizardCreateRunPayloadOptions,
+): string | null {
+  const policyReferences = resolveWizardPolicyReferences(values, options);
+
+  return evaluatePolicyPackCloudMismatch(
+    normalizeCloudProviderForMismatchCheck(values.cloudProvider),
+    policyReferences,
+  );
+}
 
 /**
  * Maps validated wizard values to the POST `/v1/architecture/request` body (camelCase, optional fields omitted when empty).
@@ -39,11 +63,7 @@ export function wizardValuesToCreateRunPayload(
     payload.inlineRequirements = inlineReq;
   }
 
-  const focusedPilotModeEnabled = options?.focusedPilotModeEnabled ?? true;
-  const policyReferences = applyFocusedPilotModePolicyReferences(
-    values.policyReferences,
-    focusedPilotModeEnabled,
-  );
+  const policyReferences = resolveWizardPolicyReferences(values, options);
 
   if (policyReferences.length > 0) {
     payload.policyReferences = policyReferences;

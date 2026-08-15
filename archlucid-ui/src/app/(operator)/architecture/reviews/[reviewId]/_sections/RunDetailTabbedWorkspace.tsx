@@ -352,6 +352,8 @@ const architectureTabPanelEl = (
                 ruleSetVersion={reviewPolicyPackCallout.ruleSetVersion}
                 runId={m.resolvedDetail.run.runId}
                 totalFindingCount={m.findingCountDisplay}
+                architectureRequestId={m.resolvedDetail.run.architectureRequestId}
+                packAssignments={m.manifestSummaryForUi?.effectiveGovernanceAtCommit?.packAssignments}
               />
             ) : null}
             {m.manifestId && m.manifestSummaryForUi ? (

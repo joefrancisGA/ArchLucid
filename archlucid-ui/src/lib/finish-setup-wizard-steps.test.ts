@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  areFinishSetupRequiredStepsComplete,
+  countFinishSetupReadySteps,
   FINISH_SETUP_SYSTEM_HEALTH_PATH,
   FINISH_SETUP_WIZARD_STEPS,
   resolveFinishSetupWizardSteps,
@@ -32,5 +34,97 @@ describe("finish-setup-wizard-steps", () => {
   it("does not include cloud inventory evidence — Core Pilot walkthrough owns that link", () => {
     expect(FINISH_SETUP_WIZARD_STEPS.some((step) => step.id === "extract")).toBe(false);
     expect(FINISH_SETUP_WIZARD_STEPS.some((step) => step.href === "/administration/extract-upload")).toBe(false);
+  });
+
+  it("counts identity as ready only when identityConfigured is explicitly true", () => {
+    const managedSaas = { selfHosted: false } as const;
+
+    expect(
+      countFinishSetupReadySteps(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: true,
+          identityConfigured: true,
+        },
+        managedSaas,
+      ),
+    ).toEqual({ ready: 2, total: 2 });
+
+    expect(
+      countFinishSetupReadySteps(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: true,
+          identityConfigured: false,
+        },
+        managedSaas,
+      ),
+    ).toEqual({ ready: 1, total: 2 });
+
+    expect(
+      countFinishSetupReadySteps(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: true,
+        },
+        managedSaas,
+      ),
+    ).toEqual({ ready: 1, total: 2 });
+  });
+
+  it("does not require identity for required-step completion", () => {
+    const managedSaas = { selfHosted: false } as const;
+    const selfHosted = { selfHosted: true } as const;
+
+    expect(
+      areFinishSetupRequiredStepsComplete(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: true,
+          identityConfigured: false,
+        },
+        managedSaas,
+      ),
+    ).toBe(true);
+
+    expect(
+      areFinishSetupRequiredStepsComplete(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: false,
+          identityConfigured: true,
+        },
+        managedSaas,
+      ),
+    ).toBe(false);
+
+    expect(
+      areFinishSetupRequiredStepsComplete(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: true,
+          identityConfigured: false,
+        },
+        selfHosted,
+      ),
+    ).toBe(true);
+
+    expect(
+      areFinishSetupRequiredStepsComplete(
+        {
+          healthReady: false,
+          healthLoadFailed: false,
+          principalAdmin: true,
+          identityConfigured: true,
+        },
+        selfHosted,
+      ),
+    ).toBe(false);
   });
 });

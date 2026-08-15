@@ -13,10 +13,15 @@ import {
   type FindingsNaturalLanguageSeverity,
   type FindingsNaturalLanguageStatus,
 } from "@/lib/findings/findings-natural-language-filter";
+import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 
 /** localStorage key for last-used governance findings queue facets (TB-2228). */
 export const GOVERNANCE_FINDINGS_QUEUE_FACETS_STORAGE_KEY =
   "archlucid.governance.findingsQueueFacets.v1";
+
+/** Separate facet namespace for assigned-to-me queue (P0-GOF-2). */
+export const GOVERNANCE_FINDINGS_QUEUE_ASSIGNED_TO_ME_FACETS_STORAGE_KEY =
+  "archlucid.governance.findingsQueueFacets.assigned-to-me.v1";
 
 export type GovernanceFindingsQueueFacetsV1 = {
   registerFilter: RiskRegisterFilter;
@@ -46,6 +51,12 @@ const FINDING_JOB_VIEW_ALLOWLIST: ReadonlySet<string> = new Set(Object.keys(FIND
 const NL_SEVERITY_ALLOWLIST: ReadonlySet<string> = new Set(["critical", "high", "medium", "low"]);
 
 const NL_STATUS_ALLOWLIST: ReadonlySet<string> = new Set(["open", "disposed"]);
+
+function storageKeyForMode(mode: GovernanceFindingsQueueMode = "tenant"): string {
+  return mode === "assigned-to-me"
+    ? GOVERNANCE_FINDINGS_QUEUE_ASSIGNED_TO_ME_FACETS_STORAGE_KEY
+    : GOVERNANCE_FINDINGS_QUEUE_FACETS_STORAGE_KEY;
+}
 
 function isRiskRegisterFilter(value: unknown): value is RiskRegisterFilter {
   return typeof value === "string" && RISK_REGISTER_FILTER_ALLOWLIST.has(value);
@@ -158,13 +169,15 @@ function parseStoredFacets(raw: string): GovernanceFindingsQueueFacetsResolved |
   };
 }
 
-export function readGovernanceFindingsQueueFacets(): GovernanceFindingsQueueFacetsResolved {
+export function readGovernanceFindingsQueueFacets(
+  mode: GovernanceFindingsQueueMode = "tenant",
+): GovernanceFindingsQueueFacetsResolved {
   if (typeof window === "undefined") {
     return { ...DEFAULT_GOVERNANCE_FINDINGS_QUEUE_FACETS };
   }
 
   try {
-    const raw = window.localStorage.getItem(GOVERNANCE_FINDINGS_QUEUE_FACETS_STORAGE_KEY);
+    const raw = window.localStorage.getItem(storageKeyForMode(mode));
 
     if (raw === null) {
       return { ...DEFAULT_GOVERNANCE_FINDINGS_QUEUE_FACETS };
@@ -182,7 +195,10 @@ export function readGovernanceFindingsQueueFacets(): GovernanceFindingsQueueFace
   }
 }
 
-export function writeGovernanceFindingsQueueFacets(facets: GovernanceFindingsQueueFacetsV1): void {
+export function writeGovernanceFindingsQueueFacets(
+  facets: GovernanceFindingsQueueFacetsV1,
+  mode: GovernanceFindingsQueueMode = "tenant",
+): void {
   if (typeof window === "undefined") {
     return;
   }
@@ -208,7 +224,7 @@ export function writeGovernanceFindingsQueueFacets(facets: GovernanceFindingsQue
   }
 
   try {
-    window.localStorage.setItem(GOVERNANCE_FINDINGS_QUEUE_FACETS_STORAGE_KEY, JSON.stringify(payload));
+    window.localStorage.setItem(storageKeyForMode(mode), JSON.stringify(payload));
   } catch {
     // localStorage may be unavailable (e.g. private browsing with storage blocked)
   }
@@ -217,23 +233,27 @@ export function writeGovernanceFindingsQueueFacets(facets: GovernanceFindingsQue
 /** Merges a partial update with the current stored facets, then writes. */
 export function patchGovernanceFindingsQueueFacets(
   partial: Partial<GovernanceFindingsQueueFacetsV1>,
+  mode: GovernanceFindingsQueueMode = "tenant",
 ): void {
-  const current = readGovernanceFindingsQueueFacets();
+  const current = readGovernanceFindingsQueueFacets(mode);
 
-  writeGovernanceFindingsQueueFacets({
-    registerFilter: partial.registerFilter ?? current.registerFilter,
-    jobView: partial.jobView ?? current.jobView,
-    nlFacets: partial.nlFacets ?? current.nlFacets,
-  });
+  writeGovernanceFindingsQueueFacets(
+    {
+      registerFilter: partial.registerFilter ?? current.registerFilter,
+      jobView: partial.jobView ?? current.jobView,
+      nlFacets: partial.nlFacets ?? current.nlFacets,
+    },
+    mode,
+  );
 }
 
-export function clearGovernanceFindingsQueueFacets(): void {
+export function clearGovernanceFindingsQueueFacets(mode: GovernanceFindingsQueueMode = "tenant"): void {
   if (typeof window === "undefined") {
     return;
   }
 
   try {
-    window.localStorage.removeItem(GOVERNANCE_FINDINGS_QUEUE_FACETS_STORAGE_KEY);
+    window.localStorage.removeItem(storageKeyForMode(mode));
   } catch {
     // localStorage may be unavailable (e.g. private browsing with storage blocked)
   }

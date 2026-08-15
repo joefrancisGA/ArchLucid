@@ -1,7 +1,7 @@
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 /**
- * Engagement-metadata content for the public `/security-trust` marketing page.
+ * Engagement-metadata content for the public `/assurance-status` marketing page.
  *
  * This module is the single source of truth for the marketing page; it MUST stay
  * structurally aligned with the assurance posture table in

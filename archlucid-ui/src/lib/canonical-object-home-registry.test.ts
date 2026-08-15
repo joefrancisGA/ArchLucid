@@ -19,7 +19,7 @@ describe("canonical-object-home-registry (TB-2153)", () => {
       canonicalObjectHomeHref("finding", { runId: "run-1", findingId: "finding-1" }),
     ).toBe(getFindingDetailHref("run-1", "finding-1"));
     expect(canonicalObjectHomeHref("decision", {})).toBe(DECISION_REGISTER_CANONICAL_PATH);
-    expect(canonicalObjectHomeHref("signedReviewRecord", { manifestId: "manifest-1" })).toBe(
+    expect(canonicalObjectHomeHref("sealedReviewRecord", { manifestId: "manifest-1" })).toBe(
       signedRecordDetailPath("manifest-1"),
     );
     expect(canonicalObjectHomeHref("approvalRequest", { approvalRequestId: "approval-1" })).toBe(
@@ -53,7 +53,7 @@ describe("canonical-object-home-registry (TB-2153)", () => {
 
     expect(objectTypes.has("finding")).toBe(true);
     expect(objectTypes.has("decision")).toBe(true);
-    expect(objectTypes.has("signedReviewRecord")).toBe(true);
+    expect(objectTypes.has("sealedReviewRecord")).toBe(true);
     expect(objectTypes.has("approvalRequest")).toBe(true);
     expect(GOLDEN_PATH_SECONDARY_OBJECT_SURFACES.length).toBeGreaterThanOrEqual(6);
   });

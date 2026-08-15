@@ -19,4 +19,10 @@ public class ChangeImpactItem
         get;
         set;
     } = null!;
+
+    public ChangeImpactCategory Category
+    {
+        get;
+        set;
+    } = ChangeImpactCategory.RelatedElement;
 }

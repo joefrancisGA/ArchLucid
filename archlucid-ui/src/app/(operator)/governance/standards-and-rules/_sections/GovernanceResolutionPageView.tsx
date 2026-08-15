@@ -6,12 +6,17 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GovernanceConflictsTable } from "@/components/governance/GovernanceConflictsTable";
 import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
+import { GovernanceStandardsRulesBreadcrumb } from "@/components/governance/GovernanceStandardsRulesBreadcrumb";
 import { StandardsRulesGovernanceStatusBanner } from "@/components/governance/StandardsRulesGovernanceStatusBanner";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
+import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
 import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
@@ -34,7 +39,10 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH, governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
+import { governanceResolutionUsesShowcaseRuleRows } from "@/lib/governance/governance-resolution-showcase";
 import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
+import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   buildStandardsRuleRows,
@@ -45,8 +53,14 @@ import {
   resolveStandardsRulesPolicyPackProvenanceLabel,
 } from "@/lib/standards-rules-rows";
 import {
+  STANDARDS_RULES_FILTER_NO_MATCH_BODY,
+  STANDARDS_RULES_FILTER_NO_MATCH_TITLE,
+  STANDARDS_RULES_LAST_REFRESHED_PREFIX,
+  STANDARDS_RULES_LOAD_RETRY_LABEL,
   STANDARDS_RULES_PAGE_SUBTITLE,
   STANDARDS_RULES_PAGE_TITLE,
+  STANDARDS_RULES_REFRESHING_STATUS,
+  STANDARDS_RULES_RESET_FILTERS,
 } from "@/lib/standards-rules-page";
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 import { GovernanceResolutionExportControls } from "./GovernanceResolutionExportControls";
@@ -56,6 +70,8 @@ import { StandardsRulesPolicyPackReference } from "./StandardsRulesPolicyPackRef
 import { StandardsRulesReviewContextRow } from "./StandardsRulesReviewContextRow";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
 import { StandardsRulesTable } from "./StandardsRulesTable";
+import { StandardsRulesTableSkeleton } from "./StandardsRulesTableSkeleton";
+import { Button } from "@/components/ui/button";
 type Props = {
   readonly model: GovernanceResolutionPageViewModel;
 };
@@ -195,6 +211,15 @@ export function GovernanceResolutionPageView(props: Props) {
   const summary = useMemo(() => buildStandardsRulesSummary(allRuleRows), [allRuleRows]);
   const filterOptions = useMemo(() => collectStandardsRulesFilterOptions(allRuleRows), [allRuleRows]);
   const useShowcaseFallback = m.buyerPolishedShell;
+  const usesShowcaseRuleRows =
+    m.buyerPolishedShell && m.failure === null && governanceResolutionUsesShowcaseRuleRows(m.data) && allRuleRows.length > 0;
+  const freshnessLabel = operatorFreshnessMetadataWithClockLabel({
+    prefix: STANDARDS_RULES_LAST_REFRESHED_PREFIX,
+    lastRefreshedAt: m.loading ? null : m.lastRefreshedAt,
+    refreshingLabel: m.loading ? STANDARDS_RULES_REFRESHING_STATUS : null,
+  });
+  const showTableSkeleton = m.loading && allRuleRows.length > 0;
+  const showRulesTable = !m.loading && filteredRuleRows.length > 0;
   const governanceBanner = useMemo(
     () =>
       m.failure === null
@@ -220,6 +245,11 @@ export function GovernanceResolutionPageView(props: Props) {
   if (m.buyerPolishedShell) {
     return (
       <div className="w-full max-w-[1440px]">
+        {usesShowcaseRuleRows ? (
+          <div className="mb-3">
+            <OperatorDemoStaticBanner emphasizeSampleData />
+          </div>
+        ) : null}
         {governanceBanner !== null ? (
           <StandardsRulesGovernanceStatusBanner
             className="mb-3"
@@ -232,47 +262,93 @@ export function GovernanceResolutionPageView(props: Props) {
           navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
           title={STANDARDS_RULES_PAGE_TITLE}
           subtitle={STANDARDS_RULES_PAGE_SUBTITLE}
+          breadcrumb={<GovernanceStandardsRulesBreadcrumb />}
           actions={<PageContextualHelpButton />}
         />
         <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" variant="compact" />
         {m.failure !== null ? (
-          <div role="alert">
-            <OperatorApiProblem
-              problem={m.failure.problem}
-              fallbackMessage={m.failure.message}
-              correlationId={m.failure.correlationId}
-            />
+          <div className="mb-4 space-y-3" role="alert" data-testid="standards-rules-load-failure">
+            <OperatorApiProblem failure={m.failure} />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              data-testid="standards-rules-load-retry"
+              disabled={m.loading}
+              onClick={() => {
+                void m.load();
+              }}
+            >
+              {STANDARDS_RULES_LOAD_RETRY_LABEL}
+            </Button>
           </div>
         ) : null}
-        {reviewContext !== null ? <StandardsRulesReviewContextRow context={reviewContext} /> : null}
-        <StandardsRulesSummaryStrip
-          summary={summary}
-          onApplyFilter={(partial) => {
-            setFilters((current) => ({ ...current, ...partial }));
-          }}
-        />
-        <StandardsRulesFilters
-          filters={filters}
-          visibleCount={filteredRuleRows.length}
-          totalCount={allRuleRows.length}
-          options={filterOptions}
-          onChange={setFilters}
-          onReset={() => {
-            setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
-          }}
-          onRefresh={() => {
-            void m.load();
-          }}
-          refreshing={m.loading}
-        />
+        {m.failure === null ? (
+          <>
+            {reviewContext !== null ? <StandardsRulesReviewContextRow context={reviewContext} /> : null}
+            <div className="mb-4">
+              <OperatorPageFreshnessMetadata
+                testId="standards-rules-last-refreshed"
+                lastRefreshedAt={m.loading ? null : m.lastRefreshedAt}
+              >
+                {freshnessLabel}
+              </OperatorPageFreshnessMetadata>
+            </div>
+            <StandardsRulesSummaryStrip
+              summary={summary}
+              onApplyFilter={(partial) => {
+                setFilters((current) => ({ ...current, ...partial }));
+              }}
+            />
+            <StandardsRulesFilters
+              filters={filters}
+              visibleCount={filteredRuleRows.length}
+              totalCount={allRuleRows.length}
+              options={filterOptions}
+              onChange={setFilters}
+              onReset={() => {
+                setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
+              }}
+              onRefresh={() => {
+                void m.load();
+              }}
+              refreshing={m.loading}
+            />
+          </>
+        ) : null}
         <GovernanceResolutionExportControls compact exportRows={filteredRuleRows} model={m} />
-        {allRuleRows.length === 0 ? (
-          <StandardsRulesEmptyState />
-        ) : filteredRuleRows.length === 0 ? (
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No rules match your filters.</p>
-        ) : (
-          <StandardsRulesTable rows={filteredRuleRows} />
-        )}
+        {m.failure === null ? (
+          <>
+            {allRuleRows.length === 0 && !m.loading ? (
+              <StandardsRulesEmptyState />
+            ) : null}
+            {!m.loading && allRuleRows.length > 0 && filteredRuleRows.length === 0 ? (
+              <EnterpriseCompactEmptyState
+                testId="standards-rules-filter-no-match-empty-state"
+                title={STANDARDS_RULES_FILTER_NO_MATCH_TITLE}
+                description={STANDARDS_RULES_FILTER_NO_MATCH_BODY}
+                footer={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    data-testid="standards-rules-clear-filters"
+                    onClick={() => {
+                      setFilters(EMPTY_STANDARDS_RULES_FILTER_STATE);
+                    }}
+                  >
+                    {STANDARDS_RULES_RESET_FILTERS}
+                  </Button>
+                }
+              />
+            ) : null}
+            {showTableSkeleton ? <StandardsRulesTableSkeleton rowCount={Math.max(allRuleRows.length, 3)} /> : null}
+            {showRulesTable ? <StandardsRulesTable rows={filteredRuleRows} /> : null}
+            {usesShowcaseRuleRows ? (
+              <OperatorEvidenceLimitsFooter runId={SHOWCASE_STATIC_DEMO_RUN_ID} showArchitectureReviewSummaryLink={false} />
+            ) : null}
+          </>
+        ) : null}
       </div>
     );
   }
@@ -285,6 +361,7 @@ export function GovernanceResolutionPageView(props: Props) {
         navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
         title={OPERATOR_NAV_LINK_LABELS.governanceResolution}
         subtitle={m.canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
+        breadcrumb={<GovernanceStandardsRulesBreadcrumb />}
         actions={<PageContextualHelpButton />}
       />
       <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />

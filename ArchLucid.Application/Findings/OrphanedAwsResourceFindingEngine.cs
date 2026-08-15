@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -6,6 +7,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 
@@ -38,7 +40,7 @@ public sealed class OrphanedAwsResourceFindingEngine(
     /// <inheritdoc />
     public async Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, CancellationToken ct)
     {
-        _ = graphSnapshot;
+        ArgumentNullException.ThrowIfNull(graphSnapshot);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         DateTime? collectionUtc = await _packageRepository
@@ -72,8 +74,11 @@ public sealed class OrphanedAwsResourceFindingEngine(
         IReadOnlyList<OrphanedResourceFinding> orphans =
             OrphanedAwsResourceClassifier.ClassifyFromResourcesJson(resourcesJson);
 
+        InventoryTopologyResourceNodeIndex topologyNodes =
+            InventoryTopologyResourceNodeIndex.Build(graphSnapshot, InventoryTopologyCloudProvider.Aws);
+
         return orphans
-            .Select(static orphan =>
+            .Select(orphan =>
             {
                 IReadOnlyList<string> alternativePaths =
                     OrphanedAwsResourceExplainabilityAlternatives.ResolveForResourceType(orphan.ResourceType);
@@ -87,7 +92,7 @@ public sealed class OrphanedAwsResourceFindingEngine(
                     Severity = FindingSeverity.Warning,
                     Title = $"Orphaned AWS resource: {orphan.ResourceType}",
                     Rationale = orphan.Message,
-                    RelatedNodeIds = [],
+                    RelatedNodeIds = topologyNodes.Resolve(orphan.ResourceId).ToList(),
                     PayloadType = nameof(RequirementFindingPayload),
                     Payload = new RequirementFindingPayload
                     {

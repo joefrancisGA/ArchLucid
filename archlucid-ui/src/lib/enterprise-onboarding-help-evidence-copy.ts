@@ -25,7 +25,7 @@ export const ENTERPRISE_ONBOARDING_HELP_SOURCES: readonly EvidenceSourceLink[] =
   { label: "Identity providers", href: "/administration/identity-providers" },
   { label: "Users and roles", href: inAppHelpHref("users-and-roles") },
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Cloud connections", href: "/integrations/cloud-connections" },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
 ] as const;

@@ -51,7 +51,8 @@ internal static class OpenApiAudiencePathClassifier
             || path.StartsWith("v1/integrations/slack", StringComparison.OrdinalIgnoreCase)
             || path.StartsWith("v1/admin/client-errors", StringComparison.OrdinalIgnoreCase)
             || path.StartsWith("v1/e2e/", StringComparison.OrdinalIgnoreCase)
-            || path.StartsWith("v1/notifications/exec-digest/unsubscribe", StringComparison.OrdinalIgnoreCase))
+            || path.StartsWith("v1/notifications/exec-digest/unsubscribe", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("v1/notifications/exec-digest/sponsor-view", StringComparison.OrdinalIgnoreCase))
             return OpenApiAudience.Internal;
 
         return OpenApiAudience.Operator;

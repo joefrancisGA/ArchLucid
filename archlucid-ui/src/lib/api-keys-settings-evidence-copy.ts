@@ -24,5 +24,5 @@ export const API_KEYS_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Users and roles", href: "/administration/users" },
   { label: "CLI usage help", href: inAppHelpHref("cli-usage") },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

@@ -5,11 +5,7 @@ import {
   MARKETING_CAPTION_TEXT_CLASS,
   MARKETING_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import {
-  LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_ARIA,
-  LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_LINK,
-} from "@/lib/live-demo-see-it-ladder-copy";
-import { SEE_IT_GUIDED_WALKTHROUGH_HREF, SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
+import { SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
@@ -45,16 +41,6 @@ export function SeeItHeroSection(): React.JSX.Element {
             No sign-in · enterprise customer intake sample
           </p>
         </div>
-        <p className={cn("mt-4", MARKETING_TYPOGRAPHY.meta)}>
-          <Link
-            className="text-teal-800 underline underline-offset-2 dark:text-teal-200"
-            href={SEE_IT_GUIDED_WALKTHROUGH_HREF}
-            data-testid="see-it-guided-walkthrough-link"
-            aria-label={LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_ARIA}
-          >
-            {LIVE_DEMO_SEE_IT_LADDER_LIVE_DEMO_LINK}
-          </Link>
-        </p>
       </div>
 
       <SeeItDeliverablePreview />

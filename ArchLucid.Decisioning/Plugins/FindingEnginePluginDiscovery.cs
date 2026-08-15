@@ -27,6 +27,7 @@ public static class FindingEnginePluginDiscovery
         "policy-applicability",
         "policy-coverage",
         "requirement-coverage",
+        "requirement-cross-run-diff",
         "compliance",
         "cost-constraint"
     ];

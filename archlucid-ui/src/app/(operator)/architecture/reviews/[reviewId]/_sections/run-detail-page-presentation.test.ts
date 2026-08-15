@@ -9,6 +9,9 @@ type ModelOverrides = {
   readonly hasCommitBlockingFailures?: boolean;
   readonly failedEngineLabels?: readonly string[];
   readonly operatorGovernanceDecision?: string | null;
+  readonly findings?: readonly Record<string, unknown>[];
+  readonly artifacts?: readonly unknown[];
+  readonly trustEvidenceCard?: unknown;
 };
 
 function model(overrides: ModelOverrides = {}): RunDetailPageModel {
@@ -24,7 +27,10 @@ function model(overrides: ModelOverrides = {}): RunDetailPageModel {
     routeRunId: "run-1",
     resolvedDetail: {
       run,
-      results: [],
+      results:
+        overrides.findings !== undefined
+          ? [{ findings: [...overrides.findings] }]
+          : [],
       findingCoverageSummary:
         overrides.hasCommitBlockingFailures === true
           ? {
@@ -32,6 +38,7 @@ function model(overrides: ModelOverrides = {}): RunDetailPageModel {
               failedEngineLabels: overrides.failedEngineLabels ?? [],
             }
           : null,
+      trustEvidenceCard: overrides.trustEvidenceCard ?? null,
     },
     runDetailTraceId: null,
     buyerPolishedArtifactTable: overrides.buyerPolishedArtifactTable ?? false,
@@ -46,7 +53,7 @@ function model(overrides: ModelOverrides = {}): RunDetailPageModel {
     manifestSummaryForUi: null,
     manifestSummaryFailure: null,
     manifestSummaryMalformed: null,
-    artifacts: [],
+    artifacts: overrides.artifacts ?? [],
     artifactsFailure: null,
     artifactsMalformed: null,
     explanationSummary: null,
@@ -120,5 +127,110 @@ describe("buildRunDetailPresentation", () => {
     expect(presentation.deferredContext.routeRunId).toBe("run-1");
     expect(presentation.deferredContext.manifestId).toBe("manifest-1");
     expect(presentation.buyerFinalizedPackage).toBe(false);
+  });
+
+  it("does not count disposition-closed findings toward pending decision badges", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        findings: [
+          {
+            findingId: "f-accepted-pending",
+            message: "Accepted via disposition",
+            severity: 2,
+            humanReviewStatus: 1,
+            latestDisposition: "Accepted",
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.pendingDecisionCount).toBe(0);
+  });
+
+  it("does not count disposition-closed findings toward low extraction confidence gate", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        findings: [
+          {
+            findingId: "f-low-conf-accepted",
+            message: "Low confidence accepted",
+            severity: 2,
+            confidenceLevel: "Low",
+            humanReviewStatus: 1,
+            latestDisposition: "Accepted",
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.lowExtractionConfidenceCount).toBe(0);
+  });
+
+  it("does not surface disposition-closed findings in material severity strip", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        findings: [
+          {
+            findingId: "f-critical-accepted",
+            message: "Critical accepted",
+            severity: 3,
+            latestDisposition: "Accepted",
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.materialSeverityLine).toBeNull();
+  });
+
+  it("does not surface disposition-closed findings in highest severity summary", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        findings: [
+          {
+            findingId: "f-critical-accepted",
+            message: "Critical accepted",
+            severity: 3,
+            latestDisposition: "Accepted",
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.overallPosture).toBe("Not assessed");
+    expect(presentation.reviewStatusSummary.highestUnresolvedSeverity).toBeNull();
+  });
+
+  it("does not count disposition-closed findings in findings triage tab badge", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        findings: [
+          {
+            findingId: "f-open",
+            message: "Still open",
+            severity: 2,
+            humanReviewStatus: 1,
+          },
+          {
+            findingId: "f-accepted",
+            message: "Accepted",
+            severity: 3,
+            latestDisposition: "Accepted",
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.findingsTriageVisibleCount).toBe(1);
   });
 });

@@ -130,7 +130,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   assignedToMeFindings: "Assigned to me",
   riskExceptions: "Exceptions",
   decisionRegister: "Decision register",
-  signedReviewRecords: "Sealed review records",
+  sealedReviewRecords: "Sealed review records",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
   /** Baseline settings (`/administration/baseline`) — sidebar short form; the page H1 keeps the "— ROI measurement" qualifier. */

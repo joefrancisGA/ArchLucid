@@ -13,11 +13,53 @@ export const SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX = "Last refreshed";
 
 export const SIGNED_RECORDS_LIST_LOADING_STATUS = "Loading sealed review records…";
 
-export function formatSignedRecordsListRecordCount(count: number): string {
-  const word = count === 1 ? "sealed review record" : "sealed review records";
+export type SignedRecordsListRecordCountOptions = {
+  readonly page?: number;
+  readonly hasMore?: boolean;
+};
 
-  return `${count} ${word}`;
+/** Page-scoped honesty — count reflects loaded rows, not workspace totals (cursor paging). */
+export function formatSignedRecordsListRecordCount(
+  count: number,
+  options?: SignedRecordsListRecordCountOptions,
+): string {
+  const word = count === 1 ? "sealed review record" : "sealed review records";
+  const base = `${count} ${word}`;
+
+  if (options?.page !== undefined && options.page > 0) {
+    if (options.hasMore === true) {
+      return `${base} on this page · more available`;
+    }
+
+    return `${base} on this page`;
+  }
+
+  return base;
 }
+
+export const SIGNED_RECORDS_LIST_TOOLBAR_ARIA_LABEL = "Filter sealed review records";
+
+export const SIGNED_RECORDS_LIST_SEARCH_LABEL = "Search";
+
+export const SIGNED_RECORDS_LIST_SEARCH_PLACEHOLDER = "Review title or version";
+
+export const SIGNED_RECORDS_LIST_FILTER_INTEGRITY_LABEL = "Seal integrity";
+
+export const SIGNED_RECORDS_LIST_FILTER_ALL_INTEGRITY = "All integrity states";
+
+export const SIGNED_RECORDS_LIST_FILTER_NO_MATCH_TITLE = "No records match your filters";
+
+export const SIGNED_RECORDS_LIST_FILTER_NO_MATCH_BODY =
+  "Try a different search term or broaden the integrity filter. Filters apply to the records loaded on this page.";
+
+export const SIGNED_RECORDS_LIST_FILTER_CLEAR_ACTION = "Clear filters";
+
+export const SIGNED_RECORDS_LIST_ENRICHING_CELL_STATUS = "Resolving seal metadata…";
+
+export const SIGNED_RECORDS_LIST_RETRY_SUCCEEDED_STATUS = "Record metadata refreshed.";
+
+export const SIGNED_RECORDS_LIST_RETRY_FAILED_STATUS =
+  "Record metadata is still unavailable — try again or open the source review.";
 
 export const SIGNED_RECORDS_LIST_EMPTY_TITLE = "No sealed review records yet";
 

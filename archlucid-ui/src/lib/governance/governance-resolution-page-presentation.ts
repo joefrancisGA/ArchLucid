@@ -27,6 +27,7 @@ export type StandardsRulesReviewContextModel = {
   readonly reviewName: string;
   readonly scopeLabel: string;
   readonly resolvedAtLabel: string;
+  readonly resolvedAtUtc: string;
   readonly contributingPolicyPacks: readonly StandardsRulesContributingPolicyPack[];
   readonly resolutionSummary: string;
 };
@@ -130,6 +131,7 @@ export function buildStandardsRulesReviewContextModel(input: {
     reviewName: scenario.buyerReviewTitle,
     scopeLabel: buildScopeLabel(input.data),
     resolvedAtLabel: formatInstantForBuyerGovernance(resolvedAtUtc),
+    resolvedAtUtc,
     contributingPolicyPacks: input.contributingPolicyPacks,
     resolutionSummary: buildResolutionSummary(input.data),
   };

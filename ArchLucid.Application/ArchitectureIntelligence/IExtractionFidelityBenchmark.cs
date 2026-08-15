@@ -7,4 +7,8 @@ public interface IExtractionFidelityBenchmark
     IReadOnlyList<ExtractionFidelityCase> MicroCases { get; }
 
     IReadOnlyList<ExtractionFidelityScore> Score(IDifficultyBasedExtractionRouter router);
+
+    IReadOnlyList<ExtractionFidelityScore> ScoreCases(
+        IDifficultyBasedExtractionRouter router,
+        IReadOnlyList<ExtractionFidelityCase> cases);
 }

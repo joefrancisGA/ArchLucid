@@ -17,6 +17,7 @@ public sealed class TopologyCrossRunDiffFindingEngine : IFindingEngine
     {
         TopologyCategoryDiffResult diff = GraphSnapshotTopologyDiffAnalyzer.AnalyzeCategoryDelta(graphSnapshot);
         List<Finding> findings = [];
+        List<string> scopeNodeIds = CrossRunDiffFindingGraphScope.CollectTopologyNodeIds(graphSnapshot);
 
         if (diff.PriorCategories.Count == 0)
             return Task.FromResult<IReadOnlyList<Finding>>(findings);
@@ -30,7 +31,8 @@ public sealed class TopologyCrossRunDiffFindingEngine : IFindingEngine
                 "topology-category-regression",
                 $"Removed categories: {string.Join(", ", diff.RemovedCategories)}",
                 "Reviewers may miss regressions in landing-zone coverage when categories disappear between runs.",
-                FindingSeverity.Warning));
+                FindingSeverity.Warning,
+                scopeNodeIds));
         }
 
         if (diff.AddedCategories.Count > 0)
@@ -44,6 +46,7 @@ public sealed class TopologyCrossRunDiffFindingEngine : IFindingEngine
                 Severity = FindingSeverity.Info,
                 Title = "Topology categories expanded since the prior committed run",
                 Rationale = "New topology categories appeared relative to the prior context snapshot.",
+                RelatedNodeIds = scopeNodeIds,
                 PayloadType = nameof(TopologyCoverageFindingPayload),
                 Payload = new TopologyCoverageFindingPayload
                 {
@@ -54,6 +57,7 @@ public sealed class TopologyCrossRunDiffFindingEngine : IFindingEngine
                 },
                 Trace = new ExplainabilityTrace
                 {
+                    GraphNodeIdsExamined = scopeNodeIds,
                     RulesApplied = ["topology-cross-run-category-diff"],
                     DecisionsTaken = ["Compared current topology categories to prior committed snapshot metadata."],
                     Notes =

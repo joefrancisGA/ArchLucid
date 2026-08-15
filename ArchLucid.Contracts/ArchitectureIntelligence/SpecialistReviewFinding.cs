@@ -68,4 +68,36 @@ public class SpecialistReviewFinding
         get;
         set;
     } = null!;
+
+    /// <summary>Lifecycle slice the finding targets when known (TB-2339 item 43).</summary>
+    public ArchitectureLifecycleScope LifecycleScope
+    {
+        get;
+        set;
+    } = ArchitectureLifecycleScope.Unspecified;
+
+    public List<string> RelatedModelElementIds
+    {
+        get;
+        set;
+    } = [];
+
+    public List<string> RelatedRequirementElementIds
+    {
+        get;
+        set;
+    } = [];
+
+    public List<string> RelatedDecisionElementIds
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Honest integrity vs semantic inference label after validation (TB-2340 item 46).</summary>
+    public EvidenceSupportTier EvidenceSupportTier
+    {
+        get;
+        set;
+    } = EvidenceSupportTier.Unverified;
 }

@@ -20,6 +20,7 @@ public sealed class ExecDigestWeeklyDeliveryScanner(
     IExecDigestEmailDispatcher execDigestEmailDispatcher,
     ITenantTrialEmailContactLookup tenantTrialEmailContactLookup,
     IExecDigestUnsubscribeTokenFactory unsubscribeTokenFactory,
+    IExecDigestSponsorDeepLinkTokenFactory sponsorDeepLinkTokenFactory,
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
     ILogger<ExecDigestWeeklyDeliveryScanner> logger)
 {
@@ -42,6 +43,9 @@ public sealed class ExecDigestWeeklyDeliveryScanner(
 
     private readonly IExecDigestUnsubscribeTokenFactory _unsubscribeTokenFactory =
         unsubscribeTokenFactory ?? throw new ArgumentNullException(nameof(unsubscribeTokenFactory));
+
+    private readonly IExecDigestSponsorDeepLinkTokenFactory _sponsorDeepLinkTokenFactory =
+        sponsorDeepLinkTokenFactory ?? throw new ArgumentNullException(nameof(sponsorDeepLinkTokenFactory));
 
     public async Task PublishDueAsync(DateTimeOffset utcNow, CancellationToken cancellationToken)
     {
@@ -127,6 +131,52 @@ public sealed class ExecDigestWeeklyDeliveryScanner(
                 .ConfigureAwait(false);
         }
 
-        await _execDigestEmailDispatcher.TryDispatchAsync(tenantId, isoKey, composition, recipients, unsubscribeUrl, cancellationToken).ConfigureAwait(false);
+        ExecDigestComposition tokenizedComposition = ApplyTokenizedSponsorDeepLinks(
+            composition,
+            tenantId,
+            isoKey,
+            operatorBase);
+
+        await _execDigestEmailDispatcher.TryDispatchAsync(
+                tenantId,
+                isoKey,
+                tokenizedComposition,
+                recipients,
+                unsubscribeUrl,
+                cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private ExecDigestComposition ApplyTokenizedSponsorDeepLinks(
+        ExecDigestComposition composition,
+        Guid tenantId,
+        string isoWeekKey,
+        string operatorBase)
+    {
+        string dashboardToken = _sponsorDeepLinkTokenFactory.CreateDashboardToken(tenantId, isoWeekKey);
+        string dashboardUrl = ExecDigestSponsorDeepLinkOperatorLinks.BuildDashboardUrl(operatorBase, dashboardToken);
+        string sponsorValueReportUrl;
+
+        if (!string.IsNullOrWhiteSpace(composition.LatestCommittedRunIdHex))
+        {
+            string runToken = _sponsorDeepLinkTokenFactory.CreateRunCollateralToken(
+                tenantId,
+                composition.LatestCommittedRunIdHex,
+                isoWeekKey);
+            sponsorValueReportUrl = ExecDigestSponsorDeepLinkOperatorLinks.BuildRunCollateralUrl(
+                operatorBase,
+                composition.LatestCommittedRunIdHex,
+                runToken);
+        }
+        else
+        {
+            sponsorValueReportUrl = dashboardUrl;
+        }
+
+        return composition with
+        {
+            DashboardUrl = dashboardUrl,
+            SponsorValueReportUrl = sponsorValueReportUrl,
+        };
     }
 }

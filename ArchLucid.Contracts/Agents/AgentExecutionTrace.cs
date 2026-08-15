@@ -410,4 +410,13 @@ public sealed class AgentExecutionTrace
         get;
         set;
     }
+
+    /// <summary>
+    ///     Customer Azure OpenAI provider connection id when the completion used a BYO endpoint (TB-872); tenant id without dashes.
+    /// </summary>
+    public string? ProviderConnectionId
+    {
+        get;
+        set;
+    }
 }

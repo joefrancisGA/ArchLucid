@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -11,14 +8,11 @@ import {
   RECOMMENDATION_LEARNING_SOURCES,
   RECOMMENDATION_LEARNING_SOURCES_INTRO,
 } from "@/lib/recommendation-learning-evidence-copy";
+import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("recommendation-learning-evidence-copy", () => {
   it("wires exports into the recommendation learning evidence strip registry", () => {
-    const registryPath = path.join(
-      process.cwd(),
-      "src/components/evidence-orientation/registry/claim-and-sources-strips.tsx",
-    );
-    const registrySource = readFileSync(registryPath, "utf8");
+    const registrySource = readClaimAndSourcesRegistrySource();
 
     expect(registrySource).toContain("recommendation-learning-evidence-copy");
     expect(registrySource).toContain("RecommendationLearningEvidenceOrientationStrip");

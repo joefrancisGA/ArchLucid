@@ -19,5 +19,5 @@ export const POLICY_PACKS_HUB_SOURCES: readonly EvidenceSourceLink[] = [
  { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
  { label: "Architecture reviews", href: "/architecture/reviews" },
  { label: "Policy packs help", href: inAppHelpHref("policy-packs") },
- { label: "Assurance status", href: "/security-trust" },
+ { label: "Assurance status", href: "/assurance-status" },
 ] as const;

@@ -18,7 +18,7 @@ describe("finalize-consequence-preview (TB-2224)", () => {
     expect(preview.title).toBe(FINALIZE_CONSEQUENCE_PREVIEW_TITLE);
     expect(preview.summary.toLowerCase()).toContain("architecture review");
     expect(preview.summary.toLowerCase()).toContain(
-      BUYER_SURFACE_VOCABULARY.signedReviewRecord.toLowerCase(),
+      BUYER_SURFACE_VOCABULARY.sealedReviewRecord.toLowerCase(),
     );
     expect(preview.replayNote).toBe(FINALIZE_REPLAY_COMPARE_NOTE);
 

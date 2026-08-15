@@ -32,6 +32,7 @@ public sealed class GoldenArchitectureTestRunnerTests
             BenchmarkScoreCategory.Enhancement,
         ]);
         result.MutationChangedFindings.Should().BeTrue();
+        result.FalsePositivesByDimension.Should().NotBeNull();
         result.Notes.Should().Contain("pre-apply");
     }
 }

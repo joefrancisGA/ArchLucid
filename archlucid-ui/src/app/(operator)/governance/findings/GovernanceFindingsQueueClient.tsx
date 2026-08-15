@@ -20,6 +20,7 @@ import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskException
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
+import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governance/findings/GovernanceFindingsQueueActiveFilterChips";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
 import { Button } from "@/components/ui/button";
@@ -79,9 +80,15 @@ import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
+  EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
   matchesFindingsNaturalLanguageFacets,
   type FindingsNaturalLanguageFacets,
 } from "@/lib/findings/findings-natural-language-filter";
+import {
+  governanceFindingsQueueActiveFilterChips,
+  governanceFindingsQueueActiveFiltersSummary,
+} from "@/lib/governance/governance-findings-queue-active-filters";
+import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
@@ -101,7 +108,7 @@ import { resolveEffectiveFindingJobView } from "@/lib/findings/finding-job-view"
 
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
-export type GovernanceFindingsQueueMode = "tenant" | "assigned-to-me";
+export type { GovernanceFindingsQueueMode };
 
 export type GovernanceFindingsQueueClientProps = {
   readonly mode?: GovernanceFindingsQueueMode;
@@ -115,10 +122,10 @@ export default function GovernanceFindingsQueueClient({
 }: GovernanceFindingsQueueClientProps) {
   const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(new Set());
   const [jobView, setJobViewState] = useState<FindingJobView>(
-    () => readGovernanceFindingsQueueFacets().jobView,
+    () => readGovernanceFindingsQueueFacets(mode).jobView,
   );
   const [nlFacets, setNlFacetsState] = useState<FindingsNaturalLanguageFacets>(
-    () => readGovernanceFindingsQueueFacets().nlFacets,
+    () => readGovernanceFindingsQueueFacets(mode).nlFacets,
   );
   const isAssignedToMe = mode === "assigned-to-me";
   const { currentPrincipal } = useOperatorNavAuthority();
@@ -144,7 +151,7 @@ export default function GovernanceFindingsQueueClient({
     removePreset,
     groupByResource,
     toggleGroupByResource,
-  } = useGovernanceFindingsFilter();
+  } = useGovernanceFindingsFilter({ mode });
 
   const [scopedFindingLifecycleCompareHref, setScopedFindingLifecycleCompareHref] = useState<string | null>(null);
 
@@ -185,13 +192,27 @@ export default function GovernanceFindingsQueueClient({
 
   const setJobView = useCallback((next: FindingJobView): void => {
     setJobViewState(next);
-    patchGovernanceFindingsQueueFacets({ jobView: next });
-  }, []);
+    patchGovernanceFindingsQueueFacets({ jobView: next }, mode);
+  }, [mode]);
 
   const setNlFacets = useCallback((next: FindingsNaturalLanguageFacets): void => {
     setNlFacetsState(next);
-    patchGovernanceFindingsQueueFacets({ nlFacets: next });
-  }, []);
+    patchGovernanceFindingsQueueFacets({ nlFacets: next }, mode);
+  }, [mode]);
+
+  const clearAllFilters = useCallback((): void => {
+    setRegisterFilter("all");
+    setJobViewState(DEFAULT_FINDING_JOB_VIEW);
+    setNlFacetsState(EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS);
+    patchGovernanceFindingsQueueFacets(
+      {
+        registerFilter: "all",
+        jobView: DEFAULT_FINDING_JOB_VIEW,
+        nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+      },
+      mode,
+    );
+  }, [mode, setRegisterFilter]);
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const filterBarVisible = !buyerPolishedShell && !loading && rows.length > 0;
@@ -268,17 +289,41 @@ export default function GovernanceFindingsQueueClient({
     !isAssignedToMe &&
     hasGovernanceApprovalProvenance(governanceApprovalProvenance);
   const assignedToMeCount = assignedToMeCountQuery.data ?? rows.length;
+  const assignedToMeLoadedFindingCount = useMemo(
+    () => rows.filter((row) => row.recordKind === "finding").length,
+    [rows],
+  );
+  const assignedToMeCountMismatch =
+    isAssignedToMe &&
+    !loading &&
+    !loadFailed &&
+    assignedToMeCountQuery.data !== undefined &&
+    assignedToMeCountQuery.data !== assignedToMeLoadedFindingCount;
+  const activeFiltersSummary = useMemo(
+    () =>
+      governanceFindingsQueueActiveFiltersSummary(
+        governanceFindingsQueueActiveFilterChips({
+          registerFilter,
+          jobView,
+          nlFacets,
+          jobViewFilterActive,
+        }),
+      ),
+    [registerFilter, jobView, nlFacets, jobViewFilterActive],
+  );
   const assignedToMeStatusBadge =
-    isAssignedToMe && !loading ? (
-      <StatusTag
-        kind={assignedToMeCount > 0 ? "needs-attention" : "ready"}
-        label={
-          assignedToMeCount === 1
-            ? "1 open finding assigned"
-            : `${assignedToMeCount} open findings assigned`
-        }
-        data-testid="governance-assigned-to-me-queue-status"
-      />
+    isAssignedToMe && !loading && !loadFailed ? (
+      <span aria-live="polite" aria-atomic="true">
+        <StatusTag
+          kind={assignedToMeCount > 0 ? "needs-attention" : "ready"}
+          label={
+            assignedToMeCount === 1
+              ? "1 open finding assigned"
+              : `${assignedToMeCount} open findings assigned`
+          }
+          data-testid="governance-assigned-to-me-queue-status"
+        />
+      </span>
     ) : null;
   const assignedToMeFreshnessLabel = assignedToMeQuery.refreshing
     ? GOVERNANCE_ASSIGNED_TO_ME_REFRESHING_LABEL
@@ -449,21 +494,41 @@ export default function GovernanceFindingsQueueClient({
           </p>
         ) : null}
 
+        {assignedToMeCountMismatch ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="governance-assigned-to-me-count-reconciliation"
+            role="status"
+          >
+            Header count ({assignedToMeCountQuery.data}) differs from loaded rows ({assignedToMeLoadedFindingCount}).
+            Refresh to reconcile.
+          </p>
+        ) : null}
+
         {filterBarVisible ? (
-          <GovernanceFindingsFilterBar
-            registerFilter={registerFilter}
-            onRegisterFilterChange={setRegisterFilter}
-            jobView={jobView}
-            onJobViewChange={setJobView}
-            savedPresets={savedPresets}
-            onSaveCurrentFilterAsPreset={saveCurrentFilterAsPreset}
-            onRemovePreset={removePreset}
-            groupByResource={groupByResource}
-            onToggleGroupByResource={toggleGroupByResource}
-            displayedRows={displayedRows}
-            filterableRows={scopedRows}
-            onNaturalLanguageFilterApply={setNlFacets}
-          />
+          <>
+            <GovernanceFindingsFilterBar
+              registerFilter={registerFilter}
+              onRegisterFilterChange={setRegisterFilter}
+              jobView={jobView}
+              onJobViewChange={setJobView}
+              savedPresets={savedPresets}
+              onSaveCurrentFilterAsPreset={saveCurrentFilterAsPreset}
+              onRemovePreset={removePreset}
+              groupByResource={groupByResource}
+              onToggleGroupByResource={toggleGroupByResource}
+              displayedRows={displayedRows}
+              filterableRows={scopedRows}
+              onNaturalLanguageFilterApply={setNlFacets}
+            />
+            <GovernanceFindingsQueueActiveFilterChips
+              registerFilter={registerFilter}
+              jobView={jobView}
+              nlFacets={nlFacets}
+              jobViewFilterActive={jobViewFilterActive}
+              onClearAll={clearAllFilters}
+            />
+          </>
         ) : null}
 
         {loading ? (
@@ -471,7 +536,14 @@ export default function GovernanceFindingsQueueClient({
         ) : null}
 
         {!loading && rows.length > 0 && displayedRows.length === 0 ? (
-          <EnterpriseCompactEmptyState {...filterNoMatchPreset} />
+          <EnterpriseCompactEmptyState
+            {...filterNoMatchPreset}
+            description={
+              activeFiltersSummary !== null
+                ? `${filterNoMatchPreset.description} Active filters: ${activeFiltersSummary}.`
+                : filterNoMatchPreset.description
+            }
+          />
         ) : null}
 
         {!loading && displayedRows.length > 0 ? (
@@ -485,6 +557,7 @@ export default function GovernanceFindingsQueueClient({
               displayedRows={displayedRows}
               buyerPolishedShell={buyerPolishedShell}
               groupByResource={groupByResource}
+              queueMode={mode}
               selectedFindingIds={selectedFindingIds}
               onSelectionChange={setSelectedFindingIds}
               onBulkApplied={() => {

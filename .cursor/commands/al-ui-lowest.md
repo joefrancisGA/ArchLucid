@@ -104,6 +104,7 @@ this command ranks on **UX only**.
 
 ## Related commands
 
+- `/al-ui-rate-lowest` — rate + ship **full** fix backlog for the lowest UX routes (no screenshot required)
 - `/al-ui-ux` — set UX score (position 2) by ID
 - `/al-ui-score` — set Evidence score (position 1) by ID
 - `/al-ui-note` — add or replace Notes by ID

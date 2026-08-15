@@ -1,9 +1,18 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 import { RunDetailFindingsWorkspace } from "./RunDetailFindingsWorkspace";
+
+const navigationMocks = vi.hoisted(() => ({
+  searchParams: new URLSearchParams(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => navigationMocks.searchParams,
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+}));
 
 vi.mock("@/components/QuickDecisionSummary", () => ({
   QuickDecisionSummary: () => <div data-testid="quick-decision-summary-stub" />,
@@ -30,6 +39,30 @@ function finding(overrides: Partial<QuickDecisionFinding>): QuickDecisionFinding
 }
 
 describe("RunDetailFindingsWorkspace", () => {
+  beforeEach(() => {
+    navigationMocks.searchParams = new URLSearchParams();
+  });
+
+  it("writes findingJobView to the url when the operator changes job view", () => {
+    const replaceState = vi.fn();
+    const originalHref = "http://localhost/architecture/reviews/run-1?reviewTab=findings";
+
+    vi.stubGlobal("history", { replaceState });
+    vi.stubGlobal("location", new URL(originalHref));
+
+    const findings: QuickDecisionFinding[] = [
+      finding({ findingId: "f-1", severityValue: 1, findingOrder: 0 }),
+    ];
+
+    render(<RunDetailFindingsWorkspace runId="run-1" findings={findings} />);
+
+    fireEvent.click(screen.getByTestId("finding-job-view-verify-hypotheses"));
+
+    expect(replaceState).toHaveBeenCalled();
+    const nextUrl = String(replaceState.mock.calls[0]?.[2] ?? "");
+    expect(nextUrl).toContain("findingJobView=verify-hypotheses");
+  });
+
   it("keeps chip counts on the confidence-gated set when a severity filter is active", () => {
     const findings: QuickDecisionFinding[] = [
       finding({ findingId: "f-medium-1", severityValue: 1, findingOrder: 0 }),

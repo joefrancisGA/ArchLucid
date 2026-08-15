@@ -266,7 +266,7 @@ function ShowcasePayloadView({
 
       <ShowcaseLead>{trimLeadDescription(payload.run.description)}</ShowcaseLead>
 
-      <ShowcaseEvidenceOrientationStrip />
+      <ShowcaseEvidenceOrientationStrip part="claim" />
 
       <ShowcaseSponsorReport payload={payload} />
 
@@ -298,6 +298,8 @@ function ShowcasePayloadView({
       </div>
 
       <ShowcaseBottomCTASection runId={runId} renderMode={renderMode} />
+
+      <ShowcaseEvidenceOrientationStrip part="sources" />
       </main>
     </ShowcasePageTelemetry>
   );
@@ -314,9 +316,9 @@ function ShowcaseFailedShell({
     <ShowcasePageTelemetry runId={runId} renderMode="failed">
       <main className="mx-auto max-w-5xl px-4 py-10">
         <ShowcaseHero runId={runId} />
-        <ShowcaseEvidenceOrientationStrip />
         {children}
         <ShowcaseBottomCTASection runId={runId} renderMode="failed" />
+        <ShowcaseEvidenceOrientationStrip />
       </main>
     </ShowcasePageTelemetry>
   );

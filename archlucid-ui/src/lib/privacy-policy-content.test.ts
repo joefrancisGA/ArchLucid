@@ -81,7 +81,7 @@ describe("privacy-policy-content", () => {
     expect(body).toContain("[Data Processing Agreement (template)](/help/dpa-template)");
     expect(body).toContain("[subprocessors list](/help/subprocessors)");
     expect(body).toContain("[Trust Center](/trust)");
-    expect(body).toContain("[Assurance status](/security-trust)");
+    expect(body).toContain("[Assurance status](/assurance-status)");
   });
 
   it("resolves quick navigation anchors from numbered headings", () => {

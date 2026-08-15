@@ -48,7 +48,7 @@ export const CAIQ_SIG_RESPONSE_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen
   },
   {
     label: "Assurance status",
-    href: "/security-trust",
+    href: "/assurance-status",
     when: "Live assurance posture, milestones, and program status",
   },
   {

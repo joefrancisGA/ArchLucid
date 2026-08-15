@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 
 import ComplianceJourneyPage from "@/app/(marketing)/compliance-journey/page";
 import {
-  COMPLIANCE_JOURNEY_PRIMARY_TRUST_CENTER_CTA_LABEL,
+  COMPLIANCE_JOURNEY_HERO_ORIENTATION,
+  COMPLIANCE_JOURNEY_LAST_REVIEWED_LABEL,
   COMPLIANCE_JOURNEY_STAGES,
   COMPLIANCE_JOURNEY_VERIFY_CONFIRMATION,
 } from "@/lib/compliance-journey-page-copy";
@@ -15,6 +16,14 @@ describe("ComplianceJourneyPage (TB-1483, TB-1485, TB-1487)", () => {
 
     expect(screen.getByTestId("compliance-journey-page")).toBeInTheDocument();
     expect(screen.getByTestId("compliance-journey-body")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Skip to compliance journey content/i })).toHaveAttribute(
+      "href",
+      "#compliance-journey-primary-content",
+    );
+    expect(screen.getByTestId("compliance-journey-hero-meta")).toHaveTextContent(COMPLIANCE_JOURNEY_LAST_REVIEWED_LABEL);
+    expect(screen.getByText(COMPLIANCE_JOURNEY_HERO_ORIENTATION)).toBeInTheDocument();
+    expect(screen.getByTestId("compliance-journey-scope-disclosure")).toBeInTheDocument();
+    expect(screen.getByTestId("trust-center-revision-history")).toBeInTheDocument();
 
     for (const stage of COMPLIANCE_JOURNEY_STAGES) {
       expect(screen.getByTestId(`compliance-journey-stage-${stage.id}`)).toBeInTheDocument();
@@ -25,13 +34,29 @@ describe("ComplianceJourneyPage (TB-1483, TB-1485, TB-1487)", () => {
 
     expect(primaryCtas).toHaveLength(1);
     expect(primaryCtas[0]).toHaveAttribute("href", "/trust");
-    expect(primaryCtas[0]).toHaveTextContent(COMPLIANCE_JOURNEY_PRIMARY_TRUST_CENTER_CTA_LABEL);
 
     expect(screen.getByTestId("compliance-journey-verify-confirmation")).toHaveTextContent(
       COMPLIANCE_JOURNEY_VERIFY_CONFIRMATION,
     );
 
-    expect(screen.queryByTestId("compliance-journey-link-trust-center")).not.toBeInTheDocument();
+    const publishStage = screen.getByTestId("compliance-journey-stage-what-we-publish");
+
+    expect(within(publishStage).queryByTestId("compliance-journey-link-trust-center")).not.toBeInTheDocument();
+  });
+
+  it("links Where we are today to Assurance status and Trust Center", () => {
+    render(<ComplianceJourneyPage />);
+
+    const whereStage = screen.getByTestId("compliance-journey-stage-where-we-are");
+
+    expect(within(whereStage).getByRole("link", { name: /Assurance status \(Trust Center page\)/i })).toHaveAttribute(
+      "href",
+      "/assurance-status",
+    );
+    expect(within(whereStage).getByRole("link", { name: /Trust Center \(Trust Center page\)/i })).toHaveAttribute(
+      "href",
+      "/trust",
+    );
   });
 
   it("keeps secondary diligence links under the publish and diligence stages", () => {

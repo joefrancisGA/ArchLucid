@@ -87,6 +87,15 @@ export function deriveFinalizeQualityScorecardInput(
   const uncoveredMandatoryRequirementCount = findings.filter(
     (finding) => !finding.isMuted && classifyReviewFindingJobView(finding) === "coverage-gaps",
   ).length;
+  let unresolvedHighSeverityDispositionCount = 0;
+
+  for (const finding of findings) {
+    if (finding.isMuted || finding.severityValue < 2 || isFinalizeResolvedReviewFinding(finding)) {
+      continue;
+    }
+
+    unresolvedHighSeverityDispositionCount += 1;
+  }
 
   return {
     blockingFindingCount: Math.max(0, Math.trunc(blockingFindingCount)),
@@ -95,6 +104,7 @@ export function deriveFinalizeQualityScorecardInput(
     uncoveredMandatoryRequirementCount,
     openCannotDetermineCount,
     lowExtractionConfidenceCount,
+    unresolvedHighSeverityDispositionCount,
   };
 }
 

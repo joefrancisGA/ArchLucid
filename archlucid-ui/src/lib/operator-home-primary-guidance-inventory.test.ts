@@ -22,11 +22,15 @@ const commandCenterSource = readFileSync(
   "utf8",
 );
 
-describe("operator home primary guidance inventory (TB-2232)", () => {
+describe("operator home primary guidance inventory (TB-2232 / TB-2331)", () => {
   it("routes home next-action through the canonical slot in the command center", () => {
     expect(commandCenterSource).toContain("OperatorHomeCanonicalNextActionSlot");
     expect(commandCenterSource).toContain("useOperatorHomeEmptyDoThisNextAction");
     expect(commandCenterSource).not.toContain("OperatorHomeDoThisNextCard");
+  });
+
+  it("does not mount a peer walkthrough panel above the canonical next-action slot (TB-2331)", () => {
+    expect(commandCenterSource).not.toContain("GoldenSponsorPackageWalkthroughPanel");
   });
 
   it("does not mount retired parallel guidance widgets on the home page shell", () => {
@@ -39,5 +43,10 @@ describe("operator home primary guidance inventory (TB-2232)", () => {
   it("keeps stickiness cockpit focused on repeat-usage snapshot only", () => {
     expect(stickinessSource).toContain("OperatorStickinessSnapshotCard");
     expect(stickinessSource).not.toContain("OperatorNextActionsCard");
+  });
+
+  it("hides stickiness cockpit on first-session eval-empty home (TB-2331)", () => {
+    expect(stickinessSource).toContain('workspacePhase === "eval-empty"');
+    expect(stickinessSource).toContain("return null");
   });
 });

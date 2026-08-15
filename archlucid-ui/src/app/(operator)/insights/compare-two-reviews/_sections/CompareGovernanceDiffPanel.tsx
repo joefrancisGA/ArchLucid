@@ -13,12 +13,15 @@ import {
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
+import { POLICY_PACK_CLOUD_MISMATCH_MESSAGE } from "@/lib/review-quality/review-intake-quality-gates";
 
 export type CompareGovernanceDiffPanelProps = {
   readonly view: CompareGovernanceDiffView | null;
   readonly loading: boolean;
   readonly softFailureMessage: string | null;
   readonly hideCurrentEffectiveDisclaimer?: boolean;
+  readonly baselineCloudMismatchDetail?: string | null;
+  readonly targetCloudMismatchDetail?: string | null;
 };
 
 function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | null): string {
@@ -165,12 +168,28 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
           <dd className={cn("m-0 mt-1 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {formatRuleSetLabel(view.baselineManifest.ruleSetId, view.baselineManifest.ruleSetVersion)}
           </dd>
+          {props.baselineCloudMismatchDetail !== null && props.baselineCloudMismatchDetail !== undefined ? (
+            <p
+              className={cn("m-0 mt-2 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="compare-governance-baseline-cloud-mismatch"
+            >
+              {POLICY_PACK_CLOUD_MISMATCH_MESSAGE} {props.baselineCloudMismatchDetail}
+            </p>
+          ) : null}
         </div>
         <div className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800">
           <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Updated review rule set</dt>
           <dd className={cn("m-0 mt-1 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {formatRuleSetLabel(view.targetManifest.ruleSetId, view.targetManifest.ruleSetVersion)}
           </dd>
+          {props.targetCloudMismatchDetail !== null && props.targetCloudMismatchDetail !== undefined ? (
+            <p
+              className={cn("m-0 mt-2 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="compare-governance-target-cloud-mismatch"
+            >
+              {POLICY_PACK_CLOUD_MISMATCH_MESSAGE} {props.targetCloudMismatchDetail}
+            </p>
+          ) : null}
         </div>
       </dl>
 

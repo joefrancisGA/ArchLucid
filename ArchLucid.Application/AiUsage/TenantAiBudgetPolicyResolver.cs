@@ -1,3 +1,4 @@
+using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
@@ -12,6 +13,7 @@ public sealed class TenantAiBudgetPolicyResolver(
     ITenantRepository tenantRepository,
     ITenantAiBudgetPolicyRepository policyRepository,
     ILlmTenantBudgetRepository budgetRepository,
+    ITenantAzureOpenAiConnectionRepository azureOpenAiConnectionRepository,
     IOptionsMonitor<AiUsageControlsOptions> aiUsageOptions,
     IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyBudgetOptions,
     IConfiguration configuration,
@@ -25,6 +27,9 @@ public sealed class TenantAiBudgetPolicyResolver(
 
     private readonly ILlmTenantBudgetRepository _budgetRepository =
         budgetRepository ?? throw new ArgumentNullException(nameof(budgetRepository));
+
+    private readonly ITenantAzureOpenAiConnectionRepository _azureOpenAiConnectionRepository =
+        azureOpenAiConnectionRepository ?? throw new ArgumentNullException(nameof(azureOpenAiConnectionRepository));
 
     private readonly IOptionsMonitor<AiUsageControlsOptions> _aiUsageOptions =
         aiUsageOptions ?? throw new ArgumentNullException(nameof(aiUsageOptions));
@@ -67,7 +72,11 @@ public sealed class TenantAiBudgetPolicyResolver(
         decimal used = state.TotalUsdPressure;
         decimal remaining = Math.Max(0m, budgetAmount + state.PurchasedCapBumpUsd - used);
         bool walletAllowed = workspaceKind == AiUsageWorkspaceKind.Paid && monthlyOpts.Enabled;
-        bool customerProvider = overrideRow?.AllowCustomerAiProvider == true && controls.AllowCustomerAiProvider;
+
+        TenantAzureOpenAiConnectionRecord? byoConnection =
+            await _azureOpenAiConnectionRepository.GetAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        bool customerProvider = controls.AllowCustomerAiProvider && byoConnection is { IsEnabled: true };
         bool hardStop = overrideRow?.HardStopEnabled ?? controls.HardStopEnabled;
         bool blocks = hardStop && used >= budgetAmount + state.PurchasedCapBumpUsd;
 

@@ -130,6 +130,16 @@ public static partial class AuditEventTypes
     /// </summary>
     public const string TenantTeamsIncomingWebhookConnectionRemoved = "TenantTeamsIncomingWebhookConnectionRemoved";
 
+    /// <summary>
+    ///     Tenant Azure OpenAI BYO connection upserted (<c>POST /v1/admin/settings/azure-openai-connection</c>).
+    /// </summary>
+    public const string TenantAzureOpenAiConnectionUpserted = "TenantAzureOpenAiConnectionUpserted";
+
+    /// <summary>
+    ///     Tenant Azure OpenAI BYO connection removed (<c>DELETE /v1/admin/settings/azure-openai-connection</c>).
+    /// </summary>
+    public const string TenantAzureOpenAiConnectionRemoved = "TenantAzureOpenAiConnectionRemoved";
+
     /// <summary>Inbound Jira webhook mapped an issue status to finding <c>HumanReviewStatus</c>.</summary>
     public const string IntegrationJiraIssueStatusSynced = "Integration.JiraIssueStatusSynced";
 

@@ -1,11 +1,17 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { ComponentType } from "react";
 
+import type { AppShellKeyboardShortcutBoundary } from "@/components/shell/AppShellKeyboardShortcutBoundary";
+import type { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
+import type { ColorModeToggle } from "@/components/ColorModeToggle";
+import type { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
 import {
   OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
 } from "@/lib/design-tokens";
+import { deferredChunkLoader } from "@/lib/import-deferred-chunk-with-retry";
 import { cn } from "@/lib/utils";
 
 const operatorTopBarLoading = (
@@ -74,5 +80,55 @@ export const SyncActiveRunFromPathnameDeferred = dynamic(
 
 export const AppShellMainContentGateDeferred = dynamic(
   () => import("./AppShellMainContentGate").then((module) => module.AppShellMainContentGate),
+  { ssr: false, loading: () => null },
+);
+
+export const AppShellKeyboardShortcutBoundaryDeferred: ComponentType<
+  React.ComponentProps<typeof AppShellKeyboardShortcutBoundary>
+> = dynamic(
+  deferredChunkLoader(() =>
+    import("./AppShellKeyboardShortcutBoundary").then((module) => module.AppShellKeyboardShortcutBoundary),
+  ),
+  { ssr: false },
+);
+
+export const OperatorShellAccessRedirectsHostDeferred = dynamic(
+  deferredChunkLoader(() =>
+    import("./OperatorShellAccessRedirectsHost").then((module) => module.OperatorShellAccessRedirectsHost),
+  ),
+  { ssr: false, loading: () => null },
+);
+
+export const AppToasterDeferred = dynamic(
+  deferredChunkLoader(() => import("@/components/AppToaster").then((module) => module.AppToaster)),
+  { ssr: false, loading: () => null },
+);
+
+export const RouteAnnouncerDeferred = dynamic(
+  deferredChunkLoader(() => import("@/components/RouteAnnouncer").then((module) => module.RouteAnnouncer)),
+  { ssr: false, loading: () => null },
+);
+
+export const ColorModeToggleDeferred: ComponentType<React.ComponentProps<typeof ColorModeToggle>> = dynamic(
+  deferredChunkLoader(() => import("@/components/ColorModeToggle").then((module) => module.ColorModeToggle)),
+  { ssr: false, loading: () => null },
+);
+
+export const AuthorityThemeToggleDeferred: ComponentType<React.ComponentProps<typeof AuthorityThemeToggle>> =
+  dynamic(
+    deferredChunkLoader(() =>
+      import("@/components/AuthorityThemeToggle").then((module) => module.AuthorityThemeToggle),
+    ),
+    { ssr: false, loading: () => null },
+  );
+
+export const ShellThemePreferencesAppearanceVocabularyRailDeferred: ComponentType<
+  React.ComponentProps<typeof ShellThemePreferencesAppearanceVocabularyRail>
+> = dynamic(
+  deferredChunkLoader(() =>
+    import("@/components/ShellThemePreferencesAppearanceVocabularyRail").then(
+      (module) => module.ShellThemePreferencesAppearanceVocabularyRail,
+    ),
+  ),
   { ssr: false, loading: () => null },
 );

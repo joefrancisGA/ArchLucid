@@ -105,9 +105,11 @@ public static class ArchitectureIntelligenceProductBridge
         Dictionary<string, string> properties = new()
         {
             ["architectureIntelligence.dimension"] = finding.Dimension.ToString(),
-            ["architectureIntelligence.conclusion"] = finding.Conclusion.ToString(),
+            ["architectureIntelligence.reviewConclusion"] = finding.Conclusion.ToString(),
             ["architectureIntelligence.evidenceCondition"] = finding.EvidenceCondition.ToString(),
+            ["architectureIntelligence.evidenceSupportTier"] = finding.EvidenceSupportTier.ToString(),
             ["architectureIntelligence.governanceDisposition"] = finding.GovernanceDisposition.ToString(),
+            ["architectureIntelligence.conclusion"] = finding.Conclusion.ToString(),
             ["architectureIntelligence.provenance"] = JsonSerializer.Serialize(finding.Provenance),
             ["architectureIntelligence.provenancePresentation"] = presentationBucket.ToString(),
         };
@@ -118,11 +120,35 @@ public static class ArchitectureIntelligenceProductBridge
                 JsonSerializer.Serialize(finding.EvidenceArtifactIds);
         }
 
+        if (finding.LifecycleScope != ArchitectureLifecycleScope.Unspecified)
+        {
+            properties["architectureIntelligence.lifecycleScope"] = finding.LifecycleScope.ToString();
+        }
+
+        if (finding.RelatedModelElementIds.Count > 0)
+        {
+            properties["architectureIntelligence.relatedModelElementIds"] =
+                JsonSerializer.Serialize(finding.RelatedModelElementIds);
+        }
+
+        if (finding.RelatedRequirementElementIds.Count > 0)
+        {
+            properties["architectureIntelligence.relatedRequirementElementIds"] =
+                JsonSerializer.Serialize(finding.RelatedRequirementElementIds);
+        }
+
+        if (finding.RelatedDecisionElementIds.Count > 0)
+        {
+            properties["architectureIntelligence.relatedDecisionElementIds"] =
+                JsonSerializer.Serialize(finding.RelatedDecisionElementIds);
+        }
+
         if (validationByFindingId is not null
             && validationByFindingId.TryGetValue(finding.FindingId, out EvidenceValidationResult? validation)
             && validation is not null)
         {
             properties["architectureIntelligence.integrityPassed"] = validation.OverallPassedIntegrity.ToString();
+            properties["architectureIntelligence.evidenceSupportTier"] = validation.SupportTier.ToString();
             properties["architectureIntelligence.escalated"] = validation.Escalated.ToString();
             properties["architectureIntelligence.semanticAssessment"] =
                 validation.SemanticAssessment?.ToString() ?? string.Empty;
@@ -146,7 +172,21 @@ public static class ArchitectureIntelligenceProductBridge
             Title = finding.Title,
             Rationale = finding.Rationale,
             ConfidenceScore = finding.Confidence,
+            HumanReviewStatus = MapHumanReviewStatus(finding.GovernanceDisposition),
             Properties = properties,
+        };
+    }
+
+    private static FindingHumanReviewStatus MapHumanReviewStatus(GovernanceDisposition disposition)
+    {
+        return disposition switch
+        {
+            GovernanceDisposition.HumanDecisionRequired => FindingHumanReviewStatus.Pending,
+            GovernanceDisposition.ExceptionGranted => FindingHumanReviewStatus.Overridden,
+            GovernanceDisposition.Accepted => FindingHumanReviewStatus.Approved,
+            GovernanceDisposition.Deferred => FindingHumanReviewStatus.Pending,
+            GovernanceDisposition.RemediationPlanned => FindingHumanReviewStatus.Pending,
+            _ => FindingHumanReviewStatus.NotRequired,
         };
     }
 

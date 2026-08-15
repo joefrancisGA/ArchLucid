@@ -96,7 +96,7 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
   });
 
   it("maps legacy sponsor-report bookmarks to canonical insights routes", () => {
-    expect(canonicalizeLegacyOperatorRoutePath("/insights/sponsor-summary")).toBe("/insights/sponsor-report");
+    expect(canonicalizeLegacyOperatorRoutePath("/insights/sponsor-summary")).toBe("/insights/sponsor-summary");
     expect(canonicalizeLegacyOperatorRoutePath("/insights/executive-summary")).toBe("/insights/sponsor-report");
     expect(canonicalizeLegacyOperatorRoutePath("/sponsor-report/roi-summary")).toBe("/insights/roi-summary");
     expect(canonicalizeLegacyOperatorRoutePath("/value-report/roi")).toBe("/insights/roi-summary");

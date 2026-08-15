@@ -62,6 +62,7 @@
     "build:api-types": "npm run build -w @archlucid/api-types",
     "rebrand-check": "python3 ../scripts/ci/assert_brand_category_seam.py",
     "demo:preflight": "node ./scripts/demo-preflight.mjs",
+    "run:architecture-lifecycle-batch": "tsx e2e/run-architecture-lifecycle-batch.ts",
     "security:coordinated-disclosure-pgp": "node ./scripts/security/generate-coordinated-disclosure-pgp.mjs"
   },
   "dependencies": {

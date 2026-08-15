@@ -2,9 +2,11 @@
 
 import type { RefObject } from "react";
 
-import { AppToaster } from "@/components/AppToaster";
+import {
+  AppToasterDeferred,
+  RouteAnnouncerDeferred,
+} from "@/components/shell/app-shell-deferred-chunks";
 import { OperatorShellAccessGateLoading } from "@/components/operator/OperatorShellAccessGateLoading";
-import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { useOperatorShellAccessRedirects } from "@/hooks/useOperatorShellAccessRedirects";
 import { OPERATOR_SHELL_MAIN_PADDING_CLASS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -32,8 +34,8 @@ export function OperatorShellDeferredChrome({ shellRootRef }: OperatorShellDefer
           <OperatorShellAccessGateLoading />
         </main>
       </div>
-      <AppToaster />
-      <RouteAnnouncer />
+      <AppToasterDeferred />
+      <RouteAnnouncerDeferred />
     </>
   );
 }

@@ -30,5 +30,5 @@ export const STANDARDS_RULES_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Sealed review records", href: SIGNED_RECORDS_LIST_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

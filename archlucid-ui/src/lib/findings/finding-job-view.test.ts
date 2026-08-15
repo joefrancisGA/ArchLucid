@@ -4,6 +4,7 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 import {
   classifyGovernanceFindingJobView,
   classifyReviewFindingJobView,
+  countReviewFindingsForJobView,
   filterGovernanceRowsForJobView,
   filterReviewFindingsForJobView,
   matchesReviewFindingJobView,
@@ -114,6 +115,23 @@ describe("finding-job-view", () => {
     expect(classifyReviewFindingJobView(finding)).toBe("needs-my-decision");
   });
 
+  it("does not classify disposition-accepted findings without sponsor trust as needs-my-decision", () => {
+    const finding = reviewFinding({
+      findingId: "f-accepted-ungrounded",
+      humanReviewStatus: 1,
+      trustLabel: "MissingCitation",
+      evidenceRefCount: 0,
+      aiReasoning: {
+        wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+        reasoningTrace: "",
+      },
+    });
+
+    expect(classifyReviewFindingJobView(finding)).toBe("disposition-closed");
+    expect(matchesReviewFindingJobView(finding, "needs-my-decision")).toBe(false);
+    expect(countReviewFindingsForJobView([finding], "needs-my-decision")).toBe(0);
+  });
+
   it("maps needs-evidence governance rows to needs-governance", () => {
     const row = governanceRow({ findingId: "g-2", latestDisposition: "NeedsEvidence" });
 
@@ -133,6 +151,16 @@ describe("finding-job-view", () => {
 
     expect(decisionQueue.map((entry) => entry.findingId)).toEqual(["f-4"]);
     expect(sponsorReady.map((entry) => entry.findingId)).toEqual(["f-5"]);
+  });
+
+  it("maps governance adversarial phrasing to verify-hypotheses (TB-2315)", () => {
+    const row = governanceRow({
+      findingId: "g-adv",
+      title: "Adversarial challenge: backup assumption",
+      recommended: "Falsify/confirm with evidence before publish",
+    });
+
+    expect(classifyGovernanceFindingJobView(row)).toBe("verify-hypotheses");
   });
 
   it("resolveEffectiveFindingJobView skips persisted job view when the filter bar is hidden", () => {

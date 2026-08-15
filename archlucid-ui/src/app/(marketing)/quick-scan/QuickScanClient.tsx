@@ -1,10 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useId, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactElement } from "react";
 
+import {
+  QUICK_SCAN_ANALYSIS_TYPICAL_DURATION,
+  QUICK_SCAN_FORM_ID,
+  QUICK_SCAN_HERO_LEAD,
+  QUICK_SCAN_LAST_REVIEWED_LABEL,
+  QUICK_SCAN_PAGE_TITLE,
+  QUICK_SCAN_PRIMARY_CONTENT_ID,
+} from "@/app/(marketing)/quick-scan/quick-scan-page-content";
+import { QuickScanForm, type QuickScanFormFieldName } from "@/app/(marketing)/quick-scan/QuickScanForm";
 import { QuickScanEvidenceOrientationStrip } from "@/components/marketing/QuickScanEvidenceOrientationStrip";
-import { DESIGN_TOKENS } from "@/lib/design-tokens";
+import { QuickScanScopeDisclosure } from "@/components/marketing/quick-scan/QuickScanScopeDisclosure";
+import { TrustCenterRevisionHistory } from "@/components/marketing/trust-center/TrustCenterRevisionHistory";
+import { Button } from "@/components/ui/button";
+import { DESIGN_TOKENS, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findingSeverityLabel } from "@/lib/findings/finding-severity-label";
 import {
   isQuickScanAiSubmitAllowed,
@@ -13,6 +25,7 @@ import {
 } from "@/lib/quick-scan/quick-scan-capacity-state";
 import { QUICK_SCAN_RECEIVE_ITEMS } from "@/lib/quick-scan/quick-scan-constants";
 import { QUICK_SCAN_EXAMPLE_FORM } from "@/lib/quick-scan/quick-scan-example";
+import { QUICK_SCAN_REVISION_HISTORY } from "@/lib/quick-scan-marketing-revision-history";
 import {
   trackQuickScanConversionClick,
   trackQuickScanSampleViewed,
@@ -22,11 +35,12 @@ import {
   buildQuickScanRequestBody,
   quickScanIncompleteReason,
   validateQuickScanForm,
+  type QuickScanFieldErrors,
   type QuickScanFormValues,
 } from "@/lib/quick-scan/quick-scan-validation";
+import { TRUST_CENTER_PUBLIC_EVIDENCE_VERSION } from "@/lib/trust-center-buyer-content";
+import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { cn } from "@/lib/utils";
-
-import { QuickScanForm } from "./QuickScanForm";
 
 const SESSION_STORAGE_KEY = "al_quick_scan_session";
 const BROWSER_STORAGE_KEY = "al_quick_scan_browser";
@@ -112,11 +126,43 @@ function environmentLabel(value: string): string {
   return labels[value] ?? value;
 }
 
+function filterVisibleFieldErrors(
+  errors: QuickScanFieldErrors,
+  touchedFields: ReadonlySet<QuickScanFormFieldName>,
+  attemptedSubmit: boolean,
+): QuickScanFieldErrors {
+  if (attemptedSubmit) {
+    return errors;
+  }
+
+  const visible: QuickScanFieldErrors = {};
+
+  if (touchedFields.has("systemName") && errors.systemName) {
+    visible.systemName = errors.systemName;
+  }
+
+  if (touchedFields.has("primaryEnvironment") && errors.primaryEnvironment) {
+    visible.primaryEnvironment = errors.primaryEnvironment;
+  }
+
+  if (touchedFields.has("description") && errors.description) {
+    visible.description = errors.description;
+  }
+
+  if (touchedFields.has("architectureConcerns") && errors.architectureConcerns) {
+    visible.architectureConcerns = errors.architectureConcerns;
+  }
+
+  return visible;
+}
+
 /**
  * No-sign-in Quick Scan: POST /v1/marketing/quick-scan via same-origin proxy (no privileged bearer).
  */
 export function QuickScanClient(): ReactElement {
   const statusRegionId = useId();
+  const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [formValues, setFormValues] = useState<QuickScanFormValues>({
     systemName: "",
     primaryEnvironment: "",
@@ -124,6 +170,8 @@ export function QuickScanClient(): ReactElement {
     description: "",
     architectureConcerns: [],
   });
+  const [touchedFields, setTouchedFields] = useState<ReadonlySet<QuickScanFormFieldName>>(new Set());
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -132,12 +180,27 @@ export function QuickScanClient(): ReactElement {
   const [status, setStatus] = useState<QuickScanStatusResponse | null>(null);
 
   const fieldErrors = useMemo(() => validateQuickScanForm(formValues), [formValues]);
+  const visibleFieldErrors = useMemo(
+    () => filterVisibleFieldErrors(fieldErrors, touchedFields, attemptedSubmit),
+    [fieldErrors, touchedFields, attemptedSubmit],
+  );
   const incompleteReason = useMemo(() => quickScanIncompleteReason(fieldErrors), [fieldErrors]);
   const canSubmit = incompleteReason === null && !submitting && isQuickScanAiSubmitAllowed(status);
   const aiSubmitBlocked = incompleteReason === null && !submitting && !isQuickScanAiSubmitAllowed(status);
   const capacityState = status?.capacityState ?? "unknown";
   const submitBlockedMessage =
     capacityMessage ?? resolveQuickScanCapacityMessage(status) ?? "Quick Scan is not accepting new AI analyses right now.";
+
+  const focusResults = useCallback(() => {
+    const heading = resultsHeadingRef.current;
+
+    if (heading === null) {
+      return;
+    }
+
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   const loadSampleResult = useCallback(async (sourceState: string) => {
     const response = await fetch(
@@ -178,6 +241,14 @@ export function QuickScanClient(): ReactElement {
   );
 
   useEffect(() => {
+    if (result === null) {
+      return;
+    }
+
+    focusResults();
+  }, [result, focusResults]);
+
+  useEffect(() => {
     void (async () => {
       try {
         const response = await fetch("/api/proxy/v1/marketing/quick-scan/status", {
@@ -207,14 +278,36 @@ export function QuickScanClient(): ReactElement {
     })();
   }, [showSampleResult]);
 
+  const markFieldTouched = useCallback((fieldName: QuickScanFormFieldName) => {
+    setTouchedFields((previous) => {
+      if (previous.has(fieldName)) {
+        return previous;
+      }
+
+      const next = new Set(previous);
+      next.add(fieldName);
+
+      return next;
+    });
+  }, []);
+
   const loadExample = useCallback(() => {
     setFormValues({ ...QUICK_SCAN_EXAMPLE_FORM });
     setError(null);
     setStatusMessage("Example loaded. Review the fields, then choose Analyze architecture when ready.");
+    setTouchedFields(new Set(["systemName", "primaryEnvironment", "description"]));
+  }, []);
+
+  const cancelSubmit = useCallback(() => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    setSubmitting(false);
+    setStatusMessage("Analysis cancelled.");
   }, []);
 
   const onSubmit = useCallback(async () => {
     const errors = validateQuickScanForm(formValues);
+    setAttemptedSubmit(true);
 
     if (quickScanIncompleteReason(errors) !== null) {
       setError(quickScanIncompleteReason(errors));
@@ -230,7 +323,10 @@ export function QuickScanClient(): ReactElement {
     setError(null);
     setCapacityMessage(null);
     setSubmitting(true);
-    setStatusMessage("Analyzing architecture…");
+    setStatusMessage(`Analyzing architecture… ${QUICK_SCAN_ANALYSIS_TYPICAL_DURATION}`);
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
 
     try {
       const sessionId = ensureSessionId();
@@ -238,6 +334,7 @@ export function QuickScanClient(): ReactElement {
       const response = await fetch("/api/proxy/v1/marketing/quick-scan", {
         method: "POST",
         credentials: "include",
+        signal: abortController.signal,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -275,6 +372,10 @@ export function QuickScanClient(): ReactElement {
       setResult(data);
       setStatusMessage("Analysis complete.");
     } catch (submitError: unknown) {
+      if (submitError instanceof Error && submitError.name === "AbortError") {
+        return;
+      }
+
       const message =
         submitError instanceof Error && submitError.message.trim().length > 0
           ? submitError.message
@@ -283,9 +384,18 @@ export function QuickScanClient(): ReactElement {
       setError(message);
       setStatusMessage(null);
     } finally {
+      abortControllerRef.current = null;
       setSubmitting(false);
     }
   }, [formValues, status]);
+
+  const handleFormSubmit = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      void onSubmit();
+    },
+    [onSubmit],
+  );
 
   const onConversionClick = useCallback(
     (action: "sign-in" | "demo" | "workspace") => {
@@ -295,108 +405,125 @@ export function QuickScanClient(): ReactElement {
   );
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-10 px-4 py-12">
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
+    <div className="mx-auto w-full max-w-6xl space-y-10 px-4 py-12" data-testid="quick-scan-page">
+      <a href={`#${QUICK_SCAN_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
+        Skip to quick scan content
+      </a>
+
+      <header className="max-w-3xl border-b border-neutral-200 pb-8 dark:border-neutral-800">
+        <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>{QUICK_SCAN_PAGE_TITLE}</h1>
+        <p className={cn("mt-3 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{QUICK_SCAN_HERO_LEAD}</p>
+        <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="quick-scan-hero-meta">
+          <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
+            Last reviewed{" "}
+            <time dateTime={QUICK_SCAN_LAST_REVIEWED_LABEL}>{QUICK_SCAN_LAST_REVIEWED_LABEL}</time>
+          </span>
+          <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
+            Demonstration pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
+          </span>
+        </div>
+      </header>
+
+      <QuickScanScopeDisclosure />
+
+      <div
+        id={QUICK_SCAN_PRIMARY_CONTENT_ID}
+        className="scroll-mt-24 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]"
+      >
         <div className="min-w-0 space-y-6">
-          <header>
-            <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Quick scan</h1>
-            <p className="mt-3 max-w-2xl text-base text-neutral-700 dark:text-neutral-300">
-              Describe a system and receive a concise architecture risk and improvement summary. No account required.
-            </p>
-            <p className="mt-2 max-w-2xl text-sm text-neutral-600 dark:text-neutral-400">
-              Quick Scan is a limited demonstration and is not saved as a workspace review.
-            </p>
-          </header>
-
-          <QuickScanEvidenceOrientationStrip />
-
-          <QuickScanForm
-            values={formValues}
-            fieldErrors={fieldErrors}
-            disabled={submitting}
-            onChange={setFormValues}
-          />
-
-          <section aria-labelledby="quick-scan-privacy-heading" className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
-            <h2 id="quick-scan-privacy-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
-              Privacy and data handling
-            </h2>
-            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-              Your description is sent to an AI provider to generate this demonstration and is not stored as a workspace
-              review. Temporary security logs (IP address, request metadata, and token usage) may be retained briefly for
-              abuse prevention. ArchLucid does not use Quick Scan submissions to train models. Do not submit secrets,
-              credentials, personal health information, or other regulated data.
-            </p>
-            <p className="mt-2 text-sm">
-              <Link href="/help/data-handling" className="font-medium text-sky-700 underline dark:text-sky-400">
-                Read our data handling guide
-              </Link>
-              {" · "}
-              <Link href="/help/security-trust" className="font-medium text-sky-700 underline dark:text-sky-400">
-                Security overview
-              </Link>
-            </p>
-          </section>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              disabled={!canSubmit}
-              onClick={() => {
-                void onSubmit();
-              }}
-              data-testid="quick-scan-submit"
-              className="rounded-md bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-neutral-400 dark:bg-sky-500 dark:hover:bg-sky-600"
-            >
-              {submitting ? "Analyzing architecture…" : "Analyze architecture"}
-            </button>
-            <button
-              type="button"
-              onClick={loadExample}
+          <form id={QUICK_SCAN_FORM_ID} className="space-y-6" onSubmit={handleFormSubmit} noValidate>
+            <QuickScanForm
+              values={formValues}
+              fieldErrors={visibleFieldErrors}
               disabled={submitting}
-              data-testid="quick-scan-use-example"
-              className="rounded-md border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100 disabled:opacity-60 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-900"
-            >
-              Use an example
-            </button>
-            {!canSubmit && incompleteReason !== null ? (
-              <p className="text-sm text-neutral-600 dark:text-neutral-400" role="status">
-                {incompleteReason}
-              </p>
-            ) : null}
-            {aiSubmitBlocked ? (
-              <p className="text-sm text-amber-900 dark:text-amber-100" role="status" data-testid="quick-scan-submit-blocked">
-                {submitBlockedMessage}
-              </p>
-            ) : null}
-          </div>
+              onChange={setFormValues}
+              onFieldBlur={markFieldTouched}
+            />
 
-          {shouldOfferQuickScanSample(status) ? (
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
-              Prefer to explore a prebuilt sample without running an AI analysis?{" "}
-              <button
+            <div className="flex flex-wrap items-center gap-3">
+              <Button type="submit" variant="primary" disabled={!canSubmit} data-testid="quick-scan-submit">
+                {submitting ? "Analyzing architecture…" : "Analyze architecture"}
+              </Button>
+              <Button
                 type="button"
-                onClick={() => {
-                  showSampleResult(capacityState);
-                }}
-                className="font-medium text-sky-700 underline dark:text-sky-400"
+                variant="outline"
+                onClick={loadExample}
+                disabled={submitting}
+                data-testid="quick-scan-use-example"
               >
-                View the interactive sample
-              </button>
-              {" · "}
-              <Link
-                href="/get-started"
-                className="font-medium text-sky-700 underline dark:text-sky-400"
-                onClick={() => {
-                  onConversionClick("demo");
-                }}
-              >
-                Start a guided demo
-              </Link>
-            </p>
-          ) : null}
+                Use an example
+              </Button>
+              {submitting ? (
+                <Button type="button" variant="outline" onClick={cancelSubmit} data-testid="quick-scan-cancel">
+                  Cancel analysis
+                </Button>
+              ) : null}
+              {!canSubmit && incompleteReason !== null ? (
+                <p className={MARKETING_TYPOGRAPHY.meta} role="status">
+                  {incompleteReason}
+                </p>
+              ) : null}
+              {aiSubmitBlocked ? (
+                <p className={MARKETING_TYPOGRAPHY.meta} role="status" data-testid="quick-scan-submit-blocked">
+                  {submitBlockedMessage}
+                </p>
+              ) : null}
+            </div>
 
-          <div id={statusRegionId} role="status" aria-live="polite" className="sr-only">
+            {submitting ? (
+              <p className={MARKETING_TYPOGRAPHY.meta} role="status" data-testid="quick-scan-progress">
+                {statusMessage}
+              </p>
+            ) : null}
+
+            {shouldOfferQuickScanSample(status) ? (
+              <p className={MARKETING_TYPOGRAPHY.meta}>
+                Prefer to explore a prebuilt sample without running an AI analysis?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    showSampleResult(capacityState);
+                  }}
+                  className={MARKETING_SURFACES.inlineLink}
+                >
+                  View the interactive sample
+                </button>
+                {" · "}
+                <Link
+                  href="/get-started"
+                  className={MARKETING_SURFACES.inlineLink}
+                  onClick={() => {
+                    onConversionClick("demo");
+                  }}
+                >
+                  Start a guided demo
+                </Link>
+              </p>
+            ) : null}
+          </form>
+
+          <details className={TRUST_CENTER_PUBLIC_LAYOUT.vocabularyDisclosure} data-testid="quick-scan-privacy-disclosure">
+            <summary className={TRUST_CENTER_PUBLIC_LAYOUT.vocabularySummary}>Privacy and data handling</summary>
+            <div className={TRUST_CENTER_PUBLIC_LAYOUT.vocabularyBody}>
+              <p className={cn("m-0 text-al-text-secondary", TRUST_CENTER_PUBLIC_LAYOUT.vocabularyIntro)}>
+                Your description is sent to an AI provider to generate this demonstration and is not stored as a workspace
+                review. Temporary security logs (IP address, request metadata, and token usage) may be retained briefly for
+                abuse prevention. ArchLucid does not use Quick Scan submissions to train models. Do not submit secrets,
+                credentials, personal health information, or other regulated data.
+              </p>
+              <p className={cn("m-0 mt-3", MARKETING_TYPOGRAPHY.body)}>
+                <Link href="/help/data-handling" className={MARKETING_SURFACES.inlineLink}>
+                  Read our data handling guide
+                </Link>
+                {" · "}
+                <Link href="/help/security-trust" className={MARKETING_SURFACES.inlineLink}>
+                  Security overview
+                </Link>
+              </p>
+            </div>
+          </details>
+
+          <div id={statusRegionId} role="status" aria-live="polite" className={submitting ? MARKETING_TYPOGRAPHY.meta : "sr-only"}>
             {statusMessage}
           </div>
 
@@ -445,21 +572,18 @@ export function QuickScanClient(): ReactElement {
         </div>
 
         <aside className="space-y-6 lg:sticky lg:top-8 lg:self-start">
-          <section className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
-            <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">What you will receive</h2>
-            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+          <section className={MARKETING_SURFACES.cardComfort}>
+            <h2 className={MARKETING_TYPOGRAPHY.cardTitle}>What you will receive</h2>
+            <ul className={cn("mt-3 list-disc space-y-2 pl-5", MARKETING_TYPOGRAPHY.body)}>
               {QUICK_SCAN_RECEIVE_ITEMS.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
-              Results are illustrative and do not replace a complete, evidence-backed ArchLucid review.
-            </p>
           </section>
 
-          <section className="rounded-lg border border-dashed border-neutral-300 p-5 dark:border-neutral-600">
-            <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Demonstration limits</h2>
-            <ul className="mt-3 space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+          <section className={cn(MARKETING_SURFACES.mutedPanel, "border border-dashed border-neutral-300 dark:border-neutral-600")}>
+            <h2 className={MARKETING_TYPOGRAPHY.cardTitle}>Demonstration limits</h2>
+            <ul className={cn("mt-3 space-y-2", MARKETING_TYPOGRAPHY.body)}>
               <li>Single-pass analysis with a concise output cap</li>
               <li>No workspace persistence or governance workflow</li>
               <li>Daily demonstration capacity may apply</li>
@@ -469,10 +593,20 @@ export function QuickScanClient(): ReactElement {
       </div>
 
       {result !== null ? (
-        <section className="space-y-6 border-t border-neutral-200 pt-8 dark:border-neutral-800" data-testid="quick-scan-results" aria-label="Quick scan results">
+        <section
+          className="space-y-6 border-t border-neutral-200 pt-8 dark:border-neutral-800"
+          data-testid="quick-scan-results"
+          aria-label="Quick scan results"
+        >
           <header className="space-y-2">
-            <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">Analysis result</h2>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            <h2
+              ref={resultsHeadingRef}
+              tabIndex={-1}
+              className={cn(MARKETING_TYPOGRAPHY.sectionTitle, "scroll-mt-24 outline-none")}
+            >
+              Analysis result
+            </h2>
+            <p className={MARKETING_TYPOGRAPHY.meta}>
               {result.systemName} · {environmentLabel(result.primaryEnvironment)}
             </p>
             {result.isSampleResult ? (
@@ -481,31 +615,29 @@ export function QuickScanClient(): ReactElement {
               </p>
             ) : null}
             {result.demonstrationDisclaimer ? (
-              <p className="rounded-md bg-neutral-100 px-3 py-2 text-sm text-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
+              <p className={cn(MARKETING_SURFACES.mutedPanel, MARKETING_TYPOGRAPHY.body)}>
                 {result.demonstrationDisclaimer}
               </p>
             ) : null}
           </header>
 
           <div>
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Overall summary</h3>
-            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{result.summary}</p>
+            <h3 className={MARKETING_TYPOGRAPHY.cardTitle}>Overall summary</h3>
+            <p className={cn("mt-2", MARKETING_TYPOGRAPHY.body)}>{result.summary}</p>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Highest-priority risks</h3>
+            <h3 className={MARKETING_TYPOGRAPHY.cardTitle}>Highest-priority risks</h3>
             <ul className="mt-3 space-y-3">
               {(result.findings ?? []).map((finding) => (
                 <li
                   key={`${finding.title}:${finding.description}`}
                   data-testid="quick-scan-finding-card"
-                  className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
+                  className={MARKETING_SURFACES.cardComfort}
                 >
-                  <div className="font-medium text-neutral-900 dark:text-neutral-50">{finding.title}</div>
-                  <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                    {findingSeverityLabel(finding.severity)}
-                  </div>
-                  <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{finding.description}</p>
+                  <div className={MARKETING_TYPOGRAPHY.cardTitle}>{finding.title}</div>
+                  <div className={MARKETING_TYPOGRAPHY.meta}>{findingSeverityLabel(finding.severity)}</div>
+                  <p className={cn("mt-2", MARKETING_TYPOGRAPHY.body)}>{finding.description}</p>
                 </li>
               ))}
             </ul>
@@ -513,8 +645,8 @@ export function QuickScanClient(): ReactElement {
 
           {(result.positiveObservations?.length ?? 0) > 0 ? (
             <div>
-              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Positive observations</h3>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+              <h3 className={MARKETING_TYPOGRAPHY.cardTitle}>Positive observations</h3>
+              <ul className={cn("mt-2 list-disc space-y-1 pl-5", MARKETING_TYPOGRAPHY.body)}>
                 {result.positiveObservations?.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
@@ -524,8 +656,8 @@ export function QuickScanClient(): ReactElement {
 
           {(result.recommendedNextSteps?.length ?? 0) > 0 ? (
             <div>
-              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Recommended next steps</h3>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+              <h3 className={MARKETING_TYPOGRAPHY.cardTitle}>Recommended next steps</h3>
+              <ul className={cn("mt-2 list-disc space-y-1 pl-5", MARKETING_TYPOGRAPHY.body)}>
                 {result.recommendedNextSteps?.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
@@ -534,36 +666,43 @@ export function QuickScanClient(): ReactElement {
           ) : null}
 
           <div className="flex flex-wrap gap-3">
-            <Link
-              href="/architecture/reviews/new"
-              className="rounded-md bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-sky-500"
-              onClick={() => {
-                onConversionClick("workspace");
-              }}
-            >
-              Start a full review
-            </Link>
-            <Link
-              href="/get-started"
-              className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100"
-              onClick={() => {
-                onConversionClick("workspace");
-              }}
-            >
-              Create a workspace review
-            </Link>
-            <Link
-              href="/contact"
-              className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100"
-              onClick={() => {
-                onConversionClick("demo");
-              }}
-            >
-              Request a demo
-            </Link>
+            <Button asChild variant="primary">
+              <Link
+                href="/get-started"
+                onClick={() => {
+                  onConversionClick("workspace");
+                }}
+              >
+                Sign in to start a full review
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link
+                href="/get-started"
+                onClick={() => {
+                  onConversionClick("workspace");
+                }}
+              >
+                Create a workspace review
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link
+                href="/contact"
+                onClick={() => {
+                  onConversionClick("demo");
+                }}
+              >
+                Request a demo
+              </Link>
+            </Button>
           </div>
         </section>
       ) : null}
+
+      <TrustCenterRevisionHistory entries={QUICK_SCAN_REVISION_HISTORY} />
+
+      <QuickScanEvidenceOrientationStrip />
     </div>
   );
 }

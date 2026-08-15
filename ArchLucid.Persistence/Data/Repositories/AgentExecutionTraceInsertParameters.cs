@@ -52,7 +52,8 @@ internal static class AgentExecutionTraceInsertParameters
             trace.EstimatedCostUsd,
             ModelAlias = TruncateModelAlias(trace.ModelAlias),
             trace.QualityWarning,
-            trace.QualityRejected
+            trace.QualityRejected,
+            trace.ProviderConnectionId
         };
     }
 

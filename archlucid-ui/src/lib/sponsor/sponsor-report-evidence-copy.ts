@@ -14,7 +14,7 @@ export const SPONSOR_SUMMARY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Evidence trail", href: "/insights/evidence-graph" },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "ROI methodology help", href: inAppHelpHref("sponsor-report") },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 

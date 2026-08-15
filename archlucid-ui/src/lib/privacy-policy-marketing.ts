@@ -1,7 +1,7 @@
+import "server-only";
+
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-
-const LAST_REVIEWED_PATTERN = /<!--\s*PRIVACY_POLICY_LAST_REVIEWED_UTC:([^>]+)\s*-->/;
 
 /**
  * Reads `docs/go-to-market/PRIVACY_POLICY.md` from the monorepo root, or
@@ -22,9 +22,4 @@ export function readPrivacyPolicyMarkdown(): string {
   throw new Error(
     "PRIVACY_POLICY.md not found. Expected ../docs/go-to-market/PRIVACY_POLICY.md (monorepo) or go-to-market-samples/PRIVACY_POLICY.md (Docker).",
   );
-}
-
-export function parsePrivacyPolicyLastReviewedUtc(markdown: string): string | null {
-  const m = markdown.match(LAST_REVIEWED_PATTERN);
-  return m ? m[1]!.trim() : null;
 }

@@ -11,6 +11,7 @@ import {
   isVerifyHypothesisReviewFinding,
 } from "@/lib/review-quality/finding-quality-signals";
 import {
+  coerceArchitectureFindingSeverity,
   humanReviewStatusDisplay,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
@@ -23,7 +24,8 @@ export type FindingJobView =
   | "answer-these-questions"
   | "verify-hypotheses"
   | "resolve-contradictions"
-  | "coverage-gaps";
+  | "coverage-gaps"
+  | "disposition-closed";
 
 export const DEFAULT_FINDING_JOB_VIEW: FindingJobView = "needs-my-decision";
 
@@ -36,6 +38,7 @@ export const FINDING_JOB_VIEW_LABELS: Record<FindingJobView, string> = {
   "verify-hypotheses": "Verify hypotheses",
   "resolve-contradictions": "Resolve contradictions",
   "coverage-gaps": "Coverage gaps",
+  "disposition-closed": "Disposition closed",
 };
 
 /**
@@ -123,6 +126,10 @@ export function isReviewFindingDispositionClosed(finding: QuickDecisionFinding):
   return isReadyDisposition(disposition);
 }
 
+function isHumanReviewClosed(reviewStatus: ReturnType<typeof humanReviewStatusDisplay>): boolean {
+  return reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden";
+}
+
 export function classifyReviewFindingJobView(finding: QuickDecisionFinding): FindingJobView {
   const disposition = normalizeDisposition(readDispositionFromReviewFinding(finding));
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
@@ -131,16 +138,16 @@ export function classifyReviewFindingJobView(finding: QuickDecisionFinding): Fin
     return "deferred";
   }
 
-  if (
-    isReadyDisposition(disposition)
-    || reviewStatus?.label === "Approved"
-    || reviewStatus?.label === "Overridden"
-  ) {
+  if (isReadyDisposition(disposition) || isHumanReviewClosed(reviewStatus)) {
     if (isReviewFindingSponsorPacketTrustEligible(finding)) {
       return "ready-for-sponsor-packet";
     }
 
-    return "needs-my-decision";
+    if (isHumanReviewClosed(reviewStatus)) {
+      return "needs-my-decision";
+    }
+
+    return "disposition-closed";
   }
 
   if (isContradictionReviewFinding(finding)) {
@@ -173,6 +180,27 @@ export function classifyReviewFindingJobView(finding: QuickDecisionFinding): Fin
   return "needs-my-decision";
 }
 
+function mapGovernanceRowForJobViewClassification(row: GovernanceFindingQueueRow): QuickDecisionFinding {
+  return {
+    findingId: row.findingId,
+    title: row.title,
+    recommendation: row.recommended,
+    severityValue: coerceArchitectureFindingSeverity(row.severity),
+    findingOrder: 0,
+    aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+    isMuted: false,
+    muteReason: null,
+    policyRuleId: row.policyRuleId,
+    evidenceRefCount: row.evidenceRefCount,
+    confidenceLevel: row.traceConfidenceLevel ?? null,
+    humanReviewStatus: null,
+    trustLabel: null,
+    // The queue row carries no tier and lane classification does not read one. Deriving it from the
+    // policy rule keeps this synthetic finding honest if a future lane rule starts consulting it.
+    enforcementTier: (row.policyRuleId ?? "").length > 0 ? "PolicyViolation" : "Advisory",
+  };
+}
+
 export function classifyGovernanceFindingJobView(row: GovernanceFindingQueueRow): FindingJobView {
   if (row.recordKind !== "finding") {
     return "needs-my-decision";
@@ -190,7 +218,29 @@ export function classifyGovernanceFindingJobView(row: GovernanceFindingQueueRow)
       return "ready-for-sponsor-packet";
     }
 
-    return "needs-my-decision";
+    if (humanReview.includes("approved") || humanReview.includes("overridden")) {
+      return "needs-my-decision";
+    }
+
+    return "disposition-closed";
+  }
+
+  const mappedRow = mapGovernanceRowForJobViewClassification(row);
+
+  if (isContradictionReviewFinding(mappedRow)) {
+    return "resolve-contradictions";
+  }
+
+  if (isCannotDetermineReviewFinding(mappedRow)) {
+    return "answer-these-questions";
+  }
+
+  if (isVerifyHypothesisReviewFinding(mappedRow)) {
+    return "verify-hypotheses";
+  }
+
+  if (isCoverageGapReviewFinding(mappedRow)) {
+    return "coverage-gaps";
   }
 
   if (

@@ -20,6 +20,6 @@ export const SIGNED_RECORD_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Reviews help guide", href: inAppHelpHref("review-packages") },
   { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

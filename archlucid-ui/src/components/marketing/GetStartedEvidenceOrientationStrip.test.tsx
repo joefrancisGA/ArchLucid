@@ -5,11 +5,11 @@ import { GetStartedEvidenceOrientationStrip } from "@/components/marketing/GetSt
 import { GET_STARTED_CANONICAL_PATH, GET_STARTED_SOURCES } from "@/lib/get-started-evidence-copy";
 
 describe("GetStartedEvidenceOrientationStrip", () => {
-  it("lists follow-up Sources without self-linking get-started", () => {
+  it("lists follow-up Sources without self-linking get-started or an amber claim callout", () => {
     render(<GetStartedEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("get-started-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("get-started-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("get-started-claim-discipline")).toBeNull();
 
     for (const link of GET_STARTED_SOURCES) {
       expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);

@@ -6,11 +6,14 @@ import { isSelfHostedDeploymentEnv } from "@/lib/finish-setup-deployment";
 export const FINISH_SETUP_SYSTEM_HEALTH_PATH = ADMINISTRATION_SYSTEM_HEALTH_PATH;
 
 const FINISH_SETUP_HEALTH_STEP_ID = "health";
+const FINISH_SETUP_OPTIONAL_STEP_IDS = new Set<string>(["identity"]);
 
 export type FinishSetupWizardContext = {
   readonly healthReady: boolean;
   readonly healthLoadFailed: boolean;
   readonly principalAdmin: boolean;
+  /** `true` when corporate OIDC/SAML is configured; `null` when diagnostics are unavailable. */
+  readonly identityConfigured?: boolean | null;
 };
 
 export type FinishSetupWizardStep = {
@@ -38,7 +41,7 @@ export const FINISH_SETUP_WIZARD_STEPS: readonly FinishSetupWizardStep[] = [
     description: "Wire your IdP so operators sign in with corporate credentials.",
     href: "/administration/identity/sso-wizard",
     cta: "Open SSO wizard",
-    isDone: () => false,
+    isDone: (ctx) => ctx.identityConfigured === true,
   },
   {
     id: "admin-role",
@@ -88,5 +91,7 @@ export function areFinishSetupRequiredStepsComplete(
   ctx: FinishSetupWizardContext,
   deployment: FinishSetupWizardDeploymentOptions = resolveFinishSetupWizardDeploymentOptions(),
 ): boolean {
-  return resolveFinishSetupWizardSteps(deployment).every((step) => step.isDone(ctx));
+  return resolveFinishSetupWizardSteps(deployment)
+    .filter((step) => !FINISH_SETUP_OPTIONAL_STEP_IDS.has(step.id))
+    .every((step) => step.isDone(ctx));
 }

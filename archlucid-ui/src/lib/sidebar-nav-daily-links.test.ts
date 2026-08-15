@@ -5,6 +5,11 @@ import {
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
 import type { NavLinkItem } from "@/lib/nav-config.types";
+import {
+  SPONSOR_DASHBOARD_HREF,
+  SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF,
+} from "@/lib/sponsor/sponsor-dashboard-route";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 function link(href: string, label: string): NavLinkItem {
   return {
@@ -115,6 +120,23 @@ describe("splitSidebarLinksDailyVsMore", () => {
 
     expect(split.daily.map((row) => row.href)).toContain("/governance/audit");
     expect(split.more).toEqual([]);
+  });
+
+  it("promotes an active more-link when its href includes a fragment anchor", () => {
+    const links = [
+      link("/governance/approval-queue", "Approval"),
+      link("/governance/findings", "Findings"),
+      link("/governance/policy-packs", "Policy packs"),
+      link(SIGNED_RECORDS_LIST_PATH, "Sealed records"),
+      link("/governance/advisory-scans", "Advisory scans"),
+      link("/governance/alerts", "Alerts"),
+      link(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF, "Workspace health"),
+      link("/governance/audit", "Audit"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("operate-governance", links, SPONSOR_DASHBOARD_HREF);
+
+    expect(split.daily.map((row) => row.href)).toContain(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF);
+    expect(split.more.map((row) => row.href)).not.toContain(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF);
   });
 });
 

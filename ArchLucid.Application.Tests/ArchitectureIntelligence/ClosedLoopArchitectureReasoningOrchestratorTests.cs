@@ -42,11 +42,20 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
         result.Model.Elements.Should().NotBeEmpty();
         result.SpecialistReviews.Should().NotBeEmpty();
         result.ValidationResults.Should().NotBeEmpty();
-        result.Recommendations.Should().NotBeEmpty();
         result.MustNotFailViolations.Should().NotBeNull();
         result.IntegrityPassedFindingIds.Should().NotBeNull();
         result.Adversarial.Should().NotBeNull();
         result.ModelDiffs.Should().NotBeNull();
+
+        if (result.Interview.IsFramingComplete)
+        {
+            result.Recommendations.Should().NotBeEmpty();
+        }
+        else
+        {
+            result.Recommendations.Should().BeEmpty();
+            result.ReviewCompleteBlocked.Should().BeTrue();
+        }
 
         // Product findings are gated: only integrity-passed, non-blocked findings are published.
         foreach (var productFinding in result.ProductFindings)
@@ -87,5 +96,40 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
             validation.StageResults.Any(stage =>
                 stage.Stage == EvidenceValidationStage.DeterministicIntegrity
                 && stage.IsDeterministic));
+    }
+
+    [Fact]
+    public async Task RunAsync_marks_provisional_synthesis_and_holds_fail_until_framing_complete()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-provisional",
+            RunId = "run-provisional",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "vague.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API exposes customer records without authentication.",
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult result = await orchestrator.RunAsync(request);
+
+        result.Interview.IsFramingComplete.Should().BeFalse();
+        result.Model.IsProvisionalSynthesis.Should().BeTrue();
+        result.SpecialistReviews
+            .SelectMany(review => review.Findings)
+            .Should()
+            .NotContain(finding => finding.Conclusion == ReviewConclusion.Fail);
     }
 }

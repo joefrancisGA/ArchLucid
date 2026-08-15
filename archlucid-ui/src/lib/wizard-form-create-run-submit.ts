@@ -8,16 +8,18 @@ import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
+  REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
   REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
 } from "@/lib/review-start-progress-copy";
 import { trackWizardCompleted } from "@/lib/telemetry";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 import {
+  deriveWizardPolicyPackCloudMismatch,
   wizardValuesToCreateRunPayload,
   type WizardCreateRunPayloadOptions,
 } from "@/lib/wizard-payload";
 
-export type WizardFormCreateRunGateFailure = "validation" | "llm-budget";
+export type WizardFormCreateRunGateFailure = "validation" | "llm-budget" | "policy-cloud-mismatch";
 
 export type WizardFormCreateRunExecuteResult =
   | { readonly ok: true; readonly runId: string }
@@ -35,6 +37,8 @@ export type WizardFormCreateRunResult =
 type GateArgs = {
   readonly trigger: UseFormTrigger<WizardFormValues>;
   readonly blocksLlmExecution: boolean;
+  readonly getValues?: UseFormGetValues<WizardFormValues>;
+  readonly payloadOptions?: WizardCreateRunPayloadOptions;
 };
 
 type ExecuteArgs = {
@@ -56,6 +60,14 @@ export async function evaluateWizardFormCreateRunGates(
 
   if (args.blocksLlmExecution) {
     return "llm-budget";
+  }
+
+  if (args.getValues !== undefined && args.payloadOptions !== undefined) {
+    const mismatch = deriveWizardPolicyPackCloudMismatch(args.getValues(), args.payloadOptions);
+
+    if (mismatch !== null) {
+      return "policy-cloud-mismatch";
+    }
   }
 
   return null;
@@ -149,6 +161,17 @@ export async function submitQuickFamilyWizardCreateRun(
 
   if (gateFailure === "llm-budget") {
     args.setStepValidationMessage(REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE);
+
+    return;
+  }
+
+  if (gateFailure === "policy-cloud-mismatch") {
+    const mismatch = deriveWizardPolicyPackCloudMismatch(args.getValues(), args.payloadOptions);
+    args.setStepValidationMessage(
+      mismatch !== null
+        ? `${REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE} ${mismatch}`
+        : REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
+    );
 
     return;
   }

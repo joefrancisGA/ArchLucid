@@ -1,20 +1,24 @@
 import { applyFindingsConfidenceVisibility } from "@/lib/findings/finding-confidence-filter";
+import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type RunDetailFindingsTriageCounts = {
   readonly triageVisibleCount: number;
   readonly mutedCount: number;
   readonly hiddenByConfidenceCount: number;
+  readonly dispositionClosedCount: number;
 };
 
-/** Default toolbar triage visibility: non-muted rows after the confidence gate. */
+/** Default toolbar triage visibility: open rows after mute, disposition, and confidence gates. */
 export function deriveRunDetailFindingsTriageCounts(
   findings: readonly QuickDecisionFinding[],
 ): RunDetailFindingsTriageCounts {
   const nonMuted = findings.filter((finding) => !finding.isMuted);
   const mutedCount = findings.length - nonMuted.length;
+  const triageEligible = nonMuted.filter((finding) => !isReviewFindingDispositionClosed(finding));
+  const dispositionClosedCount = nonMuted.length - triageEligible.length;
   const { visibleFindings, hiddenByConfidenceCount } = applyFindingsConfidenceVisibility(
-    nonMuted,
+    triageEligible,
     false,
   );
 
@@ -22,6 +26,7 @@ export function deriveRunDetailFindingsTriageCounts(
     triageVisibleCount: visibleFindings.length,
     mutedCount,
     hiddenByConfidenceCount,
+    dispositionClosedCount,
   };
 }
 
@@ -34,6 +39,10 @@ export function formatFindingsExcludedSummaryLine(counts: RunDetailFindingsTriag
 
   if (counts.hiddenByConfidenceCount > 0) {
     parts.push(`${counts.hiddenByConfidenceCount} low confidence`);
+  }
+
+  if (counts.dispositionClosedCount > 0) {
+    parts.push(`${counts.dispositionClosedCount} disposition closed`);
   }
 
   if (parts.length === 0) {

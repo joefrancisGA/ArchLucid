@@ -7,13 +7,10 @@ import {
   resolveFinishSetupWizardDeploymentOptions,
   resolveFinishSetupWizardSteps,
 } from "@/lib/finish-setup-wizard-steps";
-import {
-  IDENTITY_PROVIDERS_STATUS_ENABLED,
-  IDENTITY_PROVIDERS_STATUS_HEALTHY,
-  IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW,
-} from "@/lib/identity-providers-settings-copy";
+import { IDENTITY_PROVIDERS_STATUS_NEEDS_REVIEW } from "@/lib/identity-providers-settings-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { mapConfigLintReadiness } from "@/lib/map-config-lint-readiness";
+import { resolveCorporateSignInConfigured } from "@/lib/resolve-corporate-sign-in-configured";
 import {
   resolveIdentityProvidersOverview,
   type ResolveIdentityProvidersOverviewInput,
@@ -62,22 +59,8 @@ export const ADMIN_PREREQUISITE_SORT_ORDER = {
 
 const OPTIONAL_READINESS_ROW_IDS = new Set<string>(["cloud-connection"]);
 
-function isCorporateSignInReady(
-  identity: ResolveIdentityProvidersOverviewInput | null,
-  identityLoadFailed: boolean,
-): boolean {
-  if (identityLoadFailed || identity === null) {
-    return false;
-  }
-
-  const overview = resolveIdentityProvidersOverview(identity);
-
-  return overview.ssoStatus === IDENTITY_PROVIDERS_STATUS_ENABLED
-    || overview.oidcStatus === IDENTITY_PROVIDERS_STATUS_HEALTHY;
-}
-
 function buildCorporateSignInRow(input: ResolveAdminPrerequisitesReadinessInput): AdminPrerequisiteRow {
-  const identityReady = isCorporateSignInReady(input.identity, input.identityLoadFailed);
+  const identityReady = resolveCorporateSignInConfigured(input.identity, input.identityLoadFailed) === true;
   let summary = "Wire corporate sign-in before inviting operators to production.";
   let href = "/administration/identity/sso-wizard";
   let cta = "Open SSO wizard";

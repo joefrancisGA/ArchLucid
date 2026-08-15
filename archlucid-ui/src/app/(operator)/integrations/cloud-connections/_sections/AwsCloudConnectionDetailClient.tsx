@@ -1,6 +1,7 @@
 "use client";
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AWS_TRUST_STARTER_IDENTITY_INTRO } from "@/lib/aws-cloud-connection-trust-policy-starter";
@@ -102,6 +103,9 @@ function AwsCloudConnectionDetailBody(): React.ReactElement {
         claim={CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE}
         sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
         sources={cloudProviderConnectionSources("aws")}
+        claimElement="aside"
+        sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
+        sourcesLayout="wrap"
       />
     </>
   );
