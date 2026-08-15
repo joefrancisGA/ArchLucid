@@ -246,7 +246,7 @@ test.describe("live-api-trial-end-to-end", () => {
     const sampleHref = (await page.getByTestId("onboarding-open-sample-run").getAttribute("href")) ?? "";
 
     // Canonical route is `/architecture/reviews/*` (legacy `/runs/*` bookmarks 404; use canonical paths in tests).
-    expect(sampleHref).toMatch(/^\/reviews\//);
+    expect(sampleHref).toMatch(/^\/architecture\/reviews\//);
 
     const sampleRunIdFromHref = runIdFromReviewsHref(sampleHref);
 

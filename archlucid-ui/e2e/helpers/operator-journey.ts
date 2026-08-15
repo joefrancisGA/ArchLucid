@@ -733,17 +733,8 @@ export async function expectBuyerPipelineTimelineSectionVisible(
       name: /Loading review technical sections|Loading pipeline timeline/i,
     });
 
-    const loadingCount = await belowFoldLoading.count();
-
-    if (loadingCount > 0) {
-      const anyVisible = await belowFoldLoading
-        .first()
-        .isVisible()
-        .catch(() => false);
-
-      if (anyVisible) {
-        throw new Error("below-fold pipeline sections still loading");
-      }
+    if ((await belowFoldLoading.count()) > 0) {
+      await expect(belowFoldLoading.first()).toBeHidden({ timeout: 45_000 });
     }
 
     const sectionNav = page.getByTestId("provenance-section-nav-desktop");

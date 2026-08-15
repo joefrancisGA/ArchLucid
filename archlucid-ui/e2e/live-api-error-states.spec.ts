@@ -46,7 +46,7 @@ test.describe("live-api-error-states", () => {
   test("runs list page renders without error alerts (empty list is ok)", async ({ page }) => {
     test.setTimeout(60_000);
 
-    await page.goto("/runs?projectId=default");
+    await page.goto("/architecture/reviews?projectId=default");
 
     // "/runs" permanently redirects to "/architecture/reviews" (next.config.ts) and the list page's heading was
     // renamed to RUNS_LIST_PAGE_TITLES ("Review Packages") as part of the runs → reviews vocabulary

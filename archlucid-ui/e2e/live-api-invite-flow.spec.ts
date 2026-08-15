@@ -39,10 +39,16 @@ test.describe("live-api-invite-flow", { tag: ["@founder"] }, () => {
 
     await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
 
-    // Invite form lives in a closed <details> section (defaultOpen=false).
+    // Empty workspace uses invite-first layout (form in primary region); otherwise invite is in a collapsible section.
+    const invitePrimaryRegion = page.getByTestId("settings-roles-invite-primary-region");
     const inviteSection = page.getByTestId("settings-roles-invite-section");
-    await expect(inviteSection).toBeVisible({ timeout: 60_000 });
-    await inviteSection.locator("summary").click();
+
+    if (await invitePrimaryRegion.isVisible().catch(() => false)) {
+      await expect(invitePrimaryRegion).toBeVisible({ timeout: 60_000 });
+    } else {
+      await expect(inviteSection).toBeVisible({ timeout: 60_000 });
+      await inviteSection.locator("summary").click();
+    }
 
     await expect(page.getByTestId("settings-roles-invite-form")).toBeVisible({ timeout: 60_000 });
 
