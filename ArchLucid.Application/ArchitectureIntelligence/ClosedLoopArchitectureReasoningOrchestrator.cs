@@ -237,32 +237,46 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 ? adversarial.SubstantiatedFindings
                 : allFindings;
 
-        List<ArchitectureRecommendation> recommendations = (await _recommendationEngine
-            .BuildRecommendationsAsync(model, recommendationSourceFindings, request.DeclaredPriorities, cancellationToken))
-            .ToList();
-
+        List<ArchitectureRecommendation> recommendations = [];
         List<ChangeImpactResult> impactResults = [];
         List<ArchitectureModelDiff> modelDiffs = [];
         IncrementalReReviewResult? reReview = null;
 
-        if (recommendations.Count > 0)
+        if (interview.IsFramingComplete)
         {
-            ArchitectureRecommendation firstRecommendation = recommendations[0];
-            ArchitectureModelDiff diff = _modelDiffApplier.ApplyRecommendation(model, firstRecommendation);
-            modelDiffs.Add(diff);
+            recommendations = (await _recommendationEngine
+                .BuildRecommendationsAsync(
+                    model,
+                    recommendationSourceFindings,
+                    request.DeclaredPriorities,
+                    cancellationToken))
+                .ToList();
 
-            ChangeImpactResult impact = _changeImpactAnalyzer.Analyze(diff, firstRecommendation);
-            impactResults.Add(impact);
-
-            ReReviewScope scope = new()
+            if (recommendations.Count > 0)
             {
-                AffectedElementIds = impact.ImpactedItems.Select(item => item.ElementId).Distinct(StringComparer.Ordinal).ToList(),
-                IncludeGlobalInvariantChecks = true,
-                FullReReview = impact.RequiresFullReReview,
-                Trigger = ResolveReReviewTrigger(impact, firstRecommendation),
-            };
+                ArchitectureRecommendation firstRecommendation = recommendations[0];
+                ArchitectureModelDiff diff = _modelDiffApplier.ApplyRecommendation(model, firstRecommendation);
+                modelDiffs.Add(diff);
 
-            reReview = _incrementalReReviewService.ReReview(diff.AfterModel, scope, _heuristicSpecialistReviewService);
+                ChangeImpactResult impact = _changeImpactAnalyzer.Analyze(diff, firstRecommendation);
+                impactResults.Add(impact);
+
+                ReReviewScope scope = new()
+                {
+                    AffectedElementIds = impact.ImpactedItems
+                        .Select(item => item.ElementId)
+                        .Distinct(StringComparer.Ordinal)
+                        .ToList(),
+                    IncludeGlobalInvariantChecks = true,
+                    FullReReview = impact.RequiresFullReReview,
+                    Trigger = ResolveReReviewTrigger(impact, firstRecommendation),
+                };
+
+                reReview = _incrementalReReviewService.ReReview(
+                    diff.AfterModel,
+                    scope,
+                    _heuristicSpecialistReviewService);
+            }
         }
 
         List<MustNotFailViolation> mustNotFailViolations = _mustNotFailEnforcer
@@ -274,6 +288,13 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             recommendations,
             validationResults,
             mustNotFailViolations);
+
+        if (!interview.IsFramingComplete)
+        {
+            publishDecision = ArchitectureFramingMustGate.MergeFramingIncompletePublishBlock(
+                interview,
+                publishDecision);
+        }
 
         if (_persistence is not null)
         {
@@ -296,6 +317,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             MustNotFailViolations = mustNotFailViolations,
             ValidationResults = validationResults,
             PublishBlocked = publishDecision.PublishBlocked,
+            ReviewCompleteBlocked = !interview.IsFramingComplete,
             PublishBlockReasons = publishDecision.BlockReasons,
             IntegrityPassedFindingIds = publishDecision.IntegrityPassedFindingIds.ToList(),
             RunId = request.RunId,

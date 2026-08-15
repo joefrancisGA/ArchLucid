@@ -88,6 +88,13 @@ public class ClosedLoopReasoningResult
         set;
     }
 
+    /// <summary>True when L0 framing MUST questions remain unanswered (TB-2341 item 47).</summary>
+    public bool ReviewCompleteBlocked
+    {
+        get;
+        set;
+    }
+
     public List<string> PublishBlockReasons
     {
         get;

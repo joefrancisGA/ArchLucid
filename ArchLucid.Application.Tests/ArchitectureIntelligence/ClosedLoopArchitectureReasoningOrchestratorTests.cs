@@ -42,11 +42,20 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
         result.Model.Elements.Should().NotBeEmpty();
         result.SpecialistReviews.Should().NotBeEmpty();
         result.ValidationResults.Should().NotBeEmpty();
-        result.Recommendations.Should().NotBeEmpty();
         result.MustNotFailViolations.Should().NotBeNull();
         result.IntegrityPassedFindingIds.Should().NotBeNull();
         result.Adversarial.Should().NotBeNull();
         result.ModelDiffs.Should().NotBeNull();
+
+        if (result.Interview.IsFramingComplete)
+        {
+            result.Recommendations.Should().NotBeEmpty();
+        }
+        else
+        {
+            result.Recommendations.Should().BeEmpty();
+            result.ReviewCompleteBlocked.Should().BeTrue();
+        }
 
         // Product findings are gated: only integrity-passed, non-blocked findings are published.
         foreach (var productFinding in result.ProductFindings)

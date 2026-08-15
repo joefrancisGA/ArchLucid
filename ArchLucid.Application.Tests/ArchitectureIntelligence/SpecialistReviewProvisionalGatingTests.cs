@@ -35,7 +35,7 @@ public sealed class SpecialistReviewProvisionalGatingTests
     }
 
     [Fact]
-    public void ApplyWhileFramingIncomplete_preserves_pass_and_indeterminate()
+    public void ApplyWhileFramingIncomplete_preserves_non_constraint_pass_and_indeterminate()
     {
         SpecialistReviewResult review = new()
         {
@@ -45,9 +45,9 @@ public sealed class SpecialistReviewProvisionalGatingTests
                 new SpecialistReviewFinding
                 {
                     FindingId = "pass-1",
-                    Dimension = QualityDimension.Reliability,
-                    Title = "Recovery objective documented",
-                    Rationale = "RTO present.",
+                    Dimension = QualityDimension.Security,
+                    Title = "No immediate public exposure gap detected",
+                    Rationale = "Security review did not identify a public endpoint without trust boundary context.",
                     Conclusion = ReviewConclusion.Pass,
                     EvidenceCondition = EvidenceCondition.Sufficient,
                     Severity = "Low",
@@ -70,5 +70,32 @@ public sealed class SpecialistReviewProvisionalGatingTests
         review.Findings.Should().HaveCount(2);
         review.Findings[0].Conclusion.Should().Be(ReviewConclusion.Pass);
         review.Findings[1].Conclusion.Should().Be(ReviewConclusion.Indeterminate);
+    }
+
+    [Fact]
+    public void ApplyWhileFramingIncomplete_downgrades_constraint_adequacy_pass()
+    {
+        SpecialistReviewResult review = new()
+        {
+            Dimension = QualityDimension.Reliability,
+            Findings =
+            [
+                new SpecialistReviewFinding
+                {
+                    FindingId = "recovery-pass",
+                    Dimension = QualityDimension.Reliability,
+                    Title = "Recovery objectives appear adequate for stated targets.",
+                    Rationale = "Stated RTO is 30 minutes and backup interval is 15 minutes.",
+                    Conclusion = ReviewConclusion.Pass,
+                    EvidenceCondition = EvidenceCondition.Sufficient,
+                    Severity = "Low",
+                },
+            ],
+        };
+
+        SpecialistReviewProvisionalGating.ApplyWhileFramingIncomplete([review]);
+
+        review.Findings[0].Conclusion.Should().Be(ReviewConclusion.Indeterminate);
+        review.Findings[0].Rationale.Should().Contain("L0 framing answers declare recovery/cost constraints");
     }
 }
