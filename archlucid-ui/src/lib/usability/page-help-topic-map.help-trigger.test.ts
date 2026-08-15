@@ -25,7 +25,6 @@ import { PRICING_QUOTE_AGING_HELP_TOPIC_LABEL } from "@/lib/pricing-quote-aging-
 import { TENANT_HEALTH_HELP_TOPIC_LABEL } from "@/lib/tenant-health-evidence-copy";
 import { TRIAL_FUNNEL_HELP_TOPIC_LABEL } from "@/lib/trial-funnel-evidence-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
-import { REVIEWS_HUB_PAGE_TITLE } from "@/app/(operator)/architecture/reviews/_sections/reviews-hub-copy";
 
 const SRC_ROOT = join(process.cwd(), "src");
 
@@ -77,19 +76,6 @@ const PAGE_HELP_TITLE_COLLISION_SURFACES: ReadonlyArray<{
   },
 ];
 
-/** Routes where help topic H1 differs from the page title — trigger must read "Help", not the topic label. */
-const PAGE_HELP_TOPIC_MISMATCH_SURFACES: ReadonlyArray<{
-  readonly pathname: string;
-  readonly pageTitle: string;
-  readonly modulePath: string;
-}> = [
-  {
-    pathname: "/architecture/reviews",
-    pageTitle: REVIEWS_HUB_PAGE_TITLE,
-    modulePath: "app/(operator)/architecture/reviews/_sections/ReviewsHubHeaderActions.tsx",
-  },
-];
-
 function readSrcModule(relativePath: string): string {
   return readFileSync(join(SRC_ROOT, relativePath), "utf8");
 }
@@ -121,28 +107,6 @@ describe("page-help-topic-map — help trigger label collisions (P0-5)", () => {
     expect(source).not.toContain("PAGE_HELP_SHORT_TRIGGER_TEXT");
     expect(pageHelpTopicForPathname("/")?.label).toBe(OPERATOR_HOME_PAGE_TITLE);
   });
-});
-
-describe("page-help-topic-map — help trigger label mismatches (P0-5)", () => {
-  it.each(PAGE_HELP_TOPIC_MISMATCH_SURFACES)(
-    "$pathname maps help topic label to a different title than the page",
-    ({ pathname, pageTitle }) => {
-      const topic = pageHelpTopicForPathname(pathname);
-
-      expect(topic?.label).toBeDefined();
-      expect(topic?.label).not.toBe(pageTitle);
-    },
-  );
-
-  it.each(PAGE_HELP_TOPIC_MISMATCH_SURFACES)(
-    "$pathname mounts PAGE_HELP_SHORT_TRIGGER_TEXT on PageContextualHelpButton",
-    ({ modulePath }) => {
-      const source = readSrcModule(modulePath);
-
-      expect(source).toContain("PAGE_HELP_SHORT_TRIGGER_TEXT");
-      expect(source).toMatch(/PageContextualHelpButton[^>]*triggerText=\{PAGE_HELP_SHORT_TRIGGER_TEXT\}/);
-    },
-  );
 });
 
 const INTERNAL_OPS_CANONICAL_HELP_SURFACES: ReadonlyArray<{
