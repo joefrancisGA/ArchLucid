@@ -44,7 +44,10 @@ import {
   REVIEW_START_POLICY_CLOUD_MISMATCH_MESSAGE,
   REVIEW_START_SUBMIT_VALIDATION_MESSAGE,
 } from "@/lib/review-start-progress-copy";
-import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
+import {
+  deriveWizardPolicyPackCloudMismatch,
+  type WizardCreateRunPayloadOptions,
+} from "@/lib/wizard-payload";
 import {
   getWizardStepFieldGroup,
   FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
@@ -223,14 +226,22 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
   }, [stepIndex]);
 
   const isCreating = submitting || creationProgress.isActive;
+  /**
+   * Payload options shared by the live mismatch banner, the pre-submit gates, and the create call.
+   * They must agree: a gate that evaluates different options than the create call would let a run
+   * through that the server then rejects.
+   */
+  const payloadOptions: WizardCreateRunPayloadOptions = useMemo(
+    () => ({
+      requestSource: "wizard",
+      wizardPresetUsed: presetDeeplinkToken ?? undefined,
+      focusedPilotModeEnabled,
+    }),
+    [focusedPilotModeEnabled, presetDeeplinkToken],
+  );
   const policyPackCloudMismatch = useMemo(
-    () =>
-      deriveWizardPolicyPackCloudMismatch(templateWizardSessionState, {
-        requestSource: "wizard",
-        wizardPresetUsed: presetDeeplinkToken ?? undefined,
-        focusedPilotModeEnabled,
-      }),
-    [focusedPilotModeEnabled, presetDeeplinkToken, templateWizardSessionState],
+    () => deriveWizardPolicyPackCloudMismatch(templateWizardSessionState, payloadOptions),
+    [payloadOptions, templateWizardSessionState],
   );
   const canProceed = !isCreating;
   const canSubmit = !isCreating && !blocksLlmExecution && policyPackCloudMismatch === null;
@@ -327,7 +338,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
       trigger,
       blocksLlmExecution,
       getValues,
-      payloadOptions: buildPayloadOptions(),
+      payloadOptions,
     });
 
     if (gateFailure === "validation") {
@@ -343,11 +354,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     }
 
     if (gateFailure === "policy-cloud-mismatch") {
-      const mismatch = deriveWizardPolicyPackCloudMismatch(getValues(), {
-        requestSource: "wizard",
-        wizardPresetUsed: presetDeeplinkToken ?? undefined,
-        focusedPilotModeEnabled,
-      });
+      const mismatch = deriveWizardPolicyPackCloudMismatch(getValues(), payloadOptions);
       showToast(
         "err",
         mismatch !== null
@@ -365,11 +372,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     try {
       const result = await executeWizardFormCreateRun({
         getValues,
-        payloadOptions: {
-          requestSource: "wizard",
-          wizardPresetUsed: presetDeeplinkToken ?? undefined,
-          focusedPilotModeEnabled,
-        },
+        payloadOptions,
         wizardCompletedName: "FullGuided",
       });
 

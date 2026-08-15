@@ -181,9 +181,13 @@ export function RootCauseClusterDispositionStrip(
         onConfirm={() => {
           void applyClusterDisposition();
         }}
-        onCancel={() => {
-          setPendingClusterKey(null);
-          setPendingDisposition(null);
+        onOpenChange={(open) => {
+          // Dismissal clears the pending selection; an in-flight apply keeps it so the strip still
+          // knows which cluster the mutation belongs to when it reports back.
+          if (!open && !busy) {
+            setPendingClusterKey(null);
+            setPendingDisposition(null);
+          }
         }}
       />
     </section>

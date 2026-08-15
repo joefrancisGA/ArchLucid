@@ -6,7 +6,17 @@ import {
   type InventoryDemoScenarioPickerProps,
 } from "@/components/wizard/InventoryDemoScenarioPicker";
 
-export type AzureExtractorDemoScenarioPickerProps = Omit<InventoryDemoScenarioPickerProps, "platform"> & {
+/**
+ * Azure-narrowed picker props.
+ *
+ * The overridden keys must be omitted, not just re-declared: `A & B` intersects same-named members
+ * rather than replacing them, so keeping the base `onSelectScenario` would demand a handler that
+ * accepts every platform's scenario id *and* the Azure-only one — which no `useState` setter can be.
+ */
+export type AzureExtractorDemoScenarioPickerProps = Omit<
+  InventoryDemoScenarioPickerProps,
+  "platform" | "selectedScenarioId" | "onSelectScenario"
+> & {
   selectedScenarioId: DemoReviewScenarioId;
   onSelectScenario: (scenarioId: DemoReviewScenarioId) => void;
 };

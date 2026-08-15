@@ -7,26 +7,6 @@ import {
   DEMO_EXPLAIN_TRAFFIC_SECTION,
 } from "@/lib/ui-route-traffic-demo-explain";
 import type { UiRouteTrafficRow } from "@/lib/ui-route-traffic/types";
-import {
-  LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE,
-  LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_PATH,
-  LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_ROW_ID,
-} from "@/lib/ui-route-traffic-legacy-architecture-graph";
-import {
-  LEGACY_LOGIN_TRAFFIC_NOTE,
-  LEGACY_LOGIN_TRAFFIC_PATH,
-  LEGACY_LOGIN_TRAFFIC_ROW_ID,
-} from "@/lib/ui-route-traffic-legacy-login";
-import {
-  LEGACY_ONBOARD_TRAFFIC_NOTE,
-  LEGACY_ONBOARD_TRAFFIC_PATH,
-  LEGACY_ONBOARD_TRAFFIC_ROW_ID,
-} from "@/lib/ui-route-traffic-legacy-onboard";
-import {
-  LEGACY_ONBOARDING_START_TRAFFIC_NOTE,
-  LEGACY_ONBOARDING_START_TRAFFIC_PATH,
-  LEGACY_ONBOARDING_START_TRAFFIC_ROW_ID,
-} from "@/lib/ui-route-traffic-legacy-onboarding-start";
 
 /** Traffic workbook rows for low-volume workbook sections. */
 export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
@@ -69,26 +49,6 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     section: "Auth",
     note: "Session expired (Auth) - SessionExpiredClient/SessionExpiredView with. Not an operator PageContextualHelp surface (signed-out). Sibling ASI = /auth/signin; LOG = legacy /login.auth-gate ceiling below operator Evidence band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["SessionExpiredClient", "Sources", "cannot improve further toward 80"],
-  },
-  /** Traffic workbook row ID for legacy `/login` redirect shim. Owner backlog shorthand: LOX. */
-  {
-    rowId: LEGACY_LOGIN_TRAFFIC_ROW_ID,
-    path: LEGACY_LOGIN_TRAFFIC_PATH,
-    section: "Redirect shim",
-    note: LEGACY_LOGIN_TRAFFIC_NOTE,
-    noteMustContain: ["Legacy", "/auth/signin", "/auth/session-expired"],
-    noteMustNotContainLower: ["live marketing", "pagecontextualhelp", "score 58", "score 72"],
-    sectionMustNotEqual: ["Auth"],
-  },
-  /** Traffic workbook row ID for legacy `/operate/architecture-graph` redirect shim. Owner backlog shorthand: OPR. */
-  {
-    rowId: LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_ROW_ID,
-    path: LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_PATH,
-    section: "Redirect shim",
-    note: LEGACY_ARCHITECTURE_GRAPH_TRAFFIC_NOTE,
-    noteMustContain: ["Legacy", "/insights/evidence-graph"],
-    noteMustNotContainLower: ["live marketing", "pagecontextualhelp", "score 68"],
-    sectionMustNotEqual: ["Planning", "Operate"],
   },
   /** Traffic workbook row ID for post-auth bootstrap. Owner backlog shorthand: AUB. */
   {
@@ -163,26 +123,6 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     note: "Connect GCP securely help (Help alias) - HelpConnectGcpSecurelyGuideView with PageContextualHelpButton (topic map cloud-connections-gcp; Category-1 registry), claim-discipline orientation strip with Sources, WIF starter panel + manifest-driven GCP roles table, verification scope callout, troubleshoot section, configure CTA. Sibling HCE = parent cloud-connections help; HC = Azure; HEC = AWS; IGC = live GCP settings. Orientation guide - not a signed-record Sources trail. Score 58/100 (2026-08-10) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["Score 58", "cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
-  },
-  /** Traffic workbook row ID for legacy `/onboard` redirect shim. Owner backlog shorthand: ON. */
-  {
-    rowId: LEGACY_ONBOARD_TRAFFIC_ROW_ID,
-    path: LEGACY_ONBOARD_TRAFFIC_PATH,
-    section: "Redirect shim",
-    note: LEGACY_ONBOARD_TRAFFIC_NOTE,
-    noteMustContain: ["Legacy", "first-review-guide"],
-    noteMustNotContainLower: ["live marketing", "pagecontextualhelp", "score 68"],
-    sectionMustNotEqual: ["Onboarding"],
-  },
-  /** Traffic workbook row ID for legacy `/onboarding/start` redirect shim. Owner backlog shorthand: ONS. */
-  {
-    rowId: LEGACY_ONBOARDING_START_TRAFFIC_ROW_ID,
-    path: LEGACY_ONBOARDING_START_TRAFFIC_PATH,
-    section: "Redirect shim",
-    note: LEGACY_ONBOARDING_START_TRAFFIC_NOTE,
-    noteMustContain: ["Legacy", "first-review-guide"],
-    noteMustNotContainLower: ["live marketing", "pagecontextualhelp", "score 68"],
-    sectionMustNotEqual: ["Onboarding"],
   },
   /** Traffic workbook row ID for Pilot feedback / product learning. Owner backlog shorthand: INR. */
   {
