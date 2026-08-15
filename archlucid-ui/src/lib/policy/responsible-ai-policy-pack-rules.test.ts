@@ -92,22 +92,4 @@ describe("resolveResponsibleAiPolicyRuleRows", () => {
       "Published pack content unavailable — no rule rows are shown until content loads.",
     );
   });
-
-  it("does not show platform template rows when published content has no rule keys", () => {
-    const content: PolicyPackContentDocument = {
-      complianceRuleIds: [],
-      complianceRuleKeys: [],
-      alertRuleIds: [],
-      compositeAlertRuleIds: [],
-      advisoryDefaults: {},
-      metadata: {},
-    };
-
-    const result = resolveResponsibleAiPolicyRuleRows(content, { hasPackRecord: true });
-
-    expect(result.rows).toHaveLength(0);
-    expect(result.rulesSourceQualifier).toBe(
-      "Published pack has no compliance rule keys in pack content.",
-    );
-  });
 });

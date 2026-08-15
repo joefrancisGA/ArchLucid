@@ -30,9 +30,6 @@ const RULE_KEYS_ONLY_SEVERITY_QUALIFIER =
 const PUBLISHED_CONTENT_UNAVAILABLE_QUALIFIER =
   "Published pack content unavailable — no rule rows are shown until content loads.";
 
-const PUBLISHED_CONTENT_NO_RULE_KEYS_QUALIFIER =
-  "Published pack has no compliance rule keys in pack content.";
-
 function humanizeRuleKey(ruleKey: string): string {
   return ruleKey
     .split(/[./_-]+/)
@@ -93,11 +90,6 @@ export function resolveResponsibleAiPolicyRuleRows(
         rulesSourceQualifier: RULE_KEYS_ONLY_SEVERITY_QUALIFIER,
       };
     }
-
-    return {
-      rows: [],
-      rulesSourceQualifier: PUBLISHED_CONTENT_NO_RULE_KEYS_QUALIFIER,
-    };
   }
 
   if (!options.hasPackRecord) {
