@@ -104,4 +104,31 @@ describe("CompareGovernanceDiffPanel", () => {
 
     expect(screen.getByTestId("compare-governance-diff-loading")).toBeInTheDocument();
   });
+
+  it("surfaces per-side policy-pack cloud mismatch callouts (TB-2322)", () => {
+    const view = buildCompareGovernanceDiffView({
+      baselineManifest: parseCompareManifestGovernanceSnapshot({
+        ruleSetId: "cis-azure",
+        ruleSetVersion: "1.0.0",
+      }),
+      targetManifest: parseCompareManifestGovernanceSnapshot({
+        ruleSetId: "aws-security",
+        ruleSetVersion: "2.0.0",
+      }),
+      currentEffective: null,
+    });
+
+    render(
+      <CompareGovernanceDiffPanel
+        view={view}
+        loading={false}
+        softFailureMessage={null}
+        baselineCloudMismatchDetail="Azure-focused policy packs are selected while the cloud target is AWS."
+        targetCloudMismatchDetail="Azure-focused policy packs are selected while the cloud target is Google Cloud."
+      />,
+    );
+
+    expect(screen.getByTestId("compare-governance-baseline-cloud-mismatch")).toHaveTextContent("AWS");
+    expect(screen.getByTestId("compare-governance-target-cloud-mismatch")).toHaveTextContent("Google Cloud");
+  });
 });

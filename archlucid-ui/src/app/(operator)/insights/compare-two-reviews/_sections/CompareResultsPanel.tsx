@@ -442,6 +442,8 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             baselineRunId={golden.baseRunId}
             targetRunId={golden.targetRunId}
             preloaded={governanceDiffState}
+            baselineRequestId={leftPickedSummary?.requestId}
+            targetRequestId={rightPickedSummary?.requestId}
           />
         ) : null}
 
