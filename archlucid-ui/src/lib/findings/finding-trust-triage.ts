@@ -102,6 +102,21 @@ export function reviewFindingMatchesProvenanceFilter(
   return true;
 }
 
+/** Low extraction-confidence ungrounded findings sort below peers in the same trust band (TB-2318). */
+export function extractionFidelitySortPenalty(finding: QuickDecisionFinding): number {
+  const provenance = provenanceFromReviewFinding(finding);
+
+  if (provenance.grounding === "Ungrounded" && finding.confidenceLevel === "Low") {
+    return 2;
+  }
+
+  if (provenance.grounding === "Ungrounded" || finding.confidenceLevel === "Low") {
+    return 1;
+  }
+
+  return 0;
+}
+
 export function compareFindingsByTrustThenSeverity(
   left: QuickDecisionFinding,
   right: QuickDecisionFinding,
@@ -111,6 +126,13 @@ export function compareFindingsByTrustThenSeverity(
 
   if (leftBand !== rightBand) {
     return leftBand - rightBand;
+  }
+
+  const leftPenalty = extractionFidelitySortPenalty(left);
+  const rightPenalty = extractionFidelitySortPenalty(right);
+
+  if (leftPenalty !== rightPenalty) {
+    return leftPenalty - rightPenalty;
   }
 
   return right.severityValue - left.severityValue || left.findingOrder - right.findingOrder;
