@@ -17,6 +17,7 @@ public sealed class RequirementCrossRunDiffFindingEngine : IFindingEngine
     {
         RequirementNameDiffResult diff = GraphSnapshotRequirementDiffAnalyzer.AnalyzeNameDelta(graphSnapshot);
         List<Finding> findings = [];
+        List<string> scopeNodeIds = CrossRunDiffFindingGraphScope.CollectRequirementNodeIds(graphSnapshot);
 
         if (diff.PriorRequirementNames.Count == 0)
             return Task.FromResult<IReadOnlyList<Finding>>(findings);
@@ -30,7 +31,8 @@ public sealed class RequirementCrossRunDiffFindingEngine : IFindingEngine
                 "requirement-set-regression",
                 $"Removed requirements: {string.Join(", ", diff.RemovedRequirementNames)}",
                 "Reviewers may miss regressions in traceability when requirements disappear between runs.",
-                FindingSeverity.Warning));
+                FindingSeverity.Warning,
+                scopeNodeIds));
         }
 
         if (diff.AddedRequirementNames.Count > 0)
@@ -44,6 +46,7 @@ public sealed class RequirementCrossRunDiffFindingEngine : IFindingEngine
                 Severity = FindingSeverity.Info,
                 Title = "Requirement set expanded since the prior committed run",
                 Rationale = "New requirements appeared relative to the prior context snapshot.",
+                RelatedNodeIds = scopeNodeIds,
                 PayloadType = nameof(RequirementCoverageFindingPayload),
                 Payload = new RequirementCoverageFindingPayload
                 {
@@ -54,6 +57,7 @@ public sealed class RequirementCrossRunDiffFindingEngine : IFindingEngine
                 },
                 Trace = new ExplainabilityTrace
                 {
+                    GraphNodeIdsExamined = scopeNodeIds,
                     RulesApplied = ["requirement-cross-run-name-diff"],
                     DecisionsTaken = ["Compared current requirement names to prior committed snapshot metadata."],
                     Notes =

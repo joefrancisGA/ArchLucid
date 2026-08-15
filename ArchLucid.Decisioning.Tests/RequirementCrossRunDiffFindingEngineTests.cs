@@ -44,6 +44,8 @@ public sealed class RequirementCrossRunDiffFindingEngineTests
         findings.Should().ContainSingle();
         findings[0].Severity.Should().Be(FindingSeverity.Warning);
         findings[0].Title.Should().Contain("regressed");
+        findings[0].RelatedNodeIds.Should().Contain("context-1");
+        findings[0].RelatedNodeIds.Should().Contain("req-1");
     }
 
     [Fact]
@@ -88,5 +90,8 @@ public sealed class RequirementCrossRunDiffFindingEngineTests
         RequirementCoverageFindingPayload? payload = findings[0].Payload as RequirementCoverageFindingPayload;
         payload.Should().NotBeNull();
         payload!.UncoveredRequirements.Should().Contain("observability");
+        findings[0].RelatedNodeIds.Should().Contain("context-1");
+        findings[0].RelatedNodeIds.Should().Contain("req-1");
+        findings[0].RelatedNodeIds.Should().Contain("req-2");
     }
 }

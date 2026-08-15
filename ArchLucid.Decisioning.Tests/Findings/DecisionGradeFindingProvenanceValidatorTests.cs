@@ -276,6 +276,67 @@ public sealed class DecisionGradeFindingProvenanceValidatorTests
     }
 
     [Fact]
+    public void GetViolations_allows_requirement_cross_run_diff_expanded_with_rules_and_payload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "req-diff-1",
+                    FindingType = "RequirementCoverageFinding",
+                    EngineType = "requirement-cross-run-diff",
+                    Category = "Requirement",
+                    Payload = new RequirementCoverageFindingPayload
+                    {
+                        RequirementNodeCount = 2,
+                        CoveredRequirementCount = 1,
+                        UncoveredRequirementCount = 1,
+                        UncoveredRequirements = ["observability"],
+                    },
+                    Trace = new ExplainabilityTrace
+                    {
+                        RulesApplied = ["requirement-cross-run-name-diff"],
+                    },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetViolations_allows_topology_cross_run_diff_regression_with_rules_and_gap_payload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "topo-diff-1",
+                    FindingType = "TopologyGap",
+                    EngineType = "topology-cross-run-diff",
+                    Category = "Topology",
+                    Payload = new TopologyGapFindingPayload
+                    {
+                        GapCode = "topology-category-regression",
+                        Description = "Removed categories: network",
+                        Impact = "Reviewers may miss regressions in landing-zone coverage when categories disappear between runs.",
+                    },
+                    Trace = new ExplainabilityTrace
+                    {
+                        RulesApplied = ["topology-gap-topology-category-regression"],
+                    },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
+
+    [Fact]
     public void GetViolations_allows_advisor_cost_recommendation_with_rules_and_payload()
     {
         FindingsSnapshot snapshot = new()
