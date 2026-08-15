@@ -1384,6 +1384,12 @@
           "lane": {
             "$ref": "#/components/schemas/AdversarialLane"
           },
+          "sourceFindingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "suppressed": {
             "type": "boolean"
           },
@@ -6654,8 +6660,22 @@
         },
         "type": "object"
       },
+      "ChangeImpactCategory": {
+        "enum": [
+          "ModelDiffChange",
+          "Decision",
+          "Risk",
+          "ComplianceMapping",
+          "DeploymentDiagram",
+          "RelatedElement"
+        ],
+        "type": "string"
+      },
       "ChangeImpactItem": {
         "properties": {
+          "category": {
+            "$ref": "#/components/schemas/ChangeImpactCategory"
+          },
           "description": {
             "type": "string"
           },
@@ -11128,6 +11148,14 @@
         },
         "type": "object"
       },
+      "EvidenceSupportTier": {
+        "enum": [
+          "Unverified",
+          "SemanticInferenceFromPartialEvidence",
+          "IntegrityVerified"
+        ],
+        "type": "string"
+      },
       "EvidenceValidationResult": {
         "properties": {
           "completenessNotes": {
@@ -11160,6 +11188,9 @@
               "$ref": "#/components/schemas/EvidenceValidationStageOutcome"
             },
             "type": "array"
+          },
+          "supportTier": {
+            "$ref": "#/components/schemas/EvidenceSupportTier"
           }
         },
         "type": "object"
@@ -26717,6 +26748,9 @@
           },
           "evidenceCondition": {
             "$ref": "#/components/schemas/EvidenceCondition"
+          },
+          "evidenceSupportTier": {
+            "$ref": "#/components/schemas/EvidenceSupportTier"
           },
           "findingId": {
             "type": "string"
