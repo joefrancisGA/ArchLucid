@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { HelpCorePilotFirstViewportJobChrome } from "@/app/(operator)/help/_sections/HelpCorePilotFirstViewportJobChrome";
+import { HelpCorePilotJobMatrix } from "@/app/(operator)/help/_sections/HelpCorePilotJobMatrix";
 import { CorePilotHelpOrientationFooter } from "@/app/(operator)/help/_sections/CorePilotHelpOrientationFooter";
 import { CorePilotHelpPostStepperPanel } from "@/app/(operator)/help/_sections/CorePilotHelpPostStepperPanel";
 import { FirstReviewGuideFirstArchitectureReviewVocabularyRail } from "@/components/FirstReviewGuideFirstArchitectureReviewVocabularyRail";
@@ -23,6 +25,8 @@ import {
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -84,6 +88,8 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <div className="space-y-6" data-testid="core-pilot-first-viewport">
+            <HelpCorePilotJobMatrix />
+
             <Card
               id="first-review-path"
               className={cn(
@@ -112,14 +118,16 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
               </CardContent>
             </Card>
 
-            <section aria-labelledby="run-the-first-review" className="space-y-4">
-              <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                Follow these five steps in order. Each step links to the product surface where you take action.
-              </p>
-              <HelpCorePilotWorkflowStepper />
-            </section>
+            <HelpCorePilotFirstViewportJobChrome />
           </div>
+
+          <section aria-labelledby="run-the-first-review" className="space-y-4">
+            <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              Follow these five steps in order. Each step links to the product surface where you take action.
+            </p>
+            <HelpCorePilotWorkflowStepper />
+          </section>
 
           <HelpDisclosure title={CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title}>
             {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
@@ -142,7 +150,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                 <li key={guide.href}>
                   <Link
                     href={guide.href}
-                    className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+                    className={OPERATOR_BODY_INLINE_LINK_CLASS}
                   >
                     {guide.label}
                   </Link>

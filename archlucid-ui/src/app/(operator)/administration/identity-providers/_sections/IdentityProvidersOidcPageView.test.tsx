@@ -271,11 +271,10 @@ describe("IdentityProvidersOidcPageView", () => {
     );
   });
 
-  it("renders breadcrumb, tenant scope, status badge, and hides duplicate diagnostics link on OIDC tab", () => {
+  it("renders tenant scope, status badge, and hides duplicate diagnostics link on OIDC tab", () => {
     render(<IdentityProvidersOidcPageView model={buildModel()} />);
 
-    expect(screen.getByTestId("identity-providers-page-breadcrumb")).toHaveTextContent("Administration");
-    expect(screen.getByTestId("identity-providers-page-breadcrumb")).toHaveTextContent("Identity providers");
+    expect(screen.queryByTestId("identity-providers-page-breadcrumb")).toBeNull();
     expect(screen.getByTestId("identity-providers-tenant-scope")).toHaveTextContent("Claims Intake Demo");
     expect(screen.getByTestId("identity-providers-header-status-badge")).toHaveTextContent(
       IDENTITY_PROVIDERS_STATUS_HEALTHY,

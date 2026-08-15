@@ -34,7 +34,7 @@ export type WeeklyDigestHealthBannerProps = {
    * Which facts accompany the status tag.
    * `full` — Browse: schedule / subscription / last-sent counts.
    * `subscriptions` — active destinations + last delivery.
-   * `schedule` — executive recipients + cadence.
+   * `schedule` — sponsor recipients + cadence.
    */
   readonly variant?: "full" | "subscriptions" | "schedule";
   /** When true, loads health for parent state but renders no banner chrome. */
@@ -62,9 +62,9 @@ function HealthMetric(props: HealthMetricProps): ReactElement {
   );
 }
 
-function formatExecutiveScheduleSummary(snap: WeeklyDigestHealthDto): string {
+function formatSponsorScheduleSummary(snap: WeeklyDigestHealthDto): string {
   if (!snap.executiveEmailDigestEnabled) {
-    return "Executive digest disabled";
+    return "Sponsor digest disabled";
   }
 
   const dayName: string = EXEC_DIGEST_DAY_NAMES[snap.executiveDigestDayOfWeek] ?? "—";
@@ -174,7 +174,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
     variant === "subscriptions"
       ? "Subscription delivery"
       : variant === "schedule"
-        ? "Executive schedule"
+        ? "Sponsor schedule"
         : "Digest status";
 
   const compactFactsLine: ReactElement = (
@@ -243,7 +243,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
             <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Recipients: {executiveRecipients}
               {" · "}
-              Cadence: {formatExecutiveScheduleSummary(snap)}
+              Cadence: {formatSponsorScheduleSummary(snap)}
             </span>
           ) : null}
           {variant === "full" && showCompactFacts ? compactFactsLine : null}
@@ -278,7 +278,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
         <div className="mt-3 flex flex-wrap gap-x-6 gap-y-3" data-testid="digest-health-metrics">
           <HealthMetric label="Enabled schedules" value={String(snap.enabledAdvisoryScheduleCount)} />
           <HealthMetric label="Active subscriptions" value={String(snap.enabledDigestSubscriptionCount)} />
-          <HealthMetric label="Executive recipients" value={executiveRecipients} />
+          <HealthMetric label="Sponsor recipients" value={executiveRecipients} />
           <HealthMetric
             label="Last sent"
             value={formatDigestInstant(

@@ -11,10 +11,10 @@ const REPO_ROOT = join(process.cwd());
 const GOVERNANCE_REVIEWS_INSIGHTS_BUTTON_PATHS = [
   "src/app/(operator)/governance/audit/_sections/AuditPageView.tsx",
   "src/components/AuditActiveFilterChips.tsx",
-  "src/app/(operator)/governance/signed-records/_sections/SignedRecordsListClient.tsx",
+  "src/app/(operator)/governance/sealed-records/_sections/SignedRecordsListClient.tsx",
   "src/components/governance/findings/GovernanceFindingsFilterBar.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/ReviewPackageSponsorHandoffStrip.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackageSponsorHandoffStrip.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArtifactsExportsSection.tsx",
   "src/components/runs/RunFindingExplainabilityTable.tsx",
   "src/components/GenerateAdrFromRunModal.tsx",
   "src/components/reviews/technology-baseline/TechnologyBaselinePanel.tsx",
@@ -27,7 +27,7 @@ const GOVERNANCE_REVIEWS_INSIGHTS_BUTTON_PATHS = [
   "src/components/ReasoningTraceReadMore.tsx",
   "src/app/(operator)/internal/pricing-quote-aging/_sections/PricingQuoteAgingPageView.tsx",
   "src/app/(operator)/internal/trial-funnel/_sections/TrialFunnelOpsPageClient.tsx",
-  "src/app/(operator)/internal/integration-events/dlq/_sections/IntegrationEventsDlqPageClient.tsx",
+  "src/app/(operator)/internal/failed-integration-messages/_sections/IntegrationEventsDlqPageClient.tsx",
   "src/app/(operator)/internal/recommendation-learning/_sections/RecommendationLearningOpsPageClient.tsx",
 ] as const;
 

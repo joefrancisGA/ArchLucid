@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
 
 describe("OperateGovernanceNavGroupBuilder", () => {
@@ -26,7 +26,7 @@ describe("OperateGovernanceNavGroupBuilder", () => {
     const group = new OperateGovernanceNavGroupBuilder().build();
     const lastLink = group.links[group.links.length - 1];
 
-    expect(lastLink?.href).toBe(EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF);
+    expect(lastLink?.href).toBe(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF);
     expect(lastLink?.label).toBe("Workspace health");
   });
 });

@@ -11,5 +11,5 @@ export const PRICING_PAGE_FAQ_LINK_PREFIX = "More evaluation and security answer
 export const PRICING_PAGE_BRAND_CATEGORY_DETAILS_TRIGGER = "Why ArchLucid?" as const;
 
 export function pricingPageBrandCategoryLead(brandCategory: string): string {
-  return `ArchLucid is an ${brandCategory} for governed architecture review, evidence traceability, and audit-ready signed review records.`;
+  return `ArchLucid is an ${brandCategory} for governed architecture review, evidence traceability, and audit-ready sealed review records.`;
 }

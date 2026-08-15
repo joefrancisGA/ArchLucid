@@ -24,9 +24,8 @@ export function useHealthReadySummaryQuery(options?: UseHealthReadySummaryQueryO
   const throwOnUnavailable = options?.throwOnUnavailable === true;
 
   return useQuery<HealthReadyResponse | null>({
-    queryKey: throwOnUnavailable
-      ? operatorQueryKeys.healthReadySummaryStrict
-      : operatorQueryKeys.healthReadySummary,
+    // Single cache key — strict callers use throwOnUnavailable in queryFn only.
+    queryKey: operatorQueryKeys.healthReadySummary,
     queryFn: async () => {
       const result = await fetchHealthReadySummary();
 

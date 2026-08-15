@@ -22,3 +22,8 @@
 
 # terraform-edge (optional)
 # enable_front_door_waf = false
+
+# terraform-redis + terraform-container-apps (TB-2141 HotPathCache L2)
+# enable_redis_cache = true   # in terraform-redis staging.tfvars
+# hot_path_cache_redis_connection_string = "<sensitive>"   # in terraform-container-apps staging.tfvars
+# See docs/library/SCALE_TIER_CACHE_GUIDE.md

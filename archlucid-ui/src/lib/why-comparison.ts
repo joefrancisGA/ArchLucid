@@ -81,6 +81,20 @@ export const WHY_COMPARISON_ROWS: readonly WhyHardComparisonRow[] =
 /** JSON form for the marketing page import path (round-trip checked in Vitest). */
 export const WHY_COMPARISON_ROWS_SERIALIZED: string = JSON.stringify(WHY_COMPARISON_ROWS);
 
+/** Front-door summary — five strongest governance differentiators (full rows stay in disclosure). */
+export type WhyGovernanceSummaryRow = {
+  readonly label: string;
+  readonly fullRowIndex: number;
+};
+
+export const WHY_GOVERNANCE_SUMMARY_ROWS: readonly WhyGovernanceSummaryRow[] = [
+  { label: "Immutable review record", fullRowIndex: 0 },
+  { label: "Evidence-linked findings", fullRowIndex: 5 },
+  { label: "Approval gates", fullRowIndex: 6 },
+  { label: "Sponsor-ready export integrity", fullRowIndex: 4 },
+  { label: "Auditable decision history", fullRowIndex: 1 },
+];
+
 export function whyHardCellDisplay(cell: WhyHardComparisonCell): string {
   if (cell === "yes") return "✓";
 

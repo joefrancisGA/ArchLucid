@@ -1,9 +1,11 @@
 using System.Data;
 
+using ArchLucid.Core.Persistence.ApplicationPorts.Coordination;
+
 namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>Transactional-style queue for deferred authority pipeline continuation after the run header commits.</summary>
-public interface IAuthorityPipelineWorkRepository
+public interface IAuthorityPipelineWorkRepository : IRecoverableOutboxRepository<AuthorityPipelineWorkOutboxEntry>
 {
     Task EnqueueAsync(
         Guid runId,
@@ -24,28 +26,6 @@ public interface IAuthorityPipelineWorkRepository
         string payloadJson,
         IDbConnection connection,
         IDbTransaction transaction,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     Claims up to <paramref name="maxBatch" /> actionable rows under an exclusive <paramref name="leaseDurationSeconds"/> lease.
-    ///     Selection is tenant-fair round-robin: the oldest actionable row per tenant is interleaved ahead of draining one tenant FIFO.
-    /// </summary>
-    Task<IReadOnlyList<AuthorityPipelineWorkOutboxEntry>> DequeuePendingAsync(
-        int maxBatch,
-        int leaseDurationSeconds,
-        CancellationToken cancellationToken = default);
-
-    Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken = default);
-
-    Task RecordBackoffAfterProcessingFailureAsync(
-        Guid outboxId,
-        DateTime nextAttemptUtc,
-        string failedAttemptErrorSummaryTruncatedTo400,
-        CancellationToken cancellationToken = default);
-
-    Task RecordDeadLetterAsync(
-        Guid outboxId,
-        string failedAttemptErrorSummaryTruncatedTo400,
         CancellationToken cancellationToken = default);
 
     /// <summary>Rows awaiting completion (excluding dead-letter rows).</summary>

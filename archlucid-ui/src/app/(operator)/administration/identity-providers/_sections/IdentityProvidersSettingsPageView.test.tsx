@@ -160,6 +160,12 @@ function buildModel(
 
 describe("IdentityProvidersSettingsPageView", () => {
 
+  it("renders claim-discipline orientation strip on the live hub page", () => {
+    render(<IdentityProvidersSettingsPageView model={buildModel()} />);
+
+    expect(screen.queryByTestId("identity-providers-settings-claim-discipline")).not.toBeInTheDocument();
+  });
+
   it("shows a retryable overview failure only when status probes are unavailable", () => {
 
     const refresh = vi.fn(async () => undefined);

@@ -1,4 +1,7 @@
-import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import {
+  FIRST_REVIEW_GUIDE_PATH,
+  ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+} from "@/lib/first-review-guide-route";
 
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 
@@ -11,6 +14,7 @@ export const OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM = "warnings";
 
 export const OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF = `/?${OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM}=1`;
 
-export const OPERATOR_HOME_SETUP_READINESS_HREF = FIRST_REVIEW_GUIDE_PATH;
+export const OPERATOR_HOME_SETUP_READINESS_HREF =
+  `${FIRST_REVIEW_GUIDE_PATH}#${ONBOARDING_OPTIONAL_SETUP_HEADING_ID}` as const;
 
 export const OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF = "/architecture/reviews";

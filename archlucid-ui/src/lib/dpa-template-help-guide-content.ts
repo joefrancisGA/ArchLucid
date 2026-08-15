@@ -3,6 +3,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const DPA_TEMPLATE_HELP_PAGE_TITLE = "Data Processing Agreement (template)";
 
+export const DPA_TEMPLATE_HELP_TOPIC_LABEL = "How to use the DPA template" as const;
+
 export const DPA_TEMPLATE_HELP_PAGE_SUBTITLE =
   "Working negotiation template for counsel — not your countersigned DPA and not legal advice.";
 

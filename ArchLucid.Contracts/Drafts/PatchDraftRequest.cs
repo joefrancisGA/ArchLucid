@@ -44,4 +44,11 @@ public sealed class PatchDraftRequest
         get;
         set;
     }
+
+    [JsonPropertyName("structuredBrief")]
+    public ArchitectureDraftStructuredBrief? StructuredBrief
+    {
+        get;
+        set;
+    }
 }

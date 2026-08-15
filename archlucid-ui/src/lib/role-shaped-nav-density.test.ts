@@ -11,15 +11,7 @@ import {
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 
 function adminShellRows() {
-  return listNavGroupsVisibleInOperatorShell(
-    NAV_GROUPS,
-    true,
-    true,
-    AUTHORITY_RANK.AdminAuthority,
-    false,
-    "all",
-    true,
-  );
+  return listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true);
 }
 
 describe("role-shaped-nav-density", () => {
@@ -61,15 +53,7 @@ describe("role-shaped-nav-density", () => {
   });
 
   it("hides non-primary groups for governance persona at execute rank", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      "all",
-      true,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ExecuteAuthority, "all", true);
     const collapsed = filterNavGroupsByRoleDensity(rows, "governance", false);
 
     expect(collapsed.some((row) => row.group.id === "operate-governance")).toBe(true);

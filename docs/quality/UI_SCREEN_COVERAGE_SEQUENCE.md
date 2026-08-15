@@ -75,10 +75,10 @@ Sign in as **Admin**. Complete the table in **Pass A**, then again in **Pass B**
 | 2 | `/architecture/architectures` | Empty list | Draft + linked architectures | [ ] | [ ] |
 | 3 | `/architecture/architectures/new` | Blank create form | — | [ ] | — |
 | 4 | `/architecture/reviews` | Empty inventory (or drafts, no runs) | Package table | [ ] | [ ] |
-| 5 | `/architecture/executive-dashboard` | Empty KPIs | Metrics after finalize | [ ] | [ ] |
+| 5 | `/architecture/sponsor-dashboard` | Empty KPIs | Metrics after finalize | [ ] | [ ] |
 | 6 | Same URL `#workspace-health` | Empty posture | Populated KPIs | [ ] | [ ] |
 | 7 | `/architecture/first-review-guide` | Hub status + deep links | Status after first finalize | [ ] | [ ] |
-| 8 | `/architecture/digests?tab=browse` | Empty browse | Generated digests | [ ] | [ ] |
+| 8 | `/architecture/digests?tab=get-started` | Empty browse | Generated digests | [ ] | [ ] |
 | 9 | `/architecture/digests?tab=subscriptions` | Empty subscriptions | Rows after create | [ ] | [ ] |
 | 10 | `/architecture/digests?tab=schedule` | Unconfigured / paused | Saved cadence + recipients | [ ] | [ ] |
 | 11 | `/architecture/architecture-intelligence` | Empty / no closed-loop | After Execute workflows | [ ] | [ ] |
@@ -95,7 +95,7 @@ Sign in as **Admin**. Complete the table in **Pass A**, then again in **Pass B**
 | 17 | `/insights/improvement-planning` | Empty themes/plans | Plan list | [ ] | [ ] |
 | 18 | `/insights/architecture-scorecard` | Empty scorecard | Metrics after finalize | [ ] | [ ] |
 | 19 | `/insights/patterns` | Empty or catalog-only | Adoption signals | [ ] | [ ] |
-| 20 | `/insights/executive-summary` | Empty / no report | Sponsor summary + exports | [ ] | [ ] |
+| 20 | `/insights/sponsor-summary` | Empty / no report | Sponsor summary + exports | [ ] | [ ] |
 | 21 | `/insights/pilot-outcomes` | Empty outcomes | Pilot metrics | [ ] | [ ] |
 | 22 | `/insights/roi-summary` | Empty ROI | Hours / severity estimate | [ ] | [ ] |
 
@@ -110,7 +110,7 @@ Sign in as **Admin**. Complete the table in **Pass A**, then again in **Pass B**
 | 27 | `/governance/policy-packs/{id}` | Detail shell | Scoped assignment | [ ] | [ ] |
 | 28 | `/governance/standards-and-rules` | Empty diagnosis | Conflict / precedence | [ ] | [ ] |
 | 29 | `/governance/decision-register` | Empty dispositions | Signed decisions | [ ] | [ ] |
-| 30 | `/governance/signed-records` | Empty | Manifests after finalize | [ ] | [ ] |
+| 30 | `/governance/sealed-records` | Empty | Manifests after finalize | [ ] | [ ] |
 | 31 | `/governance/advisory-scans?tab=scans` | Empty scans | Scan results | [ ] | [ ] |
 | 32 | `/governance/advisory-scans?tab=schedules` | Empty schedules | CRUD schedules (Execute) | [ ] | [ ] |
 | 33 | `/governance/audit` | Empty audit table | Events after actions | [ ] | [ ] |
@@ -157,8 +157,8 @@ Sign in as **Admin**. Complete the table in **Pass A**, then again in **Pass B**
 | 64 | `/administration/connection-status` | Disconnected vs ready | [ ] | [ ] |
 | 65 | `/administration/system-health` | Ready vs degraded | [ ] | [ ] |
 | 66 | `/administration/support` | Support bundle download | [ ] | [ ] |
-| 67 | `/administration/preferences` | Account menu — self settings | [ ] | — |
-| 68 | `/administration/account-security` | Account menu | [ ] | — |
+| 67 | `/account/preferences` | Account menu — self settings | [ ] | — |
+| 68 | `/account/security` | Account menu | [ ] | — |
 | 69 | `/administration/baseline` | Via Settings index | [ ] | [ ] |
 | 70 | `/administration/model-governance` | Via Settings index | [ ] | [ ] |
 | 71 | `/administration/extract-upload` | Via Settings index | [ ] | [ ] |
@@ -180,9 +180,9 @@ Requires host / `features.showSystemAdministrationNav`. Walk once empty, once af
 | [ ] | [ ] | `/internal/deployment-status` |
 | [ ] | [ ] | `/internal/rag-health` |
 | [ ] | [ ] | `/internal/configuration` |
-| [ ] | [ ] | `/internal/integration-events/dlq` |
+| [ ] | [ ] | `/internal/failed-integration-messages` |
 | [ ] | [ ] | `/internal/evidence-proposals` |
-| [ ] | [ ] | `/internal/replay` |
+| [ ] | [ ] | `/internal/validate-route` |
 | [ ] | [ ] | `/internal/recommendation-learning` |
 | [ ] | [ ] | `/internal/product-learning` |
 | [ ] | [ ] | `/internal/demo-readiness` |
@@ -219,7 +219,7 @@ Do once; unlocks almost every populated and multi-state review screen.
 | [ ] | Finding detail `/architecture/reviews/{runId}/findings/{findingId}` |
 | [ ] | Evidence trace `…/findings/{findingId}/evidence-trace` |
 | [ ] | Provenance `/architecture/reviews/{runId}/provenance` |
-| [ ] | Signed record `/governance/signed-records/{manifestId}` (+ artifact leaf if offered) |
+| [ ] | Sealed record `/governance/sealed-records/{manifestId}` (+ artifact leaf if offered) |
 | [ ] | Second review → finalize (unlocks Compare and richer digests/ROI) |
 | [ ] | Optional: digest subscription + enable schedule |
 | [ ] | Optional: alert rule → inbox row |
@@ -250,7 +250,7 @@ Then **re-run Phase 1 as Pass B**.
 |:----:|-------|
 | [ ] | As **Reader**: Admin/Internal nav hidden; mutation CTAs disabled (approval, digest subscriptions, support bundle, admin integrations) |
 | [ ] | As **Execute**: governance mutations + digest subscription CRUD; no Users/SSO/Internal |
-| [ ] | Operator ↔ Executive shell toggle (if exposed) lands on portfolio overview |
+| [ ] | Operator ↔ Sponsor shell toggle (if exposed) lands on portfolio overview |
 | [ ] | Before vs after first finalize: **First review guide** nav position / demotion (TB-524) |
 
 ---

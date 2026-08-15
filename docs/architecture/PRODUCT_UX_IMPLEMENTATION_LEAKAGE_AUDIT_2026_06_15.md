@@ -6,7 +6,7 @@
 
 # UX audit — implementation leakage into the product experience
 
-## Executive summary
+## Sponsor summary
 
 ArchLucid is **two products wearing one skin**.
 
@@ -54,7 +54,7 @@ The narrative spine should be **Review → Evidence → Decision → Governance 
 | **Governance Reviewer** | Approvals, decision register, audit | Strong — this is the best-modeled persona. |
 | **CIO / CTO / Exec** | "Is our architecture sound? What's the ROI / risk?" | Mixed — `Portfolio overview`, `Value report`, `ROI report` are good; but execs should never see `AI budget`, `Fleet LLM COGS`, `RAG health`. |
 
-The UI emphasizes **platform mechanics** for the two most senior personas and **outcomes** for the governance personas. The leakage is concentrated exactly where it does the most positioning damage: the daily-driver architect entry point and anything an executive might glance at.
+The UI emphasizes **platform mechanics** for the two most senior personas and **outcomes** for the governance personas. The leakage is concentrated exactly where it does the most positioning damage: the daily-driver architect entry point and anything an sponsor might glance at.
 
 ---
 

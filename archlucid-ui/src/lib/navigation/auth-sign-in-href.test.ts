@@ -11,7 +11,7 @@ describe("buildAuthSignInHref", () => {
     expect(
       buildAuthSignInHref({
         reason: "unauthorized",
-        returnPath: "/executive/reviews",
+        returnPath: "/sponsor/reviews",
       }),
     ).toBe("/auth/signin?reason=unauthorized&returnUrl=%2Fexecutive%2Freviews");
   });

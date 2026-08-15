@@ -12,7 +12,7 @@ import {
   GLOSSARY_HELP_ACTION_PANEL_TITLE,
   GLOSSARY_HELP_PRIMARY_ACTIONS,
 } from "@/lib/glossary-help-guide-content";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -56,7 +56,7 @@ export function HelpGlossaryPageView(props: HelpGlossaryPageViewProps): React.Re
                 </Link>
               </Button>
               <Link
-                className={cn("text-sm font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-400")}
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
                 href={GLOSSARY_HELP_PRIMARY_ACTIONS.openFirstReviewGuide.href}
               >
                 {GLOSSARY_HELP_PRIMARY_ACTIONS.openFirstReviewGuide.label}

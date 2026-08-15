@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Wraps `archlucid sponsor-packet` to produce a buyer-ready folder (and optional ZIP)
-    with index.md, first-value report, pilot deltas, executive summary, limitations, and provenance refs.
+    with index.md, first-value report, pilot deltas, Sponsor report, limitations, and provenance refs.
 
 .PARAMETER RunId
     Committed architecture run id (32-char hex, with or without dashes).

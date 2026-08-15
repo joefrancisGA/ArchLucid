@@ -315,6 +315,17 @@ variable "write_alert_secrets_to_key_vault" {
   default     = false
 }
 
+variable "managed_key_vault_secret_ttl_days" {
+  type        = number
+  description = "Expiration offset in days for Terraform-managed Key Vault secrets (TB-907)."
+  default     = 365
+
+  validation {
+    condition     = var.managed_key_vault_secret_ttl_days >= 30 && var.managed_key_vault_secret_ttl_days <= 730
+    error_message = "managed_key_vault_secret_ttl_days must be between 30 and 730."
+  }
+}
+
 variable "application_insights_connection_string_secret_name" {
   type        = string
   description = "Key Vault secret name for the Application Insights connection string when write_alert_secrets_to_key_vault is true."

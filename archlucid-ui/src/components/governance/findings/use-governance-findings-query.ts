@@ -6,6 +6,7 @@ import { useCallback } from "react";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import {
   fetchGovernanceFindingQueueRows,
+  type GovernanceFindingsFetchFailure,
 } from "@/components/governance/findings/governance-findings-query-fetch";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer/buyer-demo-content-gating";
@@ -19,10 +20,11 @@ export type GovernanceFindingsQueryState = {
   readonly rows: GovernanceFindingQueueRow[];
   readonly loading: boolean;
   readonly loadFailed: boolean;
+  readonly loadFailure: GovernanceFindingsFetchFailure | null;
   readonly refresh: () => void;
 };
 
-export function useGovernanceFindingsQuery(): GovernanceFindingsQueryState {
+export function useGovernanceFindingsQuery(enabled = true): GovernanceFindingsQueryState {
   const useCuratedDemoSpine = shouldUseGovernanceCuratedDemoSpine();
   const scope = useOperatorScopeQueryKey();
 
@@ -31,6 +33,7 @@ export function useGovernanceFindingsQuery(): GovernanceFindingsQueryState {
     queryFn: () => fetchGovernanceFindingQueueRows(useCuratedDemoSpine),
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
+    enabled,
   });
 
   const refresh = useCallback(() => {
@@ -39,8 +42,9 @@ export function useGovernanceFindingsQuery(): GovernanceFindingsQueryState {
 
   return {
     rows: query.data?.rows ?? [],
-    loading: query.isPending || query.isFetching,
+    loading: query.isPending,
     loadFailed: query.data?.loadFailed ?? false,
+    loadFailure: query.data?.failure ?? null,
     refresh,
   };
 }

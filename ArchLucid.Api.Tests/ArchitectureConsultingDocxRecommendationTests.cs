@@ -35,7 +35,7 @@ public sealed class ArchitectureConsultingDocxRecommendationTests(ArchLucidApiFa
         ConsultingDocxProfileRecommendationResponse? payload =
             await response.Content.ReadFromJsonAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload.Recommendation.RecommendedProfileName.Should().Be("executive");
+        payload.Recommendation.RecommendedProfileName.Should().Be("sponsor");
         payload.Recommendation.Reason.Should().NotBeNullOrWhiteSpace();
     }
 

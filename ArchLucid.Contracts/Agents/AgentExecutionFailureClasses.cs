@@ -36,4 +36,7 @@ public static class AgentExecutionFailureClasses
 
     /// <summary>Deferred authority pipeline outbox exhausted retries and dead-lettered.</summary>
     public const string PipelineDeadLetter = "pipelineDeadLetter";
+
+    /// <summary>Per-(RunId, TaskId) billed completion attempt cap reached (TB-941).</summary>
+    public const string StepSpendCap = "stepSpendCap";
 }

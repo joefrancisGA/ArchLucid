@@ -5,7 +5,7 @@
 
 # Backend performance assessment (2026-07-02)
 
-## Executive summary
+## Sponsor summary
 
 ArchLucid’s backend is **well-instrumented and regression-guarded** for pilot-scale usage (k6 CI smokes, named-query allowlists, HybridCache hot-path layer). There is **no sync-over-async blocking** on request paths and **HttpClient** usage is factory-based throughout product code.
 

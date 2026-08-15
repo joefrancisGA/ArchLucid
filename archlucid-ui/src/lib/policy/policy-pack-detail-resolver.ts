@@ -77,9 +77,13 @@ export function resolvePolicyPackDetailBreadcrumbLabel(policyPackId: string, pac
   return "Policy pack detail";
 }
 
-export function isSampleResponsibleAiPolicyPack(policyPackId: string, pack: PolicyPack | null): boolean {
+/**
+ * Responsible AI is a first-party bundled platform default (see DEFAULT_POLICY_PACKS_V1.md).
+ * Never label it "Sample" in buyer-facing UI — missing API rows are a loading gap, not demo content.
+ */
+export function isBundledResponsibleAiPlatformPack(policyPackId: string, pack: PolicyPack | null): boolean {
   if (pack !== null) {
-    return false;
+    return (pack.packType?.trim() ?? "") === "PlatformDefault";
   }
 
   return isResponsibleAiPolicyPackId(policyPackId);

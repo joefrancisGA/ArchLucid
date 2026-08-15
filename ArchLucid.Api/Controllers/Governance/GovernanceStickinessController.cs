@@ -85,6 +85,35 @@ public sealed class GovernanceStickinessController(
         return Ok(response);
     }
 
+    [HttpGet("risk-register/assigned-to-me-count")]
+    [ProducesResponseType(typeof(GovernanceAssignedToMeFindingsCountResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAssignedToMeFindingsCount(
+        [FromQuery] Guid? projectId,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<string> identities = ArchitectureRiskRegisterAssignedToMeIdentityResolver.Resolve(actorContext);
+
+        if (identities.Count == 0)
+        {
+            return Ok(new GovernanceAssignedToMeFindingsCountResponse { Count = 0 });
+        }
+
+        ArchitectureRiskRegisterListOptions options = new()
+        {
+            AssignedToUserIds = identities,
+            OpenFindingsOnly = true,
+        };
+
+        int count = await riskRegisterService.CountAsync(
+            scope.TenantId,
+            projectId ?? scope.ProjectId,
+            options,
+            cancellationToken);
+
+        return Ok(new GovernanceAssignedToMeFindingsCountResponse { Count = count });
+    }
+
     [HttpGet("reviews-awaiting-action")]
     [ProducesResponseType(typeof(GovernanceReviewsAwaitingActionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
@@ -121,6 +150,43 @@ public sealed class GovernanceStickinessController(
             fingerprint);
 
         return this.OkWithConditionalEtag(response, etag);
+    }
+
+    /// <summary>Risk and decision registers for the governance findings queue (default list filters).</summary>
+    [HttpGet("findings-registers-bundle")]
+    [ProducesResponseType(typeof(GovernanceFindingsRegistersBundleResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetFindingsRegistersBundle(
+        [FromQuery] Guid? projectId,
+        [FromQuery] int maxRows = 200,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        int take = Math.Clamp(maxRows, 1, 500);
+        Guid resolvedProjectId = projectId ?? scope.ProjectId;
+
+        Task<ArchitectureRiskRegisterResponse> riskTask = riskRegisterService.GetRegisterAsync(
+            scope.TenantId,
+            resolvedProjectId,
+            take,
+            options: null,
+            cancellationToken);
+
+        Task<ArchitectureDecisionRegisterResponse> decisionTask = decisionRegisterService.GetRegisterAsync(
+            scope.TenantId,
+            resolvedProjectId,
+            take,
+            filters: new ArchitectureDecisionRegisterQueryOptions(),
+            cancellationToken);
+
+        await Task.WhenAll(riskTask, decisionTask).ConfigureAwait(false);
+
+        GovernanceFindingsRegistersBundleResponse body = new()
+        {
+            RiskRegister = await riskTask.ConfigureAwait(false),
+            DecisionRegister = await decisionTask.ConfigureAwait(false)
+        };
+
+        return Ok(body);
     }
 
     [HttpGet("decision-register")]

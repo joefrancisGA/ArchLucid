@@ -5,10 +5,11 @@ import {
   contextualHelpForPathname,
   type PageContextualHelpEntry,
 } from "@/lib/contextual-help-registry";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   INTERNAL_DEMO_READINESS_PATH,
   INTERNAL_DEPLOYMENT_STATUS_PATH,
+  INTERNAL_HEALTH_PATH,
   INTERNAL_RECOMMENDATION_LEARNING_PATH,
   INTERNAL_REPLAY_PATH,
   INTERNAL_TENANT_HEALTH_PATH,
@@ -17,7 +18,7 @@ import {
 } from "@/lib/internal-ops-route-paths";
 
 const INTERNAL_ROUTE_IN_COPY =
-  /\/(admin|api|governance|settings|integrations|reviews|architectures|help|graph|compare|replay|value-report|digests|planning|advisory|executive|manifests|signed-records)(\/|\b)/i;
+  /\/(admin|api|governance|settings|integrations|reviews|architectures|help|graph|compare|replay|value-report|digests|planning|advisory|sponsor|manifests|signed-records|sealed-records)(\/|\b)/i;
 
 const API_PATH_IN_COPY = /\/v\d+\//;
 
@@ -48,12 +49,17 @@ describe("contextual-help-registry (TB-733)", () => {
       "/",
       "/architecture/reviews",
       "/insights/architecture-scorecard",
-      "/architecture/executive-dashboard",
+      "/architecture/sponsor-dashboard",
       "/governance/findings",
+      "/governance",
+      "/governance/exceptions",
+      "/governance/setup",
       "/insights/ask-review-questions",
       "/insights/compare-two-reviews",
+      "/insights/evidence-graph",
       "/insights/patterns",
       INTERNAL_REPLAY_PATH,
+      "/replay",
       "/insights/search-review-evidence",
       "/help/data-handling",
       "/help/dpa-template",
@@ -61,7 +67,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/choose-your-next-step",
       "/help/enterprise-onboarding",
       "/help/pilot-feedback",
-      "/help/executive-summary",
+      "/help/sponsor-report",
       "/help/configuration-reference",
       "/help/cli-usage",
       "/help/engineering-troubleshooting",
@@ -75,6 +81,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/architecture/architectures/new",
       "/architecture/architecture-intelligence",
       "/architecture/first-review-guide",
+      "/architectures",
       "/governance/audit",
       "/administration/system-health",
       "/administration/connection-status",
@@ -83,22 +90,26 @@ describe("contextual-help-registry (TB-733)", () => {
       "/digests",
       "/digest-subscriptions",
       "/help/digests",
+      "/help/decision-register",
+      "/help/improvement-planning",
+      "/help/impact-preview",
+      "/help/advisory-scans",
       "/insights/improvement-planning/plans",
       "/insights/improvement-planning",
       "/insights/impact-preview",
+      "/internal/integrations/itsm",
+      INTERNAL_HEALTH_PATH,
       "/internal/product-learning",
       "/why-archlucid",
       "/demo/explain",
       "/governance/advisory-scans",
-      "/insights/executive-summary",
-      "/insights/pilot-outcomes",
+      "/insights/sponsor-report",
       "/insights/roi-summary",
-      "/sponsor-report/pilot-outcomes",
       "/sponsor-report/roi-summary",
       "/governance/alert-rules",
       "/governance/approval-queue",
       "/governance/approval-requests",
-      "/governance/signed-records",
+      "/governance/sealed-records",
       INTERNAL_TENANT_HEALTH_PATH,
       INTERNAL_RECOMMENDATION_LEARNING_PATH,
       INTERNAL_TENANTS_PATH,
@@ -110,21 +121,40 @@ describe("contextual-help-registry (TB-733)", () => {
       "/help/admin-diagnostics",
       "/help/authentication-sign-in",
       "/help/azure-boards",
+      "/help/baseline-settings",
       "/help/integration-readiness",
       "/help/caiq-sig-response",
       "/help/comparison-replay",
       "/help/getting-started",
       "/help/troubleshooting",
       "/help/alerts",
+      "/help/api-keys",
+      "/help/system-health",
+      "/help/ai-usage",
+      "/help/preferences",
+      "/help/notifications",
+      "/help/workspace-settings",
       "/help/billing-and-plans",
+      "/help/search-review-evidence",
       "/help/security-trust",
       "/help/procurement",
       "/help/recurrence-schedules",
+      "/help/prior-manifest-retrieval",
       "/help/roi-summary",
-      "/help/pilot-outcomes",
+      "/help/policy-packs",
+      "/help/architecture-intelligence",
+      "/help/architecture-drafts",
       "/help/architecture-scorecard",
+      "/help/evidence-graph",
+      "/help/jira-integration",
+      "/help/model-governance",
+      "/help/servicenow-integration",
+      "/help/sponsor-dashboard",
       "/help/connection-status",
       "/help/standards-and-rules",
+      "/help/slack-integration",
+      "/help/teams-integration",
+      "/help/webhooks-integration",
       "/help/scope",
       "/help/audit-trail",
       "/help/evidence-trail",
@@ -154,13 +184,14 @@ describe("contextual-help-registry (TB-733)", () => {
       "/administration/identity-providers/role-mapping",
       "/administration/identity-providers/diagnostics",
       "/administration/api-keys",
-      "/administration/preferences",
+      "/account/preferences",
       "/administration/notifications",
-      "/administration/account-security",
+      "/account/security",
       "/administration/auth-domains",
       "/administration/extract-upload",
       "/administration/model-governance",
       "/administration/security-trust",
+      "/administration/settings/ai-usage",
       "/administration/billing",
       "/administration/ai-usage",
       "/administration/baseline",
@@ -174,7 +205,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/integrations/servicenow",
       "/integrations/slack",
       "/integrations/webhooks",
-      "/operate/integration-events/dlq",
+      "/internal/failed-integration-messages",
       "/integrations/teams",
     ].sort());
   });
@@ -208,8 +239,8 @@ describe("contextual-help-registry (TB-733)", () => {
       "First review guide",
     );
     expect(contextualHelpForPathname("/governance/findings?filter=open")?.whatToDoNext).toContain("Assign owners");
-    expect(contextualHelpForPathname("/insights/executive-summary")?.whatIsThisPage).toContain(
-      "Executive value report",
+    expect(contextualHelpForPathname("/insights/sponsor-report")?.whatIsThisPage).toContain(
+      "Sponsor report",
     );
     expect(contextualHelpForPathname("/insights/improvement-planning/plans/plan-1")?.whatIsThisPage).toContain("one prioritized improvement plan");
   });
@@ -219,9 +250,9 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatIsThisPage).toContain("Portfolio KPI");
   });
 
-  it("resolves executive dashboard Category-1 help (ARE / GDX)", () => {
-    expect(contextualHelpForPathname(EXECUTIVE_DASHBOARD_HREF)?.whatIsThisPage).toContain("Executive dashboard");
-    expect(contextualHelpForPathname(EXECUTIVE_DASHBOARD_HREF)?.whyEmpty).toContain("zero");
+  it("resolves sponsor dashboard Category-1 help (ARE / GDX)", () => {
+    expect(contextualHelpForPathname(SPONSOR_DASHBOARD_HREF)?.whatIsThisPage).toContain("Sponsor dashboard");
+    expect(contextualHelpForPathname(SPONSOR_DASHBOARD_HREF)?.whyEmpty).toContain("zero");
   });
 
   it("resolves architecture scorecard Category-1 help (SCX)", () => {
@@ -318,7 +349,7 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves Tenant settings Category-1 help (ATE)", () => {
-    expect(contextualHelpForPathname("/administration/workspace-settings")?.whatIsThisPage).toContain("Tenant settings");
+    expect(contextualHelpForPathname("/administration/workspace-settings")?.whatIsThisPage).toContain("Workspace settings");
     expect(contextualHelpForPathname("/administration/workspace-settings")?.whatToDoNext).toContain("quality gates");
   });
 
@@ -341,19 +372,19 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves Preferences settings Category-1 help (ADR)", () => {
-    expect(contextualHelpForPathname("/administration/preferences")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/account/preferences")?.whatIsThisPage).toContain(
       "Preferences",
     );
-    expect(contextualHelpForPathname("/administration/preferences")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/account/preferences")?.whatToDoNext).toContain(
       "theme",
     );
   });
 
   it("resolves Sign-in methods settings Category-1 help (ADS)", () => {
-    expect(contextualHelpForPathname("/administration/account-security")?.whatIsThisPage).toContain(
+    expect(contextualHelpForPathname("/account/security")?.whatIsThisPage).toContain(
       "Sign-in methods",
     );
-    expect(contextualHelpForPathname("/administration/account-security")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/account/security")?.whatToDoNext).toContain(
       "one-time code",
     );
   });
@@ -448,10 +479,10 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves signed-record detail Category-1 help (MMX)", () => {
-    expect(contextualHelpForPathname("/governance/signed-records/demo-manifest")?.whatIsThisPage).toContain(
-      "Signed review record",
+    expect(contextualHelpForPathname("/governance/sealed-records/demo-manifest")?.whatIsThisPage).toContain(
+      "Sealed review record",
     );
-    expect(contextualHelpForPathname("/governance/signed-records/demo-manifest")?.whatToDoNext).toContain(
+    expect(contextualHelpForPathname("/governance/sealed-records/demo-manifest")?.whatToDoNext).toContain(
       "export the review bundle",
     );
   });
@@ -643,19 +674,17 @@ describe("contextual-help-registry (TB-733)", () => {
       "Baseline settings",
     );
     expect(contextualHelpForPathname("/administration/baseline")?.whatToDoNext).toContain(
-      "Pilot ROI model",
+      "baseline anchors",
     );
   });
 
-  it("resolves sponsor executive summary Category-1 help (SPE)", () => {
-    expect(contextualHelpForPathname("/insights/executive-summary")?.whatIsThisPage).toContain(
-      "Executive value report",
+  it("resolves sponsor report Category-1 help (SPE)", () => {
+    expect(contextualHelpForPathname("/insights/sponsor-report")?.whatIsThisPage).toContain(
+      "Sponsor report",
     );
   });
 
-  it("resolves pilot outcomes Category-1 help (SPP)", () => {
-    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatIsThisPage).toContain("Pilot outcomes");
-    expect(contextualHelpForPathname("/insights/pilot-outcomes")?.whatToDoNext).toContain("Executive value report");
+  it("resolves ROI summary Category-1 help (SPR)", () => {
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatIsThisPage).toContain("Portfolio KPI");
     expect(contextualHelpForPathname("/insights/roi-summary")?.whatToDoNext).toContain("rolling 30-day");
   });

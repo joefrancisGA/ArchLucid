@@ -9,10 +9,10 @@ import {
 } from "@/lib/identity-providers-settings-copy";
 import type { IdentityProvidersFetchNote } from "@/lib/identity-providers-fetch-note";
 import { formatIdentityProvidersFetchNote } from "@/lib/identity-providers-fetch-note";
+import { fetchIdentityProvidersPageBundle } from "@/lib/fetch-identity-providers-page-bundle-client";
 import type { IdentityProvidersOverviewModel } from "@/lib/identity-providers-settings-types";
 import type { components } from "@/lib/openapi-schemas";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { resolveIdentityProvidersOverview } from "@/lib/resolve-identity-providers-overview";
 
 import type { IdentityProvidersSettingsPageServerLoad } from "./load-identity-providers-settings-page-data";
@@ -53,6 +53,16 @@ function isForbiddenStatus(status: number): boolean {
 
 function diagnosticsUnavailableNote(message: string, status: number): string {
   return formatIdentityProvidersFetchNote({ message, statusCode: status });
+}
+
+function resolveHttpStatus(error: unknown): number | undefined {
+  if (typeof error !== "object" || error === null || !("status" in error)) {
+    return undefined;
+  }
+
+  const status = (error as { status?: unknown }).status;
+
+  return typeof status === "number" ? status : undefined;
 }
 
 export function useIdentityProvidersSettingsPage(
@@ -123,112 +133,64 @@ export function useIdentityProvidersSettingsPage(
     }
 
     const loadPromise = (async (): Promise<void> => {
-      let identityProviderDiagnosticsSucceeded = false;
-      let authConfigurationDiagnosticsSucceeded = false;
-      let oidcDiagnosticsSucceeded = false;
-      let samlOperationalHealthSucceeded = false;
+      let bundleSucceeded = false;
 
       try {
-        const opts = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" });
+        const bundle = await fetchIdentityProvidersPageBundle();
 
-        const [diagnosticsRes, authConfigRes, oidcRes, samlRes] = await Promise.all([
-          fetch("/api/proxy/v1/admin/diagnostics/identity-providers", opts),
-          fetch("/api/proxy/v1/admin/auth/configuration-diagnostics", opts),
-          fetch("/api/proxy/v1/admin/auth/oidc-diagnostics", opts),
-          fetch("/api/proxy/v1/admin/auth/saml-operational-health", opts),
-        ]);
+        setIdentityProviderDiagnostics(bundle.identityProviderDiagnostics);
+        setIdentityProviderDiagnosticsNote(null);
+        setAuthConfigurationDiagnostics(bundle.authConfigurationDiagnostics);
+        setAuthConfigurationDiagnosticsNote(null);
+        setOidcDiagnostics(bundle.oidcDiagnostics);
+        setOidcDiagnosticsNote(null);
+        setSamlOperationalHealth(bundle.samlOperationalHealth);
+        setSamlOperationalHealthNote(null);
+        bundleSucceeded = true;
+      } catch (error: unknown) {
+        const status = resolveHttpStatus(error);
 
-        if (!diagnosticsRes.ok) {
-          setIdentityProviderDiagnostics(null);
-
-          if (isForbiddenStatus(diagnosticsRes.status)) {
-            setAccessDenied(true);
-          }
-
-          setOverviewFailureStatusCode((current) => current ?? diagnosticsRes.status);
-          setIdentityProviderDiagnosticsNote(
-            isForbiddenStatus(diagnosticsRes.status)
-              ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
-              : diagnosticsUnavailableNote("Identity provider diagnostics unavailable", diagnosticsRes.status),
-          );
-        } else {
-          const body = (await diagnosticsRes.json()) as AdminIdentityProviderDiagnosticsResponse;
-
-          setIdentityProviderDiagnostics(body);
-          setIdentityProviderDiagnosticsNote(null);
-          identityProviderDiagnosticsSucceeded = true;
+        if (status !== undefined && isForbiddenStatus(status)) {
+          setAccessDenied(true);
+          setOverviewFailureStatusCode((current) => current ?? status);
         }
 
-        if (!authConfigRes.ok) {
-          setAuthConfigurationDiagnostics(null);
-
-          if (isForbiddenStatus(authConfigRes.status)) {
-            setAccessDenied(true);
-          }
-
-          setOverviewFailureStatusCode((current) => current ?? authConfigRes.status);
-          setAuthConfigurationDiagnosticsNote(
-            isForbiddenStatus(authConfigRes.status)
-              ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
-              : diagnosticsUnavailableNote("Auth configuration diagnostics unavailable", authConfigRes.status),
-          );
-        } else {
-          const body = (await authConfigRes.json()) as AdminAuthConfigurationDiagnosticsResponse;
-
-          setAuthConfigurationDiagnostics(body);
-          setAuthConfigurationDiagnosticsNote(null);
-          authConfigurationDiagnosticsSucceeded = true;
-        }
-
-        if (!oidcRes.ok) {
-          setOidcDiagnostics(null);
-          setOverviewFailureStatusCode((current) => current ?? oidcRes.status);
-          setOidcDiagnosticsNote(
-            isForbiddenStatus(oidcRes.status)
-              ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
-              : diagnosticsUnavailableNote("OIDC diagnostics unavailable", oidcRes.status),
-          );
-        } else {
-          const body = (await oidcRes.json()) as AdminOidcDiagnosticsResponse;
-
-          setOidcDiagnostics(body);
-          setOidcDiagnosticsNote(null);
-          oidcDiagnosticsSucceeded = true;
-        }
-
-        if (!samlRes.ok) {
-          setSamlOperationalHealth(null);
-          setOverviewFailureStatusCode((current) => current ?? samlRes.status);
-          setSamlOperationalHealthNote(
-            isForbiddenStatus(samlRes.status)
-              ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
-              : diagnosticsUnavailableNote("SAML operational health unavailable", samlRes.status),
-          );
-        } else {
-          const body = (await samlRes.json()) as AdminSamlOperationalHealthResponse;
-
-          setSamlOperationalHealth(body);
-          setSamlOperationalHealthNote(null);
-          samlOperationalHealthSucceeded = true;
-        }
-      } catch (e: unknown) {
         setIdentityProviderDiagnostics(null);
-        setIdentityProviderDiagnosticsNote(IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE);
+        setIdentityProviderDiagnosticsNote(
+          status !== undefined && isForbiddenStatus(status)
+            ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
+            : status !== undefined
+              ? diagnosticsUnavailableNote("Identity provider diagnostics unavailable", status)
+              : IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE,
+        );
         setAuthConfigurationDiagnostics(null);
-        setAuthConfigurationDiagnosticsNote(IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE);
+        setAuthConfigurationDiagnosticsNote(
+          status !== undefined && isForbiddenStatus(status)
+            ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
+            : status !== undefined
+              ? diagnosticsUnavailableNote("Auth configuration diagnostics unavailable", status)
+              : IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE,
+        );
         setOidcDiagnostics(null);
-        setOidcDiagnosticsNote(IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE);
+        setOidcDiagnosticsNote(
+          status !== undefined && isForbiddenStatus(status)
+            ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
+            : status !== undefined
+              ? diagnosticsUnavailableNote("OIDC diagnostics unavailable", status)
+              : IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE,
+        );
         setSamlOperationalHealth(null);
-        setSamlOperationalHealthNote(IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE);
+        setSamlOperationalHealthNote(
+          status !== undefined && isForbiddenStatus(status)
+            ? IDENTITY_PROVIDERS_FORBIDDEN_NOTE
+            : status !== undefined
+              ? diagnosticsUnavailableNote("SAML operational health unavailable", status)
+              : IDENTITY_PROVIDERS_STATUS_LOAD_ERROR_NOTE,
+        );
       } finally {
         setRefreshing(false);
 
-        if (
-          identityProviderDiagnosticsSucceeded
-          || authConfigurationDiagnosticsSucceeded
-          || oidcDiagnosticsSucceeded
-          || samlOperationalHealthSucceeded
-        ) {
+        if (bundleSucceeded) {
           setLastRefreshedAt(new Date());
         }
 

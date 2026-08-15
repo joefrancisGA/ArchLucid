@@ -16,7 +16,7 @@ using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Connectors.Publishing;
 using ArchLucid.Application.Evolution;
-using ArchLucid.Application.ExecutiveSummary;
+using ArchLucid.Application.SponsorReport;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.ExecuteOwnership;
@@ -254,6 +254,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDecisionEngineV2NodeMaterializer, DecisionEngineV2NodeMaterializer>();
         services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
         services.AddScoped<ICommitPipelineManifestReuseService, CommitPipelineManifestReuseService>();
+        services.AddScoped<ICommitOutputIntegrityService, CommitOutputIntegrityService>();
         services.AddScoped<ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler, ArchLucid.Application.Runs.Orchestration.Events.ReviewCompletedEventHandler>();
         services.AddScoped<ISampleRunPurgeService, SampleRunPurgeService>();
         services.AddSingleton<IFindingTrustLabelMapper, FindingTrustLabelMapper>();
@@ -272,7 +273,13 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentOutputQualityGateOptionsResolver, AgentOutputQualityGateOptionsResolver>();
         services.AddScoped<ITenantAgentOutputQualityGateModeService, TenantAgentOutputQualityGateModeService>();
         services.AddScoped<IWorkspaceModelExecutionProfileService, WorkspaceModelExecutionProfileService>();
+        services.AddScoped<IWorkspaceAllowedEngineSetService, WorkspaceAllowedEngineSetService>();
         services.AddScoped<IModelExecutionProfileResolver, ModelExecutionProfileResolver>();
+        services.AddScoped<IReviewModelAliasResolver, ReviewModelAliasResolver>();
+        services.AddScoped<IAgentModelCatalogEvaluationRecorder, AgentModelCatalogEvaluationRecorder>();
+        services.AddScoped<IFaithfulnessHarnessSummaryReader, RepoFaithfulnessHarnessSummaryReader>();
+        services.AddScoped<IAgentModelCatalogFaithfulnessHarnessImporter, AgentModelCatalogFaithfulnessHarnessImporter>();
+        services.AddScoped<IExternalSubprocessorEngineAcknowledgmentService, ExternalSubprocessorEngineAcknowledgmentService>();
         services.AddScoped<IFeaturedCompletedSampleService, FeaturedCompletedSampleService>();
         services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();
         services.AddScoped<IRecentPilotRunDeltasService, RecentPilotRunDeltasService>();
@@ -290,36 +297,37 @@ public static partial class ServiceCollectionExtensions
             ExecutionProvenanceFooterRenderer>();
         services.AddScoped<FirstValueReportBuilder>();
         services.AddScoped<IFirstValueReportBuilder>(static sp => sp.GetRequiredService<FirstValueReportBuilder>());
-        services.AddScoped<ExecutiveReviewPacketBuilder>();
-        services.AddScoped<IExecutiveReviewPacketBuilder>(static sp => sp.GetRequiredService<ExecutiveReviewPacketBuilder>());
-        services.AddScoped<IExecutiveSummaryService, ExecutiveSummaryService>();
+        services.AddScoped<SponsorReviewPacketBuilder>();
+        services.AddScoped<ISponsorReviewPacketBuilder>(static sp => sp.GetRequiredService<SponsorReviewPacketBuilder>());
+        services.AddScoped<ISponsorReportService, SponsorReportService>();
         services.AddScoped<ITenantEstimatedUsdSavingsResolver, TenantEstimatedUsdSavingsResolver>();
         services.AddScoped<IGlobalSearchService, GlobalSearchService>();
         services.AddScoped<ICustomRoleService, CustomRoleService>();
         services.AddScoped<ICustomRolePermissionEvaluator, CustomRolePermissionEvaluator>();
-        services.AddScoped<ExecutiveRoiTenantPricingContextResolver>();
+        services.AddScoped<SponsorRoiTenantPricingContextResolver>();
+        services.AddScoped<RoiCostEvidenceCollectionResolver>();
         services.AddScoped<RoiCostEvidenceFreshnessEvaluator>();
-        services.AddScoped<ExecutiveRoiSummaryService>();
-        services.AddScoped<IExecutiveRoiSummaryService>(static sp =>
-            new CachingExecutiveRoiSummaryService(
-                sp.GetRequiredService<ExecutiveRoiSummaryService>(),
+        services.AddScoped<SponsorRoiSummaryService>();
+        services.AddScoped<ISponsorRoiSummaryService>(static sp =>
+            new CachingSponsorRoiSummaryService(
+                sp.GetRequiredService<SponsorRoiSummaryService>(),
                 sp.GetRequiredService<IRiskExceptionService>(),
                 sp.GetRequiredService<IArchitectureRiskRegisterService>(),
                 sp.GetRequiredService<IHotPathReadCache>(),
                 sp.GetRequiredService<IScopeContextProvider>(),
-                sp.GetRequiredService<IOptionsMonitor<ExecutiveRoiCacheWarmupOptions>>()));
-        services.AddScoped<ExecutiveRoiBoardPackPdfBuilder>();
-        services.AddScoped<ExecutiveRoiBoardPackNarrativeBuilder>();
-        services.AddScoped<IExecutiveRoiBoardPackExporter, ExecutiveRoiBoardPackExporter>();
+                sp.GetRequiredService<IOptionsMonitor<SponsorRoiCacheWarmupOptions>>()));
+        services.AddScoped<SponsorRoiBoardPackPdfBuilder>();
+        services.AddScoped<SponsorRoiBoardPackNarrativeBuilder>();
+        services.AddScoped<ISponsorRoiBoardPackExporter, SponsorRoiBoardPackExporter>();
         services.Configure<RoiBoardPackNarrativeOptions>(
             configuration.GetSection(RoiBoardPackNarrativeOptions.SectionPath));
-        services.Configure<ExecutiveRoiCacheWarmupOptions>(
-            configuration.GetSection(ExecutiveRoiCacheWarmupOptions.SectionPath));
-        services.Configure<ExecutiveRoiSavingsGaugeOptions>(
-            configuration.GetSection(ExecutiveRoiSavingsGaugeOptions.SectionPath));
+        services.Configure<SponsorRoiCacheWarmupOptions>(
+            configuration.GetSection(SponsorRoiCacheWarmupOptions.SectionPath));
+        services.Configure<SponsorRoiSavingsGaugeOptions>(
+            configuration.GetSection(SponsorRoiSavingsGaugeOptions.SectionPath));
         services.Configure<RoiCostEvidenceFreshnessOptions>(
             configuration.GetSection(RoiCostEvidenceFreshnessOptions.SectionPath));
-        services.AddScoped<IExecutiveReportsSummaryService, ExecutiveReportsSummaryService>();
+        services.AddScoped<ISponsorReportsSummaryService, SponsorReportsSummaryService>();
         services.Configure<RecurrenceCompletionNotificationOptions>(
             configuration.GetSection(RecurrenceCompletionNotificationOptions.SectionName));
         services.AddScoped<IRecurrenceCompletionRecipientResolver, RecurrenceCompletionRecipientResolver>();
@@ -340,7 +348,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IConfluenceFirstValueReportPublisher, ConfluenceFirstValueReportPublisher>();
         services.AddScoped<FirstValueReportPdfBuilder>();
         services.AddScoped<WhyArchLucidPackPdfBuilder>();
-        services.AddScoped<ExecutiveSponsorBriefPdfBuilder>();
+        services.AddScoped<SponsorBriefPdfBuilder>();
         services.AddScoped<PilotScorecardBuilder>();
         services.AddScoped<IPilotInProductScorecardService, PilotInProductScorecardService>();
         services.AddScoped<IOperatorNextBestActionService, OperatorNextBestActionService>();

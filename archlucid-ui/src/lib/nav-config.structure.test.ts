@@ -156,7 +156,7 @@ describe("nav-config structure", () => {
 
     expect(advanced).toBeDefined();
 
-    // Executive value report is Execute-gated; sponsor outcomes and ROI summary stay ReadAuthority.
+    // Sponsor value report is Execute-gated; sponsor outcomes and ROI summary stay ReadAuthority.
     for (const link of advanced!.links) {
       if (link.requiredAuthority === "ExecuteAuthority") {
         expect(link.tier, link.href).not.toBe("essential");
@@ -181,14 +181,13 @@ describe("nav-config structure", () => {
       "/insights/improvement-planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
-      "/insights/executive-summary",
-      "/insights/pilot-outcomes",
+      "/insights/sponsor-report",
       "/insights/roi-summary",
     ]);
 
     const pilotHrefs = NAV_GROUPS.find((group) => group.id === "pilot")!.links.map((link) => link.href);
 
-    expect(pilotHrefs).toContain("/architecture/architecture-intelligence");
+    expect(pilotHrefs).not.toContain("/architecture/architecture-intelligence");
     expect(pilotHrefs).toContain("/architecture/digests");
     expect(governanceHrefs).toEqual([
       "/governance/approval-queue",
@@ -198,14 +197,14 @@ describe("nav-config structure", () => {
       "/governance/policy-packs",
       "/governance/standards-and-rules",
       "/governance/decision-register",
-      "/governance/signed-records",
+      "/governance/sealed-records",
       "/governance/advisory-scans",
       "/governance/audit",
       "/governance/alerts",
       "/governance/alert-rules",
       "/governance/recurrence-schedules",
       "/governance/setup",
-      "/architecture/executive-dashboard#workspace-health",
+      "/architecture/sponsor-dashboard#workspace-health",
     ]);
     expect(integrationsHrefs).toEqual([
       "/integrations/cloud-connections",
@@ -218,7 +217,7 @@ describe("nav-config structure", () => {
     ]);
     expect(systemAdminHrefs).toContain("/internal/rag-health");
     expect(systemAdminHrefs).toContain("/internal/deployment-status");
-    expect(systemAdminHrefs).toContain("/internal/replay");
+    expect(systemAdminHrefs).toContain("/internal/validate-route");
     expect(systemAdminHrefs).not.toContain("/health");
     expect(systemAdminHrefs).not.toContain("/governance/advisory-scans");
     expect(systemAdminHrefs).not.toContain("/administration/workspace-settings");
@@ -297,7 +296,7 @@ describe("nav-config structure", () => {
     for (const link of governance!.links) {
       expect(
         link.href === "/governance/approval-queue"
-          || link.href === "/architecture/executive-dashboard#workspace-health"
+          || link.href === "/architecture/sponsor-dashboard#workspace-health"
           || link.href.startsWith("/governance/"),
         link.href,
       ).toBe(true);

@@ -3,9 +3,9 @@
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshButton } from "@/components/ui/refresh-button";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AiUsageDailyMetric } from "@/lib/ai-usage-dashboard-model";
 import {
   dailyMetricAccessibleSummary,
@@ -15,6 +15,7 @@ import type { LlmCostDailyBucket } from "@/lib/llm-cost-reporting";
 import { hasLlmUsageInDailyBuckets } from "@/lib/llm-cost-reporting-display-labels";
 import { formatCostReportingEstimatedUsd } from "@/app/(operator)/administration/ai-usage/_sections/cost-reporting-page-helpers";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { AiUsageSectionState } from "./AiUsageSectionState";
 
 type Props = {
@@ -116,16 +117,15 @@ export function AiUsageDailyUsagePanel(props: Props) {
           </div>
           <div className="flex flex-wrap gap-1" role="group" aria-label="Daily usage metric">
             {METRIC_OPTIONS.map((option) => (
-              <Button
+              <FilterChip
                 key={option.id}
-                type="button"
-                size="sm"
-                variant={metric === option.id ? "primary" : "outline"}
+                className={buyerFilterChipClass(metric === option.id, false)}
                 aria-pressed={metric === option.id}
+                aria-label={`Daily usage metric: ${option.label}`}
                 onClick={() => setMetric(option.id)}
               >
                 {option.label}
-              </Button>
+              </FilterChip>
             ))}
           </div>
         </div>

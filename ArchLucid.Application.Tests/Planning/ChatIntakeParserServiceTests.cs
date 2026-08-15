@@ -84,4 +84,70 @@ public sealed class ChatIntakeParserServiceTests
         response.Environment.Should().Be("prod");
         response.CloudProvider.Should().Be(Contracts.Common.CloudProvider.None);
     }
+
+    [Fact]
+    public async Task ParseAsync_maps_aws_cloud_provider_from_llm_json()
+    {
+        const string json = """
+                            {
+                              "description": "Primary workload runs in AWS us-east-1 with IAM roles per service.",
+                              "systemName": "PaymentsCore",
+                              "environment": "prod",
+                              "cloudProvider": "Aws",
+                              "constraints": [],
+                              "requiredCapabilities": [],
+                              "assumptions": [],
+                              "inlineRequirements": [],
+                              "policyReferences": [],
+                              "topologyHints": [],
+                              "securityBaselineHints": []
+                            }
+                            """;
+
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(json);
+
+        ChatIntakeParserService sut = new(client.Object);
+
+        ArchitectureRequest response = await sut.ParseAsync(
+            new ChatIntakeRequest { RawText = "Build payments on AWS with IAM roles." },
+            CancellationToken.None);
+
+        response.CloudProvider.Should().Be(Contracts.Common.CloudProvider.Aws);
+    }
+
+    [Fact]
+    public async Task ParseAsync_maps_gcp_cloud_provider_from_llm_json()
+    {
+        const string json = """
+                            {
+                              "description": "Services run on Google Cloud in us-central1 with VPC Service Controls.",
+                              "systemName": "AnalyticsHub",
+                              "environment": "staging",
+                              "cloudProvider": "Gcp",
+                              "constraints": [],
+                              "requiredCapabilities": [],
+                              "assumptions": [],
+                              "inlineRequirements": [],
+                              "policyReferences": [],
+                              "topologyHints": [],
+                              "securityBaselineHints": []
+                            }
+                            """;
+
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(json);
+
+        ChatIntakeParserService sut = new(client.Object);
+
+        ArchitectureRequest response = await sut.ParseAsync(
+            new ChatIntakeRequest { RawText = "Analytics platform on GCP with VPC SC." },
+            CancellationToken.None);
+
+        response.CloudProvider.Should().Be(Contracts.Common.CloudProvider.Gcp);
+    }
 }

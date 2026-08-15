@@ -97,7 +97,7 @@ internal static class ArchitectureReviewBoardExportPipelineFixture
             Run = run,
             Manifest = manifest,
             Evidence = evidence,
-            Summary = "Synthetic executive summary produced by pipeline fixture.",
+            Summary = "Synthetic Sponsor report produced by pipeline fixture.",
             Warnings = ["Synthetic model-assisted warning pending disposition."]
         };
 

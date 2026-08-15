@@ -8,7 +8,7 @@ import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } f
 describe("committed architecture review nav promotion", () => {
   const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
   const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
-  // /insights/pilot-outcomes lives in Insights (formerly operate-reports).
+  // The merged sponsor report lives in Insights (formerly operate-reports).
 
   it("TB-524: keeps First review guide essential before first commit and demotes after", () => {
     expect(pilot).toBeDefined();
@@ -43,22 +43,14 @@ describe("committed architecture review nav promotion", () => {
 
   it("TB-524: keeps First review guide visible under authority-only shell shaping after first commit", () => {
     // Tier disclosure filtering is retired (owner 2026-08-03); demotion remains metadata for progressive copy.
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      false,
-      false,
-      AUTHORITY_RANK.AdminAuthority,
-      false,
-      "all",
-      true,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true);
 
     const pilotRow = rows.find((row) => row.group.id === "pilot");
 
     expect(pilotRow?.visibleLinks.some((l) => l.href === "/architecture/first-review-guide")).toBe(true);
   });
 
-  it("promotes Compare and pilot outcomes to essential tier after first commit", () => {
+  it("promotes Compare and the sponsor report to essential tier after first commit", () => {
     expect(analysis).toBeDefined();
 
     const promotedAnalysis = applyCommittedArchitectureReviewNavPromotions(analysis!.links, true);
@@ -66,18 +58,11 @@ describe("committed architecture review nav promotion", () => {
 
     expect(compare?.tier).toBe("essential");
 
-    const outcomes = promotedAnalysis.find((l) => l.href === "/insights/pilot-outcomes");
+    const outcomes = promotedAnalysis.find((l) => l.href === "/insights/sponsor-report");
 
     expect(outcomes?.tier).toBe("essential");
 
-    const shellAnalysis = filterNavLinksForOperatorShell(
-      analysis!.links,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      true,
-    );
+    const shellAnalysis = filterNavLinksForOperatorShell(analysis!.links, AUTHORITY_RANK.ReadAuthority, true);
 
     expect(shellAnalysis.some((l) => l.href === "/insights/compare-two-reviews")).toBe(true);
   });
@@ -85,14 +70,7 @@ describe("committed architecture review nav promotion", () => {
   it("hides Compare in the authority-shaped shell before the first committed review", () => {
     expect(analysis).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(
-      analysis!.links,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      true,
-      false,
-    );
+    const visible = filterNavLinksForOperatorShell(analysis!.links, AUTHORITY_RANK.ReadAuthority, false);
 
     expect(visible.some((l) => l.href === "/insights/compare-two-reviews")).toBe(false);
     expect(visible.some((l) => l.href === "/insights/evidence-graph")).toBe(true);

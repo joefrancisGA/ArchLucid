@@ -24,7 +24,7 @@ describe("SignedRecordsReviewDetailVocabularyRail (TB-2272)", () => {
     expect(peer).toHaveAttribute("href", SIGNED_RECORDS_REVIEW_DETAIL_REVIEW_DETAIL_LINK.href);
   });
 
-  it("renders review-detail strip with peer link to signed records", () => {
+  it("renders review-detail strip with peer link to sealed records", () => {
     render(<SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />);
 
     expect(screen.getByTestId("signed-records-review-detail-vocabulary")).toHaveAttribute(

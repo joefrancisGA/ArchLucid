@@ -12,6 +12,10 @@ import {
   hasArchitectureDraftSaveableContent,
   validateArchitectureDraftIntegrity,
 } from "@/lib/architecture/architecture-draft-readiness";
+import {
+  structuredBriefFromDocument,
+  structuredBriefToPatchPayload,
+} from "@/lib/architecture/architecture-draft-structured-brief";
 import { buildDefaultActorSet, createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
@@ -55,7 +59,8 @@ function fieldsAreEqual(left: ArchitectureDraftFieldState, right: ArchitectureDr
   return (
     left.freeTextIntent === right.freeTextIntent &&
     left.businessOutcome === right.businessOutcome &&
-    left.systemName === right.systemName
+    left.systemName === right.systemName &&
+    JSON.stringify(left.structuredBrief) === JSON.stringify(right.structuredBrief)
   );
 }
 
@@ -64,6 +69,7 @@ function fieldsFromDraftDocument(draft: DraftRequestResponse): ArchitectureDraft
     freeTextIntent: draft.document.freeTextIntent,
     businessOutcome: draft.document.businessOutcome ?? "",
     systemName: draft.document.systemName ?? "",
+    structuredBrief: structuredBriefFromDocument(draft.document),
   };
 }
 
@@ -209,6 +215,7 @@ export function useArchitectureDraftAutosave(
             actorSetForPatch.actors.length > 0 ? actorSetForPatch : buildDefaultActorSet(),
           ),
           workflowIntent: CREATE_ARCHITECTURE_INTENT,
+          structuredBrief: structuredBriefToPatchPayload(fieldsForPatch.structuredBrief),
         });
 
         if (sequence !== saveSequenceRef.current) {

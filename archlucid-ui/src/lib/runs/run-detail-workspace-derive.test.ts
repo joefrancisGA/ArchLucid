@@ -5,7 +5,7 @@ import {
   deriveArchitectureSystemName,
   deriveBlockingApprovalCount,
   deriveEvidenceCoverageSummary,
-  deriveExecutiveBottomLineContent,
+  deriveSponsorBottomLineContent,
   deriveFinalizedAtUtc,
   derivePrimaryConcernLabel,
   deriveRecommendedWorkspaceActions,
@@ -138,7 +138,7 @@ describe("run-detail-workspace-derive", () => {
   });
 
   it("builds narrative bottom-line copy from governance rationale only (blocking counts stay in Decision snapshot)", () => {
-    const content = deriveExecutiveBottomLineContent({
+    const content = deriveSponsorBottomLineContent({
       governanceDecisionLabel: "Approved with monitoring",
       governanceDecisionRationale: "Controls are acceptable for PHI handling.",
       overallPosture: "Approved with monitoring",
@@ -226,7 +226,7 @@ describe("run-detail-workspace-derive", () => {
   });
 
   it("omits redundant bottom-line narrative when only posture would repeat the summary strip", () => {
-    const content = deriveExecutiveBottomLineContent({
+    const content = deriveSponsorBottomLineContent({
       governanceDecisionLabel: "Approved with monitoring",
       governanceDecisionRationale: null,
       overallPosture: "Approved with monitoring",
@@ -257,7 +257,7 @@ describe("run-detail-workspace-derive", () => {
   });
 
   it("falls back to key decision considerations when only theme labels exist", () => {
-    const content = deriveExecutiveBottomLineContent({
+    const content = deriveSponsorBottomLineContent({
       governanceDecisionLabel: "No governance decision recorded",
       governanceDecisionRationale: null,
       overallPosture: "Needs review",
@@ -346,7 +346,7 @@ describe("run-detail-workspace-derive", () => {
     expect(derivePackageVersionLabel({ ruleSetVersion: "2.1.0" } as never, "manifest-1")).toBe("2.1.0");
   });
 
-  it("formats signed review record id labels without treating them as versions", () => {
+  it("formats sealed review record id labels without treating them as versions", () => {
     expect(deriveSignedReviewRecordIdLabel("9026d565-0000-0000-0000-0000000099e8")).toBe("9026d565…99e8");
   });
 

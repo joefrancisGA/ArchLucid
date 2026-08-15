@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -76,7 +76,7 @@ export function FirstPilotProofStatusStrip() {
       >
         <p className="m-0">{FIRST_PILOT_PROOF_STATUS_UNAVAILABLE}</p>
         <p className="m-0 mt-2">
-          <Link href="/administration/system-health" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
+          <Link href="/administration/system-health" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             {FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA}
           </Link>
         </p>
@@ -95,7 +95,7 @@ export function FirstPilotProofStatusStrip() {
       >
         <p className="m-0">{firstPilotProofNotRunCopy()}</p>
         <p className="m-0 mt-2">
-          <Link href="/administration/system-health" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
+          <Link href="/administration/system-health" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             {FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA}
           </Link>
         </p>
@@ -126,7 +126,7 @@ export function FirstPilotProofStatusStrip() {
           <li key={link.path}>
             <Link
               href={resolveInAppDocHref(link.path)}
-              className="font-medium underline underline-offset-2"
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               {link.label}
             </Link>

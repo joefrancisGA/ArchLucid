@@ -15,7 +15,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 public sealed class AgentModelAliasRegistryTests
 {
     [Fact]
-    public void Config_registry_seeds_three_aliases_from_tier_deployments()
+    public void Catalog_registry_seeds_three_aliases_from_tier_deployments()
     {
         AgentModelTierResolver tierResolver = AgentModelTierResolverTestsHelper.CreateResolver(
             new Dictionary<string, string?>
@@ -26,7 +26,8 @@ public sealed class AgentModelAliasRegistryTests
             },
             new AgentModelTierOptions());
 
-        ConfigAgentModelAliasRegistry registry = new(tierResolver);
+        CatalogBackedAgentModelAliasRegistry registry =
+            AgentModelAliasRegistryTestsHelper.CreateCatalogRegistry(tierResolver);
 
         registry.ListEntries().Should().HaveCount(3);
         registry.GetRequired(AgentModelAliasIds.EconomyGeneral).DeploymentName.Should().Be("gpt-4o-mini");
@@ -41,7 +42,8 @@ public sealed class AgentModelAliasRegistryTests
             new Dictionary<string, string?> { ["AzureOpenAI:DeploymentName"] = "primary-deploy" },
             new AgentModelTierOptions());
 
-        ConfigAgentModelAliasRegistry registry = new(tierResolver);
+        CatalogBackedAgentModelAliasRegistry registry =
+            AgentModelAliasRegistryTestsHelper.CreateCatalogRegistry(tierResolver);
 
         registry.ResolveAliasIdForTier(LlmModelTier.Economy).Should().Be(AgentModelAliasIds.EconomyGeneral);
         registry.ResolveAliasIdForTier(LlmModelTier.Standard).Should().Be(AgentModelAliasIds.StandardGeneral);
@@ -55,7 +57,8 @@ public sealed class AgentModelAliasRegistryTests
             new Dictionary<string, string?> { ["AzureOpenAI:DeploymentName"] = "primary-deploy" },
             new AgentModelTierOptions());
 
-        ConfigAgentModelAliasRegistry registry = new(tierResolver);
+        CatalogBackedAgentModelAliasRegistry registry =
+            AgentModelAliasRegistryTestsHelper.CreateCatalogRegistry(tierResolver);
 
         registry.ListEntries()
             .Select(entry => entry.AliasId)
@@ -69,13 +72,14 @@ public sealed class AgentModelAliasRegistryTests
     }
 
     [Fact]
-    public void Config_registry_seeds_simulator_aliases_when_mode_is_simulator_without_azure_deployment()
+    public void Catalog_registry_seeds_simulator_aliases_when_mode_is_simulator_without_azure_deployment()
     {
         AgentModelTierResolver tierResolver = AgentModelTierResolverTestsHelper.CreateResolver(
             new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator" },
             new AgentModelTierOptions());
 
-        ConfigAgentModelAliasRegistry registry = new(tierResolver);
+        CatalogBackedAgentModelAliasRegistry registry =
+            AgentModelAliasRegistryTestsHelper.CreateCatalogRegistry(tierResolver);
 
         registry.GetRequired(AgentModelAliasIds.EconomyGeneral).DeploymentName
             .Should()

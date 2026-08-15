@@ -286,7 +286,7 @@
       "retrievalHits": [
         { "sourceId": "buyer-roi-baseline-id", "title": "Buyer ROI baseline", "corpusKind": "CustomerProvided" }
       ],
-      "agentOutputText": "Executive ROI headline shows 42% review-cycle reduction without citing buyer baseline evidence."
+      "agentOutputText": "Sponsor ROI headline shows 42% review-cycle reduction without citing buyer baseline evidence."
     },
     {
       "id": "ask-policy-pack-kv-cited",

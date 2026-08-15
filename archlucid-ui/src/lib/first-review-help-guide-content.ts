@@ -12,13 +12,13 @@ export const FIRST_REVIEW_HELP_OVERVIEW =
   "Use this checklist when you need a short printable table of SE/ops success signals before a sponsor demo. Customer architects should stay on Your first architecture review. Capture run id and correlation id on any failed step before treating the package as demo-ready.";
 
 export const FIRST_REVIEW_HELP_CLAIM_DISCIPLINE =
-  "Checklist completion and a signed review record are architecture-review evidence for SE demos — not certification.";
+  "Checklist completion and a sealed review record are architecture-review evidence for SE demos — not certification.";
 
 export const FIRST_REVIEW_HELP_EVIDENCE_ARC = [
   "Host + auth ready — API healthy with the intended auth mode for this environment.",
   "Extractor Tier 1 ZIP — customer-subscription inventory attached to a new review.",
-  "Execute and finalize — signed review record with non-empty artifacts.",
-  "Executive proof — ROI/basis text present when shown; export the executive briefing.",
+  "Execute and finalize — sealed review record with non-empty artifacts.",
+  "Sponsor proof — ROI/basis text present when shown; export the sponsor briefing.",
   "Support IDs — record run id and correlation id before opening a ticket.",
 ] as const;
 

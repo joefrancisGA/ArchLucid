@@ -10,6 +10,7 @@ describe("help-doc-audience", () => {
 
   it("maps operator help paths to operator audience", () => {
     expect(helpDocPathAudience("docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md")).toBe("operator");
-    expect(isHelpDocPathInDefaultOperatorSearch("docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md")).toBe(true);
+    expect(isHelpDocPathInDefaultOperatorSearch("docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md")).toBe(false);
+    expect(isHelpDocPathInDefaultOperatorSearch("in-app:/help/troubleshooting")).toBe(true);
   });
 });

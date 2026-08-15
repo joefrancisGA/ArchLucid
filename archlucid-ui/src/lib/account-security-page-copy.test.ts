@@ -20,7 +20,7 @@ function readUiSource(relativePath: string): string {
 }
 
 function accountSecurityHelpCopy(): string {
-  const entry = contextualHelpForPathname("/administration/account-security");
+  const entry = contextualHelpForPathname("/account/security");
 
   return [
     entry?.whatIsThisPage ?? "",
@@ -39,12 +39,12 @@ describe("account-security-page-copy (TB-1881)", () => {
 
   it("keeps banned phrases off the account-security page client and catalog surfaces", () => {
     const sources = [
-      readUiSource("src/app/(operator)/administration/account-security/AccountSecurityPageClient.tsx"),
+      readUiSource("src/app/(operator)/account/security/AccountSecurityPageClient.tsx"),
       readUiSource("src/lib/self-settings-destinations.ts"),
       readUiSource("src/lib/account-security-settings-evidence-copy.ts"),
       readUiSource("src/lib/vocabulary/account-security-auth-domains-vocabulary.ts"),
       accountSecurityHelpCopy(),
-      pageHelpTopicForPathname("/administration/account-security")?.label ?? "",
+      pageHelpTopicForPathname("/account/security")?.label ?? "",
     ].join("\n");
 
     for (const banned of ACCOUNT_SECURITY_BANNED_PAGE_COPY) {
@@ -52,7 +52,7 @@ describe("account-security-page-copy (TB-1881)", () => {
     }
 
     expect(sources).toContain(ACCOUNT_SECURITY_PAGE_TITLE);
-    expect(readUiSource("src/app/(operator)/administration/account-security/AccountSecurityPageClient.tsx")).toContain(
+    expect(readUiSource("src/app/(operator)/account/security/AccountSecurityPageClient.tsx")).toContain(
       "ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT",
     );
     expect(ACCOUNT_SECURITY_AUTH_GATE_MESSAGE).toContain("Sign-in methods");

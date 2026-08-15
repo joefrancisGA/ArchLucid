@@ -44,7 +44,7 @@ const REVIEW_PACKAGE_WORKSPACE_MISMATCH_RECOVERY: ErrorRecoveryContractPresentat
 
 const GOVERNANCE_MUTATION_RECOVERY: ErrorRecoveryContractPresentation = {
   whatFailed: "The governance change did not save.",
-  whatIsIntact: "Prior approvals, findings, and signed review records are unchanged.",
+  whatIsIntact: "Prior approvals, findings, and sealed review records are unchanged.",
   nextStep: "Review the inline error, fix any required fields, and submit again.",
 };
 

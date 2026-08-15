@@ -13,7 +13,7 @@ import {
   shouldUseSectionLevelNarrativeDisclosure,
   truncateMarkdownPreservingStructure,
 } from "@/lib/architecture/architecture-structured-narrative";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureStructuredNarrativeProps = {
   readonly markdown: string;
@@ -46,10 +46,7 @@ export function ArchitectureStructuredNarrative(props: ArchitectureStructuredNar
       {truncated ? (
         <button
           type="button"
-          className={cn(
-            "rounded-sm font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300",
-            OPERATOR_TYPOGRAPHY.helper,
-          )}
+          className={cn("rounded-sm", OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
           onClick={() => {
             setExpanded((current) => !current);
           }}

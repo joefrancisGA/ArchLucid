@@ -1,5 +1,6 @@
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { PolicyPacksHelpEvidenceOrientationStrip } from "@/components/help/PolicyPacksHelpEvidenceOrientationStrip";
+import { POLICY_PACKS_HELP_CLAIM_HEADING_ID } from "@/lib/policy/policy-packs-help-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpPolicyPacksGuideViewProps = {
@@ -15,6 +16,7 @@ export function HelpPolicyPacksGuideView(props: HelpPolicyPacksGuideViewProps): 
       markdown={props.markdown}
       showContextualHelp
       evidenceOrientation={<PolicyPacksHelpEvidenceOrientationStrip />}
+      claimDisciplineTocHeadingId={POLICY_PACKS_HELP_CLAIM_HEADING_ID}
     />
   );
 }

@@ -30,7 +30,7 @@ public sealed partial class ArchLucidApiClient
         try
         {
             Gen.CreateDraftRequest bodyModel = new() { FreeTextIntent = freeTextIntent };
-            Gen.Body35? body = MapToOpenApiRequestBody<Gen.Body35>(bodyModel, GenNumericEnumBridgeJson);
+            Gen.Body36? body = MapToOpenApiRequestBody<Gen.Body36>(bodyModel, GenNumericEnumBridgeJson);
             Gen.DraftRequestResponse created = await _api.DraftPOSTAsync(body, ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(created);
 
@@ -62,7 +62,7 @@ public sealed partial class ArchLucidApiClient
         try
         {
             Gen.PatchDraftRequest? genBodyModel = MapContractToGenerated<Gen.PatchDraftRequest>(body);
-            Gen.Body36? genBody = MapToOpenApiRequestBody<Gen.Body36>(genBodyModel, ContractEnumAwareJson);
+            Gen.Body37? genBody = MapToOpenApiRequestBody<Gen.Body37>(genBodyModel, ContractEnumAwareJson);
             Gen.DraftRequestResponse patched = await _api.DraftPATCHAsync(draftId, genBody, ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(patched);
 
@@ -150,7 +150,7 @@ public sealed partial class ArchLucidApiClient
         try
         {
             Gen.AnswerDraftQuestionRequest? genBodyModel = MapContractToGenerated<Gen.AnswerDraftQuestionRequest>(body);
-            Gen.Body37? genBody = MapToOpenApiRequestBody<Gen.Body37>(genBodyModel, ContractEnumAwareJson);
+            Gen.Body38? genBody = MapToOpenApiRequestBody<Gen.Body38>(genBodyModel, ContractEnumAwareJson);
             Gen.DraftRequestResponse answered = await _api.AnswerAsync(draftId, genBody, ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(answered);
 
@@ -182,7 +182,7 @@ public sealed partial class ArchLucidApiClient
         try
         {
             Gen.SkipDraftQuestionRequest? genBodyModel = MapContractToGenerated<Gen.SkipDraftQuestionRequest>(body);
-            Gen.Body40? genBody = MapToOpenApiRequestBody<Gen.Body40>(genBodyModel, ContractEnumAwareJson);
+            Gen.Body41? genBody = MapToOpenApiRequestBody<Gen.Body41>(genBodyModel, ContractEnumAwareJson);
             Gen.DraftRequestResponse skipped = await _api.SkipAsync(draftId, genBody, ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(skipped);
 

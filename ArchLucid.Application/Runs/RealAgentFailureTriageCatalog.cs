@@ -156,6 +156,41 @@ public static class RealAgentFailureTriageCatalog
                 "docs/library/LLM_RETRY_AND_CIRCUIT_BREAKER.md",
             ],
         },
+        new RealAgentFailureTriageEntry
+        {
+            ScenarioId = RealAgentFailureTriageScenarioIds.StepSpendCapExceeded,
+            Title = "Logical agent step spend cap reached",
+            FailureClasses = [AgentExecutionFailureClasses.StepSpendCap],
+            OperatorNextSteps =
+            [
+                "Inspect AgentExecutionOutcomes and LastAgentExecutionFailure.failureClass=stepSpendCap on the run.",
+                "Review AgentExecution:SchemaRemediation MaxCompletionAttempts and AgentExecution:Resilience LlmCallMaxRetryAttempts — cap is (1 + retries) + (attempts - 1).",
+                "Fix schema/prompt issues causing repeated remediation instead of raising retry counts.",
+                "Re-execute the failed agent task after correcting upstream inputs.",
+            ],
+            RelatedDocPaths =
+            [
+                "docs/library/LLM_RETRY_AND_CIRCUIT_BREAKER.md",
+                "docs/library/POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md",
+            ],
+        },
+        new RealAgentFailureTriageEntry
+        {
+            ScenarioId = RealAgentFailureTriageScenarioIds.StaleDownstreamAgent,
+            Title = "Downstream agent stale — Critic out of date",
+            FailureClasses = [],
+            OperatorNextSteps =
+            [
+                "Confirm Critic AgentExecutionOutcome is Stale after upstream Topology/Cost/Compliance re-execute.",
+                "Re-run Critic (selective execute with IncludeDependents=true when forcing upstream).",
+                "Do not finalize until Critic upstream fingerprints match current upstream ResultIds.",
+            ],
+            RelatedDocPaths =
+            [
+                "docs/library/POLLY_VS_RUN_LEVEL_SEMANTICS_CONTRACT.md",
+                "docs/runbooks/AGENT_EXECUTION_FAILURES.md",
+            ],
+        },
     ];
 
     public static RealAgentFailureTriageEntry? TryGet(string scenarioId)

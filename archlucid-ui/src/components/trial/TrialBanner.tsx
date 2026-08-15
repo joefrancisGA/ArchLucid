@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -75,7 +76,8 @@ function TrialExportOnlyBanner({ daysRemaining }: TrialExportOnlyBannerProps) {
 /** Sticky trial callout in the operator shell; dismiss hides non–export-only states for 24h. */
 export function TrialBanner() {
   const pathname = usePathname();
-  const { data: payload, isFetched } = useTenantTrialStatusQuery();
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const { data: payload, isFetched } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const [dismissed, setDismissed] = useState(false);
 
   const showHomeStrip = useMemo(() => {
@@ -158,7 +160,7 @@ export function TrialBanner() {
         <span className="mx-2 text-amber-800 dark:text-amber-200">·</span>
         <span>{daysLabel}</span>
         <div className="mt-2 flex flex-wrap gap-2">
-          <Button asChild type="button" size="sm" className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700 dark:hover:bg-teal-600">
+          <Button asChild type="button" variant="primary" size="sm">
             <Link href="/pricing#pricing-quote-request">Request quote</Link>
           </Button>
           <Button type="button" size="sm" variant="outline" onClick={onConvert}>

@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 $uiRoot = Join-Path (Split-Path $PSScriptRoot -Parent) "src"
 $roots = @(
   (Join-Path $uiRoot "app\(operator)"),
-  (Join-Path $uiRoot "app\(executive)"),
+  (Join-Path $uiRoot "app\(sponsor)"),
   (Join-Path $uiRoot "components")
 )
 

@@ -97,3 +97,23 @@ export type PolicyPackCatalogListItem = components["schemas"]["PolicyPackCatalog
 
 /** Catalog entry with snapshot JSON for cloning. */
 export type PolicyPackCatalogEntryDetail = components["schemas"]["PolicyPackCatalogEntryDetail"];
+
+/** Workspace policy pack row for tenant opt-in/opt-out (`GET /v1/policy-packs/workspace-selection`). */
+export type PolicyPackWorkspaceSelectionItem = {
+  policyPackId: string;
+  assignmentId: string;
+  name: string;
+  description: string;
+  packType: string;
+  currentVersion: string;
+  isEnabled: boolean;
+  isGloballyActive: boolean;
+};
+
+/** Platform registry row for internal bundled pack activation. */
+export type PlatformBundledPolicyPackRegistryEntry = {
+  bundleContentFile: string;
+  displayName: string;
+  isGloballyActive: boolean;
+  updatedUtc: string;
+};

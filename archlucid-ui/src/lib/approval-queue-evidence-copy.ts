@@ -24,3 +24,5 @@ export const APPROVAL_QUEUE_SOURCES: readonly EvidenceSourceLink[] = [
 ] as const;
 
 export const APPROVAL_QUEUE_CANONICAL_PATH = GOVERNANCE_APPROVAL_QUEUE_PATH;
+
+export const APPROVAL_QUEUE_HELP_TOPIC_LABEL = "How the approval queue works";

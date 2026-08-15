@@ -47,7 +47,7 @@ public sealed class ArchLucidApiClientWireTests
                 return Task.FromResult(ok);
             }
 
-            if (url.Contains("executive-summary", StringComparison.Ordinal))
+            if (url.Contains("sponsor-report", StringComparison.Ordinal))
             {
                 const string json =
                     "{\"type\":\"https://example/problem\",\"title\":\"Unauthorized\",\"status\":401,\"traceId\":\"trace-xyz\"}";
@@ -99,7 +99,7 @@ public sealed class ArchLucidApiClientWireTests
     }
 
     [Fact]
-    public async Task ExecutiveSummaryAsync_401_throws_with_ProblemDetails_including_traceId()
+    public async Task SponsorReportAsync_401_throws_with_ProblemDetails_including_traceId()
     {
         using HttpMessageHandler handler = new StubPipelineHandler();
         using HttpClient http = new HttpClient(handler);
@@ -109,7 +109,7 @@ public sealed class ArchLucidApiClientWireTests
         };
 
         ArchLucidApiException<ProblemDetails> ex = await Assert.ThrowsAsync<ArchLucidApiException<ProblemDetails>>(
-            () => client.ExecutiveSummaryAsync());
+            () => client.SponsorReportAsync());
 
         Assert.Equal(401, ex.StatusCode);
         Assert.NotNull(ex.Result);

@@ -76,7 +76,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Workspace and scope guide" })).toBeInTheDocument();
   });
 
-  it("renders breadcrumb, primary action, and print action in the header", () => {
+  it("renders primary action and print action in the header", () => {
     if (loaded === null) {
       throw new Error("Expected scope documentation to load.");
     }
@@ -95,9 +95,6 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       />,
     );
 
-    const breadcrumb = screen.getByTestId("help-topic-breadcrumb");
-    expect(within(breadcrumb).getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
-    expect(breadcrumb).toHaveTextContent("Workspace and scope guide");
     expect(screen.getByTestId(SCOPE_HELP_PRIMARY_ACTION.testId)).toHaveAttribute(
       "href",
       SCOPE_HELP_PRIMARY_ACTION.href,

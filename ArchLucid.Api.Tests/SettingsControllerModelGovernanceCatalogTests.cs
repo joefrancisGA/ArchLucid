@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Admin;
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Agents;
@@ -60,10 +61,13 @@ public sealed class SettingsControllerModelGovernanceCatalogTests
         SettingsController controller = new(
             Mock.Of<ITenantAgentOutputQualityGateModeService>(),
             profileService.Object,
+            Mock.Of<IWorkspaceAllowedEngineSetService>(),
+            Mock.Of<IExternalSubprocessorEngineAcknowledgmentService>(),
             aliasRegistry.Object,
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<IAuditService>(),
-            Mock.Of<IAuditRepository>());
+            Mock.Of<IAuditRepository>(),
+            TimeProvider.System);
 
         ActionResult<ModelGovernanceCatalogResponse> result =
             await controller.GetModelGovernanceCatalog(CancellationToken.None);

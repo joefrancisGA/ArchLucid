@@ -1,49 +1,71 @@
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { buildOnboardingRedirectPath } from "@/lib/legacy-onboarding-redirect";
-import {
-  CANONICAL_ONBOARDING_PATH,
-  LEGACY_ONBOARDING_START_PATH,
-} from "@/lib/legacy-onboarding-start-route";
-import { MARKETING_ROBOTS_DISALLOW_PREFIXES, MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
+import { RETIRED_ONBOARDING_START_BOOKMARK_PATH } from "@/lib/ui-route-traffic-retired-redirect-shims";
 
-const LEGACY_ONBOARDING_START_APP_DIR = join(
-  process.cwd(),
-  "src",
-  "app",
-  "(marketing)",
-  "onboarding",
-  "start",
-);
+const LEGACY_ONBOARDING_START_APP_DIRS = [
+  join(process.cwd(), "src", "app", "onboarding", "start"),
+  join(process.cwd(), "src", "app", "(marketing)", "onboarding", "start"),
+  join(process.cwd(), "src", "app", "(operator)", "onboarding", "start"),
+] as const;
 
-describe("legacy onboarding-start route (ONS / TB-1801 / TB-1805)", () => {
-  it("keeps canonical onboarding on first-review-guide", () => {
-    expect(LEGACY_ONBOARDING_START_PATH).toBe("/onboarding/start");
-    expect(CANONICAL_ONBOARDING_PATH).toBe("/architecture/first-review-guide");
-    expect(buildOnboardingRedirectPath({ source: "email" })).toBe(
-      "/architecture/first-review-guide?source=email",
+const ONBOARDING_START_CLIENT_UI_PATTERNS = [
+  /OnboardingPageView/,
+  /OnboardingWizard/,
+  /FinishSetupWizardPanel/,
+  /"use client"/,
+] as const;
+
+function collectRouteModuleSources(rootDir: string): string[] {
+  if (!existsSync(rootDir)) {
+    return [];
+  }
+
+  const sources: string[] = [];
+
+  for (const entry of readdirSync(rootDir)) {
+    const entryPath = join(rootDir, entry);
+
+    if (statSync(entryPath).isDirectory()) {
+      sources.push(...collectRouteModuleSources(entryPath));
+      continue;
+    }
+
+    if (/\.(tsx|ts|jsx|js)$/.test(entry)) {
+      sources.push(readFileSync(entryPath, "utf8"));
+    }
+  }
+
+  return sources;
+}
+
+describe("legacy onboarding-start bookmark (ONS / TB-1805)", () => {
+  it("documents retired /onboarding/start and canonical first-review-guide", () => {
+    expect(RETIRED_ONBOARDING_START_BOOKMARK_PATH).toBe("/onboarding/start");
+    expect(FIRST_REVIEW_GUIDE_PATH).toBe("/architecture/first-review-guide");
+    expect(buildOnboardingRedirectPath({ source: "registration" })).toBe(
+      "/architecture/first-review-guide?source=registration",
     );
   });
 
-  it("does not ship an App Router page under onboarding/start", () => {
-    expect(existsSync(join(LEGACY_ONBOARDING_START_APP_DIR, "page.tsx"))).toBe(false);
-    expect(existsSync(join(LEGACY_ONBOARDING_START_APP_DIR, "layout.tsx"))).toBe(false);
+  it("does not ship an App Router page under onboarding/start (TB-1805 anti-reintro)", () => {
+    for (const appDir of LEGACY_ONBOARDING_START_APP_DIRS) {
+      expect(existsSync(join(appDir, "page.tsx"))).toBe(false);
+      expect(existsSync(join(appDir, "layout.tsx"))).toBe(false);
+    }
   });
 
-  it("resolves legacy bookmark readiness via canonical first-review-guide", () => {
-    expect(canonicalizeLegacyOperatorRoutePath(LEGACY_ONBOARDING_START_PATH)).toBe(CANONICAL_ONBOARDING_PATH);
-  });
-
-  it("does not promote the retired path in marketing sitemap inventory", () => {
-    expect(MARKETING_SITEMAP_PATHNAMES).not.toContain(LEGACY_ONBOARDING_START_PATH);
-    expect(MARKETING_SITEMAP_PATHNAMES).not.toContain(`${LEGACY_ONBOARDING_START_PATH}/`);
-  });
-
-  it("keeps /onboarding/start in robots disallow prefixes while redirect shim may exist (TB-1802)", () => {
-    expect(MARKETING_ROBOTS_DISALLOW_PREFIXES).toContain(LEGACY_ONBOARDING_START_PATH);
+  it("does not mount client onboarding UI under onboarding/start route modules", () => {
+    for (const appDir of LEGACY_ONBOARDING_START_APP_DIRS) {
+      for (const source of collectRouteModuleSources(appDir)) {
+        for (const pattern of ONBOARDING_START_CLIENT_UI_PATTERNS) {
+          expect(source, `unexpected onboarding UI in ${appDir}`).not.toMatch(pattern);
+        }
+      }
+    }
   });
 });

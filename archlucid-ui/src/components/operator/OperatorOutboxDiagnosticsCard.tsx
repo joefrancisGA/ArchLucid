@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -44,7 +44,7 @@ export function OperatorOutboxDiagnosticsCard(): React.JSX.Element {
         ) : null}
 
         <p className="m-0">
-          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/internal/integration-events/dlq">
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/internal/failed-integration-messages">
             Open integration dead-letter queue
           </Link>
         </p>

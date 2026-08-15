@@ -56,7 +56,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     category: "review-process",
     relatedTermIds: ["review-package", "architecture-draft"],
     detail:
-      "A review is the governed evaluation process from intake through finalized outputs such as the signed review record, findings, and exports.",
+      "A review is the governed evaluation process from intake through finalized outputs such as the sealed review record, findings, and exports.",
     visibility: "customer",
   },
   {
@@ -72,22 +72,22 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "review-package",
     label: "Architecture review",
     definition:
-      "The durable record for one architecture review: findings, decisions, evidence links, signed review record, governance records, and exportable deliverables.",
+      "The durable record for one architecture review: findings, decisions, evidence links, sealed review record, governance records, and exportable deliverables.",
     category: "review-process",
-    relatedTermIds: ["review", "signed-review-record", "deliverable"],
+    relatedTermIds: ["review", "sealed-review-record", "deliverable"],
     detail:
-      "Stakeholders open an architecture review to triage findings, finalize, export, compare, and audit outcomes. Finalize locks the signed review record and sponsor-ready exports.",
+      "Stakeholders open an architecture review to triage findings, finalize, export, compare, and audit outcomes. Finalize locks the sealed review record and sponsor-ready exports.",
     deprecatedAliases: ["Review package", "review package", "Architecture package", "architecture package", "Finalized review"],
     visibility: "customer",
   },
   {
-    id: "signed-review-record",
-    label: "Signed review record",
+    id: "sealed-review-record",
+    label: "Sealed review record",
     definition:
       "The immutable, provenance-backed package that closes a finalized review. ArchLucid treats it as the authoritative review anchor for governance and exports. Do not call this a signed decision record — a decision is one disposition inside the package.",
     category: "review-process",
-    aliases: ["Signed review record"],
-    deprecatedAliases: ["Signed manifest", "Golden manifest", "Signed decision record"],
+    aliases: ["Sealed review record"],
+    deprecatedAliases: ["Signed review record", "Signed manifest", "Golden manifest", "Signed decision record"],
     relatedTermIds: ["review-package", "evidence-trail", "decision"],
     visibility: "customer",
   },
@@ -134,11 +134,11 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "decision",
     label: "Decision",
     definition:
-      "A recorded disposition on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit. Not the same as the signed review record (the package that locks those decisions at finalize).",
+      "A recorded disposition on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit. Not the same as the sealed review record (the package that locks those decisions at finalize).",
     category: "decisions-and-findings",
-    relatedTermIds: ["governance-approval", "finding", "signed-review-record"],
+    relatedTermIds: ["governance-approval", "finding", "sealed-review-record"],
     detail:
-      "Browse decisions in the Decision register. Open the signed review record for the immutable package that contains decisions, findings, and exports for one review.",
+      "Browse decisions in the Decision register. Open the sealed review record for the immutable package that contains decisions, findings, and exports for one review.",
     visibility: "customer",
   },
   {
@@ -215,9 +215,9 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "deliverable",
     label: "Deliverable",
     definition:
-      "An exportable output aimed at a specific audience, such as an executive summary, board packet, or diligence bundle.",
+      "An exportable output aimed at a specific audience, such as an sponsor report, board packet, or diligence bundle.",
     category: "deliverables",
-    relatedTermIds: ["review-package", "signed-review-record"],
+    relatedTermIds: ["review-package", "sealed-review-record"],
     visibility: "customer",
   },
 ];

@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 
 import {
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_SHELL_STICKY_TOP_CLASS,
   OPERATOR_TYPE_SCALE,
@@ -59,7 +60,7 @@ export const HELP_PAGE_MIN_TOC_HEADINGS = 4;
 /** Single-column layout when the TOC rail is hidden (fewer than four headings). */
 export function resolveHelpPageContentGridClass(headingCount: number): string {
   if (headingCount < HELP_PAGE_MIN_TOC_HEADINGS) {
-    return "min-w-0 space-y-6";
+    return cn("min-w-0 space-y-6 w-full max-w-none lg:max-w-[52rem]");
   }
 
   return HELP_PAGE_LAYOUT.contentGrid;
@@ -74,10 +75,7 @@ export const HELP_PAGE_TOC = {
   heading:
     "m-0 text-xs font-semibold uppercase tracking-[0.08em] text-al-text-primary dark:text-neutral-200",
   list: "m-0 mt-3 list-none space-y-1.5 p-0",
-  link: cn(
-    "block rounded-sm py-1 text-al-text-secondary underline-offset-2 transition-colors hover:text-teal-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:hover:text-teal-300",
-    OPERATOR_TYPOGRAPHY.body,
-  ),
+  link: cn("block rounded-sm py-1", OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body),
   linkActive: "font-semibold text-teal-900 dark:text-teal-200",
   linkNested: "pl-3",
   referenceSearchInput: cn(

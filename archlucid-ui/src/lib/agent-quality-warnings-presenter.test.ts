@@ -16,6 +16,9 @@ describe("buildPlainLanguageQualityBlockSummary", () => {
         status: "warned",
         structuralCompletenessRatio: 0.8,
         semanticScore: 0.6,
+        faithfulnessScore: null,
+        rejectReasonCategory: null,
+        rejectReasonLabel: null,
         breachedThresholds: [],
       },
     ];
@@ -33,7 +36,8 @@ describe("buildPlainLanguageQualityBlockSummary", () => {
             agentType: "Critic",
             structuralCompletenessRatio: 0.5,
             qualityWarning: true,
-            semantic: { overallSemanticScore: 0.4 },
+            recordedRejectReasonCategory: "faithfulness",
+            semantic: { overallSemanticScore: 0.4, agentResultFaithfulnessSupportRatio: 0.2 },
           },
         ],
         tracesSkippedCount: 0,
@@ -55,5 +59,7 @@ describe("buildPlainLanguageQualityBlockSummary", () => {
     expect(buildPlainLanguageQualityBlockSummary(rows)).toContain("blocked");
     expect(buildPlainLanguageQualityBlockSummary(rows)).toContain("not an LLM outage");
     expect(buildPlainLanguageQualityBlockSummary(rows)?.toLowerCase()).not.toContain("model failed");
+    expect(rows[0]?.rejectReasonLabel).toMatch(/Grounding/i);
+    expect(rows[0]?.faithfulnessScore).toBe(0.2);
   });
 });

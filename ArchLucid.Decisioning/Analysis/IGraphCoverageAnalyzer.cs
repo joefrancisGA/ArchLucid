@@ -11,4 +11,10 @@ public interface IGraphCoverageAnalyzer
     PolicyCoverageResult AnalyzePolicy(GraphSnapshot graphSnapshot);
 
     RequirementCoverageResult AnalyzeRequirements(GraphSnapshot graphSnapshot);
+
+    RequirementExpectationResult AnalyzeRequirementExpectations(GraphSnapshot graphSnapshot);
+
+    SecurityBaselineCategoryExpectationResult AnalyzeSecurityBaselineExpectations(GraphSnapshot graphSnapshot);
+
+    SecurityBaselineCompletenessResult AnalyzeSecurityBaselineCompleteness(GraphSnapshot graphSnapshot);
 }

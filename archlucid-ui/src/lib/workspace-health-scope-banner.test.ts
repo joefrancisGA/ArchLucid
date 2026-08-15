@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { formatExecutiveWorkspaceScopeDescription } from "@/lib/workspace-health-scope-banner";
+import { formatSponsorWorkspaceScopeDescription } from "@/lib/workspace-health-scope-banner";
 
-describe("formatExecutiveWorkspaceScopeDescription", () => {
+describe("formatSponsorWorkspaceScopeDescription", () => {
   it("uses stored labels when operator scope record is present", () => {
-    const text = formatExecutiveWorkspaceScopeDescription(
+    const text = formatSponsorWorkspaceScopeDescription(
       {
         tenantId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
         workspaceId: "11111111-2222-3333-4444-555555555555",
@@ -17,11 +17,11 @@ describe("formatExecutiveWorkspaceScopeDescription", () => {
 
     expect(text).toContain("North America");
     expect(text).toContain("Core platform");
-    expect(text).toContain("not a cross-workspace executive rollup");
+    expect(text).toContain("not a cross-workspace sponsor rollup");
   });
 
   it("falls back to header IDs when no operator record", () => {
-    const text = formatExecutiveWorkspaceScopeDescription(null, {
+    const text = formatSponsorWorkspaceScopeDescription(null, {
       tenantId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
       workspaceId: "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
       projectId: "cccccccc-dddd-eeee-ffff-000000000000",

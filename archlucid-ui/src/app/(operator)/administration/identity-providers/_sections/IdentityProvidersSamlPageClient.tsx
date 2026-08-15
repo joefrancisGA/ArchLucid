@@ -13,6 +13,7 @@ import { ArchLucidSamlSpValuesCard } from "./ArchLucidSamlSpValuesCard";
 import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
 import { IdentityProvidersSettingsGate } from "./IdentityProvidersSettingsGate";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
+import { IdentityProvidersSamlSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
 import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
 
@@ -33,6 +34,7 @@ export function IdentityProvidersSamlPageClient(): React.JSX.Element {
           onRefresh={() => void model.refresh()}
           showAdminFallbackNotice
         >
+          <IdentityProvidersSamlSettingsEvidenceOrientationStrip />
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start">
             <div className="space-y-4">
               {model.samlOperationalHealthLoaded ? (

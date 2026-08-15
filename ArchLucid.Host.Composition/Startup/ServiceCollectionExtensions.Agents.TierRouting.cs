@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
@@ -18,8 +18,8 @@ using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Core.AgentSimulation;
 using ArchLucid.Application.Architecture;
-using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Core.Evidence;
 using ArchLucid.AgentRuntime.PromptInjection;
@@ -99,7 +99,11 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AgentModelTierOptions>(configuration.GetSection(AgentModelTierOptions.SectionPath));
         services.PostConfigure<AgentModelTierOptions>(static opts => AgentModelTierDefaults.ApplyDefaults(opts));
         services.AddSingleton<IAgentModelTierResolver, AgentModelTierResolver>();
-        services.AddSingleton<IAgentModelAliasRegistry, ConfigAgentModelAliasRegistry>();
+        services.AddSingleton<CatalogBackedAgentModelAliasRegistry>();
+        services.AddSingleton<IAgentModelAliasRegistry>(static sp =>
+            sp.GetRequiredService<CatalogBackedAgentModelAliasRegistry>());
+        services.AddSingleton<IAgentModelCatalogCacheInvalidator>(static sp =>
+            sp.GetRequiredService<CatalogBackedAgentModelAliasRegistry>());
         services.AddSingleton<IAgentModelAliasResolver, AgentModelAliasResolver>();
     }
 

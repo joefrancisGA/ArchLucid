@@ -62,15 +62,15 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md")).toBe("/help/procurement");
   });
 
-  it("maps executive-summary diligence docs to the correct help topics (TB-1689)", () => {
-    expect(resolveInAppDocHref("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md")).toBe("/help/executive-summary");
+  it("maps sponsor-report diligence docs to the correct help topics (TB-1689)", () => {
+    expect(resolveInAppDocHref("docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md")).toBe("/help/sponsor-report");
     expect(resolveInAppDocHref("docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md")).toBe("/help/procurement");
     expect(resolveInAppDocHref("docs/go-to-market/PRICING_PHILOSOPHY.md")).toBe("/help/procurement");
     expect(resolveInAppDocHref("docs/go-to-market/ROI_MODEL.md")).toBe(
-      "/help/executive-summary#pilot-roi-measurement",
+      "/help/sponsor-report#pilot-roi-measurement",
     );
     expect(resolveInAppDocHref("docs/library/customer-facing/FAQ.md")).toBe("/faq");
-    expect(resolveInAppDocHref("docs/go-to-market/COMPETITIVE_COMPARISON.md")).toBe("/help/executive-summary");
+    expect(resolveInAppDocHref("docs/go-to-market/COMPETITIVE_COMPARISON.md")).toBe("/help/sponsor-report");
   });
 
   it("maps architect/evaluator quickstart to CLI usage (KEEP body; href only)", () => {

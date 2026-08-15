@@ -58,13 +58,13 @@ public sealed class ReplayComparisonRequestMapperTests
             "cmp-4",
             "json",
             "regenerate",
-            "executive",
+            "sponsor",
             true);
 
         mapped.ComparisonRecordId.Should().Be("cmp-4");
         mapped.Format.Should().Be("json");
         mapped.ReplayMode.Should().Be("regenerate");
-        mapped.Profile.Should().Be("executive");
+        mapped.Profile.Should().Be("sponsor");
         mapped.PersistReplay.Should().BeTrue();
     }
 }

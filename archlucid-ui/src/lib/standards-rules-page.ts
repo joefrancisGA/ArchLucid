@@ -10,13 +10,18 @@ export const STANDARDS_RULES_BANNER_TITLE = "Governance approval record";
 export const STANDARDS_RULES_BANNER_BODY =
   "This review was approved using the standards and rules shown below.";
 
-export const STANDARDS_RULES_VIEW_SIGNED_RECORD = "View signed review record";
+export const STANDARDS_RULES_VIEW_SIGNED_RECORD = "View sealed review record";
 
 export const STANDARDS_RULES_VIEW_EVIDENCE_TRAIL = "View evidence trail";
 
 export const STANDARDS_RULES_VIEW_AUDIT_TRAIL = "View audit trail";
 
 export const STANDARDS_RULES_TABLE_TITLE = "Enforced rules";
+
+export const STANDARDS_RULES_TABLE_INTRO =
+  "Each rule is enforced from a policy pack and mapped to a standard or framework for audit grouping.";
+
+export const STANDARDS_RULES_SUMMARY_FRAMEWORKS_LABEL = "Frameworks referenced";
 
 export const STANDARDS_RULES_EMPTY_HEADING = "No rules applied to this review";
 
@@ -32,3 +37,17 @@ export const STANDARDS_RULES_VIEW_EXPLANATION_NEXT_ACTION =
 export const STANDARDS_RULES_RESET_FILTERS = "Reset filters";
 
 export const STANDARDS_RULES_REFRESH = "Refresh";
+
+export const STANDARDS_RULES_EXPORT_RULES_LABEL = "Export rules (CSV)";
+
+export const STANDARDS_RULES_SUMMARY_LINKED_FINDINGS_LABEL = "Rules with linked findings";
+
+export const STANDARDS_RULES_SUMMARY_EVIDENCE_COVERAGE_LABEL = "Evidence coverage";
+
+export const STANDARDS_RULES_EVIDENCE_EVIDENCED_LABEL = "Evidenced";
+
+export const STANDARDS_RULES_EVIDENCE_NOT_EVIDENCED_LABEL = "Not evidenced";
+
+export const STANDARDS_RULES_FILTER_COUNT_TEMPLATE = "Showing {visible} of {total} rules";
+
+export const STANDARDS_RULES_RESOLUTION_DISCLOSURE_SUMMARY = "How rules were resolved";

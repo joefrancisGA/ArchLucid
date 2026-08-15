@@ -37,4 +37,18 @@ describe("ImpactPreviewPageHeader", () => {
 
     expect(onRefresh).toHaveBeenCalledTimes(1);
   });
+
+  it("renders a blocking status tag when provided", () => {
+    render(
+      <ImpactPreviewPageHeader
+        subtitle={impactPreviewPageSubtitle(false)}
+        listLoading={false}
+        lastRefreshedAt={null}
+        statusKind="needs-attention"
+        onRefresh={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText("Status: Action needed")).toBeInTheDocument();
+  });
 });

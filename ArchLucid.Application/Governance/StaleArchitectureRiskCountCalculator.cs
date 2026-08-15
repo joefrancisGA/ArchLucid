@@ -2,7 +2,7 @@ using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Application.Governance;
 
-/// <summary>Counts stale architecture risk register rows for executive KPI surfaces.</summary>
+/// <summary>Counts stale architecture risk register rows for sponsor KPI surfaces.</summary>
 public static class StaleArchitectureRiskCountCalculator
 {
     public static int CountStale(ArchitectureRiskRegisterResponse? register)

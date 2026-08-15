@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL,
+  BUYER_SPONSOR_SCORECARD_COMMITTED_LABEL,
   BUYER_VALUE_REPORT_PAGE_SUBTITLE,
-  BUYER_VALUE_REPORT_PAGE_TITLE,
+  SPONSOR_REPORT_PAGE_TITLE,
   OPERATOR_GRAPH_PAGE_SUBTITLE,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_LEAD,
@@ -46,10 +46,10 @@ describe("buyer-polish-copy pilot command center outcomes (TB-351)", () => {
   });
 });
 
-describe("buyer-polish-copy executive scorecard (TB-462)", () => {
+describe("buyer-polish-copy sponsor scorecard (TB-462)", () => {
   it("uses finalized reviews label on scorecard KPI", () => {
-    expect(BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL).toBe("Finalized reviews");
-    expect(BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL.toLowerCase()).not.toContain("committed");
+    expect(BUYER_SPONSOR_SCORECARD_COMMITTED_LABEL).toBe("Finalized reviews");
+    expect(BUYER_SPONSOR_SCORECARD_COMMITTED_LABEL.toLowerCase()).not.toContain("committed");
   });
 });
 
@@ -79,10 +79,10 @@ describe("buyer-polish-copy optional setup CTA (TB-466)", () => {
 });
 
 describe("buyer-polish-copy value report page (TB-468)", () => {
-  it("uses executive value report title and sponsor-ready subtitle", () => {
-    expect(BUYER_VALUE_REPORT_PAGE_TITLE).toBe("Executive value report");
+  it("uses the merged sponsor report title and sponsor-ready subtitle", () => {
+    expect(SPONSOR_REPORT_PAGE_TITLE).toBe("Sponsor report");
     expect(BUYER_VALUE_REPORT_PAGE_SUBTITLE).toContain("sponsor-ready");
-    expect(BUYER_VALUE_REPORT_PAGE_TITLE.toLowerCase()).not.toContain("sponsor");
+    expect(SPONSOR_REPORT_PAGE_TITLE.toLowerCase()).not.toContain("pilot");
   });
 });
 
@@ -135,7 +135,7 @@ describe("buyer-polish-copy sample review AHA badge (TB-473)", () => {
 describe("buyer-polish-copy sample findings defensible layer (TB-474)", () => {
   it("uses example review caption without demo-derived or execution mode jargon", () => {
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER).toBe(
-      "Example review — not your workspace data. Open the full review for findings, evidence, and the signed record.",
+      "Example review — not your workspace data. Open the full review for findings, evidence, and the sealed record.",
     );
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("demo-derived");
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("execution mode");

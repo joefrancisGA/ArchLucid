@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { useEffect, useState, type ReactElement } from "react";
 
 import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstandingNavBadge";
+import { GovernanceAssignedToMeFindingsNavBadge } from "@/components/governance/findings/GovernanceAssignedToMeFindingsNavBadge";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
@@ -13,6 +14,7 @@ import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-toke
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import {
@@ -35,6 +37,10 @@ function sidebarNavLinkAfterLabel(href: string): ReactElement | null {
 
   if (href === GOVERNANCE_ALERTS_PATH) {
     return <AlertsOutstandingNavBadge />;
+  }
+
+  if (href === GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH) {
+    return <GovernanceAssignedToMeFindingsNavBadge />;
   }
 
   return null;
@@ -83,29 +89,41 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
 
   const headingClassName = cn(
     OPERATOR_NAV_GROUP_LABEL,
-    "flex w-full min-w-0 items-start gap-2 rounded-md px-2 py-1.5 text-left",
-    props.isCollapsible && "hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
+    "flex w-full min-w-0 items-center gap-1 rounded-md px-2 py-1.5 text-left",
   );
 
-  const headingHelpTooltip =
-    group.caption ? <FieldHelpTooltip label={groupHeadingLabel} hint={group.caption} /> : null;
+  const collapsibleToggleClassName = cn(
+    OPERATOR_NAV_GROUP_LABEL,
+    "sidebar-disclosure-trigger inline-flex min-w-0 max-w-full items-center gap-2 rounded-md p-0 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
+  );
 
-  const headingInner = (
+  const groupHeadingHelpTooltip = group.caption ? (
+    <FieldHelpTooltip
+      label={groupHeadingLabel}
+      hint={group.caption}
+      side="right"
+      className="shrink-0"
+    />
+  ) : null;
+
+  const collapsibleChevron = props.isExpanded ? (
+    <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+  ) : (
+    <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+  );
+
+  const headingLabel = <span className="min-w-0 truncate">{groupHeadingLabel}</span>;
+
+  const headingInner = props.isCollapsible ? (
     <>
-      {props.isCollapsible ? (
-        props.isExpanded ? (
-          <ChevronDown className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
-        ) : (
-          <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
-        )
-      ) : null}
-      <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
-        <span className="inline-flex items-center gap-1">
-          <span>{groupHeadingLabel}</span>
-          {!props.isCollapsible ? headingHelpTooltip : null}
-        </span>
-      </span>
+      {collapsibleChevron}
+      {headingLabel}
     </>
+  ) : (
+    <span className="inline-flex min-w-0 flex-1 items-center gap-1">
+      {headingLabel}
+      {groupHeadingHelpTooltip}
+    </span>
   );
 
   function renderLink(link: (typeof linksForRender)[number]): ReactElement {
@@ -134,10 +152,10 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   return (
     <div key={group.id} data-testid={`sidebar-group-${group.id}`} className="mt-1 first:mt-0">
       {props.isCollapsible ? (
-        <div className="flex min-w-0 items-start gap-1">
+        <div className={headingClassName}>
           <button
             type="button"
-            className={cn(headingClassName, "sidebar-disclosure-trigger flex-1")}
+            className={collapsibleToggleClassName}
             id={headingId}
             data-testid={`sidebar-group-toggle-${group.id}`}
             aria-expanded={props.isExpanded}
@@ -148,7 +166,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
           >
             {headingInner}
           </button>
-          {headingHelpTooltip}
+          {groupHeadingHelpTooltip}
         </div>
       ) : (
         <div

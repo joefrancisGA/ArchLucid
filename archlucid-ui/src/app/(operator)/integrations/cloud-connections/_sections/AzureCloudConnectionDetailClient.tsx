@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 
-
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 
 import { Button } from "@/components/ui/button";
 
@@ -12,11 +12,17 @@ import { StatusTag } from "@/components/ui/status-tag";
 
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
 import { azureConnectionStatusTagKind } from "@/lib/azure-connection-present";
+
+import {
+  CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
+  CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO,
+  cloudProviderConnectionSources,
+} from "@/lib/cloud-provider-connection-evidence-copy";
 
 
 
@@ -140,7 +146,9 @@ function AzureConnectionDetailBody() {
 
   return (
 
-    <CloudProviderDetailLayout
+    <>
+
+      <CloudProviderDetailLayout
 
       providerLabel="Azure"
 
@@ -178,7 +186,7 @@ function AzureConnectionDetailBody() {
 
           ArchLucid&apos;s managed identity. Use the setup script in Connection details or deploy the{" "}
 
-          <Link href={TIER2_WIZARD_HELP_HREFS.connectAzureSecurely} className="text-teal-700 underline dark:text-teal-400">
+          <Link href={TIER2_WIZARD_HELP_HREFS.connectAzureSecurely} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
 
             infrastructure templates
 
@@ -210,7 +218,7 @@ function AzureConnectionDetailBody() {
 
           <p>
 
-            <Link href={inAppHelpHref("cloud-connections-azure")} className="text-teal-700 underline dark:text-teal-400">
+            <Link href={inAppHelpHref("cloud-connections-azure")} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
 
               View setup guide
 
@@ -223,6 +231,15 @@ function AzureConnectionDetailBody() {
       }
 
     />
+
+      <EvidenceOrientationClaimAndSourcesStrip
+        slug="cloud-connections-azure"
+        claim={CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE}
+        sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
+        sources={cloudProviderConnectionSources("azure")}
+      />
+
+    </>
 
   );
 

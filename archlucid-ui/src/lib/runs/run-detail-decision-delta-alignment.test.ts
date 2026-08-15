@@ -21,9 +21,9 @@ describe("run-detail-decision-delta-alignment", () => {
   });
 
   it("wires decision delta deferred section on committed review detail", () => {
-    const pageView = readRepoFile("archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx");
+    const pageView = readRepoFile("archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageView.tsx");
     const deferred = readRepoFile(
-      "archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailDecisionDeltaDeferred.tsx",
+      "archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailDecisionDeltaDeferred.tsx",
     );
 
     for (const componentName of RUN_DETAIL_DECISION_DELTA_REQUIRED_PAGE_COMPONENTS) {
@@ -37,7 +37,7 @@ describe("run-detail-decision-delta-alignment", () => {
 
   it("exports stable panel test ids", () => {
     const panel = readRepoFile(
-      "archlucid-ui/src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailDecisionDeltaPanel.tsx",
+      "archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailDecisionDeltaPanel.tsx",
     );
 
     expect(panel).toContain("RUN_DETAIL_DECISION_DELTA_PANEL_TEST_ID");

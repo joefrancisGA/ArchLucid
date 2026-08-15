@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 import {
@@ -47,7 +48,8 @@ function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): Trial
 /** Persistent trial strip with days remaining and a single primary next action (all operator routes). */
 export function PersistentTrialStatusStrip() {
   const pathname = usePathname();
-  const { data: payload } = useTenantTrialStatusQuery();
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const { data: payload } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   if (payload === null || payload === undefined || payload.status === "None" || payload.status === "Converted") {

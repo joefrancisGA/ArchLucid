@@ -63,6 +63,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IManifestFinalizationService manifestFinalizationService,
     IPreCommitGovernanceGate preCommitGovernanceGate,
     IPreCommitGovernanceBlockExplainer preCommitGovernanceBlockExplainer,
+    ICommitOutputIntegrityService commitOutputIntegrityService,
     IPolicyPackAssignmentRepository policyPackAssignmentRepository,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
@@ -147,6 +148,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IPreCommitGovernanceBlockExplainer _preCommitGovernanceBlockExplainer =
         preCommitGovernanceBlockExplainer ?? throw new ArgumentNullException(nameof(preCommitGovernanceBlockExplainer));
+
+    private readonly ICommitOutputIntegrityService _commitOutputIntegrityService =
+        commitOutputIntegrityService ?? throw new ArgumentNullException(nameof(commitOutputIntegrityService));
 
     private readonly IPolicyPackAssignmentRepository _policyPackAssignmentRepository =
         policyPackAssignmentRepository ?? throw new ArgumentNullException(nameof(policyPackAssignmentRepository));
@@ -401,6 +405,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
             if (traceabilityGaps.Count > 0)
                 throw new InvalidOperationException("Committed manifest traceability (authority) invariant failed: " + string.Join("; ", traceabilityGaps));
+
+            await _commitOutputIntegrityService.EnsurePassOrThrowAsync(run, runId, findings, cancellationToken);
+
             string contractWireJson = JsonSerializer.Serialize(contract, ContractJson.Default);
             await EvaluatePreCommitGovernanceGateOrThrowAsync(
                 runId,

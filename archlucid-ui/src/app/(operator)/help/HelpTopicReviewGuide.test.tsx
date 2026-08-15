@@ -78,9 +78,6 @@ describe("Review guide (HR)", () => {
       REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE,
     );
 
-    const breadcrumb = screen.getByTestId("help-review-guide-breadcrumb");
-
-    expect(within(breadcrumb).getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
 
     const headerActions = screen.getByTestId("help-review-guide-header-actions");
     const startReviewLinks = within(headerActions).getAllByRole("link", {

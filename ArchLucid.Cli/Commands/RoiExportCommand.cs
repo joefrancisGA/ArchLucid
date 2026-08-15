@@ -18,7 +18,7 @@ internal static class RoiExportCommand
 
         using HttpClient http = CliAuthorizedHttpClient.Create(baseUrl);
 
-        using HttpResponseMessage response = await http.GetAsync("v1/roi/executive-summary/export", cancellationToken);
+        using HttpResponseMessage response = await http.GetAsync("v1/roi/sponsor-report/export", cancellationToken);
         string text = await response.Content.ReadAsStringAsync(cancellationToken);
 
         if (!response.IsSuccessStatusCode)
@@ -28,13 +28,13 @@ internal static class RoiExportCommand
             return CliExitCode.OperationFailed;
         }
 
-        ExecutiveRoiExportResponse? export = JsonSerializer.Deserialize<ExecutiveRoiExportResponse>(
+        SponsorRoiExportResponse? export = JsonSerializer.Deserialize<SponsorRoiExportResponse>(
             text,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         if (export is null)
         {
-            await WriteErrorAsync("deserialize_error", "Executive ROI export response was empty.");
+            await WriteErrorAsync("deserialize_error", "Sponsor ROI export response was empty.");
 
             return CliExitCode.OperationFailed;
         }
@@ -75,12 +75,12 @@ internal static class RoiExportCommand
             Console.WriteLine(plain);
     }
 
-    internal static string BuildCsv(ExecutiveRoiExportResponse export)
+    internal static string BuildCsv(SponsorRoiExportResponse export)
     {
         StringBuilder sb = new();
         sb.AppendLine("FindingId,RunId,SystemName,Environment,Category,Severity,Title,AffectedResource,EstimatedUsdSavings");
 
-        foreach (ExecutiveRoiExportRow row in export.Rows)
+        foreach (SponsorRoiExportRow row in export.Rows)
         {
             sb.Append(CsvEscape(row.FindingId)).Append(',')
                 .Append(CsvEscape(row.RunId)).Append(',')
@@ -99,7 +99,7 @@ internal static class RoiExportCommand
             sb.AppendLine();
             sb.AppendLine("Environment,EstimatedUsdSavings");
 
-            foreach (ExecutiveRoiEnvironmentSavingsSlice slice in export.SavingsByEnvironment)
+            foreach (SponsorRoiEnvironmentSavingsSlice slice in export.SavingsByEnvironment)
             {
                 sb.Append(CsvEscape(slice.Environment)).Append(',')
                     .Append(slice.EstimatedUsdSavings.ToString(CultureInfo.InvariantCulture))
@@ -114,7 +114,7 @@ internal static class RoiExportCommand
     {
         string stamp = TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
 
-        return Path.Combine(Directory.GetCurrentDirectory(), $"executive-roi-export-{stamp}.csv");
+        return Path.Combine(Directory.GetCurrentDirectory(), $"sponsor-roi-export-{stamp}.csv");
     }
 
     private static string CsvEscape(string value)

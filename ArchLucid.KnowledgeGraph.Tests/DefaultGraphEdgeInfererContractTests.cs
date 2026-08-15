@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -183,11 +184,8 @@ public sealed class DefaultGraphEdgeInfererContractTests
         edges.Should().Contain(e => e.EdgeType == GraphEdgeTypes.ContainsResource && e.FromNodeId == "node-a" && e.ToNodeId == "node-b");
     }
 
-    [Theory]
-    [InlineData("storage isolation", GraphTopologyCategories.Storage)]
-    [InlineData("compute requires auth", GraphTopologyCategories.Compute)]
-    [InlineData("database encryption", GraphTopologyCategories.Data)]
-    public void InferEdges_RequirementRelevance_HeuristicsMatchCategoryCorrectly(string requirementText, string category)
+    [Fact]
+    public void InferEdges_RequirementWithExplicitRelatedTopologyNodeIds_TargetsListedResources()
     {
         ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
         GraphNode requirement = new()
@@ -195,18 +193,34 @@ public sealed class DefaultGraphEdgeInfererContractTests
             NodeId = "req-1",
             NodeType = GraphNodeTypes.Requirement,
             Label = "req",
-            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["text"] = requirementText }
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.RelatedTopologyNodeIds] = "res-1",
+            },
         };
         GraphNode resource = new()
         {
             NodeId = "res-1",
             NodeType = GraphNodeTypes.TopologyResource,
             Label = "resource",
-            Category = category
+            Category = GraphTopologyCategories.Storage,
+        };
+        GraphNode other = new()
+        {
+            NodeId = "res-2",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "other",
+            Category = GraphTopologyCategories.Storage,
         };
 
-        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [requirement, resource]);
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [requirement, resource, other]);
 
-        edges.Should().Contain(e => e.EdgeType == GraphEdgeTypes.RelatesTo && e.FromNodeId == "req-1" && e.ToNodeId == "res-1");
+        edges.Should().Contain(e =>
+            e.EdgeType == GraphEdgeTypes.RelatesTo
+            && e.FromNodeId == "req-1"
+            && e.ToNodeId == "res-1"
+            && e.InferenceSource == GraphEdgeInferenceSources.RequirementTargeted);
+        edges.Should().NotContain(e =>
+            e.EdgeType == GraphEdgeTypes.RelatesTo && e.ToNodeId == "res-2");
     }
 }

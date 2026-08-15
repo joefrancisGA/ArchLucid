@@ -118,7 +118,7 @@ export function TenantSystemWorkspaceHealthVocabularyRail(
             >
               <Link
                 href={job.href}
-                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper, "font-medium")}
+                className={cn(OPERATOR_LINK.optional, "font-medium")}
                 data-testid={`tenant-system-workspace-health-vocabulary-peer-${job.id}`}
               >
                 {job.label}

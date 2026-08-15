@@ -1,6 +1,6 @@
 /**
  * Canonical cloud-connection help URLs (Batch K).
- * Slash paths are public canonicals; hyphen slugs remain registry/PDF ids with permanent redirects.
+ * Slash paths are public canonicals; hyphen slugs remain registry/PDF ids (no HTTP redirects).
  */
 
 export const CLOUD_CONNECTIONS_HELP_PROVIDERS = ["azure", "aws", "gcp"] as const;
@@ -19,13 +19,6 @@ export const CLOUD_CONNECTIONS_HELP_REGISTRY_SLUG_BY_PROVIDER: Readonly<
 export const CLOUD_CONNECTIONS_HELP_SLASH_TOPIC_SEGMENTS = CLOUD_CONNECTIONS_HELP_PROVIDERS.map(
   (provider) => `cloud-connections/${provider}`,
 ) as readonly string[];
-
-/** Hyphen bookmark slugs → slash `/help/...` targets (parity with `help-topic-permanent-redirects`). */
-export const CLOUD_CONNECTIONS_HELP_HYPHEN_BOOKMARK_REDIRECTS: Readonly<Record<string, string>> = {
-  "cloud-connections-azure": "/help/cloud-connections/azure",
-  "cloud-connections-aws": "/help/cloud-connections/aws",
-  "cloud-connections-gcp": "/help/cloud-connections/gcp",
-};
 
 const CLOUD_CONNECTIONS_HELP_SLASH_TOPIC_PATTERN = /^cloud-connections\/(azure|aws|gcp)$/;
 

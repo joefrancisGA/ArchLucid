@@ -97,7 +97,7 @@ export function AuditEvidenceTrailVocabularyRail(
           <Link
             key={peer.id}
             href={peer.href}
-            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+            className={OPERATOR_LINK.optional}
             data-testid={`audit-evidence-trail-vocabulary-peer-${peer.id}`}
           >
             {peer.label}

@@ -6,7 +6,8 @@ import {
   CANONICAL_GET_STARTED_PATH,
   LEGACY_QUICK_START_PATH,
 } from "@/lib/legacy-quick-start-route";
-import { LEGACY_QUICK_START_TRAFFIC_NOTE } from "@/lib/ui-route-traffic-legacy-quick-start";
+import { RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS } from "@/lib/ui-route-traffic-retired-redirect-shims";
+import { extractMasterTableRows, readUiRouteTrafficEstimatesTemplateMarkdown } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 const LEGACY_QUICK_START_PATH_PATTERN = /\/quick-start/g;
 const CATALOG_PATH = join(process.cwd(), "..", "scripts", "ci", "archlucid_ui_route_catalog.py");
@@ -55,10 +56,11 @@ describe("legacy-quick-start-route-doc-guard (TB-1819)", () => {
     }
   });
 
-  it("does not present the legacy quick-start path as a live marketing surface in traffic notes", () => {
-    expect(LEGACY_QUICK_START_TRAFFIC_NOTE.toLowerCase()).toContain("legacy");
-    expect(LEGACY_QUICK_START_TRAFFIC_NOTE.toLowerCase()).toContain("/get-started");
-    expect(LEGACY_QUICK_START_TRAFFIC_NOTE).not.toMatch(/live marketing/i);
+  it("does not score /quick-start as a traffic workbook row", () => {
+    const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
+
+    expect(RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS).toContain(LEGACY_QUICK_START_PATH);
+    expect(rows.find((row) => row.path === LEGACY_QUICK_START_PATH)).toBeUndefined();
   });
 
   it("migrates /quick-start to get-started in Python WORKBOOK_PATH_MIGRATIONS (TB-1816)", () => {

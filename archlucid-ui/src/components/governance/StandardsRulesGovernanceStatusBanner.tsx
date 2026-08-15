@@ -7,54 +7,74 @@ import {
   STANDARDS_RULES_VIEW_EVIDENCE_TRAIL,
   STANDARDS_RULES_VIEW_SIGNED_RECORD,
 } from "@/lib/standards-rules-page";
-import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
-import { auditTrailNavHref } from "@/lib/audit-nav-paths";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  formatGovernanceApprovalProvenanceTimestamp,
+  type GovernanceApprovalProvenance,
+} from "@/lib/governance/governance-approval-provenance";
+import type { StandardsRulesGovernanceBannerHrefs } from "@/lib/governance/governance-resolution-page-presentation";
+import { STANDARDS_RULES_INLINE_LINK_CLASS } from "@/lib/standards-rules-table-presentation";
+import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
-
-const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
-const signedRecordHref = getShowcaseManifestHref();
-const evidenceTrailHref = `/insights/evidence-graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`;
-const auditTrailHref = auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 
 export type StandardsRulesGovernanceStatusBannerProps = {
   readonly className?: string;
+  readonly subjectLabel: string;
+  readonly provenance: GovernanceApprovalProvenance;
+  readonly hrefs: StandardsRulesGovernanceBannerHrefs;
 };
 
-/** Compact governance context for Standards & rules — shared accent, calm chip links. */
+/** Compact governance context for Standards & rules — banner actions share table link typography. */
 export function StandardsRulesGovernanceStatusBanner(props: StandardsRulesGovernanceStatusBannerProps) {
-  const { className } = props;
+  const { className, subjectLabel, provenance, hrefs } = props;
+  const approverLabel = provenance.approverLabel.trim();
+  const approvedAtLabel = formatGovernanceApprovalProvenanceTimestamp(provenance.approvedAtUtc);
+  const recordId = provenance.recordId.trim();
 
   return (
-    <div
+    <section
       className={cn(DESIGN_TOKENS.banner.governanceApproval, className)}
       data-testid="standards-rules-governance-status-banner"
-      role="status"
-      aria-label={STANDARDS_RULES_BANNER_TITLE}
+      aria-labelledby="standards-rules-governance-status-banner-title"
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
-          <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          <p
+            id="standards-rules-governance-status-banner-title"
+            className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+          >
             {STANDARDS_RULES_BANNER_TITLE}
           </p>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <span className="font-semibold text-al-text-primary">{subjectLabel}</span>
+            {" — "}
             {STANDARDS_RULES_BANNER_BODY}
           </p>
+          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <span className="font-semibold text-al-text-primary">Approver:</span> {approverLabel}
+            {" · "}
+            <span className="font-semibold text-al-text-primary">Approved:</span> {approvedAtLabel}
+          </p>
+          <details className="mt-2">
+            <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+              Approval record details
+            </summary>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+              Record ID: <code>{recordId}</code>
+            </p>
+          </details>
         </div>
-        <div className="flex flex-wrap gap-2 sm:max-w-md sm:justify-end">
-          <Link className={DESIGN_TOKENS.interactive.chip} href={signedRecordHref}>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 sm:max-w-md sm:justify-end">
+          <Link className={STANDARDS_RULES_INLINE_LINK_CLASS} href={hrefs.sealedRecordHref}>
             {STANDARDS_RULES_VIEW_SIGNED_RECORD}
           </Link>
-          <Link className={DESIGN_TOKENS.interactive.chip} href={evidenceTrailHref}>
+          <Link className={STANDARDS_RULES_INLINE_LINK_CLASS} href={hrefs.evidenceTrailHref}>
             {STANDARDS_RULES_VIEW_EVIDENCE_TRAIL}
           </Link>
-          <Link className={DESIGN_TOKENS.interactive.chip} href={auditTrailHref}>
+          <Link className={STANDARDS_RULES_INLINE_LINK_CLASS} href={hrefs.auditTrailHref}>
             {STANDARDS_RULES_VIEW_AUDIT_TRAIL}
           </Link>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

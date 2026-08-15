@@ -18,11 +18,12 @@ describe("repeat-review-loop help related guides (TB-1397)", () => {
     }
   });
 
-  it("prefers comparison-replay, review-packages, and first-architecture-review for the second-review job", () => {
+  it("prefers review-packages, first-architecture-review, and governance-approval for the second-review job", () => {
     const hrefs = repeatReviewLoopHelpRelatedGuides().map((guide) => guide.href);
 
-    expect(hrefs).toContain("/help/comparison-replay");
     expect(hrefs).toContain("/help/review-packages");
     expect(hrefs).toContain("/help/first-architecture-review");
+    expect(hrefs).toContain("/help/governance-approval");
+    expect(hrefs).not.toContain("/help/comparison-replay");
   });
 });

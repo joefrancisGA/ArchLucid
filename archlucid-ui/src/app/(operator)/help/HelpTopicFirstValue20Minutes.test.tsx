@@ -26,10 +26,8 @@ import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permane
 describe("HelpFirstValue20GuideView (folded into COR, Batch R)", () => {
   const loaded = tryLoadFoldedInternalRunbook("first-value-20-minutes");
 
-  it("permanently redirects the retired first-value-20-minutes slug to COR Admin runbook anchor", () => {
-    expect(resolveHelpTopicPermanentRedirect("first-value-20-minutes")).toBe(
-      "/help/first-architecture-review#first-value-in-20-minutes",
-    );
+  it("does not redirect the retired first-value-20-minutes slug", () => {
+    expect(resolveHelpTopicPermanentRedirect("first-value-20-minutes")).toBeNull();
   });
 
   it("loads first-value-20 help from the operator runbook source", () => {
@@ -66,7 +64,6 @@ describe("HelpFirstValue20GuideView (folded into COR, Batch R)", () => {
       FIRST_VALUE_20_HELP_PAGE_TITLE,
     );
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByTestId("help-first-value-20-breadcrumb")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-first-value-20-admin-tag")).toHaveTextContent("Admin only");
     expect(screen.getByTestId("help-first-value-20-claim-discipline")).toBeInTheDocument();

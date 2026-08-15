@@ -3,10 +3,10 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const EVIDENCE_TRACE_CANONICAL_PATH_PATTERN =
-  "/architecture/reviews/[runId]/findings/[findingId]/evidence-trace" as const;
+  "/architecture/reviews/[reviewId]/findings/[findingId]/evidence-trace" as const;
 
 export const EVIDENCE_TRACE_CLAIM_DISCIPLINE =
-  "This page shows the policy, evidence, reasoning, and audit linkage for one finding ΓÇö it is not a complete signed-review diligence Sources package by itself. Open the finding detail, review provenance, or signed record when you need the broader package.";
+  "This page shows the policy, evidence, reasoning, and audit linkage for one finding ΓÇö it is not a complete sealed-review diligence Sources package by itself. Open the finding detail, review provenance, or sealed record when you need the broader package.";
 
 export const EVIDENCE_TRACE_SOURCES_INTRO =
   "Use these follow-ups when the trace leads into finding disposition, run provenance, or governance help.";

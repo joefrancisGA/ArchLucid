@@ -17,7 +17,7 @@ Copy-paste from the **repository root** unless noted. **Windows:** use `.cmd`; *
 
 ## What ArchLucid does (one paragraph)
 
-ArchLucid is an **HTTP API** (and optional **architect workspace** UI) that turns a structured **architecture request** into an **architecture review**, analysis results (after **execute**), and a durable **architecture package** with a **signed review record** plus **artifacts** (after **finalize**). API paths and CLI commands still use **run** / **commit** for backward compatibility — see [CONCEPT_VOCABULARY.md](../CONCEPT_VOCABULARY.md). Local pilots often use **`AgentExecution:Mode=Simulator`** so you do not need cloud AI keys to complete a flow. **V1 scope and gates:** [V1_SCOPE.md](../V1_SCOPE.md).
+ArchLucid is an **HTTP API** (and optional **architect workspace** UI) that turns a structured **architecture request** into an **architecture review**, analysis results (after **execute**), and a durable **architecture package** with a **sealed review record** plus **artifacts** (after **finalize**). API paths and CLI commands still use **run** / **commit** for backward compatibility — see [CONCEPT_VOCABULARY.md](../CONCEPT_VOCABULARY.md). Local pilots often use **`AgentExecution:Mode=Simulator`** so you do not need cloud AI keys to complete a flow. **V1 scope and gates:** [V1_SCOPE.md](../V1_SCOPE.md).
 
 **After the demo (`archlucid try`) → your own inputs:** [SECOND_RUN.md](../SECOND_RUN.md) — `archlucid second-run SECOND_RUN.toml` (or paste the same file on **New architecture review → Starting point**; legacy wizard may still say **New run**).
 

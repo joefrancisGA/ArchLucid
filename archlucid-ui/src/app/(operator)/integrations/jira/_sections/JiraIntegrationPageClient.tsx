@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
+import { JiraIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import {
   fetchItsmIntegrationHealth,
   fetchTenantItsmConnectorConnection,
   fetchTenantItsmOutboundSettings,
+  probeItsmIntegrationHealth,
   upsertTenantItsmOutboundSettings,
   type ItsmIntegrationHealthResponse,
   type TenantItsmConnectorConnectionResponse,
@@ -32,6 +34,7 @@ import {
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { launchJiraAtlassianOAuthConnect } from "@/lib/jira-atlassian-oauth-connect";
+import { buildJiraPageLoadResult } from "@/lib/jira-page-load";
 import { ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED } from "@/lib/itsm/itsm-product-integration-page-copy";
 import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
 import {
@@ -74,7 +77,6 @@ import {
   resolveJiraSetupSteps,
   sanitizeCustomerFacingJiraProbeSummary,
 } from "@/lib/jira-integration-present";
-import { buildJiraPageLoadResult } from "@/lib/jira-page-load";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
@@ -123,6 +125,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     setIsLoading(true);
     setLoadError(null);
 
+    // Isolate slice failures so one 500 cannot wipe successful connection/settings (TB-1162).
     const [healthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
       fetchItsmIntegrationHealth(),
       fetchTenantItsmOutboundSettings(),
@@ -239,7 +242,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     setTestError(null);
 
     try {
-      const probeResult = await fetchItsmIntegrationHealth();
+      const probeResult = await probeItsmIntegrationHealth();
       setHealth(probeResult);
       const jiraProbe = probeResult.jira;
       const summary = sanitizeCustomerFacingJiraProbeSummary(jiraProbe?.summary);
@@ -437,6 +440,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
       />
 
       <ItsmConnectorProviderChooserRail currentProviderId="jira" />
+      <JiraIntegrationEvidenceOrientationStrip />
 
       {connectError ? (
         <p className="m-0 text-red-600 dark:text-red-400" role="alert" data-testid="jira-oauth-connect-error">

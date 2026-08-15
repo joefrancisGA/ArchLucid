@@ -6,7 +6,7 @@ qualities = {
         "Time-to-Value": {"weight": 7, "score": 85},
         "Adoption Friction": {"weight": 6, "score": 75},
         "Proof-of-ROI Readiness": {"weight": 5, "score": 70},
-        "Executive Value Visibility": {"weight": 4, "score": 65},
+        "Sponsor Value Visibility": {"weight": 4, "score": 65},
         "Differentiability": {"weight": 4, "score": 85},
         "Decision Velocity": {"weight": 2, "score": 60},
         "Commercial Packaging Readiness": {"weight": 2, "score": 80},

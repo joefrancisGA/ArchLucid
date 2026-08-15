@@ -145,7 +145,11 @@ public class RuleBasedDecisionEngine(
 
         TransparencyTrail? intakeTrail =
             await _intakeTrailProvider.TryGetTransparencyTrailAsync(runId, ct);
-        manifest.FeasibilityVerdict = _feasibilityVerdictComposer.Compose(manifest, intakeTrail);
+        manifest.FeasibilityVerdict = _feasibilityVerdictComposer.Compose(
+            manifest,
+            intakeTrail,
+            findingsSnapshot,
+            audit.AcceptedFindingIds);
 
         manifestValidator.Validate(manifest);
         manifest.ManifestHash = manifestHashService.ComputeHash(manifest);

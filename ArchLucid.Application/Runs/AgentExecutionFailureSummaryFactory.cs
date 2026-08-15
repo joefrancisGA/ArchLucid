@@ -113,6 +113,11 @@ public static class AgentExecutionFailureSummaryFactory
             return AgentExecutionFailureClasses.CostBudget;
         }
 
+        if (root is AgentLogicalStepSpendCapExceededException)
+        {
+            return AgentExecutionFailureClasses.StepSpendCap;
+        }
+
         if (root is HttpRequestException or IOException)
         {
             return AgentExecutionFailureClasses.Dependency;

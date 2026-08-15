@@ -12,7 +12,7 @@ namespace ArchLucid.Application.Analysis;
 public static class ConsultingDocxProfiles
 {
     /// <summary>High-level stakeholder brief with minimal technical depth.</summary>
-    public const string Executive = "executive";
+    public const string Sponsor = "sponsor";
 
     /// <summary>Compliance-heavy profile with governance appendices and control tables.</summary>
     public const string Regulated = "regulated";

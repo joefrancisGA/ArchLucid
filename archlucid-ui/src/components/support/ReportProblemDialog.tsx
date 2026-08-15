@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReportProblemContext } from "@/lib/report-problem-context";
 import type { SubmitReportProblemIntakeResult } from "@/lib/api/report-problem-intake-api";
 import {
@@ -482,7 +482,7 @@ export function ReportProblemDialog({
                   {REPORT_PROBLEM_ATTACH_BUNDLE_HINT}{" "}
                   <Link
                     href={REPORT_PROBLEM_ATTACH_BUNDLE_HELP_HREF}
-                    className="font-medium text-teal-800 underline dark:text-teal-300"
+                    className={OPERATOR_BODY_INLINE_LINK_CLASS}
                   >
                     {REPORT_PROBLEM_ATTACH_BUNDLE_HELP_LINK_LABEL}
                   </Link>

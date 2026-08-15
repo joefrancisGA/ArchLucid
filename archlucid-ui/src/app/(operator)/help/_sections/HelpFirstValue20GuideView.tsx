@@ -4,7 +4,6 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -59,12 +58,6 @@ export function HelpFirstValue20GuideView(props: HelpFirstValue20GuideViewProps)
         subtitle={FIRST_VALUE_20_HELP_PAGE_SUBTITLE}
         navHref={FIRST_VALUE_20_HELP_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-first-value-20-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: FIRST_VALUE_20_HELP_PAGE_TITLE }]}
-          />
-        }
         statusBadge={
           <StatusTag kind="neutral" label="Admin only" data-testid="help-first-value-20-admin-tag" />
         }

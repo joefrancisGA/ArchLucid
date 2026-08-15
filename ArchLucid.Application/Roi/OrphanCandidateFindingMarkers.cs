@@ -6,4 +6,25 @@ internal static class OrphanCandidateFindingMarkers
     internal const string FindingTypeOrphanedAzureResource = "finding-type:OrphanedAzureResource";
     internal const string EngineOrphanedAzureResource = "engine:orphaned-azure-resource";
     internal const string OrphanCandidateAzureResource = "orphan-candidate:azure-resource";
+
+    internal const string FindingTypeOrphanedAwsResource = "finding-type:OrphanedAwsResource";
+    internal const string EngineOrphanedAwsResource = "engine:orphaned-aws-resource";
+    internal const string OrphanCandidateAwsResource = "orphan-candidate:aws-resource";
+
+    internal const string FindingTypeOrphanedGcpResource = "finding-type:OrphanedGcpResource";
+    internal const string EngineOrphanedGcpResource = "engine:orphaned-gcp-resource";
+    internal const string OrphanCandidateGcpResource = "orphan-candidate:gcp-resource";
+
+    internal static readonly string[] StructuredEvidenceRefs =
+    [
+        FindingTypeOrphanedAzureResource,
+        EngineOrphanedAzureResource,
+        OrphanCandidateAzureResource,
+        FindingTypeOrphanedAwsResource,
+        EngineOrphanedAwsResource,
+        OrphanCandidateAwsResource,
+        FindingTypeOrphanedGcpResource,
+        EngineOrphanedGcpResource,
+        OrphanCandidateGcpResource,
+    ];
 }

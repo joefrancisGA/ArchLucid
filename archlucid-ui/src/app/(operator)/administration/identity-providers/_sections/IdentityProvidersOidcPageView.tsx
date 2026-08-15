@@ -50,6 +50,7 @@ import { canViewIdentityProviderTechnicalDiagnostics } from "@/lib/resolve-ident
 
 import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
 
+import { IdentityProvidersOidcSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
@@ -153,6 +154,8 @@ export function IdentityProvidersOidcPageView(props: IdentityProvidersOidcPageVi
       onRefresh={() => void props.model.refresh()}
 
     >
+
+      <IdentityProvidersOidcSettingsEvidenceOrientationStrip />
 
       {props.model.overview.usesLocalDevelopmentSignIn ? (
 

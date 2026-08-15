@@ -1,4 +1,4 @@
-namespace ArchLucid.Core.Audit;
+﻿namespace ArchLucid.Core.Audit;
 
 // Tenant provisioning, suspension, erasure, catalog migration, projects, trials, billing, and tenant settings.
 public static partial class AuditEventTypes
@@ -175,6 +175,9 @@ public static partial class AuditEventTypes
     /// </summary>
     public const string TenantReviewBoardCoverLogoUploaded = "Tenant.ReviewBoardCoverLogoUploaded";
 
-    /// <summary>Tenant weekly executive digest preferences updated (<c>POST /v1/tenant/exec-digest-preferences</c>).</summary>
+    /// <summary>Tenant weekly sponsor digest preferences updated (<c>POST /v1/tenant/exec-digest-preferences</c>).</summary>
     public const string ExecDigestPreferencesUpdated = "ExecDigestPreferencesUpdated";
+
+    /// <summary>Tenant sponsor digest preferences updated (<c>PUT /v1/tenant/sponsor-digest-preferences</c>).</summary>
+    public const string SponsorDigestPreferencesUpdated = "SponsorDigestPreferencesUpdated";
 }

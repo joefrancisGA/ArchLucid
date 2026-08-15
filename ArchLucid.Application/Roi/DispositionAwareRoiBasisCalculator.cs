@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Roi;
 /// <summary>Partitions projected finding USD by latest disposition and active waivers (Batch B).</summary>
 internal static class DispositionAwareRoiBasisCalculator
 {
-    internal static ExecutiveRoiBasisBreakdown Compute(
+    internal static SponsorRoiBasisBreakdown Compute(
         IReadOnlyList<FindingsSnapshot> snapshots,
         IReadOnlyList<FindingReviewEventRecord> dispositionEvents,
         IReadOnlyList<RiskExceptionRecord> activeWaivers,
@@ -88,7 +88,7 @@ internal static class DispositionAwareRoiBasisCalculator
 
         decimal totalPotential = openUsd + acceptedUsd + needsEvidenceUsd + deferredUsd + waivedUsd;
 
-        return new ExecutiveRoiBasisBreakdown
+        return new SponsorRoiBasisBreakdown
         {
             OpenEstimatedUsd = decimal.Round(openUsd, 2, MidpointRounding.AwayFromZero),
             AcceptedRiskUsd = decimal.Round(acceptedUsd, 2, MidpointRounding.AwayFromZero),

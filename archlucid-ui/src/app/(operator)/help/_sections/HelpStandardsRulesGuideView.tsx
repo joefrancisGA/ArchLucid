@@ -2,15 +2,11 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { StandardsRulesHelpEvidenceOrientationStrip } from "@/components/help/StandardsRulesHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -24,7 +20,6 @@ import {
   STANDARDS_RULES_HELP_OVERVIEW,
   STANDARDS_RULES_HELP_PAGE_SUBTITLE,
   STANDARDS_RULES_HELP_PAGE_TITLE,
-  STANDARDS_RULES_HELP_POLICY_PACKS_HELP_HREF,
   STANDARDS_RULES_HELP_PRIMARY_ACTION,
   STANDARDS_RULES_HELP_TABLE_ITEMS,
 } from "@/lib/standards-rules-help-guide-content";
@@ -50,6 +45,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewProps): React.ReactElement {
   const { entry } = props;
   const contentGridClass = resolveHelpPageContentGridClass(STANDARDS_RULES_HELP_GUIDE_HEADINGS.length);
+  const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
@@ -58,40 +54,25 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
     >
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
+      <HelpTopicGuidePageHeader
         title={STANDARDS_RULES_HELP_PAGE_TITLE}
         titleTestId="help-standards-rules-page-title"
         subtitle={STANDARDS_RULES_HELP_PAGE_SUBTITLE}
         navHref={STANDARDS_RULES_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-standards-rules-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: STANDARDS_RULES_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
+        actions={
+          <Button asChild size="sm" variant="primary">
+            <Link href={STANDARDS_RULES_HELP_PRIMARY_ACTION.href}>{STANDARDS_RULES_HELP_PRIMARY_ACTION.label}</Link>
+          </Button>
+        }
       />
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)} data-testid="help-standards-rules-overview">
+          <p className={readingBodyClass} data-testid="help-standards-rules-overview">
             {STANDARDS_RULES_HELP_OVERVIEW}
           </p>
-
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-standards-rules-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Open standards & rules</CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={STANDARDS_RULES_HELP_PRIMARY_ACTION.href}>
-                  {STANDARDS_RULES_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
 
           <section
             aria-labelledby="what-standards-and-rules-shows"
@@ -99,12 +80,16 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
           >
             <HelpSectionHeading id="what-standards-and-rules-shows">What standards & rules shows</HelpSectionHeading>
             <dl
-              className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-standards-rules-table-items"
             >
               {STANDARDS_RULES_HELP_TABLE_ITEMS.map((item) => (
                 <div key={item.label}>
-                  <dt className="font-medium text-al-text-primary">{item.label}</dt>
+                  <dt className="font-medium text-al-text-primary">
+                    <Link className={OPERATOR_LINK.nav} href={item.href}>
+                      {item.label}
+                    </Link>
+                  </dt>
                   <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
                 </div>
               ))}
@@ -117,24 +102,21 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
           >
             <HelpSectionHeading id="how-to-read-standards-and-rules">How standards & rules work</HelpSectionHeading>
             <ol
-              className={cn("m-0 list-decimal space-y-2 pl-5", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-standards-rules-how-stepper"
             >
               {STANDARDS_RULES_HELP_HOW_TO_READ_STEPS.map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link className={OPERATOR_LINK.inline} href={STANDARDS_RULES_HELP_POLICY_PACKS_HELP_HREF}>
-                Read policy packs help →
-              </Link>
-            </p>
           </section>
 
-          <StandardsRulesHelpEvidenceOrientationStrip />
+          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+            <StandardsRulesHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          </div>
         </div>
 
-        <HelpTopicTableOfContents headings={STANDARDS_RULES_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={STANDARDS_RULES_HELP_GUIDE_HEADINGS} enableScrollSpy />
       </div>
     </article>
   );

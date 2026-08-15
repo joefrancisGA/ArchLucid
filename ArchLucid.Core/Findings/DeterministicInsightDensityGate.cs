@@ -82,7 +82,26 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
 
         score = Math.Clamp(score, 0, 100);
 
+        if (!candidate.IsAgentArchitectureFinding)
+        {
+            penaltyReasons.Add("typed-engine-protected");
+
+            return new InsightDensityGateResult
+            {
+                InsightDensityScore = score,
+                Treatment = FindingTreatment.Promote,
+                Classification = FindingClassification.DecisionGradeFinding,
+                PenaltyReasons = penaltyReasons,
+            };
+        }
+
         bool demote = score < _options.DemotionThreshold && !hasArchitectureAnchor && !hasConcreteEvidence;
+
+        if (demote && !InsightDensityAgentCategoryRules.IsDemotionEligibleCategory(candidate.Category))
+        {
+            demote = false;
+            penaltyReasons.Add("category-protected");
+        }
 
         return new InsightDensityGateResult
         {

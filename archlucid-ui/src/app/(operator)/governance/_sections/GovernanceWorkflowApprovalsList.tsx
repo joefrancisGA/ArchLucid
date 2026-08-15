@@ -3,7 +3,7 @@ import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GovernanceQuickApproveButton } from "@/components/governance/GovernanceQuickApproveButton";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
-import { StatusPill } from "@/components/StatusPill";
+import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -143,11 +143,9 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                   </CardDescription>
                   <p className="sr-only">Approval request id {row.approvalRequestId}</p>
                 </div>
-                <StatusPill
+                <GovernanceStatusTag
                   status={buyerPolishedShell ? buyerGovernanceWorkflowStatusLabel(row.status) : row.status}
-                  domain="governance"
                   className={OPERATOR_TYPOGRAPHY.badge}
-                  uppercase={!buyerPolishedShell}
                 />
               </CardHeader>
               <CardContent className={cn("grid gap-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -288,8 +286,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                     <Button
                       type="button"
                       size="sm"
-                      variant="outline"
-                      className="border-rose-600/40 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-rose-800/50"
+                      variant="destructive"
                       disabled={!canMutateWorkflow}
                       aria-describedby={
                         mutationDisabledReason === null ? undefined : mutationDisabledHintId

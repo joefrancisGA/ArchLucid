@@ -46,9 +46,11 @@ export function rewriteLegacyHelpOperatorRoutes(markdown: string): string {
   result = result.replace(/(?<!\/architecture)\/reviews\//g, "/architecture/reviews/");
   result = result.replace(/(?<!\/architecture)\/reviews\b/g, "/architecture/reviews");
   result = result.replace(/\/architecture\/reviews\/([^)/\s]+)\/manifest\b/g, "/architecture/reviews/$1");
-  result = result.replace(/\/manifests\//g, "/governance/signed-records/");
-  result = result.replace(/(^|[\s([>])\/signed-records\//g, "$1/governance/signed-records/");
-  result = result.replace(/(^|[\s([>])\/signed-records\b/g, "$1/governance/signed-records");
+  result = result.replace(/\/manifests\//g, "/governance/sealed-records/");
+  result = result.replace(/\/governance\/signed-records\//g, "/governance/sealed-records/");
+  result = result.replace(/\/governance\/signed-records\b/g, "/governance/sealed-records");
+  result = result.replace(/(^|[\s([>])\/signed-records\//g, "$1/governance/sealed-records/");
+  result = result.replace(/(^|[\s([>])\/signed-records\b/g, "$1/governance/sealed-records");
   result = result.replace(/\/workspace\/security-trust\b/g, "/administration/security-trust");
   result = result.replace(/\/settings\/roles\b/g, "/administration/users?tab=roles");
 

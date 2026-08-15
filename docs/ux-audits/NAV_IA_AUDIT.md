@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-28  
 **Scope:** Left nav groups · Route names · Page titles · Breadcrumbs · CTAs · Cross-links between review, evidence, governance, and audit views  
-**Golden path audited:** Home → Reviews list → Review detail → Executive summary → Signed review record → Evidence graph → Governance → Audit trail  
+**Golden path audited:** Home → Reviews list → Review detail → Sponsor summary → Sealed review record → Evidence graph → Governance → Audit trail  
 **Constraint:** No new features. Prefer structural fixes over rewrites.  
 **Backlog cross-reference:** TB-516–TB-534. No conflicts with TB-431–455 — all new findings operate at the nav-structure layer.
 
@@ -13,12 +13,12 @@
 | Severity | Count | Description |
 |----------|-------|-------------|
 | P0 | 2 | Dead ends — home page not in nav; governance group hidden after first commit |
-| P1 | 6 | Golden-path breaks — evidence graph order/group, missing forward CTA to governance, executive view not in nav, duplicate roles destinations |
+| P1 | 6 | Golden-path breaks — evidence graph order/group, missing forward CTA to governance, sponsor view not in nav, duplicate roles destinations |
 | P2 | 8 | Confusion — label ambiguity, breadcrumb gaps, overlapping dashboard pages, group misclassification |
 | P3 | 3 | Polish — minor naming precision and structural tidiness |
 | **Total** | **19** | |
 
-**Key pattern:** The stated golden path (Home → Reviews → Review detail → Executive → Governance → Audit) crosses three nav groups and includes two destinations not represented in the sidebar at all. The navigation model reflects how the product was built, not how a governance reviewer uses it.
+**Key pattern:** The stated golden path (Home → Reviews → Review detail → Sponsor → Governance → Audit) crosses three nav groups and includes two destinations not represented in the sidebar at all. The navigation model reflects how the product was built, not how a governance reviewer uses it.
 
 ---
 
@@ -141,16 +141,16 @@ Consolidate to one nav item "Users & roles" pointing to a tabbed page (Users tab
 
 ---
 
-#### N08 · Executive summary — not in nav (P1) · TB-523
+#### N08 · Sponsor summary — not in nav (P1) · TB-523
 
 **Current issue**  
-The executive summary (`/executive/reviews/[runId]`) is not in the left nav at all. It is reachable only from a CTA card on the review detail page. After navigating away, users have no return path.
+The sponsor summary (`/sponsor/reviews/[runId]`) is not in the left nav at all. It is reachable only from a CTA card on the review detail page. After navigating away, users have no return path.
 
 **Why it matters**  
-Executive summary is step 3 of the golden path and the primary output for sponsor handoff. Hiding it entirely from the nav makes the product feel like a dead-end after running a review.
+Sponsor summary is step 3 of the golden path and the primary output for sponsor handoff. Hiding it entirely from the nav makes the product feel like a dead-end after running a review.
 
 **Recommended fix**  
-Add "Executive summary" as a deep-link destination visible when a finalized architecture package is selected, or as a persistent tab on the review detail page with a stable anchor in the breadcrumb.
+Add "Sponsor summary" as a deep-link destination visible when a finalized architecture package is selected, or as a persistent tab on the review detail page with a stable anchor in the breadcrumb.
 
 **Fix type:** IA
 
@@ -204,10 +204,10 @@ Rename the first link to "Approval queue" or "Approve findings." This clarifies 
 #### N12 · Portfolio overview vs home page (P2) · TB-527
 
 **Current issue**  
-"Portfolio overview" in the nav goes to `/dashboard` (Executive ROI dashboard). The home page `/` also shows a "Workspace overview" heading after first review. Two dashboard-like destinations with overlapping names and purposes.
+"Portfolio overview" in the nav goes to `/dashboard` (Sponsor ROI dashboard). The home page `/` also shows a "Workspace overview" heading after first review. Two dashboard-like destinations with overlapping names and purposes.
 
 **Recommended fix**  
-Rename the nav item "Portfolio overview" → "Executive dashboard" (matching its page purpose: ROI KPIs, savings trends, board pack). Rename the home page section "Workspace overview" → "Recent activity" to differentiate.
+Rename the nav item "Portfolio overview" → "Sponsor dashboard" (matching its page purpose: ROI KPIs, savings trends, board pack). Rename the home page section "Workspace overview" → "Recent activity" to differentiate.
 
 **Fix type:** Copy  
 **Files:** `archlucid-ui/src/lib/pilot-nav-group-builder.ts`, `archlucid-ui/src/lib/i18n.ts`
@@ -217,14 +217,14 @@ Rename the nav item "Portfolio overview" → "Executive dashboard" (matching its
 #### N13 · Breadcrumbs — missing downstream of review detail (P2) · TB-528
 
 **Current issue**  
-The review detail breadcrumb shows only "Review packages · [review title]". There is no breadcrumb on the executive view or governance pages downstream.
+The review detail breadcrumb shows only "Review packages · [review title]". There is no breadcrumb on the sponsor view or governance pages downstream.
 
 **Why it matters**  
-A user navigating the golden path (review detail → executive → governance → audit) loses location context after the first hop. Each downstream page has no breadcrumb back to the review.
+A user navigating the golden path (review detail → sponsor → governance → audit) loses location context after the first hop. Each downstream page has no breadcrumb back to the review.
 
 **Recommended fix**  
 Add breadcrumbs to:
-1. `/executive/reviews/[runId]` — "Review packages · [title] · Executive summary"
+1. `/sponsor/reviews/[runId]` — "Review packages · [title] · Sponsor summary"
 2. `/governance` when `?runId` is present — "Reviews · [title] · Governance"
 3. `/governance/audit` — "Governance · Audit trail"
 
@@ -319,7 +319,7 @@ One group per conceptual domain. Progressive disclosure preserved — advanced t
 | Group | Always/gated | Contents |
 |-------|-------------|----------|
 | **Reviews** | Always visible | Overview (`/`) · New review · Review packages |
-| **Insights** | After first finalized architecture package | Executive dashboard · Evidence graph · Ask · Compare · [advanced] Search · [advanced] Impact preview · [advanced] Advisory scans |
+| **Insights** | After first finalized architecture package | Sponsor dashboard · Evidence graph · Ask · Compare · [advanced] Search · [advanced] Impact preview · [advanced] Advisory scans |
 | **Governance** | Unlocked at phase 1 (first commit) | Approval queue · Risk register · Decision register · Audit trail · [extended] Risk exceptions · [extended] Standards · [extended] Standards & rules · [extended] Governance setup guide · [extended] Alerts |
 | **Reports** | After first finalized architecture package | Scorecard · Value report |
 | **Integrations** | When configured | Connection status · Cloud connections · Jira · ServiceNow · Microsoft Teams · Slack · Webhooks |
@@ -334,9 +334,9 @@ One group per conceptual domain. Progressive disclosure preserved — advanced t
 | 1 | Overview `/` | Reviews group | "Start architecture review" | **Missing nav item (N01/TB-516)** |
 | 2 | New review `/reviews/new` | Reviews group | "Start architecture review" | CTA label inconsistency (TB-437) |
 | 3 | Review packages `/reviews` | Reviews group | "Open review →" | Subtitle implies finalized only (TB-449) |
-| 4 | Review detail `/reviews/[runId]` | via Reviews list | "Open executive summary" | **Governance CTA missing when ready (N06/TB-521)** |
-| 5 | Executive summary `/executive/reviews/[runId]` | **NOT IN NAV** | "View signed record →" | **No nav entry; no return breadcrumb (N08/TB-523, N13/TB-528)** |
-| 6 | Signed review record `#manifest-summary` | Section on review detail | "Submit for governance approval →" | Not a route; CTA missing (N06/TB-521) |
+| 4 | Review detail `/reviews/[runId]` | via Reviews list | "Open sponsor summary" | **Governance CTA missing when ready (N06/TB-521)** |
+| 5 | Sponsor summary `/sponsor/reviews/[runId]` | **NOT IN NAV** | "View sealed record →" | **No nav entry; no return breadcrumb (N08/TB-523, N13/TB-528)** |
+| 6 | Sealed review record `#manifest-summary` | Section on review detail | "Submit for governance approval →" | Not a route; CTA missing (N06/TB-521) |
 | 7 | Evidence graph `/graph?runId=…` | Review Work — wrong position (N03/TB-518) | "View governance record →" | Position wrong; no forward CTA |
 | 8 | Governance approval `/governance` | **Hidden until phase 2 (N02/TB-517)** | "View audit trail →" | **Governance group locked (N02/TB-517)** |
 | 9 | Audit trail `/governance/audit` | **Hidden until phase 2 (N02/TB-517)** | "Download governance evidence" | **Audit hidden; no breadcrumb from governance (N13/TB-528)** |
@@ -350,14 +350,14 @@ One group per conceptual domain. Progressive disclosure preserved — advanced t
 | Nav item | "Onboarding" (pilot nav) | "Getting started" (per TB-434; demote to extended after first commit) |
 | Nav group | "Analysis" | "Insights" |
 | Nav item | "Governance workflow" (first link in Governance group) | "Approval queue" |
-| Nav item | "Portfolio overview" (nav link label) | "Executive dashboard" |
+| Nav item | "Portfolio overview" (nav link label) | "Sponsor dashboard" |
 | Nav item | "Integration readiness" | "Connection status" |
 | Nav item | "Architecture advisory" | "Advisory scans" |
 | Nav item | "Policy resolution" | "Standards & rules" |
 | Nav item | "Change simulation" | "Impact preview" |
 | Nav item | "First 30 days (governance)" | "Governance setup guide" (+ move to Governance group) |
 | Page title | "Governance workflow" (`/governance`) | "Approval queue" |
-| Page title | "Portfolio overview" (`/dashboard`) | "Executive dashboard" |
+| Page title | "Portfolio overview" (`/dashboard`) | "Sponsor dashboard" |
 | Section heading | "Workspace overview" (home, post-commit) | "Recent activity" |
 
 ---
@@ -382,7 +382,7 @@ One group per conceptual domain. Progressive disclosure preserved — advanced t
 3. **N03/TB-518 + N04/TB-519** — Reorder Review Work; move Evidence graph to Insights group.
 4. **N06/TB-521** — Add forward CTA from review detail to governance when review is ready for approval.
 5. **N07/TB-522** — Consolidate "Users & roles" and "Role management" into one nav item.
-6. **N08/TB-523** — Add breadcrumb and nav entry for executive summary.
+6. **N08/TB-523** — Add breadcrumb and nav entry for sponsor summary.
 
 ---
 

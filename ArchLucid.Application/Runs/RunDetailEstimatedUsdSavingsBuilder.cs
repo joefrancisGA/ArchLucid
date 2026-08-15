@@ -6,7 +6,7 @@ using ArchLucid.Persistence.Roi;
 
 namespace ArchLucid.Application.Runs;
 
-/// <summary>Builds per-run savings read-models using the executive ROI resolver.</summary>
+/// <summary>Builds per-run savings read-models using the sponsor ROI resolver.</summary>
 public static class RunDetailEstimatedUsdSavingsBuilder
 {
     public static async Task<RunEstimatedUsdSavingsDto?> TryBuildAsync(
@@ -31,14 +31,14 @@ public static class RunDetailEstimatedUsdSavingsBuilder
             .ConfigureAwait(false);
 
         decimal eaDiscountMultiplier = tenantSettings?.EaDiscountMultiplier ?? 1.0m;
-        string savingsPricingBasis = ExecutiveRoiSavingsPricingBasis.Resolve(eaDiscountMultiplier);
+        string savingsPricingBasis = SponsorRoiSavingsPricingBasis.Resolve(eaDiscountMultiplier);
 
         return new RunEstimatedUsdSavingsDto
         {
             EstimatedUsdSavings = savings,
             SavingsPricingBasis = savingsPricingBasis,
             SavingsPricingBasisDescription =
-                "Tenant-adjusted sum of cost-category findings for this run (same resolver as executive ROI rollup).",
+                "Tenant-adjusted sum of cost-category findings for this run (same resolver as sponsor ROI rollup).",
         };
     }
 }

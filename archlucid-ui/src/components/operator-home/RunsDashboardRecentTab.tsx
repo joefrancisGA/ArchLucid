@@ -171,7 +171,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
                   <Link href={`/architecture/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}>Review</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
-                  <Link href={getShowcaseManifestHref()}>View signed record</Link>
+                  <Link href={getShowcaseManifestHref()}>View sealed record</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
                   <Link

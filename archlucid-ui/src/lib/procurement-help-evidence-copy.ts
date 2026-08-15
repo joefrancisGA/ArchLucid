@@ -4,6 +4,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const PROCUREMENT_HELP_CANONICAL_PATH = "/help/procurement" as const;
 
+export const PROCUREMENT_HELP_TOPIC_LABEL = "How procurement FAQ works" as const;
+
 /** Matches `**Last reviewed:** 2026-07-29` in BUYER_SECURITY_PROCUREMENT_PACKET.md. */
 export const PROCUREMENT_HELP_LAST_REVIEWED = "2026-07-29" as const;
 
@@ -22,7 +24,7 @@ export const PROCUREMENT_HELP_LEAD =
   "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.";
 
 export const PROCUREMENT_HELP_CLAIM_DISCIPLINE =
-  "This Procurement FAQ orients buyers and architects on diligence questions and pack requests — it is help orientation, not a CPA SOC 2 attestation, a published third-party pen-test report, or a signed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or settings Security & Trust when you need live assurance surfaces or NDA request paths.";
+  "This Procurement FAQ orients buyers and architects on diligence questions and pack requests — it is help orientation, not a CPA SOC 2 attestation, a published third-party pen-test report, or a sealed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or settings Security & Trust when you need live assurance surfaces or NDA request paths.";
 
 export const PROCUREMENT_HELP_SOURCES_INTRO =
   "Use these follow-ups when procurement FAQ vocabulary turns into assurance hubs, isolation depth, or contract templates.";

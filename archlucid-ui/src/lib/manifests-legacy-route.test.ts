@@ -21,7 +21,7 @@ describe("manifests retired route (IA batch 3)", () => {
     expect(redirectRules?.find((entry) => entry.source === `${RETIRED_MANIFESTS_PATH}/:path*`)).toBeUndefined();
   });
 
-  it("does not ship a rewrite shim — use /signed-records or canonical /governance/signed-records", async () => {
+  it("does not ship a rewrite shim — use /signed-records or canonical /governance/sealed-records", async () => {
     const rewriteRules = await nextConfig.rewrites?.();
 
     expect(rewriteRules?.find((entry) => entry.source === RETIRED_MANIFESTS_PATH)).toBeUndefined();

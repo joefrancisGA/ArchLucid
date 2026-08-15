@@ -1,4 +1,18 @@
 import type { ActiveTenantContextView } from "@/lib/active-tenant-context-display";
+import {
+  describeQuickStartAnalyzableEvidenceGap,
+  hasQuickStartAnalyzableEvidenceClass,
+  type QuickStartAnalyzableEvidenceInput,
+} from "@/lib/first-pilot-analyzable-evidence";
+import {
+  describeFirstPilotReviewTitleGap,
+  isFirstPilotReviewTitleAcceptable,
+} from "@/lib/first-pilot-review-title-quality";
+import {
+  describeUniversalIntakeMustGap,
+  isUniversalIntakeMustComplete,
+  type UniversalIntakeMustCompletenessInput,
+} from "@/lib/universal-intake-must-completeness";
 
 /** Default evidence category label when operators do not manually tag uploads. */
 export const DEFAULT_ARCHITECTURE_EVIDENCE_CATEGORY = "Architecture evidence";
@@ -15,16 +29,21 @@ export type FirstPilotIntakeReadinessInput = {
    */
   readonly brief: string;
   readonly evidenceFileCount: number;
+  readonly evidenceFileNames: readonly string[];
+  readonly limitedEvidenceAnalysisAcknowledged: boolean;
+  readonly l0Must: UniversalIntakeMustCompletenessInput;
 };
 
+function toAnalyzableEvidenceInput(input: FirstPilotIntakeReadinessInput): QuickStartAnalyzableEvidenceInput {
+  return {
+    operatorBrief: input.brief,
+    evidenceFileNames: input.evidenceFileNames,
+    limitedEvidenceAnalysisAcknowledged: input.limitedEvidenceAnalysisAcknowledged,
+  };
+}
+
 export function normalizeFirstPilotReviewTitle(title: string): string {
-  const trimmed = title.trim();
-
-  if (trimmed.length >= FIRST_PILOT_MIN_TITLE_CHARS) {
-    return trimmed;
-  }
-
-  return "Architecture review";
+  return title.trim();
 }
 
 export function buildEvidenceBackedIntakeBrief(title: string, files: readonly File[], userBrief: string): string {
@@ -34,7 +53,7 @@ export function buildEvidenceBackedIntakeBrief(title: string, files: readonly Fi
     return trimmedBrief;
   }
 
-  const reviewTitle = normalizeFirstPilotReviewTitle(title);
+  const reviewTitle = normalizeFirstPilotReviewTitle(title) || "this architecture";
   const fileLines = files.map((file) => `- ${file.name}`).join("\n");
   const attachmentSection =
     fileLines.length > 0
@@ -52,11 +71,17 @@ export function buildEvidenceBackedIntakeBrief(title: string, files: readonly Fi
 }
 
 export function isFirstPilotIntakeReady(input: FirstPilotIntakeReadinessInput): boolean {
-  const titleReady = input.title.trim().length >= FIRST_PILOT_MIN_TITLE_CHARS;
+  const titleReady = isFirstPilotReviewTitleAcceptable(input.title);
   const briefReady = input.brief.trim().length >= FIRST_PILOT_MIN_BRIEF_CHARS;
   const evidenceReady = input.evidenceFileCount > 0;
+  const l0Ready = isUniversalIntakeMustComplete(input.l0Must);
+  const analyzableEvidenceReady = hasQuickStartAnalyzableEvidenceClass(toAnalyzableEvidenceInput(input));
 
-  return titleReady && (briefReady || evidenceReady);
+  if (!titleReady || !l0Ready || !analyzableEvidenceReady) {
+    return false;
+  }
+
+  return briefReady || evidenceReady;
 }
 
 /**
@@ -68,25 +93,39 @@ export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInpu
     return null;
   }
 
-  const titleReady = input.title.trim().length >= FIRST_PILOT_MIN_TITLE_CHARS;
+  const titleReady = isFirstPilotReviewTitleAcceptable(input.title);
   const briefLength = input.brief.trim().length;
   const evidenceReady = input.evidenceFileCount > 0;
+  const l0Gap = describeUniversalIntakeMustGap(input.l0Must);
+  const titleGap = describeFirstPilotReviewTitleGap(input.title);
 
-  if (!titleReady && !evidenceReady && briefLength === 0) {
+  if (!titleReady && !evidenceReady && briefLength === 0 && input.title.trim().length === 0) {
     return `Add a review title and attach evidence or add architecture context (at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters) to start.`;
   }
 
   if (!titleReady) {
-    return "Add a review title to start.";
+    return titleGap ?? "Add a review title that names the system and the decision.";
   }
 
-  // Naming the shortfall matters once context exists: otherwise "add architecture context" reads as
-  // wrong to someone who just added some, with no way to see how much more is needed.
-  if (briefLength > 0) {
+  if (!evidenceReady && briefLength === 0) {
+    return "Attach evidence or add architecture context to start.";
+  }
+
+  if (!evidenceReady && briefLength > 0 && briefLength < FIRST_PILOT_MIN_BRIEF_CHARS) {
     return `Architecture context needs at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters (${briefLength} so far), or attach evidence instead.`;
   }
 
-  return "Attach evidence or add architecture context to start.";
+  const analyzableGap = describeQuickStartAnalyzableEvidenceGap(toAnalyzableEvidenceInput(input));
+
+  if (analyzableGap !== null) {
+    return analyzableGap;
+  }
+
+  if (l0Gap !== null) {
+    return l0Gap;
+  }
+
+  return null;
 }
 
 /** Compact write-target line above the first-pilot start CTA — mirrors quick-review scope disclosure. */

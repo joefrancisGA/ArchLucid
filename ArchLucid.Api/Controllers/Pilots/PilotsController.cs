@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Pilots;
@@ -7,6 +7,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Roi;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Pilots;
@@ -41,12 +42,12 @@ namespace ArchLucid.Api.Controllers.Pilots;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class PilotsController(
     FirstValueReportBuilder firstValueReportBuilder,
-    IExecutiveReviewPacketBuilder executiveReviewPacketBuilder,
+    ISponsorReviewPacketBuilder sponsorReviewPacketBuilder,
     FirstValueReportPdfBuilder firstValueReportPdfBuilder,
     PilotScorecardBuilder pilotScorecardBuilder,
     IPilotInProductScorecardService pilotInProductScorecardService,
     PilotOutcomeSummaryService pilotOutcomeSummaryService,
-    IAzureExtractorPackageRepository azureExtractorPackageRepository,
+    RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
     IPilotReportCardService pilotReportCardService,
     SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
     IWhyArchLucidSnapshotService whyArchLucidSnapshotService,
@@ -189,23 +190,23 @@ public sealed class PilotsController(
     }
 
     /// <summary>
-    ///     Consolidated sponsor packet (manifest, findings, ROI basis by disposition, decisions) — one Markdown download.
+    ///     Consolidated sponsor packet (manifest, findings, ROI basis by disposition, decisions) â€” one Markdown download.
     /// </summary>
-    [HttpGet("runs/{runId}/executive-review-packet")]
+    [HttpGet("runs/{runId}/sponsor-review-packet")]
     [Produces("text/markdown")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK, "text/markdown")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetExecutiveReviewPacket(string runId, CancellationToken cancellationToken)
     {
-        string? markdown = await executiveReviewPacketBuilder.BuildMarkdownAsync(runId, cancellationToken);
+        string? markdown = await sponsorReviewPacketBuilder.BuildMarkdownAsync(runId, cancellationToken);
 
         return markdown is null
-            ? this.NotFoundProblem($"Executive review packet is not available for run '{runId}'.", ProblemTypes.RunNotFound)
+            ? this.NotFoundProblem($"Sponsor review packet is not available for run '{runId}'.", ProblemTypes.RunNotFound)
             : Content(markdown, "text/markdown; charset=utf-8");
     }
 
     /// <summary>
-    ///     One-click sponsor proof ZIP: executive review packet, first-value report (MD+PDF), deltas, limitations, and manifest.
+    ///     One-click sponsor proof ZIP: sponsor review packet, first-value report (MD+PDF), deltas, limitations, and manifest.
     /// </summary>
     [HttpGet("runs/{runId}/sponsor-proof-pack.zip")]
     [Produces("application/zip")]
@@ -282,7 +283,7 @@ public sealed class PilotsController(
         ValueReportSnapshot snapshot =
             await valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, start, end, cancellationToken);
 
-        DateTime? extractorCollectionTimestampUtc = await TryResolveExtractorCollectionTimestampUtcAsync(
+        DateTime? extractorCollectionTimestampUtc = await roiCostEvidenceCollectionResolver.TryResolveLatestCollectionTimestampUtcAsync(
             scope,
             detail.Run.RunId,
             cancellationToken);
@@ -320,7 +321,7 @@ public sealed class PilotsController(
     }
 
     /// <summary>
-    ///     PDF projection of the first-value-report Markdown — a one-shot sponsor email attachment for a committed run.
+    ///     PDF projection of the first-value-report Markdown â€” a one-shot sponsor email attachment for a committed run.
     ///     Mirrors the auth surface of <see cref="GetFirstValueReport" /> (ReadAuthority) so the operator-shell post-commit
     ///     CTA does not introduce a new commercial gate at the click site.
     /// </summary>
@@ -573,25 +574,8 @@ public sealed class PilotsController(
         return Ok(response);
     }
 
-    private async Task<DateTime?> TryResolveExtractorCollectionTimestampUtcAsync(
-        ScopeContext scope,
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        if (Guid.TryParse(runId, out Guid runGuid))
-        {
-            AzureExtractorPackageProvenance? provenance =
-                await azureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync(scope, runGuid, cancellationToken);
-
-            if (provenance?.CollectionTimestampUtc is not null)
-                return provenance.CollectionTimestampUtc;
-        }
-
-        return await azureExtractorPackageRepository.TryGetLatestCollectionTimestampUtcInScopeAsync(scope, cancellationToken);
-    }
-
     /// <summary>
-    ///     One-page sponsor PDF for a run (Standard tier) — headline timing plus 30-day pilot scorecard mix.
+    ///     One-page sponsor PDF for a run (Standard tier) â€” headline timing plus 30-day pilot scorecard mix.
     /// </summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/sponsor-one-pager")]

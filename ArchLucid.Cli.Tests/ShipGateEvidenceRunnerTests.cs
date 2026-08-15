@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -53,9 +53,9 @@ public sealed class ShipGateEvidenceRunnerTests
                     }));
                 }
 
-                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                if (path.EndsWith("/v1/roi/sponsor-report", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentSponsorReportPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -107,9 +107,9 @@ public sealed class ShipGateEvidenceRunnerTests
                     return Task.FromResult(JsonResponse(HttpStatusCode.OK, Array.Empty<object>()));
                 }
 
-                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                if (path.EndsWith("/v1/roi/sponsor-report", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentSponsorReportPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -146,9 +146,9 @@ public sealed class ShipGateEvidenceRunnerTests
                 if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                     return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "not found" }));
 
-                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                if (path.EndsWith("/v1/roi/sponsor-report", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentSponsorReportPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -205,9 +205,9 @@ public sealed class ShipGateEvidenceRunnerTests
                     }));
                 }
 
-                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                if (path.EndsWith("/v1/roi/sponsor-report", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentSponsorReportPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -271,9 +271,9 @@ public sealed class ShipGateEvidenceRunnerTests
                     }));
                 }
 
-                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                if (path.EndsWith("/v1/roi/sponsor-report", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentSponsorReportPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -348,9 +348,9 @@ public sealed class ShipGateEvidenceRunnerTests
                     }));
                 }
 
-                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                if (path.EndsWith("/v1/roi/sponsor-report", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentSponsorReportPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -430,9 +430,9 @@ public sealed class ShipGateEvidenceRunnerTests
                     }));
                 }
 
-                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                if (path.EndsWith("/v1/roi/sponsor-report", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentSponsorReportPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -483,9 +483,9 @@ public sealed class ShipGateEvidenceRunnerTests
                     }));
                 }
 
-                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                if (path.EndsWith("/v1/roi/sponsor-report", StringComparison.Ordinal))
                 {
-                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentExecutiveSummaryPayload()));
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, BuildCoherentSponsorReportPayload()));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -534,11 +534,11 @@ public sealed class ShipGateEvidenceRunnerTests
                     }));
                 }
 
-                if (path.EndsWith("/v1/roi/executive-summary", StringComparison.Ordinal))
+                if (path.EndsWith("/v1/roi/sponsor-report", StringComparison.Ordinal))
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
-                        BuildCoherentExecutiveSummaryPayload(headlineTotal: 999m)));
+                        BuildCoherentSponsorReportPayload(headlineTotal: 999m)));
                 }
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
@@ -799,7 +799,7 @@ public sealed class ShipGateEvidenceRunnerTests
             },
         };
 
-    private static object BuildCoherentExecutiveSummaryPayload(
+    private static object BuildCoherentSponsorReportPayload(
         decimal headlineTotal = 150m,
         decimal openEstimatedUsd = 100m,
         decimal needsEvidenceUsd = 50m)

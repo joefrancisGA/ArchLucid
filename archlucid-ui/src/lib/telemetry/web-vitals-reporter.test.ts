@@ -86,7 +86,7 @@ describe("startWebVitalsReporting", () => {
       { name: "WebVitalsMetric" },
       expect.objectContaining({
         metricName: "LCP",
-        route: "/architecture/reviews/[runId]",
+        route: "/architecture/reviews/[reviewId]",
         tenantTier: "Team",
         effectiveConnectionType: "4g",
       }),

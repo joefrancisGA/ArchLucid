@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -19,8 +18,6 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { identityProviderCustomerStatusPresentation } from "@/lib/identity-provider-probe-status-presentation";
 import {
   IDENTITY_PROVIDERS_ACTION_REFRESHING,
-  IDENTITY_PROVIDERS_BREADCRUMB_ADMINISTRATION_LABEL,
-  IDENTITY_PROVIDERS_BREADCRUMB_HUB_HREF,
   IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF,
   IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_LABEL,
   IDENTITY_PROVIDERS_LAST_REFRESHED_PREFIX,
@@ -33,7 +30,6 @@ import {
 } from "@/lib/operator/operator-last-refreshed-label";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 export type IdentityProvidersSettingsPageHeaderProps = {
   readonly pageTitle?: string;
@@ -54,7 +50,6 @@ export function IdentityProvidersSettingsPageHeader(
   const onDiagnosticsPage = pathname.startsWith(IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF);
   const onOidcPage = pathname.startsWith("/administration/identity-providers/oidc");
   const onSamlPage = pathname.startsWith("/administration/identity-providers/saml");
-  const onHubPage = pageTitle === IDENTITY_PROVIDERS_PAGE_TITLE;
   const showDiagnosticsLink = !onDiagnosticsPage && !onOidcPage;
   const showTenantScopeMetadata = !onSamlPage;
   const [currentWorkspaceLabel, setCurrentWorkspaceLabel] = useState<string | null>(null);
@@ -92,32 +87,6 @@ export function IdentityProvidersSettingsPageHeader(
           />
         ) : null
       }
-      breadcrumb={
-        <OperatorPageBreadcrumb
-          data-testid="identity-providers-page-breadcrumb"
-          items={
-            onHubPage
-              ? [
-                  {
-                    label: IDENTITY_PROVIDERS_BREADCRUMB_ADMINISTRATION_LABEL,
-                    href: SETTINGS_ROOT_PATH,
-                  },
-                  { label: IDENTITY_PROVIDERS_PAGE_TITLE },
-                ]
-              : [
-                  {
-                    label: IDENTITY_PROVIDERS_BREADCRUMB_ADMINISTRATION_LABEL,
-                    href: SETTINGS_ROOT_PATH,
-                  },
-                  {
-                    label: IDENTITY_PROVIDERS_PAGE_TITLE,
-                    href: IDENTITY_PROVIDERS_BREADCRUMB_HUB_HREF,
-                  },
-                  { label: pageTitle },
-                ]
-          }
-        />
-      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="identity-providers-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
@@ -129,7 +98,7 @@ export function IdentityProvidersSettingsPageHeader(
           {showDiagnosticsLink ? (
             <Link
               href={IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF}
-              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+              className={OPERATOR_LINK.optional}
               data-testid="identity-providers-diagnostics-link"
             >
               {IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_LABEL}

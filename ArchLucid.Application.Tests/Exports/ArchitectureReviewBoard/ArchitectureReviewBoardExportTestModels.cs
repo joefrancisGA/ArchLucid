@@ -21,7 +21,7 @@ internal static class ArchitectureReviewBoardExportTestModels
             RequestId = "golden-req-001",
             SystemName = "Golden Corp Payments",
             ManifestVersion = "golden-mv-42",
-            ExecutiveSummary = "Stable executive summary paragraph for golden exports.",
+            SponsorReport = "Stable Sponsor report paragraph for golden exports.",
             SystemOverviewBullets = ["First overview bullet for golden seed.", "Second overview bullet."],
             EvidenceReviewed =
             [
@@ -65,7 +65,7 @@ internal static class ArchitectureReviewBoardExportTestModels
         {
             ReviewId = Guid.Parse("d4444444-4444-4444-4444-444444444444"),
             RunId = "empty-sections-run-001",
-            ExecutiveSummary = null,
+            SponsorReport = null,
             SystemOverviewBullets = [],
             EvidenceReviewed = [],
             ArchitectureDecisions = [],

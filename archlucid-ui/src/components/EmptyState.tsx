@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -90,7 +90,7 @@ export function EmptyState({
           {secondaryAction !== undefined ? (
             <Link
               href={secondaryAction.href}
-              className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               {secondaryAction.label}
             </Link>
@@ -98,7 +98,7 @@ export function EmptyState({
           {helpTopicPath ? (
             <Link
               href={helpTopicPath.startsWith("/") ? helpTopicPath : `/help/${helpTopicPath}`}
-              className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               Learn more
             </Link>

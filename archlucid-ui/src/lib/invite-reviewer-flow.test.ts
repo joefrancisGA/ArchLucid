@@ -33,7 +33,7 @@ describe("invite-reviewer-flow", () => {
 
     expect(labels).toEqual([
       "View reviews, findings, and governance decisions",
-      "Export signed review records and audit CSVs",
+      "Export sealed review records and audit CSVs",
       "Cannot approve governance requests",
       "Cannot finalize reviews",
       "Cannot modify evidence or review settings",

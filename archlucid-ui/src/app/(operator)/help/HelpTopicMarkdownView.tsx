@@ -14,8 +14,6 @@ import { SecurityTrustHelpPostureSummary } from "@/components/help/SecurityTrust
 
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 
-import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
-
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -38,9 +36,8 @@ import {
 
 } from "@/lib/caiq-sig-response-help-presentation";
 
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication-sign-in-help-copy";
 import { CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION } from "@/lib/caiq-sig-response-help-evidence-copy";
 import { INTEGRATION_READINESS_HELP_PRIMARY_ACTION } from "@/lib/integration-readiness-help-evidence-copy";
 import { PROCUREMENT_HELP_CLAIM_DISCIPLINE } from "@/lib/procurement-help-evidence-copy";
@@ -58,7 +55,7 @@ import {
   countSecurityTrustPostureTableRows,
 } from "@/lib/security-trust-help-presentation";
 
-import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { extractHelpMarkdownHeadings, appendHelpClaimDisciplineTocHeadings } from "@/lib/help/help-markdown-headings";
 
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 
@@ -94,6 +91,14 @@ type HelpTopicMarkdownViewProps = {
 
   readonly tocGroups?: readonly HelpTopicTocGroup[];
 
+  /** When set with `evidenceOrientation`, appends claim-discipline + where-to-go-next TOC rows. */
+
+  readonly claimDisciplineTocHeadingId?: string;
+
+  readonly claimDisciplineTocHeadingTitle?: string;
+
+  readonly followUpsTocTitle?: string;
+
   /** Wider technical-reference grid for dense questionnaire tables. */
 
   readonly layoutVariant?: "default" | "technicalReference";
@@ -128,6 +133,12 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
     showExportClaimDiscipline = false,
 
+    claimDisciplineTocHeadingId,
+
+    claimDisciplineTocHeadingTitle,
+
+    followUpsTocTitle,
+
   } = props;
 
   const sourceDocPath = entry.sourcePaths[0] ?? "";
@@ -150,7 +161,15 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   const extractedHeadings = extractHelpMarkdownHeadings(preparedMarkdown);
 
-  const headings = extractedHeadings;
+  const headings =
+    evidenceOrientation !== undefined && claimDisciplineTocHeadingId !== undefined
+      ? appendHelpClaimDisciplineTocHeadings(
+          extractedHeadings,
+          claimDisciplineTocHeadingId,
+          claimDisciplineTocHeadingTitle,
+          followUpsTocTitle,
+        )
+      : extractedHeadings;
 
   const isSecurityTrustHelp = entry.slug === "security-trust";
 
@@ -179,7 +198,6 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
   const isScopeHelp = entry.slug === "scope";
   const isSubprocessorsHelp = entry.slug === "subprocessors";
   const isProcurementHelp = isProcurementHelpTopic(entry.slug);
-  const isAuthenticationSignInHelp = entry.slug === "authentication-sign-in";
   const allowWithoutServerPdf = entry.pdfStatus === null && (entry.audience === "buyer" || isProcurementHelp);
 
   const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
@@ -236,12 +254,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
         titleBlockOrientation={titleBlockOrientation}
 
-        signInFailureTriageLine={isAuthenticationSignInHelp ? <HelpTopicSignInFailureTriageLine /> : undefined}
-
         primaryAction={
-          isAuthenticationSignInHelp
-            ? AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION
-            : isCaiqSigResponse
+          isCaiqSigResponse
               ? CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION
               : isIntegrationReadinessHelp
                 ? INTEGRATION_READINESS_HELP_PRIMARY_ACTION
@@ -274,7 +288,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
           open{" "}
 
-          <Link href={inAppHelpHref("troubleshooting")} className={`underline-offset-2 hover:underline ${DESIGN_TOKENS.accent.link}`}>
+          <Link href={inAppHelpHref("troubleshooting")} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
 
             Troubleshooting
 
@@ -285,10 +299,6 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
         </p>
 
       ) : null}
-
-
-
-      {!evidenceOrientation ? null : evidenceOrientation}
 
 
 
@@ -323,6 +333,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             preparedMarkdownOverride={preparedMarkdown}
 
           />
+
+          {!evidenceOrientation ? null : evidenceOrientation}
 
         </div>
 

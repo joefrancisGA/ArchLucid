@@ -19,7 +19,7 @@ export type RoiScopeLabelSource = {
 };
 
 /** Prefer API scope labels; fall back to canonical manifest copy when older payloads omit fields. */
-export function resolveExecutiveHeadlineScopeLabel(source: RoiScopeLabelSource): string {
+export function resolveSponsorHeadlineScopeLabel(source: RoiScopeLabelSource): string {
   if (source.headlineSavingsScopeDescription?.trim()) {
     return source.headlineSavingsScopeDescription.trim();
   }
@@ -27,7 +27,7 @@ export function resolveExecutiveHeadlineScopeLabel(source: RoiScopeLabelSource):
   return manifest.descriptions.headlineDispositionAware;
 }
 
-export function resolveExecutiveSystemRowScopeLabel(source: RoiScopeLabelSource): string {
+export function resolveSponsorSystemRowScopeLabel(source: RoiScopeLabelSource): string {
   if (source.systemRowSavingsScopeDescription?.trim()) {
     return source.systemRowSavingsScopeDescription.trim();
   }
@@ -35,7 +35,7 @@ export function resolveExecutiveSystemRowScopeLabel(source: RoiScopeLabelSource)
   return manifest.descriptions.systemRowSnapshotPotential;
 }
 
-export function resolveExecutiveTrailing30DayScopeLabel(source: RoiScopeLabelSource): string {
+export function resolveSponsorTrailing30DayScopeLabel(source: RoiScopeLabelSource): string {
   if (source.trailing30DayActivityScopeDescription?.trim()) {
     return source.trailing30DayActivityScopeDescription.trim();
   }

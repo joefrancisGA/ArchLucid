@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS, resolveBuyerGoldenJourneyNav } from "@/lib/buyer/buyer-golden-journey-nav";
-import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { getShowcaseSponsorHref, getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -18,8 +18,8 @@ describe("BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS", () => {
 });
 
 describe("resolveBuyerGoldenJourneyNav", () => {
-  it("recognizes pinned SQL demo workspace executive and spine query routes", () => {
-    expect(resolveBuyerGoldenJourneyNav(getShowcaseExecutiveHref())?.currentStepIndex).toBe(0);
+  it("recognizes pinned SQL demo workspace sponsor and spine query routes", () => {
+    expect(resolveBuyerGoldenJourneyNav(getShowcaseSponsorHref())?.currentStepIndex).toBe(0);
     expect(resolveBuyerGoldenJourneyNav(getShowcaseManifestHref())?.currentStepIndex).toBe(1);
     expect(resolveBuyerGoldenJourneyNav(`/insights/evidence-graph?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(2);
     expect(
@@ -44,7 +44,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     const liveGoldenManifestId = "495ab97d-9f1b-d4f1-761e-f5406a636db3";
 
     expect(resolveBuyerGoldenJourneyNav(`/architecture/reviews/${liveRunEnc}`)?.currentStepIndex).toBe(0);
-    expect(resolveBuyerGoldenJourneyNav(`/governance/signed-records/${liveGoldenManifestId}`)?.currentStepIndex).toBe(1);
+    expect(resolveBuyerGoldenJourneyNav(`/governance/sealed-records/${liveGoldenManifestId}`)?.currentStepIndex).toBe(1);
     expect(resolveBuyerGoldenJourneyNav(`/insights/evidence-graph?runId=${liveRunEnc}`)?.currentStepIndex).toBe(2);
     expect(resolveBuyerGoldenJourneyNav(`/governance/approval-queue?runId=${liveRunEnc}`)?.currentStepIndex).toBe(3);
     expect(resolveBuyerGoldenJourneyNav(`/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(4);
@@ -54,7 +54,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
   it("recognizes live SQL golden manifest detail under canonical and legacy signed-record paths", () => {
     const liveGoldenManifestId = "495ab97d-9f1b-d4f1-761e-f5406a636db3";
 
-    expect(resolveBuyerGoldenJourneyNav(`/governance/signed-records/${liveGoldenManifestId}`)?.currentStepIndex).toBe(1);
+    expect(resolveBuyerGoldenJourneyNav(`/governance/sealed-records/${liveGoldenManifestId}`)?.currentStepIndex).toBe(1);
     expect(resolveBuyerGoldenJourneyNav(`/signed-records/${liveGoldenManifestId}`)?.currentStepIndex).toBe(1);
     expect(resolveBuyerGoldenJourneyNav("/signed-records")).toBeNull();
   });

@@ -9,7 +9,7 @@ import {
   GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_SECTIONS,
 } from "@/lib/governance/governance-approval-help-guide-content";
 import { cn } from "@/lib/utils";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 /** Lazy-mounts API detail so collapsed technical reference stays out of primary page text scans. */
@@ -38,7 +38,7 @@ export function HelpGovernanceApprovalTechnicalReference(): ReactElement {
         <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>
           <Link
             href={GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS.href}
-            className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
           >
             {GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS.label}
           </Link>

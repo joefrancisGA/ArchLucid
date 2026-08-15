@@ -1,17 +1,23 @@
 /** Long-form help topics (`/help/**`). */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
-import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
+import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-guide-content";
+import { DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
+import { SPONSOR_REPORT_HELP_TOPIC_LABEL } from "@/lib/sponsor/sponsor-report-help-evidence-copy";
+import { PATH_CHOOSER_HELP_TOPIC_LABEL } from "@/lib/path-chooser-help-evidence-copy";
+import { PILOT_FEEDBACK_HELP_TOPIC_LABEL } from "@/lib/pilot-feedback-help-evidence-copy";
+import { PILOT_GUIDE_HELP_TOPIC_LABEL } from "@/lib/pilot-guide-help-evidence-copy";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
-import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-help-title-honesty-surfaces";
+import {
+  IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL,
+} from "@/lib/improvement-planning-help-evidence-copy";
 
 export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
     prefix: "/help/data-handling",
     entry: {
-      whatIsThisPage:
-        "Explain how review evidence is handled, what stays in your tenant, and how three-layer isolation works.",
+      whatIsThisPage: `${DATA_HANDLING_TENANT_ISOLATION_HELP_TOPIC_LABEL} — review evidence flow, tenant scope, and three-layer isolation.`,
       whatToDoNext:
         "Open Trust Center or Assurance status for diligence artifacts, then review Sources before sponsor briefings.",
       whyEmpty: "This guide always shows isolation and data-handling content when the help topic loads.",
@@ -44,8 +50,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
   {
     prefix: "/help/choose-your-next-step",
     entry: {
-      whatIsThisPage:
-        "Map your current goal to one primary next action for evaluate, pilot, procurement, sponsor, or engineering support.",
+      whatIsThisPage: `${PATH_CHOOSER_HELP_TOPIC_LABEL} — map your goal to one primary next action for evaluate, pilot, procurement, sponsor, or engineering support.`,
       whatToDoNext:
         "Pick the matching goal branch, open the primary cite, then use Sources before treating orientation as diligence.",
       whyEmpty: "Branches always appear when this help topic loads.",
@@ -53,22 +58,28 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/enterprise-onboarding",
+    prefix: "/help/improvement-planning",
     entry: {
-      whatIsThisPage:
-        "Enterprise onboarding checklist - configure SSO, roles, governance, policy packs, audit export, and optional Azure evidence for a hosted tenant.",
+      whatIsThisPage: `Improvement planning — ${IMPROVEMENT_PLANNING_HELP_TOPIC_LABEL.toLowerCase()} for themes, prioritized plans, and exportable summaries.`,
       whatToDoNext:
-        "Open Identity providers for SSO, Users and roles for access, then Assurance status for assurance orientation.",
-      whyEmpty: "This guide is always available; live identity and role surfaces appear after workspace configuration.",
+        "Capture review feedback, then open Improvement planning to review themes, plans, and export options.",
+      whyEmpty: "This guide is always available; themes appear after feedback is captured and analyzed.",
       whereToConfigurePrerequisite:
-        "SSO and role changes need System Admin authority in the current workspace.",
+        "Planning insights respect the workspace and project selected in the header switcher.",
+      whatToDoNextAction: {
+        label: "Open improvement planning",
+        href: PLANNING_PATH,
+      },
+      whereToConfigureAction: {
+        label: "Open Pilot feedback",
+        href: PRODUCT_LEARNING_PATH,
+      },
     },
   },
   {
     prefix: "/help/pilot-feedback",
     entry: {
-      whatIsThisPage:
-        "Pilot feedback help — human judgment signals, ranked improvement opportunities, and how triage differs from recommendation learning.",
+      whatIsThisPage: `${PILOT_FEEDBACK_HELP_TOPIC_LABEL} — human judgment signals, ranked improvement opportunities, and how triage differs from recommendation learning.`,
       whatToDoNext:
         "Open Pilot feedback for live aggregates, then Improvement planning when opportunities become themes or draft plans.",
       whyEmpty: "This guide is always available; live feedback rows appear after architects capture review outcomes.",
@@ -85,12 +96,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/executive-summary",
+    prefix: "/help/sponsor-report",
     entry: {
-      whatIsThisPage:
-        "Executive summary help — sponsor-safe pilot proof, ROI framing, and what executives should expect in exports.",
+      whatIsThisPage: `${SPONSOR_REPORT_HELP_TOPIC_LABEL} — sponsor-safe pilot proof, ROI framing, and what executives should expect in exports.`,
       whatToDoNext:
-        "Open the live executive value report or dashboard, then review Pilot ROI measurement when methodology needs clarity.",
+        "Open the live sponsor value report or dashboard, then review Pilot ROI measurement when methodology needs clarity.",
       whyEmpty: "This guide is always available; live sponsor reports populate after finalized reviews exist.",
       whereToConfigurePrerequisite:
         "Sponsor exports need a role that can read finalized architecture reviews in this workspace.",
@@ -165,7 +175,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     prefix: "/help/accelerator-chooser",
     entry: {
       whatIsThisPage:
-        "Pick an accelerator pack — map buyer jobs to accelerator packs after your first finalized architecture review.",
+        `${ACCELERATOR_CHOOSER_HELP_PAGE_TITLE} — map buyer jobs to starter proof packs after your first finalized architecture review.`,
       whatToDoNext:
         "Pick a pack that matches the buyer job, then start the review with the matching accelerator pack.",
       whyEmpty:
@@ -218,43 +228,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       },
       whereToConfigureAction: {
         label: "Open Sign-in methods",
-        href: "/administration/account-security",
-      },
-    },
-  },
-  {
-    prefix: "/help/azure-boards",
-    entry: {
-      whatIsThisPage:
-        "Azure Boards integration — connect Azure DevOps for work item creation from ArchLucid findings.",
-      whatToDoNext:
-        "Open Azure Boards settings to connect or test the destination, then confirm Integration readiness.",
-      whyEmpty: "This guide is always available; live connector status appears after Azure DevOps is configured for the workspace.",
-      whereToConfigurePrerequisite:
-        "Outbound work-item creation needs a role that can manage integrations for this workspace.",
-      whatToDoNextAction: {
-        label: "Open Azure Boards settings",
-        href: "/integrations/azure-boards",
-      },
-      whereToConfigureAction: {
-        label: "Open Integration readiness help",
-        href: "/help/integration-readiness",
-      },
-    },
-  },
-  {
-    prefix: "/help/integration-readiness",
-    entry: {
-      whatIsThisPage:
-        "Integration readiness — which notification, ticketing, publishing, and delivery connectors are ready, recommended, or optional.",
-      whatToDoNext:
-        "Open Connection status for live labels, then configure recommended chat connectors before optional ITSM destinations.",
-      whyEmpty: "This guide is always available; live connector status appears on Connection status after setup.",
-      whereToConfigurePrerequisite:
-        "Connector configuration needs a role that can manage integrations for this workspace.",
-      whatToDoNextAction: {
-        label: "Open Connection status",
-        href: "/administration/connection-status",
+        href: "/account/security",
       },
     },
   },
@@ -275,26 +249,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whereToConfigureAction: {
         label: "Open Trust Center",
         href: "/trust",
-      },
-    },
-  },
-  {
-    prefix: "/help/comparison-replay",
-    entry: {
-      whatIsThisPage:
-        "Compare and replay — diff two architecture reviews, replay a saved comparison, and verify drift without re-running a full review.",
-      whatToDoNext:
-        "Open Compare two reviews for a live pair diff, or Validate review when you need to re-check a finalized package.",
-      whyEmpty: "This guide is always available; live compare and validate tools appear after you finalize architecture reviews.",
-      whereToConfigurePrerequisite:
-        "Pairwise compare needs two finalized reviews in this workspace; validate needs one finalized package.",
-      whatToDoNextAction: {
-        label: "Open Compare two reviews",
-        href: "/insights/compare-two-reviews",
-      },
-      whereToConfigureAction: {
-        label: "Open Validate review",
-        href: INTERNAL_REPLAY_PATH,
       },
     },
   },
@@ -335,30 +289,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/billing-and-plans",
-    entry: {
-      whatIsThisPage:
-        "Billing and plans — how evaluation and paid plans, usage, and invoices show up for architects.",
-      whatToDoNext:
-        "Open Billing settings for this workspace, or Pricing when you need public packaging before changing plans.",
-      whyEmpty: "This guide is always available; live plan and usage cards appear after billing data loads.",
-      whereToConfigurePrerequisite:
-        "Changing plans or payment methods needs a role that can manage workspace billing.",
-    },
-  },
-  {
-    prefix: "/help/security-trust",
-    entry: {
-      whatIsThisPage:
-        "Security and trust help — assurance ladder, data handling, subprocessors, and diligence materials for architects and buyers.",
-      whatToDoNext:
-        "Open Assurance status or Trust Center for live assurance surfaces, or Audit when you need governed trails.",
-      whyEmpty: "This guide is always available; downloadable diligence packs appear on Trust Center when published.",
-      whereToConfigurePrerequisite:
-        "No configuration is required — this page is assurance orientation vocabulary only.",
-    },
-  },
-  {
     prefix: "/help/procurement",
     entry: {
       whatIsThisPage:
@@ -380,18 +310,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live scope labels appear in the workspace header after sign-in.",
       whereToConfigurePrerequisite:
         "Changing tenant or project membership needs Admin authority in the target workspace.",
-    },
-  },
-  {
-    prefix: "/help/audit-trail",
-    entry: {
-      whatIsThisPage:
-        "Audit trail help — how immutable audit events, correlation identifiers, and export posture support governed review.",
-      whatToDoNext:
-        "Open Audit for live activity, Findings when a concern needs triage, or Assurance status for assurance surfaces.",
-      whyEmpty: "This guide is always available; live audit rows appear after workspace actions are recorded.",
-      whereToConfigurePrerequisite:
-        "Audit visibility follows workspace roles; confirm the header workspace before exporting trails.",
     },
   },
   {
@@ -419,30 +337,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/findings",
-    entry: {
-      whatIsThisPage:
-        "Findings — how architecture concerns are inspected, severity-ranked, and moved through governance resolution.",
-      whatToDoNext:
-        "Open the findings queue, search supporting evidence, or check the decision register for related outcomes.",
-      whyEmpty: "This guide is always available; live findings appear after reviews produce architecture concerns.",
-      whereToConfigurePrerequisite:
-        "Findings respect the workspace and project selected in the header switcher.",
-    },
-  },
-  {
-    prefix: "/help/governance-approval",
-    entry: {
-      whatIsThisPage:
-        "Governance approval — how architecture decisions move through submit, review, and finalize for architects.",
-      whatToDoNext:
-        "Open the approval queue or Workspace Health, then use Findings when you need the risk register behind a decision.",
-      whyEmpty: "This guide is always available; live approval queues appear after reviews enter governance.",
-      whereToConfigurePrerequisite:
-        "Approval authority follows workspace roles; confirm the header workspace before acting on requests.",
-    },
-  },
-  {
     prefix: "/help/review-guide",
     entry: {
       whatIsThisPage:
@@ -455,22 +349,9 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/repeat-review-loop",
-    entry: {
-      whatIsThisPage:
-        `${REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL} — compare packages, replay authority, and collect second-review proof after the first finalized review.`,
-      whatToDoNext:
-        "Open Compare two reviews, start the next review, or Validate review when you need live package trails.",
-      whyEmpty: "This guide is always available; compare and replay surfaces populate after finalized reviews exist.",
-      whereToConfigurePrerequisite:
-        "Follow-up review workflows need at least one finalized architecture review in this workspace.",
-    },
-  },
-  {
     prefix: "/help/pilot-guide",
     entry: {
-      whatIsThisPage:
-        "Pilot guide — how to prepare for a pilot, run the first architecture review, interpret outputs, and get support.",
+      whatIsThisPage: `${PILOT_GUIDE_HELP_TOPIC_LABEL} — how to prepare for a pilot, run the first architecture review, interpret outputs, and get support.`,
       whatToDoNext:
         "Start an architecture review, or open Your first architecture review when you need the step-by-step walkthrough.",
       whyEmpty: "This guide is always available; live pilot outcomes appear after reviews and sponsor reports exist.",
@@ -491,70 +372,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     },
   },
   {
-    prefix: "/help/cloud-connections/azure",
-    entry: {
-      whatIsThisPage:
-        "Connect Azure securely — workload identity federation, read-only roles, and validation without long-lived secrets.",
-      whatToDoNext:
-        "Follow the federation steps, then open the Azure cloud connection wizard to validate the attachment.",
-      whyEmpty: "This guide is always available; live Azure connection status appears on the Cloud connections hub.",
-      whereToConfigurePrerequisite:
-        "Azure attachment is optional — evidence-only reviews work without a cloud connector.",
-    },
-  },
-  {
-    prefix: "/help/cloud-connections/aws",
-    entry: {
-      whatIsThisPage:
-        "Connect AWS securely — OIDC-federated read-only IAM, Resource Explorer inventory, and validation without long-lived access keys.",
-      whatToDoNext:
-        "Follow the federation steps, then open the AWS cloud connection settings to validate the attachment.",
-      whyEmpty: "This guide is always available; live AWS connection status appears on the Cloud connections hub.",
-      whereToConfigurePrerequisite:
-        "AWS attachment is optional — evidence-only reviews work without a cloud connector.",
-      whatToDoNextAction: {
-        label: "Open AWS connection settings",
-        href: "/integrations/cloud-connections/aws",
-      },
-      whereToConfigureAction: {
-        label: "Open Cloud connections help",
-        href: "/help/cloud-connections",
-      },
-    },
-  },
-  {
-    prefix: "/help/cloud-connections/gcp",
-    entry: {
-      whatIsThisPage:
-        "Connect GCP securely — Workload Identity Federation, Cloud Asset Viewer, project scope, and validation without service-account JSON keys.",
-      whatToDoNext:
-        "Follow the federation steps, then open the GCP cloud connection settings to validate the attachment.",
-      whyEmpty: "This guide is always available; live GCP connection status appears on the Cloud connections hub.",
-      whereToConfigurePrerequisite:
-        "GCP attachment is optional — evidence-only reviews work without a cloud connector.",
-      whatToDoNextAction: {
-        label: "Open GCP connection settings",
-        href: "/integrations/cloud-connections/gcp",
-      },
-      whereToConfigureAction: {
-        label: "Open Cloud connections help",
-        href: "/help/cloud-connections",
-      },
-    },
-  },
-  {
-    prefix: "/help/azure-permissions",
-    entry: {
-      whatIsThisPage:
-        "Azure permissions — read-only roles, scopes, and verification steps for ArchLucid cloud connections.",
-      whatToDoNext:
-        "Open Cloud connections to configure Azure, or Connect Azure securely when you need the federation walkthrough.",
-      whyEmpty: "This guide is always available; live permission checks appear after you configure an Azure connection.",
-      whereToConfigurePrerequisite:
-        "Assigning Azure roles needs cloud-admin authority in the target subscription.",
-    },
-  },
-  {
     prefix: "/help/glossary",
     entry: {
       whatIsThisPage:
@@ -564,30 +381,6 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "Glossary terms are always listed; search filters the catalog without needing a live review.",
       whereToConfigurePrerequisite:
         "No configuration is required — this page is orientation vocabulary only.",
-    },
-  },
-  {
-    prefix: "/help/users-and-roles",
-    entry: {
-      whatIsThisPage:
-        "Users and roles — ArchLucid app roles, capabilities, and how architects invite teammates for this workspace.",
-      whatToDoNext:
-        "Open Users settings to invite or assign roles, or Assurance status when you need assurance orientation.",
-      whyEmpty: "This guide is always available; live directory rows appear after users are invited or provisioned.",
-      whereToConfigurePrerequisite:
-        "Managing users needs Admin authority; SSO may be required before invited users can sign in.",
-    },
-  },
-  {
-    prefix: "/help/cloud-connections",
-    entry: {
-      whatIsThisPage:
-        "Cloud connections help — how optional Azure, AWS, and GCP connectors supply read-only evidence for reviews.",
-      whatToDoNext:
-        "Open the Cloud connections hub to configure a provider, or read Connect Azure securely for federation steps.",
-      whyEmpty: "This guide is always available; live connection status appears on the Cloud connections hub.",
-      whereToConfigurePrerequisite:
-        "Cloud connectors are optional — evidence-only reviews work without attaching a cloud account.",
     },
   },
 ];

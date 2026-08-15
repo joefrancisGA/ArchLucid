@@ -9,7 +9,7 @@ import {
   buildAskVsFrontierAiDifferentiation,
   type AskVsFrontierAiDifferentiation,
 } from "@/lib/ask-vs-frontier-ai-differentiation";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type AskVsFrontierAiDifferentiationStripProps = {
@@ -73,7 +73,7 @@ export function AskVsFrontierAiDifferentiationStrip(
         <span>{copy.compactLine}</span>{" "}
         <Link
           href={copy.compactLinkHref}
-          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
           data-testid="ask-vs-frontier-ai-compact-link"
         >
           {copy.compactLinkLabel}

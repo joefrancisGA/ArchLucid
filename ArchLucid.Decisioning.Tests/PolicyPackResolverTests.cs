@@ -1,3 +1,4 @@
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
@@ -27,7 +28,7 @@ public sealed class PolicyPackResolverTests
         Mock<IPolicyPackRepository> packs = new();
         Mock<IPolicyPackVersionRepository> versions = new();
 
-        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object);
+        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectivePolicyPackSet result = await sut.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
@@ -60,7 +61,7 @@ public sealed class PolicyPackResolverTests
         Mock<IPolicyPackRepository> packs = new();
         Mock<IPolicyPackVersionRepository> versions = new();
 
-        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object);
+        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectivePolicyPackSet result = await sut.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
@@ -119,7 +120,7 @@ public sealed class PolicyPackResolverTests
             .Setup(r => r.GetByPackAndVersionAsync(packId, versionLabel, It.IsAny<CancellationToken>()))
             .ReturnsAsync(version);
 
-        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object);
+        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectivePolicyPackSet result = await sut.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
@@ -158,7 +159,7 @@ public sealed class PolicyPackResolverTests
 
         Mock<IPolicyPackVersionRepository> versions = new();
 
-        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object);
+        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectivePolicyPackSet result = await sut.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
@@ -205,7 +206,7 @@ public sealed class PolicyPackResolverTests
             .Setup(r => r.GetByPackAndVersionAsync(packId, versionLabel, It.IsAny<CancellationToken>()))
             .ReturnsAsync((PolicyPackVersion?)null);
 
-        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object);
+        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectivePolicyPackSet result = await sut.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
@@ -264,7 +265,7 @@ public sealed class PolicyPackResolverTests
             .Setup(r => r.GetByPackAndVersionAsync(packB, "2.0.0", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PolicyPackVersion { PolicyPackId = packB, Version = "2.0.0", ContentJson = """{"a":1}""" });
 
-        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object);
+        PolicyPackResolver sut = new(assignments.Object, packs.Object, versions.Object, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectivePolicyPackSet result = await sut.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 

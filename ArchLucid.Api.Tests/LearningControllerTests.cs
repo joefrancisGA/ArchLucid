@@ -104,6 +104,36 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     }
 
     [SkippableFact]
+    public async Task GetListBundle_Default_ReturnsOk_WithEmptyCollections()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/learning/list-bundle");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        LearningPlanningListBundleResponse? body =
+            await response.Content.ReadFromJsonAsync<LearningPlanningListBundleResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.Summary.ThemeCount.Should().Be(0);
+        body.Summary.PlanCount.Should().Be(0);
+        body.Themes.Themes.Should().BeEmpty();
+        body.Plans.Plans.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task GetListBundle_InvalidMaxThemes_Returns400Problem()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/learning/list-bundle?maxThemes=0");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("maxThemes");
+    }
+
+    [SkippableFact]
     public async Task GetSummary_InvalidMaxPlans_Returns400Problem()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/summary?maxPlans=abc");

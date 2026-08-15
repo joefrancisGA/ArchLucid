@@ -1,6 +1,5 @@
 import { fetchItsmIntegrationHealth, type ItsmIntegrationHealthResponse } from "@/lib/api/itsm-outbound-api";
 import {
-  fetchAzureBoardsHealth,
   fetchAzureBoardsSettings,
   isAzureBoardsNativeCreateReady,
 } from "@/lib/api/azure-boards-api";
@@ -25,20 +24,21 @@ let inFlightReadiness: Promise<ItsmNativeCreateReadiness> | undefined;
 
 async function loadItsmNativeCreateReadiness(): Promise<ItsmNativeCreateReadiness> {
   try {
-    const health = await fetchItsmIntegrationHealth();
+    const [healthResult, azureSettingsResult] = await Promise.allSettled([
+      fetchItsmIntegrationHealth(),
+      fetchAzureBoardsSettings(),
+    ]);
+    const health = healthResult.status === "fulfilled" ? healthResult.value : null;
+
+    if (health === null) {
+      throw healthResult.status === "rejected" ? healthResult.reason : new Error("itsm-health-unavailable");
+    }
+
     const deploymentEnabled = health.nativeEnabled === true;
     let azureBoardsReady = false;
 
-    if (deploymentEnabled) {
-      try {
-        const [azureHealth, azureSettings] = await Promise.all([
-          fetchAzureBoardsHealth(),
-          fetchAzureBoardsSettings(),
-        ]);
-        azureBoardsReady = isAzureBoardsNativeCreateReady(azureHealth, azureSettings);
-      } catch {
-        azureBoardsReady = false;
-      }
+    if (deploymentEnabled && azureSettingsResult.status === "fulfilled") {
+      azureBoardsReady = isAzureBoardsNativeCreateReady(azureSettingsResult.value);
     }
 
     const defaultPathReady =

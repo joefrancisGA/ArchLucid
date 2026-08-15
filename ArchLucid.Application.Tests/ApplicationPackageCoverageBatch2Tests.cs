@@ -51,15 +51,15 @@ public sealed class ApplicationPackageCoverageBatch2Tests
         ConsultingDocxTemplateProfileCatalog catalog = sut.GetCatalog();
 
         catalog.Profiles.Should().HaveCount(4);
-        catalog.Profiles.Select(p => p.ProfileName).Should().Contain(ConsultingDocxProfiles.Executive);
+        catalog.Profiles.Select(p => p.ProfileName).Should().Contain(ConsultingDocxProfiles.Sponsor);
     }
 
     [Theory]
     [InlineData(true, false, false, false, false, null, ConsultingDocxProfiles.Regulated)]
-    [InlineData(false, true, false, false, false, null, ConsultingDocxProfiles.Executive)]
+    [InlineData(false, true, false, false, false, null, ConsultingDocxProfiles.Sponsor)]
     [InlineData(false, false, true, false, false, null, ConsultingDocxProfiles.Client)]
     [InlineData(false, false, false, true, false, null, ConsultingDocxProfiles.Internal)]
-    [InlineData(false, false, false, false, false, "Executive sponsors", ConsultingDocxProfiles.Executive)]
+    [InlineData(false, false, false, false, false, "Sponsor sponsors", ConsultingDocxProfiles.Sponsor)]
     [InlineData(false, false, false, false, false, "audit committee", ConsultingDocxProfiles.Regulated)]
     [InlineData(false, false, false, false, false, "external client", ConsultingDocxProfiles.Client)]
     public void ConsultingDocxTemplateRecommendationService_selects_expected_profile(

@@ -1,6 +1,6 @@
 namespace ArchLucid.Contracts.Notifications;
 
-/// <summary>Operator-configured weekly executive digest email preferences for the current tenant.</summary>
+/// <summary>Operator-configured weekly sponsor digest email preferences for the current tenant.</summary>
 public sealed class ExecDigestPreferencesResponse
 {
     public int SchemaVersion

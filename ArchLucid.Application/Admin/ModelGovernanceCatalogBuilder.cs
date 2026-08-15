@@ -32,7 +32,20 @@ public sealed class ModelGovernanceCatalogBuilder(IAgentModelAliasRegistry alias
                         AliasId = entry.AliasId,
                         ProviderConnectionKind = entry.ProviderConnectionKind,
                         CapabilityTags = entry.CapabilityTags,
-                        ApprovedTaskTypes = entry.ApprovedTaskTypes
+                        ApprovedTaskTypes = entry.ApprovedTaskTypes,
+                        StructuredOutputLevel = entry.StructuredOutputLevel.ToString(),
+                        DataBoundary = entry.DataBoundary.ToString(),
+                        TaskEvaluations = entry.TaskEvaluations
+                            .Select(
+                                evaluation => new ModelAliasTaskEvaluationResponse
+                                {
+                                    TaskType = evaluation.TaskType,
+                                    EvaluationState = evaluation.EvaluationState.ToString(),
+                                    EvidenceJson = evaluation.EvidenceJson,
+                                    EvaluatedUtc = evaluation.EvaluatedUtc
+                                })
+                            .OrderBy(evaluation => evaluation.TaskType, StringComparer.OrdinalIgnoreCase)
+                            .ToList()
                     })
                 .OrderBy(entry => entry.AliasId, StringComparer.OrdinalIgnoreCase)
                 .ToList(),

@@ -67,8 +67,8 @@ export function isCtoDemoInternalOperatorControlsEnv(): boolean {
   return false;
 }
 
-/** Redirect operator home to the showcase executive summary (#4). */
-export function isCtoDemoExecutiveLandingEnv(): boolean {
+/** Redirect operator home to the showcase sponsor report (#4). */
+export function isCtoDemoSponsorLandingEnv(): boolean {
   return isCtoDemoPresenterSafeModeEnv();
 }
 

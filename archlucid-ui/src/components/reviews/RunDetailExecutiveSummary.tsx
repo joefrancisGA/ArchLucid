@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 import { cn } from "@/lib/utils";
 
-export type RunDetailExecutiveSummaryProps = {
+export type RunDetailSponsorReportProps = {
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly overallPosture: string;
   readonly highestSeverity: string | null;
@@ -35,9 +35,9 @@ function severityTagKind(
   return "low";
 }
 
-/** Single board-ready executive summary — authoritative metrics for the overview. */
-export function RunDetailExecutiveSummary(
-  props: RunDetailExecutiveSummaryProps,
+/** Single board-ready sponsor report — authoritative metrics for the overview. */
+export function RunDetailSponsorReport(
+  props: RunDetailSponsorReportProps,
 ): React.JSX.Element {
   const lastEvaluatedLabel =
     props.lastEvaluatedUtc !== null ? formatInstantForLocale(props.lastEvaluatedUtc) : null;
@@ -46,11 +46,11 @@ export function RunDetailExecutiveSummary(
     <section
       id="review-summary"
       className="scroll-mt-24 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
-      data-testid="run-detail-executive-summary"
-      aria-label="Executive summary"
+      data-testid="run-detail-sponsor-report"
+      aria-label="Sponsor report"
     >
       <h2 className={cn("m-0 mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
-        Executive summary
+        Sponsor report
       </h2>
       <dl className={cn("m-0 grid gap-3 sm:grid-cols-2 xl:grid-cols-4", OPERATOR_TYPOGRAPHY.body)}>
         <div>

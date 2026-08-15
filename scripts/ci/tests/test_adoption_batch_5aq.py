@@ -1,4 +1,4 @@
-"""TB-241 board-pack AI executive narrative drift guards (Batch 5AQ)."""
+"""TB-241 board-pack AI sponsor narrative drift guards (Batch 5AQ)."""
 
 from __future__ import annotations
 
@@ -15,9 +15,9 @@ class TestAdoptionBatch5AQ(unittest.TestCase):
         self.assertIn("GenerateBoardPackNarrative", text)
 
     def test_tb_241_exporter_prefixes_narrative(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Application" / "Roi" / "ExecutiveRoiBoardPackExporter.cs"
+        path = REPO_ROOT / "ArchLucid.Application" / "Roi" / "SponsorRoiBoardPackExporter.cs"
         text = path.read_text(encoding="utf-8")
-        self.assertIn("ExecutiveRoiBoardPackNarrativeBuilder", text)
+        self.assertIn("SponsorRoiBoardPackNarrativeBuilder", text)
         self.assertIn("generateNarrative", text)
 
     def test_tb_241_controller_query_param(self) -> None:
@@ -26,15 +26,15 @@ class TestAdoptionBatch5AQ(unittest.TestCase):
         self.assertIn("generateNarrative", text)
 
     def test_tb_241_ui_toggle(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "executive-dashboard" / "_sections" / "ExecutiveRoiSummarySection.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "sponsor-dashboard" / "_sections" / "SponsorRoiSummarySection.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("exec-roi-board-pack-narrative-toggle", text)
-        self.assertIn("downloadExecutiveRoiBoardPack", text)
+        self.assertIn("downloadSponsorRoiBoardPack", text)
 
     def test_tb_241_application_tests(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Application.Tests" / "Roi" / "ExecutiveRoiBoardPackExporterNarrativeTests.cs"
+        path = REPO_ROOT / "ArchLucid.Application.Tests" / "Roi" / "SponsorRoiBoardPackExporterNarrativeTests.cs"
         text = path.read_text(encoding="utf-8")
-        self.assertIn("## Executive summary", text)
+        self.assertIn("## Sponsor report", text)
 
 
 if __name__ == "__main__":

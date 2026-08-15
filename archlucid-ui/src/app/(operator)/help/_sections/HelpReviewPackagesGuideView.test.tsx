@@ -18,6 +18,7 @@ import {
   stripReviewPackagesOpeningLedeFromMarkdown,
   stripReviewPackagesRelatedGuidesFromMarkdown,
 } from "@/lib/review-packages-help-guide-content";
+import { REVIEW_PACKAGES_HELP_EXPORT_ACTIONS } from "@/lib/review-packages-help-export-copy";
 import { formatReviewGuideHelpProvenanceLine } from "@/lib/review-guide-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -117,6 +118,37 @@ describe("HelpReviewPackagesGuideView", () => {
     const content = screen.getByTestId("help-review-packages-content");
 
     expect(content.textContent).not.toContain("Related guides");
+  });
+
+  it("renders export next steps with sample and start-review CTAs and buyer-safe export copy (TB-1403)", () => {
+    if (loaded === null || entry === null) {
+      throw new Error("Expected review-packages guide to load.");
+    }
+
+    render(<HelpReviewPackagesGuideView entry={entry} markdown={loaded.markdown} />);
+
+    const exportPanel = screen.getByTestId("help-review-packages-export-next-steps");
+
+    expect(within(exportPanel).getByTestId("help-review-packages-export-buyer-claim").textContent).toMatch(
+      /sealed review record/i,
+    );
+    expect(within(exportPanel).getByTestId("help-review-packages-export-buyer-claim").textContent).not.toMatch(
+      /signed manifest/i,
+    );
+    expect(within(exportPanel).getByTestId("help-review-packages-export-empty-copy")).toBeInTheDocument();
+    expect(within(exportPanel).getByTestId("help-review-packages-sample-honesty")).toBeInTheDocument();
+
+    const openSample = within(exportPanel).getByTestId(REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.openSample.testId);
+
+    expect(openSample).toHaveAttribute("href", REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.openSample.href);
+
+    const startReview = within(exportPanel).getByTestId(REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.startReview.testId);
+
+    expect(startReview).toHaveAttribute("href", REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.startReview.href);
+
+    const content = screen.getByTestId("help-review-packages-content");
+
+    expect(content.textContent).not.toMatch(/Signed manifest/i);
   });
 
   it("strips Related guides and the opening lede from body markdown", () => {

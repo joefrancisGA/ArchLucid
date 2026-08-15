@@ -21,9 +21,9 @@ describe("ask page starter prompts", () => {
     expect(allPrompts).toContain("What evidence supports the top finding in this review?");
   });
 
-  it("groups buyer prompts by executive, mitigation, and evidence intent", () => {
+  it("groups buyer prompts by sponsor, mitigation, and evidence intent", () => {
     expect(ASK_BUYER_PROMPT_GROUPS.map((group) => group.heading)).toEqual([
-      "Executive summary",
+      "Sponsor report",
       "Mitigation",
       "Evidence",
     ]);

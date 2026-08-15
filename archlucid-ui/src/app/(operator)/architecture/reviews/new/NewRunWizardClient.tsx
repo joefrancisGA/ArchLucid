@@ -12,6 +12,7 @@ import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
+import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
@@ -27,6 +28,7 @@ import { useReviewCreationProgress } from "@/hooks/use-review-creation-progress"
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
+import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -70,7 +72,7 @@ import {
   SimplifiedPilotWizard,
   WizardPostCreateEvidenceUploadPanel,
   WizardStepAdvanced,
-  WizardStepAzureContext,
+  WizardStepCloudInventoryContext,
   WizardStepBaselineMetrics,
   WizardStepBaselineZip,
   WizardStepTrack,
@@ -170,14 +172,20 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
 
   const { trigger, getValues, setValue, reset, control } = form;
 
-  const markCloudProviderAzure = useCallback(() => {
-    setValue("cloudProvider", "Azure", { shouldValidate: true, shouldDirty: true });
-  }, [setValue]);
+  const markCloudProviderFromInventory = useCallback(
+    (platform: CloudInventoryPlatform) => {
+      const cloudProvider =
+        platform === "azure" ? "Azure" : platform === "aws" ? "Aws" : "Gcp";
+
+      setValue("cloudProvider", cloudProvider, { shouldValidate: true, shouldDirty: true });
+    },
+    [setValue],
+  );
 
   const evidence = useNewRunWizardPendingEvidence({
     runId,
     autoUploadOnCreate: wizardMode === "quick",
-    onAzureFileSelected: markCloudProviderAzure,
+    onInventoryFileSelected: markCloudProviderFromInventory,
   });
 
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
@@ -235,7 +243,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     runId === null
       ? "No review started yet."
       : pollSummary
-        ? `Review ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, signed review record ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
+        ? `Review ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, sealed review record ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
         : `Review ${runId} created; loading summary.`;
 
   const skipEvidenceAndAdvance = () => {
@@ -248,7 +256,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
       const applied = applyBundledSamplePackageToWizard(
         setValue,
         evidence.handlePendingEvidenceFileChange,
-        scenarioId,
+        { platform: "azure", scenarioId },
       );
 
       if (!applied.ok) {
@@ -596,12 +604,18 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
                 enabled={focusedPilotModeEnabled}
                 onEnabledChange={setFocusedPilotModeEnabled}
               />
+              <FocusedPilotScopeDisclosureBanner focusedModeEnabled={focusedPilotModeEnabled} />
               <WizardStepIdentity />
               <WizardStepDescription />
             </div>
           ) : null}
           {stepIndex === 3 ? <WizardStepConstraints /> : null}
-          {stepIndex === 4 ? <WizardStepAzureContext /> : null}
+          {stepIndex === 4 ? (
+            <WizardStepCloudInventoryContext
+              pendingFile={evidence.pendingEvidenceFile}
+              onPendingFileChange={evidence.handlePendingEvidenceFileChange}
+            />
+          ) : null}
           {stepIndex === 5 ? <WizardStepAdvanced /> : null}
           {stepIndex === FULL_WIZARD_BASELINE_METRICS_STEP_INDEX ? (
             <WizardStepBaselineMetrics

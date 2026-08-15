@@ -6,16 +6,16 @@
  *   view of engagement and governance posture per tenant scope.
  * - System health (`/administration/system-health`) is the platform readiness
  *   and dependency probe dashboard for this deployment.
- * - Workspace health (`/architecture/executive-dashboard#workspace-health`) is
- *   the executive KPI strip for the current workspace / project scope.
+ * - Workspace health (`/architecture/sponsor-dashboard#workspace-health`) is
+ *   the sponsor KPI strip for the current workspace / project scope.
  *
  * They stay separate because tenant CS scores are not platform probes, and
- * platform probes are not workspace executive KPIs. Operators need all three
+ * platform probes are not workspace sponsor KPIs. Operators need all three
  * with deep links so they do not treat one “health” surface as the other.
  */
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
-import { EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { INTERNAL_TENANT_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
 
 export type TenantSystemWorkspaceHealthSurfaceId =
@@ -43,10 +43,10 @@ export const TENANT_SYSTEM_WORKSPACE_HEALTH_HEADING =
   "Tenant, system, and workspace health are three different views" as const;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_WHY_THREE =
-  "Tenant health is the internal customer-success view of engagement and governance per tenant. System health shows platform readiness and dependency probes for this deployment. Workspace health is the executive KPI strip for the current workspace. One health surface does not replace the others — open the peer link when you need that view." as const;
+  "Tenant health is the internal customer-success view of engagement and governance per tenant. System health shows platform readiness and dependency probes for this deployment. Workspace health is the sponsor KPI strip for the current workspace. One health surface does not replace the others — open the peer link when you need that view." as const;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_COMPACT_LINE =
-  "Tenant health is CS posture; system health is platform probes; workspace health is executive KPIs — open the other when you need that view." as const;
+  "Tenant health is CS posture; system health is platform probes; workspace health is sponsor KPIs — open the other when you need that view." as const;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_TENANT_LINK: TenantSystemWorkspaceHealthLink = {
   id: "tenant-health",
@@ -65,8 +65,8 @@ export const TENANT_SYSTEM_WORKSPACE_HEALTH_SYSTEM_LINK: TenantSystemWorkspaceHe
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK: TenantSystemWorkspaceHealthLink = {
   id: "workspace-health",
   label: "Workspace health",
-  href: EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF,
-  whenToUse: "Review executive KPIs for the current workspace.",
+  href: SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF,
+  whenToUse: "Review sponsor KPIs for the current workspace.",
 };
 
 const ALL_LINKS: readonly TenantSystemWorkspaceHealthLink[] = [

@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Requests;
 
 using FluentValidation;
+using FluentValidation.Results;
 
 namespace ArchLucid.Api.Validators;
 
@@ -109,5 +110,20 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
 
         RuleFor(x => x.WizardPresetUsed)
             .MaximumLength(32).WithMessage("WizardPresetUsed must not exceed 32 characters.");
+
+        RuleFor(x => x.IntakeQuestionAnswers)
+            .NotNull().WithMessage("IntakeQuestionAnswers must not be null.");
+
+        RuleFor(x => x)
+            .Custom((request, context) =>
+            {
+                List<ValidationFailure> failures = [];
+
+                if (ArchitectureRequestQuickStartIntakeValidation.TryCollectFailures(request, failures))
+                {
+                    foreach (ValidationFailure failure in failures)
+                        context.AddFailure(failure);
+                }
+            });
     }
 }

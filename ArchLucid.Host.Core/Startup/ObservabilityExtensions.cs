@@ -104,13 +104,13 @@ public static class ObservabilityExtensions
         ArchLucidInstrumentation.EnsureCircuitBreakerStateObservableGaugesRegistered();
         ArchLucidInstrumentation.EnsureLlmTenantBudgetUtilizationObservableGaugeRegistered();
         ArchLucidInstrumentation.EnsureLlmTenantBudgetRemainingUsdObservableGaugeRegistered();
-        ArchLucidInstrumentation.EnsureExecutiveRoiSavingsObservableGaugeRegistered();
+        ArchLucidInstrumentation.EnsureSponsorRoiSavingsObservableGaugeRegistered();
         ArchLucidInstrumentation.EnsureWarmCatalogsAvailableObservableGaugeRegistered();
 
         ArchLucidInstrumentation.SetCircuitBreakerSnapshotReader(CircuitBreakerGateMetricsRegistry.SnapshotStates);
         ArchLucidInstrumentation.SetLlmBudgetUtilizationReader(LlmTenantBudgetUtilizationMetricsHostedService.UtilizationGaugeState.SnapshotMeasurements);
         ArchLucidInstrumentation.SetLlmBudgetRemainingReader(LlmTenantBudgetUtilizationMetricsHostedService.RemainingGaugeState.SnapshotMeasurements);
-        ArchLucidInstrumentation.SetExecutiveRoiSavingsReader(ExecutiveRoiSavingsGaugeHostedService.GaugeState.SnapshotMeasurements);
+        ArchLucidInstrumentation.SetSponsorRoiSavingsReader(SponsorRoiSavingsGaugeHostedService.GaugeState.SnapshotMeasurements);
         ArchLucidInstrumentation.SetFirstTenantFunnelEventNameValidator(FirstTenantFunnelEventNames.IsValid);
 
         services.AddSingleton<RetrievalTelemetryPerTenantTagCircuitBreaker>();

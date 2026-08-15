@@ -3,6 +3,8 @@
  * @see docs/library/UI_DESIGN_SYSTEM.md
  */
 
+import { cn } from "@/lib/utils";
+
 /** CSS custom properties wired in `src/app/globals.css` and Tailwind `theme.extend.colors.al`. */
 export const AL_CSS_VAR_NAMES = {
   surfaceBase: "--al-surface-base",
@@ -30,6 +32,9 @@ export const AL_CSS_VAR_NAMES = {
   statusApprovedFg: "--al-status-approved-fg",
   statusApprovedMonitoringBg: "--al-status-approved-monitoring-bg",
   statusApprovedMonitoringFg: "--al-status-approved-monitoring-fg",
+  statusNeutralBg: "--al-status-neutral-bg",
+  statusNeutralFg: "--al-status-neutral-fg",
+  statusNeutralBorder: "--al-status-neutral-border",
   dangerActionBg: "--al-danger-action-bg",
   dangerActionBgHover: "--al-danger-action-bg-hover",
   dangerActionFg: "--al-danger-action-fg",
@@ -232,11 +237,22 @@ export const OPERATOR_BUTTON_PAGE_CLASS = `h-9 px-4 ${OPERATOR_TYPE_SCALE.button
 export const OPERATOR_BUTTON_COMPACT_CLASS = `h-7 px-3 ${OPERATOR_TYPE_SCALE.tab}`;
 
 /** Inline link treatments — reserve strong teal underline for navigation, not step labels. */
+const OPERATOR_LINK_FOCUS =
+  "rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]";
+
 export const OPERATOR_LINK = {
-  nav: "font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]",
-  inline:
+  nav: cn(
+    "inline-flex min-h-8 items-center font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]",
+    OPERATOR_LINK_FOCUS,
+  ),
+  inline: cn(
     "font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)]",
-  step: "font-medium text-al-text-primary no-underline hover:text-[var(--al-accent-link)] hover:underline underline-offset-2",
+    OPERATOR_LINK_FOCUS,
+  ),
+  step: cn(
+    "font-medium text-al-text-primary no-underline hover:text-[var(--al-accent-link)] hover:underline underline-offset-2",
+    OPERATOR_LINK_FOCUS,
+  ),
   /** Compact bordered chip for numbered journey steps — clearly interactive without primary-button weight. */
   stepPill:
     "inline-flex min-h-7 max-w-full items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-[13px] font-medium leading-5 text-al-text-primary shadow-sm transition-colors hover:border-[var(--al-accent-interactive)] hover:bg-al-surface-raised hover:text-[var(--al-accent-link)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-interactive)] focus-visible:ring-offset-2 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
@@ -246,8 +262,14 @@ export const OPERATOR_LINK = {
   /** Highlights the suggested next step when the operator is not already on a journey route. */
   stepPillRecommended:
     "border-neutral-400 bg-al-surface-raised dark:border-neutral-500",
-  optional: `${OPERATOR_TYPE_SCALE.helper} font-medium text-al-text-secondary underline decoration-al-text-secondary/40 underline-offset-2 hover:text-al-text-primary hover:decoration-[var(--al-accent-interactive)]`,
+  optional: cn(
+    `${OPERATOR_TYPE_SCALE.helper} font-medium text-al-text-secondary underline decoration-al-text-secondary/40 underline-offset-2 hover:text-al-text-primary hover:decoration-[var(--al-accent-interactive)]`,
+    OPERATOR_LINK_FOCUS,
+  ),
 } as const;
+
+/** Body-scale inline links in operator tables, banners, and list rows (TB-1671). */
+export const OPERATOR_BODY_INLINE_LINK_CLASS = cn(OPERATOR_TYPE_SCALE.body, OPERATOR_LINK.inline);
 
 /**
  * Form field caption — `<Label>` and `<legend>` on operator forms (TB-2111).
@@ -306,7 +328,7 @@ export const OPERATOR_TYPOGRAPHY = {
   dataValue: `${OPERATOR_TYPE_SCALE.body} font-medium tabular-nums`,
   /** Dashboard / metric tiles only — not page titles. */
   kpiValue: "font-mono text-4xl font-semibold tabular-nums text-al-text-primary",
-  /** Executive dashboard numbers (KPI tiles + ROI summary) — one treatment (BDA-139). */
+  /** Sponsor dashboard numbers (KPI tiles + ROI summary) — one treatment (BDA-139). */
   executiveDashboardMetric: "text-2xl font-semibold tabular-nums text-al-text-primary",
 } as const;
 
@@ -419,10 +441,12 @@ export const MARKETING_TYPOGRAPHY = {
     "text-3xl font-semibold leading-tight tracking-tight text-al-text-primary sm:text-4xl lg:text-5xl",
   sectionTitle: "text-2xl font-semibold leading-tight tracking-tight text-al-text-primary",
   cardTitle: OPERATOR_TYPOGRAPHY.cardTitle,
-  body: OPERATOR_TYPOGRAPHY.body,
-  /** Hero and pricing intros — slightly larger than operator body copy. */
-  lead: "text-base leading-relaxed text-neutral-700 sm:text-lg dark:text-neutral-300",
-  meta: OPERATOR_TYPOGRAPHY.helper,
+  /** Marketing body — ~17px for public landing readability (not operator 13px). */
+  body: "text-[17px] font-normal leading-7 text-al-text-primary",
+  /** Hero and pricing intros — slightly larger than marketing body copy. */
+  lead: "text-[17px] leading-7 text-neutral-700 sm:text-lg sm:leading-8 dark:text-neutral-300",
+  /** Marketing metadata — ~15px captions (not operator 12px helper). */
+  meta: "text-[15px] font-normal leading-6 text-al-text-secondary",
   // teal-900 (≥4.5:1 on marketing hero bands); teal-800 fails axe on neutral-50.
   eyebrow: `${OPERATOR_TYPOGRAPHY.helper} font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200`,
   formLabel: `${OPERATOR_TYPE_SCALE.body} font-medium text-al-text-primary`,
@@ -434,8 +458,8 @@ export const MARKETING_MOTION = {
   heroVisual: "marketing-hero-visual",
 } as const;
 
-/** Executive buyer shell — reuses operator scale; eyebrow matches marketing entry surfaces. */
-export const EXECUTIVE_TYPOGRAPHY = {
+/** Sponsor buyer shell — reuses operator scale; eyebrow matches marketing entry surfaces. */
+export const SPONSOR_TYPOGRAPHY = {
   eyebrow: MARKETING_TYPOGRAPHY.eyebrow,
   pageTitle: OPERATOR_TYPOGRAPHY.pageTitle,
   lead: `${OPERATOR_TYPOGRAPHY.body} text-al-text-secondary`,
@@ -478,9 +502,17 @@ export const CTA_WIDTH = {
 export const MARKETING_HERO_SECONDARY_CTA_CLASS =
   `h-11 min-h-11 ${CTA_WIDTH.content} border-neutral-300 bg-white px-8 text-neutral-900 shadow-sm hover:bg-neutral-100 sm:min-w-[12rem] dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800`;
 
-/** Primary marketing CTA — white on teal-800 meets WCAG 2.2 AA 4.5:1 at 14px (`text-sm`) in light and dark. */
-export const MARKETING_PRIMARY_CTA_CLASS =
-  "inline-flex rounded-md bg-teal-800 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-900 dark:bg-teal-800 dark:hover:bg-teal-900";
+/** Filled primary shell for marketing badges/step indicators — mirrors operator `Button` variant `primary` fill. */
+export const MARKETING_PRIMARY_FILL_CLASS =
+  "bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)]";
+
+/** Primary marketing CTA anchor — shares `--al-primary-action-*` with operator `Button` variant `primary` (**TB-2292**). */
+export const MARKETING_PRIMARY_CTA_CLASS = cn(
+  "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium no-underline",
+  "hover:bg-[var(--al-primary-action-bg-hover)]",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-primary-action-ring)] focus-visible:ring-offset-2",
+  MARKETING_PRIMARY_FILL_CLASS,
+);
 
 /** Secondary caption on marketing/demo surfaces — passes 4.5:1 on `--al-surface-base` (avoid `text-neutral-500` at 11–12px). */
 export const MARKETING_CAPTION_TEXT_CLASS = "text-neutral-600 dark:text-neutral-400";
@@ -505,6 +537,23 @@ export const OPERATOR_CALLOUT_WARN_CLASS = DESIGN_TOKENS.callout.warn;
 export const OPERATOR_CALLOUT_BLOCKED_CLASS = DESIGN_TOKENS.callout.blocked;
 export const OPERATOR_CALLOUT_SUCCESS_CLASS = DESIGN_TOKENS.callout.success;
 export const OPERATOR_SURFACE_CARD_CLASS = DESIGN_TOKENS.surface.card;
+
+/** TB-2279 — filled teal is for forward/irreversible workflow commits only; navigation opens use outline/link. */
+export const OPERATOR_PRIMARY_FILL_USAGE_CONTRACT = {
+  filledPrimary:
+    "Use Button variant=\"primary\" (filled teal) only for forward or irreversible workflow commits — start review, submit, approve, save.",
+  navigationOpens:
+    "Use variant=\"outline\", quiet text links, or OPERATOR_LINK for opening another surface — drafts list, help topic, audit trail, settings tab.",
+} as const;
+
+/** TB-2290 — operator Button variant/color matrix; see UI_DESIGN_SYSTEM.md § Button variant/color matrix. */
+export const OPERATOR_BUTTON_VARIANT_COLOR_MATRIX = {
+  canonicalSource: "archlucid-ui/src/components/ui/button.tsx",
+  variants: ["primary", "outline", "default", "secondary", "destructive"] as const,
+  bannedClassNamePrefixes: ["bg-teal-", "bg-emerald-", "bg-rose-", "bg-amber-", "text-teal-"] as const,
+  filledPrimaryRule: OPERATOR_PRIMARY_FILL_USAGE_CONTRACT.filledPrimary,
+  navigationOpensRule: OPERATOR_PRIMARY_FILL_USAGE_CONTRACT.navigationOpens,
+} as const;
 
 export type EnterpriseStatusKind =
   | "ready"
@@ -550,31 +599,61 @@ const STATUS_TAG_SHAPE =
   "border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70";
 
 export function enterpriseStatusTagClass(kind: EnterpriseStatusKind): string {
+  return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} ${enterpriseStatusMetadataFillClass(kind)} ${enterpriseStatusTagAccentBorderClass(kind)}`;
+}
+
+/** Flat metadata fills for legacy `StatusPill` — token-backed, no left-accent border. */
+export function enterpriseStatusMetadataFillClass(kind: EnterpriseStatusKind): string {
   switch (kind) {
     case "ready":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-emerald-600 bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)] dark:border-l-emerald-500`;
+      return "bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]";
 
     case "needs-attention":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-amber-600 bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)] dark:border-l-amber-500`;
+      return "bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]";
 
     case "blocked":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-rose-600 bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)] dark:border-l-rose-500`;
+      return "bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]";
 
     case "approved":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-emerald-600 bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)] dark:border-l-emerald-500`;
+      return "bg-[var(--al-status-approved-bg)] text-[var(--al-status-approved-fg)]";
 
     case "approved-with-monitoring":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-teal-700 bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)] dark:border-l-teal-500`;
+      return "bg-[var(--al-status-approved-monitoring-bg)] text-[var(--al-status-approved-monitoring-fg)]";
 
     case "in-progress":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-sky-700 bg-sky-100 text-sky-950 dark:border-l-sky-500 dark:bg-sky-950/60 dark:text-sky-100`;
+      return "bg-sky-100 text-sky-950 dark:bg-sky-950/60 dark:text-sky-100";
 
     case "draft":
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-neutral-500 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-400 dark:bg-neutral-800/80`;
-
     case "neutral":
     default:
-      return `${STATUS_TAG_BASE} ${STATUS_TAG_SHAPE} border-l-neutral-400 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-500 dark:bg-neutral-800/80`;
+      return "bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)]";
+  }
+}
+
+function enterpriseStatusTagAccentBorderClass(kind: EnterpriseStatusKind): string {
+  switch (kind) {
+    case "ready":
+      return "border-l-emerald-600 dark:border-l-emerald-500";
+
+    case "needs-attention":
+      return "border-l-amber-600 dark:border-l-amber-500";
+
+    case "blocked":
+      return "border-l-rose-600 dark:border-l-rose-500";
+
+    case "approved":
+      return "border-l-emerald-600 dark:border-l-emerald-500";
+
+    case "approved-with-monitoring":
+      return "border-l-cyan-800 dark:border-l-cyan-500";
+
+    case "in-progress":
+      return "border-l-sky-700 dark:border-l-sky-500";
+
+    case "draft":
+    case "neutral":
+    default:
+      return "border-l-[var(--al-status-neutral-border)] dark:border-l-[var(--al-status-neutral-border)]";
   }
 }
 

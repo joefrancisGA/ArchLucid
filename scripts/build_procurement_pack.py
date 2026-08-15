@@ -57,7 +57,7 @@ _DEFAULT_OWNER_BY_STATUS: dict[str, str] = {
     "Evidence": "Security / product owner",
     "Self-assessment": "Security / procurement owner",
     "Template": "Legal / procurement owner",
-    "Deferred": "Executive owner",
+    "Deferred": "Sponsor owner",
     "NDA-gated": "Security / legal owner",
     "Owner-input-required": "Named deal owner",
 }

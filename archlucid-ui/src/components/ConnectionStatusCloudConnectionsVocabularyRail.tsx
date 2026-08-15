@@ -92,7 +92,7 @@ export function ConnectionStatusCloudConnectionsVocabularyRail(
         </span>
         <Link
           href={peer.href}
-          className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+          className={OPERATOR_LINK.optional}
           data-testid="connection-status-cloud-connections-vocabulary-peer-link"
         >
           {peer.label}

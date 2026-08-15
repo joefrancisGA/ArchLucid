@@ -7,7 +7,7 @@ import {
   type EvidenceGapForecastEntry,
   type EvidencePresenceFlags,
 } from "@/lib/evidence-gap-forecast";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type EvidenceGapForecastPanelProps = {
@@ -64,7 +64,7 @@ function ForecastRow(props: ForecastRowProps): React.JSX.Element {
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{entry.guidance}</p>
       {addEvidenceHref !== null && addEvidenceHref !== undefined && addEvidenceHref.length > 0 ? (
         <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link href={addEvidenceHref} className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
+          <Link href={addEvidenceHref} className={OPERATOR_LINK.optional}>
             Add {entry.label.toLowerCase()}
           </Link>
         </p>

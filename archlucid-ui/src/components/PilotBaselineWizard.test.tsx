@@ -45,7 +45,7 @@ describe("PilotBaselineWizard", () => {
     expect(screen.queryByText(/docs\/library/i)).toBeNull();
     expect(screen.getByRole("link", { name: "Review ROI methodology" })).toHaveAttribute(
       "href",
-      "/help/executive-summary#pilot-roi-measurement",
+      "/help/sponsor-report#pilot-roi-measurement",
     );
   });
 

@@ -5,6 +5,7 @@ import { OPERATOR_FORM_CONTROL_DESCRIPTION_GAP_CLASS, OPERATOR_FORM_FIELD_HELPER
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   FOCUSED_PILOT_MODE_COPY,
   FOCUSED_PILOT_MODE_CREATION_COPY,
@@ -117,14 +118,8 @@ function FocusedPilotModeScopeCard(props: PilotModePolicyPackToggleProps): React
           data-testid={`${testId}-selected-standards`}
         >
           {FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES.map((packName) => (
-            <li
-              key={packName}
-              className={cn(
-                "rounded-full border border-teal-200 bg-teal-50 px-2.5 py-1 text-teal-900 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-100",
-                OPERATOR_TYPOGRAPHY.helper,
-              )}
-            >
-              {packName}
+            <li key={packName}>
+              <StatusTag kind="ready" label={packName} className={OPERATOR_TYPOGRAPHY.helper} />
             </li>
           ))}
         </ul>

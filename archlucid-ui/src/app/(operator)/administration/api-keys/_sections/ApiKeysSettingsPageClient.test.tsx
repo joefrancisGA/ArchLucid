@@ -29,6 +29,29 @@ describe("ApiKeysSettingsPageClient", () => {
     usePathnameMock.mockReturnValue("/");
   });
 
+  it("renders the claim-discipline orientation strip on the live settings page", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          enabled: true,
+          developmentBypassAll: false,
+          admin: { isConfigured: false, maskedSegments: [] },
+          readOnly: { isConfigured: false, maskedSegments: [] },
+        }),
+      }),
+    );
+
+    render(<ApiKeysSettingsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("api-keys-settings-page")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("api-keys-settings-claim-discipline")).not.toBeInTheDocument();
+  });
+
   it("loads masked fingerprints without internal config names and requires admin rotate confirmation", async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
@@ -101,7 +124,7 @@ describe("ApiKeysSettingsPageClient", () => {
     expect(screen.getByTestId("api-keys-settings-restricted-title")).toHaveTextContent(
       "API keys are not managed in this release.",
     );
-    expect(screen.getByTestId("api-keys-settings-page-breadcrumb")).toHaveTextContent("Administration");
+    expect(screen.queryByTestId("api-keys-settings-page-breadcrumb")).toBeNull();
     expect(screen.getByRole("link", { name: "Users and roles" })).toHaveAttribute(
       "href",
       "/administration/users",

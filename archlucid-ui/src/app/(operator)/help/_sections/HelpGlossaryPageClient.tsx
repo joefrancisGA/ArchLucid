@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
+import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
+
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Input } from "@/components/ui/input";
@@ -28,7 +30,7 @@ import {
   type CustomerGlossaryCategoryId,
   type CustomerGlossaryTerm,
 } from "@/lib/customer-glossary-manifest";
-import { GOLDEN_PATH_GLOSSARY_NOUN_IDS } from "@/lib/golden-path-glossary-nouns";
+import { LOAD_BEARING_GLOSSARY_NOUN_IDS } from "@/lib/load-bearing-glossary-nouns";
 import { OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -37,7 +39,7 @@ import { cn } from "@/lib/utils";
 const CUSTOMER_TERMS = listCustomerFacingGlossaryTerms();
 const TERM_LABEL_INDEX = buildGlossaryTermLabelIndex(CUSTOMER_TERMS);
 
-const GLOSSARY_FEATURED_TERM_IDS = ["finding", ...GOLDEN_PATH_GLOSSARY_NOUN_IDS] as const;
+const GLOSSARY_FEATURED_TERM_IDS = LOAD_BEARING_GLOSSARY_NOUN_IDS;
 
 const FILTER_CHIP_CLASS = "min-h-8 px-3";
 
@@ -88,13 +90,13 @@ function GlossaryTermEntry(props: GlossaryTermEntryProps): React.ReactElement {
               <span key={relatedId}>
                 {index > 0 ? ", " : ""}
                 {isVisible ? (
-                  <Link href={`#term-${relatedId}`} className="text-teal-700 underline dark:text-teal-400">
+                  <Link href={`#term-${relatedId}`} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                     {label}
                   </Link>
                 ) : (
                   <button
                     type="button"
-                    className="text-teal-700 underline dark:text-teal-400"
+                    className={OPERATOR_BODY_INLINE_LINK_CLASS}
                     onClick={() => props.onRelatedTermNavigate(relatedId)}
                   >
                     {label}

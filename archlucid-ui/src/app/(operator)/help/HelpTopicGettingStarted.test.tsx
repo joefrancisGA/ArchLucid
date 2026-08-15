@@ -63,7 +63,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(entry?.releaseApplicability).toBeTruthy();
   });
 
-  it("renders shared help header chrome with breadcrumb, status, provenance, and export actions", () => {
+  it("renders shared help header chrome with status, provenance, and export actions", () => {
     if (entry === undefined) {
       throw new Error("Expected getting-started documentation entry.");
     }
@@ -154,7 +154,7 @@ describe("HelpGettingStartedGuideView", () => {
     const mermaid = within(pipelineDiagram).getByTestId("mermaid-diagram");
     expect(mermaid).toHaveTextContent("subgraph pipeline [Authority pipeline]");
     expect(mermaid).toHaveTextContent("gov{Governance gate}");
-    expect(mermaid).toHaveTextContent("SR[Signed review record]");
+    expect(mermaid).toHaveTextContent("SR[Sealed review record]");
     expect(mermaid.getAttribute("data-description")).toMatch(/governance gate/i);
     expect(within(pipelineDiagram).queryByText(/Diagram source \(Mermaid\)/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("getting-started-pipeline-diagram-details")).not.toBeInTheDocument();

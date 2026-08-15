@@ -21,8 +21,8 @@ import {
   alignDataHandlingIsolationHonesty,
   stripTenantIsolationContributorLeakage,
   stripDpaTemplateContributorLeakage,
-  stripExecutiveSummaryContributorLeakage,
-  stripExecutiveSummarySponsorBriefLeakage,
+  stripSponsorReportContributorLeakage,
+  stripSponsorReportSponsorBriefLeakage,
   stripFirstValue20ContributorLeakage,
   stripPathChooserContributorLeakage,
   stripPilotFeedbackContributorLeakage,
@@ -211,14 +211,14 @@ describe("help-markdown-presentation (leakage 3)", () => {
     expect(prepared).not.toContain("V1_DEFERRED");
     expect(prepared).not.toContain("M-245");
   });
-  it("keeps presented executive-summary help buyer-safe (TB-1738)", () => {
-    const loaded = tryLoadProductDocumentation("executive-summary");
+  it("keeps presented sponsor-report help buyer-safe (TB-1738)", () => {
+    const loaded = tryLoadProductDocumentation("sponsor-report");
 
     expect(loaded).not.toBeNull();
 
     const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
     const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
-      helpTopicSlug: "executive-summary",
+      helpTopicSlug: "sponsor-report",
     }).toLowerCase();
 
     expect(prepared).not.toContain("explainabilitytrace");

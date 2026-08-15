@@ -106,6 +106,28 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc26Tests
     }
 
     [Fact]
+    public void OrphanedResourceClassifier_flags_load_balancers_network_security_groups_and_route_tables()
+    {
+        const string resourcesJson = """
+            [
+              { "resourceType": "Microsoft.Network/loadBalancers", "resourceId": "/lbs/orphan", "properties": {} },
+              { "resourceType": "Microsoft.Network/loadBalancers", "resourceId": "/lbs/live", "properties": { "backendAddressPools": [ { "id": "/pool/1" } ] } },
+              { "resourceType": "Microsoft.Network/networkSecurityGroups", "resourceId": "/nsgs/orphan", "properties": {} },
+              { "resourceType": "Microsoft.Network/networkSecurityGroups", "resourceId": "/nsgs/live", "properties": { "subnets": [ { "id": "/subnet/1" } ] } },
+              { "resourceType": "Microsoft.Network/routeTables", "resourceId": "/routes/orphan", "properties": {} },
+              { "resourceType": "Microsoft.Network/routeTables", "resourceId": "/routes/live", "properties": { "subnets": [ { "id": "/subnet/2" } ] } }
+            ]
+            """;
+
+        IReadOnlyList<OrphanedResourceFinding> findings =
+            OrphanedResourceClassifier.ClassifyFromResourcesJson(resourcesJson);
+
+        findings.Select(f => f.ResourceId)
+            .Should()
+            .BeEquivalentTo(["/lbs/orphan", "/nsgs/orphan", "/routes/orphan"]);
+    }
+
+    [Fact]
     public void RegexTerraformValidator_accepts_blank_and_well_formed_snippets()
     {
         RegexTerraformValidator sut = new();

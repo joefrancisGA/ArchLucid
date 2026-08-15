@@ -61,7 +61,7 @@ describe("mermaid import policy (TB-863)", () => {
 
   it("loads architecture diagrams through a deferred run-detail chunk", () => {
     const pageViewSource = readFileSync(
-      join(SRC_ROOT, "app", "(operator)", "architecture", "reviews", "[runId]", "_sections", "RunDetailPageView.tsx"),
+      join(SRC_ROOT, "app", "(operator)", "architecture", "reviews", "[reviewId]", "_sections", "RunDetailPageView.tsx"),
       "utf8",
     );
     const deferredChunksSource = readFileSync(
@@ -71,7 +71,7 @@ describe("mermaid import policy (TB-863)", () => {
         "(operator)",
         "architecture",
         "reviews",
-        "[runId]",
+        "[reviewId]",
         "_sections",
         "run-detail-page-view-deferred-chunks.tsx",
       ),
@@ -110,7 +110,7 @@ describe("mermaid import policy (TB-863)", () => {
       join(SRC_ROOT, "app", "(operator)", "_sections", "OperatorHomePageView.tsx"),
       join(SRC_ROOT, "app", "(operator)", "page.tsx"),
       join(SRC_ROOT, "app", "(operator)", "architecture", "reviews", "page.tsx"),
-      join(SRC_ROOT, "app", "(operator)", "architecture", "reviews", "[runId]", "page.tsx"),
+      join(SRC_ROOT, "app", "(operator)", "architecture", "reviews", "[reviewId]", "page.tsx"),
     ];
 
     for (const modulePath of hotPathModules) {

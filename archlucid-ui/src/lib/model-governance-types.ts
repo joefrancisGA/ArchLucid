@@ -8,11 +8,43 @@ export type WorkspaceModelExecutionProfileResponse = {
   lastChangedBy?: string | null;
 };
 
+export type ModelAliasTaskEvaluationResponse = {
+  taskType: string;
+  evaluationState: string;
+  evidenceJson?: string | null;
+  evaluatedUtc?: string | null;
+};
+
 export type ModelAliasRegistryEntryResponse = {
   aliasId: string;
   providerConnectionKind: string;
   capabilityTags: string[];
   approvedTaskTypes: string[];
+  structuredOutputLevel?: string;
+  dataBoundary?: string;
+  taskEvaluations?: ModelAliasTaskEvaluationResponse[];
+};
+
+export type WorkspaceAllowedEngineSetResponse = {
+  allowedAliasIds: string[];
+  defaultAliasId: string;
+  source: string;
+};
+
+export type WorkspaceAllowedEngineSetUpdateRequest = {
+  allowedAliasIds: string[];
+  defaultAliasId: string;
+};
+
+export type ModelEngineSelectionOptionResponse = {
+  aliasId: string;
+  structuredOutputLevel: string;
+  taskEvaluations: ModelAliasTaskEvaluationResponse[];
+};
+
+export type ModelEngineSelectionOptionsResponse = {
+  defaultAliasId: string;
+  options: ModelEngineSelectionOptionResponse[];
 };
 
 export type ModelGovernanceProfileAgentAliasMappingResponse = {

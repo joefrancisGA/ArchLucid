@@ -147,7 +147,7 @@ Explicitly identify risks such as:
 
 Required deliverables:
 
-1. Executive recommendation.
+1. Sponsor recommendation.
 2. Current-state architecture map.
 3. Relevant file and component inventory.
 4. Current capability and gap matrix.
@@ -671,7 +671,7 @@ Report files and tests, then stop.
 ```text
 Implement assurance-coverage auditability and user-visible scope reporting, then perform a final adversarial audit of the complete implementation.
 
-Part 1 — Auditability and reporting. Persist and expose: baseline dimensions, organization-required packs, platform overlays, contextual recommendations, optional selections, exclusions, exclusion reasons, recommendation triggers, recommendation confidence, pack versions, applicable and non-applicable requirements, actor, timestamps, changes between runs, and final acknowledged scope. Add a reusable coverage summary for architecture drafts, generated architectures, reviews, review details, finalized architecture packages, exports, audit views, and executive reporting, answering: what was considered, why, what was required, what was recommended, what was excluded, what was not applicable, what remains unassessed, which versions were used, and what changed since the prior evaluation. Extend `AuditEventTypes`/`AUDIT_COVERAGE_MATRIX.md` with the one real audit gap identified in the assessment (§A.19) — a durable "run's coverage was resolved" event. Historical records retain historical scope; new baseline packs must not be backfilled as completed assessments; sample/demo records must not contaminate real portfolio reporting; do not expose internal IDs or implementation language; do not imply regulatory certification; do not claim comprehensiveness when material areas were excluded; keep provider-neutral dimensions comparable across cloud platforms while keeping provider-specific overlays visibly distinct.
+Part 1 — Auditability and reporting. Persist and expose: baseline dimensions, organization-required packs, platform overlays, contextual recommendations, optional selections, exclusions, exclusion reasons, recommendation triggers, recommendation confidence, pack versions, applicable and non-applicable requirements, actor, timestamps, changes between runs, and final acknowledged scope. Add a reusable coverage summary for architecture drafts, generated architectures, reviews, review details, finalized architecture packages, exports, audit views, and sponsor reporting, answering: what was considered, why, what was required, what was recommended, what was excluded, what was not applicable, what remains unassessed, which versions were used, and what changed since the prior evaluation. Extend `AuditEventTypes`/`AUDIT_COVERAGE_MATRIX.md` with the one real audit gap identified in the assessment (§A.19) — a durable "run's coverage was resolved" event. Historical records retain historical scope; new baseline packs must not be backfilled as completed assessments; sample/demo records must not contaminate real portfolio reporting; do not expose internal IDs or implementation language; do not imply regulatory certification; do not claim comprehensiveness when material areas were excluded; keep provider-neutral dimensions comparable across cloud platforms while keeping provider-specific overlays visibly distinct.
 
 Add tests for history, reruns, exclusions, exports, review-package consistency, and tenant separation.
 

@@ -201,12 +201,12 @@ export function buildFirstPilotReadinessRows(input: {
     },
     {
       id: "sponsor-packet",
-      label: "Executive evidence bundle",
+      label: "Sponsor evidence bundle",
       group: "evidence" as const,
       status: input.signals.hasCommittedManifest ? "ready" : "attention",
       summary: input.signals.hasCommittedManifest
-        ? "Executive evidence bundle and export surfaces are available from finalized review detail."
-        : "Finalize a review before exporting the executive evidence bundle.",
+        ? "Sponsor evidence bundle and export surfaces are available from finalized review detail."
+        : "Finalize a review before exporting the sponsor evidence bundle.",
       href: committedRunHref,
       cta: "Open evidence bundle",
     },

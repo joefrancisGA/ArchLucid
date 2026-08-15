@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { DEFAULT_AI_USAGE_DASHBOARD_FILTERS } from "@/lib/ai-usage-dashboard-filters";
 import { buildAiUsageDashboardDerived } from "@/lib/ai-usage-dashboard-model";
-import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import { AI_USAGE_HELP_TOPIC_LABEL } from "@/lib/ai-usage-settings-evidence-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { resolveNavLinkForPathname } from "@/lib/resolve-nav-link-for-pathname";
@@ -203,9 +204,8 @@ describe("CostReportingSettingsPageView (TB-1216–1219)", () => {
 
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(pageHelpTopicForPathname(AI_USAGE_SETTINGS_PATH)?.label).toBe(
-      `${OPERATOR_NAV_LINK_LABELS.aiUsage} help`,
-    );
+    expect(screen.queryByTestId("ai-usage-settings-claim-discipline")).not.toBeInTheDocument();
+    expect(pageHelpTopicForPathname(AI_USAGE_SETTINGS_PATH)?.label).toBe(AI_USAGE_HELP_TOPIC_LABEL);
   });
 
   it("keeps a single primary edit-budget affordance and distinct budget destinations (TB-1219)", () => {

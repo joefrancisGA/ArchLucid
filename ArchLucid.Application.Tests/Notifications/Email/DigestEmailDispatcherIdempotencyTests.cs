@@ -69,7 +69,7 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
-    public async Task WeeklyExecutiveSummaryEmailDispatcher_records_ledger_before_send()
+    public async Task WeeklySponsorReportEmailDispatcher_records_ledger_before_send()
     {
         List<string> order = [];
         Mock<ISentEmailLedger> ledger = new();
@@ -91,12 +91,12 @@ public sealed class DigestEmailDispatcherIdempotencyTests
         Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
 
-        WeeklyExecutiveSummaryEmailDispatcher sut = new(
+        WeeklySponsorReportEmailDispatcher sut = new(
             renderer.Object,
             provider.Object,
             ledger.Object,
             options.Object,
-            NullLogger<WeeklyExecutiveSummaryEmailDispatcher>.Instance);
+            NullLogger<WeeklySponsorReportEmailDispatcher>.Instance);
 
         bool sent = await sut.TryDispatchAsync(
             Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),

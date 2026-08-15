@@ -9,7 +9,7 @@ import {
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   OPERATOR_QUERY_GC_MS,
-  OPERATOR_QUERY_STALE_MS,
+  resolveTenantCatalogMigrationStaleTime,
 } from "@/lib/query/operator-query-stale-time";
 import {
   resolveShellBannerPollIntervalMs,
@@ -46,7 +46,7 @@ export function useTenantCatalogMigrationStatusQuery(
       }),
     refetchIntervalInBackground: false,
     retry: false,
-    staleTime: OPERATOR_QUERY_STALE_MS,
+    staleTime: (query) => resolveTenantCatalogMigrationStaleTime(query.state.data),
     gcTime: OPERATOR_QUERY_GC_MS,
   });
 }

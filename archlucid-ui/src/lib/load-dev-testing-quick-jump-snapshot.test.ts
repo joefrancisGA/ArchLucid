@@ -55,7 +55,7 @@ describe("loadDevTestingQuickJumpSnapshot", () => {
     vi.mocked(listArtifacts).mockResolvedValue([
       {
         artifactId: "artifact-a",
-        artifactType: "ExecutiveSummary",
+        artifactType: "SponsorReport",
         name: "summary.md",
         format: "text/markdown",
         createdUtc: "2026-01-01T00:00:00Z",

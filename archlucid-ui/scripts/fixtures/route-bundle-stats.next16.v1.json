@@ -21,7 +21,7 @@
     ]
   },
   {
-    "route": "/architecture/reviews/[runId]",
+    "route": "/architecture/reviews/[reviewId]",
     "firstLoadUncompressedJsBytes": 1928602,
     "firstLoadChunkPaths": [
       ".next/static/chunks/run-detail.js"
@@ -49,14 +49,14 @@
     ]
   },
   {
-    "route": "/architecture/executive-dashboard",
+    "route": "/architecture/sponsor-dashboard",
     "firstLoadUncompressedJsBytes": 1525043,
     "firstLoadChunkPaths": [
-      ".next/static/chunks/executive-dashboard.js"
+      ".next/static/chunks/sponsor-dashboard.js"
     ]
   },
   {
-    "route": "/governance/signed-records",
+    "route": "/governance/sealed-records",
     "firstLoadUncompressedJsBytes": 1461965,
     "firstLoadChunkPaths": [
       ".next/static/chunks/signed-records.js"

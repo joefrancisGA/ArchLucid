@@ -104,7 +104,7 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
 
     try {
       const applied = applyBundledDemoPackageToWizard(
-        selectedDemoScenarioId,
+        { platform: "azure", scenarioId: selectedDemoScenarioId },
         setValue,
         (file) => {
           if (file !== null) {
@@ -119,7 +119,6 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
 
       if (!applied.ok) {
         setLocalError(applied.message);
-        showError("Extractor ZIP", applied.message);
 
         return;
       }
@@ -178,7 +177,6 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
         testId={variant === "baseline" ? "wizard-baseline-zip-field" : "wizard-azure-zip-field"}
         onInvalidFile={(message) => {
           setLocalError(message);
-          showError("Extractor ZIP", message);
         }}
         hint={
           variant === "ingest" ? (
@@ -210,7 +208,6 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
 
             if (!result.ok) {
               setLocalError(result.message);
-              showError("Extractor ZIP", result.message);
 
               return;
             }

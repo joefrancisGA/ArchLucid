@@ -145,4 +145,88 @@ public sealed class ArchitectureRunAuthorityCoordinationTests
 
         Assert.Contains("azure-extractor-zip", cost.AllowedSources, StringComparer.Ordinal);
     }
+
+    [Fact]
+    public async Task CreateRun_WithAwsInventoryProvenance_mergesCostObjectiveAndAwsExtractorSource()
+    {
+        Guid runGuid = Guid.Parse("A1C3E50D904444E58B44CC1122334402");
+        DateTime utc = DateTime.SpecifyKind(new DateTime(2026, 5, 6, 1, 2, 3), DateTimeKind.Utc);
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "REQ-003",
+            SystemName = "TestSystem",
+            Description = "Design a secure AWS system.",
+            RequiredCapabilities = ["Basic compute"],
+            CloudProvider = CloudProvider.Aws,
+        };
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Guid packageId = Guid.Parse("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
+
+        Mock<ICloudInventoryExtractorPackageRepository> cloudInventoryRepo = new();
+        cloudInventoryRepo
+            .Setup(r => r.TryGetLatestProvenanceByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                runGuid,
+                CloudProvider.Aws,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new CloudInventoryExtractorPackageProvenance
+                {
+                    PackageId = packageId,
+                    CloudProvider = CloudProvider.Aws,
+                    SchemaVersion = 1,
+                    CollectionTimestampUtc = utc,
+                    CreatedUtc = utc,
+                    ScopeId = "scope-aws",
+                    OriginalFileName = "aws.zip",
+                });
+
+        Mock<IAuthorityRunOrchestrator> orchestrator = new();
+        orchestrator
+            .Setup(o =>
+                o.ExecuteAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>(), It.IsAny<string>()))
+            .ReturnsAsync(
+                new RunRecord
+                {
+                    RunId = runGuid,
+                    ProjectId = "proj",
+                    Description = "",
+                    CreatedUtc = utc,
+                    ContextSnapshotId = Guid.NewGuid(),
+                    GraphSnapshotId = Guid.NewGuid(),
+                    FindingsSnapshotId = Guid.NewGuid(),
+                    GoldenManifestId = Guid.NewGuid(),
+                    DecisionTraceId = Guid.NewGuid(),
+                    ArtifactBundleId = Guid.NewGuid(),
+                });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        ArchitectureRunAuthorityCoordination service = ArchitectureRunAuthorityCoordinationTestFactory.Create(
+            orchestrator.Object,
+            runRepo.Object,
+            scopeProvider.Object,
+            cloudInventoryExtractorPackageRepository: cloudInventoryRepo.Object);
+
+        CoordinationResult result = await service.CreateRunAsync(request);
+
+        Assert.True(result.Success);
+
+        AgentTask? cost = result.Tasks.SingleOrDefault(t => t.AgentType == AgentType.Cost);
+        Assert.NotNull(cost);
+        Assert.Contains("Inventory citation:", cost.Objective, StringComparison.Ordinal);
+        Assert.Contains("aws-extractor-zip", cost.AllowedSources, StringComparer.Ordinal);
+        Assert.DoesNotContain("azure-extractor-zip", cost.AllowedSources, StringComparer.Ordinal);
+    }
 }

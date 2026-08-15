@@ -11,7 +11,7 @@ export const ACCELERATOR_CHOOSER_HOME_CARD_TITLE = ACCELERATOR_CHOOSER_HELP_PAGE
 export const ACCELERATOR_CHOOSER_HOME_CARD_LEAD =
   "Choose the buyer job that matches your next review — each row preloads a starter architecture request and matching policy packs.";
 
-/** Home guidance link label — not internal “accelerator chooser” engineering wording (TB-1608). */
+/** Home guidance link label — buyer-safe wording, not internal engineering chooser jargon (TB-1608). */
 export const ACCELERATOR_CHOOSER_HOME_GUIDANCE_LINK_LABEL = "Open the accelerator pack guide";
 
 /** Canonical help destination for the home guidance link (TB-1608). */

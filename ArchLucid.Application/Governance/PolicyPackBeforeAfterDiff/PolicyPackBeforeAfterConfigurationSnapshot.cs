@@ -1,7 +1,7 @@
 namespace ArchLucid.Application.Governance.PolicyPackBeforeAfterDiff;
 
 /// <summary>
-///     Captured outputs for one configuration arm: findings, rule priority ordering, gate posture, and executive lines.
+///     Captured outputs for one configuration arm: findings, rule priority ordering, gate posture, and sponsor lines.
 /// </summary>
 public sealed class PolicyPackBeforeAfterConfigurationSnapshot
 {
@@ -15,5 +15,5 @@ public sealed class PolicyPackBeforeAfterConfigurationSnapshot
 
     public required bool GateBlocked { get; init; }
 
-    public required IReadOnlyList<string> ExecutiveSummaryLines { get; init; }
+    public required IReadOnlyList<string> SponsorReportLines { get; init; }
 }

@@ -41,7 +41,7 @@ class TestAiReadinessBatch5BQ(unittest.TestCase):
     def test_tb_186_run_detail_download_link(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "runs" / "RunDetailPageHeader.tsx"
         text = path.read_text(encoding="utf-8")
-        self.assertIn("Download Executive Summary", text)
+        self.assertIn("Download Sponsor report", text)
 
 
 if __name__ == "__main__":

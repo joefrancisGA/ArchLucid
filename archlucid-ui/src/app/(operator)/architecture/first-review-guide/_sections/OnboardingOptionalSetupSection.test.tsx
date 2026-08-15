@@ -7,10 +7,21 @@ import {
   ONBOARDING_OPTIONAL_SETUP_COLLAPSED_SUMMARY,
   ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION,
 } from "@/lib/buyer/buyer-polish-copy";
+import { ONBOARDING_OPTIONAL_SETUP_HEADING_ID } from "@/lib/first-review-guide-route";
+import * as scrollDeepLink from "@/lib/scroll-deep-link-target-into-view";
 
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 
 const useFinishSetupReadinessContext = vi.fn();
+
+vi.mock("@/lib/scroll-deep-link-target-into-view", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/scroll-deep-link-target-into-view")>();
+
+  return {
+    ...actual,
+    scheduleScrollDeepLinkTargetIntoView: vi.fn(actual.scheduleScrollDeepLinkTargetIntoView),
+  };
+});
 
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) => <a href={href}>{children}</a>,
@@ -52,6 +63,8 @@ vi.mock("@/components/operator-home/OperatorHomeDisclosureSection", () => ({
 describe("OnboardingOptionalSetupSection", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.location.hash = "";
+    vi.mocked(scrollDeepLink.scheduleScrollDeepLinkTargetIntoView).mockClear();
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
       context: {
@@ -91,8 +104,86 @@ describe("OnboardingOptionalSetupSection", () => {
     render(<OnboardingOptionalSetupSection />);
 
     expect(screen.getByTestId("onboarding-optional-setup-delegation")).toBeInTheDocument();
+    expect(screen.getByTestId("onboarding-optional-setup-delegation")).toHaveAttribute(
+      "id",
+      ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+    );
     expect(screen.getByText(ONBOARDING_WORKSPACE_SETUP_ADMIN_DELEGATION)).toBeInTheDocument();
     expect(screen.queryByTestId("onboarding-optional-setup")).not.toBeInTheDocument();
     expect(screen.queryByTestId("optional-workspace-setup-list-stub")).not.toBeInTheDocument();
+  });
+
+  it("re-shows optional setup when dismissed but the finish-setup deep link hash is active", () => {
+    window.localStorage.setItem("archlucid.finishSetupWizard.completed.v1", "1");
+    window.location.hash = `#${ONBOARDING_OPTIONAL_SETUP_HEADING_ID}`;
+
+    render(<OnboardingOptionalSetupSection />);
+
+    expect(screen.getByTestId("onboarding-optional-setup")).toBeInTheDocument();
+    expect(screen.getByTestId("optional-workspace-setup-list-stub")).toBeInTheDocument();
+  });
+
+  it("stays hidden when optional setup was dismissed and no finish-setup deep link is active", () => {
+    window.localStorage.setItem("archlucid.finishSetupWizard.completed.v1", "1");
+
+    render(<OnboardingOptionalSetupSection />);
+
+    expect(screen.queryByTestId("onboarding-optional-setup")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("onboarding-optional-setup-delegation")).not.toBeInTheDocument();
+  });
+
+  it("renders a scroll anchor while loading when the finish-setup deep link hash is active", () => {
+    useFinishSetupReadinessContext.mockReturnValue({
+      phase: "loading",
+      context: null,
+      readyCount: 0,
+      totalCount: 0,
+    });
+    window.location.hash = `#${ONBOARDING_OPTIONAL_SETUP_HEADING_ID}`;
+
+    render(<OnboardingOptionalSetupSection />);
+
+    expect(screen.getByTestId("onboarding-optional-setup-deep-link-loading")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_OPTIONAL_SETUP_TITLE })).toHaveAttribute(
+      "id",
+      ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+    );
+    expect(scrollDeepLink.scheduleScrollDeepLinkTargetIntoView).toHaveBeenCalledWith(
+      ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+    );
+    expect(screen.queryByTestId("onboarding-optional-setup")).not.toBeInTheDocument();
+  });
+
+  it("stays hidden while loading when no finish-setup deep link is active", () => {
+    useFinishSetupReadinessContext.mockReturnValue({
+      phase: "loading",
+      context: null,
+      readyCount: 0,
+      totalCount: 0,
+    });
+
+    render(<OnboardingOptionalSetupSection />);
+
+    expect(screen.queryByTestId("onboarding-optional-setup-deep-link-loading")).not.toBeInTheDocument();
+  });
+
+  it("respects dismissed optional setup on the first paint when the finish-setup hash is inactive", () => {
+    window.localStorage.setItem("archlucid.finishSetupWizard.completed.v1", "1");
+
+    render(<OnboardingOptionalSetupSection />);
+
+    expect(screen.queryByTestId("onboarding-optional-setup")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("onboarding-optional-setup-delegation")).not.toBeInTheDocument();
+  });
+
+  it("treats legacy #finish-setup as an optional-setup deep link", () => {
+    window.location.hash = "#finish-setup";
+
+    render(<OnboardingOptionalSetupSection />);
+
+    expect(screen.getByTestId("onboarding-optional-setup")).toBeInTheDocument();
+    expect(scrollDeepLink.scheduleScrollDeepLinkTargetIntoView).toHaveBeenCalledWith(
+      ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+    );
   });
 });

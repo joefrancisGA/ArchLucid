@@ -1,4 +1,4 @@
-import { CONFIGURATION_REFERENCE_HELP_PATH } from "@/lib/configuration-reference-help-route";
+﻿import { CONFIGURATION_REFERENCE_HELP_PATH } from "@/lib/configuration-reference-help-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import {
   DEMO_EXPLAIN_TRAFFIC_NOTE,
@@ -50,7 +50,7 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "ARD",
     path: DIGESTS_HUB_PATH,
     section: "Digests",
-    note: "Architecture digests - DigestsHubClient with DigestsPageHeader PageContextualHelp (topic map digests / Architecture digests; Category-1 registry + Schedule deep links; trigger text reads Help so the header does not echo its own title), tab bar directly under the header, one primary header action (next unresolved setup step, or Preview latest generated digest once configured), Sources follow-up strip below the tabs with no claim-boundary band (owner decision 2026-08-05), WeeklyDigestHealthBanner reduced to a status strip on every tab (status tag + tab-relevant facts only) so each tab tells the setup story exactly once - Browse via DigestsBrowseSetupChecklist, Subscriptions via DigestSubscriptionsReadinessPanel, Schedule via its own readiness rail. One status vocabulary across tabs (Setup incomplete / Action needed / Ready). Learn more â†’ /help/digests (HDG). Not a signed-record Sources trail. Score 71/100 (2026-08-05) after TB-1480 / TB-1501-TB-1505 / TB-2049 - hub launcher hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    note: "Architecture digests - DigestsHubClient with DigestsPageHeader PageContextualHelp (topic map digests / Architecture digests; Category-1 registry + Schedule deep links; trigger text reads Help so the header does not echo its own title), tab bar directly under the header, one primary header action (next unresolved setup step, or Preview latest generated digest once configured), Sources follow-up strip below the tabs with no claim-boundary band (owner decision 2026-08-05), WeeklyDigestHealthBanner reduced to a status strip on every tab (status tag + tab-relevant facts only) so each tab tells the setup story exactly once - Browse via DigestsBrowseSetupChecklist, Subscriptions via DigestSubscriptionsReadinessPanel, Schedule via its own readiness rail. One status vocabulary across tabs (Setup incomplete / Action needed / Ready). Learn more ├óΓÇáΓÇÖ /help/digests (HDG). Not a signed-record Sources trail. Score 71/100 (2026-08-05) after TB-1480 / TB-1501-TB-1505 / TB-2049 - hub launcher hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
     noteMustContain: ["DigestsHubClient", "Score 71", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Sign in. Owner backlog shorthand: ASI. */
@@ -198,7 +198,7 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "OID",
     path: "/internal/integration-events/dlq",
     section: "Advisory",
-    note: "Failed integration messages (Advisory/Admin ops) - IntegrationEventsDlqPageClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), cross-tenant callout, EnterpriseTable + review links (TB-1274), OperatorEmptyState/loading (TB-1275), Refresh-primary + destructive bulk Dialog with typed all tenants acknowledgment + filters (TB-1276), H1 aligned to nav (TB-1273). Internal Operations triage — not a signed-record Sources trail. Sibling IWX = webhooks; IJX = Jira; ADY = system-health. Score 62/100 (2026-08-11) after TB-1273–TB-1276 — admin ops queue hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.; 2026-08-11 al-ui-rate: Cross-tenant DLQ read as debug dump with dangerous equal-weight bulk retry; shipped TB-1273–TB-1276 (batch 21–25); open: none",
+    note: "Failed integration messages (Advisory/Admin ops) - IntegrationEventsDlqPageClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), cross-tenant callout, EnterpriseTable + review links (TB-1274), OperatorEmptyState/loading (TB-1275), Refresh-primary + destructive bulk Dialog with typed all tenants acknowledgment + filters (TB-1276), H1 aligned to nav (TB-1273). Internal Operations triage ΓÇö not a signed-record Sources trail. Sibling IWX = webhooks; IJX = Jira; ADY = system-health. Score 62/100 (2026-08-11) after TB-1273ΓÇôTB-1276 ΓÇö admin ops queue hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.; 2026-08-11 al-ui-rate: Cross-tenant DLQ read as debug dump with dangerous equal-weight bulk retry; shipped TB-1273ΓÇôTB-1276 (batch 21ΓÇô25); open: none",
     noteMustContain: ["IntegrationEventsDlqPageClient", "TB-1273", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for operator Why ArchLucid proof page. Owner backlog shorthand: WH. */
@@ -206,7 +206,7 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "WH",
     path: "/why-archlucid",
     section: "Learning",
-    note: "Pilot proof telemetry (Learning) - WhyArchLucidPage with OperatorPageHeader/PageHeading, OperatorPageBreadcrumb, PageContextualHelpButton (topic map how-it-works), internal pilot badge, seeded demo telemetry + sponsor pack sections. Sibling WHY = marketing /why. Buyer-polished shell redirects to showcase executive. Demo/proof orientation — not a signed-record Sources trail.",
+    note: "Pilot proof telemetry (Learning) - WhyArchLucidPage with OperatorPageHeader/PageHeading, OperatorPageBreadcrumb, PageContextualHelpButton (topic map how-it-works), internal pilot badge, seeded demo telemetry + sponsor pack sections. Sibling WHY = marketing /why. Buyer-polished shell redirects to showcase executive. Demo/proof orientation ΓÇö not a signed-record Sources trail.",
     noteMustContain: ["WhyArchLucidPage", "OperatorPageHeader", "marketing /why"],
   },
 ];

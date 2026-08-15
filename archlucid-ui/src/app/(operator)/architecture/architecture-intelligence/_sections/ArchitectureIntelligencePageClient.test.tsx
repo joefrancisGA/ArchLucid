@@ -65,6 +65,7 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-priorities")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run architecture reasoning" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run golden test" })).toBeInTheDocument();
+    expect(document.getElementById("baseline-evaluation")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Load golden fixture" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Publish to findings/advisory" })).toBeInTheDocument();
     expect(screen.getByTestId("architecture-intelligence-publish-toggle")).toBeInTheDocument();

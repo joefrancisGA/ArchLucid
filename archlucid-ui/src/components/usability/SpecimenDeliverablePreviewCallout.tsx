@@ -19,7 +19,7 @@ export type SpecimenDeliverablePreviewCalloutProps = {
   readonly sectionTestId?: string;
 };
 
-/** Pre-intake specimen preview — signed review record + findings (TB-2151). */
+/** Pre-intake specimen preview — sealed review record + findings (TB-2151). */
 export function SpecimenDeliverablePreviewCallout(
   props: SpecimenDeliverablePreviewCalloutProps,
 ): React.JSX.Element {
@@ -66,7 +66,7 @@ export function SpecimenDeliverablePreviewCallout(
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <Button asChild variant="primary" size="sm" data-testid={`${sectionTestId}-primary-cta`}>
+        <Button asChild variant="outline" size="sm" className="h-8 w-fit" data-testid={`${sectionTestId}-primary-cta`}>
           <Link href={showcaseSpecimenSignedReviewRecordHref()}>{REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA}</Link>
         </Button>
         <Link

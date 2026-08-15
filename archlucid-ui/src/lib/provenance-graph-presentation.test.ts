@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { buildStaticDemoProvenanceGraphFromShowcase } from "@/lib/operator/operator-static-demo";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { CUSTOMER_INTAKE_RULE_SET_VERSION } from "@/lib/samples/customer-intake-modernization/definition";
 import {
   applyBuyerLabelsToProvenanceGraphViewModel,
   buyerLabelForProvenanceNode,
@@ -48,6 +49,6 @@ describe("provenance graph presentation", () => {
 
     const policy = relabeled.nodes.find((n) => n.id === "n-policy");
     expect(policy?.type).toBe("PolicyPack");
-    expect(policy?.label).toBe(policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"));
+    expect(policy?.label).toBe(policyPackBuyerLabel("enterprise-privacy-v2", CUSTOMER_INTAKE_RULE_SET_VERSION));
   });
 });

@@ -11,9 +11,9 @@ public static class SponsorPacketArtifactCatalog
 
     public const string ProvenanceReferencesFileName = "provenance-references.json";
 
-    public const string ExecutiveSummaryFileName = "executive-summary.json";
+    public const string SponsorReportFileName = "sponsor-report.json";
 
-    public const string ExecutiveReviewPacketFileName = "executive-review-packet.md";
+    public const string SponsorReviewPacketFileName = "sponsor-review-packet.md";
 
     public const string FirstValueReportFileName = "first-value-report.md";
 
@@ -28,8 +28,8 @@ public static class SponsorPacketArtifactCatalog
         new(IndexFileName, "Start here — explains every file in this bundle."),
         new(BuyerDecisionBriefFileName, "One-page buyer decision brief: outcome, value, caveats, and next commercial step."),
         new(FirstValueReportFileName, "Sponsor narrative for the committed run (ROI basis labels included)."),
-        new(ExecutiveReviewPacketFileName, "Consolidated review packet: manifest, findings, ROI disposition basis, decisions."),
-        new(ExecutiveSummaryFileName, "Tenant portfolio ROI snapshot (`GET /v1/roi/executive-summary`) with scope labels."),
+        new(SponsorReviewPacketFileName, "Consolidated review packet: manifest, findings, ROI disposition basis, decisions."),
+        new(SponsorReportFileName, "Tenant portfolio ROI snapshot (`GET /v1/roi/sponsor-report`) with scope labels."),
         new(PilotRunDeltasFileName, "Structured pilot deltas JSON (same payload as `run-evidence.json`)."),
         new("run-evidence.json", "Canonical pilot-run-deltas API response for this run."),
         new("limitations.md", "Buyer-safe caveats, skipped gates, and sponsor-send hold reasons."),

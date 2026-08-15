@@ -1,6 +1,6 @@
 import { formatFindingHumanReviewStatusLabel } from "@/lib/findings/finding-human-review-display";
 import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
-import { severityFromTrace } from "@/lib/executive/executive-finding-severity";
+import { severityFromTrace } from "@/lib/sponsor/sponsor-finding-severity";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -50,6 +50,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
       revisitDueUtc: entry.revisitDueUtc ?? null,
       isStale: entry.isStale,
       evidenceHref: entry.evidenceHref,
+      evidenceRefCount: (entry.evidenceHref ?? "").trim().length > 0 ? 1 : null,
       humanReviewStatusLabel: formatFindingHumanReviewStatusLabel(entry.humanReviewStatus),
       itsmLinkedTicketsSummary:
         (entry.itsmLinkedTicketsSummary ?? "").trim().length > 0
@@ -74,7 +75,7 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
         ? rationale
         : selectedOption.length > 0
           ? `Selected: ${selectedOption}`
-          : "Open the signed review record for decision context and supporting findings.";
+          : "Open the sealed review record for decision context and supporting findings.";
 
     return {
       runId: runId.length > 0 ? runId : "—",

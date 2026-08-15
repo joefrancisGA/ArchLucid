@@ -41,7 +41,7 @@ const BUYER_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
   showStepTroubleshootLinks: false,
   minimizedExpandLabel: "Show guided workflow",
   completeMessage:
-    "Review workflow complete — share the executive export, then explore governance and audit surfaces when you need deeper assurance.",
+    "Review workflow complete — share the sponsor export, then explore governance and audit surfaces when you need deeper assurance.",
   hidePathLabel: "Hide workflow",
 };
 
@@ -75,12 +75,12 @@ const BUYER_STEP_TEXT_OVERRIDES: Record<FirstPilotOperatingRailStepId, FirstPilo
   },
   "finalize-package": {
     title: "Finalize the review",
-    shortBody: "Lock the signed review record on review detail to finalize governance records and exports.",
+    shortBody: "Lock the sealed review record on review detail to finalize governance records and exports.",
     primaryLabel: "Finalize on review detail",
   },
   "sponsor-packet": {
-    title: "Open executive review",
-    shortBody: "Download the executive review or sponsor briefing after finalize.",
+    title: "Open sponsor review",
+    shortBody: "Download the sponsor review or sponsor briefing after finalize.",
     primaryLabel: "Open finalized review",
   },
 };

@@ -1,13 +1,22 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
+export const AUDIT_TRAIL_HELP_CANONICAL_PATH = "/help/audit-trail" as const;
+
+export const AUDIT_TRAIL_HELP_TOPIC_LABEL = "How the audit trail works" as const;
+
+export const AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE =
-  "This audit trail guide explains how immutable events and correlation identifiers support governance review — it is architect help orientation, not a signed-review diligence Sources package. Open Audit, Findings, or Assurance status when you need live trails or assurance surfaces.";
+  "This guide explains how immutable events and correlation identifiers support governance review — open Audit, Findings, or Assurance status when you need live trails or assurance surfaces.";
+
+export const AUDIT_TRAIL_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const AUDIT_TRAIL_HELP_CLAIM_HEADING_ID = "help-audit-trail-claim-discipline-heading" as const;
 
 export const AUDIT_TRAIL_HELP_SOURCES_INTRO =
   "Use these follow-ups when audit vocabulary turns into live activity, findings triage, approvals, or assurance orientation.";
-
 
 /** Operator Sources — no self-href to `/help/audit-trail`. */
 export const AUDIT_TRAIL_HELP_SOURCES: readonly EvidenceSourceLink[] = [

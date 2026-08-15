@@ -1,4 +1,5 @@
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Models.Admin;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Contracts.Admin;
@@ -164,6 +165,42 @@ public sealed class AdminAuthDiagnosticsController(
     }
 
     /// <summary>
+    ///     Identity providers settings page bundle: probes and configuration diagnostics with a single OIDC/SAML build.
+    /// </summary>
+    [HttpGet("diagnostics/identity-providers-page-bundle")]
+    [ProducesResponseType(typeof(AdminIdentityProvidersPageBundleResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AdminIdentityProvidersPageBundleResponse>> GetIdentityProvidersPageBundle(
+        CancellationToken cancellationToken)
+    {
+        Task<AdminOidcDiagnosticsResponse> oidcTask =
+            _oidcWellKnownDiagnosticsService.BuildAsync(cancellationToken);
+
+        Task<AdminSamlOperationalHealthResponse> samlTask =
+            _samlOperationalDiagnosticsService.BuildAsync(cancellationToken);
+
+        await Task.WhenAll(oidcTask, samlTask).ConfigureAwait(false);
+
+        AdminOidcDiagnosticsResponse oidc = await oidcTask.ConfigureAwait(false);
+        AdminSamlOperationalHealthResponse saml = await samlTask.ConfigureAwait(false);
+
+        AdminIdentityProviderDiagnosticsResponse identityProviders =
+            IdentityProviderDiagnosticsHealthEvaluator.BuildResponse(oidc, saml);
+
+        AdminAuthConfigurationDiagnosticsResponse authConfiguration =
+            await BuildConfigurationDiagnosticsAsync(oidc, saml, cancellationToken).ConfigureAwait(false);
+
+        AdminIdentityProvidersPageBundleResponse body = new()
+        {
+            IdentityProviderDiagnostics = identityProviders,
+            AuthConfigurationDiagnostics = authConfiguration,
+            OidcDiagnostics = oidc,
+            SamlOperationalHealth = saml,
+        };
+
+        return Ok(body);
+    }
+
+    /// <summary>
     ///     Returns host OIDC/SAML configuration checks, optional tenant SSO claim-mapping state, and bounded misconfiguration hints.
     /// </summary>
     [HttpGet("auth/configuration-diagnostics")]
@@ -177,6 +214,17 @@ public sealed class AdminAuthDiagnosticsController(
         AdminSamlOperationalHealthResponse saml =
             await _samlOperationalDiagnosticsService.BuildAsync(cancellationToken).ConfigureAwait(false);
 
+        AdminAuthConfigurationDiagnosticsResponse response =
+            await BuildConfigurationDiagnosticsAsync(oidc, saml, cancellationToken).ConfigureAwait(false);
+
+        return Ok(response);
+    }
+
+    private async Task<AdminAuthConfigurationDiagnosticsResponse> BuildConfigurationDiagnosticsAsync(
+        AdminOidcDiagnosticsResponse oidc,
+        AdminSamlOperationalHealthResponse saml,
+        CancellationToken cancellationToken)
+    {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         TenantIdentityProviderConfigurationRecord? tenantRow = await _tenantIdentityProviderConfigurationRepository
@@ -191,7 +239,7 @@ public sealed class AdminAuthDiagnosticsController(
                 _emailNotificationOptionsMonitor.CurrentValue,
                 _trialAuthOptionsMonitor.CurrentValue);
 
-        AdminAuthConfigurationDiagnosticsResponse response = AuthConfigurationDiagnosticsComposer.Compose(
+        return AuthConfigurationDiagnosticsComposer.Compose(
             oidc,
             saml,
             _samlAuthOptionsMonitor.CurrentValue,
@@ -199,8 +247,6 @@ public sealed class AdminAuthDiagnosticsController(
             scimDiagnostics,
             operatorBaseUrlConfigured,
             localTrialIdentityConfigured);
-
-        return Ok(response);
     }
 
     private async Task<AuthConfigurationScimDiagnostics?> BuildScimDiagnosticsAsync(

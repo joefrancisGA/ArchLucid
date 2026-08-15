@@ -57,28 +57,28 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("pilot-guide")).toBe("/help/pilot-guide");
     expect(getProductDocumentationEntry("troubleshooting")?.title).toBe("Troubleshooting");
     expect(getProductDocumentationEntry("starting-reviews")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("starting-reviews")).toBe("/help/review-guide");
-    expect(inAppHelpHref("starting-reviews")).toBe("/help/review-guide");
+    expect(resolveHelpTopicPermanentRedirect("starting-reviews")).toBeNull();
+    expect(inAppHelpHref("starting-reviews")).toBe("/help/starting-reviews");
     expect(getProductDocumentationEntry("creating-runs")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("creating-runs")).toBe("/help/review-guide");
-    expect(inAppHelpHref("creating-runs")).toBe("/help/review-guide");
+    expect(resolveHelpTopicPermanentRedirect("creating-runs")).toBeNull();
+    expect(inAppHelpHref("creating-runs")).toBe("/help/creating-runs");
     expect(getProductDocumentationEntry("data-handling-tenant-isolation")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("data-handling-tenant-isolation")).toBe("/help/data-handling");
-    expect(inAppHelpHref("data-handling-tenant-isolation")).toBe("/help/data-handling");
+    expect(resolveHelpTopicPermanentRedirect("data-handling-tenant-isolation")).toBeNull();
+    expect(inAppHelpHref("data-handling-tenant-isolation")).toBe("/help/data-handling-tenant-isolation");
     expect(getProductDocumentationEntry("integrations/azure-boards")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("integrations/azure-boards")).toBe("/help/azure-boards");
-    expect(inAppHelpHref("integrations/azure-boards")).toBe("/help/azure-boards");
+    expect(resolveHelpTopicPermanentRedirect("integrations/azure-boards")).toBeNull();
+    expect(inAppHelpHref("integrations/azure-boards")).toBe("/help/integrations/azure-boards");
     expect(getProductDocumentationEntry("evidence-only-review")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("evidence-only-review")).toBe("/help/first-architecture-review");
-    expect(inAppHelpHref("evidence-only-review")).toBe("/help/first-architecture-review");
+    expect(resolveHelpTopicPermanentRedirect("evidence-only-review")).toBeNull();
+    expect(inAppHelpHref("evidence-only-review")).toBe("/help/evidence-only-review");
     expect(inAppHelpHref("evidence-only-review", "fast-path-evidence-only")).toBe(
-      "/help/first-architecture-review#fast-path-evidence-only",
+      "/help/evidence-only-review#fast-path-evidence-only",
     );
+    const firstArchitectureReview = getProductDocumentationEntry("first-architecture-review");
+    expect(firstArchitectureReview?.includeIntroWithSections).not.toBe(true);
     expect(getProductDocumentationEntry("pilot-roi-model")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("pilot-roi-model")).toBe(
-      "/help/executive-summary#pilot-roi-measurement",
-    );
-    expect(inAppHelpHref("pilot-roi-model")).toBe("/help/executive-summary#pilot-roi-measurement");
+    expect(resolveHelpTopicPermanentRedirect("pilot-roi-model")).toBeNull();
+    expect(inAppHelpHref("pilot-roi-model")).toBe("/help/pilot-roi-model");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
     expect(getProductDocumentationEntry("cloud-connections/aws")?.title).toBe("Connect AWS securely");
     expect(getProductDocumentationEntry("cloud-connections/gcp")?.title).toBe("Connect GCP securely");
@@ -90,14 +90,14 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("cloud-connections-aws")).toBe("/help/cloud-connections/aws");
     expect(inAppHelpHref("cloud-connections-gcp")).toBe("/help/cloud-connections/gcp");
     expect(getProductDocumentationEntry("core-pilot")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("core-pilot")).toBe("/help/first-architecture-review");
-    expect(inAppHelpHref("core-pilot")).toBe("/help/first-architecture-review");
+    expect(resolveHelpTopicPermanentRedirect("core-pilot")).toBeNull();
+    expect(inAppHelpHref("core-pilot")).toBe("/help/core-pilot");
     expect(getProductDocumentationEntry("product-overview")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("product-overview")).toBe("/help/executive-summary#what-archlucid-is");
-    expect(inAppHelpHref("product-overview")).toBe("/help/executive-summary#what-archlucid-is");
+    expect(resolveHelpTopicPermanentRedirect("product-overview")).toBeNull();
+    expect(inAppHelpHref("product-overview")).toBe("/help/product-overview");
     expect(getProductDocumentationEntry("how-it-works")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("how-it-works")).toBe("/help/getting-started#how-archlucid-works");
-    expect(inAppHelpHref("how-it-works")).toBe("/help/getting-started#how-archlucid-works");
+    expect(resolveHelpTopicPermanentRedirect("how-it-works")).toBeNull();
+    expect(inAppHelpHref("how-it-works")).toBe("/help/how-it-works");
   });
 
   it("loads markdown for every registry topic from the monorepo", () => {
@@ -206,7 +206,7 @@ describe("product-documentation-registry", () => {
       "getting-started": "public",
       "data-handling": "public",
       "security-trust": "public",
-      "executive-summary": "public",
+      "sponsor-report": "public",
       "cloud-connections-azure": "customer",
       "cloud-connections-aws": "customer",
       "cloud-connections-gcp": "customer",
@@ -312,14 +312,15 @@ describe("product-documentation-registry", () => {
   });
 
   it("loads TB-727 sectionAnchor registry entries from existing markdown only", () => {
-    const executiveSummary = tryLoadProductDocumentation("executive-summary");
+    const SponsorReport = tryLoadProductDocumentation("sponsor-report");
     const firstArchitectureReview = tryLoadProductDocumentation("first-architecture-review");
     const dataHandling = tryLoadProductDocumentation("data-handling");
 
-    // TB-1739 / Batch A: product-overview retired — executive-summary owns EXECUTIVE_SPONSOR_BRIEF.md sections.
-    expect(executiveSummary?.entry.slug).toBe("executive-summary");
-    expect(executiveSummary?.markdown).toContain("What Pilot proves");
-    expect(executiveSummary?.markdown).toContain("Manual review vs ArchLucid proof package");
+    // TB-1739 / Batch A: product-overview retired — sponsor-report owns SPONSOR_SPONSOR_BRIEF.md sections.
+    expect(SponsorReport?.entry.slug).toBe("sponsor-report");
+    expect(SponsorReport?.markdown).toContain("What Pilot proves");
+    expect(SponsorReport?.markdown).toContain("What ArchLucid is");
+    expect(SponsorReport?.markdown).toContain("Manual review vs ArchLucid proof package");
 
     expect(firstArchitectureReview?.entry.slug).toBe("first-architecture-review");
     expect(firstArchitectureReview?.markdown).toContain("evidence-only review");

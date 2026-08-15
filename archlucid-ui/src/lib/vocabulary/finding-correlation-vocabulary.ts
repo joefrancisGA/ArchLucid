@@ -16,7 +16,7 @@ export const ITSM_TICKET_LINKAGE_SHORT =
 export const ROI_PORTFOLIO_FINDING_DEDUP_LABEL = "Portfolio finding deduplication";
 
 export const ROI_PORTFOLIO_FINDING_DEDUP_SHORT =
-  "Executive ROI headline savings deduplicate overlapping findings by stable FindingId within the portfolio window — not compare export correlation.";
+  "Sponsor ROI headline savings deduplicate overlapping findings by stable FindingId within the portfolio window — not compare export correlation.";
 
 export const FINDING_CORRELATION_VOCABULARY_DISAMBIGUATION_TITLE =
   "Three different “correlation” meanings in ArchLucid";

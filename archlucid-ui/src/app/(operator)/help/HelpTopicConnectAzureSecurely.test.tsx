@@ -156,6 +156,26 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
     expect(screen.getByRole("link", { name: /Fix a failed permission check/i })).toHaveAttribute("href", "#troubleshoot");
   });
 
+  it("cross-links to the Azure permissions guide for IA dual (TB-1629)", () => {
+    if (entry === undefined) {
+      throw new Error("Expected cloud-connections-azure documentation entry.");
+    }
+
+    render(<HelpConnectAzureSecurelyGuideView entry={entry} />);
+
+    expect(screen.getByTestId("connect-azure-securely-detailed-setup-link")).toHaveAttribute(
+      "href",
+      "/help/azure-permissions",
+    );
+
+    const permissionsGuideLinks = screen.getAllByRole("link", { name: "Azure permissions guide" });
+
+    expect(permissionsGuideLinks.length).toBeGreaterThanOrEqual(1);
+    for (const link of permissionsGuideLinks) {
+      expect(link).toHaveAttribute("href", "/help/azure-permissions");
+    }
+  });
+
   it("provides workflow navigation actions, diligence links, and troubleshooting in the TOC", () => {
     if (entry === undefined) {
       throw new Error("Expected cloud-connections-azure documentation entry.");

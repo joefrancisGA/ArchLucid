@@ -74,7 +74,7 @@ export async function listDigestSubscriptions(): Promise<DigestSubscription[]> {
   return apiGet<DigestSubscription[]>(`/${ApiV1Routes.digestSubscriptions}`);
 }
 
-/** Loads weekly executive digest email preferences for the current tenant. */
+/** Loads weekly sponsor digest email preferences for the current tenant. */
 export async function getExecDigestPreferences(): Promise<ExecDigestPreferencesResponse> {
   return apiGet<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`);
 }
@@ -88,11 +88,31 @@ export async function tryGetTenantTrialStatus(): Promise<TenantTrialStatusPayloa
   }
 }
 
-/** Saves weekly executive digest email preferences (Execute+). */
+/** Saves weekly sponsor digest email preferences (Execute+). */
 export async function saveExecDigestPreferences(
   body: ExecDigestPreferencesUpsertRequest,
 ): Promise<ExecDigestPreferencesResponse> {
   return apiPostJson<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`, body);
+}
+
+/** Sponsor digest schedule tab — same tenant exec-digest preferences route. */
+export async function getSponsorDigestPreferences(): Promise<ExecDigestPreferencesResponse> {
+  return getExecDigestPreferences();
+}
+
+/** Sponsor digest schedule tab — same tenant exec-digest preferences route. */
+export async function saveSponsorDigestPreferences(
+  body: ExecDigestPreferencesUpsertRequest,
+): Promise<ExecDigestPreferencesResponse> {
+  return saveExecDigestPreferences(body);
+}
+
+/** Loads Teams incoming-webhook connection and trigger catalog in one GET. */
+export async function fetchTeamsIncomingWebhookPageBundle(): Promise<{
+  connection: TeamsIncomingWebhookConnectionResponse;
+  triggerCatalog: string[];
+}> {
+  return apiGet(`/${ApiV1Routes.teamsIncomingWebhookPageBundle}`);
 }
 
 /** Loads Teams incoming-webhook Key Vault reference for the current tenant (secret value never returned). */

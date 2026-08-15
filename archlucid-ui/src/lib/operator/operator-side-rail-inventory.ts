@@ -97,7 +97,7 @@ export const OPERATOR_SIDE_RAIL_INVENTORY: readonly OperatorSideRailInventoryEnt
   },
   {
     id: "run-detail-workspace",
-    pathOrSurface: "/architecture/reviews/[runId]",
+    pathOrSurface: "/architecture/reviews/[reviewId]",
     kind: "working-object",
     disposition: "allowed",
     markerTestId: "run-detail-workspace-layout",

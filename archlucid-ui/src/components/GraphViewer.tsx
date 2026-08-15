@@ -678,7 +678,7 @@ export function GraphViewer({
                 <div className="mt-3 flex flex-col gap-2">
                   <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
                     <Link href={signedRecordDetailPath(selectedNode.id.trim())}>
-                      Open signed review record
+                      Open sealed review record
                     </Link>
                   </Button>
                 </div>

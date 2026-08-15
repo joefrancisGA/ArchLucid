@@ -1,4 +1,4 @@
-"""TB-239 executive ROI history run-mode label drift guards (Batch 5AL)."""
+"""TB-239 sponsor ROI history run-mode label drift guards (Batch 5AL)."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestAdoptionBatch5AL(unittest.TestCase):
     def test_tb_239_history_contract_exposes_run_mode_fields(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Contracts" / "Roi" / "ExecutiveRoiHistoryResponse.cs"
+        path = REPO_ROOT / "ArchLucid.Contracts" / "Roi" / "SponsorRoiHistoryResponse.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("RealRunCount", text)
         self.assertIn("SimulatorRunCount", text)
@@ -19,7 +19,7 @@ class TestAdoptionBatch5AL(unittest.TestCase):
         self.assertIn("IsMixedMode", text)
 
     def test_tb_239_run_mode_calculator_exists(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Application" / "Roi" / "ExecutiveRoiHistoryRunModeCalculator.cs"
+        path = REPO_ROOT / "ArchLucid.Application" / "Roi" / "SponsorRoiHistoryRunModeCalculator.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("ComputeRealModeSavingsUsd", text)
         self.assertIn("IsMixedMode", text)
@@ -32,9 +32,9 @@ class TestAdoptionBatch5AL(unittest.TestCase):
             / "app"
             / "(operator)"
             / "architecture"
-            / "executive-dashboard"
+            / "sponsor-dashboard"
             / "_sections"
-            / "ExecutiveRoiTrendSection.tsx"
+            / "SponsorRoiTrendSection.tsx"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("realRunCount", text)
@@ -42,7 +42,7 @@ class TestAdoptionBatch5AL(unittest.TestCase):
         self.assertIn("Simulator-only", text)
 
     def test_tb_239_extended_service_test_covers_pro_rated_savings(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Application.Tests" / "Roi" / "ExecutiveRoiSummaryServiceExtendedTests.cs"
+        path = REPO_ROOT / "ArchLucid.Application.Tests" / "Roi" / "SponsorRoiSummaryServiceExtendedTests.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("BuildHistoryAsync_pro_rates_savings_by_real_and_simulator_run_counts", text)
 
@@ -54,9 +54,9 @@ class TestAdoptionBatch5AL(unittest.TestCase):
             / "app"
             / "(operator)"
             / "architecture"
-            / "executive-dashboard"
+            / "sponsor-dashboard"
             / "_sections"
-            / "ExecutiveRoiTrendSection.test.tsx"
+            / "SponsorRoiTrendSection.test.tsx"
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("exec-roi-trend-mixed-mode-footnote", text)

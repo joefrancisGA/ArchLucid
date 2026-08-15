@@ -61,7 +61,7 @@ export function buildIntakeShowcaseStaticPayload(args: BuildIntakeShowcaseStatic
       createdUtc: "2026-01-14T22:08:41.000Z",
       manifestHash: "sha256-demo-7f91c4aab3…",
       ruleSetId: args.scenario.ruleSetId,
-      ruleSetVersion: "3.4.1",
+      ruleSetVersion: args.scenario.ruleSetVersion,
       decisionCount: args.scenario.spineCounts.decisionCount,
       warningCount: args.scenario.spineCounts.warningCount,
       unresolvedIssueCount: 0,

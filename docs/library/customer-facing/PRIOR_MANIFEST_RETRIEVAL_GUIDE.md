@@ -2,13 +2,13 @@
 
 # Prior manifest retrieval
 
-When you **finalize** an architecture package, ArchLucid automatically indexes that package’s decisions, findings, and signed review record text into the retrieval corpus for your workspace project. Future Ask questions and later reviews in the same project can retrieve those chunks as **prior** context — no manual index step.
+When you **finalize** an architecture package, ArchLucid automatically indexes that package’s decisions, findings, and sealed review record text into the retrieval corpus for your workspace project. Future Ask questions and later reviews in the same project can retrieve those chunks as **prior** context — no manual index step.
 
 ## What gets indexed on finalize
 
 Finalize triggers retrieval indexing for the current architecture package, including:
 
-- **Decisions and assumptions** — topology, security, compliance, and cost sections from the signed review record.
+- **Decisions and assumptions** — topology, security, compliance, and cost sections from the sealed review record.
 - **Findings** — severity, disposition, and evidence-backed recommendations from the finalized findings snapshot.
 - **Priors from other packages** — up to the configured limit of **other finalized architecture packages** in the same tenant, workspace, and project (see limits below).
 
@@ -31,7 +31,7 @@ Not every finalize improves Ask quality. Reduce noise by:
 
 - **Avoid finalizing throwaway experiments** — abandoned what-if reviews become searchable history unless archived.
 - **Prefer the package you want cited** — duplicate near-identical finalizes crowd retrieval with redundant chunks.
-- **Archive superseded packages** — archived signed review records are excluded from cross-package prior selection.
+- **Archive superseded packages** — archived sealed review records are excluded from cross-package prior selection.
 - **Stay in the right project** — priors are scoped to tenant + workspace + project; other projects do not share prior chunks.
 
 ## Ask and prior intent

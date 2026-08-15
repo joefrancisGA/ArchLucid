@@ -19,16 +19,16 @@ describe("long-operation-wait-copy", () => {
   it("builds named-stage copy for each escalation band", () => {
     const quiet = buildLongOperationWaitCopy({
       operationLabel: "Finalizing architecture review",
-      stageLabel: "Saving signed review record",
+      stageLabel: "Saving sealed review record",
       elapsedMs: 1_000,
     });
     expect(quiet.level).toBe("quiet");
-    expect(quiet.headline).toBe("Saving signed review record");
+    expect(quiet.headline).toBe("Saving sealed review record");
     expect(quiet.detail).not.toMatch(/%/);
 
     const after10 = buildLongOperationWaitCopy({
       operationLabel: "Finalizing architecture review",
-      stageLabel: "Saving signed review record",
+      stageLabel: "Saving sealed review record",
       elapsedMs: LONG_OPERATION_ESCALATION_10S_MS,
     });
     expect(after10.level).toBe("after10s");

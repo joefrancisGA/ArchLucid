@@ -117,7 +117,7 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 
 | Command | Scope | Description |
 |--------|-------|-------------|
-| `roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain]` | AdminAuthority | Draft of the **quarterly aggregate ROI bulletin** via **`GET /v1/admin/roi-bulletin-preview`**, **or** **`--synthetic`** local sample (no API). See **[archlucid roi-bulletin](#archlucid-roi-bulletin)** and [Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement). |
+| `roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain]` | AdminAuthority | Draft of the **quarterly aggregate ROI bulletin** via **`GET /v1/admin/roi-bulletin-preview`**, **or** **`--synthetic`** local sample (no API). See **[archlucid roi-bulletin](#archlucid-roi-bulletin)** and [Pilot ROI measurement](/help/sponsor-summary#pilot-roi-measurement). |
 
 **Before sending a support bundle:** open every generated file once; confirm **`redaction-manifest.json`** shows **`status=PASS`**; put **correlation** (**`X-Correlation-ID`** / **`correlationId`**) and **run id** in the ticket text; never attach raw **`.env`** or Key Vault dumps; expect **LLM prompt bodies to be truncated** in **`logs.json`** by design; if you used **`--zip`**, unzip and re-scan for literals your policy forbids. See [Developer troubleshooting](/help/developer-troubleshooting).
 
@@ -203,7 +203,7 @@ The companion **end-to-end runbook** for the funnel lives in [Developer troubles
 
 ## archlucid roi-bulletin
 
-`archlucid roi-bulletin` downloads an **internal Markdown draft** of the quarterly **aggregate** bulletin described in [Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement). It never emits per-tenant rows — only **N**, **mean**, **median (p50)**, and **p90** for tenants that supplied `BaselineReviewCycleHours` during the calendar quarter window.
+`archlucid roi-bulletin` downloads an **internal Markdown draft** of the quarterly **aggregate** bulletin described in [Pilot ROI measurement](/help/sponsor-summary#pilot-roi-measurement). It never emits per-tenant rows — only **N**, **mean**, **median (p50)**, and **p90** for tenants that supplied `BaselineReviewCycleHours` during the calendar quarter window.
 
 ### Synthetic sample (`--synthetic`)
 
@@ -332,7 +332,7 @@ Options:
 
 - `--format <markdown|html|docx|pdf>` (default `markdown`)
 - `--mode <artifact|regenerate|verify>` (default `artifact`)
-- `--profile <default|short|detailed|executive>` (end-to-end only)
+- `--profile <default|short|detailed|sponsor>` (end-to-end only)
 - `--persist` to persist the replay as a new comparison record (prints `PersistedReplayRecordId` when returned)
 - `--out <path>` to control output location:
   - directory → saves as server-provided filename in that directory

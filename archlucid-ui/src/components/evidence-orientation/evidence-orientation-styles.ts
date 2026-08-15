@@ -24,14 +24,10 @@ const SOURCES_INTRO_HELPER = cn(SOURCES_INTRO_BASE, OPERATOR_TYPOGRAPHY.helper);
 
 const SOURCES_INTRO_BODY = cn(SOURCES_INTRO_BASE, OPERATOR_TYPOGRAPHY.body);
 
-/** Operator Sources links keep a 24px pointer target without inflating the chip row. */
-const SOURCES_LINK_OPERATOR = cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center py-1 font-medium");
+/** Operator Sources links keep a 32px pointer target without inflating the chip row. */
+const SOURCES_LINK_OPERATOR = cn(OPERATOR_LINK.inline, "inline-flex min-h-8 items-center py-1 font-medium");
 
-/**
- * Pre-token teal link styling still baked into evaluation surfaces and their snapshots.
- * @deprecated New surfaces use {@link MARKETING_SURFACES.inlineLink}; this exists to keep published DOM stable.
- */
-const SOURCES_LINK_LEGACY_TEAL = "font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300";
+const SOURCES_LINK_LEGACY_TEAL = MARKETING_SURFACES.inlineLink;
 
 export const EVIDENCE_SOURCES_STYLE = {
   /** Operator help surfaces: muted panel, helper-scale intro, tokenised inline link. */
@@ -43,6 +39,12 @@ export const EVIDENCE_SOURCES_STYLE = {
   /** Operator follow-up bands that sit on an already-muted page section. */
   operatorRaised: {
     panel: SOURCES_PANEL_RAISED,
+    intro: SOURCES_INTRO_HELPER,
+    link: SOURCES_LINK_OPERATOR,
+  },
+  /** Operator follow-up bands that share ruled section chrome with sibling help sections. */
+  operatorNeutral: {
+    panel: "space-y-3",
     intro: SOURCES_INTRO_HELPER,
     link: SOURCES_LINK_OPERATOR,
   },
@@ -87,6 +89,11 @@ export const EVIDENCE_CLAIM_STYLE = {
   operatorWarn: { panel: cn(DESIGN_TOKENS.callout.warn, "p-3") },
   operatorInfo: { panel: cn(DESIGN_TOKENS.callout.info, "p-3") },
   operatorNeutral: { panel: cn(DESIGN_TOKENS.callout.neutral, "p-3") },
+  /** Inline disclaimer on help guides — no peer card chrome beside Start here panels. */
+  operatorInlineNote: {
+    panel: "border-l-2 border-neutral-300 pl-3 dark:border-neutral-700",
+    body: "text-al-text-secondary",
+  },
   evaluationCaution: { panel: CLAIM_PANEL_EVALUATION_CAUTION },
   evaluationNeutral: { panel: CLAIM_PANEL_EVALUATION_NEUTRAL, body: "text-al-text-secondary" },
 } as const satisfies Record<string, EvidenceOrientationClaimStyle>;

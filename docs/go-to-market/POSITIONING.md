@@ -85,7 +85,7 @@ Use these where the buyer is evaluating **a review and report**, not self-serve 
 
 ## 2. Three value pillars
 
-*The core value pillars (AI-native architecture analysis, Auditable decision trail, Enterprise governance) have been consolidated into the [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars). Use the brief as the single source of truth for value claims.*
+*The core value pillars (AI-native architecture analysis, Auditable decision trail, Enterprise governance) have been consolidated into the [Sponsor Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars). Use the brief as the single source of truth for value claims.*
 
 **Pillar 3 proof points on this page:** The narrative for Enterprise governance lives in the brief; the **bullet list under §2 / Pillar 3 below** remains here as a **ship-backed proof reference** for datasheets and sales engineering (implementation anchors, not duplicate buyer story).
 
@@ -106,7 +106,7 @@ The unauthenticated proof route **`/demo/explain`** (architect workspace / marke
 
 ### Pillar 3: Enterprise governance
 
-*See the [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars) for details on Enterprise governance.*
+*See the [Sponsor Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars) for details on Enterprise governance.*
 
 **Proof points:**
 - Pre-finalize governance gate with configurable severity thresholds and warning-only mode
@@ -120,7 +120,7 @@ The unauthenticated proof route **`/demo/explain`** (architect workspace / marke
 
 ## 3. Elevator pitches
 
-*The elevator pitches (including M-18 outreach templates) live in the [Executive Sponsor Brief §4](EXECUTIVE_SPONSOR_BRIEF.md#elevator-pitches). Use the brief as the single source of truth for narrative and talk-track.*
+*The elevator pitches (including M-18 outreach templates) live in the [Sponsor Sponsor Brief §4](EXECUTIVE_SPONSOR_BRIEF.md#elevator-pitches). Use the brief as the single source of truth for narrative and talk-track.*
 
 ---
 
@@ -201,7 +201,7 @@ This category sits between traditional **Enterprise Architecture Management** (w
 
 **Finalized (2026-05-17):** ***Defensible architecture, on demand.***
 
-Used as the homepage H1, lead promise, and one-sentence positioning tagline across all GTM surfaces. Aligns with the [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md) §1 category line and the §7 messaging guidance below (buyer-outcome-first, no jargon).
+Used as the homepage H1, lead promise, and one-sentence positioning tagline across all GTM surfaces. Aligns with the [Sponsor Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md) §1 category line and the §7 messaging guidance below (buyer-outcome-first, no jargon).
 
 <details><summary>Considered alternatives (retained for reference)</summary>
 
@@ -226,7 +226,7 @@ Used as the homepage H1, lead promise, and one-sentence positioning tagline acro
 | Say "**Architecture Proof Engine**" when explaining the **category** | Say "AI-powered" as the headline — every tool says this now |
 | Emphasize **evidence linkage**: every finding cites what it used | Claim "fully autonomous architecture design" — agents are orchestrated, not autonomous |
 | Lead with **review-led trust ladder** — finished packages and evidence-backed review before creation headlines | Lead heroes with **create** or generation speed — symmetric workflows, not symmetric positioning |
-| Highlight the **executive summary export** — this is what gets budget approved | Position governance workflow as the first selling point (it is the second sale) |
+| Highlight the **sponsor summary export** — this is what gets budget approved | Position governance workflow as the first selling point (it is the second sale) |
 | Position as **complementary** to existing EA tools (LeanIX, Ardoq), not a replacement | Position as a **replacement** for existing EA tools — different category |
 | Be honest about V1 limitations (Azure-only, no import connectors yet) | Imply multi-cloud support or integrations that do not exist |
 | Reference the **audit chain / signed architecture package** for skeptical buyers: "every finding traces to evidence, and the finalized package is hash-verified" | Lead with "AI" alone — every tool claims AI now; do not call the package "cryptographically signed" or imply a PKI certificate |
@@ -254,9 +254,9 @@ Reviews depend on a small team of senior architects who apply different standard
 
 ### The solution
 
-ArchLucid turns scattered architecture evidence into **prioritized architecture risks with evidence-linked findings you can show without narration** — complete with recommended actions, confidence ratings, limits where the model did not conclude, and an exportable executive summary.
+ArchLucid turns scattered architecture evidence into **prioritized architecture risks with evidence-linked findings you can show without narration** — complete with recommended actions, confidence ratings, limits where the model did not conclude, and an exportable sponsor summary.
 
-Upload your architecture materials. ArchLucid's multi-agent analysis covers topology, cost, compliance, and design quality — and surfaces a findings board where every risk is ranked by severity, traced to evidence, and accompanied by a concrete recommended action. Architects get a defensible architecture package. CTOs get a clear executive summary. What used to take weeks now takes minutes, with a full audit trail.
+Upload your architecture materials. ArchLucid's multi-agent analysis covers topology, cost, compliance, and design quality — and surfaces a findings board where every risk is ranked by severity, traced to evidence, and accompanied by a concrete recommended action. Architects get a defensible architecture package. CTOs get a clear sponsor summary. What used to take weeks now takes minutes, with a full audit trail.
 
 ArchLucid proves the review happened and is defensible — not that the design will perform in production.
 

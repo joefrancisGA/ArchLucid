@@ -76,6 +76,47 @@ public sealed class RecommendationLearningController(
         return Ok(status);
     }
 
+    /// <summary>Internal operator page bundle: status, latest profile (nullable), and version history.</summary>
+    [HttpGet("ops-page")]
+    [ProducesResponseType(typeof(RecommendationLearningOpsPageResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<RecommendationLearningOpsPageResponse>> GetOpsPage(
+        [FromQuery] int take = 20,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        Task<RecommendationLearningOperationalStatusResponse> statusTask =
+            operationalService.GetOperationalStatusAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                hostEnvironment.EnvironmentName,
+                ct);
+
+        Task<RecommendationLearningProfile?> profileTask = learningService.GetLatestProfileAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            ct);
+
+        Task<IReadOnlyList<RecommendationLearningProfileHistoryItem>> historyTask =
+            operationalService.ListHistoryAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                take,
+                ct);
+
+        await Task.WhenAll(statusTask, profileTask, historyTask).ConfigureAwait(false);
+
+        return Ok(new RecommendationLearningOpsPageResponse
+        {
+            Status = await statusTask.ConfigureAwait(false),
+            LatestProfile = await profileTask.ConfigureAwait(false),
+            History = await historyTask.ConfigureAwait(false)
+        });
+    }
+
     /// <summary>Recomputes a candidate profile without persisting or activating it.</summary>
     // idempotency-posture: dry-run-no-persist
     [HttpPost("preview")]

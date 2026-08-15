@@ -90,49 +90,39 @@ public sealed class CircuitBreakingAgentCompletionClient(
         {
             string stateBeforeFailure = _gate.CurrentState;
 
-            _gate.RecordFailure();
-
-            if (_gate.CurrentState.Equals("Open", StringComparison.Ordinal) &&
-                (stateBeforeFailure.Equals("Closed", StringComparison.Ordinal) ||
-                 stateBeforeFailure.Equals("HalfOpen", StringComparison.Ordinal)))
+            if (LlmCompletionFailureClassifier.ShouldRecordCircuitBreakerFailure(ex))
             {
-                string safeGate = LogSanitizer.Sanitize(_gate.GateName);
+                _gate.RecordFailure();
 
-                _logger.LogWarning(
-                    "LLM Circuit Breaker opened due to consecutive failures. Gate={GateName}.",
-                    safeGate);
+                if (_gate.CurrentState.Equals("Open", StringComparison.Ordinal) &&
+                    (stateBeforeFailure.Equals("Closed", StringComparison.Ordinal) ||
+                     stateBeforeFailure.Equals("HalfOpen", StringComparison.Ordinal)))
+                {
+                    string safeGate = LogSanitizer.Sanitize(_gate.GateName);
+
+                    _logger.LogWarning(
+                        "LLM Circuit Breaker opened due to consecutive failures. Gate={GateName}.",
+                        safeGate);
+                }
+
+                _logger.LogWarning(ex, "LLM completion call failed after retries; circuit breaker recorded failure.");
+            }
+            else
+            {
+                _logger.LogWarning(ex, "LLM completion call failed with semantic-terminal error; circuit breaker not ticked.");
             }
 
-            _logger.LogWarning(ex, "LLM completion call failed after retries; circuit breaker recorded failure.");
             throw;
         }
     }
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<string> StreamJsonAsync(
+    public IAsyncEnumerable<string> StreamJsonAsync(
         string systemPrompt,
         string userPrompt,
         int? maxTokens = null,
         float? temperature = null,
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
-    {
-        await foreach (string chunk in StreamJsonWithBreakerAsync(
-                           systemPrompt,
-                           userPrompt,
-                           maxTokens,
-                           temperature,
-                           cancellationToken).ConfigureAwait(false))
-        {
-            yield return chunk;
-        }
-    }
-
-    private async IAsyncEnumerable<string> StreamJsonWithBreakerAsync(
-        string systemPrompt,
-        string userPrompt,
-        int? maxTokens,
-        float? temperature,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -151,6 +141,21 @@ public sealed class CircuitBreakingAgentCompletionClient(
             throw;
         }
 
+        return StreamJsonWithBreakerAsync(
+            systemPrompt,
+            userPrompt,
+            maxTokens,
+            temperature,
+            cancellationToken);
+    }
+
+    private async IAsyncEnumerable<string> StreamJsonWithBreakerAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens,
+        float? temperature,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
         string stateBeforeOutcome = _gate.CurrentState;
         bool success = false;
 

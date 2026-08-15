@@ -9,7 +9,9 @@ public sealed class InsightDensityGateCandidate
         string candidateKey,
         string message,
         IReadOnlyList<string> evidenceRefs,
-        FindingSeverity severity)
+        FindingSeverity severity,
+        string category = "",
+        bool isAgentArchitectureFinding = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(candidateKey);
         ArgumentNullException.ThrowIfNull(message);
@@ -19,6 +21,8 @@ public sealed class InsightDensityGateCandidate
         Message = message;
         EvidenceRefs = evidenceRefs;
         Severity = severity;
+        Category = category ?? string.Empty;
+        IsAgentArchitectureFinding = isAgentArchitectureFinding;
     }
 
     public string CandidateKey
@@ -41,6 +45,17 @@ public sealed class InsightDensityGateCandidate
         get;
     }
 
+    public string Category
+    {
+        get;
+    }
+
+    /// <summary>True when the finding originated from an LLM agent architecture payload (demotion-eligible).</summary>
+    public bool IsAgentArchitectureFinding
+    {
+        get;
+    }
+
     public static InsightDensityGateCandidate FromFinding(Finding finding)
     {
         ArgumentNullException.ThrowIfNull(finding);
@@ -51,7 +66,9 @@ public sealed class InsightDensityGateCandidate
             finding.FindingId,
             message,
             ExtractEvidenceRefs(finding),
-            finding.Severity);
+            finding.Severity,
+            finding.Category,
+            InsightDensityFindingSourceClassifier.IsAgentArchitectureFinding(finding.FindingType));
     }
 
     public static InsightDensityGateCandidate FromArchitectureFinding(ArchitectureFinding finding)
@@ -62,7 +79,9 @@ public sealed class InsightDensityGateCandidate
             finding.FindingId,
             finding.Message,
             finding.EvidenceRefs,
-            finding.Severity);
+            finding.Severity,
+            finding.Category,
+            isAgentArchitectureFinding: true);
     }
 
     internal static List<string> ExtractEvidenceRefs(Finding finding)

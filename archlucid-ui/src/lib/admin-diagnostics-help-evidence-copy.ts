@@ -1,10 +1,16 @@
+import { ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE } from "@/lib/admin-diagnostics-help-page-copy";
+import {
+  ADMIN_DIAGNOSTICS_HELP_ADMIN_RELATED_TOPICS,
+  ADMIN_DIAGNOSTICS_HELP_BUYER_RELATED_TOPICS,
+} from "@/lib/admin-diagnostics-help-related-topics";
 import type { EvidenceAdminSourceLink } from "@/lib/evidence-surface-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+export { ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE };
 
 export const ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH = "/help/admin-diagnostics" as const;
 
-export const ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE = "Admin diagnostics" as const;
+export const ADMIN_DIAGNOSTICS_HELP_TOPIC_LABEL = "How admin diagnostics work" as const;
 
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE =
   "Orientation for system health, workspace readiness, assistant diagnostics, and observability signals." as const;
@@ -25,7 +31,7 @@ export const ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS_INTRO =
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION_TITLE = "What this page is" as const;
 
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_ORIENTATION =
-  "This guide explains where to check platform health and workspace readiness in ArchLucid. It is orientation help — not a live health report or an audit export from your tenant. When you need current probe results or support triage, open System health, Troubleshooting, or Engineering troubleshooting runbook.";
+  "This guide explains where to check platform health and workspace readiness in ArchLucid. It is orientation help — not a live health report or an audit export from your tenant. When you need current probe results or support triage, open Troubleshooting or Report a problem.";
 
 export const ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTION = {
   label: "System health",
@@ -40,16 +46,10 @@ export const ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES: readonly EvidenceAdminSourceL
   { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
 ] as const;
 
-/** In-app help topics — rendered once in the related-topics block (not duplicated in markdown). */
+/** In-app help topics — buyer Related block; eng runbooks append for Admin callers only (TB-1612). */
 export const ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS: readonly EvidenceAdminSourceLink[] = [
-  { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
-  { label: "Report a problem", href: inAppHelpHref("report-a-problem") },
-  {
-    label: "Engineering troubleshooting runbook",
-    href: inAppHelpHref("engineering-troubleshooting"),
-    adminOnly: true,
-  },
-  { label: "CLI usage", href: inAppHelpHref("cli-usage"), adminOnly: true },
+  ...ADMIN_DIAGNOSTICS_HELP_BUYER_RELATED_TOPICS,
+  ...ADMIN_DIAGNOSTICS_HELP_ADMIN_RELATED_TOPICS,
 ] as const;
 
 export type AdminDiagnosticsHelpSignalRow = {

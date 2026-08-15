@@ -20,7 +20,10 @@ import {
   TROUBLESHOOTING_START_HERE_ITEMS,
   TROUBLESHOOTING_HELP_SUBTITLE,
 } from "@/lib/troubleshooting-help-guide-content";
+import { EvidenceOrientationMetaLine } from "@/components/evidence-orientation/EvidenceOrientationMetaLine";
 import {
+  TROUBLESHOOTING_HELP_APPLICABILITY,
+  TROUBLESHOOTING_HELP_LAST_REVIEWED_LABEL,
   TROUBLESHOOTING_SUPPORT_EXPECTATIONS,
 } from "@/lib/troubleshooting-help-evidence-copy";
 import {
@@ -30,6 +33,8 @@ import {
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -63,7 +68,6 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
         <HelpTopicTitleRow title={entry.title} actions={<PageContextualHelpButton />} />
         <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{TROUBLESHOOTING_HELP_SUBTITLE}</p>
-        <TroubleshootingHelpEvidenceOrientationStrip />
       </header>
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
@@ -145,7 +149,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
                         </span>
                         <Link
                           href={branch.href}
-                          className={cn("font-medium underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+                          className={OPERATOR_BODY_INLINE_LINK_CLASS}
                         >
                           {branch.linkLabel}
                         </Link>
@@ -201,6 +205,14 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
             </p>
             <HelpTroubleshootingAdvancedDiagnostics />
           </HelpLazyDetails>
+
+          <TroubleshootingHelpEvidenceOrientationStrip />
+
+          <EvidenceOrientationMetaLine
+            testId="troubleshooting-help-freshness"
+            label={TROUBLESHOOTING_HELP_LAST_REVIEWED_LABEL}
+            text={TROUBLESHOOTING_HELP_APPLICABILITY}
+          />
         </div>
 
         <HelpTopicTableOfContents headings={TROUBLESHOOTING_GUIDE_HEADINGS} />

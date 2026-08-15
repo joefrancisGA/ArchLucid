@@ -61,7 +61,7 @@ Without both committed manifests + a persisted comparison, do **not** sell buyer
 | Surface | Why it is not verify |
 |---------|----------------------|
 | Ask / RAG freshness | Eventual index; not sealed package compare |
-| Executive summary / sponsor copy | Narrative overlay |
+| Sponsor summary / sponsor copy | Narrative overlay |
 | `AgentResultEnrichments` | Mutable overlay (**TB-1009**) |
 | Uncommitted / draft runs | Not unit of truth |
 | Simulator / demo polish | Illustrative — label, do not call stable |

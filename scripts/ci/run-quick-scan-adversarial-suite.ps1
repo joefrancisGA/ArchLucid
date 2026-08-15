@@ -30,7 +30,7 @@ $report = @"
 
 Generated: $generatedUtc UTC
 
-## Executive summary
+## Sponsor report
 
 **Verdict:** $(if ($overallPass) { 'PASS — no unbounded spend path demonstrated in adversarial suite.' } else { 'FAIL — one or more adversarial scenarios failed; do not award GREEN release gate.' })
 

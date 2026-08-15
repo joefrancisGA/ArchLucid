@@ -5,7 +5,7 @@
 **App root:** `archlucid-ui/src/app/`  
 **Route count:** 142 `page.tsx` files (verified by `scripts/ci/assert_archlucid_ui_app_router_unique_paths.py`).
 
-**Route groups** — folders named `(marketing)`, `(operator)`, or `(executive)` — **do not** appear in the URL. Two pages under different groups that resolve to the same path will fail `next build`.
+**Route groups** — folders named `(marketing)`, `(operator)`, or `(sponsor)` — **do not** appear in the URL. Two pages under different groups that resolve to the same path will fail `next build`.
 
 Dynamic segments are written as `[param]` below.
 
@@ -76,14 +76,14 @@ To browse interactively, run `e2e/start-e2e-with-mock.ts` (see `playwright.mock.
 | What | URL |
 |------|-----|
 | Review package | `/architecture/reviews/claims-intake-modernization` |
-| Signed review record | `/governance/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
+| Sealed review record | `/governance/sealed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
 | Finding | `/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
 | Finding inspect | `/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect` |
 | Provenance | `/architecture/reviews/claims-intake-modernization/provenance` |
 | Compare | `/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2` |
 | Graph | `/graph?runId=claims-intake-modernization` (then click **Load graph**) |
 | Ask | `/ask` or `/ask?runId=claims-intake-modernization` |
-| Executive review | `/architecture/reviews/claims-intake-modernization` |
+| Sponsor review | `/architecture/reviews/claims-intake-modernization` |
 | Policy pack detail | `/governance/policy-packs/healthcare-claims-v3-pack` |
 | Approval lineage | `/governance/approval-requests/claims-intake-approval-001/lineage` |
 | Planning plan | `/planning/plans/claims-intake-modernization-plan` |
@@ -117,22 +117,22 @@ Constants live in `archlucid-ui/src/lib/showcase-static-demo.ts` and `archlucid-
 
 | Path | Canonical |
 |------|-----------|
-| `/architecture/reviews/*/signed-record` | `/architecture/reviews/*` or `/governance/signed-records/{manifestId}` when manifest id is known |
+| `/architecture/reviews/*/signed-record` | `/architecture/reviews/*` or `/governance/sealed-records/{manifestId}` when manifest id is known |
 | `/digests`, `/digest-subscriptions` | `/architecture/digests` (+ `?tab=subscriptions`) |
 | `/governance/risk-exceptions`, `/governance/risk-exceptions/*` | `/governance/exceptions` |
 | `/settings/roles` | `/administration/users?tab=roles` |
 | `/reviews`, `/reviews/*`, `/runs`, `/runs/*` | `/architecture/reviews/*` (help/orientation only — direct navigation 404) |
 | `/demo` | `/architecture/reviews/claims-intake-modernization?ctoDemoTour=1` (help/orientation only) |
 | `/architectures`, `/architectures/*` | `/architecture/architectures/*` (help/orientation only) |
-| `/dashboard`, `/executive/dashboard`, `/portfolio` | `/architecture/executive-dashboard` |
+| `/dashboard`, `/sponsor/dashboard`, `/portfolio` | `/architecture/sponsor-dashboard` |
 | `/audit`, `/policy-packs/*`, `/alerts`, `/alert-rules/*` | `/governance/*` |
-| `/signed-records`, `/signed-records/*` | `/governance/signed-records/*` |
-| `/manifests`, `/manifests/*` | `/governance/signed-records/*` |
+| `/signed-records`, `/signed-records/*` | `/governance/sealed-records/*` |
+| `/manifests`, `/manifests/*` | `/governance/sealed-records/*` |
 | `/value-report`, `/value-report/pilot`, `/value-report/roi` | `/sponsor-report/*` |
 | `/administration/settings`, `/admin/users`, `/workspace/security-trust`, `/admin/support` | `/administration/*` |
 | `/settings/cloud-connections` | `/integrations/cloud-connections` |
 
-**Note:** Run-scoped `/architecture/reviews/[runId]/artifacts/[artifactId]` (**RER**) is **retired** — no App Router page (old bookmarks 404). Artifact Preview hrefs emit **GAR** only (`/governance/signed-records/[manifestId]/artifacts/[artifactId]`).
+**Note:** Run-scoped `/architecture/reviews/[runId]/artifacts/[artifactId]` (**RER**) is **retired** — no App Router page (old bookmarks 404). Artifact Preview hrefs emit **GAR** only (`/governance/sealed-records/[manifestId]/artifacts/[artifactId]`).
 
 ---
 
@@ -181,15 +181,15 @@ Columns:
 | URL | Purpose | How to view |
 |-----|---------|-------------|
 | `/` | Architect home — checklist and quick links | T1 or T2 |
-| `/architecture/executive-dashboard` | Portfolio overview / executive ROI dashboard (**ARE**) | T1 static tiles; T2 after seed; PageContextualHelp → executive-summary |
-| `/dashboard` | Retired bookmark | 404 — use `/architecture/executive-dashboard` |
+| `/architecture/sponsor-dashboard` | Portfolio overview / sponsor ROI dashboard (**ARE**) | T1 static tiles; T2 after seed; PageContextualHelp → sponsor-summary |
+| `/dashboard` | Retired bookmark | 404 — use `/architecture/sponsor-dashboard` |
 | `/architecture/reviews` | List architecture packages | T2: `?projectId=default`; T1: static paged list |
 | `/architecture/reviews/new` | New architecture review wizard | T2: submit default run; T1: wizard UI (submit needs API) |
 | `/architecture/reviews/[runId]` | Architecture package detail | T1: `claims-intake-modernization`; T2: seed GUIDs above |
 | `/architecture/reviews/[runId]/provenance` | Evidence provenance diagram | Append to populated review URL |
 | `/architecture/reviews/[runId]/findings/[findingId]` | Finding detail | T1: `…/findings/phi-minimization-risk` |
 | `/architecture/reviews/[runId]/findings/[findingId]/inspect` | Finding evidence trace inspect | Same finding + `/inspect` |
-| `/governance/signed-records/[manifestId]` | Signed review record summary, artifacts, bundle | T1: `a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
+| `/governance/sealed-records/[manifestId]` | Sealed review record summary, artifacts, bundle | T1: `a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
 | `/graph` | Deprecated alias | Retired pre-release bookmark — no App Router page or redirect; canonical UX on **INE** (`/insights/evidence-graph`) |
 | `/insights/evidence-graph` | Evidence graph (trace table + interactive graph) | T1: `?runId=claims-intake-modernization` → **Load graph**; deep links via `runId` + `graphNodeId` (**INE**) |
 | `/onboarding` | In-product onboarding | T1/T2; T2 may show `trialSampleRunId` from API |
@@ -199,7 +199,7 @@ Columns:
 | `/getting-started` | Deprecated alias | App Router shim permanently redirects to `/onboarding` (query preserved) |
 | `/help` | In-app help index | Open directly |
 | `/help/first-architecture-review` | Your first architecture review (specialty guide) | `HelpCorePilotGuideView` with stepper + gated finalize CTAs (**COR**) |
-| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/executive-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/developer-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts`, `/help/digests` (specialty `HelpDigestsGuideView`, **HDG**; slugs in `product-documentation-registry.ts`) |
+| `/help/[topic]` | Rendered help topic | e.g. `/help/getting-started`, `/help/billing-and-plans` (specialty `HelpBillingAndPlansGuideView`, **HBX**), `/help/sponsor-summary` (specialty `HelpExecutiveSummaryGuideView`, **EXE**), `/help/findings` (specialty `HelpFindingsGuideView`, **HFX**), `/help/governance-approval` (specialty `HelpGovernanceApprovalGuideView`, **GO**), `/help/path-chooser` (buyer markdown chooser, **HPX**), `/help/engineering-troubleshooting` (Admin-gated internal-runbook, **HDX**), `/help/api-contracts` (Admin-gated API contracts reference, **HG**), `/help/alerts`, `/help/digests` (specialty `HelpDigestsGuideView`, **HDG**; slugs in `product-documentation-registry.ts`) |
 | `/demo` | CTO demo tour entry | CTO demo pack env; else redirects `/` |
 | `/demo/explain` | Internal demo explanation | T2: `GET /v1/demo/explain`; T3 mock; blocked in strict T1 |
 | `/snapshot/[runId]` | Hard-retired | Former App Router redirect to `/architecture/reviews/{runId}?readOnly=1` — no page or redirect (use canonical review workspace leave-behind) |
@@ -232,10 +232,10 @@ Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightR
 | `/governance/alerts` | Alerts hub (inbox + tabs) | T1 inbox; tabs: `?tab=rules`, `routing`, `composite`, `simulation` |
 | `/governance/alert-rules` | Alert rules configuration | Same as `/governance/alerts?tab=rules` |
 | `/governance/decision-register` | Decision register | T1/T3 |
-| `/governance/dashboard` | Executive Workspace Health | T1/T3 tiles |
+| `/governance/dashboard` | Sponsor Workspace Health | T1/T3 tiles |
 | `/governance/setup` | Governance setup guide | T1 deep links (read-only) |
 | `/governance/recurrence-schedules` | Recurrence schedules | T3 mock or T2 |
-| `/insights/executive-summary` | Sponsor value DOCX export | T2 finalized reviews + Execute role |
+| `/insights/sponsor-summary` | Sponsor value DOCX export | T2 finalized reviews + Execute role |
 | `/administration/security-trust` | Operator Security & Trust | T1/T2; distinct from public `/security-trust` |
 
 Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/layer-guidance.ts`. Sidebar source of truth: `archlucid-ui/src/lib/nav-config.ts` and `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`.
@@ -250,32 +250,32 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/administration/connection-status` | Connection status (connector readiness hub) | Administration nav; `ConnectorOperationsDashboard` + contextual help. T3 mock or T2 |
 | `/integrations/teams` | Microsoft Teams wiring | T3 mock |
 | `/administration/system-health` | System health dashboard | Live/ready checks, build identity, buyer-polished demo variant; contextual help → troubleshooting (**ADY**) |
-| `/internal/replay` | Replay authority chain | `/replay?runId=claims-intake-modernization`; T2 for real replay |
+| `/internal/validate-route` | Replay authority chain | `/internal/validate-route?runId=claims-intake-modernization`; T2 for real replay |
 | `/planning` | Planning hub | T1/T3 |
 | `/planning/plans/[planId]` | Plan detail | T1: `claims-intake-modernization-plan` |
 | `/insights/impact-preview` | Impact preview | T3 mock |
 | `/insights/pilot-outcomes` | Sponsor proof snapshot (no DOCX) | T1/T2 after finalized architecture package |
 | `/insights/roi-summary` | ROI / hours summary | T1 illustrative; T2 with seed |
 | `/architecture/digests` | Digests hub (Browse + Subscriptions + Schedule) | T3 mock; Schedule tab (**DIS**) hosts ExecDigestScheduleContent |
-| `/architecture/digests?tab=schedule` | Executive digest schedule | ExecDigestScheduleContent; preferences via `/v1/tenant/exec-digest-preferences` (**DIS**) |
+| `/architecture/digests?tab=schedule` | Sponsor digest schedule | ExecDigestScheduleContent; preferences via `/v1/tenant/exec-digest-preferences` (**DIS**) |
 | `/digests` | Legacy rewrite alias | Internal rewrite to `/architecture/digests` |
 | `/settings/exec-digest` | Retired pre-release bookmark | No redirect or App Router page; canonical schedule on **DIS** (`/architecture/digests?tab=schedule`, TB-1901–TB-1905); former traffic row **EEX** removed |
 | `/digest-subscriptions` | Legacy rewrite alias | Internal rewrite to `/architecture/digests?tab=subscriptions` |
 | `/patterns` | Architecture pattern library | T3 mock or API if seeded |
-| `/portfolio` | Retired — redirects to `/architecture/executive-dashboard` | Legacy bookmark only |
+| `/portfolio` | Retired — redirects to `/architecture/sponsor-dashboard` | Legacy bookmark only |
 | `/operate/architecture-graph` | Legacy Operate shim | App Router redirect to `/insights/evidence-graph` (query preserved; canonical UX on **INE**) |
 | `/architecture/architecture-intelligence` | Closed-loop architecture reasoning lab | Execute role; deep-link with `?runId=` from reviews/findings. Golden fixture + publish round trip. |
-| `/internal/integration-events/dlq` | Integration event DLQ | Full architect workspace + Admin + T2 API |
+| `/internal/failed-integration-messages` | Integration event DLQ | Full architect workspace + Admin + T2 API |
 
-### Executive route group
+### Sponsor route group
 
-Lighter chrome than the full architect workspace; `(executive)` route group does not appear in the URL.
+Lighter chrome than the full architect workspace; `(sponsor)` route group does not appear in the URL.
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/executive/dashboard` | Retired bookmark | 404 — use `/architecture/executive-dashboard` |
-| `/executive/reviews`, `/executive/reviews/*` | Retired bookmark | 404 — use `/architecture/reviews/*` |
-| `/executive/scorecard` | Executive scorecard | T1/T3 with showcase run |
+| `/sponsor/dashboard` | Retired bookmark | 404 — use `/architecture/sponsor-dashboard` |
+| `/sponsor/reviews`, `/sponsor/reviews/*` | Retired bookmark | 404 — use `/architecture/reviews/*` |
+| `/sponsor/scorecard` | Sponsor scorecard | T1/T3 with showcase run |
 
 ### Settings
 
@@ -291,8 +291,8 @@ Lighter chrome than the full architect workspace; `(executive)` route group does
 | `/settings/cloud-connections` | Cloud connections | Admin + API |
 | `/administration/tenant` | Workspace settings — trial, cost settings, request scope. `AdminAuthority`; non-admin callers get `TenantSettingsRestrictedState` | Admin + API |
 | `/administration/tenant/recycle-bin` | Tenant recycle bin | Admin + API |
-| `/administration/preferences` | Personal appearance and preferences. Ungated (writes only the caller's own record); reached from the top-bar account menu | Any signed-in user |
-| `/administration/account-security` | Personal sign-in methods, linking, removal. Ungated; reached from the top-bar account menu | Any signed-in user |
+| `/account/preferences` | Personal appearance and preferences. Ungated (writes only the caller's own record); reached from the top-bar account menu | Any signed-in user |
+| `/account/security` | Personal sign-in methods, linking, removal. Ungated; reached from the top-bar account menu | Any signed-in user |
 | `/settings/cost-reporting` | Cost reporting | Admin + API |
 | `/settings/webhooks` | Webhooks | Admin + API |
 | `/settings/roles` | Role assignment | Admin + API |

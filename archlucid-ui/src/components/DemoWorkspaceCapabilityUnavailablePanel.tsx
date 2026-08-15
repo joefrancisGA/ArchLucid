@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ export function DemoWorkspaceCapabilityUnavailablePanel(
         <Button asChild size="sm">
           <Link href="/architecture/reviews">Open reviews</Link>
         </Button>
-        <Link href="/help/troubleshooting" className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
+        <Link href="/help/troubleshooting" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
           {BUYER_DEMO_CAPABILITY_TROUBLESHOOTING_CTA}
         </Link>
       </div>

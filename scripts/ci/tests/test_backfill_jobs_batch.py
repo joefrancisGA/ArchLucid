@@ -38,7 +38,7 @@ class TestBackfillJobsBatch(unittest.TestCase):
     def test_digest_dispatchers_reserve_ledger_before_send(self) -> None:
         for relative in (
             "ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs",
-            "ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs",
+            "ArchLucid.Application/Notifications/Email/WeeklySponsorReportEmailDispatcher.cs",
         ):
             text = (REPO_ROOT / relative).read_text(encoding="utf-8")
             ledger_index = text.index("TryRecordSentAsync")

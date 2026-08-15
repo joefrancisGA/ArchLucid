@@ -18,7 +18,7 @@ describe("emitDemoJourneyTelemetry", () => {
 
   it("does not throw when window.clarity is undefined", () => {
     expect(() => {
-      emitDemoJourneyTelemetry({ kind: "step_entered", stepIndex: 0, stepLabel: "Executive summary" });
+      emitDemoJourneyTelemetry({ kind: "step_entered", stepIndex: 0, stepLabel: "Sponsor report" });
     }).not.toThrow();
   });
 

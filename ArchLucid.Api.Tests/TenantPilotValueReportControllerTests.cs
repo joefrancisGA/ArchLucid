@@ -1,6 +1,8 @@
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Reporting;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Audit;
 
 using FluentAssertions;
 
@@ -17,6 +19,24 @@ public sealed class TenantPilotValueReportControllerTests
 {
     private static readonly IPilotValueReportMarkdownFormatter MarkdownFormatter =
         new PilotValueReportMarkdownFormatter(new ExportFormatterService());
+
+    private static TenantPilotValueReportController CreateController(
+        IPilotValueReportService service,
+        HttpContext? httpContext = null)
+    {
+        return new TenantPilotValueReportController(
+            service,
+            MarkdownFormatter,
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IAuditRepository>())
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext ?? new DefaultHttpContext(),
+            },
+        };
+    }
+
     [SkippableFact]
     public async Task GetPilotValueReport_returns_json_by_default()
     {
@@ -33,10 +53,7 @@ public sealed class TenantPilotValueReportControllerTests
         svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(body);
 
-        TenantPilotValueReportController sut = new(svc.Object, MarkdownFormatter)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        TenantPilotValueReportController sut = CreateController(svc.Object);
 
         IActionResult result = await sut.GetPilotValueReport(null, null, CancellationToken.None);
 
@@ -51,10 +68,7 @@ public sealed class TenantPilotValueReportControllerTests
         svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((PilotValueReport?)null);
 
-        TenantPilotValueReportController sut = new(svc.Object, MarkdownFormatter)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        TenantPilotValueReportController sut = CreateController(svc.Object);
 
         IActionResult result = await sut.GetPilotValueReport(null, null, CancellationToken.None);
 
@@ -95,10 +109,7 @@ public sealed class TenantPilotValueReportControllerTests
         DefaultHttpContext http = new();
         http.Request.Headers.Accept = "text/markdown";
 
-        TenantPilotValueReportController sut = new(svc.Object, MarkdownFormatter)
-        {
-            ControllerContext = new ControllerContext { HttpContext = http }
-        };
+        TenantPilotValueReportController sut = CreateController(svc.Object, http);
 
         IActionResult result = await sut.GetPilotValueReport(null, null, CancellationToken.None);
 

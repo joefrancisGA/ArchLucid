@@ -12,7 +12,7 @@ describe("finding inspect request consolidation", () => {
     const pageLoader = readFileSync(
       join(
         here,
-        "../app/(operator)/architecture/reviews/[runId]/findings/[findingId]/_sections/load-finding-detail-page-model.ts",
+        "../app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/load-finding-detail-page-model.ts",
       ),
       "utf8",
     );

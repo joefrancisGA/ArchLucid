@@ -142,7 +142,7 @@ INSTRUMENT_PARTIAL_MAP: dict[str, list[str]] = {
         "DataConsistencyOrphansQuarantined",
         "DataConsistencyReconciliationDurationMilliseconds",
         "DataConsistencyReconciliationFindingsTotal",
-        "ExecutiveRoiBackgroundScopeViolationsTotal",
+        "SponsorRoiBackgroundScopeViolationsTotal",
         "ExplainabilityTraceCompleteness",
         "GovernanceResolveDurationMilliseconds",
         "ProvenanceSnapshotReadHitsTotal",

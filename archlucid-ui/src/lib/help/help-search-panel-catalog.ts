@@ -30,7 +30,7 @@ export const HELP_SEARCH_PANEL_DO_THIS_NOW_HEADING = "Do this now" as const;
  * Footer label for the guides troubleshooting tab. Names the destination (guides plus a
  * diagnostic bundle) rather than promising a contact channel the button does not open.
  */
-export const HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL = "Support and troubleshooting" as const;
+export const HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL = "Contact support" as const;
 
 /** Summary shown when the onboarding group is collapsed on a signed-in product surface. */
 export const HELP_SEARCH_PANEL_START_HERE_COLLAPSED_SUMMARY = "New to ArchLucid?" as const;
@@ -153,7 +153,7 @@ const REVIEW_WORK_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "finalize-review",
     title: "Finalize a review",
-    description: "Create the signed review record and export deliverables.",
+    description: "Create the sealed review record and export deliverables.",
     keywords: ["finalize", "commit", "signed", "export", "deliverables"],
     action: { kind: "route", href: "/help/governance-approval", helpSlug: "governance-approval" },
   },
@@ -163,6 +163,16 @@ const REVIEW_WORK_TOPICS: readonly HelpSearchPanelTopic[] = [
     description: "Download outputs for sponsors, governance, procurement, or audit.",
     keywords: ["proof packet", "artifacts", "bundle", "audit", "sponsor export", "deliverables"],
     action: { kind: "route", href: "/help/review-packages", helpSlug: "review-packages" },
+  },
+];
+
+const INSIGHTS_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "improvement-planning-help",
+    title: "Improvement planning",
+    description: "Convert review feedback into recurring themes, prioritized plans, and exportable summaries.",
+    keywords: ["improvement planning", "themes", "plans", "pilot feedback", "product triage", "export"],
+    action: { kind: "route", href: "/help/improvement-planning", helpSlug: "improvement-planning" },
   },
 ];
 
@@ -290,7 +300,7 @@ const TROUBLESHOOTING_TOPICS: readonly HelpSearchPanelTopic[] = [
     title: HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL,
     description: "Troubleshooting guides, support email, and a downloadable diagnostic bundle.",
     keywords: ["support", "contact", "bundle", "diagnostics", "ticket"],
-    action: { kind: "guides-panel", tab: "troubleshooting" },
+    action: { kind: "route", href: "/help/contact-support", helpSlug: "contact-support" },
   },
 ];
 
@@ -348,6 +358,7 @@ export const HELP_SEARCH_PANEL_START_HERE_GROUP_ID = "start-here" as const;
 export const HELP_SEARCH_PANEL_GROUPS: readonly HelpSearchPanelGroup[] = [
   { id: HELP_SEARCH_PANEL_START_HERE_GROUP_ID, heading: "Start here", topics: START_HERE_TOPICS },
   { id: "review-work", heading: "Review work", topics: REVIEW_WORK_TOPICS },
+  { id: "insights", heading: "Insights", topics: INSIGHTS_TOPICS },
   { id: "governance", heading: "Governance", topics: GOVERNANCE_TOPICS },
   { id: "setup", heading: "Setup", topics: SETUP_TOPICS },
   { id: "troubleshooting", heading: "Troubleshooting and support", topics: TROUBLESHOOTING_TOPICS },
@@ -375,6 +386,7 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   pricing: ["product-faq"],
   procurement: ["choose-your-next-step", "security-trust-help"],
   pilot: ["choose-your-next-step", "first-review-guide", "create-first-review"],
+  planning: ["improvement-planning-help", "choose-your-next-step", "first-review-guide", "create-first-review"],
   "next step": ["choose-your-next-step"],
   shortcuts: ["keyboard-shortcuts"],
   isolation: ["data-handling-help"],

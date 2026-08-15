@@ -1,6 +1,7 @@
 using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Roi;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
@@ -23,10 +24,11 @@ public sealed class CrossTenantPortfolioEndpointTests
     public async Task GetCrossTenantPortfolioSummaryAsync_without_directory_object_key_returns_problem_details_403()
     {
         RoiController sut = new(
-            Mock.Of<IExecutiveRoiSummaryService>(),
-            Mock.Of<IExecutiveRoiBoardPackExporter>(),
+            Mock.Of<ISponsorRoiSummaryService>(),
+            Mock.Of<ISponsorRoiBoardPackExporter>(),
             Mock.Of<IAuditService>(),
-            Mock.Of<IScopeContextProvider>());
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IComplianceDriftTrendService>());
 
         DefaultHttpContext httpContext = new();
         httpContext.Request.Path = "/v1/roi/cross-tenant-portfolio";

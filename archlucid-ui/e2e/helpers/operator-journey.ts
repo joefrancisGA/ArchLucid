@@ -354,7 +354,7 @@ export async function gotoRunDetailForMockFixtureRun(page: Page): Promise<void> 
 
 /** Manifest detail for a known id (encode-safe). Prefer canonical governance path (legacy `/signed-records/*` redirects). */
 export async function gotoManifestDetail(page: Page, manifestId: string): Promise<void> {
-  await page.goto(`/governance/signed-records/${encodeURIComponent(manifestId)}`);
+  await page.goto(`/governance/sealed-records/${encodeURIComponent(manifestId)}`);
 }
 
 /** Manifest page wired in the mock server for empty artifact list semantics. */
@@ -694,11 +694,11 @@ export function runsDashboardBuyerProofSummary(page: Page): Locator {
   return page.getByRole("main").getByTestId("runs-dashboard-buyer-proof-summary").first();
 }
 
-/** Outcome strip deep link to signed record / legacy manifest detail (TB-399 canonical URLs). */
+/** Outcome strip deep link to sealed record / legacy manifest detail (TB-399 canonical URLs). */
 export function outcomeStripSignedRecordLink(outcomeStrip: Locator): Locator {
   return outcomeStrip
     .locator(
-      '[data-testid="run-detail-finalized-package-link"], a[href*="/signed-records/"], a[href^="/manifests/"], a[href$="/signed-record"]',
+      '[data-testid="run-detail-finalized-package-link"], a[href*="/signed-records/"], a[href^="/manifests/"], a[href$="/sealed-record"]',
     )
     .first();
 }
@@ -807,7 +807,7 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?:
 }
 
 /** Buyer-polished run detail collapses `#sponsor-handoff` (Time-to-Value banner) by default — expand before sponsor PDF assertions. */
-export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page, runId?: string): Promise<void> {
+export async function ensureBuyerSponsorBriefingSectionExpanded(page: Page, runId?: string): Promise<void> {
   // `#sponsor-handoff` maps to the Review package workspace tab (see LEGACY_HASH_TO_TAB /
   // run-detail-section-tab-map). The above-the-fold strip also mounts outside tabs when the primary
   // action is send-to-sponsor — still open Review package first so extended briefing anchors resolve.

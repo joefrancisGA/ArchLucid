@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type OperatorJwtBearerRoleMappingCalloutProps = {
@@ -25,7 +25,7 @@ export function OperatorJwtBearerRoleMappingCallout(props: OperatorJwtBearerRole
       <p className="mb-0 mt-2">
         <Link
           href="/administration/identity-providers/role-mapping"
-          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
         >
           Open role mapping
         </Link>

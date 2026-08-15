@@ -48,7 +48,7 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import ComparePage from "@/app/(operator)/insights/compare-two-reviews/page";
-import ReplayPage from "@/app/(operator)/internal/replay/page";
+import ReplayPage from "@/app/(operator)/internal/validate-route/page";
 import GraphPage from "@/app/(operator)/insights/evidence-graph/page";
 import EvolutionReviewPage from "@/app/(operator)/insights/impact-preview/page";
 

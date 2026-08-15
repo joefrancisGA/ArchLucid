@@ -120,7 +120,7 @@ describe("HelpGlossaryPageView", () => {
 
     const featuredTerms = screen.getByTestId("glossary-featured-terms");
     expect(within(featuredTerms).getByRole("button", { name: "Finding" })).toBeInTheDocument();
-    expect(within(featuredTerms).getByRole("button", { name: "Signed review record" })).toBeInTheDocument();
+    expect(within(featuredTerms).getByRole("button", { name: "Sealed review record" })).toBeInTheDocument();
 
     for (const banned of BANNED_INTERNAL_COPY) {
       expect(screen.queryByText(new RegExp(banned, "i"))).toBeNull();
@@ -204,16 +204,16 @@ describe("HelpGlossaryPageView", () => {
     expect(screen.queryByTestId("glossary-letter-index")).not.toHaveTextContent("M");
   });
 
-  it("shows deprecated aliases for signed review record without using Signed manifest as the label", () => {
+  it("shows deprecated aliases for sealed review record without using Signed manifest as the label", () => {
     if (entry === undefined) {
       throw new Error("Expected glossary documentation entry.");
     }
 
     render(<HelpGlossaryPageView entry={entry} />);
 
-    const signedTerm = screen.getByTestId("glossary-term-signed-review-record");
+    const signedTerm = screen.getByTestId("glossary-term-sealed-review-record");
 
-    expect(within(signedTerm).getByRole("heading", { level: 3, name: "Signed review record" })).toBeInTheDocument();
+    expect(within(signedTerm).getByRole("heading", { level: 3, name: "Sealed review record" })).toBeInTheDocument();
     expect(within(signedTerm).getByText(/Signed manifest/i)).toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 3, name: "Signed manifest" })).toBeNull();
   });

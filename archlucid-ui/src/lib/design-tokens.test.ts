@@ -1,18 +1,23 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  AL_CSS_VAR_NAMES,
+  enterpriseStatusTagClass,
   FINDINGS_ROW_METADATA_TAG_SIZE,
   METADATA_STATUS_TAG_SHELL,
   OPERATOR_CARD,
   OPERATOR_KPI_CARD_DESCRIPTION,
   OPERATOR_KPI_CARD_TITLE,
   OPERATOR_LAYOUT,
+  OPERATOR_PRIMARY_FILL_USAGE_CONTRACT,
   OPERATOR_TYPE_SCALE,
   OPERATOR_TYPOGRAPHY,
   operatorConfidenceSurface,
   operatorSemanticBadge,
   operatorSemanticSurface,
 } from "@/lib/design-tokens";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 describe("design-tokens TB-115 surfaces", () => {
   it("operatorSemanticSurface returns neutral raised surfaces without pastel fills", () => {
@@ -108,5 +113,58 @@ describe("design-tokens spacing rhythm", () => {
     expect(OPERATOR_CARD.header).toContain("p-4");
     expect(OPERATOR_CARD.content).toContain("pt-0");
     expect(OPERATOR_CARD.body).toBe("p-4");
+  });
+});
+
+describe("design-tokens TB-2276–TB-2280 color hierarchy", () => {
+  const globalsCss = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+
+  it("TB-2276 desaturates inline link teal below primary action fill", () => {
+    expect(globalsCss).toMatch(/--al-accent-link:\s*#1e4e4a;/);
+    expect(globalsCss).toMatch(/--al-primary-action-bg:\s*#0f766e;/);
+    expect(globalsCss).toMatch(/--al-accent-link-hover:\s*#134e4a;/);
+    expect(globalsCss).toMatch(/\.dark\s*\{[\s\S]*--al-accent-link:\s*#14b8a6;/);
+    expect(globalsCss).toMatch(/\.dark\s*\{[\s\S]*--al-primary-action-bg:\s*#115e59;/);
+  });
+
+  it("TB-2277 registers dedicated neutral status CSS variables", () => {
+    expect(AL_CSS_VAR_NAMES.statusNeutralBg).toBe("--al-status-neutral-bg");
+    expect(AL_CSS_VAR_NAMES.statusNeutralFg).toBe("--al-status-neutral-fg");
+    expect(AL_CSS_VAR_NAMES.statusNeutralBorder).toBe("--al-status-neutral-border");
+    expect(globalsCss).toContain("--al-status-neutral-bg:");
+    expect(globalsCss).toContain("--al-status-neutral-fg:");
+    expect(globalsCss).toContain("--al-status-neutral-border:");
+    expect(enterpriseStatusTagClass("neutral")).toContain("var(--al-status-neutral-bg)");
+    expect(enterpriseStatusTagClass("neutral")).not.toContain("bg-neutral-100");
+  });
+
+  it("TB-2278 micro-shifts base canvas away from raised white", () => {
+    expect(globalsCss).toMatch(/--al-surface-base:\s*#ececed;/);
+  });
+
+  it("TB-2279 documents primary-fill usage contract in design tokens and UI_DESIGN_SYSTEM", () => {
+    expect(OPERATOR_PRIMARY_FILL_USAGE_CONTRACT.filledPrimary).toContain("forward");
+    expect(OPERATOR_PRIMARY_FILL_USAGE_CONTRACT.navigationOpens).toContain("outline");
+
+    const designSystem = readFileSync(
+      join(process.cwd(), "..", "docs", "library", "UI_DESIGN_SYSTEM.md"),
+      "utf8",
+    );
+
+    expect(designSystem).toContain("Primary action color usage (**TB-2279**");
+    expect(designSystem).toContain("OPERATOR_PRIMARY_FILL_USAGE_CONTRACT");
+  });
+
+  it("TB-2280 keeps Approved with monitoring visually distinct from Ready", () => {
+    const ready = enterpriseStatusTagClass("ready");
+    const monitoring = enterpriseStatusTagClass("approved-with-monitoring");
+
+    expect(ready).toContain("--al-status-ready-bg");
+    expect(monitoring).toContain("--al-status-approved-monitoring-bg");
+    expect(monitoring).not.toContain("--al-status-ready-bg");
+    expect(monitoring).toContain("border-l-cyan-800");
+    expect(ready).toContain("border-l-emerald-600");
+    expect(globalsCss).toMatch(/--al-status-approved-monitoring-bg:\s*#e6f4f3;/);
+    expect(globalsCss).toMatch(/--al-status-approved-monitoring-fg:\s*#0f4c5c;/);
   });
 });

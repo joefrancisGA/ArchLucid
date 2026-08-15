@@ -19,7 +19,7 @@ public static class ExecDigestCompositionMarkdownFormatter
     {
         ArgumentNullException.ThrowIfNull(composition);
         StringBuilder sb = new();
-        sb.AppendLine("# Executive digest highlights (weekly pipeline)");
+        sb.AppendLine("# Sponsor digest highlights (weekly pipeline)");
         sb.AppendLine();
         sb.AppendLine($"**Week label:** {composition.WeekLabel}");
         sb.AppendLine($"**Dashboard:** {composition.DashboardUrl}");

@@ -1,4 +1,9 @@
 import {
+  AI_KNOWLEDGE_ASSISTANT_CANONICAL_PROOF_HREF,
+  AI_KNOWLEDGE_ASSISTANT_SAMPLE_DEFINITION,
+  AI_KNOWLEDGE_ASSISTANT_SAMPLE_RUN_ID,
+} from "@/lib/samples/ai-knowledge-assistant/definition";
+import {
   CLAIMS_INTAKE_CANONICAL_PROOF_HREF,
   CLAIMS_INTAKE_SAMPLE_DEFINITION,
   CLAIMS_INTAKE_SAMPLE_RUN_ID,
@@ -47,6 +52,12 @@ export const SAMPLE_SCENARIO_SURFACE_ALIGNMENT: readonly SampleScenarioSurfaceRo
     notes: "Explicit secondary deep link; not deleted per TB-981 guardrail.",
   },
   {
+    surface: "AI Knowledge Assistant created showcase (`AI_KNOWLEDGE_ASSISTANT_CANONICAL_PROOF_HREF`)",
+    packageSlug: AI_KNOWLEDGE_ASSISTANT_SAMPLE_DEFINITION.slug,
+    showcaseRunId: AI_KNOWLEDGE_ASSISTANT_SAMPLE_RUN_ID,
+    notes: "Secondary created-package deep link (TB-982 / M-135); route slug unchanged for SQL seeds.",
+  },
+  {
     surface: "Trial onboarding wizard `trialSampleRunId` / `TRIAL_ONBOARDING_SAMPLE_RUN_ID`",
     packageSlug: "contoso-retail-sql-seed",
     showcaseRunId: TRIAL_ONBOARDING_SAMPLE_RUN_ID,
@@ -58,6 +69,8 @@ export const SAMPLE_SCENARIO_SURFACE_ALIGNMENT: readonly SampleScenarioSurfaceRo
 export const PRIMARY_SHOWCASE_PROOF_HREF = CUSTOMER_INTAKE_CANONICAL_PROOF_HREF;
 
 export const SECONDARY_CLAIMS_PROOF_HREF = CLAIMS_INTAKE_CANONICAL_PROOF_HREF;
+
+export const SECONDARY_AI_KNOWLEDGE_ASSISTANT_PROOF_HREF = AI_KNOWLEDGE_ASSISTANT_CANONICAL_PROOF_HREF;
 
 export function publicSampleHrefForGetStartedVertical(
   verticalSlug: string,

@@ -10,7 +10,7 @@ import {
 import { DemoPreviewArtifactNav } from "./_sections/DemoPreviewArtifactNav";
 import {
   DemoPreviewEvidenceGraphSection,
-  DemoPreviewExecutiveConclusion,
+  DemoPreviewSponsorConclusion,
   DemoPreviewGovernanceSection,
   DemoPreviewSignedReviewSection,
 } from "./_sections/DemoPreviewArtifactSections";
@@ -66,7 +66,7 @@ export function DemoPreviewMarketingBody({
   if (!demoMode) {
     return (
       <div className="space-y-8" data-testid="demo-preview-engineering-body">
-        <DemoPreviewExecutiveConclusion payload={payload} />
+        <DemoPreviewSponsorConclusion payload={payload} />
         <DemoPreviewCompactTimeline
           payload={payload}
           pipelineItems={pipelineItems}
@@ -81,7 +81,7 @@ export function DemoPreviewMarketingBody({
   return (
     <div className="space-y-10" data-testid="demo-preview-marketing-body">
       <DemoPreviewArtifactNav showcaseTelemetry={showcaseTelemetry} />
-      <DemoPreviewExecutiveConclusion payload={payload} />
+      <DemoPreviewSponsorConclusion payload={payload} />
       <DemoPreviewSignedReviewSection payload={payload} />
       <DemoPreviewEvidenceGraphSection payload={payload} showcaseTelemetry={showcaseTelemetry} />
       <DemoPreviewGovernanceSection payload={payload} />

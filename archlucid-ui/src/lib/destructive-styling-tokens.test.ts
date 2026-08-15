@@ -14,7 +14,7 @@ const SRC_ROOT = join(process.cwd(), "src");
  */
 const RAW_DANGER_UTILITY_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/administration/auth-domains/AuthDomainsPageClient.tsx",
-  "app/(operator)/insights/executive-summary/_sections/PilotValueReportSeverityBars.tsx",
+  "app/(operator)/insights/sponsor-report/_sections/PilotValueReportSeverityBars.tsx",
   "app/global-error.tsx",
   "components/ApiValidationFieldErrorList.tsx",
   "components/BulkEvidenceUpload.tsx",

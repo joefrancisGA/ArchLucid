@@ -39,8 +39,8 @@ Open **`index.md`** first. Core artifacts:
 | File | Source |
 |------|--------|
 | `first-value-report.md` | `GET /v1/pilots/runs/{runId}/first-value-report` |
-| `executive-review-packet.md` | `GET /v1/pilots/runs/{runId}/executive-review-packet` |
-| `executive-summary.json` | `GET /v1/roi/executive-summary` (scope labels included) |
+| `sponsor-review-packet.md` | `GET /v1/pilots/runs/{runId}/sponsor-review-packet` |
+| `sponsor-summary.json` | `GET /v1/roi/sponsor-summary` (scope labels included) |
 | `pilot-run-deltas.json` | Mirror of `run-evidence.json` (`GET /v1/pilots/runs/{runId}/pilot-run-deltas`) |
 | `limitations.md` | Buyer-safe caveats (demo data, PilotStrict, deferred procurement gates) |
 | `provenance-references.json` | Audit + artifact ids (no payloads) |
@@ -50,7 +50,7 @@ The command reuses `archlucid pilot proof-packet` governance artifacts (audit su
 
 ## Related
 
-- Executive paid-pilot assembly + mock procurement review (adds the remediation-ticket element): [`../go-to-market/QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review)
+- Sponsor paid-pilot assembly + mock procurement review (adds the remediation-ticket element): [`../go-to-market/QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#sponsor-paid-pilot-proof-packet-assembly--mock-procurement-review)
 - Broader first-pilot rollup: [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md)
 - Email-sized ZIP (fewer files): `GET /v1/pilots/runs/{runId}/sponsor-proof-pack.zip` or `archlucid buyer-proof-pack`
 - ROI semantics: [`PILOT_SCORECARD_API.md`](../library/PILOT_SCORECARD_API.md)

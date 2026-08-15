@@ -66,7 +66,7 @@ export function CtoDemoAuditClosingBeat(): React.JSX.Element | null {
 
     try {
       await navigator.clipboard.writeText(markdown);
-      showSuccess("Executive recap copied to clipboard.");
+      showSuccess("Sponsor recap copied to clipboard.");
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Clipboard unavailable.";
 

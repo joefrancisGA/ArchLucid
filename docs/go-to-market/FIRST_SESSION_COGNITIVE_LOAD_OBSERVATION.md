@@ -771,7 +771,7 @@ ArchLucid does not need to be more conversational than raw frontier AI. It needs
 
 - ArchLucid builders.
 - Paid advocates who are not expected to critique honestly.
-- Participants who only provide high-level executive reactions and cannot evaluate findings.
+- Participants who only provide high-level sponsor reactions and cannot evaluate findings.
 - Participants who have not reviewed architecture decisions in practice.
 
 #### Ideal cohort
@@ -861,7 +861,7 @@ Ask these in every session.
 5. Would you **reuse** ArchLucid for the next review cycle? Why or why not?
 6. What would make you **stop** using it after two reviews?
 7. Which finding would change your approval decision, approval conditions, remediation priority, or escalation path?
-8. Which finding would you remove before sending the packet to an executive sponsor?
+8. Which finding would you remove before sending the packet to an sponsor sponsor?
 9. Would you use this as part of a formal architecture review board process?
 10. Who in your organization would need to approve adoption or fund a pilot?
 11. What would make this unsafe, embarrassing, or politically risky to use?
@@ -908,7 +908,7 @@ Separate insight quality from process quality. Raw frontier AI may be more flexi
 | Evidence traceability | Which output better tied findings to packet evidence, manifest, artifacts, or policy context? |
 | Repeatability | Same packet should produce comparable output and review history. |
 | Governance readiness | Export labels, execution mode, evidence trail, manifest, audit rows, and exception workflow. |
-| Sponsor packet quality | Would participant send the output to a CTO, CISO, architecture board, or executive sponsor? |
+| Sponsor packet quality | Would participant send the output to a CTO, CISO, architecture board, or sponsor sponsor? |
 | Workflow fit | Which output fits a real architecture review board process better? |
 | Time to first reviewable packet | Measure wall clock where possible; label estimates as illustrative unless measured. |
 | Flexibility | Where did raw AI feel more adaptive, conversational, or exploratory? |

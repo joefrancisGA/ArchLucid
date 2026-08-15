@@ -31,6 +31,18 @@ describe("docs-search-index", () => {
     expect(corePilot?.description.toLowerCase()).not.toContain("manifest");
   });
 
+  it("indexes customer troubleshooting instead of engineering runbooks (TB-2237)", () => {
+    const troubleshooting = DOCUMENTATION_SEARCH_ITEMS.find(
+      (row) => row.relativeDocsPath === "docs/library/customer-facing/operator_troubleshooting.md",
+    );
+
+    expect(troubleshooting).toBeDefined();
+    expect(resolveDocumentationHref(troubleshooting!.relativeDocsPath)).toBe("/help/troubleshooting");
+    expect(
+      DOCUMENTATION_SEARCH_ITEMS.some((row) => row.relativeDocsPath.toLowerCase().startsWith("docs/runbooks/")),
+    ).toBe(false);
+  });
+
   it("omits Admin-only internal-runbook topics from Ctrl+K documentation search (TB-1385)", () => {
     expect(
       DOCUMENTATION_SEARCH_ITEMS.some((row) => row.relativeDocsPath.toLowerCase().includes("api_contracts")),

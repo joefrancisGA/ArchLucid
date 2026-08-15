@@ -77,6 +77,27 @@ public class FindingPayloadValidator : IFindingPayloadValidator
                 throw new InvalidOperationException("RequirementCoverageFinding payload is invalid.");
         }
 
+        if (finding.FindingType.Equals(FindingTypes.RequirementGap, StringComparison.OrdinalIgnoreCase)
+            || finding.FindingType.Equals(FindingTypes.SecurityGap, StringComparison.OrdinalIgnoreCase))
+
+            _ = FindingPayloadConverter.ToTopologyGapPayload(finding) ??
+                throw new InvalidOperationException("Gap payload is invalid.");
+
+        if (finding.FindingType.Equals(FindingTypes.RequirementExpectationFinding, StringComparison.OrdinalIgnoreCase))
+
+            _ = FindingPayloadConverter.ToRequirementExpectationPayload(finding) ??
+                throw new InvalidOperationException("RequirementExpectationFinding payload is invalid.");
+
+        if (finding.FindingType.Equals(FindingTypes.SecurityBaselineExpectationFinding, StringComparison.OrdinalIgnoreCase))
+
+            _ = FindingPayloadConverter.ToSecurityBaselineExpectationPayload(finding) ??
+                throw new InvalidOperationException("SecurityBaselineExpectationFinding payload is invalid.");
+
+        if (finding.FindingType.Equals(FindingTypes.SecurityBaselineCompletenessFinding, StringComparison.OrdinalIgnoreCase))
+
+            _ = FindingPayloadConverter.ToSecurityBaselineCompletenessPayload(finding) ??
+                throw new InvalidOperationException("SecurityBaselineCompletenessFinding payload is invalid.");
+
         if (!finding.FindingType.Equals(FindingTypes.ComplianceFinding, StringComparison.OrdinalIgnoreCase))
             return;
 

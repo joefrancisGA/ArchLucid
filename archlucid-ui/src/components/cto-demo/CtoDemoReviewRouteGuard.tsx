@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { Button } from "@/components/ui/button";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
-import { getShowcaseExecutiveHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { getShowcaseSponsorHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -54,7 +54,7 @@ export function CtoDemoReviewRouteGuard(props: CtoDemoReviewRouteGuardProps): Re
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button type="button" size="sm" asChild>
-          <Link href={getShowcaseExecutiveHref()} data-testid="cto-demo-review-route-guard-showcase">
+          <Link href={getShowcaseSponsorHref()} data-testid="cto-demo-review-route-guard-showcase">
             Go to showcase
           </Link>
         </Button>

@@ -259,6 +259,7 @@ export type TabsTriggerProps = {
   readonly value: string;
   readonly className?: string;
   readonly disabled?: boolean;
+  readonly title?: string;
   readonly "data-testid"?: string;
 };
 
@@ -294,6 +295,7 @@ export function TabsTrigger(props: TabsTriggerProps): ReactElement {
       aria-controls={panelId}
       tabIndex={selected ? 0 : -1}
       disabled={props.disabled}
+      title={props.title}
       data-tabs-value={props.value}
       data-tabs-trigger
       data-state={selected ? "active" : "inactive"}

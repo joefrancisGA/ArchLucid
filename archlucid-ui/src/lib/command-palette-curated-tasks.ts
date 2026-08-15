@@ -1,9 +1,15 @@
 /**
- * High-value jumps merged into the command palette beside nav links. Each `href` must match
+ * High-value jumps merged into the command palette beside nav links. Most `href` values must match
  * a configured nav target so visibility can be gated with {@link visibleOperatorShellHrefSet}.
+ * Contextual-only routes (TB-2241) are merged into palette visibility separately in {@link CommandPalette}.
  */
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
+import {
+  FIRST_REVIEW_GUIDE_PATH,
+  FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID,
+} from "@/lib/first-review-guide-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export type CuratedPaletteTask = {
@@ -13,9 +19,20 @@ export type CuratedPaletteTask = {
   searchValue: string;
 };
 
+/** Pathname used to gate curated palette tasks against {@link visibleOperatorShellHrefSet}. */
+export function commandPaletteNavVisibilityHref(href: string): string {
+  const withoutQuery = href.includes("?") ? href.slice(0, href.indexOf("?")) : href;
+
+  if (!withoutQuery.includes("#")) {
+    return withoutQuery;
+  }
+
+  return withoutQuery.slice(0, withoutQuery.indexOf("#"));
+}
+
 export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
   { label: OPERATOR_NAV_LINK_LABELS.home, href: "/", searchValue: "task I want overview home start workspace" },
-  { label: "Onboarding checklist", href: "/architecture/first-review-guide", searchValue: "task I want onboarding first run checklist" },
+  { label: "Onboarding checklist", href: `${FIRST_REVIEW_GUIDE_PATH}#${FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID}`, searchValue: "task I want onboarding first run checklist" },
   { label: "New architecture review", href: "/architecture/reviews/new", searchValue: "task I want new review wizard" },
   { label: "Reviews list", href: "/architecture/reviews", searchValue: "task I want reviews list projects" },
   { label: "Compare two reviews", href: "/insights/compare-two-reviews", searchValue: "task I want compare diff N N+1 delta" },
@@ -26,6 +43,11 @@ export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
   { label: "Alert rules (configure)", href: "/governance/alert-rules", searchValue: "task I want alert rules configure" },
   { label: "Audit Trail", href: "/governance/audit", searchValue: "task I want audit compliance csv export evidence" },
   { label: "Digests & subscriptions", href: DIGESTS_HUB_PATH, searchValue: "task I want digest email subscriptions" },
+  {
+    label: "Architecture intelligence",
+    href: ARCHITECTURE_INTELLIGENCE_PATH,
+    searchValue: "task I want architecture intelligence closed-loop reasoning refine AI golden harness",
+  },
   { label: "Policy packs", href: "/governance/policy-packs", searchValue: "task I want policy governance rules" },
   { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH, searchValue: "task I want governance approval promotion" },
 ];

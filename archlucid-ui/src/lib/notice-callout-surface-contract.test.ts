@@ -25,7 +25,7 @@ const TINTED_CALLOUT_SURFACE_BASELINE: ReadonlySet<string> = new Set([
   "app/(operator)/administration/_sections/SettingsMasterDestinationCard.tsx",
   "app/(operator)/administration/ai-usage/_sections/ai-usage/AiUsageRecentActivityPanel.tsx",
   "app/(operator)/administration/model-governance/_sections/ModelGovernanceSettingsCard.tsx",
-  "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailFeasibilityVerdictSection.tsx",
+  "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailFeasibilityVerdictSection.tsx",
   "app/(operator)/insights/roi-summary/_sections/RoiSummaryLoadedHourlyCostField.tsx",
   "app/(operator)/internal/configuration/_sections/AdminConfigurationPageView.tsx",
   "components/BeforeAfterDelta/BeforeAfterDeltaTopPanel.tsx",
@@ -36,7 +36,7 @@ const TINTED_CALLOUT_SURFACE_BASELINE: ReadonlySet<string> = new Set([
   "components/operator-home/OperatorHomeGlossarySections.tsx",
   "components/policy/PolicyPackComplianceRuleKeyDiffView.tsx",
   "components/reviews/ReviewAgentExecutionLogSection.tsx",
-  "components/usability/ExecutiveConfidenceLabel.tsx",
+  "components/usability/SponsorConfidenceLabel.tsx",
 ]);
 
 const TINTED_CALLOUT_SURFACE = /\bbg-(?:amber|emerald|rose|green|sky)-(?:50|100)\b/;

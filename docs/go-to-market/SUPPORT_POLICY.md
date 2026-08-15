@@ -419,7 +419,7 @@ These targets apply to V1 controlled pilots. They are not a published GA SLA.
 | Scenario | Communication protocol |
 | --- | --- |
 | Service disruption affecting pilot environment | Notify buyer champion within 4 business hours of confirmed impact |
-| Data confidentiality incident (suspected or confirmed) | Notify buyer executive sponsor within 24 hours; provide written incident summary within 72 hours |
+| Data confidentiality incident (suspected or confirmed) | Notify buyer sponsor sponsor within 24 hours; provide written incident summary within 72 hours |
 | Degraded performance (not blocking) | Notify at next scheduled check-in unless buyer requests faster updates |
 | Planned maintenance | 48-hour advance notice via agreed channel |
 

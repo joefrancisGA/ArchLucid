@@ -8,7 +8,7 @@ using ArchLucid.Contracts.ValueReports;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-///     Sponsor-facing evidence source and freshness badges for first-value and executive exports — labeling only, no
+///     Sponsor-facing evidence source and freshness badges for first-value and sponsor exports — labeling only, no
 ///     pricing math changes.
 /// </summary>
 public static class SponsorArtifactEvidenceBadgeMarkdownFormatter
@@ -90,10 +90,10 @@ public static class SponsorArtifactEvidenceBadgeMarkdownFormatter
         if (deltas.IsDemoTenant || proof.DemoTenantWarningRequired)
             return "demo-derived";
 
-        if (string.Equals(savingsPricingBasis, ExecutiveRoiSavingsPricingBasis.UploadedActualAmortized, StringComparison.Ordinal))
+        if (string.Equals(savingsPricingBasis, SponsorRoiSavingsPricingBasis.UploadedActualAmortized, StringComparison.Ordinal))
             return "uploaded-actual-amortized";
 
-        if (string.Equals(savingsPricingBasis, ExecutiveRoiSavingsPricingBasis.HeuristicFallback, StringComparison.Ordinal))
+        if (string.Equals(savingsPricingBasis, SponsorRoiSavingsPricingBasis.HeuristicFallback, StringComparison.Ordinal))
             return "heuristic-fallback";
 
         if (snapshot.ReviewCycleBaselineProvenance is ReviewCycleBaselineProvenance.TenantSuppliedAtSignup
@@ -104,8 +104,8 @@ public static class SponsorArtifactEvidenceBadgeMarkdownFormatter
             && !string.IsNullOrWhiteSpace(proof.RoiConfidenceLabel))
             return "buyer-provided";
 
-        if (string.Equals(savingsPricingBasis, ExecutiveRoiSavingsPricingBasis.Retail, StringComparison.Ordinal)
-            || string.Equals(savingsPricingBasis, ExecutiveRoiSavingsPricingBasis.EaAdjusted, StringComparison.Ordinal))
+        if (string.Equals(savingsPricingBasis, SponsorRoiSavingsPricingBasis.Retail, StringComparison.Ordinal)
+            || string.Equals(savingsPricingBasis, SponsorRoiSavingsPricingBasis.EaAdjusted, StringComparison.Ordinal))
             return "azure-retail";
 
         return "missing";

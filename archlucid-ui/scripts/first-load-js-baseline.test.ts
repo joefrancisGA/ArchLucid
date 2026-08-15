@@ -20,7 +20,7 @@ const FIXTURE_LOG = `
 Route (app)                                             Size  First Load JS  Revalidate  Expire
 ├ ƒ /governance/approval-queue                        34.9 kB         286 kB
 ├ ƒ /reviews                                         33.3 kB         287 kB
-├ ƒ /reviews/[runId]                                  125 kB         421 kB
+├ ƒ /reviews/[reviewId]                                  125 kB         421 kB
 ├ ○ /welcome                                         8.41 kB         145 kB          5m      1y
 + First Load JS shared by all                         105 kB
 `;
@@ -49,7 +49,7 @@ Route (app)                                          Revalidate  Expire
 
     expect(routes.get("/welcome")).toBe(145);
     expect(routes.get("/reviews")).toBe(287);
-    expect(routes.get("/reviews/[runId]")).toBe(421);
+    expect(routes.get("/reviews/[reviewId]")).toBe(421);
     expect(routes.get("/governance/approval-queue")).toBe(286);
   });
 
@@ -60,12 +60,12 @@ Route (app)                                          Revalidate  Expire
     expect(routes.get("/")).toBe(1601.3);
     expect(routes.get("/welcome")).toBe(609.1);
     expect(routes.get("/architecture/reviews")).toBe(1229.1);
-    expect(routes.get("/architecture/reviews/[runId]")).toBe(1883.4);
+    expect(routes.get("/architecture/reviews/[reviewId]")).toBe(1883.4);
     expect(routes.get("/governance/approval-queue")).toBe(1450.3);
     expect(routes.get("/governance/alerts")).toBe(1394.5);
     expect(routes.get("/governance/alert-rules")).toBe(1060.8);
-    expect(routes.get("/architecture/executive-dashboard")).toBe(1489.3);
-    expect(routes.get("/governance/signed-records")).toBe(1427.7);
+    expect(routes.get("/architecture/sponsor-dashboard")).toBe(1489.3);
+    expect(routes.get("/governance/sealed-records")).toBe(1427.7);
     expect(parseRouteBundleStatsFirstLoadJsKb(stats).size).toBeGreaterThanOrEqual(9);
   });
 
@@ -74,9 +74,9 @@ Route (app)                                          Revalidate  Expire
     const statsRoutes = parseRouteBundleStatsFirstLoadJsKb(stats);
 
     expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/architecture/reviews")).toBe(1229.1);
-    expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/architecture/reviews/[runId]")).toBe(1883.4);
+    expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/architecture/reviews/[reviewId]")).toBe(1883.4);
     expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/reviews")).toBe(1229.1);
-    expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/reviews/[runId]")).toBe(1883.4);
+    expect(resolveTrackedRouteFirstLoadJsKb(statsRoutes, "/reviews/[reviewId]")).toBe(1883.4);
   });
 
   it("passes when actual sizes are within baseline tolerance", () => {

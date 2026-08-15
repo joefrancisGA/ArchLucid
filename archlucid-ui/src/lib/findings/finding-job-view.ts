@@ -1,6 +1,16 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 import {
+  isGovernanceRowSponsorPacketTrustEligible,
+  isReviewFindingSponsorPacketTrustEligible,
+} from "@/lib/findings/finding-trust-triage";
+import {
+  isCannotDetermineReviewFinding,
+  isContradictionReviewFinding,
+  isCoverageGapReviewFinding,
+  isVerifyHypothesisReviewFinding,
+} from "@/lib/review-quality/finding-quality-signals";
+import {
   humanReviewStatusDisplay,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
@@ -9,7 +19,11 @@ export type FindingJobView =
   | "needs-my-decision"
   | "needs-governance"
   | "ready-for-sponsor-packet"
-  | "deferred";
+  | "deferred"
+  | "answer-these-questions"
+  | "verify-hypotheses"
+  | "resolve-contradictions"
+  | "coverage-gaps";
 
 export const DEFAULT_FINDING_JOB_VIEW: FindingJobView = "needs-my-decision";
 
@@ -18,6 +32,10 @@ export const FINDING_JOB_VIEW_LABELS: Record<FindingJobView, string> = {
   "needs-governance": "Needs governance",
   "ready-for-sponsor-packet": "Ready for sponsor packet",
   deferred: "Deferred",
+  "answer-these-questions": "Answer these questions",
+  "verify-hypotheses": "Verify hypotheses",
+  "resolve-contradictions": "Resolve contradictions",
+  "coverage-gaps": "Coverage gaps",
 };
 
 /**
@@ -26,6 +44,10 @@ export const FINDING_JOB_VIEW_LABELS: Record<FindingJobView, string> = {
  */
 export const FINDING_JOB_VIEW_ASSIGNMENT_ORDER: readonly FindingJobView[] = [
   "deferred",
+  "resolve-contradictions",
+  "answer-these-questions",
+  "verify-hypotheses",
+  "coverage-gaps",
   "ready-for-sponsor-packet",
   "needs-governance",
   "needs-my-decision",
@@ -75,6 +97,32 @@ function isGovernanceOpenRow(row: GovernanceFindingQueueRow): boolean {
   return true;
 }
 
+/** True when the finding records an affirmative approved decision for apply-change override checks (TB-2311). */
+export function isApprovedDecisionFinding(finding: QuickDecisionFinding): boolean {
+  const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
+
+  if (reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden") {
+    return true;
+  }
+
+  const disposition = normalizeDisposition(readDispositionFromReviewFinding(finding));
+
+  return disposition === "Accepted";
+}
+
+/** True when human review or disposition closes the finding for governance approval gating. */
+export function isReviewFindingDispositionClosed(finding: QuickDecisionFinding): boolean {
+  const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
+
+  if (reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden") {
+    return true;
+  }
+
+  const disposition = normalizeDisposition(readDispositionFromReviewFinding(finding));
+
+  return isReadyDisposition(disposition);
+}
+
 export function classifyReviewFindingJobView(finding: QuickDecisionFinding): FindingJobView {
   const disposition = normalizeDisposition(readDispositionFromReviewFinding(finding));
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
@@ -83,7 +131,35 @@ export function classifyReviewFindingJobView(finding: QuickDecisionFinding): Fin
     return "deferred";
   }
 
-  if (isReadyDisposition(disposition) || reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden") {
+  if (
+    isReadyDisposition(disposition)
+    || reviewStatus?.label === "Approved"
+    || reviewStatus?.label === "Overridden"
+  ) {
+    if (isReviewFindingSponsorPacketTrustEligible(finding)) {
+      return "ready-for-sponsor-packet";
+    }
+
+    return "needs-my-decision";
+  }
+
+  if (isContradictionReviewFinding(finding)) {
+    return "resolve-contradictions";
+  }
+
+  if (isCannotDetermineReviewFinding(finding)) {
+    return "answer-these-questions";
+  }
+
+  if (isVerifyHypothesisReviewFinding(finding)) {
+    return "verify-hypotheses";
+  }
+
+  if (isCoverageGapReviewFinding(finding)) {
+    return "coverage-gaps";
+  }
+
+  if (isReviewFindingSponsorPacketTrustEligible(finding)) {
     return "ready-for-sponsor-packet";
   }
 
@@ -110,7 +186,11 @@ export function classifyGovernanceFindingJobView(row: GovernanceFindingQueueRow)
   }
 
   if (isReadyDisposition(disposition) || humanReview.includes("approved") || humanReview.includes("overridden")) {
-    return "ready-for-sponsor-packet";
+    if (isGovernanceRowSponsorPacketTrustEligible(row)) {
+      return "ready-for-sponsor-packet";
+    }
+
+    return "needs-my-decision";
   }
 
   if (
@@ -168,4 +248,16 @@ export function filterGovernanceRowsForJobView(
   jobView: FindingJobView,
 ): GovernanceFindingQueueRow[] {
   return rows.filter((row) => matchesGovernanceFindingJobView(row, jobView));
+}
+
+/** Returns null when the job-view filter bar is hidden so callers skip row filtering (GOF P0-4). */
+export function resolveEffectiveFindingJobView(
+  jobView: FindingJobView,
+  filterBarVisible: boolean,
+): FindingJobView | null {
+  if (filterBarVisible) {
+    return jobView;
+  }
+
+  return null;
 }

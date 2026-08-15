@@ -5,105 +5,11 @@ import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-commi
 import { applyCommittedArchitectureReviewNavPromotions } from "@/lib/nav-committed-architecture-review-promotion";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
-import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
-import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
-import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import {
-  GOVERNANCE_APPROVAL_QUEUE_PATH,
-  GOVERNANCE_AUDIT_PATH,
-  GOVERNANCE_STANDARDS_AND_RULES_PATH,
-} from "@/lib/governance/governance-route-paths";
-import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
-
-/**
- * Buyer-polished shell nav omissions. Empty: Compare (and other advanced destinations) stay reachable
- * inside their collapsed groups so buyers keep full product depth (route-level demo gating is separate).
- */
-const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/administration/api-keys"]);
-
-/** In buyer-polished operator builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
-const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
-  "/insights/improvement-planning",
-  "/internal/product-learning",
-  "/internal/recommendation-learning",
-  IMPACT_PREVIEW_PATH,
-  "/internal/replay",
-  "/insights/search-review-evidence",
-  COMPARE_TWO_REVIEWS_PATH,
-  "/governance/advisory-scans",
-  "/demo/explain",
-  "/internal/health",
-  "/internal/configuration",
-  "/administration/support",
-  "/administration/users",
-  "/administration/security-trust",
-  "/governance/alerts",
-  "/governance/alert-rules",
-  "/governance/policy-packs",
-  GOVERNANCE_STANDARDS_AND_RULES_PATH,
-  "/governance/audit",
-  GOVERNANCE_APPROVAL_QUEUE_PATH,
-  "/governance/setup",
-  "/administration/connection-status",
-  "/integrations/cloud-connections",
-  "/integrations/webhooks",
-  DIGESTS_HUB_PATH,
-  // The Settings hub is the nav target for Administration (IA-016). Omitted here so buyer-polished shells keep
-  // the pre-hub-first behavior of showing no Settings entry, rather than surfacing an index of omitted routes.
-  "/administration",
-  "/administration/workspace-settings",
-  "/administration/workspace-settings/recycle-bin",
-  "/administration/baseline",
-  "/administration/api-keys",
-  "/administration/ai-usage",
-  "/insights/executive-summary",
-  "/insights/pilot-outcomes",
-  "/insights/roi-summary",
-]);
-
-function isPublicDemoThinNavSurface(): boolean {
-  if (isNextPublicDemoMode()) {
-    return true;
-  }
-
-  return (
-    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true" ||
-    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1"
-  );
-}
-
-function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {
-  if (isBuyerPolishedOperatorShellEnv()) {
-    return links;
-  }
-
-  if (!isPublicDemoThinNavSurface()) {
-    return links;
-  }
-
-  const keepExpandedDemoSpine = isCtoDemoNavExpandedEnv();
-
-  return links.filter((l) => {
-    if (
-      keepExpandedDemoSpine
-      && (l.href === "/insights/evidence-graph" || l.href === GOVERNANCE_APPROVAL_QUEUE_PATH || l.href === GOVERNANCE_AUDIT_PATH)
-    ) {
-      return true;
-    }
-
-    return !DEMO_MODE_OMIT_OPERATOR_HREFS.has(l.href);
-  });
-}
-
-function omitBuyerPolishedShellNonGoldenNavLinks(links: NavLinkItem[]): NavLinkItem[] {
-  if (!isBuyerPolishedOperatorShellEnv()) {
-    return links;
-  }
-
-  return links.filter((l) => !BUYER_POLISHED_SHELL_OMIT_NAV_HREFS.has(l.href));
-}
+  applyNavShellPresetPackagingFilter,
+  isSystemAdministrationNavGroupVisible,
+  resolveNavShellPresetId,
+} from "@/lib/nav-shell-preset";
 
 function omitApiKeysSettingsWhenSurfaceDisabled(links: NavLinkItem[]): NavLinkItem[] {
   if (isApiKeysSettingsSurfaceEnabled()) {
@@ -130,8 +36,8 @@ export type NavGroupWithVisibleLinks = {
  *
  * Within each **`NAV_GROUPS`** block from **`nav-config.ts`**: **Pre-commit** (`filterNavLinksByCommittedArchitectureReviewGate`)
  * runs first so Operate/diagnostics stay off the default spine until **`hasCommittedArchitectureReview`**. **Authority**
- * (`filterNavLinksByAuthority`) runs after promotion metadata. Demo/buyer packaging omissions and system-admin feature
- * flags still apply. **Packaging map:**
+ * (`filterNavLinksByAuthority`) runs after promotion metadata. Demo/buyer packaging omissions use an explicit shell preset
+ * ({@link resolveNavShellPresetId} / {@link applyNavShellPresetPackagingFilter} — TB-2233). **Packaging map:**
  * **docs/PRODUCT_PACKAGING.md** §3 *Code seams* table (**`NAV_GROUPS[].id`** → layer).
  *
  * Pass **`useNavCallerAuthorityRank()`** (or **`CurrentPrincipal.authorityRank`**) and **`useNavCommittedArchitectureReview()`**
@@ -148,40 +54,27 @@ export type NavGroupWithVisibleLinks = {
  * **Canonical docs:** [PRODUCT_PACKAGING.md](../../../docs/PRODUCT_PACKAGING.md) §3 *Code seams* + *Contributor drift guard*;
  * Stage 1 (not entitlements): [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../../../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4.
  *
- * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (Core Pilot invariants; ordering;
- *   rank **0** vs **`ReadAuthority`**; **`/alerts`** **`advanced`** (+ progressive disclosure toggle); Enterprise href **monotonicity**; Advanced default **`/insights/ask-review-questions`**-only;
- *   **`/governance`** gated on **`showAdvanced`** at Execute rank; **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`**).
- * @see `authority-execute-floor-regression.test.ts` — **Execute floor** parity (nav **`ExecuteAuthority`** row vs mutation boolean) + **`operate-governance`** config invariants under **`filterNavLinksByAuthority`** alone (complements tier∩rank tests above).
- * @see `authority-shaped-ui-regression.test.ts` — catalog **`ExecuteAuthority`** links vs Read/Execute rank (this module composes those links after **tier**).
- * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority; default Reader Enterprise strip;
- *   Execute rank does not bypass extended tier without disclosure toggles; **Core Pilot** **`/internal/replay`** (extended **Execute**)
- *   stays hidden until **Show more** even at Admin rank.
+ * @see `authority-seam-regression.test.ts` — authority composition vs caller rank (Core Pilot invariants; ordering;
+ *   rank **0** vs **`ReadAuthority`**; Enterprise href **monotonicity**; **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`**).
+ * @see `authority-execute-floor-regression.test.ts` — **Execute floor** parity (nav **`ExecuteAuthority`** row vs mutation boolean) + **`operate-governance`** config invariants under **`filterNavLinksByAuthority`** alone (complements rank tests above).
+ * @see `authority-shaped-ui-regression.test.ts` — catalog **`ExecuteAuthority`** links vs Read/Execute rank.
+ * @see `nav-shell-visibility.test.ts` — empty-group omission after authority filtering; default Reader Enterprise strip;
+ *   pre-commit gate vs committed-review promotions at each rank.
  * @see `OperatorNavAuthorityProvider.test.tsx` — conservative rank during JWT `/me` refetch (feeds this module indirectly).
  * @see `enterprise-authority-ui-shaping.test.tsx` — **`useOperateCapability`** → **`disabled`** / **`readOnly`** on representative Enterprise pages (incl. governance submit fields).
  * @see `authority-shaped-layout-regression.test.tsx` — read-tier **layout** (inspect-first columns, triage deemphasis); complements this module’s **link set** only.
  */
 export function filterNavLinksForOperatorShell(
   links: ReadonlyArray<NavLinkItem>,
-  /** @deprecated Progressive tier disclosure retired — argument ignored (owner 2026-08-03). */
-  _showExtended: boolean,
-  /** @deprecated Progressive tier disclosure retired — argument ignored (owner 2026-08-03). */
-  _showAdvanced: boolean,
   callerAuthorityRank: number,
-  /** @deprecated Collapsed-pilot link filtering retired — argument ignored (owner 2026-08-03). */
-  _applyCollapsedSidebarPilotFilter = false,
   hasCommittedArchitectureReview = true,
 ): NavLinkItem[] {
-  void _showExtended;
-  void _showAdvanced;
-  void _applyCollapsedSidebarPilotFilter;
-
   const gated = filterNavLinksByCommittedArchitectureReviewGate(links, hasCommittedArchitectureReview);
   const promoted = applyCommittedArchitectureReviewNavPromotions(gated, hasCommittedArchitectureReview);
 
   let visible: NavLinkItem[] = filterNavLinksByAuthority(promoted, callerAuthorityRank);
 
-  visible = omitThinRoutesInPublicDemoMode(visible);
-  visible = omitBuyerPolishedShellNonGoldenNavLinks(visible);
+  visible = applyNavShellPresetPackagingFilter(visible, resolveNavShellPresetId());
   visible = omitApiKeysSettingsWhenSurfaceDisabled(visible);
 
   return visible;
@@ -189,32 +82,20 @@ export function filterNavLinksForOperatorShell(
 
 /**
  * Applies **`filterNavLinksForOperatorShell`** to every configured group and **omits groups with no visible links**.
- * Sidebar, mobile drawer, and command palette should iterate this result so tier + authority + empty-group rules stay aligned.
+ * Sidebar, mobile drawer, and command palette should iterate this result so authority + empty-group rules stay aligned.
  */
 export function listNavGroupsVisibleInOperatorShell(
   groups: ReadonlyArray<NavGroupConfig>,
-  showExtended: boolean,
-  showAdvanced: boolean,
   callerAuthorityRank: number,
-  applyCollapsedSidebarPilotFilter = false,
   surfaceFilter: "all" | NavShellSurface = "all",
   hasCommittedArchitectureReview = true,
 ): NavGroupWithVisibleLinks[] {
+  const presetId = resolveNavShellPresetId();
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
-    // Operate unlock phase no longer hides whole groups — authority filters per link below.
-
     if (group.surface === "system-admin") {
-      if (!isShowSystemAdministrationNavEnabled()) {
-        continue;
-      }
-
-      if (isNextPublicDemoMode()) {
-        continue;
-      }
-
-      if (isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv()) {
+      if (!isSystemAdministrationNavGroupVisible(presetId)) {
         continue;
       }
     }
@@ -223,18 +104,9 @@ export function listNavGroupsVisibleInOperatorShell(
       continue;
     }
 
-    const shellLinks = filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(
-        group.links,
-        showExtended,
-        showAdvanced,
-        callerAuthorityRank,
-        applyCollapsedSidebarPilotFilter,
-        hasCommittedArchitectureReview,
-      ),
+    const visibleLinks = filterNavLinksByPublishReadiness(
+      filterNavLinksForOperatorShell(group.links, callerAuthorityRank, hasCommittedArchitectureReview),
     );
-
-    const visibleLinks = shellLinks;
 
     if (visibleLinks.length === 0) {
       continue;
@@ -247,21 +119,16 @@ export function listNavGroupsVisibleInOperatorShell(
 }
 
 /**
- * Hrefs the operator shell currently exposes (tier ∩ authority ∩ publish gates, all nav groups).
+ * Hrefs the operator shell currently exposes (authority ∩ publish gates, all nav groups).
  * Used to filter curated command-palette tasks so Ctrl+K never lists destinations the sidebar would hide.
  */
 export function visibleOperatorShellHrefSet(
-  showExtended: boolean,
-  showAdvanced: boolean,
   callerAuthorityRank: number,
   hasCommittedArchitectureReview: boolean,
 ): Set<string> {
   const rows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
-    showExtended,
-    showAdvanced,
     callerAuthorityRank,
-    false,
     "all",
     hasCommittedArchitectureReview,
   );
@@ -274,102 +141,4 @@ export function visibleOperatorShellHrefSet(
   }
 
   return hrefs;
-}
-
-/**
- * Sidebar “N more” badge when collapsed: links that appear after “Show all features”
- * (expands collapsed pilot filter only).
- */
-export function countSidebarLinksRevealedByShowAllFeatures(
-  groups: ReadonlyArray<NavGroupConfig>,
-  showExtended: boolean,
-  showAdvanced: boolean,
-  callerAuthorityRank: number,
-  hasCommittedArchitectureReview: boolean,
-): number {
-  return countSidebarLinksHiddenByCollapsedPilot(
-    groups,
-    showExtended,
-    showAdvanced,
-    callerAuthorityRank,
-    hasCommittedArchitectureReview,
-  );
-}
-
-/**
- * Sidebar “N more features” badge: full operator link count vs collapsed-pilot link count (same tier ∩ authority ∩ publish gates).
- */
-export function countSidebarLinksHiddenByCollapsedPilot(
-  groups: ReadonlyArray<NavGroupConfig>,
-  showExtended: boolean,
-  showAdvanced: boolean,
-  callerAuthorityRank: number,
-  hasCommittedArchitectureReview = true,
-): number {
-  let full = 0;
-  let collapsed = 0;
-
-  for (const group of groups) {
-    if (group.surface === "platform-admin" || group.surface === "system-admin") {
-      continue;
-    }
-
-    const fullLinks = filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(
-        group.links,
-        showExtended,
-        showAdvanced,
-        callerAuthorityRank,
-        false,
-        hasCommittedArchitectureReview,
-      ),
-    );
-    const collapsedLinks = filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(
-        group.links,
-        showExtended,
-        showAdvanced,
-        callerAuthorityRank,
-        true,
-        hasCommittedArchitectureReview,
-      ),
-    );
-
-    full += fullLinks.length;
-    collapsed += collapsedLinks.length;
-  }
-
-  return Math.max(0, full - collapsed);
-}
-
-/**
- * How many hrefs in a group are hidden by the current extended/advanced flags (vs. full disclosure at the same
- * authority rank). Used to surface a “N more” affordance in the sidebar.
- */
-export function countLinksHiddenByProgressiveDisclosure(
-  group: NavGroupConfig,
-  showExtended: boolean,
-  showAdvanced: boolean,
-  callerAuthorityRank: number,
-  hasCommittedArchitectureReview = true,
-): number {
-  const current = filterNavLinksForOperatorShell(
-    group.links,
-    showExtended,
-    showAdvanced,
-    callerAuthorityRank,
-    false,
-    hasCommittedArchitectureReview,
-  );
-  const full = filterNavLinksForOperatorShell(
-    group.links,
-    true,
-    true,
-    callerAuthorityRank,
-    false,
-    hasCommittedArchitectureReview,
-  );
-  const currentHrefs = new Set(current.map((l) => l.href));
-
-  return full.filter((l) => !currentHrefs.has(l.href)).length;
 }

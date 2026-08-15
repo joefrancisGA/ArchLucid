@@ -17,7 +17,7 @@ Ship a pack covering US federal government AI governance requirements anchored o
 
 | # | Assumption | Rationale |
 |---|------------|-----------|
-| A1 | Authoritative sources: OMB M-24-10 (March 28, 2024), OMB M-24-18 (August 27, 2024), NIST AI 600-1 (July 2024), Executive Order 14110 (Safe, Secure, Trustworthy AI, October 2023). | Official US government sources. |
+| A1 | Authoritative sources: OMB M-24-10 (March 28, 2024), OMB M-24-18 (August 27, 2024), NIST AI 600-1 (July 2024), Sponsor Order 14110 (Safe, Secure, Trustworthy AI, October 2023). | Official US government sources. |
 | A2 | OMB M-24-10 defines two high-stakes categories: **rights-impacting AI** (affecting civil rights, education, employment, access to benefits, housing, credit, insurance, healthcare, criminal justice) and **safety-impacting AI** (affecting health/safety of people). | OMB M-24-10 §5. |
 | A3 | Architecture evidence covers: AI use-case inventory (CAIO-maintained), rights/safety-impacting AI controls documentation, human oversight mechanism design, ATO alignment for AI systems on federal infrastructure. | Evidence-mappability. |
 | A4 | Pack does not classify the customer's AI as rights-impacting or safety-impacting — conditional framing. | Auto-classification prohibition. |
@@ -32,7 +32,7 @@ Ship a pack covering US federal government AI governance requirements anchored o
 |---|------------|-------------|
 | C1 | Rule prefix `gov-ai-` is distinct. | Verified. |
 | C2 | Pack must not imply federal agency ATO or OMB compliance determination. | Mandatory disclaimer. |
-| C3 | Executive branch memoranda are public domain; citation is unrestricted. | No copyright concern. |
+| C3 | Sponsor branch memoranda are public domain; citation is unrestricted. | No copyright concern. |
 | C4 | State and local government AI requirements (California, Colorado, etc.) are covered by AI-20; this pack is federal only. | Scope boundary. |
 
 ---

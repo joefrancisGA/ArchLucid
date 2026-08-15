@@ -81,3 +81,19 @@ flowchart LR
 - Migration safety: `docs/runbooks/MIGRATION_ROLLBACK.md`
 - Data archival readiness: `docs/runbooks/DATA_ARCHIVAL_HEALTH.md`
 - Private Terraform example: `infra/terraform-private/` (validate locally with `terraform init -backend=false` and `terraform validate`).
+
+## Terraform-managed Key Vault secrets (TB-907)
+
+Every secret written by Terraform roots below carries an **`expiration_date`** (default **365** days via `managed_key_vault_secret_ttl_days`). Re-apply the owning root before expiry to refresh metadata, or rotate the secret value per the procedure column.
+
+| Secret name (default) | Terraform root | Owner | Cadence | Rotation / elimination |
+|---|---|---|---|---|
+| `alert-sms-phone-number` | `infra/terraform-monitoring` | Platform ops | On personnel change; refresh expiry annually | Re-`secret set` in Key Vault; verify critical action group |
+| `alert-voice-phone-number` | `infra/terraform-monitoring` | Platform ops | Same as SMS | Same as SMS |
+| `application-insights-connection-string` | `infra/terraform-monitoring` | Platform ops | On App Insights key rotation | Re-run monitoring root or `wire-application-insights-env.ps1` |
+| `archlucid-hotpath-redis-connection-string` | `infra/terraform-redis` | Platform ops | **Prefer TB-906 MI elimination**; else rotate Redis keys | Regenerate Redis keys + bump KV secret version |
+| `archlucid-cosmos-connection-string` | `infra/terraform-cosmos` | Platform ops | **Prefer TB-906 MI elimination**; else rotate Cosmos keys | Regenerate Cosmos keys + recycle apps; skip when MI principals wired |
+
+**Near-expiry audit:** weekly scheduled workflow **`key-vault-expiration-audit (scheduled)`** and ad-hoc `./scripts/azure/Audit-KeyVaultExpirations.ps1 -VaultName <name> -DaysAhead 30 -FlagMissingExpiration` (exit **2** when items expire soon or lack expiry metadata).
+
+**Operator-provisioned secrets** (hosted pilot CLI names, PagerDuty webhook, Stripe webhook, API keys) remain in the component table above and linked child runbooks — set **`expiration_date`** manually on first write and track in your change ticket.

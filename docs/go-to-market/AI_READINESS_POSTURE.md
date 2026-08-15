@@ -6,7 +6,7 @@
 
 # AI readiness posture artifact
 
-**Audience:** Pilot sponsors, executive buyers, and proof-packet reviewers who need a single artifact summarizing ArchLucid's AI evidence quality, retrieval posture, and budget posture without reading multiple technical evidence files.
+**Audience:** Pilot sponsors, sponsor buyers, and proof-packet reviewers who need a single artifact summarizing ArchLucid's AI evidence quality, retrieval posture, and budget posture without reading multiple technical evidence files.
 
 **Last reviewed:** 2026-07-27
 

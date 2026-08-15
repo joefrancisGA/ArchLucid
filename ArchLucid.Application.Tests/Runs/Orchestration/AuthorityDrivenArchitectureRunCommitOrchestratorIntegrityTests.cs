@@ -331,6 +331,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
             Mock.Of<IManifestFinalizationService>(),
             gate,
             Mock.Of<IPreCommitGovernanceBlockExplainer>(),
+            Mock.Of<ICommitOutputIntegrityService>(),
             Mock.Of<IPolicyPackAssignmentRepository>(),
             actor.Object,
             baselineAudit.Object,

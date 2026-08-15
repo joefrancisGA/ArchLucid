@@ -5,11 +5,11 @@
 > **Method:** Cross-reference committed First Load JS baseline + static import/deferred-chunk inventory on `RunDetailPageView` (post-**TB-697** / **TB-933** / **TB-2021** deferred-chunk work).
 > **Blocked locally (2026-07-18):** `npm run build` / `npm run build:analyze` did not complete in that pass — prefer CI/Linux for analyzer HTML; refresh First Load JS baseline after measured cuts via `npm run write:first-load-js-baseline`.
 
-## Executive summary
+## Sponsor summary
 
 `/reviews/[runId]` remains the **largest tracked operator route** (baseline **2,255.2 kB** First Load JS in `performance/first-load-js-baseline.v1.json` as of the last committed refresh — **not yet remeasured** after **TB-2021**). **TB-697** moved forensics/architecture/progress modules behind `run-detail-page-view-deferred-chunks.tsx`. **TB-933** (2026-07-24) deferred outcome cards / usability banners / forensics. **TB-2021** (2026-08-03) deferred findings/QuickDecision client leaves, artifacts/exports, and below-fold habit/authority/grounding islands.
 
-What remains sync for buyer first paint: `ReviewDetailWorkspace`, overview/executive-summary chrome, and workspace header/summary strips. Further wins need measured `build:analyze` before deferring that chrome.
+What remains sync for buyer first paint: `ReviewDetailWorkspace`, overview/sponsor-summary chrome, and workspace header/summary strips. Further wins need measured `build:analyze` before deferring that chrome.
 
 ## Baseline cross-reference
 
@@ -50,7 +50,7 @@ These modules are **not** in the `RunDetailPageView` static import graph (enforc
 | `RunDetailBuyerModeFallbackBannerDeferred` | `RunDetailBuyerModeFallbackBanner` | TB-2117 |
 | `RunDetailWorkspaceHeaderDeferred` / summary strip / blocking banner / sticky actions | `RunDetailWorkspaceChrome` | TB-2117 |
 | `RunDetailSectionNavDeferred` | `RunDetailSectionNav` | TB-2117 |
-| `RunDetailExecutiveBottomLineDeferred` / `RunDetailExecutiveSummaryCtaCardDeferred` | executive overview chrome | TB-2117 |
+| `RunDetailExecutiveBottomLineDeferred` / `RunDetailExecutiveSummaryCtaCardDeferred` | sponsor overview chrome | TB-2117 |
 | `RunDetailManifestSummarySectionDeferred` / submitted architecture / capture evidence / governance decision / review package | tab-gated sections | TB-2117 |
 | `RunDetailWorkspaceLayout` + `RunDetailWorkspaceDisclosureProvider` | `RunDetailWorkspaceShell.tsx` (sync layout only) | TB-2117 |
 
@@ -74,7 +74,7 @@ Ranked by **bundle-risk** (module size/transitive deps × first-paint necessity)
 | 1 | `ReviewDetailWorkspace` + tab chrome | Yes | **Deferred** — `ReviewDetailWorkspaceDeferred` (TB-2021); tab panel sections deferred TB-2117 |
 | 2 | `RunDetailOverviewPanelClient` | Yes | **Deferred** — `RunDetailOverviewPanelClientDeferred` (TB-2021) |
 | 3 | `RunDetailWorkspaceChrome` (`Header`, `SummaryStrip`, …) | Yes | **Deferred** — TB-2117; layout stays in `RunDetailWorkspaceShell` |
-| 4 | `RunDetailOutcomeCards` + executive summary stack | Yes | Outcome cards deferred TB-933; bottom line / CTA deferred TB-2117 |
+| 4 | `RunDetailOutcomeCards` + sponsor summary stack | Yes | Outcome cards deferred TB-933; bottom line / CTA deferred TB-2117 |
 | 5 | `RunDetailSectionNav` + in-page section components | Often below-fold / tab-gated | **Deferred** — TB-2117 import-policy guards |
 | 6 | Usability/demo banner cluster (`CommitBlockingFindingsBanner`, `StalledReviewGuidanceCallout`, `OperatorDemoStaticBanner`, …) | Often | **TB-696** defers similar chrome in `AppShell` — not yet here |
 | 7 | `ArchitectureCreateWorkItemSection` | Tab-gated | **Yes** — `RunDetailArchitectureCreateWorkItemSectionDeferred` (2026-07-18) |
@@ -103,14 +103,14 @@ Ranked by **bundle-risk** (module size/transitive deps × first-paint necessity)
 | --- | --- |
 | `ReviewDetailWorkspace` shell | Large; splitting server vs client boundaries may beat blind `dynamic()` |
 | `RunDetailOverviewPanelClient` | High leverage if measurable KB win |
-| Executive summary / outcome card stack | Buyer first screen — defer only with skeleton parity |
+| Sponsor summary / outcome card stack | Buyer first screen — defer only with skeleton parity |
 | `ArchitectureCreateWorkItemSection` / `ArchitectureSponsorSharingPanel` | **Best next TB candidates** — tab-gated, mirrors TB-698 policy-pack authoring split |
 
 ## Recommended follow-up batches (separate TB rows — not in this investigation)
 
 1. **Defer architecture create-work-item + sponsor sharing panels** — smallest scoped win; tab-gated; mirror `RunDetailArchitectureCreatedWorkspaceDeferred`.
 2. **Measure after (1)** — `npm run build && npm run write:first-load-js-baseline` on CI; compare `/reviews/[runId]` KB delta.
-3. **Executive-summary / overview client split** — only if (1)+(2) insufficient; requires UX skeleton review.
+3. **Sponsor-summary / overview client split** — only if (1)+(2) insufficient; requires UX skeleton review.
 
 ## Commands to reproduce (clean tree)
 

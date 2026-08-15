@@ -6,7 +6,7 @@ import {
   readArchitectureNarrativeRenderDiagnostic,
 } from "@/components/architecture/ArchitectureNarrativeMarkdownView";
 
-const representativeNarrative = `## Executive summary
+const representativeNarrative = `## Sponsor report
 
 Governed claims intake for enterprise analysts.
 
@@ -34,7 +34,7 @@ describe("ArchitectureNarrativeMarkdownView", () => {
   it("renders headings, paragraphs, lists, tables, and code without raw markdown tokens", () => {
     const { container } = render(<ArchitectureNarrativeMarkdownView markdown={representativeNarrative} />);
 
-    expect(screen.getByRole("heading", { level: 2, name: "Executive summary" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Sponsor report" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Systems and services" })).toBeInTheDocument();
     expect(screen.getByRole("table")).toBeInTheDocument();
     expect(screen.getByText("Claims API")).toBeInTheDocument();

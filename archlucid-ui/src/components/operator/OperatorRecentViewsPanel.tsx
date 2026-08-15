@@ -10,7 +10,7 @@ import {
   parseStoredRecentViews,
   type OperatorRecentViewsState,
 } from "@/lib/operator/operator-recent-views";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 /** Home panel: resume recently viewed reviews, findings, and operator pages. */
 export function OperatorRecentViewsPanel(): React.JSX.Element | null {
@@ -44,7 +44,7 @@ export function OperatorRecentViewsPanel(): React.JSX.Element | null {
               <li key={entry.href}>
                 <Link
                   href={entry.href}
-                  className={cn("font-medium text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-950 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.body)}
+                  className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}
                 >
                   {entry.label}
                 </Link>

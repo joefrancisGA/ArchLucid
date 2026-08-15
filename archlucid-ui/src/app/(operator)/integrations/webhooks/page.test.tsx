@@ -50,6 +50,8 @@ vi.mock("@/lib/api", () => ({
 import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-nav-group-builder";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 import { WEBHOOKS_BANNED_UI_PATTERNS, WEBHOOKS_EMPTY_TITLE, WEBHOOKS_PAGE_TITLE } from "@/lib/webhooks-page-copy";
+import { WEBHOOKS_INTEGRATION_SOURCES } from "@/lib/webhooks-integration-evidence-copy";
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { showError, showSuccess } from "@/lib/toast";
@@ -95,7 +97,23 @@ describe("WebhooksIntegrationPage", () => {
   it("shows PageHeading contextual help with the Webhooks caption", async () => {
     render(<WebhooksIntegrationPage />);
 
-    expect(await screen.findByTestId("page-contextual-help-button")).toHaveTextContent("Webhooks help");
+    expect(await screen.findByTestId("page-contextual-help-button")).toHaveTextContent("How webhooks work");
+  });
+
+  it("renders the Webhooks integration Sources and claim-discipline strip", async () => {
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId("webhooks-integration-orientation");
+
+    const sources = screen.getByTestId("webhooks-integration-sources");
+
+    for (const link of WEBHOOKS_INTEGRATION_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
+    expect(readinessLinks).toHaveLength(1);
+    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
   });
 
   it("uses operator spacing density on the page shell", async () => {
@@ -114,11 +132,21 @@ describe("WebhooksIntegrationPage", () => {
       expect(apiMocks.list).toHaveBeenCalled();
     });
 
+    await screen.findByTestId("webhooks-integration-orientation");
+
+    const page = screen.getByTestId("webhooks-page");
+    const orientationStrip = screen.getByTestId("webhooks-integration-orientation");
+
+    const linksOutsideOrientation = (name: string) =>
+      within(page)
+        .queryAllByRole("link", { name })
+        .filter((element) => !orientationStrip.contains(element));
+
     expect(screen.queryByTestId("webhooks-dedicated-links")).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Jira" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "ServiceNow" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Microsoft Teams" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Slack" })).not.toBeInTheDocument();
+    expect(linksOutsideOrientation("Jira")).toHaveLength(0);
+    expect(linksOutsideOrientation("ServiceNow")).toHaveLength(0);
+    expect(linksOutsideOrientation("Microsoft Teams")).toHaveLength(0);
+    expect(linksOutsideOrientation("Slack")).toHaveLength(0);
     expect(screen.queryByText(/For dedicated workflows, use Jira/i)).not.toBeInTheDocument();
   });
 

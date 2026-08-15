@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ApprovalLineageQueueVocabularyRail } from "@/components/ApprovalLineageQueueVocabularyRail";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,6 @@ import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { formatGovernanceLineageCompletenessPercent } from "@/lib/governance/governance-lineage-metric-format";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_APPROVAL_LINEAGE_FINDINGS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
-import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 import { GovernanceApprovalLineageSpine } from "./GovernanceApprovalLineageSpine";
@@ -70,24 +68,6 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
         title="Approval lineage"
         subtitle={displayApprovalTitle}
         titleTestId="approval-lineage-page-title"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="approval-lineage-page-breadcrumb"
-            items={[
-              {
-                label: OPERATOR_NAV_GROUP_LABELS.governance,
-                href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-              },
-              {
-                label: OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
-                href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-              },
-              {
-                label: "Approval lineage",
-              },
-            ]}
-          />
-        }
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
@@ -166,8 +146,8 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
       {data.manifest ? (
         <Card>
           <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Signed review record</CardTitle>
-            <CardDescription>Signed review record associated with this approval</CardDescription>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Sealed review record</CardTitle>
+            <CardDescription>Sealed review record associated with this approval</CardDescription>
           </CardHeader>
           <CardContent className={cn("grid gap-3", OPERATOR_TYPOGRAPHY.body)}>
             {verificationStatus ? (

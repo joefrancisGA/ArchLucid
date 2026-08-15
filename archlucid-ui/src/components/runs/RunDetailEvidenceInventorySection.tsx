@@ -46,7 +46,7 @@ export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInvent
           {props.hasManifest === true ? (
             <EnterpriseCompactEmptyState
               title="No submitted source documents are listed"
-              description="This signed review record is sealed — source documents cannot be added after finalization. Start a new review to submit updated evidence."
+              description="This sealed review record is sealed — source documents cannot be added after finalization. Start a new review to submit updated evidence."
               actions={[{ label: "Start a new review", href: REVIEWS_NEW_PATH, variant: "primary" }]}
             />
           ) : (

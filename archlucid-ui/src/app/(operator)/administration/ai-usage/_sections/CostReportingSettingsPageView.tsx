@@ -10,6 +10,8 @@ import { OperatorOutboxDiagnosticsCard } from "@/components/operator/OperatorOut
 import { PageHeading } from "@/components/PageHeading";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { AiUsageSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { AI_USAGE_HELP_TOPIC_LABEL } from "@/lib/ai-usage-settings-evidence-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { formatAiUsageEstimatesAsOfLabel } from "@/lib/ai-usage-dashboard-model";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -110,8 +112,9 @@ export function CostReportingSettingsPageView(props: Props) {
             <span data-testid="ai-usage-estimates-as-of">{estimatesAsOfLabel}</span>
           ) : null
         }
-        actions={<PageContextualHelpButton />}
+        actions={<PageContextualHelpButton triggerText={AI_USAGE_HELP_TOPIC_LABEL} />}
       />
+      <AiUsageSettingsEvidenceOrientationStrip />
       <AiUsageEstimateHonestyLine />
       <AiUsageBillingVocabularyRail currentSurfaceId="ai-usage" />
       <ModelGovernanceAiUsageVocabularyRail currentSurfaceId="ai-usage" />
@@ -191,7 +194,18 @@ export function CostReportingSettingsPageView(props: Props) {
                 m.setFilters({ ...nextFilters, groupBy: m.filters.groupBy });
               }}
             />
-          ) : null}
+          ) : (
+            <section
+              id="ai-usage-filters-bar"
+              className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+              data-testid="ai-usage-filters-bar-restricted"
+              aria-label="AI usage filters"
+            >
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                Workflow filters require execute workspace access.
+              </p>
+            </section>
+          )}
 
           <AiUsageDailyUsagePanel
             daily={data?.daily ?? []}

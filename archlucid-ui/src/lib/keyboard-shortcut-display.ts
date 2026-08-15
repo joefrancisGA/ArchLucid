@@ -11,10 +11,10 @@ import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 export const COMMAND_PALETTE_DISPLAY_SHORTCUT = "Ctrl+K";
 
 /** Accessible name for the operator shell help trigger (top bar). */
-export const OPERATOR_HELP_ARIA_LABEL = "Help (F1)";
+export const OPERATOR_HELP_ARIA_LABEL = "Help & Support (F1)";
 
 /** Tooltip for the operator shell help trigger. */
-export const OPERATOR_HELP_TOOLTIP = "Help (F1)";
+export const OPERATOR_HELP_TOOLTIP = "Help & Support (F1)";
 
 /** WAI-ARIA `aria-keyshortcuts` for help — F1 and Shift+/. */
 export const OPERATOR_HELP_ARIA_KEYSHORTCUTS = "F1 Shift+?";

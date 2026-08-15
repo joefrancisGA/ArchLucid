@@ -1,13 +1,13 @@
 /**
- * TB-2272 — Signed review records ≠ review detail vocabulary rail.
+ * TB-2272 — Sealed review records ≠ review detail vocabulary rail.
  *
  * Why two surfaces exist:
- * - Signed review records (`/governance/signed-records`) is the *inventory* of
- *   finalized signed review records for diligence and governance follow-up.
- * - Review detail (`/architecture/reviews/[runId]`) is the *architecture
+ * - Sealed review records (`/governance/sealed-records`) is the *inventory* of
+ *   finalized sealed review records for diligence and governance follow-up.
+ * - Review detail (`/architecture/reviews/[reviewId]`) is the *architecture
  *   package* workspace for one review — findings, evidence, and finalize.
  *
- * They stay separate because browsing signed records is not the same task as
+ * They stay separate because browsing sealed records is not the same task as
  * working inside one architecture package. Open the peer when you need both.
  */
 
@@ -32,19 +32,19 @@ export type SignedRecordsReviewDetailVocabularyModel = {
 };
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_HEADING =
-  "Signed review records and review detail serve different purposes" as const;
+  "Sealed review records and review detail serve different purposes" as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_WHY_TWO =
-  "Signed review records is the inventory of finalized signed review records for diligence and governance follow-up. Review detail is the architecture package workspace for one review — findings, evidence, and finalize. The inventory is not the package workspace." as const;
+  "Sealed review records is the inventory of finalized sealed review records for diligence and governance follow-up. Review detail is the architecture package workspace for one review — findings, evidence, and finalize. The inventory is not the package workspace." as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_COMPACT_LINE =
-  "Signed review records lists finalized records; review detail is one architecture package — open the other when you need both." as const;
+  "Sealed review records lists finalized records; review detail is one architecture package — open the other when you need both." as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_SIGNED_RECORDS_LINK: SignedRecordsReviewDetailLink = {
   id: "signed-records",
-  label: "Signed review records",
+  label: "Sealed review records",
   href: SIGNED_RECORDS_LIST_PATH,
-  whenToUse: "Browse finalized signed review records for diligence and governance follow-up.",
+  whenToUse: "Browse finalized sealed review records for diligence and governance follow-up.",
 };
 
 /** Review detail is per-package; href uses the reviews hub as the stable peer home. */

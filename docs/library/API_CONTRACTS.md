@@ -161,7 +161,7 @@ CLI: `archlucid first-value-report <runId> [--save]` Â· `archlucid reference-e
 
 **Admin metering summary:** `GET /v1/admin/metering/summary?periodStart=&periodEnd=` — **AdminAuthority**; tenant from ambient scope (TB-279). Legacy alias `GET /v1/admin/metering/summary` remains one release with route↔scope binding.
 
-**Executive summary (reports):** `GET /v1/reports/executive-summary` — **ReadAuthority**; canonical ambient-scope contract (TB-280). Legacy `GET api/authority/executive-summary/{tenantId}` removed.
+**Sponsor summary (reports):** `GET /v1/reports/sponsor-summary` — **ReadAuthority**; canonical ambient-scope contract (TB-280). Legacy `GET api/authority/sponsor-summary/{tenantId}` removed.
 
 **Admin marketing pricing quote aging:** `GET /v1/admin/marketing/pricing-quote-aging` — **AdminAuthority**. Returns **`MarketingPricingQuoteAgingResponse`** — open rows from **`dbo.MarketingPricingQuoteRequestsAging`** with **`warnCount`** / **`breachCount`** aggregates for Admin triage (Improvement #6). Architect workspace: **`/admin/pricing-quote-aging`**. Runbook: **`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`**.
 

@@ -97,19 +97,13 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
     expect(within(toc).queryByRole("link", { name: entry.title })).toBeNull();
   });
 
-  it("provides breadcrumb, sibling guides, and workflow navigation actions", () => {
+  it("provides sibling guides and workflow navigation actions", () => {
     if (entry === undefined) {
       throw new Error("Expected cloud-connections-gcp documentation entry.");
     }
 
     render(<HelpConnectGcpSecurelyGuideView entry={entry} />);
 
-    const breadcrumb = screen.getByTestId("help-connect-gcp-securely-breadcrumb");
-    expect(within(breadcrumb).getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
-    expect(within(breadcrumb).getByRole("link", { name: "Cloud connections" })).toHaveAttribute(
-      "href",
-      "/help/cloud-connections",
-    );
 
     const sources = screen.getByTestId("connect-gcp-securely-help-sources");
     expect(within(sources).getByRole("link", { name: "Connect Azure securely" })).toHaveAttribute(

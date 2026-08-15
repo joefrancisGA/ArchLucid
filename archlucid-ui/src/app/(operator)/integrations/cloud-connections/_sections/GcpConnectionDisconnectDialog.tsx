@@ -39,7 +39,7 @@ export function GcpConnectionDisconnectDialog(props: GcpConnectionDisconnectDial
         }
       }}
       title={resolveDisconnectTitle(projectId)}
-      description="Scheduled read-only inventory collection for this GCP project will stop. Previously collected inventory packages and any signed review records that cite them are retained."
+      description="Scheduled read-only inventory collection for this GCP project will stop. Previously collected inventory packages and any sealed review records that cite them are retained."
       confirmLabel="Disconnect"
       variant="destructive"
       busy={props.busy}

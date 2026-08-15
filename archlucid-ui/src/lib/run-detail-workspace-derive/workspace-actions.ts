@@ -27,7 +27,8 @@ const PRODUCT_BRAND_NAME = "ArchLucid";
 import type {
   RunDetailWorkspaceRecommendedAction
 } from "./types";
-import { countFindingsBySeverity, derivePrimaryConcernFinding } from "./finding-metrics";
+import { countFindingsBySeverity, derivePrimaryConcernFinding, filterUnresolvedFindings } from "./finding-metrics";
+import { isFindingResolved } from "./internal";
 export function deriveBlockingApprovalCount(input: {
   readonly unresolvedIssueCount: number | null | undefined;
   readonly hasCommitBlockingFailures: boolean;
@@ -42,7 +43,12 @@ export function deriveBlockingApprovalCount(input: {
   }
 
   if (input.hasCommitBlockingFailures) {
-    return input.findings.filter((finding) => !finding.isMuted && finding.enforcementTier !== "Advisory").length;
+    return input.findings.filter(
+      (finding) =>
+        !finding.isMuted &&
+        finding.enforcementTier !== "Advisory" &&
+        !isFindingResolved(finding),
+    ).length;
   }
 
   return 0;
@@ -63,19 +69,27 @@ export function deriveRecommendedWorkspaceActions(input: {
   readonly skipDuplicateFindingsActions?: boolean;
 }): RunDetailWorkspaceRecommendedAction[] {
   const actions: RunDetailWorkspaceRecommendedAction[] = [];
-  const severityCounts = countFindingsBySeverity(input.findings);
+  const unresolvedFindings = filterUnresolvedFindings(input.findings);
+  const severityCounts = countFindingsBySeverity(unresolvedFindings);
   const unassignedHigh = input.findings.filter(
     (finding) =>
       !finding.isMuted &&
+      !isFindingResolved(finding) &&
       finding.severityValue >= 2 &&
       (finding.assignedToUserId?.trim() ?? "").length === 0,
   ).length;
   const pendingDecision = input.findings.filter((finding) => {
+    if (finding.isMuted || isFindingResolved(finding)) {
+      return false;
+    }
+
     const status = humanReviewStatusDisplay(finding.humanReviewStatus);
 
     return status?.label === "Pending review";
   }).length;
-  const evidenceGaps = input.findings.filter((finding) => (finding.evidenceRefCount ?? 0) === 0).length;
+  const evidenceGaps = input.findings.filter(
+    (finding) => !finding.isMuted && !isFindingResolved(finding) && (finding.evidenceRefCount ?? 0) === 0,
+  ).length;
 
   if (input.showProgressTracker) {
     actions.push({
@@ -195,7 +209,7 @@ export function deriveRecommendedWorkspaceActions(input: {
   if (manifestId.length > 0) {
     actions.push({
       id: "open-package",
-      title: "Open signed review record",
+      title: "Open sealed review record",
       reason: "Exports and deliverables are available for this finalized review.",
       relatedFindingCount: null,
       ownerOrRole: null,

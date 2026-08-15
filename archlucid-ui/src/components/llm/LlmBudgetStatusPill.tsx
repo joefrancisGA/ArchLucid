@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { LlmBudgetUtilizationMeter } from "@/components/llm/LlmBudgetUtilizationMeter";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -12,29 +13,20 @@ import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-s
 import { AUTH_MODE } from "@/lib/auth-config";
 import {
   llmBudgetRemainingPercent,
-  resolveLlmBudgetUtilizationTone,
   shouldShowShellLlmBudgetStatusPill,
-  type LlmBudgetUtilizationTone,
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
+import { resolveEnterpriseStatusKind } from "@/lib/enterprise-status-kind-resolver";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-function pillClassForTone(tone: LlmBudgetUtilizationTone): string {
+function pillClassForBudgetLabel(label: string): string {
   const hover = "hover:bg-[var(--al-layer-hover)] dark:hover:bg-neutral-800/80";
 
-  if (tone === "critical") {
-    return cn(enterpriseStatusTagClass("blocked"), hover);
-  }
-
-  if (tone === "warn") {
-    return cn(enterpriseStatusTagClass("needs-attention"), hover);
-  }
-
-  return cn(enterpriseStatusTagClass("ready"), hover);
+  return cn(enterpriseStatusTagClass(resolveEnterpriseStatusKind(label, "budget")), hover);
 }
 
 function buildPillLabel(status: LlmMonthlyDollarBudgetStatus, remainingPercent: number | null): string {
@@ -72,10 +64,13 @@ function isOperatorShellAuthenticated(): boolean {
 
 /** Compact UTC-month LLM budget indicator for the operator shell top bar. */
 export function LlmBudgetStatusPill() {
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const [open, setOpen] = useState(false);
   const queryEnabled =
-    isOperatorShellAuthenticated() && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+    concernFetchEnabled &&
+    isOperatorShellAuthenticated() &&
+    callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const { data: status } = useLlmMonthlyBudgetStatusQuery({ enabled: queryEnabled });
 
   if (!queryEnabled) {
@@ -90,7 +85,6 @@ export function LlmBudgetStatusPill() {
     return null;
   }
 
-  const tone = resolveLlmBudgetUtilizationTone(status);
   const remainingPercent = llmBudgetRemainingPercent(status);
   const paused =
     status.blocksAdditionalLlmExecution ||
@@ -108,7 +102,7 @@ export function LlmBudgetStatusPill() {
           className={cn(
             "h-6 shrink-0 border px-1.5 font-normal tabular-nums text-neutral-600 dark:text-neutral-300",
             OPERATOR_TYPOGRAPHY.micro,
-            pillClassForTone(tone),
+            pillClassForBudgetLabel(label),
           )}
           data-testid="llm-budget-status-pill"
           aria-label={ariaLabel}

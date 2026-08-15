@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
-import { StatusPill } from "@/components/StatusPill";
+import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER } from "@/lib/buyer/buyer-polish-copy";
@@ -225,7 +225,7 @@ function buyerFindingSeveritySignal(
   }
 
   if (key === "elevated") {
-    return "Elevated — prioritize executive review";
+    return "Elevated — prioritize sponsor review";
   }
 
   if (key === "monitored") {
@@ -331,7 +331,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           {props.hasGoldenManifest && hasManifest ? (
             <Link
               href={signedRecordDetailPath(trimmedManifestId)}
-              className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
               data-testid="run-detail-finalized-package-link"
             >
               {packageBody}
@@ -351,7 +351,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           <div className="mt-1">
             <Link
               href={props.showcasePolicyPackStrip.href.trim()}
-              className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
             >
               <p className={valueClass}>{props.showcasePolicyPackStrip.label.trim()}</p>
               <p className={detailClass}>Read-only pack rules and version</p>
@@ -366,7 +366,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           {hasManifest ? (
             <Link
               href="#run-explanation"
-              className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
             >
               {findingsBody}
             </Link>
@@ -382,15 +382,15 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           {hasManifest ? (
             <Link
               href="#artifacts-exports"
-              className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
             >
               <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Executive-ready deliverables</p>
+              <p className={detailClass}>Sponsor-ready deliverables</p>
             </Link>
           ) : (
             <>
               <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Executive-ready deliverables</p>
+              <p className={detailClass}>Sponsor-ready deliverables</p>
             </>
           )}
         </div>
@@ -400,12 +400,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
         <p className={stripSegmentLabelClass()}>Approval status</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           {gate !== "—" ? (
-            <StatusPill
-              status={gate}
-              domain="governance"
-              uppercase={false}
-              ariaLabel={`${approvalStatusLabel}: ${gate}`}
-            />
+            <GovernanceStatusTag status={gate} aria-label={`${approvalStatusLabel}: ${gate}`} />
           ) : (
             <p className={cn(valueClass, "mt-0")}>{gate}</p>
           )}
@@ -494,7 +489,7 @@ export function RunDetailOutcomeCards({
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Exports</dt>
-                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Review, signed review record, audit trail</dd>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Review, sealed review record, audit trail</dd>
               </div>
             </dl>
           ) : null}
@@ -628,7 +623,7 @@ export function RunDetailOutcomeCards({
           ) : null}
           <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {hasGoldenManifest
-              ? "Signed review record is pinned to this review."
+              ? "Sealed review record is pinned to this review."
               : "Finalize from the finalize control when ready."}
           </p>
           {governanceGateLabel !== null && governanceGateLabel !== undefined && governanceGateLabel.length > 0 ? (

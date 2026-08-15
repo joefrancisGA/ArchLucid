@@ -129,38 +129,38 @@ docs/go-to-market/DECISION_FAST_LANE.md:../library/DECISION_VELOCITY_SOLUTION_QU
 missing path docs/library/DECISION_VELOCITY_SOLUTION_QUALITY_ASSESSMENT_2026_05_02_1.29.md
 docs/go-to-market/DEMO_WORKSPACES.md:../../archive/agent-prompts/CURSOR_PROMPTS_GA_TASKS_27_32.md -> missing path 
 archive/agent-prompts/CURSOR_PROMPTS_GA_TASKS_27_32.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md -> missing path 
-docs/go-to-market/go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/PILOT_ROI_MODEL.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:go-to-market/SPONSOR_ONE_EMAIL_KIT.md -> missing path 
+docs/go-to-market/go-to-market/SPONSOR_ONE_EMAIL_KIT.md
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:library/PILOT_ROI_MODEL.md -> missing path 
 docs/go-to-market/library/PILOT_ROI_MODEL.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/PRODUCT_PACKAGING.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:library/PRODUCT_PACKAGING.md -> missing path 
 docs/go-to-market/library/PRODUCT_PACKAGING.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:CORE_PILOT.md -> missing path docs/go-to-market/CORE_PILOT.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:runbooks/FIRST_PILOT_OPERATOR_PATH.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:CORE_PILOT.md -> missing path docs/go-to-market/CORE_PILOT.md
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:runbooks/FIRST_PILOT_OPERATOR_PATH.md -> missing path 
 docs/go-to-market/runbooks/FIRST_PILOT_OPERATOR_PATH.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/walkthroughs/README.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:library/walkthroughs/README.md -> missing path 
 docs/go-to-market/library/walkthroughs/README.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:go-to-market/INTEGRATION_CATALOG.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:go-to-market/INTEGRATION_CATALOG.md -> missing path 
 docs/go-to-market/go-to-market/INTEGRATION_CATALOG.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:go-to-market/POSITIONING.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:go-to-market/POSITIONING.md -> missing path 
 docs/go-to-market/go-to-market/POSITIONING.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:go-to-market/GTM_BACKLOG.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:go-to-market/GTM_BACKLOG.md -> missing path 
 docs/go-to-market/go-to-market/GTM_BACKLOG.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md -> missing path 
 docs/go-to-market/library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/API_CONTRACTS.md#pilots-v1pilots -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:library/API_CONTRACTS.md#pilots-v1pilots -> missing path 
 docs/go-to-market/library/API_CONTRACTS.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:architecture/adrs/0020-azure-primary-platform-permanent.md -> missing 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:architecture/adrs/0020-azure-primary-platform-permanent.md -> missing 
 path docs/go-to-market/architecture/adrs/0020-azure-primary-platform-permanent.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/REFERENCE_SAAS_STACK_ORDER.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:library/REFERENCE_SAAS_STACK_ORDER.md -> missing path 
 docs/go-to-market/library/REFERENCE_SAAS_STACK_ORDER.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/API_CONTRACTS.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:library/API_CONTRACTS.md -> missing path 
 docs/go-to-market/library/API_CONTRACTS.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/PILOT_ROI_MODEL.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:library/PILOT_ROI_MODEL.md -> missing path 
 docs/go-to-market/library/PILOT_ROI_MODEL.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:go-to-market/ROI_MODEL.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:go-to-market/ROI_MODEL.md -> missing path 
 docs/go-to-market/go-to-market/ROI_MODEL.md
-docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/PRODUCT_PACKAGING.md -> missing path 
+docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md:library/PRODUCT_PACKAGING.md -> missing path 
 docs/go-to-market/library/PRODUCT_PACKAGING.md
 docs/go-to-market/INTEGRATION_CATALOG.md:../../integrations/recipes/README.md -> missing path 
 integrations/recipes/README.md
@@ -277,7 +277,7 @@ docs/library/DOCUMENTATION_BY_AUDIENCE.md:../../.cursor/rules/Architecture-Invar
 docs/library/DOCUMENTATION_BY_AUDIENCE.md:../NAVIGATOR.md -> missing path docs/NAVIGATOR.md
 docs/library/DOCUMENTATION_BY_AUDIENCE.md:../NAVIGATOR.md -> missing path docs/NAVIGATOR.md
 docs/library/DOCUMENTATION_BY_AUDIENCE.md:../contributor/README.md -> missing path docs/contributor/README.md
-docs/library/EXECUTIVE_SHELL.md:../../archlucid-ui/src/app/(operator)/runs/[runId]/findings/[findingId]/FindingInspectF
+docs/library/SPONSOR_SHELL.md:../../archlucid-ui/src/app/(operator)/runs/[runId]/findings/[findingId]/FindingInspectF
 indingBody.tsx -> missing path 
 archlucid-ui/src/app/(operator)/runs/[runId]/findings/[findingId]/FindingInspectFindingBody.tsx
 docs/library/LIVE_E2E_JWT_SETUP.md:../INSTALL_ORDER.md -> missing path docs/INSTALL_ORDER.md

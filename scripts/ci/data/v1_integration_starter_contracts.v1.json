@@ -190,7 +190,7 @@
           "method": "GET",
           "path": "/v1/analytics/roi",
           "expectedSuccessStatuses": [200],
-          "responseShape": "ExecutiveRoiSummaryResponse",
+          "responseShape": "SponsorRoiSummaryResponse",
           "optional": true,
           "claimBoundary": "Aggregate analytics — requires sufficient committed runs and configured baseline inputs"
         }

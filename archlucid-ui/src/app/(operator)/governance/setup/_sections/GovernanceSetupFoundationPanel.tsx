@@ -3,10 +3,14 @@ import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { isGovernanceFoundationIndicatorComplete } from "./governance-setup-guide-steps";
+import {
+  GOVERNANCE_SETUP_GUIDE_STEPS,
+  isGovernanceFoundationIndicatorComplete,
+} from "./governance-setup-guide-steps";
 import { presentGovernanceFoundationIndicatorStatus } from "./governance-setup-step-status-present";
 import type {
   GovernanceSetupFoundationIndicator,
+  GovernanceSetupStepDefinition,
   GovernanceSetupStepStatus,
 } from "./governance-setup-guide-types";
 import { shouldShowGovernanceSetupFoundationPanel } from "./should-show-governance-setup-foundation-panel";
@@ -14,11 +18,31 @@ import { shouldShowGovernanceSetupFoundationPanel } from "./should-show-governan
 type GovernanceSetupFoundationPanelProps = {
   readonly indicators: readonly GovernanceSetupFoundationIndicator[];
   readonly stepStatuses: readonly GovernanceSetupStepStatus[];
+  readonly steps?: readonly GovernanceSetupStepDefinition[];
 };
+
+function resolveFoundationIndicatorPresentationInput(
+  indicator: GovernanceSetupFoundationIndicator,
+  stepStatuses: readonly GovernanceSetupStepStatus[],
+  steps: readonly GovernanceSetupStepDefinition[],
+): "complete" | "tracked-incomplete" | "untracked" {
+  const step = steps[indicator.stepIndex];
+
+  if (step !== undefined && !step.tracked) {
+    return "untracked";
+  }
+
+  if (isGovernanceFoundationIndicatorComplete(indicator, stepStatuses)) {
+    return "complete";
+  }
+
+  return "tracked-incomplete";
+}
 
 export function GovernanceSetupFoundationPanel({
   indicators,
   stepStatuses,
+  steps = GOVERNANCE_SETUP_GUIDE_STEPS,
 }: GovernanceSetupFoundationPanelProps) {
   if (!shouldShowGovernanceSetupFoundationPanel(indicators, stepStatuses)) {
     return null;
@@ -38,8 +62,12 @@ export function GovernanceSetupFoundationPanel({
       </h2>
       <ul className="m-0 mt-3 list-none space-y-2 p-0">
         {indicators.map((indicator) => {
-          const complete = isGovernanceFoundationIndicatorComplete(indicator, stepStatuses);
-          const presentation = presentGovernanceFoundationIndicatorStatus(complete);
+          const presentationInput = resolveFoundationIndicatorPresentationInput(
+            indicator,
+            stepStatuses,
+            steps,
+          );
+          const presentation = presentGovernanceFoundationIndicatorStatus(presentationInput);
 
           return (
             <li

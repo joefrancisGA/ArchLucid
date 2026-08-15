@@ -218,7 +218,7 @@ describe("EmailRunToSponsorBanner", () => {
     render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     const md = screen.getByRole("link", {
-      name: /executive value summary \(markdown\)|first-value report \(markdown\)/i,
+      name: /sponsor value summary \(markdown\)|first-value report \(markdown\)/i,
     });
 
     expect(md).toHaveAttribute("href", "/api/proxy/v1/pilots/runs/run-42/first-value-report");

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -40,7 +40,7 @@ export function DemoReviewPolicyCallout(props: DemoReviewPolicyCalloutProps): Re
           <StatusTag kind="ready" label={`Pack: ${policyPackName}`} />
           <Link
             href={GOVERNANCE_POLICY_PACKS_PATH}
-            className={cn("font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}
+            className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.cardTitle)}
           >
             View policy packs
           </Link>

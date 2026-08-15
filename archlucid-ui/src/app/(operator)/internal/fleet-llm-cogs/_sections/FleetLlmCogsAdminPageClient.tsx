@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/enterprise-table";
 import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { FleetLlmCogsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTERNAL_FLEET_LLM_COGS_PATH } from "@/lib/internal-ops-route-paths";
 import { FLEET_LLM_COGS_PAGE_LEAD, FLEET_LLM_COGS_PAGE_TITLE } from "@/lib/fleet-llm-cogs-page-copy";
@@ -73,9 +75,13 @@ export function FleetLlmCogsAdminPageClient() {
         title={FLEET_LLM_COGS_PAGE_TITLE}
         subtitle={FLEET_LLM_COGS_PAGE_LEAD}
         actions={
-          <RefreshButton busy={loading} onClick={() => void refresh()} />
+          <>
+            <RefreshButton busy={loading} onClick={() => void refresh()} />
+            <PageContextualHelpButton />
+          </>
         }
       />
+      <FleetLlmCogsEvidenceOrientationStrip />
 
       {error ? (
         <OperatorSectionLoadFailure

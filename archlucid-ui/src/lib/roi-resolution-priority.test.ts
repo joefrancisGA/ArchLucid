@@ -4,7 +4,7 @@ import type { RunDetail } from "@/types/authority";
 
 import {
   buildClientHoursSavingsSummary,
-  buildExecutiveServerSavingsSummary,
+  buildSponsorServerSavingsSummary,
   countRunDetailFindingSeveritiesForRoi,
   resolveRunSavingsUsd,
 } from "./roi-resolution-priority";
@@ -54,9 +54,9 @@ describe("resolveRunSavingsUsd", () => {
   });
 });
 
-describe("buildExecutiveServerSavingsSummary", () => {
-  it("rounds positive executive totals and preserves pricing basis footnotes", () => {
-    const model = buildExecutiveServerSavingsSummary(12500.4, "Tenant-adjusted portfolio rollup.");
+describe("buildSponsorServerSavingsSummary", () => {
+  it("rounds positive sponsor totals and preserves pricing basis footnotes", () => {
+    const model = buildSponsorServerSavingsSummary(12500.4, "Tenant-adjusted portfolio rollup.");
 
     expect(model?.annualizedUsd).toBe(12500);
     expect(model?.sourceKind).toBe("server-findings");

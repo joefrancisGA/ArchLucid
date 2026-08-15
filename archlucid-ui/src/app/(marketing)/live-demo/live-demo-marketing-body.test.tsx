@@ -38,7 +38,7 @@ describe("LiveDemoPageHeader (TB-1266–TB-1267)", () => {
     expect(screen.getByRole("heading", { level: 1, name: LIVE_DEMO_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("live-demo-start-walkthrough")).toHaveAttribute(
       "href",
-      "/live-demo?step=executive",
+      "/live-demo?step=sponsor",
     );
     expect(screen.getByTestId("live-demo-start-walkthrough")).toHaveTextContent(LIVE_DEMO_START_WALKTHROUGH_CTA);
     expect(screen.getByTestId("live-demo-see-it-ladder-link")).toHaveAttribute("href", LIVE_DEMO_SEE_IT_LADDER_SEE_IT_HREF);
@@ -48,28 +48,28 @@ describe("LiveDemoPageHeader (TB-1266–TB-1267)", () => {
 });
 
 describe("LiveDemoMarketingBody", () => {
-  it("renders guided walkthrough with executive step and conversion CTA", () => {
-    render(<LiveDemoMarketingBody payload={payload} activeStepId="executive" />);
+  it("renders guided walkthrough with sponsor step and conversion CTA", () => {
+    render(<LiveDemoMarketingBody payload={payload} activeStepId="sponsor" />);
 
     expect(screen.getByTestId("live-demo-walkthrough-shell")).toBeInTheDocument();
-    expect(screen.getByTestId("live-demo-step-executive")).toBeInTheDocument();
-    expect(screen.getByTestId("live-demo-stepper-executive")).toHaveAttribute("aria-current", "step");
+    expect(screen.getByTestId("live-demo-step-sponsor")).toBeInTheDocument();
+    expect(screen.getByTestId("live-demo-stepper-sponsor")).toHaveAttribute("aria-current", "step");
     expect(screen.getByTestId("live-demo-conversion-cta")).toBeInTheDocument();
     expect(screen.getByTestId("live-demo-cta-evaluation")).toBeInTheDocument();
     expect(screen.queryByText("Technical details")).not.toBeInTheDocument();
   });
 
   it("exposes compact stepper controls with accessible step names (TB-1268)", () => {
-    render(<LiveDemoMarketingBody payload={payload} activeStepId="executive" />);
+    render(<LiveDemoMarketingBody payload={payload} activeStepId="sponsor" />);
 
-    const executiveStep = screen.getByTestId("live-demo-stepper-executive");
-    expect(executiveStep).toHaveAttribute("aria-label", "Step 1: Executive summary");
-    expect(executiveStep).toHaveTextContent("Executive");
+    const executiveStep = screen.getByTestId("live-demo-stepper-sponsor");
+    expect(executiveStep).toHaveAttribute("aria-label", "Step 1: Sponsor report");
+    expect(executiveStep).toHaveTextContent("Sponsor");
     expect(screen.getByTestId("live-demo-stepper-audit-trail")).toHaveAttribute("aria-label", "Step 5: Audit trail");
   });
 
   it("surfaces early evaluation CTA before the full conversion block (TB-1268)", () => {
-    render(<LiveDemoMarketingBody payload={payload} activeStepId="executive" />);
+    render(<LiveDemoMarketingBody payload={payload} activeStepId="sponsor" />);
 
     const early = screen.getByTestId("live-demo-early-conversion");
     const full = screen.getByTestId("live-demo-conversion-cta");
@@ -79,20 +79,20 @@ describe("LiveDemoMarketingBody", () => {
   });
 
   it("moves sample status beside the stepper instead of a hero callout (TB-1266)", () => {
-    render(<LiveDemoMarketingBody payload={payload} activeStepId="executive" />);
+    render(<LiveDemoMarketingBody payload={payload} activeStepId="sponsor" />);
 
     expect(screen.getByTestId("live-demo-sample-status")).toBeInTheDocument();
     expect(screen.getByTestId("live-demo-sample-status").textContent?.toLowerCase()).toContain("fabricated");
   });
 
   it("continuous mode renders TOC plus one expanded panel (TB-1269)", () => {
-    render(<LiveDemoMarketingBody payload={payload} activeStepId="executive" />);
+    render(<LiveDemoMarketingBody payload={payload} activeStepId="sponsor" />);
 
     fireEvent.click(screen.getByTestId("live-demo-toggle-continuous"));
 
     expect(screen.getByTestId("live-demo-continuous-walkthrough")).toBeInTheDocument();
     expect(screen.getByTestId("live-demo-continuous-toc")).toBeInTheDocument();
-    expect(screen.getByTestId("live-demo-continuous-panel-executive")).toBeInTheDocument();
+    expect(screen.getByTestId("live-demo-continuous-panel-sponsor")).toBeInTheDocument();
     expect(screen.queryByTestId("live-demo-step-signed-record")).not.toBeInTheDocument();
     expect(screen.queryByTestId("live-demo-step-evidence")).not.toBeInTheDocument();
   });

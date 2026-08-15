@@ -92,6 +92,7 @@ describe("IdentityProvidersRoleMappingPageView", () => {
     render(<IdentityProvidersRoleMappingPageView model={buildModel()} />);
 
     expect(screen.getByRole("heading", { name: IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.queryByTestId("role-mapping-settings-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByText(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /^Role mapping$/i })).toBeNull();
     expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE.toLowerCase()).toContain("review");

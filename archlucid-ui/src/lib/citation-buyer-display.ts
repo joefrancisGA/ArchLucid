@@ -74,7 +74,7 @@ export function formatCitationBuyerDisplay(
 function citationKindFallbackHeadline(kind: CitationReference["kind"]): string {
   switch (kind) {
     case "Manifest":
-      return "Signed review record";
+      return "Sealed review record";
     case "GraphSnapshot":
       return "Evidence graph snapshot";
     case "ContextSnapshot":

@@ -1,0 +1,31 @@
+using ArchLucid.Application.Exports;
+using ArchLucid.Contracts.Exports;
+using ArchLucid.Contracts.Roi;
+
+using FluentAssertions;
+
+namespace ArchLucid.Application.Tests.Exports;
+
+[Trait("Suite", "Core")]
+public sealed class SponsorReviewPacketPortfolioSignalsFactoryTests
+{
+    [Fact]
+    public void Create_uses_expiring_waiver_count_from_roi_summary_not_active_waiver_total()
+    {
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            ExpiringWaiversCount14Days = 2,
+            StaleArchitectureRiskCount = 4,
+            RealizedValue = new RealizedValueSummary
+            {
+                ActiveWaiversCount = 9,
+            },
+        };
+
+        SponsorReviewPacketPortfolioSignals signals =
+            SponsorReviewPacketPortfolioSignalsFactory.Create(roiSummary);
+
+        signals.ExpiringWaiversCount14Days.Should().Be(2);
+        signals.StaleRiskCount.Should().Be(4);
+    }
+}

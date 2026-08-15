@@ -172,7 +172,8 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<IDemoAiPromptCache>(),
                 sp.GetRequiredService<IOptionsMonitor<AiUsageControlsOptions>>(),
                 auditService,
-                accountingLogger);
+                accountingLogger,
+                spendCapPolicy: sp.GetRequiredService<IAgentLogicalStepSpendCapPolicy>());
 
             IConfiguration config = sp.GetRequiredService<IConfiguration>();
 
@@ -539,7 +540,8 @@ public static partial class ServiceCollectionExtensions
             accountingLogger,
             useJudgeDailyCapOnly: true,
             judgeDailyBudgetOptions: judgeDailyBudgetOpts,
-            judgeDailyBudgetTracker: judgeDailyBudgetTracker);
+            judgeDailyBudgetTracker: judgeDailyBudgetTracker,
+            spendCapPolicy: sp.GetRequiredService<IAgentLogicalStepSpendCapPolicy>());
 
         CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Completion);
         ILogger<CircuitBreakingAgentCompletionClient> breakerLogger =

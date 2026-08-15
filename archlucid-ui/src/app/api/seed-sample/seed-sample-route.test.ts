@@ -1,13 +1,13 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { POST } from "./route";
 import { CORRELATION_ID_HEADER } from "@/lib/correlation";
 
 /**
  * Covers the OS-1 internal seed-sample route handler. The handler bridges the Reviews empty-state button to the
- * upstream `/api/proxy/v1/demo/seed` proxy: on 204 it returns `{ redirectTo: "/architecture/executive-dashboard" }`, otherwise it passes
+ * upstream `/api/proxy/v1/demo/seed` proxy: on 204 it returns `{ redirectTo: "/architecture/sponsor-dashboard" }`, otherwise it passes
  * the upstream status and body through so callers can surface a Problem Details toast.
  */
 describe("POST /api/seed-sample", () => {
@@ -31,7 +31,7 @@ describe("POST /api/seed-sample", () => {
 
     expect(res.status).toBe(200);
     const json: unknown = await res.json();
-    expect(json).toEqual({ redirectTo: EXECUTIVE_DASHBOARD_HREF });
+    expect(json).toEqual({ redirectTo: SPONSOR_DASHBOARD_HREF });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [calledUrl] = fetchMock.mock.calls[0]!;

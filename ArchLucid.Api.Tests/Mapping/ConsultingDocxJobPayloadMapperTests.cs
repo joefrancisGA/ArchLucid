@@ -15,7 +15,7 @@ public sealed class ConsultingDocxJobPayloadMapperTests
     {
         ConsultingDocxExportRequest request = new()
         {
-            TemplateProfile = "executive",
+            TemplateProfile = "sponsor",
             Audience = "CIO",
             ExternalDelivery = true,
             ExecutiveFriendly = true,

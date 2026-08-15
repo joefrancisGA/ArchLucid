@@ -6,6 +6,7 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE,
   AUTHENTICATION_SIGN_IN_HELP_SOURCES,
 } from "@/lib/authentication-sign-in-help-evidence-copy";
+import { AUTHENTICATION_SIGN_IN_HELP_SSO_SETUP_LINK } from "@/lib/authentication-sign-in-help-related-topics";
 
 describe("AuthenticationSignInHelpEvidenceOrientationStrip", () => {
   it("renders claim discipline and all Sources links", () => {
@@ -18,5 +19,12 @@ describe("AuthenticationSignInHelpEvidenceOrientationStrip", () => {
     for (const link of AUTHENTICATION_SIGN_IN_HELP_SOURCES) {
       expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
     }
+
+    expect(AUTHENTICATION_SIGN_IN_HELP_SOURCES).toHaveLength(2);
+    expect(screen.queryByRole("link", { name: /enterprise onboarding/i })).toBeNull();
+    expect(screen.getByRole("link", { name: AUTHENTICATION_SIGN_IN_HELP_SSO_SETUP_LINK.label })).toHaveAttribute(
+      "href",
+      AUTHENTICATION_SIGN_IN_HELP_SSO_SETUP_LINK.href,
+    );
   });
 });

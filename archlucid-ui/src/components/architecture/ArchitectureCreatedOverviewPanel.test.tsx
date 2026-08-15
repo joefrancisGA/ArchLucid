@@ -126,7 +126,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
 
   it("exposes a single clarification control that navigates to the Clarifications tab", () => {
     const onNavigateTab = vi.fn();
-    const source = `## Executive summary
+    const source = `## Sponsor report
 Governed claims intake platform.`;
 
     render(
@@ -151,7 +151,7 @@ Governed claims intake platform.`;
   });
 
   it("default-opens risks and constraints when structured content is present", () => {
-    const source = `## Executive summary
+    const source = `## Sponsor report
 Governed claims intake.
 
 ## Business outcome
@@ -177,7 +177,7 @@ Must retain audit trail for seven years.`;
 
     expect(screen.getByTestId("architecture-structured-section-risks")).toHaveAttribute("open");
     expect(screen.getByTestId("architecture-structured-section-constraints")).toHaveAttribute("open");
-    expect(screen.getByTestId("architecture-structured-section-executive-summary")).toHaveAttribute("open");
+    expect(screen.getByTestId("architecture-structured-section-sponsor-report")).toHaveAttribute("open");
   });
 
   it("retries structuring from the failure notice", () => {

@@ -6,13 +6,14 @@ import { AUTH_MODE } from "@/lib/auth-config";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
+import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 type TenantWorkspaceBaselineArtifactsPayload = {
   hasBaselineArtifacts?: unknown;
 };
 
-/** Loads `/v1/tenant/workspace-baseline-artifacts` for executive dashboard baseline ZIP nudges. */
+/** Loads `/v1/tenant/workspace-baseline-artifacts` for sponsor dashboard baseline ZIP nudges. */
 
 export function useWorkspaceBaselineArtifactsPresence(): {
   loading: boolean;
@@ -49,7 +50,13 @@ export function useWorkspaceBaselineArtifactsPresence(): {
         return;
       }
 
-      const json = (await res.json()) as TenantWorkspaceBaselineArtifactsPayload;
+      const json = tryParseJsonResponseText<TenantWorkspaceBaselineArtifactsPayload>(await res.text());
+
+      if (json === null) {
+        setHasBaselineArtifacts(null);
+
+        return;
+      }
 
       setHasBaselineArtifacts(json.hasBaselineArtifacts === true);
     } catch {

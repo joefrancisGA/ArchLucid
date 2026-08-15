@@ -23,7 +23,7 @@ export const MARKETING_PRICING_TIER_HIGHLIGHTS: Readonly<Record<MarketingPricing
   ],
   team: [
     "Basic governance for review findings",
-    "Signed review records and comparison reviews",
+    "Sealed review records and comparison reviews",
     "Self-service start — no procurement call required",
   ],
   professional: [
@@ -47,7 +47,7 @@ export type MarketingPricingFitRow = {
 export const MARKETING_PRICING_UNIVERSAL_INCLUDES: readonly string[] = [
   "Evidence-backed architecture reviews",
   "AI-assisted analysis and evidence Q&A",
-  "Exportable signed review records",
+  "Exportable sealed review records",
   "Audit trail and evidence graph",
   "Policy packs",
 ];
@@ -119,16 +119,18 @@ export function resolveMarketingTierPrimaryCtaVariant(
     return "primary";
   }
 
-  return "primary";
+  return "outline";
 }
 
-export function resolveMarketingTierPrimaryCtaSize(
-  tierId: MarketingPricingTierId,
-  isRecommended: boolean,
-): "default" | "lg" {
-  if (isRecommended && tierId === "professional") {
-    return "lg";
+/** One-line persona qualifier for the recommended tier — sourced from fit recommendations. */
+export function resolveMarketingTierFitQualifier(tierId: MarketingPricingTierId): string | null {
+  if (tierId !== "professional") {
+    return null;
   }
 
-  return "default";
+  const governanceFit = MARKETING_PRICING_FIT_RECOMMENDATIONS.find((row) =>
+    row.recommendedPlan.toLowerCase().includes("professional"),
+  );
+
+  return governanceFit?.teamType ?? null;
 }

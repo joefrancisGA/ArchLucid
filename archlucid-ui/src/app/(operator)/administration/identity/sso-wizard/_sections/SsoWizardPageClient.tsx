@@ -30,6 +30,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { SsoWizardSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { SsoActivateConsequencePreview } from "@/components/SsoActivateConsequencePreview";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
@@ -479,6 +480,7 @@ export function SsoWizardPageClient() {
           titleTestId="sso-wizard-page-title"
           actions={<PageContextualHelpButton />}
         />
+        <SsoWizardSettingsEvidenceOrientationStrip />
         <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
           {SSO_WIZARD_CONFIGURATION_EFFECT_LINE_PREFIX}{" "}
           <Link

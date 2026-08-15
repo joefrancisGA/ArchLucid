@@ -27,7 +27,7 @@ function renderCloudConnectionsGuide(markdown = "# Cloud connections\n\nOptional
 }
 
 describe("HelpCloudConnectionsGuideView (HCE)", () => {
-  it("renders breadcrumb, provenance, header actions, orientation callout, and where-to-go-next panel", () => {
+  it("renders provenance, header actions, orientation callout, and where-to-go-next panel", () => {
     const entry = getProductDocumentationEntry("cloud-connections");
 
     expect(entry?.slug).toBe("cloud-connections");
@@ -45,9 +45,6 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
       CLOUD_CONNECTIONS_HELP_PATH,
     );
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
-    expect(screen.getByTestId("help-cloud-connections-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.getByTestId("help-cloud-connections-breadcrumb")).toHaveTextContent("Cloud connections");
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();

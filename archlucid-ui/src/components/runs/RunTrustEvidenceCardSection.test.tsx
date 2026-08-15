@@ -234,15 +234,15 @@ describe("RunTrustEvidenceCardSection", () => {
     expect(within(technical).getByText(/\/v1\/architecture\/review\/run-1\/evidence/)).toBeInTheDocument();
   });
 
-  it("buyer-polished shell maps golden manifest labels to signed review record", () => {
+  it("buyer-polished shell maps golden manifest labels to sealed review record", () => {
     buyerPolishedMock.mockReturnValue(true);
 
     render(<RunTrustEvidenceCardSection card={card()} runId={RUN_ID} />);
 
-    expect(screen.getByText(/Step 3: Signed review record/i)).toBeInTheDocument();
+    expect(screen.getByText(/Step 3: Sealed review record/i)).toBeInTheDocument();
     expect(screen.queryByText("Golden manifest snapshot")).not.toBeInTheDocument();
     expect(screen.queryByText(/Golden manifest snapshot detail/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText("Signed review record").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("Sealed review record").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("Scope and limitations")).toBeInTheDocument();
   });
 });

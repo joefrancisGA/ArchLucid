@@ -3,7 +3,7 @@ import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-ro
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE =
-  "Savings figures are directional for pilot value discussions — not financial reporting, not a signed review record, and not an evidence trail.";
+  "Savings figures are directional for pilot value discussions — not financial reporting, not a sealed review record, and not an evidence trail.";
 
 export const ARCHITECTURE_SCORECARD_SOURCES_INTRO =
   "Open ROI summary, reviews, or methodology help before briefing sponsors from these tiles.";

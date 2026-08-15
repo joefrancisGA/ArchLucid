@@ -7,7 +7,7 @@ import {
   DIGESTS_SCHEDULE_TAB_PATH,
   DIGESTS_SUBSCRIPTIONS_TAB_PATH,
 } from "@/lib/digests-route-paths";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
@@ -38,7 +38,7 @@ const ALLOWLIST: readonly {
     nextHref: "/integrations/cloud-connections",
   },
   {
-    pathname: EXECUTIVE_DASHBOARD_HREF,
+    pathname: SPONSOR_DASHBOARD_HREF,
     nextHref: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },
   {
@@ -64,7 +64,7 @@ const ALLOWLIST: readonly {
   {
     pathname: "/help/authentication-sign-in",
     nextHref: "/help/users-and-roles",
-    configureHref: "/administration/account-security",
+    configureHref: "/account/security",
   },
   {
     pathname: "/help/azure-boards",
@@ -89,7 +89,7 @@ const ALLOWLIST: readonly {
   {
     pathname: "/help/comparison-replay",
     nextHref: "/insights/compare-two-reviews",
-    configureHref: "/internal/replay",
+    configureHref: "/internal/validate-route",
   },
   {
     pathname: "/governance/approval-requests/sample/lineage",

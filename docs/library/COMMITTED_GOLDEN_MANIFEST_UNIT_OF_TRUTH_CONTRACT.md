@@ -23,9 +23,9 @@ The only unit of truth for buyer-facing **review-backed / finalized / signed pac
 
 | Item | Role |
 |------|------|
-| Committed golden manifest | **Unit of truth** for finalized architecture package / signed review record |
+| Committed golden manifest | **Unit of truth** for finalized architecture package / sealed review record |
 | `GoldenManifestId` + `ManifestHash` | Identity + app-layer hash lineage after commit |
-| Buyer vocabulary | “Finalized architecture package” / “signed review record” **only after commit** |
+| Buyer vocabulary | “Finalized architecture package” / “sealed review record” **only after commit** |
 | `review-backed` (proof-language) | Refers to that committed package — not drafts, Ask, or Simulator |
 
 ---
@@ -62,7 +62,7 @@ The only unit of truth for buyer-facing **review-backed / finalized / signed pac
 | `DraftRequests` / draft workspace | Draft |
 | Ask / RAG answers / chat transcript | Conversational |
 | Simulator / demo / seed as customer outcome | Illustrative |
-| UI executive summary without commit | Summary theater |
+| UI sponsor summary without commit | Summary theater |
 | Governance approval without commit | Gate ≠ finalize |
 | Artifact without commit | Orphan projection |
 | “Audit” that is UI logs only | Not append-only Required audit |

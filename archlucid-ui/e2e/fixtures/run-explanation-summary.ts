@@ -19,7 +19,7 @@ export function fixtureRunExplanationSummary(): RunExplanationSummary {
         promptTemplateVersion: "v1",
         promptContentHash: null,
       },
-      summary: "Executive summary for Enterprise Customer Intake Modernization — modernization path with bounded risks.",
+      summary: "Sponsor report for Enterprise Customer Intake Modernization — modernization path with bounded risks.",
       keyDrivers: ["Member experience parity across channels", "Auditability of intake flows", "Throughput under peak loads"],
       riskImplications: ["No unresolved issues recorded."],
       costImplications: ["Max monthly cost not specified."],

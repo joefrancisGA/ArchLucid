@@ -9,16 +9,13 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
-import {
-  PageContextualHelpButton,
-  PAGE_HELP_SHORT_TRIGGER_TEXT,
-} from "@/components/usability/PageContextualHelpButton";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { BaselineSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -50,7 +47,6 @@ import {
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { showError, showSuccess } from "@/lib/toast";
 
 function parseNumberOrNull(raw: string): number | null {
@@ -242,14 +238,10 @@ export function BaselineSettingsClient() {
     const noteTrim = reviewNote.trim();
 
     if (reviewValidation.error || prepValidation.error || peopleValidation.error) {
-      showError("Baseline", "Fix the highlighted fields before saving.");
-
       return;
     }
 
     if (noteTrim.length > 500) {
-      showError("Baseline", "Review-cycle estimate note must be 500 characters or fewer.");
-
       return;
     }
 
@@ -265,21 +257,15 @@ export function BaselineSettingsClient() {
       reviewParsed = parseNumberOrNull(reviewTrim);
 
       if (Number.isNaN(reviewParsed) || reviewParsed === null || reviewParsed <= 0 || reviewParsed > 10_000) {
-        showError("Baseline", "Median review-cycle hours must be a positive number up to 10,000.");
-
         return;
       }
     }
 
     if (prepTrim.length > 0 && (Number.isNaN(prepN) || prepN === null || prepN <= 0 || prepN > 10_000)) {
-      showError("Baseline", "Manual preparation hours must be a positive number up to 10,000.");
-
       return;
     }
 
     if (peopleTrim.length > 0 && (Number.isNaN(peopleN) || peopleN === null || peopleN <= 0 || peopleN > 10_000)) {
-      showError("Baseline", "People involved must be a positive number up to 10,000.");
-
       return;
     }
 
@@ -389,18 +375,9 @@ export function BaselineSettingsClient() {
         title={BASELINE_SETTINGS_PAGE_TITLE}
         subtitle={BASELINE_SETTINGS_PAGE_SUBTITLE}
         titleTestId="baseline-settings-page-title"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="baseline-settings-page-breadcrumb"
-            items={[
-              { label: "Administration", href: SETTINGS_ROOT_PATH },
-              { label: "Settings", href: SETTINGS_ROOT_PATH },
-              { label: BASELINE_SETTINGS_PAGE_TITLE },
-            ]}
-          />
-        }
-        actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
+        actions={<PageContextualHelpButton />}
       />
+      <BaselineSettingsEvidenceOrientationStrip />
       <BaselineRoiVocabularyRail currentSurfaceId="baseline" />
 {demoMode ? (
         <DemoUnavailableNotice

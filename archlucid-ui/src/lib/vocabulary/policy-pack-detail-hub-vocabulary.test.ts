@@ -36,6 +36,11 @@ describe("policy-pack-detail-hub-vocabulary (TB-2283)", () => {
       POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK,
     );
 
+    expect(resolvePolicyPackDetailHubPeerLink("policy-packs", "pack-abc")).toEqual({
+      ...POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK,
+      href: "/governance/policy-packs/pack-abc",
+    });
+
     expect(resolvePolicyPackDetailHubPeerLink("pack-detail")).toEqual(
       POLICY_PACK_DETAIL_HUB_PACKS_LINK,
     );

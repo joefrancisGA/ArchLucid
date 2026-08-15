@@ -56,6 +56,7 @@ export function AiUsageFiltersBar(props: Props) {
 
   return (
     <section
+      id="ai-usage-filters-bar"
       className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
       data-testid="ai-usage-filters-bar"
       aria-label="AI usage filters"

@@ -12,6 +12,6 @@ describe("RoiDispositionTrainingTooltip", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.getByRole("button", { name: "Help: Executive ROI" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: Sponsor ROI" })).toBeInTheDocument();
   });
 });

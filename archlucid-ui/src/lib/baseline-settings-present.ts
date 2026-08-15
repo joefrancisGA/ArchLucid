@@ -1,10 +1,10 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
-import { EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/executive-summary-pilot-roi-measurement-help";
+import { SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF } from "@/lib/sponsor-report-pilot-roi-measurement-help";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { coerceFinitePositiveHours, isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
 import {
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 
@@ -29,8 +29,8 @@ export type TenantBaselineSnapshot = {
 export const BASELINE_SETTINGS_PAGE_TITLE = "Baseline settings — ROI measurement" as const;
 
 export const BASELINE_SETTINGS_USED_IN_SURFACES: readonly BaselineUsedInSurface[] = [
-  { label: "Value report", href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH },
-  { label: "Executive dashboard", href: EXECUTIVE_DASHBOARD_HREF },
+  { label: "Value report", href: SPONSOR_REPORT_PATH },
+  { label: "Sponsor dashboard", href: SPONSOR_DASHBOARD_HREF },
   { label: "ROI summary", href: SPONSOR_REPORT_ROI_SUMMARY_PATH },
 ];
 
@@ -56,7 +56,7 @@ export const BASELINE_SETTINGS_PAGE_SUBTITLE =
 export const BASELINE_SETTINGS_CONSERVATIVE_DEFAULTS_NOTE =
   "If you leave these fields blank, ArchLucid uses conservative modeled defaults until measured review-cycle deltas are available." as const;
 
-export const BASELINE_SETTINGS_METHODOLOGY_HELP_HREF = EXECUTIVE_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;
+export const BASELINE_SETTINGS_METHODOLOGY_HELP_HREF = SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;
 
 const REVIEW_CYCLE_HOURS_WARN_ABOVE = 200;
 const MANUAL_PREP_HOURS_WARN_ABOVE = 80;

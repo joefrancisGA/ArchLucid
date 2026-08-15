@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FieldPath } from "react-hook-form";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
@@ -23,11 +23,87 @@ import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
+import type { ModelEngineSelectionOptionsResponse } from "@/lib/model-governance-types";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 type StringListName = "policyReferences" | "topologyHints" | "securityBaselineHints";
+
+function WizardEngineAliasPicker() {
+  const { control } = useFormContext<WizardFormValues>();
+  const [options, setOptions] = useState<ModelEngineSelectionOptionsResponse | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const res = await fetch(
+          "/api/proxy/v1/architecture/model-engine-selection-options",
+          mergeRegistrationScopeForProxy({
+            headers: { Accept: "application/json" },
+            cache: "no-store",
+          }),
+        );
+
+        if (!res.ok || cancelled) {
+          return;
+        }
+
+        const body = (await res.json()) as ModelEngineSelectionOptionsResponse;
+
+        if (!cancelled && Array.isArray(body.options)) {
+          setOptions(body);
+        }
+      } catch {
+        // Optional advanced control — omit picker when options cannot load.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (options == null || options.options.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30">
+      <WizardFieldHint
+        label="Engine alias"
+        hint="Optional per-review engine within the workspace allowed set. Defaults to the workspace standard engine."
+      />
+      <Controller
+        name="modelAliasOverride"
+        control={control}
+        render={({ field }) => (
+          <Select value={field.value.length > 0 ? field.value : "__workspace_default__"} onValueChange={(value) => {
+            field.onChange(value === "__workspace_default__" ? "" : value);
+          }}>
+            <SelectTrigger id="wizard-model-alias-override" data-testid="wizard-model-alias-override">
+              <SelectValue placeholder="Workspace default" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__workspace_default__">Workspace default</SelectItem>
+              {options.options.map((option) => (
+                <SelectItem key={option.aliasId} value={option.aliasId}>
+                  {option.aliasId}
+                  {option.taskEvaluations.some((evaluation) => evaluation.evaluationState === "NotEvaluated")
+                    ? " · Not evaluated"
+                    : ""}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+    </div>
+  );
+}
 
 function AdvancedChipList(props: {
   fieldName: StringListName;
@@ -201,6 +277,8 @@ export function WizardStepAdvanced() {
             )}
           />
         </div>
+
+        <WizardEngineAliasPicker />
 
         <CollapsibleSection title="Policy references (Custom Policy Overrides)" count={policyReferences.length}>
           <AdvancedChipList

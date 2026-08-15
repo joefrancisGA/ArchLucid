@@ -5,20 +5,20 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useMemo } from "react";
 
 import { useComplianceDriftTrendRangeQuery } from "@/hooks/use-compliance-drift-trend-range-query";
-import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-query";
+import { useSponsorRoiSummaryQuery } from "@/hooks/use-sponsor-roi-summary-query";
 import { useGovernancePrecommitBlockedCountQuery } from "@/hooks/use-governance-precommit-blocked-count-query";
 import { usePilotValueReportQuery } from "@/hooks/use-pilot-value-report-query";
 import {
-  buildExecutiveScorecardRecommendedActions,
-  type ExecutiveScorecardRecommendedAction,
-} from "@/lib/executive-scorecard-recommended-actions";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { buildExecutiveValueNarrative } from "@/lib/executive-value-narrative";
+  buildSponsorScorecardRecommendedActions,
+  type SponsorScorecardRecommendedAction,
+} from "@/lib/sponsor-scorecard-recommended-actions";
+import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
+import { buildSponsorValueNarrative } from "@/lib/sponsor-value-narrative";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
-  type ExecutiveTimeRange,
-  windowForExecutiveRange,
-} from "@/lib/executive-time-range";
+  type SponsorTimeRange,
+  windowForSponsorRange,
+} from "@/lib/sponsor-time-range";
 import { hoursSurfaced } from "@/lib/roi-assumptions";
 
 const AVERAGE_MANUAL_REVIEW_HOURS = 3;
@@ -27,10 +27,10 @@ function sumDriftChanges(points: { changeCount: number }[]): number {
   return points.reduce((sum, point) => sum + (Number.isFinite(point.changeCount) ? point.changeCount : 0), 0);
 }
 
-function buildFallbackNarrativeFromSummary(summary: ExecutiveRoiSummary): string {
+function buildFallbackNarrativeFromSummary(summary: SponsorRoiSummary): string {
   const reviewsCount = summary.latestRunCount ?? summary.systemCount ?? 0;
 
-  return buildExecutiveValueNarrative({
+  return buildSponsorValueNarrative({
     reviewsCount,
     findingsCount: 0,
     estimatedHoursSaved: reviewsCount * AVERAGE_MANUAL_REVIEW_HOURS,
@@ -40,14 +40,14 @@ function buildFallbackNarrativeFromSummary(summary: ExecutiveRoiSummary): string
   });
 }
 
-export type ExecutiveValueNarrativeBannerProps = {
-  readonly timeRange: ExecutiveTimeRange;
-  readonly roiSummary?: ExecutiveRoiSummary | null;
+export type SponsorValueNarrativeBannerProps = {
+  readonly timeRange: SponsorTimeRange;
+  readonly roiSummary?: SponsorRoiSummary | null;
 };
 
-/** Deterministic executive story line (TB-268). */
-export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: ExecutiveValueNarrativeBannerProps) {
-  const window = useMemo(() => windowForExecutiveRange(timeRange), [timeRange]);
+/** Deterministic sponsor story line (TB-268). */
+export function SponsorValueNarrativeBanner({ timeRange, roiSummary }: SponsorValueNarrativeBannerProps) {
+  const window = useMemo(() => windowForSponsorRange(timeRange), [timeRange]);
   const reportQuery = usePilotValueReportQuery(window.fromUtc, window.toUtc);
   const report = reportQuery.data;
 
@@ -61,7 +61,7 @@ export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: Executi
   const blockedQuery = useGovernancePrecommitBlockedCountQuery(reportFromUtc, reportToUtc, {
     enabled: report !== undefined,
   });
-  const roiQuery = useExecutiveRoiSummaryQuery({ enabled: roiSummary === undefined });
+  const roiQuery = useSponsorRoiSummaryQuery({ enabled: roiSummary === undefined });
 
   const loading =
     reportQuery.isPending
@@ -81,12 +81,12 @@ export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: Executi
       return null;
     }
 
-    const executiveSummary = roiSummary !== undefined ? roiSummary : roiQuery.data ?? null;
+    const SponsorReport = roiSummary !== undefined ? roiSummary : roiQuery.data ?? null;
 
-    const recommendedActions: ExecutiveScorecardRecommendedAction[] =
-      buildExecutiveScorecardRecommendedActions({
+    const recommendedActions: SponsorScorecardRecommendedAction[] =
+      buildSponsorScorecardRecommendedActions({
         complianceDriftChangeCount: sumDriftChanges(driftQuery.data),
-        orphanCandidates: executiveSummary?.orphanCandidates,
+        orphanCandidates: SponsorReport?.orphanCandidates,
         committedRunsTimeline: report.committedRunsTimeline,
       });
 
@@ -100,11 +100,11 @@ export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: Executi
     const estimatedHours =
       hoursRoi > 0 ? hoursRoi : report.totalRunsCommitted * AVERAGE_MANUAL_REVIEW_HOURS;
 
-    return buildExecutiveValueNarrative({
+    return buildSponsorValueNarrative({
       reviewsCount: report.totalRunsCommitted,
       findingsCount: report.totalFindings,
       estimatedHoursSaved: estimatedHours,
-      estimatedUsdSavings: executiveSummary?.totalEstimatedUsdSavings ?? null,
+      estimatedUsdSavings: SponsorReport?.totalEstimatedUsdSavings ?? null,
       topRecommendedAction: recommendedActions[0] ?? null,
       qualifyEstimatedHours: isBuyerPolishedOperatorShellEnv(),
     });
@@ -119,7 +119,7 @@ export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: Executi
 
   const displayText =
     narrative ??
-    (loading ? "Preparing executive narrative…" : roiSummary != null ? buildFallbackNarrativeFromSummary(roiSummary) : null);
+    (loading ? "Preparing sponsor narrative…" : roiSummary != null ? buildFallbackNarrativeFromSummary(roiSummary) : null);
 
   if (displayText === null) {
     return null;
@@ -128,7 +128,7 @@ export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: Executi
   return (
     <p
       className={cn("m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 leading-relaxed text-neutral-800 shadow-sm dark:border-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
-      data-testid="executive-value-narrative"
+      data-testid="sponsor-value-narrative"
       role="status"
       aria-busy={loading ? "true" : undefined}
     >

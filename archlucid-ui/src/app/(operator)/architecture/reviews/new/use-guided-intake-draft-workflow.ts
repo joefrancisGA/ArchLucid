@@ -18,6 +18,11 @@ import {
   applyArchitectureCreationDraftToFormState,
   initializeArchitectureCreation,
 } from "@/lib/architecture/architecture-creation-init";
+import {
+  emptyArchitectureDraftStructuredBrief,
+  structuredBriefToPatchPayload,
+  type ArchitectureDraftStructuredBriefState,
+} from "@/lib/architecture/architecture-draft-structured-brief";
 import { recordArchitectureCreationHandoff } from "@/lib/architecture/architecture-creation-handoff";
 import { writeArchitectureCreationDraftId } from "@/lib/architecture/architecture-creation-session";
 import {
@@ -74,6 +79,9 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     () => new Set(),
   );
   const [viewAllClarifications, setViewAllClarifications] = useState(false);
+  const [structuredBrief, setStructuredBrief] = useState<ArchitectureDraftStructuredBriefState>(
+    () => emptyArchitectureDraftStructuredBrief(),
+  );
   const creationInitStartedRef = useRef(false);
   const sourceArchitectureLoadedRef = useRef(false);
 
@@ -107,6 +115,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
       setFreeTextIntent(formState.freeTextIntent);
       setBusinessOutcome(formState.businessOutcome);
       setSystemName(formState.systemName);
+      setStructuredBrief(formState.structuredBrief);
       setAllQuestions([...result.questionSelection.allQuestions]);
       setRequiredMustQuestionKeys([...result.questionSelection.requiredMustQuestionKeys]);
       setPendingQuestions([...result.questionSelection.pendingMustQuestions]);
@@ -126,6 +135,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
       setFreeTextIntent(formState.freeTextIntent);
       setBusinessOutcome(formState.businessOutcome);
       setSystemName(formState.systemName);
+      setStructuredBrief(formState.structuredBrief);
       setActorSet(
         draft.document.actorSet.actors.length > 0
           ? draft.document.actorSet
@@ -194,6 +204,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
         actorSet: normalizeActorSetForAdmission(actorSet),
         focusedPilotModeEnabled,
         workflowIntent: CREATE_ARCHITECTURE_INTENT,
+        structuredBrief: structuredBriefToPatchPayload(structuredBrief),
       });
 
       const questions = await getDraftQuestions(id);
@@ -222,6 +233,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     freeTextIntent,
     isCreateArchitectureFlow,
     setStep,
+    structuredBrief,
     systemName,
   ]);
 
@@ -232,12 +244,16 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     setRedirectVerdict(null);
 
     try {
-      const created = await createDraftRequest(
-        freeTextIntent.trim(),
-        isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
-      );
-      const id = created.draftId;
-      setDraftId(id);
+      let id = draftId;
+
+      if (id === null) {
+        const created = await createDraftRequest(
+          freeTextIntent.trim(),
+          isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
+        );
+        id = created.draftId;
+        setDraftId(id);
+      }
 
       // Confirmed scope goes onto the server copy of the brief before admission: a draft is immutable
       // once admitted, and the admission gate must see the same text the reviewer will read.
@@ -248,6 +264,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
         actorSet: normalizeActorSetForAdmission(actorSet),
         focusedPilotModeEnabled,
         workflowIntent: isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
+        structuredBrief: structuredBriefToPatchPayload(structuredBrief),
       });
 
       const admission = await admitDraftRequest(id);
@@ -283,11 +300,13 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     actorSet,
     briefTextForAdmission,
     businessOutcome,
+    draftId,
     focusedPilotModeEnabled,
     freeTextIntent,
     isCreateArchitectureFlow,
     refreshQuestions,
     setStep,
+    structuredBrief,
     systemName,
   ]);
 

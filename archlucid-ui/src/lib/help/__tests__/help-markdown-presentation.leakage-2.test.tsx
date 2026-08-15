@@ -21,8 +21,8 @@ import {
   alignDataHandlingIsolationHonesty,
   stripTenantIsolationContributorLeakage,
   stripDpaTemplateContributorLeakage,
-  stripExecutiveSummaryContributorLeakage,
-  stripExecutiveSummarySponsorBriefLeakage,
+  stripSponsorReportContributorLeakage,
+  stripSponsorReportSponsorBriefLeakage,
   stripFirstValue20ContributorLeakage,
   stripPathChooserContributorLeakage,
   stripPilotFeedbackContributorLeakage,
@@ -160,6 +160,15 @@ describe("help-markdown-presentation (leakage 2)", () => {
     expect(prepared.toLowerCase()).not.toContain("docs/integrations/smoke");
     expect(prepared).not.toContain("<details>");
     expect(prepared).toContain("/help/findings");
+  });
+  it("rewrites legacy Phase 1 limitations headings for Azure Boards help (TB-1622)", () => {
+    const prepared = prepareHelpMarkdownForPresentation(
+      "## Known limitations (Phase 1)\n\n- No inbound status sync",
+      "docs/library/customer-facing/AZURE_BOARDS_INTEGRATION.md",
+    );
+
+    expect(prepared).toContain("## Known limitations in this release");
+    expect(prepared).not.toMatch(/phase\s*1/i);
   });
   it("replaces contributor repo-tree framing in CAIQ/SIG help (TB-1632)", () => {
     const source = [
@@ -346,7 +355,7 @@ describe("help-markdown-presentation (leakage 2)", () => {
     expect(prepared).toContain("/help/security-trust");
     expect(prepared).toContain("/help/subprocessors");
   });
-  it("strips executive-summary contributor FAQ and eng-path leakage (TB-1688)", () => {
+  it("strips sponsor-report contributor FAQ and eng-path leakage (TB-1688)", () => {
     const source = [
       "**How do I try it locally?**",
       "Follow **day-one-developer.md** — run **ArchLucid.Api** and **archlucid-ui**.",
@@ -356,7 +365,7 @@ describe("help-markdown-presentation (leakage 2)", () => {
       "OAuth upgrades (**TB-600**) — see **INTEGRATION_CATALOG.md**.",
     ].join("\n");
 
-    const prepared = stripExecutiveSummaryContributorLeakage(source);
+    const prepared = stripSponsorReportContributorLeakage(source);
 
     expect(prepared).not.toContain("day-one-developer");
     expect(prepared).not.toContain("ArchLucid.Contracts");
@@ -364,14 +373,14 @@ describe("help-markdown-presentation (leakage 2)", () => {
     expect(prepared).not.toContain("INTEGRATION_CATALOG");
     expect(prepared).toContain("/help/first-architecture-review");
   });
-  it("keeps presented executive-summary help buyer-safe (TB-1688)", () => {
-    const loaded = tryLoadProductDocumentation("executive-summary");
+  it("keeps presented sponsor-report help buyer-safe (TB-1688)", () => {
+    const loaded = tryLoadProductDocumentation("sponsor-report");
 
     expect(loaded).not.toBeNull();
 
     const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
     const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
-      helpTopicSlug: "executive-summary",
+      helpTopicSlug: "sponsor-report",
     }).toLowerCase();
 
     expect(prepared).not.toContain("day-one-developer");
@@ -382,7 +391,7 @@ describe("help-markdown-presentation (leakage 2)", () => {
     expect(prepared).not.toContain("trust-center.md");
     expect(prepared).toContain("what pilot proves");
   });
-  it("strips executive-summary sponsor-brief section ordinals and normalizes humanized link labels (EXE P0-2, P0-3)", () => {
+  it("strips sponsor-report sponsor-brief section ordinals and normalizes humanized link labels (EXE P0-2, P0-3)", () => {
     const source = [
       "## 5. What Pilot proves {#what-pilot-proves}",
       "",
@@ -393,13 +402,13 @@ describe("help-markdown-presentation (leakage 2)", () => {
       "Also [Roi Model](/help/pilot-roi-model).",
     ].join("\n");
 
-    const prepared = stripExecutiveSummarySponsorBriefLeakage(source);
+    const prepared = stripSponsorReportSponsorBriefLeakage(source);
 
     expect(prepared).toContain("## What Pilot proves {#what-pilot-proves}");
     expect(prepared).toContain("## ROI framing {#roi-framing}");
     expect(prepared).not.toMatch(/^##\s+\d+\./m);
     expect(prepared).toContain("[API contracts](/help/api-contracts)");
-    expect(prepared).toContain("[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)");
+    expect(prepared).toContain("[Pilot ROI measurement](/help/sponsor-report#pilot-roi-measurement)");
     expect(prepared).not.toMatch(/\bApi\b/);
     expect(prepared).not.toMatch(/\bRoi\b/);
   });
@@ -477,7 +486,7 @@ describe("help-markdown-presentation (leakage 2)", () => {
     const source = [
       "**Start operators here:** [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · [`FIRST_EVALUATOR_DECISION.md`](../runbooks/FIRST_EVALUATOR_DECISION.md).",
       "",
-      "See [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) and `artifacts/first-pilot-proof/`.",
+      "See [`SPONSOR_SPONSOR_BRIEF.md`](SPONSOR_SPONSOR_BRIEF.md) and `artifacts/first-pilot-proof/`.",
       "",
       "Deferred: [`V1_DEFERRED.md`](../library/V1_DEFERRED.md).",
     ].join("\n");
@@ -487,9 +496,9 @@ describe("help-markdown-presentation (leakage 2)", () => {
     expect(prepared).not.toContain("FIRST_PILOT_OPERATOR_PATH");
     expect(prepared).not.toContain("FIRST_EVALUATOR_DECISION");
     expect(prepared).not.toContain("Start operators here");
-    expect(prepared).not.toContain("EXECUTIVE_SPONSOR_BRIEF");
+    expect(prepared).not.toContain("SPONSOR_SPONSOR_BRIEF");
     expect(prepared).not.toContain("artifacts/");
     expect(prepared).not.toContain("V1_DEFERRED");
-    expect(prepared).toContain("/help/executive-summary");
+    expect(prepared).toContain("/help/sponsor-report");
   });
 });

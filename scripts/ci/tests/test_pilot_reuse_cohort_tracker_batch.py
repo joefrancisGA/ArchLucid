@@ -1,4 +1,4 @@
-"""Batch tests: pilot 30-day reuse cohort tracker and executive rollup."""
+"""Batch tests: pilot 30-day reuse cohort tracker and sponsor rollup."""
 
 from __future__ import annotations
 
@@ -177,7 +177,7 @@ class PilotReuseCohortTrackerBatchTests(unittest.TestCase):
             self.assertEqual(2, payload["pilotCount"])
             self.assertEqual(2, payload["day30ContinuingCount"])
             self.assertEqual(1.0, payload["day30RetentionRate"])
-            self.assertIn("executive rollup", out_md.read_text(encoding="utf-8").lower())
+            self.assertIn("sponsor rollup", out_md.read_text(encoding="utf-8").lower())
 
 
 if __name__ == "__main__":

@@ -22,8 +22,8 @@ export function WhyMarketingProofLadderSection(): React.JSX.Element {
         Inspect a sample review
       </h2>
       <p className={cn("mt-2 max-w-3xl", MARKETING_TYPOGRAPHY.meta)}>
-        Start with the anonymous Claims-static proof path — the same universe as the welcome and see-it funnels. A
-        separate Contoso-labeled retail sample is available when you need a longer in-product preview.
+        Start with the anonymous enterprise intake proof path — the same universe as the welcome and see-it funnels. A
+        separate enterprise retail sample is available when you need a longer in-product preview.
       </p>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <CtaButton

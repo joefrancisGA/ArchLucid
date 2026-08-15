@@ -42,8 +42,8 @@ The guided workflow on **Home** walks readiness → evidence → create → exec
 
 1. **Create** an architecture review from **New review** or the sample showcase.
 2. **Execute** the assessment on review detail until findings are ready to finalize.
-3. **Finalize** the architecture package to lock the signed review record and exports.
-4. **Open exports** — download the sponsor packet and executive summary.
+3. **Finalize** the architecture package to lock the sealed review record and exports.
+4. **Open exports** — download the sponsor packet and sponsor summary.
 
 For step-by-step depth, open [Your first architecture review](/help/first-architecture-review) or the checklist on **Onboarding**.
 
@@ -54,9 +54,9 @@ After finalize, each architecture package includes:
 | Output | What it gives you |
 |--------|-------------------|
 | **Findings** | Severity, business impact, evidence citations, and recommended actions |
-| **Signed review record** | Immutable decision snapshot for audit and procurement |
+| **Sealed review record** | Immutable decision snapshot for audit and procurement |
 | **Sponsor packet** | Shareable export for executives and program sponsors |
-| **Executive summary** | ROI and disposition labels when cost evidence is attached |
+| **Sponsor summary** | ROI and disposition labels when cost evidence is attached |
 | **Audit export** | Scoped CSV when your role includes audit access |
 
 **Good to know:** Use **Email this review to your sponsor** on review detail after finalize when sponsor handoff is enabled for your workspace.
@@ -110,7 +110,7 @@ ArchLucid can surface review comparison output in GitHub Actions and Azure DevOp
 
 ### Baseline fields at signup
 
-Optional review-cycle baseline fields may be captured during workspace registration for ROI modeling. See [Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement).
+Optional review-cycle baseline fields may be captured during workspace registration for ROI modeling. See [Pilot ROI measurement](/help/sponsor-summary#pilot-roi-measurement).
 
 ### Complete first-session operator path
 

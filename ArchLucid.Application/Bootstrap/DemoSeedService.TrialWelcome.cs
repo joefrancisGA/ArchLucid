@@ -192,7 +192,7 @@ public sealed partial class DemoSeedService
                     ManifestId = manifestKey,
                     CreatedUtc = TrialWelcomeSeedUtc,
                     ArtifactType = ArtifactType.CoverageSummary,
-                    Name = "Executive architecture analysis (trial welcome)",
+                    Name = "Sponsor architecture analysis (trial welcome)",
                     Format = "Markdown",
                     Content =
                         "# Retail Online Store — Azure migration readout\n\n"
@@ -438,7 +438,7 @@ public sealed partial class DemoSeedService
                 Severity = FindingSeverity.Info,
                 Title = "Orders SQL failover pairs are documented but not yet validated under regional outage",
                 Rationale =
-                    "The design references geo-redundant SQL with automatic failover groups; run a game-day that forces read/write cutover while checkout traffic is replayed so recovery time stays inside the four-hour executive target."
+                    "The design references geo-redundant SQL with automatic failover groups; run a game-day that forces read/write cutover while checkout traffic is replayed so recovery time stays inside the four-hour sponsor target."
             },
             new Finding
             {
@@ -485,5 +485,5 @@ public sealed partial class DemoSeedService
         + "Observability standardizes on Application Insights with distributed tracing across Front Door, BFF, and downstream APIs, plus budget alerts tied to cost management exports. "
         + "Delivery follows a strangler pattern: extract catalog and inventory read paths first, then checkout orchestration, while legacy APIs remain behind compatibility routes until traffic drains. "
         + "Quality gates include blue/green releases for the storefront, automated failover tests for SQL, chaos drills on private link dependencies, and quarterly tabletop exercises for payment outages. "
-        + "Executive constraints include EU residency for PII, an order-path recovery time under four hours, and elimination of any public SQL endpoints.";
+        + "Sponsor constraints include EU residency for PII, an order-path recovery time under four hours, and elimination of any public SQL endpoints.";
 }

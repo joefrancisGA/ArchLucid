@@ -129,7 +129,7 @@ describe("OperatorShellTopBar", () => {
 
     const help = screen.getByTestId("operator-shell-help-trigger");
 
-    expect(help).toHaveAttribute("aria-label", "Help (F1)");
+    expect(help).toHaveAttribute("aria-label", "Help & Support (F1)");
     expect(help).toHaveAttribute("data-help-tooltip-icon", "help");
     expect(screen.getByTestId("app-shell-topbar-session").contains(help)).toBe(true);
 
@@ -203,7 +203,7 @@ describe("OperatorShellTopBar", () => {
 
     expect(sessionRail.contains(contextRail)).toBe(true);
     expect(contextRail.contains(scopeTrigger)).toBe(true);
-    expect(screen.queryByTestId("executive-operator-shell-switcher")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("sponsor-operator-shell-switcher")).not.toBeInTheDocument();
     expect(scopeTrigger.compareDocumentPosition(helpTrigger) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(helpTrigger.compareDocumentPosition(budgetPill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
@@ -218,7 +218,7 @@ describe("OperatorShellTopBar", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-label", "Help (F1)");
+    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-label", "Help & Support (F1)");
     expect(screen.queryByTestId("operator-shell-topbar-more-trigger")).not.toBeInTheDocument();
     expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     expect(screen.queryByTestId("shell-setup-health-chip")).not.toBeInTheDocument();

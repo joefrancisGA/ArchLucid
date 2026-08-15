@@ -1,7 +1,7 @@
 {
   "schema": "archlucid.roi-baseline-send-policy.v1",
   "effectiveUtc": "2026-06-07T00:00:00Z",
-  "ownerDecision": "Default V1 commercial SEND policy — executive-owner may override with documented artifact.",
+  "ownerDecision": "Default V1 commercial SEND policy — sponsor-owner may override with documented artifact.",
   "baselineCompletenessStatuses": {
     "COMPLETE": "All required baseline fields are sponsor-safe and non-defaulted.",
     "PARTIAL": "Some labels exist but required fields are demo-derived, stale, or weakly classified.",
@@ -59,7 +59,7 @@
     "artifactFileName": "roi-baseline-send-override.json",
     "schema": "archlucid.roi-baseline-send-override.v1",
     "approverRoles": [
-      "executive-owner",
+      "sponsor-owner",
       "cfo-delegate"
     ],
     "recorderRoles": [

@@ -1,8 +1,8 @@
 # Link integrity, route integrity, and dead-end audit
 
 **Date:** 2026-06-29  
-**Scope:** Home CTAs · Review list links · Review detail · Executive summary · Governance → Audit · Empty states · Error recovery · Breadcrumbs · Back links  
-**Golden path:** Home → Reviews list → Review detail → Executive view → Manifest summary → Evidence graph → Governance → Audit  
+**Scope:** Home CTAs · Review list links · Review detail · Sponsor summary · Governance → Audit · Empty states · Error recovery · Breadcrumbs · Back links  
+**Golden path:** Home → Reviews list → Review detail → Sponsor view → Manifest summary → Evidence graph → Governance → Audit  
 **Constraint:** No new features. Fix routing logic and copy. No architectural changes.  
 **Backlog cross-reference:** TB-553–TB-559
 
@@ -23,7 +23,7 @@
 
 ## Section 1. Route/link integrity diagnosis
 
-The golden path (Home → Reviews → Review detail → Executive → Evidence graph → Governance → Audit) is structurally intact — all routes exist and are reachable. However, three junction points have integrity issues:
+The golden path (Home → Reviews → Review detail → Sponsor → Evidence graph → Governance → Audit) is structurally intact — all routes exist and are reachable. However, three junction points have integrity issues:
 
 1. **Finding inspect → review context**: The CTA label differs between demo and live environments, producing an inconsistent user experience with no semantic justification.
 2. **Governance → audit trail**: In the full architect workspace with no loaded review, the governance page shows an empty state with no link to the audit trail. Users who arrive at governance first (e.g., from the nav) have no obvious next step.
@@ -40,7 +40,7 @@ The golden path (Home → Reviews → Review detail → Executive → Evidence g
 **Current issue**  
 ```typescript
 const reviewContextLabel =
-  surface === "executive"
+  surface === "sponsor"
     ? "Open risk review"
     : isDemoRunIdEligibleForStaticFallback(runId)
       ? "Open cited evidence"      // demo path
@@ -54,7 +54,7 @@ Two different labels for the same navigation action depending on runtime mode:
 A user switching between a demo run and their own real run will see different CTA text for the same action.
 
 **Recommended fix**  
-Unify to `"Open review summary"` unconditionally. The `surface === "executive"` variant can remain `"Open risk review"` if there is semantic justification.
+Unify to `"Open review summary"` unconditionally. The `surface === "sponsor"` variant can remain `"Open risk review"` if there is semantic justification.
 
 ---
 
@@ -209,14 +209,14 @@ None. All golden-path routes are structurally intact.
 ```typescript
 // Change:
 const reviewContextLabel =
-  surface === "executive"
+  surface === "sponsor"
     ? "Open risk review"
     : isDemoRunIdEligibleForStaticFallback(runId)
       ? "Open cited evidence"
       : "Open review detail (artifacts & graph)";
 // To:
 const reviewContextLabel =
-  surface === "executive" ? "Open risk review" : "Open review summary";
+  surface === "sponsor" ? "Open risk review" : "Open review summary";
 ```
 
 ---

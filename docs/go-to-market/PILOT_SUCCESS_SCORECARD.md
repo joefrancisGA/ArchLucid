@@ -17,7 +17,7 @@
 
 **PASS / HOLD thresholds:** Pre-agreed pilot acceptance gates live in [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md) (TB-158).
 
-**Executive review packet (CI golden fixture):** Seeded demo run `claims-intake-modernization` packet composition (manifest summary, top findings, ROI basis labels) is regression-tested in `ArchLucid.Application.Tests/Exports/ExecutiveReviewPacketGoldenFixtureTests.cs` against `Exports/Golden/executive-review-packet-demo-run.md`. Healthcare vertical walkthrough: [`docs/library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md`](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md).
+**Sponsor review packet (CI golden fixture):** Seeded demo run `claims-intake-modernization` packet composition (manifest summary, top findings, ROI basis labels) is regression-tested in `ArchLucid.Application.Tests/Exports/ExecutiveReviewPacketGoldenFixtureTests.cs` against `Exports/Golden/sponsor-review-packet-demo-run.md`. Healthcare vertical walkthrough: [`docs/library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md`](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md).
 
 ---
 
@@ -272,7 +272,7 @@ This playbook aligns with the six-week pilot timeline above and the technical qu
 
 **Action on Yellow:** Proactive outreach — offer training session, feature walkthrough, or adjusted timeline.
 
-**Action on Red:** Escalate internally; engage executive sponsor on customer side if accessible; assess whether pilot extension or scope change is needed.
+**Action on Red:** Escalate internally; engage sponsor sponsor on customer side if accessible; assess whether pilot extension or scope change is needed.
 
 ### Handoff to steady-state
 
@@ -326,7 +326,7 @@ Use this structure when presenting pilot results to leadership for a purchase de
 
 Before presenting, run through [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist). It distinguishes send, hold, and deferred cases so the sponsor narrative does not outrun the evidence.
 
-### Executive summary (1 paragraph)
+### Sponsor summary (1 paragraph)
 
 > We conducted a [X]-week pilot of ArchLucid with [N] architecture reviews. Architecture review cycle time decreased by [Y]% from [baseline] hours to [actual] hours. ArchLucid identified [N] compliance or architecture gaps that our manual process would have missed. The projected annual ROI based on pilot results is [Z]%. We recommend [proceeding to purchase / extending the pilot / not proceeding].
 
@@ -831,7 +831,7 @@ WHERE TenantId = @TenantId
 |---------------|-----------|
 | **Healthy** (Green) | Expansion conversation; request case study / reference; quarterly business review |
 | **Needs attention** (Yellow) | Proactive check-in within 1 week; offer training session or feature walkthrough; identify blockers |
-| **At risk** (Red) | Escalate to account exec within 48 hours; engage executive sponsor on customer side; assess root cause (product gap, onboarding failure, champion departure) |
+| **At risk** (Red) | Escalate to account exec within 48 hours; engage sponsor sponsor on customer side; assess root cause (product gap, onboarding failure, champion departure) |
 
 ### 2. Renewal timeline (annual subscription)
 
@@ -871,7 +871,7 @@ When health scoring indicates **Red** status:
 
 1. **Immediate:** CSM reaches out within 48 hours with specific, actionable help (not generic check-in).
 2. **Root cause:** Diagnose — is it product gap, onboarding failure, champion departure, or budget issue?
-3. **Escalation:** Engage account exec and, if accessible, executive sponsor on the customer side.
+3. **Escalation:** Engage account exec and, if accessible, sponsor sponsor on the customer side.
 4. **Recovery plan:** Offer training, dedicated support session, feature guidance, or pilot extension.
 
 #### Exit interview
@@ -1001,7 +1001,7 @@ Hypothesis mapping (reminder):
 | [`#pilot-roi-measurement`](#pilot-roi-measurement) Â· [`../library/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) (alias) | Pilot measurement companion (formerly standalone) |
 | [ROI_MODEL.md](ROI_MODEL.md) | Fill in with actual pilot numbers to calculate ROI (includes operational cost guide) |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Which persona presents the report (Section 6) and to whom |
-| [POSITIONING.md](POSITIONING.md) | Value pillars to reference in the executive summary |
+| [POSITIONING.md](POSITIONING.md) | Value pillars to reference in the sponsor summary |
 | [`#renewal-and-expansion-playbook`](#renewal-and-expansion-playbook) Â· [`RENEWAL_EXPANSION_PLAYBOOK.md`](RENEWAL_EXPANSION_PLAYBOOK.md) (alias) | Health scoring + renewal after pilot conversion |
 | [../PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md) | Technical setup for the pilot environment |
 | [../PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | How pilot feedback signals are captured and analyzed |

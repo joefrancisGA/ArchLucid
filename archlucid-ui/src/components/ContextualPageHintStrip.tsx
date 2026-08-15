@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -63,7 +63,7 @@ export function ContextualPageHintStrip(): React.JSX.Element | null {
         {hint.learnMoreHref !== undefined ? (
           <>
             {" "}
-            <Link href={hint.learnMoreHref} className="font-medium text-teal-800 underline dark:text-teal-300">
+            <Link href={hint.learnMoreHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
               Learn more
             </Link>
           </>

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
@@ -94,7 +94,7 @@ export function OperatorEvidenceLimitsFooter({
       <ul className="m-0 mt-3 list-none space-y-2 p-0" data-testid="operator-evidence-limits-links">
         <li>
           <Link
-            className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
             href={provenanceHref}
             aria-label={buyerPolishedShell ? "Structural provenance overview" : "Review trail (provenance graph)"}
           >
@@ -105,7 +105,7 @@ export function OperatorEvidenceLimitsFooter({
         {showArchitectureReviewSummaryLink ? (
           <li>
             <Link
-              className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
               href={explainHref}
               aria-label={
                 buyerPolishedShell
@@ -121,7 +121,7 @@ export function OperatorEvidenceLimitsFooter({
         {inspectHref !== null ? (
           <li>
             <Link
-              className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
               href={inspectHref}
             >
               Technical inspection trail

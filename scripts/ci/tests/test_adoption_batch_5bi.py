@@ -1,4 +1,4 @@
-"""TB-235 executive one-email kit drift guards (Batch 5BI)."""
+"""TB-235 sponsor one-email kit drift guards (Batch 5BI)."""
 
 from __future__ import annotations
 

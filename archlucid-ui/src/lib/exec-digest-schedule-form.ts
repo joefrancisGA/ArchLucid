@@ -165,7 +165,7 @@ export function isExecDigestScheduleFormValid(form: ExecDigestScheduleFormState)
   return validation.valid && parseExecDigestRecipientEmails(form.recipients).length > 0;
 }
 
-/** Human-readable cadence label for executive digest sends. */
+/** Human-readable cadence label for sponsor digest sends. */
 export function formatExecDigestCadenceLabel(form: ExecDigestScheduleFormState): string {
   const dayName: string = EXEC_DIGEST_DAY_NAMES[form.dayOfWeek] ?? "—";
   const timeLabel: string = formatExecDigestSendTimeLabel(form.hourOfDay);

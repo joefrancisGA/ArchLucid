@@ -56,7 +56,7 @@ def classify_path(open_api_path: str) -> str:
     if lower.startswith("v1/pilots/") and "deltas" in lower:
         return BUYER_AUDIENCE
 
-    if lower.startswith("v1/roi/") and "executive" in lower:
+    if lower.startswith("v1/roi/") and "sponsor" in lower:
         return BUYER_AUDIENCE
 
     if allows_anonymous:

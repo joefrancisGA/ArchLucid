@@ -28,6 +28,12 @@ public interface ILearningPlanningReadService
         int maxPlans,
         CancellationToken cancellationToken);
 
+    Task<LearningPlanningListBundleResponse> GetListBundleAsync(
+        ProductLearningScope scope,
+        int maxThemes,
+        int maxPlans,
+        CancellationToken cancellationToken);
+
     Task<LearningPlanningReportDocument> GetPlanningReportAsync(
         ProductLearningScope scope,
         LearningPlanningReportLimits limits,

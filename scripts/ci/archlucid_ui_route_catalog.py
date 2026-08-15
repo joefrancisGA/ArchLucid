@@ -19,13 +19,23 @@ DEFAULT_NEW_HIT_PCT = "0.02%"
 # falls back to suggest_row_id(). Add an entry only to keep an ID stable across a path rename, and keep
 # values unique 3-letter uppercase IDs (guarded by tests/test_archlucid_ui_route_catalog.py).
 PREFERRED_NEW_ROW_IDS: dict[str, str] = {
+    "/internal/validate-route": "REP",
     "/shell/contextual-help-drawer": "HCD",
     "/help/choose-your-next-step": "HPX",
-    "/login": "LOG",
-    "/onboard": "OXX",
-    "/onboarding/start": "OSX",
-    "/operate/architecture-graph": "OAX",
     "/governance/advisory-scans?tab=scans": "ADT",
+    # App Router dynamic segment renamed [runId] → [reviewId]; keep stable workbook IDs on sync.
+    "/architecture/reviews/[reviewId]": "RRE",
+    "/architecture/reviews/[reviewId]/findings/[findingId]": "RRF",
+    "/architecture/reviews/[reviewId]/findings/[findingId]/evidence-trace": "ERU",
+    "/architecture/reviews/[reviewId]/provenance": "RRP",
+    "/architecture/reviews/[reviewId]/print": "APR",
+    "/architecture/reviews/[reviewId]?archTab=activity": "REA",
+    "/architecture/reviews/[reviewId]?archTab=clarifications": "REC",
+    "/architecture/reviews/[reviewId]?archTab=diagram": "RED",
+    "/architecture/reviews/[reviewId]?archTab=evidence": "REE",
+    "/architecture/reviews/[reviewId]?archTab=findings": "REF",
+    "/architecture/reviews/[reviewId]?archTab=governance": "REG",
+    "/architecture/reviews/[reviewId]?archTab=overview": "REO",
 }
 
 # When workbook path migrations collide, keep the canonical tab/hub row id (ADV hub retired → ADT).
@@ -40,6 +50,15 @@ INTERNAL_UX_RANKING_EXCLUDED_PATHS: frozenset[str] = frozenset(
     {
         "/help/configuration-reference",
         "/demo/explain",
+        "/internal/agent-model-catalog",
+        "/internal/platform-bundled-policy-packs",
+    }
+)
+
+# TB-2241 — canonical contextual-only operator paths (must match nav-contextual-only-operator-paths.ts).
+CONTEXTUAL_ONLY_OPERATOR_NAV_PATHS: frozenset[str] = frozenset(
+    {
+        "/architecture/architecture-intelligence",
     }
 )
 
@@ -70,52 +89,28 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/search": "/insights/search-review-evidence",
     "/compare": "/insights/compare-two-reviews",
     "/scorecard": "/insights/architecture-scorecard",
-    "/help/cloud-connections-azure": "/help/cloud-connections/azure",
-    "/help/cloud-connections-aws": "/help/cloud-connections/aws",
-    "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
-    # TB-2050 / Batch C retired help aliases — fold Hit% into canons.
-    "/help/governance-api-contracts": "/help/api-contracts",
-    "/help/creating-runs": "/help/review-guide",
-    "/help/data-handling-tenant-isolation": "/help/data-handling",
-    "/help/evidence-only-review": "/help/first-architecture-review",
-    "/help/how-it-works": "/help/getting-started",
-    "/help/integrations/azure-boards": "/help/azure-boards",
-    "/help/product-overview": "/help/executive-summary",
-    "/help/starting-reviews": "/help/review-guide",
-    "/help/evaluator-workbook": "/help/choose-your-next-step",
-    "/help/path-chooser": "/help/choose-your-next-step",
-    "/help/first-hour-operator-path": "/help/first-architecture-review",
-    "/help/first-pilot-path": "/help/first-architecture-review",
-    "/help/operator-auth-roles": "/help/users-and-roles",
-    "/help/pilot-nav-profile": "/help/pilot-guide",
-    # Workbook rows are catalog routes, so these fold to the destination page even when the
-    # browser redirect lands on a section anchor — build_catalog() never emits "#fragment" paths
-    # and assert_ui_route_traffic_workbook_canonical rejects rows outside the catalog.
-    "/help/first-review": "/help/first-architecture-review",
-    "/help/first-value-20-minutes": "/help/first-architecture-review",
-    "/help/pilot-roi-model": "/help/executive-summary",
-    "/help/developer-troubleshooting": "/help/engineering-troubleshooting",
     # Legacy key: /help/policy-pack-delta-demo is a live registry topic again, so this entry only
     # keeps the route out of the traffic catalog. Dropping it needs a workbook sync for the new row.
     "/help/policy-pack-delta-demo": "/help/policy-packs#policy-pack-delta-demo",
-    "/manifests": "/governance/signed-records",
-    "/manifests/[manifestId]": "/governance/signed-records/[manifestId]",
+    "/manifests": "/governance/sealed-records",
+    "/manifests/[manifestId]": "/governance/sealed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": (
-        "/governance/signed-records/[manifestId]/artifacts/[artifactId]"
+        "/governance/sealed-records/[manifestId]/artifacts/[artifactId]"
     ),
-    "/signed-records": "/governance/signed-records",
-    "/signed-records/[manifestId]": "/governance/signed-records/[manifestId]",
+    "/signed-records": "/governance/sealed-records",
+    "/signed-records/[manifestId]": "/governance/sealed-records/[manifestId]",
     "/signed-records/[manifestId]/artifacts/[artifactId]": (
-        "/governance/signed-records/[manifestId]/artifacts/[artifactId]"
+        "/governance/sealed-records/[manifestId]/artifacts/[artifactId]"
+    ),
+    "/governance/signed-records": "/governance/sealed-records",
+    "/governance/signed-records/[manifestId]": "/governance/sealed-records/[manifestId]",
+    "/governance/signed-records/[manifestId]/artifacts/[artifactId]": (
+        "/governance/sealed-records/[manifestId]/artifacts/[artifactId]"
     ),
     "/settings/cost-reporting": "/administration/ai-usage",
     "/settings/ai-usage": "/administration/ai-usage",
     "/admin/ai-usage-cost": "/administration/ai-usage",
-    "/onboarding/start": "/architecture/first-review-guide",
-    "/onboard": "/architecture/first-review-guide",
     "/quick-start": "/get-started",
-    "/login": "/auth/signin",
-    "/operate/architecture-graph": "/insights/evidence-graph",
     "/administration/tenant": "/administration/workspace-settings",
     "/administration/tenant/recycle-bin": "/administration/workspace-settings/recycle-bin",
     "/governance/alerts?tab=inbox": "/governance/alerts",
@@ -138,21 +133,36 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/architecture/digests?tab=browse": "/architecture/digests?tab=get-started",
     "/digests?tab=browse": "/architecture/digests?tab=get-started",
     "/health": "/administration/system-health",
-    # Batch A retired help aliases (permanent redirect only) — migrate out of workbook/catalog.
-    "/help/core-pilot": "/help/first-architecture-review",
-    "/dashboard": "/architecture/executive-dashboard",
-    "/executive/dashboard": "/architecture/executive-dashboard",
-    "/portfolio": "/architecture/executive-dashboard",
+    "/dashboard": "/architecture/sponsor-dashboard",
+    "/sponsor/dashboard": "/architecture/sponsor-dashboard",
+    "/portfolio": "/architecture/sponsor-dashboard",
     # Public architecture-prefixed reviews / architectures URLs (App Router still under /reviews).
     "/reviews": "/architecture/reviews",
     "/reviews/new": "/architecture/reviews/new",
-    "/reviews/[runId]": "/architecture/reviews/[runId]",
-    "/reviews/[runId]/findings/[findingId]": "/architecture/reviews/[runId]/findings/[findingId]",
-    "/reviews/[runId]/findings/[findingId]/inspect": "/architecture/reviews/[runId]/findings/[findingId]/inspect",
-    "/reviews/[runId]/findings/[findingId]/evidence-trace": "/architecture/reviews/[runId]/findings/[findingId]/evidence-trace",
-    "/reviews/[runId]/provenance": "/architecture/reviews/[runId]/provenance",
-    "/reviews/[runId]/signed-record": "/architecture/reviews/[runId]/signed-record",
-    "/reviews/[runId]?archTab=governance": "/architecture/reviews/[runId]?archTab=governance",
+    "/reviews/[runId]": "/architecture/reviews/[reviewId]",
+    "/reviews/[runId]/findings/[findingId]": "/architecture/reviews/[reviewId]/findings/[findingId]",
+    "/reviews/[runId]/findings/[findingId]/inspect": "/architecture/reviews/[reviewId]/findings/[findingId]/inspect",
+    "/reviews/[runId]/findings/[findingId]/evidence-trace": (
+        "/architecture/reviews/[reviewId]/findings/[findingId]/evidence-trace"
+    ),
+    "/reviews/[runId]/provenance": "/architecture/reviews/[reviewId]/provenance",
+    "/reviews/[runId]/signed-record": "/architecture/reviews/[reviewId]/signed-record",
+    "/reviews/[runId]?archTab=governance": "/architecture/reviews/[reviewId]?archTab=governance",
+    # Workbook rows that still use the old dynamic segment after /architecture/reviews/ prefix migration.
+    "/architecture/reviews/[runId]": "/architecture/reviews/[reviewId]",
+    "/architecture/reviews/[runId]/findings/[findingId]": "/architecture/reviews/[reviewId]/findings/[findingId]",
+    "/architecture/reviews/[runId]/findings/[findingId]/evidence-trace": (
+        "/architecture/reviews/[reviewId]/findings/[findingId]/evidence-trace"
+    ),
+    "/architecture/reviews/[runId]/provenance": "/architecture/reviews/[reviewId]/provenance",
+    "/architecture/reviews/[runId]/print": "/architecture/reviews/[reviewId]/print",
+    "/architecture/reviews/[runId]?archTab=activity": "/architecture/reviews/[reviewId]?archTab=activity",
+    "/architecture/reviews/[runId]?archTab=clarifications": "/architecture/reviews/[reviewId]?archTab=clarifications",
+    "/architecture/reviews/[runId]?archTab=diagram": "/architecture/reviews/[reviewId]?archTab=diagram",
+    "/architecture/reviews/[runId]?archTab=evidence": "/architecture/reviews/[reviewId]?archTab=evidence",
+    "/architecture/reviews/[runId]?archTab=findings": "/architecture/reviews/[reviewId]?archTab=findings",
+    "/architecture/reviews/[runId]?archTab=governance": "/architecture/reviews/[reviewId]?archTab=governance",
+    "/architecture/reviews/[runId]?archTab=overview": "/architecture/reviews/[reviewId]?archTab=overview",
     "/architectures": "/architecture/architectures",
     "/architectures/new": "/architecture/architectures/new",
     "/architectures/[architectureId]": "/architecture/architectures/[architectureId]",
@@ -173,19 +183,25 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/admin/demo-readiness": "/internal/demo-readiness",
     "/admin/deployment-status": "/internal/deployment-status",
     # Sponsor report → Insights.
-    "/sponsor-report": "/insights/executive-summary",
-    "/sponsor-report/executive-summary": "/insights/executive-summary",
+    "/sponsor-report": "/insights/sponsor-report",
+    "/sponsor-report/sponsor-report": "/insights/sponsor-report",
     "/sponsor-report/roi-summary": "/insights/roi-summary",
     "/sponsor-report/pilot-outcomes": "/insights/pilot-outcomes",
     "/sponsor-report/architecture-scorecard": "/insights/architecture-scorecard",
-    "/value-report": "/insights/executive-summary",
+    "/value-report": "/insights/sponsor-report",
     "/value-report/roi": "/insights/roi-summary",
-    "/value-report/pilot": "/insights/pilot-outcomes",
+    # Pilot outcomes merged into the sponsor report; retired without a redirect, so SPP hit share
+    # folds into the SPE row rather than tracking a dead path. Migrations resolve in a single pass,
+    # so the older `/value-report/pilot` bookmark has to name the final destination too.
+    "/value-report/pilot": "/insights/sponsor-report",
+    "/insights/pilot-outcomes": "/insights/sponsor-report",
     # Validate review (replay) under Internal Operations.
-    "/replay": "/internal/replay",
+    "/replay": "/internal/validate-route",
+    "/internal/replay": "/internal/validate-route",
     # Legacy internal-ops path segments.
     "/internal-operations/recommendation-learning": "/internal/recommendation-learning",
-    "/operate/integration-events/dlq": "/internal/integration-events/dlq",
+    "/operate/integration-events/dlq": "/internal/failed-integration-messages",
+    "/internal/integration-events/dlq": "/internal/failed-integration-messages",
     "/product-learning": "/internal/product-learning",
 }
 
@@ -206,8 +222,9 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
         "/alert-routing",
         "/administration/tenant",
         "/administration/tenant/recycle-bin",
-        "/architecture/reviews/[runId]/artifacts/[artifactId]",
+        "/architecture/reviews/[reviewId]/artifacts/[artifactId]",
         "/demo",
+        "/internal/replay",
     }
 )
 
@@ -215,15 +232,8 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
 # /settings/alerts retired from the workbook (SEA removed, TB-1886–TB-1890); migration still maps to SAX.
 # /settings/exec-digest retired from the workbook (EEX removed); migration still maps to DIS.
 # Batch C folded FIR `/help/first-pilot-path` into COR — permanent redirect only (no traffic-tracked bookmark).
-# TB-1794 / TB-1798 / TB-1801: legacy auth/onboarding bookmarks stay as redirect-shim workbook rows (LOG/OXX/OSX).
-TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset(
-    {
-        "/login",
-        "/onboard",
-        "/onboarding/start",
-        "/operate/architecture-graph",
-    }
-)
+# Legacy bookmark paths migrate in WORKBOOK_PATH_MIGRATIONS only — not scored workbook rows.
+TRAFFIC_TRACKED_REDIRECT_BOOKMARKS: frozenset[str] = frozenset()
 
 # Operator-shell overlays scored in the workbook but not App Router pages.
 SHELL_OVERLAY_TRAFFIC_ENTRIES: dict[str, str] = {
@@ -359,7 +369,7 @@ def discover_tab_paths() -> list[str]:
     for path_mode in ("quick-review", "guided-intake", "detailed"):
         paths.append(_tab_path("/architecture/reviews/new", "path", path_mode))
     for tab_id in arch_tabs:
-        paths.append(_tab_path("/architecture/reviews/[runId]", "archTab", tab_id))
+        paths.append(_tab_path("/architecture/reviews/[reviewId]", "archTab", tab_id))
     return sorted(set(paths))
 
 
@@ -389,8 +399,8 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Core review"
     if path.startswith("/architecture/architectures") or path.startswith("/architectures"):
         return "Core review"
-    if path.startswith("/architecture/executive-dashboard"):
-        return "Executive"
+    if path.startswith("/architecture/sponsor-dashboard"):
+        return "Sponsor"
     if path.startswith("/architecture/architecture-intelligence") or path.startswith(
         "/architecture-intelligence"
     ):
@@ -410,21 +420,20 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
             return "Advisory"
         if path == "/internal/product-learning":
             return "Onboarding"
-        if path == "/internal/replay":
+        if path == "/internal/validate-route":
             return "Marketing"
         return "Admin"
     if path.startswith("/admin"):
         return "Admin"
-    if path.startswith("/auth") or path == "/login" or path == "/403":
+    if path.startswith("/auth") or path == "/403":
         return "Auth"
     if path.startswith("/help"):
         return "Help topic"
-    if path.startswith("/executive"):
-        return "Executive"
+    if path.startswith("/sponsor"):
+        return "Sponsor"
     if (
-        path.startswith("/insights/executive-summary")
+        path.startswith("/insights/sponsor-report")
         or path.startswith("/insights/roi-summary")
-        or path.startswith("/insights/pilot-outcomes")
     ):
         return "Sponsor report"
     if path.startswith("/architecture/digests") or path.startswith("/digests") or path == "/digest-subscriptions":

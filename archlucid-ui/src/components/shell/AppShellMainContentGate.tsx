@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
 import { OperatorRoleGate } from "@/components/operator/OperatorRoleGate";
-import { SponsorExecutiveShellRedirect } from "@/components/SponsorExecutiveShellRedirect";
+import { SponsorShellRedirect } from "@/components/SponsorShellRedirect";
 
 type AppShellMainContentGateProps = {
   readonly children: ReactNode;
@@ -14,9 +14,9 @@ type AppShellMainContentGateProps = {
 export function AppShellMainContentGate({ children }: AppShellMainContentGateProps): React.JSX.Element {
   return (
     <DemoStrictNavigationGate>
-      <SponsorExecutiveShellRedirect>
+      <SponsorShellRedirect>
         <OperatorRoleGate>{children}</OperatorRoleGate>
-      </SponsorExecutiveShellRedirect>
+      </SponsorShellRedirect>
     </DemoStrictNavigationGate>
   );
 }

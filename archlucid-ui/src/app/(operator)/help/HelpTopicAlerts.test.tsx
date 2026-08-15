@@ -46,7 +46,7 @@ describe("HelpAlertsGuideView", () => {
     expect(entry?.lastReviewed).toBe("2026-08-09");
   });
 
-  it("shows purpose, claim discipline, provenance, hero, and overview near the top", () => {
+  it("shows purpose, provenance, hero, and overview near the top with orientation strip at content end", () => {
     if (entry === undefined) {
       throw new Error("Expected alerts documentation entry.");
     }
@@ -55,11 +55,17 @@ describe("HelpAlertsGuideView", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: ALERTS_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(ALERTS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("help-alerts-claim-discipline")).toHaveTextContent(ALERTS_HELP_CLAIM_DISCIPLINE);
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.getByTestId("help-alerts-guide-hero-mock")).toBeInTheDocument();
     expect(screen.getByTestId("help-alerts-overview")).toHaveTextContent(ALERTS_HELP_OVERVIEW);
-    expect(screen.queryByTestId("help-alerts-sources")).not.toBeInTheDocument();
+
+    const contentColumn = screen.getByTestId("help-alerts-guide").querySelector(".min-w-0.space-y-8");
+    expect(contentColumn).not.toBeNull();
+    expect(within(contentColumn as HTMLElement).getByTestId("help-alerts-claim-discipline")).toHaveTextContent(
+      ALERTS_HELP_CLAIM_DISCIPLINE,
+    );
+    expect(within(contentColumn as HTMLElement).getByTestId("help-alerts-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("help-alerts-orientation")).toBeInTheDocument();
   });
 
   it("renders revised sections and on-this-page navigation", () => {
@@ -135,6 +141,8 @@ describe("alerts help specialty registry guard", () => {
       "where-alerts-are-managed",
       "resolving-an-alert",
       "related-governance-concepts",
+      "help-alerts-claim-discipline-heading",
+      "where-to-go-next",
     ]);
   });
 });

@@ -43,9 +43,9 @@ public static class PolicyPackBeforeAfterDiffMarkdownRenderer
                 $"  - `{finding.FindingId}` ({finding.Severity}) — blocks commit: {finding.BlocksCommitUnderConfiguration}");
         }
 
-        builder.AppendLine("- **Executive summary lines:**");
+        builder.AppendLine("- **Sponsor report lines:**");
 
-        foreach (string line in snapshot.ExecutiveSummaryLines)
+        foreach (string line in snapshot.SponsorReportLines)
         {
             builder.AppendLine($"  - {line}");
         }
@@ -60,16 +60,16 @@ public static class PolicyPackBeforeAfterDiffMarkdownRenderer
         builder.AppendLine($"- **Removed compliance rule keys:** {string.Join(", ", changes.RemovedComplianceRuleKeys)}");
         builder.AppendLine($"- **Findings newly blocking commit:** {string.Join(", ", changes.FindingsNewlyBlockingCommit)}");
         builder.AppendLine($"- **Findings no longer blocking commit:** {string.Join(", ", changes.FindingsNoLongerBlockingCommit)}");
-        builder.AppendLine("- **Executive summary lines added:**");
+        builder.AppendLine("- **Sponsor report lines added:**");
 
-        foreach (string line in changes.ExecutiveSummaryLinesAdded)
+        foreach (string line in changes.SponsorReportLinesAdded)
         {
             builder.AppendLine($"  - {line}");
         }
 
-        builder.AppendLine("- **Executive summary lines removed:**");
+        builder.AppendLine("- **Sponsor report lines removed:**");
 
-        foreach (string line in changes.ExecutiveSummaryLinesRemoved)
+        foreach (string line in changes.SponsorReportLinesRemoved)
         {
             builder.AppendLine($"  - {line}");
         }

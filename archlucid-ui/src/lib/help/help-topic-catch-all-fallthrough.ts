@@ -1,67 +1,14 @@
+import {
+  HELP_APP_GUIDED_TOPIC_SLUGS,
+  HELP_MARKDOWN_WITH_LAYOUT_TOPIC_SLUGS,
+} from "@/lib/help/help-topic-content-loader";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
-/** Dedicated specialty guide views in `help/[...topic]/page.tsx` (TB-1601). */
-export const HELP_TOPIC_SPECIALTY_GUIDE_DISPATCH_SLUGS = [
-  "accelerator-chooser",
-  "admin-diagnostics",
-  "alerts",
-  "api-contracts",
-  "architecture-scorecard",
-  "audit-trail",
-  "azure-boards",
-  "azure-permissions",
-  "billing-and-plans",
-  "choose-your-next-step",
-  "cli-usage",
-  "cloud-connections",
-  "cloud-connections-aws",
-  "cloud-connections-azure",
-  "cloud-connections-gcp",
-  "comparison-replay",
-  "configuration-reference",
-  "connection-status",
-  "data-handling",
-  "digests",
-  "dpa-template",
-  "engineering-troubleshooting",
-  "enterprise-onboarding",
-  "evidence-intake",
-  "evidence-trail",
-  "executive-summary",
-  "findings",
-  "first-architecture-review",
-  "getting-started",
-  "glossary",
-  "governance-approval",
-  "pilot-feedback",
-  "pilot-guide",
-  "pilot-outcomes",
-  "policy-pack-delta-demo",
-  "policy-packs",
-  "procurement",
-  "repeat-review-loop",
-  "recurrence-schedules",
-  "review-guide",
-  "review-packages",
-  "roi-summary",
-  "soc2-self-assessment",
-  "specialty-walkthroughs",
-  "standards-and-rules",
-  "troubleshooting",
-  "users-and-roles",
-] as const;
+/** Dedicated `Help*GuideView` modules — kept in sync with `HELP_APP_GUIDED_TOPIC_SLUGS` (TB-2238). */
+export const HELP_TOPIC_SPECIALTY_GUIDE_DISPATCH_SLUGS = HELP_APP_GUIDED_TOPIC_SLUGS;
 
 /** Explicit enriched `HelpTopicMarkdownView` branches — not bare Print/PDF fallthrough (TB-1601). */
-export const HELP_TOPIC_ENRICHED_MARKDOWN_DISPATCH_SLUGS = [
-  "authentication-sign-in",
-  "caiq-sig-response",
-  "integration-readiness",
-  "prior-manifest-retrieval",
-  "report-a-problem",
-  "scope",
-  "security-trust",
-  "subprocessors",
-] as const;
+export const HELP_TOPIC_ENRICHED_MARKDOWN_DISPATCH_SLUGS = HELP_MARKDOWN_WITH_LAYOUT_TOPIC_SLUGS;
 
 export type HelpTopicBareMarkdownFallthroughAllowlistEntry = {
   slug: string;

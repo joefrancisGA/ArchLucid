@@ -21,6 +21,7 @@ import {
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-page-copy";
 import {
   ITSM_OAUTH_CALLBACK_CANONICAL_PATH,
+  ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE,
   ITSM_OAUTH_CALLBACK_SOURCES,
 } from "@/lib/itsm/itsm-oauth-callback-evidence-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
@@ -66,14 +67,13 @@ describe("ItsmAtlassianOAuthCallbackClient operator shell", () => {
     completeItsmAtlassianOAuthConsent.mockReset();
   });
 
-  it("renders operator chrome with breadcrumb while consent completion is in flight", () => {
+  it("renders operator chrome while consent completion is in flight", () => {
     completeItsmAtlassianOAuthConsent.mockImplementation(() => new Promise(() => undefined));
 
     render(<ItsmAtlassianOAuthCallbackClient />);
 
     expect(screen.queryByTestId("auth-flow-shell")).not.toBeInTheDocument();
-    expect(screen.getByTestId("itsm-oauth-callback-breadcrumb")).toHaveTextContent("Integrations");
-    expect(screen.getByTestId("itsm-oauth-callback-breadcrumb")).toHaveTextContent("Jira");
+    expect(screen.queryByTestId("itsm-oauth-callback-breadcrumb")).toBeNull();
     expect(screen.getByTestId("itsm-oauth-callback-page-title")).toHaveTextContent(
       ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE,
     );
@@ -228,7 +228,7 @@ describe("ItsmAtlassianOAuthCallbackClient failure branches", () => {
 
     const details = screen.getByTestId("itsm-oauth-callback-support-details");
     expect(within(details).getByText(/Pilot workspace/)).toBeInTheDocument();
-    expect(within(details).getByText(/UTC$/)).toBeInTheDocument();
+    expect(within(details).getByText(/\d{4}.*UTC/)).toBeInTheDocument();
     expect(within(details).getByLabelText("Copy reference ID")).toBeInTheDocument();
 
     const renderedText = details.textContent ?? "";
@@ -264,5 +264,16 @@ describe("ItsmAtlassianOAuthCallbackClient sources strip", () => {
     expect(
       within(sources).queryByRole("link", { name: new RegExp(ITSM_OAUTH_CALLBACK_CANONICAL_PATH, "i") }),
     ).not.toBeInTheDocument();
+  });
+
+  it("labels follow-ups for accessibility parity without a claim band", async () => {
+    render(<ItsmAtlassianOAuthCallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("itsm-oauth-callback-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Sources package/i)).toBeNull();
   });
 });

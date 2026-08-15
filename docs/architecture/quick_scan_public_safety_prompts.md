@@ -383,7 +383,7 @@ Cover financial safety, traffic/abuse, execution safety, operations, privacy, te
 
 `.local/owner/quick_scan_public_release_gate.md` with:
 
-- Executive conclusion
+- Sponsor conclusion
 - Full evidence matrix
 - Remaining weaknesses
 - Maximum proven hourly / daily / per-request loss

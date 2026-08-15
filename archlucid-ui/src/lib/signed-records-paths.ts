@@ -1,10 +1,22 @@
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 
-/** Canonical buyer-facing list path for signed review records (TB-405 / IA-001). */
-export const SIGNED_RECORDS_LIST_PATH = "/governance/signed-records";
+/** Canonical buyer-facing list path for sealed review records (TB-405 / IA-001). */
+export const SIGNED_RECORDS_LIST_PATH = "/governance/sealed-records";
 
 /** Legacy top-level path — retired bookmark; canonical is {@link SIGNED_RECORDS_LIST_PATH}. */
 export const LEGACY_SIGNED_RECORDS_LIST_PATH = "/signed-records";
+
+/** Previous governance list path before the sealed-noun rename. */
+export const LEGACY_GOVERNANCE_SIGNED_RECORDS_LIST_PATH = "/governance/signed-records";
+
+function pathMatchesLegacySignedRecordsPrefix(normalized: string): boolean {
+  return (
+    normalized === LEGACY_SIGNED_RECORDS_LIST_PATH
+    || normalized.startsWith(`${LEGACY_SIGNED_RECORDS_LIST_PATH}/`)
+    || normalized === LEGACY_GOVERNANCE_SIGNED_RECORDS_LIST_PATH
+    || normalized.startsWith(`${LEGACY_GOVERNANCE_SIGNED_RECORDS_LIST_PATH}/`)
+  );
+}
 
 /** True when `pathname` is the list or any detail/artifact route (canonical or legacy). */
 export function pathMatchesSignedRecordsRoute(pathname: string): boolean {
@@ -13,8 +25,7 @@ export function pathMatchesSignedRecordsRoute(pathname: string): boolean {
   return (
     normalized === SIGNED_RECORDS_LIST_PATH
     || normalized.startsWith(`${SIGNED_RECORDS_LIST_PATH}/`)
-    || normalized === LEGACY_SIGNED_RECORDS_LIST_PATH
-    || normalized.startsWith(`${LEGACY_SIGNED_RECORDS_LIST_PATH}/`)
+    || pathMatchesLegacySignedRecordsPrefix(normalized)
   );
 }
 
@@ -25,20 +36,21 @@ export function pathMatchesSignedRecordsDetailRoute(pathname: string): boolean {
   return (
     normalized.startsWith(`${SIGNED_RECORDS_LIST_PATH}/`)
     || normalized.startsWith(`${LEGACY_SIGNED_RECORDS_LIST_PATH}/`)
+    || normalized.startsWith(`${LEGACY_GOVERNANCE_SIGNED_RECORDS_LIST_PATH}/`)
   );
 }
 
-/** Canonical detail path for a signed review record by manifest id. */
+/** Canonical detail path for a sealed review record by manifest id. */
 export function signedRecordDetailPath(manifestId: string): string {
   return `${SIGNED_RECORDS_LIST_PATH}/${encodeURIComponent(manifestId.trim())}`;
 }
 
-/** Run-scoped signed record CTA — opens the review package (manifest section when finalized). */
+/** Run-scoped sealed record CTA — opens the review package (manifest section when finalized). */
 export function reviewSignedRecordPath(runId: string): string {
   return reviewDetailPath(runId);
 }
 
-/** Artifact row within a signed review record. */
+/** Artifact row within a sealed review record. */
 export function signedRecordArtifactPath(manifestId: string, artifactId: string): string {
   return `${signedRecordDetailPath(manifestId)}/artifacts/${encodeURIComponent(artifactId.trim())}`;
 }

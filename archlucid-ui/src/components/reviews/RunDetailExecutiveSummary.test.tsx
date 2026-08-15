@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { RunDetailExecutiveSummary } from "@/components/reviews/RunDetailExecutiveSummary";
+import { RunDetailSponsorReport } from "@/components/reviews/RunDetailSponsorReport";
 
-describe("RunDetailExecutiveSummary", () => {
-  it("renders one authoritative executive summary block", () => {
+describe("RunDetailSponsorReport", () => {
+  it("renders one authoritative sponsor report block", () => {
     render(
-      <RunDetailExecutiveSummary
+      <RunDetailSponsorReport
         workspaceStatus={{ label: "Approved", kind: "approved", statusTagKind: "approved" }}
         overallPosture="Approved with monitoring"
         highestSeverity="High"
@@ -19,8 +19,8 @@ describe("RunDetailExecutiveSummary", () => {
       />,
     );
 
-    expect(screen.getByTestId("run-detail-executive-summary")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Executive summary" })).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-sponsor-report")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sponsor report" })).toBeInTheDocument();
     expect(screen.getByText("Complete for this review")).toBeInTheDocument();
     expect(screen.getAllByText("Approved with monitoring").length).toBeGreaterThan(0);
     expect(screen.getByText("High")).toBeInTheDocument();

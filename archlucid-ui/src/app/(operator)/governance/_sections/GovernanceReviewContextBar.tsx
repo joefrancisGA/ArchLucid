@@ -19,7 +19,7 @@ import {
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_LABEL,
   GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_PLACEHOLDER,
 } from "@/lib/governance/governance-workflow-release-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type GovernanceReviewContextBarProps = {
   readonly activeRunId: string;
@@ -81,7 +81,7 @@ export function GovernanceReviewContextBar(props: GovernanceReviewContextBarProp
       </div>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Review-scoped approval requests, submissions, and governance activity appear below.{" "}
-        <Link className="underline underline-offset-2" href={`/architecture/reviews/${encodeURIComponent(activeRunId)}`}>
+        <Link className={OPERATOR_LINK.optional} href={`/architecture/reviews/${encodeURIComponent(activeRunId)}`}>
           Open review
         </Link>
         {" · "}

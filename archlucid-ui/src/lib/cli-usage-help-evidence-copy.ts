@@ -3,6 +3,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const CLI_USAGE_HELP_CANONICAL_PATH = "/help/cli-usage" as const;
 
+export const CLI_USAGE_HELP_TOPIC_LABEL = "How CLI usage works" as const;
+
 export const CLI_USAGE_HELP_CLAIM_DISCIPLINE =
   "This CLI usage reference is an engineering runbook for non-interactive commands and environment detail — it is not customer self-serve diligence. Prefer customer Troubleshooting and System health before treating CLI output as certification evidence.";
 

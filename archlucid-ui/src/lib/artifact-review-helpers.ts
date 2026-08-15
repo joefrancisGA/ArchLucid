@@ -2,14 +2,14 @@
  * Operator-facing copy for synthesized artifact types (ArchLucid.ArtifactSynthesis.Models.ArtifactType).
  */
 import {
-  EXECUTIVE_BRIEFING_LABEL,
+  SPONSOR_BRIEFING_LABEL,
 } from "@/lib/usability/canonical-product-terms";
 
 const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }> = {
   ReferenceArchitectureMarkdown: {
     label: "Reference architecture (Markdown)",
     description:
-      "Narrative reference architecture derived from the signed review record—suitable for review and handoff as documentation.",
+      "Narrative reference architecture derived from the sealed review record—suitable for review and handoff as documentation.",
   },
   ArchitectureNarrative: {
     label: "Architecture narrative",
@@ -54,7 +54,7 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   JsonBundle: {
     label: "Architecture decision record",
     description:
-      "Structured decisions bundle linked to the signed review record — open in a JSON viewer or download.",
+      "Structured decisions bundle linked to the sealed review record — open in a JSON viewer or download.",
   },
   MarkdownReport: {
     label: "Markdown report",
@@ -136,7 +136,7 @@ export function getArtifactTypeLabel(artifactType: string): string {
  * Maps technical artifact types to sponsor-readable names.
  */
 const ARTIFACT_BUSINESS_LABELS: Record<string, string> = {
-  MarkdownReport: EXECUTIVE_BRIEFING_LABEL,
+  MarkdownReport: SPONSOR_BRIEFING_LABEL,
   JsonBundle: "Architecture decision record",
   Diagram: "Intake context diagram",
   MermaidDiagram: "Intake context diagram",
@@ -185,7 +185,7 @@ export function stripArtifactFilenameExtension(filename: string): string {
 
 /** Maps common synthesized artifact filename stems to sponsor-facing labels (no file extensions). */
 const SPONSOR_FILENAME_STEM_LABELS: Record<string, string> = {
-  EXECUTIVE_SPONSOR_BRIEF: "Executive sponsor brief",
+  SPONSOR_SPONSOR_BRIEF: "Sponsor sponsor brief",
   PILOT_ROI_MODEL: "Pilot ROI model",
   FIRST_VALUE_REPORT: "First value report",
   BOARD_PACK: "Board pack",
@@ -266,7 +266,7 @@ export function sponsorArtifactOpenActionLabel(artifactType: string): string {
   const normalizedType = artifactType.trim();
 
   const map: Record<string, string> = {
-    MarkdownReport: "Open executive briefing",
+    MarkdownReport: "Open sponsor briefing",
     ArchitectureNarrative: "Open architecture narrative",
     JsonBundle: "Open decision record",
     EvidenceBundle: "Open audit evidence",
@@ -289,7 +289,7 @@ export function sponsorArtifactDownloadActionLabel(artifactType: string): string
   const normalizedType = artifactType.trim();
 
   const map: Record<string, string> = {
-    MarkdownReport: "Download executive briefing",
+    MarkdownReport: "Download sponsor briefing",
     ArchitectureNarrative: "Download narrative",
     JsonBundle: "Download decision record",
     EvidenceBundle: "Download audit evidence",
@@ -310,7 +310,7 @@ export function sponsorArtifactDownloadActionLabel(artifactType: string): string
 export type SponsorArtifactAudienceBucket = "sponsor" | "shared" | "architects" | "audit" | "other";
 
 /** Buyer deliverables tab: sponsor + cross-functional shared outputs. */
-export const DELIVERABLE_TAB_EXECUTIVE_BUCKETS: readonly SponsorArtifactAudienceBucket[] = ["sponsor", "shared"];
+export const DELIVERABLE_TAB_SPONSOR_BUCKETS: readonly SponsorArtifactAudienceBucket[] = ["sponsor", "shared"];
 
 /** Buyer deliverables tab: engineering handoff, audit exports, and miscellaneous package attachments. */
 export const DELIVERABLE_TAB_ARB_BUCKETS: readonly SponsorArtifactAudienceBucket[] = ["architects", "audit", "other"];
@@ -320,12 +320,12 @@ const AUDIENCE_SECTION_COPY: Record<
   { readonly title: string; readonly lead: string }
 > = {
   sponsor: {
-    title: "Executive briefing",
+    title: "Sponsor briefing",
     lead: "Outputs executives use for sign-off, briefing leadership, and readiness checkpoints.",
   },
   shared: {
-    title: "Executive & architecture",
-    lead: "Deliverables shared across executive and architecture reviewers.",
+    title: "Sponsor & architecture",
+    lead: "Deliverables shared across sponsor and architecture reviewers.",
   },
   architects: {
     title: "Architecture review board",
@@ -350,11 +350,11 @@ export function sponsorArtifactAudienceBucket(artifactType: string): SponsorArti
   }
 
   const line = raw.toLowerCase();
-  const mentionsExecutiveAudience = line.includes("sponsor") || line.includes("executive");
+  const mentionsSponsorAudience = line.includes("sponsor") || line.includes("sponsor");
   const mentionsArchitect = line.includes("architect");
   const mentionsAudit = line.includes("audit") || line.includes("compliance");
 
-  const topicHits = [mentionsExecutiveAudience, mentionsArchitect, mentionsAudit].filter(Boolean).length;
+  const topicHits = [mentionsSponsorAudience, mentionsArchitect, mentionsAudit].filter(Boolean).length;
 
   if (topicHits >= 2) {
     return "shared";
@@ -368,7 +368,7 @@ export function sponsorArtifactAudienceBucket(artifactType: string): SponsorArti
     return "architects";
   }
 
-  if (mentionsExecutiveAudience) {
+  if (mentionsSponsorAudience) {
     return "sponsor";
   }
 

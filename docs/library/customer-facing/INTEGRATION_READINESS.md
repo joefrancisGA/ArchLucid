@@ -56,7 +56,7 @@ Configure recommended connectors first when notifications matter; add optional c
 | Jira | [`/integrations/jira`](/integrations/jira) |
 | ServiceNow | [`/integrations/servicenow`](/integrations/servicenow) |
 | Confluence publishing | Admin ITSM connectors (when enabled for your deployment) |
-| Architecture digests | [`/advisory`](/advisory) (schedules and digest subscriptions) |
+| Architecture digests | [`/architecture/digests`](/architecture/digests) (schedules and digest subscriptions) |
 | Outbound HTTP webhooks | [`/integrations/webhooks`](/integrations/webhooks) |
 
 Open **Integration readiness** anytime from **Administration → Integration readiness** or links on integration setup pages.

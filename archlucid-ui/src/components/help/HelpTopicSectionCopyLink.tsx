@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type HelpTopicSectionCopyLinkProps = {
   readonly sectionId: string;
@@ -55,10 +55,7 @@ export function HelpTopicSectionCopyLink(props: HelpTopicSectionCopyLinkProps): 
   return (
     <button
       type="button"
-      className={cn(
-        "shrink-0 rounded-sm px-1.5 py-0.5 text-xs text-al-text-secondary underline-offset-2 hover:text-teal-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:hover:text-teal-300",
-        OPERATOR_TYPOGRAPHY.label,
-      )}
+      className={cn("shrink-0 rounded-sm px-1.5 py-0.5", OPERATOR_LINK.optional, OPERATOR_TYPOGRAPHY.label)}
       aria-label={label}
       data-testid={`help-section-copy-link-${props.sectionId}`}
       onClick={() => {

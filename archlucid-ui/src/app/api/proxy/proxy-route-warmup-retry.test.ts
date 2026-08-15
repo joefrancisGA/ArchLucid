@@ -50,6 +50,23 @@ describe("proxy route warmup retry (TB-757)", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it("normalizes empty successful JSON bodies to {}", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response("", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const req = new NextRequest(`http://localhost/api/proxy/v1/tenant/workspace-baseline-artifacts`);
+    const res = await GET(req, {
+      params: Promise.resolve({ path: ["v1", "tenant", "workspace-baseline-artifacts"] }),
+    });
+
+    expect(res.status).toBe(200);
+    await expect(res.json()).resolves.toEqual({});
+  });
+
   it("does not retry POST upstream 502", async () => {
     const { POST } = await import("./[...path]/route");
 

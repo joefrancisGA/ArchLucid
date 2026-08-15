@@ -6,6 +6,11 @@ export type GovernanceSetupStepDefinition = {
   readonly description: string;
   /** Outcome unlocked when this step is done — value framing beside the activity CTA. */
   readonly outcome: string;
+  /**
+   * Declares whether the two existing workspace GETs can observe completion for this step.
+   * UI-side truth declaration — not a feature flag and not backend detection.
+   */
+  readonly tracked: boolean;
   readonly primaryActionLabel: string;
   readonly primaryActionHref: string;
   readonly secondaryActionLabel?: string;

@@ -70,7 +70,7 @@ public sealed class RunDetailEstimatedUsdSavingsBuilderTests
 
         result.Should().NotBeNull();
         result!.EstimatedUsdSavings.Should().Be(12_500m);
-        result.SavingsPricingBasis.Should().Be(ExecutiveRoiSavingsPricingBasis.EaAdjusted);
-        result.SavingsPricingBasisDescription.Should().Contain("executive ROI");
+        result.SavingsPricingBasis.Should().Be(SponsorRoiSavingsPricingBasis.EaAdjusted);
+        result.SavingsPricingBasisDescription.Should().Contain("sponsor ROI");
     }
 }

@@ -90,35 +90,6 @@ public static class LlmCallResilienceDefaults
     }
 
     /// <summary>Used by chaos/retry composition tests (Simmy) aligned with the same classification rules.</summary>
-    internal static bool ShouldRetryLlmException(Exception ex)
-    {
-        if (ex is OperationCanceledException { CancellationToken.IsCancellationRequested: true })
-            return false;
-
-        if (ex is CircuitBreakerOpenException)
-            return false;
-
-        if (ex is InvalidOperationException)
-            return false;
-
-        if (ex is TaskCanceledException { CancellationToken.IsCancellationRequested: false })
-            return true;
-
-        if (ex is HttpRequestException hre)
-        {
-            if (hre.StatusCode is not { } sc)
-                return true;
-
-            int code = (int)sc;
-
-            return code is 429 or 500 or 502 or 503 or 504;
-        }
-
-        if (ex is not ClientResultException cre)
-            return false;
-
-        int status = cre.Status;
-
-        return status is 429 or 500 or 502 or 503 or 504;
-    }
+    internal static bool ShouldRetryLlmException(Exception ex) =>
+        LlmCompletionFailureClassifier.ShouldRetry(ex);
 }

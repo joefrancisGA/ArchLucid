@@ -137,21 +137,55 @@ public sealed class FindingsOrchestratorTests
     }
 
     [Fact]
-    public async Task GenerateFindingsSnapshotAsync_applies_insight_density_gate_to_generic_findings()
+    public async Task GenerateFindingsSnapshotAsync_retains_generic_typed_engine_findings()
     {
         GraphSnapshot graph = EmptyGraph();
         Finding generic = new()
         {
             FindingId = "generic-mfa",
-            FindingType = "T",
+            FindingType = "RequirementFinding",
             Category = "Security",
-            EngineType = "ok",
+            EngineType = "requirement",
             Title = "Enable MFA for all user accounts.",
             Rationale = "Enable MFA for all user accounts.",
             Severity = FindingSeverity.Warning,
         };
 
-        Mock<IFindingEngine> engine = CreateEngine("ok", "Security", [generic]);
+        Mock<IFindingEngine> engine = CreateEngine("requirement", "Security", [generic]);
+        Mock<IFindingPayloadValidator> validator = new();
+        validator.Setup(v => v.Validate(It.IsAny<Finding>()));
+
+        FindingsOrchestrator sut = new(
+            [engine.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
+
+        Finding finding = snapshot.Findings.Should().ContainSingle().Subject;
+        finding.Treatment.Should().Be(FindingTreatment.Promote);
+        finding.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
+        snapshot.ChecklistCoverage.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_applies_insight_density_gate_to_generic_agent_findings()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding generic = new()
+        {
+            FindingId = "generic-mfa",
+            FindingType = "AgentArchitectureFinding-Critic",
+            Category = "General",
+            EngineType = "Critic",
+            Title = "Enable MFA for all user accounts.",
+            Rationale = "Enable MFA for all user accounts.",
+            Severity = FindingSeverity.Warning,
+        };
+
+        Mock<IFindingEngine> engine = CreateEngine("ok", "General", [generic]);
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 

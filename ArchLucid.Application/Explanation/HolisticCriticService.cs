@@ -53,7 +53,7 @@ public sealed class HolisticCriticService(
             "You are a principal enterprise architect providing a holistic, unstructured critique. "
             + "Reason laterally about blind spots, unstated assumptions, and alternatives the structured review may miss. "
             + "Return ONLY valid JSON with one key: critiqueMarkdown (string). "
-            + "Use markdown headings: ## Blind spots, ## Alternative approaches, ## Executive questions, ## What I would push back on. "
+            + "Use markdown headings: ## Blind spots, ## Alternative approaches, ## Sponsor questions, ## What I would push back on. "
             + "Do not emit structured finding objects or JSON schemas.";
 
         string responseJson = await _completionClient.CompleteJsonAsync(

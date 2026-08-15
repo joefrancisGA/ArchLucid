@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
+import { AUTHENTICATION_SIGN_IN_HELP_PAGE_TITLE } from "@/lib/authentication-sign-in-help-copy";
 
 describe("AuthFlowShell", () => {
   it("renders a branded full-page shell with panel and passwordless footer", () => {
@@ -21,7 +22,7 @@ describe("AuthFlowShell", () => {
       "href",
       "/signup",
     );
-    expect(screen.getByRole("link", { name: /Authentication help/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: AUTHENTICATION_SIGN_IN_HELP_PAGE_TITLE })).toHaveAttribute(
       "href",
       "/help/authentication-sign-in",
     );
@@ -35,7 +36,7 @@ describe("AuthFlowShell", () => {
     );
 
     expect(screen.queryByRole("link", { name: /Start an evaluation/i })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Authentication help/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: AUTHENTICATION_SIGN_IN_HELP_PAGE_TITLE })).toBeInTheDocument();
   });
 
   it("shows return destination hint when the user arrived from a deep link", () => {

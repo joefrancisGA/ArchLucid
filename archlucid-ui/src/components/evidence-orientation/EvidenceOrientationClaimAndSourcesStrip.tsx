@@ -7,6 +7,7 @@ import type {
 } from "@/components/evidence-orientation/evidence-orientation-styles";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
+import type { EvidenceOrientationSourcesLayout } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 
 export type EvidenceOrientationClaimAndSourcesStripProps = {
   /**
@@ -14,7 +15,15 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
    * and `{slug}-sources-heading`; surfaces whose published ids predate that convention override below.
    */
   readonly slug: string;
-  readonly claim: string;
+  /**
+   * Claim-discipline body. Omit on surfaces whose header already states scope — those render a
+   * sources-only strip rather than a band that restates the subtitle.
+   */
+  readonly claim?: string;
+  /** Optional visible heading for the claim band (for example "What AI usage is not"). */
+  readonly claimHeading?: string;
+  /** Stable anchor id; defaults to `{slug}-claim-discipline-heading`. */
+  readonly claimHeadingId?: string;
   readonly sourcesIntro: string;
   readonly sources: readonly EvidenceOrientationLink[];
   readonly sourcesTitle?: string;
@@ -24,7 +33,15 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
   readonly sourcesStyle?: EvidenceOrientationSourcesStyle;
   readonly sourcesHeadingId?: string;
   readonly sourcesTestId?: string;
+  readonly sourcesLayout?: EvidenceOrientationSourcesLayout;
+  /** Optional body scale for claim + sources list — help specialty guides pass readingBody. */
+  readonly readingBodyClassName?: string;
+  /** Optional heading scale for claim + sources h2 bands — help specialty guides pass sectionTitle. */
+  readonly headingClassName?: string;
   readonly stripTestId?: string;
+  /** Help topic strips default true so follow-up links prefix Read vs Open. */
+  readonly distinguishFollowUpDestinations?: boolean;
+  readonly promotedSourceHref?: string;
 };
 
 /**
@@ -35,6 +52,8 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
 export function EvidenceOrientationClaimAndSourcesStrip({
   slug,
   claim,
+  claimHeading,
+  claimHeadingId,
   sourcesIntro,
   sources,
   sourcesTitle = HELP_DILIGENCE_ARTIFACT_INDEX_TITLE,
@@ -44,16 +63,33 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   sourcesStyle,
   sourcesHeadingId,
   sourcesTestId,
+  sourcesLayout,
+  readingBodyClassName,
+  headingClassName,
   stripTestId,
+  distinguishFollowUpDestinations = slug.startsWith("help-"),
+  promotedSourceHref,
 }: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element {
   return (
     <EvidenceOrientationStripShell testId={stripTestId ?? `${slug}-orientation`}>
-      <EvidenceOrientationClaimCallout
-        testId={claimTestId ?? `${slug}-claim-discipline`}
-        body={claim}
-        style={claimStyle}
-        element={claimElement}
-      />
+      {claim === undefined ? null : (
+        <EvidenceOrientationClaimCallout
+          testId={claimTestId ?? `${slug}-claim-discipline`}
+          body={claim}
+          style={claimStyle}
+          element={claimElement}
+          bodyClassName={readingBodyClassName}
+          headingClassName={headingClassName}
+          heading={
+            claimHeading === undefined
+              ? undefined
+              : {
+                  text: claimHeading,
+                  id: claimHeadingId ?? `${slug}-claim-discipline-heading`,
+                }
+          }
+        />
+      )}
 
       <EvidenceOrientationSourcesSection
         testId={sourcesTestId ?? `${slug}-sources`}
@@ -62,6 +98,11 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         intro={sourcesIntro}
         links={sources}
         style={sourcesStyle}
+        layout={sourcesLayout}
+        listClassName={readingBodyClassName}
+        headingClassName={headingClassName}
+        distinguishFollowUpDestinations={distinguishFollowUpDestinations}
+        promotedSourceHref={promotedSourceHref}
       />
     </EvidenceOrientationStripShell>
   );

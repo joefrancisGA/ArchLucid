@@ -26,6 +26,12 @@ public static partial class AuditEventTypes
     /// <summary>Admin demoted a catalog entry from the buyer-visible catalog.</summary>
     public const string PolicyPackCatalogDemoted = "PolicyPackCatalogDemoted";
 
+    /// <summary>Tenant admin enabled or disabled a policy pack assignment for the workspace.</summary>
+    public const string PolicyPackAssignmentEnabledChanged = "PolicyPackAssignmentEnabledChanged";
+
+    /// <summary>Platform admin globally activated or deactivated a bundled policy pack.</summary>
+    public const string PlatformBundledPolicyPackActivationChanged = "PlatformBundledPolicyPackActivationChanged";
+
     public const string GovernanceResolutionExecuted = "GovernanceResolutionExecuted";
     public const string GovernanceConflictDetected = "GovernanceConflictDetected";
 

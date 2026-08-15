@@ -54,7 +54,7 @@ export function SampleReviewPackageSummary({
           {CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE} sample review
         </h2>
         <p className={cn("m-0 mt-2 max-w-2xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-          Inspect the signed review record, evidence trail, and audit record when you need the full package. Numbers are
+          Inspect the sealed review record, evidence trail, and audit record when you need the full package. Numbers are
           illustrative only and do not represent customer ROI without a live workspace.
         </p>
 
@@ -82,11 +82,11 @@ export function SampleReviewPackageSummary({
 
         <div className="mt-4 flex flex-wrap gap-2">
           {manifestId ? (
-            <Button asChild variant="outline" className="h-9 border-amber-300 bg-white/80 text-amber-950 hover:bg-white dark:border-amber-700 dark:bg-neutral-950/60 dark:text-amber-100">
+            <Button asChild variant="outline" className="h-9">
               <Link href={getShowcaseManifestHref()}>{BUYER_OPEN_SIGNED_RECORD_CTA}</Link>
             </Button>
           ) : null}
-          <Button asChild variant="outline" className="h-9 border-amber-300 bg-white/80 text-amber-950 hover:bg-white dark:border-amber-700 dark:bg-neutral-950/60 dark:text-amber-100">
+          <Button asChild variant="outline" className="h-9">
             <Link href="/architecture/reviews/new">Start a real review</Link>
           </Button>
         </div>

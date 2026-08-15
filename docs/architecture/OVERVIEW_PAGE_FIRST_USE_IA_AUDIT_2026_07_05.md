@@ -110,7 +110,7 @@ Final page vocabulary — exactly one "first" phrase: **"Start your first review
 **ARCHITECTURE OVERVIEW**
 
 1. **Start your first review**
-   - Purpose: single dominant first-use path, state-aware (becomes "Recent activity" heading + "View executive summary" / "Continue review" after commit, as today).
+   - Purpose: single dominant first-use path, state-aware (becomes "Recent activity" heading + "View sponsor summary" / "Continue review" after commit, as today).
    - CTAs: primary "Open completed sample"; secondary "Start your own review".
    - Keep / change / remove: **keep** `PilotCommandCenterCard`; **remove** its optional-setup button row; optionally absorb one compact line from the sample preview ("Sample includes: PHI exposure finding, …").
 

@@ -30,12 +30,9 @@ vi.mock("next/navigation", () => ({
 
 import { HelpDataHandlingTenantIsolationGuideView } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationGuideView";
 
+import { DATA_HANDLING_HELP_IA_DUAL_HEADING } from "@/lib/data-handling-help-ia-dual";
+
 import {
-
-  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL,
-
-  DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL,
-
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CONTRACTED_PACK_FOLLOW_UP,
 
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS,
@@ -161,31 +158,6 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
 
 
 
-    const breadcrumb = screen.getByTestId("help-data-handling-tenant-isolation-breadcrumb");
-
-    expect(within(breadcrumb).getByRole("link", { name: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL })).toHaveAttribute(
-
-      "href",
-
-      "/help",
-
-    );
-
-    expect(
-
-      within(breadcrumb).getByRole("link", { name: DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL }),
-
-    ).toHaveAttribute("href", "/help/security-trust");
-
-    expect(within(breadcrumb).getByText(DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE)).toHaveAttribute(
-
-      "aria-current",
-
-      "page",
-
-    );
-
-
 
     const overview = screen.getByTestId("help-data-handling-tenant-isolation-overview");
 
@@ -210,6 +182,13 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
     }
 
 
+
+    const jobMatrix = screen.getByTestId("help-data-handling-job-matrix");
+    expect(within(jobMatrix).getByRole("heading", { name: DATA_HANDLING_HELP_IA_DUAL_HEADING })).toBeInTheDocument();
+    expect(within(jobMatrix).getByRole("link", { name: "Security and trust" })).toHaveAttribute(
+      "href",
+      "/help/security-trust",
+    );
 
     const claimDiscipline = screen.getByTestId("help-data-handling-tenant-isolation-claim-discipline");
 

@@ -21,8 +21,8 @@ export type FirstPilotOperateUnlockVocabularyRailProps = {
 };
 
 /**
- * TB-2311 — Compact vocabulary rail between first-pilot command center and Operate unlock.
- * Mount on PilotCommandCenterCard and OperateFeaturesUnlockPanel.
+ * TB-2311 — Compact vocabulary rail between first-pilot command center and Operate unlock
+ * (retired panel; peer link remains for in-page scroll targets).
  */
 export function FirstPilotOperateUnlockVocabularyRail(
   props: FirstPilotOperateUnlockVocabularyRailProps,

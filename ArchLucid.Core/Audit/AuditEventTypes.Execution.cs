@@ -37,6 +37,27 @@ public static partial class AuditEventTypes
     /// <summary>Per-review model execution profile override applied at run create (TB-870).</summary>
     public const string RunModelExecutionProfileOverrideApplied = "Run.ModelExecutionProfileOverrideApplied";
 
+    /// <summary>Workspace allowed engine alias set updated (TB-2110).</summary>
+    public const string WorkspaceAllowedEngineSetUpdated = "Workspace.AllowedEngineSetUpdated";
+
+    /// <summary>Workspace allowed engine alias set override cleared (TB-2110).</summary>
+    public const string WorkspaceAllowedEngineSetOverrideCleared = "Workspace.AllowedEngineSetOverrideCleared";
+
+    /// <summary>Per-review model alias override applied at run create (TB-2110).</summary>
+    public const string RunModelAliasOverrideApplied = "Run.ModelAliasOverrideApplied";
+
+    /// <summary>Workspace admin acknowledged regulated-evidence external-subprocessor engine use (TB-2109).</summary>
+    public const string WorkspaceExternalSubprocessorEngineAcknowledged =
+        "Workspace.ExternalSubprocessorEngineAcknowledged";
+
+    /// <summary>Platform operator created a catalog engine row (TB-2103).</summary>
+    public const string ModelCatalogEntryCreated = "ModelCatalog.EntryCreated";
+
+    /// <summary>Platform operator updated a catalog engine row (TB-2103).</summary>
+    public const string ModelCatalogEntryUpdated = "ModelCatalog.EntryUpdated";
+
+    public const string ModelCatalogEvaluationRecorded = "ModelCatalog.EvaluationRecorded";
+
     /// <summary>Phase B LLM faithfulness judge scored below warn floor on one agent trace (run continues for other traces).</summary>
     public const string AgentOutputLlmFaithfulnessWarned = "AgentOutput.LlmFaithfulnessWarned";
 

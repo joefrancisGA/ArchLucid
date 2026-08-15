@@ -50,7 +50,7 @@ export type BuildReportProblemContextInput = {
   readonly submittedAtUtc?: string | null;
 };
 
-const REVIEW_DETAIL_ROUTE_PATTERN = "/architecture/reviews/[runId]";
+const REVIEW_DETAIL_ROUTE_PATTERN = "/architecture/reviews/[reviewId]";
 
 export function extractReviewIdFromRoutePath(routePath: string): string | null {
   const normalized = normalizeRoutePath(routePath);
@@ -62,7 +62,7 @@ export function extractReviewIdFromRoutePath(routePath: string): string | null {
   const parts = normalized.split("/").filter((part) => part.length > 0);
   const reviewsIdx = parts.indexOf("reviews");
 
-  if (reviewsIdx < 0 || parts[0] === "executive") {
+  if (reviewsIdx < 0 || parts[0] === "sponsor") {
     return null;
   }
 

@@ -12,7 +12,7 @@ export type ContextualHelpEntry = {
  */
 export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "commit-manifest": {
-    text: "Finalizing locks the signed review record and synthesizes artifacts. This is the primary pilot deliverable.",
+    text: "Finalizing locks the sealed review record and synthesizes artifacts. This is the primary pilot deliverable.",
     learnMoreUrl: "/docs/CORE_PILOT.md#review-states",
   },
   "governance-gate": {

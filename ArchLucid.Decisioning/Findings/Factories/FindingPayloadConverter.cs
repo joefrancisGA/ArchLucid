@@ -188,6 +188,21 @@ public static class FindingPayloadConverter
         return ConvertPayload<RequirementCoverageFindingPayload>(finding);
     }
 
+    public static RequirementExpectationFindingPayload? ToRequirementExpectationPayload(Finding finding)
+    {
+        return ConvertPayload<RequirementExpectationFindingPayload>(finding);
+    }
+
+    public static SecurityBaselineExpectationFindingPayload? ToSecurityBaselineExpectationPayload(Finding finding)
+    {
+        return ConvertPayload<SecurityBaselineExpectationFindingPayload>(finding);
+    }
+
+    public static SecurityBaselineCompletenessFindingPayload? ToSecurityBaselineCompletenessPayload(Finding finding)
+    {
+        return ConvertPayload<SecurityBaselineCompletenessFindingPayload>(finding);
+    }
+
     /// <summary>Converts the payload to <see cref="ComplianceFindingPayload" />.</summary>
     public static ComplianceFindingPayload? ToCompliancePayload(Finding finding)
     {

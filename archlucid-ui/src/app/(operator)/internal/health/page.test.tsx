@@ -46,6 +46,8 @@ describe("AdminHealthPage", () => {
 
     render(page);
     expect(await screen.findByTestId("admin-health-ready-table")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-health-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("admin-health-claim-discipline")).not.toBeInTheDocument();
     fireEvent.click(await screen.findByText(/Show all 1 check/i));
     expect(await screen.findByText("Primary database")).toBeInTheDocument();
     const technicalDetails = screen.getByTestId("health-check-technical-database");

@@ -6,11 +6,11 @@
 
 **Status:** Shipped contract for **TB-1112** / GTM **M-190** / **M-191**. Honesty CI **TB-1113** / **M-190** shipped (`check_minimum_pilot_trust_packet_honesty.py`).
 
-**Verdict (one line):** Stage 0 single-pilot trust is a **six-element Real SEND executive packet** plus **labeled self-attested** assurance substitutes — **not** a CPA-issued SOC 2 report and **not** a published third-party pen-test summary.
+**Verdict (one line):** Stage 0 single-pilot trust is a **six-element Real SEND sponsor packet** plus **labeled self-attested** assurance substitutes — **not** a CPA-issued SOC 2 report and **not** a published third-party pen-test summary.
 
 **Buyer handout:** [`../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#minimum-pilot-trust-packet-m-191`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#minimum-pilot-trust-packet-m-191) (`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` alias).
 
-**Assembly path (executive packet):** [`../go-to-market/QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review).
+**Assembly path (sponsor packet):** [`../go-to-market/QUOTE_TO_PROOF_PACKET.md#sponsor-paid-pilot-proof-packet-assembly--mock-procurement-review`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#sponsor-paid-pilot-proof-packet-assembly--mock-procurement-review).
 
 ---
 
@@ -25,7 +25,7 @@
 | Source-classified ROI | Estimates labeled; no Simulator-as-customer-savings | **M-138** / **M-139**; **TB-983**–**TB-985** |
 | Self-attested assurance | Trust Center + SOC self-assessment + owner-conducted pen-style summary — **labeled as substitutes** | Trust Center; V1 **TB-005** posture; ASSURANCE_STATUS_CANONICAL |
 
-These six Stage 0 trust elements are the **pilot trust bar**. The QUOTE_TO_PROOF_PACKET “six required elements” table is the **operator assembly recipe** for an executive sponsor handoff (ROI assumptions, freshness, cited evidence, disposition, audit timeline, remediation ticket). Both are required for a Real SEND — do not treat CPA / 3P publication as a seventh required packet file.
+These six Stage 0 trust elements are the **pilot trust bar**. The QUOTE_TO_PROOF_PACKET “six required elements” table is the **operator assembly recipe** for an sponsor sponsor handoff (ROI assumptions, freshness, cited evidence, disposition, audit timeline, remediation ticket). Both are required for a Real SEND — do not treat CPA / 3P publication as a seventh required packet file.
 
 ---
 

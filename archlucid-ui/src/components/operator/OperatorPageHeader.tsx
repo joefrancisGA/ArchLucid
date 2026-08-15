@@ -3,12 +3,14 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { PageHeading } from "@/components/PageHeading";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type OperatorPageHeaderProps = {
   title: string;
   /** Plain string or rich lead (e.g. bold label prefix on Overview). */
   subtitle?: ReactNode;
+  /** Optional hierarchy label rendered above the title. */
+  eyebrow?: string;
   /** Optional classes for the subtitle paragraph (non-`navHref` path). */
   subtitleClassName?: string;
   /** Canonical nav href — when set, renders the same icon as primary navigation. */
@@ -53,6 +55,7 @@ export type OperatorPageHeaderProps = {
 export function OperatorPageHeader({
   title,
   subtitle,
+  eyebrow,
   subtitleClassName,
   navHref,
   icon,
@@ -74,6 +77,7 @@ export function OperatorPageHeader({
           icon={icon}
           title={title}
           description={subtitle}
+          eyebrow={eyebrow}
           metadata={metadata}
           statusBadge={statusBadge}
           actions={actions}
@@ -93,6 +97,11 @@ export function OperatorPageHeader({
   return (
     <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
       {breadcrumb != null ? <div className="mb-2">{breadcrumb}</div> : null}
+      {eyebrow !== undefined && eyebrow.length > 0 ? (
+        <p className={cn("m-0 mb-2", OPERATOR_NAV_GROUP_LABEL)} data-testid="page-heading-eyebrow">
+          {eyebrow}
+        </p>
+      ) : null}
       <div className="flex flex-wrap items-center gap-2">
         <TitleTag
           className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}

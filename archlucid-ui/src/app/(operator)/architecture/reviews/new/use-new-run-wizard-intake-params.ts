@@ -4,13 +4,14 @@ import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
+import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator/operator-home-example-request";
 import { resolveSpecialtyReviewCloudFromSearchParam } from "@/lib/specialty-review-templates";
 import {
   parseWizardPresetDeeplinkToken,
   resolveWizardPresetIdFromDeeplink,
 } from "@/lib/wizard-preset-deeplink";
-import { isZeroConfigDemoQuery, resolveZeroConfigDemoScenarioId } from "@/lib/zero-config-demo-mode";
+import { isZeroConfigDemoQuery, resolveZeroConfigDemoSelection } from "@/lib/zero-config-demo-mode";
 
 import { tryParseSampleRunQuery } from "./new-run-wizard-steps";
 
@@ -45,8 +46,8 @@ export function useNewRunWizardIntakeParams() {
     [searchParams],
   );
   const zeroConfigDemo = useMemo(() => isZeroConfigDemoQuery(searchParams), [searchParams]);
-  const zeroConfigScenarioId = useMemo(
-    () => resolveZeroConfigDemoScenarioId(searchParams),
+  const zeroConfigSelection = useMemo(
+    () => resolveZeroConfigDemoSelection(searchParams),
     [searchParams],
   );
   const exampleTemplate = useMemo(
@@ -67,6 +68,15 @@ export function useNewRunWizardIntakeParams() {
     () => resolveWizardPresetIdFromDeeplink(searchParams?.get("preset")),
     [searchParams],
   );
+  const deeplinkPolicyPackId = useMemo(() => {
+    const raw = searchParams?.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
+
+    if (raw.length === 0) {
+      return null;
+    }
+
+    return raw;
+  }, [searchParams]);
 
   return {
     featuredSampleRunId,
@@ -74,10 +84,11 @@ export function useNewRunWizardIntakeParams() {
     acceleratorPackId,
     followUpSourceRunId,
     zeroConfigDemo,
-    zeroConfigScenarioId,
+    zeroConfigSelection,
     exampleTemplate,
     reviewIntakeCloudProvider,
     presetDeeplinkToken,
     presetDeeplinkPresetId,
+    deeplinkPolicyPackId,
   };
 }

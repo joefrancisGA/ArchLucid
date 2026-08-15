@@ -25,7 +25,7 @@ export const RECURRENCE_DECLINED_STATUS =
   "Declined. No schedule was created, and this review will not propose one again.";
 
 /**
- * Recipients come from `DapperExecutiveSummaryRecipientLookup` (every active Admin, Sponsor, and
+ * Recipients come from `DapperSponsorReportRecipientLookup` (every active Admin, Sponsor, and
  * WorkspaceAdmin) plus the schedule creator. Only a global server option gates delivery, so there
  * is no per-recipient opt-out to promise.
  */

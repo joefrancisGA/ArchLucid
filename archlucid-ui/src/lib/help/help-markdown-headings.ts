@@ -40,3 +40,29 @@ export function extractHelpMarkdownHeadings(markdown: string): readonly HelpMark
 
   return headings;
 }
+
+export const HELP_CLAIM_DISCIPLINE_DEFAULT_HEADING = "What this guide does not cover" as const;
+
+export const HELP_FOLLOW_UPS_DEFAULT_TITLE = "Where to go next" as const;
+
+/** Appends claim-discipline and follow-up TOC rows when markdown guides omit them. */
+export function appendHelpClaimDisciplineTocHeadings(
+  headings: readonly HelpMarkdownHeading[],
+  claimHeadingId: string,
+  claimHeadingTitle: string = HELP_CLAIM_DISCIPLINE_DEFAULT_HEADING,
+  followUpsTitle: string = HELP_FOLLOW_UPS_DEFAULT_TITLE,
+): readonly HelpMarkdownHeading[] {
+  const result: HelpMarkdownHeading[] = [...headings];
+  const claimExists = headings.some((heading) => heading.id === claimHeadingId);
+  const followUpsExists = headings.some((heading) => heading.id === "where-to-go-next");
+
+  if (!claimExists) {
+    result.push({ level: 2, id: claimHeadingId, title: claimHeadingTitle });
+  }
+
+  if (!followUpsExists) {
+    result.push({ level: 2, id: "where-to-go-next", title: followUpsTitle });
+  }
+
+  return result;
+}

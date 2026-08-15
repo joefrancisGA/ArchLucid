@@ -32,6 +32,7 @@ vi.mock("@/lib/architecture/architecture-draft-registry", () => ({
 
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
+import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import type { ActorSet } from "@/types/draft-intake";
 
 const actorSet: ActorSet = {
@@ -64,6 +65,7 @@ function draftResponse(fields: ArchitectureDraftFieldState, updatedUtc = "2026-0
       systemName: fields.systemName,
       actorSet,
       workflowIntent: "create-architecture",
+      structuredBrief: fields.structuredBrief,
     },
     createdUtc: "2026-08-11T11:00:00.000Z",
     updatedUtc,
@@ -89,6 +91,7 @@ describe("useArchitectureDraftAutosave", () => {
       freeTextIntent: intent,
       businessOutcome: "Reduce intake cycle time for governed reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
     };
 
     const { result, rerender } = renderHook(
@@ -98,7 +101,7 @@ describe("useArchitectureDraftAutosave", () => {
           fields: props.fields,
           actorSet,
         }),
-      { initialProps: { fields: { freeTextIntent: "", businessOutcome: "", systemName: "" } } },
+      { initialProps: { fields: { freeTextIntent: "", businessOutcome: "", systemName: "", structuredBrief: emptyArchitectureDraftStructuredBrief() } } },
     );
 
     act(() => {
@@ -120,11 +123,13 @@ describe("useArchitectureDraftAutosave", () => {
       freeTextIntent: longIntent("intent-only"),
       businessOutcome: "",
       systemName: "",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
     };
     const complete: ArchitectureDraftFieldState = {
       freeTextIntent: intentOnly.freeTextIntent,
       businessOutcome: "Reduce intake cycle time for governed reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
     };
 
     let resolveFirstPatch: ((value: unknown) => void) | null = null;

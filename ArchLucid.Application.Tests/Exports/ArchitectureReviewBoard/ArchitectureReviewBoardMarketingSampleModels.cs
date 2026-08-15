@@ -30,7 +30,7 @@ internal static class ArchitectureReviewBoardMarketingSampleModels
             RequestId = "req-retail-checkout-8842",
             SystemName = "Retail Checkout Co — regulated commerce platform",
             ManifestVersion = "mv-sample-2026-05",
-            ExecutiveSummary =
+            SponsorReport =
                 "Harbor Architecture Partners assessed Retail Checkout Co's regulated commerce architecture after finalize review of the committed architecture snapshot. "
                 + "The engagement confirms traceable evidence, recorded architecture decisions, and actionable follow-ups suitable for board readout.",
             SystemOverviewBullets =

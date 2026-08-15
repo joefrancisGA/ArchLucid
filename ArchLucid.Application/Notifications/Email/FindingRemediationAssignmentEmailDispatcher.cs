@@ -1,5 +1,6 @@
 using ArchLucid.Application.Notifications.Email.Models;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
 
@@ -122,7 +123,7 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
                     ex,
                     "Finding remediation assignment email send failed for tenant {TenantId}, finding {FindingId}.",
                     tenantId,
-                    trimmedFindingId);
+                    LogSanitizer.Sanitize(trimmedFindingId)); // codeql[cs/log-forging]: FindingId operational id; TenantId is Guid.
             }
 
             return false;

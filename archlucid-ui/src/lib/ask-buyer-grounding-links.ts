@@ -1,8 +1,8 @@
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import {
   getShowcaseCompareHref,
-  getShowcaseExecutiveHref,
+  getShowcaseSponsorHref,
   getShowcaseManifestHref,
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
@@ -53,8 +53,8 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
 
   return [
     {
-      label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
-      href: getShowcaseExecutiveHref(),
+      label: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
+      href: getShowcaseSponsorHref(),
     },
     {
       label: "Finalized review",

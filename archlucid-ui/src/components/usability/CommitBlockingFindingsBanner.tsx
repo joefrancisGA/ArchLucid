@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +43,7 @@ export function CommitBlockingFindingsBanner(props: CommitBlockingFindingsBanner
         <Link
           href={buildReviewDetailTabHref(runId, "findings")}
           prefetch={false}
-          className="font-medium text-teal-900 underline dark:text-teal-200"
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
           data-testid="commit-blocking-findings-open-findings"
         >
           Open the Findings tab

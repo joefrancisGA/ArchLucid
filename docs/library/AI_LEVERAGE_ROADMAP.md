@@ -8,7 +8,7 @@
 
 **Scope boundaries:**
 - V1 items reuse existing agent runtime, LLM client, and transport — no new infra contracts, feature-flaggable.
-- V1.1 items coordinate with already-pinned V1.1 scope in `V1_DEFERRED.md` (MCP Â§6d, multi-cloud Â§6n, ITSM Â§6/6a). Cross-run executive ROI is **V1** ([V1_SCOPE.md](V1_SCOPE.md) Â§2.8).
+- V1.1 items coordinate with already-pinned V1.1 scope in `V1_DEFERRED.md` (MCP Â§6d, multi-cloud Â§6n, ITSM Â§6/6a). Cross-run sponsor ROI is **V1** ([V1_SCOPE.md](V1_SCOPE.md) Â§2.8).
 - V2 items require new substrate, fine-tuning MLOps, or cross-tenant analytics (explicitly out of V1 per `V1_DEFERRED.md` Â§1).
 
 ---
@@ -141,15 +141,15 @@ Create IFindingPriorityReranker in ArchLucid.Application/Findings/. After an arc
 ---
 
 ### 9. Run summary one-pager auto-generator
-**Why it matters:** Produces a CFO-ready DOCX/MD in one click: severity counts, USD impact, top-3 findings, and a 90-second brief. Directly strengthens Executive Value Visibility — the most common missing artefact in pilot presentations.
+**Why it matters:** Produces a CFO-ready DOCX/MD in one click: severity counts, USD impact, top-3 findings, and a 90-second brief. Directly strengthens Sponsor Value Visibility — the most common missing artefact in pilot presentations.
 
 **Why V1:** The export pipeline already emits MD/DOCX. This is one additional LLM-populated template alongside the existing ones.
 
-**Affected qualities:** Executive Value Visibility (+5), Proof-of-ROI Readiness (+3), Adoption Friction (+2).
+**Affected qualities:** Sponsor Value Visibility (+5), Proof-of-ROI Readiness (+3), Adoption Friction (+2).
 
 **Cursor prompt:**
 ```text
-Add a new export variant RunSummaryOnePager to ArchitectureReviewBoardExportDocumentFactory.cs. It should: 1) count findings by severity (Critical/High/Medium/Low); 2) call IAgentCompletionClient with the top-5 High/Critical findings and produce a 3-sentence executive summary; 3) populate a new Markdown template templates/exports/run-summary-one-pager.md.hbs with severity counts, the AI summary, and top-3 finding titles. Expose it as GET /v1/architecture/review/{runId}/export/summary in ArchitectureExportController.cs and add a "Download Executive Summary" button in the archlucid-ui run detail page next to the existing export options.
+Add a new export variant RunSummaryOnePager to ArchitectureReviewBoardExportDocumentFactory.cs. It should: 1) count findings by severity (Critical/High/Medium/Low); 2) call IAgentCompletionClient with the top-5 High/Critical findings and produce a 3-sentence sponsor summary; 3) populate a new Markdown template templates/exports/run-summary-one-pager.md.hbs with severity counts, the AI summary, and top-3 finding titles. Expose it as GET /v1/architecture/review/{runId}/export/summary in ArchitectureExportController.cs and add a "Download Sponsor Summary" button in the archlucid-ui run detail page next to the existing export options.
 ```
 
 ---
@@ -173,7 +173,7 @@ Create a new endpoint POST /v1/governance/policy-pack/draft in GovernanceControl
 
 **Why V1:** `IComparisonService` already produces structured deltas. This is a thin LLM narration layer over data that already exists.
 
-**Affected qualities:** Stickiness (+4), Proof-of-ROI Readiness (+3), Executive Value Visibility (+3).
+**Affected qualities:** Stickiness (+4), Proof-of-ROI Readiness (+3), Sponsor Value Visibility (+3).
 
 **Cursor prompt:**
 ```text
@@ -273,7 +273,7 @@ Update .github/workflows/template-eval-harness.yml to add a scheduled trigger (c
 ### 20. Auto-tagged drift narratives between runs
 **Why it matters:** "You added a public IP to your web tier; this regressed a finding you fixed in Run 47." The product starts remembering and narrating your architectural history. Directly proves stickiness through product memory.
 
-**Why V1.1:** Needs cross-run state tracking and a narrative LLM pass. Complements the V1 cross-run executive ROI summary ([V1_SCOPE.md](V1_SCOPE.md) Â§2.8) but does not depend on it.
+**Why V1.1:** Needs cross-run state tracking and a narrative LLM pass. Complements the V1 cross-run sponsor ROI summary ([V1_SCOPE.md](V1_SCOPE.md) Â§2.8) but does not depend on it.
 
 ---
 
@@ -329,7 +329,7 @@ Four operator-facing surfaces that convert "AI runs in the background" into "AI 
 ### Batch C — AI as judgment and narrative layer (4–6 weeks, partial parallel with Batch B)
 **Items 8, 9, 10, 11** (Re-ranker, One-pager, Policy-pack drafter, Compare-runs explainer)
 
-These produce artefacts operators show to stakeholders. Start after item 7 is in review (they share the same prompt-construction patterns). Items 9 and 11 can be shipped earlier if the executive narrative gap is urgent.
+These produce artefacts operators show to stakeholders. Start after item 7 is in review (they share the same prompt-construction patterns). Items 9 and 11 can be shipped earlier if the sponsor narrative gap is urgent.
 
 ### Batch D — AI quality and self-improvement (3–4 weeks)
 **Items 12, 13, 14, 15** (Calibrated confidence, Extractor cleanup, Evidence proposals, Drift detection)
@@ -346,7 +346,7 @@ The 25 items in this roadmap are additive to the 25 items in `docs/assessments/L
 |---|---|
 | #4 Streaming Ask | #2 Add Streaming Support for Ask Endpoint |
 | #5 Multi-model tiered orchestration | #3 Implement Multi-Model Orchestration |
-| #11 Compare-runs explainer | Partially covered by LATEST.md #5 (cross-run executive ROI — V1 Â§2.8) |
+| #11 Compare-runs explainer | Partially covered by LATEST.md #5 (cross-run sponsor ROI — V1 Â§2.8) |
 
 LATEST.md items #2 and #3 carry the Cursor prompts needed for V1 delivery; this document provides the deeper rationale and sequencing context for all 25. For V1 items not yet in LATEST.md (#1, #3, #6–#15), Cursor prompts are included here and summarized in LATEST.md.
 

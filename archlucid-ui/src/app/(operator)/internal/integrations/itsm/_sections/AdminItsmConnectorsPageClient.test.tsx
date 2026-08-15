@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -53,12 +53,13 @@ describe("AdminItsmConnectorsPageClient", () => {
 
     expect(screen.getByTestId("admin-itsm-connectors-page")).toBeInTheDocument();
     expect(screen.getByTestId("admin-itsm-connectors-page-heading")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-itsm-connectors-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("admin-itsm-connectors-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "ITSM connectors", level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Integration readiness" })).toHaveAttribute(
-      "href",
-      "/administration/connection-status",
-    );
+    expect(
+      within(screen.getByTestId("admin-itsm-connectors-sources")).getByRole("link", { name: "Integration readiness" }),
+    ).toHaveAttribute("href", "/administration/connection-status");
 
     await waitFor(() => {
       expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();

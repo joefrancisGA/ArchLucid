@@ -16,7 +16,7 @@ export const ARCHITECTURE_SPONSOR_RESOLVE_READINESS_ACTION = "Resolve readiness 
 
 export const ARCHITECTURE_SPONSOR_SHARE_PRELIMINARY_ACTION = "Share as preliminary draft";
 
-export const ARCHITECTURE_SPONSOR_COPY_SUMMARY_ACTION = "Copy sponsor summary";
+export const ARCHITECTURE_SPONSOR_COPY_SUMMARY_ACTION = "Copy sponsor report";
 
 export const ARCHITECTURE_SPONSOR_PRELIMINARY_CONFIRMATION =
   "I understand that this architecture is incomplete and will be labeled as a preliminary draft.";

@@ -21,6 +21,6 @@ describe("RunDetailWhatsNextSection", () => {
     expect(compareLink.getAttribute("href")).toContain(runId);
 
     const replayLink = screen.getByTestId("run-detail-replay-review");
-    expect(replayLink).toHaveAttribute("href", `/replay?runId=${encodeURIComponent(runId)}`);
+    expect(replayLink).toHaveAttribute("href", `/internal/validate-route?runId=${encodeURIComponent(runId)}`);
   });
 });

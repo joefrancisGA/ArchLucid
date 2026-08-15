@@ -6,6 +6,11 @@ import {
 } from "@/lib/testing/ui-route-traffic-workbook-test-utils";
 
 const REDIRECT_ONLY_PATHS = [
+  "/admin/ai-usage-cost",
+  "/alert-routing",
+  "/dashboard",
+  "/portfolio",
+  "/sponsor/dashboard",
   "/alerts",
   "/audit",
   "/settings/cloud-connections",
@@ -22,14 +27,15 @@ const REDIRECT_ONLY_PATHS = [
   "/admin/cloud-connections/aws",
   "/signed-records",
   "/signed-records/[manifestId]",
-  "/sponsor-report/executive-summary",
+  "/sponsor-report/sponsor-report",
   "/sponsor-report/roi-summary",
   "/sponsor-report/pilot-outcomes",
   "/replay",
+  "/internal/replay",
   "/settings/cost-reporting",
   "/health",
   "/governance/dashboard",
-  "/executive/scorecard",
+  "/sponsor/scorecard",
 ];
 
 describe("ui-route-traffic-template-canonical-guard (TB-748)", () => {
@@ -39,12 +45,12 @@ describe("ui-route-traffic-template-canonical-guard (TB-748)", () => {
     expect(paths.length).toBeGreaterThan(0);
     expect(paths).toContain("/governance/alerts");
     expect(paths).toContain("/integrations/cloud-connections");
-    expect(paths).toContain("/governance/signed-records");
-    expect(paths).toContain("/governance/signed-records/[manifestId]");
-    expect(paths).toContain("/governance/signed-records/[manifestId]/artifacts/[artifactId]");
+    expect(paths).toContain("/governance/sealed-records");
+    expect(paths).toContain("/governance/sealed-records/[manifestId]");
+    expect(paths).toContain("/governance/sealed-records/[manifestId]/artifacts/[artifactId]");
     expect(paths).toContain("/internal/health");
-    expect(paths).toContain("/insights/executive-summary");
-    expect(paths).toContain("/internal/replay");
+    expect(paths).toContain("/insights/sponsor-report");
+    expect(paths).toContain("/internal/validate-route");
 
     for (const legacyPath of REDIRECT_ONLY_PATHS) {
       expect(paths).not.toContain(legacyPath);

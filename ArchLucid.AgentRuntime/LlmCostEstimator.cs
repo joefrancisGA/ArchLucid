@@ -1,3 +1,4 @@
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
@@ -11,7 +12,8 @@ namespace ArchLucid.AgentRuntime;
 /// </remarks>
 public sealed class LlmCostEstimator(
     IOptions<LlmCostEstimationOptions> options,
-    ILlmCostEstimationUsdRateOverride usdRateOverride) : ILlmCostEstimator
+    ILlmCostEstimationUsdRateOverride usdRateOverride,
+    IAgentModelAliasRegistry? modelAliasRegistry = null) : ILlmCostEstimator
 {
     private readonly IOptions<LlmCostEstimationOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
@@ -19,12 +21,15 @@ public sealed class LlmCostEstimator(
     private readonly ILlmCostEstimationUsdRateOverride _usdRateOverride =
         usdRateOverride ?? throw new ArgumentNullException(nameof(usdRateOverride));
 
+    private readonly IAgentModelAliasRegistry? _modelAliasRegistry = modelAliasRegistry;
+
     /// <inheritdoc />
     public decimal? EstimateUsd(
         int inputTokens,
         int outputTokens,
         int reasoningTokens = 0,
-        string? deploymentLabel = null)
+        string? deploymentLabel = null,
+        string? modelAliasId = null)
     {
         LlmCostEstimationOptions o = _options.Value;
 
@@ -34,13 +39,16 @@ public sealed class LlmCostEstimator(
         if (inputTokens == 0 && outputTokens == 0 && reasoningTokens == 0)
             return null;
 
+        AgentModelAliasRegistryEntry? catalogEntry = TryResolveCatalogEntry(modelAliasId, deploymentLabel);
+
         if (!LlmCostEstimationEffectiveRates.TryResolve(
                 o,
                 _usdRateOverride,
-                deploymentLabel,
+                deploymentLabel ?? catalogEntry?.DeploymentName,
                 out decimal inputRate,
                 out decimal outputRate,
-                out decimal reasoningRate))
+                out decimal reasoningRate,
+                catalogEntry))
         {
             return null;
         }
@@ -50,5 +58,35 @@ public sealed class LlmCostEstimator(
         decimal reasoningPart = reasoningTokens * reasoningRate / 1_000_000m;
 
         return inPart + outPart + reasoningPart;
+    }
+
+    private AgentModelAliasRegistryEntry? TryResolveCatalogEntry(string? modelAliasId, string? deploymentLabel)
+    {
+        if (_modelAliasRegistry is null)
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(modelAliasId)
+            && _modelAliasRegistry.TryGet(modelAliasId, out AgentModelAliasRegistryEntry? byAlias)
+            && byAlias is not null)
+        {
+            return byAlias;
+        }
+
+        if (string.IsNullOrWhiteSpace(deploymentLabel))
+        {
+            return null;
+        }
+
+        foreach (AgentModelAliasRegistryEntry entry in _modelAliasRegistry.ListEntries())
+        {
+            if (string.Equals(entry.DeploymentName, deploymentLabel.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                return entry;
+            }
+        }
+
+        return null;
     }
 }

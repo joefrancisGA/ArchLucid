@@ -36,7 +36,7 @@ import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFront
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskThreadHistoryPanel";
 const ASK_PAGE_SUBTITLE =
-  "Ask questions about a finalized review. Answers use the signed review record and cite evidence when available.";
+  "Ask questions about a finalized review. Answers use the sealed review record and cite evidence when available.";
 
 export function AskPageContent() {
   const searchParams = useSearchParams();

@@ -23,7 +23,7 @@ import { ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION } from "@/lib/enterprise-onbo
 describe("HelpTopicMarkdownPageHeader", () => {
   const entry = getProductDocumentationEntry("enterprise-onboarding");
 
-  it("renders identity providers CTA, export actions, and breadcrumb", () => {
+  it("renders identity providers CTA, export actions,", () => {
     if (entry === null) {
       throw new Error("Expected enterprise-onboarding documentation entry.");
     }
@@ -35,8 +35,6 @@ describe("HelpTopicMarkdownPageHeader", () => {
         primaryAction={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION}
       />,
     );
-
-    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-page-title")).toBeInTheDocument();
     // Registry provenance chips were retired from help headers, so the metadata row only appears
     // when a caller passes title-block orientation copy (covered below).

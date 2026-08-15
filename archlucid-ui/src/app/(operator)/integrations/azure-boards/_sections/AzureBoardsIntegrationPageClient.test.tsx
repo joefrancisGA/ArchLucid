@@ -1,7 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mockFetchAzureHealth = vi.fn();
 const mockFetchAzureSettings = vi.fn();
 const mockFetchItsmHealth = vi.fn();
 const mockFetchConnection = vi.fn();
@@ -26,7 +25,6 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 vi.mock("@/lib/api/azure-boards-api", () => ({
-  fetchAzureBoardsHealth: (...args: unknown[]) => mockFetchAzureHealth(...args),
   fetchAzureBoardsSettings: (...args: unknown[]) => mockFetchAzureSettings(...args),
   listAzureBoardsProjects: (...args: unknown[]) => mockListProjects(...args),
   listAzureBoardsWorkItemTypes: (...args: unknown[]) => mockListWorkItemTypes(...args),
@@ -47,15 +45,8 @@ import {
   AZURE_BOARDS_PAGE_TITLE,
   AZURE_BOARDS_TEST_CONNECTION_LABEL,
 } from "@/lib/azure-boards-page-copy";
-
-function baseHealth(overrides: Record<string, unknown> = {}) {
-  return {
-    status: "not_configured",
-    reachable: false,
-    summary: "Azure Boards credentials are not configured.",
-    ...overrides,
-  };
-}
+import { AZURE_BOARDS_INTEGRATION_SOURCES } from "@/lib/azure-boards-integration-evidence-copy";
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 
 function baseSettings(overrides: Record<string, unknown> = {}) {
   return {
@@ -80,7 +71,6 @@ describe("AzureBoardsIntegrationPageClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     canMutate = true;
-    mockFetchAzureHealth.mockResolvedValue(baseHealth());
     mockFetchItsmHealth.mockResolvedValue({ nativeEnabled: true });
     mockFetchAzureSettings.mockResolvedValue(baseSettings());
     mockFetchConnection.mockResolvedValue(baseConnection());
@@ -112,6 +102,22 @@ describe("AzureBoardsIntegrationPageClient", () => {
     for (const pattern of AZURE_BOARDS_BANNED_UI_PATTERNS) {
       expect(text).not.toMatch(pattern);
     }
+  });
+
+  it("renders the Azure Boards integration Sources and claim-discipline strip", async () => {
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await screen.findByTestId("azure-boards-integration-orientation");
+
+    const sources = screen.getByTestId("azure-boards-integration-sources");
+
+    for (const link of AZURE_BOARDS_INTEGRATION_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
+    expect(readinessLinks).toHaveLength(1);
+    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
   });
 
   it("TB-1756: uses operator spacing tokens instead of marketing-scale py-8 / space-y-8", async () => {
@@ -164,12 +170,11 @@ describe("AzureBoardsIntegrationPageClient", () => {
       expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
     });
 
-    let resolveHealth: (value: unknown) => void = () => undefined;
-    const healthPromise = new Promise((resolve) => {
-      resolveHealth = resolve;
+    let resolveSettings: (value: unknown) => void = () => undefined;
+    const settingsPromise = new Promise((resolve) => {
+      resolveSettings = resolve;
     });
-    mockFetchAzureHealth.mockReturnValue(healthPromise);
-    mockFetchAzureSettings.mockRejectedValueOnce(new Error("temporary failure"));
+    mockFetchAzureSettings.mockReturnValueOnce(settingsPromise);
     fireEvent.click(screen.getByTestId("azure-boards-refresh-button"));
 
     expect(screen.getByTestId("azure-boards-page-content")).toBeInTheDocument();
@@ -177,7 +182,7 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(screen.queryByTestId("azure-boards-loading-skeleton")).not.toBeInTheDocument();
     expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
 
-    resolveHealth(baseHealth({ reachable: true }));
+    resolveSettings(baseSettings());
     await waitFor(() => {
       expect(screen.queryByTestId("azure-boards-refresh-skeleton")).not.toBeInTheDocument();
     });
@@ -204,10 +209,15 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(within(screen.getByTestId("azure-boards-setup-step-credentials")).getByText("In progress")).toBeInTheDocument();
   });
 
-  it("shows connected state when health probe succeeds", async () => {
-    mockFetchAzureHealth.mockResolvedValue(baseHealth({ reachable: true, status: "healthy" }));
+  it("shows connected state when last stored connection test succeeded", async () => {
     mockFetchAzureSettings.mockResolvedValue(
-      baseSettings({ isConfigured: true, projectName: "Pilot", defaultWorkItemType: "Issue" }),
+      baseSettings({
+        isConfigured: true,
+        projectName: "Pilot",
+        defaultWorkItemType: "Issue",
+        lastConnectionTestUtc: "2026-08-13T12:00:00.000Z",
+        lastConnectionTestSummary: "Azure Boards reachable (1 project(s) discovered).",
+      }),
     );
     mockFetchConnection.mockResolvedValue(
       baseConnection({
@@ -283,7 +293,6 @@ describe("AzureBoardsIntegrationPageClient", () => {
   });
 
   it("runs connection test with pending and success feedback", async () => {
-    mockFetchAzureHealth.mockResolvedValue(baseHealth({ reachable: true }));
     mockFetchAzureSettings.mockResolvedValue(
       baseSettings({ isConfigured: true, projectName: "Pilot", defaultWorkItemType: "Issue" }),
     );
@@ -330,12 +339,15 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(await screen.findByText("Platform")).toBeInTheDocument();
   });
 
-  it("shows connection issue when probe fails", async () => {
-    mockFetchAzureHealth.mockResolvedValue(
-      baseHealth({ reachable: false, summary: "401 unauthorized from _apis/wit" }),
-    );
+  it("shows connection issue when last stored connection test failed", async () => {
     mockFetchAzureSettings.mockResolvedValue(
-      baseSettings({ isConfigured: true, projectName: "Pilot", defaultWorkItemType: "Issue" }),
+      baseSettings({
+        isConfigured: true,
+        projectName: "Pilot",
+        defaultWorkItemType: "Issue",
+        lastConnectionTestUtc: "2026-08-13T12:00:00.000Z",
+        lastConnectionTestSummary: "401 unauthorized from _apis/wit",
+      }),
     );
     mockFetchConnection.mockResolvedValue(
       baseConnection({
@@ -351,7 +363,7 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(within(status).getByText("Connection issue")).toBeInTheDocument();
   });
 
-  it("keeps connection fields when settings load fails (TB-1152)", async () => {
+  it("TB-1760: keeps connection fields when one Promise.all slice fails (TB-1152)", async () => {
     mockFetchAzureSettings.mockRejectedValue(new Error("Database Query Failed"));
     mockFetchConnection.mockResolvedValue(
       baseConnection({
@@ -371,7 +383,7 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(screen.getByTestId("azure-boards-credential-status")).toHaveTextContent("Secure reference saved");
   });
 
-  it("never shows Database Query Failed as connection status explanation (TB-1153)", async () => {
+  it("TB-1760: never shows Database Query Failed as connection status explanation (TB-1153)", async () => {
     mockFetchAzureSettings.mockRejectedValue(
       new Error("Database Query Failed: The database rejected the query due to a programming error"),
     );

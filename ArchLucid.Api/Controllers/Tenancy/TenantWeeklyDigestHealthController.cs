@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Tenancy;
 
-/// <summary>Advisory schedules, digest subscriptions, and executive digest coverage for weekly operating health.</summary>
+/// <summary>Advisory schedules, digest subscriptions, and sponsor digest coverage for weekly operating health.</summary>
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]

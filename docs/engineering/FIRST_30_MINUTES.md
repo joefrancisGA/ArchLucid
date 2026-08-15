@@ -178,7 +178,7 @@ This is the **Core Pilot** path. **Operate (analysis workloads)** (compare runs,
 | **Developer** about to commit code | [docs/onboarding/day-one-developer.md](../onboarding/day-one-developer.md) |
 | **SRE / platform** owner | [docs/onboarding/day-one-sre.md](../onboarding/day-one-sre.md) |
 | **Security / GRC** reviewer | [docs/onboarding/day-one-security.md](../onboarding/day-one-security.md) |
-| **Executive sponsor / buyer** | [docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
+| **Sponsor sponsor / buyer** | [docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
 
 ---
 

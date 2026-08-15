@@ -1,3 +1,4 @@
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Llm;
 
 namespace ArchLucid.Core.Configuration;
@@ -29,7 +30,8 @@ public static class LlmCostEstimationEffectiveRates
         string? deploymentLabel,
         out decimal inputRate,
         out decimal outputRate,
-        out decimal reasoningRate)
+        out decimal reasoningRate,
+        AgentModelAliasRegistryEntry? catalogEntry = null)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(usdRateOverride);
@@ -46,9 +48,15 @@ public static class LlmCostEstimationEffectiveRates
         reasoningRate =
             options.ReasoningUsdPerMillionTokens > 0m ? options.ReasoningUsdPerMillionTokens : outputRate;
 
-        if (!string.IsNullOrWhiteSpace(deploymentLabel)
-            && options.Deployments.TryGetValue(deploymentLabel.Trim(), out LlmDeploymentUsdRates? dep)
-            && dep is not null)
+        if (catalogEntry is not null)
+        {
+            ApplyPositiveCatalogRate(catalogEntry.InputUsdPerMillionTokens, ref inputRate);
+            ApplyPositiveCatalogRate(catalogEntry.OutputUsdPerMillionTokens, ref outputRate);
+            ApplyPositiveCatalogRate(catalogEntry.ReasoningUsdPerMillionTokens, ref reasoningRate);
+        }
+        else if (!string.IsNullOrWhiteSpace(deploymentLabel)
+                 && options.Deployments.TryGetValue(deploymentLabel.Trim(), out LlmDeploymentUsdRates? dep)
+                 && dep is not null)
         {
             if (dep.InputUsdPerMillionTokens > 0m)
                 inputRate = dep.InputUsdPerMillionTokens;
@@ -65,6 +73,14 @@ public static class LlmCostEstimationEffectiveRates
         reasoningRate = PositiveOrDefault(reasoningRate, DefaultOutputUsdPerMillionTokens);
 
         return true;
+    }
+
+    private static void ApplyPositiveCatalogRate(decimal? candidate, ref decimal target)
+    {
+        if (candidate is > 0m)
+        {
+            target = candidate.Value;
+        }
     }
 
     private static decimal PositiveOrDefault(decimal candidate, decimal fallback) =>

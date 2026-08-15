@@ -10,18 +10,18 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Roi;
 
 /// <summary>
-///     Decorates <see cref="IExecutiveRoiSummaryService" /> with tenant-scoped hot-path caching for
-///     <see cref="IExecutiveRoiSummaryService.BuildAsync" />.
+///     Decorates <see cref="ISponsorRoiSummaryService" /> with tenant-scoped hot-path caching for
+///     <see cref="ISponsorRoiSummaryService.BuildAsync" />.
 /// </summary>
-public sealed class CachingExecutiveRoiSummaryService(
-    IExecutiveRoiSummaryService inner,
+public sealed class CachingSponsorRoiSummaryService(
+    ISponsorRoiSummaryService inner,
     IRiskExceptionService riskExceptionService,
     IArchitectureRiskRegisterService architectureRiskRegisterService,
     IHotPathReadCache cache,
     IScopeContextProvider scopeProvider,
-    IOptionsMonitor<ExecutiveRoiCacheWarmupOptions> options) : IExecutiveRoiSummaryService
+    IOptionsMonitor<SponsorRoiCacheWarmupOptions> options) : ISponsorRoiSummaryService
 {
-    private readonly IExecutiveRoiSummaryService _inner =
+    private readonly ISponsorRoiSummaryService _inner =
         inner ?? throw new ArgumentNullException(nameof(inner));
 
     private readonly IRiskExceptionService _riskExceptionService =
@@ -36,26 +36,26 @@ public sealed class CachingExecutiveRoiSummaryService(
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
-    private readonly IOptionsMonitor<ExecutiveRoiCacheWarmupOptions> _options =
+    private readonly IOptionsMonitor<SponsorRoiCacheWarmupOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
 
     /// <inheritdoc />
-    public async Task<ExecutiveRoiSummaryResponse> BuildAsync(CancellationToken cancellationToken = default)
+    public async Task<SponsorRoiSummaryResponse> BuildAsync(CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        ExecutiveRoiCacheWarmupOptions opts = _options.CurrentValue;
+        SponsorRoiCacheWarmupOptions opts = _options.CurrentValue;
         int ttlSeconds = Math.Clamp(opts.CacheTtlSeconds, 60, 86400);
 
         string cacheKey =
-            $"executive-roi:summary:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}";
+            $"sponsor-roi:summary:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}";
 
-        ExecutiveRoiSummaryResponse? cached = await _cache.GetOrCreateAsync(
+        SponsorRoiSummaryResponse? cached = await _cache.GetOrCreateAsync(
             cacheKey,
             async ct => await _inner.BuildAsync(ct).ConfigureAwait(false),
             cancellationToken,
             ttlSeconds).ConfigureAwait(false);
 
-        ExecutiveRoiSummaryResponse response = cached ?? new ExecutiveRoiSummaryResponse();
+        SponsorRoiSummaryResponse response = cached ?? new SponsorRoiSummaryResponse();
 
         return await RefreshLiveGovernanceKpisAsync(response, cancellationToken).ConfigureAwait(false);
     }
@@ -63,8 +63,8 @@ public sealed class CachingExecutiveRoiSummaryService(
     /// <summary>
     ///     TB-155: governance KPI fields are not cached — always aligned with live register and waiver lists.
     /// </summary>
-    private async Task<ExecutiveRoiSummaryResponse> RefreshLiveGovernanceKpisAsync(
-        ExecutiveRoiSummaryResponse response,
+    private async Task<SponsorRoiSummaryResponse> RefreshLiveGovernanceKpisAsync(
+        SponsorRoiSummaryResponse response,
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -95,13 +95,13 @@ public sealed class CachingExecutiveRoiSummaryService(
     }
 
     /// <inheritdoc />
-    public Task<ExecutiveRoiHistoryResponse> BuildHistoryAsync(CancellationToken cancellationToken = default)
+    public Task<SponsorRoiHistoryResponse> BuildHistoryAsync(CancellationToken cancellationToken = default)
     {
         return _inner.BuildHistoryAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public Task<ExecutiveRoiExportResponse> BuildExportAsync(CancellationToken cancellationToken = default)
+    public Task<SponsorRoiExportResponse> BuildExportAsync(CancellationToken cancellationToken = default)
     {
         return _inner.BuildExportAsync(cancellationToken);
     }

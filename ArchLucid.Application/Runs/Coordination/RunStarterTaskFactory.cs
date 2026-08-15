@@ -1,4 +1,5 @@
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.CloudInventoryExtractor;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -15,15 +16,6 @@ namespace ArchLucid.Application.Runs.Coordination;
 /// </summary>
 public static class RunStarterTaskFactory
 {
-    private const string PolicyPackEnterpriseDefault = "policy-pack:enterprise-default";
-    private const string PolicyPackAzureSecurityBaseline = "policy-pack:azure-security-baseline";
-    private const string PolicyPrivateNetworkingRequired = "policy:private-networking-required";
-    private const string PolicyManagedIdentityRequired = "policy:managed-identity-required";
-    private const string PolicyEncryptionAtRestRequired = "policy:encryption-at-rest-required";
-    private const string CatalogAzureCoreServices = "catalog:azure-core-services";
-    private const string CatalogAzureSql = "catalog:azure-sql";
-    private const string CatalogAzureAiSearch = "catalog:azure-ai-search";
-    private const string CatalogAzureAiServices = "catalog:azure-ai-services";
     private const string ToolServiceCatalogReader = "service-catalog-reader";
     private const string ToolPatternLibraryReader = "pattern-library-reader";
     private const string ToolPricingProfileReader = "pricing-profile-reader";
@@ -36,6 +28,8 @@ public static class RunStarterTaskFactory
     private const string SourcePriorManifest = "prior-manifest";
     private const string SourcePricingProfile = "pricing-profile";
     private const string SourceAzureExtractorZip = "azure-extractor-zip";
+    private const string SourceAwsExtractorZip = "aws-extractor-zip";
+    private const string SourceGcpExtractorZip = "gcp-extractor-zip";
 
     /// <summary>Builds the evidence bundle injected into every starter agent task.</summary>
     public static EvidenceBundle BuildEvidenceBundle(ArchitectureRequest request)
@@ -53,8 +47,8 @@ public static class RunStarterTaskFactory
         {
             EvidenceBundleId = Guid.NewGuid().ToString("N"),
             RequestDescription = request.Description,
-            PolicyRefs = BuildPolicyRefs(request),
-            ServiceCatalogRefs = BuildServiceCatalogRefs(request),
+            PolicyRefs = RunStarterCloudEvidenceRefs.BuildPolicyRefs(request),
+            ServiceCatalogRefs = RunStarterCloudEvidenceRefs.BuildServiceCatalogRefs(request),
             PriorManifestRefs = string.IsNullOrWhiteSpace(request.PriorManifestVersion) ? [] : [request.PriorManifestVersion],
             Metadata = metadata
         };
@@ -84,28 +78,6 @@ public static class RunStarterTaskFactory
     private static LlmModelTier ResolveModelTier(AgentType agentType, AgentModelExecutionProfile executionProfile)
     {
         return AgentModelExecutionProfileTierPolicy.ResolveTier(executionProfile, agentType);
-    }
-
-    private static List<string> BuildPolicyRefs(ArchitectureRequest request)
-    {
-        List<string> refs = [PolicyPackEnterpriseDefault, PolicyPackAzureSecurityBaseline];
-        if (RequestConstraintClassifier.HasPrivateNetworkingConstraint(request))
-            refs.Add(PolicyPrivateNetworkingRequired);
-        if (RequestConstraintClassifier.HasManagedIdentityConstraint(request))
-            refs.Add(PolicyManagedIdentityRequired);
-        if (RequestConstraintClassifier.HasEncryptionConstraint(request))
-            refs.Add(PolicyEncryptionAtRestRequired);
-        return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-    }
-
-    private static List<string> BuildServiceCatalogRefs(ArchitectureRequest request)
-    {
-        List<string> refs = [CatalogAzureCoreServices, CatalogAzureSql];
-        if (RequestConstraintClassifier.RequiresSearchCapability(request))
-            refs.Add(CatalogAzureAiSearch);
-        if (RequestConstraintClassifier.RequiresAiCapability(request))
-            refs.Add(CatalogAzureAiServices);
-        return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     private static AgentTask CreateTopologyTask(
@@ -158,8 +130,13 @@ public static class RunStarterTaskFactory
         List<string> sources = [SourceArchitectureRequest, SourcePricingProfile, SourceServiceCatalog, SourcePriorManifest];
 
         if (AzureExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle))
-
             sources.Add(SourceAzureExtractorZip);
+
+        if (CloudInventoryExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle, CloudProvider.Aws))
+            sources.Add(SourceAwsExtractorZip);
+
+        if (CloudInventoryExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle, CloudProvider.Gcp))
+            sources.Add(SourceGcpExtractorZip);
 
         return sources;
     }
@@ -214,12 +191,38 @@ public static class RunStarterTaskFactory
             $"Estimate cost posture and cost-sensitive design considerations for system '{request.SystemName}'. " +
             $"Required capabilities: {string.Join(", ", request.RequiredCapabilities)}";
 
-        if (!AzureExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle) ||
-            !evidenceBundle.Metadata.TryGetValue(AzureExtractorEvidenceBundleMerger.MetadataCostCitationKey, out string? cite) ||
-            string.IsNullOrWhiteSpace(cite))
+        string? cite = TryResolveInventoryCostCitation(evidenceBundle);
+
+        if (string.IsNullOrWhiteSpace(cite))
             return baseText;
 
         return baseText + " Inventory citation: " + cite;
+    }
+
+    private static string? TryResolveInventoryCostCitation(EvidenceBundle evidenceBundle)
+    {
+        if (AzureExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle)
+            && evidenceBundle.Metadata.TryGetValue(
+                AzureExtractorEvidenceBundleMerger.MetadataCostCitationKey,
+                out string? azureCite)
+            && !string.IsNullOrWhiteSpace(azureCite))
+            return azureCite;
+
+        if (CloudInventoryExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle, CloudProvider.Aws)
+            && evidenceBundle.Metadata.TryGetValue(
+                CloudInventoryExtractorEvidenceBundleMerger.MetadataCostCitationKey(CloudProvider.Aws),
+                out string? awsCite)
+            && !string.IsNullOrWhiteSpace(awsCite))
+            return awsCite;
+
+        if (CloudInventoryExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle, CloudProvider.Gcp)
+            && evidenceBundle.Metadata.TryGetValue(
+                CloudInventoryExtractorEvidenceBundleMerger.MetadataCostCitationKey(CloudProvider.Gcp),
+                out string? gcpCite)
+            && !string.IsNullOrWhiteSpace(gcpCite))
+            return gcpCite;
+
+        return null;
     }
 
     private static string BuildComplianceObjective(ArchitectureRequest request)

@@ -137,7 +137,9 @@ public sealed class GovernanceApprovalRequestRepository(
         string? reviewedByActorKey,
         string? reviewComment,
         DateTime reviewedUtc,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
         ArgumentException.ThrowIfNullOrWhiteSpace(newStatus);
@@ -172,21 +174,29 @@ public sealed class GovernanceApprovalRequestRepository(
         transitionParams.Add("Submitted", GovernanceApprovalStatus.Submitted);
         PersistenceTenantScope.AddScopeTripleIfNeeded(transitionParams, scope);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+        if (connection is not null)
+        {
+            int affectedInTx = await connection.QuerySingleAsync<int>(
+                new CommandDefinition(updateSql, transitionParams, transaction, cancellationToken: cancellationToken));
+
+            return affectedInTx == 1;
+        }
+
+        using IDbConnection ownedConnection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbTransaction ownedTransaction = ownedConnection.BeginTransaction(IsolationLevel.Serializable);
 
         try
         {
-            int affected = await connection.QuerySingleAsync<int>(
-                new CommandDefinition(updateSql, transitionParams, transaction, cancellationToken: cancellationToken));
+            int affected = await ownedConnection.QuerySingleAsync<int>(
+                new CommandDefinition(updateSql, transitionParams, ownedTransaction, cancellationToken: cancellationToken));
 
-            transaction.Commit();
+            ownedTransaction.Commit();
 
             return affected == 1;
         }
         catch
         {
-            transaction.Rollback();
+            ownedTransaction.Rollback();
             throw;
         }
     }

@@ -10,11 +10,10 @@ import {
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { findPatternLibraryRecord } from "@/lib/pattern-library-catalog";
 import { resolvePatternLibraryPeerCompare } from "@/lib/pattern-library-peer-compare";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { PATTERN_LIBRARY_POLICY_RULES_SECTION_TITLE } from "@/lib/pattern-library-policy-guidance-copy";
 import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
@@ -73,9 +72,14 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
           <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.micro)}>{provenance.privacyNote}</p>
         </div>
       </OperatorPageHeader>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2" data-testid="pattern-library-detail-primary-cta-cluster">
         <Button asChild size="sm" variant="primary">
-          <Link href={`/architecture/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}>Use in review</Link>
+          <Link
+            href={`/architecture/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}
+            data-testid="pattern-library-detail-primary-use-in-review"
+          >
+            Use in review
+          </Link>
         </Button>
         <Button asChild size="sm" variant="outline">
           <Link href={PATTERN_LIBRARY_PATH}>Back to library</Link>
@@ -137,14 +141,9 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
           </ul>
         </DetailSection>
 
-        <Card className="border-neutral-200 dark:border-neutral-800">
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Example architecture shape</CardTitle>
-          </CardHeader>
-          <CardContent className={OPERATOR_CARD.content}>
-            <p className="m-0">{record.architectureShape}</p>
-          </CardContent>
-        </Card>
+        <DetailSection id="architecture-shape" title="Example architecture shape">
+          <p className="m-0">{record.architectureShape}</p>
+        </DetailSection>
 
         <DetailSection id="review-questions" title="Review questions to ask">
           <ul className="m-0 list-disc space-y-1 pl-5">
@@ -155,25 +154,31 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
         </DetailSection>
       </div>
 
-      <Card className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20">
-        <CardContent className={cn(OPERATOR_CARD.content, "space-y-3")}>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            Use this pattern as a starting point for a new architecture review or compare it with peer patterns in the library.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm" variant="primary">
-              <Link href={`/architecture/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}>
-                Use this pattern in a new review
-              </Link>
+      <section
+        id="next-steps"
+        className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "space-y-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-800")}
+        data-testid="pattern-library-detail-next-steps"
+      >
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Next steps</h2>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+          Use this pattern as a starting point for a new architecture review or compare it with peer patterns in the library.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link
+              href={`/architecture/reviews/new?pattern=${encodeURIComponent(record.patternKey)}`}
+              data-testid="pattern-library-detail-secondary-use-in-review"
+            >
+              Use this pattern in a new review
+            </Link>
+          </Button>
+          {peerCompare !== null ? (
+            <Button asChild size="sm" variant="outline">
+              <Link href={peerCompare.href}>{peerCompare.label}</Link>
             </Button>
-            {peerCompare !== null ? (
-              <Button asChild size="sm" variant="outline">
-                <Link href={peerCompare.href}>{peerCompare.label}</Link>
-              </Button>
-            ) : null}
-          </div>
-        </CardContent>
-      </Card>
+          ) : null}
+        </div>
+      </section>
     </div>
   );
 }

@@ -29,11 +29,9 @@ describe("first-architecture-review help CTA regression guard (TB-1378)", () => 
     }
   });
 
-  it("allows retired first-hour slugs only as permanent redirect aliases", () => {
-    expect(resolveHelpTopicPermanentRedirect("first-hour-operator-path")).toBe(
-      FIRST_ARCHITECTURE_REVIEW_HELP_PATH,
-    );
-    expect(resolveHelpTopicPermanentRedirect("core-pilot")).toBe(FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
+  it("does not redirect legacy first-review slugs", () => {
+    expect(resolveHelpTopicPermanentRedirect("first-hour-operator-path")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("core-pilot")).toBeNull();
     expect(inAppHelpHref("first-architecture-review")).toBe(FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
   });
 

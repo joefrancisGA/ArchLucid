@@ -1,4 +1,14 @@
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { BASELINE_SETTINGS_CANONICAL_PATH } from "@/lib/baseline-settings-evidence-copy";
+import {
+  BASELINE_SETTINGS_PAGE_SUBTITLE,
+  BASELINE_SETTINGS_PAGE_TITLE,
+} from "@/lib/baseline-settings-present";
+import { EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH } from "@/lib/extract-upload-settings-evidence-copy";
+import {
+  EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE,
+  EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
+} from "@/lib/extract-upload-settings-page-copy";
 import { ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION } from "@/lib/vocabulary/finding-correlation-vocabulary";
 import { SETTINGS_NOTIFICATIONS_PATH, SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
 
@@ -166,8 +176,8 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
     id: "integrations",
     navLabel: "Integrations",
     title: "Integrations",
-    description: "Cloud connections and ITSM bridges.",
-    keywords: ["integration", "jira", "servicenow", "cloud", "azure", "aws"],
+    description: "Cloud connections, manual inventory upload, and ITSM bridges.",
+    keywords: ["integration", "jira", "servicenow", "cloud", "azure", "aws", "extract", "upload", "inventory"],
     tier: "common",
     destinations: [
       {
@@ -177,6 +187,21 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
         href: "/integrations/cloud-connections",
         cta: "Manage connections",
         keywords: ["cloud", "azure", "aws", "gcp", "connection"],
+        requiredAuthority: "ExecuteAuthority",
+        tier: "common",
+        scope: "workspace",
+        source: "overridden",
+        editability: "admin-only",
+        saveBehavior: "Save on destination page",
+        highImpact: true,
+      },
+      {
+        id: "extract-upload",
+        title: EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
+        description: EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE,
+        href: EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH,
+        cta: "Open extract & upload",
+        keywords: ["extract", "upload", "inventory", "azure", "zip", "evidence", "intake"],
         requiredAuthority: "ExecuteAuthority",
         tier: "common",
         scope: "workspace",
@@ -316,8 +341,8 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
     id: "advanced",
     navLabel: "Advanced",
     title: "Advanced configuration",
-    description: "Identity and rarely changed tenant controls.",
-    keywords: ["advanced", "sso", "scim", "identity", "recycle"],
+    description: "Identity, ROI baseline, and rarely changed tenant controls.",
+    keywords: ["advanced", "sso", "scim", "identity", "recycle", "baseline", "roi"],
     tier: "advanced",
     destinations: [
       {
@@ -379,6 +404,20 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
         editability: "admin-only",
         saveBehavior: "Save on destination page",
         highImpact: true,
+      },
+      {
+        id: "workspace-baseline",
+        title: BASELINE_SETTINGS_PAGE_TITLE,
+        description: BASELINE_SETTINGS_PAGE_SUBTITLE,
+        href: BASELINE_SETTINGS_CANONICAL_PATH,
+        cta: "Open baseline settings",
+        keywords: ["baseline", "roi", "measurement", "sponsor", "hours", "value"],
+        requiredAuthority: "AdminAuthority",
+        tier: "advanced",
+        scope: "workspace",
+        source: "overridden",
+        editability: "admin-only",
+        saveBehavior: "Save on destination page",
       },
       {
         id: "projects-recycle-bin",

@@ -1,9 +1,6 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import {
-  getTeamsIncomingWebhookConnection,
-  getTeamsNotificationTriggerCatalog,
-} from "@/lib/api";
+import { fetchTeamsIncomingWebhookPageBundle } from "@/lib/api";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import type { TeamsIncomingWebhookConnectionResponse } from "@/types/teams-incoming-webhook-connection";
@@ -31,15 +28,12 @@ export async function loadTeamsNotificationsIntegrationPageData(): Promise<Teams
   }
 
   try {
-    const [data, triggers] = await Promise.all([
-      getTeamsIncomingWebhookConnection(),
-      getTeamsNotificationTriggerCatalog(),
-    ]);
+    const bundle = await fetchTeamsIncomingWebhookPageBundle();
 
     return {
       mode: "live",
-      conn: data,
-      catalog: triggers,
+      conn: bundle.connection,
+      catalog: bundle.triggerCatalog,
       failure: null,
     };
   } catch (e: unknown) {

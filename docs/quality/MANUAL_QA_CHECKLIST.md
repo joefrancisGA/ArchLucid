@@ -34,7 +34,7 @@ This checklist focuses on scenarios that are **impossible, brittle, or infeasibl
 
 **Agent output quality (structural / semantic scores, release bar):** See **[B.8](#b8-agent-output-scores--threshold-discipline)** and canonical detail in [`docs/library/AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md).
 
-**Known cross-surface gaps (hard to automate):** Use **[Appendix — Hard-to-evaluate surfaces](#appendix--hard-to-evaluate-surfaces--known-consistency-gaps)** when walking the Claims Intake spine — executive summary, list badges, counts, and provenance/nav polish are active cleanup areas.
+**Known cross-surface gaps (hard to automate):** Use **[Appendix — Hard-to-evaluate surfaces](#appendix--hard-to-evaluate-surfaces--known-consistency-gaps)** when walking the Claims Intake spine — sponsor summary, list badges, counts, and provenance/nav polish are active cleanup areas.
 
 ---
 
@@ -77,7 +77,7 @@ Use these stable tokens for a **single** walkthrough session (aligned with `src/
 
 | Step | URL |
 |------|-----|
-| Executive summary | `/reviews/claims-intake-modernization` |
+| Sponsor summary | `/reviews/claims-intake-modernization` |
 | Review package detail | `/reviews/claims-intake-modernization` |
 | Provenance | `/reviews/claims-intake-modernization/provenance` |
 | Primary finding | `/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
@@ -105,7 +105,7 @@ Use these stable tokens for a **single** walkthrough session (aligned with `src/
 - [ ] **Audit trail** is used on audit pages and cross-links (not “event log” alone).
 - [ ] **Finalized signed manifest record** (or shortened **signed manifest** in tight UI) — tooltips explain hash-verified, write-locked record (see `BUYER_SEALED_MANIFEST_TOOLTIP` in `buyer-polish-copy.ts`).
 - [ ] **Finding** / **PHI minimization risk** labels match governance and review detail.
-- [ ] Breadcrumbs and page titles on **Executive summary** use portfolio-oriented copy (ROI metrics sr-only labels: findings resolved/discovered 30d, stale risks, waivers, SQL backup region verification).
+- [ ] Breadcrumbs and page titles on **Sponsor summary** use portfolio-oriented copy (ROI metrics sr-only labels: findings resolved/discovered 30d, stale risks, waivers, SQL backup region verification).
 
 **Justification:** Vitest can assert strings exist; only a human catches awkward synonyms that break trust on a live walkthrough.
 
@@ -119,15 +119,15 @@ Use these stable tokens for a **single** walkthrough session (aligned with `src/
 
 | # | Action | Pass criteria |
 |---|--------|---------------|
-| 1 | Open **Help** → “Your first architecture package” | Five steps: executive summary → signed manifest → evidence trail → governance + audit → Ask; primary CTA matches **Open executive summary** |
-| 2 | Open executive summary URL | Headline and KPI cards readable; monitored-risk narrative does not sound like a blocking failure |
-| 3 | Open review detail | H1 ~ **Claims Intake Modernization Review**; sample package card mentions signed manifest, evidence trail, governance approval, audit; CTAs **Open executive summary** / **View full architecture package** |
-| 4 | Scroll **finalize / exports** (committed story) | Downloads described as ZIP for diligence; **Executive briefing package** label if shown |
+| 1 | Open **Help** → “Your first architecture package” | Five steps: sponsor summary → signed manifest → evidence trail → governance + audit → Ask; primary CTA matches **Open sponsor summary** |
+| 2 | Open sponsor summary URL | Headline and KPI cards readable; monitored-risk narrative does not sound like a blocking failure |
+| 3 | Open review detail | H1 ~ **Claims Intake Modernization Review**; sample package card mentions signed manifest, evidence trail, governance approval, audit; CTAs **Open sponsor summary** / **View full architecture package** |
+| 4 | Scroll **finalize / exports** (committed story) | Downloads described as ZIP for diligence; **Sponsor briefing package** label if shown |
 | 5 | Open manifest | Sections **Decision**, **Evidence**, **Downloads**, **Diligence**; bundle download copy = finalized architecture package |
 | 6 | Open PHI finding | Post-approval lead mentions **residual PHI minimization risk** with monitoring; confidence explainer distinguishes **finding evaluation confidence** from product accuracy |
 | 7 | Open graph, load trail | **What this proves** line traces PHI risk → policy → decision → approval → manifest → audit; ~15 linked records / 7 audit events feel coherent (static counts) |
-| 8 | **Ask** — placeholder “Ask about this architecture package…” | Grounding line: scoped to review evidence; does not claim to replace governance records; showcase anchors mention executive summary, manifest, policy, evidence trail, audit |
-| 9 | **Governance** | Page title **Governance workflow**; approval lead references **signed review record** (not ADR-style package naming); footnote: production still under customer change management |
+| 8 | **Ask** — placeholder “Ask about this architecture package…” | Grounding line: scoped to review evidence; does not claim to replace governance records; showcase anchors mention sponsor summary, manifest, policy, evidence trail, audit |
+| 9 | **Governance** | Page title **Governance workflow**; approval lead references **sealed review record** (not ADR-style package naming); footnote: production still under customer change management |
 | 10 | **Governance → findings** | **Monitored risks** section; CTAs **View finding and evidence** / **View evidence trail** |
 | 11 | **Audit** | Intro **Recorded timeline for this architecture package**; **Audit trail complete** when story complete; **Download governance evidence package** |
 | 12 | **Reviews list** | Featured row **Claims Intake Modernization**; tabs **Approved** / **Approved with monitoring** / **Needs attention** make sense for demo data |
@@ -463,7 +463,7 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | Page | Route | Cleared for release |
 |------|-------|:-------------------:|
 | **Operator home** | `/` | [ ] |
-| **Executive summary (dashboard)** | `/dashboard` | [ ] |
+| **Sponsor summary (dashboard)** | `/dashboard` | [ ] |
 | **Review packages list** | `/reviews?projectId=default` | [ ] |
 | **New review (evidence intake)** | `/reviews/new` | [ ] |
 | **Review package detail** | `/reviews/{runId}` | [ ] |
@@ -504,7 +504,7 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Policy pack detail** | `/governance/policy-packs/{id}` | [ ] |
 | **Governance resolution** | `/governance-resolution` | [ ] |
 | **Governance workflow** | `/governance` | [ ] |
-| **Executive workspace health** | `/governance/dashboard` | [ ] |
+| **Sponsor workspace health** | `/governance/dashboard` | [ ] |
 | **Decision register** | `/governance/decision-register` | [ ] |
 | **Approval lineage** | `/governance/approval-requests/{id}/lineage` | [ ] |
 | **Governance setup guide** | `/governance/first-30-days` | [ ] |
@@ -512,13 +512,13 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Security & Trust (operator workspace)** | `/workspace/security-trust` | [ ] |
 | **Teams notifications** | `/integrations/teams` | [ ] |
 | **Value report (DOCX)** | `/value-report` | [ ] |
-| **Executive reviews (retired)** | `/executive/reviews` → `/reviews` | [ ] |
-| **Executive scorecard** | `/executive/scorecard` | [ ] |
+| **Sponsor reviews (retired)** | `/sponsor/reviews` → `/reviews` | [ ] |
+| **Sponsor scorecard** | `/sponsor/scorecard` | [ ] |
 | **Settings hub** | `/administration/settings` | [ ] |
 | **Workspace settings** | `/administration/tenant` | [ ] |
 | **Projects recycle bin** | `/administration/tenant/recycle-bin` | [ ] |
-| **Personal preferences** (account menu) | `/administration/preferences` | [ ] |
-| **Account security** (account menu) | `/administration/account-security` | [ ] |
+| **Personal preferences** (account menu) | `/account/preferences` | [ ] |
+| **Account security** (account menu) | `/account/security` | [ ] |
 | **Billing & plans** | `/administration/billing` | [ ] |
 | **Baseline settings** | `/administration/baseline` | [ ] |
 | **Webhooks** | `/settings/webhooks` | [ ] |
@@ -578,7 +578,7 @@ Start every path at **operator home** (`/`) after sign-in (development bypass is
 
 **Authority note:** links marked *extended*, *advanced*, or *admin* in nav config may be hidden until you expand **Show more** in the sidebar or hold **Read**, **Execute**, or **Admin** authority. Admin rows need **Admin** authority.
 
-**Buyer-polished shell note:** with buyer-default chrome (no `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`), some engineer-only pages redirect — e.g. **`/why-archlucid`** → executive summary, **`/governance-resolution`** → **`/governance`**, and **`/product-learning`** may redirect to **`/`** when demo static mode is on.
+**Buyer-polished shell note:** with buyer-default chrome (no `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`), some engineer-only pages redirect — e.g. **`/why-archlucid`** → sponsor summary, **`/governance-resolution`** → **`/governance`**, and **`/product-learning`** may redirect to **`/`** when demo static mode is on.
 
 ---
 
@@ -588,11 +588,11 @@ Start every path at **operator home** (`/`) after sign-in (development bypass is
 
 You are already here after sign-in. No clicks required.
 
-### Executive summary (`/dashboard`)
+### Sponsor summary (`/dashboard`)
 
-**Sidebar → Review work → Executive summary** (or **Ctrl+K** → “Executive summary”).
+**Sidebar → Review work → Sponsor summary** (or **Ctrl+K** → “Sponsor summary”).
 
-**From home content:** **Sample package** card → **Open executive summary** (buyer-polished) opens `/reviews/claims-intake-modernization`; the sidebar **Executive summary** link is `/dashboard` (ROI dashboard — distinct from per-package executive view).
+**From home content:** **Sample package** card → **Open sponsor summary** (buyer-polished) opens `/reviews/claims-intake-modernization`; the sidebar **Sponsor summary** link is `/dashboard` (ROI dashboard — distinct from per-package sponsor view).
 
 ### Review packages list (`/reviews?projectId=default`)
 
@@ -644,9 +644,9 @@ Use **`claims-intake-modernization`** as `{runId}`, **`phi-minimization-risk`** 
 
 **From home:** **Sample package** → **View full architecture package** / **Open sample architecture package**, or **Architecture packages** list → **Claims Intake Modernization** row.
 
-### Executive review summary (`/reviews/{runId}` — legacy `/executive/reviews/*` redirects here)
+### Sponsor review summary (`/reviews/{runId}` — legacy `/sponsor/reviews/*` redirects here)
 
-**From home:** **Sample package** primary CTA **Open executive summary**, or **Review journey** step **1. Executive summary**.
+**From home:** **Sample package** primary CTA **Open sponsor summary**, or **Review journey** step **1. Sponsor summary**.
 
 ### Signed manifest (`/manifests/{manifestId}`)
 
@@ -691,7 +691,7 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 | Planning | `/planning` | **Analysis → Planning** (Execute authority). |
 | Planning plan detail | `/planning/plans/{planId}` | **Planning** → open a plan row. |
 | Impact preview | `/insights/impact-preview` | **Insights → Impact preview** (ReadAuthority; Simulate stays Execute-gated). |
-| Executive dashboard (portfolio overview) | `/dashboard` | **Analysis → Executive dashboard** (legacy `/portfolio` redirects here). |
+| Sponsor dashboard (portfolio overview) | `/dashboard` | **Analysis → Sponsor dashboard** (legacy `/portfolio` redirects here). |
 | Pilot value report | `/value-report/pilot` | **Analysis → Pilot value report**. |
 | ROI summary | `/value-report/roi` | **Analysis → ROI report**. |
 | Connection status | `/administration/connection-status` | **Administration → Connection status**. |
@@ -715,7 +715,7 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 | Policy pack detail | `/governance/policy-packs/{id}` | **Policy packs** → open a pack row (demo: `demo-healthcare-claims-pack`). |
 | Governance resolution | `/governance-resolution` | **Governance → Governance resolution** (buyer shell redirects to **Governance workflow**). |
 | Governance workflow | `/governance` | **Governance → Governance workflow**, or **Review journey** step **4. Governance approval**. |
-| Executive workspace health | `/governance/dashboard` | Type URL or **Ctrl+K** → “Executive Workspace Health” (not primary sidebar; buyer shell may redirect to workflow). |
+| Sponsor workspace health | `/governance/dashboard` | Type URL or **Ctrl+K** → “Sponsor Workspace Health” (not primary sidebar; buyer shell may redirect to workflow). |
 | Decision register | `/governance/decision-register` | **Ctrl+K** → “Decision register”, or governance area cross-links. |
 | Governance setup guide | `/governance/first-30-days` | **Governance → Governance setup guide**. |
 | Audit trail | `/audit` | **Governance → Audit trail**, or **Review journey** step **5. Audit trail**. |
@@ -725,13 +725,13 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 
 ---
 
-## Executive shell
+## Sponsor shell
 
 | Page | Route | Click-through from `/` |
 |------|-------|------------------------|
-| Review package (executive summary) | `/reviews/{runId}` | **Overview → Sample package → Open executive summary** (fastest for Claims Intake). |
+| Review package (sponsor summary) | `/reviews/{runId}` | **Overview → Sample package → Open sponsor summary** (fastest for Claims Intake). |
 | Finding detail | `/reviews/{runId}/findings/{findingId}` | Review package → finding row. |
-| Executive scorecard | `/executive/scorecard` | **Ctrl+K** → “Executive scorecard”. |
+| Sponsor scorecard | `/sponsor/scorecard` | **Ctrl+K** → “Sponsor scorecard”. |
 
 ---
 
@@ -764,8 +764,8 @@ Requires **Admin** or **Execute** authority per link. Expand **Admin** group.
 | Cost reporting | `/settings/cost-reporting` | **Admin → Cost reporting**. |
 | Settings hub | `/administration/settings` | **Admin → Settings** (searchable tenant-administration index; Read authority). |
 | Extract upload | `/administration/extract-upload` | **Ctrl+K** or workspace settings cross-links (not primary sidebar). |
-| Personal preferences | `/administration/preferences` | **Top-bar account menu → Preferences** (any signed-in user, no authority gate). |
-| Account security | `/administration/account-security` | **Top-bar account menu → Account security** (any signed-in user, no authority gate). |
+| Personal preferences | `/account/preferences` | **Top-bar account menu → Preferences** (any signed-in user, no authority gate). |
+| Account security | `/account/security` | **Top-bar account menu → Account security** (any signed-in user, no authority gate). |
 
 ---
 
@@ -775,7 +775,7 @@ Requires **Admin** or **Execute** authority per link. Expand **Admin** group.
 |------|-------|------------------------|
 | Architecture patterns | `/patterns` | **Ctrl+K** → “Patterns”, or direct URL. |
 | Demo explain | `/demo/explain` | **Ctrl+K** → “Demo explain”. |
-| Why ArchLucid | `/why-archlucid` | Engineer shell only — **Ctrl+K** or direct URL; buyer shell redirects to executive summary. |
+| Why ArchLucid | `/why-archlucid` | Engineer shell only — **Ctrl+K** or direct URL; buyer shell redirects to sponsor summary. |
 | Forbidden | `/403` | Trigger by opening a route your principal cannot access (manual negative test). |
 | Sign in | `/auth/signin` | Sign out from header → **Sign in**, or direct URL when JWT mode is enabled. |
 
@@ -816,14 +816,14 @@ These items need **human cross-surface comparison** on the Claims Intake showcas
 
 | ID | Surfaces | Known gap | What to verify manually | Likely implementation locus |
 |----|----------|-----------|-------------------------|-----------------------------|
-| **E.1** | Executive summary · review detail · manifest · governance | **Executive summary data is inconsistent with the rest of the package.** Summary shows **0 findings** and **low risk** while the core package shows **9 findings** and **1 monitored PHI risk**. | Open `/reviews/claims-intake-modernization`, then review detail and manifest. Counts and risk posture must match spine (9 / 1 monitored). Executive KPIs must not imply “no findings” when the package narrative cites PHI monitoring. | review detail clients, executive scorecard clients, static payloads vs `SHOWCASE_STATIC_DEMO_SPINE_COUNTS` |
-| **E.2** | Executive summary | **“Recommended executive action: Intake experience”** (or similar) appears **mis-seeded or mis-bound** — wrong field, placeholder, or unrelated to Claims Intake outcomes. | Read the recommended-action block aloud: would a sponsor act on it? It must align with Claims Intake modernization / PHI monitoring story, not a generic template. | `ExecutiveReviewFirstViewport.tsx`, `executive-risk-review-markdown.ts` |
+| **E.1** | Sponsor summary · review detail · manifest · governance | **Sponsor summary data is inconsistent with the rest of the package.** Summary shows **0 findings** and **low risk** while the core package shows **9 findings** and **1 monitored PHI risk**. | Open `/reviews/claims-intake-modernization`, then review detail and manifest. Counts and risk posture must match spine (9 / 1 monitored). Sponsor KPIs must not imply “no findings” when the package narrative cites PHI monitoring. | review detail clients, sponsor scorecard clients, static payloads vs `SHOWCASE_STATIC_DEMO_SPINE_COUNTS` |
+| **E.2** | Sponsor summary | **“Recommended sponsor action: Intake experience”** (or similar) appears **mis-seeded or mis-bound** — wrong field, placeholder, or unrelated to Claims Intake outcomes. | Read the recommended-action block aloud: would a sponsor act on it? It must align with Claims Intake modernization / PHI monitoring story, not a generic template. | `ExecutiveReviewFirstViewport.tsx`, `sponsor-risk-review-markdown.ts` |
 | **E.3** | Reviews list (`/reviews`) | **Multiple packages are plausible**, but **state combinations need cleanup.** Example: **“Pending governance approval”** must not appear alongside a **PACKAGE FINALIZED** (or equivalent) badge **without explanation**. | Scan every row: status line, phase chips, and badges must be mutually consistent. If both “pending” and “finalized” appear, inline copy must explain timing (e.g. manifest finalized, approval workflow open). | `RunsListClient.tsx`, `RunsListBuyerFeaturedCard.tsx`, `RunStatusBadge.tsx`, buyer package scope filters |
 | **E.4** | Governance approval lineage | Lineage is **seeded** but still exposes **environment promotion** and **raw pipeline** concepts unsuitable for buyer polish. | Open approval lineage for the showcase approval. Labels read as governance/decision history, not CI/CD jargon, unless explicitly marked **technical appendix**. | `GovernanceApprovalLineageDetailContent.tsx`, governance static demo payloads |
-| **E.5** | Executive summary · manifest · governance · audit · review detail | **UTC timestamps** shown without **buyer-local or tenant-timezone** conversion. | Spot-check 3–5 prominent dates (approval, commit, audit events). Display should use clear locale (e.g. “Jan 14, 2026, 5:05 PM EST”) or labeled UTC only when intentional. | Date formatting helpers across review/governance/audit components |
+| **E.5** | Sponsor summary · manifest · governance · audit · review detail | **UTC timestamps** shown without **buyer-local or tenant-timezone** conversion. | Spot-check 3–5 prominent dates (approval, commit, audit events). Display should use clear locale (e.g. “Jan 14, 2026, 5:05 PM EST”) or labeled UTC only when intentional. | Date formatting helpers across review/governance/audit components |
 | **E.6** | Evidence trail / graph (`/graph`) | **Graph node and edge labels** may still use internal names; need **normalized buyer-friendly names** per `BUYER_SURFACE_VOCABULARY`. | Load Claims Intake graph; selected node panel and legend use “finding”, “policy basis”, “approval path” language — not raw agent or pipeline tokens. | `GraphViewer.tsx`, `graph-mapper.ts`, `graph-buyer-node-detail.ts`, `ProvenanceGraphDiagram.tsx` |
 | **E.7** | Provenance route · nav · breadcrumbs | **`/reviews/{runId}/provenance`** is **raw technical/debug-shaped** data. It should be **hidden from buyer-polished primary navigation** unless opened deliberately as a **technical appendix** (full architect workspace or explicit link). | With buyer-default shell (no `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`): provenance not in sidebar/top nav. Deep link still works for engineers; page chrome warns or defers to “technical appendix” if exposed. | `provenance/page.tsx`, nav config / `breadcrumb-map.ts`, `layer-guidance.ts`, buyer nav visibility |
-| **E.8** | Overview · reviews list · executive summary · manifest · governance · audit | **Finding counts, risk posture, and residual-risk summaries** lack a **single source of truth** — numbers drift between surfaces. | Same session: write down finding count, monitored-risk count, and “approved with monitoring” wording on Overview, Reviews, Executive, Manifest summary, Governance findings, Audit intro. All must match **E.1** spine or live API truth. | `showcase-static-demo.ts`, `SampleFirstReviewPackageCard.tsx`, `RunsDashboardPanel.tsx`, `ManifestDetailSummaryPanel.tsx`, `AuditBuyerHeaderMetrics.tsx` |
+| **E.8** | Overview · reviews list · sponsor summary · manifest · governance · audit | **Finding counts, risk posture, and residual-risk summaries** lack a **single source of truth** — numbers drift between surfaces. | Same session: write down finding count, monitored-risk count, and “approved with monitoring” wording on Overview, Reviews, Sponsor, Manifest summary, Governance findings, Audit intro. All must match **E.1** spine or live API truth. | `showcase-static-demo.ts`, `SampleFirstReviewPackageCard.tsx`, `RunsDashboardPanel.tsx`, `ManifestDetailSummaryPanel.tsx`, `AuditBuyerHeaderMetrics.tsx` |
 | **E.9** | All buyer-polished routes | **Raw identifiers** (run UUIDs, manifest ids, policy pack slugs, pipeline phase tokens) shown by default instead of **friendly display names**. | Scope chrome and tables show **Claims Intake Modernization Review** (or workspace title), not `claims-intake-modernization-run` unless user expands technical details. | `buyer-safe-review-navigation.ts`, `ScopeSwitcher.tsx`, run/manifest display mappers |
 | **E.10** | Scope chrome (header) | **“Sample workspace”** badge may be **environment-driven**; confirm it is **intentional in buyer mode** (demo/pilot), not leaking into production buyer tenants by mistake. | With buyer-polished shell + demo flags: badge reads **Sample workspace** with tooltip explaining demonstration data. Without demo: confirm product intent (hide vs show for sandboxes). | `ScopeSwitcher.tsx`, `BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL`, `demo-ui-env.ts` |
 
@@ -831,8 +831,8 @@ These items need **human cross-surface comparison** on the Claims Intake showcas
 
 Use after **[A.2](#a2-claims-intake-showcase-spine-end-to-end-25-minutes)** or when triaging sponsor feedback:
 
-1. **E.1 + E.8** — Record findings / monitored risk on Overview → Reviews → Executive → Manifest → Governance → Audit; fail if any disagree with **9 / 1**.
-2. **E.2** — Executive recommended action reads as Claims Intake, not a stray template.
+1. **E.1 + E.8** — Record findings / monitored risk on Overview → Reviews → Sponsor → Manifest → Governance → Audit; fail if any disagree with **9 / 1**.
+2. **E.2** — Sponsor recommended action reads as Claims Intake, not a stray template.
 3. **E.3** — No contradictory pending vs finalized badges on the same row without explanation.
 4. **E.7** — Buyer nav does not advertise Provenance as a primary lane.
 5. **E.5 + E.9 + E.10** — Dates, ids, and sample-workspace chrome feel deliberate for a pilot demo.
@@ -842,4 +842,4 @@ Use after **[A.2](#a2-claims-intake-showcase-spine-end-to-end-25-minutes)** or w
 | Date | Change |
 |------|--------|
 | 2026-05-29 | Added **UI release clearance tracker** (all pages unchecked) and **Navigation from home** click-through guide before Appendix. |
-| 2026-05-27 | Initial appendix from pilot QA notes (executive inconsistency, list states, lineage jargon, provenance nav, count SSOT, identifiers, sample workspace). |
+| 2026-05-27 | Initial appendix from pilot QA notes (sponsor inconsistency, list states, lineage jargon, provenance nav, count SSOT, identifiers, sample workspace). |

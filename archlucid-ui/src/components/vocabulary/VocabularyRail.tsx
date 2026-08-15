@@ -126,7 +126,7 @@ export function VocabularyRail(props: VocabularyRailProps): JSX.Element {
           <Link
             key={link.testIdSuffix}
             href={link.href}
-            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+            className={OPERATOR_LINK.optional}
             data-testid={`${props.testIdPrefix}-${link.testIdSuffix}`}
             onClick={link.onClick}
           >

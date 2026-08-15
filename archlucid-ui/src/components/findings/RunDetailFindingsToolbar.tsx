@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { clusterReviewFindingsByRootCause } from "@/lib/review-quality/compare-quality-delta";
 import { formatFindingsVisibilitySummaryLine } from "@/lib/findings/finding-confidence-filter";
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
@@ -15,8 +16,15 @@ import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natu
 import {
   DEFAULT_FINDING_JOB_VIEW,
   filterReviewFindingsForJobView,
+  isReviewFindingDispositionClosed,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
+import {
+  compareFindingsByTrustThenSeverity,
+  reviewFindingMatchesProvenanceFilter,
+  type FindingGroundingFilter,
+  type FindingOriginFilter,
+} from "@/lib/findings/finding-trust-triage";
 import {
   humanReviewStatusDisplay,
   severityBadgeLabel,
@@ -34,7 +42,11 @@ export type RunDetailFindingsFilterKind =
   | "awaiting-decision"
   | "resolved";
 
-export type RunDetailFindingsSortKind = "severity-desc" | "severity-asc" | "title-asc";
+export type RunDetailFindingsSortKind =
+  | "trust-then-severity"
+  | "severity-desc"
+  | "severity-asc"
+  | "title-asc";
 
 export type RunDetailFindingsToolbarLayout = "full" | "compact";
 
@@ -58,11 +70,112 @@ export type RunDetailFindingsToolbarProps = {
   readonly onSearchQueryChange: (value: string) => void;
   readonly sort: RunDetailFindingsSortKind;
   readonly onSortChange: (sort: RunDetailFindingsSortKind) => void;
+  readonly originFilter: FindingOriginFilter;
+  readonly onOriginFilterChange: (filter: FindingOriginFilter) => void;
+  readonly groundingFilter: FindingGroundingFilter;
+  readonly onGroundingFilterChange: (filter: FindingGroundingFilter) => void;
   readonly exportSlot?: React.ReactNode;
   readonly layout?: RunDetailFindingsToolbarLayout;
   readonly packageCommitted?: boolean;
   readonly onNaturalLanguageFilterApply?: (facets: FindingsNaturalLanguageFacets) => void;
 };
+
+const ORIGIN_FILTER_OPTIONS: readonly { id: FindingOriginFilter; label: string }[] = [
+  { id: "all", label: "All origins" },
+  { id: "Deterministic rule", label: "Deterministic rule" },
+  { id: "Deterministic fallback", label: "Deterministic fallback" },
+  { id: "AI-generated", label: "AI-generated" },
+  { id: "Simulated", label: "Simulated" },
+];
+
+const GROUNDING_FILTER_OPTIONS: readonly { id: FindingGroundingFilter; label: string }[] = [
+  { id: "all", label: "All grounding" },
+  { id: "Evidence-backed", label: "Evidence-backed" },
+  { id: "Estimated", label: "Estimated" },
+  { id: "Ungrounded", label: "Ungrounded" },
+  { id: "Degraded", label: "Degraded" },
+  { id: "Not applicable", label: "Not applicable" },
+];
+
+function FindingsSortSelect(props: {
+  readonly id: string;
+  readonly sort: RunDetailFindingsSortKind;
+  readonly onSortChange: (sort: RunDetailFindingsSortKind) => void;
+}): React.JSX.Element {
+  return (
+    <div>
+      <Label htmlFor={props.id} className={OPERATOR_TYPOGRAPHY.helper}>
+        Sort
+      </Label>
+      <select
+        id={props.id}
+        className="mt-1 h-9 w-full rounded-md border border-neutral-200 bg-white px-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
+        value={props.sort}
+        onChange={(event) => {
+          props.onSortChange(event.target.value as RunDetailFindingsSortKind);
+        }}
+      >
+        <option value="trust-then-severity">Trust then severity</option>
+        <option value="severity-desc">Severity (high first)</option>
+        <option value="severity-asc">Severity (low first)</option>
+        <option value="title-asc">Title (A–Z)</option>
+      </select>
+    </div>
+  );
+}
+
+function FindingsProvenanceFilters(props: {
+  readonly idPrefix: string;
+  readonly originFilter: FindingOriginFilter;
+  readonly onOriginFilterChange: (filter: FindingOriginFilter) => void;
+  readonly groundingFilter: FindingGroundingFilter;
+  readonly onGroundingFilterChange: (filter: FindingGroundingFilter) => void;
+}): React.JSX.Element {
+  return (
+    <>
+      <div>
+        <Label htmlFor={`${props.idPrefix}-origin`} className={OPERATOR_TYPOGRAPHY.helper}>
+          Origin
+        </Label>
+        <select
+          id={`${props.idPrefix}-origin`}
+          className="mt-1 h-9 w-full rounded-md border border-neutral-200 bg-white px-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
+          value={props.originFilter}
+          onChange={(event) => {
+            props.onOriginFilterChange(event.target.value as FindingOriginFilter);
+          }}
+          data-testid={`${props.idPrefix}-origin`}
+        >
+          {ORIGIN_FILTER_OPTIONS.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <Label htmlFor={`${props.idPrefix}-grounding`} className={OPERATOR_TYPOGRAPHY.helper}>
+          Grounding
+        </Label>
+        <select
+          id={`${props.idPrefix}-grounding`}
+          className="mt-1 h-9 w-full rounded-md border border-neutral-200 bg-white px-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
+          value={props.groundingFilter}
+          onChange={(event) => {
+            props.onGroundingFilterChange(event.target.value as FindingGroundingFilter);
+          }}
+          data-testid={`${props.idPrefix}-grounding`}
+        >
+          {GROUNDING_FILTER_OPTIONS.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    </>
+  );
+}
 
 const FILTER_OPTIONS: readonly { id: RunDetailFindingsFilterKind; label: string }[] = [
   { id: "all", label: "All" },
@@ -90,6 +203,8 @@ export function filterFindingsForToolbar(
   domainFilter: string,
   searchQuery: string,
   jobView: FindingJobView = DEFAULT_FINDING_JOB_VIEW,
+  originFilter: FindingOriginFilter = "all",
+  groundingFilter: FindingGroundingFilter = "all",
 ): QuickDecisionFinding[] {
   const ownerNeedle = ownerFilter.trim().toLowerCase();
   const domainNeedle = domainFilter.trim().toLowerCase();
@@ -119,15 +234,15 @@ export function filterFindingsForToolbar(
 
     const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
 
-    if (filter === "awaiting-decision" && reviewStatus?.label !== "Pending review") {
+    if (filter === "awaiting-decision" && (reviewStatus?.label !== "Pending review" || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
-    if (filter === "resolved" && reviewStatus?.label !== "Approved" && reviewStatus?.label !== "Overridden") {
+    if (filter === "resolved" && !isReviewFindingDispositionClosed(finding)) {
       return false;
     }
 
-    if (filter === "unresolved" && (reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden")) {
+    if (filter === "unresolved" && isReviewFindingDispositionClosed(finding)) {
       return false;
     }
 
@@ -155,6 +270,10 @@ export function filterFindingsForToolbar(
       }
     }
 
+    if (!reviewFindingMatchesProvenanceFilter(finding, originFilter, groundingFilter)) {
+      return false;
+    }
+
     return true;
   });
 }
@@ -166,6 +285,10 @@ export function sortFindingsForToolbar(
   const rows = [...findings];
 
   rows.sort((a, b) => {
+    if (sort === "trust-then-severity") {
+      return compareFindingsByTrustThenSeverity(a, b);
+    }
+
     if (sort === "severity-desc") {
       return b.severityValue - a.severityValue || a.findingOrder - b.findingOrder;
     }
@@ -196,7 +319,7 @@ export function deriveFindingsToolbarStatusCounts(findings: readonly QuickDecisi
 
     const status = humanReviewStatusDisplay(finding.humanReviewStatus);
 
-    if (status?.label === "Approved" || status?.label === "Overridden") {
+    if (isReviewFindingDispositionClosed(finding)) {
       resolved += 1;
     } else if (status?.label === "Pending review") {
       awaitingDecision += 1;
@@ -236,6 +359,11 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
     () => deriveFindingsToolbarStatusCounts(props.findings),
     [props.findings],
   );
+  const rootCauseClusterCount = useMemo(() => {
+    const clusters = clusterReviewFindingsByRootCause(props.findings);
+
+    return [...clusters.values()].filter((members) => members.length > 1).length;
+  }, [props.findings]);
   const visibilitySummaryLine = formatFindingsVisibilitySummaryLine(
     props.renderedFindingCount ?? props.findings.length,
     props.toolbarFilteredCount ?? props.findings.length,
@@ -329,21 +457,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
             />
           </div>
           <div className="min-w-[12rem]">
-            <Label htmlFor="findings-sort" className={OPERATOR_TYPOGRAPHY.helper}>
-              Sort
-            </Label>
-            <select
-              id="findings-sort"
-              className="mt-1 h-9 w-full rounded-md border border-neutral-200 bg-white px-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
-              value={props.sort}
-              onChange={(event) => {
-                props.onSortChange(event.target.value as RunDetailFindingsSortKind);
-              }}
-            >
-              <option value="severity-desc">Severity (high first)</option>
-              <option value="severity-asc">Severity (low first)</option>
-              <option value="title-asc">Title (A–Z)</option>
-            </select>
+            <FindingsSortSelect id="findings-sort" sort={props.sort} onSortChange={props.onSortChange} />
           </div>
         </div>
 
@@ -361,6 +475,15 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
             data-testid="run-detail-findings-visibility-summary"
           >
             {visibilitySummaryLine}
+          </p>
+        ) : null}
+        {rootCauseClusterCount > 0 ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="run-detail-findings-root-cause-clusters"
+          >
+            {rootCauseClusterCount} root-cause cluster{rootCauseClusterCount === 1 ? "" : "s"} group related findings
+            before triage.
           </p>
         ) : null}
 
@@ -384,6 +507,13 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
         </div>
       ) : null}
             <div className="grid gap-3 sm:grid-cols-2">
+              <FindingsProvenanceFilters
+                idPrefix="findings-compact"
+                originFilter={props.originFilter}
+                onOriginFilterChange={props.onOriginFilterChange}
+                groundingFilter={props.groundingFilter}
+                onGroundingFilterChange={props.onGroundingFilterChange}
+              />
               <div>
                 <Label htmlFor="findings-owner-filter" className={OPERATOR_TYPOGRAPHY.helper}>
                   Owner filter
@@ -452,6 +582,15 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
           {visibilitySummaryLine}
         </p>
       ) : null}
+      {rootCauseClusterCount > 0 ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-findings-root-cause-clusters"
+        >
+          {rootCauseClusterCount} root-cause cluster{rootCauseClusterCount === 1 ? "" : "s"} group related findings
+          before triage.
+        </p>
+      ) : null}
       {jobViewToggle}
       <div className="flex flex-wrap gap-1" role="group" aria-label="Finding severity and status filters">
         {filterChips}
@@ -461,6 +600,15 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
           <FindingsNaturalLanguageFilter onApply={props.onNaturalLanguageFilterApply} />
         </div>
       ) : null}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <FindingsProvenanceFilters
+          idPrefix="findings"
+          originFilter={props.originFilter}
+          onOriginFilterChange={props.onOriginFilterChange}
+          groundingFilter={props.groundingFilter}
+          onGroundingFilterChange={props.onGroundingFilterChange}
+        />
+      </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Label htmlFor="findings-owner-filter" className={OPERATOR_TYPOGRAPHY.helper}>
@@ -504,23 +652,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
             className="mt-1 h-9"
           />
         </div>
-        <div>
-          <Label htmlFor="findings-sort" className={OPERATOR_TYPOGRAPHY.helper}>
-            Sort
-          </Label>
-          <select
-            id="findings-sort"
-            className="mt-1 h-9 w-full rounded-md border border-neutral-200 bg-white px-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
-            value={props.sort}
-            onChange={(event) => {
-              props.onSortChange(event.target.value as RunDetailFindingsSortKind);
-            }}
-          >
-            <option value="severity-desc">Severity (high first)</option>
-            <option value="severity-asc">Severity (low first)</option>
-            <option value="title-asc">Title (A–Z)</option>
-          </select>
-        </div>
+        <FindingsSortSelect id="findings-sort" sort={props.sort} onSortChange={props.onSortChange} />
       </div>
       {props.exportSlot !== null && props.exportSlot !== undefined ? (
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
@@ -547,13 +679,19 @@ export function useRunDetailFindingsToolbarState(): {
   readonly setSearchQuery: (value: string) => void;
   readonly sort: RunDetailFindingsSortKind;
   readonly setSort: (sort: RunDetailFindingsSortKind) => void;
+  readonly originFilter: FindingOriginFilter;
+  readonly setOriginFilter: (filter: FindingOriginFilter) => void;
+  readonly groundingFilter: FindingGroundingFilter;
+  readonly setGroundingFilter: (filter: FindingGroundingFilter) => void;
 } {
   const [filter, setFilter] = useState<RunDetailFindingsFilterKind>("all");
   const [jobView, setJobView] = useState<FindingJobView>(DEFAULT_FINDING_JOB_VIEW);
   const [ownerFilter, setOwnerFilter] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sort, setSort] = useState<RunDetailFindingsSortKind>("severity-desc");
+  const [sort, setSort] = useState<RunDetailFindingsSortKind>("trust-then-severity");
+  const [originFilter, setOriginFilter] = useState<FindingOriginFilter>("all");
+  const [groundingFilter, setGroundingFilter] = useState<FindingGroundingFilter>("all");
 
   return {
     filter,
@@ -568,6 +706,10 @@ export function useRunDetailFindingsToolbarState(): {
     setSearchQuery,
     sort,
     setSort,
+    originFilter,
+    setOriginFilter,
+    groundingFilter,
+    setGroundingFilter,
   };
 }
 

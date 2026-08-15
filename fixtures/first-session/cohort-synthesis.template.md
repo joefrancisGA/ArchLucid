@@ -74,6 +74,6 @@ automatically justify a change — it must clear this gate as **Justified now** 
 - [ ] **Hold** — no repeated bottleneck, or no confirmed bottleneck cleared the product decision gate as **Justified now**; do not open UI batch
 - [ ] **Ready for product review** — ≥1 confirmed bottleneck cleared the product decision gate as **Justified now**; schedule design review only (no implementation until owner approves)
 
-## Executive one-paragraph summary
+## Sponsor one-paragraph summary
 
 > 

@@ -10,7 +10,7 @@ import {
   resolveAccountSecurityAuthDomainsPeerLink,
 } from "@/lib/vocabulary/account-security-auth-domains-vocabulary";
 import { AUTH_DOMAINS_SETTINGS_CANONICAL_PATH } from "@/lib/auth-domains-settings-evidence-copy";
-import { SETTINGS_ACCOUNT_SECURITY_PATH } from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
 
 describe("account-security-auth-domains-vocabulary (TB-2293)", () => {
   it("explains account sign-in methods vs tenant auth domains", () => {
@@ -26,8 +26,8 @@ describe("account-security-auth-domains-vocabulary (TB-2293)", () => {
 
     expect(model.accountSecurityLink).toEqual(ACCOUNT_SECURITY_AUTH_DOMAINS_SECURITY_LINK);
     expect(model.accountSecurityLink.label).toBe("Sign-in methods");
-    expect(model.accountSecurityLink.href).toBe(SETTINGS_ACCOUNT_SECURITY_PATH);
-    expect(model.accountSecurityLink.href).toBe("/administration/account-security");
+    expect(model.accountSecurityLink.href).toBe(ACCOUNT_SECURITY_PATH);
+    expect(model.accountSecurityLink.href).toBe("/account/security");
 
     expect(model.authDomainsLink).toEqual(ACCOUNT_SECURITY_AUTH_DOMAINS_DOMAINS_LINK);
     expect(model.authDomainsLink.href).toBe(AUTH_DOMAINS_SETTINGS_CANONICAL_PATH);

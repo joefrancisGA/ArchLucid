@@ -3,8 +3,12 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const DIGESTS_HELP_CANONICAL_PATH = "/help/digests" as const;
 
+export const DIGESTS_HELP_TOPIC_LABEL = "How architecture digests work" as const;
+
+export const DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const DIGESTS_HELP_CLAIM_DISCIPLINE =
-  "This digests guide explains scheduled digest summaries — it is not a signed review record evidence trail.";
+  "This guide explains scheduled digest summaries, subscription destinations, and Browse exports — open Schedule, Subscriptions, or Browse when cadence or delivery still needs attention.";
 
 export const DIGESTS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

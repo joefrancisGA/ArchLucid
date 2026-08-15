@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import type { ReactElement } from "react";
@@ -29,10 +29,7 @@ function ProvenanceLink(props: {
     <li className="m-0">
       <Link
         href={href}
-        className={cn(
-          "font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100",
-          compact ? OPERATOR_TYPOGRAPHY.badge : OPERATOR_TYPOGRAPHY.body,
-        )}
+        className={compact ? cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.badge) : OPERATOR_BODY_INLINE_LINK_CLASS}
         data-testid="finding-provenance-link"
       >
         {label}

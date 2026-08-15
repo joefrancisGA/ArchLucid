@@ -10,21 +10,21 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestAdoptionBatch5AX(unittest.TestCase):
     def test_tb_244_kpi_links(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "executive-dashboard" / "_sections" / "ExecutiveRoiDashboardLiveKpiCards.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "sponsor-dashboard" / "_sections" / "SponsorRoiDashboardLiveKpiCards.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("KpiTileDrillThroughLink", text)
         self.assertIn("kpi-tile-stale-risks-link", text)
-        hrefs = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "executive" / "executive-kpi-drill-through-hrefs.ts"
+        hrefs = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor-kpi-drill-through-hrefs.ts"
         self.assertIn("filter=stale", hrefs.read_text(encoding="utf-8"))
 
     def test_tb_244_orphan_card_link(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "executive-dashboard" / "_sections" / "ExecutiveOrphanCandidatesCard.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "sponsor-dashboard" / "_sections" / "ExecutiveOrphanCandidatesCard.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("kpi-tile-orphan-candidates-link", text)
         self.assertIn("orphan-candidates", text)
 
     def test_tb_244_vitest(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "executive-dashboard" / "_sections" / "ExecutiveRoiDashboardLiveKpiCards.test.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "sponsor-dashboard" / "_sections" / "SponsorRoiDashboardLiveKpiCards.test.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("kpi-tile-resolved-30d-link", text)
 

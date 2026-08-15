@@ -1,4 +1,5 @@
 import { stripMarkdownSectionsByTitlePrefix } from "@/lib/help-markdown/section-strips";
+import { AZURE_BOARDS_HELP_LIMITATIONS_HEADING } from "@/lib/azure-boards-help-limitations-honesty";
 import { rewriteProcurementFaqBuyerPresentation } from "@/lib/procurement-help-presentation";
 import {
   applyLeakageRewriteTable,
@@ -21,6 +22,16 @@ import {
   isSoc2SelfAssessmentContributorLeakageLine,
   TRUST_CENTER_SECURITY_DOC_REQUEST_DISCLOSURE
 } from "./internal";
+/** TB-1622 — buyer-safe limitations heading instead of eng release-phase jargon. */
+export function rewriteAzureBoardsLimitationsHeadingHonesty(markdown: string): string {
+  return markdown
+    .replace(
+      /^## Known limitations \(Phase 1\)\s*$/gim,
+      `## ${AZURE_BOARDS_HELP_LIMITATIONS_HEADING}`,
+    )
+    .replace(/^## Known limitations\s*$/gim, `## ${AZURE_BOARDS_HELP_LIMITATIONS_HEADING}`);
+}
+
 export function stripAzureBoardsContributorLeakage(markdown: string): string {
   const lines = markdown.split("\n");
   const result: string[] = [];
@@ -558,8 +569,8 @@ export function stripTrustCenterContributorLeakage(markdown: string): string {
     .replace(/RTO_RPO_TARGETS\.md/gi, "RTO/RPO planning targets")
     .replace(/`REDIS_AND_MULTI_REGION\.md`/gi, "Redis and multi-region documentation")
     .replace(/REDIS_AND_MULTI_REGION\.md/gi, "Redis and multi-region documentation")
-    .replace(/`PER_TENANT_COST_MODEL\.md`/gi, "[Pilot ROI measurement](/help/executive-summary#pilot-roi-measurement)")
-    .replace(/PER_TENANT_COST_MODEL\.md/gi, "/help/executive-summary#pilot-roi-measurement")
+    .replace(/`PER_TENANT_COST_MODEL\.md`/gi, "[Pilot ROI measurement](/help/sponsor-report#pilot-roi-measurement)")
+    .replace(/PER_TENANT_COST_MODEL\.md/gi, "/help/sponsor-report#pilot-roi-measurement")
     .replace(/`SUPPORT_POLICY\.md`/gi, "[Procurement FAQ](/help/procurement)")
     .replace(/SUPPORT_POLICY\.md/gi, "/help/procurement")
     .replace(/`tests\/load\/[^`]+`/gi, "automated load tests")

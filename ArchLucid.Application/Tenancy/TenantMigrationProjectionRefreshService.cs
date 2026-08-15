@@ -45,7 +45,7 @@ public sealed class TenantMigrationProjectionRefreshService(
             ProjectId = projectId,
         };
 
-        string roiCacheKey = $"executive-roi:summary:{tenantId:N}:{workspaceId:N}:{projectId:N}";
+        string roiCacheKey = $"sponsor-roi:summary:{tenantId:N}:{workspaceId:N}:{projectId:N}";
         await _hotPathReadCache.RemoveAsync(roiCacheKey, cancellationToken).ConfigureAwait(false);
         await _hotPathReadCache
             .RemoveAsync($"{HotPathPrefix}tenant:{tenantId:N}", cancellationToken)

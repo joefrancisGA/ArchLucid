@@ -16,4 +16,4 @@ export const SEE_IT_MARKETING_PDF_HELPER =
   "The PDF is a no-sign-in marketing overview aligned with this sample — not the full governed evidence bundle from a signed-in workspace.";
 
 /** Ladder rung 2 — guided walkthrough on `/live-demo` (TB-1267). */
-export const SEE_IT_GUIDED_WALKTHROUGH_HREF = "/live-demo?step=executive" as const;
+export const SEE_IT_GUIDED_WALKTHROUGH_HREF = "/live-demo?step=sponsor" as const;

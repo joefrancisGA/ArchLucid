@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -185,6 +186,16 @@ public sealed class ArchitectureRequest
     }
 
     /// <summary>
+    ///     L0 MUST question answers supplied by Quick start or other direct CreateRun paths (TB-2283).
+    /// </summary>
+    [JsonPropertyName("intakeQuestionAnswers")]
+    public Dictionary<string, string> IntakeQuestionAnswers
+    {
+        get;
+        set;
+    } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
     ///     Explicit create-vs-review intent from homepage CTAs (<see cref="Common.ArchitectureWorkflowIntent" />).
     ///     Persisted in request JSON for package-origin derivation at run create (TB-740).
     /// </summary>
@@ -199,6 +210,24 @@ public sealed class ArchitectureRequest
     ///     resolved server-side at run create (TB-870). Invalid values fail closed to the workspace default.
     /// </summary>
     public string? ModelExecutionProfileOverride
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Optional per-review curated engine alias override (TB-2110); must be within the workspace allowed set.
+    /// </summary>
+    public string? ModelAliasOverride
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Server-resolved effective alias id frozen at run create for execution routing (TB-2110).
+    /// </summary>
+    public string? EffectiveModelAliasId
     {
         get;
         set;

@@ -30,7 +30,7 @@ export function resolveFindingOptionalArtifactUnavailableCopy(
         body: sampleReview || buyerPolishedShell
           ? "This explainability trace is unavailable for this sample review."
           : "Explainability was not generated for this review.",
-        tryNext: "Open the evidence graph or signed review record for persisted citations.",
+        tryNext: "Open the evidence graph or sealed review record for persisted citations.",
         showRetry: false,
       };
     }
@@ -41,7 +41,7 @@ export function resolveFindingOptionalArtifactUnavailableCopy(
         body: sampleReview || buyerPolishedShell
           ? "A related audit record was not published for this sample finding."
           : "No audit record is attached to this finding.",
-        tryNext: "Use the evidence graph and signed review record for the authoritative trail.",
+        tryNext: "Use the evidence graph and sealed review record for the authoritative trail.",
         showRetry: false,
       };
     }
@@ -58,7 +58,7 @@ export function resolveFindingOptionalArtifactUnavailableCopy(
     return {
       heading: kind === "explainability-trace" ? "Explainability trace temporarily unavailable" : "Related record temporarily unavailable",
       body: "ArchLucid could not load this optional artifact right now. Your finding summary and evidence links remain available.",
-      tryNext: "Retry in a moment, or continue from the evidence graph and signed review record.",
+      tryNext: "Retry in a moment, or continue from the evidence graph and sealed review record.",
       showRetry: true,
     };
   }
@@ -76,7 +76,7 @@ export function resolveFindingOptionalArtifactUnavailableCopy(
       body: buyerPolishedShell
         ? "Explainability was not generated for this review."
         : "Explainability trace data is not available for this finding.",
-      tryNext: "Use the evidence graph and signed review record for review-grade traceability.",
+      tryNext: "Use the evidence graph and sealed review record for review-grade traceability.",
       showRetry: true,
     };
   }

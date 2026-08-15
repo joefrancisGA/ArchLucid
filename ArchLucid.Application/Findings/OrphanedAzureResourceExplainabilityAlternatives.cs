@@ -39,6 +39,36 @@ public static class OrphanedAzureResourceExplainabilityAlternatives
             ];
         }
 
+        if (resourceType.Equals("Microsoft.Network/loadBalancers", StringComparison.OrdinalIgnoreCase))
+        {
+            return
+            [
+                "Attach backend pools to active VM scale sets or NICs.",
+                "Delete the load balancer if ingress is no longer required.",
+                "Consolidate front ends onto an existing load balancer in this scope."
+            ];
+        }
+
+        if (resourceType.Equals("Microsoft.Network/networkSecurityGroups", StringComparison.OrdinalIgnoreCase))
+        {
+            return
+            [
+                "Associate the NSG with subnets or NICs that require the rule set.",
+                "Delete the NSG if no workloads reference these rules.",
+                "Merge duplicate NSGs into a shared baseline for this scope."
+            ];
+        }
+
+        if (resourceType.Equals("Microsoft.Network/routeTables", StringComparison.OrdinalIgnoreCase))
+        {
+            return
+            [
+                "Associate the route table with subnets that need custom routing.",
+                "Delete the route table if default Azure routing is sufficient.",
+                "Merge routes into an existing shared route table for this scope."
+            ];
+        }
+
         return
         [
             "Delete the orphaned resource if no owner is identified in this scope.",

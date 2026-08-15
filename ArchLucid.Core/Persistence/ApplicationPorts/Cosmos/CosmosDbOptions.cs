@@ -15,6 +15,20 @@ public sealed class CosmosDbOptions
         set;
     }
 
+    /// <summary>Cosmos account endpoint URI when <see cref="AuthenticationMode" /> is ManagedIdentity.</summary>
+    public string? AccountEndpoint
+    {
+        get;
+        set;
+    }
+
+    /// <summary><c>ConnectionString</c> (default) or <c>ManagedIdentity</c> (Entra ID data plane, TB-906).</summary>
+    public string AuthenticationMode
+    {
+        get;
+        set;
+    } = "ConnectionString";
+
     /// <summary>Database id (logical database within the account).</summary>
     public string DatabaseName
     {

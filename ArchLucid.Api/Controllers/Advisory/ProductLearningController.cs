@@ -68,22 +68,27 @@ public sealed class ProductLearningController(
         LearningDashboardSummary full =
             await dashboardService.GetDashboardSummaryAsync(scope, options, cancellationToken);
 
-        ProductLearningDashboardSummaryResponse body = new()
-        {
-            GeneratedUtc = full.GeneratedUtc,
-            TenantId = full.TenantId,
-            WorkspaceId = full.WorkspaceId,
-            ProjectId = full.ProjectId,
-            TotalSignalsInScope = full.TotalSignalsInScope,
-            DistinctRunsTouched = full.DistinctRunsTouched,
-            TopAggregateCount = full.TopAggregates.Count,
-            ArtifactTrendCount = full.ArtifactTrends.Count,
-            ImprovementOpportunityCount = full.Opportunities.Count,
-            TriageQueueItemCount = full.TriageQueue.Count,
-            SummaryNotes = full.SummaryNotes
-        };
+        return Ok(ProductLearningDashboardSlicesMapper.MapSummary(full));
+    }
 
-        return Ok(body);
+    /// <summary>All dashboard slices from one scoped rollup (summary, opportunities, trends, triage).</summary>
+    [HttpGet("dashboard")]
+    [ProducesResponseType(typeof(ProductLearningDashboardBundleResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetDashboard([FromQuery] string? since, CancellationToken cancellationToken)
+    {
+        if (!ProductLearningQueryParser.TryParseOptionalSince(since, out DateTime? sinceUtc, out string? sinceError))
+            return this.BadRequestProblem(sinceError!, ProblemTypes.ValidationFailed);
+
+        ScopeContext scopeContext = scopeProvider.GetCurrentScope();
+        ProductLearningScope scope = ToProductLearningScope(scopeContext);
+
+        ProductLearningTriageOptions options = new() { SinceUtc = sinceUtc };
+
+        LearningDashboardSummary full =
+            await dashboardService.GetDashboardSummaryAsync(scope, options, cancellationToken);
+
+        return Ok(ProductLearningDashboardSlicesMapper.MapBundle(full));
     }
 
     /// <summary>Captures a scoped pilot feedback signal from a visible review output.</summary>
@@ -169,10 +174,7 @@ public sealed class ProductLearningController(
         LearningDashboardSummary full =
             await dashboardService.GetDashboardSummaryAsync(scope, options, cancellationToken);
 
-        return Ok(new ProductLearningImprovementOpportunitiesResponse
-        {
-            GeneratedUtc = full.GeneratedUtc, Opportunities = full.Opportunities
-        });
+        return Ok(ProductLearningDashboardSlicesMapper.MapOpportunities(full));
     }
 
     /// <summary>Artifact outcome trend rows for charts (same noise gates as the full dashboard).</summary>
@@ -193,10 +195,7 @@ public sealed class ProductLearningController(
         LearningDashboardSummary full =
             await dashboardService.GetDashboardSummaryAsync(scope, options, cancellationToken);
 
-        return Ok(new ProductLearningArtifactOutcomeTrendsResponse
-        {
-            GeneratedUtc = full.GeneratedUtc, Trends = full.ArtifactTrends
-        });
+        return Ok(ProductLearningDashboardSlicesMapper.MapTrends(full));
     }
 
     /// <summary>Triage queue slice (merged opportunities + repeated-comment themes), ordered deterministically.</summary>
@@ -223,10 +222,7 @@ public sealed class ProductLearningController(
         LearningDashboardSummary full =
             await dashboardService.GetDashboardSummaryAsync(scope, options, cancellationToken);
 
-        return Ok(new ProductLearningTriageQueueResponse
-        {
-            GeneratedUtc = full.GeneratedUtc, Items = full.TriageQueue
-        });
+        return Ok(ProductLearningDashboardSlicesMapper.MapTriage(full));
     }
 
     /// <summary>

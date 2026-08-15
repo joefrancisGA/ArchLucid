@@ -2,7 +2,7 @@ import { findBlockedRouteEntry } from "@/lib/cto-demo-blocked-route-registry";
 import { isDemoStrictNavigationRedirectsActive } from "@/lib/demo-ui-env";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
-export const COMPARISON_REPLAY_VALIDATE_REVIEW_PATH = "/internal/replay" as const;
+export const COMPARISON_REPLAY_VALIDATE_REVIEW_PATH = "/internal/validate-route" as const;
 
 export const COMPARISON_REPLAY_HELP_COMPARE_ACTION = {
   label: "Open Compare two reviews",
@@ -21,10 +21,17 @@ export const COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS = {
 
 export const COMPARISON_REPLAY_HELP_DECISION_PANEL_TITLE = "Choose your next step" as const;
 
+/** TB-1639 — first-viewport compare vs replay job chrome before deferred markdown detail. */
+export const COMPARISON_REPLAY_HELP_FIRST_VIEWPORT_TEST_ID = "help-comparison-replay-first-viewport";
+
+export const COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID = "help-comparison-replay-decision-panel";
+
+export const COMPARISON_REPLAY_HELP_DEFERRED_JOB_DETAIL_HEADING = "## When to compare";
+
 export const COMPARISON_REPLAY_HELP_DECISION_COMPARE = {
   title: "Compare two reviews",
   summary:
-    "Pick two finalized signed review records and generate a delta narrative for sponsors, reviewers, or governance.",
+    "Pick two finalized sealed review records and generate a delta narrative for sponsors, reviewers, or governance.",
 } as const;
 
 export const COMPARISON_REPLAY_HELP_DECISION_VALIDATE = {
@@ -38,7 +45,7 @@ export const COMPARISON_REPLAY_HELP_DIAGRAM_SOURCE = `flowchart TD
   START([What do you need?])
   START --> Q1{Do you have a saved comparison record to regenerate or re-export?}
   Q1 -->|Yes| Q2{Need drift verification against the stored record?}
-  Q1 -->|No| Q3{Need a delta narrative between two signed review records?}
+  Q1 -->|No| Q3{Need a delta narrative between two sealed review records?}
   Q2 -->|Yes| VFY[Replay with verify]
   Q2 -->|No| RPL[Replay saved comparison]
   Q3 -->|Yes| CMP[Compare two reviews]

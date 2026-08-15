@@ -8,7 +8,6 @@ import { useEffect, useRef, useState } from "react";
 import { ItsmAtlassianOAuthCallbackLoadingView } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackLoadingView";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { ItsmOAuthCallbackEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,8 +25,6 @@ import {
   mapItsmAtlassianOAuthIdpError,
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-error-copy";
 import {
-  ITSM_ATLASSIAN_OAUTH_CALLBACK_BREADCRUMB_INTEGRATIONS_LABEL,
-  ITSM_ATLASSIAN_OAUTH_CALLBACK_BREADCRUMB_JIRA_LABEL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_CONNECTOR_STATE_CONSENT_WITHOUT_CREDENTIAL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_CONNECTOR_STATE_UNCHANGED,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_FAILURE_TITLE,
@@ -198,15 +195,6 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
         navHref={INTEGRATIONS_JIRA_PATH}
         headingLevel="h1"
         actions={<PageContextualHelpButton />}
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="itsm-oauth-callback-breadcrumb"
-            items={[
-              { label: ITSM_ATLASSIAN_OAUTH_CALLBACK_BREADCRUMB_INTEGRATIONS_LABEL },
-              { label: ITSM_ATLASSIAN_OAUTH_CALLBACK_BREADCRUMB_JIRA_LABEL, href: INTEGRATIONS_JIRA_PATH },
-            ]}
-          />
-        }
       />
 
       <ItsmOAuthCallbackEvidenceOrientationStrip />

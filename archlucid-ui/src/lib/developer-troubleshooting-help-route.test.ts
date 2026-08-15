@@ -57,11 +57,9 @@ describe("engineering-troubleshooting-help-route (HDX / TB-1248)", () => {
       ENGINEERING_TROUBLESHOOTING_HELP_PAGE_TITLE,
     );
     expect(getProductDocumentationEntry("developer-troubleshooting")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("developer-troubleshooting")).toBe(
-      ENGINEERING_TROUBLESHOOTING_HELP_PATH,
-    );
+    expect(resolveHelpTopicPermanentRedirect("developer-troubleshooting")).toBeNull();
     expect(resolveHelpTopicPermanentRedirect("engineering-troubleshooting")).toBeNull();
-    expect(inAppHelpHref("developer-troubleshooting")).toBe(ENGINEERING_TROUBLESHOOTING_HELP_PATH);
+    expect(inAppHelpHref("developer-troubleshooting")).toBe("/help/developer-troubleshooting");
     expect(inAppHelpHref("engineering-troubleshooting")).toBe(ENGINEERING_TROUBLESHOOTING_HELP_PATH);
   });
 

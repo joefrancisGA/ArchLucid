@@ -48,7 +48,7 @@ describe("legacy-run-artifact-preview-route-doc-guard (TB-1823 / TB-1825 / TB-19
   it("keeps GAR as the live preview SoT and RER as a removed traffic row", () => {
     expect(REMOVED_RUN_ARTIFACT_PREVIEW_TRAFFIC_ROW_ID).toBe("RER");
     expect(RETIRED_RUN_ARTIFACT_PREVIEW_TRAFFIC_PATH).toBe(
-      "/architecture/reviews/[runId]/artifacts/[artifactId]",
+      "/architecture/reviews/[reviewId]/artifacts/[artifactId]",
     );
     expect(SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_ROW_ID).toBe("GAR");
     expect(SIGNED_RECORD_ARTIFACT_PREVIEW_TRAFFIC_PATH).toBe(
@@ -69,12 +69,12 @@ describe("legacy-run-artifact-preview-route-doc-guard (TB-1823 / TB-1825 / TB-19
   it("keeps RER in REDIRECT_ONLY_APP_PATHS and migrates signed-records artifacts to governance (TB-1823)", () => {
     const catalogSource = readFileSync(CATALOG_PATH, "utf8");
 
-    expect(catalogSource).toContain('"/architecture/reviews/[runId]/artifacts/[artifactId]"');
+    expect(catalogSource).toContain('"/architecture/reviews/[reviewId]/artifacts/[artifactId]"');
     expect(catalogSource).toContain(
       '"/signed-records/[manifestId]/artifacts/[artifactId]":',
     );
     expect(catalogSource).toContain(
-      '"/governance/signed-records/[manifestId]/artifacts/[artifactId]"',
+      '"/governance/sealed-records/[manifestId]/artifacts/[artifactId]"',
     );
   });
 });

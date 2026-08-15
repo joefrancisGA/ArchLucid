@@ -5,9 +5,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
 /**
- * Shared by `secondary` and `default`. A button that does not declare a variant must not
- * out-compete the teal `primary` action for emphasis, so the implicit variant is this quiet
- * neutral fill rather than a near-black one.
+ * Canonical operator `Button` variants (**TB-2290**).
+ * Color/fill rules: `docs/library/UI_DESIGN_SYSTEM.md` § *Button variant/color matrix*.
  */
 const SECONDARY_BUTTON_CLASS =
   "border border-neutral-400 bg-neutral-200 text-neutral-900 hover:bg-neutral-300 dark:border-neutral-500 dark:bg-neutral-700 dark:text-neutral-50 dark:hover:bg-neutral-600";

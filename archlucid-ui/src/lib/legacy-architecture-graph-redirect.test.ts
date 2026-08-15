@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { buildGraphRedirectPath } from "./legacy-architecture-graph-redirect";
 
-describe("buildGraphRedirectPath (TB-1808)", () => {
+describe("buildGraphRedirectPath (TB-1808 / TB-1810)", () => {
   it("returns bare evidence graph path when search is empty", () => {
     expect(buildGraphRedirectPath({})).toBe(EVIDENCE_GRAPH_PATH);
   });

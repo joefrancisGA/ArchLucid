@@ -3,6 +3,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const CONFIGURATION_REFERENCE_HELP_PAGE_TITLE = "Configuration reference";
 
+export const CONFIGURATION_REFERENCE_HELP_TOPIC_LABEL = "How configuration reference works" as const;
+
 export const CONFIGURATION_REFERENCE_HELP_PAGE_SUBTITLE =
   "Admin task guide: map identity/SSO and production-like hosting posture — then open the matching settings surface. Not buyer self-serve product help.";
 

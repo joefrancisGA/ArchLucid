@@ -5239,7 +5239,7 @@ BEGIN
 END;
 GO
 
-/* 103: Weekly executive digest email preferences (see Migrations/103_TenantExecDigestPreferences.sql). */
+/* 103: Weekly sponsor digest email preferences (see Migrations/103_TenantExecDigestPreferences.sql). */
 IF OBJECT_ID(N'dbo.TenantExecDigestPreferences', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.TenantExecDigestPreferences
@@ -9988,5 +9988,92 @@ BEGIN
     CREATE UNIQUE INDEX UX_TenantCatalogMigrations_Tenant_Active
         ON dbo.TenantCatalogMigrations (TenantId)
         WHERE CompletedUtc IS NULL;
+END;
+GO
+
+/* 310: Platform agent model catalog (TB-2103) + per-task evaluation evidence (TB-2105). */
+IF OBJECT_ID(N'dbo.AgentModelCatalogEntry', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AgentModelCatalogEntry
+    (
+        AliasId                  NVARCHAR(128) NOT NULL
+            CONSTRAINT PK_AgentModelCatalogEntry PRIMARY KEY,
+        ProviderConnectionKind   NVARCHAR(128) NOT NULL,
+        DeploymentName           NVARCHAR(260) NULL,
+        TierBinding              NVARCHAR(32) NULL,
+        CapabilityTagsJson       NVARCHAR(MAX) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_CapabilityTagsJson DEFAULT (N'[]'),
+        ApprovedTaskTypesJson    NVARCHAR(MAX) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_ApprovedTaskTypesJson DEFAULT (N'[]'),
+        StructuredOutputLevel    NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_StructuredOutputLevel DEFAULT (N'StrictJsonSchema'),
+        DataBoundary             NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_DataBoundary DEFAULT (N'AzureBoundary'),
+        ExternalSubprocessorDisclosureComplete BIT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_ExternalSubprocessorDisclosureComplete DEFAULT (0),
+        LifecycleStatus          NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_LifecycleStatus DEFAULT (N'Available'),
+        StructuredOutputProbeUtc DATETIME2(7) NULL,
+        TokenizerProfile           NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerProfile DEFAULT (N'CharHeuristic'),
+        CharsPerToken              INT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_CharsPerToken DEFAULT (4),
+        TokenizerErrorMarginPercent DECIMAL(5, 2) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerErrorMarginPercent DEFAULT (25.00),
+        InputUsdPerMillionTokens   DECIMAL(18, 6) NULL,
+        OutputUsdPerMillionTokens  DECIMAL(18, 6) NULL,
+        ReasoningUsdPerMillionTokens DECIMAL(18, 6) NULL,
+        CreatedUtc               DATETIME2(7) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        UpdatedUtc               DATETIME2(7) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_UpdatedUtc DEFAULT SYSUTCDATETIME()
+    );
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentModelCatalogEvaluation', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AgentModelCatalogEvaluation
+    (
+        AgentModelCatalogEvaluationId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_AgentModelCatalogEvaluation PRIMARY KEY,
+        AliasId                     NVARCHAR(128) NOT NULL,
+        TaskType                    NVARCHAR(128) NOT NULL,
+        EvaluationState             NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEvaluation_EvaluationState DEFAULT (N'NotEvaluated'),
+        EvidenceJson                NVARCHAR(MAX) NULL,
+        EvaluatedUtc                DATETIME2(7) NULL,
+        CONSTRAINT FK_AgentModelCatalogEvaluation_Entry
+            FOREIGN KEY (AliasId) REFERENCES dbo.AgentModelCatalogEntry (AliasId),
+        CONSTRAINT UQ_AgentModelCatalogEvaluation_AliasTask UNIQUE (AliasId, TaskType)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AgentModelCatalogEvaluation_AliasId
+        ON dbo.AgentModelCatalogEvaluation (AliasId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentModelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentModelCatalogEntry', N'ExternalSubprocessorDisclosureComplete') IS NULL
+BEGIN
+    ALTER TABLE dbo.AgentModelCatalogEntry
+        ADD ExternalSubprocessorDisclosureComplete BIT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_ExternalSubprocessorDisclosureComplete DEFAULT (0);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentModelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentModelCatalogEntry', N'TokenizerProfile') IS NULL
+BEGIN
+    ALTER TABLE dbo.AgentModelCatalogEntry
+        ADD TokenizerProfile NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerProfile DEFAULT (N'CharHeuristic'),
+            CharsPerToken INT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_CharsPerToken DEFAULT (4),
+            TokenizerErrorMarginPercent DECIMAL(5, 2) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerErrorMarginPercent DEFAULT (25.00),
+            InputUsdPerMillionTokens DECIMAL(18, 6) NULL,
+            OutputUsdPerMillionTokens DECIMAL(18, 6) NULL,
+            ReasoningUsdPerMillionTokens DECIMAL(18, 6) NULL;
 END;
 GO

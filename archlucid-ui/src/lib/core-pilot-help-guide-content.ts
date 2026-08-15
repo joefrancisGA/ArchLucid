@@ -1,10 +1,10 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
-import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
+export const CORE_PILOT_HELP_START_REVIEW_HREF = "/architecture/reviews/new" as const;
 export const CORE_PILOT_HELP_SUMMARY_TITLE = "First review path";
 
 export const CORE_PILOT_HELP_SUMMARY_COPY =
@@ -31,6 +31,35 @@ export type CorePilotHelpDeferredItem = {
   readonly description: string;
 };
 
+export type CorePilotHelpFirstViewportStep = {
+  readonly stepNumber: number;
+  readonly title: string;
+  readonly description: string;
+};
+
+/** TB-1685 — compact three-step orientation before optional paths and Related guides. */
+export const CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TITLE = "Your first review in three steps";
+
+export const CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID = "core-pilot-first-viewport-job-chrome";
+
+export const CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS: readonly CorePilotHelpFirstViewportStep[] = [
+  {
+    stepNumber: 1,
+    title: "Start a review",
+    description: "Open New architecture review — choose no cloud target when you are evidence-only.",
+  },
+  {
+    stepNumber: 2,
+    title: "Add evidence",
+    description: "Attach briefs, diagrams, documents, IaC, or exports on review detail.",
+  },
+  {
+    stepNumber: 3,
+    title: "Finalize and share",
+    description: "Run the review, finalize the package, and export sponsor-ready outputs.",
+  },
+];
+
 const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 /** TB-1332: name the curated Claims Intake showcase — not a bare "sample review" label. */
@@ -44,17 +73,17 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     description:
       "Open New architecture review and name what you want reviewed — goals, constraints, and scope. Saving an architecture draft is optional and separate from starting a review.",
     expectedOutput: "A new architecture review on your reviews list.",
-    href: "/architecture/reviews/new",
+    href: CORE_PILOT_HELP_START_REVIEW_HREF,
     ctaLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   },
   {
     stepNumber: 2,
     title: "Add evidence",
     description:
-      "Attach briefs, diagrams, documents, IaC, or exports. Cloud connectors are optional for this step.",
+      "After you start a review, attach briefs, diagrams, documents, IaC, or exports on review detail. Cloud connectors and Administration inventory ZIP upload are optional advanced paths.",
     expectedOutput: "Evidence linked to the architecture review before analysis runs.",
-    href: EXTRACT_UPLOAD_SETTINGS_PATH,
-    ctaLabel: "Open upload settings",
+    href: CORE_PILOT_HELP_START_REVIEW_HREF,
+    ctaLabel: "Start a review to add evidence",
   },
   {
     stepNumber: 3,
@@ -68,7 +97,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     stepNumber: 4,
     title: "Finalize review",
     description:
-      "Finalize when ready — this locks the signed review record, findings, and export surfaces on the architecture review.",
+      "Finalize when ready — this locks the sealed review record, findings, and export surfaces on the architecture review.",
     expectedOutput: "A finalized architecture review with artifacts and audit trail.",
     href: "/architecture/reviews/new",
     ctaLabel: "Finalize on review detail",
@@ -97,13 +126,13 @@ export const CORE_PILOT_HELP_CLOUD_ACTIONS: readonly CorePilotHelpActionCard[] =
     ctaLabel: "Cloud connections guide",
   },
   {
-    title: "Evidence-only upload",
-    description: "Upload inventory ZIPs or exports from your laptop when connector access is not approved yet.",
-    href: EXTRACT_UPLOAD_SETTINGS_PATH,
-    ctaLabel: "Open upload settings",
+    title: "Evidence-only review",
+    description:
+      "Start without cloud connectors — attach files on review detail. For workspace-wide inventory ZIP imports, use Administration → Extract & Upload after review intake.",
+    href: CORE_PILOT_HELP_START_REVIEW_HREF,
+    ctaLabel: "Start evidence-only review",
   },
 ];
-
 export const CORE_PILOT_HELP_DEFERRED_ITEMS: readonly CorePilotHelpDeferredItem[] = [
   {
     title: "Compare, replay, and portfolio graph at scale",
@@ -134,7 +163,7 @@ export const CORE_PILOT_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
 
 /** Hero + secondary actions for `/help/first-architecture-review` — no recursive pilot-guide link (TB-1040). */
 export const CORE_PILOT_HELP_PRIMARY_ACTIONS = {
-  startReview: { href: "/architecture/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
+  startReview: { href: CORE_PILOT_HELP_START_REVIEW_HREF, label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
   sampleReview: { href: sampleReviewHref, label: CORE_PILOT_HELP_SAMPLE_REVIEW_CTA_LABEL },
   troubleshooting: { href: inAppHelpHref("troubleshooting"), label: "Troubleshooting" },
 } as const;

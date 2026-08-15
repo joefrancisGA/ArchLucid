@@ -8,7 +8,10 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { useNotificationChannelDeliveryStatus } from "@/hooks/use-notification-channel-delivery-status";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -31,7 +34,7 @@ export function NotificationPreferenceCenterPageView() {
         title={NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE}
         subtitle={NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE}
         titleTestId="notification-preference-center-page-title"
-        actions={<PageContextualHelpButton />}
+        actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
       />
 
       <p

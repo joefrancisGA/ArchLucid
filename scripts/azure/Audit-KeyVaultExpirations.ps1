@@ -14,8 +14,11 @@
 .PARAMETER AsJson
     Emit a single JSON object instead of human-readable lines.
 
+.PARAMETER FlagMissingExpiration
+    Treat secrets, certificates, and keys without an expiration date as findings (TB-907 hygiene).
+
 .EXAMPLE
-    ./Audit-KeyVaultExpirations.ps1 -VaultName my-kv -DaysAhead 30
+    ./Audit-KeyVaultExpirations.ps1 -VaultName my-kv -DaysAhead 30 -FlagMissingExpiration
 #>
 #Requires -Version 7.0
 
@@ -28,7 +31,10 @@ param(
     [int] $DaysAhead = 30,
 
     [Parameter(Mandatory = $false)]
-    [switch] $AsJson
+    [switch] $AsJson,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $FlagMissingExpiration
 )
 
 Set-StrictMode -Version Latest
@@ -59,12 +65,28 @@ function Add-Finding([string] $Kind, [string] $Name, [datetime] $ExpiresUtc)
         })
 }
 
+function Add-MissingExpirationFinding([string] $Kind, [string] $Name)
+{
+    [void]$findings.Add([ordered]@{
+            kind = $Kind
+            name = $Name
+            expiresUtc = $null
+            vaultName = $VaultName
+            missingExpiration = $true
+        })
+}
+
 $secrets = Get-AzKeyVaultSecret -VaultName $VaultName -ErrorAction SilentlyContinue
 
 foreach ($secret in @($secrets))
 {
     if ($null -eq $secret.Expires)
     {
+        if ($FlagMissingExpiration)
+        {
+            Add-MissingExpirationFinding -Kind "secret" -Name $secret.Name
+        }
+
         continue
     }
 

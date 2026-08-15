@@ -90,7 +90,7 @@ export function AdvisoryRecurrenceScheduleVocabularyRail(
         </span>
         <Link
           href={peer.href}
-          className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+          className={OPERATOR_LINK.optional}
           data-testid="advisory-recurrence-schedule-vocabulary-peer-link"
         >
           {peer.label}

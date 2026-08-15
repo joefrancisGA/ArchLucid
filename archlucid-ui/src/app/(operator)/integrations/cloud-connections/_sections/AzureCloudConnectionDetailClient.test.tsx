@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 
 import type { ReactNode } from "react";
 
@@ -67,6 +67,7 @@ vi.mock("@/lib/api/cloud-connections-api", () => ({
 import { AzureCloudConnectionDetailClient } from "./AzureCloudConnectionDetailClient";
 
 import { AZURE_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/azure-cloud-connection-copy";
+import { CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE } from "@/lib/cloud-provider-connection-evidence-copy";
 
 
 
@@ -127,6 +128,46 @@ describe("AzureCloudConnectionDetailClient", () => {
     expect(screen.getByTestId("azure-connection-header-connect")).toHaveTextContent("Connect Azure subscription");
 
     expect(screen.getByTestId("azure-connection-header-connect")).toHaveAttribute("href", "#connection-details");
+
+  });
+
+
+
+  it("mounts claim-discipline sources matching the AWS cloud detail page (P0-3, P0-8)", async () => {
+
+    render(<AzureCloudConnectionDetailClient />);
+
+
+
+    await waitFor(() => {
+
+      expect(screen.getByTestId("azure-connection-header-status")).toHaveTextContent("Not connected");
+
+    });
+
+
+
+    expect(screen.getByTestId("cloud-connections-azure-claim-discipline")).toHaveTextContent(
+
+      CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
+
+    );
+
+    const sources = screen.getByTestId("cloud-connections-azure-sources");
+
+    expect(within(sources).getByRole("link", { name: "Connection status" })).toHaveAttribute(
+
+      "href",
+
+      "/administration/connection-status",
+
+    );
+
+    expect(
+
+      within(sources).queryByRole("link", { name: /integrations\/cloud-connections\/azure/i }),
+
+    ).not.toBeInTheDocument();
 
   });
 

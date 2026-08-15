@@ -1,7 +1,5 @@
-import {
-  humanReviewStatusDisplay,
-  type QuickDecisionFinding,
-} from "@/lib/quick-decision-summary-derive";
+import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 /** Minimum evaluation score (0–100 scale) before a finding is shown by default. */
 export const LOW_CONFIDENCE_EVALUATION_SCORE_THRESHOLD = 40;
@@ -32,9 +30,7 @@ export function isApprovalBlockingFinding(finding: QuickDecisionFinding): boolea
     return false;
   }
 
-  const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
-
-  if (reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden") {
+  if (isReviewFindingDispositionClosed(finding)) {
     return false;
   }
 

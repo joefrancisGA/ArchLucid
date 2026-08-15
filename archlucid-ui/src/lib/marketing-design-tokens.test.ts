@@ -14,7 +14,10 @@ describe("marketing design tokens", () => {
   it("shares operator page shell but uses a wider marketing rail", () => {
     expect(MARKETING_LAYOUT.page).toBe(OPERATOR_LAYOUT.page);
     expect(MARKETING_LAYOUT.main).toContain("max-w-6xl");
-    expect(MARKETING_TYPOGRAPHY.body).toBe(OPERATOR_TYPOGRAPHY.body);
+    expect(MARKETING_TYPOGRAPHY.body).toContain("text-base");
+    expect(MARKETING_TYPOGRAPHY.body).not.toBe(OPERATOR_TYPOGRAPHY.body);
+    expect(MARKETING_TYPOGRAPHY.meta).toContain("text-sm");
+    expect(MARKETING_TYPOGRAPHY.meta).not.toBe(OPERATOR_TYPOGRAPHY.helper);
   });
 
   it("uses marketing-scale hero and section typography", () => {
@@ -30,10 +33,11 @@ describe("marketing design tokens", () => {
     expect(MARKETING_SURFACES.highlightPanel).toContain("bg-al-surface-raised");
   });
 
-  it("keeps primary marketing CTA on AA-safe teal fills", () => {
-    expect(MARKETING_PRIMARY_CTA_CLASS).toContain("bg-teal-800");
-    expect(MARKETING_PRIMARY_CTA_CLASS).not.toMatch(/\bbg-teal-[67]00\b/);
-    expect(MARKETING_PRIMARY_CTA_CLASS).not.toContain("dark:bg-teal-600");
+  it("shares operator primary-action tokens for marketing CTAs (TB-2292)", () => {
+    expect(MARKETING_PRIMARY_CTA_CLASS).toContain("--al-primary-action-bg");
+    expect(MARKETING_PRIMARY_CTA_CLASS).toContain("--al-primary-action-fg");
+    expect(MARKETING_PRIMARY_CTA_CLASS).toContain("--al-primary-action-bg-hover");
+    expect(MARKETING_PRIMARY_CTA_CLASS).not.toMatch(/\bbg-teal-/);
   });
 
   it("exposes motion utility class names for marketing surfaces", () => {

@@ -50,7 +50,7 @@ describe("resolveAcceleratorChooserPrerequisitePresentation", () => {
     ).toEqual({ status: "not-met", signedRecordHref: null });
   });
 
-  it("deep-links to signed review record detail when manifest id resolves", () => {
+  it("deep-links to sealed review record detail when manifest id resolves", () => {
     expect(
       resolveAcceleratorChooserPrerequisitePresentation({
         commitQueryPending: false,
@@ -61,7 +61,7 @@ describe("resolveAcceleratorChooserPrerequisitePresentation", () => {
       }),
     ).toEqual({
       status: "met",
-      signedRecordHref: "/governance/signed-records/manifest-abc",
+      signedRecordHref: "/governance/sealed-records/manifest-abc",
     });
   });
 
@@ -77,7 +77,7 @@ describe("resolveAcceleratorChooserPrerequisitePresentation", () => {
     ).toEqual({ status: "checking", signedRecordHref: null });
   });
 
-  it("falls back to the signed review records list when manifest id is missing", () => {
+  it("falls back to the sealed review records list when manifest id is missing", () => {
     expect(
       resolveAcceleratorChooserPrerequisitePresentation({
         commitQueryPending: false,
@@ -88,7 +88,7 @@ describe("resolveAcceleratorChooserPrerequisitePresentation", () => {
       }),
     ).toEqual({
       status: "met",
-      signedRecordHref: "/governance/signed-records",
+      signedRecordHref: "/governance/sealed-records",
     });
   });
 });

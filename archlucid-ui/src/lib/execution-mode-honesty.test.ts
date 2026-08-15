@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveExecutiveTrendSavingsUsd } from "@/lib/execution-mode-honesty";
+import { resolveSponsorTrendSavingsUsd } from "@/lib/execution-mode-honesty";
 
-describe("resolveExecutiveTrendSavingsUsd (TB-984)", () => {
+describe("resolveSponsorTrendSavingsUsd (TB-984)", () => {
   const mixedPoint = {
     totalEstimatedUsdSavings: 500,
     realModeSavingsUsd: 300,
@@ -18,12 +18,12 @@ describe("resolveExecutiveTrendSavingsUsd (TB-984)", () => {
   };
 
   it("keeps aggregate totals on operator-density shells", () => {
-    expect(resolveExecutiveTrendSavingsUsd(mixedPoint, false)).toBe(500);
-    expect(resolveExecutiveTrendSavingsUsd(simulatorOnlyPoint, false)).toBe(100);
+    expect(resolveSponsorTrendSavingsUsd(mixedPoint, false)).toBe(500);
+    expect(resolveSponsorTrendSavingsUsd(simulatorOnlyPoint, false)).toBe(100);
   });
 
   it("uses Real-mode savings on buyer-polished shells", () => {
-    expect(resolveExecutiveTrendSavingsUsd(mixedPoint, true)).toBe(300);
-    expect(resolveExecutiveTrendSavingsUsd(simulatorOnlyPoint, true)).toBe(0);
+    expect(resolveSponsorTrendSavingsUsd(mixedPoint, true)).toBe(300);
+    expect(resolveSponsorTrendSavingsUsd(simulatorOnlyPoint, true)).toBe(0);
   });
 });

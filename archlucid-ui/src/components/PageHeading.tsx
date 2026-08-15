@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_TOPIC_PAGE_ICON, isHelpTopicHref } from "@/lib/help/help-topic-page-icon";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 
@@ -39,6 +39,8 @@ export type PageHeadingProps = {
   navHref: string;
   title: string;
   description?: ReactNode;
+  /** Optional hierarchy label rendered above the title (for example help topic grouping). */
+  eyebrow?: string;
   metadata?: ReactNode;
   /** Rare override when nav-config has no icon for the route. */
   icon?: LucideIcon;
@@ -63,6 +65,7 @@ export function PageHeading({
   navHref,
   title,
   description,
+  eyebrow,
   metadata,
   icon,
   headingLevel = "h1",
@@ -103,6 +106,11 @@ export function PageHeading({
       <div className="flex flex-wrap items-start gap-3">
         {iconNode}
         <div className="min-w-0 flex-1 space-y-2">
+          {eyebrow !== undefined && eyebrow.length > 0 ? (
+            <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)} data-testid="page-heading-eyebrow">
+              {eyebrow}
+            </p>
+          ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <HeadingTag
               className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}

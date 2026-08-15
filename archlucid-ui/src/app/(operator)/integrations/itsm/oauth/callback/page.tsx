@@ -2,15 +2,12 @@ import { Suspense } from "react";
 
 import { ItsmAtlassianOAuthCallbackClient } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackClient";
 import { ItsmAtlassianOAuthCallbackLoadingView } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackLoadingView";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_CARD, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { INTEGRATIONS_JIRA_PATH } from "@/lib/integrations-nav-paths";
 import {
-  ITSM_ATLASSIAN_OAUTH_CALLBACK_BREADCRUMB_INTEGRATIONS_LABEL,
-  ITSM_ATLASSIAN_OAUTH_CALLBACK_BREADCRUMB_JIRA_LABEL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE,
 } from "@/lib/itsm/itsm-atlassian-oauth-callback-page-copy";
 import { cn } from "@/lib/utils";
@@ -27,15 +24,6 @@ function ItsmOAuthCallbackLoading(): React.ReactElement {
         navHref={INTEGRATIONS_JIRA_PATH}
         headingLevel="h1"
         actions={<PageContextualHelpButton />}
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="itsm-oauth-callback-breadcrumb"
-            items={[
-              { label: ITSM_ATLASSIAN_OAUTH_CALLBACK_BREADCRUMB_INTEGRATIONS_LABEL },
-              { label: ITSM_ATLASSIAN_OAUTH_CALLBACK_BREADCRUMB_JIRA_LABEL, href: INTEGRATIONS_JIRA_PATH },
-            ]}
-          />
-        }
       />
 
       <Card className="max-w-[40rem] border-neutral-200/80 bg-al-surface-raised dark:border-neutral-800">

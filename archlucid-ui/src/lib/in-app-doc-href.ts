@@ -8,12 +8,12 @@ import { inAppHelpHref, PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-doc
 const DOC_PATH_TO_ABSOLUTE_HREF: Readonly<Record<string, string>> = {
   /** Customer-facing FAQ.md is a path-stable stub; buyer Q&A lives on marketing `/faq`. */
   "docs/library/customer-facing/faq.md": "/faq",
-  /** Pilot ROI measurement folded into executive-summary (PI retired 2026-08-11). */
-  "docs/go-to-market/roi_model.md": "/help/executive-summary#pilot-roi-measurement",
+  /** Pilot ROI measurement folded into sponsor-report (PI retired 2026-08-11). */
+  "docs/go-to-market/roi_model.md": "/help/sponsor-report#pilot-roi-measurement",
   "docs/library/buyer_scalability_faq.md": "/help/security-trust#scalability-and-load-evidence",
-  "docs/library/pilot_roi_model.md": "/help/executive-summary#pilot-roi-measurement",
-  "docs/deployment/per_tenant_cost_model.md": "/help/executive-summary#pilot-roi-measurement",
-  "docs/library/per_tenant_cost_model.md": "/help/executive-summary#pilot-roi-measurement",
+  "docs/library/pilot_roi_model.md": "/help/sponsor-report#pilot-roi-measurement",
+  "docs/deployment/per_tenant_cost_model.md": "/help/sponsor-report#pilot-roi-measurement",
+  "docs/library/per_tenant_cost_model.md": "/help/sponsor-report#pilot-roi-measurement",
   "docs/runbooks/first_value_20_minutes.md": "/help/first-architecture-review#first-value-in-20-minutes",
   /** Shared with the printable checklist entry; prefer the 20-minute anchor for this source path. */
   "docs/runbooks/first_pilot_operator_path.md": "/help/first-architecture-review#first-value-in-20-minutes",
@@ -57,7 +57,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/architecture_flows.md": "getting-started",
   "docs/library/live_e2e_happy_path.md": "engineering-troubleshooting",
   "docs/library/finding_engine_output_reference.md": "evidence-trail",
-  "docs/go-to-market/competitive_comparison.md": "executive-summary",
+  "docs/go-to-market/competitive_comparison.md": "sponsor-report",
   "docs/demo/demo_recording_storyboard.md": "pilot-guide",
   "docs/start_here.md": "choose-your-next-step",
   "docs/core_pilot.md": "first-architecture-review",
@@ -86,8 +86,9 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/go-to-market/buyer_security_procurement_packet.md": "procurement",
   "docs/library/hosted_enterprise_onboarding_checklist.md": "enterprise-onboarding",
   "docs/library/customer-facing/cloud_connections.md": "cloud-connections",
-  "docs/executive_sponsor_brief.md": "executive-summary",
-  "docs/go-to-market/executive_sponsor_brief.md": "executive-summary",
+  "docs/executive_sponsor_brief.md": "sponsor-report",
+  "docs/go-to-market/executive_sponsor_brief.md": "sponsor-report",
+  "docs/go-to-market/sponsor_sponsor_brief.md": "sponsor-report",
   "docs/library/agent_output_evaluation.md": "engineering-troubleshooting",
   "docs/library/saml_sp_certificate_rotation_runbook.md": "enterprise-onboarding",
   "docs/go-to-market/default_policy_packs_v1.md": "governance-approval",

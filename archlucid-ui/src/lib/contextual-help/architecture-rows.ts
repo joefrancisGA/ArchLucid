@@ -37,18 +37,6 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
     },
   },
   {
-    prefix: "/architecture/architectures",
-    entry: {
-      whatIsThisPage:
-        "Architectures list - browse and resume saved architecture drafts before filing evidence for review.",
-      whatToDoNext:
-        "Open a draft to continue editing, or Create architecture when you need a new brief, then Start a review when ready.",
-      whyEmpty: "Drafts appear after the architectures API responds; empty lists mean no drafts are saved yet.",
-      whereToConfigurePrerequisite:
-        "Drafting uses the workspace and project selected in the header switcher; listing drafts does not start a review.",
-    },
-  },
-  {
     prefix: "/architecture/architectures/new",
     entry: {
       whatIsThisPage:
@@ -59,19 +47,6 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
         "Recent drafts appear after the architectures API responds; empty lists mean no drafts are saved yet.",
       whereToConfigurePrerequisite:
         "Drafting uses the workspace and project selected in the header switcher; creating a draft does not start a review.",
-    },
-  },
-  {
-    prefix: "/architecture/architecture-intelligence",
-    entry: {
-      whatIsThisPage:
-        "Architecture intelligence - run closed-loop architecture reasoning or the golden regression harness against a free-form description, then publish findings into the workspace review trail when ready.",
-      whatToDoNext:
-        "Paste or edit a description, choose Run architecture reasoning or Run golden harness, then use Publish findings into review when the output is ready to attach as findings.",
-      whyEmpty:
-        "Results appear after a successful run; empty panels mean you have not submitted a description yet or the last run returned no structured output.",
-      whereToConfigurePrerequisite:
-        "Requires an authenticated Core API session and LLM/reasoning configuration for the tenant; sibling Start a review files evidence for a full review pipeline.",
     },
   },
   {

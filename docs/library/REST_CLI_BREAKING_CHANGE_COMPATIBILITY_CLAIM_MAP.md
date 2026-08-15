@@ -4,7 +4,7 @@
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
 
-**Status:** **Done** (**TB-1559**, 2026-08-10). GTM **M-288** / **M-289**. Pair honesty CI **TB-1560** / **M-288**.
+**Status:** **Done** (**TB-1559**, 2026-08-10). GTM **M-288** / **M-289**. Honesty CI **TB-1560** / **M-288** **Done** (2026-08-14).
 
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#rest-cli-breaking-change-compatibility-m-289`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#rest-cli-breaking-change-compatibility-m-289) (GTM **M-289**).  
 **Claim honesty:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (GTM **M-288**).
@@ -97,7 +97,13 @@
 | [`OPENAPI_CONTRACT_DRIFT.md`](OPENAPI_CONTRACT_DRIFT.md) | Snapshot refresh workflow |
 | [`API_CONTRACTS.md`](API_CONTRACTS.md) | Written break/non-break policy |
 | Done **TB-1559** / **M-288** | This compatibility claim map |
-| Open **TB-1560** / **M-288** | Honesty CI follow-on |
+| Done **TB-1560** / **M-288** | Honesty CI (`check_rest_cli_breaking_change_compat_honesty.py`) |
+
+## 8. CI anchors for **TB-1560**
+
+- Guard: `scripts/ci/check_rest_cli_breaking_change_compat_honesty.py` (+ unit tests; wired in `run_buyer_surface_strict_guards.py`).
+- Vitest inventory: `archlucid-ui/src/lib/rest-cli-breaking-change-compat-honesty.test.ts`.
+- Code anchors: `OpenApiContractSnapshotTests`, `API_CONTRACTS.md`, `OPENAPI_CONTRACT_DRIFT.md`, `ApiDeprecationHeadersMiddleware`.
 
 ---
 

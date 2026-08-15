@@ -72,7 +72,7 @@ export type ReviewStatusSummary = {
   readonly primaryConcern: string | null;
   readonly nextAction: string;
 }
-export type ExecutiveBottomLineContent =
+export type SponsorBottomLineContent =
   | {
       readonly kind: "narrative";
       readonly text: string;

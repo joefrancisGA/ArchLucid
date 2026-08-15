@@ -294,7 +294,7 @@ export const alertsPageLeadReader = "Filter and page.";
 
 /** Semantic search — subtitle under title (`search/page.tsx`). */
 export const semanticSearchPageSubtitleOperator =
-  "Find evidence, findings, decisions, and signed review records across this workspace.";
+  "Find evidence, findings, decisions, and sealed review records across this workspace.";
 
 /** semanticSearchPageSubtitleOperator — expanded note for engineers (optional collapse). Kept out of the default subtitle. */
 export const semanticSearchPageDeploymentNoteDev =

@@ -2,20 +2,17 @@
 
 import { useEffect } from "react";
 
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { fetchTenantTrialStatusCached } from "@/lib/tenant-trial-status-client";
 
 /** Session guard: after SaaS trial pre-seed, first visit to operator home lands on the welcome run detail. */
 const SESSION_KEY = "archlucid_trial_welcome_home_redirect_v1";
 
 /** e2e / automation: when set, home never auto-deep-links (avoids competing App Router transitions). */
 export const TRIAL_WELCOME_HOME_REDIRECT_SUPPRESS_VALUE = "__suppress__";
-
-type TrialStatusPayload = {
-  trialWelcomeRunId?: string | null;
-};
 
 /**
  * One-time redirect from operator home (`/`) to `/architecture/reviews/{trialWelcomeRunId}` when the API exposes a pre-seeded
@@ -25,7 +22,13 @@ type TrialStatusPayload = {
  * in-flight soft transition that wedges later Link navigations from Overview (Next 16.2 / loading.tsx stall).
  */
 export function TrialWelcomeRunDeepLink() {
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+
   useEffect(() => {
+    if (!concernFetchEnabled) {
+      return;
+    }
+
     if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
       return;
     }
@@ -38,17 +41,13 @@ export function TrialWelcomeRunDeepLink() {
           return;
         }
 
-        const res = await fetch(
-          "/api/proxy/v1/tenant/trial-status",
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
+        const payload = await fetchTenantTrialStatusCached();
 
-        if (!res.ok || canceled) {
+        if (canceled) {
           return;
         }
 
-        const json = (await res.json()) as TrialStatusPayload;
-        const welcomeId = json.trialWelcomeRunId?.trim() ?? "";
+        const welcomeId = payload?.trialWelcomeRunId?.trim() ?? "";
 
         if (!welcomeId) {
           return;
@@ -75,7 +74,7 @@ export function TrialWelcomeRunDeepLink() {
     return () => {
       canceled = true;
     };
-  }, []);
+  }, [concernFetchEnabled]);
 
   return null;
 }

@@ -424,27 +424,29 @@ function describeLocalCadence(
   const utcMonth = parseSingleCronField(parsed.month);
   const dayName = DAY_NAMES[parts.weekday] ?? "day";
 
+  const cadenceWithZone = (cadence: string): string => `${cadence} — ${zoneLabel}`;
+
   if (kind === "weekly") {
     return {
-      primary: `Weekly on ${dayName} at ${clockWithOffset} (${zoneLabel})`,
+      primary: cadenceWithZone(`Weekly on ${dayName} at ${clockWithOffset}`),
     };
   }
 
   if (kind === "daily") {
     return {
-      primary: `Daily at ${clockWithOffset} (${zoneLabel})`,
+      primary: cadenceWithZone(`Daily at ${clockWithOffset}`),
     };
   }
 
   if (kind === "quarterly") {
     return {
-      primary: `Quarterly on the ${ordinalDay(utcDom)} at ${clockWithOffset} (${zoneLabel})`,
+      primary: cadenceWithZone(`Quarterly on the ${ordinalDay(utcDom)} at ${clockWithOffset}`),
     };
   }
 
   if (kind === "monthly") {
     return {
-      primary: `Monthly on the ${ordinalDay(utcDom)} at ${clockWithOffset} (${zoneLabel})`,
+      primary: cadenceWithZone(`Monthly on the ${ordinalDay(utcDom)} at ${clockWithOffset}`),
     };
   }
 
@@ -452,7 +454,7 @@ function describeLocalCadence(
     const monthName = MONTH_NAMES[utcMonth - 1] ?? "month";
 
     return {
-      primary: `Annually on ${monthName} ${utcDom} at ${clockWithOffset} (${zoneLabel})`,
+      primary: cadenceWithZone(`Annually on ${monthName} ${utcDom} at ${clockWithOffset}`),
     };
   }
 

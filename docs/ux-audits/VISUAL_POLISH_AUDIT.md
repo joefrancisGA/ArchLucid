@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-29  
 **Scope:** Typography · Spacing · Card design · Badges/severity · Empty/loading/error states · CTA hierarchy · Shell consistency  
-**Golden path audited:** Home → Reviews list → Review detail → Executive view → Evidence graph → Governance → Audit  
+**Golden path audited:** Home → Reviews list → Review detail → Sponsor view → Evidence graph → Governance → Audit  
 **Constraint:** No new features. Prefer token-level and copy fixes over rewrites.  
 **Backlog cross-reference:** TB-535–TB-544
 
@@ -247,7 +247,7 @@ aria-label="Evidence trail: context, primary finding, decisions, and finalized s
 ```tsx
 // Change:
 const reviewContextLabel =
-  surface === "executive"
+  surface === "sponsor"
     ? "Open risk review"
     : isDemoRunIdEligibleForStaticFallback(runId)
       ? "Open cited evidence"
@@ -255,7 +255,7 @@ const reviewContextLabel =
 
 // To:
 const reviewContextLabel =
-  surface === "executive" ? "Open risk review" : "Open review summary";
+  surface === "sponsor" ? "Open risk review" : "Open review summary";
 ```
 
 ---

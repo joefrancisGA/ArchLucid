@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 
 using ArchLucid.Cli;
@@ -272,13 +272,13 @@ internal sealed class ShipGateEvidenceRunner(
             return new ShipGateEvidenceGateResult
             {
                 GateNumber = 3,
-                Name = "Executive summary / ROI output coherent and not misleading",
+                Name = "Sponsor report / ROI output coherent and not misleading",
                 Verdict = verdict,
                 Evidence =
                     $"roiCoherenceSignalsPassed={passCount}/{probeResults.Count}; contractSignals={probeResults.Count}; failed=[{failedSummary}].",
                 FastestResolution = verdict == ShipGateEvidenceVerdict.Pass
                     ? null
-                    : "Verify executive ROI payload includes disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on GET /v1/roi/executive-summary, then rerun ship-gate evidence.",
+                    : "Verify sponsor ROI payload includes disposition-aware scope labels, basisBreakdown buckets, and headline math (open+needsEvidence) on GET /v1/roi/sponsor-report, then rerun ship-gate evidence.",
             };
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or InvalidOperationException)
@@ -286,7 +286,7 @@ internal sealed class ShipGateEvidenceRunner(
             return new ShipGateEvidenceGateResult
             {
                 GateNumber = 3,
-                Name = "Executive summary / ROI output coherent and not misleading",
+                Name = "Sponsor report / ROI output coherent and not misleading",
                 Verdict = ShipGateEvidenceVerdict.Fail,
                 Evidence = ex.Message,
                 FastestResolution = "Confirm API connectivity/auth and rerun ship-gate evidence.",

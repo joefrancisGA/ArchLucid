@@ -55,7 +55,7 @@ public sealed class ReplayComparisonRequestValidatorTests
 
     [Theory]
     [InlineData("default")]
-    [InlineData("executive")]
+    [InlineData("sponsor")]
     public void Valid_profile_passes(string profile)
     {
         ReplayComparisonRequest request = new() { Profile = profile };

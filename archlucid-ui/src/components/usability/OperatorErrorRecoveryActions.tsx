@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -18,7 +18,7 @@ export function OperatorErrorRecoveryActions(props: OperatorErrorRecoveryActions
     <div className={cn("mt-3 flex flex-wrap items-center gap-3", OPERATOR_TYPOGRAPHY.body)} data-testid="operator-error-recovery-actions">
       <button
         type="button"
-        className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
+        className={cn("auth-panel-focus cursor-pointer", OPERATOR_BODY_INLINE_LINK_CLASS)}
         onClick={() => {
           window.location.reload();
         }}
@@ -33,12 +33,12 @@ export function OperatorErrorRecoveryActions(props: OperatorErrorRecoveryActions
           variant="text"
         />
       ) : (
-        <Link href="/help/troubleshooting" className="text-teal-800 underline dark:text-teal-300">
+        <Link href="/help/troubleshooting" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
           Open troubleshooting
         </Link>
       )}
       {props.showSystemHealth === true ? (
-        <Link href="/administration/system-health" className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
+        <Link href="/administration/system-health" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
           System health
         </Link>
       ) : null}

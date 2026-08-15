@@ -1,0 +1,249 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
+import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { listRunsByProjectPaged } from "@/lib/api";
+import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
+import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
+import { areSpineStaticDemoPayloadsAvailable, tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
+import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import { cn } from "@/lib/utils";
+
+import { enrichSignedRecordsListRows } from "./enrich-signed-records-list-rows";
+import { SignedRecordsListTableDeferred } from "./signed-records-list-deferred-chunks";
+import {
+  formatSignedRecordsListRecordCount,
+  SIGNED_RECORDS_LIST_EMPTY_BODY,
+  SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL,
+  SIGNED_RECORDS_LIST_EMPTY_SAMPLE_CTA,
+  SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF,
+  SIGNED_RECORDS_LIST_EMPTY_SECONDARY_LABEL,
+  SIGNED_RECORDS_LIST_EMPTY_TITLE,
+  SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX,
+  SIGNED_RECORDS_LIST_LIST_LEAD,
+  SIGNED_RECORDS_LIST_LOADING_STATUS,
+  SIGNED_RECORDS_LIST_PAGE_SUBTITLE,
+  SIGNED_RECORDS_LIST_PAGE_TITLE,
+} from "./signed-records-list-copy";
+import { SignedRecordsListPagination } from "./SignedRecordsListPagination";
+import { buildSignedRecordsListRowsFromRuns, type SignedRecordsListRow } from "./signed-records-list-row";
+
+const SIGNED_RECORDS_LIST_PAGE_SIZE = 100;
+
+export default function SignedRecordsListClient() {
+  const [rows, setRows] = useState<readonly SignedRecordsListRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryingRunId, setRetryingRunId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [cursor, setCursor] = useState("");
+  const [cursorHistory, setCursorHistory] = useState<readonly string[]>([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
+
+  const loadRows = useCallback(async (request: { readonly page: number; readonly cursor: string }) => {
+    setLoading(true);
+    setLoadError(null);
+
+    const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
+    const projectId = projectIdFromScopeHeaders(scopeHeaders) ?? "default";
+
+    try {
+      const raw: unknown = await listRunsByProjectPaged(projectId, request.page, SIGNED_RECORDS_LIST_PAGE_SIZE, {
+        cursor: request.cursor,
+        scopeHeaders,
+      });
+      const coerced = coerceRunSummaryPaged(raw, { page: request.page });
+
+      if (!coerced.ok) {
+        setRows([]);
+        setHasMore(false);
+        setNextCursor(null);
+        setLoadError(coerced.message);
+
+        return;
+      }
+
+      let runs = coerced.value.items;
+      const staticFallback = tryStaticDemoRunSummariesPaged(projectId);
+
+      if (runs.length === 0 && staticFallback !== null) {
+        runs = staticFallback.items;
+      }
+
+      const baseRows = buildSignedRecordsListRowsFromRuns(runs);
+      const enrichedRows = await enrichSignedRecordsListRows(baseRows);
+
+      setRows(enrichedRows);
+      setHasMore(coerced.value.hasMore);
+      setNextCursor(coerced.value.nextCursor ?? null);
+      setLastRefreshedAt(new Date());
+    } catch (error: unknown) {
+      setRows([]);
+      setHasMore(false);
+      setNextCursor(null);
+      setLoadError(error instanceof Error ? error.message : "Failed to load sealed review records.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const retryRow = useCallback(async (runId: string) => {
+    const existingRow = rows.find((row) => row.runId === runId);
+
+    if (existingRow === undefined) {
+      return;
+    }
+
+    setRetryingRunId(runId);
+
+    try {
+      const [enrichedRow] = await enrichSignedRecordsListRows([existingRow]);
+
+      setRows((currentRows) => currentRows.map((row) => (row.runId === runId ? enrichedRow : row)));
+    } finally {
+      setRetryingRunId(null);
+    }
+  }, [rows]);
+
+  useEffect(() => {
+    void loadRows({ page, cursor });
+  }, [cursor, loadRows, page]);
+
+  const goToNextPage = useCallback(() => {
+    if (nextCursor === null || nextCursor.length === 0) {
+      return;
+    }
+
+    setCursorHistory((history) => [...history, cursor]);
+    setCursor(nextCursor);
+    setPage((currentPage) => currentPage + 1);
+  }, [cursor, nextCursor]);
+
+  const goToPreviousPage = useCallback(() => {
+    if (cursorHistory.length === 0) {
+      return;
+    }
+
+    const previousCursor = cursorHistory[cursorHistory.length - 1];
+
+    setCursorHistory((history) => history.slice(0, -1));
+    setCursor(previousCursor);
+    setPage((currentPage) => Math.max(1, currentPage - 1));
+  }, [cursorHistory]);
+
+  const hasRows = rows.length > 0;
+  const showEmptyState = !loading && !hasRows && loadError === null;
+  const showPagination = loadError === null && (loading || hasRows || page > 1 || hasMore);
+  const showListChrome = loadError === null && (loading || hasRows);
+  const showcaseSampleAvailable = areSpineStaticDemoPayloadsAvailable();
+  const freshnessLabel = operatorFreshnessMetadataWithClockLabel({
+    prefix: SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX,
+    lastRefreshedAt: loading ? null : lastRefreshedAt,
+    refreshingLabel: loading ? "Refreshing…" : null,
+  });
+
+  return (
+    <div className="w-full max-w-[1440px]">
+      <OperatorPageHeader
+        navHref={SIGNED_RECORDS_LIST_PATH}
+        title={SIGNED_RECORDS_LIST_PAGE_TITLE}
+        subtitle={SIGNED_RECORDS_LIST_PAGE_SUBTITLE}
+        titleTestId="signed-records-list-page-title"
+        actions={<PageContextualHelpButton />}
+      />
+
+      {hasRows ? <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="signed-records" /> : null}
+
+      {loadError !== null ? (
+        <OperatorSectionLoadFailure
+          className="mb-4"
+          message={loadError}
+          retrying={loading}
+          testId="signed-records-list-load-failure"
+          onRetry={() => void loadRows({ page, cursor })}
+        />
+      ) : null}
+
+      {showEmptyState ? (
+        <EnterpriseCompactEmptyState
+          title={SIGNED_RECORDS_LIST_EMPTY_TITLE}
+          description={SIGNED_RECORDS_LIST_EMPTY_BODY}
+          actions={[
+            { label: SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL, href: "/architecture/reviews/new", variant: "primary" },
+            {
+              label: SIGNED_RECORDS_LIST_EMPTY_SECONDARY_LABEL,
+              href: SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF,
+              variant: "outline",
+            },
+            ...(showcaseSampleAvailable
+              ? [{ label: SIGNED_RECORDS_LIST_EMPTY_SAMPLE_CTA, href: getShowcaseManifestHref(), variant: "outline" as const }]
+              : []),
+          ]}
+        />
+      ) : null}
+
+      {showListChrome ? (
+        <div className="mb-4 space-y-2" data-testid="signed-records-list-chrome">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SIGNED_RECORDS_LIST_LIST_LEAD}</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="signed-records-list-record-count">
+              {formatSignedRecordsListRecordCount(rows.length)}
+            </span>
+            <OperatorPageFreshnessMetadata
+              testId="signed-records-list-last-refreshed"
+              lastRefreshedAt={loading ? null : lastRefreshedAt}
+            >
+              {freshnessLabel}
+            </OperatorPageFreshnessMetadata>
+          </div>
+        </div>
+      ) : null}
+
+      {loading ? (
+        <p
+          className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}
+          role="status"
+          aria-live="polite"
+          data-testid="signed-records-list-loading-status"
+        >
+          {SIGNED_RECORDS_LIST_LOADING_STATUS}
+        </p>
+      ) : null}
+
+      {!loading && hasRows ? (
+        <SignedRecordsListTableDeferred
+          rows={rows}
+          retryingRunId={retryingRunId}
+          onRetryRow={(runId) => {
+            void retryRow(runId);
+          }}
+        />
+      ) : null}
+
+      {showPagination ? (
+        <SignedRecordsListPagination
+          page={page}
+          shownCount={rows.length}
+          hasMore={hasMore}
+          canGoPrevious={cursorHistory.length > 0}
+          canGoNext={hasMore && nextCursor !== null && nextCursor.length > 0}
+          disabled={loading}
+          onPrevious={goToPreviousPage}
+          onNext={goToNextPage}
+        />
+      ) : null}
+    </div>
+  );
+}

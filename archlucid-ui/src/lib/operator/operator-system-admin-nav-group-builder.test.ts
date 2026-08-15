@@ -10,8 +10,9 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
     const gatedHrefs = new Set([
       "/internal/trial-funnel",
       "/internal/fleet-llm-cogs",
+      "/internal/agent-model-catalog",
       "/internal/rag-health",
-      "/internal/integration-events/dlq",
+      "/internal/failed-integration-messages",
     ]);
 
     for (const link of group.links) {
@@ -24,7 +25,7 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
   it("uses buyer-facing labels for knowledge index and failed integration nav (TB-648)", () => {
     const group = new OperatorSystemAdminNavGroupBuilder().build();
     const ragLink = group.links.find((link) => link.href === "/internal/rag-health");
-    const dlqLink = group.links.find((link) => link.href === "/internal/integration-events/dlq");
+    const dlqLink = group.links.find((link) => link.href === "/internal/failed-integration-messages");
 
     expect(ragLink?.label).toBe(OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth);
     expect(dlqLink?.label).toBe(OPERATOR_NAV_LINK_LABELS.failedIntegrationMessages);

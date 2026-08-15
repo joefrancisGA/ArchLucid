@@ -85,7 +85,7 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
 
   const warningPhrase =
     warnings !== null && warnings > 0 && unresolved !== null && unresolved > 0
-      ? ` ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"} remain on the finalized signed record.`
+      ? ` ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"} remain on the finalized sealed record.`
       : "";
 
   const lead =

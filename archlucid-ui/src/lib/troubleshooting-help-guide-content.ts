@@ -1,6 +1,10 @@
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
-import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import {
+  TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING,
+  TROUBLESHOOTING_HELP_CLAIM_HEADING_ID,
+} from "@/lib/troubleshooting-help-evidence-copy";
+import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -178,7 +182,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     title: "Export or deliverable download is unavailable",
     kind: "user-fixable",
     whatYouSee: "Export is disabled or the download fails.",
-    likelyCause: "Review not finalized, missing signed review record, or your role cannot export.",
+    likelyCause: "Review not finalized, missing sealed review record, or your role cannot export.",
     tryFirst: "Confirm the review is finalized and you have export permission.",
     ifStillBlocked: "Review governance approval requirements and retry after refresh.",
     nextSteps: [
@@ -291,7 +295,7 @@ export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisi
     question: "Are findings, evidence, or report outputs missing?",
     branches: [
       { label: "Findings missing", href: inAppHelpHref("evidence-trail"), linkLabel: "Open Evidence graph" },
-      { label: "Reports missing", href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH, linkLabel: "Open value report" },
+      { label: "Reports missing", href: SPONSOR_REPORT_PATH, linkLabel: "Open value report" },
       {
         label: "Permissions missing",
         href: inAppHelpHref("users-and-roles"),
@@ -356,10 +360,13 @@ export const TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS: readonly Troubleshootin
   },
 ] as const;
 
+
 export const TROUBLESHOOTING_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "start-here", title: "Start here" },
   { level: 2, id: "common-issues", title: "Common issues" },
   { level: 2, id: "decision-tree", title: "Decision tree" },
   { level: 2, id: "before-contacting-support", title: "Before contacting support" },
   { level: 2, id: "advanced-diagnostics", title: "Advanced diagnostics" },
+  { level: 2, id: TROUBLESHOOTING_HELP_CLAIM_HEADING_ID, title: TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING },
+  { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

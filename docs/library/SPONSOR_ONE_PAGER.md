@@ -1,4 +1,4 @@
-> **Scope:** Buyer — Sponsor one-pager PDF — API, CLI, tier gate, and how it relates to pilot ROI docs. Distinct from the executive sponsor narrative (KEEP [`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)).
+> **Scope:** Buyer — Sponsor one-pager PDF — API, CLI, tier gate, and how it relates to pilot ROI docs. Distinct from the sponsor sponsor narrative (KEEP [`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)).
 
 > **Reviewed:** 2026-07-31
 

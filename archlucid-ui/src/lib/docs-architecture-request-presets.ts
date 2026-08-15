@@ -155,6 +155,90 @@ function tplSecurity(): Partial<WizardFormValues> {
   };
 }
 
+function tplAwsMicroservices(): Partial<WizardFormValues> {
+  return {
+    systemName: "NorthStar Commerce Mesh",
+    environment: "prod",
+    cloudProvider: "Aws",
+    priorManifestVersion: "",
+    description:
+      "Review an AWS-native microservices decomposition for a B2C commerce platform. Bounded contexts include catalog, cart, checkout, and notifications with API Gateway or ALB ingress, Aurora PostgreSQL as system of record, ElastiCache for session state, and SQS/SNS for async integration. Document IAM least-privilege roles, VPC segmentation, TLS everywhere, and operational observability across services.",
+    constraints: [
+      "No public RDS or ElastiCache endpoints — private subnets and security groups only",
+      "At-least-once messaging with idempotent consumers and documented DLQ replay",
+      "WAF on internet-facing ingress where the storefront is public",
+    ],
+    requiredCapabilities: [
+      "Amazon API Gateway or Application Load Balancer for north-south traffic",
+      "Amazon Aurora PostgreSQL with automated backups",
+      "Amazon ElastiCache for session and hot-read caching",
+      "Amazon SQS or SNS for integration events",
+      "IAM roles for service-to-service access — no long-lived access keys",
+    ],
+    assumptions: [
+      "EKS or ECS/Fargate is acceptable for container hosting when orchestration is required",
+      "Peak catalog traffic is cache-heavy; checkout path has stricter latency SLOs",
+    ],
+    inlineRequirements: [
+      "Define aggregate roots and forbidden cross-database joins across bounded contexts",
+      "SLO table for synchronous checkout versus async notification paths",
+    ],
+    topologyHints: [
+      "Separate public ingress subnets from data-tier subnets with restrictive security groups",
+      "Prefer dedicated SQS queues per downstream consumer with dead-letter queues",
+    ],
+    securityBaselineHints: [
+      "GuardDuty and Security Hub findings triaged before production promotion",
+      "Secrets Manager for database credentials and API keys",
+    ],
+    policyReferences: ["AWS Well-Architected — microservices pillar checklist"],
+    documents: [],
+    infrastructureDeclarations: [],
+  };
+}
+
+function tplGcpAnalytics(): Partial<WizardFormValues> {
+  return {
+    systemName: "Curated Analytics Lakehouse",
+    environment: "Production",
+    cloudProvider: "Gcp",
+    priorManifestVersion: "",
+    description:
+      "Governed analytics platform on Google Cloud: ingest operational datasets into Cloud Storage landing zones, orchestrate batch and streaming transforms with Cloud Composer or Dataflow, and expose curated tables in BigQuery with row-level security. Cover VPC Service Controls or private connectivity, lineage via Dataplex or equivalent catalog, encryption with CMEK where required, and cost visibility across projects.",
+    constraints: [
+      "No public BigQuery datasets — authorized views and IAM conditions per consumer cohort",
+      "PII columns masked or tokenized before landing in shared analytics zones",
+      "Customer-managed encryption keys where regulated data is stored",
+    ],
+    requiredCapabilities: [
+      "Cloud Storage raw and curated zones with lifecycle policies",
+      "BigQuery datasets with row-level security",
+      "Cloud Composer or Dataflow for orchestrated pipelines",
+      "Dataplex or equivalent metadata catalog for lineage",
+      "VPC Service Controls or private Google Access for sensitive paths",
+    ],
+    assumptions: [
+      "Batch latency of hours is acceptable for most curated marts; near-real-time paths documented separately",
+      "Data stewards own dataset descriptions and retention schedules",
+    ],
+    inlineRequirements: [
+      "Data quality gates quarantine bad files before curated promotion",
+      "Slot reservations or autoscaling policies documented for BigQuery-heavy workloads",
+    ],
+    topologyHints: [
+      "Separate ingestion service accounts per source system with least-privilege bucket access",
+      "Curated datasets promoted only after schema and classification review",
+    ],
+    securityBaselineHints: [
+      "CMEK for Cloud Storage and BigQuery where policy mandates customer key control",
+      "Access logs retained per regulated retention schedules",
+    ],
+    policyReferences: ["GCP data governance standard — internal reference"],
+    documents: [],
+    infrastructureDeclarations: [],
+  };
+}
+
 function tplGreenfieldSaas(): Partial<WizardFormValues> {
   return {
     systemName: "NorthWind Operations Cloud",
@@ -233,5 +317,19 @@ export const documentationArchitectureRequestWizardPresets: WizardPreset[] = [
     description:
       "Multi-tenant isolation, Stripe billing hooks, CI/CD, monitoring — B2B platform baseline.",
     values: tplGreenfieldSaas(),
+  },
+  {
+    id: "docs-architecture-requests-aws-microservices",
+    label: "AWS microservices review",
+    description:
+      "Commerce mesh — API Gateway/ALB, Aurora, ElastiCache, SQS/SNS, IAM least-privilege.",
+    values: tplAwsMicroservices(),
+  },
+  {
+    id: "docs-architecture-requests-gcp-analytics",
+    label: "GCP data lake analytics",
+    description:
+      "Cloud Storage zones, BigQuery RLS, Composer/Dataflow, Dataplex lineage, VPC controls.",
+    values: tplGcpAnalytics(),
   },
 ];

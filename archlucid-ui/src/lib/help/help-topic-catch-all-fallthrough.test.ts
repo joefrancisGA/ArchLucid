@@ -11,14 +11,12 @@ import {
 } from "@/lib/help/help-topic-catch-all-fallthrough";
 import { listProductDocumentationEntries } from "@/lib/product-documentation-registry";
 
-const HELP_TOPIC_PAGE_PATH = join(
+const HELP_TOPIC_VIEW_RESOLVER_PATH = join(
   process.cwd(),
   "src",
-  "app",
-  "(operator)",
+  "lib",
   "help",
-  "[...topic]",
-  "page.tsx",
+  "help-topic-view-resolver.tsx",
 );
 
 describe("help-topic-catch-all-fallthrough TB-1601", () => {
@@ -67,8 +65,8 @@ describe("help-topic-catch-all-fallthrough TB-1601", () => {
     }
   });
 
-  it("guards renderHelpTopicView default fallthrough in page.tsx", () => {
-    const source = readFileSync(HELP_TOPIC_PAGE_PATH, "utf8");
+  it("guards resolveHelpTopicView default fallthrough in help-topic-view-resolver.tsx", () => {
+    const source = readFileSync(HELP_TOPIC_VIEW_RESOLVER_PATH, "utf8");
 
     expect(source).toContain("assertHelpTopicCatchAllFallthroughAllowed");
     expect(source).toContain("choose-your-next-step");

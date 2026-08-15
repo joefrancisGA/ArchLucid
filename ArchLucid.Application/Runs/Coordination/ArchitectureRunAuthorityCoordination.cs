@@ -1,5 +1,4 @@
 using ArchLucid.Application.Agents;
-using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Mapping;
@@ -9,6 +8,8 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.Runs;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
@@ -32,11 +33,14 @@ public sealed class ArchitectureRunAuthorityCoordination(
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
     IAzureExtractorPackageRepository azureExtractorPackageRepository,
+    ICloudInventoryExtractorPackageRepository cloudInventoryExtractorPackageRepository,
     ITechnologyLedgerRepository technologyLedgerRepository,
     TechnologyLedgerRequestSeeder technologyLedgerRequestSeeder,
     TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
     IRunStateTransitionService runStateTransitionService,
     IModelExecutionProfileResolver modelExecutionProfileResolver,
+    IReviewModelAliasResolver reviewModelAliasResolver,
+    IAgentModelAliasRegistry agentModelAliasRegistry,
     IAuditService auditService,
     ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
 {
@@ -45,6 +49,10 @@ public sealed class ArchitectureRunAuthorityCoordination(
 
     private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository =
         azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
+
+    private readonly ICloudInventoryExtractorPackageRepository _cloudInventoryExtractorPackageRepository =
+        cloudInventoryExtractorPackageRepository
+        ?? throw new ArgumentNullException(nameof(cloudInventoryExtractorPackageRepository));
 
     private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
         technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
@@ -64,6 +72,12 @@ public sealed class ArchitectureRunAuthorityCoordination(
 
     private readonly IModelExecutionProfileResolver _modelExecutionProfileResolver =
         modelExecutionProfileResolver ?? throw new ArgumentNullException(nameof(modelExecutionProfileResolver));
+
+    private readonly IReviewModelAliasResolver _reviewModelAliasResolver =
+        reviewModelAliasResolver ?? throw new ArgumentNullException(nameof(reviewModelAliasResolver));
+
+    private readonly IAgentModelAliasRegistry _agentModelAliasRegistry =
+        agentModelAliasRegistry ?? throw new ArgumentNullException(nameof(agentModelAliasRegistry));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -94,10 +108,14 @@ public sealed class ArchitectureRunAuthorityCoordination(
             evidenceBundle.EvidenceBundleId,
             enlistUnitOfWork);
         ScopeContext scopeForExtractor = _scopeContextProvider.GetCurrentScope();
-        AzureExtractorPackageProvenance? extractorProvenance =
-            await _azureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync(scopeForExtractor, authorityRun.RunId, cancellationToken);
-        if (extractorProvenance is not null)
-            AzureExtractorEvidenceBundleMerger.Merge(evidenceBundle, extractorProvenance);
+        await RunStarterInventoryEvidenceBundleMerger.MergeLinkedInventoryPackagesAsync(
+            evidenceBundle,
+            request,
+            scopeForExtractor,
+            authorityRun.RunId,
+            _azureExtractorPackageRepository,
+            _cloudInventoryExtractorPackageRepository,
+            cancellationToken);
         bool deferred = authorityRun.ContextSnapshotId is null;
         string runId = authorityRun.RunId.ToString("N");
         ArchitectureRun run = BuildRunFromAuthority(authorityRun, request, deferred);
@@ -119,6 +137,11 @@ public sealed class ArchitectureRunAuthorityCoordination(
             ModelExecutionProfileResolution profileResolution =
                 await _modelExecutionProfileResolver.ResolveForRunCreateAsync(request, cancellationToken).ConfigureAwait(false);
 
+            ReviewModelAliasResolution aliasResolution =
+                await _reviewModelAliasResolver.ResolveForRunCreateAsync(request, cancellationToken).ConfigureAwait(false);
+
+            request.EffectiveModelAliasId = aliasResolution.EffectiveAliasId;
+
             tasks = RunStarterTaskFactory.BuildStarterTasks(
                 runId,
                 evidenceBundle,
@@ -135,6 +158,16 @@ public sealed class ArchitectureRunAuthorityCoordination(
                     profileResolution,
                     cancellationToken).ConfigureAwait(false);
             }
+
+            if (!string.IsNullOrWhiteSpace(aliasResolution.RequestedOverrideRaw))
+            {
+                await ReviewModelAliasOverrideAuditWriter.TryLogOverrideAppliedAsync(
+                    _auditService,
+                    _scopeContextProvider,
+                    runId,
+                    aliasResolution,
+                    cancellationToken).ConfigureAwait(false);
+            }
         }
 
         run.TaskIds = [..tasks.Select(t => t.TaskId)];
@@ -143,7 +176,14 @@ public sealed class ArchitectureRunAuthorityCoordination(
         output.Tasks = tasks;
 
         if (enlistUnitOfWork is null)
-            await PatchAuthorityRunHeaderAsync(authorityRun.RunId, request, deferred, cancellationToken);
+        {
+            await PatchAuthorityRunHeaderAsync(
+                authorityRun.RunId,
+                request,
+                deferred,
+                request.EffectiveModelAliasId,
+                cancellationToken);
+        }
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation(
                 "Coordination completed: RunId={RunId}, RequestId={RequestId}, StarterTaskCount={TaskCount}, EvidenceBundleId={EvidenceBundleId}, Deferred={Deferred}",
@@ -159,6 +199,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
         Guid authorityRunId,
         ArchitectureRequest request,
         bool deferred,
+        string? effectiveModelAliasId,
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -178,6 +219,20 @@ public sealed class ArchitectureRunAuthorityCoordination(
             header.LegacyRunStatus = targetLegacyRunStatus;
 
         header.PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request);
+
+        if (!deferred
+            && !string.IsNullOrWhiteSpace(effectiveModelAliasId)
+            && _agentModelAliasRegistry.TryGet(effectiveModelAliasId, out AgentModelAliasRegistryEntry? aliasEntry)
+            && aliasEntry is not null)
+        {
+            ReviewRunEngineProvenance selectionProvenance = ReviewRunEngineSelectionProvenanceBuilder.Build(
+                effectiveModelAliasId,
+                aliasEntry,
+                header.CreatedUtc);
+
+            header.EngineProvenanceJson = ReviewRunEngineProvenanceJson.Serialize(selectionProvenance);
+        }
+
         await _runRepository.UpdateAsync(header, cancellationToken);
     }
 

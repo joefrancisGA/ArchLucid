@@ -25,7 +25,7 @@ const bannedStaticImports = [
   '@/components/AuthPanel"',
   '@/components/SyncActiveRunFromPathname"',
   '@/components/DemoStrictNavigationGate"',
-  '@/components/SponsorExecutiveShellRedirect"',
+  '@/components/SponsorShellRedirect"',
   '@/components/operator/OperatorRoleGate"',
 ] as const;
 

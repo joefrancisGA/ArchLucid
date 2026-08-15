@@ -19,6 +19,7 @@ import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtra
 import { Tier1InventoryZipUploadPanel } from "@/components/wizard/Tier1InventoryZipUploadPanel";
 import { WizardEvidenceUploadZone } from "@/components/usability/WizardEvidenceUploadZone";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import {
   DEFAULT_DEMO_REVIEW_SCENARIO_ID,
@@ -63,26 +64,14 @@ const SOURCE_ICONS: Record<WizardEvidenceSourceOption["id"], LucideIcon> = {
 
 function EvidenceSourceBadge(props: { availability: WizardEvidenceSourceAvailability }) {
   if (props.availability === "accelerated") {
-    return (
-      <span className={cn("rounded-full bg-teal-50 px-2 py-0.5 font-semibold text-teal-800 dark:bg-teal-950 dark:text-teal-200", OPERATOR_TYPOGRAPHY.badge)}>
-        Fastest
-      </span>
-    );
+    return <StatusTag kind="ready" label="Fastest" className={OPERATOR_TYPOGRAPHY.badge} />;
   }
 
   if (props.availability === "v1.1") {
-    return (
-      <span className={cn("rounded-full bg-neutral-100 px-2 py-0.5 font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge)}>
-        Planned
-      </span>
-    );
+    return <StatusTag kind="neutral" label="Planned" className={OPERATOR_TYPOGRAPHY.badge} />;
   }
 
-  return (
-    <span className={cn("rounded-full bg-neutral-50 px-2 py-0.5 font-semibold text-neutral-600 dark:bg-neutral-900 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge)}>
-      Available
-    </span>
-  );
+  return <StatusTag kind="neutral" label="Available" className={OPERATOR_TYPOGRAPHY.badge} />;
 }
 
 function EvidenceSourcePicker(props: {
@@ -251,6 +240,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
               platform={inventoryPlatform}
               pendingFile={pendingFile}
               onPendingFileChange={onPendingFileChange}
+              showDemoScenarios={inventoryPlatform === "aws" || inventoryPlatform === "gcp"}
             />
           </div>
         ) : null}

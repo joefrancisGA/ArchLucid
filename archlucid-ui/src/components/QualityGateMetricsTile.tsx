@@ -38,7 +38,7 @@ function dispositionStatusKind(disposition: OperatorAiQualitySnapshotDisposition
 
 /** Dashboard tile: offline retrieval + quality snapshot metrics for operators. */
 export type QualityGateMetricsTileProps = {
-  readonly surface?: "operator" | "executive";
+  readonly surface?: "operator" | "sponsor";
 };
 
 export function QualityGateMetricsTile({ surface = "operator" }: QualityGateMetricsTileProps): React.JSX.Element {
@@ -73,7 +73,7 @@ export function QualityGateMetricsTile({ surface = "operator" }: QualityGateMetr
 
   const recall = snapshot?.retrievalIr.meanRecallAt5 ?? null;
   const mrr = snapshot?.retrievalIr.meanMrr ?? null;
-  const executiveSurface = surface === "executive";
+  const executiveSurface = surface === "sponsor";
 
   return (
     <Card data-testid="quality-gate-metrics-tile">

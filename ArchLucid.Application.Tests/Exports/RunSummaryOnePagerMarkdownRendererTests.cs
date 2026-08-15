@@ -20,7 +20,7 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
             HighCount = 2,
             MediumCount = 3,
             LowCount = 4,
-            ExecutiveSummary = "Risk is elevated; remediate encryption first.",
+            SponsorReport = "Risk is elevated; remediate encryption first.",
             TopFindingTitles = ["Missing CMK", "Open ingress", "Stale DR plan"]
         };
 

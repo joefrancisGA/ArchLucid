@@ -6,7 +6,7 @@
 
 `GET /v1/roi/cross-tenant-portfolio` aggregates ROI and risk metrics across every tenant an identity can access, subject to **k-anonymity** (at least five active tenants).
 
-The standalone **Portfolio Dashboard** route (`/portfolio`) is **retired**; it permanently redirects to **Executive dashboard** (`/architecture/executive-dashboard`), which is the canonical portfolio-overview surface in the architect workspace.
+The standalone **Portfolio Dashboard** route (`/portfolio`) is **retired**; it permanently redirects to **Sponsor dashboard** (`/architecture/sponsor-dashboard`), which is the canonical portfolio-overview surface in the architect workspace.
 
 ## Prerequisites
 
@@ -43,4 +43,4 @@ API clients and integrators should surface this `detail` to operators; the retir
 - **Security:** Portfolio never exposes per-tenant rows when k-anonymity fails; only aggregate counts when the threshold is met.
 - **Scalability:** Rollups are bounded by tenant access lists; large directories should prefer dedicated portfolio service accounts with least privilege.
 - **Reliability:** Misconfigured IdP claims produce a stable 403 with guidance — not a silent empty dashboard.
-- **Cost:** Extra read load scales with accessible tenant count; cache warm paths mirror single-tenant executive ROI where enabled.
+- **Cost:** Extra read load scales with accessible tenant count; cache warm paths mirror single-tenant sponsor ROI where enabled.

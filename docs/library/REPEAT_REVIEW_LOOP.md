@@ -19,18 +19,18 @@
 
 | Repeat-review signal | Where you see it | Proof acceptance |
 | --- | --- | --- |
-| Reused prior decision | [Compare and prior package context](/insights/compare-two-reviews) | Second review references first signed review record in findings or compare output |
+| Reused prior decision | [Compare and prior package context](/insights/compare-two-reviews) | Second review references first sealed review record in findings or compare output |
 | Repeated finding category trend | [Product learning rollups](/help/pilot-feedback) | Category counts shift with real evidence changes |
 | Improved cycle time | [Review duration metrics and pilot timing budget](/insights/architecture-scorecard) | Wall-clock or architect hours decrease vs baseline in [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) |
 | Governance trend | [Policy pack dry-run and enforce](/governance/policy-packs) | Fewer critical findings on repeat with same pack |
-| Executive ROI rollup | [Executive ROI summary export](/insights/executive-summary) | Sponsor-safe ROI basis labels on executive exports |
+| Sponsor ROI rollup | [Sponsor ROI summary export](/insights/sponsor-summary) | Sponsor-safe ROI basis labels on sponsor exports |
 
 ---
 
 ## Recommended loop (after first finalize)
 
 1. **Compare** two architecture packages — use Compare in the architect workspace.
-2. **Replay** a saved comparison when investigating regressions — see [Compare and replay](/help/comparison-replay).
+2. **Replay** a saved comparison when investigating regressions — open **Validate review** in the architect workspace or see **Which second-review help guide?** above for compare/replay mechanics.
 3. **Reuse** prior package context in a new review when evidence evolves incrementally — see [Prior package context](/help/prior-manifest-retrieval).
 4. **Run governance dry-run** before enforcing a blocking finalize gate — [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md#6-operator-calibration).
 5. **Collect proof** again for the second finalized package — disposition should improve or caveats should shrink.
@@ -42,7 +42,7 @@
 | --- | --- | --- |
 | Compare two reviews | Analysis → Compare | Compare endpoints per [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) |
 | Replay review | Review detail replay | Authority replay routes |
-| Executive ROI summary | Exports / sponsor views | Export endpoints with ROI basis labels |
+| Sponsor ROI summary | Exports / sponsor views | Export endpoints with ROI basis labels |
 | Governance dry-run | Governance UI | `POST /v1/governance/policy-packs/dry-run` |
 | Product learning rollups | Analytics where enabled | [`PRODUCT_LEARNING.md`](../library/PRODUCT_LEARNING.md) |
 
@@ -58,7 +58,7 @@ Second-run proof collection (TB-227):
 
 ## Second-review proof checklist
 
-- [ ] Second architecture package finalized with a distinct review identity and signed review record.
+- [ ] Second architecture package finalized with a distinct review identity and sealed review record.
 - [ ] Compare output attached or linked in sponsor narrative.
 - [ ] Prior decisions reused or explicitly superseded.
 - [ ] Governance dry-run completed before stricter enforce mode (when used).
@@ -152,7 +152,7 @@ See stickiness signals table above in this cookbook.
 | --- | --- | --- |
 | Compare two reviews | Operate → compare | Compare endpoints — [`API_CONTRACTS.md`](API_CONTRACTS.md) |
 | Replay run | Review detail | Authority replay routes |
-| Executive ROI rollup | Exports | ROI basis labels required |
+| Sponsor ROI rollup | Exports | ROI basis labels required |
 | Governance dry-run | Governance UI | `POST /v1/governance/policy-packs/dry-run` |
 
 ### Acceptance criteria (validation pass)
@@ -212,7 +212,6 @@ Otherwise hold feature work — market signal insufficient.
 
 ## Related help
 
-- [Compare and replay](/help/comparison-replay)
 - [Architecture packages](/help/review-packages)
 - [Accelerator chooser](/help/accelerator-chooser)
 - [Your first architecture review](/help/first-architecture-review)

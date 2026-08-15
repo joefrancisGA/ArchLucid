@@ -4,8 +4,10 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const DEVELOPER_SETTINGS_CANONICAL_PATH = "/administration/developer" as const;
 
+export const INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE = "Internal developer tools" as const;
+
 export const DEVELOPER_SETTINGS_CLAIM_DISCIPLINE =
-  "This Internal developer tools page is an architect diagnostic surface for theme evaluation and CLI demos - it is not a signed-review diligence Sources package. Open System health, Engineering troubleshooting, or Audit when you need live checks or assurance cites.";
+  "This Internal developer tools page is an architect diagnostic surface for theme evaluation and CLI demos - it is not a sealed-review diligence Sources package. Open System health, Engineering troubleshooting, or Audit when you need live checks or assurance cites.";
 
 export const DEVELOPER_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when theme or CLI experiments turn into engineering runbooks, system health checks, or governed trails.";

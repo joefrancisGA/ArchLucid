@@ -117,7 +117,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         if (sufficiency is TopFindingEvidenceSufficiency.Low or TopFindingEvidenceSufficiency.Insufficient)
         {
             sb.AppendLine(
-                "| Sponsor guard label | **Not definitive** — low-evidence top finding; disclose basis before executive circulation. |");
+                "| Sponsor guard label | **Not definitive** — low-evidence top finding; disclose basis before sponsor circulation. |");
         }
 
         sb.AppendLine("| Human qualitative review | **Required** — automation does not replace sponsor judgment. |");

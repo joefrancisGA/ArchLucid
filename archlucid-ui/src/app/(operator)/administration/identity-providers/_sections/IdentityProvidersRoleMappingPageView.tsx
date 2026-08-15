@@ -45,6 +45,7 @@ import { readOperatorScopeFromStorage, ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } 
 import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
 import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
+import { RoleMappingSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
 type IdentityProvidersRoleMappingPageViewProps = {
@@ -139,6 +140,7 @@ export function IdentityProvidersRoleMappingPageView(
       diagnosticsDataUnavailable={props.model.diagnosticsDataUnavailable}
       onRefresh={() => void handleRefresh()}
     >
+      <RoleMappingSettingsEvidenceOrientationStrip />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start">
         <div className="space-y-4">
           <div

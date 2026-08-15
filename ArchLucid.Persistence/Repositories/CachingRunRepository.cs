@@ -53,6 +53,20 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         => _inner.GetLatestCommittedRunIdByManifestCreatedUtcAsync(scope, projectId, ct);
 
     /// <inheritdoc />
+    public Task<Guid?> GetPriorCommittedRunIdBeforeCurrentAsync(
+        ScopeContext scope,
+        string projectId,
+        Guid currentRunId,
+        DateTime currentCreatedUtc,
+        CancellationToken ct)
+        => _inner.GetPriorCommittedRunIdBeforeCurrentAsync(
+            scope,
+            projectId,
+            currentRunId,
+            currentCreatedUtc,
+            ct);
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,

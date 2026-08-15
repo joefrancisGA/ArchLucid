@@ -32,9 +32,11 @@ import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LA
 import type { ComparedPair } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import { CompareFindingCorrelationSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationSection";
 import { CompareGovernanceDiffSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffSection";
+import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
 import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
 import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
 import { resolveCompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
+import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
 import { useCompareGovernanceDiff } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff";
 
 export type CompareResultsPanelProps = {
@@ -197,6 +199,10 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
         />
       ) : null}
 
+      {golden !== null ? (
+        <CompareQualityDeltaPanel counts={deriveCompareQualityDeltaFromGolden(golden)} />
+      ) : null}
+
       {showStaleInputsWarning && (
         <OperatorWarningCallout>
           <strong>Selections no longer match the comparison shown here.</strong>
@@ -276,7 +282,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             The supplementary comparison may still have succeeded; check the sections below.
           </p>
           <OperatorTryNext>
-            Verify both reviews have finalized signed review records in scope. If only the supplementary diff is needed for
+            Verify both reviews have finalized sealed review records in scope. If only the supplementary diff is needed for
             now, expand <strong>Review-level diff</strong> after confirming the pair in the summary panel.
           </OperatorTryNext>
         </>
@@ -460,7 +466,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             <summary className={cn("cursor-pointer list-none px-4 py-3 text-al-text-primary outline-none ring-offset-2 marker:content-none focus-visible:ring-2 focus-visible:ring-teal-600 [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               <h2 className={cn("m-0 inline text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 {buyerPolished
-                  ? "Executive narrative (AI-generated)"
+                  ? "Sponsor narrative (AI-generated)"
                   : "Sponsor narrative (AI-generated)"}
               </h2>
             </summary>

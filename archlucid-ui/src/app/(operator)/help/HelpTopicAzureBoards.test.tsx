@@ -24,6 +24,10 @@ import {
   AZURE_BOARDS_HELP_SOURCES,
   AZURE_BOARDS_HELP_SOURCES_HEADING,
 } from "@/lib/azure-boards-help-evidence-copy";
+import {
+  AZURE_BOARDS_HELP_LIMITATIONS_HEADING,
+  azureBoardsHelpCopyContainsBannedPattern,
+} from "@/lib/azure-boards-help-limitations-honesty";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -46,7 +50,28 @@ describe("HelpAzureBoardsGuideView (HEZ)", () => {
     expect(setupList).not.toBeNull();
     expect(within(setupList!).getAllByRole("listitem")).toHaveLength(7);
     expect(within(setupList!).getByText(/Create Azure Boards work item/i)).toBeInTheDocument();
+    expect(
+      within(setupList!).getByRole("link", { name: /Test connection/i }),
+    ).toHaveAttribute("href", "/integrations/azure-boards");
     expect(within(content).getByText(/PAT value is never shown again/i).closest("blockquote")).not.toBeNull();
+  });
+
+  it("uses buyer-safe limitations heading without Phase 1 jargon in primary chrome (TB-1622)", () => {
+    const loaded = tryLoadProductDocumentation("azure-boards");
+
+    expect(loaded).not.toBeNull();
+
+    if (loaded === null) {
+      throw new Error("Expected azure-boards documentation.");
+    }
+
+    render(<HelpAzureBoardsGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const guide = screen.getByTestId("help-azure-boards-guide");
+    const content = screen.getByTestId("help-azure-boards-content");
+
+    expect(within(content).getByRole("heading", { level: 2, name: AZURE_BOARDS_HELP_LIMITATIONS_HEADING })).toBeInTheDocument();
+    expect(azureBoardsHelpCopyContainsBannedPattern(guide.textContent ?? "")).toHaveLength(0);
   });
 
   it("renders h1 chrome, contextual help, action panel before claim discipline, and export actions", () => {
@@ -95,17 +120,23 @@ describe("HelpAzureBoardsGuideView (HEZ)", () => {
     );
     expect(screen.queryByRole("heading", { name: "Orientation only" })).toBeNull();
     expect(screen.getByTestId("help-azure-boards-connection-context")).toBeInTheDocument();
-    expect(screen.getByTestId("help-azure-boards-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-download-pdf")).toBeNull();
     expect(screen.getByRole("link", { name: AZURE_BOARDS_HELP_PRIMARY_ACTIONS.openSettings.label })).toHaveAttribute(
       "href",
       "/integrations/azure-boards",
     );
-    expect(screen.getByRole("link", { name: "Integrations → Azure Boards" })).toHaveAttribute(
+    expect(screen.getByTestId("help-azure-boards-setup-step-ctas")).toBeInTheDocument();
+    expect(screen.getByTestId("help-azure-boards-setup-step-1-cta")).toHaveAttribute(
       "href",
       "/integrations/azure-boards",
+    );
+    expect(screen.getByTestId("help-azure-boards-setup-test-connection-cta")).toHaveAttribute(
+      "href",
+      "/integrations/azure-boards",
+    );
+    expect(screen.getByTestId("help-azure-boards-setup-step-1-cta")).toHaveTextContent(
+      "Integrations → Azure Boards",
     );
 
     const actionPanel = screen.getByTestId("help-azure-boards-action-panel");

@@ -27,7 +27,7 @@ Specific rules:
 - Operator views: `space-y-4`, `p-4`, `gap-2` — not `space-y-8` / `py-8`.
 - Typography: `OPERATOR_TYPOGRAPHY` from `design-tokens.ts` — page titles `text-xl` max; KPI tiles `kpiValue` only; badges `OPERATOR_TYPOGRAPHY.badge` (`text-[11px]`); no `text-2xl`/`text-3xl` on operator `h1`; no arbitrary `text-[10px]` on operator surfaces.
 - Hide CLI/script/API/model/runtime details from normal surfaces.
-- Product language: architecture package, finding, residual risk, evidence trail, signed review record, decision, governance approval, audit trail. Never call the package a signed decision record; ADR remains Architecture Decision Record for ADR export wording.
+- Product language: architecture package, finding, residual risk, evidence trail, sealed review record, decision, governance approval, audit trail. Never call the package a signed decision record; ADR remains Architecture Decision Record for ADR export wording.
 - Capitalization: sentence case for titles, headings, tabs, column headers, buttons, links, and labels — never Title Case. After a colon, capitalize only when a complete sentence follows (`One lifecycle: Describe your architecture…`), lowercase for fragments and values (`Source: finalized reviews…`). Do not re-case vocabulary constants with CSS or string transforms; the `OPERATOR_TYPOGRAPHY` uppercase section label is the only exception. See `UI_DESIGN_SYSTEM.md` § Capitalization.
 - Form validation affordances (**TB-2005**): disable primary submit/continue until hard client validation passes; show errors on the form; reserve `showError` toasts for system/async failures — see `UI_DESIGN_SYSTEM.md` § Form validation affordances and `.cursor/rules/UI-Form-Validation-Affordances.mdc`.
 - Button / CTA width: prefer `CTA_WIDTH.content` (`w-fit`) for card footers, heroes, and short-label actions. Do not stretch short labels with `w-full` across wide cards or heroes. Use `CTA_WIDTH.formMatch` only for narrow form/auth columns; `CTA_WIDTH.listRow` only for constrained rail/list hit-targets.
@@ -38,7 +38,8 @@ Specific rules:
 - Use Tailwind/shadcn defaults as the visual north star.
 - Add decorative `bg-teal-50`, `bg-amber-50`, or `border-teal-200` on neutral operator cards.
 - Render status as ad-hoc colored `span` elements — use `StatusTag` or `SeverityTag`.
-- Use `Badge` default/secondary/outline variants for read-only status — those are action-oriented; metadata labels use `StatusTag`, `SeverityTag`, or `StatusPill` (flat soft labels via `METADATA_STATUS_TAG_SHELL`).
+- Use `Badge` default/secondary/outline variants for read-only status — those are action-oriented; metadata labels use `StatusTag`, `SeverityTag`, or `BooleanStatusChip` (`METADATA_STATUS_TAG_SHELL` + `--al-status-*`). **Do not** add new `StatusPill` imports (**TB-2284**).
+- Add inline `bg-teal-*`, `bg-emerald-*`, `bg-rose-*`, or `bg-amber-*` fill overrides on operator `Button` — use `variant` per § *Button variant/color matrix* (**TB-2290**); migrations **TB-2291**–**TB-2295**.
 - Use `FilterChip` (`src/components/ui/filter-chip.tsx`) for interactive filter/action chips — never reuse metadata label styling for clickable chips.
 - Tint entire neutral cards with semantic fills — color belongs on the status chip or a single left border accent for the current step.
 - Stretch short-label CTAs to full hero/card width (`w-full` / `items-stretch` on wide containers) — use `CTA_WIDTH.content` instead.

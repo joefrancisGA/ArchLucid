@@ -6,7 +6,7 @@
 
 ---
 
-## 1. Executive summary
+## 1. Sponsor summary
 
 The UI's dependency graph is **large but not undisciplined**. `archlucid-ui/package-lock.json` (npm, lockfileVersion 3) resolves to **1,236 total package/version nodes** (1,048 distinct package names) — this is the origin of the "almost 1,200 packages" figure, and it is a **transitive dependency-graph size**, not a count of packages the team chose, imports directly, or ships to browsers.
 
@@ -106,7 +106,7 @@ Findings of substance:
 | `react` / `react-dom` | `^19.2.0` | Framework | **Keep** |
 | `react-hook-form` | `^7.72.1` | Form state across ~20 forms/wizards | **Keep** |
 | `reactflow` | `^11.11.4` | Architecture/graph viewer (`GraphViewer.tsx`, `ArchitectureGraphViewer.tsx`, etc.); explicitly listed in `transpilePackages` | **Keep** |
-| `recharts` | `^3.9.1` | Exactly one consumer (`ExecutiveRoiSystemicIssueTrendChart.tsx`), loaded via `next/dynamic` on the executive ROI section — **and this exact constraint is enforced by a repository test** (`src/lib/recharts-import-policy.test.ts`, TB-570) | **Keep — exemplary governance pattern** |
+| `recharts` | `^3.9.1` | Exactly one consumer (`ExecutiveRoiSystemicIssueTrendChart.tsx`), loaded via `next/dynamic` on the sponsor ROI section — **and this exact constraint is enforced by a repository test** (`src/lib/recharts-import-policy.test.ts`, TB-570) | **Keep — exemplary governance pattern** |
 | `server-only` | `^0.0.1` | Import-time guard in ~10 server-only modules (`server-run-scope.ts`, `server-current-principal.ts`, access-request server modules, etc.) | **Keep** |
 | `sonner` | `^2.0.7` | Toast system (`toast.ts`, `AppToaster.tsx`, `api-error-toast.tsx`) | **Keep** |
 | `tailwind-merge` | `^2.6.0` | `src/lib/utils.ts` (`cn()` helper) | **Keep** |

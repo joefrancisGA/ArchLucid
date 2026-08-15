@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
@@ -76,7 +76,7 @@ export function AzureExtractorUploadFailureCallout(props: AzureExtractorUploadFa
       <p className={cn("mt-2.5", OPERATOR_TYPOGRAPHY.body)}>
         <Link
           href={inAppHelpHref("troubleshooting", "evidence-upload-failed")}
-          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
           data-testid="extract-upload-troubleshooting-link"
         >
           Open evidence upload troubleshooting

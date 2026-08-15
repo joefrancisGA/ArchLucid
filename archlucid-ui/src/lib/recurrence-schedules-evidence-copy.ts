@@ -3,7 +3,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE =
-  "Recurrence schedules configure when architecture reviews repeat — they are not a signed-review diligence Sources package. Open Findings, approval queue, or Audit when you need disposition or activity trails.";
+  "Recurrence schedules configure when architecture reviews repeat — they are not a sealed-review diligence Sources package. Open Findings, approval queue, or Audit when you need disposition or activity trails.";
 
 export const RECURRENCE_SCHEDULES_SOURCES_INTRO =
   "Use these follow-ups when schedule setup needs package context, risk triage, or approval workflow.";

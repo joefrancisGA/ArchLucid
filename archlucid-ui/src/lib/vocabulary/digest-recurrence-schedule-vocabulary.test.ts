@@ -34,7 +34,7 @@ describe("digest-recurrence-schedule-vocabulary (TB-2226)", () => {
   });
 
   it("resolves the peer deep link from each surface", () => {
-    expect(resolveDigestRecurrenceSchedulePeerLink("digest-executive-schedule")).toEqual(
+    expect(resolveDigestRecurrenceSchedulePeerLink("digest-sponsor-schedule")).toEqual(
       DIGEST_RECURRENCE_SCHEDULE_RECURRENCE_LINK,
     );
     expect(resolveDigestRecurrenceSchedulePeerLink("recurrence-schedules")).toEqual(

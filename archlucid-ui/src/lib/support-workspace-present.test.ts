@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   ARCHLUCID_SUPPORT_EMAIL,
+  buildSupportRequestMailtoHref,
   buildSupportRequestTemplate,
   classifySupportBundleDownloadError,
   resolveSupportBundleStatusLabel,
+  resolveSupportBundleStatusTag,
   resolveSupportTroubleshootingHref,
 } from "@/lib/support-workspace-present";
 
@@ -36,6 +38,21 @@ describe("support-workspace-present", () => {
   it("resolves troubleshooting hrefs", () => {
     expect(resolveSupportTroubleshootingHref("help:troubleshooting")).toBe("/help/troubleshooting");
     expect(resolveSupportTroubleshootingHref("/internal/health")).toBe("/internal/health");
+  });
+
+  it("builds a support request mailto href with subject and body", () => {
+    const href = buildSupportRequestMailtoHref("Pilot workspace");
+
+    expect(href).toContain(`mailto:${ARCHLUCID_SUPPORT_EMAIL}`);
+    expect(href).toContain("subject=");
+    expect(href).toContain("body=");
+    expect(decodeURIComponent(href)).toContain("Workspace: Pilot workspace");
+  });
+
+  it("maps bundle status to status tags", () => {
+    expect(resolveSupportBundleStatusTag("ready", new Date("2026-07-07T12:00:00Z")).kind).toBe("ready");
+    expect(resolveSupportBundleStatusTag("failed", null).kind).toBe("blocked");
+    expect(resolveSupportBundleStatusTag("permission_required", null).kind).toBe("needs-attention");
   });
 
   it("exposes support email constant", () => {

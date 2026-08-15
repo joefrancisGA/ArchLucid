@@ -18,7 +18,7 @@ public sealed class RunSummaryOnePagerExportService(
     IAgentCompletionClient completionClient,
     IOptionsMonitor<GenerateRunSummaryOptions> generateRunSummaryOptions) : IRunSummaryOnePagerExportService
 {
-    private const string ExecutiveSummaryPrompt =
+    private const string SponsorReportPrompt =
         "You are an enterprise architect writing a board-ready brief. "
         + "Given severity counts and the top architecture findings below, write exactly three concise sentences: "
         + "(1) overall risk posture, (2) the dominant theme, (3) the recommended next step. Return ONLY the prose.";
@@ -50,13 +50,13 @@ public sealed class RunSummaryOnePagerExportService(
         IReadOnlyList<ArchitectureFinding> topFindings =
             ArchitectureReviewBoardExportDocumentFactory.SelectRunSummaryTopFindings(detail, maxCount: 5);
 
-        string executiveSummary = await BuildExecutiveSummaryAsync(detail, topFindings, cancellationToken);
+        string SponsorReport = await BuildSponsorReportAsync(detail, topFindings, cancellationToken);
         IReadOnlyList<string> topTitles = topFindings
             .Select(static f => string.IsNullOrWhiteSpace(f.Message) ? f.Category : f.Message.Trim())
             .ToArray();
 
         RunSummaryOnePagerDocumentModel model =
-            ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(detail, executiveSummary, topTitles);
+            ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(detail, SponsorReport, topTitles);
 
         string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
         string safeStem = SanitizeRunIdForFileName(model.RunId);
@@ -64,12 +64,12 @@ public sealed class RunSummaryOnePagerExportService(
         return new RunSummaryOnePagerExportResult
         {
             Content = Encoding.UTF8.GetBytes(markdown),
-            FileName = $"architecture-run-{safeStem}-executive-summary.md",
+            FileName = $"architecture-run-{safeStem}-sponsor-report.md",
             ContentType = "text/markdown; charset=utf-8"
         };
     }
 
-    private async Task<string> BuildExecutiveSummaryAsync(
+    private async Task<string> BuildSponsorReportAsync(
         ArchitectureRunDetail detail,
         IReadOnlyList<ArchitectureFinding> topFindings,
         CancellationToken cancellationToken)
@@ -77,7 +77,7 @@ public sealed class RunSummaryOnePagerExportService(
         RunSummaryOnePagerDocumentModel countsOnly =
             ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(
                 detail,
-                executiveSummary: "(pending)",
+                SponsorReport: "(pending)",
                 topFindingTitles: []);
 
         StringBuilder prompt = new();
@@ -93,14 +93,14 @@ public sealed class RunSummaryOnePagerExportService(
         }
 
         string raw = await _completionClient.CompleteJsonAsync(
-            ExecutiveSummaryPrompt,
+            SponsorReportPrompt,
             prompt.ToString(),
             maxTokens: null,
             temperature: null,
             cancellationToken: cancellationToken);
 
         return string.IsNullOrWhiteSpace(raw)
-            ? "Executive summary could not be generated. Review findings directly in ArchLucid."
+            ? "Sponsor report could not be generated. Review findings directly in ArchLucid."
             : raw.Trim();
     }
 

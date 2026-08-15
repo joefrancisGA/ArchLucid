@@ -5,7 +5,7 @@ namespace ArchLucid.Application.Roi;
 /// <summary>Applies authoritative sponsor-facing ROI scope labels across API responses (T2-6).</summary>
 public static class RoiSponsorFacingScopeLabeler
 {
-    public static void ApplyExecutiveRoiSummary(ExecutiveRoiSummaryResponse response)
+    public static void ApplySponsorRoiSummary(SponsorRoiSummaryResponse response)
     {
         ArgumentNullException.ThrowIfNull(response);
 

@@ -3,7 +3,10 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 
 import { resolveReviewsHubHeaderPrimary } from "./reviews-hub-header-primary";
@@ -18,7 +21,7 @@ export function ReviewsHubHeaderActions(): React.JSX.Element {
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="reviews-hub-header-actions">
-      <PageContextualHelpButton />
+      <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
       <Button variant="primary" size="sm" asChild>
         <Link href={primary.href} className="no-underline" data-testid="runs-page-start-review">
           {primary.label}

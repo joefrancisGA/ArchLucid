@@ -1,5 +1,6 @@
 "use client";
 
+import { Brain } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -368,6 +369,8 @@ export function ArchitectureIntelligencePageClient() {
     >
       <OperatorPageHeader
         navHref={ARCHITECTURE_INTELLIGENCE_PATH}
+        // Not a nav destination, so nav-config cannot resolve the header icon.
+        icon={Brain}
         title="Architecture intelligence"
         subtitle="Run closed-loop architecture reasoning or the golden regression harness against a free-form description."
         titleTestId="architecture-intelligence-page-title"
@@ -452,7 +455,7 @@ export function ArchitectureIntelligencePageClient() {
           testId="architecture-intelligence-budget-notice"
         />
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" id="baseline-evaluation">
           {canAnalyzeHydratedReview ? (
             <Button
               type="button"

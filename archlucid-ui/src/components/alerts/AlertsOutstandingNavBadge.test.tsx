@@ -6,13 +6,14 @@ import { fetchAlertsInboxSummary } from "@/components/alerts/alerts-inbox-query-
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
-import { useDeferredOperatorShellNavBadgeQueryEnabled } from "@/hooks/use-deferred-operator-shell-nav-badge-query-enabled";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 
-vi.mock("@/hooks/use-deferred-operator-shell-nav-badge-query-enabled", () => ({
-  useDeferredOperatorShellNavBadgeQueryEnabled: vi.fn(() => true),
+vi.mock("@/components/shell/OperatorShellStatusQueryGate", () => ({
+  OperatorShellStatusQueryGate: ({ children }: { children: React.ReactNode }) => children,
+  useOperatorShellStatusConcernFetchEnabled: vi.fn(() => true),
 }));
 
-const deferredNavBadgeQueryEnabledMock = vi.mocked(useDeferredOperatorShellNavBadgeQueryEnabled);
+const concernFetchEnabledMock = vi.mocked(useOperatorShellStatusConcernFetchEnabled);
 
 vi.mock("@/components/alerts/alerts-inbox-query-fetch", () => ({
   fetchAlertsInboxSummary: vi.fn(),
@@ -32,7 +33,7 @@ const fetchAlertsInboxSummaryMock = vi.mocked(fetchAlertsInboxSummary);
 describe("AlertsOutstandingNavBadge (TB-2144)", () => {
   beforeEach(() => {
     resetOperatorQueryClientForTests();
-    deferredNavBadgeQueryEnabledMock.mockReturnValue(true);
+    concernFetchEnabledMock.mockReturnValue(true);
     fetchAlertsInboxSummaryMock.mockReset();
     fetchAlertsInboxSummaryMock.mockResolvedValue({
       open: 0,
@@ -108,13 +109,13 @@ describe("AlertsOutstandingNavBadge (TB-2144)", () => {
     expect(fetchAlertsInboxSummaryMock).toHaveBeenCalledTimes(1);
   });
 
-  it("does not fetch inbox summary until deferred shell nav badge queries are enabled", async () => {
-    deferredNavBadgeQueryEnabledMock.mockReturnValue(false);
+  it("does not fetch inbox summary until shell concern queries are enabled", async () => {
+    concernFetchEnabledMock.mockReturnValue(false);
 
     renderWithOperatorQuery(<AlertsOutstandingNavBadge />);
 
     await waitFor(() => {
-      expect(deferredNavBadgeQueryEnabledMock).toHaveBeenCalled();
+      expect(concernFetchEnabledMock).toHaveBeenCalled();
     });
 
     expect(fetchAlertsInboxSummaryMock).not.toHaveBeenCalled();

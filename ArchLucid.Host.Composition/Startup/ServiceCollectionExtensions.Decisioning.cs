@@ -45,18 +45,32 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IComplianceEvaluator, GraphComplianceEvaluator>();
 
         services.AddScoped<Di.IFindingEngine, Ds.RequirementFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.RequirementExpectationFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.RequirementGapFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyStructureFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCrossRunDiffFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyAntiPatternFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityBaselineFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.SecurityBaselineExpectationFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.SecurityBaselineCompletenessFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.SecurityGapFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyApplicabilityFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.ComplianceFindingEngine>();
         services.AddScoped<Di.IFindingEngine, CostConstraintFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, CostBreachFindingEngine>();
         services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.OrphanedAzureResourceFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.AdvisorCostRecommendationFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.GraphAzureInventoryReconciliationFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.GraphAwsInventoryReconciliationFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.GraphGcpInventoryReconciliationFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.OrphanedAwsResourceFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.OrphanedGcpResourceFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.AwsInventorySecurityBaselineFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, ArchLucid.Application.Findings.GcpInventorySecurityBaselineFindingEngine>();
 
         services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));

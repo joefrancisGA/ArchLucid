@@ -54,24 +54,10 @@ public sealed class TeamsIncomingWebhookConnectionsController(
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        TeamsIncomingWebhookConnectionResponse? row =
-            await _connectionRepository.GetAsync(scope.TenantId, cancellationToken);
+        TeamsIncomingWebhookConnectionResponse connection =
+            await LoadConnectionAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
-        if (row is null)
-        {
-            return Ok(
-                new TeamsIncomingWebhookConnectionResponse
-                {
-                    TenantId = scope.TenantId,
-                    IsConfigured = false,
-                    Label = null,
-                    KeyVaultSecretName = null,
-                    EnabledTriggers = TeamsNotificationTriggerCatalog.All,
-                    UpdatedUtc = TimeProvider.System.GetUtcNow()
-                });
-        }
-
-        return Ok(row);
+        return Ok(connection);
     }
 
     /// <summary>Returns the canonical v1 catalog of Teams notification triggers an operator can opt in to.</summary>
@@ -83,6 +69,26 @@ public sealed class TeamsIncomingWebhookConnectionsController(
     public IActionResult GetTriggerCatalog()
     {
         return Ok(TeamsNotificationTriggerCatalog.All);
+    }
+
+    /// <summary>Teams notifications page bundle: connection row and trigger catalog.</summary>
+    [HttpGet("page-bundle")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [ProducesResponseType(typeof(TeamsIncomingWebhookPageBundleResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPageBundle(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        TeamsIncomingWebhookConnectionResponse connection =
+            await LoadConnectionAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        TeamsIncomingWebhookPageBundleResponse body = new()
+        {
+            Connection = connection,
+            TriggerCatalog = TeamsNotificationTriggerCatalog.All
+        };
+
+        return Ok(body);
     }
 
     /// <summary>Upserts the Key Vault secret name used to resolve the Teams incoming webhook URL at delivery time.</summary>
@@ -233,5 +239,26 @@ public sealed class TeamsIncomingWebhookConnectionsController(
             await _probeService.SendTestAsync(secretName, cancellationToken);
 
         return Ok(result);
+    }
+
+    private async Task<TeamsIncomingWebhookConnectionResponse> LoadConnectionAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        TeamsIncomingWebhookConnectionResponse? row =
+            await _connectionRepository.GetAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (row is not null)
+            return row;
+
+        return new TeamsIncomingWebhookConnectionResponse
+        {
+            TenantId = tenantId,
+            IsConfigured = false,
+            Label = null,
+            KeyVaultSecretName = null,
+            EnabledTriggers = TeamsNotificationTriggerCatalog.All,
+            UpdatedUtc = TimeProvider.System.GetUtcNow()
+        };
     }
 }

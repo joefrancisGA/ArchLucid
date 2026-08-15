@@ -16,7 +16,7 @@ export function OperatorHomeWorkspaceEmptyState() {
       description={
         <>
           {OPERATOR_HOME_WORKSPACE_EMPTY_BODY} When you finalize, you produce a{" "}
-          <InlineGlossaryChip nounId="signed-review-record">signed review record</InlineGlossaryChip> backed by an{" "}
+          <InlineGlossaryChip nounId="sealed-review-record">sealed review record</InlineGlossaryChip> backed by an{" "}
           <InlineGlossaryChip nounId="evidence-trail">evidence trail</InlineGlossaryChip> and optional{" "}
           <InlineGlossaryChip nounId="governance-approval">governance approval</InlineGlossaryChip>.
         </>

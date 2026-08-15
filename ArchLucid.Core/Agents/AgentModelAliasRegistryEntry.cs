@@ -33,6 +33,63 @@ public sealed class AgentModelAliasRegistryEntry
         init;
     }
 
+    /// <summary>Whether completions stay inside the ArchLucid Azure boundary (TB-2109).</summary>
+    public AgentModelDataBoundaryKind DataBoundary
+    {
+        get;
+        init;
+    } = AgentModelDataBoundaryKind.AzureBoundary;
+
+    /// <summary>Structured-output capability for fail-closed routing (TB-2104).</summary>
+    public AgentModelStructuredOutputLevel StructuredOutputLevel
+    {
+        get;
+        init;
+    } = AgentModelStructuredOutputLevel.StrictJsonSchema;
+
+    /// <summary>Per-task evaluation evidence snapshot for selection surfaces (TB-2105).</summary>
+    public IReadOnlyList<AgentModelCatalogEvaluationRow> TaskEvaluations
+    {
+        get;
+        init;
+    } = [];
+
+    public AgentModelTokenizerProfile TokenizerProfile
+    {
+        get;
+        init;
+    } = AgentModelTokenizerProfile.CharHeuristic;
+
+    public int CharsPerToken
+    {
+        get;
+        init;
+    } = AgentModelCatalogTokenMath.DefaultCharsPerToken;
+
+    public decimal TokenizerErrorMarginPercent
+    {
+        get;
+        init;
+    } = AgentModelCatalogPricingDefaults.DefaultTokenizerErrorMarginPercent;
+
+    public decimal? InputUsdPerMillionTokens
+    {
+        get;
+        init;
+    }
+
+    public decimal? OutputUsdPerMillionTokens
+    {
+        get;
+        init;
+    }
+
+    public decimal? ReasoningUsdPerMillionTokens
+    {
+        get;
+        init;
+    }
+
     public bool IsTaskApproved(string taskType)
     {
         if (string.IsNullOrWhiteSpace(taskType))

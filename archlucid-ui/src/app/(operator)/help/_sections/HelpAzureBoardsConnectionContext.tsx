@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  fetchAzureBoardsHealth,
   fetchAzureBoardsSettings,
   type AzureBoardsIntegrationHealthResponse,
   type AzureBoardsOutboundSettingsResponse,
@@ -21,6 +20,7 @@ import {
   type AzureBoardsConnectionStatus,
 } from "@/lib/azure-boards-integration-present";
 import { buildAzureBoardsPageLoadResult } from "@/lib/azure-boards-page-load";
+import { mapAzureBoardsHealthFromSettings } from "@/lib/azure-boards-stored-health";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -54,23 +54,17 @@ export function HelpAzureBoardsConnectionContext(): React.ReactElement {
     setIsLoading(true);
     setLoadError(null);
 
-    const [healthOutcome, itsmHealthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
-      fetchAzureBoardsHealth(),
+    const [itsmHealthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
       fetchItsmIntegrationHealth(),
       fetchAzureBoardsSettings(),
       fetchTenantItsmConnectorConnection("azureboards"),
     ]);
 
     const loaded = buildAzureBoardsPageLoadResult({
-      health: healthOutcome,
       itsmHealth: itsmHealthOutcome,
       settings: settingsOutcome,
       connection: connectionOutcome,
     });
-
-    if (!loaded.health.failed) {
-      setHealth(loaded.health.value);
-    }
 
     if (!loaded.itsmHealth.failed) {
       setItsmHealth(loaded.itsmHealth.value);
@@ -78,6 +72,12 @@ export function HelpAzureBoardsConnectionContext(): React.ReactElement {
 
     if (!loaded.settings.failed) {
       setSettings(loaded.settings.value);
+      setHealth(
+        mapAzureBoardsHealthFromSettings(
+          !loaded.connection.failed && isAzureBoardsCredentialsReady(loaded.connection.value, null),
+          loaded.settings.value,
+        ),
+      );
     }
 
     if (!loaded.connection.failed) {

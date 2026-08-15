@@ -6,27 +6,28 @@ import { describe, expect, it } from "vitest";
 import {
   diffHelpTopicPageDispatchInventory,
   listHelpTopicCatchAllDispatchInventorySlugs,
-  parseHelpTopicPageDispatchSlugs,
+  parseHelpTopicViewResolverSlugs,
 } from "@/lib/help/help-topic-page-dispatch-inventory";
 
-const HELP_TOPIC_PAGE_PATH = join(
+const HELP_TOPIC_VIEW_RESOLVER_PATH = join(
   process.cwd(),
   "src",
-  "app",
-  "(operator)",
+  "lib",
   "help",
-  "[...topic]",
-  "page.tsx",
+  "help-topic-view-resolver.tsx",
 );
 
-describe("help-topic-page-dispatch-inventory TB-1603", () => {
-  it("keeps renderHelpTopicView slug ladder aligned with committed dispatch inventory", () => {
-    const pageSource = readFileSync(HELP_TOPIC_PAGE_PATH, "utf8");
-    const pageSlugs = parseHelpTopicPageDispatchSlugs(pageSource);
+describe("help-topic-page-dispatch-inventory TB-1603 / TB-2238", () => {
+  it("keeps resolveHelpTopicView slug ladder aligned with committed dispatch inventory", () => {
+    const resolverSource = readFileSync(HELP_TOPIC_VIEW_RESOLVER_PATH, "utf8");
+    const resolverSlugs = parseHelpTopicViewResolverSlugs(resolverSource);
     const inventorySlugs = listHelpTopicCatchAllDispatchInventorySlugs();
-    const diff = diffHelpTopicPageDispatchInventory(pageSlugs, inventorySlugs);
+    const diff = diffHelpTopicPageDispatchInventory(resolverSlugs, inventorySlugs);
 
-    expect(diff.missingFromPage, "inventory slug missing from page.tsx if-ladder").toEqual([]);
-    expect(diff.missingFromInventory, "page.tsx dispatch missing from inventory registry").toEqual([]);
+    expect(diff.missingFromPage, "inventory slug missing from help-topic-view-resolver.tsx if-ladder").toEqual([]);
+    expect(
+      diff.missingFromInventory,
+      "help-topic-view-resolver.tsx dispatch missing from inventory registry",
+    ).toEqual([]);
   });
 });

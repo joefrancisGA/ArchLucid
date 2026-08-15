@@ -80,12 +80,12 @@ describe("buildRetrievalHitActionLink", () => {
     );
 
     expect(link).toEqual({
-      href: `/governance/signed-records/${SAMPLE_MANIFEST_ID}`,
-      label: "Open signed review record",
+      href: `/governance/sealed-records/${SAMPLE_MANIFEST_ID}`,
+      label: "Open sealed review record",
     });
   });
 
-  it("links manifest decisions to the run-scoped signed record path", () => {
+  it("links manifest decisions to the run-scoped sealed record path", () => {
     const link = buildRetrievalHitActionLink(
       hit({
         sourceType: "ManifestDecision",

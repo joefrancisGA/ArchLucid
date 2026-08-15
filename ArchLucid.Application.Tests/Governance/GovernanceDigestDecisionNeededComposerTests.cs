@@ -64,7 +64,7 @@ public sealed class GovernanceDigestDecisionNeededComposerTests
             ]);
 
         Mock<IArchitectureDigestRepository> digests = new();
-        Mock<IExecutiveRoiSummaryService> roi = new();
+        Mock<ISponsorRoiSummaryService> roi = new();
 
         GovernanceDigestDecisionNeededComposer composer = new(
             approvals.Object,

@@ -38,9 +38,9 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
       "/architecture/digests?tab=subscriptions",
     );
     expect(canonicalizeLegacyOperatorRoutePath("/governance/risk-exceptions")).toBe("/governance/exceptions");
-    expect(canonicalizeLegacyOperatorRoutePath("/manifests/demo-id")).toBe("/governance/signed-records/demo-id");
+    expect(canonicalizeLegacyOperatorRoutePath("/manifests/demo-id")).toBe("/governance/sealed-records/demo-id");
     expect(canonicalizeLegacyOperatorRoutePath("/signed-records/demo-id")).toBe(
-      "/governance/signed-records/demo-id",
+      "/governance/sealed-records/demo-id",
     );
     expect(canonicalizeLegacyOperatorRoutePath("/settings/roles")).toBe("/administration/users");
     expect(canonicalizeLegacyOperatorRoutePath("/settings/cloud-connections")).toBe(
@@ -66,16 +66,39 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/settings/ai-usage")).toBe("/administration/ai-usage");
   });
 
-  it("maps legacy onboarding and marketing bookmarks to canonical paths (TB-1801 / TB-1816)", () => {
-    expect(canonicalizeLegacyOperatorRoutePath("/onboarding/start")).toBe("/architecture/first-review-guide");
+  it("maps legacy marketing bookmarks to canonical paths (TB-1816)", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/quick-start")).toBe("/get-started");
   });
 
-  it("maps legacy login, onboard, and architecture-graph bookmarks (TB-1794 / TB-1798 / TB-1806)", () => {
-    expect(canonicalizeLegacyOperatorRoutePath("/login")).toBe("/auth/signin");
-    expect(canonicalizeLegacyOperatorRoutePath("/onboard")).toBe("/architecture/first-review-guide");
+  it("does not canonicalize retired redirect-only bookmarks (LOG / OXX / OSX / OAX)", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/login")).toBe("/login");
+    expect(canonicalizeLegacyOperatorRoutePath("/onboard")).toBe("/onboard");
+    expect(canonicalizeLegacyOperatorRoutePath("/onboarding/start")).toBe("/onboarding/start");
     expect(canonicalizeLegacyOperatorRoutePath("/operate/architecture-graph")).toBe(
-      "/insights/evidence-graph",
+      "/operate/architecture-graph",
     );
+  });
+
+  it("maps legacy replay bookmarks to validate-route", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/replay")).toBe("/internal/validate-route");
+    expect(canonicalizeLegacyOperatorRoutePath("/replay/extra")).toBe("/internal/validate-route/extra");
+    expect(canonicalizeLegacyOperatorRoutePath("/internal/replay")).toBe("/internal/validate-route");
+    expect(canonicalizeLegacyOperatorRoutePath("/internal/validate-route")).toBe("/internal/validate-route");
+  });
+
+  it("maps legacy dead-letter bookmarks to failed-integration-messages", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/operate/integration-events/dlq")).toBe(
+      "/internal/failed-integration-messages",
+    );
+    expect(canonicalizeLegacyOperatorRoutePath("/internal/integration-events/dlq")).toBe(
+      "/internal/failed-integration-messages",
+    );
+  });
+
+  it("maps legacy sponsor-report bookmarks to canonical insights routes", () => {
+    expect(canonicalizeLegacyOperatorRoutePath("/insights/sponsor-summary")).toBe("/insights/sponsor-report");
+    expect(canonicalizeLegacyOperatorRoutePath("/insights/executive-summary")).toBe("/insights/sponsor-report");
+    expect(canonicalizeLegacyOperatorRoutePath("/sponsor-report/roi-summary")).toBe("/insights/roi-summary");
+    expect(canonicalizeLegacyOperatorRoutePath("/value-report/roi")).toBe("/insights/roi-summary");
   });
 });

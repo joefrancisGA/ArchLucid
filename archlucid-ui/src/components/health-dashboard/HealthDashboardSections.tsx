@@ -24,8 +24,7 @@ import {
   worstRowDisplayStatus,
 } from "@/lib/health-group-metrics";
 import {
-  operatorLastRefreshedClockLabel,
-  operatorLastRefreshedLabel,
+  operatorFreshnessMetadataWithClockLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import type { HealthDisplaySeverity } from "@/lib/health-readiness-presentation";
@@ -44,17 +43,23 @@ type HealthFreshnessLabelProps = {
  * the reading cannot go stale silently, and the refresh policy so nobody assumes it polls.
  */
 export function HealthFreshnessLabel(props: HealthFreshnessLabelProps): React.JSX.Element {
-  const relativeLabel = operatorLastRefreshedLabel(props.lastRefreshedAt);
-  const clockLabel = operatorLastRefreshedClockLabel(props.lastRefreshedAt);
+  const coreLabel = props.loading
+    ? "Refreshing…"
+    : operatorFreshnessMetadataWithClockLabel({
+        prefix: "Last refreshed",
+        lastRefreshedAt: props.lastRefreshedAt,
+        refreshingLabel: null,
+      });
+
+  const displayLabel =
+    props.refreshPolicy !== undefined ? `${coreLabel} · ${props.refreshPolicy}` : coreLabel;
 
   return (
     <OperatorPageFreshnessMetadata
       testId={props.testId}
       lastRefreshedAt={props.loading ? null : props.lastRefreshedAt}
     >
-      Last refreshed: {props.loading ? "Refreshing…" : relativeLabel}
-      {!props.loading && clockLabel !== null ? ` (${clockLabel})` : ""}
-      {props.refreshPolicy !== undefined ? ` · ${props.refreshPolicy}` : ""}
+      {displayLabel}
     </OperatorPageFreshnessMetadata>
   );
 }

@@ -19,6 +19,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { AdminTenantsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { INTERNAL_TENANTS_PATH } from "@/lib/internal-ops-route-paths";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -237,6 +238,9 @@ export function AdminTenantsPageClient() {
           }}
         />
       </OperatorPageHeader>
+
+      <AdminTenantsEvidenceOrientationStrip />
+
       <section
         className="space-y-3 rounded-md border border-neutral-300 p-4 dark:border-neutral-700"
         aria-labelledby="admin-tenants-create-heading"

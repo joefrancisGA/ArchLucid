@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { MARKETING_SURFACES } from "@/lib/design-tokens";
+
 
 
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
@@ -232,15 +234,15 @@ export function ShowcaseWhatThisProves({
 
         <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
           <span className="font-semibold text-neutral-700 dark:text-neutral-300">See also:</span>{" "}
-          <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
+          <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
             Demo preview
           </Link>
           ,{" "}
-          <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/see-it">
+          <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
             See it in 30 seconds
           </Link>
           . Full exports and comparison tools are available after sign-in — see the{" "}
-          <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
+          <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
             Trust Center
           </Link>{" "}
           for procurement posture and evidence packs.

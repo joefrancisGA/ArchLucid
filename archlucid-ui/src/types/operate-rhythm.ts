@@ -40,6 +40,8 @@ export type IntegrationEventBusStatusDto = {
 export type TenantIntegrationsOperationsDto = {
   connectors: ConnectorSurfaceStatusDto[];
   integrationEventBus: IntegrationEventBusStatusDto;
+  /** Server snapshot instant for integration readiness counts (when provided). */
+  asOfUtc?: string | null;
 };
 
 export type WeeklyDigestHealthDto = {

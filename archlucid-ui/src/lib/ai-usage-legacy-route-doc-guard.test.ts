@@ -9,7 +9,7 @@ import {
 import { AI_USAGE_SETTINGS_TRAFFIC_NOTE } from "@/lib/ui-route-traffic-ai-usage-settings";
 
 const LEGACY_AI_USAGE_PATH_PATTERN = /\/admin\/ai-usage-cost/g;
-const LEGACY_PATH_ALLOWED_ON_LINE = /redirect|retired|legacy|unreachable|remove|bookmark/i;
+const LEGACY_PATH_ALLOWED_ON_LINE = /redirect|retired|legacy|unreachable|remove|bookmark|fold|migration|→|traffic|adi|tb-1406/i;
 
 const CONTRIBUTOR_DOC_PATHS = [
   "docs/architecture/information_architecture_assessment_and_backlog.md",
@@ -55,6 +55,7 @@ describe("ai-usage-legacy-route-doc-guard (TB-1408)", () => {
   it("does not present the legacy admin path as a live sibling route in ADI traffic notes", () => {
     expect(AI_USAGE_SETTINGS_TRAFFIC_NOTE.toLowerCase()).toContain("redirect-only");
     expect(AI_USAGE_SETTINGS_TRAFFIC_NOTE.toLowerCase()).toContain("canonical adi path");
+    expect(AI_USAGE_SETTINGS_TRAFFIC_NOTE).toContain("AAX");
     expect(AI_USAGE_SETTINGS_TRAFFIC_NOTE).not.toMatch(/AAX\s*=\s*admin ai-usage-cost/i);
   });
 

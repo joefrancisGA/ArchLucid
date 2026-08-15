@@ -19,7 +19,9 @@ public sealed class ArchitectureRequestTemplatesTests
         ArchitectureRequestTemplates.CloudNativeMigration,
         ArchitectureRequestTemplates.RegulatedHealthcareSystem,
         ArchitectureRequestTemplates.RetailBankingAndPaymentsPlatform,
-        ArchitectureRequestTemplates.SmartManufacturingOtItReference
+        ArchitectureRequestTemplates.SmartManufacturingOtItReference,
+        ArchitectureRequestTemplates.AwsMicroservicesECommerce,
+        ArchitectureRequestTemplates.GcpDataLakeAnalytics,
     ];
 
     [Theory]
@@ -37,7 +39,7 @@ public sealed class ArchitectureRequestTemplatesTests
         request.SystemName.Length.Should().BeLessOrEqualTo(200);
         request.Environment.Should().NotBeNullOrWhiteSpace();
         request.Environment.Length.Should().BeLessOrEqualTo(50);
-        request.CloudProvider.Should().Be(CloudProvider.Azure);
+        request.CloudProvider.Should().BeOneOf(CloudProvider.Azure, CloudProvider.Aws, CloudProvider.Gcp);
 
         request.Constraints.Should().NotBeNull();
         request.RequiredCapabilities.Should().NotBeNull();
@@ -104,5 +106,12 @@ public sealed class ArchitectureRequestTemplatesTests
             s.Name.Should().NotBeNullOrWhiteSpace();
             s.Description.Should().NotBeNullOrWhiteSpace();
         }
+    }
+
+    [Fact]
+    public void Aws_and_Gcp_factories_set_expected_cloud_providers()
+    {
+        ArchitectureRequestTemplates.AwsMicroservicesECommerce(null).CloudProvider.Should().Be(CloudProvider.Aws);
+        ArchitectureRequestTemplates.GcpDataLakeAnalytics(null).CloudProvider.Should().Be(CloudProvider.Gcp);
     }
 }

@@ -42,6 +42,10 @@ public static class GraphEdgeInferenceReasoningSummaries
                 return "The requirement's relatedTopologyNodeIds property referenced this topology id; ArchLucid wired "
                        + "RelatesTo for traceability.";
 
+            case GraphEdgeInferenceSources.RequirementSingleTopologyFallback:
+                return "Only one topology anchor existed while the requirement had no explicit relatedTopologyNodeIds; "
+                       + "ArchLucid assumed the requirement relates to that lone resource.";
+
             case GraphEdgeInferenceSources.RequirementTextHeuristic:
                 return "No explicit relatedTopologyNodeIds were present; ArchLucid reused requirement text keywords "
                        + "(network, storage, compute, security, database) to suggest likely topology links—treat this as "

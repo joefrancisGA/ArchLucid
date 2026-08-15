@@ -3,7 +3,7 @@ using ArchLucid.Core.Explanation;
 namespace ArchLucid.Core.Explanation;
 
 /// <summary>
-///     Executive rollup for a single run: the same <see cref="ExplanationResult" /> as granular explain, plus themes,
+///     Sponsor rollup for a single run: the same <see cref="ExplanationResult" /> as granular explain, plus themes,
 ///     posture, and counts.
 /// </summary>
 public sealed class RunExplanationSummary

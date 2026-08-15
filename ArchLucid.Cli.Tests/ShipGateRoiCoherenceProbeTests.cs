@@ -12,7 +12,7 @@ public sealed class ShipGateRoiCoherenceProbeTests
     [Fact]
     public void EvaluateJson_Pass_WhenPayloadMatchesCanonicalScopeManifest()
     {
-        string json = BuildCoherentExecutiveSummaryJson(
+        string json = BuildCoherentSponsorReportJson(
             headlineTotal: 150m,
             openEstimatedUsd: 100m,
             needsEvidenceUsd: 50m);
@@ -25,7 +25,7 @@ public sealed class ShipGateRoiCoherenceProbeTests
     [Fact]
     public void EvaluateJson_Fail_WhenHeadlineMathDriftsFromBasis()
     {
-        string json = BuildCoherentExecutiveSummaryJson(
+        string json = BuildCoherentSponsorReportJson(
             headlineTotal: 999m,
             openEstimatedUsd: 100m,
             needsEvidenceUsd: 50m);
@@ -39,7 +39,7 @@ public sealed class ShipGateRoiCoherenceProbeTests
     [Fact]
     public void EvaluateJson_Fail_WhenHeadlineScopeCodeDrifts()
     {
-        string json = BuildCoherentExecutiveSummaryJson(
+        string json = BuildCoherentSponsorReportJson(
             headlineTotal: 150m,
             openEstimatedUsd: 100m,
             needsEvidenceUsd: 50m,
@@ -51,7 +51,7 @@ public sealed class ShipGateRoiCoherenceProbeTests
             result.SignalId == "headline-scope-code" && !result.Success);
     }
 
-    private static string BuildCoherentExecutiveSummaryJson(
+    private static string BuildCoherentSponsorReportJson(
         decimal headlineTotal,
         decimal openEstimatedUsd,
         decimal needsEvidenceUsd,

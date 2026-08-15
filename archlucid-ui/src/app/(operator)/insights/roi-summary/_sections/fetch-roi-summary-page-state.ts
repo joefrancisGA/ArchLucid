@@ -1,37 +1,25 @@
 import { isApiRequestError } from "@/lib/api-request-error";
-import { getTenantPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
-import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
+import { fetchTenantRoiSummaryPageBundle } from "@/lib/fetch-tenant-roi-summary-page-bundle";
 
-import { rollingBoundsForRoiSummary } from "./roi-summary-page-helpers";
 import type { RoiSummaryPageState } from "./roi-summary-page-types";
 
 /** Resolves ROI telemetry bundles (pilot report JSON + pre-commit block counts) for the rolling window and pilot-to-date slice. */
 export async function fetchRoiSummaryPageState(): Promise<
   Exclude<RoiSummaryPageState, { status: "loading" }>
 > {
-  const b30 = rollingBoundsForRoiSummary(30);
-
   try {
-    const pilotReport = await getTenantPilotValueReportJson(null, b30.toUtc);
-
-    const [rollingReport, rollingBlocks, pilotBlocks] = await Promise.all([
-      getTenantPilotValueReportJson(b30.fromUtc, b30.toUtc),
-      countAuditEventsInWindow({
-        eventType: "GovernancePreCommitBlocked",
-        fromUtcIso: b30.fromUtc,
-        toUtcIso: b30.toUtc,
-      }),
-      countAuditEventsInWindow({
-        eventType: "GovernancePreCommitBlocked",
-        fromUtcIso: pilotReport.fromUtc,
-        toUtcIso: pilotReport.toUtc,
-      }),
-    ]);
+    const bundle = await fetchTenantRoiSummaryPageBundle(30);
 
     return {
       status: "ready",
-      rolling30: { report: rollingReport, blocks: rollingBlocks },
-      pilotToDate: { report: pilotReport, blocks: pilotBlocks },
+      rolling30: {
+        report: bundle.rollingWindow,
+        blocks: bundle.rollingWindowPreCommitBlocks,
+      },
+      pilotToDate: {
+        report: bundle.pilotToDate,
+        blocks: bundle.pilotToDatePreCommitBlocks,
+      },
     };
   } catch (e: unknown) {
 

@@ -16,7 +16,7 @@ public sealed class ProofPacketClaimLinterTests
         string rulesPath = ResolveRulesPath();
         string body =
             """
-            # Executive summary
+            # Sponsor report
 
             This pilot delivered guaranteed savings for the sponsor.
             """;

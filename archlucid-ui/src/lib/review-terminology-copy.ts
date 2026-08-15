@@ -1,6 +1,6 @@
 /**
  * Buyer-facing copy normalization: prefer review / architecture review over legacy run-primary labels,
- * and signed review record over internal "golden manifest" jargon. API fields (`runId`, routes) are unchanged.
+ * and sealed review record over internal "golden manifest" jargon. API fields (`runId`, routes) are unchanged.
  */
 
 import {
@@ -22,7 +22,7 @@ const RUN_PRIMARY_REPLACEMENTS: ReadonlyArray<readonly [RegExp, string]> = [
 ];
 
 const MANIFEST_PRIMARY_REPLACEMENTS: ReadonlyArray<readonly [RegExp, string]> = [
-  // Package mislabeled as "decision record" (legacy sponsor synonym) → signed review record.
+  // Package mislabeled as "decision record" (legacy sponsor synonym) → sealed review record.
   [/\bsigned decision records\b/gi, `${SIGNED_MANIFEST_LABEL}s`],
   [/\bsigned decision record\b/gi, SIGNED_MANIFEST_LABEL],
   [/\breviewed decision records\b/gi, `${SIGNED_MANIFEST_LABEL}s`],
@@ -133,7 +133,7 @@ export function buyerFacingReviewTerminology(text: string): string {
   return result;
 }
 
-/** Maps API or legacy labels that still say "golden manifest" into buyer-facing signed review record copy. */
+/** Maps API or legacy labels that still say "golden manifest" into buyer-facing sealed review record copy. */
 export function buyerFacingManifestTerminology(text: string): string {
   let result = text;
 

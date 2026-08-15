@@ -110,7 +110,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/architecture/reviews/new");
     expect(screen.getByRole("link", { name: "Describe the architecture" })).toHaveAttribute("href", "/architecture/reviews/new?intent=describe");
-    expect(screen.getByText("Signed review record")).toBeInTheDocument();
+    expect(screen.getByText("Sealed review record")).toBeInTheDocument();
     expect(screen.getByText(/one request produces everything needed for review/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/What one completed architecture review delivers/i)).toBeInTheDocument();
     const exampleLinks = screen.getAllByRole("link", { name: /see completed example/i });

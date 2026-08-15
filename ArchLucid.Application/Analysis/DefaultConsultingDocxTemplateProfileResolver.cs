@@ -19,7 +19,7 @@ public sealed class DefaultConsultingDocxTemplateProfileResolver : IConsultingDo
             [
                 new ConsultingDocxTemplateProfileInfo
                 {
-                    ProfileName = ConsultingDocxProfiles.Executive, ProfileDisplayName = "Executive Brief", DisplayOrder = 10
+                    ProfileName = ConsultingDocxProfiles.Sponsor, ProfileDisplayName = "Sponsor Brief", DisplayOrder = 10
                 },
                 new ConsultingDocxTemplateProfileInfo
                 {

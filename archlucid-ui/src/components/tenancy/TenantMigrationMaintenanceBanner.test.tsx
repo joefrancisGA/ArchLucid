@@ -18,6 +18,13 @@ vi.mock("@/lib/fetch-tenant-catalog-migration-status", () => ({
   fetchTenantCatalogMigrationStatus: vi.fn(),
 }));
 
+const concernFetchEnabledMock = vi.hoisted(() => vi.fn(() => true));
+
+vi.mock("@/components/shell/OperatorShellStatusQueryGate", () => ({
+  OperatorShellStatusQueryGate: ({ children }: { children: React.ReactNode }) => children,
+  useOperatorShellStatusConcernFetchEnabled: () => concernFetchEnabledMock(),
+}));
+
 import { TenantMigrationMaintenanceBanner } from "./TenantMigrationMaintenanceBanner";
 
 vi.mock("@/lib/demo-ui-env", () => ({
@@ -40,6 +47,7 @@ describe("TenantMigrationMaintenanceBanner", () => {
     sessionStorage.clear();
     resetOperatorQueryClientForTests();
     buyerPolishedShellVitestOverride.value = false;
+    concernFetchEnabledMock.mockReturnValue(true);
     fetchStatusMock.mockReset();
   });
 
@@ -109,6 +117,14 @@ describe("TenantMigrationMaintenanceBanner", () => {
     });
 
     expect(fetchStatusMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not fetch migration status until shell concern queries are enabled", async () => {
+    concernFetchEnabledMock.mockReturnValue(false);
+
+    renderWithOperatorQuery(<TenantMigrationMaintenanceBanner />);
+
+    expect(fetchStatusMock).not.toHaveBeenCalled();
   });
 
   it("polls migration status and clears the banner when migration completes", async () => {

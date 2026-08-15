@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -93,7 +94,8 @@ function isExpiredTrial(payload: TrialUpgradeNudgeStatusPayload): boolean {
  * run usage, seat usage, or expiry crosses documented thresholds.
  */
 export function TrialUsageUpgradeNudge() {
-  const { data: payload, isFetched } = useTenantTrialStatusQuery();
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const { data: payload, isFetched } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const [activeTrigger, setActiveTrigger] = useState<TrialUpgradeNudgeTrigger | null>(null);
   const [visible, setVisible] = useState(false);
   const [dismissedLocally, setDismissedLocally] = useState(false);
@@ -175,8 +177,8 @@ export function TrialUsageUpgradeNudge() {
             {activeTrigger === "expiry" ? (
               <Button
                 type="button"
+                variant="primary"
                 size="sm"
-                className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700"
                 data-testid="trial-upgrade-nudge-cta"
                 onClick={() => {
                   recordTrialUpgradeNudgeClicked(activeTrigger);
@@ -186,7 +188,7 @@ export function TrialUsageUpgradeNudge() {
                 {copy.ctaLabel}
               </Button>
             ) : (
-              <Button asChild type="button" size="sm" className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700">
+              <Button asChild type="button" variant="primary" size="sm">
                 <Link
                   href={pricingHref}
                   data-testid="trial-upgrade-nudge-cta"

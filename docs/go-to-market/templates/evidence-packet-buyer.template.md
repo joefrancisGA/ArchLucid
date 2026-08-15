@@ -3,9 +3,9 @@
 > **Scope:** Buyer-facing evidence packet template — map artifacts to sponsor decision needs with strict claim boundaries.
 > **Canonical sources:** Do not restate policy here; link to [`PROCUREMENT_PACK_INDEX.md`](../PROCUREMENT_PACK_INDEX.md) and [`QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy`](../QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy).
 
-# Evidence packet — buyer / executive sponsor (template)
+# Evidence packet — buyer / sponsor sponsor (template)
 
-**Audience:** Executive sponsor, procurement champion, buyer evaluator.
+**Audience:** Sponsor sponsor, procurement champion, buyer evaluator.
 
 **Live evidence environment:** **Staging** (contract-authoritative) unless release owner documents an approved exception — [`RC_TARGET_ENVIRONMENT_MATRIX.md`](../../library/RC_TARGET_ENVIRONMENT_MATRIX.md).
 
@@ -48,7 +48,7 @@ Use [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) § G
 
 - **May claim:** finalized review artifact exists; governance audit trail; PilotStrict signals when `aiQualityProof.disposition=PASS`; Staging live probes when attached.
 - **May not claim:** production SLA, invoiced Azure savings, SOC 2 certification, or real-mode AI quality when simulator-only or `roiSponsorSafe=false`.
-- **SEND gate:** see [`QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy`](../QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy) — override requires `executive-owner` or `cfo-delegate` with template on file.
+- **SEND gate:** see [`QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy`](../QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy) — override requires `sponsor-owner` or `cfo-delegate` with template on file.
 
 ## Collection command (reference)
 
@@ -63,7 +63,7 @@ Use [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) § G
 
 ## Related
 
-- [`QUOTE_TO_PROOF_PACKET.md`](../QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review) — six-element assembly map + mock procurement review
+- [`QUOTE_TO_PROOF_PACKET.md`](../QUOTE_TO_PROOF_PACKET.md#sponsor-paid-pilot-proof-packet-assembly--mock-procurement-review) — six-element assembly map + mock procurement review
 - [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
 - [`PROCUREMENT_PACK_INDEX.md#deal-ready-one-pager`](../PROCUREMENT_PACK_INDEX.md#deal-ready-one-pager)
 - [`RELEASE_EVIDENCE_BUNDLE_SCHEMA.md`](../../quality/RELEASE_EVIDENCE_BUNDLE_SCHEMA.md)

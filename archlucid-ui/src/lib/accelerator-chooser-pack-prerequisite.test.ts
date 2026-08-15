@@ -11,7 +11,7 @@ import {
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 
 describe("accelerator-chooser-pack-prerequisite", () => {
-  it("treats greenfield as not requiring a signed review record", () => {
+  it("treats greenfield as not requiring a sealed review record", () => {
     expect(acceleratorPackRequiresSignedReviewRecord(ACCELERATOR_GREENFIELD_PACK_ID)).toBe(false);
     expect(acceleratorPackRequiresSignedReviewRecord("regulated-saas-soc-procurement")).toBe(true);
   });

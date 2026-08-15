@@ -52,9 +52,9 @@ describe("review-guide-help-guide-content (TB-1258 / TB-1259–TB-1262)", () => 
     expect(getProductDocumentationEntry("review-guide")?.title).toBe("Review guide");
     expect(getProductDocumentationEntry("starting-reviews")).toBeNull();
     expect(getProductDocumentationEntry("creating-runs")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("starting-reviews")).toBe("/help/review-guide");
-    expect(resolveHelpTopicPermanentRedirect("creating-runs")).toBe("/help/review-guide");
-    expect(inAppHelpHref("starting-reviews")).toBe("/help/review-guide");
+    expect(resolveHelpTopicPermanentRedirect("starting-reviews")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("creating-runs")).toBeNull();
+    expect(inAppHelpHref("starting-reviews")).toBe("/help/starting-reviews");
     expect(RUNS_EMPTY.helpTopicPath).toBe("review-guide");
   });
 });

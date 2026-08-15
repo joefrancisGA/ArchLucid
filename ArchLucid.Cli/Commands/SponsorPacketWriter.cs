@@ -151,16 +151,16 @@ internal static class SponsorPacketWriter
         http.DefaultRequestHeaders.Accept.Clear();
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-        using HttpResponseMessage executiveSummaryResponse =
-            await http.GetAsync("v1/roi/executive-summary", cancellationToken);
+        using HttpResponseMessage SponsorReportResponse =
+            await http.GetAsync("v1/roi/sponsor-report", cancellationToken);
 
-        if (executiveSummaryResponse.IsSuccessStatusCode)
+        if (SponsorReportResponse.IsSuccessStatusCode)
         {
-            string raw = await executiveSummaryResponse.Content.ReadAsStringAsync(cancellationToken);
+            string raw = await SponsorReportResponse.Content.ReadAsStringAsync(cancellationToken);
             string pretty = PrettyPrintJson(raw);
 
             await File.WriteAllTextAsync(
-                Path.Combine(outputDirectory, SponsorPacketArtifactCatalog.ExecutiveSummaryFileName),
+                Path.Combine(outputDirectory, SponsorPacketArtifactCatalog.SponsorReportFileName),
                 pretty,
                 Utf8NoBom,
                 cancellationToken);
@@ -168,14 +168,14 @@ internal static class SponsorPacketWriter
         else
         {
             await errorWriter.WriteLineAsync(
-                $"WARN: executive-summary fetch returned {(int)executiveSummaryResponse.StatusCode}; packet will omit {SponsorPacketArtifactCatalog.ExecutiveSummaryFileName}.");
+                $"WARN: sponsor-report fetch returned {(int)SponsorReportResponse.StatusCode}; packet will omit {SponsorPacketArtifactCatalog.SponsorReportFileName}.");
         }
 
         http.DefaultRequestHeaders.Accept.Clear();
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/markdown"));
 
         using HttpResponseMessage reviewPacketResponse = await http.GetAsync(
-            $"v1/pilots/runs/{Uri.EscapeDataString(runId)}/executive-review-packet",
+            $"v1/pilots/runs/{Uri.EscapeDataString(runId)}/sponsor-review-packet",
             cancellationToken);
 
         if (reviewPacketResponse.IsSuccessStatusCode)
@@ -183,7 +183,7 @@ internal static class SponsorPacketWriter
             string markdown = await reviewPacketResponse.Content.ReadAsStringAsync(cancellationToken);
 
             await File.WriteAllTextAsync(
-                Path.Combine(outputDirectory, SponsorPacketArtifactCatalog.ExecutiveReviewPacketFileName),
+                Path.Combine(outputDirectory, SponsorPacketArtifactCatalog.SponsorReviewPacketFileName),
                 markdown,
                 Utf8NoBom,
                 cancellationToken);
@@ -191,7 +191,7 @@ internal static class SponsorPacketWriter
         else
         {
             await errorWriter.WriteLineAsync(
-                $"WARN: executive-review-packet fetch returned {(int)reviewPacketResponse.StatusCode}; packet will omit {SponsorPacketArtifactCatalog.ExecutiveReviewPacketFileName}.");
+                $"WARN: sponsor-review-packet fetch returned {(int)reviewPacketResponse.StatusCode}; packet will omit {SponsorPacketArtifactCatalog.SponsorReviewPacketFileName}.");
         }
 
         using HttpResponseMessage firstValueResponse = await http.GetAsync(

@@ -7,6 +7,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { DigestsTeamsSlackVocabularyRail } from "@/components/DigestsTeamsSlackVocabularyRail";
+import { SlackIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -280,6 +281,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
       />
 
       <DigestsTeamsSlackVocabularyRail currentSurfaceId="slack" />
+      <SlackIntegrationEvidenceOrientationStrip />
 
       {failure !== null ? (
         <div role="alert">

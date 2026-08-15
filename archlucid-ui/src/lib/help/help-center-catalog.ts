@@ -1,5 +1,11 @@
+import {
+  CAIQ_SIG_RESPONSE_HELP_CENTER_SUMMARY,
+  CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE,
+} from "@/lib/caiq-sig-response-help-guide-content";
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
+import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-page-copy";
+import { ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE } from "@/lib/admin-diagnostics-help-page-copy";
 import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
 import {
@@ -24,7 +30,7 @@ export const HELP_CENTER_FEATURED_SLUGS: readonly string[] = [
   "findings",
   "evidence-trail",
   "governance-approval",
-  "executive-summary",
+  "sponsor-report",
   "cloud-connections",
   "security-trust",
   "data-handling",
@@ -41,11 +47,12 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "evidence-trail": "product",
   "governance-approval": "product",
   "policy-packs": "product",
-  "executive-summary": "product",
+  "sponsor-report": "product",
   "audit-trail": "product",
   "data-handling": "product",
   "dpa-template": "product",
   "soc2-self-assessment": "product",
+  "caiq-sig-response": "product",
   subprocessors: "product",
   "cloud-connections": "product",
   "cloud-connections-azure": "product",
@@ -55,6 +62,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "security-trust": "product",
   "authentication-sign-in": "product",
   "report-a-problem": "product",
+  "contact-support": "product",
   "users-and-roles": "product",
   "billing-and-plans": "product",
   troubleshooting: "product",
@@ -63,7 +71,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "pilot-guide": "product",
   "choose-your-next-step": "product",
   "enterprise-onboarding": "admin",
-  "integration-readiness": "admin",
+  "integration-readiness": "product",
   procurement: "product",
   "configuration-reference": "internal",
   alerts: "admin",
@@ -74,7 +82,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "engineering-troubleshooting": "internal",
   "accelerator-chooser": "product",
   "api-contracts": "internal",
-  "admin-diagnostics": "internal",
+  "admin-diagnostics": "product",
   "pilot-feedback": "internal",
   "comparison-replay": "product",
   "repeat-review-loop": "product",
@@ -100,6 +108,16 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     summary:
       "After your first finalized review: compare packages, replay authority, and collect second-review proof.",
   },
+  "accelerator-chooser": {
+    title: ACCELERATOR_CHOOSER_HELP_PAGE_TITLE,
+    summary:
+      "Map buyer jobs to starter proof packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.",
+  },
+  "admin-diagnostics": {
+    title: ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE,
+    summary:
+      "System health, workspace readiness, assistant diagnostics, and observability signals for platform health.",
+  },
   "dpa-template": {
     title: "Data Processing Agreement (template)",
     summary:
@@ -109,6 +127,10 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     title: "SOC 2 self-assessment",
     summary:
       "Owner TSC readiness mapping — not a CPA Type I/II attestation; open Trust Center for the diligence pack.",
+  },
+  "caiq-sig-response": {
+    title: CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE,
+    summary: CAIQ_SIG_RESPONSE_HELP_CENTER_SUMMARY,
   },
   "api-contracts": {
     title: "API contracts (technical reference)",

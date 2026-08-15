@@ -174,6 +174,40 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         ok.Should().Be("{}");
     }
 
+    [SkippableFact]
+    public async Task Semantic_terminal_failure_does_not_trip_circuit()
+    {
+        int calls = 0;
+        Mock<IAgentCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
+        inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                int n = Interlocked.Increment(ref calls);
+
+                return n == 1
+                    ? Task.FromException<string>(new InvalidOperationException("Azure OpenAI returned an empty assistant message."))
+                    : Task.FromResult("{}");
+            });
+
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerGate gate = new("semantic-gate", options);
+
+        CircuitBreakingAgentCompletionClient sut = new(
+            inner.Object,
+            gate,
+            ResiliencePipeline.Empty,
+            NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None));
+
+        string ok = await sut.CompleteJsonAsync("s", "u", cancellationToken: CancellationToken.None);
+
+        ok.Should().Be("{}");
+        calls.Should().Be(2);
+    }
+
     private sealed class TestClock(DateTimeOffset start)
     {
         private DateTimeOffset _t = start;

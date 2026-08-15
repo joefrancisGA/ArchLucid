@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
+import { OPERATOR_HOME_SETUP_READINESS_HREF } from "@/lib/operator/operator-home-metric-hrefs";
 import type { RunSummary } from "@/types/authority";
 import { within } from "@testing-library/react";
 
@@ -52,6 +53,10 @@ describe("OperatorHomeWorkspaceMetricsSummary", () => {
       true,
     );
     expect(links.some((link) => link.getAttribute("href") === "/?warnings=1")).toBe(true);
+    expect(screen.getByRole("link", { name: "4 of 4 ready" })).toHaveAttribute(
+      "href",
+      OPERATOR_HOME_SETUP_READINESS_HREF,
+    );
   });
 
   it("keeps empty-state copy off the hero strip before the first review", () => {
@@ -67,5 +72,82 @@ describe("OperatorHomeWorkspaceMetricsSummary", () => {
 
     expect(screen.queryByTestId("operator-home-hero-kpi-strip")).toBeNull();
     expect(screen.getByTestId("operator-home-workspace-metrics-empty-copy")).toBeInTheDocument();
+  });
+
+  it("renders evidence sources in secondary metrics when the workspace has reviews", () => {
+    const run: RunSummary = {
+      runId: "run-001",
+      projectId: "default",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+      findingCount: 2,
+    };
+
+    render(
+      <OperatorHomeWorkspaceMetricsSummary
+        runsDashboard={buildModel([run])}
+        setupReadyCount={1}
+        setupTotalCount={3}
+        setupReadinessLoading={false}
+        variant="secondary"
+      />,
+    );
+
+    expect(screen.getByText("Evidence sources")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "1 of 3 ready" })).not.toBeInTheDocument();
+  });
+
+  it("deep-links setup readiness in primary metrics when the workspace has reviews", () => {
+    const run: RunSummary = {
+      runId: "run-001",
+      projectId: "default",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+      findingCount: 2,
+    };
+
+    render(
+      <OperatorHomeWorkspaceMetricsSummary
+        runsDashboard={buildModel([run])}
+        setupReadyCount={1}
+        setupTotalCount={3}
+        setupReadinessLoading={false}
+        variant="primary"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "1 of 3 ready" })).toHaveAttribute(
+      "href",
+      OPERATOR_HOME_SETUP_READINESS_HREF,
+    );
+  });
+
+  it("does not link setup readiness while counts are still loading", () => {
+    const run: RunSummary = {
+      runId: "run-001",
+      projectId: "default",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+      findingCount: 2,
+    };
+
+    render(
+      <OperatorHomeWorkspaceMetricsSummary
+        runsDashboard={buildModel([run])}
+        setupReadyCount={0}
+        setupTotalCount={0}
+        setupReadinessLoading={true}
+        variant="hero-inline"
+      />,
+    );
+
+    expect(screen.getByTestId("operator-home-hero-kpi-strip")).toHaveTextContent("…");
+    expect(screen.queryByRole("link", { name: "…" })).not.toBeInTheDocument();
   });
 });

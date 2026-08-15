@@ -16,6 +16,7 @@ describe("buildOnboardingRedirectPath (TB-1796)", () => {
 
   it("appends repeated keys from array values", () => {
     const path = buildOnboardingRedirectPath({ tag: ["a", "b"] });
+
     expect(path).toContain(`${FIRST_REVIEW_GUIDE_PATH}?`);
     expect(path).toContain("tag=a");
     expect(path).toContain("tag=b");

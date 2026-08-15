@@ -37,10 +37,10 @@ describe("DigestPreviewBeforeSubscribePanel (TB-2211)", () => {
     expect(screen.queryByTestId("digest-preview-before-subscribe-send-to-me-reason")).not.toBeInTheDocument();
   });
 
-  it("renders executive schedule specimen with cadence and recipients", () => {
+  it("renders sponsor schedule specimen with cadence and recipients", () => {
     render(
       <DigestPreviewBeforeSubscribePanel
-        variant="executive-schedule"
+        variant="sponsor-schedule"
         recipientEmails={["sponsor@example.com"]}
         cadenceSummary="Every Monday at 8:00 AM Eastern"
       />,

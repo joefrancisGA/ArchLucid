@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -13,7 +12,6 @@ import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-t
 import { operatorLastRefreshedExactLabel } from "@/lib/operator/operator-last-refreshed-label";
 import {
   SERVICENOW_ACTION_REFRESHING,
-  SERVICENOW_BREADCRUMB_INTEGRATIONS_LABEL,
   SERVICENOW_INTEGRATION_PAGE_TITLE,
   SERVICENOW_LAST_CHECKED_PREFIX,
   SERVICENOW_PAGE_SUBTITLE,
@@ -47,15 +45,6 @@ export function ServiceNowIntegrationPageHeader(
           data-testid="servicenow-header-status-badge"
         />
       }
-      breadcrumb={
-        <OperatorPageBreadcrumb
-          data-testid="servicenow-page-breadcrumb"
-          items={[
-            { label: SERVICENOW_BREADCRUMB_INTEGRATIONS_LABEL },
-            { label: SERVICENOW_INTEGRATION_PAGE_TITLE, href: INTEGRATIONS_SERVICENOW_PATH },
-          ]}
-        />
-      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="servicenow-header-actions">
           <PageContextualHelpButton />
@@ -67,7 +56,7 @@ export function ServiceNowIntegrationPageHeader(
           />
           <Link
             href={INTEGRATIONS_READINESS_PATH}
-            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+            className={OPERATOR_LINK.optional}
             data-testid="servicenow-readiness-link"
           >
             {SERVICENOW_READINESS_LINK_LABEL}

@@ -9,8 +9,8 @@ import {
   BUYER_MANIFEST_DELIVERABLES_HEADING,
   BUYER_MANIFEST_DELIVERABLE_DOCX_DESC,
   BUYER_MANIFEST_DELIVERABLE_DOCX_TITLE,
-  BUYER_MANIFEST_DELIVERABLE_EXECUTIVE_PDF_DESC,
-  BUYER_MANIFEST_DELIVERABLE_EXECUTIVE_PDF_TITLE,
+  BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_DESC,
+  BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_TITLE,
   BUYER_MANIFEST_DELIVERABLE_MARKDOWN_DESC,
   BUYER_MANIFEST_DELIVERABLE_MARKDOWN_TITLE,
   BUYER_MANIFEST_DELIVERABLE_ZIP_DESC,
@@ -61,11 +61,11 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
 
     try {
       await downloadFirstValueReportPdf(runId);
-      showSuccess("Executive PDF download started.");
+      showSuccess("Sponsor PDF download started.");
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
 
-      showError("Executive PDF download failed", message);
+      showError("Sponsor PDF download failed", message);
     } finally {
       setPdfBusy(false);
     }
@@ -93,9 +93,9 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
       <div className="grid gap-3 sm:grid-cols-2">
         {showPdfTile ? (
           <DeliverableTile
-            title={BUYER_MANIFEST_DELIVERABLE_EXECUTIVE_PDF_TITLE}
-            description={BUYER_MANIFEST_DELIVERABLE_EXECUTIVE_PDF_DESC}
-            testId="deliverable-tile-executive-pdf"
+            title={BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_TITLE}
+            description={BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_DESC}
+            testId="deliverable-tile-sponsor-pdf"
           >
             <Button type="button" size="sm" variant="default" disabled={pdfBusy} onClick={() => void onPdfDownload()}>
               {pdfBusy ? "Downloading…" : "Download PDF"}

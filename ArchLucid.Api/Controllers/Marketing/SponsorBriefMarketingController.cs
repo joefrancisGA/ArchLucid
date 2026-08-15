@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 using ArchLucid.Api.Marketing;
 using ArchLucid.Api.ProblemDetails;
@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Controllers.Marketing;
 
 using ArchLucid.Api.Security;
 
-/// <summary>Anonymous marketing artifact: printable PDF from the canonical Executive Sponsor Brief markdown.</summary>
+/// <summary>Anonymous marketing artifact: printable PDF from the canonical Sponsor Sponsor Brief markdown.</summary>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/marketing")]
@@ -24,15 +24,15 @@ using ArchLucid.Api.Security;
 [AllowUnscopedRoute]
 public sealed class SponsorBriefMarketingController(
     IWebHostEnvironment hostEnvironment,
-    ExecutiveSponsorBriefPdfBuilder pdfBuilder) : ControllerBase
+    SponsorBriefPdfBuilder pdfBuilder) : ControllerBase
 {
     private readonly IWebHostEnvironment _hostEnvironment =
         hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
 
-    private readonly ExecutiveSponsorBriefPdfBuilder _pdfBuilder =
+    private readonly SponsorBriefPdfBuilder _pdfBuilder =
         pdfBuilder ?? throw new ArgumentNullException(nameof(pdfBuilder));
 
-    /// <summary>Returns the sponsor brief as PDF — content matches <c>docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md</c> on disk.</summary>
+    /// <summary>Returns the sponsor brief as PDF â€” content matches <c>docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md</c> on disk.</summary>
     [HttpGet("sponsor-brief.pdf")]
     [OutputCache(PolicyName = "MarketingArtifact")]
     [Produces("application/pdf")]
@@ -48,7 +48,7 @@ public sealed class SponsorBriefMarketingController(
         if (string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path))
         {
             return this.NotFoundProblem(
-                $"Executive sponsor brief was not found under docs/go-to-market (started from '{_hostEnvironment.ContentRootPath}').",
+                $"Sponsor sponsor brief was not found under docs/go-to-market (started from '{_hostEnvironment.ContentRootPath}').",
                 ProblemTypes.ResourceNotFound);
         }
 

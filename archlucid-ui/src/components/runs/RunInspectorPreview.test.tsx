@@ -89,9 +89,9 @@ describe("RunInspectorPreview", () => {
 
     expect(screen.queryByRole("link", { name: "Open approved package" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByText("Related actions"));
-    expect(screen.getByRole("link", { name: "View signed record" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "View sealed record" })).toHaveAttribute(
       "href",
-      `/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
+      `/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
     );
     expect(screen.getByRole("link", { name: "View evidence graph" })).toHaveAttribute(
       "href",
@@ -111,7 +111,7 @@ describe("RunInspectorPreview", () => {
     );
     fireEvent.click(screen.getByText("Open specific artifact"));
 
-    expect(screen.getByRole("link", { name: "Executive summary" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Sponsor report" })).toHaveAttribute(
       "href",
       "/architecture/reviews/customer-intake-modernization",
     );

@@ -22,9 +22,9 @@ function shortenId(id: string): string {
 }
 
 /**
- * Honest, bookmark-friendly scope copy for the Executive Workspace Health banner — no cross-workspace rollup claims.
+ * Honest, bookmark-friendly scope copy for the Sponsor Workspace Health banner — no cross-workspace rollup claims.
  */
-export function formatExecutiveWorkspaceScopeDescription(
+export function formatSponsorWorkspaceScopeDescription(
   record: OperatorScopeRecord | null,
   headers: SessionScopeHeaderTriplet,
 ): string {
@@ -35,8 +35,8 @@ export function formatExecutiveWorkspaceScopeDescription(
     const project =
       record.projectLabel.trim().length > 0 ? record.projectLabel.trim() : fallback.project;
 
-    return `Active scope: tenant ${shortenId(record.tenantId)}, workspace “${workspace}”, project “${project}”. Matches SESSION_CONTEXT on governance and audit requests — not a cross-workspace executive rollup.`;
+    return `Active scope: tenant ${shortenId(record.tenantId)}, workspace “${workspace}”, project “${project}”. Matches SESSION_CONTEXT on governance and audit requests — not a cross-workspace sponsor rollup.`;
   }
 
-  return `Active scope: tenant ${shortenId(headers.tenantId)}, workspace ${shortenId(headers.workspaceId)}, project ${shortenId(headers.projectId)}. Matches SESSION_CONTEXT on governance and audit requests — not a cross-workspace executive rollup.`;
+  return `Active scope: tenant ${shortenId(headers.tenantId)}, workspace ${shortenId(headers.workspaceId)}, project ${shortenId(headers.projectId)}. Matches SESSION_CONTEXT on governance and audit requests — not a cross-workspace sponsor rollup.`;
 }

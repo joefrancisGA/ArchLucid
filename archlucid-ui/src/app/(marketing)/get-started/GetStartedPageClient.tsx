@@ -282,9 +282,9 @@ export function GetStartedPageClient(): ReactElement {
         <p className={cn("mt-4", MARKETING_TYPOGRAPHY.meta)}>
           <Link
             className={MARKETING_SURFACES.inlineLink}
-            href={resolveInAppDocHref("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md")}
+            href={resolveInAppDocHref("docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md")}
           >
-            Read the executive sponsor brief
+            Read the sponsor sponsor brief
           </Link>
           {" · "}
           <Link className={MARKETING_SURFACES.inlineLink} href="#choose-sample" data-analytics-event="get-started-open-another-sample">

@@ -4,10 +4,10 @@ namespace ArchLucid.Application.Governance;
 
 /// <inheritdoc cref="IRecurrenceCompletionRecipientResolver" />
 public sealed class RecurrenceCompletionRecipientResolver(
-    IExecutiveSummaryRecipientLookup executiveSummaryRecipientLookup) : IRecurrenceCompletionRecipientResolver
+    ISponsorReportRecipientLookup SponsorReportRecipientLookup) : IRecurrenceCompletionRecipientResolver
 {
-    private readonly IExecutiveSummaryRecipientLookup _executiveSummaryRecipientLookup =
-        executiveSummaryRecipientLookup ?? throw new ArgumentNullException(nameof(executiveSummaryRecipientLookup));
+    private readonly ISponsorReportRecipientLookup _SponsorReportRecipientLookup =
+        SponsorReportRecipientLookup ?? throw new ArgumentNullException(nameof(SponsorReportRecipientLookup));
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<string>> ListRecipientMailboxesAsync(
@@ -20,7 +20,7 @@ public sealed class RecurrenceCompletionRecipientResolver(
         if (!string.IsNullOrWhiteSpace(scheduleCreatedByUserId) && scheduleCreatedByUserId.Contains('@', StringComparison.Ordinal))
             mailboxes.Add(scheduleCreatedByUserId.Trim());
 
-        IReadOnlyList<string> admins = await _executiveSummaryRecipientLookup
+        IReadOnlyList<string> admins = await _SponsorReportRecipientLookup
             .ListRecipientMailboxesAsync(tenantId, cancellationToken)
             .ConfigureAwait(false);
 

@@ -37,6 +37,16 @@ export function trySandboxProxyMock(
     );
   }
 
+  if (pathKey === "v1/tenant/workspace-baseline-artifacts") {
+    return jsonResponse(
+      {
+        hasBaselineArtifacts: false,
+        extractorScriptVersion: null,
+      },
+      id,
+    );
+  }
+
   const provenanceMatch =
     /^v1\/architecture\/runs\/([^/]+)\/provenance$/i.exec(canonicalPath);
 

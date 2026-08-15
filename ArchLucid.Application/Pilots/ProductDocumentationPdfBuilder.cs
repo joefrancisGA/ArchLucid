@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Pilots;
 
 /// <summary>
 ///     PDF projection of in-app product documentation markdown — same QuestPDF stack as
-///     <see cref="ExecutiveSponsorBriefPdfBuilder" /> and <see cref="MarkdownPdfRenderer" />.
+///     <see cref="SponsorBriefPdfBuilder" /> and <see cref="MarkdownPdfRenderer" />.
 /// </summary>
 public sealed class ProductDocumentationPdfBuilder
 {

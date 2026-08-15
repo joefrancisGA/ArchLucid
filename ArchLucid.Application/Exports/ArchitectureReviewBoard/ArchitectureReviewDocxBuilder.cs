@@ -46,7 +46,7 @@ public sealed class ArchitectureReviewDocxBuilder
             AddCoverPageSection(mainPart, body, model, whitelabel, logoImageBytes, activeTrialExportNotice, exportTimestampUtc);
             ArchitectureReviewDocxOpenXmlPrimitives.AddPageBreak(body);
 
-            AddExecutiveSummarySection(body, model);
+            AddSponsorReportSection(body, model);
             AddSystemOverviewSection(body, model);
             AddEvidenceReviewedSection(body, model);
             AddArchitectureDecisionsSection(body, model);
@@ -178,14 +178,14 @@ public sealed class ArchitectureReviewDocxBuilder
             "Subtle");
     }
 
-    internal void AddExecutiveSummarySection(Body body, ArchitectureReviewBoardExportDocumentModel model)
+    internal void AddSponsorReportSection(Body body, ArchitectureReviewBoardExportDocumentModel model)
     {
-        ArchitectureReviewDocxOpenXmlPrimitives.AddHeading1(body, "Executive summary");
+        ArchitectureReviewDocxOpenXmlPrimitives.AddHeading1(body, "Sponsor report");
 
-        if (string.IsNullOrWhiteSpace(model.ExecutiveSummary))
-            ArchitectureReviewDocxOpenXmlPrimitives.AddEmptyPlaceholder(body, "executive summary content");
+        if (string.IsNullOrWhiteSpace(model.SponsorReport))
+            ArchitectureReviewDocxOpenXmlPrimitives.AddEmptyPlaceholder(body, "Sponsor report content");
         else
-            ArchitectureReviewDocxOpenXmlPrimitives.AddMultilineBodyText(body, model.ExecutiveSummary);
+            ArchitectureReviewDocxOpenXmlPrimitives.AddMultilineBodyText(body, model.SponsorReport);
     }
 
     internal void AddSystemOverviewSection(Body body, ArchitectureReviewBoardExportDocumentModel model)

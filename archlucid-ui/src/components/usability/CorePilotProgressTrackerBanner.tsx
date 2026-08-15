@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -79,7 +79,7 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
               {" · "}
               <Link
                 href={canOpenInternalRunbook ? FIRST_VALUE_20_HELP_PATH : FIRST_ARCHITECTURE_REVIEW_HELP_PATH}
-                className="font-medium text-teal-800 underline dark:text-teal-300"
+                className={OPERATOR_LINK.optional}
               >
                 Complete one review in about {FIRST_VALUE_MINUTES_ESTIMATE} minutes
               </Link>

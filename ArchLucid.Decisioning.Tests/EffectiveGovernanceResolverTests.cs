@@ -109,7 +109,7 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
@@ -171,7 +171,7 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
@@ -203,7 +203,7 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
         result.Notes.Should()
@@ -262,7 +262,7 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
         result.Notes.Should()
@@ -321,7 +321,7 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
         result.Notes.Should()
@@ -380,7 +380,7 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
         result.Notes.Should()
@@ -495,7 +495,7 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
@@ -609,7 +609,7 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
@@ -730,7 +730,7 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
@@ -842,7 +842,7 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
 
         EffectiveGovernanceResolutionResult result =
             await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
@@ -903,7 +903,7 @@ public sealed class EffectiveGovernanceResolverTests
             "Azure Well-Architected Framework",
             """{"complianceRuleIds":["33333333-3333-3333-3333-333333333333"],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""");
 
-        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo, NullPlatformBundledPolicyPackAvailability.Instance);
 
         using (PilotModeGovernanceScope.Begin())
         {

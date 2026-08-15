@@ -86,7 +86,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
           capability={SEARCH_PAGE_TITLE}
-          description="In a connected tenant, architects search findings, decisions, and signed review records across the workspace evidence index."
+          description="In a connected tenant, architects search findings, decisions, and sealed review records across the workspace evidence index."
         />
       </div>
     );

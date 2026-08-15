@@ -33,14 +33,21 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/improvement-planning",
       "/insights/architecture-scorecard",
       "/insights/patterns",
-      "/insights/executive-summary",
-      "/insights/pilot-outcomes",
+      "/insights/sponsor-report",
       "/insights/roi-summary",
     ]);
-    expect(group.links.at(-4)?.label).toBe("Pattern library");
-    expect(group.links.at(-4)?.navBadge).toBeUndefined();
-    expect(group.links.at(-3)?.label).toBe("Executive value report");
+    expect(group.links.at(-3)?.label).toBe("Pattern library");
+    expect(group.links.at(-3)?.navBadge).toBeUndefined();
+    expect(group.links.at(-2)?.label).toBe("Sponsor report");
     expect(group.links.at(-1)?.label).toBe("ROI summary");
+  });
+
+  it("keeps the merged sponsor report read-gated so viewers reach it and exports stay Execute-gated", () => {
+    const group = new OperateAnalysisNavGroupBuilder().build();
+    const sponsorReport = group.links.find((link) => link.href === "/insights/sponsor-report");
+
+    expect(sponsorReport?.requiredAuthority).toBe("ReadAuthority");
+    expect(group.links.some((link) => link.href === "/insights/pilot-outcomes")).toBe(false);
   });
 
   it("does not list Architecture intelligence in Insights nav", () => {

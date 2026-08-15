@@ -15,6 +15,28 @@ public static class CloudInventoryExtractorPackageZipValidator
 
     public const int SupportedSchemaVersion = 1;
 
+    public static CloudInventoryExtractorZipValidationResult ValidateFile(string zipPath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(zipPath);
+
+        string fullPath = Path.GetFullPath(zipPath.Trim());
+
+        if (!File.Exists(fullPath))
+        {
+            return new CloudInventoryExtractorZipValidationResult
+            {
+                IsValid = false,
+                ErrorDetail = $"ZIP file not found: {fullPath}",
+                IsInvalidArchive = false,
+                IsSchemaRejection = false,
+            };
+        }
+
+        using FileStream stream = new(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+        return Validate(stream);
+    }
+
     public static CloudInventoryExtractorZipValidationResult Validate(Stream zipStream)
     {
         ArgumentNullException.ThrowIfNull(zipStream);

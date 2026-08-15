@@ -61,7 +61,7 @@ describe("HelpPathChooserGuideView", () => {
     }
 
     expect(screen.getByTestId("help-path-chooser-reference-appendix")).toBeInTheDocument();
-    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/choose-your-next-step");
+    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBeNull();
   });
 
   it("renders specialty chooser chrome without GTM/runbook repo paths (TB-1711 / TB-1712)", () => {

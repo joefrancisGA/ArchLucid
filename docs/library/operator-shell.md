@@ -40,7 +40,7 @@ The workspace surfaces the three-layer model without duplicating long deployment
 
 Long-form “when to expand” tables remain in the deployment decision guide; the UI carries only minimal cues.
 
-**Shell split:** The **architect workspace** and **executive** route groups render distinct shells — sidebar review workflows versus the minimal executive header for sponsor reading. There is **no** single top-bar toggle labeled **Architect | Executive**; cross-shell handoffs use contextual links (for example **Architect workspace** in the executive header, **Open Executive Summary** on review detail). Sidebar groups (Review work, Analysis, Governance, Administration) are the direct navigation model; **what can wait until later** tiers and **Show all features** control link breadth — there is no separate workflow-mode toolbar.
+**Shell split:** The **architect workspace** and **sponsor** route groups render distinct shells — sidebar review workflows versus the minimal sponsor header for sponsor reading. There is **no** single top-bar toggle labeled **Architect | Sponsor**; cross-shell handoffs use contextual links (for example **Architect workspace** in the sponsor header, **Open Sponsor Summary** on review detail). Sidebar groups (Review work, Analysis, Governance, Administration) are the direct navigation model; **what can wait until later** tiers and **Show all features** control link breadth — there is no separate workflow-mode toolbar.
 
 ---
 
@@ -61,7 +61,7 @@ Enable these by clicking **Show analysis & investigation tools** in the sidebar 
 
 5. **Compare / replay** — **Compare two reviews**: enter base (left) and target (right) review IDs; structured architecture-snapshot deltas first, then legacy flat diff; optional AI explanation. **Replay review**: pick mode and read validation flags/notes.
 6. **Evidence graph** — Enter a **review ID** (from the reviews list or review detail), choose a view (full provenance, decision subgraph, neighborhood, architecture), **Load graph**. Use this when you need a **visual** graph, not the tabular compare flow.
-7. **Ask / Advisory / Pilot feedback** — natural-language queries against architecture context; the **Advisory** hub at `/advisory` combines **Scans** (default) and **Schedules** (`?tab=schedules`); the **Digests** hub at `/digests` combines **Browse** (default), **Subscriptions** (`?tab=subscriptions`, Execute-class writes), and **Schedule** (weekly executive digest, `?tab=schedule`); pilot feedback rollups.
+7. **Ask / Advisory / Pilot feedback** — natural-language queries against architecture context; the **Advisory** hub at `/advisory` combines **Scans** (default) and **Schedules** (`?tab=schedules`); the **Digests** hub at `/digests` combines **Browse** (default), **Subscriptions** (`?tab=subscriptions`, Execute-class writes), and **Schedule** (weekly sponsor digest, `?tab=schedule`); pilot feedback rollups.
 
 Breadcrumb links on key pages tie **Home · Reviews · Compare · Evidence graph** together.
 

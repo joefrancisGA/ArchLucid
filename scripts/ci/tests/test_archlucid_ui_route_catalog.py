@@ -29,7 +29,7 @@ def test_discover_app_router_paths_includes_architectures_hub() -> None:
 
 def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
     tab_paths = discover_tab_paths()
-    assert "/architecture/reviews/[runId]?archTab=evidence" in tab_paths
+    assert "/architecture/reviews/[reviewId]?archTab=evidence" in tab_paths
     assert "/architecture/digests?tab=get-started" in tab_paths
     assert "/architecture/digests?tab=browse" not in tab_paths
     assert "/administration/users?tab=roles" in tab_paths
@@ -60,21 +60,36 @@ def test_discover_help_paths_includes_cloud_connections_slash_canonicals() -> No
     assert "/help/cloud-connections/aws" in alias_paths
 
 
-def test_migrate_workbook_path_maps_legacy_core_pilot_help_slug() -> None:
-    assert migrate_workbook_path("/help/core-pilot") == "/help/first-architecture-review"
+RETIRED_HELP_BOOKMARK_PATHS = (
+    "/help/cloud-connections-azure",
+    "/help/cloud-connections-aws",
+    "/help/cloud-connections-gcp",
+    "/help/core-pilot",
+    "/help/governance-api-contracts",
+    "/help/creating-runs",
+    "/help/data-handling-tenant-isolation",
+    "/help/evidence-only-review",
+    "/help/how-it-works",
+    "/help/integrations/azure-boards",
+    "/help/product-overview",
+    "/help/starting-reviews",
+    "/help/evaluator-workbook",
+    "/help/path-chooser",
+    "/help/first-hour-operator-path",
+    "/help/first-pilot-path",
+    "/help/operator-auth-roles",
+    "/help/pilot-nav-profile",
+    "/help/first-review",
+    "/help/first-value-20-minutes",
+    "/help/pilot-roi-model",
+    "/help/developer-troubleshooting",
+)
 
 
-def test_migrate_workbook_path_maps_tb2050_retired_help_aliases() -> None:
-    assert migrate_workbook_path("/help/governance-api-contracts") == "/help/api-contracts"
-    assert migrate_workbook_path("/help/evaluator-workbook") == "/help/choose-your-next-step"
-    assert migrate_workbook_path("/help/path-chooser") == "/help/choose-your-next-step"
-    assert migrate_workbook_path("/help/first-hour-operator-path") == "/help/first-architecture-review"
-    assert migrate_workbook_path("/help/operator-auth-roles") == "/help/users-and-roles"
-    # Section anchors stay out of workbook targets: rows must be catalog routes.
-    assert migrate_workbook_path("/help/first-review") == "/help/first-architecture-review"
-    assert migrate_workbook_path("/help/first-value-20-minutes") == "/help/first-architecture-review"
-    assert migrate_workbook_path("/help/pilot-roi-model") == "/help/executive-summary"
-    assert migrate_workbook_path("/help/developer-troubleshooting") == "/help/engineering-troubleshooting"
+def test_migrate_workbook_path_no_longer_maps_retired_help_bookmarks() -> None:
+    for legacy_path in RETIRED_HELP_BOOKMARK_PATHS:
+        assert migrate_workbook_path(legacy_path) == legacy_path
+
     assert migrate_workbook_path("/help/policy-pack-delta-demo") == "/help/policy-packs#policy-pack-delta-demo"
 
 
@@ -91,6 +106,17 @@ def test_build_catalog_keeps_tb2050_retired_aliases_out() -> None:
     assert "/help/api-contracts" in catalog
     assert "/help/choose-your-next-step" in catalog
     assert "/help/users-and-roles" in catalog
+    assert "/help/data-handling-tenant-isolation" not in catalog
+    assert "/help/integrations/azure-boards" not in catalog
+    assert "/help/starting-reviews" not in catalog
+    assert "/help/evidence-only-review" not in catalog
+    assert "/help/product-overview" not in catalog
+    assert "/help/how-it-works" not in catalog
+    assert "/help/data-handling" in catalog
+    assert "/help/azure-boards" in catalog
+    assert "/help/review-guide" in catalog
+    assert "/help/sponsor-report" in catalog
+    assert "/help/getting-started" in catalog
 
 
 def test_build_catalog_excludes_redirect_only_legacy_paths() -> None:
@@ -137,59 +163,6 @@ def test_build_catalog_does_not_track_legacy_tenant_settings_redirects() -> None
     assert "/administration/tenant/recycle-bin" not in catalog
     assert "/administration/workspace-settings" in catalog
 
-
-def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> None:
-    assert migrate_workbook_path("/help/cloud-connections-azure") == "/help/cloud-connections/azure"
-    assert migrate_workbook_path("/help/cloud-connections-aws") == "/help/cloud-connections/aws"
-    assert migrate_workbook_path("/help/cloud-connections-gcp") == "/help/cloud-connections/gcp"
-
-
-def test_migrate_workbook_path_maps_retired_api_contracts_help_alias() -> None:
-    assert migrate_workbook_path("/help/governance-api-contracts") == "/help/api-contracts"
-
-
-def test_migrate_workbook_path_maps_retired_creating_runs_help_alias() -> None:
-    assert migrate_workbook_path("/help/creating-runs") == "/help/review-guide"
-
-
-def test_migrate_workbook_path_maps_batch_b_retired_help_aliases() -> None:
-    assert migrate_workbook_path("/help/data-handling-tenant-isolation") == "/help/data-handling"
-    assert migrate_workbook_path("/help/integrations/azure-boards") == "/help/azure-boards"
-
-
-def test_build_catalog_keeps_batch_b_retired_help_aliases_out() -> None:
-    catalog = build_catalog()
-    assert "/help/data-handling-tenant-isolation" not in catalog
-    assert "/help/integrations/azure-boards" not in catalog
-    assert "/help/data-handling" in catalog
-    assert "/help/azure-boards" in catalog
-
-
-def test_migrate_workbook_path_maps_batch_a_retired_help_aliases() -> None:
-    assert migrate_workbook_path("/help/starting-reviews") == "/help/review-guide"
-    assert migrate_workbook_path("/help/evidence-only-review") == "/help/first-architecture-review"
-    assert migrate_workbook_path("/help/product-overview") == "/help/executive-summary"
-    assert migrate_workbook_path("/help/how-it-works") == "/help/getting-started"
-
-
-def test_build_catalog_keeps_batch_a_retired_help_aliases_out() -> None:
-    catalog = build_catalog()
-    assert "/help/starting-reviews" not in catalog
-    assert "/help/evidence-only-review" not in catalog
-    assert "/help/product-overview" not in catalog
-    assert "/help/how-it-works" not in catalog
-    assert "/help/review-guide" in catalog
-    assert "/help/first-architecture-review" in catalog
-    assert "/help/executive-summary" in catalog
-    assert "/help/getting-started" in catalog
-
-
-def test_migrate_workbook_path_maps_batch_c_retired_help_aliases() -> None:
-    assert migrate_workbook_path("/help/first-pilot-path") == "/help/first-architecture-review"
-
-
-def test_migrate_workbook_path_maps_pilot_nav_profile_fold_into_pilot_guide() -> None:
-    assert migrate_workbook_path("/help/pilot-nav-profile") == "/help/pilot-guide"
 
 
 def test_migrate_workbook_path_maps_legacy_alerts() -> None:
@@ -238,6 +211,19 @@ def test_migrate_workbook_path_maps_legacy_login_and_architecture_graph() -> Non
     assert migrate_workbook_path("/operate/architecture-graph") == "/insights/evidence-graph"
 
 
+def test_migrate_workbook_path_maps_architecture_review_run_id_to_review_id() -> None:
+    assert migrate_workbook_path("/architecture/reviews/[runId]") == "/architecture/reviews/[reviewId]"
+    assert (
+        migrate_workbook_path("/architecture/reviews/[runId]/findings/[findingId]")
+        == "/architecture/reviews/[reviewId]/findings/[findingId]"
+    )
+    assert (
+        migrate_workbook_path("/architecture/reviews/[runId]?archTab=evidence")
+        == "/architecture/reviews/[reviewId]?archTab=evidence"
+    )
+    assert migrate_workbook_path("/reviews/[runId]/provenance") == "/architecture/reviews/[reviewId]/provenance"
+
+
 def test_migrate_workbook_path_maps_legacy_settings_alerts() -> None:
     assert migrate_workbook_path("/settings/alerts") == "/governance/alert-rules"
 
@@ -249,7 +235,7 @@ def test_build_catalog_does_not_track_retired_settings_alerts_bookmark() -> None
 
 def test_build_catalog_skips_rer_run_artifact_preview_redirect_page() -> None:
     catalog = build_catalog()
-    assert "/architecture/reviews/[runId]/artifacts/[artifactId]" not in catalog
+    assert "/architecture/reviews/[reviewId]/artifacts/[artifactId]" not in catalog
 
 
 def test_build_catalog_skips_demo_entry_redirect_page() -> None:
@@ -283,9 +269,9 @@ def test_migrate_workbook_path_maps_legacy_operator_system_health() -> None:
 
 
 def test_migrate_workbook_path_maps_legacy_executive_dashboard_bookmarks() -> None:
-    assert migrate_workbook_path("/dashboard") == "/architecture/executive-dashboard"
-    assert migrate_workbook_path("/executive/dashboard") == "/architecture/executive-dashboard"
-    assert migrate_workbook_path("/portfolio") == "/architecture/executive-dashboard"
+    assert migrate_workbook_path("/dashboard") == "/architecture/sponsor-dashboard"
+    assert migrate_workbook_path("/sponsor/dashboard") == "/architecture/sponsor-dashboard"
+    assert migrate_workbook_path("/portfolio") == "/architecture/sponsor-dashboard"
 
 
 def test_migrate_workbook_path_maps_legacy_admin_internal_ops() -> None:
@@ -297,31 +283,33 @@ def test_migrate_workbook_path_maps_legacy_admin_internal_ops() -> None:
 
 
 def test_migrate_workbook_path_maps_legacy_sponsor_report_to_insights() -> None:
-    assert migrate_workbook_path("/sponsor-report/executive-summary") == "/insights/executive-summary"
+    assert migrate_workbook_path("/sponsor-report/sponsor-report") == "/insights/sponsor-report"
     assert migrate_workbook_path("/sponsor-report/roi-summary") == "/insights/roi-summary"
     assert migrate_workbook_path("/sponsor-report/pilot-outcomes") == "/insights/pilot-outcomes"
-    assert migrate_workbook_path("/value-report") == "/insights/executive-summary"
+    assert migrate_workbook_path("/value-report") == "/insights/sponsor-report"
 
 
 def test_migrate_workbook_path_maps_legacy_replay_and_signed_records() -> None:
-    assert migrate_workbook_path("/replay") == "/internal/replay"
-    assert migrate_workbook_path("/signed-records") == "/governance/signed-records"
+    assert migrate_workbook_path("/replay") == "/internal/validate-route"
+    assert migrate_workbook_path("/internal/replay") == "/internal/validate-route"
+    assert migrate_workbook_path("/signed-records") == "/governance/sealed-records"
+    assert migrate_workbook_path("/governance/signed-records") == "/governance/sealed-records"
     assert (
         migrate_workbook_path("/signed-records/[manifestId]")
-        == "/governance/signed-records/[manifestId]"
+        == "/governance/sealed-records/[manifestId]"
     )
     assert (
         migrate_workbook_path("/manifests/[manifestId]")
-        == "/governance/signed-records/[manifestId]"
+        == "/governance/sealed-records/[manifestId]"
     )
 
 
 def test_infer_section_maps_internal_and_insights_sponsor_paths() -> None:
     catalog = build_catalog()
     assert catalog["/internal/health"].section == "Admin"
-    assert catalog["/internal/replay"].section == "Marketing"
+    assert catalog["/internal/validate-route"].section == "Marketing"
     assert catalog["/internal/product-learning"].section == "Onboarding"
-    assert catalog["/internal/integration-events/dlq"].section == "Advisory"
+    assert catalog["/internal/failed-integration-messages"].section == "Advisory"
     assert catalog["/insights/roi-summary"].section == "Sponsor report"
     assert catalog["/insights/pilot-outcomes"].section == "Sponsor report"
     assert catalog["/help/configuration-reference"].section == "Internal"
@@ -331,6 +319,14 @@ def test_build_catalog_tracks_evidence_graph_as_planning() -> None:
     catalog = build_catalog()
     assert "/insights/evidence-graph" in catalog
     assert catalog["/insights/evidence-graph"].section == "Planning"
+
+
+def test_build_catalog_does_not_track_retired_redirect_shim_bookmarks() -> None:
+    catalog = build_catalog()
+    assert "/onboard" not in catalog
+    assert "/onboarding/start" not in catalog
+    assert "/operate/architecture-graph" not in catalog
+    assert "/quick-start" not in catalog
 
 
 def test_build_catalog_tracks_first_review_guide_as_onboarding() -> None:

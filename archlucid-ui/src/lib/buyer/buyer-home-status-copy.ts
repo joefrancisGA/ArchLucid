@@ -12,11 +12,11 @@ export const BUYER_HOME_FILTER_ACTION_NEEDED = "Action needed";
 
 export const BUYER_ROI_ESTIMATE_PENDING_HEADLINE = "ROI assumptions not added yet";
 
-import { EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER } from "@/lib/usability/canonical-product-terms";
+import { SPONSOR_BRIEFING_EXPORT_LABEL_LOWER } from "@/lib/usability/canonical-product-terms";
 
 export const BUYER_ROI_ESTIMATE_PENDING_BODY =
 
-  `Add your cost assumptions to see ROI in the ${EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER}.`;
+  `Add your cost assumptions to see ROI in the ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER}.`;
 
 export const BUYER_ROI_ESTIMATE_ADD_CTA = "Add your cost assumptions";
 
@@ -34,7 +34,7 @@ export const OPERATOR_ROI_ESTIMATE_ADD_CTA = "Add ROI assumptions";
 
 export const OPERATOR_ROI_ESTIMATE_DISMISS_CTA = "Dismiss for this review";
 
-export const BUYER_SPONSOR_DISPOSITION_SEND = "Ready for executive briefing";
+export const BUYER_SPONSOR_DISPOSITION_SEND = "Ready for sponsor briefing";
 
 export const BUYER_SPONSOR_DISPOSITION_HOLD = "Business owner review needed";
 
@@ -46,7 +46,7 @@ export const BUYER_COMMAND_CENTER_HOLD_HEADLINE = "Business owner review require
 
 export const BUYER_COMMAND_CENTER_HOLD_SUMMARY_BASELINES =
 
-  `ROI estimate pending. Add assumptions before sharing the ${EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER}.`;
+  `ROI estimate pending. Add assumptions before sharing the ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER}.`;
 
 export const BUYER_COMMAND_CENTER_HOLD_SUMMARY_BLOCKERS =
 
@@ -64,7 +64,7 @@ export const BUYER_COMMAND_CENTER_RECOMMENDED_HEADING = "Recommended next step";
 
 export const BUYER_COMMAND_CENTER_REVIEW_READY_SUMMARY =
 
-  `The review is ready. Add ROI assumptions before sharing the ${EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER}.`;
+  `The review is ready. Add ROI assumptions before sharing the ${SPONSOR_BRIEFING_EXPORT_LABEL_LOWER}.`;
 
 export const BUYER_COMMAND_CENTER_OPEN_REVIEW_LINK = "Open review";
 

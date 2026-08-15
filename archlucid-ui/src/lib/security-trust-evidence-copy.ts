@@ -4,7 +4,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const SECURITY_TRUST_CANONICAL_PATH = "/security-trust" as const;
 
 export const SECURITY_TRUST_CLAIM_DISCIPLINE =
-  "This page summarizes public and diligence-oriented assurance engagement metadata — it is not itself a signed-review diligence Sources package, a CPA-issued SOC 2 report, or a published third-party pen-test report. Use Trust Center downloads and NDA channels for the materials that actually exist; do not treat marketing status labels as attestation.";
+  "This page summarizes public and diligence-oriented assurance engagement metadata — it is not itself a sealed-review diligence Sources package, a CPA-issued SOC 2 report, or a published third-party pen-test report. Use Trust Center downloads and NDA channels for the materials that actually exist; do not treat marketing status labels as attestation.";
 
 export const SECURITY_TRUST_SOURCES_INTRO =
   "Use these evaluation links when assurance questions turn into public downloads, privacy, FAQ, or procurement follow-ups.";

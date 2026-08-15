@@ -1,7 +1,9 @@
+using ArchLucid.Core.Persistence.ApplicationPorts.Coordination;
+
 namespace ArchLucid.Persistence.Cosmos;
 
 /// <summary>Row from <c>dbo.CosmosGraphSnapshotOutbox</c> pending Cosmos replication.</summary>
-public sealed class CosmosGraphSnapshotOutboxEntry
+public sealed class CosmosGraphSnapshotOutboxEntry : IRecoverableOutboxEntry
 {
     public Guid OutboxId { get; init; }
 

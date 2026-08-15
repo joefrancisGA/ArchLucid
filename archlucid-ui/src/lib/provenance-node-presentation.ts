@@ -25,7 +25,7 @@ const LAYER_LABELS = [
   "Controls and mitigations",
   "Decisions",
   "Governance records",
-  "Signed review record",
+  "Sealed review record",
   "Final artifacts",
 ] as const;
 

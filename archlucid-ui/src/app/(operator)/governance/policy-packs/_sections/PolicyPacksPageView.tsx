@@ -23,6 +23,7 @@ import { PolicyPacksMarketingIntro } from "./PolicyPacksMarketingIntro";
 import { PolicyPacksMetricStrip } from "./PolicyPacksMetricStrip";
 import { PolicyPacksPageHeader } from "./PolicyPacksPageHeader";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
+import { PolicyPacksWorkspaceSelectionSection } from "./PolicyPacksWorkspaceSelectionSection";
 import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -100,7 +101,7 @@ className="mb-3"
 
       <PolicyPacksStandardsVocabularyRail currentSurfaceId="policy-packs" />
       <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="policy-packs" />
-      <PolicyPackDetailHubVocabularyRail currentSurfaceId="policy-packs" />
+      <PolicyPackDetailHubVocabularyRail currentSurfaceId="policy-packs" policyPackId={m.selectedPackId} />
       <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="policy-packs" />
 
       {m.publishSuccessMessage !== null ? (
@@ -135,7 +136,9 @@ className="mb-3"
             selectedPack={m.selectedPackSummary}
             enforcedRuleCount={enforcedRuleCount}
             canMutatePacks={m.canMutatePacks}
-            onOpenCatalog={() => m.setPageTab("catalog")}
+            onOpenCatalog={() => {
+              m.setPageTab("my-packs");
+            }}
           />
           <PolicyPacksEnforcedRulesTable rows={enforcedRuleRows} />
         </div>
@@ -197,6 +200,16 @@ className="mb-3"
           ) : null}
 
           <div className={cn("flex flex-col gap-8", !m.canMutatePacks && "flex-col-reverse")}>
+            <PolicyPacksWorkspaceSelectionSection
+              canMutatePacks={m.canMutatePacks}
+              items={m.workspaceSelectionItems}
+              loading={m.workspaceSelectionLoading || m.loading}
+              togglingAssignmentId={m.togglingAssignmentId}
+              onToggle={(assignmentId, nextEnabled) => {
+                void m.onToggleWorkspaceSelection(assignmentId, nextEnabled);
+              }}
+            />
+
             <PolicyPacksRegisteredListSection
               buyerPolishedShell={m.buyerPolishedShell}
               canMutatePacks={m.canMutatePacks}

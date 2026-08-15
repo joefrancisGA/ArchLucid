@@ -24,7 +24,7 @@ export function WelcomeMarketingHeroVisual(): React.JSX.Element {
           Healthcare Claims intake modernization
         </p>
         <p className={cn("m-0 mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
-          Signed review record · Policy pack v1.2 · Fabricated sample data
+          Sealed review record · Policy pack v1.2 · Fabricated sample data
         </p>
       </div>
       <div className="space-y-3 px-4 py-4">
@@ -45,7 +45,7 @@ export function WelcomeMarketingHeroVisual(): React.JSX.Element {
             <span className={MARKETING_SURFACES.inlineLink}>policy-pack-rule-14</span>
           </p>
         </div>
-        <p className={cn("m-0 text-center text-teal-800 group-hover:underline dark:text-teal-300", MARKETING_TYPOGRAPHY.meta)}>
+        <p className={cn("m-0 text-center", MARKETING_SURFACES.inlineLink, MARKETING_TYPOGRAPHY.meta)}>
           Inspect the full sample review →
         </p>
       </div>

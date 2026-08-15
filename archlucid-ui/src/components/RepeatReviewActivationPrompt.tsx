@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useMemo, type ReactElement } from "react";
@@ -66,7 +66,7 @@ export function RepeatReviewActivationPrompt(): ReactElement | null {
               <li key={action.label}>
                 <Link
                   href={action.href}
-                  className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                  className={OPERATOR_BODY_INLINE_LINK_CLASS}
                 >
                   {action.label}
                 </Link>

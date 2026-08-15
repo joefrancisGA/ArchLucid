@@ -25,6 +25,26 @@ describe("FindingEvidenceLinkChip", () => {
     expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("Evidence trail");
   });
 
+  it("uses column-scoped labels without repeating the Evidence category prefix", () => {
+    render(
+      <FindingEvidenceLinkChip
+        href="/architecture/reviews/run-1/graph"
+        evidenceRefCount={2}
+        labelScope="column"
+      />,
+    );
+
+    const link = screen.getByTestId("finding-evidence-link-chip");
+
+    expect(link).toHaveTextContent("2 linked");
+    expect(link).toHaveAttribute("aria-label", "Evidence: 2 linked");
+    expect(link.textContent).not.toMatch(/^Evidence/i);
+    expect(link.className).toContain("text-[13px]");
+    expect(link.className).toContain("text-al-text-primary");
+    expect(link.className).not.toContain("text-al-accent-interactive");
+    expect(link.className).not.toContain("text-[11px]");
+  });
+
   it("renders as a link-styled affordance, not a bordered badge/chip (TB-619)", () => {
     render(<FindingEvidenceLinkChip href="/architecture/reviews/run-1/graph" evidenceRefCount={1} />);
 

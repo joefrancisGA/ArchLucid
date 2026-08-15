@@ -1,4 +1,5 @@
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { PLANNING_PATH } from "@/lib/planning-route";
 
 export const IMPACT_PREVIEW_PAGE_TITLE = "Impact preview" as const;
 
@@ -121,7 +122,7 @@ export const IMPACT_PREVIEW_EXPECTED_CHANGE_LABEL = "Expected change" as const;
 export const IMPACT_PREVIEW_BASED_ON_EVIDENCE_LABEL = "Based on current review evidence" as const;
 
 export const IMPACT_PREVIEW_REVIEWS_HREF = "/architecture/reviews" as const;
-export const IMPACT_PREVIEW_PLANNING_HREF = "/planning" as const;
+export const IMPACT_PREVIEW_PLANNING_HREF = PLANNING_PATH;
 export const IMPACT_PREVIEW_CREATE_REVIEW_HREF = "/architecture/reviews/new" as const;
 export const IMPACT_PREVIEW_ADVISORY_HREF = "/governance/advisory-scans" as const;
 export const IMPACT_PREVIEW_GOVERNANCE_HREF = GOVERNANCE_APPROVAL_QUEUE_PATH;

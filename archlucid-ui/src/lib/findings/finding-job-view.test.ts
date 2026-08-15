@@ -7,6 +7,7 @@ import {
   filterGovernanceRowsForJobView,
   filterReviewFindingsForJobView,
   matchesReviewFindingJobView,
+  resolveEffectiveFindingJobView,
 } from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -22,6 +23,10 @@ function reviewFinding(overrides: Partial<QuickDecisionFinding> & Pick<QuickDeci
     muteReason: overrides.muteReason ?? null,
     enforcementTier: overrides.enforcementTier ?? "PolicyViolation",
     humanReviewStatus: overrides.humanReviewStatus ?? 1,
+    trustLabel: overrides.trustLabel,
+    policyRuleId: overrides.policyRuleId,
+    evidenceRefCount: overrides.evidenceRefCount,
+    confidenceLevel: overrides.confidenceLevel,
   };
 }
 
@@ -61,10 +66,52 @@ describe("finding-job-view", () => {
     expect(classifyGovernanceFindingJobView(governance)).toBe("deferred");
   });
 
-  it("maps approved review findings to ready-for-sponsor-packet", () => {
-    const finding = reviewFinding({ findingId: "f-3", humanReviewStatus: 2 });
+  it("maps cannot-determine findings to answer-these-questions", () => {
+    const finding = reviewFinding({
+      findingId: "f-cd",
+      title: "Recovery objective cannot be verified",
+      recommendation: "Insufficient evidence to confirm RTO",
+      severityValue: 2,
+      trustLabel: "Heuristic",
+      evidenceRefCount: 0,
+    });
+
+    expect(classifyReviewFindingJobView(finding)).toBe("answer-these-questions");
+  });
+
+  it("does not treat approved cannot-determine findings as open questions", () => {
+    const finding = reviewFinding({
+      findingId: "f-approved-cd",
+      title: "Recovery objective cannot be verified",
+      recommendation: "Insufficient evidence to confirm RTO",
+      severityValue: 2,
+      humanReviewStatus: 2,
+      trustLabel: "Heuristic",
+      evidenceRefCount: 0,
+    });
+
+    expect(classifyReviewFindingJobView(finding)).toBe("needs-my-decision");
+  });
+
+  it("maps approved evidence-backed review findings to ready-for-sponsor-packet", () => {
+    const finding = reviewFinding({
+      findingId: "f-3",
+      humanReviewStatus: 2,
+      policyRuleId: "cost-constraint.budget",
+    });
 
     expect(classifyReviewFindingJobView(finding)).toBe("ready-for-sponsor-packet");
+  });
+
+  it("keeps approved ungrounded review findings out of the sponsor-packet view", () => {
+    const finding = reviewFinding({
+      findingId: "f-ungrounded",
+      humanReviewStatus: 2,
+      trustLabel: "MissingCitation",
+      evidenceRefCount: 0,
+    });
+
+    expect(classifyReviewFindingJobView(finding)).toBe("needs-my-decision");
   });
 
   it("maps needs-evidence governance rows to needs-governance", () => {
@@ -78,7 +125,7 @@ describe("finding-job-view", () => {
   it("filters review findings without contradictory job membership", () => {
     const rows = [
       reviewFinding({ findingId: "f-4", humanReviewStatus: 1 }),
-      reviewFinding({ findingId: "f-5", humanReviewStatus: 2 }),
+      reviewFinding({ findingId: "f-5", humanReviewStatus: 2, policyRuleId: "sec.baseline" }),
     ];
 
     const decisionQueue = filterReviewFindingsForJobView(rows, "needs-my-decision");
@@ -86,5 +133,10 @@ describe("finding-job-view", () => {
 
     expect(decisionQueue.map((entry) => entry.findingId)).toEqual(["f-4"]);
     expect(sponsorReady.map((entry) => entry.findingId)).toEqual(["f-5"]);
+  });
+
+  it("resolveEffectiveFindingJobView skips persisted job view when the filter bar is hidden", () => {
+    expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", true)).toBe("ready-for-sponsor-packet");
+    expect(resolveEffectiveFindingJobView("ready-for-sponsor-packet", false)).toBeNull();
   });
 });

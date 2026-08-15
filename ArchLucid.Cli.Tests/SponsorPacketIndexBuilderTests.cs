@@ -15,7 +15,7 @@ public sealed class SponsorPacketIndexBuilderTests
         [
             SponsorPacketArtifactCatalog.IndexFileName,
             SponsorPacketArtifactCatalog.FirstValueReportFileName,
-            SponsorPacketArtifactCatalog.ExecutiveSummaryFileName,
+            SponsorPacketArtifactCatalog.SponsorReportFileName,
             SponsorPacketArtifactCatalog.PilotRunDeltasFileName,
             "limitations.md",
         ];
@@ -27,7 +27,7 @@ public sealed class SponsorPacketIndexBuilderTests
 
         markdown.Should().Contain("# Sponsor packet index");
         markdown.Should().Contain("first-value-report.md");
-        markdown.Should().Contain("executive-summary.json");
+        markdown.Should().Contain("sponsor-report.json");
         markdown.Should().Contain("pilot-run-deltas.json");
         markdown.Should().Contain("archlucid sponsor-packet");
         markdown.Should().Contain("| yes |");

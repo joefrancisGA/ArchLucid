@@ -43,7 +43,7 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_LEAVES_STAYS_CARDS: readonly Da
       id: "stays",
       title: "What stays in your tenant",
       summary:
-        "Findings, signed review records, decisions, governance approvals, and audit log entries stay in your tenant database without product-analytics copies outside your boundary.",
+        "Findings, sealed review records, decisions, governance approvals, and audit log entries stay in your tenant database without product-analytics copies outside your boundary.",
       sectionAnchor: "what-stays-in-your-tenant",
     },
   ] as const;

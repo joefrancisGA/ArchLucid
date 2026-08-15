@@ -2,6 +2,7 @@ using System.Reflection;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Cosmos;
 
 namespace ArchLucid.Host.Core.Startup.Diagnostics;
@@ -86,6 +87,14 @@ internal static class StartupConfigurationFactsReader
     {
         if (!cosmosDb.AnyCosmosFeatureEnabled)
             return "disabled";
+
+        if (CosmosDbConfigurationProbe.UsesManagedIdentity(cosmosDb))
+        {
+            if (string.IsNullOrWhiteSpace(cosmosDb.AccountEndpoint))
+                return "missing";
+
+            return "managed-identity";
+        }
 
         if (string.IsNullOrWhiteSpace(cosmosDb.ConnectionString))
             return "missing";

@@ -74,6 +74,24 @@ Estimates are **order-of-magnitude** for a single API Container App in **central
 
 **Next evidence triggers:** (1) append **staging** baseline row; (2) capture Phase **B** median on that deploy; (3) re-open only levers matching the symptom table in [`COLD_START_MEASUREMENT.md`](../runbooks/COLD_START_MEASUREMENT.md#decision-table-paid-levers).
 
+### TB-2146 staging capture + paid-lever reopen gate (shipped 2026-08-14)
+
+In-repo enablement (owner still runs capture on the next staging CD):
+
+| Artifact | Purpose |
+|----------|---------|
+| [`staging-2026-08-14-tb2146-pending.md`](../operations/cold-start-baselines/staging-2026-08-14-tb2146-pending.md) | Pending staging row scaffold |
+| `scripts/ops/capture-cold-start-baseline.ps1` | Phase **B** median (`/api/auth/me`, 3 samples) + baseline markdown writer |
+| `scripts/ops/enable-cold-start-staging-baseline-checklist.ps1` | Owner checklist (Phase **A** from CD logs, matrix update, no silent `min_replicas`) |
+
+**Automatic reopen hints** (owner sign-off still required before Terraform/publish changes):
+
+| Signal | Threshold | Revisit levers |
+|--------|-----------|----------------|
+| Phase **A** platform time | **> 120 s** | `min_replicas`, pre-migrate Job (V1.1+), SQL/connectivity (**TB-754**/**TB-756**) |
+| Phase **B** `/api/auth/me` median | **≥ 2.0 s** | ReadyToRun, API CPU/memory, `min_replicas` per matrix above |
+| Phase **B** within staging target | **< 1.0 s** | Paid levers remain **no-go** on Phase **B** evidence |
+
 ## Free runtime knobs (**TB-2161**)
 
 Shipped **2026-08-10** via shared [`ArchLucid.Host.Runtime.props`](../../ArchLucid.Host.Runtime.props) imported by **Api**, **Worker**, and **Jobs.Cli**:

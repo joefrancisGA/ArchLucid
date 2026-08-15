@@ -1,5 +1,9 @@
 /** Disclosure kind for buyer-facing sample surfaces (static JSON vs live SQL seed). */
-export type SampleScenarioDisclosureKind = "illustrative-static" | "live-seed" | "api-fallback";
+export type SampleScenarioDisclosureKind =
+  | "illustrative-static"
+  | "illustrative-created-static"
+  | "live-seed"
+  | "api-fallback";
 
 /**
  * Typed per-scenario sample package — single source for stable IDs, counts, labels, and deep links.
@@ -18,6 +22,8 @@ export type SampleScenarioDefinition = {
   readonly policyPackDetailHref: string;
   readonly policyPackIdAliases: readonly string[];
   readonly ruleSetId: string;
+  /** Semver pinned for static demo payloads — should align with the rule-set id major line. */
+  readonly ruleSetVersion: string;
   readonly tenantName: string;
   readonly tenantCatalogId: string;
   readonly workspaceLabel: string;

@@ -360,7 +360,7 @@ export function RunTrustEvidenceCardSection(props: {
                 Ask evidence-backed questions about this review
               </p>
               <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Answers reference this review&apos;s persisted summary, signed review record, and cited evidence where your workspace
+                Answers reference this review&apos;s persisted summary, sealed review record, and cited evidence where your workspace
                 allows.
               </p>
               <div className="mt-3">

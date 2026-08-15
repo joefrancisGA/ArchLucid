@@ -144,7 +144,7 @@ The governance model uses **Policy Packs** as its adaptive "brain", completely d
 |------|----------------|
 | 1 | Architect creates an **architecture request** (UI wizard, `POST /v1/architecture/request`, or CLI `run`). |
 | 2 | **Coordinator / authority pipeline** executes the **review**; timeline updates on **review detail** (legacy **run detail** / `/runs/` routes). |
-| 3 | Architect **finalizes** the architecture package (`POST …/commit` or UI **Finalize**) — persists the signed review record and synthesized artifacts. |
+| 3 | Architect **finalizes** the architecture package (`POST …/commit` or UI **Finalize**) — persists the sealed review record and synthesized artifacts. |
 | 4 | Reviewer consumes **package, artifacts, exports** from **review detail**; optional sponsor package and trace replay. |
 
 **Pilot narrative:** [`CORE_PILOT.md`](CORE_PILOT.md)

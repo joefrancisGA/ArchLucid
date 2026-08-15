@@ -43,6 +43,24 @@ public sealed class QuickScanRequestValidatorTests
         validated!.PrimaryEnvironment.Should().Be("Azure");
     }
 
+    [Theory]
+    [InlineData("AWS")]
+    [InlineData("GoogleCloud")]
+    public void TryValidate_accepts_aws_and_gcp_primary_environment(string primaryEnvironment)
+    {
+        ArchitectureQuickScanRequest request = new()
+        {
+            SystemName = "API",
+            PrimaryEnvironment = primaryEnvironment,
+            Description = "desc",
+        };
+
+        bool ok = QuickScanRequestValidator.TryValidate(request, DefaultOptions, out QuickScanRequestValidator.ValidatedQuickScanRequest? validated, out _);
+
+        ok.Should().BeTrue();
+        validated!.PrimaryEnvironment.Should().Be(primaryEnvironment);
+    }
+
     [Fact]
     public void TryValidate_limits_architecture_concerns()
     {

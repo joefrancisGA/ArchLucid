@@ -16,16 +16,16 @@ namespace ArchLucid.Application.Tests.Exports;
 public sealed class SponsorRoiExecutivePacketDispositionResolverTests
 {
     [Theory]
-    [InlineData(ExecutiveRoiSavingsPricingBasis.UploadedActualAmortized, RoiCostEvidenceFreshness.Fresh, SponsorRoiClaimDisposition.Pass)]
-    [InlineData(ExecutiveRoiSavingsPricingBasis.Retail, RoiCostEvidenceFreshness.Missing, SponsorRoiClaimDisposition.Hold)]
-    [InlineData(ExecutiveRoiSavingsPricingBasis.HeuristicFallback, RoiCostEvidenceFreshness.Fresh, SponsorRoiClaimDisposition.Hold)]
-    [InlineData(ExecutiveRoiSavingsPricingBasis.EaAdjusted, RoiCostEvidenceFreshness.Stale, SponsorRoiClaimDisposition.Warn)]
+    [InlineData(SponsorRoiSavingsPricingBasis.UploadedActualAmortized, RoiCostEvidenceFreshness.Fresh, SponsorRoiClaimDisposition.Pass)]
+    [InlineData(SponsorRoiSavingsPricingBasis.Retail, RoiCostEvidenceFreshness.Missing, SponsorRoiClaimDisposition.Hold)]
+    [InlineData(SponsorRoiSavingsPricingBasis.HeuristicFallback, RoiCostEvidenceFreshness.Fresh, SponsorRoiClaimDisposition.Hold)]
+    [InlineData(SponsorRoiSavingsPricingBasis.EaAdjusted, RoiCostEvidenceFreshness.Stale, SponsorRoiClaimDisposition.Warn)]
     public void Resolve_maps_pricing_and_freshness_to_disposition(
         string pricingBasis,
         string freshness,
         SponsorRoiClaimDisposition expected)
     {
-        ExecutiveRoiSummaryResponse roi = new()
+        SponsorRoiSummaryResponse roi = new()
         {
             SavingsPricingBasis = pricingBasis,
             CostEvidenceFreshnessStatus = freshness,
@@ -37,14 +37,14 @@ public sealed class SponsorRoiExecutivePacketDispositionResolverTests
     [Fact]
     public void ComposeMarkdown_includes_roi_claim_disposition_for_heuristic_basis()
     {
-        ExecutiveRoiSummaryResponse roi = new()
+        SponsorRoiSummaryResponse roi = new()
         {
-            SavingsPricingBasis = ExecutiveRoiSavingsPricingBasis.HeuristicFallback,
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.HeuristicFallback,
             CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh,
             TotalEstimatedUsdSavings = 1200m,
         };
 
-        string markdown = ExecutiveReviewPacketComposer.ComposeMarkdown(
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
             new ArchitectureRunDetail
             {
                 Run = new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
@@ -62,14 +62,14 @@ public sealed class SponsorRoiExecutivePacketDispositionResolverTests
     [Fact]
     public void ComposeMarkdown_includes_hold_disposition_for_retail_basis_with_missing_freshness()
     {
-        ExecutiveRoiSummaryResponse roi = new()
+        SponsorRoiSummaryResponse roi = new()
         {
-            SavingsPricingBasis = ExecutiveRoiSavingsPricingBasis.Retail,
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
             CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Missing,
             TotalEstimatedUsdSavings = 900m,
         };
 
-        string markdown = ExecutiveReviewPacketComposer.ComposeMarkdown(
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
             new ArchitectureRunDetail
             {
                 Run = new ArchitectureRun { RunId = "r-retail", Status = ArchitectureRunStatus.Committed },

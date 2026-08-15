@@ -110,6 +110,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        QuickStartIntakeRequestEnricher.EnrichIfQuickStart(request);
+
         string? documentUrlRejection = await AllowedDocumentUrlPolicy
             .TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync(request.Documents, cancellationToken)
             .ConfigureAwait(false);

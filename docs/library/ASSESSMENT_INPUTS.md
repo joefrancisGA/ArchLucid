@@ -14,7 +14,7 @@ Use this sequence so **headline readiness** never mixes with **historical narrat
 
 1. **Inputs** — This file’s table is the **evaluation contract** (what evidence counts before broad repo scans).
 2. **Boundary** — **`(A)` headline V1 readiness** vs **`(B)` procurement realism** follows **`Assessment-Scope-V1_1.mdc`** (**`@Assessment-Scope-V1_1`**) and the standing boundary bullets in the **rolling weighted pass** under **`docs/assessments/`** (see **Outputs** below).
-3. **Score** — **One current weighted outcome:** that **rolling pass file** only (executive summary + dimensions). Do not cite archived snapshots as today’s number.
+3. **Score** — **One current weighted outcome:** that **rolling pass file** only (sponsor summary + dimensions). Do not cite archived snapshots as today’s number.
 4. **Backlog** — Action queue and improvement IDs live **in the same rolling pass file** alongside that score.
 5. **History** — Prior passes, dated scores, and narrative-only artifacts live under **`docs/archive/assessments/`** — archive-only: trend and forensic context, **not** canonical readiness.
 

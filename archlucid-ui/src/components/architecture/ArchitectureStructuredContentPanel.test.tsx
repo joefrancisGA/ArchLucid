@@ -7,7 +7,7 @@ describe("ArchitectureStructuredContentPanel", () => {
   it("renders structured sections and hides raw source by default", async () => {
     render(
       <ArchitectureStructuredContentPanel
-        sourceText={`## Executive summary
+        sourceText={`## Sponsor report
 Governed claims intake.
 
 ## Risks
@@ -23,7 +23,7 @@ Governed claims intake.
       />,
     );
 
-    expect(screen.getByTestId("architecture-structured-section-executive-summary")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-structured-section-sponsor-report")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-structured-section-risks")).toBeInTheDocument();
     expect(screen.getByText("Partner outage")).toBeInTheDocument();
     expect(screen.getAllByTestId("architecture-structured-narrative")[0]).toHaveTextContent("Governed claims intake");

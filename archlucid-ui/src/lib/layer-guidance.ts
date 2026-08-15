@@ -108,7 +108,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-dashboard": {
     layerBadge: "Governance",
-    headline: "Executive Workspace Health — governance and value signals in your current scope.",
+    headline: "Sponsor Workspace Health — governance and value signals in your current scope.",
     useWhen:
       "Use after Pilot proof when sponsors need pre-finalization outcomes, severity exposure, compliance drift, SLA posture, and a hours-first value proxy.",
     firstPilotNote: "Optional until first Pilot proof; data is scoped to the active tenant/workspace/project.",
@@ -123,7 +123,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "After Pilot proof, use review detail for drill-down; this register queues portfolio-level owned risks and decisions.",
     enterpriseFootnote:
-      "Each risk should remain traceable to the review, evidence, policy rule, and signed review record that produced it.",
+      "Each risk should remain traceable to the review, evidence, policy rule, and sealed review record that produced it.",
     omitReviewPackageScopeHelp: true,
   },
   "governance-setup": {
@@ -183,7 +183,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "value-report-pilot": {
     layerBadge: "Sponsor report",
-    headline: "Pilot outcomes from finalized reviews for executive sponsors.",
+    headline: "Pilot outcomes from finalized reviews for sponsor sponsors.",
     useWhen:
       "After you finalize a review, summarize pilot outcomes here — activity, findings, governance decisions, and exportable sponsor proof for the selected period.",
     firstPilotNote:

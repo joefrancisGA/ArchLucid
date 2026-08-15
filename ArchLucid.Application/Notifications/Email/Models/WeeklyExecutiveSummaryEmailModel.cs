@@ -1,7 +1,7 @@
 namespace ArchLucid.Application.Notifications.Email.Models;
 
-/// <summary>Razor model for <c>Templates/WeeklyExecutiveSummary.cshtml</c>.</summary>
-public sealed class WeeklyExecutiveSummaryEmailModel
+/// <summary>Razor model for <c>Templates/WeeklySponsorReport.cshtml</c>.</summary>
+public sealed class WeeklySponsorReportEmailModel
 {
     public string ProductName
     {

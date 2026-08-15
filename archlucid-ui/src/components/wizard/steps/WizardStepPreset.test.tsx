@@ -28,6 +28,18 @@ describe("WizardStepPreset", () => {
     expect(onStartingPointCommitted).toHaveBeenCalledTimes(1);
   });
 
+  it("uses primary variant token for Start from scratch CTA (TB-2291)", () => {
+    render(
+      <WizardFormTestHarness>
+        <WizardStepPreset />
+      </WizardFormTestHarness>,
+    );
+
+    const startBlank = screen.getByTestId("wizard-start-blank");
+
+    expect(startBlank.className).toContain("--al-primary-action-bg");
+  });
+
   it("renders start-from-scratch, industry starters, quick shapes, and import toggle", () => {
     render(
       <WizardFormTestHarness>

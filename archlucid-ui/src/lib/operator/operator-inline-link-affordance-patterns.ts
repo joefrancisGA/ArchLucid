@@ -13,12 +13,15 @@ export type OperatorInlineLinkAffordanceViolation = {
 /** Tokens that satisfy the TB-1671 resting-affordance contract in className/cn(). */
 export const OPERATOR_INLINE_LINK_AFFORDANCE_TOKENS = [
   "OPERATOR_LINK",
+  "OPERATOR_BODY_INLINE_LINK_CLASS",
+  "STANDARDS_RULES_INLINE_LINK_CLASS",
   "text-al-link",
   "MARKETING_SURFACES.inlineLink",
   "MARKETING_SURFACES.link",
   "workflow-inline-link",
   "shell-nav-link",
   "MARKETING_PRIMARY_CTA_CLASS",
+  "MARKETING_PRIMARY_FILL_CLASS",
   "MARKETING_HERO_SECONDARY_CTA_CLASS",
   // Cross-module link tokens whose definitions carry a resting underline.
   "TOOLTIP_TYPOGRAPHY.link",
@@ -66,6 +69,8 @@ const EXCLUDED_RELATIVE_PATHS = new Set<string>([
   "lib/design-tokens.ts",
   "lib/operator/operator-inline-link-affordance-patterns.ts",
   "lib/operator/operator-inline-link-affordance-baseline.ts",
+  // Pass-through marketing wrapper — callers supply MARKETING_* / button chrome on className.
+  "lib/marketing/showcase-funnel-telemetry-anchor.tsx",
 ]);
 
 export function shouldScanOperatorInlineLinkAffordanceFile(relativePath: string): boolean {

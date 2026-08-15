@@ -12,6 +12,8 @@ import {
 
   Fingerprint,
 
+  Gauge,
+
   HeartPulse,
 
   LifeBuoy,
@@ -54,7 +56,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
       links: [
 
-        // Hub-first (IA-016 / decision D5): the "Settings" slot targets the searchable index, not a leaf page.
+        // Hub-first (IA-016 / decision D5): the "All settings" slot targets the searchable index, not a leaf page.
         // The hub stays ReadAuthority because it also publishes read-only rows (billing, security & trust).
         {
 
@@ -62,7 +64,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           label: OPERATOR_NAV_LINK_LABELS.settings,
 
-          title: "Settings — searchable index of workspace, governance, integration, billing, and support configuration",
+          title: "All settings — searchable index of workspace, governance, integration, billing, and support configuration",
 
           icon: Settings,
 
@@ -102,6 +104,23 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           // Tenant-scoped configuration is admin-only; the API enforces the same floor on the writes.
           requiredAuthority: "AdminAuthority",
+
+        },
+
+        // Sits next to Workspace settings because the route is its child (`/workspace-settings/recycle-bin`).
+        {
+
+          href: "/administration/workspace-settings/recycle-bin",
+
+          label: "Projects recycle bin",
+
+          title: "Projects recycle bin — restore soft-deleted architecture projects",
+
+          icon: ArchiveRestore,
+
+          tier: "extended",
+
+          requiredAuthority: "ReadAuthority",
 
         },
 
@@ -186,6 +205,24 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         },
 
+        // Grouped with billing and AI usage: these anchors form the cost basis the ROI surfaces cite.
+        // Label is the short form; the page H1 keeps the "— ROI measurement" qualifier.
+        {
+
+          href: "/administration/baseline",
+
+          label: OPERATOR_NAV_LINK_LABELS.baselineSettings,
+
+          title: "Baseline settings — review-cycle hours, prep time, and people per review used as the ROI cost basis",
+
+          icon: Gauge,
+
+          tier: "advanced",
+
+          requiredAuthority: "AdminAuthority",
+
+        },
+
         {
 
           href: "/administration/security-trust",
@@ -206,25 +243,9 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: "/administration/workspace-settings/recycle-bin",
-
-          label: "Projects recycle bin",
-
-          title: "Projects recycle bin — restore soft-deleted architecture projects",
-
-          icon: ArchiveRestore,
-
-          tier: "extended",
-
-          requiredAuthority: "ReadAuthority",
-
-        },
-
-        {
-
           href: "/administration/connection-status",
 
-          label: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
+          label: OPERATOR_NAV_LINK_LABELS.connectionStatus,
 
           title: "Connector health and integration status",
 

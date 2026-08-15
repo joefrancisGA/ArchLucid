@@ -28,7 +28,7 @@ public sealed record BuyerProofPackBuildResult(byte[] ZipBytes, string FileName,
 public sealed class BuyerProofPackBuilder(
     FirstValueReportBuilder firstValueReportBuilder,
     FirstValueReportPdfBuilder firstValueReportPdfBuilder,
-    IExecutiveReviewPacketBuilder executiveReviewPacketBuilder,
+    ISponsorReviewPacketBuilder SponsorReviewPacketBuilder,
     IRunDetailQueryService runDetailQueryService,
     IPilotRunDeltaComputer pilotRunDeltaComputer,
     ValueReportBuilder valueReportBuilder,
@@ -45,8 +45,8 @@ public sealed class BuyerProofPackBuilder(
     private readonly FirstValueReportPdfBuilder _firstValueReportPdfBuilder =
         firstValueReportPdfBuilder ?? throw new ArgumentNullException(nameof(firstValueReportPdfBuilder));
 
-    private readonly IExecutiveReviewPacketBuilder _executiveReviewPacketBuilder =
-        executiveReviewPacketBuilder ?? throw new ArgumentNullException(nameof(executiveReviewPacketBuilder));
+    private readonly ISponsorReviewPacketBuilder _SponsorReviewPacketBuilder =
+        SponsorReviewPacketBuilder ?? throw new ArgumentNullException(nameof(SponsorReviewPacketBuilder));
 
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -117,7 +117,7 @@ public sealed class BuyerProofPackBuilder(
             return null;
 
         string? executivePacket =
-            await _executiveReviewPacketBuilder.BuildMarkdownAsync(runId, cancellationToken);
+            await _SponsorReviewPacketBuilder.BuildMarkdownAsync(runId, cancellationToken);
 
         if (executivePacket is null)
             return null;
@@ -131,7 +131,7 @@ public sealed class BuyerProofPackBuilder(
 
         BuyerProofPackFileEntry[] entries =
         [
-            new("executive-review-packet.md", executivePacketBytes),
+            new("sponsor-review-packet.md", executivePacketBytes),
             new("first-value-report.md", markdownBytes),
             new("first-value-report.pdf", pdf),
             new("pilot-run-deltas.json", deltasBytes),

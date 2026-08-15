@@ -26,7 +26,7 @@ function Resolve-CommercialNextStepRecommendation {
     if ($SponsorPacketDisposition -eq 'DEFERRED_SCOPE' -or @($DeferredScopeReasons).Count -gt 0) {
         return [ordered]@{
             action = 'Deferred buyer requirement'
-            owner  = 'Executive owner'
+            owner  = 'Sponsor owner'
             reason = 'Document deferred V1.1/V2/(B) buyer requirements separately; they are not V1 product blockers.'
         }
     }
@@ -43,7 +43,7 @@ function Resolve-CommercialNextStepRecommendation {
         return [ordered]@{
             action = 'Evidence Pack'
             owner  = $owner
-            reason = 'Collect committed-run evidence with -RunId before executive ARB or order-form handoff.'
+            reason = 'Collect committed-run evidence with -RunId before sponsor ARB or order-form handoff.'
         }
     }
 
@@ -67,7 +67,7 @@ function Resolve-CommercialNextStepRecommendation {
         return [ordered]@{
             action = 'ARB Report'
             owner  = 'Pilot operator + architecture review board'
-            reason = 'Sponsor disposition SEND with evidence-backed ROI - circulate ARB/executive review before annual order form.'
+            reason = 'Sponsor disposition SEND with evidence-backed ROI - circulate ARB/sponsor review before annual order form.'
         }
     }
 

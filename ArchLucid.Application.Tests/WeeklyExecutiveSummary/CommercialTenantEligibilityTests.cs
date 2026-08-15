@@ -2,7 +2,7 @@ using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
-namespace ArchLucid.Application.Tests.WeeklyExecutiveSummary;
+namespace ArchLucid.Application.Tests.WeeklySponsorReport;
 
 [Trait("Suite", "Application")]
 [Trait("Category", "Unit")]
@@ -18,7 +18,7 @@ public sealed class CommercialTenantEligibilityTests
             TrialStatus = null
         };
 
-        CommercialTenantEligibility.IsEligibleForWeeklyExecutiveSummary(tenant).Should().BeTrue();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(tenant).Should().BeTrue();
     }
 
     [Fact]
@@ -31,7 +31,7 @@ public sealed class CommercialTenantEligibilityTests
             TrialStatus = TrialLifecycleStatus.Active
         };
 
-        CommercialTenantEligibility.IsEligibleForWeeklyExecutiveSummary(tenant).Should().BeFalse();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(tenant).Should().BeFalse();
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public sealed class CommercialTenantEligibilityTests
             Tier = TenantTier.Free
         };
 
-        CommercialTenantEligibility.IsEligibleForWeeklyExecutiveSummary(tenant).Should().BeFalse();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(tenant).Should().BeFalse();
     }
 
     [Fact]

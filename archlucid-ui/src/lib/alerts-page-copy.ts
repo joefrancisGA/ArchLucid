@@ -22,7 +22,7 @@ export const ALERTS_CONTEXT_NOTE =
 
 export const ALERTS_HOW_ALERTS_WORK_LABEL = "How alerts work";
 
-/** Sentence case matches the sibling governance nav labels (Approval queue, Policy packs, Signed review records). */
+/** Sentence case matches the sibling governance nav labels (Approval queue, Policy packs, Sealed review records). */
 export const ALERTS_CONFIGURATION_PAGE_TITLE = "Alert rules";
 
 export const ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_LABEL = "Governance";

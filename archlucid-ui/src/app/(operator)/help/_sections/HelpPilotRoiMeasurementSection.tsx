@@ -16,7 +16,7 @@ import {
   PILOT_ROI_MEASUREMENT_HELP_OVERVIEW,
   PILOT_ROI_MEASUREMENT_HELP_PRIMARY_ACTIONS,
   PILOT_ROI_MEASUREMENT_HELP_SECTION_TITLE,
-} from "@/lib/executive/pilot-roi-measurement-help-guide-content";
+} from "@/lib/sponsor/pilot-roi-measurement-help-guide-content";
 import { cn } from "@/lib/utils";
 
 type HelpPilotRoiMeasurementSectionProps = {

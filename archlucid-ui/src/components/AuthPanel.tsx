@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import { PERSONA_SHELL_SIGN_OUT_HOME_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
+import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import {
   isLikelySignedIn,
   readSignedInDisplayName,
@@ -53,10 +54,13 @@ export function AuthPanel() {
       aria-label="Authentication status"
       className={cn("flex shrink-0 flex-wrap items-center gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
     >
-      <span className="inline-flex h-6 items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-2 py-0 font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
-        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${signedIn ? "bg-emerald-500" : "bg-neutral-400"}`} aria-hidden />
-        {signedIn && displayName ? displayName : signedIn ? "Signed in" : "Not signed in"}
-      </span>
+      <BooleanStatusChip
+        value={signedIn}
+        trueLabel={signedIn && displayName ? displayName : "Signed in"}
+        falseLabel="Not signed in"
+        falseIsAttention={false}
+        className="h-6 px-2 py-0 font-medium"
+      />
       {!signedIn ? (
         <Link
           className={cn("auth-panel-focus inline-flex h-6 items-center rounded-md bg-slate-900 px-2.5 py-0 font-medium text-white no-underline dark:bg-slate-800", OPERATOR_TYPOGRAPHY.helper)}

@@ -1,6 +1,7 @@
 /** Architecture digests hub, its legacy aliases, and the digests help topic. */
 
 import type { PageContextualHelpEntry, PageContextualHelpRow } from "@/lib/contextual-help/types";
+import { DIGESTS_HELP_CANONICAL_PATH, DIGESTS_HELP_TOPIC_LABEL } from "@/lib/digests-help-evidence-copy";
 import {
   DIGESTS_HUB_PATH,
   DIGESTS_SCHEDULE_TAB_PATH,
@@ -15,7 +16,7 @@ const DIGESTS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
   whatToDoNext: "Open the Schedule tab to set timing and recipients, then preview or send a test digest.",
   whyEmpty: "Generated digests appear here after a schedule and recipients are configured.",
   whereToConfigurePrerequisite:
-    "Recipient subscriptions and executive rollup settings live on the Schedule tab.",
+    "Recipient subscriptions and sponsor rollup settings live on the Schedule tab.",
   whatToDoNextAction: {
     label: "Open Schedule tab",
     href: DIGESTS_SCHEDULE_TAB_PATH,
@@ -40,10 +41,9 @@ export const DIGESTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
     entry: DIGESTS_HUB_CONTEXTUAL_HELP,
   },
   {
-    prefix: "/help/digests",
+    prefix: DIGESTS_HELP_CANONICAL_PATH,
     entry: {
-      whatIsThisPage:
-        "Architecture digests — how scheduled digest summaries are configured, delivered, and browsed.",
+      whatIsThisPage: `Architecture digests — ${DIGESTS_HELP_TOPIC_LABEL.toLowerCase()} for scheduled summaries, delivery, and browsing.`,
       whatToDoNext: "Open the Digests hub Schedule tab to set cadence and recipients, then manage subscriptions.",
       whyEmpty: "This guide is always available; generated digests appear after schedule and recipients are configured.",
       whereToConfigurePrerequisite:

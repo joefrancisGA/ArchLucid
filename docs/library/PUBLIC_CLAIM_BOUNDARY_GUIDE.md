@@ -488,7 +488,7 @@ When the buyer objection is "proof means it survived load/audit/incident", the s
 
 | Topic | Safe wording | Do not promise |
 | --- | --- | --- |
-| Signed review record | "Committed golden manifest with hash verification and append-only audit" | "Editable audit log" or "PKI-signed certificate" |
+| Sealed review record | "Committed golden manifest with hash verification and append-only audit" | "Editable audit log" or "PKI-signed certificate" |
 | Ask / impact preview overlays | "Advisory analysis on top of a finalized package" | "Ask answer replaces the signed package" |
 | Cross-review finding match | "Correlation when policy rule or fingerprint aligns" | "Same finding id across runs means identical disposition" |
 

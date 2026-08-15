@@ -12,7 +12,7 @@ const RETIRED_HELP_TOPIC_CANONICAL_PATHS = {
   cloudConnectionsAzure: inAppHelpHref("cloud-connections-azure"),
   cloudConnectionsGcp: inAppHelpHref("cloud-connections-gcp"),
   dataHandling: inAppHelpHref("data-handling"),
-  executiveSummary: inAppHelpHref("executive-summary"),
+  SponsorReport: inAppHelpHref("sponsor-report"),
   firstArchitectureReview: inAppHelpHref("first-architecture-review"),
   gettingStarted: inAppHelpHref("getting-started"),
   pathChooser: inAppHelpHref("choose-your-next-step"),
@@ -166,12 +166,12 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
   {
     removedRowId: "EPR",
     retiredPath: "/help/product-overview",
-    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.executiveSummary}#what-archlucid-is`,
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.SponsorReport}#what-archlucid-is`,
     bannedBuyerCopy: ["/help/product-overview"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
       "src/lib/usability/page-help-topic-map.ts",
-      "src/app/(operator)/help/_sections/HelpExecutiveSummaryGuideView.tsx",
+      "src/app/(operator)/help/_sections/HelpSponsorSummaryGuideView.tsx",
     ],
   },
   {
@@ -219,16 +219,29 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
   {
     removedRowId: "PI",
     retiredPath: "/help/pilot-roi-model",
-    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.executiveSummary}#pilot-roi-measurement`,
+    canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.SponsorReport}#pilot-roi-measurement`,
     historicalNote:
-      "Deprecated pilot-roi-model help twin (Help topic) - PILOT_ROI_MODEL alias stub folded into executive-summary#pilot-roi-measurement (SPE); measurement body from PILOT_SUCCESS_SCORECARD.",
+      "Deprecated pilot-roi-model help twin (Help topic) - PILOT_ROI_MODEL alias stub folded into sponsor-report#pilot-roi-measurement (SPE); measurement body from PILOT_SUCCESS_SCORECARD.",
     bannedBuyerCopy: ["/help/pilot-roi-model", "pilot-roi-model", "Pilot ROI model help"],
     buyerSurfaceGuards: [
       "src/lib/help/help-center-catalog.ts",
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/executive/executive-summary-help-guide-content.ts",
+      "src/lib/sponsor/sponsor-report-help-guide-content.ts",
       "src/lib/usability/page-help-topic-map.ts",
       "src/lib/roi-summary-sponsor-presentation.ts",
+    ],
+  },
+  {
+    removedRowId: "HPI",
+    retiredPath: "/help/pilot-outcomes",
+    canonicalPath: "/help/sponsor-summary",
+    historicalNote:
+      "Deprecated pilot-outcomes help twin (Help topic) - folded into sponsor-report specialty (EXE); canon EXE = /help/sponsor-summary.",
+    bannedBuyerCopy: ["/help/pilot-outcomes"],
+    buyerSurfaceGuards: [
+      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/product-documentation-registry.ts",
+      "public/doc-index.json",
     ],
   },
   {

@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
+
 import { AlertTriangle } from "lucide-react";
 
 import { AzureCloudConnectionRolesTable } from "@/components/help/AzureCloudConnectionRolesTable";
@@ -111,11 +113,11 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-3">
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link href={returnHref} className="text-teal-700 underline dark:text-teal-400">
+              <Link href={returnHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                 ← {CONNECT_AZURE_SECURELY_BACK_TO_CONNECTIONS}
               </Link>
               <span aria-hidden="true"> · </span>
-              <a href="#troubleshoot" className="text-teal-700 underline dark:text-teal-400">
+              <a href="#troubleshoot" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                 Fix a failed permission check
               </a>
             </p>
@@ -135,8 +137,6 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
           </div>
         </div>
       </header>
-
-      <ConnectAzureSecurelyHelpEvidenceOrientationStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-connect-azure-securely-primary">
@@ -173,7 +173,7 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
                         Open{" "}
                         <Link
                           href={CONNECT_AZURE_SECURELY_CONFIGURE_HREF}
-                          className="text-teal-700 underline dark:text-teal-400"
+                          className={OPERATOR_BODY_INLINE_LINK_CLASS}
                         >
                           {CONNECT_AZURE_SECURELY_STEP_AZURE_CONNECTION_SETTINGS_LINK}
                         </Link>{" "}
@@ -329,6 +329,8 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
               <Link href={CONNECT_AZURE_SECURELY_CONFIGURE_HREF}>{CONNECT_AZURE_SECURELY_CONFIGURE_ACTION}</Link>
             </Button>
           </div>
+
+          <ConnectAzureSecurelyHelpEvidenceOrientationStrip />
         </div>
         <HelpTopicTableOfContents headings={CONNECT_AZURE_SECURELY_TOC_HEADINGS} enableScrollSpy />
       </div>

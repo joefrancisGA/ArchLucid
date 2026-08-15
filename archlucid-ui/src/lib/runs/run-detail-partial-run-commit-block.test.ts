@@ -80,4 +80,20 @@ describe("resolvePartialRunCommitBlockedReason (TB-937)", () => {
     expect(presentation?.summary?.toLowerCase()).not.toContain("topology");
     expect(presentation?.technicalDetail).toContain("Topology (Missing)");
   });
+
+  it("returns stale critic copy when Critic outcome is Stale (TB-942)", () => {
+    const presentation = resolvePartialRunCommitBlockPresentation({
+      legacyRunStatus: "ReadyForCommit",
+      findingCoverageAlreadyBlocking: false,
+      agentExecutionOutcomes: [
+        { agentType: "Topology", outcome: "Succeeded" },
+        { agentType: "Cost", outcome: "Succeeded" },
+        { agentType: "Compliance", outcome: "Succeeded" },
+        { agentType: "Critic", outcome: "Stale" },
+      ],
+    });
+
+    expect(presentation?.summary).toBe("Critic out of date — re-run required.");
+    expect(presentation?.technicalDetail).toContain("Critic (Stale)");
+  });
 });

@@ -9,10 +9,8 @@ import {
   buildPreferencesNotificationsVocabulary,
   resolvePreferencesNotificationsPeerLink,
 } from "@/lib/vocabulary/preferences-notifications-vocabulary";
-import {
-  SETTINGS_NOTIFICATIONS_PATH,
-  SETTINGS_PREFERENCES_PATH,
-} from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
+import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
 
 describe("preferences-notifications-vocabulary (TB-2295)", () => {
   it("explains appearance preferences vs notifications channel launcher", () => {
@@ -24,7 +22,7 @@ describe("preferences-notifications-vocabulary (TB-2295)", () => {
     expect(model.whyTwo.toLowerCase()).toContain("channel");
     expect(model.compactLine).toBe(PREFERENCES_NOTIFICATIONS_COMPACT_LINE);
 
-    expect(model.preferencesLink.href).toBe(SETTINGS_PREFERENCES_PATH);
+    expect(model.preferencesLink.href).toBe(ACCOUNT_PREFERENCES_PATH);
     expect(model.notificationsLink.href).toBe(SETTINGS_NOTIFICATIONS_PATH);
   });
 

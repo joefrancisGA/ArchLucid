@@ -198,7 +198,7 @@ internal static class BuyerProofPackCommand
                 Utf8NoBom,
                 cancellationToken);
 
-            await File.WriteAllTextAsync(Path.Combine(staging, "executive-sponsor-brief.md"), sponsorBriefText, Utf8NoBom, cancellationToken);
+            await File.WriteAllTextAsync(Path.Combine(staging, "sponsor-sponsor-brief.md"), sponsorBriefText, Utf8NoBom, cancellationToken);
 
             await File.WriteAllTextAsync(
                 Path.Combine(staging, "trust-posture-pointer.md"),
@@ -219,8 +219,8 @@ internal static class BuyerProofPackCommand
                 new("pilot-run-deltas.json", await File.ReadAllBytesAsync(Path.Combine(staging, "pilot-run-deltas.json"), cancellationToken)),
                 new("artifact-and-proof-summary.md",
                     await File.ReadAllBytesAsync(Path.Combine(staging, "artifact-and-proof-summary.md"), cancellationToken)),
-                new("executive-sponsor-brief.md",
-                    await File.ReadAllBytesAsync(Path.Combine(staging, "executive-sponsor-brief.md"), cancellationToken)),
+                new("sponsor-sponsor-brief.md",
+                    await File.ReadAllBytesAsync(Path.Combine(staging, "sponsor-sponsor-brief.md"), cancellationToken)),
                 new("trust-posture-pointer.md",
                     await File.ReadAllBytesAsync(Path.Combine(staging, "trust-posture-pointer.md"), cancellationToken)),
                 new("pilot-scorecard-blank.md",

@@ -21,6 +21,7 @@ import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes"
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { DIGESTS_HUB_PATH, digestsHubTabFromLocation } from "@/lib/digests-route-paths";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import type { ImpactPreviewPageState } from "@/lib/impact-preview-page-types";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 
 const IDENTITY_PROVIDERS_TAB_DISMISS_KEY =
@@ -40,7 +41,26 @@ function explainViewDismissKey(pathname: string): string {
 
 export { IDENTITY_PROVIDERS_TAB_DISMISS_KEY, explainViewDismissKey };
 
-const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteViewExplanation }[] = [
+type RouteViewExplanationRow = {
+  readonly prefix: string;
+  /**
+   * When true only the exact path matches. Use for inventory or hub rows whose copy would be wrong
+   * on the detail routes beneath them (telling an open draft to "open a draft", for example).
+   */
+  readonly matchExact?: boolean;
+  readonly explanation: RouteViewExplanation;
+};
+
+/** True when this row owns orientation for the supplied path. */
+function routeMatchesExplanationRow(path: string, row: RouteViewExplanationRow): boolean {
+  if (row.matchExact === true) {
+    return path === row.prefix;
+  }
+
+  return path === row.prefix || path.startsWith(`${row.prefix}/`);
+}
+
+const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
   {
     prefix: "/insights/compare-two-reviews",
     explanation: {
@@ -75,7 +95,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
       summary:
         "Browse, subscribe to, and schedule architecture digest emails — the content cadence for sponsors and operators.",
       nextAction:
-        "Start digests by setting an advisory scan cadence and adding recipients; the tabs cover history, recipients, and executive send cadence.",
+        "Start digests by setting an advisory scan cadence and adding recipients; the tabs cover history, recipients, and sponsor send cadence.",
     },
   },
   {
@@ -108,6 +128,9 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
   },
   {
     prefix: ARCHITECTURES_LIST_PATH,
+    // The draft editor and the new-draft workspace own their own heading, lead, and status tag; the
+    // inventory next action is also already complete once a draft is open.
+    matchExact: true,
     explanation: {
       title: "Architecture drafts",
       summary:
@@ -183,6 +206,7 @@ export function routeViewExplanationForPathname(
   pathname: string,
   options?: {
     readonly isAiUsageQuietEmptyPeriod?: boolean;
+    readonly impactPreviewPageState?: ImpactPreviewPageState | "unknown";
     readonly search?: string | null;
   },
 ): RouteViewExplanation | null {
@@ -218,13 +242,20 @@ export function routeViewExplanationForPathname(
   const sorted = [...ROUTE_VIEW_EXPLANATIONS].sort((left, right) => right.prefix.length - left.prefix.length);
 
   for (const row of sorted) {
-    if (path === row.prefix || path.startsWith(`${row.prefix}/`)) {
+    if (routeMatchesExplanationRow(path, row)) {
       if (row.prefix === AI_USAGE_SETTINGS_PATH && options?.isAiUsageQuietEmptyPeriod === true) {
         return {
           ...row.explanation,
           nextAction:
             "Confirm your monthly AI budget cap below, then open billing when you need plan or invoice details.",
         };
+      }
+
+      // Blocked impact-preview states render their own recovery card, and "unknown" means the page
+      // has not reported yet (SSR and first paint) — showing orientation there flashes guidance that
+      // contradicts the recovery CTA and then retracts it.
+      if (row.prefix === IMPACT_PREVIEW_PATH && (options?.impactPreviewPageState ?? "unknown") !== "ready") {
+        return null;
       }
 
       return row.explanation;

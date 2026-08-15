@@ -15,13 +15,13 @@ _REQUIRED_SCOPE_SNIPPETS: tuple[str, ...] = (
     "disposition-aware",
     "do not sum",
     "Not comparable",
-    "Distinct from executive-summary",
+    "Distinct from sponsor-report",
     "counts only",
     "not usd savings",
 )
 
 _FORBIDDEN_EQUALITY_PHRASES: tuple[str, ...] = (
-    "executive-summary totals equal value-report",
+    "sponsor-report totals equal value-report",
     "portfolio headline equals per-system rows",
     "cross-tenant headline is directly comparable to single-tenant headline",
 )
@@ -123,8 +123,8 @@ def check_scope_labeler_source(root: Path) -> list[str]:
 
         text = path.read_text(encoding="utf-8", errors="replace")
 
-        if "ApplyExecutiveRoiSummary" not in text and path.name.endswith("ScopeLabeler.cs"):
-            errors.append("RoiSponsorFacingScopeLabeler.cs: missing ApplyExecutiveRoiSummary")
+        if "ApplySponsorRoiSummary" not in text and path.name.endswith("ScopeLabeler.cs"):
+            errors.append("RoiSponsorFacingScopeLabeler.cs: missing ApplySponsorRoiSummary")
 
         if "CrossTenantPortfolioHeadline" not in text and path.name.endswith("ScopeDescriptions.cs"):
             errors.append("RoiSponsorFacingScopeDescriptions.cs: missing cross-tenant scope text")
@@ -188,13 +188,13 @@ def check_manifest_parity(root: Path) -> list[str]:
     elif non_additivity not in cs_text:
         errors.append("RoiSponsorFacingScopeDescriptions.NonAdditivityCaveat drifted from manifest")
 
-    export_markdown = root / "archlucid-ui" / "src" / "lib" / "executive-summary-markdown.ts"
+    export_markdown = root / "archlucid-ui" / "src" / "lib" / "sponsor-report-markdown.ts"
 
     if export_markdown.is_file():
         export_text = export_markdown.read_text(encoding="utf-8", errors="replace")
 
         if "ROI_NON_ADDITIVITY_CAVEAT" not in export_text:
-            errors.append("executive-summary-markdown.ts: missing non-additivity caveat export")
+            errors.append("sponsor-report-markdown.ts: missing non-additivity caveat export")
 
     return errors
 

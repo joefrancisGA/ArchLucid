@@ -65,7 +65,7 @@ function resolveOptionalWorkspaceSetupRows(context: FinishSetupWizardContext): O
   rows.push({
     id: "roi-baseline",
     title: "ROI baseline",
-    benefit: "Add assumptions used in executive and portfolio value reporting.",
+    benefit: "Add assumptions used in sponsor and portfolio value reporting.",
     statusLabel: "Optional",
     statusKind: "neutral",
     href: "/administration/baseline",

@@ -22,7 +22,7 @@ public sealed class HostCorePackageCoverageBatch18Tests
         ArchLucidJobNames.TrialLifecycle.Should().Be("trial-lifecycle");
         ArchLucidJobNames.TrialEmailScan.Should().Be("trial-email-scan");
         ArchLucidJobNames.ExecDigestWeekly.Should().Be("exec-digest-weekly");
-        ArchLucidJobNames.WeeklyExecutiveSummary.Should().Be("weekly-executive-summary");
+        ArchLucidJobNames.WeeklyExecutiveSummary.Should().Be("weekly-sponsor-summary");
         ArchLucidJobNames.WeeklyArchitectureDigest.Should().Be("weekly-architecture-digest");
         ArchLucidJobNames.AuditChangeFeed.Should().Be("audit-change-feed");
         ArchLucidJobNames.ServiceBusIntegrationEvents.Should().Be("servicebus-integration-events");

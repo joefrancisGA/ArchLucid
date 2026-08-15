@@ -8,6 +8,20 @@ import type {
 
 import { apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
 
+export type RecommendationLearningOpsPageBundle = {
+  status: RecommendationLearningOperationalStatus;
+  latestProfile: LearningProfile | null;
+  history: RecommendationLearningProfileHistoryItem[];
+};
+
+export async function fetchRecommendationLearningOpsPageBundle(
+  take = 20,
+): Promise<RecommendationLearningOpsPageBundle> {
+  return apiGet<RecommendationLearningOpsPageBundle>(
+    `/v1/recommendation-learning/ops-page?take=${encodeURIComponent(String(take))}`,
+  );
+}
+
 export async function fetchRecommendationLearningStatus(): Promise<RecommendationLearningOperationalStatus> {
   return apiGet<RecommendationLearningOperationalStatus>("/v1/recommendation-learning/status");
 }

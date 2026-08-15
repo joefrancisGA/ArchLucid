@@ -1,5 +1,5 @@
 import type { ResolvedBuyerGoldenJourneyNav } from "@/lib/buyer/buyer-golden-journey-nav";
-import { pathMatchesSignedRecordsDetailRoute } from "@/lib/signed-records-paths";
+import { pathMatchesSignedRecordsDetailRoute, SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type BuyerOperateBackLink = {
@@ -41,6 +41,10 @@ export function buyerPolishedOperateBackLink(pathnameWithSearch: string): BuyerO
   }
 
   if (isDeepHierarchyRouteWithoutShowcaseBackLink(path)) {
+    return null;
+  }
+
+  if (path === SIGNED_RECORDS_LIST_PATH) {
     return null;
   }
 

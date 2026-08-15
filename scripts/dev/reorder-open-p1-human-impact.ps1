@@ -95,7 +95,7 @@ function Get-OpenP1Band {
         return 60
     }
 
-    if ($driver -match 'Adoption friction|Accessibility|Commercial|Marketability|Proof-of-ROI|Executive') {
+    if ($driver -match 'Adoption friction|Accessibility|Commercial|Marketability|Proof-of-ROI|Sponsor') {
         if ($blob -match 'honesty CI|PA one-pager|claim honesty|claim map') {
             return 85
         }

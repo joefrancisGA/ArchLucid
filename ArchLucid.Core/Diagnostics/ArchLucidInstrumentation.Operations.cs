@@ -101,11 +101,11 @@ public static partial class ArchLucidInstrumentation
             description: "Data consistency reconciliation findings (labels severity, check_name).");
 
     
-    /// <summary>Executive ROI background jobs skipped a tenant because tenant/workspace/project scope failed validation (fail-closed).</summary>
-    public static readonly Counter<long> ExecutiveRoiBackgroundScopeViolationsTotal =
+    /// <summary>Sponsor ROI background jobs skipped a tenant because tenant/workspace/project scope failed validation (fail-closed).</summary>
+    public static readonly Counter<long> SponsorRoiBackgroundScopeViolationsTotal =
         AppMeter.CreateCounter<long>(
             "archlucid_executive_roi_background_scope_violations_total",
-            description: "Leader-elected Executive ROI cache warmup / savings gauge skipped a tenant due to invalid ambient scope (labels reason).");
+            description: "Leader-elected Sponsor ROI cache warmup / savings gauge skipped a tenant due to invalid ambient scope (labels reason).");
 
     
     /// <summary>

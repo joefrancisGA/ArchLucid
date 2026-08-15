@@ -24,7 +24,7 @@ export const RUN_DETAIL_EVIDENCE_CAPTURE_SECTION_TITLE = "Add evidence" as const
 
 export const BULK_EVIDENCE_UPLOAD_HELP_LINKS = [
   { label: "Evidence intake help", href: inAppHelpHref("evidence-intake") },
-  { label: "Data handling and tenant isolation", href: inAppHelpHref("data-handling-tenant-isolation") },
+  { label: "Data handling and tenant isolation", href: inAppHelpHref("data-handling") },
 ] as const;
 
 export const BULK_EVIDENCE_UPLOAD_FAILURE_RECOVERY: ErrorRecoveryContractPresentation = {

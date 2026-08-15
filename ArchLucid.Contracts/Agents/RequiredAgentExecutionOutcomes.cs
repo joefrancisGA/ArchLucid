@@ -103,6 +103,16 @@ public static class RequiredAgentExecutionOutcomes
 
         if (AgentExecuteIdempotentResultPolicy.ShouldSkipRetry(chosen, out _))
         {
+            if (agentType == AgentType.Critic && AgentDownstreamConsistency.IsCriticStale(chosen, results))
+            {
+                return new AgentExecutionOutcome
+                {
+                    AgentType = agentType,
+                    Outcome = AgentExecutionOutcomeKind.Stale,
+                    TaskId = chosen.TaskId,
+                };
+            }
+
             return new AgentExecutionOutcome
             {
                 AgentType = agentType,

@@ -15,6 +15,7 @@ import {
 } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
@@ -28,11 +29,11 @@ type HealthcareClaimsPolicyPackDetailProps = {
 export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPackDetailProps) {
   const { policyPackId } = props;
 
-  const canonicalPackLabel = policyPackBuyerLabel("healthcare-claims-v3", "3.4.1");
+  const canonicalPackLabel = policyPackBuyerLabel("healthcare-claims-v3", CLAIMS_INTAKE_RULE_SET_VERSION);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const versionBadgeLabel = buyerPolishedShell
-    ? "Healthcare Claims policy pack · v3.4.1 · effective 2026-05-01"
-    : "Demonstration rule-set v3.4.1";
+    ? `Healthcare Claims policy pack · v${CLAIMS_INTAKE_RULE_SET_VERSION} · effective 2026-05-01`
+    : `Demonstration rule-set v${CLAIMS_INTAKE_RULE_SET_VERSION}`;
 
   return (
     <div className={cn("w-full max-w-[1200px] p-6", OPERATOR_LAYOUT.sectionStack)}>
@@ -45,7 +46,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         subtitle={
           buyerPolishedShell
             ? BUYER_POLICY_PACK_LEAD
-            : `${BUYER_POLICY_PACK_LEAD} — matching the Claims Intake showcase review referenced from Governance and signed review record surfaces.`
+            : `${BUYER_POLICY_PACK_LEAD} — matching the Claims Intake showcase review referenced from Governance and sealed review record surfaces.`
         }
         subtitleClassName="max-w-prose leading-relaxed"
       >
@@ -66,7 +67,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         <h2 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>What sponsors see first</h2>
         <ul className={cn("m-0 mt-3 list-disc space-y-2 ps-5 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <li>Explicit minimization checks where identifiers cross trust boundaries (mirrors the PHI finding storyline).</li>
-          <li>Required evidence artifacts for regulators — signed review records, graph excerpts, and governance approvals stay linked.</li>
+          <li>Required evidence artifacts for regulators — sealed review records, graph excerpts, and governance approvals stay linked.</li>
           <li>Operational drift hooks when unstructured attachments spike risk (Alerts ties back to the sample intake graph).</li>
         </ul>
       </section>
@@ -116,7 +117,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         <CollapsibleContent className={cn("mt-2 space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           <p className="m-0">
             Rule-set id <span className="font-mono">healthcare-claims-v3</span> · Effective demonstration version{" "}
-            <span className="font-mono">3.4.1</span>
+            <span className="font-mono">{CLAIMS_INTAKE_RULE_SET_VERSION}</span>
           </p>
           <p className="m-0">
             Governance approvals recorded against review record hash shown on the finalized Claims Intake package — cross-check the

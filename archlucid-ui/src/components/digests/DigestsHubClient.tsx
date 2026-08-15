@@ -57,7 +57,7 @@ const TAB_PARAM = "tab";
 const SUBSCRIPTIONS_TAB_READER_TITLE =
   "List is readable at Read rank; creating or changing subscriptions requires a role that can manage digests.";
 const SCHEDULE_TAB_READER_TITLE =
-  "Executive schedule is readable; saving or enabling delivery requires a role that can manage digests.";
+  "Sponsor schedule is readable; saving or enabling delivery requires a role that can manage digests.";
 
 const PREVIEW_LATEST_TITLE = "Opens the most recently generated digest summary.";
 
@@ -66,7 +66,7 @@ function browseTabResponsibility(hasDigestHistory: boolean): string {
 }
 
 /**
- * Single `/digests` surface: browse, subscriptions, and executive digest schedule. Tab state in `?tab=` for deep links.
+ * Single `/digests` surface: browse, subscriptions, and sponsor digest schedule. Tab state in `?tab=` for deep links.
  */
 export function DigestsHubClient(): ReactElement {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();

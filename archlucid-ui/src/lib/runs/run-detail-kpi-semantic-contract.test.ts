@@ -15,7 +15,7 @@ const runDetailPagePath = join(
   "(operator)",
   "architecture",
   "reviews",
-  "[runId]",
+  "[reviewId]",
   "_sections",
   "RunDetailPageView.tsx",
 );

@@ -106,7 +106,7 @@ export function HelpAcceleratorChooserPrerequisitePanel(
           {presentation.signedRecordHref !== null ? (
             <Link
               href={presentation.signedRecordHref}
-              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+              className={OPERATOR_LINK.optional}
               data-testid="help-accelerator-chooser-prerequisite-signed-record-link"
             >
               Open most recent {BUYER_SURFACE_VOCABULARY.signedReviewRecord.toLowerCase()}

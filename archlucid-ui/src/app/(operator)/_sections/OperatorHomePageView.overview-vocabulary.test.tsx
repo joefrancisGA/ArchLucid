@@ -117,8 +117,8 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
   const { OperatorHomeBelowFoldPanels } = await import(
     "@/app/(operator)/_sections/OperatorHomeBelowFoldPanels"
   );
-  const { OperatorHomeExecutiveRoiStrip } = await import(
-    "@/components/operator-home/OperatorHomeExecutiveRoiStrip"
+  const { OperatorHomeSponsorRoiStrip } = await import(
+    "@/components/operator-home/OperatorHomeSponsorRoiStrip"
   );
   const { deriveOperatorHomeWorkspaceMetrics } = await import("@/lib/operator/operator-home-workspace-metrics");
 
@@ -150,9 +150,9 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
     BuyerPolishedHomeHeroSectionDeferred,
     PilotCommandCenterCardDeferred: PilotCommandCenterCard,
     OperatorHomeBelowFoldPanelsDeferred: OperatorHomeBelowFoldPanels,
-    OperatorHomeExecutiveRoiStripDeferred: OperatorHomeExecutiveRoiStrip,
+    OperatorHomeSponsorRoiStripDeferred: OperatorHomeSponsorRoiStrip,
     OperatorHomeStickinessCockpitDeferred: OperatorHomeStickinessCockpit,
-    CtoDemoExecutiveLandingRedirectDeferred: () => null,
+    CtoDemoSponsorLandingRedirectDeferred: () => null,
   };
 });
 
@@ -161,8 +161,8 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
   OperatorHomeFirstValueCallout: () => null,
 }));
 
-vi.mock("@/components/operator-home/OperatorHomeExecutiveRoiStrip", () => ({
-  OperatorHomeExecutiveRoiStrip: () => <div data-testid="home-block-executive-roi" />,
+vi.mock("@/components/operator-home/OperatorHomeSponsorRoiStrip", () => ({
+  OperatorHomeSponsorRoiStrip: () => <div data-testid="home-block-sponsor-roi" />,
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({

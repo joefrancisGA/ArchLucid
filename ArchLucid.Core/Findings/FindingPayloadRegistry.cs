@@ -10,12 +10,19 @@ public static class FindingPayloadRegistry
         [nameof(TopologyGapFindingPayload)] = typeof(TopologyGapFindingPayload),
         [nameof(SecurityControlFindingPayload)] = typeof(SecurityControlFindingPayload),
         [nameof(CostConstraintFindingPayload)] = typeof(CostConstraintFindingPayload),
+        [nameof(CostBreachFindingPayload)] = typeof(CostBreachFindingPayload),
+        [nameof(InventoryReconciliationFindingPayload)] = typeof(InventoryReconciliationFindingPayload),
         [nameof(PolicyApplicabilityFindingPayload)] = typeof(PolicyApplicabilityFindingPayload),
         [nameof(TopologyCoverageFindingPayload)] = typeof(TopologyCoverageFindingPayload),
         [nameof(SecurityCoverageFindingPayload)] = typeof(SecurityCoverageFindingPayload),
         [nameof(PolicyCoverageFindingPayload)] = typeof(PolicyCoverageFindingPayload),
         [nameof(RequirementCoverageFindingPayload)] = typeof(RequirementCoverageFindingPayload),
-        [nameof(ComplianceFindingPayload)] = typeof(ComplianceFindingPayload)
+        [nameof(RequirementExpectationFindingPayload)] = typeof(RequirementExpectationFindingPayload),
+        [nameof(SecurityBaselineExpectationFindingPayload)] = typeof(SecurityBaselineExpectationFindingPayload),
+        [nameof(SecurityBaselineCompletenessFindingPayload)] = typeof(SecurityBaselineCompletenessFindingPayload),
+        [nameof(ComplianceFindingPayload)] = typeof(ComplianceFindingPayload),
+        [nameof(ExtractorOrphanCandidateFindingPayload)] = typeof(ExtractorOrphanCandidateFindingPayload),
+        [nameof(AdvisorCostRecommendationFindingPayload)] = typeof(AdvisorCostRecommendationFindingPayload)
     };
 
     public static IReadOnlyDictionary<string, Type> RegisteredTypes => ByPayloadTypeName;

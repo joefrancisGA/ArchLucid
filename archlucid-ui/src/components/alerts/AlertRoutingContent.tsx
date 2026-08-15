@@ -61,7 +61,7 @@ import {
   ALERT_RULES_SAMPLE_MODE_CTA_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_AUDIT_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import {
   createAlertRoutingSubscription,
@@ -336,7 +336,7 @@ export function AlertRoutingContent() {
             data-testid="alert-routing-sample-mode-banner"
           >
             <p className={cn("mb-2", OPERATOR_TYPOGRAPHY.body)}>{ALERT_RULES_SAMPLE_MODE_BANNER}</p>
-            <Link href={ALERT_RULES_SAMPLE_MODE_CTA_HREF} className="font-medium underline underline-offset-2">
+            <Link href={ALERT_RULES_SAMPLE_MODE_CTA_HREF} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
               {ALERT_RULES_SAMPLE_MODE_CTA_LABEL}
             </Link>
           </div>
@@ -348,7 +348,7 @@ export function AlertRoutingContent() {
             data-testid="alert-routing-config-provenance"
           >
             {configProvenanceLabel}{" "}
-            <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.inline}>
+            <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.optional}>
               View audit trail
             </Link>
           </p>

@@ -19,6 +19,10 @@ import {
   upsertArchitectureDraftRegistryEntry,
 } from "@/lib/architecture/architecture-draft-registry";
 import { stripScopeUnderstandingSection } from "@/lib/architecture/architecture-scope-understanding-check";
+import {
+  emptyArchitectureDraftStructuredBrief,
+  structuredBriefFromDocument,
+} from "@/lib/architecture/architecture-draft-structured-brief";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import { buildDefaultActorSet, createDraftRequest, getDraftRequest } from "@/lib/api/draft-intake-api";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
@@ -127,12 +131,14 @@ export function applyArchitectureCreationDraftToFormState(draft: DraftRequestRes
   readonly freeTextIntent: string;
   readonly businessOutcome: string;
   readonly systemName: string;
+  readonly structuredBrief: ReturnType<typeof structuredBriefFromDocument>;
 } {
   if (draft === null || isArchitectureCreationBootstrapIntent(draft.document.freeTextIntent)) {
     return {
       freeTextIntent: "",
       businessOutcome: "",
       systemName: "",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
     };
   }
 
@@ -141,6 +147,7 @@ export function applyArchitectureCreationDraftToFormState(draft: DraftRequestRes
     freeTextIntent: stripScopeUnderstandingSection(draft.document.freeTextIntent),
     businessOutcome: stripScopeUnderstandingSection(draft.document.businessOutcome),
     systemName: draft.document.systemName ?? "",
+    structuredBrief: structuredBriefFromDocument(draft.document),
   };
 }
 

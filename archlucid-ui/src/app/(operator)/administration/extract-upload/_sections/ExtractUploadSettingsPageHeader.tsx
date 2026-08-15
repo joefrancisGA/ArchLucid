@@ -1,6 +1,5 @@
 "use client";
 
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -14,8 +13,6 @@ import {
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
-  EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_HREF,
-  EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL,
   EXTRACT_UPLOAD_SETTINGS_NAV_HREF,
   EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE,
   EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
@@ -67,18 +64,6 @@ export function ExtractUploadSettingsPageHeader(
             data-testid="extract-upload-header-inventory-status"
           />
         ) : null
-      }
-      breadcrumb={
-        <OperatorPageBreadcrumb
-          data-testid="extract-upload-page-breadcrumb"
-          items={[
-            {
-              label: EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL,
-              href: EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_HREF,
-            },
-            { label: EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE, href: EXTRACT_UPLOAD_SETTINGS_NAV_HREF },
-          ]}
-        />
       }
       actions={
         <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />

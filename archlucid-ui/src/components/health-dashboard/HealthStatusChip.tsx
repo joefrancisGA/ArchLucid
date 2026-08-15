@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle2, CircleHelp, MinusCircle, XCircle } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { StatusPill } from "@/components/StatusPill";
+import { HealthStatusTag } from "@/components/health-dashboard/HealthStatusTag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import {
@@ -28,7 +28,7 @@ export type HealthStatusChipProps = {
 };
 
 /**
- * Health status chip: icon plus {@link StatusPill}. Color alone cannot carry status on a
+ * Health status chip: icon plus {@link HealthStatusTag}. Color alone cannot carry status on a
  * page where every row uses the same 11px badge scale.
  */
 export function HealthStatusChip(props: HealthStatusChipProps): React.JSX.Element {
@@ -38,11 +38,9 @@ export function HealthStatusChip(props: HealthStatusChipProps): React.JSX.Elemen
   return (
     <span className={cn("inline-flex shrink-0 items-center gap-1.5", props.className)} data-testid={props.testId}>
       <Icon aria-hidden="true" className="size-3.5 shrink-0 text-al-text-secondary" />
-      <StatusPill
+      <HealthStatusTag
         status={props.status}
-        domain="health"
-        uppercase={false}
-        ariaLabel={props.ariaLabel}
+        aria-label={props.ariaLabel}
         className={cn("rounded-md px-2 py-0.5", OPERATOR_TYPOGRAPHY.badge)}
       />
     </span>

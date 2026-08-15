@@ -168,9 +168,9 @@ describe("WelcomeMarketingPage", () => {
     expect(within(engagement).getByRole("button", { name: /join early access/i })).toBeInTheDocument();
     expect(within(engagement).getByRole("link", { name: /start an evaluation/i })).toHaveAttribute("href", "/signup");
     expect(within(engagement).getByRole("link", { name: /^sign in$/i })).toBeInTheDocument();
-    expect(within(engagement).getByRole("link", { name: /prefer a longer walkthrough/i })).toHaveAttribute(
+    expect(within(engagement).getByRole("link", { name: /ready to start your evaluation/i })).toHaveAttribute(
       "href",
-      "/live-demo",
+      "/get-started",
     );
     expect(within(engagement).getByRole("link", { name: /retail sample roi/i })).toHaveAttribute(
       "href",

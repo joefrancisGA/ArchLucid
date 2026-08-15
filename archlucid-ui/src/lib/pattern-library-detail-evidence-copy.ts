@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PATTERN_LIBRARY_DETAIL_CLAIM_DISCIPLINE =
-  "Pattern detail copy is anonymized catalog guidance (or labeled sample data) — not a signed-review diligence Sources package and not tenant-identifying usage. Open the Pattern library or start a review before briefing sponsors.";
+  "Pattern detail copy is anonymized catalog guidance (or labeled sample data) — not a sealed-review diligence Sources package and not tenant-identifying usage. Open the Pattern library or start a review before briefing sponsors.";
 
 export const PATTERN_LIBRARY_DETAIL_SOURCES_INTRO =
   "Use this pattern as a starting point, then open the Pattern library, Reviews, or Getting started when you need orientation before treating catalog signals as authoritative.";

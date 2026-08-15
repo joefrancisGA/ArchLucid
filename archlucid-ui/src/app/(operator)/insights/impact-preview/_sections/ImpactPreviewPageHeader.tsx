@@ -4,10 +4,12 @@ import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { StatusTag } from "@/components/StatusTag";
 import {
   operatorFreshnessMetadataWithClockLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   IMPACT_PREVIEW_ACTION_REFRESHING,
   IMPACT_PREVIEW_LAST_REFRESHED_PREFIX,
@@ -19,6 +21,7 @@ export type ImpactPreviewPageHeaderProps = {
   readonly listLoading: boolean;
   readonly lastRefreshedAt: Date | null;
   readonly onRefresh: () => void;
+  readonly statusKind?: EnterpriseStatusKind | null;
 };
 
 /** Shared `/insights/impact-preview` hero — title, lead, contextual help, refresh, and last-refreshed metadata. */
@@ -37,6 +40,7 @@ export function ImpactPreviewPageHeader(props: ImpactPreviewPageHeaderProps): Re
       title={IMPACT_PREVIEW_PAGE_TITLE}
       titleTestId="impact-preview-page-title"
       subtitle={props.subtitle}
+      statusBadge={props.statusKind != null ? <StatusTag kind={props.statusKind} /> : null}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="impact-preview-header-actions">
           <PageContextualHelpButton />

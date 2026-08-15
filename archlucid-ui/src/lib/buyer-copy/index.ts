@@ -9,7 +9,7 @@ export * from "./ask";
 export * from "./audit";
 export * from "./cto-demo";
 export * from "./evidence-graph";
-export * from "./executive";
+export * from "./sponsor";
 export * from "./glossary";
 export * from "./governance";
 export * from "./module-paths";

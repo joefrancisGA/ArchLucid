@@ -19,7 +19,7 @@ export const MARKETING_SURFACE_BANNED_INTERNAL_ROUTE_PREFIXES: readonly string[]
   "/operate/",
 ] as const;
 
-/** Capitalized persona label — buyers use Architect/Executive/Admin per CONCEPT_VOCABULARY.md#ui-glossary-v1. */
+/** Capitalized persona label — buyers use Architect/Sponsor/Admin per CONCEPT_VOCABULARY.md#ui-glossary-v1. */
 export const MARKETING_SURFACE_BANNED_PERSONA_PATTERN = /\bOperator\b/g;
 
 export const MARKETING_SURFACE_BANNED_BACKLOG_LABEL_PATTERN = /\bTB-\d{3}\b/;

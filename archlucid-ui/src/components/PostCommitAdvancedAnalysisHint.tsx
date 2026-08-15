@@ -1,18 +1,17 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
-import { pickPriorForSameRequest } from "@/components/BeforeAfterDelta/pick-prior-for-same-request";
-import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { Button } from "@/components/ui/button";
 import { getShowcaseCompareHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
+import { SHOW_ALL_DESTINATIONS } from "@/lib/nav-disclosure-copy";
 
 type PostCommitAdvancedAnalysisHintProps = {
   runId: string;
@@ -31,14 +30,7 @@ export function PostCommitAdvancedAnalysisHint({
   runId,
   embeddedInCollapsible = false,
 }: PostCommitAdvancedAnalysisHintProps) {
-  const { status, data } = useDeltaQuery({ count: LOOKBACK });
-  const current =
-    status === "ready" && data !== null ? data.items.find((row) => row.runId === runId) : undefined;
-  const prior =
-    current !== undefined && data !== null ? pickPriorForSameRequest(current, data.items) : null;
-
-  const compareWithPriorHref =
-    prior !== null ? comparePageHrefAdaptive(prior.runId, runId) : null;
+  const { compareWithPriorHref } = usePriorSameRequestCompareHref(runId, LOOKBACK);
 
   const encoded = encodeURIComponent(runId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -54,7 +46,7 @@ export function PostCommitAdvancedAnalysisHint({
     <>Deeper passes below are optional—most sponsors consume exported deliverables first.</>
   ) : (
     <>
-      Use the links below; enable <em>{NAV_DISCLOSURE.extended.show}</em> in the sidebar if needed.
+      Use the links below; choose <em>{SHOW_ALL_DESTINATIONS.show}</em> in the sidebar if a group is collapsed.
     </>
   );
 
@@ -83,13 +75,8 @@ export function PostCommitAdvancedAnalysisHint({
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button
             asChild
-            variant={buyerPolishedShell ? "outline" : "default"}
+            variant={buyerPolishedShell ? "outline" : "primary"}
             size="sm"
-            className={
-              buyerPolishedShell
-                ? undefined
-                : "bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600"
-            }
           >
             <Link href={compareHrefForLinks} data-testid="post-commit-compare-prior-cta">
               {showcaseCompareHref !== null && compareWithPriorHref === null
@@ -107,19 +94,19 @@ export function PostCommitAdvancedAnalysisHint({
       <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
         <li>
           <Link
-            className="text-teal-800 underline dark:text-teal-300"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
             href={compareHrefForLinks ?? comparePageHrefAdaptive(runId)}
           >
             Compare
           </Link>
         </li>
         <li>
-          <Link className="text-teal-800 underline dark:text-teal-300" href={`/insights/evidence-graph?runId=${encoded}`}>
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={`/insights/evidence-graph?runId=${encoded}`}>
             Graph
           </Link>
         </li>
         <li>
-          <Link className="text-teal-800 underline dark:text-teal-300" href={`/insights/ask-review-questions?runId=${encoded}`}>
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={`/insights/ask-review-questions?runId=${encoded}`}>
             Ask
           </Link>
         </li>

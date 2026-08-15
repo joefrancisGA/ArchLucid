@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -61,8 +62,10 @@ function nudgeCopy(
  * documented thresholds; trials remain owned by {@link TrialUsageUpgradeNudge}.
  */
 export function TeamExpansionNudge() {
-  const { data: trialPayload, isFetched: trialFetched } = useTenantTrialStatusQuery();
-  const usageQueryEnabled = shouldFetchTenantUsageStatusForTeamExpansionNudge(trialPayload, trialFetched);
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const { data: trialPayload, isFetched: trialFetched } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
+  const usageQueryEnabled =
+    concernFetchEnabled && shouldFetchTenantUsageStatusForTeamExpansionNudge(trialPayload, trialFetched);
   const { data: payload, isFetched } = useTenantUsageStatusQuery({ enabled: usageQueryEnabled });
   const [activeTrigger, setActiveTrigger] = useState<TeamExpansionNudgeTrigger | null>(null);
   const [visible, setVisible] = useState(false);
@@ -125,7 +128,7 @@ export function TeamExpansionNudge() {
         <p className="m-0 font-semibold">{copy.title}</p>
         <p className={cn("mt-1 text-sky-900 dark:text-sky-200", OPERATOR_TYPOGRAPHY.helper)}>{copy.detail}</p>
         <div className="mt-2 flex flex-wrap gap-2">
-          <Button asChild type="button" size="sm" className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700">
+          <Button asChild type="button" variant="primary" size="sm">
             <Link
               href={pricingHref}
               onClick={() => {

@@ -54,9 +54,9 @@ internal static class ConsultingDocxOpenXmlComposer
                 ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
             }
 
-            if (options.IncludeExecutiveSummary)
+            if (options.IncludeSponsorReport)
 
-                ConsultingDocxSupplementalSections.AddExecutiveSummary(body, report, options);
+                ConsultingDocxSupplementalSections.AddSponsorReport(body, report, options);
 
             if (options.IncludeArchitectureOverview)
 

@@ -64,12 +64,12 @@ describe("HelpUsersAndRolesGuideView", () => {
   it("registers the users and roles help entry", () => {
     expect(entry?.slug).toBe("users-and-roles");
     expect(entry?.title).toBe(USERS_AND_ROLES_PAGE_TITLE);
-    // Legacy slug redirects before registry lookup (TB-1707); catalog keeps alias retired (TB-2050).
+    // Legacy slug omitted from registry (TB-1707 / TB-2050); no HTTP redirect.
     expect(getProductDocumentationEntry("operator-auth-roles")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("operator-auth-roles")).toBe(USERS_AND_ROLES_HELP_CANONICAL_PATH);
+    expect(resolveHelpTopicPermanentRedirect("operator-auth-roles")).toBeNull();
   });
 
-  it("renders one H1, breadcrumb, TOC rail, and customer intro without internal engineering sections", () => {
+  it("renders one H1 TOC rail and customer intro without internal engineering sections", () => {
     if (entry === undefined) {
       throw new Error("Expected users-and-roles documentation entry.");
     }
@@ -78,9 +78,6 @@ describe("HelpUsersAndRolesGuideView", () => {
 
     expect(screen.getAllByRole("heading", { level: 1, name: USERS_AND_ROLES_PAGE_TITLE })).toHaveLength(1);
     expect(screen.getByText(USERS_AND_ROLES_PAGE_INTRO)).toBeInTheDocument();
-    expect(screen.getByTestId("help-users-and-roles-breadcrumb")).toHaveTextContent("Help");
-    expect(screen.getByTestId("help-users-and-roles-breadcrumb")).toHaveTextContent(USERS_AND_ROLES_PAGE_TITLE);
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.getByTestId("users-and-roles-role-overview-table")).toBeInTheDocument();
     expect(screen.getByTestId("users-and-roles-capability-matrix")).toBeInTheDocument();

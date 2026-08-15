@@ -16,7 +16,7 @@ using QuestPDF.Infrastructure;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-///     One-page QuestPDF sponsor summary keyed to a single run plus tenant pilot scorecard aggregates (read-only).
+///     One-page QuestPDF Sponsor report keyed to a single run plus tenant pilot scorecard aggregates (read-only).
 /// </summary>
 /// <remarks>
 ///     The headline numbers come from <see cref = "IPilotRunDeltaComputer"/> so the sponsor PDF, the Markdown sibling

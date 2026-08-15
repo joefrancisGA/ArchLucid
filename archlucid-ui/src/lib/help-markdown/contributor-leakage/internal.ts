@@ -76,11 +76,11 @@ export const GOVERNANCE_API_CONTRACTS_OMITTED_SECTION_PREFIXES = [
 
 
 /**
- * TB-1390 / fold PI→SPE — removes contributor leakage from executive-summary pilot ROI measurement section.
+ * TB-1390 / fold PI→SPE — removes contributor leakage from sponsor-report pilot ROI measurement section.
  */
 
 
-/** @deprecated Folded into executive-summary#pilot-roi-measurement — use stripExecutiveSummaryPilotRoiMeasurementLeakage. */
+/** @deprecated Folded into sponsor-report#pilot-roi-measurement — use stripSponsorReportPilotRoiMeasurementLeakage. */
 
 
 /** H2 sections omitted from in-app repeat-review help (founder validation / proof theater). */
@@ -220,7 +220,7 @@ export const TENANT_ISOLATION_THREE_LAYERS_BUYER_BODY = [
 
 
 /**
- * TB-1688 — executive-summary help (FAQ source): strip contributor FAQ / eng-path leakage.
+ * TB-1688 — sponsor-report help (FAQ source): strip contributor FAQ / eng-path leakage.
  */
 
 
@@ -791,7 +791,7 @@ export function isProductOverviewContributorLeakageLine(line: string): boolean {
 }
 
 /**
- * TB-1686 — executive-summary help: sponsor-brief sections with buyer-safe ROI link rewrites.
+ * TB-1686 — sponsor-report help: sponsor-brief sections with buyer-safe ROI link rewrites.
  */
 
 

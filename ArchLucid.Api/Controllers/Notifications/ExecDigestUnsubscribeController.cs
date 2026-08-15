@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Controllers.Notifications;
 
 using ArchLucid.Api.Security;
 
-/// <summary>Public unsubscribe endpoint for weekly executive digest (signed token, no interactive auth).</summary>
+/// <summary>Public unsubscribe endpoint for weekly sponsor digest (signed token, no interactive auth).</summary>
 [ApiController]
 [AllowAnonymous]
 [AllowUnscopedRoute]
@@ -53,7 +53,7 @@ public sealed class ExecDigestUnsubscribeController(
         await _preferencesRepository.TryDisableEmailAsync(tenantId, cancellationToken);
 
         return Content(
-            "Executive digest email has been turned off for this tenant.",
+            "Sponsor digest email has been turned off for this tenant.",
             "text/plain",
             Encoding.UTF8);
     }

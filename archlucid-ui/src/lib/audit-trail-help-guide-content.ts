@@ -1,5 +1,9 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
+  AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING,
+  AUDIT_TRAIL_HELP_CLAIM_HEADING_ID,
+} from "@/lib/audit-trail-help-evidence-copy";
+import {
   AUDIT_TRAIL_OPERATOR_TABLE_COLUMN_LABELS,
   AUDIT_TRAIL_PAGE_SUBTITLE_BUYER,
   AUDIT_TRAIL_PAGE_SUBTITLE_OPERATOR,
@@ -53,7 +57,7 @@ export const AUDIT_TRAIL_HELP_PRIMARY_ACTIONS = {
 } as const;
 
 export const AUDIT_TRAIL_HELP_WHAT_IS_BODY =
-  "When an authorized user finalizes an architecture review, records a governance approval, updates evidence, or exports a diligence bundle, ArchLucid appends an audit trail entry with actor identity, action type, timestamp, and correlation identifiers. Entries stay linked to the review so auditors can reconstruct accountability without opening every finding or signed review record separately.";
+  "When an authorized user finalizes an architecture review, records a governance approval, updates evidence, or exports a diligence bundle, ArchLucid appends an audit trail entry with actor identity, action type, timestamp, and correlation identifiers. Entries stay linked to the review so auditors can reconstruct accountability without opening every finding or sealed review record separately.";
 
 export type AuditTrailHelpAnatomyField = {
   readonly label: string;
@@ -66,7 +70,7 @@ const AUDIT_TRAIL_HELP_ANATOMY_DESCRIPTIONS: Readonly<
   Occurred: "When the action occurred in UTC.",
   Event: "What changed — for example submission, approval, export, or evidence update.",
   Actor: "The person or service identity that performed the action.",
-  Review: "The architecture review or signed review record when the action is review-scoped.",
+  Review: "The architecture review or sealed review record when the action is review-scoped.",
   Correlation: "Optional identifier linking related operations for forensics.",
   Payload:
     "Structured action outcome when shown. Tenant, workspace, and project scope appear as row context rather than a separate column.",
@@ -128,7 +132,7 @@ export const AUDIT_TRAIL_HELP_EVIDENCE_TRAIL_ITEMS = [
   "Input artifacts and evidence trail citations explain what was reviewed.",
   "Findings and decisions capture architecture risk and governance disposition.",
   "Audit trail entries record authenticated actions — who submitted, approved, exported, or changed evidence.",
-  "The signed review record binds the committed architecture review state.",
+  "The sealed review record binds the committed architecture review state.",
 ] as const;
 
 export type AuditTrailHelpRoleGuidance = {
@@ -153,7 +157,7 @@ export const AUDIT_TRAIL_HELP_ROLE_GUIDANCE: readonly AuditTrailHelpRoleGuidance
       "Correlate audit trail exports with trust-center materials, retention posture, and procurement FAQ answers.",
   },
   {
-    role: "Executive or sponsor",
+    role: "Sponsor or sponsor",
     guidance:
       "Review material exports and finalization events when validating diligence bundles for sign-off.",
   },
@@ -202,6 +206,7 @@ export const AUDIT_TRAIL_HELP_TECHNICAL_REFERENCE_SECTIONS = [
   },
 ] as const;
 
+
 export const AUDIT_TRAIL_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-the-audit-trail-is", title: "What the audit trail is" },
   { level: 2, id: "anatomy-of-an-entry", title: "Anatomy of an audit trail entry" },
@@ -209,5 +214,13 @@ export const AUDIT_TRAIL_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "evidence-trail-connection", title: "Connection to the evidence trail" },
   { level: 2, id: "live-surface-vs-help", title: "Live audit trail vs this help topic" },
   { level: 2, id: "role-guidance", title: "Role guidance" },
+  { level: 2, id: AUDIT_TRAIL_HELP_CLAIM_HEADING_ID, title: AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING },
+  { level: 2, id: "where-to-go-next", title: "Where to go next" },
   { level: 2, id: "technical-reference", title: "Technical reference" },
 ];
+
+/** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
+export const AUDIT_TRAIL_HELP_NEGATION_DRIFT_MARKERS = {
+  overviewMustNotContain: ["sources package", "sealed-review diligence"],
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;

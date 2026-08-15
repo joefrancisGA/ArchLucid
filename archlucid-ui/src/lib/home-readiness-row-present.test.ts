@@ -8,7 +8,7 @@ vi.mock("@/lib/buyer/buyer-shell-home-present", () => ({
 }));
 
 describe("home-readiness-row-present", () => {
-  it("applies executive labels and governed CTAs on buyer shell", () => {
+  it("applies sponsor labels and governed CTAs on buyer shell", () => {
     const rows: FirstPilotReadinessRow[] = [
       {
         id: "roi-baselines",

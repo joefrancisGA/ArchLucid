@@ -30,7 +30,7 @@ internal static class BuyerProofPackCommitGuard
         if (proof.TryGetProperty("runInCommittedStatus", out JsonElement committedEl) && committedEl.GetBoolean())
             return true;
         error =
-            "Review is not finalized (API: run is not in committed status, or no signed review record exists). Buyer proof pack is for finalized pilots only — finalize the review (`archlucid commit <runId>`) and retry.";
+            "Review is not finalized (API: run is not in committed status, or no sealed review record exists). Buyer proof pack is for finalized pilots only — finalize the review (`archlucid commit <runId>`) and retry.";
 
         return false;
     }

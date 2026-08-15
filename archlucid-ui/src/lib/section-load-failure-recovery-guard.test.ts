@@ -20,7 +20,7 @@ describe("section-load-failure-recovery-guard", () => {
     expect(ids).toContain("recurrence-schedules");
     expect(ids).toContain("tenant-cost-settings");
     expect(ids).toContain("cloud-connections-hub");
-    expect(ids).toContain("executive-roi-trend");
+    expect(ids).toContain("sponsor-roi-trend");
     expect(ids).toContain("run-id-picker");
   });
 });

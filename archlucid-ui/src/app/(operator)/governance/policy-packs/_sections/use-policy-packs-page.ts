@@ -8,6 +8,7 @@ import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import {
   assignPolicyPack,
   createPolicyPack,
+  fetchPolicyPacksPageBundle,
   getEffectivePolicyContent,
   getEffectivePolicyPacks,
   getPolicyPackCatalogEntry,
@@ -15,7 +16,9 @@ import {
   listPolicyPackCatalog,
   listPolicyPackVersions,
   listPolicyPacks,
+  listPolicyPackWorkspaceSelection,
   publishPolicyPackVersion,
+  setPolicyPackAssignmentEnabled,
 } from "@/lib/api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -31,6 +34,7 @@ import type {
   PolicyPackCatalogListItem,
   PolicyPackContentDocument,
   PolicyPackVersion,
+  PolicyPackWorkspaceSelectionItem,
 } from "@/types/policy-packs";
 
 import { POLICY_PACK_ID_QUERY_PARAM, POLICY_PACKS_TAB_QUERY_PARAM, POLICY_RULE_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
@@ -87,6 +91,9 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [catalogFailure, setCatalogFailure] = useState<ApiLoadFailureState | null>(null);
   const [selectedCatalogEntryId, setSelectedCatalogEntryId] = useState("");
+  const [workspaceSelectionItems, setWorkspaceSelectionItems] = useState<PolicyPackWorkspaceSelectionItem[]>([]);
+  const [workspaceSelectionLoading, setWorkspaceSelectionLoading] = useState(false);
+  const [togglingAssignmentId, setTogglingAssignmentId] = useState<string | null>(null);
 
   const [name, setName] = useState("Baseline governance");
   const [description, setDescription] = useState("");
@@ -110,24 +117,41 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   const [verticalImportSlug, setVerticalImportSlug] = useState<string | null>(null);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
 
+  const refreshWorkspaceSelection = useCallback(async () => {
+    setWorkspaceSelectionLoading(true);
+
+    try {
+      const rows = await listPolicyPackWorkspaceSelection();
+      setWorkspaceSelectionItems(rows);
+    } catch {
+      setWorkspaceSelectionItems([]);
+    } finally {
+      setWorkspaceSelectionLoading(false);
+    }
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
     setFailure(null);
 
     try {
-      const [p, eff, doc] = await Promise.all([
-        listPolicyPacks(),
-        getEffectivePolicyPacks(),
-        getEffectivePolicyContent(),
-      ]);
-      const merged = mergePolicyPacksStateWithStaticDemo(p, eff, doc, "default", {
-        afterEmptyLiveResponse:
-          buyerPolishedShell || (p.length === 0 && (eff === null || eff.packs.length === 0)),
-      });
+      const bundle = await fetchPolicyPacksPageBundle();
+      const merged = mergePolicyPacksStateWithStaticDemo(
+        bundle.packs,
+        bundle.effective,
+        bundle.effectiveContent,
+        "default",
+        {
+          afterEmptyLiveResponse:
+            buyerPolishedShell ||
+            (bundle.packs.length === 0 && (bundle.effective === null || bundle.effective.packs.length === 0)),
+        },
+      );
 
       setPacks(merged.packs);
       setEffective(merged.effective);
       setEffectiveContent(merged.content);
+      await refreshWorkspaceSelection();
     } catch (e) {
       const fb = staticDemoPolicyPacksFallbackBundle("default", { afterAuthorityFailure: true });
 
@@ -143,7 +167,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
       setLoading(false);
       setLastRefreshedAt(new Date());
     }
-  }, [buyerPolishedShell]);
+  }, [buyerPolishedShell, refreshWorkspaceSelection]);
 
   const refreshCatalog = useCallback(async () => {
     setCatalogLoading(true);
@@ -166,6 +190,26 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
       setCatalogLoading(false);
     }
   }, []);
+
+  const onToggleWorkspaceSelection = useCallback(
+    async (assignmentId: string, nextEnabled: boolean) => {
+      if (!canMutatePacks)
+        return;
+
+      setTogglingAssignmentId(assignmentId);
+      setFailure(null);
+
+      try {
+        await setPolicyPackAssignmentEnabled(assignmentId, nextEnabled);
+        await load();
+      } catch (e) {
+        setFailure(toApiLoadFailure(e));
+      } finally {
+        setTogglingAssignmentId(null);
+      }
+    },
+    [canMutatePacks, load],
+  );
 
   useEffect(() => {
     if (pageTab !== "catalog") {
@@ -579,6 +623,10 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     setSelectedCatalogEntryId,
     refreshCatalog,
     onCloneCatalogEntry,
+    workspaceSelectionItems,
+    workspaceSelectionLoading,
+    togglingAssignmentId,
+    onToggleWorkspaceSelection,
     packs,
     effective,
     effectiveContent,

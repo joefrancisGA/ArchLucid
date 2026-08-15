@@ -11,7 +11,7 @@ export function ReviewOutcomeTaxonomyLegend(): ReactElement {
       className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="review-outcome-taxonomy-legend"
     >
-      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Decision</strong> — approved architecture choice recorded on the finalized signed review record.{" "}
+      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Decision</strong> — approved architecture choice recorded on the finalized sealed review record.{" "}
       <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Finding</strong> — review observation requiring disposition, evidence, and traceability.{" "}
       <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Risk</strong> — potential exposure framed with cited evidence.{" "}
       <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Control</strong> — mitigation or safeguard referenced on the record.{" "}

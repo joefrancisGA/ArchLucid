@@ -6,7 +6,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { RunDetail } from "@/types/authority";
 
-import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[runId]/_sections/run-detail-section-heading";
+import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ReviewChainOfCustodySectionProps = {

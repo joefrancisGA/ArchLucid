@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
   ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE,
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
   ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,
@@ -50,5 +51,23 @@ describe("create-vs-review-intake-copy (TB-1461)", () => {
     expect(ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE.toLowerCase()).toContain("architecture draft");
     expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE.toLowerCase()).toContain("architecture draft");
     expect(ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE.toLowerCase()).toContain("architecture draft");
+  });
+});
+
+describe("create-vs-review-intake-copy — draft lead matches the fields the form renders", () => {
+  it("promises only the system, outcome, and people/systems the draft form asks for", () => {
+    const lead = ARCHITECTURE_DRAFT_WORKSPACE_LEAD.toLowerCase();
+
+    expect(lead).toContain("system");
+    expect(lead).toContain("outcome");
+    expect(lead).toContain("people");
+  });
+
+  it("does not promise goals or tradeoff fields the draft form never renders", () => {
+    const lead = ARCHITECTURE_DRAFT_WORKSPACE_LEAD.toLowerCase();
+
+    expect(lead).not.toContain("goals");
+    expect(lead).not.toContain("tradeoff");
+    expect(lead).not.toContain("constraints");
   });
 });

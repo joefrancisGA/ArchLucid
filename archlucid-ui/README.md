@@ -2,7 +2,7 @@
 
 Thin Next.js App Router UI for the ArchLucid architect experience. The default job of the UI is to help a team move from an architecture request to a reviewable, defensible output quickly through the **Pilot** path, then expand into **Operate** only when needed.
 
-**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md). This UI README explains architect workspace flow and implementation-facing shaping; it is not the primary buyer summary. **Measurement companion:** [../docs/PILOT_ROI_MODEL.md](../docs/library/PILOT_ROI_MODEL.md).
+**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md](../docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md). This UI README explains architect workspace flow and implementation-facing shaping; it is not the primary buyer summary. **Measurement companion:** [../docs/PILOT_ROI_MODEL.md](../docs/library/PILOT_ROI_MODEL.md).
 
 **Pilot first-value rule:** for most first pilots, stay on the **Pilot** path until request → finalize (API `commit`) → artifact review is working cleanly. Treat **Operate** as a follow-on maturity path, not a co-equal Day-1 proof.
 
@@ -41,7 +41,7 @@ When you change who can use a route or which product layer it belongs to, update
 4. **Operate mutations** — keep **`useOperateCapability()`** in sync with Execute+ server write policies; extend **`operate-authority-ui-shaping.test.tsx`** when you add POST/toggle-heavy Operate pages that should soft-disable for read-tier callers. Pair rank cues where it helps: **`AuditLogRankCue`** on **`/audit`**, **`EnterpriseControlsExecutePageHint`** on **`/policy-packs`**, reader-ranked lifecycle labels alongside **`disabled`**. **audit CSV export** uses **`/me` roles** (Auditor/Admin) to match **`RequireAuditor`**, not that hook.
 5. **Docs** — `PRODUCT_PACKAGING.md` capability / nav rows if the change is buyer-visible.
 
-Vitest regression anchors: `nav-authority.test.ts` (Execute visibility floor), `nav-shell-visibility.test.ts` (incl. **Pilot `/internal/replay`** tier-before-rank), `current-principal.test.ts` (**`maxAuthority`** / **`hasEnterpriseOperatorSurfaces`** vs rank helpers), `operate-capability.test.ts`, `use-operate-capability.test.tsx`, `LayerHeader.test.tsx` (rank cue + footnotes + **Operate** `aside` **`aria-label`**), **`authority-shaped-ui-regression.test.ts`** (every catalog **`ExecuteAuthority`** link vs Read/Execute rank; mutation floor monotonicity; empty-claims rank; shell bootstrap principals vs mutation flag), **`authority-shaped-layout-regression.test.tsx`** (inspect-first **`flex-col-reverse`**, alerts triage deemphasis, alert-routing inspect-before-toggle), **`authority-seam-regression.test.ts`** (cross-module seam + **ReadAuthority** at rank **0**, **`/alerts`** essential tier, stable nav ordering after filters; **`LAYER_PAGE_GUIDANCE`** footnote contract; **Operate** href monotonicity Read→Execute→Admin; default Reader shell **Ask-only**; **`/governance`** gated behind extended+advanced at Execute rank), **`authority-execute-floor-regression.test.ts`** (synthetic **`ExecuteAuthority`** nav row **≡** mutation boolean per rank; **`operate-governance`** monotonicity; Reader **`/governance`** omission), **`OperatorNavAuthorityProvider.test.tsx`** (JWT `/me` in-flight rank), **`EnterpriseControlsReadRankHints.test.tsx`**, **`OperateCapabilityHints.authority.test.tsx`** (context hints vs `ExecuteAuthority` threshold, incl. governance resolution, audit log, **Alerts inbox**, **governance dashboard** reader cue), **`operate-authority-ui-shaping.test.tsx`** (mocked **`useOperateCapability`** → Policy packs **Create**, **Alert rules** **Create rule**, Alerts triage **Confirm**, **Governance** submit **`#gov-submit-run`** / **`#gov-submit-version`** **`readOnly`** + **Submit** **`disabled`** wiring; **Governance resolution** **Change related controls** reader supplement + **Refresh** not gated by mutation), **`nav-config.structure.test.ts`** (duplicate hrefs, **Pilot essentials** omit `requiredAuthority`, Execute-tier **Operate** links not on **essential** tier). Canonical index: [../docs/PRODUCT_PACKAGING.md](../docs/library/PRODUCT_PACKAGING.md) §3 *Contributor drift guard*.
+Vitest regression anchors: `nav-authority.test.ts` (Execute visibility floor), `nav-shell-visibility.test.ts` (incl. **Pilot `/internal/validate-route`** tier-before-rank), `current-principal.test.ts` (**`maxAuthority`** / **`hasEnterpriseOperatorSurfaces`** vs rank helpers), `operate-capability.test.ts`, `use-operate-capability.test.tsx`, `LayerHeader.test.tsx` (rank cue + footnotes + **Operate** `aside` **`aria-label`**), **`authority-shaped-ui-regression.test.ts`** (every catalog **`ExecuteAuthority`** link vs Read/Execute rank; mutation floor monotonicity; empty-claims rank; shell bootstrap principals vs mutation flag), **`authority-shaped-layout-regression.test.tsx`** (inspect-first **`flex-col-reverse`**, alerts triage deemphasis, alert-routing inspect-before-toggle), **`authority-seam-regression.test.ts`** (cross-module seam + **ReadAuthority** at rank **0**, **`/alerts`** essential tier, stable nav ordering after filters; **`LAYER_PAGE_GUIDANCE`** footnote contract; **Operate** href monotonicity Read→Execute→Admin; default Reader shell **Ask-only**; **`/governance`** gated behind extended+advanced at Execute rank), **`authority-execute-floor-regression.test.ts`** (synthetic **`ExecuteAuthority`** nav row **≡** mutation boolean per rank; **`operate-governance`** monotonicity; Reader **`/governance`** omission), **`OperatorNavAuthorityProvider.test.tsx`** (JWT `/me` in-flight rank), **`EnterpriseControlsReadRankHints.test.tsx`**, **`OperateCapabilityHints.authority.test.tsx`** (context hints vs `ExecuteAuthority` threshold, incl. governance resolution, audit log, **Alerts inbox**, **governance dashboard** reader cue), **`operate-authority-ui-shaping.test.tsx`** (mocked **`useOperateCapability`** → Policy packs **Create**, **Alert rules** **Create rule**, Alerts triage **Confirm**, **Governance** submit **`#gov-submit-run`** / **`#gov-submit-version`** **`readOnly`** + **Submit** **`disabled`** wiring; **Governance resolution** **Change related controls** reader supplement + **Refresh** not gated by mutation), **`nav-config.structure.test.ts`** (duplicate hrefs, **Pilot essentials** omit `requiredAuthority`, Execute-tier **Operate** links not on **essential** tier). Canonical index: [../docs/PRODUCT_PACKAGING.md](../docs/library/PRODUCT_PACKAGING.md) §3 *Contributor drift guard*.
 
 **Read tier vs Execute+ (one threshold):** numeric **`AUTHORITY_RANK.ExecuteAuthority`** is the floor for **`useOperateCapability()`** and for operator-oriented **Operate** rank cues. **`requiredAuthority`** on each **`NavLinkItem`** controls **nav visibility** after tier filters — same policy names as **`ArchLucidPolicies`** on the API. **`LayerHeader`** and page intros are **cognitive** packaging only.
 
@@ -92,7 +92,7 @@ Use these when the next question is analytical:
 
 - **Evidence graph** (`/insights/evidence-graph`) — provenance or architecture graph for one run ID.
 - **Compare two reviews** (`/insights/compare-two-reviews`) — structured manifest diff between two runs.
-- **Replay** (`/internal/replay`) — re-validate the authority chain for a run.
+- **Replay** (`/internal/validate-route`) — re-validate the authority chain for a run.
 - **Export** — bundle ZIP and run-export ZIP from run detail → Artifacts.
 - **Ask / Advisory / Pilot feedback** — Q&A, advisory scans, and pilot signal collection.
 
@@ -141,7 +141,7 @@ This is a boundary-hardening step for clarity and operational accountability. It
 
 | Document | What it covers |
 |----------|---------------|
-| [Executive sponsor brief](../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) | **Canonical buyer narrative:** what ArchLucid does, what a pilot proves, and why expansion matters. |
+| [Sponsor sponsor brief](../docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md) | **Canonical buyer narrative:** what ArchLucid does, what a pilot proves, and why expansion matters. |
 | [Pilot ROI model](../docs/library/PILOT_ROI_MODEL.md) | **Measurement companion:** how to judge pilot success using scorecards and practical V1 measures without turning the ROI model into a second buyer story. |
 | [Operator decision guide](../docs/library/OPERATOR_DECISION_GUIDE.md) | **Which layer to use next:** stay narrow unless a real question requires expansion. |
 | [Commercial boundary hardening sequence](../docs/library/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) | **What should harden first:** UI shaping → role-native boundaries → selective future commercialization. |
@@ -227,12 +227,12 @@ For **`npm run screenshots`**, **`npm run screenshots:all`**, **`npm run screens
 |------|---------|
 | `/` | Overview — start here, workflow links |
 | `/runs?projectId=...` | List runs |
-| `/runs/[runId]` | Run detail, manifest summary, artifacts, compare/replay shortcuts, downloads |
+| `/runs/[reviewId]` | Run detail, manifest summary, artifacts, compare/replay shortcuts, downloads |
 | `/manifests/[manifestId]` | Manifest summary, artifact list, bundle download |
 | `/manifests/[manifestId]/artifacts/[artifactId]` | Artifact review (metadata + preview + siblings) |
 | `/insights/evidence-graph` | Provenance / architecture graph for a run |
 | `/insights/compare-two-reviews` | Compare two runs (structured + legacy + optional AI) |
-| `/internal/replay` | Replay authority chain for a run |
+| `/internal/validate-route` | Replay authority chain for a run |
 | `/auth/signin` | Start OIDC sign-in (JWT mode only) |
 | `/auth/callback` | OAuth redirect handler (PKCE token exchange) |
 | `/security-trust` | Public marketing — recent assurance activity (metadata only) |

@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Runs;
 
@@ -47,12 +48,22 @@ public static class RunStateTransitionEnforcement
             ", ",
             outcomes
                 .Where(o => o.Outcome != AgentExecutionOutcomeKind.Succeeded)
-                .Select(o => $"{o.AgentType}:{o.Outcome}"));
+                .Select(o => FormatIncompleteOutcome(o)));
 
         throw new ConflictException(
             FormatCommitMessage(
                 runId,
                 $"cannot be committed until all required agents succeed. Incomplete: {incomplete}."));
+    }
+
+    private static string FormatIncompleteOutcome(AgentExecutionOutcome outcome)
+    {
+        if (outcome.Outcome == AgentExecutionOutcomeKind.Stale && outcome.AgentType == AgentType.Critic)
+        {
+            return $"{outcome.AgentType}:Stale (Critic out of date — re-run required)";
+        }
+
+        return $"{outcome.AgentType}:{outcome.Outcome}";
     }
 
     private static string FormatCommitMessage(string runId, string? message)

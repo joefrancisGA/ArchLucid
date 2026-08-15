@@ -24,11 +24,11 @@ describe("LongOperationWaitNotice", () => {
       <LongOperationWaitNotice
         active
         operationLabel="Finalizing architecture review"
-        stageLabel="Saving signed review record"
+        stageLabel="Saving sealed review record"
       />,
     );
 
-    expect(screen.getByText("Saving signed review record")).toBeInTheDocument();
+    expect(screen.getByText("Saving sealed review record")).toBeInTheDocument();
     expect(screen.getByTestId("long-operation-wait-notice")).toHaveAttribute("aria-live", "polite");
 
     await act(async () => {

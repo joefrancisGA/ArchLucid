@@ -2,14 +2,17 @@
  * Customer-visible in-app documentation registry.
  * Source of truth: `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`.
  */
+import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-page-copy";
+import { ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE } from "@/lib/admin-diagnostics-help-page-copy";
+import { AUTHENTICATION_SIGN_IN_HELP_PAGE_TITLE } from "@/lib/authentication-sign-in-help-copy";
 import { CUSTOMER_GLOSSARY_CONTRACT_VERSION } from "@/lib/customer-glossary-manifest";
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
+import { REVIEW_PACKAGES_HELP_PAGE_TITLE } from "@/lib/review-packages-help-page-copy";
 import {
   resolveProductDocumentationContentKind,
   type ProductDocumentationContentKind,
 } from "@/lib/product-documentation-content-kinds";
-import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import {
   cloudConnectionsHelpPathSegmentForRegistrySlug,
   normalizeCloudConnectionsSlashHelpTopicSlug,
@@ -91,7 +94,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "prior-manifest-retrieval",
-    title: "Prior manifest retrieval",
+    title: "Ask memory from finalized reviews",
     summary:
       "How finalized architecture reviews become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy reviews.",
     audience: "operator",
@@ -141,7 +144,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "review-packages",
-    title: "Architecture packages",
+    title: REVIEW_PACKAGES_HELP_PAGE_TITLE,
     summary:
       "Find architecture packages in Reviews, inspect findings and evidence, and export sponsor-ready artifacts.",
     audience: "operator",
@@ -159,8 +162,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/FINDINGS_OPERATOR_GUIDE.md"],
   },
   {
-    slug: "executive-summary",
-    title: "Executive summary",
+    slug: "sponsor-report",
+    title: "Sponsor report",
     summary: "Sponsor-safe summaries, ROI basis labels, and what executives should expect in exports.",
     audience: "buyer",
     sourcePaths: [
@@ -168,6 +171,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "docs/go-to-market/PILOT_SUCCESS_SCORECARD.md",
     ],
     sectionAnchors: [
+      "what-archlucid-is",
+      "what-problem-it-solves",
+      "core-value-pillars",
       "what-pilot-proves",
       "measurable-pilot-value",
       "what-operate-adds",
@@ -228,7 +234,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "authentication-sign-in",
-    title: "Authentication and sign-in",
+    title: AUTHENTICATION_SIGN_IN_HELP_PAGE_TITLE,
     summary:
       "Passwordless sign-in with work or school accounts or email one-time codes; invitations, SSO, and recovery.",
     audience: "buyer",
@@ -248,6 +254,17 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     lastReviewed: "2026-08-11",
     releaseApplicability:
       "Applies to in-product support intake, captured fields, and the redacted support bundle",
+  },
+  {
+    slug: "contact-support",
+    title: "Contact support",
+    summary:
+      "How to reach ArchLucid support — Report problem on error pages, email, troubleshooting, and redacted diagnostics bundles.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CONTACT_SUPPORT.md"],
+    pdfStatus: "customer",
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "Applies to in-product support discovery and escalation paths for all architect roles",
   },
   {
     slug: "data-handling",
@@ -442,7 +459,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "accelerator-chooser",
-    title: "Pick an accelerator pack",
+    title: ACCELERATOR_CHOOSER_HELP_PAGE_TITLE,
     summary:
       "Map buyer jobs to existing accelerator packs after your first finalized architecture review — inputs, outputs, and when not to use each pack.",
     audience: "operator",
@@ -478,7 +495,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "admin-diagnostics",
-    title: "Admin diagnostics",
+    title: ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE,
     summary:
       "System health, workspace readiness, assistant diagnostics, and observability signals for platform health.",
     audience: "operator",
@@ -491,7 +508,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "engineering-troubleshooting",
     title: "Engineering troubleshooting runbook",
     summary:
-      "Admin-only specialty guide for CLI, environment, and log triage. Operators should use Troubleshooting; customers never deep-link here.",
+      "Admin-only specialty guide for CLI, environment, and log triage. Architects should use Troubleshooting; customers never deep-link here.",
     audience: "developer",
     sourcePaths: ["docs/runbooks/TROUBLESHOOTING.md", "docs/runbooks/COMMON_ERRORS.md"],
     lastReviewed: "2026-08-09",
@@ -526,7 +543,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "digests",
     title: "Architecture digests",
     summary:
-      "Schedule summaries of review activity, governance signals, findings, and advisory scans for operators.",
+      "Schedule summaries of review activity, governance signals, findings, and advisory scans for architects.",
     audience: "operator",
     // App-rendered specialty (`HelpDigestsGuideView`) — TB-2049.
     sourcePaths: [],
@@ -544,6 +561,42 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     releaseApplicability: "governance recurrence schedule orientation",
   },
   {
+    slug: "decision-register",
+    title: "Decision register",
+    summary: "Browse architecture decisions locked with sealed review records.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "governance decision register orientation",
+  },
+  {
+    slug: "improvement-planning",
+    title: "Improvement planning",
+    summary: "Convert review feedback into themes and prioritized improvement plans.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "insights improvement planning orientation",
+  },
+  {
+    slug: "impact-preview",
+    title: "Impact preview",
+    summary: "Simulate before-and-after effects of proposed changes against a finalized baseline.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "insights impact preview orientation",
+  },
+  {
+    slug: "advisory-scans",
+    title: "Advisory scans",
+    summary: "Generate prioritized follow-up recommendations from finalized reviews.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "governance advisory scans orientation",
+  },
+  {
     slug: "roi-summary",
     title: "ROI summary",
     summary: "Portfolio KPI framing for review-cycle reduction, effort saved, and governance-ready artifacts.",
@@ -552,15 +605,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: [],
     lastReviewed: "2026-08-12",
     releaseApplicability: "sponsor ROI summary orientation",
-  },
-  {
-    slug: "pilot-outcomes",
-    title: "Pilot outcomes",
-    summary: "Pilot-period summary of review activity, findings, governance decisions, and measurable outcomes.",
-    audience: "operator",
-    sourcePaths: [],
-    lastReviewed: "2026-08-12",
-    releaseApplicability: "sponsor pilot outcomes orientation",
   },
   {
     slug: "architecture-scorecard",
@@ -586,12 +630,174 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary: "Effective policy resolution rows, enforcement mode, and linked evidence for a review.",
     audience: "operator",
     sourcePaths: [],
-    lastReviewed: "2026-08-12",
-    releaseApplicability: "governance standards and rules orientation",
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "Governance policy resolution, enforced rules, and diagnostic export",
+  },
+  {
+    slug: "baseline-settings",
+    title: "Baseline settings",
+    summary: "Workspace ROI measurement anchors for review-cycle hours, prep time, and people per review.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "administration baseline settings orientation",
+  },
+  {
+    slug: "slack-integration",
+    title: "Slack notifications",
+    summary: "Configure Slack incoming webhook destinations for governance alert delivery.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "integrations slack notifications orientation",
+  },
+  {
+    slug: "teams-integration",
+    title: "Microsoft Teams notifications",
+    summary: "Configure Microsoft Teams channel destinations for governance alert delivery.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "integrations teams notifications orientation",
+  },
+  {
+    slug: "webhooks-integration",
+    title: "Webhooks",
+    summary: "Configure HTTPS webhook subscriptions for governance alert delivery.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "integrations webhooks orientation",
+  },
+  {
+    slug: "api-keys",
+    title: "API keys",
+    summary: "Workspace automation credentials, rotation, and when in-product management is available.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "administration api keys orientation",
+  },
+  {
+    slug: "system-health",
+    title: "System health",
+    summary: "Workspace operational readiness probes, dependencies, and deployment identity.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "administration system health orientation",
+  },
+  {
+    slug: "ai-usage",
+    title: "AI usage",
+    summary: "Estimated AI spend, budget signals, and workflow cost filters for the workspace.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "Administration · AI usage orientation",
+  },
+  {
+    slug: "preferences",
+    title: "Preferences",
+    summary: "Personal appearance settings saved to your signed-in account.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "Scope: personal account settings · Audience: all signed-in users",
+  },
+  {
+    slug: "notifications",
+    title: "Notifications",
+    summary: "Channel launcher for digests, alerts, alert rules, Teams, and Slack — routes to where each destination configures.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "administration notifications orientation",
+  },
+  {
+    slug: "workspace-settings",
+    title: "Workspace settings",
+    summary: "Tenant-wide defaults, quality gates, cost settings, and organization options.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "Administration · Workspace settings orientation",
+  },
+  {
+    slug: "evidence-graph",
+    title: "Evidence graph",
+    summary: "How evidence connects to findings, decisions, approvals, and audit records for a finalized review.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "insights evidence graph orientation",
+  },
+  {
+    slug: "search-review-evidence",
+    title: "Search review evidence",
+    summary: "How to search findings, decisions, and signed review evidence across the workspace index.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "insights search review evidence orientation",
+  },
+  {
+    slug: "sponsor-dashboard",
+    title: "Sponsor dashboard",
+    summary: "Portfolio ROI trends, workspace-health KPI tiles, and sponsor exports for the selected scope.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "architecture sponsor dashboard orientation",
+  },
+  {
+    slug: "architecture-intelligence",
+    title: "Architecture intelligence",
+    summary: "Closed-loop architecture reasoning, golden harness runs, and publish-to-findings orientation.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "architecture intelligence orientation",
+  },
+  {
+    slug: "architecture-drafts",
+    title: "Architecture drafts",
+    summary: "Browse, resume, and refine saved architecture drafts before filing evidence for review.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "architecture drafts orientation",
+  },
+  {
+    slug: "model-governance",
+    title: "AI and model governance",
+    summary: "Workspace execution profiles, governed model aliases, and profile mappings used on reviews.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "administration model governance orientation",
+  },
+  {
+    slug: "jira-integration",
+    title: "Jira integration",
+    summary: "Outbound Jira work-item routing, connection health, and workspace mapping settings.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "integrations jira orientation",
+  },
+  {
+    slug: "servicenow-integration",
+    title: "ServiceNow integration",
+    summary: "Outbound ServiceNow incident routing, CMDB behavior, and connection health.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-13",
+    releaseApplicability: "Integrations · ServiceNow orientation",
   },
   {
     slug: "alerts",
-    title: "Understanding governance alerts",
+    title: "Alerts",
     summary:
       "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.",
     audience: "operator",
@@ -653,9 +859,7 @@ function preferredHelpPathSegmentForSlug(slug: string): string {
 
 export function inAppHelpHref(slug: string, hashFragment?: string): string {
   const trimmed = slug.trim().toLowerCase();
-  const permanentRedirect = resolveHelpTopicPermanentRedirect(trimmed);
-  const base =
-    permanentRedirect ?? `/help/${preferredHelpPathSegmentForSlug(trimmed).trim().toLowerCase()}`;
+  const base = `/help/${preferredHelpPathSegmentForSlug(trimmed).trim().toLowerCase()}`;
   const hash = hashFragment?.trim().replace(/^#/, "");
 
   if (hash === undefined || hash.length === 0) {

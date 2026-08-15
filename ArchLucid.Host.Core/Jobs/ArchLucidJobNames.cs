@@ -20,7 +20,13 @@ public static class ArchLucidJobNames
 
     public const string ExecDigestWeekly = "exec-digest-weekly";
 
-    public const string WeeklyExecutiveSummary = "weekly-executive-summary";
+    public const string WeeklySponsorReport = "weekly-sponsor-report";
+
+    /// <summary>Weekly sponsor summary email dispatch (offload slug <c>weekly-sponsor-summary</c>).</summary>
+    public const string WeeklySponsorSummary = "weekly-sponsor-summary";
+
+    /// <summary>Legacy name retained for job registration tests.</summary>
+    public const string WeeklyExecutiveSummary = WeeklySponsorSummary;
 
     /// <summary>Mock weekly relational critical-findings digest (log-only scaffold).</summary>
     public const string WeeklyArchitectureDigest = "weekly-architecture-digest";

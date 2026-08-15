@@ -58,8 +58,11 @@ public sealed class RunEngineProvenanceCaptureService(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
 
-        if (header is null || !string.IsNullOrWhiteSpace(header.EngineProvenanceJson))
+        if (header is null)
             return;
+
+        ReviewRunEngineProvenance? selectionProvenance =
+            ReviewRunEngineProvenanceJson.TryDeserialize(header.EngineProvenanceJson);
 
         IReadOnlyList<AgentExecutionTrace> traces =
             await _agentExecutionTraceRepository
@@ -75,12 +78,15 @@ public sealed class RunEngineProvenanceCaptureService(
                 .ConfigureAwait(false);
         }
 
-        ReviewRunEngineProvenance provenance = ReviewRunEngineProvenanceAggregator.Aggregate(
+        ReviewRunEngineProvenance executionProvenance = ReviewRunEngineProvenanceAggregator.Aggregate(
             traces,
             evidence,
             header,
             findingsSnapshot,
             _llmCostEstimator);
+
+        ReviewRunEngineProvenance provenance =
+            ReviewRunEngineProvenanceMerger.MergeSelectionWithExecution(selectionProvenance, executionProvenance);
 
         header.EngineProvenanceJson = ReviewRunEngineProvenanceJson.Serialize(provenance);
         await _runRepository.UpdateAsync(header, cancellationToken).ConfigureAwait(false);

@@ -6,6 +6,7 @@ import type {
   DraftAdmissionResponse,
   DraftIntakeReasonResponse,
   DraftQuestionsResponse,
+  DraftRequestDocument,
   DraftRequestResponse,
   SubmitDraftResponse,
 } from "@/types/draft-intake";
@@ -56,6 +57,7 @@ export async function patchDraftRequest(
     actorSet?: ActorSet;
     focusedPilotModeEnabled?: boolean;
     workflowIntent?: "create-architecture" | "start-review";
+    structuredBrief?: DraftRequestDocument["structuredBrief"];
   },
 ): Promise<DraftRequestResponse> {
   return apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);

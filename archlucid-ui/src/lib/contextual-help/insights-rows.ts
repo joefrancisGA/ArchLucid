@@ -1,81 +1,11 @@
-/** Insights and executive reporting routes (`/insights/**`, executive dashboard). */
+/** Insights and sponsor reporting routes (`/insights/**`, sponsor dashboard). */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
-import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 
 export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
-  {
-    prefix: EXECUTIVE_DASHBOARD_HREF,
-    entry: {
-      whatIsThisPage:
-        "Executive dashboard — portfolio ROI trends, sponsor exports, and workspace-health KPI tiles for governance posture in the current scope.",
-      whatToDoNext:
-        "Review KPI tiles and sponsor exports, then open Workspace health or Decisions needed for governance follow-up.",
-      whyEmpty:
-        "Tiles stay at zero until you finalize reviews and governance activity exists in the current workspace scope.",
-      whereToConfigurePrerequisite:
-        "Switch workspace or project scope from the header switcher — figures never roll up across workspaces.",
-      whatToDoNextAction: {
-        label: "Open approval queue",
-        href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-      },
-    },
-  },
-  {
-    prefix: "/insights/ask-review-questions",
-    entry: {
-      whatIsThisPage:
-        "Ask plain-language questions about a finalized review; answers use the signed record and cite findings when available.",
-      whatToDoNext:
-        "Select a review, ask about risk or evidence, then open cited findings or the evidence trail under the answer.",
-      whyEmpty: "Threads appear after you ask a question against a selected review.",
-      whereToConfigurePrerequisite: "Finalize or open a review so Ask can ground answers in its evidence.",
-    },
-  },
-  {
-    prefix: "/insights/compare-two-reviews",
-    entry: {
-      whatIsThisPage:
-        "Compare two finalized reviews to see what changed in scope, findings, decisions, governance, and evidence.",
-      whatToDoNext:
-        "Pick baseline and updated reviews, run Compare, then open Sources for each side before briefing sponsors.",
-      whyEmpty: "Results appear after you compare two finalized reviews.",
-      whereToConfigurePrerequisite: "Finalize at least two reviews in this workspace first.",
-    },
-  },
-  {
-    // TB-1814 — Learn more maps to repeat-review-loop (recurring patterns across reviews).
-    prefix: "/insights/patterns",
-    entry: {
-      whatIsThisPage:
-        "Browse anonymized architecture patterns with adoption, risk, and governance signals from thresholded aggregates.",
-      whatToDoNext:
-        "Filter the catalog, open a pattern detail, or start a review when a pattern fits your next change.",
-      whyEmpty:
-        "Patterns appear when anonymized aggregates meet privacy thresholds, or when sample catalog data is shown.",
-      whereToConfigurePrerequisite:
-        "Live aggregates need enough finalized reviews across anonymized tenants to meet the privacy threshold.",
-      whatToDoNextAction: {
-        label: "Start a review",
-        href: REVIEWS_NEW_PATH,
-      },
-    },
-  },
-  {
-    prefix: "/insights/search-review-evidence",
-    entry: {
-      whatIsThisPage:
-        "Search findings, decisions, and signed review evidence across the workspace index, optionally scoped to one review.",
-      whatToDoNext:
-        "Enter a phrase, optionally limit to a review, then open the hit, Evidence trail, or Sources cites before briefing.",
-      whyEmpty: "Matches appear after committed review evidence is indexed and your query finds relevant chunks.",
-      whereToConfigurePrerequisite: "Finalize reviews so findings and signed records are available to search.",
-    },
-  },
   {
     prefix: "/insights/improvement-planning/plans",
     entry: {
@@ -108,7 +38,7 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    // TB-2050 — Learn more omitted (no specialty); Category-1 still mounts.
+    // Impact preview — specialty help at `/help/impact-preview`.
     prefix: "/insights/impact-preview",
     entry: {
       whatIsThisPage:
@@ -128,13 +58,17 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/insights/executive-summary",
+    prefix: "/insights/sponsor-report",
     entry: {
       whatIsThisPage:
-        "Executive value report — period preview of finalized reviews, findings, governance activity, and directional ROI for exports.",
-      whatToDoNext: "Set the report period, refresh the preview, then generate sponsor exports when data is ready.",
-      whyEmpty: "The preview fills in after you finalize reviews in the selected period.",
+        "Sponsor report — period summary of finalized reviews, material findings, governance decisions, and directional ROI, with sponsor exports. Absorbs the retired standalone pilot outcomes page.",
+      whatToDoNext: "Set the reporting period, apply it, then generate sponsor exports when data is ready.",
+      whyEmpty: "The report fills in after you finalize reviews in the selected period.",
       whereToConfigurePrerequisite: "ROI estimates use baseline settings from workspace configuration.",
+      whatToDoNextAction: {
+        label: "Open ROI summary",
+        href: "/insights/roi-summary",
+      },
     },
   },
 ];

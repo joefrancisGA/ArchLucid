@@ -4,12 +4,12 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const IDENTITY_PROVIDERS_SETTINGS_CANONICAL_PATH =
   "/administration/identity-providers" as const;
 
-export const IDENTITY_PROVIDERS_SETTINGS_CLAIM_DISCIPLINE =
-  "This SSO and identity hub configures federation and sign-in for the workspace - it is not a signed-review diligence Sources package. Open Enterprise onboarding help, Users and roles, or Assurance status when you need onboarding, membership, or trust cites.";
+export const IDENTITY_PROVIDERS_SETTINGS_HELP_TOPIC_LABEL = "How SSO and identity work" as const;
+
+export const IDENTITY_PROVIDERS_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const IDENTITY_PROVIDERS_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when SSO setup turns into domain enforcement, role mapping, membership, or assurance cites.";
-
 
 /** Operator Sources - no self-href to the identity-providers hub. */
 export const IDENTITY_PROVIDERS_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [

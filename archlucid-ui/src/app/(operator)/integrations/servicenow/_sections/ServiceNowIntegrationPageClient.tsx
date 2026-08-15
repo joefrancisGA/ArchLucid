@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
+import { ServiceNowIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import {
   fetchItsmIntegrationHealth,
   fetchTenantItsmConnectorConnection,
   fetchTenantItsmOutboundSettings,
+  probeItsmIntegrationHealth,
   upsertTenantItsmOutboundSettings,
   type ItsmIntegrationHealthResponse,
   type TenantItsmConnectorConnectionResponse,
@@ -65,9 +67,9 @@ import {
   resolveServiceNowSetupSteps,
   sanitizeCustomerFacingProbeSummary,
 } from "@/lib/servicenow-integration-present";
-import { buildServiceNowPageLoadResult } from "@/lib/servicenow-page-load";
 import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { buildServiceNowPageLoadResult } from "@/lib/servicenow-page-load";
 
 import { ItsmNotConfiguredNextStep } from "../../_sections/itsm/ItsmNotConfiguredNextStep";
 import { ServiceNowIntegrationAside } from "./ServiceNowIntegrationAside";
@@ -208,7 +210,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     setTestError(null);
 
     try {
-      const probeResult = await fetchItsmIntegrationHealth();
+      const probeResult = await probeItsmIntegrationHealth();
       setHealth(probeResult);
       const snowProbe = probeResult.serviceNow;
       const summary = sanitizeCustomerFacingProbeSummary(snowProbe?.summary);
@@ -371,6 +373,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
       />
 
       <ItsmConnectorProviderChooserRail currentProviderId="servicenow" />
+      <ServiceNowIntegrationEvidenceOrientationStrip />
 
       {isLoading && health === null && settings === null ? (
         <OperatorLoadingNotice>{SERVICENOW_LOADING_MESSAGE}</OperatorLoadingNotice>

@@ -1,4 +1,4 @@
-> **Scope:** Admin diagnostics — health surfaces and readiness signals for platform health. Not a substitute for engineering deep dives.
+> **Scope:** Platform health — health surfaces and readiness signals for your workspace. Not a substitute for engineering deep dives.
 
 
 

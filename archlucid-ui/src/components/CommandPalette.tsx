@@ -29,10 +29,10 @@ import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";
 import { scopeOperatorShellHrefSet, scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
 import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
-import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
+import { COMMAND_PALETTE_CURATED_TASKS, commandPaletteNavVisibilityHref } from "@/lib/command-palette-curated-tasks";
 import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { isExecutiveDashboardPath } from "@/lib/executive-dashboard-route";
+import { isSponsorDashboardPath } from "@/lib/sponsor-dashboard-route";
 import { resetBuyerCtoDemoSession } from "@/lib/buyer/buyer-cto-demo-orchestration";
 import {
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
@@ -44,6 +44,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
+import { mergeContextualOnlyOperatorNavHrefsIntoVisibleSet } from "@/lib/nav-contextual-only-operator-paths";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import {
   filterNavGroupsByRoleDensity,
@@ -85,9 +86,9 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
 
   const reviewPackageSubtree =
     /^\/architecture\/reviews\/[^/]+(?:\/|$)/u.test(path) ||
-    /^\/signed-records\/[^/]/u.test(path) ||
+    /^\/(?:governance\/)?(?:signed|sealed)-records\/[^/]/u.test(path) ||
     /^\/architecture\/reviews\/[^/]+\/architecture/u.test(path) ||
-    /^\/executive\/reviews\/[^/]/u.test(path);
+    /^\/sponsor\/reviews\/[^/]/u.test(path);
 
   if (reviewPackageSubtree) {
     return "Search this review";
@@ -97,13 +98,7 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
 }
 
 function curatedPaletteVisibilityHref(href: string): string {
-  const i = href.indexOf("?");
-
-  if (i === -1) {
-    return href;
-  }
-
-  return href.slice(0, i);
+  return commandPaletteNavVisibilityHref(href);
 }
 
 function CommandPaletteDocumentationSearch({
@@ -229,8 +224,6 @@ function buyerPaletteNavGroupHeading(groupId: string, defaultLabel: string): str
 
 function CommandPaletteNavGroups({
   callerAuthorityRank,
-  shellShowExtended,
-  shellShowAdvanced,
   hasCommittedArchitectureReview,
   buyerPolishedShell,
   auditRunId,
@@ -240,8 +233,6 @@ function CommandPaletteNavGroups({
   onNavigate,
 }: {
   callerAuthorityRank: number;
-  shellShowExtended: boolean;
-  shellShowAdvanced: boolean;
   hasCommittedArchitectureReview: boolean;
   buyerPolishedShell: boolean;
   auditRunId: string | null;
@@ -258,10 +249,7 @@ function CommandPaletteNavGroups({
       scopeOperatorShellNavRows(
         listNavGroupsVisibleInOperatorShell(
           NAV_GROUPS,
-          shellShowExtended,
-          shellShowAdvanced,
           callerAuthorityRank,
-          false,
           "review-workflow",
           hasCommittedArchitectureReview,
         ),
@@ -278,10 +266,7 @@ function CommandPaletteNavGroups({
       scopeOperatorShellNavRows(
         listNavGroupsVisibleInOperatorShell(
           NAV_GROUPS,
-          shellShowExtended,
-          shellShowAdvanced,
           callerAuthorityRank,
-          false,
           "platform-admin",
           hasCommittedArchitectureReview,
         ),
@@ -297,10 +282,7 @@ function CommandPaletteNavGroups({
     isShowSystemAdministrationNavEnabled()
       ? listNavGroupsVisibleInOperatorShell(
           NAV_GROUPS,
-          shellShowExtended,
-          shellShowAdvanced,
           callerAuthorityRank,
-          false,
           "system-admin",
           hasCommittedArchitectureReview,
         )
@@ -488,22 +470,12 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const { showFullNav: roleNavDensityShowFullNav } = useRoleNavDensityExpanded();
   const roleNavDensityPersona = resolveRoleNavDensityPersona(currentPrincipal.roleClaimValues);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const paletteExtended = true;
-  const paletteAdvanced = true;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
   const visibleHrefs = useMemo(() => {
     const shellRows = applyPatternLibraryNavGate(
       scopeOperatorShellNavRows(
-        listNavGroupsVisibleInOperatorShell(
-          NAV_GROUPS,
-          paletteExtended,
-          paletteAdvanced,
-          callerAuthorityRank,
-          false,
-          "all",
-          hasCommittedArchitectureReview,
-        ),
+        listNavGroupsVisibleInOperatorShell(NAV_GROUPS, callerAuthorityRank, "all", hasCommittedArchitectureReview),
         auditRunId,
       ),
       patternLibraryNavVisible,
@@ -515,16 +487,17 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     );
 
     return applyPatternLibraryHrefSetGate(
-      scopeOperatorShellHrefSet(
-        visibleOperatorShellHrefSetFromNavRows(densityFilteredRows),
-        auditRunId,
+      mergeContextualOnlyOperatorNavHrefsIntoVisibleSet(
+        scopeOperatorShellHrefSet(
+          visibleOperatorShellHrefSetFromNavRows(densityFilteredRows),
+          auditRunId,
+        ),
+        callerAuthorityRank,
       ),
       patternLibraryNavVisible,
     );
   }, [
     auditRunId,
-    paletteExtended,
-    paletteAdvanced,
     callerAuthorityRank,
     hasCommittedArchitectureReview,
     patternLibraryNavVisible,
@@ -580,31 +553,31 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     const path = (pathname ?? "").split("?")[0] ?? "";
 
     if (path.startsWith("/insights/evidence-graph")) {
-      return "Jump to audit, signed review record, governance, or type another destination…";
+      return "Jump to audit, sealed review record, governance, or type another destination…";
     }
 
     if (path.startsWith("/insights/ask-review-questions")) {
-      return "Jump to executive summary, signed review record, evidence trail, or governance…";
+      return "Jump to sponsor report, sealed review record, evidence trail, or governance…";
     }
 
     if (path.startsWith("/insights/compare-two-reviews")) {
-      return "Jump to review, signed review record, or evidence trail…";
+      return "Jump to review, sealed review record, or evidence trail…";
     }
 
     if (path.startsWith("/audit")) {
-      return "Jump to executive summary, evidence graph, signed review record — or type a destination…";
+      return "Jump to sponsor report, evidence graph, sealed review record — or type a destination…";
     }
 
     if (path.startsWith("/governance")) {
-      return "Jump to audit trail, findings, executive summary…";
+      return "Jump to audit trail, findings, sponsor report…";
     }
 
-    if (isExecutiveDashboardPath(path)) {
-      return "Jump to signed review record, evidence graph, audit…";
+    if (isSponsorDashboardPath(path)) {
+      return "Jump to sealed review record, evidence graph, audit…";
     }
 
     if (path.startsWith("/signed-records") || path.includes("/architecture")) {
-      return "Jump to executive summary, graph, governance…";
+      return "Jump to sponsor report, graph, governance…";
     }
 
     return "Find another page in this review…";
@@ -672,8 +645,6 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           </CommandEmpty>
           <CommandPaletteNavGroups
             callerAuthorityRank={callerAuthorityRank}
-            shellShowExtended={paletteExtended}
-            shellShowAdvanced={paletteAdvanced}
             hasCommittedArchitectureReview={hasCommittedArchitectureReview}
             buyerPolishedShell={buyerPolishedShell}
             auditRunId={auditRunId}

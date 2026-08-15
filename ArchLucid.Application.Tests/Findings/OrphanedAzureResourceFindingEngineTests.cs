@@ -4,13 +4,15 @@ using System.Text;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
-using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -84,6 +86,69 @@ public sealed class OrphanedAzureResourceFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_prefers_orphan_candidates_json_when_present()
+    {
+        const string orphanCandidatesJson =
+            """
+            {
+              "candidates": [
+                {
+                  "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/disk-from-extractor",
+                  "resourceType": "Microsoft.Compute/disks",
+                  "reason": "Extractor orphan candidate",
+                  "annualSavingsUsd": 240
+                }
+              ]
+            }
+            """;
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Compute/disks",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/disk-from-resources",
+                "properties": {}
+              }
+            ]
+            """;
+
+        OrphanedAzureResourceFindingEngine sut = CreateSut(
+            CreatePackageWithOrphanCandidates(orphanCandidatesJson, resourcesJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Payload.Should().BeOfType<ExtractorOrphanCandidateFindingPayload>();
+        findings[0].Trace.RulesApplied.Should().Contain("extractor-orphan-candidates-json");
+        ((ExtractorOrphanCandidateFindingPayload)findings[0].Payload!).ResourceId.Should().Contain("disk-from-extractor");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_falls_back_to_resources_json_when_orphan_candidates_file_is_empty()
+    {
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Compute/disks",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/disk-from-resources",
+                "properties": {}
+              }
+            ]
+            """;
+
+        OrphanedAzureResourceFindingEngine sut = CreateSut(
+            CreatePackageWithOrphanCandidates("[]", resourcesJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Payload.Should().BeOfType<RequirementFindingPayload>();
+        findings[0].Trace.RulesApplied.Should().Contain("orphaned-azure-resource-classifier");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_returns_empty_when_no_orphans_present()
     {
         const string resourcesJson =
@@ -105,14 +170,46 @@ public sealed class OrphanedAzureResourceFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_returns_empty_when_inventory_collection_is_stale()
+    {
+        Mock<IAzureExtractorPackageRepository> packageRepository = new();
+        packageRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DateTime.UtcNow.AddDays(-120));
+        packageRepository
+            .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreatePackage("[]"));
+
+        OrphanedAzureResourceFindingEngine sut = new(
+            CreateScopeProvider().Object,
+            packageRepository.Object,
+            TimeProvider.System,
+            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+
+        findings.Should().BeEmpty();
+        packageRepository.Verify(
+            repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_returns_empty_when_package_missing()
     {
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
         packageRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DateTime.UtcNow);
+        packageRepository
             .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync((AzureExtractorPackageDownloadRecord?)null);
 
-        OrphanedAzureResourceFindingEngine sut = new(CreateScopeProvider().Object, packageRepository.Object);
+        OrphanedAzureResourceFindingEngine sut = new(
+            CreateScopeProvider().Object,
+            packageRepository.Object,
+            TimeProvider.System,
+            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
 
@@ -129,14 +226,38 @@ public sealed class OrphanedAzureResourceFindingEngineTests
         findings.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task AnalyzeAsync_returns_empty_when_package_bytes_are_not_a_valid_zip()
+    {
+        AzureExtractorPackageDownloadRecord package = new()
+        {
+            PackageId = Guid.NewGuid(),
+            OriginalFileName = "inventory.zip",
+            PackageBytes = [0x00, 0x01, 0x02, 0x03],
+        };
+
+        OrphanedAzureResourceFindingEngine sut = CreateSut(package);
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
     private static OrphanedAzureResourceFindingEngine CreateSut(AzureExtractorPackageDownloadRecord package)
     {
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
         packageRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DateTime.UtcNow);
+        packageRepository
             .Setup(repo => repo.TryGetLatestDownloadInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
             .ReturnsAsync(package);
 
-        return new OrphanedAzureResourceFindingEngine(CreateScopeProvider().Object, packageRepository.Object);
+        return new OrphanedAzureResourceFindingEngine(
+            CreateScopeProvider().Object,
+            packageRepository.Object,
+            TimeProvider.System,
+            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
     }
 
     private static Mock<IScopeContextProvider> CreateScopeProvider()
@@ -163,6 +284,20 @@ public sealed class OrphanedAzureResourceFindingEngineTests
             PackageId = Guid.NewGuid(),
             OriginalFileName = "inventory.zip",
             PackageBytes = BuildZip(("manifest.json", "{}")),
+        };
+    }
+
+    private static AzureExtractorPackageDownloadRecord CreatePackageWithOrphanCandidates(
+        string orphanCandidatesJson,
+        string resourcesJson)
+    {
+        return new AzureExtractorPackageDownloadRecord
+        {
+            PackageId = Guid.NewGuid(),
+            OriginalFileName = "inventory.zip",
+            PackageBytes = BuildZip(
+                ("orphan-candidates.json", orphanCandidatesJson),
+                ("resources.json", resourcesJson)),
         };
     }
 

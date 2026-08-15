@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Tests.Governance;
 public sealed class DefaultPolicyPackCloudBaselineApplicatorTests
 {
     [Fact]
-    public async Task TryApplyAsync_aws_enables_aws_baselines_and_disables_azure_baselines()
+    public async Task TryApplyAsync_aws_enables_aws_baselines_without_disabling_existing_selections()
     {
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
@@ -50,12 +50,12 @@ public sealed class DefaultPolicyPackCloudBaselineApplicatorTests
         IReadOnlyList<PolicyPackAssignment> updated =
             await assignments.ListByScopeAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
-        FindAssignment(updated, azureWafPackId).IsEnabled.Should().BeFalse();
+        FindAssignment(updated, azureWafPackId).IsEnabled.Should().BeTrue();
         FindAssignment(updated, awsWafPackId).IsEnabled.Should().BeTrue();
     }
 
     [Fact]
-    public async Task TryApplyAsync_gcp_enables_gcp_baselines_and_disables_azure_baselines()
+    public async Task TryApplyAsync_gcp_enables_gcp_baselines_without_disabling_existing_selections()
     {
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
@@ -92,7 +92,7 @@ public sealed class DefaultPolicyPackCloudBaselineApplicatorTests
         IReadOnlyList<PolicyPackAssignment> updated =
             await assignments.ListByScopeAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
-        FindAssignment(updated, cisAzurePackId).IsEnabled.Should().BeFalse();
+        FindAssignment(updated, cisAzurePackId).IsEnabled.Should().BeTrue();
         FindAssignment(updated, cisGcpPackId).IsEnabled.Should().BeTrue();
     }
 

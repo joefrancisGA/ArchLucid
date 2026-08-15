@@ -6,12 +6,13 @@
 export type ReportProblemSurfaceKind =
   | "reviews-hub-fatal"
   | "review-detail-fatal"
-  | "executive-summary-fatal"
+  | "sponsor-report-fatal"
   | "governance-queue-fatal"
   | "review-commit-export-fatal"
   | "api-problem-high-stakes"
   | "connectivity-error"
-  | "auth-session-break";
+  | "auth-session-break"
+  | "contact-support-help";
 
 export type ReportProblemSurfaceEntry = {
   /** Stable id for tests and telemetry. */
@@ -42,17 +43,17 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
   {
     id: "review-detail-hard-load-failure",
     kind: "review-detail-fatal",
-    routePattern: "/architecture/reviews/[runId]",
-    componentPath: "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
+    routePattern: "/architecture/reviews/[reviewId]",
+    componentPath: "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageView.tsx",
     description: "Review detail page-level load failure.",
   },
   {
-    id: "executive-value-report-load-failure",
-    kind: "executive-summary-fatal",
-    routePattern: "/insights/executive-summary",
+    id: "sponsor-value-report-load-failure",
+    kind: "sponsor-report-fatal",
+    routePattern: "/insights/sponsor-report",
     routeMatch: "exact-or-child",
-    componentPath: "app/(operator)/insights/executive-summary",
-    description: "Executive / sponsor value report hard load failure.",
+    componentPath: "app/(operator)/insights/sponsor-report",
+    description: "Sponsor / sponsor value report hard load failure.",
   },
   {
     id: "governance-findings-queue-hard-failure",
@@ -64,8 +65,8 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
   {
     id: "review-commit-export-page-failure",
     kind: "review-commit-export-fatal",
-    routePattern: "/architecture/reviews/[runId]",
-    componentPath: "app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
+    routePattern: "/architecture/reviews/[reviewId]",
+    componentPath: "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageView.tsx",
     description: "Commit, seal, or export failure surfaced as page-level error on a review.",
   },
   {
@@ -89,11 +90,18 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     componentPath: "components/operator/OperatorAccessDeniedPageClient.tsx",
     description: "User-visible auth or session break on /403 (OperatorRoleGate redirects here).",
   },
+  {
+    id: "contact-support-help-orientation",
+    kind: "contact-support-help",
+    routePattern: "/help/contact-support",
+    componentPath: "components/help/ContactSupportHelpOrientationStack.tsx",
+    description: "Contact support help — Report problem intake from the orientation action row.",
+  },
 ] as const;
 
-/** Static App Router siblings that must not satisfy `[runId]`-style dynamic segments. */
+/** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */
 const REPORT_PROBLEM_RESERVED_DYNAMIC_SEGMENTS: Readonly<Record<string, readonly string[]>> = {
-  "/architecture/reviews/[runId]": ["new"],
+  "/architecture/reviews/[reviewId]": ["new"],
 };
 
 /**

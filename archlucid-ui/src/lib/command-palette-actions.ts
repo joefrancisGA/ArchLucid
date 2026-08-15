@@ -3,8 +3,12 @@
  */
 
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import {
+  FIRST_REVIEW_GUIDE_PATH,
+  ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
+} from "@/lib/first-review-guide-route";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
-import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 
 export type CommandPaletteAction = {
   id: string;
@@ -29,7 +33,7 @@ export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
   {
     id: "action-export-value",
     label: "Open value report",
-    href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+    href: SPONSOR_REPORT_PATH,
     searchValue: "action export roi sponsor value report",
   },
   {
@@ -41,7 +45,7 @@ export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
   {
     id: "action-finish-setup",
     label: "Finish workspace setup",
-    href: "/onboarding#finish-setup",
+    href: `${FIRST_REVIEW_GUIDE_PATH}#${ONBOARDING_OPTIONAL_SETUP_HEADING_ID}`,
     searchValue: "action finish setup sso admin identity",
   },
   {

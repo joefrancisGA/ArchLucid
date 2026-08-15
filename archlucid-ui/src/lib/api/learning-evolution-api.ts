@@ -56,7 +56,7 @@ function productLearningSinceQuery(since: string | null | undefined): string {
 
 /**
  * Loads summary, improvement opportunities, artifact outcome trends, and triage queue for the current scope.
- * Each upstream call recomputes its slice; use one refresh action to keep the four panels consistent.
+ * Uses one dashboard rollup on the server instead of four parallel slice GETs.
  */
 export async function fetchProductLearningDashboard(options?: {
   since?: string | null;
@@ -64,19 +64,7 @@ export async function fetchProductLearningDashboard(options?: {
   const q = productLearningSinceQuery(options?.since);
   const base = `/${ApiV1Routes.productLearning}`;
 
-  const [summary, opportunities, trends, triage] = await Promise.all([
-    apiGet(`${base}/summary${q}`),
-    apiGet(`${base}/improvement-opportunities${q}`),
-    apiGet(`${base}/artifact-outcome-trends${q}`),
-    apiGet(`${base}/triage-queue${q}`),
-  ]);
-
-  return {
-    summary: summary as ProductLearningDashboardBundle["summary"],
-    opportunities: opportunities as ProductLearningDashboardBundle["opportunities"],
-    trends: trends as ProductLearningDashboardBundle["trends"],
-    triage: triage as ProductLearningDashboardBundle["triage"],
-  };
+  return apiGet<ProductLearningDashboardBundle>(`${base}/dashboard${q}`);
 }
 
 function learningMaxQuery(param: "maxThemes" | "maxPlans", value: number | undefined): string {
@@ -135,16 +123,18 @@ export async function fetchLearningPlanningListBundle(options?: {
   themes: LearningThemesListResponse;
   plans: LearningPlansListResponse;
 }> {
-  const maxThemes = options?.maxThemes;
-  const maxPlans = options?.maxPlans;
+  const params = new URLSearchParams();
+  if (options?.maxThemes !== undefined) {
+    params.set("maxThemes", String(options.maxThemes));
+  }
+  if (options?.maxPlans !== undefined) {
+    params.set("maxPlans", String(options.maxPlans));
+  }
 
-  const [summary, themes, plans] = await Promise.all([
-    fetchLearningSummary({ maxThemes, maxPlans }),
-    fetchLearningThemes(maxThemes),
-    fetchLearningPlans(maxPlans),
-  ]);
+  const q = params.toString();
+  const suffix = q ? `?${q}` : "";
 
-  return { summary, themes, plans };
+  return apiGet(`/${ApiV1Routes.learning}/list-bundle${suffix}`);
 }
 
 /** Lists 60R evolution candidate change sets for the current scope (newest first server-side). */

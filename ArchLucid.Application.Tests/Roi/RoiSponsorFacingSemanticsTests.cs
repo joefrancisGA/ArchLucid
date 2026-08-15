@@ -22,7 +22,7 @@ public sealed class RoiSponsorFacingSemanticsTests
     [Fact]
     public async Task Executive_roi_summary_and_reports_summary_share_headline_scope_labels()
     {
-        ExecutiveRoiSummaryResponse roi = new()
+        SponsorRoiSummaryResponse roi = new()
         {
             TotalEstimatedUsdSavings = 10_000m,
             ResolvedFindingsCount30Days = 3,
@@ -30,13 +30,13 @@ public sealed class RoiSponsorFacingSemanticsTests
             TopSystemicIssues = [],
         };
 
-        RoiSponsorFacingScopeLabeler.ApplyExecutiveRoiSummary(roi);
+        RoiSponsorFacingScopeLabeler.ApplySponsorRoiSummary(roi);
 
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(provider => provider.GetCurrentScope()).Returns(
             new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId });
 
-        Mock<IExecutiveRoiSummaryService> roiService = new();
+        Mock<ISponsorRoiSummaryService> roiService = new();
         roiService.Setup(service => service.BuildAsync(It.IsAny<CancellationToken>())).ReturnsAsync(roi);
 
         Mock<IGovernanceDigestDecisionNeededComposer> decisions = new();
@@ -44,9 +44,9 @@ public sealed class RoiSponsorFacingSemanticsTests
             .Setup(composer => composer.BuildSummaryAsync(TenantId, ProjectId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Contracts.Governance.GovernanceDecisionsNeededSummaryResponse());
 
-        ExecutiveReportsSummaryService sut = new(scope.Object, roiService.Object, decisions.Object);
+        SponsorReportsSummaryService sut = new(scope.Object, roiService.Object, decisions.Object);
 
-        ExecutiveSummaryResult reports = await sut.BuildAsync(CancellationToken.None);
+        SponsorReportResult reports = await sut.BuildAsync(CancellationToken.None);
 
         reports.HeadlineSavingsScopeCode.Should().Be(roi.HeadlineSavingsScopeCode);
         reports.HeadlineSavingsScopeDescription.Should().Be(roi.HeadlineSavingsScopeDescription);
@@ -65,8 +65,8 @@ public sealed class RoiSponsorFacingSemanticsTests
 
         RoiSponsorFacingScopeLabeler.ApplyCrossTenantPortfolio(portfolio);
 
-        ExecutiveRoiSummaryResponse tenant = new();
-        RoiSponsorFacingScopeLabeler.ApplyExecutiveRoiSummary(tenant);
+        SponsorRoiSummaryResponse tenant = new();
+        RoiSponsorFacingScopeLabeler.ApplySponsorRoiSummary(tenant);
 
         portfolio.HeadlineSavingsScopeCode.Should().Be(RoiSponsorFacingScopeCodes.CrossTenantPortfolioHeadline);
         tenant.HeadlineSavingsScopeCode.Should().Be(RoiSponsorFacingScopeCodes.HeadlineDispositionAware);
@@ -83,12 +83,12 @@ public sealed class RoiSponsorFacingSemanticsTests
             .Setup(query => query.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Array.Empty<RunSummary>(), false, (string?)null));
 
-        ExecutiveRoiSummaryService service = ExecutiveRoiSummaryServiceTestSupport.CreateService(
+        SponsorRoiSummaryService service = SponsorRoiSummaryServiceTestSupport.CreateService(
             runQuery.Object,
             Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
             scope: new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId }).Service;
 
-        ExecutiveRoiSummaryResponse response = await service.BuildAsync(CancellationToken.None);
+        SponsorRoiSummaryResponse response = await service.BuildAsync(CancellationToken.None);
 
         response.HeadlineSavingsScopeCode.Should().Be(RoiSponsorFacingScopeCodes.HeadlineDispositionAware);
         response.SystemRowSavingsScopeCode.Should().Be(RoiSponsorFacingScopeCodes.SystemRowSnapshotPotential);
@@ -104,7 +104,7 @@ public sealed class RoiSponsorFacingSemanticsTests
         string valueReport = RoiSponsorFacingScopeDescriptions.ForValueReportWindow(from, to);
 
         valueReport.Should().Contain("activity window");
-        valueReport.Should().Contain("Distinct from executive-summary");
+        valueReport.Should().Contain("Distinct from sponsor-report");
         valueReport.Should().NotBe(RoiSponsorFacingScopeDescriptions.HeadlineDispositionAware);
     }
 }

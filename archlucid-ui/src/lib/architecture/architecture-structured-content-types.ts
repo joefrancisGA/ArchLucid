@@ -1,5 +1,5 @@
 export const ARCHITECTURE_STRUCTURED_SECTION_KEYS = [
-  "executive-summary",
+  "sponsor-report",
   "business-outcome",
   "scope",
   "users-and-stakeholders",
@@ -46,7 +46,7 @@ export type ArchitectureStructuredParseResult = {
 };
 
 export const ARCHITECTURE_STRUCTURED_SECTION_TITLES: Record<ArchitectureStructuredSectionKey, string> = {
-  "executive-summary": "Executive summary",
+  "sponsor-report": "Sponsor report",
   "business-outcome": "Business outcome",
   scope: "Scope",
   "users-and-stakeholders": "Users and stakeholders",

@@ -9,7 +9,7 @@ const TYPED_HELP_GUIDE_SLUGS = new Set<string>([
   "troubleshooting",
   "alerts",
   "billing-and-plans",
-  "executive-summary",
+  "sponsor-report",
   "findings",
   "governance-approval",
   "glossary",

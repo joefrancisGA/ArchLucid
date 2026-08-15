@@ -30,7 +30,7 @@ internal static class CommitCommand
         ArchLucidApiClient.CommitRunResponse resp = result.Response!;
         string version = resp.Manifest.Metadata.ManifestVersion;
         Console.WriteLine($"Finalized review: {resp.Manifest.SystemName} (API: commit)");
-        Console.WriteLine($"Signed review record version: {version}");
+        Console.WriteLine($"Sealed review record version: {version}");
 
         if (resp.Warnings.Count > 0)
         {
@@ -42,7 +42,7 @@ internal static class CommitCommand
         }
 
         Console.WriteLine();
-        Console.WriteLine($"Use 'archlucid artifacts {runId}' to view the signed review record.");
+        Console.WriteLine($"Use 'archlucid artifacts {runId}' to view the sealed review record.");
 
         return CliExitCode.Success;
     }

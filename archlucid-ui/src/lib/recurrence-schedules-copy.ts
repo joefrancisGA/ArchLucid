@@ -44,7 +44,7 @@ export const RECURRENCE_SCHEDULE_EXAMPLES: readonly RecurrenceScheduleExample[] 
     title: "Quarterly control validation",
     humanCadence: "Quarterly on the 1st at 08:00 UTC",
     cronExpression: "0 8 1 */3 *",
-    whenToUse: "Re-run control checks on a committed architecture review after each quarter closes.",
+    whenToUse: "Re-validate control checks on a committed architecture review after each quarter closes.",
   },
   {
     title: "Annual policy attestation",

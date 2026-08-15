@@ -18,7 +18,8 @@ namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 public sealed class PolicyPackResolver(
     IPolicyPackAssignmentRepository assignmentRepository,
     IPolicyPackRepository packRepository,
-    IPolicyPackVersionRepository versionRepository) : IPolicyPackResolver
+    IPolicyPackVersionRepository versionRepository,
+    IPlatformBundledPolicyPackAvailability platformAvailability) : IPolicyPackResolver
 {
     /// <inheritdoc />
     /// <remarks>
@@ -54,6 +55,9 @@ public sealed class PolicyPackResolver(
                 continue;
 
             if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(pack.Name))
+                continue;
+
+            if (!await platformAvailability.IsGloballyActiveAsync(pack, ct))
                 continue;
 
             PolicyPackVersion? version = await versionRepository

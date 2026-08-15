@@ -19,12 +19,12 @@
     },
     {
       "id": "run-signed-record",
-      "label": "Run signed record",
+      "label": "Run sealed record",
       "pathTemplate": "/reviews/{runId}/signed-record"
     },
     {
       "id": "signed-records-list",
-      "label": "Signed records list",
+      "label": "Sealed records list",
       "pathTemplate": "/signed-records"
     },
     {

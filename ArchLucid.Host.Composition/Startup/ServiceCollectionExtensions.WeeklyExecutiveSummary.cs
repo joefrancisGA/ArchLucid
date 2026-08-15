@@ -1,5 +1,5 @@
 using ArchLucid.Application.Notifications.Email;
-using ArchLucid.Application.WeeklyExecutiveSummary;
+using ArchLucid.Application.WeeklySponsorReport;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Core.Configuration;
@@ -12,23 +12,23 @@ namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
-    private static void RegisterWeeklyExecutiveSummaryServices(IServiceCollection services, IConfiguration configuration)
+    private static void RegisterWeeklySponsorReportServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<WeeklyExecutiveSummaryOptions>(
-            configuration.GetSection(WeeklyExecutiveSummaryOptions.SectionName));
+        services.Configure<WeeklySponsorReportOptions>(
+            configuration.GetSection(WeeklySponsorReportOptions.SectionName));
 
         ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider))
-            services.AddScoped<IExecutiveSummaryRecipientLookup, DapperExecutiveSummaryRecipientLookup>();
+            services.AddScoped<ISponsorReportRecipientLookup, DapperSponsorReportRecipientLookup>();
         else
-            services.AddSingleton<IExecutiveSummaryRecipientLookup, NullExecutiveSummaryRecipientLookup>();
+            services.AddSingleton<ISponsorReportRecipientLookup, NullSponsorReportRecipientLookup>();
 
-        services.AddScoped<IWeeklyExecutiveSummaryEmailDispatcher, WeeklyExecutiveSummaryEmailDispatcher>();
-        services.AddScoped<WeeklyExecutiveSummaryDeliveryScanner>();
+        services.AddScoped<IWeeklySponsorReportEmailDispatcher, WeeklySponsorReportEmailDispatcher>();
+        services.AddScoped<WeeklySponsorReportDeliveryScanner>();
     }
 
-    private static void RegisterWeeklyExecutiveSummaryWorkerInfrastructure(
+    private static void RegisterWeeklySponsorReportWorkerInfrastructure(
         IServiceCollection services,
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
@@ -36,7 +36,7 @@ public static partial class ServiceCollectionExtensions
         if (hostingRole is not (ArchLucidHostingRole.Worker or ArchLucidHostingRole.Combined))
             return;
 
-        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.WeeklyExecutiveSummary))
-            services.AddHostedService<WeeklyExecutiveSummaryHostedService>();
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.WeeklySponsorReport))
+            services.AddHostedService<WeeklySponsorReportHostedService>();
     }
 }

@@ -4,7 +4,7 @@ import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workf
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -37,13 +37,13 @@ export function GovernanceInteractiveQuickstartContent({
       </div>
       <ol className={cn("m-0 list-decimal space-y-2 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         <li>
-          <Link href={GOVERNANCE_POLICY_PACKS_PATH} className="font-medium text-teal-800 underline dark:text-teal-300">
+          <Link href={GOVERNANCE_POLICY_PACKS_PATH} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Open policy packs
           </Link>
           {" — assign or publish the rule set that governs your scope."}
         </li>
         <li>
-          <Link href="/architecture/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
+          <Link href="/architecture/reviews/new" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Run an architecture review
           </Link>
           {" — finalize so you have a review record version to submit."}
@@ -54,7 +54,7 @@ export function GovernanceInteractiveQuickstartContent({
       {hideFirst30DaysLink ? null : (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Onboarding preset (optional):{" "}
-          <Link href="/governance/setup" className="font-medium text-teal-800 underline dark:text-teal-300">
+          <Link href="/governance/setup" className={OPERATOR_LINK.optional}>
             Governance setup
           </Link>
         </p>

@@ -22,7 +22,7 @@ vi.mock("next/navigation", async (importOriginal) => {
 
 const showErrorMock = vi.fn();
 const showSuccessMock = vi.fn();
-const invalidateExecutiveMock = vi.fn(async () => undefined);
+const invalidateSponsorMock = vi.fn(async () => undefined);
 const invalidateHomeRunsMock = vi.fn(async () => undefined);
 
 vi.mock("@/lib/toast", () => ({
@@ -32,11 +32,11 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 vi.mock("@/lib/operator/operator-query-invalidation", () => ({
-  invalidateOperatorExecutiveRoiCaches: () => invalidateExecutiveMock(),
+  invalidateOperatorSponsorRoiCaches: () => invalidateSponsorMock(),
   invalidateOperatorHomeRunsCaches: () => invalidateHomeRunsMock(),
 }));
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS } from "@/lib/buyer/buyer-polish-copy";
 import { SeedSampleReviewButton } from "./SeedSampleReviewButton";
 
@@ -52,7 +52,7 @@ describe("SeedSampleReviewButton", () => {
     refreshMock.mockReset();
     showErrorMock.mockReset();
     showSuccessMock.mockReset();
-    invalidateExecutiveMock.mockClear();
+    invalidateSponsorMock.mockClear();
     invalidateHomeRunsMock.mockClear();
     pathnameMock.mockReset();
     pathnameMock.mockReturnValue("/architecture/reviews");
@@ -78,7 +78,7 @@ describe("SeedSampleReviewButton", () => {
 
   it("posts to /api/seed-sample and pushes the redirectTo target on success", async () => {
     fetchMock.mockResolvedValue(
-      new Response(JSON.stringify({ redirectTo: EXECUTIVE_DASHBOARD_HREF }), {
+      new Response(JSON.stringify({ redirectTo: SPONSOR_DASHBOARD_HREF }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       }),
@@ -97,18 +97,18 @@ describe("SeedSampleReviewButton", () => {
     expect((init as RequestInit).method).toBe("POST");
 
     await waitFor(() => {
-      expect(invalidateExecutiveMock).toHaveBeenCalledTimes(1);
+      expect(invalidateSponsorMock).toHaveBeenCalledTimes(1);
       expect(invalidateHomeRunsMock).toHaveBeenCalledTimes(1);
-      expect(pushMock).toHaveBeenCalledWith(EXECUTIVE_DASHBOARD_HREF);
+      expect(pushMock).toHaveBeenCalledWith(SPONSOR_DASHBOARD_HREF);
       expect(refreshMock).toHaveBeenCalledTimes(1);
       expect(showSuccessMock).toHaveBeenCalledWith(BUYER_SEED_SAMPLE_WORKSPACE_SUCCESS);
     });
   });
 
   it("refreshes in place without push when already on the redirect target", async () => {
-    pathnameMock.mockReturnValue(EXECUTIVE_DASHBOARD_HREF);
+    pathnameMock.mockReturnValue(SPONSOR_DASHBOARD_HREF);
     fetchMock.mockResolvedValue(
-      new Response(JSON.stringify({ redirectTo: EXECUTIVE_DASHBOARD_HREF }), {
+      new Response(JSON.stringify({ redirectTo: SPONSOR_DASHBOARD_HREF }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       }),
@@ -125,7 +125,7 @@ describe("SeedSampleReviewButton", () => {
     });
   });
 
-  it("falls back to executive dashboard when the response omits a redirectTo", async () => {
+  it("falls back to sponsor dashboard when the response omits a redirectTo", async () => {
     fetchMock.mockResolvedValue(
       new Response(JSON.stringify({}), {
         status: 200,
@@ -138,7 +138,7 @@ describe("SeedSampleReviewButton", () => {
     fireEvent.click(screen.getByRole("button", { name: /load sample workspace/i }));
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith(EXECUTIVE_DASHBOARD_HREF);
+      expect(pushMock).toHaveBeenCalledWith(SPONSOR_DASHBOARD_HREF);
     });
   });
 

@@ -6,15 +6,15 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
-namespace ArchLucid.Application.ExecutiveSummary;
+namespace ArchLucid.Application.SponsorReport;
 
-/// <inheritdoc cref = "IExecutiveSummaryService"/>
-public sealed class ExecutiveSummaryService(IRunRepository runRepository, IRunDetailQueryService runDetailQueryService) : IExecutiveSummaryService
+/// <inheritdoc cref = "ISponsorReportService"/>
+public sealed class SponsorReportService(IRunRepository runRepository, IRunDetailQueryService runDetailQueryService) : ISponsorReportService
 {
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
-    public async Task<ExecutiveSummaryResponse> GenerateSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<SponsorReportResponse> GenerateSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         ScopeContext scope = new()
         {
@@ -25,7 +25,7 @@ public sealed class ExecutiveSummaryService(IRunRepository runRepository, IRunDe
         IReadOnlyList<RunRecord> recentRuns = await _runRepository.ListRecentInScopeAsync(scope, 1, cancellationToken);
         if (recentRuns.Count == 0)
         {
-            return new ExecutiveSummaryResponse
+            return new SponsorReportResponse
             {
                 TenantId = tenantId.ToString("N"),
                 SecurityPostureScore = 100,
@@ -38,7 +38,7 @@ public sealed class ExecutiveSummaryService(IRunRepository runRepository, IRunDe
         ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailForRollupAsync(latestRun.RunId.ToString("N"), cancellationToken);
         if (detail is null)
         {
-            return new ExecutiveSummaryResponse
+            return new SponsorReportResponse
             {
                 TenantId = tenantId.ToString("N"),
                 LatestRunId = latestRun.RunId.ToString("N"),
@@ -81,7 +81,7 @@ public sealed class ExecutiveSummaryService(IRunRepository runRepository, IRunDe
             }
         }
 
-        return new ExecutiveSummaryResponse
+        return new SponsorReportResponse
         {
             TenantId = tenantId.ToString("N"),
             LatestRunId = latestRun.RunId.ToString("N"),

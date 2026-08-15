@@ -13,9 +13,16 @@ public static class FindingTypes
     public const string SecurityControlFinding = "SecurityControlFinding";
     public const string ComplianceFinding = "ComplianceFinding";
     public const string CostConstraintFinding = "CostConstraintFinding";
+    public const string CostBreachFinding = "CostBreachFinding";
+    public const string InventoryReconciliationFinding = "InventoryReconciliationFinding";
     public const string PolicyApplicabilityFinding = "PolicyApplicabilityFinding";
     public const string TopologyCoverageFinding = "TopologyCoverageFinding";
     public const string SecurityCoverageFinding = "SecurityCoverageFinding";
     public const string PolicyCoverageFinding = "PolicyCoverageFinding";
     public const string RequirementCoverageFinding = "RequirementCoverageFinding";
+    public const string RequirementExpectationFinding = "RequirementExpectationFinding";
+    public const string RequirementGap = "RequirementGap";
+    public const string SecurityBaselineExpectationFinding = "SecurityBaselineExpectationFinding";
+    public const string SecurityBaselineCompletenessFinding = "SecurityBaselineCompletenessFinding";
+    public const string SecurityGap = "SecurityGap";
 }

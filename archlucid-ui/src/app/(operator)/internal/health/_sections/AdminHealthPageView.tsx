@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { Card, CardContent } from "@/components/ui/card";
-import { StatusPill } from "@/components/StatusPill";
+import { HealthStatusChip } from "@/components/health-dashboard/HealthStatusChip";
 import {
   HEALTH_DASHBOARD_PAGE_CLASS,
   HealthCheckRow,
@@ -17,6 +17,7 @@ import {
 } from "@/components/health-dashboard/HealthDashboardSections";
 import { HealthBuildDetailsDisclosure } from "@/components/health-dashboard/HealthBuildDetailsDisclosure";
 import { TenantCatalogMigrationDiagnosticsSection } from "@/components/tenancy/TenantCatalogMigrationDiagnosticsSection";
+import { AdminHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -80,6 +81,7 @@ export function AdminHealthPageView(props: Props) {
           subtitle="Workspace health, required services, and configuration advisories for this deployment."
           actions={<PageContextualHelpButton />}
         />
+        <AdminHealthEvidenceOrientationStrip />
         <HealthOverallStatusHeader
           overallStatus={overall}
           title={headline.title}
@@ -254,7 +256,7 @@ export function AdminHealthPageView(props: Props) {
                         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                           {humanizeCircuitGateName(gate.name)}
                         </p>
-                        <StatusPill status={gate.state} domain="health" uppercase={false} className={OPERATOR_TYPOGRAPHY.badge} />
+                        <HealthStatusChip status={gate.state} className={OPERATOR_TYPOGRAPHY.badge} />
                       </div>
                       <CollapsibleSection title="Technical details" defaultOpen={false}>
                         <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{gate.name}</p>

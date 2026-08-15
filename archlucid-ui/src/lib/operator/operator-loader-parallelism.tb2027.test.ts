@@ -10,38 +10,41 @@ function readUiSource(relativePath: string): string {
 }
 
 describe("TB-2027 operator loader parallelism", () => {
-  it("parallelizes run-detail mid-deferred and pipeline/stage timelines", () => {
+  it("parallelizes run-detail mid-deferred and collapses pipeline/stage timelines into one bundle", () => {
     const source = readUiSource(
-      "src/app/(operator)/architecture/reviews/[runId]/_sections/load-run-detail-deferred-model.ts",
+      "src/app/(operator)/architecture/reviews/[reviewId]/_sections/load-run-detail-deferred-model.ts",
     );
 
     expect(source).toContain("loadRunDetailMidDeferredModel");
     expect(source).toMatch(
       /loadRunDetailMidDeferredModel[\s\S]*?await Promise\.all\(\[\s*loadChangesSinceLastReviewBanner/,
     );
-    expect(source).toContain("loadPipelineTimelineOnly");
-    expect(source).toContain("loadStageTimelineOnly");
-    expect(source).toMatch(
-      /loadPipelineTimelineSections[\s\S]*?await Promise\.all\(\[\s*loadPipelineTimelineOnly/,
-    );
+    expect(source).toContain("loadRunDetailPipelineTimelineCached");
+    expect(source).not.toContain("fetchRunDetailTimelinesBundle");
+    expect(source).toContain("loadRunDetailWorkspaceContextBundleCached");
+    expect(source).not.toContain("loadPipelineTimelineOnly");
+    expect(source).not.toContain("loadStageTimelineOnly");
+    expect(source).not.toContain("getRunPipelineTimeline");
+    expect(source).not.toContain("getRunStageTimeline");
+    expect(source).not.toContain("compareRuns");
+    expect(source).not.toContain("listRunsByProject");
   });
 
   // The tenant settings loader used to parallelize trial + digest. The digest schedule editor moved to the
   // Digests hub, leaving a single fetch here, so there is no longer a parallelism invariant to guard.
 
-  it("uses allSettled for governance setup policy + routing signals", () => {
+  it("loads governance setup guide signals from setup-guide-bundle", () => {
     const source = readUiSource(
       "src/app/(operator)/governance/setup/_sections/resolve-governance-setup-status.ts",
     );
 
-    expect(source).toContain("Promise.allSettled");
-    expect(source).toContain("getEffectivePolicyPacks()");
-    expect(source).toContain("listAlertRoutingSubscriptions()");
+    expect(source).toContain("fetchGovernanceSetupGuideBundle");
+    expect(source).not.toContain("Promise.allSettled");
   });
 
   it("parallelizes finding detail inspect + run footnote", () => {
     const source = readUiSource(
-      "src/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/_sections/load-finding-detail-page-model.ts",
+      "src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/load-finding-detail-page-model.ts",
     );
 
     expect(source).toMatch(

@@ -4,7 +4,7 @@
  * Why two surfaces exist:
  * - Shell theme toggle (top-bar `ColorModeToggle`) is a quick light / dark /
  *   system cycle in operator chrome. It has no dedicated route.
- * - Preferences Appearance (`/administration/preferences`, Appearance card /
+ * - Preferences Appearance (`/account/preferences`, Appearance card /
  *   `ThemePreferenceSelector`) is the durable account theme setting saved to
  *   the user preferences API.
  *
@@ -13,7 +13,7 @@
  * Notifications (TB-2295).
  */
 
-import { SETTINGS_PREFERENCES_PATH } from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
 
 /**
  * Shell ColorModeToggle has no dedicated route (chrome control only).
@@ -67,7 +67,7 @@ export const SHELL_THEME_PREFERENCES_APPEARANCE_PREFERENCES_LINK: ShellThemePref
   {
     id: "preferences-appearance",
     label: "Preferences appearance",
-    href: SETTINGS_PREFERENCES_PATH,
+    href: ACCOUNT_PREFERENCES_PATH,
     whenToUse: "Set the durable account theme via ThemePreferenceSelector.",
   };
 

@@ -42,9 +42,9 @@ public sealed class ContractsPackageCoverageBatchRc28dTests
     [Theory]
     [InlineData(1.0, "Retail")]
     [InlineData(0.85, "EA-adjusted")]
-    public void ExecutiveRoiSavingsPricingBasis_Resolve_ea_multiplier(decimal multiplier, string expected)
+    public void SponsorRoiSavingsPricingBasis_Resolve_ea_multiplier(decimal multiplier, string expected)
     {
-        ExecutiveRoiSavingsPricingBasis.Resolve(multiplier).Should().Be(expected);
+        SponsorRoiSavingsPricingBasis.Resolve(multiplier).Should().Be(expected);
     }
 
     [Theory]
@@ -52,13 +52,13 @@ public sealed class ContractsPackageCoverageBatchRc28dTests
     [InlineData(0.9, false, false, "EA-adjusted")]
     [InlineData(1.0, false, true, "Heuristic fallback")]
     [InlineData(1.0, false, false, "Retail")]
-    public void ExecutiveRoiSavingsPricingBasis_Resolve_evidence_signals(
+    public void SponsorRoiSavingsPricingBasis_Resolve_evidence_signals(
         decimal multiplier,
         bool uploaded,
         bool heuristic,
         string expected)
     {
-        ExecutiveRoiSavingsPricingBasis.Resolve(multiplier, uploaded, heuristic).Should().Be(expected);
+        SponsorRoiSavingsPricingBasis.Resolve(multiplier, uploaded, heuristic).Should().Be(expected);
     }
 
     [Fact]

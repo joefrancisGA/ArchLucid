@@ -2,7 +2,7 @@
  * k6 — post-commit operator path (buyer-realistic read mix after first commit).
  *
  * Exercises: health/version, seed+commit path, run detail, manifest summary, artifacts,
- * aggregate explanation, provenance graph, executive ROI summary, sponsor packet download.
+ * aggregate explanation, provenance graph, sponsor ROI summary, sponsor packet download.
  *
  * Requires DevelopmentBypass + Simulator + internal seed-fake-results (same as k6-api-smoke finish path).
  *
@@ -178,10 +178,10 @@ export function postCommitOperatorPath() {
     "provenance ok": (res) => res.status === 200 || res.status === 422,
   });
 
-  r = getJson("executive_roi", "/v1/roi/executive-summary", false);
-  check(r, { "executive roi 200": (res) => res.status === 200 });
+  r = getJson("executive_roi", "/v1/roi/sponsor-summary", false);
+  check(r, { "sponsor roi 200": (res) => res.status === 200 });
 
-  r = http.get(`${BASE}/v1/pilots/runs/${encodeURIComponent(runId)}/executive-review-packet`, {
+  r = http.get(`${BASE}/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-review-packet`, {
     headers: Object.assign({}, h, { Accept: "text/markdown" }),
     tags: { k6pc: "sponsor_packet" },
     timeout: "120s",

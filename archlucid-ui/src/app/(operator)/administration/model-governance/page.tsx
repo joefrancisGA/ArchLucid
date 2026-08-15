@@ -3,6 +3,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { ShieldCheck } from "lucide-react";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { ModelGovernanceSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
@@ -20,6 +21,7 @@ export default function ModelGovernanceSettingsPage() {
         subtitle="Manage the workspace default execution profile and review governed model aliases used on reviews."
         actions={<PageContextualHelpButton />}
       />
+      <ModelGovernanceSettingsEvidenceOrientationStrip />
       <ModelGovernanceAiUsageVocabularyRail currentSurfaceId="model-governance" />
       <ModelGovernanceSettingsCard />
     </OperatorPageContainer>

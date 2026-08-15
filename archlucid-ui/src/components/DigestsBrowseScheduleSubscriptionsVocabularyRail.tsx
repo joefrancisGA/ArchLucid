@@ -99,7 +99,7 @@ export function DigestsBrowseScheduleSubscriptionsVocabularyRail(
           <Link
             key={peer.id}
             href={peer.href}
-            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+            className={OPERATOR_LINK.optional}
             data-testid={`digests-browse-schedule-subscriptions-vocabulary-peer-${peer.id}`}
           >
             {peer.label}

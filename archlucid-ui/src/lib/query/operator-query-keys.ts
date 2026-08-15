@@ -1,4 +1,4 @@
-import type { ExecutiveTimeRange } from "@/lib/executive/executive-time-range";
+import type { SponsorTimeRange } from "@/lib/sponsor/sponsor-time-range";
 import type { RunsByProjectPagedParams } from "@/lib/query/runs-by-project-paged-params";
 import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 
@@ -17,17 +17,20 @@ export const operatorQueryKeys = {
   operatorAiQualitySnapshot: ["operator", "assistant", "ai-quality-snapshot"] as const,
   operatorTaskSuccessRates: ["operator", "diagnostics", "task-success-rates"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
-  /** Throws when readiness cannot be loaded — preserves last payload on refetch errors. */
-  healthReadySummaryStrict: ["operator", "health", "ready-summary", "strict"] as const,
+  devTestingQuickJumpSnapshot: (runIdsKey: string) =>
+    ["operator", "dev-testing", "quick-jump", runIdsKey] as const,
   tenantCatalogMigrationStatus: ["operator", "tenant", "catalog-migration-status"] as const,
+  operatorShellStatus: (scope: OperatorScopeQueryKey) =>
+    ["operator", "shell-status", scope] as const,
   llmMonthlyBudgetStatus: ["operator", "llm", "monthly-budget-status"] as const,
   adminAiUsageDashboard: ["operator", "admin", "ai-usage-dashboard"] as const,
-  executiveRoiSummary: ["operator", "roi", "executive-summary"] as const,
-  // Prefix-matches executiveRoiSummary so refreshDashboard invalidation also refreshes these.
-  executiveRoiSummaryHistory: ["operator", "roi", "executive-summary", "history"] as const,
-  executiveRoiSummaryExport: ["operator", "roi", "executive-summary", "export"] as const,
-  sqlBackupRegionVerification: ["operator", "executive", "sql-backup-region-verification"] as const,
-  executiveNextActionInputs: (range: ExecutiveTimeRange) =>
+  sponsorRoiSummary: ["operator", "roi", "sponsor-report"] as const,
+  sponsorDashboardBundle: ["operator", "roi", "sponsor-dashboard-bundle"] as const,
+  // Prefix-matches sponsorRoiSummary so refreshDashboard invalidation also refreshes these.
+  sponsorRoiSummaryHistory: ["operator", "roi", "sponsor-report", "history"] as const,
+  sponsorRoiSummaryExport: ["operator", "roi", "sponsor-report", "export"] as const,
+  sqlBackupRegionVerification: ["operator", "sponsor", "sql-backup-region-verification"] as const,
+  executiveNextActionInputs: (range: SponsorTimeRange) =>
     ["operator", "roi", "next-action-inputs", range] as const,
   complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,
   complianceDriftTrendRange: (fromUtc: string, toUtc: string) =>

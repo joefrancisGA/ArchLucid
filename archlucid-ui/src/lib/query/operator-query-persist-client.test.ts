@@ -39,7 +39,7 @@ describe("operator-query-persist-client (TB-2165)", () => {
     const queryClient = createOperatorQueryClient();
     const teardown = setupOperatorQueryClientPersistence(queryClient);
 
-    queryClient.setQueryData(operatorQueryKeys.executiveRoiSummary, { savingsUsd: 1 });
+    queryClient.setQueryData(operatorQueryKeys.sponsorRoiSummary, { savingsUsd: 1 });
     await new Promise((resolve) => {
       setTimeout(resolve, 50);
     });

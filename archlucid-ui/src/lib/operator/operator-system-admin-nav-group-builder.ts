@@ -22,6 +22,8 @@ import {
 
   PackageCheck,
 
+  Shield,
+
   ServerCog,
 
   Settings2,
@@ -50,7 +52,11 @@ import {
 
   INTERNAL_EVIDENCE_PROPOSALS_PATH,
 
+  INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
+
   INTERNAL_FLEET_LLM_COGS_PATH,
+
+  INTERNAL_AGENT_MODEL_CATALOG_PATH,
 
   INTERNAL_HEALTH_PATH,
 
@@ -125,6 +131,22 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           title: "Fleet LLM COGS — per-tenant estimated LLM budget pressure and margin risk",
 
           icon: Wallet,
+
+          tier: "advanced",
+
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: INTERNAL_AGENT_MODEL_CATALOG_PATH,
+
+          label: "Agent model catalog",
+
+          title: "Agent model catalog — platform alias curation, lifecycle, and evaluation evidence",
+
+          icon: ServerCog,
 
           tier: "advanced",
 
@@ -232,7 +254,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
 
-          href: INTERNAL_INTEGRATION_EVENTS_DLQ_PATH as typeof INTERNAL_INTEGRATION_EVENTS_DLQ_PATH & "/internal/integration-events/dlq",
+          href: INTERNAL_INTEGRATION_EVENTS_DLQ_PATH as typeof INTERNAL_INTEGRATION_EVENTS_DLQ_PATH & "/internal/failed-integration-messages",
 
           label: OPERATOR_NAV_LINK_LABELS.failedIntegrationMessages,
 
@@ -264,7 +286,23 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
         {
 
-          href: INTERNAL_REPLAY_PATH,
+          href: INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
+
+          label: "Platform policy packs",
+
+          title: "Activate or deactivate bundled policy packs for every tenant",
+
+          icon: Shield,
+
+          tier: "extended",
+
+          requiredAuthority: "AdminAuthority",
+
+        },
+
+        {
+
+          href: INTERNAL_REPLAY_PATH as typeof INTERNAL_REPLAY_PATH & "/internal/validate-route",
 
           label: OPERATOR_NAV_LINK_LABELS.replayReview,
 

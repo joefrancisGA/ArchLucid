@@ -154,7 +154,7 @@ export function resolveExecDigestStatus(
         kind: "paused",
         label: "Paused",
         statusTagKind: "draft",
-        summary: "Delivery is paused. The configured schedule is retained but no executive digest emails will be sent.",
+        summary: "Delivery is paused. The configured schedule is retained but no sponsor digest emails will be sent.",
       };
     }
 
@@ -162,7 +162,7 @@ export function resolveExecDigestStatus(
       kind: "off",
       label: "Setup incomplete",
       statusTagKind: "needs-attention",
-      summary: "Add recipients and enable scheduled delivery when you are ready to send the weekly executive digest.",
+      summary: "Add recipients and enable scheduled delivery when you are ready to send the weekly sponsor digest.",
     };
   }
 
@@ -179,7 +179,7 @@ export function resolveExecDigestStatus(
     kind: "active",
     label: "Active",
     statusTagKind: "ready",
-    summary: "Scheduled executive digest emails will be sent to the direct recipients configured here.",
+    summary: "Scheduled sponsor digest emails will be sent to the direct recipients configured here.",
   };
 }
 
@@ -346,33 +346,33 @@ export function buildExecDigestDeliveryReadiness(
   };
 }
 
-/** Hub relationship copy — accurate to separate executive vs architecture digest pipelines. */
+/** Hub relationship copy — accurate to separate sponsor vs architecture digest pipelines. */
 export const EXEC_DIGEST_PRODUCT_INTRO =
-  "An executive digest is a weekly rollup of architecture and review activity for sponsor recipients you configure here. Architecture digests generated from advisory scans are delivered separately to destinations on the Subscriptions tab." as const;
+  "An sponsor digest is a weekly rollup of architecture and review activity for sponsor recipients you configure here. Architecture digests generated from advisory scans are delivered separately to destinations on the Subscriptions tab." as const;
 
 export const EXEC_DIGEST_DIRECT_RECIPIENTS_HELPER =
-  "Direct recipients receive this executive digest email. They do not need to be workspace users. Enter one address per line, or separate addresses with commas or semicolons. Duplicate addresses are rejected before save." as const;
+  "Direct recipients receive this sponsor digest email. They do not need to be workspace users. Enter one address per line, or separate addresses with commas or semicolons. Duplicate addresses are rejected before save." as const;
 
 export const EXEC_DIGEST_SUBSCRIPTIONS_HELPER =
-  "Subscription destinations receive architecture digests after advisory scans run. They use a different schedule and content than the executive digest on this page." as const;
+  "Subscription destinations receive architecture digests after advisory scans run. They use a different schedule and content than the sponsor digest on this page." as const;
 
 export const EXEC_DIGEST_PREVIEW_HELPER =
-  "Preview opens the latest architecture digest in Browse. It is not an executive-digest compose preview and does not use unsaved schedule changes." as const;
+  "Preview opens the latest architecture digest in Browse. It is not an sponsor-digest compose preview and does not use unsaved schedule changes." as const;
 
 export const EXEC_DIGEST_PREVIEW_UNAVAILABLE =
   "A preview will be available after the first architecture digest is generated." as const;
 
 export const EXEC_DIGEST_TEST_GENERATION_HELPER =
-  "This opens advisory scan schedules so you can generate an architecture digest for subscription destinations. It may consume AI budget, does not email executive recipients on this page, and does not change the executive schedule saved here." as const;
+  "This opens advisory scan schedules so you can generate an architecture digest for subscription destinations. It may consume AI budget, does not email sponsor recipients on this page, and does not change the sponsor schedule saved here." as const;
 
 export const EXEC_DIGEST_SAMPLE_BLOCKED =
-  "Scheduling is unavailable in the sample workspace. Start an evaluation or sign in to configure executive digest delivery for your organization." as const;
+  "Scheduling is unavailable in the sample workspace. Start an evaluation or sign in to configure sponsor digest delivery for your organization." as const;
 
 export const EXEC_DIGEST_READ_ONLY =
-  "You can review the executive digest schedule. Changing recipients, cadence, or delivery requires a role that can manage digests." as const;
+  "You can review the sponsor digest schedule. Changing recipients, cadence, or delivery requires a role that can manage digests." as const;
 
 export const DIGESTS_SCHEDULE_TAB_RESPONSIBILITY =
-  "Executive sponsor rollup email — separate from advisory scan cadence (Advisory schedules)." as const;
+  "Sponsor sponsor rollup email — separate from advisory scan cadence (Advisory schedules)." as const;
 
 export const DIGESTS_BROWSE_TAB_RESPONSIBILITY =
   "Read generated architecture digest history." as const;

@@ -16,9 +16,9 @@ export const BUYER_SURFACE_VOCABULARY = {
   /** Surface term for persisted findings in buyer copy. */
   finding: "Finding",
   phiMinimizationRisk: "PHI minimization risk",
-  /** Golden / signed review record artifact in buyer copy — avoid informal “sealed”. */
-  signedReviewRecord: "Signed review record",
-  finalizedSignedManifestRecord: "Signed review record",
+  /** Golden / sealed review record artifact in buyer copy — use sealed, not signed. */
+  signedReviewRecord: "Sealed review record",
+  finalizedSignedManifestRecord: "Sealed review record",
 } as const;
 
 /**
@@ -36,7 +36,7 @@ export const BUYER_TERMINOLOGY = {
   evaluationValueReport: "Pilot outcomes",
   reviewScorecard: "Architecture scorecard",
   governanceDashboard: "Governance dashboard",
-  portfolioOverview: "Executive dashboard",
+  portfolioOverview: "Sponsor dashboard",
 } as const;
 
 /** `/internal/product-learning` — pilot feedback dashboard copy (58R/59R surfaces). */
@@ -68,29 +68,29 @@ export const PILOT_FEEDBACK_VOCABULARY = {
 } as const;
 
 /**
- * Canonical `/dashboard` executive summary copy — import here instead of repeating literals so breadcrumbs,
+ * Canonical `/dashboard` sponsor report copy — import here instead of repeating literals so breadcrumbs,
  * metadata, Ask grounding, and KPI cards stay aligned.
  */
-export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
-  /** Canonical `/dashboard` customer noun — matches sidebar “Executive dashboard”. */
-  pageTitle: "Executive dashboard",
-  portfolioPageTitle: "Executive dashboard",
-  /** Review-scoped executive briefing (showcase spine, Ask grounding) — not the portfolio dashboard. */
-  reviewExecutiveSummaryLabel: "Executive summary",
+export const BUYER_SPONSOR_SUMMARY_VOCABULARY = {
+  /** Canonical `/dashboard` customer noun — matches sidebar “Sponsor dashboard”. */
+  pageTitle: "Sponsor dashboard",
+  portfolioPageTitle: "Sponsor dashboard",
+  /** Review-scoped sponsor briefing (showcase spine, Ask grounding) — not the portfolio dashboard. */
+  reviewSponsorReportLabel: "Sponsor report",
   portfolioPageLead:
     "Track governance posture, remediation progress, estimated ROI, and sponsor-ready proof across finalized reviews.",
   portfolioPageNextStep: "Finalize at least one review to populate dashboard metrics.",
-  portfolioPageLearnMoreHref: "/help/executive-summary",
+  portfolioPageLearnMoreHref: "/help/sponsor-report",
   portfolioPageLearnMoreLabel: "View dashboard guide",
   howItWorksSectionTitle: "How this dashboard works",
   howItWorksDescription:
-    "Create a review from your architecture evidence, then finalize it when findings are ready for executive reporting. Metrics and sponsor exports populate after the first finalized review.",
+    "Create a review from your architecture evidence, then finalize it when findings are ready for sponsor reporting. Metrics and sponsor exports populate after the first finalized review.",
   pageLead:
     "Status, risk, ROI impact, and governance readiness for your current workspace — decision-first, with operator detail one click away.",
-  roiMetricsSrOnly: "Executive ROI metrics",
+  roiMetricsSrOnly: "Sponsor ROI metrics",
   emptyStateTitle: "No finalized reviews yet",
   emptyStateDescription:
-    "Finalize a review to populate executive metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
+    "Finalize a review to populate sponsor metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
   emptyStatePrimaryAction: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   emptyStateSecondaryAction: "Load sample dashboard",
   emptyStateSecondaryHelper: "Populate this workspace with sample review data.",
@@ -104,7 +104,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
     },
     {
       title: "Open architecture risks",
-      description: "Stale risks and expiring waivers needing executive attention",
+      description: "Stale risks and expiring waivers needing sponsor attention",
     },
     {
       title: "Decisions recorded",
@@ -165,7 +165,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   primaryMetricsSectionSrOnly: "Risk posture, ROI impact, and governance readiness",
   supportingMetricsSectionTitle: "Supporting metrics and trends",
   latestFindingsSectionTitle: "Latest findings and portfolio summary",
-  executiveExportsTitle: "Executive exports",
+  executiveExportsTitle: "Sponsor exports",
   executiveExportsDescription:
     "Sponsor-ready reports and board views from finalized reviews.",
   sponsorExportsUnavailableFootnote: "Available after first finalized review",
@@ -177,11 +177,11 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   sponsorExportsPilotValueTitle: "Pilot value report",
   sponsorExportsPilotValueDescription: "Quantified outcomes and improvement themes from finalized reviews.",
   sponsorExportsPilotValueAction: "Open value report",
-  sponsorExportsPilotValueSampleHref: "/insights/pilot-outcomes",
+  sponsorExportsPilotValueSampleHref: "/insights/sponsor-report",
   sponsorExportsRoiTitle: "ROI methodology",
   sponsorExportsRoiDescription: "How savings and ROI estimates are derived from review evidence.",
   sponsorExportsRoiAction: "View methodology",
-  sponsorExportsDocxTitle: "Executive review (DOCX)",
+  sponsorExportsDocxTitle: "Sponsor review (DOCX)",
   sponsorExportsDocxDescription: "Board-ready narrative export from a finalized review.",
   sponsorExportsDocxAction: "Download DOCX",
   baselineInventoryUploadAction: "Upload baseline inventory",

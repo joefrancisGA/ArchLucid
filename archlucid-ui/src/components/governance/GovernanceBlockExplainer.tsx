@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -33,7 +33,7 @@ export function GovernanceBlockExplainer(props: GovernanceBlockExplainerProps): 
         </p>
       ) : null}
       {remediationHref !== undefined ? (
-        <Link href={remediationHref} className={cn("mt-2 inline-block font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
+        <Link href={remediationHref} className={cn("mt-2 inline-block", OPERATOR_BODY_INLINE_LINK_CLASS)}>
           Review effective policy →
         </Link>
       ) : null}

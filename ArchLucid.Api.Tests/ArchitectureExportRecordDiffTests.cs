@@ -31,7 +31,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
         await commitResponse.EnsureSuccessForTestAsync();
         var executiveRequest = new
         {
-            templateProfile = "executive",
+            templateProfile = "sponsor",
             audience = "Executives",
             externalDelivery = true,
             executiveFriendly = true,

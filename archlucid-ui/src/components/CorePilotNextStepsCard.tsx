@@ -15,7 +15,7 @@ import {
   deriveCorePilotCommitProgressState,
   type CorePilotCommitProgressState,
 } from "@/lib/core-pilot-commit-progress";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
@@ -84,7 +84,7 @@ function buildFirstReviewCheckpointStrip(
     { id: "execute", label: "Execute", href: reviewHref, status: statusById.execute },
     { id: "commit", label: "Finalize", href: reviewHref, status: statusById.commit },
     { id: "export", label: "Export", href: committedReviewHref, status: statusById.export },
-    { id: "sponsor-ready", label: "Sponsor-ready", href: EXECUTIVE_DASHBOARD_HREF, status: statusById["sponsor-ready"] },
+    { id: "sponsor-ready", label: "Sponsor-ready", href: SPONSOR_DASHBOARD_HREF, status: statusById["sponsor-ready"] },
   ] as const;
 }
 
@@ -104,7 +104,7 @@ function checkpointNextAction(
     case "export":
       return "Next action: export sponsor-facing markdown or PDF from review detail.";
     case "sponsor-ready":
-      return "Next action: open Report and use the executive summary for sponsor readout.";
+      return "Next action: open Report and use the sponsor report for sponsor readout.";
   }
 }
 
@@ -159,7 +159,7 @@ function FirstReviewCheckpointStrip(props: {
         <StatusTag kind="neutral" label={`Step ${FIRST_REVIEW_CHECKPOINT_ORDER.indexOf(activeCheckpoint.id) + 1} of 5`} />
       </div>
       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Operator lens: finish the highlighted checkpoint. Executive lens: sponsor-ready starts once the review is committed and exported.
+        Operator lens: finish the highlighted checkpoint. Sponsor lens: sponsor-ready starts once the review is committed and exported.
       </p>
       <ol className="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
         {checkpoints.map((checkpoint, index) => (
@@ -391,7 +391,7 @@ export function CorePilotNextStepsCard() {
             <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>4.</span>
             <span>
               Report — sponsor-facing summary on{" "}
-              <Link href={EXECUTIVE_DASHBOARD_HREF} className={OPERATOR_LINK.nav}>
+              <Link href={SPONSOR_DASHBOARD_HREF} className={OPERATOR_LINK.nav}>
                 Report
               </Link>{" "}
               after outputs land.
@@ -449,7 +449,7 @@ export function CorePilotNextStepsCard() {
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 4 pending">
           <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>4.</span>
-          <span>Report — executive summary and sponsor-facing outputs when ready.</span>
+          <span>Report — sponsor report and sponsor-facing outputs when ready.</span>
         </li>
       </ol>
 

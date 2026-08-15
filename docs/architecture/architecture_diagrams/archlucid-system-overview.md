@@ -106,7 +106,7 @@ sequenceDiagram
   Pipe->>SQL: Manifests, traces, findings
   Pipe-->>UI: Timeline on review detail
   Architect->>API: Finalize / commit
-  API->>SQL: Signed record + artifacts
+  API->>SQL: Sealed record + artifacts
   API->>SQL: Outbox enqueue
   Worker->>SQL: Drain outbox / index / events
   Reviewer->>UI: Package, exports, sponsor view

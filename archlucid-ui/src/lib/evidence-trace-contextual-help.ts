@@ -1,5 +1,7 @@
 const EVIDENCE_TRACE_SUFFIX = "/evidence-trace";
 
+export const FINDING_EVIDENCE_TRACE_HELP_TOPIC_LABEL = "Finding evidence trace" as const;
+
 /** True when pathname is a finding evidence-trace (ERU) route. */
 export function pathIsFindingEvidenceTrace(pathname: string): boolean {
   const path = (pathname.split("?")[0] ?? "").trim();

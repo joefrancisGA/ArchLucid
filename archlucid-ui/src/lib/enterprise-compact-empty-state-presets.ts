@@ -9,7 +9,7 @@ import {
 import {
   AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL,
 } from "@/lib/empty-state-presets";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_FINDINGS_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import {
   ALERT_RULES_LIST_EMPTY_BODY,
 } from "@/lib/alert-rule-conditions-copy";
@@ -76,7 +76,8 @@ import {
   INTEGRATION_EVENTS_DLQ_EMPTY_TITLE,
 } from "@/lib/integration-events-dlq-page-copy";
 import { WEBHOOKS_EMPTY_BODY, WEBHOOKS_EMPTY_TITLE } from "@/lib/webhooks-page-copy";
-import { SETTINGS_ACCOUNT_SECURITY_PATH, SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
+import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { API_KEYS_USERS_USERS_LINK } from "@/lib/vocabulary/api-keys-users-vocabulary";
 
 /** Reviews list when the project has zero reviews. */
@@ -258,7 +259,7 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   testId: "decision-register-empty-state",
   title: "No architecture decisions yet",
   description:
-    "Finalize a review to lock its signed review record. Architecture decisions from that package then appear here with findings and evidence lineage.",
+    "Finalize a review to lock its sealed review record. Architecture decisions from that package then appear here with findings and evidence lineage.",
   actions: [
     { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
     { label: "Start architecture review", href: "/architecture/reviews/new", variant: "outline" },
@@ -266,9 +267,9 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   ],
 };
 
-/** Executive reviews index when no finalized packages exist. */
-export const EXECUTIVE_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
-  testId: "executive-reviews-empty-state",
+/** Sponsor reviews index when no finalized packages exist. */
+export const SPONSOR_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "sponsor-reviews-empty-state",
   title: "No finalized reviews yet",
   description:
     "Finalized reviews appear here after you finalize the review and lock the architecture review.",
@@ -310,6 +311,32 @@ export const GOVERNANCE_FINDINGS_LOAD_FAILED_COMPACT: EnterpriseCompactEmptyStat
     "The risk register did not load for this workspace. Your existing findings are unchanged — retry the load or check connectivity before navigating away.",
   actions: [],
 };
+
+/** Assigned-to-me findings queue when the personal fetch failed. */
+export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_LOAD_FAILED_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "governance-findings-load-failed",
+  title: "Could not load your assigned findings",
+  description:
+    "Your assigned findings did not load for this workspace. Retry the load or check connectivity before navigating away.",
+  actions: [],
+};
+
+/** Assigned-to-me findings queue when no rows are assigned to the signed-in operator. */
+export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "governance-findings-empty-state",
+  title: "No findings assigned to you",
+  description:
+    "When findings are assigned to you for remediation, they appear here across reviews in this workspace.",
+};
+
+/** Assigned-to-me findings queue when filters hide every row. */
+export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_FILTER_NO_MATCH_COMPACT: EnterpriseCompactEmptyStateProps =
+  buildOperatorFilteredEmptyCompact({
+    testId: "governance-findings-filter-no-match-empty-state",
+    nounPhrase: "assigned findings",
+    description: "Try All or choose a different filter to see findings assigned to you.",
+    actions: [],
+  });
 
 /** Governance workflow approvals list when the active review has no requests yet. */
 export const GOVERNANCE_WORKFLOW_NO_APPROVALS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -492,7 +519,7 @@ export const ACCOUNT_SECURITY_AUTH_REQUIRED_EMPTY_COMPACT: EnterpriseCompactEmpt
     actions: [
       {
         label: "Sign in",
-        href: buildAuthSignInHref({ returnPath: SETTINGS_ACCOUNT_SECURITY_PATH }),
+        href: buildAuthSignInHref({ returnPath: ACCOUNT_SECURITY_PATH }),
         variant: "primary",
       },
     ],

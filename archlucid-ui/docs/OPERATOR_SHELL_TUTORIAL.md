@@ -84,14 +84,14 @@ archlucid-ui/
 │   │   │
 │   │   ├── architecture/reviews/
 │   │   │   ├── page.tsx      ← /architecture/reviews?projectId=…
-│   │   │   └── [runId]/
+│   │   │   └── [reviewId]/
 │   │   │       ├── page.tsx  ← /architecture/reviews/{runId}
 │   │   │       └── (no artifacts/[artifactId] — RER retired; Preview → GAR)
 │   │   │
-│   │   ├── governance/signed-records/[manifestId]/
-│   │   │   ├── page.tsx      ← /governance/signed-records/{manifestId}
+│   │   ├── governance/sealed-records/[manifestId]/
+│   │   │   ├── page.tsx      ← /governance/sealed-records/{manifestId}
 │   │   │   └── artifacts/[artifactId]/
-│   │   │       ├── page.tsx  ← /governance/signed-records/{manifestId}/artifacts/{artifactId}
+│   │   │       ├── page.tsx  ← /governance/sealed-records/{manifestId}/artifacts/{artifactId}
 │   │   │       └── loading.tsx
 │   │   │
 │   │   ├── insights/evidence-graph/page.tsx    ← /insights/evidence-graph
@@ -130,7 +130,7 @@ archlucid-ui/
 
 ### Key rule: one route = one `page.tsx`
 
-In ASP.NET, you register routes in `Program.cs` or use `[Route]` attributes. In Next.js App Router, **the folder path IS the route**. A file at `src/app/runs/[runId]/page.tsx` handles `GET /runs/{any-guid}` — same idea as `[HttpGet("runs/{runId}")]` in a controller.
+In ASP.NET, you register routes in `Program.cs` or use `[Route]` attributes. In Next.js App Router, **the folder path IS the route**. A file at `src/app/runs/[reviewId]/page.tsx` handles `GET /runs/{any-guid}` — same idea as `[HttpGet("runs/{runId}")]` in a controller.
 
 ---
 
@@ -142,10 +142,10 @@ In ASP.NET, you register routes in `Program.cs` or use `[Route]` attributes. In 
 |-----------|-----|-------------------|
 | `app/page.tsx` | `/` | `[HttpGet("/")]` |
 | `app/runs/page.tsx` | `/runs` | `[HttpGet("runs")]` |
-| `app/runs/[runId]/page.tsx` | `/runs/{runId}` | `[HttpGet("runs/{runId:guid}")]` |
+| `app/runs/[reviewId]/page.tsx` | `/runs/{runId}` | `[HttpGet("runs/{runId:guid}")]` |
 | `app/api/proxy/[...path]/route.ts` | `/api/proxy/*` | Catch-all middleware / reverse proxy |
 
-Square brackets `[runId]` are route parameters (like `{runId}` in ASP.NET). The triple-dot `[...path]` is a catch-all (like `{**path}`).
+Square brackets `[reviewId]` are route parameters (like `{runId}` in ASP.NET). The triple-dot `[...path]` is a catch-all (like `{**path}`).
 
 ### What runs where
 
@@ -169,7 +169,7 @@ Only when the page needs **browser interactivity**: button clicks that change wh
 In this codebase, these are client pages:
 - `/graph` — user types a run ID, picks a mode, clicks "Load graph"
 - `/compare` — user types two run IDs, clicks "Compare"
-- `/internal/replay` — user types a run ID, clicks "Replay"
+- `/internal/validate-route` — user types a run ID, clicks "Replay"
 
 Everything else (runs list, run detail, manifest, artifact review) is **server-rendered**.
 
@@ -456,7 +456,7 @@ The order matters: **error → malformed → empty → data**. This is determini
 
 ### `/runs/{runId}` — Run detail
 
-**File:** `app/runs/[runId]/page.tsx` (server component)  
+**File:** `app/runs/[reviewId]/page.tsx` (server component)  
 **API calls (in order):**
 1. `getRunDetail(runId)` → `{ data: run envelope, traceId }` (trace id from **`X-Trace-Id`** on the same response)
 2. `getManifestSummary(manifestId)` → if manifest exists
@@ -478,9 +478,9 @@ The order matters: **error → malformed → empty → data**. This is determini
 **API calls:** `getManifestSummary`, `listArtifacts`  
 **States:** Same pattern as run detail but manifest-focused.
 
-### `/governance/signed-records/{manifestId}/artifacts/{artifactId}` — Artifact review (GAR)
+### `/governance/sealed-records/{manifestId}/artifacts/{artifactId}` — Artifact review (GAR)
 
-**File:** `app/(operator)/governance/signed-records/[manifestId]/artifacts/[artifactId]/page.tsx` (server component)  
+**File:** `app/(operator)/governance/sealed-records/[manifestId]/artifacts/[artifactId]/page.tsx` (server component)  
 **API calls:**
 1. `getArtifactDescriptor(manifestId, artifactId)` → metadata
 2. `fetchArtifactContentUtf8(manifestId, artifactId)` → file body as text
@@ -490,7 +490,7 @@ The order matters: **error → malformed → empty → data**. This is determini
 
 ### `/architecture/reviews/{runId}/artifacts/{artifactId}` — Retired run-scoped entry (RER)
 
-**Status:** No App Router page (old bookmarks 404). `ArtifactListTable` Preview uses `artifactPreviewHref` → GAR only (`/governance/signed-records/.../artifacts/...`). Do not reintroduce a run-scoped redirect page.
+**Status:** No App Router page (old bookmarks 404). `ArtifactListTable` Preview uses `artifactPreviewHref` → GAR only (`/governance/sealed-records/.../artifacts/...`). Do not reintroduce a run-scoped redirect page.
 
 ### `/graph` — Graph viewer
 
@@ -502,7 +502,7 @@ See [Section 14](#14-graph-viewer).
 **File:** `app/compare/page.tsx` (**client component**)  
 See [Section 13](#13-compare--replay-flow).
 
-### `/internal/replay` — Authority replay
+### `/internal/validate-route` — Authority replay
 
 **File:** `app/replay/page.tsx` (**client component**)  
 See [Section 13](#13-compare--replay-flow).
@@ -530,7 +530,7 @@ If the run has a golden manifest, the artifacts section shows a table:
 
 ### Step 2: Open an artifact for review
 
-Click **Review** / **Preview**. This opens `/governance/signed-records/{manifestId}/artifacts/{artifactId}` (GAR).
+Click **Review** / **Preview**. This opens `/governance/sealed-records/{manifestId}/artifacts/{artifactId}` (GAR).
 
 ### Step 3: Understand the artifact
 
@@ -600,7 +600,7 @@ This is a **client component** because the operator types two run IDs and clicks
    - `LegacyRunComparisonView` — run-level + manifest flat diffs
    - `AiComparisonExplanationView` — summary, major changes, tradeoffs, narrative
 
-### Replay (`/internal/replay`)
+### Replay (`/internal/validate-route`)
 
 Another **client component**. Operator enters a run ID, picks a mode, clicks **Replay**.
 
@@ -654,12 +654,12 @@ Every route in the architect workspace has one:
 ```
 app/loading.tsx                          → "Loading."
 app/architecture/reviews/loading.tsx     → "Loading reviews."
-app/architecture/reviews/[runId]/loading.tsx → "Loading review detail."
-app/governance/signed-records/[manifestId]/loading.tsx → "Loading signed review record."
-app/governance/signed-records/.../artifacts/.../loading.tsx → "Loading artifact review."
+app/architecture/reviews/[reviewId]/loading.tsx → "Loading review detail."
+app/governance/sealed-records/[manifestId]/loading.tsx → "Loading sealed review record."
+app/governance/sealed-records/.../artifacts/.../loading.tsx → "Loading artifact review."
 app/insights/evidence-graph/loading.tsx  → "Loading evidence graph."
 app/insights/compare-two-reviews/loading.tsx → "Loading compare."
-app/internal/replay/loading.tsx          → "Loading replay."
+app/internal/validate-route/loading.tsx          → "Loading replay."
 ```
 
 They all use `OperatorLoadingNotice` — a calm, borderless status card with no spinner or animation.

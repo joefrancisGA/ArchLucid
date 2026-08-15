@@ -30,7 +30,7 @@ describe("webhooks-vs-dlq-vocabulary (TB-2264)", () => {
 
     expect(model.dlqLink).toEqual(WEBHOOKS_VS_DLQ_DLQ_LINK);
     expect(model.dlqLink.href).toBe(INTERNAL_INTEGRATION_EVENTS_DLQ_PATH);
-    expect(model.dlqLink.href).toBe("/internal/integration-events/dlq");
+    expect(model.dlqLink.href).toBe("/internal/failed-integration-messages");
   });
 
   it("resolves the peer surface from webhooks and dlq", () => {

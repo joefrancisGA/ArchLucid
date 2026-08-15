@@ -28,10 +28,11 @@ import {
   GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING,
   GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS,
 } from "@/lib/governance/governance-approval-help-guide-content";
-import { GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE } from "@/lib/governance/governance-approval-help-evidence-copy";
+import { GovernanceApprovalHelpEvidenceOrientationStrip } from "@/components/help/GovernanceApprovalHelpEvidenceOrientationStrip";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -172,7 +173,7 @@ function TroubleshootingList(): React.ReactElement {
               {item.href !== undefined && item.linkLabel !== undefined ? (
                 <>
                   {" "}
-                  <Link href={item.href} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
+                  <Link href={item.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                     {item.linkLabel}
                   </Link>
                   .
@@ -224,23 +225,12 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
             </Button>
             <Link
               href={GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.href}
-              className={cn(
-                "text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               {GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS.openFindings.label}
             </Link>
           </CardContent>
         </Card>
-
-        <aside
-          className={cn(DESIGN_TOKENS.callout.warn, "p-3")}
-          data-testid="help-governance-approval-claim-discipline"
-        >
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE}</p>
-        </aside>
       </div>
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
@@ -342,7 +332,7 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
                 >
                   <Link
                     href={action.href}
-                    className={cn("font-semibold underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+                    className={OPERATOR_BODY_INLINE_LINK_CLASS}
                   >
                     {action.label}
                   </Link>
@@ -359,6 +349,8 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
             <HelpSectionHeading id="troubleshooting">Troubleshooting</HelpSectionHeading>
             <TroubleshootingList />
           </section>
+
+          <GovernanceApprovalHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS} enableScrollSpy />

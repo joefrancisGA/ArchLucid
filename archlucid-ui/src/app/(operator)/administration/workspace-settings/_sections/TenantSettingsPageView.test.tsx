@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { TENANT_SETTINGS_PAGE_SUBTITLE } from "@/lib/tenant-settings-page-copy";
+import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
 
 vi.mock("@/lib/demo-ui-env", () => ({
   isNextPublicDemoMode: () => false,
@@ -108,7 +109,8 @@ describe("TenantSettingsPageView", () => {
       "data-current-label",
       "Workspace settings",
     );
-    expect(screen.getByRole("button", { name: "Help" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: WORKSPACE_SETTINGS_HELP_TOPIC_LABEL })).toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-claim-discipline")).not.toBeInTheDocument();
   });
 
   it("uses semantic heading order with section h2 and card h3 titles (P0-4, P0-8)", () => {
@@ -135,7 +137,7 @@ describe("TenantSettingsPageView", () => {
     ).toBe(true);
     expect(screen.getByRole("heading", { level: 3, name: "Organization" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 3, name: "Active workspace and projects" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Executive digest (email)" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Sponsor digest (email)" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 3, name: "Support bundle" })).toBeInTheDocument();
   });
 });

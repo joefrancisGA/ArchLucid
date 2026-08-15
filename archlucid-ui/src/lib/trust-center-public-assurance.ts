@@ -1,4 +1,5 @@
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 /** Anonymous procurement ZIP — same endpoint as Welcome / Why comparison surfaces (TB-721). */
 export const TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF = "/v1/marketing/trust-center/evidence-pack.zip" as const;
@@ -65,6 +66,11 @@ export const TRUST_CENTER_RELATED_HELP_LINKS: readonly TrustCenterRelatedHelpLin
     href: "/help/subprocessors",
   },
   {
+    id: "caiq-sig-response",
+    label: "CAIQ / SIG pre-fill drafts",
+    href: inAppHelpHref("caiq-sig-response"),
+  },
+  {
     id: "getting-started",
     label: "How ArchLucid works",
     href: "/help/getting-started#how-archlucid-works",
@@ -80,6 +86,6 @@ export const TRUST_CENTER_RELATED_HELP_LINKS: readonly TrustCenterRelatedHelpLin
 export const TRUST_CENTER_PAGE_PURPOSE =
   "Full Trust Center — public evidence downloads, procurement posture, and security contact paths." as const;
 
-/** `/security-trust` — executive assurance ladder; depth and ZIP downloads live on `/trust`. */
+/** `/security-trust` — sponsor assurance ladder; depth and ZIP downloads live on `/trust`. */
 export const SECURITY_TRUST_PAGE_PURPOSE =
   "Assurance status — engagement metadata by maturity tier. For downloadable artifacts and the evidence pack, use the Trust Center." as const;

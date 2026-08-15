@@ -2,6 +2,9 @@ import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF } from "@/lib/trust-center-public-assurance";
 
+export const COMPLIANCE_JOURNEY_CAIQ_SIG_PREFILL_HELP_LABEL =
+  "CAIQ / SIG questionnaire pre-fill drafts" as const;
+
 export const COMPLIANCE_JOURNEY_TRUST_PUBLIC_DOWNLOADS_HREF = "/trust#trust-public-downloads" as const;
 
 export type ComplianceJourneyLinkDestination =
@@ -71,7 +74,7 @@ export const COMPLIANCE_JOURNEY_DILIGENCE_SECTIONS: readonly ComplianceJourneyDi
       },
       {
         id: "caiq-sig-help",
-        label: "CAIQ / SIG questionnaire responses",
+        label: COMPLIANCE_JOURNEY_CAIQ_SIG_PREFILL_HELP_LABEL,
         href: inAppHelpHref("caiq-sig-response"),
         destination: "in-product-help",
       },

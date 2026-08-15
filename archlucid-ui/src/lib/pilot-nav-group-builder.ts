@@ -1,5 +1,4 @@
 import {
-  Brain,
   Compass,
   Home,
   Layers,
@@ -9,11 +8,10 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
-import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { BUYER_ONBOARDING_NAV_TOOLTIP } from "@/lib/buyer/buyer-polish-copy";
 import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_NAV_HREF } from "@/lib/architecture/architecture-routes";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -29,7 +27,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Home → Architectures → Reviews → Executive dashboard; then First review guide and governance follow-up.",
+        "Buyer-first path: Home → Architectures → Reviews → Sponsor dashboard; then First review guide and governance follow-up.",
       links: [
         {
           href: "/",
@@ -57,7 +55,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
-          href: EXECUTIVE_DASHBOARD_HREF as typeof EXECUTIVE_DASHBOARD_HREF & "/architecture/executive-dashboard",
+          href: SPONSOR_DASHBOARD_HREF as typeof SPONSOR_DASHBOARD_HREF & "/architecture/sponsor-dashboard",
           label: OPERATOR_NAV_LINK_LABELS.portfolioOverview,
           title: PORTFOLIO_OVERVIEW_NAV_TITLE,
           icon: LayoutDashboard,
@@ -79,14 +77,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
         },
-        {
-          href: ARCHITECTURE_INTELLIGENCE_PATH as typeof ARCHITECTURE_INTELLIGENCE_PATH & "/architecture/architecture-intelligence",
-          label: "Architecture intelligence",
-          title: "Architecture intelligence — closed-loop reasoning and golden regression checks",
-          icon: Brain,
-          tier: "advanced",
-          requiredAuthority: "ExecuteAuthority",
-        },
+        // TB-2241: contextual-only paths live in nav-contextual-only-operator-paths.ts (not pilot nav).
       ],
     };
   }

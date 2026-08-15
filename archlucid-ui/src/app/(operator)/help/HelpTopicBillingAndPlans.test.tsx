@@ -71,6 +71,7 @@ vi.mock("@/lib/operator/operator-scope-storage", () => ({
 import { HelpBillingAndPlansGuideView } from "@/app/(operator)/help/_sections/HelpBillingAndPlansGuideView";
 import {
   BILLING_HELP_FAQ_ITEMS,
+  BILLING_HELP_GUIDE_HEADINGS,
   BILLING_HELP_NO_PERMISSION_HINT,
   BILLING_HELP_PAGE_DISPLAY_TITLE,
   BILLING_HELP_PAGE_SUBTITLE,
@@ -81,6 +82,12 @@ import {
   BILLING_HELP_SUBSCRIPTION_UNAVAILABLE_LABEL,
   BILLING_HELP_VIEW_BILLING_ACTION,
 } from "@/lib/billing-help-guide-content";
+import {
+  BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE,
+  BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE_HEADING,
+  BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID,
+  BILLING_AND_PLANS_HELP_SOURCES,
+} from "@/lib/billing-and-plans-help-evidence-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_CUSTOMER_COPY = [
@@ -141,7 +148,7 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(entry?.releaseApplicability).toBeTruthy();
   });
 
-  it("renders the reduced page structure without an on-this-page table of contents", async () => {
+  it("renders claim-discipline strip, table of contents, and core billing sections", async () => {
     if (entry === undefined) {
       throw new Error("Expected billing-and-plans documentation entry.");
     }
@@ -149,8 +156,6 @@ describe("HelpBillingAndPlansGuideView", () => {
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     expect(screen.getByRole("heading", { level: 1, name: BILLING_HELP_PAGE_DISPLAY_TITLE })).toBeInTheDocument();
-    expect(screen.getByTestId("help-billing-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.getByText(BILLING_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-refresh-button")).toBeInTheDocument();
     expect(screen.queryByTestId("help-billing-last-refreshed")).toBeNull();
@@ -162,8 +167,24 @@ describe("HelpBillingAndPlansGuideView", () => {
     expect(screen.getAllByRole("heading", { level: 2, name: "Support" })).toHaveLength(1);
     expect(screen.getByRole("heading", { level: 2, name: "Your workspace" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Billing support" })).toBeInTheDocument();
-    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.getByTestId("help-billing-faq-list").children).toHaveLength(BILLING_HELP_FAQ_ITEMS.length);
+    expect(screen.queryByText(/Sources package/i)).toBeNull();
+    expect(screen.getByTestId("help-billing-claim-discipline").textContent).toContain(
+      BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.getByRole("heading", { name: BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
+      "id",
+      BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID,
+    );
+
+    for (const source of BILLING_AND_PLANS_HELP_SOURCES) {
+      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+    }
+
+    for (const heading of BILLING_HELP_GUIDE_HEADINGS) {
+      expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
+    }
 
     await waitFor(() => {
       expect(screen.getByTestId("help-billing-current-plan-context")).toBeInTheDocument();
@@ -359,7 +380,7 @@ describe("HelpBillingAndPlansGuideView", () => {
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-billing-overview").className).toContain("text-[15px]");
-    expect(screen.getByTestId("help-billing-overview").parentElement?.className).toContain("max-w-[52rem]");
+    expect(screen.getByTestId("help-billing-overview").parentElement?.className).toContain("max-w-[75ch]");
   });
 
   it("avoids prohibited customer-facing billing terminology and duplicated pricing matrices", async () => {

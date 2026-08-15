@@ -4,6 +4,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Http;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -70,6 +71,8 @@ public sealed class PolicyPacksController(
     IValidator<CreatePolicyPackRequest> createPolicyPackRequestValidator,
     IValidator<PublishPolicyPackVersionRequest> publishPolicyPackVersionRequestValidator,
     IValidator<AssignPolicyPackRequest> assignPolicyPackRequestValidator,
+    PolicyPackWorkspaceSelectionService workspaceSelectionService,
+    IPlatformBundledPolicyPackAvailability platformAvailability,
     IAuditService auditService)
     : ControllerBase
 {
@@ -103,6 +106,12 @@ public sealed class PolicyPacksController(
 
     private readonly IValidator<AssignPolicyPackRequest> _assignPolicyPackRequestValidator =
         assignPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(assignPolicyPackRequestValidator));
+
+    private readonly PolicyPackWorkspaceSelectionService _workspaceSelectionService =
+        workspaceSelectionService ?? throw new ArgumentNullException(nameof(workspaceSelectionService));
+
+    private readonly IPlatformBundledPolicyPackAvailability _platformAvailability =
+        platformAvailability ?? throw new ArgumentNullException(nameof(platformAvailability));
 
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     /// <remarks>Audit: <c>PolicyPackCreated</c> via <see cref="IPolicyPacksAppService" />.</remarks>
@@ -288,13 +297,98 @@ public sealed class PolicyPacksController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IReadOnlyList<PolicyPack> packs = await packRepository.ListByScopeAsync(
+        IReadOnlyList<PolicyPack> visiblePacks = await ListVisiblePacksAsync(scope, ct);
+
+        return Ok(visiblePacks);
+    }
+
+    /// <summary>Policy packs hub bundle: list, effective assignments, and merged content.</summary>
+    [HttpGet("page-bundle")]
+    [ProducesResponseType(typeof(PolicyPacksPageBundleResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPageBundle(CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        Task<IReadOnlyList<PolicyPack>> packsTask = ListVisiblePacksAsync(scope, ct);
+
+        Task<EffectivePolicyPackSet> effectiveTask = resolver.ResolveAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             ct);
 
-        return Ok(packs);
+        Task<PolicyPackContentDocument> contentTask = governanceLoader.LoadEffectiveContentAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            ct);
+
+        await Task.WhenAll(packsTask, effectiveTask, contentTask).ConfigureAwait(false);
+
+        PolicyPacksPageBundleResponse body = new()
+        {
+            Packs = await packsTask.ConfigureAwait(false),
+            Effective = await effectiveTask.ConfigureAwait(false),
+            EffectiveContent = await contentTask.ConfigureAwait(false)
+        };
+
+        return Ok(body);
+    }
+
+    /// <summary>Lists workspace policy packs with assignment ids for tenant opt-in/opt-out.</summary>
+    [HttpGet("workspace-selection")]
+    [ProducesResponseType(typeof(IReadOnlyList<PolicyPackWorkspaceSelectionItem>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<PolicyPackWorkspaceSelectionItem>>> ListWorkspaceSelection(
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        IReadOnlyList<PolicyPackWorkspaceSelectionItem> rows = await _workspaceSelectionService.ListAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            ct);
+
+        return Ok(rows);
+    }
+
+    /// <summary>Enables or disables one policy pack assignment for the current workspace scope.</summary>
+    [HttpPut("assignments/{assignmentId:guid}/enabled")]
+    [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SetAssignmentEnabled(
+        Guid assignmentId,
+        [FromBody] SetPolicyPackAssignmentEnabledRequest? request,
+        CancellationToken ct = default)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        bool ok = await _workspaceSelectionService.TrySetAssignmentEnabledAsync(
+            scope.TenantId,
+            assignmentId,
+            request.IsEnabled,
+            ct);
+
+        if (!ok)
+        {
+            return this.NotFoundProblem(
+                $"Assignment '{assignmentId}' was not found or cannot be enabled in the current scope.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.PolicyPackAssignmentEnabledChanged,
+                DataJson = JsonSerializer.Serialize(new { assignmentId, request.IsEnabled }),
+            },
+            ct);
+
+        return NoContent();
     }
 
     /// <summary>Lists platform-promoted policy pack snapshots available to clone into the current tenant.</summary>
@@ -777,5 +871,29 @@ public sealed class PolicyPacksController(
             await _policyPackContentAuthoringValidationService.ValidateAsync(document, cancellationToken);
 
         return Ok(response);
+    }
+
+    private async Task<IReadOnlyList<PolicyPack>> ListVisiblePacksAsync(ScopeContext scope, CancellationToken ct)
+    {
+        IReadOnlyList<PolicyPack> packs = await packRepository.ListByScopeAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            ct);
+
+        List<PolicyPack> visiblePacks = [];
+
+        foreach (PolicyPack pack in packs)
+        {
+            if (pack.IsDeleted)
+                continue;
+
+            if (!await _platformAvailability.IsGloballyActiveAsync(pack, ct))
+                continue;
+
+            visiblePacks.Add(pack);
+        }
+
+        return visiblePacks;
     }
 }

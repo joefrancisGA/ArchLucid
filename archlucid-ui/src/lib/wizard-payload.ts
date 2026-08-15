@@ -82,5 +82,11 @@ export function wizardValuesToCreateRunPayload(
     payload.modelExecutionProfileOverride = values.modelExecutionProfileOverride;
   }
 
+  const aliasOverride = values.modelAliasOverride.trim();
+
+  if (aliasOverride.length > 0) {
+    payload.modelAliasOverride = aliasOverride;
+  }
+
   return payload;
 }

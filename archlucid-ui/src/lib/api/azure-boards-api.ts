@@ -1,4 +1,5 @@
 import { apiGet, apiPostJson, apiPutJson } from "@/lib/api-client";
+import { interpretAzureBoardsLastConnectionTest } from "@/lib/azure-boards-stored-health";
 
 export type AzureBoardsIntegrationHealthResponse = {
   status?: string;
@@ -71,13 +72,22 @@ export async function testAzureBoardsConnection(): Promise<AzureBoardsConnection
 }
 
 export function isAzureBoardsNativeCreateReady(
-  health: AzureBoardsIntegrationHealthResponse | null | undefined,
   settings: AzureBoardsOutboundSettingsResponse | null | undefined,
 ): boolean {
-  return (
-    health?.reachable === true
-    && settings?.isConfigured === true
-    && (settings.projectName?.trim().length ?? 0) > 0
-    && (settings.defaultWorkItemType?.trim().length ?? 0) > 0
-  );
+  if (settings == null || settings.isConfigured !== true) {
+    return false;
+  }
+
+  if ((settings.projectName?.trim().length ?? 0) === 0) {
+    return false;
+  }
+
+  if ((settings.defaultWorkItemType?.trim().length ?? 0) === 0) {
+    return false;
+  }
+
+  return interpretAzureBoardsLastConnectionTest(
+    settings.lastConnectionTestUtc,
+    settings.lastConnectionTestSummary,
+  ) === true;
 }

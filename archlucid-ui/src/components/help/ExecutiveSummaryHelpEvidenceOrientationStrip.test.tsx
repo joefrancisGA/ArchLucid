@@ -1,15 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { ExecutiveSummaryHelpEvidenceOrientationStrip } from "@/components/help/ExecutiveSummaryHelpEvidenceOrientationStrip";
-import { EXECUTIVE_SUMMARY_HELP_CLAIM_DISCIPLINE } from "@/lib/executive-summary-help-evidence-copy";
+import { SponsorReportHelpEvidenceOrientationStrip } from "@/components/help/SponsorReportHelpEvidenceOrientationStrip";
+import { SPONSOR_SUMMARY_HELP_CLAIM_DISCIPLINE } from "@/lib/sponsor-report-help-evidence-copy";
 
-describe("ExecutiveSummaryHelpEvidenceOrientationStrip", () => {
+describe("SponsorReportHelpEvidenceOrientationStrip", () => {
   it("renders claim discipline callout", () => {
-    render(<ExecutiveSummaryHelpEvidenceOrientationStrip />);
+    render(<SponsorReportHelpEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("help-executive-summary-claim-discipline")).toHaveTextContent(
-      EXECUTIVE_SUMMARY_HELP_CLAIM_DISCIPLINE,
+    expect(screen.getByTestId("help-sponsor-report-claim-discipline")).toHaveTextContent(
+      SPONSOR_SUMMARY_HELP_CLAIM_DISCIPLINE,
     );
   });
 });

@@ -5,9 +5,9 @@ qualities = [
     {"name": "Time-to-Value", "category": "COMMERCIAL", "weight": 7, "score": 70, "justification": "While the first pilot run is valuable, the initial setup (SQL, Entra ID, Key Vault) creates a barrier to experiencing that value quickly.", "tradeoffs": "Enterprise-grade security defaults vs. frictionless trial experience.", "recommendations": "Implement a guided sandbox onboarding mode that uses local mocks to demonstrate value before requiring full Azure setup.", "status": "Fixable in v1"},
     {"name": "Adoption Friction", "category": "COMMERCIAL", "weight": 6, "score": 60, "justification": "High operator expertise is required to configure the system, write policy packs, and understand the provenance graph.", "tradeoffs": "Flexibility and power vs. ease of use.", "recommendations": "Build a visual 'Policy Pack Builder' in the UI to reduce the need for writing raw JSON/YAML policies.", "status": "Fixable in v1.1"},
     {"name": "Proof-of-ROI Readiness", "category": "COMMERCIAL", "weight": 5, "score": 60, "justification": "The system lacks built-in mechanisms to quantify the time saved or risks avoided by catching architectural flaws pre-commit.", "tradeoffs": "Focusing on core execution vs. building reporting and analytics.", "recommendations": "Add a baseline ROI telemetry module tracking issues caught pre-commit.", "status": "Fixable in v1.1"},
-    {"name": "Executive Value Visibility", "category": "COMMERCIAL", "weight": 4, "score": 55, "justification": "The UI is designed for operators. There is no default, high-level dashboard that an executive can glance at to understand overall architectural health.", "tradeoffs": "Operator-centric workflows vs. executive reporting.", "recommendations": "Implement a Workspace Health dashboard with high-level KPIs.", "status": "Fixable in v1"},
+    {"name": "Sponsor Value Visibility", "category": "COMMERCIAL", "weight": 4, "score": 55, "justification": "The UI is designed for operators. There is no default, high-level dashboard that an sponsor can glance at to understand overall architectural health.", "tradeoffs": "Operator-centric workflows vs. sponsor reporting.", "recommendations": "Implement a Workspace Health dashboard with high-level KPIs.", "status": "Fixable in v1"},
     {"name": "Differentiability", "category": "COMMERCIAL", "weight": 4, "score": 80, "justification": "The combination of agentic architecture review with strict enterprise governance (RLS, durable audit) is a strong differentiator.", "tradeoffs": "Niche focus vs. broad appeal.", "recommendations": "Highlight the pre-commit governance gate as a unique differentiator in marketing.", "status": "Strong"},
-    {"name": "Decision Velocity", "category": "COMMERCIAL", "weight": 2, "score": 75, "justification": "The sales-led motion is clear, but the lack of self-serve ROI and executive dashboards slows down the final purchase decision.", "tradeoffs": "Sales-led control vs. self-serve speed.", "recommendations": "Expose ROI telemetry directly to the buyer during the pilot.", "status": "Fixable in v1.1"},
+    {"name": "Decision Velocity", "category": "COMMERCIAL", "weight": 2, "score": 75, "justification": "The sales-led motion is clear, but the lack of self-serve ROI and sponsor dashboards slows down the final purchase decision.", "tradeoffs": "Sales-led control vs. self-serve speed.", "recommendations": "Expose ROI telemetry directly to the buyer during the pilot.", "status": "Fixable in v1.1"},
     {"name": "Commercial Packaging Readiness", "category": "COMMERCIAL", "weight": 2, "score": 80, "justification": "Tiers are documented, but enforcement mechanisms in the codebase need to be strictly aligned with the documentation.", "tradeoffs": "Complex tiering vs. simple pricing.", "recommendations": "Audit and enforce all documented feature gates in the codebase.", "status": "Fixable in v1"},
     {"name": "Stickiness", "category": "COMMERCIAL", "weight": 1, "score": 85, "justification": "Once integrated into the CI/CD pipeline and governance workflows, the product becomes a system of record and is highly sticky.", "tradeoffs": "Deep integration vs. easy offboarding.", "recommendations": "Deepen ITSM integrations.", "status": "Strong"},
     {"name": "Template and Accelerator Richness", "category": "COMMERCIAL", "weight": 1, "score": 50, "justification": "Very few out-of-the-box templates exist, forcing users to build architecture requests from scratch.", "tradeoffs": "Custom architecture vs. boilerplate.", "recommendations": "Ship standard reference architectures as built-in templates.", "status": "Fixable in v1"},
@@ -65,13 +65,13 @@ report = f"""> **Scope:** Independent first-principles assessment of ArchLucid V
 
 # ArchLucid Assessment – Weighted Readiness {readiness_percentage:.2f}%
 
-## Executive Summary
+## Sponsor Summary
 
 **Overall Readiness**
 ArchLucid demonstrates a solid V1 foundation with a weighted readiness of {readiness_percentage:.2f}%. The core architecture is highly secure and leverages Azure-native patterns effectively. However, the product currently leans heavily on operator technical proficiency, which introduces significant friction in adoption, time-to-value, and marketability to non-technical buyers.
 
 **Commercial Picture**
-The commercial foundation is viable for technical buyers, but Marketability, Adoption Friction, and Executive Value Visibility are lagging. The product solves complex architectural and governance problems, but translating these technical wins into sponsor-facing views and easy-to-adopt workflows requires immediate attention. The lack of out-of-the-box templates and sandbox environments slows down the sales cycle.
+The commercial foundation is viable for technical buyers, but Marketability, Adoption Friction, and Sponsor Value Visibility are lagging. The product solves complex architectural and governance problems, but translating these technical wins into sponsor-facing views and easy-to-adopt workflows requires immediate attention. The lack of out-of-the-box templates and sandbox environments slows down the sales cycle.
 
 **Enterprise Picture**
 Enterprise trust and auditability are strong points, supported by the durable audit log and RLS. However, Customer Self-Sufficiency and Workflow Embeddedness are weaker. First-party Jira and ServiceNow are V1 commitments; until shipped, teams rely on webhooks. Furthermore, troubleshooting configuration issues (like Key Vault access) requires too much white-glove support.
@@ -99,7 +99,7 @@ report += """## Top 10 Most Important Weaknesses
 2. **Setup Complexity:** Requiring Entra ID, SQL, and Key Vault configuration upfront slows down initial trials and time-to-value.
 3. **Policy Pack Authoring Friction:** Writing raw JSON/YAML for policy packs is error-prone and increases adoption friction.
 4. **Opaque Agent Reasoning:** Provenance graphs are too dense for quick comprehension, hurting explainability.
-5. **Lack of Executive Dashboards:** No default, high-level view exists for sponsors to understand overall architectural health.
+5. **Lack of Sponsor Dashboards:** No default, high-level view exists for sponsors to understand overall architectural health.
 6. **Unquantified ROI:** Hard for champions to prove the tool's financial or time-saving value automatically.
 7. **Template Scarcity:** Lack of out-of-the-box starting points forces users to build architecture requests from scratch.
 8. **Difficult Integration Testing:** Operators cannot easily test or debug webhook deliveries from within the UI.
@@ -111,7 +111,7 @@ report += """## Top 10 Most Important Weaknesses
 1. **Value Translation:** Marketing materials and the product experience are too focused on architecture mechanics rather than business risk mitigation.
 2. **Sales-Led Bottleneck:** The complexity of the pilot setup limits the volume of concurrent trials and self-serve adoption.
 3. **Missing ROI Telemetry:** Buyers cannot easily justify the purchase without clear, quantified metrics.
-4. **Lack of Executive Visibility:** Economic buyers lack a shipped dashboard experience to see the value of their investment.
+4. **Lack of Sponsor Visibility:** Economic buyers lack a shipped dashboard experience to see the value of their investment.
 5. **Template Scarcity:** The "blank canvas" problem delays the "aha" moment for new prospects.
 
 ## Top 5 Enterprise Adoption Blockers

@@ -26,6 +26,12 @@ import {
   CUSTOMER_INTAKE_SAMPLE_RUN_ID,
 } from "@/lib/samples/customer-intake-modernization/definition";
 import {
+  buildAiKnowledgeAssistantShowcaseStaticPayload,
+} from "@/lib/samples/ai-knowledge-assistant/static-showcase-payload";
+import {
+  AI_KNOWLEDGE_ASSISTANT_SAMPLE_DEFINITION,
+} from "@/lib/samples/ai-knowledge-assistant/definition";
+import {
   buildCustomerIntakeShowcaseStaticPayload,
   CUSTOMER_INTAKE_SHOWCASE_DECISION_ITEMS,
   CUSTOMER_INTAKE_SHOWCASE_DECISION_SYNOPSES,
@@ -232,7 +238,7 @@ export function getShowcaseDecisionItemsForRunId(runId: string): readonly Showca
 }
 
 /**
- * Read-only static payload for `/showcase/[runId]` when no preview API is configured,
+ * Read-only static payload for `/showcase/[reviewId]` when no preview API is configured,
  * or for mock API responses in E2E. `urlRunId` is echoed into `run.runId` so the URL and body stay aligned.
  */
 export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePreviewResponse {
@@ -241,6 +247,10 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
 
   if (scenario?.slug === CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug) {
     return buildCustomerIntakeShowcaseStaticPayload(runId);
+  }
+
+  if (scenario?.slug === AI_KNOWLEDGE_ASSISTANT_SAMPLE_DEFINITION.slug) {
+    return buildAiKnowledgeAssistantShowcaseStaticPayload(runId);
   }
 
   return buildClaimsIntakeShowcaseStaticPayload(runId);

@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -92,7 +92,7 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
           {blockSummary !== null ? (
             <p className={cn("m-0 mt-2 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} role="status">
               {blockSummary}{" "}
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={QUALITY_GATE_REJECTION_RUNBOOK_PATH}>
+              <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={QUALITY_GATE_REJECTION_RUNBOOK_PATH}>
                 Quality gate recovery runbook
               </Link>
             </p>
@@ -106,6 +106,8 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                 <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Structural</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Semantic</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Grounding</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell className="min-w-[12rem]">Reject reason</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell className="min-w-[12rem]">Threshold notes</EnterpriseTableHeaderCell>
               </EnterpriseTableHeadRow>
             </EnterpriseTableHead>
@@ -125,6 +127,12 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
                     {row.semanticScore === null ? "—" : row.semanticScore.toFixed(2)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+                    {row.faithfulnessScore === null ? "—" : row.faithfulnessScore.toFixed(2)}
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    {row.rejectReasonLabel ?? "—"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {row.breachedThresholds.join(" · ")}

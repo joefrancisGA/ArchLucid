@@ -29,7 +29,7 @@ describe("ShowcaseQuickNav", () => {
     render(<ShowcaseQuickNav payload={samplePayload()} operatorDeepLinksAvailable renderMode="static" />);
 
     expect(screen.getByRole("link", { name: "Review" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open signed record" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open sealed record" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: SHOWCASE_QUICK_NAV_SIGN_IN_CTA })).not.toBeInTheDocument();
   });
 
@@ -41,6 +41,6 @@ describe("ShowcaseQuickNav", () => {
       `/auth/signin?returnUrl=${encodeURIComponent(`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)}`,
     );
     expect(screen.queryByRole("link", { name: "Review" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Open signed record" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Open sealed record" })).not.toBeInTheDocument();
   });
 });

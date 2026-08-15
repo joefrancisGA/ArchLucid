@@ -192,7 +192,7 @@ public sealed class ArchitectureReviewPdfBuilder
 
         page.Content().Column(column =>
         {
-            AddExecutiveSummary(column, model);
+            AddSponsorReport(column, model);
             AddSystemOverview(column, model);
             AddEvidenceReviewed(column, model);
             AddArchitectureDecisions(column, model);
@@ -204,14 +204,14 @@ public sealed class ArchitectureReviewPdfBuilder
         });
     }
 
-    private static void AddExecutiveSummary(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
+    private static void AddSponsorReport(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
     {
-        AddHeading(column, "Executive summary", firstMajorHeading: true);
+        AddHeading(column, "Sponsor report", firstMajorHeading: true);
 
-        if (string.IsNullOrWhiteSpace(model.ExecutiveSummary))
-            AddPlaceholder(column, "executive summary content");
+        if (string.IsNullOrWhiteSpace(model.SponsorReport))
+            AddPlaceholder(column, "Sponsor report content");
         else
-            AddMultilineBodyText(column, model.ExecutiveSummary);
+            AddMultilineBodyText(column, model.SponsorReport);
     }
 
     private static void AddSystemOverview(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)

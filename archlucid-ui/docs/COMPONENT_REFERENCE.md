@@ -134,7 +134,7 @@ Renders a sorted table of artifacts with Review and Download links. Used on:
 
 1. **Sorts** artifacts alphabetically by `name`.
 2. **Columns:** Artifact (name), Type (label from helper), Format, Created (localized), Hash (first 8 chars + `…`), Actions.
-3. **Preview / Review link:** Always `artifactPreviewHref(manifestId, artifactId)` → `/governance/signed-records/{manifestId}/artifacts/{artifactId}` (GAR). Optional `runId` does not change the href.
+3. **Preview / Review link:** Always `artifactPreviewHref(manifestId, artifactId)` → `/governance/sealed-records/{manifestId}/artifacts/{artifactId}` (GAR). Optional `runId` does not change the href.
 4. **Download link:** Uses `getArtifactDownloadUrl(manifestId, artifactId)` — a proxy URL for binary download.
 5. **Current row highlighting:** Background turns `#eff6ff` (light blue) when `artifactId === currentArtifactId`.
 
@@ -142,7 +142,7 @@ Renders a sorted table of artifacts with Review and Download links. Used on:
 
 ```
 From review detail or signed-record detail:
-  Preview → /governance/signed-records/{manifestId}/artifacts/{artifactId}
+  Preview → /governance/sealed-records/{manifestId}/artifacts/{artifactId}
     → GAR artifact review page renders
 
 Retired (do not reintroduce):
@@ -390,7 +390,7 @@ All return `{ ok: true, value/items }` or `{ ok: false, message }`.
 
 ### Purpose
 
-Renders the **aggregate** run explanation from `GET /v1/explain/runs/{runId}/aggregate` (`getRunExplanationSummary` in `api.ts`): executive assessment, risk posture badge, model confidence (`Progress` from shadcn/ui), theme bullets, key drivers / risk implications from the nested `explanation`, and optional provenance in a `<details>` block.
+Renders the **aggregate** run explanation from `GET /v1/explain/runs/{runId}/aggregate` (`getRunExplanationSummary` in `api.ts`): sponsor assessment, risk posture badge, model confidence (`Progress` from shadcn/ui), theme bullets, key drivers / risk implications from the nested `explanation`, and optional provenance in a `<details>` block.
 
 ### Props
 
@@ -402,7 +402,7 @@ Renders the **aggregate** run explanation from `GET /v1/explain/runs/{runId}/agg
 }
 ```
 
-On **run detail** (`/runs/[runId]`), the server component fetches the summary when a golden manifest exists; failures use `OperatorApiProblem` above this component (warning variant), matching manifest summary / artifacts.
+On **run detail** (`/runs/[reviewId]`), the server component fetches the summary when a golden manifest exists; failures use `OperatorApiProblem` above this component (warning variant), matching manifest summary / artifacts.
 
 ### Exports
 

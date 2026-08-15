@@ -10,8 +10,15 @@ import {
 
 export const REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH = "/help/repeat-review-loop" as const;
 
+export const REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE =
-  "This guide explains the repeat-review loop. For live architecture packages or assurance claims, open Compare, Validate review, or the audit trail.";
+  "This guide explains the repeat-review loop — open Compare, Validate review, or Audit when you need live architecture packages or assurance trails.";
+
+export const REPEAT_REVIEW_LOOP_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID =
+  "help-repeat-review-loop-claim-discipline-heading" as const;
 
 export const REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO =
   "Use these follow-ups when repeat-review guidance turns into sponsor outcomes, review workflow detail, or assurance trails.";
@@ -35,15 +42,14 @@ export const REPEAT_REVIEW_LOOP_HELP_WHERE_YOU_SEE_IT: readonly EvidenceSourceLi
     href: GOVERNANCE_POLICY_PACKS_PATH,
   },
   {
-    label: "Executive ROI summary export",
-    href: "/insights/executive-summary",
+    label: "Sponsor ROI summary export",
+    href: "/insights/sponsor-report",
   },
 ] as const;
 
 /** Operator follow-ups — destinations not already in the Start the loop card. */
 export const REPEAT_REVIEW_LOOP_HELP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Compare and replay", href: inAppHelpHref("comparison-replay") },
-  { label: "Pilot outcomes", href: "/insights/pilot-outcomes" },
+  { label: "Sponsor report", href: "/insights/sponsor-report" },
   { label: "Review guide", href: inAppHelpHref("review-guide") },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
 ] as const;

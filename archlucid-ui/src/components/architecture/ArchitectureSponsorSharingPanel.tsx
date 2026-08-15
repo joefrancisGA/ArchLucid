@@ -126,7 +126,7 @@ export function ArchitectureSponsorSharingPanel(
       const copied = await writeWorkItemBodyToClipboard(markdown);
 
       if (!copied) {
-        showError("Could not copy sponsor summary");
+        showError("Could not copy sponsor report");
 
         return;
       }
@@ -247,7 +247,7 @@ export function ArchitectureSponsorSharingPanel(
                 size="sm"
                 disabled={busy}
                 onClick={() => {
-                  void copySponsorMarkdown(false, "sponsor-summary");
+                  void copySponsorMarkdown(false, "sponsor-report");
                 }}
                 data-testid="architecture-sponsor-copy-summary"
               >

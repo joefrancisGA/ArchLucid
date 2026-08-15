@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 
-vi.mock("@/app/(operator)/architecture/reviews/[runId]/findings/[findingId]/FindingInspectPolicyRuleCallout", () => ({
+vi.mock("@/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectPolicyRuleCallout", () => ({
   FindingInspectPolicyRuleCallout: () => (
     <div data-testid="finding-inspect-policy-rule-callout">Rule callout</div>
   ),

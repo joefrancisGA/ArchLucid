@@ -68,7 +68,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "product-basics",
     question: "How is ArchLucid different from ChatGPT, Copilot, Claude, or Gemini?",
     answer:
-      "Frontier AI assistants can draft advice, but they do not commit a signed review record, typed audit ledger, optional pre-commit governance gate, or traversable evidence chain for your workspace. ArchLucid is built for repeatable, sponsor-exportable architecture proof.",
+      "Frontier AI assistants can draft advice, but they do not commit a sealed review record, typed audit ledger, optional pre-commit governance gate, or traversable evidence chain for your workspace. ArchLucid is built for repeatable, sponsor-exportable architecture proof.",
     relatedLinks: [{ label: "Why ArchLucid", href: "/why" }],
   },
   {
@@ -163,18 +163,18 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
       "Plans include AI usage allowances. Expensive actions are budgeted and may be limited in demo or trial workspaces to prevent surprise usage.",
   },
   {
-    id: "executive-sponsor-value",
+    id: "sponsor-sponsor-value",
     categoryId: "governance-audit",
-    question: "What does the executive sponsor get?",
+    question: "What does the sponsor sponsor get?",
     answer:
-      "An executive summary, value narrative, and exportable proof packet that tie findings and decisions to evidence — so sponsors can approve, fund, or remediate with traceability instead of anecdote.",
+      "An sponsor report, value narrative, and exportable proof packet that tie findings and decisions to evidence — so sponsors can approve, fund, or remediate with traceability instead of anecdote.",
   },
   {
     id: "governance-and-audit",
     categoryId: "governance-audit",
     question: "How does ArchLucid support governance and audit?",
     answer:
-      "Reviews can pass through approval workflows, produce signed review records, and maintain an audit trail linking findings, evidence, and decisions. Exports support diligence and architecture review board accountability.",
+      "Reviews can pass through approval workflows, produce sealed review records, and maintain an audit trail linking findings, evidence, and decisions. Exports support diligence and architecture review board accountability.",
   },
   {
     id: "security-assurance-materials",

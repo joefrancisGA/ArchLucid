@@ -39,7 +39,7 @@ public sealed class RunSummaryOnePagerDocumentModel
         init;
     }
 
-    public string ExecutiveSummary
+    public string SponsorReport
     {
         get;
         init;

@@ -74,6 +74,9 @@ public static class GovernanceConstants
         public const string SkippedFocusedPilotPack =
             "Skipped policy pack '{0}' ({1}): excluded by focused pilot mode.";
 
+        public const string SkippedPackGloballyInactive =
+            "Skipped policy pack '{0}' ({1}): deactivated platform-wide.";
+
         public const string FocusedPilotModeActive =
             "Focused pilot mode: effective governance limited to Security Architecture Baseline and FinOps & Cloud Cost Optimization.";
 

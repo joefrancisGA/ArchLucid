@@ -21,9 +21,13 @@ public sealed class RetrievalRunCompletionIndexer(
     IRetrievalDocumentBuilder documentBuilder,
     IRetrievalIndexingService indexingService,
     IGoldenManifestRepository goldenManifestRepository,
-    Microsoft.Extensions.Options.IOptionsMonitor<PriorManifestRetrievalOptions> priorManifestOptions)
+    Microsoft.Extensions.Options.IOptionsMonitor<PriorManifestRetrievalOptions> priorManifestOptions,
+    IGraphCommunitySummarizationService graphCommunitySummarizationService)
     : IRetrievalRunCompletionIndexer
 {
+    private readonly IGraphCommunitySummarizationService _graphCommunitySummarizationService =
+        graphCommunitySummarizationService ?? throw new ArgumentNullException(nameof(graphCommunitySummarizationService));
+
     private readonly IGoldenManifestRepository _goldenManifestRepository =
         goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
 
@@ -107,6 +111,18 @@ public sealed class RetrievalRunCompletionIndexer(
                     tenantId,
                     workspaceId,
                     projectId));
+
+            IReadOnlyList<RetrievalDocument> communityDocuments =
+                await _graphCommunitySummarizationService
+                    .BuildCommunityDocumentsAsync(
+                        graphSnapshot,
+                        tenantId,
+                        workspaceId,
+                        projectId,
+                        ct)
+                    .ConfigureAwait(false);
+
+            retrievalDocuments.AddRange(communityDocuments);
         }
 
         await indexingService.IndexDocumentsAsync(retrievalDocuments, ct);

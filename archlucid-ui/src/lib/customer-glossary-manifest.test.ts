@@ -32,10 +32,11 @@ describe("customer-glossary-manifest", () => {
     expect(CUSTOMER_GLOSSARY_TERMS.some((term) => term.visibility === "internal-only")).toBe(false);
   });
 
-  it("uses Signed review record as the preferred label, not Signed manifest", () => {
-    const signedTerm = listCustomerFacingGlossaryTerms().find((term) => term.id === "signed-review-record");
+  it("uses Sealed review record as the preferred label, not Signed manifest", () => {
+    const signedTerm = listCustomerFacingGlossaryTerms().find((term) => term.id === "sealed-review-record");
 
-    expect(signedTerm?.label).toBe("Signed review record");
+    expect(signedTerm?.label).toBe("Sealed review record");
+    expect(signedTerm?.deprecatedAliases).toContain("Signed review record");
     expect(signedTerm?.deprecatedAliases).toContain("Signed manifest");
     expect(listCustomerFacingGlossaryTerms().some((term) => term.label === "Signed manifest")).toBe(false);
   });
@@ -56,7 +57,7 @@ describe("customer-glossary-manifest", () => {
 
     const manifestMatches = filterGlossaryTermsByQuery(customerTerms, "signed manifest", labelIndex);
 
-    expect(manifestMatches.some((term) => term.id === "signed-review-record")).toBe(true);
+    expect(manifestMatches.some((term) => term.id === "sealed-review-record")).toBe(true);
 
     const riskRelated = filterGlossaryTermsByQuery(customerTerms, "control", labelIndex);
 

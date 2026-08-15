@@ -21,13 +21,13 @@
     "/architecture/reviews": {
       "firstLoadJsKb": 1308.2
     },
-    "/architecture/reviews/[runId]": {
+    "/architecture/reviews/[reviewId]": {
       "firstLoadJsKb": 1883.4
     },
-    "/architecture/executive-dashboard": {
+    "/architecture/sponsor-dashboard": {
       "firstLoadJsKb": 1489.3
     },
-    "/governance/signed-records": {
+    "/governance/sealed-records": {
       "firstLoadJsKb": 1454.2
     }
   },

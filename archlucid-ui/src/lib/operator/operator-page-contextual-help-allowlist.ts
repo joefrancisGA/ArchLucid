@@ -41,7 +41,7 @@ export const OPERATOR_PAGE_CONTEXTUAL_HELP_TB1666_EXEMPLAR_SURFACES: readonly Op
       id: "improvement-planning",
       pathname: "/insights/improvement-planning",
       modulePath: "app/(operator)/insights/improvement-planning/_sections/PlanningPageHeader.tsx",
-      notes: "Improvement planning — label-only secondary hub (no Learn more).",
+      notes: "Improvement planning — improvement-planning specialty help topic.",
     },
   ];
 

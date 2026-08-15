@@ -15,7 +15,7 @@ import {
 } from "@/lib/review-scorecard-empty-state";
 
 describe("ReviewScorecardEmptyState", () => {
-  it("renders executive-oriented empty copy, actions, and metric preview placeholders", () => {
+  it("renders sponsor-oriented empty copy, actions, and metric preview placeholders", () => {
     render(<ReviewScorecardEmptyState />);
 
     expect(screen.getByTestId("review-scorecard-empty-state")).toBeInTheDocument();

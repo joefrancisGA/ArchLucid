@@ -29,6 +29,6 @@ describe("value-report retired route (IA batch 4)", () => {
 
   it("does not ship an App Router tree", () => {
     expect(existsSync(join(RETIRED_APP_DIR, "layout.tsx"))).toBe(false);
-    expect(existsSync(join(RETIRED_APP_DIR, "executive-summary", "page.tsx"))).toBe(false);
+    expect(existsSync(join(RETIRED_APP_DIR, "sponsor-report", "page.tsx"))).toBe(false);
   });
 });

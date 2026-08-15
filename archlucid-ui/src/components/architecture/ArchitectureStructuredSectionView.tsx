@@ -12,7 +12,7 @@ import {
   ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL,
 } from "@/lib/architecture/architecture-structured-content-copy";
 import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
-import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureStructuredSectionViewProps = {
   readonly section: ArchitectureStructuredSection;
@@ -98,10 +98,7 @@ export function ArchitectureStructuredSectionView(
         {section.provenance === "inferred" && props.correctionHref !== null ? (
           <Link
             href={props.correctionHref}
-            className={cn(
-              "inline-flex font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
+            className={cn("inline-flex", OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
             data-testid={`architecture-section-correct-${section.key}`}
           >
             {ARCHITECTURE_STRUCTURED_CORRECT_LABEL}

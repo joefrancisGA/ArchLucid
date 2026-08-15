@@ -24,30 +24,14 @@ describe("operate-nav-progressive-unlock", () => {
   });
 
   it("hides Operate groups before first commit and restores them after", () => {
-    const preCommit = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      false,
-    );
+    const preCommit = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ReadAuthority, "all", false);
     const preCommitIds = preCommit.map((row) => row.group.id);
 
     expect(preCommitIds).toContain("pilot");
     expect(preCommitIds).not.toContain("operate-governance");
     expect(preCommitIds).not.toContain("operate-integrations");
 
-    const postCommit = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-    );
+    const postCommit = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ReadAuthority, "all", true);
     const postCommitIds = postCommit.map((row) => row.group.id);
 
     expect(postCommitIds).toContain("operate-analysis");
@@ -57,15 +41,7 @@ describe("operate-nav-progressive-unlock", () => {
   });
 
   it("shows extended governance hrefs regardless of unlock phase when authority allows", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      "all",
-      true,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ExecuteAuthority, "all", true);
     const governance = rows.find((row) => row.group.id === "operate-governance");
     const hrefs = governance?.visibleLinks.map((link) => link.href) ?? [];
 
@@ -77,15 +53,7 @@ describe("operate-nav-progressive-unlock", () => {
   });
 
   it("shows advanced-tier approval queue without showAdvanced when authority allows", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      false,
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      "all",
-      true,
-    );
+    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ExecuteAuthority, "all", true);
     const governance = rows.find((row) => row.group.id === "operate-governance");
     const hrefs = governance?.visibleLinks.map((link) => link.href) ?? [];
 

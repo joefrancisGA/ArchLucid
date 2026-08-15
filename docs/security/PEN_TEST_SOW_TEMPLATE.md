@@ -27,7 +27,7 @@ Authorize a **time-boxed** technical assessment of ArchLucid’s exposed attack 
 
 ## 4. Deliverables
 
-1. Executive summary (risk-ranked).
+1. Sponsor summary (risk-ranked).
 2. Detailed findings with reproduction, impact, and remediation guidance.
 3. Re-test window for critical fixes (negotiated).
 

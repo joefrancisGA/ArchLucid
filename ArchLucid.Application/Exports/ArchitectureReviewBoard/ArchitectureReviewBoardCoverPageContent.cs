@@ -5,7 +5,7 @@ using ArchLucid.Contracts.Exports;
 namespace ArchLucid.Application.Exports.ArchitectureReviewBoard;
 
 /// <summary>
-///     Resolved executive cover-page copy shared by DOCX and PDF architecture review board exports.
+///     Resolved sponsor cover-page copy shared by DOCX and PDF architecture review board exports.
 /// </summary>
 public sealed record ArchitectureReviewBoardCoverPageContent(
     string Title,

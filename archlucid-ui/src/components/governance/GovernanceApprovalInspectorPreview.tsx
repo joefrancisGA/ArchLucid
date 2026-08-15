@@ -1,12 +1,12 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CTA_WIDTH, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
-import { StatusPill } from "@/components/StatusPill";
+import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { Button } from "@/components/ui/button";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
@@ -45,7 +45,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
         testId="governance-approval-inspector-secondary-view-strip"
       />
       <div className="flex flex-wrap items-center gap-2">
-        <StatusPill status={request.status} domain="governance" ariaLabel={`Governance status: ${request.status}`} />
+        <GovernanceStatusTag status={request.status} aria-label={`Governance status: ${request.status}`} />
       </div>
 
       <dl className="m-0 grid gap-2 sm:grid-cols-[minmax(5rem,auto)_1fr] sm:gap-x-3">
@@ -55,7 +55,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
         <dd className="m-0 min-w-0">
           <Link
             href={`/architecture/reviews/${encodeURIComponent(request.runId)}`}
-            className={cn("break-all font-mono font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("break-all font-mono", OPERATOR_LINK.optional)}
           >
             {request.runId}
           </Link>

@@ -9,7 +9,7 @@
     "Analytics/InternalCrossTenantAnalyticsController.cs": "internal_cross_tenant_analytics",
     "Auth/TrialLocalIdentityAuthController.cs": "trial_local_identity_auth",
     "Authority/AuthorityReplayController.cs": "internal_replay_diagnostics",
-    "Authority/ExecutiveSummaryController.cs": "non_versioned_executive_api",
+    "Authority/SponsorReportController.cs": "non_versioned_executive_api",
     "Authority/InternalArchitectureDiagnosticsController.cs": "internal_architecture_diagnostics",
     "Authority/RunAgentEvaluationController.cs": "internal_architecture_diagnostics",
     "Billing/BillingMarketplaceWebhookController.cs": "partner_webhook_ingest",
@@ -75,14 +75,14 @@
     "Authority/GcpTier2ConnectionController.cs": "/integrations/cloud-connections",
     "Admin/HostedAwsExtractorRunController.cs": "/integrations/cloud-connections",
     "Admin/HostedGcpExtractorRunController.cs": "/integrations/cloud-connections",
-    "Planning/ComparisonsController.cs": "/internal/replay",
+    "Planning/ComparisonsController.cs": "/internal/validate-route",
     "Planning/GraphController.cs": "/insights/evidence-graph",
     "Planning/RetrievalController.cs": "/insights/search-review-evidence",
-    "Roi/RoiController.cs": "/architecture/executive-dashboard",
+    "Roi/RoiController.cs": "/architecture/sponsor-dashboard",
     "Tenancy/CorePilotTeamChecklistController.cs": "/architecture/first-review-guide",
     "Tenancy/TenantMeasuredRoiController.cs": "/insights/roi-summary",
-    "Tenancy/TenantPilotValueReportController.cs": "/insights/pilot-outcomes",
+    "Tenancy/TenantPilotValueReportController.cs": "/insights/sponsor-report",
     "Tenancy/TenantTrialController.cs": "/administration/workspace-settings",
-    "ValueReports/ValueReportController.cs": "/insights/executive-summary"
+    "ValueReports/ValueReportController.cs": "/insights/sponsor-report"
   }
 }

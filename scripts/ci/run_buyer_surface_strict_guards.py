@@ -242,6 +242,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "live-demo see-it ladder honesty",
+        ("python", "scripts/ci/check_live_demo_see_it_ladder_honesty.py"),
+        None,
+    ),
+    GuardCommand(
         "comparison replay drift honesty",
         ("python", "scripts/ci/check_comparison_replay_drift_honesty.py"),
         None,
@@ -249,6 +254,11 @@ GUARDS: tuple[GuardCommand, ...] = (
     GuardCommand(
         "operator primary object honesty",
         ("python", "scripts/ci/check_operator_primary_object_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "specialty help chrome honesty",
+        ("python", "scripts/ci/check_specialty_help_chrome_honesty.py"),
         None,
     ),
     GuardCommand(
@@ -354,6 +364,11 @@ GUARDS: tuple[GuardCommand, ...] = (
     GuardCommand(
         "configuration architecture precedence honesty",
         ("python", "scripts/ci/check_configuration_architecture_precedence_honesty.py"),
+        None,
+    ),
+    GuardCommand(
+        "rest+cli breaking-change compatibility honesty",
+        ("python", "scripts/ci/check_rest_cli_breaking_change_compat_honesty.py"),
         None,
     ),
     GuardCommand(

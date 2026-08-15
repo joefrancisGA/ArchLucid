@@ -46,9 +46,9 @@ export function whyArchlucidCounterHintAuditRowsTruncated(cap: number): string {
 
 export const WHY_ARCHLUCID_COUNTER_HINT_FINDINGS = "Findings across all severities";
 
-export const WHY_ARCHLUCID_FOOTER_EXECUTIVE_BRIEF_LABEL = "Executive sponsor brief";
+export const WHY_ARCHLUCID_FOOTER_SPONSOR_BRIEF_LABEL = "Sponsor sponsor brief";
 
-export const WHY_ARCHLUCID_FOOTER_EXECUTIVE_BRIEF_HREF = "/help/executive-summary" as const;
+export const WHY_ARCHLUCID_FOOTER_SPONSOR_BRIEF_HREF = "/help/sponsor-report" as const;
 
 export const WHY_ARCHLUCID_FOOTER_GETTING_STARTED_LABEL = "Getting started";
 

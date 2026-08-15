@@ -31,6 +31,7 @@ import {
 } from "@/lib/cloud-platform-scope-storage";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { CloudConnectionsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -204,6 +205,8 @@ export function CloudConnectionsPageClient() {
           </>
         }
       />
+
+      <CloudConnectionsEvidenceOrientationStrip />
 
       <section className="space-y-4" aria-labelledby="cloud-connections-options-heading">
         <h2 id="cloud-connections-options-heading" className={OPERATOR_NAV_GROUP_LABEL}>

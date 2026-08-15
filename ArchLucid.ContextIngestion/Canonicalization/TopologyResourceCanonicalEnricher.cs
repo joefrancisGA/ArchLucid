@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ContextIngestion.Canonicalization;
 
@@ -20,6 +21,12 @@ public sealed class TopologyResourceCanonicalEnricher : ICanonicalObjectTypeEnri
 
         if (!item.Properties.ContainsKey("category"))
             item.Properties["category"] = InferCategory(item);
+
+        if (!item.Properties.ContainsKey(CanonicalGraphPropertyKeys.TopologySensitivity))
+        {
+            item.Properties[CanonicalGraphPropertyKeys.TopologySensitivity] =
+                TopologySensitivityClassifier.Classify(item.Name, item.Properties);
+        }
 
         return item;
     }

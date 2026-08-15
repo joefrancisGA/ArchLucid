@@ -1,5 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const mockUsePathname = vi.fn(() => "/governance/recurrence-schedules");
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => mockUsePathname(),
+}));
 
 import { ScopeChangeConsequenceBanner } from "@/components/ScopeChangeConsequenceBanner";
 import {
@@ -23,6 +29,7 @@ const SAMPLE_SCOPE: OperatorScopeRecord = {
 
 describe("ScopeChangeConsequenceBanner (TB-2288)", () => {
   afterEach(() => {
+    mockUsePathname.mockReturnValue("/governance/recurrence-schedules");
     window.sessionStorage.clear();
     window.localStorage.clear();
   });
@@ -56,5 +63,34 @@ describe("ScopeChangeConsequenceBanner (TB-2288)", () => {
 
     expect(screen.queryByTestId("scope-change-consequence-banner")).not.toBeInTheDocument();
     expect(isScopeChangeConsequenceDismissed("tenant-a|workspace-a|project-a")).toBe(true);
+  });
+
+  it("does not render on static help routes even when a scope change event is active", async () => {
+    mockUsePathname.mockReturnValue("/help/recurrence-schedules");
+
+    render(<ScopeChangeConsequenceBanner />);
+
+    writeOperatorScopeToStorage(SAMPLE_SCOPE);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("scope-change-consequence-banner")).not.toBeInTheDocument();
+    });
+  });
+
+  it("uses neutral status chrome without an h2 heading", async () => {
+    render(<ScopeChangeConsequenceBanner />);
+
+    writeOperatorScopeToStorage(SAMPLE_SCOPE);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("scope-change-consequence-banner")).toBeInTheDocument();
+    });
+
+    const banner = screen.getByTestId("scope-change-consequence-banner");
+
+    expect(banner.className).toContain("border-neutral-200");
+    expect(banner.className).not.toContain("bg-teal-50");
+    expect(banner.querySelector("h2")).toBeNull();
+    expect(banner.querySelector("#scope-change-consequence-banner-heading")?.tagName).toBe("P");
   });
 });

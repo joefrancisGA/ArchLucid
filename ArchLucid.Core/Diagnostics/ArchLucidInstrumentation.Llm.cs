@@ -232,6 +232,21 @@ public static partial class ArchLucidInstrumentation
         acc?.AddCompletions(1);
     }
 
+    /// <summary>Records a logical agent step spend-cap breach (TB-941).</summary>
+    public static readonly Counter<long> AgentLogicalStepSpendCapHitsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_agent_logical_step_spend_cap_hits_total",
+            description: "Per-(RunId, TaskId) billed completion attempt cap hits (labels: agent_type).");
+
+    public static void RecordAgentLogicalStepSpendCapHit(string agentTypeLabel)
+    {
+        string label = string.IsNullOrWhiteSpace(agentTypeLabel) ? "unknown" : agentTypeLabel.Trim();
+        TagList tags = [];
+        tags.Add("agent_type", label);
+
+        AgentLogicalStepSpendCapHitsTotal.Add(1, tags);
+    }
+
     /// <summary>Records one completed Azure OpenAI Batch API job and estimated savings (TB-685).</summary>
     public static void RecordLlmBatchCompletionRun(
         int requestCount,

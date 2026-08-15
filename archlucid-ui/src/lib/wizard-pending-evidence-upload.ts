@@ -1,7 +1,8 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { tryParseApiProblemDetails } from "@/lib/api-problem";
 import { formatApiFailureMessage } from "@/lib/api-error";
-import { uploadAzureExtractorPackage } from "@/lib/upload-azure-extractor-package";
+import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
+import { uploadTier1InventoryPackage } from "@/lib/upload-tier1-inventory-package";
 import { postBulkEvidenceMultipartWithProgress } from "@/lib/bulk-evidence-upload-client";
 import { BULK_EVIDENCE_UPLOAD_FILE_NOT_STORED_REASON } from "@/lib/bulk-evidence-upload-copy";
 import {
@@ -35,12 +36,13 @@ function parseProblemDetail(bodyText: string): string | undefined {
   }
 }
 
-export async function uploadWizardPendingAzureEvidence(
+export async function uploadWizardPendingInventoryEvidence(
   runId: string,
+  platform: CloudInventoryPlatform,
   file: File,
   options?: { readonly onUploadProgress?: (percent: number) => void },
 ): Promise<WizardPendingEvidenceUploadResult> {
-  const result = await uploadAzureExtractorPackage(file, {
+  const result = await uploadTier1InventoryPackage(platform, file, {
     runId,
     onUploadProgress: options?.onUploadProgress,
   });
@@ -55,6 +57,15 @@ export async function uploadWizardPendingAzureEvidence(
     problem: result.problem,
     correlationId: result.correlationId,
   };
+}
+
+/** @deprecated Prefer {@link uploadWizardPendingInventoryEvidence} with an explicit platform. */
+export async function uploadWizardPendingAzureEvidence(
+  runId: string,
+  file: File,
+  options?: { readonly onUploadProgress?: (percent: number) => void },
+): Promise<WizardPendingEvidenceUploadResult> {
+  return uploadWizardPendingInventoryEvidence(runId, "azure", file, options);
 }
 
 export async function uploadWizardPendingDocumentEvidence(

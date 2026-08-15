@@ -10,6 +10,7 @@ import {
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAcceleratorChooserIntroAndTable,
+  rewriteAzureBoardsLimitationsHeadingHonesty,
   stripAzureBoardsContributorLeakage,
   stripCaiqSigContributorLeakage,
   stripCliUsageContributorLeakage,
@@ -24,9 +25,9 @@ import {
   stripEvaluatorWorkbookContributorLeakage,
   stripEvidenceIntakeStructuredUiSections,
   stripEvidenceTrailStructuredUiSections,
-  stripExecutiveSummaryContributorLeakage,
-  stripExecutiveSummaryPilotRoiMeasurementLeakage,
-  stripExecutiveSummarySponsorBriefLeakage,
+  stripSponsorReportContributorLeakage,
+  stripSponsorReportPilotRoiMeasurementLeakage,
+  stripSponsorReportSponsorBriefLeakage,
   stripFirstReviewEvidenceChecklistContributorLeakage,
   stripFirstReviewEvidenceChecklistContributorSections,
   stripFirstValue20ContributorLeakage,
@@ -185,7 +186,7 @@ export const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet
   {
     id: "azure-boards-integration",
     matches: matchesSourceDoc("azure_boards_integration.md"),
-    rules: [stripAzureBoardsContributorLeakage],
+    rules: [stripAzureBoardsContributorLeakage, rewriteAzureBoardsLimitationsHeadingHonesty],
   },
   {
     id: "caiq-sig-response",
@@ -203,9 +204,9 @@ export const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet
     rules: [stripSubprocessorsContributorLeakage, alignSubprocessorsRegisterProductLanguage],
   },
   {
-    id: "executive-summary-faq",
-    matches: matchesBoth(matchesSlug("executive-summary"), matchesSourceDoc("customer-facing/faq.md")),
-    rules: [stripExecutiveSummaryContributorLeakage],
+    id: "sponsor-report-faq",
+    matches: matchesBoth(matchesSlug("sponsor-report"), matchesSourceDoc("customer-facing/faq.md")),
+    rules: [stripSponsorReportContributorLeakage],
   },
   {
     id: "first-value-20-minutes",
@@ -260,12 +261,12 @@ export const HELP_MARKDOWN_AUDIENCE_RULE_SETS: readonly HelpMarkdownTopicRuleSet
     rules: [stripPriorManifestRetrievalContributorLeakage],
   },
   {
-    // The product-overview alias normalizes to executive-summary before render (TB-1739).
-    id: "executive-summary-sponsor-brief",
-    matches: matchesSlug("executive-summary"),
+    // The product-overview alias normalizes to sponsor-report before render (TB-1739).
+    id: "sponsor-report-sponsor-brief",
+    matches: matchesSlug("sponsor-report"),
     rules: [
-      stripExecutiveSummarySponsorBriefLeakage,
-      stripExecutiveSummaryPilotRoiMeasurementLeakage,
+      stripSponsorReportSponsorBriefLeakage,
+      stripSponsorReportPilotRoiMeasurementLeakage,
     ],
   },
   {

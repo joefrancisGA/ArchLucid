@@ -34,7 +34,7 @@
     },
     {
       "code": "non_versioned_executive_api",
-      "summary": "Legacy-version executive summary JSON under /api/authority (packaging seam)."
+      "summary": "Legacy-version Sponsor report JSON under /api/authority (packaging seam)."
     },
     {
       "code": "partner_webhook_ingest",

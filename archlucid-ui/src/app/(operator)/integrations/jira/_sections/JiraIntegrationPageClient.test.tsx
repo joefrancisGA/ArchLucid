@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mockFetchHealth = vi.fn();
 const mockFetchSettings = vi.fn();
 const mockFetchConnection = vi.fn();
+const mockProbeHealth = vi.fn();
 const mockUpsertSettings = vi.fn();
 const mockLaunchOAuth = vi.fn();
 
@@ -27,6 +28,7 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
   fetchItsmIntegrationHealth: (...args: unknown[]) => mockFetchHealth(...args),
   fetchTenantItsmOutboundSettings: (...args: unknown[]) => mockFetchSettings(...args),
   fetchTenantItsmConnectorConnection: (...args: unknown[]) => mockFetchConnection(...args),
+  probeItsmIntegrationHealth: (...args: unknown[]) => mockProbeHealth(...args),
   upsertTenantItsmOutboundSettings: (...args: unknown[]) => mockUpsertSettings(...args),
 }));
 
@@ -36,6 +38,7 @@ vi.mock("@/lib/jira-atlassian-oauth-connect", () => ({
 
 import { JiraIntegrationPageClient } from "./JiraIntegrationPageClient";
 import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { JIRA_INTEGRATION_SOURCES } from "@/lib/jira-integration-evidence-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   JIRA_CONNECT_WITH_ATLASSIAN_LABEL,
@@ -102,24 +105,45 @@ function oauthReadyConnection(): Record<string, unknown> {
   };
 }
 
+function basePageBundle(overrides: {
+  health?: Record<string, unknown>;
+  settings?: Record<string, unknown>;
+  connection?: Record<string, unknown>;
+} = {}) {
+  return {
+    health: baseHealth(overrides.health),
+    settings: baseSettings(overrides.settings),
+    connection: baseConnection(overrides.connection),
+  };
+}
+
+function applyPageBundleMocks(
+  overrides: {
+    health?: Record<string, unknown>;
+    settings?: Record<string, unknown>;
+    connection?: Record<string, unknown>;
+  } = {},
+): void {
+  const bundle = basePageBundle(overrides);
+  mockFetchHealth.mockResolvedValue(bundle.health);
+  mockFetchSettings.mockResolvedValue(bundle.settings);
+  mockFetchConnection.mockResolvedValue(bundle.connection);
+}
+
 function credentialsReadyMocks(): void {
-  mockFetchHealth.mockResolvedValue(
-    baseHealth({
+  applyPageBundleMocks({
+    health: {
       jira: { locallyConfigured: true, reachable: null, summary: "pending" },
-    }),
-  );
-  mockFetchSettings.mockResolvedValue(
-    baseSettings({
+    },
+    settings: {
       deploymentCredentials: { jiraConfigured: true },
-    }),
-  );
-  mockFetchConnection.mockResolvedValue(
-    baseConnection({
+    },
+    connection: {
       isConfigured: true,
       instanceBaseUrl: "https://example.atlassian.net",
       authMode: "OAuth2RefreshToken",
-    }),
-  );
+    },
+  });
 }
 
 describe("JiraIntegrationPageClient", () => {
@@ -128,19 +152,18 @@ describe("JiraIntegrationPageClient", () => {
     canMutate = true;
     showOperatorNav = false;
     callerAuthorityRank = 0;
-    mockFetchHealth.mockResolvedValue(baseHealth());
-    mockFetchSettings.mockResolvedValue(baseSettings());
-    mockFetchConnection.mockResolvedValue(baseConnection());
+    applyPageBundleMocks();
+    mockProbeHealth.mockResolvedValue(baseHealth());
     mockUpsertSettings.mockResolvedValue(baseSettings({ jiraProjectKeyOverride: "ARCH" }));
     mockLaunchOAuth.mockResolvedValue(undefined);
   });
 
-  it("renders OperatorPageHeader with breadcrumb, status badge, and last-checked metadata", async () => {
+  it("renders OperatorPageHeader with status badge and last-checked metadata", async () => {
     render(<JiraIntegrationPageClient />);
 
     expect(await screen.findByTestId("jira-page-title")).toHaveTextContent(JIRA_INTEGRATION_PAGE_TITLE);
     expect(screen.getByText(JIRA_PAGE_SUBTITLE)).toBeInTheDocument();
-    expect(screen.getByTestId("jira-page-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("jira-page-breadcrumb")).toBeNull();
     expect(screen.getByTestId("jira-header-status-badge")).toBeInTheDocument();
     expect(screen.getByTestId("jira-last-checked")).toBeInTheDocument();
     expect(screen.getByTestId("integrations-jira-page").querySelector("[data-nav-href]")).toHaveAttribute(
@@ -173,6 +196,22 @@ describe("JiraIntegrationPageClient", () => {
     expect(chooser.compareDocumentPosition(status) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
+  it("renders the Jira integration Sources and claim-discipline strip", async () => {
+    render(<JiraIntegrationPageClient />);
+
+    await screen.findByTestId("jira-integration-orientation");
+
+    const sources = screen.getByTestId("jira-integration-sources");
+
+    for (const link of JIRA_INTEGRATION_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
+    expect(readinessLinks).toHaveLength(1);
+    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
+  });
+
   it("states credentials-not-configured exactly once in not-configured state", async () => {
     render(<JiraIntegrationPageClient />);
 
@@ -198,7 +237,7 @@ describe("JiraIntegrationPageClient", () => {
   });
 
   it("launches Atlassian OAuth when prerequisites are ready", async () => {
-    mockFetchConnection.mockResolvedValue(baseConnection(oauthReadyConnection()));
+    applyPageBundleMocks({ connection: oauthReadyConnection() });
 
     render(<JiraIntegrationPageClient />);
 
@@ -223,23 +262,19 @@ describe("JiraIntegrationPageClient", () => {
   });
 
   it("shows connected state and enables connection test when probe is reachable", async () => {
-    mockFetchHealth.mockResolvedValue(
-      baseHealth({
+    applyPageBundleMocks({
+      health: {
         jira: { locallyConfigured: true, reachable: true, summary: "ready" },
-      }),
-    );
-    mockFetchSettings.mockResolvedValue(
-      baseSettings({
+      },
+      settings: {
         deploymentCredentials: { jiraConfigured: true },
-      }),
-    );
-    mockFetchConnection.mockResolvedValue(
-      baseConnection({
+      },
+      connection: {
         isConfigured: true,
         instanceBaseUrl: "https://example.atlassian.net",
         authMode: "OAuth2RefreshToken",
-      }),
-    );
+      },
+    });
 
     render(<JiraIntegrationPageClient />);
 
@@ -290,7 +325,7 @@ describe("JiraIntegrationPageClient", () => {
   });
 
   it("does not show not-configured next step when OAuth refs are ready but consent is pending", async () => {
-    mockFetchConnection.mockResolvedValue(baseConnection(oauthReadyConnection()));
+    applyPageBundleMocks({ connection: oauthReadyConnection() });
 
     render(<JiraIntegrationPageClient />);
 
@@ -302,11 +337,40 @@ describe("JiraIntegrationPageClient", () => {
 
   it("does not claim not-configured when health load fails (TB-1146)", async () => {
     mockFetchHealth.mockRejectedValue(new Error("health probe unavailable"));
+    mockFetchSettings.mockRejectedValue(new Error("health probe unavailable"));
+    mockFetchConnection.mockRejectedValue(new Error("health probe unavailable"));
 
     render(<JiraIntegrationPageClient />);
 
     await screen.findByTestId("jira-page-load-error");
     expect(screen.queryByTestId("integrations-jira-not-configured-next-step")).not.toBeInTheDocument();
+  });
+
+  it("keeps connection fields when settings load fails (TB-1162)", async () => {
+    mockFetchHealth.mockResolvedValue(
+      baseHealth({
+        jira: { locallyConfigured: true, reachable: null, summary: "pending" },
+      }),
+    );
+    mockFetchSettings.mockRejectedValue(new Error("Database Query Failed"));
+    mockFetchConnection.mockResolvedValue(
+      baseConnection({
+        isConfigured: true,
+        instanceBaseUrl: "https://example.atlassian.net",
+        authMode: "OAuth2RefreshToken",
+      }),
+    );
+
+    render(<JiraIntegrationPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("jira-site-url")).toHaveTextContent("https://example.atlassian.net");
+    });
+
+    expect(screen.getByTestId("jira-credential-status")).toBeInTheDocument();
+    expect(screen.getByTestId("jira-page-load-error")).toHaveTextContent("Database Query Failed");
+    expect(screen.getByTestId("jira-connection-status")).not.toHaveTextContent(/Database Query Failed/i);
+    expect(screen.getByRole("button", { name: JIRA_SAVE_SETTINGS_BUTTON })).toBeDisabled();
   });
 
   it("shows operator notes only when system administration nav is enabled", async () => {

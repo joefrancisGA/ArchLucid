@@ -16,7 +16,7 @@ Use these when assembling handoff folders — they map artifacts to decision nee
 
 | Role | Template |
 | --- | --- |
-| Buyer / executive sponsor | [`evidence-packet-buyer.template.md`](../go-to-market/templates/evidence-packet-buyer.template.md) |
+| Buyer / sponsor sponsor | [`evidence-packet-buyer.template.md`](../go-to-market/templates/evidence-packet-buyer.template.md) |
 | Operator / pilot lead | [`#operator-pilot-lead-evidence-packet`](#operator-pilot-lead-evidence-packet) · [`evidence-packet-operator.template.md`](../go-to-market/templates/evidence-packet-operator.template.md) (alias) |
 | Security reviewer | [`#security-reviewer-evidence-packet`](#security-reviewer-evidence-packet) · [`evidence-packet-security-reviewer.template.md`](../security/templates/evidence-packet-security-reviewer.template.md) (alias) |
 
@@ -318,7 +318,7 @@ Track voluntary return behavior at day 7, day 14, and day 30 after pilot kickoff
 2. For each checkpoint, record **usage state**, **voluntary return count**, **assistance mode** (founder-assisted vs independent), and **continuation/dropoff reason**. Use **`not-yet-due`** until the checkpoint date passes.
 3. Set **`trackingComplete`: true** only after day-30 is recorded. Proof collection emits **`pilot-reuse-cohort-tracker-report.md`** (triage **FP-T029** — WARN when missing).
 
-Executive cohort rollup across pilots:
+Sponsor cohort rollup across pilots:
 
 ```powershell
 python scripts/ci/aggregate_pilot_reuse_cohort_trackers.py `

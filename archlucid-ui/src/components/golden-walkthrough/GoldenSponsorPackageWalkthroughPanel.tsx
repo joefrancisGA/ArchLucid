@@ -78,7 +78,7 @@ export function GoldenSponsorPackageWalkthroughPanel(
       </ol>
 
       <div className={cn(compact ? "mt-3" : "mt-4")}>
-        <Button asChild variant="primary" size="sm" className="h-8 w-fit">
+        <Button asChild variant="outline" size="sm" className="h-8 w-fit">
           <Link href={entryHref} data-testid="golden-sponsor-package-walkthrough-primary">
             {GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA}
           </Link>

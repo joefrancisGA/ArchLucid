@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDraftAiRefinePanel } from "./ArchitectureDraftAiRefinePanel";
+import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 
 const runReasoning = vi.fn();
 
@@ -42,6 +43,7 @@ const draftFields = {
   freeTextIntent: "Public API without authentication.",
   businessOutcome: "Secure customer access",
   systemName: "Claims intake",
+  structuredBrief: emptyArchitectureDraftStructuredBrief(),
 };
 
 describe("ArchitectureDraftAiRefinePanel", () => {
@@ -114,7 +116,12 @@ describe("ArchitectureDraftAiRefinePanel", () => {
   it("asks for overview content before enabling refine", () => {
     render(
       <ArchitectureDraftAiRefinePanel
-        fields={{ freeTextIntent: "", businessOutcome: "", systemName: "" }}
+        fields={{
+          freeTextIntent: "",
+          businessOutcome: "",
+          systemName: "",
+          structuredBrief: emptyArchitectureDraftStructuredBrief(),
+        }}
       />,
     );
 

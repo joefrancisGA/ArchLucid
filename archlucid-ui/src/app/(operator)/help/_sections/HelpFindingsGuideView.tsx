@@ -39,6 +39,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -167,18 +168,13 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
             </Button>
             <Link
               href={FINDINGS_HELP_PRIMARY_ACTIONS.governanceDecisions.href}
-              className={cn(
-                "inline-flex min-h-6 items-center py-1 text-sm underline-offset-2 hover:underline",
-                DESIGN_TOKENS.accent.link,
-                OPERATOR_TYPOGRAPHY.body,
-              )}
+              className={cn("inline-flex min-h-6 items-center py-1", OPERATOR_BODY_INLINE_LINK_CLASS)}
             >
               {FINDINGS_HELP_PRIMARY_ACTIONS.governanceDecisions.label}
             </Link>
           </CardContent>
         </Card>
 
-        <FindingsHelpEvidenceOrientationStrip />
         <HelpFindingsWorkspaceReadinessStrip />
       </div>
 
@@ -260,11 +256,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
                 >
                   <Link
                     href={action.href}
-                    className={cn(
-                      "inline-flex min-h-6 items-center py-1 font-semibold underline-offset-2 hover:underline",
-                      DESIGN_TOKENS.accent.link,
-                      OPERATOR_LINK.inline,
-                    )}
+                    className={cn("inline-flex min-h-6 items-center py-1 font-semibold", OPERATOR_BODY_INLINE_LINK_CLASS)}
                   >
                     {action.label}
                   </Link>
@@ -324,10 +316,12 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
             </div>
           </section>
 
+          <FindingsHelpEvidenceOrientationStrip />
+
           <p className={cn("m-0 pt-2", OPERATOR_TYPOGRAPHY.label)}>
             <Link
               href={FINDINGS_HELP_RELATED_PRODUCT_DOCS.href}
-              className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               {FINDINGS_HELP_RELATED_PRODUCT_DOCS.label}
             </Link>

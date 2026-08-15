@@ -7,7 +7,7 @@ import { REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE } from "@/lib/review-scorecard-e
 
 import { ReviewScorecardEmptyStatePreview } from "./ReviewScorecardEmptyStatePreview";
 
-/** Executive-ready empty state for the operator review scorecard. */
+/** Sponsor-ready empty state for the operator review scorecard. */
 export function ReviewScorecardEmptyState(): React.JSX.Element {
   return (
     <div className={OPERATOR_LAYOUT.sectionStack}>

@@ -5,6 +5,7 @@ import {
   AlertsInboxControls,
   shouldShowAlertsInboxControls,
 } from "@/components/alerts/AlertsInboxControls";
+import { OPERATOR_NOT_REFRESHED_LABEL } from "@/lib/operator/operator-last-refreshed-label";
 
 const baseProps = {
   status: "Open",
@@ -53,6 +54,6 @@ describe("AlertsInboxControls", () => {
     expect(screen.getByTestId("alerts-inbox-controls")).toBeInTheDocument();
     expect(screen.getByLabelText("Status")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
-    expect(screen.getByTestId("alerts-inbox-last-updated")).toHaveTextContent("Not refreshed yet");
+    expect(screen.getByTestId("alerts-inbox-last-updated")).toHaveTextContent(OPERATOR_NOT_REFRESHED_LABEL);
   });
 });

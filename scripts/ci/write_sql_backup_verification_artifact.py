@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Emit executive-dashboard JSON for Azure SQL backup region / redundancy verification.
+"""Emit sponsor-dashboard JSON for Azure SQL backup region / redundancy verification.
 
 Reuses validation from ``assert_sql_backup_regions.py`` (do not duplicate policy logic here).
 Typical CI/CD usage after ``terraform show -json`` and a successful assert exit:

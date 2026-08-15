@@ -1,6 +1,8 @@
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
+
 export type CtoDemoStory = {
-  readonly id: string;
-  readonly label: string;
+  readonly id: string;  readonly label: string;
   readonly systemName: string;
   readonly policyPackLabel: string;
   readonly presenterLine: string;
@@ -11,7 +13,7 @@ export const CTO_DEMO_STORIES: readonly CtoDemoStory[] = [
     id: "healthcare",
     label: "Healthcare",
     systemName: "Claims Intake Modernization",
-    policyPackLabel: "Healthcare Claims Policy Pack v3.4.1",
+    policyPackLabel: policyPackBuyerLabel("healthcare-claims-v3", CLAIMS_INTAKE_RULE_SET_VERSION),
     presenterLine: "Show the board condensed outcomes for a healthcare intake modernization.",
   },
   {

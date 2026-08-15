@@ -12,7 +12,7 @@ type TechnicalIdDisclosureProps = {
   readonly value: string | null | undefined;
 };
 
-/** Hides raw IDs behind a disclosure toggle in buyer/executive shells. */
+/** Hides raw IDs behind a disclosure toggle in buyer/sponsor shells. */
 export function TechnicalIdDisclosure(props: TechnicalIdDisclosureProps) {
   const [open, setOpen] = useState(false);
   const trimmed = (props.value ?? "").trim();

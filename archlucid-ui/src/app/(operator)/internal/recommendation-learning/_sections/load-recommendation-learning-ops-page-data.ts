@@ -1,6 +1,5 @@
 import {
-  fetchRecommendationLearningHistory,
-  fetchRecommendationLearningStatus,
+  fetchRecommendationLearningOpsPageBundle,
   loadPersistedRecommendationLearningProfile,
   previewRecommendationLearningRebuild,
   rollbackRecommendationLearningProfile,
@@ -32,13 +31,15 @@ export async function loadRecommendationLearningOpsPageData(): Promise<Recommend
   }
 
   try {
-    const [status, profile, history] = await Promise.all([
-      fetchRecommendationLearningStatus(),
-      loadPersistedRecommendationLearningProfile(),
-      fetchRecommendationLearningHistory(20),
-    ]);
+    const bundle = await fetchRecommendationLearningOpsPageBundle(20);
 
-    return { kind: "ready", status, profile, history, failure: null };
+    return {
+      kind: "ready",
+      status: bundle.status,
+      profile: bundle.latestProfile,
+      history: bundle.history,
+      failure: null,
+    };
   } catch (e: unknown) {
     return { kind: "ready", status: null, profile: null, history: [], failure: toApiLoadFailure(e) };
   }
@@ -69,13 +70,9 @@ export async function reloadRecommendationLearningOpsBundle(): Promise<{
   profile: LearningProfile | null;
   history: RecommendationLearningProfileHistoryItem[];
 }> {
-  const [status, profile, history] = await Promise.all([
-    fetchRecommendationLearningStatus(),
-    loadPersistedRecommendationLearningProfile(),
-    fetchRecommendationLearningHistory(20),
-  ]);
+  const bundle = await fetchRecommendationLearningOpsPageBundle(20);
 
-  return { status, profile, history };
+  return { status: bundle.status, profile: bundle.latestProfile, history: bundle.history };
 }
 
 /** Reloads only the persisted profile weights — does not recompute or refresh eligibility counts. */

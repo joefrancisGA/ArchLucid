@@ -11,7 +11,7 @@
 
 ## 1. Business context
 
-Apex Manufacturing is consolidating reporting from ERP, CRM, plant telemetry, finance, and support systems. The first sponsor use case is an executive margin and operations dashboard. The platform uses landing, raw, curated, and semantic zones, with future ML feature tables under consideration.
+Apex Manufacturing is consolidating reporting from ERP, CRM, plant telemetry, finance, and support systems. The first sponsor use case is an sponsor margin and operations dashboard. The platform uses landing, raw, curated, and semantic zones, with future ML feature tables under consideration.
 
 The packet is intentionally realistic rather than polished. It includes open questions, scope deferrals, cross-boundary assumptions, and implementation notes that may or may not be acceptable depending on risk tolerance.
 
@@ -38,7 +38,7 @@ The packet is intentionally realistic rather than polished. It includes open que
 |---|---|---|
 | Data engineer | Internal | Pipeline development |
 | Analyst | Internal | BI datasets |
-| Executive sponsor | Internal | Dashboard viewer |
+| Sponsor sponsor | Internal | Dashboard viewer |
 | Plant operations lead | Internal/OT-adjacent | Plant metrics |
 | Data scientist | Internal | Sandbox access |
 | SaaS source system | External vendor | API extraction |
@@ -83,7 +83,7 @@ Reviewers should pay special attention to where data, identity, operational resp
 
 ## 7. Reliability, resiliency, and performance
 
-- Executive dashboard must refresh by 7 AM local time.
+- Sponsor dashboard must refresh by 7 AM local time.
 - Finance measures must reconcile to ERP totals within tolerance.
 - ERP row count variance >10% triggers warning.
 - Support ticket free-text parse errors are logged but do not fail pipeline.
@@ -152,7 +152,7 @@ failOnFreeTextParseError: false
 }
 ```
 
-Development and test refreshes initially use the last successful production extract. Masking and tokenization are planned for phase two. Some semantic model changes are manually applied by BI developers before executive review.
+Development and test refreshes initially use the last successful production extract. Masking and tokenization are planned for phase two. Some semantic model changes are manually applied by BI developers before sponsor review.
 
 ---
 

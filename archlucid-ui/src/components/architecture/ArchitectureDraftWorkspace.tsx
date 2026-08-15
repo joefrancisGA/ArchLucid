@@ -54,7 +54,9 @@ import {
 import {
   hasArchitectureDraftSaveableContent,
   validateArchitectureReviewReadiness,
+  type ArchitectureDraftFieldState,
 } from "@/lib/architecture/architecture-draft-readiness";
+import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import {
   ARCHITECTURES_LIST_PATH,
   architectureDraftPath,
@@ -76,7 +78,7 @@ import {
   ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
   ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
-import { OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
@@ -97,6 +99,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     freeTextIntent: "",
     businessOutcome: "",
     systemName: "",
+    structuredBrief: emptyArchitectureDraftStructuredBrief(),
   });
   const [actorSet, setActorSet] = useState<ActorSet>(() => architectureCreationDefaultActorSet());
   const [exitPending, setExitPending] = useState(false);
@@ -146,7 +149,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, []);
 
   const acceptServerBaselineRef = useRef<
-    (fields: { freeTextIntent: string; businessOutcome: string; systemName: string }, serverUpdatedUtc: string) => void
+    (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string) => void
   >(() => undefined);
 
   const handleDraftLoaded = useCallback(
@@ -185,7 +188,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     ? ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD
     : ARCHITECTURE_DRAFT_WORKSPACE_LEAD;
 
-  const reviewReadiness = useMemo(() => validateArchitectureReviewReadiness(fields), [fields]);
+  const reviewReadiness = useMemo(
+    () => validateArchitectureReviewReadiness(fields, actorSet.actors),
+    [actorSet.actors, fields],
+  );
   const needsPersistedDraftBeforeStart = isNewDraft && !hasPersistedDraft;
   const canStartReview =
     reviewReadiness.isValid && scopeGateOpen && !needsPersistedDraftBeforeStart && saveState !== "saving";
@@ -469,19 +475,22 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             {linkedReviewId !== null ? (
               <Link
                 href={reviewDetailPath(linkedReviewId)}
-                className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium text-teal-800 underline dark:text-teal-300")}
+                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
               >
                 Open linked review
               </Link>
             ) : null}
           </div>
         </div>
-        <ArchitectureDraftSaveStatus
-          saveState={saveState}
-          lastSavedUtc={lastSavedUtc}
-          autosaveActive={!handoffEditorLocked}
-          hasPersistedDraft={hasPersistedDraft}
-        />
+        <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
+          {isNewDraft ? null : <PageContextualHelpButton />}
+          <ArchitectureDraftSaveStatus
+            saveState={saveState}
+            lastSavedUtc={lastSavedUtc}
+            autosaveActive={!handoffEditorLocked}
+            hasPersistedDraft={hasPersistedDraft}
+          />
+        </div>
       </div>
 
       {linkedReviewId !== null ? (
@@ -493,10 +502,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         />
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <ArchitectureDraftGuidanceDisclosure className="flex-1" />
-        {isNewDraft ? null : <PageContextualHelpButton />}
-      </div>
+      <ArchitectureDraftGuidanceDisclosure />
 
       {conflictMessage !== null ? (
         <div className="space-y-2" data-testid="architecture-draft-conflict">

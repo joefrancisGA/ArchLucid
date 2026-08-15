@@ -8,8 +8,8 @@ const RETIRED_BOOKMARK_REWRITE_SOURCES = [
   "/governance/risk-exceptions",
   "/governance/risk-exceptions/:path*",
   "/settings/roles",
-  "/architecture/reviews/customer-intake-modernization/signed-record",
-  "/architecture/reviews/:id/signed-record",
+  "/architecture/reviews/customer-intake-modernization/sealed-record",
+  "/architecture/reviews/:id/sealed-record",
 ] as const;
 
 describe("operator next.config rewrites (IA batch 7–8)", () => {

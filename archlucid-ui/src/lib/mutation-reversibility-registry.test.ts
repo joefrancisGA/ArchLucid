@@ -18,6 +18,8 @@ describe("mutation-reversibility-registry (TB-2148)", () => {
       "governance_workflow_approve",
       "governance_workflow_promote",
       "governance_workflow_reject",
+      "platform_bundled_policy_pack_activate",
+      "platform_bundled_policy_pack_deactivate",
     ]);
     expect(getMutationReversibilityEntry("governance_bulk_disposition").classification).toBe("reversible");
     expect(getMutationReversibilityEntry("governance_quick_approve").classification).toBe("permanent");

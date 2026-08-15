@@ -33,7 +33,7 @@ type HelpAdminDiagnosticsGuideViewProps = {
   readonly markdown: string;
 };
 
-/** Admin diagnostics orientation for `/help/admin-diagnostics` (HAE). */
+/** Platform health orientation for `/help/admin-diagnostics` (HAE). */
 export function HelpAdminDiagnosticsGuideView(
   props: HelpAdminDiagnosticsGuideViewProps,
 ): React.ReactElement {

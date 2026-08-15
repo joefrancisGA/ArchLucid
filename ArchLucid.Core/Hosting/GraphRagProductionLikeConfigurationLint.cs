@@ -26,11 +26,16 @@ public static class GraphRagProductionLikeConfigurationLint
         if (HasAzureSearchPosture(configuration))
             return null;
 
+        string communityNote = advanced.EnableCommunitySummarization
+            ? " Community summarization is also enabled and inherits the same unproven vector-index posture."
+            : string.Empty;
+
         return new HostingMisconfigurationWarning(
             ProductionLikeHostingMisconfigurationAdvisorRuleNames.GraphRagEnabledWithoutAzureSearchPosture,
             "Retrieval:Advanced:EnableGraphRag is true but Azure AI Search is not configured "
             + "(Retrieval:VectorIndex=AzureSearch and Retrieval:AzureSearch:Endpoint). "
-            + "Graph-RAG neighbor expansion quality is unproven without a production vector index.");
+            + "Graph-RAG neighbor expansion quality is unproven without a production vector index."
+            + communityNote);
     }
 
     internal static bool HasAzureSearchPosture(IConfiguration configuration)

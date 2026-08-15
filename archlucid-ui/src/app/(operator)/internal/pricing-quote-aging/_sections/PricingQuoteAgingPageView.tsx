@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { PricingQuoteAgingEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Badge } from "@/components/ui/badge";
@@ -250,6 +251,7 @@ export function PricingQuoteAgingPageView(props: Props) {
           </div>
         }
       />
+      <PricingQuoteAgingEvidenceOrientationStrip />
 {headline !== null ? (
         <p
           className={cn(

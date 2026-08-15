@@ -21,7 +21,7 @@
 | Finalize | Review detail → **Finalize** (API/CLI `commit`) | `POST /v1/architecture/review/{runId}/finalize` | `archlucid architecture commit <runId>` |
 | Export artifacts | Review detail → Export | `GET /v1/artifacts/runs/{runId}/export` | `archlucid artifacts export <runId>` |
 | Compare runs | Compare workspace | `GET /v1/authority/compare/runs?leftRunId=…&rightRunId=…` | Compare via REST (CLI wrapper optional) |
-| ROI summary | Value report / executive dashboard | `GET /v1/architecture/review/{runId}/roi` Â· optional `GET /v1/analytics/roi` | ROI via REST |
+| ROI summary | Value report / sponsor dashboard | `GET /v1/architecture/review/{runId}/roi` Â· optional `GET /v1/analytics/roi` | ROI via REST |
 
 Canonical API surface: [`API_CONTRACTS.md`](API_CONTRACTS.md) Â· OpenAPI: `GET /openapi/v1.json` Â· generated client: `ArchLucid.Api.Client`.
 
@@ -130,7 +130,7 @@ curl -sS "$BASE/v1/architecture/review/$RUN_ID/roi" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-Executive aggregate (optional; requires sufficient committed runs):
+Sponsor aggregate (optional; requires sufficient committed runs):
 
 ```bash
 curl -sS "$BASE/v1/analytics/roi" \

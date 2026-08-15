@@ -13,9 +13,9 @@ public sealed class PolicyPackBeforeAfterDiffChangeSet
 
     public required IReadOnlyList<string> FindingsNoLongerBlockingCommit { get; init; }
 
-    public required IReadOnlyList<string> ExecutiveSummaryLinesAdded { get; init; }
+    public required IReadOnlyList<string> SponsorReportLinesAdded { get; init; }
 
-    public required IReadOnlyList<string> ExecutiveSummaryLinesRemoved { get; init; }
+    public required IReadOnlyList<string> SponsorReportLinesRemoved { get; init; }
 
     public required bool GateBlockedFlipped { get; init; }
 }

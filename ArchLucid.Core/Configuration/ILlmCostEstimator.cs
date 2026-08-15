@@ -20,5 +20,6 @@ public interface ILlmCostEstimator
         int inputTokens,
         int outputTokens,
         int reasoningTokens = 0,
-        string? deploymentLabel = null);
+        string? deploymentLabel = null,
+        string? modelAliasId = null);
 }

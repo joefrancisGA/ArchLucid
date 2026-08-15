@@ -2,13 +2,16 @@
  * Canonical buyer-facing product nouns — single source for UI copy sweeps (TB-273).
  *
  * Pairing (do not conflate):
- * - **Signed review record** = immutable package locked at finalize (golden manifest).
+ * - **Sealed review record** = immutable package locked at finalize (golden manifest).
  * - **Decision** = disposition on a finding/proposal; browsed in the Decision register.
- * Never call the package a "signed decision record".
+ * Never call the package a "signed decision record" or "signed review record".
  */
 
 /** Committed architecture output (prefer over "golden manifest" or internal "manifest" in buyer copy). */
-export const SIGNED_MANIFEST_LABEL = "Signed review record";
+export const SEALED_MANIFEST_LABEL = "Sealed review record";
+
+/** @deprecated Use {@link SEALED_MANIFEST_LABEL}. Kept so existing imports keep compiling. */
+export const SIGNED_MANIFEST_LABEL = SEALED_MANIFEST_LABEL;
 
 /**
  * Disposition noun for Decision register rows and finding outcomes.
@@ -63,14 +66,14 @@ export const RULE_BASED_ANALYSIS_BUYER_LABEL = "Rule-based analysis";
 /** Proof-confidence chip when every agent step used rule-based analysis. */
 export const RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL = "Rule-based analysis only";
 
-/** Executive handoff noun — prefer over "sponsor packet" or "sponsor pack" in buyer UI. */
-export const EXECUTIVE_BRIEFING_EXPORT_LABEL = "Executive briefing export";
+/** Sponsor handoff noun — prefer over "sponsor packet" or "sponsor pack" in buyer UI. */
+export const SPONSOR_BRIEFING_EXPORT_LABEL = "Sponsor briefing export";
 
 /** Artifact table section for stakeholder-facing markdown. */
-export const EXECUTIVE_BRIEFING_LABEL = "Executive briefing";
+export const SPONSOR_BRIEFING_LABEL = "Sponsor briefing";
 
-/** Mid-sentence form of {@link EXECUTIVE_BRIEFING_EXPORT_LABEL}. */
-export const EXECUTIVE_BRIEFING_EXPORT_LABEL_LOWER = "executive briefing export";
+/** Mid-sentence form of {@link SPONSOR_BRIEFING_EXPORT_LABEL}. */
+export const SPONSOR_BRIEFING_EXPORT_LABEL_LOWER = "sponsor briefing export";
 
 /** Governance gate before finalize (prefer over "pre-commit gate" in buyer copy). */
 export const APPROVAL_GATE_LABEL = "Approval gate";

@@ -59,11 +59,11 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
         text.Should().Contain("Document Control");
         text.Should().Contain("run-rc24");
         text.Should().Contain("Table of Contents");
-        text.Should().Contain("1. Executive Summary");
+        text.Should().Contain("1. Sponsor report");
     }
 
     [Fact]
-    public void ConsultingDocxSupplementalSections_AddExecutiveSummary_substitutes_template_and_warns()
+    public void ConsultingDocxSupplementalSections_AddSponsorReport_substitutes_template_and_warns()
     {
         Body body = new();
         ArchitectureAnalysisReport report = new()
@@ -80,11 +80,11 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
         ConsultingDocxTemplateOptions options = new()
         {
             OrganizationName = "Contoso",
-            ExecutiveSummaryTextTemplate =
+            SponsorReportTextTemplate =
                 "{SystemName} for {OrganizationName}: {ServiceCount}/{DatastoreCount}/{ControlCount}",
         };
 
-        ConsultingDocxSupplementalSections.AddExecutiveSummary(body, report, options);
+        ConsultingDocxSupplementalSections.AddSponsorReport(body, report, options);
 
         string text = body.InnerText;
         text.Should().Contain("Claims Intake for Contoso: 1/1/1");
@@ -213,7 +213,7 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
                 },
             ],
             GateBlocked = true,
-            ExecutiveSummaryLines = ["line-old"],
+            SponsorReportLines = ["line-old"],
         };
         PolicyPackBeforeAfterConfigurationSnapshot after = new()
         {
@@ -231,7 +231,7 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
                 },
             ],
             GateBlocked = false,
-            ExecutiveSummaryLines = ["line-new"],
+            SponsorReportLines = ["line-new"],
         };
 
         PolicyPackBeforeAfterDiffChangeSet diff = PolicyPackBeforeAfterDiffComposer.Compose(before, after);
@@ -240,8 +240,8 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
         diff.RemovedComplianceRuleKeys.Should().ContainSingle().Which.Should().Be("rule-a");
         diff.FindingsNewlyBlockingCommit.Should().ContainSingle().Which.Should().Be("f-2");
         diff.FindingsNoLongerBlockingCommit.Should().ContainSingle().Which.Should().Be("f-1");
-        diff.ExecutiveSummaryLinesAdded.Should().Contain("line-new");
-        diff.ExecutiveSummaryLinesRemoved.Should().Contain("line-old");
+        diff.SponsorReportLinesAdded.Should().Contain("line-new");
+        diff.SponsorReportLinesRemoved.Should().Contain("line-old");
         diff.GateBlockedFlipped.Should().BeTrue();
     }
 
@@ -300,7 +300,7 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
         snapshot.GateBlocked.Should().BeTrue();
         snapshot.ActiveComplianceRuleKeysOrdered.Should().Contain("rule-1");
         snapshot.Findings.Should().ContainSingle(f => f.FindingId == "find-1" && f.BlocksCommitUnderConfiguration);
-        snapshot.ExecutiveSummaryLines.Should().Contain(l => l.Contains("blocked", StringComparison.OrdinalIgnoreCase));
+        snapshot.SponsorReportLines.Should().Contain(l => l.Contains("blocked", StringComparison.OrdinalIgnoreCase));
     }
 
     [Theory]

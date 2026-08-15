@@ -7,7 +7,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>HTTP coverage for <c>GET /v1/analytics/roi</c> — mocked executive ROI aggregates.</summary>
+/// <summary>HTTP coverage for <c>GET /v1/analytics/roi</c> — mocked sponsor ROI aggregates.</summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class RoiAnalyticsEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
@@ -19,8 +19,8 @@ public sealed class RoiAnalyticsEndpointTests(ArchLucidApiFactory factory) : Int
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ExecutiveRoiAggregatesResponse? body =
-            await response.Content.ReadFromJsonAsync<ExecutiveRoiAggregatesResponse>(JsonOptions);
+        SponsorRoiAggregatesResponse? body =
+            await response.Content.ReadFromJsonAsync<SponsorRoiAggregatesResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body.TimeSavedHours.Should().BeGreaterThan(0);

@@ -15,7 +15,7 @@ describe("START_HERE core pilot links", () => {
     expect(startHere).toMatch(/\[CORE_PILOT\.md\]\(CORE_PILOT\.md#first-session-checklist\)/);
   });
 
-  it("keeps executive brief on the four-step path", () => {
-    expect(startHere).toMatch(/EXECUTIVE_SPONSOR_BRIEF\.md/);
+  it("keeps sponsor brief on the four-step path", () => {
+    expect(startHere).toMatch(/SPONSOR_SPONSOR_BRIEF\.md/);
   });
 });

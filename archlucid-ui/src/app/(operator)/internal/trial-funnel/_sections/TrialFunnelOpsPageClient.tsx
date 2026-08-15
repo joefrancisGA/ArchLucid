@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { TrialFunnelEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { TrialFunnelDemoReadinessVocabularyRail } from "@/components/trial/TrialFunnelDemoReadinessVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -334,6 +335,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
           </div>
         }
       />
+      <TrialFunnelEvidenceOrientationStrip />
       <TrialFunnelDemoReadinessVocabularyRail currentSurfaceId="trial-funnel" />
       <div className="sr-only" role="status" aria-live="polite">
         {refreshAnnouncement}

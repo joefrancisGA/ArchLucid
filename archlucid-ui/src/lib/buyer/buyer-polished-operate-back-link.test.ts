@@ -32,6 +32,7 @@ describe("buyerPolishedOperateBackLink", () => {
       buyerPolishedOperateBackLink("/governance/approval-requests/e2e-approval-001/lineage"),
     ).toBeNull();
     expect(buyerPolishedOperateBackLink("/governance/policy-packs/healthcare-claims-v3-pack")).toBeNull();
+    expect(buyerPolishedOperateBackLink("/governance/sealed-records")).toBeNull();
   });
 });
 

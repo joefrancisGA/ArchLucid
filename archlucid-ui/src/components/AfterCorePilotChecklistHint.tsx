@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
@@ -17,7 +17,7 @@ import {
 } from "@/lib/core-pilot-checklist-storage";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
-import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
+import { SHOW_ALL_DESTINATIONS } from "@/lib/nav-disclosure-copy";
 
 type Suggestion = {
   title: string;
@@ -31,13 +31,13 @@ const suggestions: Suggestion[] = [
     title: "Compare two reviews",
     href: "/insights/compare-two-reviews",
     description: "Structured architecture snapshot diff between a baseline review and a target review when you need to know what changed.",
-    sidebarNote: `Requires “${NAV_DISCLOSURE.extended.show}” in the sidebar (extended analysis links).`,
+    sidebarNote: `Use “${SHOW_ALL_DESTINATIONS.show}” in the sidebar if a group is collapsed.`,
   },
   {
     title: "Explore the architecture graph",
     href: "/insights/evidence-graph",
     description: "Provenance or architecture graph for a review ID when a list view is not enough.",
-    sidebarNote: `Requires “${NAV_DISCLOSURE.extended.show}” in the sidebar.`,
+    sidebarNote: `Use “${SHOW_ALL_DESTINATIONS.show}” in the sidebar if Insights is collapsed.`,
   },
   {
     title: "Set up governance alerts",
@@ -50,7 +50,7 @@ const suggestions: Suggestion[] = [
     title: "Review policy packs",
     href: GOVERNANCE_POLICY_PACKS_PATH,
     description: "Versions, effective content, and how governance rules attach to your scope.",
-    sidebarNote: `Use “${NAV_DISCLOSURE.extended.show}” and, for the full Enterprise slice, “${NAV_DISCLOSURE.advanced.show}”.`,
+    sidebarNote: `Expand Governance in the sidebar, or use “${SHOW_ALL_DESTINATIONS.show}” if groups are hidden.`,
   },
 ];
 
@@ -134,7 +134,7 @@ export function AfterCorePilotChecklistHint() {
                   return (
                     <li key={s.href} className={cn("text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                       <div className="font-medium text-teal-900 dark:text-teal-200">
-                        <Link href={s.href} className="underline decoration-teal-600/50 underline-offset-2 hover:decoration-teal-800 dark:decoration-teal-500/50 dark:hover:text-teal-100">
+                        <Link href={s.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                           {s.title}
                         </Link>
                       </div>

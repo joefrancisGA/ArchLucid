@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_SURFACES, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,7 @@ export function MarketingCustomPolicyPackAuthoringSection(
       <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Delivery windows, maintenance options, and scope details are finalized in your statement of work.{" "}
         <a
-          className="font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-200"
+          className={MARKETING_SURFACES.inlineLink}
           href={CUSTOM_POLICY_PACK_SOW_HREF}
           target="_blank"
           rel="noopener noreferrer"

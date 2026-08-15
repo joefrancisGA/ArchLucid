@@ -8,7 +8,7 @@ import { ArtifactIntegrityTechnicalDetails } from "@/components/ArtifactIntegrit
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import {
   DELIVERABLE_TAB_ARB_BUCKETS,
-  DELIVERABLE_TAB_EXECUTIVE_BUCKETS,
+  DELIVERABLE_TAB_SPONSOR_BUCKETS,
   sponsorArtifactAudienceBucket,
   type SponsorArtifactAudienceBucket,
 } from "@/lib/artifact-review-helpers";
@@ -31,18 +31,18 @@ export function BuyerDeliverablesArtifactTabs(props: {
   const { manifestId, runId, artifacts } = props;
 
   const sortedAll = [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
-  const execRows = artifactsMatchingBuckets(sortedAll, DELIVERABLE_TAB_EXECUTIVE_BUCKETS);
+  const execRows = artifactsMatchingBuckets(sortedAll, DELIVERABLE_TAB_SPONSOR_BUCKETS);
   const arbRows = artifactsMatchingBuckets(sortedAll, DELIVERABLE_TAB_ARB_BUCKETS);
 
   return (
     <div className="w-full min-w-0 space-y-4" data-testid="buyer-deliverables-artifact-tabs">
-      <section className="space-y-3" data-testid="buyer-deliverables-panel-executive">
+      <section className="space-y-3" data-testid="buyer-deliverables-panel-sponsor">
         <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Executive and sponsor artifacts
+          Sponsor and sponsor artifacts
         </h3>
         {execRows.length === 0 ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            No executive or sponsor-scoped outputs are listed for this review in this view.
+            No sponsor or sponsor-scoped outputs are listed for this review in this view.
           </p>
         ) : (
           <ArtifactListTable
@@ -51,7 +51,7 @@ export function BuyerDeliverablesArtifactTabs(props: {
             artifacts={execRows}
             sponsorMode
             audienceSections
-            deliverablesBucketAllowlist={DELIVERABLE_TAB_EXECUTIVE_BUCKETS}
+            deliverablesBucketAllowlist={DELIVERABLE_TAB_SPONSOR_BUCKETS}
             omitIntegrityDetails
             audienceHeadingLevel={4}
           />

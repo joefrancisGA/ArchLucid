@@ -12,11 +12,11 @@ public sealed class RoiExportCommandTests
     [Fact]
     public void BuildCsv_includes_rows_and_environment_slices()
     {
-        ExecutiveRoiExportResponse export = new()
+        SponsorRoiExportResponse export = new()
         {
             Rows =
             [
-                new ExecutiveRoiExportRow
+                new SponsorRoiExportRow
                 {
                     FindingId = "f-1",
                     RunId = Guid.Empty.ToString("D"),
@@ -30,7 +30,7 @@ public sealed class RoiExportCommandTests
             ],
             SavingsByEnvironment =
             [
-                new ExecutiveRoiEnvironmentSavingsSlice { Environment = "prod", EstimatedUsdSavings = 1200m }
+                new SponsorRoiEnvironmentSavingsSlice { Environment = "prod", EstimatedUsdSavings = 1200m }
             ]
         };
 

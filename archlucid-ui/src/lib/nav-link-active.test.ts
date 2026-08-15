@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 
 describe("isNavLinkActive", () => {
@@ -13,6 +14,12 @@ describe("isNavLinkActive", () => {
     expect(isNavLinkActive("/architecture/reviews", "/architecture/reviews")).toBe(true);
     expect(isNavLinkActive("/architecture/reviews/new", "/architecture/reviews")).toBe(false);
     expect(isNavLinkActive("/architecture/reviews/abc", "/architecture/reviews")).toBe(false);
+  });
+
+  it("matches /governance/findings list but not assigned-to-me child route", () => {
+    expect(isNavLinkActive("/governance/findings", GOVERNANCE_FINDINGS_PATH)).toBe(true);
+    expect(isNavLinkActive("/governance/findings/assigned-to-me", GOVERNANCE_FINDINGS_PATH)).toBe(false);
+    expect(isNavLinkActive("/governance/findings/assigned-to-me", "/governance/findings/assigned-to-me")).toBe(true);
   });
 
   it("matches /architecture/reviews/new exactly", () => {
@@ -29,8 +36,8 @@ describe("isNavLinkActive", () => {
 
   it("matches exact path or nested segments for other routes", () => {
     expect(isNavLinkActive("/insights/compare-two-reviews", "/insights/compare-two-reviews")).toBe(true);
-    expect(isNavLinkActive(EXECUTIVE_DASHBOARD_HREF, EXECUTIVE_DASHBOARD_HREF)).toBe(true);
-    expect(isNavLinkActive(`${EXECUTIVE_DASHBOARD_HREF}/extra`, EXECUTIVE_DASHBOARD_HREF)).toBe(true);
+    expect(isNavLinkActive(SPONSOR_DASHBOARD_HREF, SPONSOR_DASHBOARD_HREF)).toBe(true);
+    expect(isNavLinkActive(`${SPONSOR_DASHBOARD_HREF}/extra`, SPONSOR_DASHBOARD_HREF)).toBe(true);
   });
 
   it("matches tenant settings but not projects recycle bin", () => {
@@ -47,8 +54,8 @@ describe("isNavLinkActive", () => {
   });
 
   it("does not highlight settings hub for personal account-menu destinations", () => {
-    expect(isNavLinkActive("/administration/account-security", "/administration")).toBe(false);
-    expect(isNavLinkActive("/administration/preferences", "/administration")).toBe(false);
+    expect(isNavLinkActive("/account/security", "/administration")).toBe(false);
+    expect(isNavLinkActive("/account/preferences", "/administration")).toBe(false);
     expect(isNavLinkActive("/administration/notifications", "/administration")).toBe(false);
     expect(isNavLinkActive("/administration/workspace-settings/recycle-bin", "/administration")).toBe(false);
     expect(isNavLinkActive("/administration/workspace-settings", "/administration")).toBe(true);

@@ -526,7 +526,7 @@ export function GovernanceWorkflowPageContent() {
       {!isReviewContext ? (
         <Link
           href={GOVERNANCE_WORKSPACE_HEALTH_HREF}
-          className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+          className={OPERATOR_LINK.optional}
           data-testid="governance-overview-workspace-health-link"
         >
           {GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL}

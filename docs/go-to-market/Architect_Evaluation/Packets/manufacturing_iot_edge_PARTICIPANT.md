@@ -27,7 +27,7 @@ The packet is intentionally realistic rather than polished. It includes open que
 | Device Registry | Tracks gateway identity/certificate status |
 | Time-Series Store | Stores telemetry and metrics |
 | Alerting Service | Detects anomalies and thresholds |
-| Dashboard | Plant and executive views |
+| Dashboard | Plant and sponsor views |
 | Firmware Update Service | Publishes update manifests/artifacts |
 
 ---

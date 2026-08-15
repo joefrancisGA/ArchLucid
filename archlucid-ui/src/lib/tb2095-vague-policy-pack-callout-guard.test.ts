@@ -17,9 +17,9 @@ const FORBIDDEN_STRINGS = [
 
 const SCOPED_FILES = [
   ...BUYER_COPY_MODULE_PATHS,
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailArtifactsExportsSection.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailBelowFoldSections.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArtifactsExportsSection.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailBelowFoldSections.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageView.tsx",
 ] as const;
 
 describe("TB-2095 vague Deliverables policy-pack callout guard", () => {

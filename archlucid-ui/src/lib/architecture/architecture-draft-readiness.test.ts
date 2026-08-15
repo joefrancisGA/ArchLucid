@@ -5,6 +5,32 @@ import {
   validateArchitectureDraftIntegrity,
   validateArchitectureReviewReadiness,
 } from "@/lib/architecture/architecture-draft-readiness";
+import {
+  ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
+  emptyArchitectureDraftStructuredBrief,
+} from "@/lib/architecture/architecture-draft-structured-brief";
+import type { ActorDescriptor } from "@/types/draft-intake";
+
+const assertedActor: ActorDescriptor = {
+  label: "Primary operator",
+  kind: "Human",
+  trustOrigin: "Internal",
+  contract: "Sync",
+  origin: "Asserted",
+  confidence: 100,
+};
+
+const readyOverview =
+  "We are designing a governed workflow platform for analysts with authentication, auditable evidence trails, and exportable architecture reviews.";
+
+function readyStructuredBrief() {
+  return {
+    ...emptyArchitectureDraftStructuredBrief(),
+    confirmedConstraints: ["Private endpoints required"],
+    confirmedAssumptions: ["Team operates in a single region"],
+    qualityAttribute: "RTO 4 hours",
+  };
+}
 
 describe("architecture-draft-readiness", () => {
   it("permits incomplete draft saves while blocking review start", () => {
@@ -12,11 +38,12 @@ describe("architecture-draft-readiness", () => {
       freeTextIntent: "",
       businessOutcome: "",
       systemName: "",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
     };
 
     expect(validateArchitectureDraftIntegrity(incomplete).isValid).toBe(true);
-    expect(validateArchitectureReviewReadiness(incomplete).isValid).toBe(false);
-    expect(validateArchitectureReviewReadiness(incomplete).blockers).toContain("system name");
+    expect(validateArchitectureReviewReadiness(incomplete, [assertedActor]).isValid).toBe(false);
+    expect(validateArchitectureReviewReadiness(incomplete, [assertedActor]).blockers).toContain("system name");
   });
 
   it("blocks draft integrity only when partial fields violate format rules", () => {
@@ -24,22 +51,55 @@ describe("architecture-draft-readiness", () => {
       freeTextIntent: "",
       businessOutcome: "tiny",
       systemName: "",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
     };
 
     expect(validateArchitectureDraftIntegrity(partialInvalidOutcome).isValid).toBe(false);
-    expect(validateArchitectureReviewReadiness(partialInvalidOutcome).isValid).toBe(false);
+    expect(validateArchitectureReviewReadiness(partialInvalidOutcome, [assertedActor]).isValid).toBe(false);
   });
 
   it("requires a system name before review start even when overview and outcome are complete", () => {
     const namedReadyExceptName = {
-      freeTextIntent:
-        "We are designing a governed workflow platform for analysts with authentication, auditable evidence trails, and exportable architecture reviews.",
+      freeTextIntent: readyOverview,
       businessOutcome: "Reduce cycle time for governed architecture reviews.",
       systemName: "",
+      structuredBrief: readyStructuredBrief(),
     };
 
-    expect(validateArchitectureReviewReadiness(namedReadyExceptName).isValid).toBe(false);
-    expect(validateArchitectureReviewReadiness(namedReadyExceptName).blockers).toEqual(["system name"]);
+    expect(validateArchitectureReviewReadiness(namedReadyExceptName, [assertedActor]).isValid).toBe(false);
+    expect(validateArchitectureReviewReadiness(namedReadyExceptName, [assertedActor]).blockers).toEqual(["system name"]);
+  });
+
+  it("blocks review start when only legacy name/overview/outcome minimums are met (TB-2282)", () => {
+    const legacyMinimumOnly = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    const result = validateArchitectureReviewReadiness(legacyMinimumOnly, [assertedActor]);
+
+    expect(result.isValid).toBe(false);
+    expect(result.blockers).toContain("constraint");
+    expect(result.blockers).toContain("assumption");
+    expect(result.blockers).toContain("quality attribute with a numeric target");
+  });
+
+  it("allows explicit unknown entries to satisfy constraint and assumption gates", () => {
+    const withUnknowns = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: {
+        ...emptyArchitectureDraftStructuredBrief(),
+        confirmedConstraints: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
+        confirmedAssumptions: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
+        qualityAttribute: "p95 latency 200ms",
+      },
+    };
+
+    expect(validateArchitectureReviewReadiness(withUnknowns, [assertedActor]).isValid).toBe(true);
   });
 
   it("gates deferred server create until at least one valid field has content", () => {
@@ -47,6 +107,7 @@ describe("architecture-draft-readiness", () => {
       freeTextIntent: "",
       businessOutcome: "",
       systemName: "",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
     };
 
     expect(hasArchitectureDraftSaveableContent(empty)).toBe(false);

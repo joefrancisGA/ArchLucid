@@ -19,6 +19,7 @@ import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthor
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { RagHealthSystemHealthVocabularyRail } from "@/components/RagHealthSystemHealthVocabularyRail";
+import { RagHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { INTERNAL_RAG_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -101,6 +102,7 @@ export function RagHealthAdminPageClient() {
           </>
         }
       />
+      <RagHealthEvidenceOrientationStrip />
       <RagHealthSystemHealthVocabularyRail currentSurfaceId="rag-health" />
       {error ? (
         <OperatorSectionLoadFailure

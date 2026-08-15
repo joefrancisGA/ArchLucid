@@ -1,3 +1,8 @@
+import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-guide-content";
+import {
+  CAIQ_SIG_RESPONSE_HELP_CENTER_SUMMARY,
+  CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE,
+} from "@/lib/caiq-sig-response-help-guide-content";
 import { describe, expect, it } from "vitest";
 
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
@@ -50,7 +55,7 @@ describe("help-center-catalog", () => {
       (entry) => entry.slug,
     );
 
-    expect(architectGuides).not.toContain("admin-diagnostics");
+    expect(architectGuides).toContain("admin-diagnostics");
 
     const adminGuides = listHelpCenterGuideTopics({ showAdvanced: true, isAdmin: true }).map(
       (entry) => entry.slug,
@@ -127,10 +132,10 @@ describe("help topic slug aliases", () => {
     expect(getProductDocumentationEntry("first-hour-operator-path")).toBeNull();
     expect(getProductDocumentationEntry("first-pilot-path")).toBeNull();
     expect(getProductDocumentationEntry("pilot-nav-profile")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("first-pilot-path")).toBe("/help/first-architecture-review");
-    expect(resolveHelpTopicPermanentRedirect("pilot-nav-profile")).toBe("/help/pilot-guide");
-    expect(inAppHelpHref("first-pilot-path")).toBe("/help/first-architecture-review");
-    expect(inAppHelpHref("pilot-nav-profile")).toBe("/help/pilot-guide");
+    expect(resolveHelpTopicPermanentRedirect("first-pilot-path")).toBeNull();
+    expect(resolveHelpTopicPermanentRedirect("pilot-nav-profile")).toBeNull();
+    expect(inAppHelpHref("first-pilot-path")).toBe("/help/first-pilot-path");
+    expect(inAppHelpHref("pilot-nav-profile")).toBe("/help/pilot-nav-profile");
   });
 });
 
@@ -152,7 +157,7 @@ describe("help center tiers", () => {
     expect(entry?.audience).toBe("buyer");
     expect(getHelpCenterTier(entry!)).toBe("product");
     expect(getProductDocumentationEntry("evaluator-workbook")).toBeNull();
-    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBe("/help/choose-your-next-step");
+    expect(resolveHelpTopicPermanentRedirect("evaluator-workbook")).toBeNull();
   });
 
   it("classifies engineering runbooks as internal", () => {
@@ -188,11 +193,34 @@ describe("help center tiers", () => {
     expect(advanced).toContain("soc2-self-assessment");
   });
 
-  it("classifies accelerator chooser as product tier (HAX)", () => {
+  it("exposes CAIQ/SIG questionnaire pre-fill drafts as a product advanced guide (TB-1635)", () => {
+    const caiqSig = getProductDocumentationEntry("caiq-sig-response");
+
+    expect(caiqSig).not.toBeNull();
+    expect(getHelpCenterTier(caiqSig!)).toBe("product");
+    expect(getHelpCenterDisplay(caiqSig!).title).toBe(CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE);
+    expect(getHelpCenterDisplay(caiqSig!).summary).toBe(CAIQ_SIG_RESPONSE_HELP_CENTER_SUMMARY);
+
+    const advanced = listHelpCenterTopics({ showAdvanced: true, isAdmin: false }).map((entry) => entry.slug);
+
+    expect(advanced).toContain("caiq-sig-response");
+    expect(HELP_CENTER_FEATURED_SLUGS).not.toContain("caiq-sig-response");
+  });
+
+  it("classifies integration-readiness as product tier for operator product-help (TB-1697)", () => {
+    const entry = getProductDocumentationEntry("integration-readiness");
+
+    expect(entry).not.toBeNull();
+    expect(entry?.audience).toBe("operator");
+    expect(getHelpCenterTier(entry!)).toBe("product");
+  });
+
+  it("classifies accelerator chooser as product tier with canonical buyer title (TB-1605)", () => {
     const entry = getProductDocumentationEntry("accelerator-chooser");
 
     expect(entry).not.toBeNull();
     expect(getHelpCenterTier(entry!)).toBe("product");
+    expect(getHelpCenterDisplay(entry!).title).toBe(ACCELERATOR_CHOOSER_HELP_PAGE_TITLE);
   });
 
   it("classifies comparison-replay as product tier for customer-facing operator guide (CO)", () => {

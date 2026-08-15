@@ -86,3 +86,17 @@ export function policyPacksRuleHref(ruleId: string): string {
 
 }
 
+/** Opens the new-review wizard with a pre-selected policy pack. */
+export function reviewsNewWithPackHref(policyPackId: string): string {
+  const id = policyPackId.trim();
+
+  if (id.length === 0) {
+    return "/architecture/reviews/new";
+  }
+
+  const params = new URLSearchParams();
+  params.set(POLICY_PACK_ID_QUERY_PARAM, id);
+
+  return `/architecture/reviews/new?${params.toString()}`;
+}
+

@@ -11,7 +11,7 @@ describe("sponsor-rehearsal-preview (TB-2208)", () => {
   it("lists the four rehearsal sections in order", () => {
     expect(listSponsorRehearsalSectionIds()).toEqual(SPONSOR_REHEARSAL_SECTION_ORDER);
     expect(listSponsorRehearsalSectionIds()).toEqual([
-      "executive-summary",
+      "sponsor-report",
       "key-findings-plain-english",
       "residual-risks",
       "what-is-excluded",
@@ -27,8 +27,8 @@ describe("sponsor-rehearsal-preview (TB-2208)", () => {
 
     const byId = Object.fromEntries(preview.sections.map((section) => [section.id, section]));
 
-    expect(byId["executive-summary"].isEmpty).toBe(true);
-    expect(byId["executive-summary"].body).toMatch(/available yet/i);
+    expect(byId["sponsor-report"].isEmpty).toBe(true);
+    expect(byId["sponsor-report"].body).toMatch(/available yet/i);
     expect(byId["key-findings-plain-english"].isEmpty).toBe(true);
     expect(byId["residual-risks"].isEmpty).toBe(true);
     expect(byId["what-is-excluded"].isEmpty).toBe(false);
@@ -52,9 +52,9 @@ describe("sponsor-rehearsal-preview (TB-2208)", () => {
 
     const byId = Object.fromEntries(preview.sections.map((section) => [section.id, section]));
 
-    expect(byId["executive-summary"].isEmpty).toBe(false);
-    expect(byId["executive-summary"].body).toContain("Claims intake review");
-    expect(byId["executive-summary"].body).toContain("2 accepted");
+    expect(byId["sponsor-report"].isEmpty).toBe(false);
+    expect(byId["sponsor-report"].body).toContain("Claims intake review");
+    expect(byId["sponsor-report"].body).toContain("2 accepted");
     expect(byId["key-findings-plain-english"].isEmpty).toBe(false);
     expect(byId["key-findings-plain-english"].body).toContain("High finding: Public ingress");
     expect(byId["key-findings-plain-english"].body).toContain("elevated concern");
@@ -63,9 +63,9 @@ describe("sponsor-rehearsal-preview (TB-2208)", () => {
     expect(byId["what-is-excluded"].body).toContain("Internal CLI usage metrics");
   });
 
-  it("prefers explicit executiveSummary over synopsis", () => {
+  it("prefers explicit SponsorReport over synopsis", () => {
     const preview = buildSponsorRehearsalPreview({
-      executiveSummary: "Board-ready summary paragraph.",
+      SponsorReport: "Board-ready summary paragraph.",
       synopsisParagraph: "Working synopsis should not win.",
     });
 

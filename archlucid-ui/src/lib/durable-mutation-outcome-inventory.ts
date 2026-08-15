@@ -15,7 +15,7 @@ export const DURABLE_MUTATION_FORBIDDEN_TOAST_SUCCESS_PHRASES: readonly string[]
 export const DURABLE_MUTATION_TEMPORARY_TOAST_DEBT_PATHS: readonly string[] = [
   "components/TrialBanner.tsx",
   "components/TrialLimitModal.tsx",
-  "app/(operator)/architecture/reviews/[runId]/_sections/PilotConversionCta.tsx",
+  "app/(operator)/architecture/reviews/[reviewId]/_sections/PilotConversionCta.tsx",
 ];
 
 /**

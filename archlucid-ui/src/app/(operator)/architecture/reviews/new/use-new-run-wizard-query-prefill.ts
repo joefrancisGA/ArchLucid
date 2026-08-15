@@ -47,16 +47,27 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   const {
     acceleratorPackId,
     baselineFirst,
+    deeplinkPolicyPackId,
     exampleTemplate,
     presetDeeplinkPresetId,
     presetDeeplinkToken,
     reviewIntakeCloudProvider,
     zeroConfigDemo,
-    zeroConfigScenarioId,
+    zeroConfigSelection,
   } = params;
 
   const zeroConfigAppliedRef = useRef(false);
   const exampleTemplatePrefillAppliedRef = useRef(false);
+  const policyPackPrefillAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (deeplinkPolicyPackId === null || policyPackPrefillAppliedRef.current) {
+      return;
+    }
+
+    policyPackPrefillAppliedRef.current = true;
+    setValue("policyReferences", [deeplinkPolicyPackId], { shouldValidate: true, shouldDirty: true });
+  }, [deeplinkPolicyPackId, setValue]);
 
   useEffect(() => {
     if (acceleratorPackId === null) {
@@ -136,7 +147,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
     const applied = applyBundledSamplePackageToWizard(
       setValue,
       onPendingEvidenceFileChange,
-      zeroConfigScenarioId,
+      zeroConfigSelection,
     );
 
     if (!applied.ok) {
@@ -146,7 +157,13 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
     }
 
     goToStep(2);
-    showToast("ok", "Demo Azure package loaded — confirm identity and submit your review.");
+    const platformLabel =
+      zeroConfigSelection.platform === "aws"
+        ? "AWS"
+        : zeroConfigSelection.platform === "gcp"
+          ? "GCP"
+          : "Azure";
+    showToast("ok", `Demo ${platformLabel} package loaded — confirm identity and submit your review.`);
   }, [
     goToStep,
     onPendingEvidenceFileChange,
@@ -154,6 +171,6 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
     setValue,
     showToast,
     zeroConfigDemo,
-    zeroConfigScenarioId,
+    zeroConfigSelection,
   ]);
 }

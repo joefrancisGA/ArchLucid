@@ -11,32 +11,16 @@ namespace ArchLucid.Host.Core.Hosted;
 public sealed class PostCommitProjectionOutboxHostedService(
     IPostCommitProjectionOutboxProcessor processor,
     ILogger<PostCommitProjectionOutboxHostedService> logger,
-    HostLeaderElectionCoordinator electionCoordinator) : BackgroundService
+    HostLeaderElectionCoordinator electionCoordinator)
+    : LeaderElectedOutboxHostedServiceBase(electionCoordinator, logger)
 {
     private readonly IPostCommitProjectionOutboxProcessor _processor =
         processor ?? throw new ArgumentNullException(nameof(processor));
 
-    private readonly ILogger<PostCommitProjectionOutboxHostedService> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    protected override string LeaseName => HostElectionLeaseNames.PostCommitProjectionOutbox;
 
-    private readonly HostLeaderElectionCoordinator _electionCoordinator =
-        electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
+    protected override string LoopName => "Post-commit projection outbox";
 
-    /// <inheritdoc />
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        return _electionCoordinator.RunLeaderWorkAsync(
-            HostElectionLeaseNames.PostCommitProjectionOutbox,
-            LoopAsync,
-            stoppingToken);
-    }
-
-    private Task LoopAsync(CancellationToken leaderToken)
-    {
-        return AdaptiveOutboxDrainLoop.RunAsync(
-            _processor.ProcessPendingBatchAsync,
-            _logger,
-            "Post-commit projection outbox",
-            leaderToken);
-    }
+    protected override Func<CancellationToken, Task<int>> ProcessPendingBatch =>
+        _processor.ProcessPendingBatchAsync;
 }

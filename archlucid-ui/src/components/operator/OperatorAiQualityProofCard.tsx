@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -113,13 +113,13 @@ function OperatorAiQualityProofCardBody(props: {
         {snapshot.remediationLinks.map((link) => (
           <li key={link.path}>
             {link.path.startsWith("/") ? (
-              <Link href={link.path} className="font-medium underline underline-offset-2">
+              <Link href={link.path} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                 {link.label}
               </Link>
             ) : (
               <Link
                 href={resolveInAppDocHref(link.path)}
-                className="font-medium underline underline-offset-2"
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
               >
                 {link.label}
               </Link>

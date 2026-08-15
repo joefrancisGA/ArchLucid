@@ -36,12 +36,12 @@ public static class ArchitectureReviewBoardExportDocumentFactory
         return new Guid(hash.AsSpan(0, 16), true);
     }
 
-    /// <summary>Builds the executive one-pager model (severity counts + AI summary + top finding titles).</summary>
+    /// <summary>Builds the sponsor one-pager model (severity counts + AI summary + top finding titles).</summary>
     public static RunSummaryOnePagerDocumentModel CreateRunSummaryOnePager(
         ArchitectureRunDetail detail,
-        string executiveSummary,
+        string SponsorReport,
         IReadOnlyList<string> topFindingTitles)
-        => RunSummaryOnePagerDocumentFactory.Create(detail, executiveSummary, topFindingTitles);
+        => RunSummaryOnePagerDocumentFactory.Create(detail, SponsorReport, topFindingTitles);
 
     /// <summary>Selects top High/Critical findings for the one-pager LLM prompt.</summary>
     public static IReadOnlyList<ArchitectureFinding> SelectRunSummaryTopFindings(ArchitectureRunDetail detail, int maxCount)
@@ -71,7 +71,7 @@ public static class ArchitectureReviewBoardExportDocumentFactory
             RequestId = detail.Run.RequestId,
             SystemName = report.Manifest?.SystemName ?? report.Evidence?.SystemName ?? detail.Manifest?.SystemName,
             ManifestVersion = detail.Run.CurrentManifestVersion ?? detail.Manifest?.Metadata.ManifestVersion,
-            ExecutiveSummary = report.Summary,
+            SponsorReport = report.Summary,
             HttpCorrelationId = httpCorrelationId,
             ExtractorTimestampUtcLabel = extractorTimestampUtcLabel,
             SystemOverviewBullets = BuildSystemOverviewBullets(detail, report),

@@ -22,7 +22,9 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 
 ## 4. Architecture overview
 
-**Nodes:** Browser / CLI → optional **edge (Front Door, APIM)** → **ArchLucid.Api** / **ArchLucid.Worker** → **SQL**, **Blob**, **Azure OpenAI**, optional **Service Bus**, **Redis**.
+**Nodes:** Browser / CLI → optional **edge (Front Door, APIM)** → **ArchLucid.Api** / **ArchLucid.Worker** → **SQL**, **Blob**, **Azure OpenAI**, optional **Service Bus**, **Redis**, optional **Cosmos DB** (polyglot persistence).
+
+**Data-plane auth posture (TB-906):** Azure OpenAI and Logic Apps storage use **managed identity** where supported. Optional **Cosmos DB** polyglot features accept **`CosmosDb:AuthenticationMode=ManagedIdentity`** with Entra **Built-in Data Contributor** RBAC (connection-string KV secret skipped when MI principals are wired). **HotPath Redis** remains **connection-string / Key Vault** on Standard SKU — Entra token auth is a documented residual until SKU or client wiring supports it in production.
 
 **Trust boundaries:** Client ↔ Edge, Edge ↔ API, API ↔ SQL/Blob/LLM, Worker ↔ SQL/queues.
 
@@ -33,7 +35,7 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 | Client → API | Fake tokens, stolen API keys | Tampered bodies | — | TLS + JWT validation / API key | Rate limits, outbox flood | Privilege via mis-roles | Entra roles, least-privilege policies, **`ArchLucidPolicies`** |
 | Client → API (trial) | External IdP token replay, weak local passwords | Hosted IdP / ArchLucid SQL tamper | — | External ID tenant binding + JwtBearer issuer rules; PBKDF2 + optional HIBP | Credential stuffing, cache poisoning | Over-privileged minted JWTs | **`Auth:Trial:Modes`**, **`TrialBootstrapEmailVerificationPolicy`**, lockout + role gates (**`docs/security/TRIAL_AUTH.md`**) |
 | API → SQL | SQL auth misuse | SQL injection | — | RLS + parameterized Dapper | DB DoS, heavy queries | `db_owner` misuse | Managed identity / scoped SQL user, RLS **`SESSION_CONTEXT`** |
-| API → LLM | — | Prompt injection → unsafe actions | — | **PII / secrets in prompts** (see **`AGENT_TRACE_FORENSICS.md`**, **`docs/runbooks/LLM_PROMPT_REDACTION.md`**) | Token exhaustion, 429 storms | — | Quotas, circuit breakers, deny-list **`LlmPromptRedaction`** (on by default in shipped appsettings) |
+| API → LLM | — | Prompt injection → unsafe actions | — | **PII / secrets in prompts** (see **`AGENT_TRACE_FORENSICS.md`**, **`docs/runbooks/LLM_PROMPT_REDACTION.md`**) | Token exhaustion, 429 storms | **Agent side-effect exfil** (HTTP/shell/ITSM from handlers) | Quotas, circuit breakers, deny-list **`LlmPromptRedaction`**; **TB-950** allowlisted tools; **TB-952** side-effect inventory + arch test ([`AGENT_SIDE_EFFECT_SURFACE_INVENTORY.md`](../library/AGENT_SIDE_EFFECT_SURFACE_INVENTORY.md)) |
 | API → Blob | SAS misuse | Object tamper | — | Blob exfiltration | — | — | Private endpoint, MI, container ACLs |
 | Worker → Service Bus | — | Message tamper | — | Payload leak | Queue flood | — | Namespace auth, DLQ, admin retry APIs |
 | Billing webhooks (Stripe / Azure Marketplace) | Forged webhook replay, stolen signing secrets | Tampered payloads → wrong tenant conversion | — | **Stripe-Signature** HMAC + **Marketplace JWT** validation; **dbo.BillingWebhookEvents** idempotency key | Webhook flood | Replay after partial failure | Anonymous endpoints only after crypto verification; return **200** only after SQL commit; see **`docs/BILLING.md`** |
@@ -91,4 +93,4 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 
 - **`docs/SECURITY.md`**
 - **`docs/security/ASK_RAG_THREAT_MODEL.md`**
-- **`docs/AUDIT_COVERAGE_MATRIX.md`**
+- **`docs/library/AGENT_SIDE_EFFECT_SURFACE_INVENTORY.md`** (**TB-952**)

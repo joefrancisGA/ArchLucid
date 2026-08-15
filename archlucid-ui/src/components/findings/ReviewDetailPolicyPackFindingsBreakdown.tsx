@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PolicyPackFindingGroup } from "@/lib/group-findings-by-policy-pack";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
@@ -86,7 +86,7 @@ export function ReviewDetailPolicyPackFindingsBreakdown(
             {group.packHref !== null ? (
               <Link
                 href={group.packHref}
-                className={cn("font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
+                className={OPERATOR_LINK.optional}
                 data-testid={`policy-pack-breakdown-link-${group.groupKey}`}
               >
                 View policy basis
@@ -99,7 +99,7 @@ export function ReviewDetailPolicyPackFindingsBreakdown(
         {manifestPackHref !== null ? (
           <Link
             href={manifestPackHref}
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            className={OPERATOR_LINK.optional}
             data-testid="policy-pack-impact-governing-pack-link"
           >
             Open governing policy pack
@@ -108,7 +108,7 @@ export function ReviewDetailPolicyPackFindingsBreakdown(
         {manifestPackHref !== null ? <span className="text-neutral-500"> · </span> : null}
         <Link
           href={simulateHref}
-          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+          className={OPERATOR_LINK.optional}
           data-testid="policy-pack-impact-simulate-link"
         >
           Simulate pack changes

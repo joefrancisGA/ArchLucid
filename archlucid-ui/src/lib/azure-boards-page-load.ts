@@ -1,7 +1,7 @@
-import type { AzureBoardsIntegrationHealthResponse, AzureBoardsOutboundSettingsResponse } from "@/lib/api/azure-boards-api";
+import type { AzureBoardsOutboundSettingsResponse } from "@/lib/api/azure-boards-api";
 import type { TenantItsmConnectorConnectionResponse } from "@/lib/api/itsm-outbound-api";
 
-export type AzureBoardsPageLoadSlice = "health" | "itsmHealth" | "settings" | "connection";
+export type AzureBoardsPageLoadSlice = "itsmHealth" | "settings" | "connection";
 
 export type AzureBoardsPageLoadSliceResult<T> = {
   readonly value: T | null;
@@ -10,7 +10,6 @@ export type AzureBoardsPageLoadSliceResult<T> = {
 };
 
 export type AzureBoardsPageLoadResult = {
-  readonly health: AzureBoardsPageLoadSliceResult<AzureBoardsIntegrationHealthResponse>;
   readonly itsmHealth: AzureBoardsPageLoadSliceResult<{ nativeEnabled?: boolean }>;
   readonly settings: AzureBoardsPageLoadSliceResult<AzureBoardsOutboundSettingsResponse>;
   readonly connection: AzureBoardsPageLoadSliceResult<TenantItsmConnectorConnectionResponse>;
@@ -19,7 +18,6 @@ export type AzureBoardsPageLoadResult = {
 };
 
 const SLICE_LABELS: Readonly<Record<AzureBoardsPageLoadSlice, string>> = {
-  health: "Azure Boards health",
   itsmHealth: "work management health",
   settings: "Azure Boards settings",
   connection: "Azure Boards connection",
@@ -53,21 +51,15 @@ export function settleAzureBoardsPageLoadSlice<T>(
 }
 
 export function buildAzureBoardsPageLoadResult(args: {
-  readonly health: PromiseSettledResult<AzureBoardsIntegrationHealthResponse>;
   readonly itsmHealth: PromiseSettledResult<{ nativeEnabled?: boolean }>;
   readonly settings: PromiseSettledResult<AzureBoardsOutboundSettingsResponse>;
   readonly connection: PromiseSettledResult<TenantItsmConnectorConnectionResponse>;
 }): AzureBoardsPageLoadResult {
-  const health = settleAzureBoardsPageLoadSlice(args.health, "health");
   const itsmHealth = settleAzureBoardsPageLoadSlice(args.itsmHealth, "itsmHealth");
   const settings = settleAzureBoardsPageLoadSlice(args.settings, "settings");
   const connection = settleAzureBoardsPageLoadSlice(args.connection, "connection");
 
   const failedEntries: Array<{ slice: AzureBoardsPageLoadSlice; message: string }> = [];
-
-  if (health.failed && health.errorMessage !== null) {
-    failedEntries.push({ slice: "health", message: health.errorMessage });
-  }
 
   if (itsmHealth.failed && itsmHealth.errorMessage !== null) {
     failedEntries.push({ slice: "itsmHealth", message: itsmHealth.errorMessage });
@@ -91,7 +83,6 @@ export function buildAzureBoardsPageLoadResult(args: {
         : `Some Azure Boards data could not be loaded (${failedSliceLabels.join(", ")}).`;
 
   return {
-    health,
     itsmHealth,
     settings,
     connection,

@@ -1421,7 +1421,7 @@ ADJACENT PACKS (do not duplicate):
 
 ```
 PACK_DISPLAY_NAME:   LLM Cost & Token Governance (FinOps for AI)
-PACK_DESCRIPTION:    Architecture-review posture for LLM cost governance. Covers per-consumer/per-tenant token budget design (budget definition, monitoring, alert thresholds), model-tier routing (primary/fallback documented, tier selection criteria), semantic caching design (strategy, TTL, bypass rules), kill-switch and circuit-breaker (hard spend limit, automatic suspension, executive alert), cost allocation and tagging (per-workload tags, showback/chargeback, FOCUS-aligned), and batch vs realtime optimization (async request design). Not cost guarantee or billing commitment.
+PACK_DESCRIPTION:    Architecture-review posture for LLM cost governance. Covers per-consumer/per-tenant token budget design (budget definition, monitoring, alert thresholds), model-tier routing (primary/fallback documented, tier selection criteria), semantic caching design (strategy, TTL, bypass rules), kill-switch and circuit-breaker (hard spend limit, automatic suspension, sponsor alert), cost allocation and tagging (per-workload tags, showback/chargeback, FOCUS-aligned), and batch vs realtime optimization (async request design). Not cost guarantee or billing commitment.
 PACK_CATEGORY:       Cost
 SLUG:                llm-finops
 RULE_PREFIX:         llm-cost-
@@ -1444,7 +1444,7 @@ Sources: FinOps Foundation FOCUS specification; Microsoft Azure OpenAI cost docu
 Key themes for rule authoring:
 - TOKEN BUDGETS: Per-consumer or per-tenant daily/monthly token budget documented in governance.PolicyConstraints; budget tracked and monitored; budget alert threshold (e.g. 80%) triggers notification.
 - MODEL ROUTING: Primary model and fallback model documented; fallback triggers defined (PTU exhaustion, latency threshold); cost-vs-quality trade-off rationale documented.
-- KILL-SWITCH: Hard spend limit in absolute currency or token count; automatic suspension of LLM access when limit reached; executive-level alert on suspension; grace period for critical workloads.
+- KILL-SWITCH: Hard spend limit in absolute currency or token count; automatic suspension of LLM access when limit reached; sponsor-level alert on suspension; grace period for critical workloads.
 - COST ALLOCATION: Every LLM-consuming service tagged with: workload, team, environment, and model; showback report generated ≥ monthly; chargeback model documented for multi-team tenants.
 - FOCUS TAGGING: Tags align to FinOps Foundation FOCUS schema where applicable (ServiceName, SkuName, SubAccountId).
 

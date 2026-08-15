@@ -105,6 +105,30 @@ public sealed class RunStateTransitionEnforcementTests
         act.Should().NotThrow();
     }
 
+    [Fact]
+    public void EnsureCommitReadyAgentResults_throws_when_critic_is_stale()
+    {
+        RunStateTransitionService transitions = new();
+        AgentResult topology = CommitReady(AgentType.Topology);
+        topology.ResultId = "topology-v2";
+        AgentResult critic = CommitReady(AgentType.Critic);
+        critic.UpstreamResultFingerprints = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [AgentType.Topology.ToString()] = "topology-v1",
+            [AgentType.Cost.ToString()] = CommitReady(AgentType.Cost).ResultId,
+            [AgentType.Compliance.ToString()] = CommitReady(AgentType.Compliance).ResultId,
+        };
+
+        Action act = () => RunStateTransitionEnforcement.EnsureCommitReadyAgentResults(
+            transitions,
+            "run-stale",
+            [topology, CommitReady(AgentType.Cost), CommitReady(AgentType.Compliance), critic]);
+
+        act.Should()
+            .Throw<ConflictException>()
+            .WithMessage("*Critic out of date*");
+    }
+
     private static AgentResult CommitReady(AgentType agentType)
     {
         return new AgentResult

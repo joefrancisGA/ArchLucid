@@ -127,6 +127,33 @@ public sealed class DefaultGoldenManifestBuilderBatchATests
     }
 
     [Fact]
+    public async Task Build_requirement_gap_emits_manifest_decision_with_supporting_finding()
+    {
+        ManifestDocument manifest = await BuildWithFindingsAsync(
+        [
+            new Finding
+            {
+                FindingType = FindingTypes.RequirementGap,
+                Category = "Requirement",
+                EngineType = "requirement-gap",
+                Severity = FindingSeverity.Warning,
+                Title = "Requirement not linked",
+                Rationale = "gap",
+                Payload = new TopologyGapFindingPayload
+                {
+                    GapCode = "requirement-without-topology-link",
+                    Description = "Requirement R1 is not linked",
+                    Impact = "Cannot trace requirement",
+                },
+            },
+        ]);
+
+        manifest.Decisions.Should().ContainSingle();
+        manifest.Decisions[0].SupportingFindingIds.Should().ContainSingle();
+        manifest.UnresolvedIssues.Items.Should().ContainSingle(i => i.IssueType == FindingTypes.RequirementGap);
+    }
+
+    [Fact]
     public async Task Build_requirement_coverage_null_payload_emits_skipped_warning()
     {
         ManifestDocument manifest = await BuildWithFindingsAsync(

@@ -1,4 +1,9 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import {
+  ALERTS_HELP_CLAIM_DISCIPLINE_HEADING,
+  ALERTS_HELP_CLAIM_HEADING_ID,
+} from "@/lib/alerts-help-evidence-copy";
 import {
   ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
   ALERTS_CONFIGURE_RULES_LINK_LABEL,
@@ -11,7 +16,7 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const ALERTS_HELP_PAGE_TITLE = "Understanding governance alerts";
+export const ALERTS_HELP_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.alerts;
 
 export const ALERTS_HELP_PAGE_SUBTITLE =
   "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.";
@@ -164,10 +169,18 @@ export const ALERTS_HELP_RELATED_CONCEPTS = [
   },
 ] as const;
 
+
 export const ALERTS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "how-alerts-work", title: "How alerts work" },
   { level: 2, id: "what-can-trigger-an-alert", title: "What can trigger an alert" },
   { level: 2, id: "where-alerts-are-managed", title: "Where alerts are managed" },
   { level: 2, id: "resolving-an-alert", title: "Resolving an alert" },
   { level: 2, id: "related-governance-concepts", title: "Related governance concepts" },
+  { level: 2, id: ALERTS_HELP_CLAIM_HEADING_ID, title: ALERTS_HELP_CLAIM_DISCIPLINE_HEADING },
+  { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
+
+/** Drift guard: claim band owns diligence limits. */
+export const ALERTS_HELP_NEGATION_DRIFT_MARKERS = {
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;

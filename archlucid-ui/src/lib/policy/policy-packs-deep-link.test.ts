@@ -7,6 +7,7 @@ import {
   policyPacksAuthorHref,
   policyPacksEditHref,
   policyPacksRuleHref,
+  reviewsNewWithPackHref,
 } from "@/lib/policy/policy-packs-deep-link";
 
 describe("policy-packs-deep-link", () => {
@@ -34,5 +35,12 @@ describe("policy-packs-deep-link", () => {
     expect(href).toBe(
       `/governance/policy-packs?${POLICY_RULE_ID_QUERY_PARAM}=architecture-risk-phi-intake`,
     );
+  });
+
+  it("builds new review href with packId query param", () => {
+    expect(reviewsNewWithPackHref("pack-abc")).toBe(
+      `/architecture/reviews/new?${POLICY_PACK_ID_QUERY_PARAM}=pack-abc`,
+    );
+    expect(reviewsNewWithPackHref("   ")).toBe("/architecture/reviews/new");
   });
 });

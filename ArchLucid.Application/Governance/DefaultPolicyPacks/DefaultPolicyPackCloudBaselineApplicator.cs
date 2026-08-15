@@ -53,10 +53,10 @@ public sealed class DefaultPolicyPackCloudBaselineApplicator(
 
             bool shouldEnable = enabledNames.Contains(pack.Name);
 
-            if (assignment.IsEnabled == shouldEnable)
+            if (!shouldEnable || assignment.IsEnabled)
                 continue;
 
-            assignment.IsEnabled = shouldEnable;
+            assignment.IsEnabled = true;
             await _assignmentRepository.UpdateAsync(assignment, ct);
 
             if (_logger.IsEnabled(LogLevel.Information))

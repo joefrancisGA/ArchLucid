@@ -29,12 +29,12 @@ Doc-only phrase scanners (**TB-134**, `check_commercial_overclaim_guard.py`, war
 | SOC 2 CPA attestation | “SOC 2 certified” / CPA report available | Trust center, Security & Trust settings, `/help/procurement`, `/help/soc2-self-assessment` | **TB-1112** · **TB-1144** · **M-196** — tech **TB-135** Done; owner **G-REAL-05** |
 | Third-party pen test | Published independent pen-test report | Same assurance cluster + procurement FAQ | **TB-1144** · **M-197** — tech **TB-136** Done; owner **G-ASSURANCE-02** |
 | Live Marketplace / Stripe checkout | “Buy today” / always-on self-serve checkout | `/pricing`, billing settings, billing help CTAs | **TB-1166** · **TB-1169**–**TB-1170** · **TB-1344** (CI) |
-| Named reference customer | “Customer X saved Y%” without approval | Marketing proof pages, executive ROI widgets, welcome/see-it quant copy | **TB-1294** · **TB-1367** · **TB-1463** drift inventory |
+| Named reference customer | “Customer X saved Y%” without approval | Marketing proof pages, sponsor ROI widgets, welcome/see-it quant copy | **TB-1294** · **TB-1367** · **TB-1463** drift inventory |
 | MCP / plugin marketplace | “MCP marketplace GA” | Marketing integration copy, help technical references | **TB-1367** · docs guards — low in-app surface today |
 | Native connectors (Jira, ServiceNow, Teams) | “Zero setup everywhere” / “Connectors not in V1” | Integration hub pages, Azure Boards/Jira/Teams/ServiceNow settings, `RunDetailDeferredScopeNotice` | **TB-599** · **TB-1420** · integration P0 cluster |
 | Multi-region active/active | Active/active multi-region SLA | Trust/scalability FAQ, procurement help | **TB-1112** · trust-center honesty |
-| Realized ROI USD | “Guaranteed $ savings” | Executive dashboard ROI cards, `/insights/roi-summary`, welcome/see-it | **M-138** · **TB-1294** · **TB-1367** |
-| Invoiced Azure OpenAI cost | “Invoice-accurate COGS” | AI usage admin, billing meter copy, executive cost widgets | **TB-1216**–**TB-1219** · fleet COGS honesty |
+| Realized ROI USD | “Guaranteed $ savings” | Sponsor dashboard ROI cards, `/insights/roi-summary`, welcome/see-it | **M-138** · **TB-1294** · **TB-1367** |
+| Invoiced Azure OpenAI cost | “Invoice-accurate COGS” | AI usage admin, billing meter copy, sponsor cost widgets | **TB-1216**–**TB-1219** · fleet COGS honesty |
 
 ## Coverage rule
 
@@ -54,7 +54,7 @@ Doc-only phrase scanners (**TB-134**, `check_commercial_overclaim_guard.py`, war
 | Trust / procurement | `trust-center` copy modules, `OperatorSecurityTrustPageView`, `procurement-help-*`, `soc2-self-assessment` help |
 | Billing / pricing | `billing-help-guide-content.ts`, `/pricing` page copy, billing settings CTAs |
 | Connector honesty | `RunDetailDeferredScopeNotice`, integration empty-state copy, `V1_SCOPE`-stale deferral strings |
-| Executive ROI | `executive-dashboard` KPI/evidence copy modules tied to quantified savings |
+| Sponsor ROI | `sponsor-dashboard` KPI/evidence copy modules tied to quantified savings |
 
 Forbidden without negation or execution-mode label: `SOC 2 certified`, `pen test complete`, `guaranteed savings`, `invoice-accurate`, `Buy on Marketplace today`, stale `Connectors not in V1`.
 

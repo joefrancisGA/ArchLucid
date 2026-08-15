@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 /**
  * Action-oriented badge variants. For read-only status/severity labels use
- * `StatusTag`, `SeverityTag`, or `StatusPill` — not `Badge` variant `metadata`.
+ * `StatusTag`, `SeverityTag`, or `BooleanStatusChip` — not `Badge` variant `metadata`.
  */
 const badgeVariants = cva(
   (cn("inline-flex items-center rounded-md border border-neutral-200 px-2.5 py-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 dark:border-neutral-800 dark:focus:ring-neutral-600", OPERATOR_TYPOGRAPHY.badge)),

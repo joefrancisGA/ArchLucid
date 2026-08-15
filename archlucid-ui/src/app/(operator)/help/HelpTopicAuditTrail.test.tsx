@@ -76,7 +76,6 @@ describe("HelpTopicAuditTrail", () => {
     }
 
     expect(screen.getByTestId("help-audit-trail-overview")).toBeInTheDocument();
-    expect(screen.getByTestId("help-audit-trail-breadcrumb")).toHaveTextContent("Help");
     expect(screen.getByTestId("help-audit-trail-immutability-claims")).toBeInTheDocument();
     expect(screen.getByTestId("help-audit-trail-append-only-enforcement")).toBeInTheDocument();
     expect(screen.queryByText(/^Evidence:/)).toBeNull();

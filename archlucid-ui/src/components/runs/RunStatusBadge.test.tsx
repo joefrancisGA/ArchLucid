@@ -64,8 +64,8 @@ describe("RunStatusBadge", () => {
     const pill = container.querySelector('[aria-label="Review status: Ready"]');
 
     expect(pill).not.toBeNull();
-    expect(pill?.className).toContain("bg-[var(--al-status-approved-bg)]");
-    expect(pill?.className).toContain("text-[var(--al-status-approved-fg)]");
+    expect(pill?.className).toContain("bg-[var(--al-status-ready-bg)]");
+    expect(pill?.className).toContain("text-[var(--al-status-ready-fg)]");
   });
 
   it("shows engineering pipeline labels when vocabulary pass is off", () => {

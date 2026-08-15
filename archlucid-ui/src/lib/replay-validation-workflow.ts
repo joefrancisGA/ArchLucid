@@ -33,9 +33,9 @@ export const REPLAY_VALIDATION_MODES: readonly ReplayValidationModeDefinition[] 
   {
     mode: "ReconstructOnly",
     title: "Check stored package",
-    summary: "Read-only validation of stored evidence, findings, decisions, links, and signed record.",
+    summary: "Read-only validation of stored evidence, findings, decisions, links, and sealed record.",
     bullets: [
-      "Validates stored evidence, findings, decisions, links, and signed record",
+      "Validates stored evidence, findings, decisions, links, and sealed record",
       "Does not regenerate AI output",
       "No full-review AI budget usage",
     ],
@@ -54,7 +54,7 @@ export const REPLAY_VALIDATION_MODES: readonly ReplayValidationModeDefinition[] 
     title: "Rebuild derived outputs",
     summary: "Regenerates selected derived outputs and compares them with stored records.",
     bullets: [
-      "Regenerates the signed review record and decision trace from stored inputs",
+      "Regenerates the sealed review record and decision trace from stored inputs",
       "May consume AI budget",
       "Replaces or compares stored manifest outputs when differences are detected",
     ],

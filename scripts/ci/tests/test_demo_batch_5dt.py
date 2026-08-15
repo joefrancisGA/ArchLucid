@@ -26,7 +26,7 @@ class TestDemoBatch5Dt(unittest.TestCase):
         self.assertNotIn('href: "#run-actions"', text)
 
     def test_cost_evidence_never_labels_demo_derived_display(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "executive" / "executive-roi-kpi-display.ts"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor-roi-kpi-display.ts"
         text = path.read_text(encoding="utf-8")
 
         self.assertIn('display: "Illustrative"', text)

@@ -18,7 +18,7 @@ import {
   ALERTS_HELP_TRIGGER_INTRO,
   ALERTS_HELP_TRIGGER_ITEMS,
 } from "@/lib/alerts-help-guide-content";
-import { ALERTS_HELP_CLAIM_DISCIPLINE } from "@/lib/alerts-help-evidence-copy";
+import { AlertsHelpEvidenceOrientationStrip } from "@/components/help/AlertsHelpEvidenceOrientationStrip";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
@@ -84,12 +84,6 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
         <HelpTopicTitleRow title={ALERTS_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />
         <p className={cn("m-0 max-w-[42rem]", OPERATOR_TYPOGRAPHY.helper)}>{ALERTS_HELP_PAGE_SUBTITLE}</p>
-        <p
-          className={cn("m-0 max-w-[42rem] text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="help-alerts-claim-discipline"
-        >
-          {ALERTS_HELP_CLAIM_DISCIPLINE}
-        </p>
         <HelpTopicRegistryProvenanceLine entry={entry} />
       </header>
 
@@ -178,6 +172,8 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
               ))}
             </div>
           </section>
+
+          <AlertsHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={ALERTS_HELP_GUIDE_HEADINGS} enableScrollSpy />

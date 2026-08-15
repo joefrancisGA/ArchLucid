@@ -26,5 +26,4 @@ export async function invalidateHealthReadySummaryCache(): Promise<void> {
   const queryClient = getOperatorQueryClient();
 
   await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.healthReadySummary });
-  await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.healthReadySummaryStrict });
 }

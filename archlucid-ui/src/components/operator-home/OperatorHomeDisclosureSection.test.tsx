@@ -1,10 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
+import * as scrollDeepLink from "@/lib/scroll-deep-link-target-into-view";
 
 afterEach(() => {
   localStorage.clear();
@@ -58,6 +59,68 @@ describe("OperatorHomeDisclosureSection", () => {
     expect(heading.className).toContain("tracking-tight");
     expect(OPERATOR_HOME_CARD_SECTION_HEADING).toContain("tracking-tight");
     expect(heading.className).not.toContain("text-xs");
+  });
+
+  it("auto-expands when location hash matches titleId", () => {
+    window.location.hash = "#operator-home-advanced-guidance-heading";
+
+    render(
+      <OperatorHomeDisclosureSection
+        title={OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE}
+        titleId="operator-home-advanced-guidance-heading"
+        sectionTestId="disclosure-hash-expand-test"
+        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance}
+        defaultExpanded={false}
+        autoExpandOnHashMatch
+        collapsedSummary="Collapsed summary"
+      >
+        <p>Expanded body</p>
+      </OperatorHomeDisclosureSection>,
+    );
+
+    expect(screen.getByText("Expanded body")).toBeInTheDocument();
+  });
+
+  it("auto-expands when deepLinkHashMatches recognizes a legacy alias hash", () => {
+    window.location.hash = "#finish-setup";
+
+    render(
+      <OperatorHomeDisclosureSection
+        title={OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE}
+        titleId="onboarding-optional-setup-heading"
+        sectionTestId="disclosure-legacy-hash-expand-test"
+        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance}
+        defaultExpanded={false}
+        autoExpandOnHashMatch
+        deepLinkHashMatches={(hash) => hash.replace(/^#/, "").trim() === "finish-setup"}
+        collapsedSummary="Collapsed summary"
+      >
+        <p>Expanded body</p>
+      </OperatorHomeDisclosureSection>,
+    );
+
+    expect(screen.getByText("Expanded body")).toBeInTheDocument();
+  });
+
+  it("scrolls the hash target into view when autoExpandOnHashMatch is enabled", () => {
+    const scheduleScroll = vi.spyOn(scrollDeepLink, "scheduleScrollDeepLinkTargetIntoView");
+    window.location.hash = "#operator-home-advanced-guidance-heading";
+
+    render(
+      <OperatorHomeDisclosureSection
+        title={OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE}
+        titleId="operator-home-advanced-guidance-heading"
+        sectionTestId="disclosure-hash-scroll-test"
+        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance}
+        defaultExpanded={false}
+        autoExpandOnHashMatch
+        collapsedSummary="Collapsed summary"
+      >
+        <p>Expanded body</p>
+      </OperatorHomeDisclosureSection>,
+    );
+
+    expect(scheduleScroll).toHaveBeenCalledWith("operator-home-advanced-guidance-heading");
   });
 
   it("keeps collapsed sections closed before hydration when defaultExpanded is false", () => {

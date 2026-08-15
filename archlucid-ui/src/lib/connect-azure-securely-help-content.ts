@@ -12,8 +12,14 @@ export const CONNECT_AZURE_SECURELY_PAGE_LEAD =
 export const CONNECT_AZURE_SECURELY_WITHOUT_CONNECTION_NOTE =
   "Reviews can proceed with briefs, diagrams, documents, and uploaded evidence when you choose not to connect.";
 
+export const CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
+export const CONNECT_AZURE_SECURELY_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const CONNECT_AZURE_SECURELY_CLAIM_HEADING_ID = "help-cloud-connections-azure-claim-discipline-heading" as const;
+
 export const CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE =
-  "This topic is setup orientation for Azure federated trust and read-only role assignment — not an evidence trail or signed review record. Open Assurance status or the Cloud connections hub before treating setup guidance as assurance evidence.";
+  "This guide orients architects on Azure federated trust and read-only role assignment — open Assurance status or the Cloud connections hub when you need live connector health or assurance cites.";
 
 export const CONNECT_AZURE_SECURELY_SOURCES_INTRO =
   "Use these follow-ups when Azure setup needs the live hub, permissions detail, or assurance cites.";

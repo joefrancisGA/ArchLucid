@@ -59,7 +59,7 @@ The **ArchLucid CLI** prints **`Next:`** lines on **stderr** after many failures
 | **`/health/ready`** returns **503** | Database (when using Sql), schema files, rule pack, or temp directory check failed | Read JSON body for which check failed. Fix config/paths/permissions. |
 | **`401` / `403`** on API | Auth mode / role mismatch | **Development:** ensure `ArchLucidAuth` is **DevelopmentBypass** for local pilots. **JWT:** confirm token roles map to Reader/Operator/Admin. [API_CONTRACTS.md](../library/API_CONTRACTS.md#security-schemes-swashbuckle) |
 | **`429 Too Many Requests`** | Rate limiting | Wait for the window to reset or adjust `RateLimiting:*` in config (non-production). |
-| **`404`** on review or signed review record | Wrong **review ID**, wrong **scope** (tenant/workspace/project), or data not in that scope | Re-use default scope headers or match the scope used at create time. |
+| **`404`** on review or sealed review record | Wrong **review ID**, wrong **scope** (tenant/workspace/project), or data not in that scope | Re-use default scope headers or match the scope used at create time. |
 | **`409`** on commit | Run state / idempotency conflict | Follow message; may need to re-fetch run status or use a fresh run. [API_CONTRACTS.md](../library/API_CONTRACTS.md) |
 | UI shows **503** JSON “Invalid upstream API configuration” | **`ARCHLUCID_API_BASE_URL`** missing or invalid in **`.env.local`** | Set server-side base URL in `archlucid-ui/.env.local`. Restart `npm run dev`. |
 | UI loads but API calls fail | Proxy or CORS | Check **browser network** tab and **Next server logs** (look for **`archlucid-ui-proxy`** JSON warnings). Confirm API URL and that API allows your UI origin under **`Cors:AllowedOrigins`**. After deploys, brief **`upstream_warmup_retry`** log lines on GET are normal — the UI proxy retries idempotent reads on transient **502/503** before surfacing **ArchLucid API unreachable** (TB-757). |
@@ -89,7 +89,7 @@ Logs go to **stdout** unless your host redirects them (Docker/Kubernetes, IIS, W
 
 ## Artifact list empty or download 404
 
-- An **empty artifact list** (`[]`) can be valid: signed review record exists but **no synthesized files** yet or **none stored** for that architecture review.
+- An **empty artifact list** (`[]`) can be valid: sealed review record exists but **no synthesized files** yet or **none stored** for that architecture review.
 - **Bundle ZIP 404** can mean “no bundle” vs “review not found” depending on API **ProblemDetails** — compare `title` / `type` / `detail` in the response.
 
 See [operator-shell.md](../library/operator-shell.md) and [API_CONTRACTS.md](../library/API_CONTRACTS.md).

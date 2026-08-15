@@ -8,7 +8,6 @@ import {
   HELP_SEARCH_PANEL_KEYBOARD_HINT,
   HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER,
   HELP_SEARCH_PANEL_SUBTITLE,
-  HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL,
 } from "@/lib/help/help-search-panel-catalog";
 import {
   HELP_ON_HELP_ON_THIS_PAGE_HEADING,
@@ -287,14 +286,15 @@ describe("HelpSearchPanel", () => {
   });
 
   it("names the support footer action after what it opens", () => {
-    const onOpenGuidesPanel = vi.fn();
-    render(<HelpSearchPanel open onOpenChange={vi.fn()} onOpenGuidesPanel={onOpenGuidesPanel} />);
+    render(<HelpSearchPanel open onOpenChange={vi.fn()} onOpenGuidesPanel={vi.fn()} />);
 
-    expect(screen.queryByRole("button", { name: "Contact support" })).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL }));
-
-    expect(onOpenGuidesPanel).toHaveBeenCalledWith("troubleshooting");
+    expect(screen.getByTestId("operator-shell-support-quick-links")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Contact support" })).toHaveAttribute("href", "/help/contact-support");
+    expect(screen.getByRole("link", { name: "Report a problem" })).toHaveAttribute("href", "/help/report-a-problem");
+    expect(screen.getByRole("link", { name: "Email support" })).toHaveAttribute(
+      "href",
+      "mailto:support@archlucid.net",
+    );
   });
 
   it("finds situation topics that are hidden from the browse groups", () => {

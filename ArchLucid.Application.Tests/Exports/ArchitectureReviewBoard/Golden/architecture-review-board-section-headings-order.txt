@@ -1,4 +1,4 @@
-Executive summary
+Sponsor summary
 System overview (architecture snapshot)
 Evidence reviewed
 Architecture decisions

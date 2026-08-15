@@ -3,6 +3,7 @@ using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Mapping;
+using ArchLucid.KnowledgeGraph.Materialization;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.KnowledgeGraph.Builders;
@@ -23,9 +24,14 @@ public class DefaultGraphBuilder(
 
         nodes.Add(CreateContextNode(contextSnapshot));
 
+        bool hasCanonicalCostConstraints = false;
+
         foreach (CanonicalObject item in canonicalObjects)
         {
             GraphNode node = nodeFactory.CreateNode(item);
+
+            if (string.Equals(item.ObjectType, GraphNodeTypes.CostConstraint, StringComparison.OrdinalIgnoreCase))
+                hasCanonicalCostConstraints = true;
 
             if (item.Properties.TryGetValue("associatedFindings", out string? associatedFindings) &&
                 associatedFindings.Contains("WAF", StringComparison.OrdinalIgnoreCase))
@@ -39,6 +45,15 @@ public class DefaultGraphBuilder(
             }
 
             nodes.Add(node);
+        }
+
+        if (!hasCanonicalCostConstraints
+            && contextSnapshot.SourceHashes.TryGetValue(ContextScopeMetadataKeys.Constraints, out string? constraints))
+        {
+            nodes.AddRange(
+                RequestCostConstraintMaterializer.MaterializeFromConstraintsMetadata(
+                    constraints,
+                    contextSnapshot.SnapshotId));
         }
 
         IReadOnlyList<GraphEdge> inferredEdges = edgeInferer.InferEdges(contextSnapshot, nodes);

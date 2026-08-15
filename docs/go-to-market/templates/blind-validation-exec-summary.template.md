@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-25
 
-# Blind insight validation — executive summary (template)
+# Blind insight validation — sponsor summary (template)
 
 **Cohort label:** _(e.g. regulated-workload Q2 validation)_  
 **Sessions aggregated:** _(minimum 3 before messaging updates)_  

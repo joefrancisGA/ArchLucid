@@ -4,8 +4,10 @@ import { cn } from "@/lib/utils";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import {
   OPERATOR_DATE_RANGE_END_LABEL,
   OPERATOR_DATE_RANGE_INPUT_CLASSNAME,
@@ -53,15 +55,19 @@ type DecisionRegisterFiltersPanelProps = {
   readonly onClearFilters: () => void;
 };
 
-function DatePresetButton(props: {
+function DatePresetChip(props: {
   readonly active: boolean;
   readonly label: string;
   readonly onClick: () => void;
 }): React.JSX.Element {
   return (
-    <Button type="button" variant={props.active ? "primary" : "outline"} size="sm" onClick={props.onClick}>
+    <FilterChip
+      className={buyerFilterChipClass(props.active, false)}
+      aria-pressed={props.active}
+      onClick={props.onClick}
+    >
       {props.label}
-    </Button>
+    </FilterChip>
   );
 }
 
@@ -122,21 +128,21 @@ export function DecisionRegisterFiltersPanel(props: DecisionRegisterFiltersPanel
       <CardHeader className="space-y-3">
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{DECISION_REGISTER_FILTERS_TITLE}</CardTitle>
         <div className="flex flex-wrap items-center gap-2">
-          <DatePresetButton
+          <DatePresetChip
             active={props.datePreset === "30"}
             label={DECISION_REGISTER_DATE_PRESET_30_LABEL}
             onClick={() => {
               props.onDatePresetChange("30");
             }}
           />
-          <DatePresetButton
+          <DatePresetChip
             active={props.datePreset === "90"}
             label={DECISION_REGISTER_DATE_PRESET_90_LABEL}
             onClick={() => {
               props.onDatePresetChange("90");
             }}
           />
-          <DatePresetButton
+          <DatePresetChip
             active={props.datePreset === "all"}
             label={DECISION_REGISTER_DATE_PRESET_ALL_LABEL}
             onClick={() => {

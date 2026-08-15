@@ -27,10 +27,8 @@ export const REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS: readonly RepeatReviewLoopHelpLo
     stepNumber: 2,
     title: "Replay",
     description: "Reconstruct authority when investigating regressions on a finalized review.",
-    href: "/internal/replay",
+    href: "/internal/validate-route",
     ctaLabel: "Validate review",
-    secondaryHref: inAppHelpHref("comparison-replay"),
-    secondaryLabel: "Compare and replay guide",
   },
   {
     stepNumber: 3,
@@ -54,10 +52,10 @@ export const REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS: readonly RepeatReviewLoopHelpLo
     stepNumber: 5,
     title: "Collect proof",
     description: "Refresh sponsor-safe ROI and proof labels on the second finalized package.",
-    href: "/insights/executive-summary",
-    ctaLabel: "Executive value report",
-    secondaryHref: "/insights/pilot-outcomes",
-    secondaryLabel: "Pilot outcomes",
+    href: "/insights/sponsor-report",
+    ctaLabel: "Sponsor report",
+    secondaryHref: "/insights/roi-summary",
+    secondaryLabel: "ROI summary",
   },
 ] as const;
 

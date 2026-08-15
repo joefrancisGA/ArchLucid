@@ -9,8 +9,8 @@ import {
 import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
 
 const assertedSection: ArchitectureStructuredSection = {
-  key: "executive-summary",
-  title: "Executive summary",
+  key: "sponsor-report",
+  title: "Sponsor report",
   provenance: "asserted",
   narrativeMarkdown: "Governed claims intake.",
   entities: [],

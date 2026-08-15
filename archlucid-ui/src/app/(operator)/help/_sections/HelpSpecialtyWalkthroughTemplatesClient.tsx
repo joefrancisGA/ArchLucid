@@ -29,6 +29,7 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
 import {
   DESIGN_TOKENS,
+  OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_CARD,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -489,7 +490,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
             <ul className={cn("m-0 mt-2 flex flex-wrap gap-x-4 gap-y-2 p-0 list-none", OPERATOR_TYPOGRAPHY.body)}>
               {SPECIALTY_REVIEW_TEMPLATES_RELATED_LINKS.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
+                  <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                     {link.label}
                   </Link>
                 </li>

@@ -15,8 +15,8 @@ export const ASK_VS_FRONTIER_AI_ASK_IS_FOR_HEADING = "Ask is for" as const;
 
 export const ASK_VS_FRONTIER_AI_ASK_IS_FOR_BULLETS = [
   "Plain-language questions about a selected finalized review — findings, evidence, risks, and mitigations.",
-  "Answers scoped to that review's signed review record and cited evidence when available.",
-  "Quick links into executive summary, evidence trail, and audit anchors on the same package.",
+  "Answers scoped to that review's sealed review record and cited evidence when available.",
+  "Quick links into sponsor report, evidence trail, and audit anchors on the same package.",
 ] as const;
 
 export const ASK_VS_FRONTIER_AI_ASK_WILL_NOT_HEADING = "Ask will not" as const;
@@ -32,7 +32,7 @@ export const ASK_VS_FRONTIER_AI_WHY_PACKAGE_BEATS_CHAT_HEADING =
 
 export const ASK_VS_FRONTIER_AI_WHY_PACKAGE_BEATS_CHAT_BULLETS = [
   "Durable architecture review with an evidence trail you can reopen and export.",
-  "Repeatable, audit-ready signed review record — not a one-off transcript.",
+  "Repeatable, audit-ready sealed review record — not a one-off transcript.",
   "Sponsor-ready packaging and policy citations without reassembling chat history by hand.",
 ] as const;
 

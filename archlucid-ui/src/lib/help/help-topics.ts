@@ -1,4 +1,4 @@
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 
@@ -20,7 +20,13 @@ export type HelpTopic = {
 };
 
 /** Topics for the Help drawer “Troubleshooting” tab (ops / auth / support). */
-export const TROUBLESHOOTING_HELP_TOPIC_IDS = new Set<string>(["troubleshooting", "auth", "cli", "support-bundle"]);
+export const TROUBLESHOOTING_HELP_TOPIC_IDS = new Set<string>([
+  "contact-support",
+  "troubleshooting",
+  "auth",
+  "cli",
+  "support-bundle",
+]);
 
 /**
  * Guides tab default ordering — buyer golden path first (new review → reviews → evidence trail → Ask → governance).
@@ -50,7 +56,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Admin-only SE/ops printable checklist — extractor ZIP, finalize, ROI proof, and audit export. Buyers should use Your first architecture review instead.",
     docPath: "docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md",
-    routes: ["/", "/architecture/first-review-guide", "/architecture/reviews/new", EXECUTIVE_DASHBOARD_HREF],
+    routes: ["/", "/architecture/first-review-guide", "/architecture/reviews/new", SPONSOR_DASHBOARD_HREF],
   },
   {
     id: "pilot-guide",
@@ -66,7 +72,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Create your first review",
     keywords: ["wizard", "create", "pipeline", "review", "request"],
     summary:
-      "Create a request, track progress, finalize the signed review record, and review artifacts, findings, and the review trail.",
+      "Create a request, track progress, finalize the sealed review record, and review artifacts, findings, and the review trail.",
     docPath: "docs/library/FIRST_RUN_WIZARD.md",
     routes: ["/architecture/reviews/new", "/", "/architecture/first-review-guide"],
   },
@@ -90,9 +96,9 @@ export const HELP_TOPICS: HelpTopic[] = [
     id: "replay",
     title: "Validate review",
     keywords: ["verify", "drift", "validation"],
-    summary: "Validate whether a finalized review can still be reproduced and its signed review record remains valid.",
+    summary: "Validate whether a finalized review can still be reproduced and its sealed review record remains valid.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
-    routes: ["/internal/replay"],
+    routes: ["/internal/validate-route"],
   },
   {
     id: "graph",
@@ -133,7 +139,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "digests",
     title: "Architecture digests",
-    keywords: ["digest", "schedule", "subscription", "summary", "exec digest"],
+    keywords: ["digest", "schedule", "subscription", "summary", "sponsor digest"],
     summary:
       "Schedule digest summaries of review activity, configure recipients, and browse generated digests.",
     docPath: "",
@@ -163,6 +169,14 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Read-only Effective configuration snapshot: catalog sections, declared sources, set flags, and masked values for sensitive keys.",
     docPath: "docs/library/CONFIGURATION_REFERENCE.md",
     routes: ["/internal/configuration"],
+  },
+  {
+    id: "contact-support",
+    title: "Contact support",
+    keywords: ["support", "contact", "email", "help", "ticket"],
+    summary: "Email support, report a problem, download a diagnostics bundle, and open troubleshooting guides.",
+    docPath: "docs/library/customer-facing/CONTACT_SUPPORT.md",
+    routes: ["/help/contact-support"],
   },
   {
     id: "troubleshooting",

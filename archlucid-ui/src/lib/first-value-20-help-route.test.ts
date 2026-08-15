@@ -13,7 +13,7 @@ describe("first-value-20-help-route", () => {
     );
   });
 
-  it("permanently redirects the retired first-value-20-minutes slug to the COR anchor", () => {
-    expect(resolveHelpTopicPermanentRedirect("first-value-20-minutes")).toBe(FIRST_VALUE_20_HELP_PATH);
+  it("does not redirect the retired first-value-20-minutes slug", () => {
+    expect(resolveHelpTopicPermanentRedirect("first-value-20-minutes")).toBeNull();
   });
 });

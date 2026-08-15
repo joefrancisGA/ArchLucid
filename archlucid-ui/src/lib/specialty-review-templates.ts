@@ -6,6 +6,7 @@ import {
   isResponsibleAiPolicyPackId,
   resolvePolicyPackDetailKind,
 } from "@/lib/policy/policy-pack-detail-resolver";
+import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
 import { SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF } from "@/lib/showcase-static-demo";
 import { RESPONSIBLE_AI_POLICY_PACK_DEFAULT_VERSION } from "@/lib/responsible-ai-policy-pack-detail-content";
 import type { WizardFormValues } from "@/lib/wizard-schema";
@@ -251,7 +252,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
         id: "demo-healthcare-claims-pack",
         label: "Healthcare Claims Policy Pack",
         href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
-        version: "3.4.1",
+        version: CLAIMS_INTAKE_RULE_SET_VERSION,
       },
     ],
     lastReviewedUtc: "2026-03-20T00:00:00.000Z",
@@ -272,7 +273,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
           id: "demo-healthcare-claims-pack",
           label: "Healthcare Claims Policy Pack",
           href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
-          version: "3.4.1",
+          version: CLAIMS_INTAKE_RULE_SET_VERSION,
         },
       ],
       likelyOutputs: [

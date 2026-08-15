@@ -53,6 +53,9 @@ public static partial class AuditEventTypes
     /// </summary>
     public const string CloudInventoryExtractorPackageDownloaded = "Export.CloudInventoryExtractorPackageDownloaded";
 
+    public const string CloudInventoryExtractorPackageChunkSessionStarted =
+        "CloudInventoryExtractorPackage.ChunkSessionStarted";
+
     /// <summary>
     ///     Chunked Azure extractor ingest session created (
     ///     <c>POST /v1/azure-extractor/upload-sessions</c>); payload lists <c>sessionId</c>, declared chunk counts, and caps

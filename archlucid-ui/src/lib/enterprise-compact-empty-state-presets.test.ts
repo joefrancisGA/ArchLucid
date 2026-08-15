@@ -4,7 +4,7 @@ import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCo
 import * as enterpriseCompactEmptyStatePresets from "@/lib/enterprise-compact-empty-state-presets";
 import {
   DECISION_REGISTER_EMPTY_COMPACT,
-  EXECUTIVE_REVIEWS_EMPTY_COMPACT,
+  SPONSOR_REVIEWS_EMPTY_COMPACT,
   GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT,
   IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT,
   RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT,
@@ -31,8 +31,8 @@ describe("enterprise compact empty state presets (pass 5)", () => {
     );
   });
 
-  it("surfaces first-hour CTAs on executive and decision register empties", () => {
-    expect(EXECUTIVE_REVIEWS_EMPTY_COMPACT.actions?.[0]?.href).toBe("/see-it");
+  it("surfaces first-hour CTAs on sponsor and decision register empties", () => {
+    expect(SPONSOR_REVIEWS_EMPTY_COMPACT.actions?.[0]?.href).toBe("/see-it");
     expect(DECISION_REGISTER_EMPTY_COMPACT.actions?.[0]?.href).toBe("/architecture/reviews");
     expect(DECISION_REGISTER_EMPTY_COMPACT.actions?.[1]?.href).toBe("/architecture/reviews/new");
     expect(IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT.actions?.[0]?.href).toBe("/administration/identity/sso-wizard");
@@ -40,7 +40,7 @@ describe("enterprise compact empty state presets (pass 5)", () => {
 
   it("keeps operator persona out of compact empty-state titles and descriptions", () => {
     const presets = [
-      EXECUTIVE_REVIEWS_EMPTY_COMPACT,
+      SPONSOR_REVIEWS_EMPTY_COMPACT,
       DECISION_REGISTER_EMPTY_COMPACT,
       GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT,
       IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT,

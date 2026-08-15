@@ -50,7 +50,12 @@ import {
 
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import {
+  FIRST_REVIEW_GUIDE_PATH,
+  FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID,
+  isFirstReviewGuideProgressDeepLinkHash,
+} from "@/lib/first-review-guide-route";
+import { useDeepLinkHashScroll } from "@/hooks/use-deep-link-hash-scroll";
 import { FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER } from "@/lib/first-review-guide-evidence-copy";
 
 
@@ -180,6 +185,8 @@ function FirstReviewGuideContextErrorCallout(props: { readonly onRetry: () => vo
 export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClientProps) {
 
   const guide = useFirstReviewGuideState();
+
+  useDeepLinkHashScroll(FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID, isFirstReviewGuideProgressDeepLinkHash);
 
   const primaryDisabledReason: WhyDisabledCtaReason | null =
 

@@ -21,7 +21,7 @@ Start with evidence, run the review, finalize the architecture package, then sha
 1. **Start review** — open **New architecture review** and name what you want reviewed. Saving an architecture draft is optional and separate from starting a review. Choose a cloud target only when the review needs provider-specific mapping — otherwise select **No cloud / evidence-only**.
 2. **Add evidence** — attach briefs, diagrams, documents, IaC, or exports. Add architecture context (goals, constraints, integrations) in the wizard when useful. Cloud connectors are optional.
 3. **Run analysis** — execute the assessment on review detail until ready to finalize. Read findings — severity, business impact, rationale, and evidence citations — and use the evidence trail to trace each finding back to uploaded artifacts.
-4. **Finalize package** — finalize the architecture package to lock the signed review record, findings, and export surfaces.
+4. **Finalize package** — finalize the architecture package to lock the sealed review record, findings, and export surfaces.
 5. **Share outputs** — download sponsor exports and share proof with stakeholders.
 
 ## Complete review lifecycle {#complete-review-workflow}
@@ -34,7 +34,7 @@ ArchLucid turns architecture evidence into a review with findings, decisions, ev
 
 | | What you do | What ArchLucid does | What you get |
 | --- | --- | --- | --- |
-| **Purpose** | Provide evidence and context for one architecture decision | Evaluates design, records findings, and packages a signed review record | An architecture review you can export and share |
+| **Purpose** | Provide evidence and context for one architecture decision | Evaluates design, records findings, and packages a sealed review record | An architecture review you can export and share |
 | **Typical duration** | One working session for a first review; longer when governance sign-off is required | Runs the assessment pipeline and attaches evidence citations | Findings, decisions, and sponsor-ready exports |
 
 **Good to know:** You can start with briefs, diagrams, documents, or IaC only — cloud connectors for Azure, AWS, or GCP are optional accelerators. See [Pilot guide](/help/pilot-guide) to prepare.
@@ -58,7 +58,7 @@ From review detail after finalize:
 | Output | Use when |
 | --- | --- |
 | **Sponsor packet** | Executives or program sponsors need a shareable summary |
-| **Executive summary** | ROI or disposition labels matter for the conversation |
+| **Sponsor summary** | ROI or disposition labels matter for the conversation |
 | **Board pack / markdown exports** | You need editable narrative for internal review |
 | **Audit export** | Compliance or security wants a scoped event CSV |
 | **Email this review to your sponsor** | Your workspace enables one-click sponsor handoff |
@@ -72,7 +72,7 @@ ArchLucid uses a small set of labels on Home and review detail to show what to d
 | State | Meaning | Typical next step |
 | --- | --- | --- |
 | **In progress** | Assessment running or findings not yet finalized | Stay on review detail until ready to finalize |
-| **Ready to finalize** | Findings exist; signed record not locked yet | Finalize when disposition and evidence review are complete |
+| **Ready to finalize** | Findings exist; sealed record not locked yet | Finalize when disposition and evidence review are complete |
 | **Finalized** | Architecture package is committed | Open exports and share with stakeholders |
 | **Needs attention** | Blocking findings, stale evidence, or governance hold | Resolve blockers before sponsor send |
 
@@ -116,7 +116,7 @@ Success signals for a first session:
 - Missing evidence is identified instead of guessed.
 - Decisions are recorded when your workflow requires them.
 - Risks or exceptions are created only when needed.
-- The signed review record is understandable.
+- The sealed review record is understandable.
 - The sponsor packet can be shared without embarrassment.
 
 ## Recommended first session {#recommended-first-session}

@@ -43,7 +43,7 @@ function CloudSecurityPreflightTopicRow(props: {
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
         <Link
           href={topic.trustCenterControl.href}
-          className={cn(OPERATOR_LINK.inline, "text-teal-700 underline dark:text-teal-400")}
+          className={OPERATOR_LINK.inline}
           data-testid={`cloud-security-preflight-citation-${topic.id}`}
         >
           {topic.trustCenterControl.label}

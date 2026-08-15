@@ -3,6 +3,10 @@ import Link from "next/link";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  AUTHENTICATION_SIGN_IN_INBOUND_HELP_HREF,
+  AUTHENTICATION_SIGN_IN_INBOUND_HELP_LINK_LABEL,
+} from "@/lib/authentication-sign-in-inbound-copy";
 import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
 import { publicSiteHref } from "@/lib/site-urls";
 import { cn } from "@/lib/utils";
@@ -79,8 +83,8 @@ export function AuthFlowShell({
                 {" · "}
               </>
             ) : null}
-            <Link className={OPERATOR_LINK.nav} href="/help/authentication-sign-in">
-              Authentication help
+            <Link className={OPERATOR_LINK.nav} href={AUTHENTICATION_SIGN_IN_INBOUND_HELP_HREF}>
+              {AUTHENTICATION_SIGN_IN_INBOUND_HELP_LINK_LABEL}
             </Link>
           </p>
         </footer>

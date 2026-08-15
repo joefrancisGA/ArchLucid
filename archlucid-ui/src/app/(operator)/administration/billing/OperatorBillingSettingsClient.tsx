@@ -8,6 +8,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AiUsageBillingVocabularyRail } from "@/components/AiUsageBillingVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OperatorBillingSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
@@ -22,7 +23,7 @@ import {
   resolveOperatorBillingSubscriptionLoadState,
 } from "@/lib/operator/operator-billing-subscription-resolution";
 import { resolveOperatorBillingCurrentPlan } from "@/lib/operator/operator-billing-current-plan";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { OperatorBillingCurrentPlanSummary } from "./OperatorBillingCurrentPlanSummary";
 import { OperatorBillingPaymentPastDueBanner } from "./OperatorBillingPaymentPastDueBanner";
@@ -83,6 +84,7 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
         subtitle={OPERATOR_BILLING_PAGE_LEAD}
         actions={<PageContextualHelpButton />}
       />
+      <OperatorBillingSettingsEvidenceOrientationStrip />
       <AiUsageBillingVocabularyRail currentSurfaceId="billing" />
       <OperatorBillingPaymentPastDueBanner canMutate={canMutate} />
 
@@ -111,7 +113,7 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
 
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         Need procurement or deployment details?{" "}
-        <Link href="/pricing" className="text-teal-800 underline decoration-teal-600/40 underline-offset-2 dark:text-teal-200">
+        <Link href="/pricing" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
           View public pricing
         </Link>{" "}
         or contact sales for Enterprise packaging.

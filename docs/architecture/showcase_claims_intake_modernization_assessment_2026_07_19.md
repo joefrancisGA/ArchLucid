@@ -12,7 +12,7 @@
 
 ---
 
-## 1. Executive conclusion
+## 1. Sponsor conclusion
 
 `/showcase/claims-intake-modernization` is a **public, SEO-indexed, read-only marketing surface** that renders a **curated static payload** (`archlucid-ui/src/lib/showcase-static-demo.ts`), not a live API-backed review. The page **can still show useful content** when the upstream marketing API is unreachable, but it surfaces an amber **“Live preview unavailable”** banner that implies failure when the static experience is often the **intended** production design.
 
@@ -273,7 +273,7 @@ flowchart TD
 | Item | Assessment |
 |------|------------|
 | Primary CTA | “Create your own request” → `/get-started` (bottom section) |
-| Preview above fold | Hero + executive summary — partial product value |
+| Preview above fold | Hero + sponsor summary — partial product value |
 | 30-second value | **Yes** if static path loads; **No** on 404 path |
 | Differentiators shown | Findings, manifest, governance in `DemoPreviewMarketingBody` |
 | Architecture creation | **Underrepresented** — completed review only |
@@ -324,7 +324,7 @@ flowchart TD
 **Minimum production smoke test:**
 
 1. `GET /showcase/claims-intake-modernization` → 200
-2. Body contains executive summary or outcome cards
+2. Body contains sponsor summary or outcome cards
 3. Must **not** contain “not available on this site”
 4. Optional: no “Live preview unavailable” unless explicitly labeled illustrative-only
 

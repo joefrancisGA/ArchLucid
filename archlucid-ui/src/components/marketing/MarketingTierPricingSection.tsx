@@ -1,10 +1,11 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { CTA_WIDTH, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
 import { MarketingPricingEarlyAdopterBanner } from "@/components/marketing/MarketingPricingEarlyAdopterBanner";
 import { MarketingPricingFitMatrix } from "@/components/marketing/MarketingPricingFitMatrix";
@@ -15,7 +16,7 @@ import {
   MARKETING_PRICING_TIER_BEST_FOR,
   MARKETING_PRICING_TIER_HIGHLIGHTS,
   buildMarketingPricingIncludedLines,
-  resolveMarketingTierPrimaryCtaSize,
+  resolveMarketingTierFitQualifier,
   resolveMarketingTierPrimaryCtaVariant,
 } from "@/lib/marketing/marketing-pricing-tier-display";
 import {
@@ -65,12 +66,20 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
   const [pricingLoading, setPricingLoading] = useState(initialPricing === null);
   const selfServeCheckoutEnabled = isPublicStripeTeamCheckoutEnabled();
 
-  const scrollToQuote = useCallback(() => {
+  const focusQuotePanel = useCallback(() => {
     if (typeof document === "undefined") {
       return;
     }
 
-    document.getElementById(quoteSectionDomId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const panel = document.getElementById(quoteSectionDomId);
+
+    if (panel === null) {
+      return;
+    }
+
+    panel.setAttribute("tabindex", "-1");
+    panel.focus({ preventScroll: true });
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [quoteSectionDomId]);
 
   useEffect(() => {
@@ -114,16 +123,16 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
       className="mb-10"
     >
       {props.showSectionHeading !== false ? (
-        <h2 id={props.sectionHeadingId} className={cn("mb-2 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
+        <h2 id={props.sectionHeadingId} className={cn("mb-2 font-semibold tracking-tight text-al-text-primary", MARKETING_TYPOGRAPHY.sectionTitle)}>
           {props.sectionTitle}
         </h2>
       ) : null}
       {props.sectionIntro ? (
-        <p className={cn("mb-6 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{props.sectionIntro}</p>
+        <p className={cn("mb-6 max-w-3xl text-neutral-600 dark:text-neutral-400", MARKETING_TYPOGRAPHY.lead)}>{props.sectionIntro}</p>
       ) : null}
 
       {pricingError ? (
-        <p className={cn("text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
+        <p className={cn("text-red-600", MARKETING_TYPOGRAPHY.body)} role="alert">
           Pricing data is temporarily unavailable.
         </p>
       ) : null}
@@ -165,8 +174,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 const bestFor = tierId !== null ? MARKETING_PRICING_TIER_BEST_FOR[tierId] : null;
                 const primaryCtaVariant =
                   tierId !== null ? resolveMarketingTierPrimaryCtaVariant(tierId, isRecommended) : "primary";
-                const primaryCtaSize =
-                  tierId !== null ? resolveMarketingTierPrimaryCtaSize(tierId, isRecommended) : "default";
+                const fitQualifier = tierId !== null ? resolveMarketingTierFitQualifier(tierId) : null;
                 const billingHref =
                   tierId !== null && selfServeCheckoutEnabled
                     ? buildMarketingSelfServeBillingHref(tierId)
@@ -185,43 +193,41 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                     }
                   >
                     <div className="flex flex-1 flex-col">
-                      <h3 className={cn("text-lg font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                      {isRecommended ? (
+                        <div className="mb-2">
+                          <StatusTag kind="ready" label="Recommended" />
+                        </div>
+                      ) : null}
+                      <h3 className={cn("text-lg font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
                         {pkg.title}
-                        {isRecommended ? (
-                          <span
-                            className={cn(
-                              "ms-2 align-middle font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200",
-                              OPERATOR_TYPOGRAPHY.helper,
-                            )}
-                          >
-                            Recommended
-                          </span>
-                        ) : null}
                       </h3>
+                      {fitQualifier !== null ? (
+                        <p className={cn("mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>{fitQualifier}</p>
+                      ) : null}
                       <p
-                        className={cn("mt-4 text-2xl font-semibold tracking-tight text-al-text-primary sm:text-[1.75rem]", OPERATOR_TYPOGRAPHY.cardTitle)}
+                        className={cn("mt-4 text-2xl font-semibold tracking-tight text-al-text-primary sm:text-[1.75rem]", MARKETING_TYPOGRAPHY.cardTitle)}
                         data-testid={`pricing-tier-price-${pkg.id}`}
                       >
                         {formatPlanPrice(pkg, pricing.currency)}
                       </p>
                       {bestFor !== null ? (
                         <div className="mt-5 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-3 dark:border-neutral-800 dark:bg-neutral-900/50">
-                          <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                          <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}>
                             Best for
                           </p>
-                          <p className={cn("m-0 mt-2 text-base font-medium leading-snug text-al-text-primary sm:text-lg", OPERATOR_TYPOGRAPHY.body)}>
+                          <p className={cn("m-0 mt-2 text-base font-medium leading-snug text-al-text-primary sm:text-lg", MARKETING_TYPOGRAPHY.body)}>
                             {bestFor}
                           </p>
                         </div>
                       ) : (
-                        <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{pkg.summary}</p>
+                        <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.body)}>{pkg.summary}</p>
                       )}
                       {includedLines.length > 0 ? (
                         <div className="mt-5 min-h-[5.5rem]">
-                          <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                          <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}>
                             Included
                           </p>
-                          <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+                          <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-800 dark:text-neutral-200", MARKETING_TYPOGRAPHY.meta)}>
                             {includedLines.map((line) => (
                               <li key={line} className="flex gap-2">
                                 <span aria-hidden className="text-teal-700 dark:text-teal-300">
@@ -235,10 +241,10 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                       ) : null}
                       {highlights.length > 0 ? (
                         <div className="mt-4 min-h-[5.5rem]">
-                          <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                          <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}>
                             Highlights
                           </p>
-                          <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+                          <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.meta)}>
                             {highlights.map((line) => (
                               <li key={line} className="flex gap-2">
                                 <span aria-hidden className="text-teal-700 dark:text-teal-300">
@@ -252,21 +258,35 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                       ) : null}
                     </div>
                     {cta !== undefined ? (
-                    <div className="mt-auto flex min-h-[3.25rem] flex-col items-start justify-end gap-2 pt-5">
+                    <div className="mt-auto flex min-h-[3.25rem] flex-col items-stretch justify-end gap-2 pt-5">
                       {cta.primaryKind === "quote" ? (
-                        <Button type="button" variant={primaryCtaVariant} size={primaryCtaSize} className={CTA_WIDTH.content} onClick={() => scrollToQuote()}>
+                        <Button
+                          type="button"
+                          variant={primaryCtaVariant}
+                          size="default"
+                          className="w-full"
+                          aria-controls={quoteSectionDomId}
+                          onClick={() => focusQuotePanel()}
+                        >
                           {cta.primaryLabel}
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta ? (
-                        <Button type="button" variant={primaryCtaVariant} size={primaryCtaSize} className={CTA_WIDTH.content} onClick={() => scrollToQuote()}>
+                        <Button
+                          type="button"
+                          variant={primaryCtaVariant}
+                          size="default"
+                          className="w-full"
+                          aria-controls={quoteSectionDomId}
+                          onClick={() => focusQuotePanel()}
+                        >
                           {cta.primaryLabel}
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref !== null ? (
-                        <Button asChild variant={primaryCtaVariant} size={primaryCtaSize} className={CTA_WIDTH.content}>
+                        <Button asChild variant={primaryCtaVariant} size="default" className="w-full">
                           <Link
                             data-testid={pkg.id === "team" ? "pricing-team-subscribe-stripe" : `pricing-${pkg.id}-subscribe-stripe`}
                             href={billingHref}
@@ -277,19 +297,19 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                       ) : null}
 
                       {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref === null ? (
-                        <Button asChild variant={primaryCtaVariant} size={primaryCtaSize} className={CTA_WIDTH.content}>
+                        <Button asChild variant={primaryCtaVariant} size="default" className="w-full">
                           <Link href={props.signupHref}>{cta.primaryLabel}</Link>
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref !== null ? (
-                        <Button asChild variant="outline" className={CTA_WIDTH.content}>
+                        <Button asChild variant="outline" className="w-full">
                           <Link href={props.signupHref}>{cta.secondaryLabel ?? "Start now"}</Link>
                         </Button>
                       ) : null}
 
                       {cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta && billingHref !== null ? (
-                        <Button asChild variant="outline" className={CTA_WIDTH.content}>
+                        <Button asChild variant="outline" className="w-full">
                           <Link
                             data-testid="pricing-team-subscribe-stripe"
                             href={billingHref}

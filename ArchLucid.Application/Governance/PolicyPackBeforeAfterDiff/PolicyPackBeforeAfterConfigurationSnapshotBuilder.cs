@@ -43,7 +43,7 @@ public static class PolicyPackBeforeAfterConfigurationSnapshotBuilder
             })
             .ToList();
 
-        IReadOnlyList<string> executiveSummaryLines =
+        IReadOnlyList<string> SponsorReportLines =
         [
             $"Pre-commit gate: {(gateResult.Blocked ? "blocked" : "allowed")} (commit would {(gateResult.Blocked ? "not proceed" : "proceed")})",
             $"Active compliance rules ({activeRuleKeys.Count}, priority floor {priorityFloor}): {string.Join(", ", activeRuleKeys)}",
@@ -58,7 +58,7 @@ public static class PolicyPackBeforeAfterConfigurationSnapshotBuilder
             ActiveComplianceRuleKeysOrdered = activeRuleKeys,
             Findings = findingLines,
             GateBlocked = gateResult.Blocked,
-            ExecutiveSummaryLines = executiveSummaryLines,
+            SponsorReportLines = SponsorReportLines,
         };
     }
 

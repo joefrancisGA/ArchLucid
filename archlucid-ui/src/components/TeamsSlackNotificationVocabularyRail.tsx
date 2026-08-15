@@ -122,14 +122,14 @@ export function TeamsSlackNotificationVocabularyRail(
           <>
             <Link
               href={model.teamsLink.href}
-              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+              className={OPERATOR_LINK.optional}
               data-testid="teams-slack-notification-vocabulary-teams-link"
             >
               {model.teamsLink.label}
             </Link>
             <Link
               href={model.slackLink.href}
-              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+              className={OPERATOR_LINK.optional}
               data-testid="teams-slack-notification-vocabulary-slack-link"
             >
               {model.slackLink.label}
@@ -138,7 +138,7 @@ export function TeamsSlackNotificationVocabularyRail(
         ) : peer !== null ? (
           <Link
             href={peer.href}
-            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+            className={OPERATOR_LINK.optional}
             data-testid="teams-slack-notification-vocabulary-peer-link"
           >
             {peer.label}

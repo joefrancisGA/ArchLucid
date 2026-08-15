@@ -22,7 +22,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 import { showError, showSuccess } from "@/lib/toast";
 import { BASELINE_SETTINGS_PAGE_TITLE } from "@/lib/baseline-settings-present";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { BaselineSettingsClient } from "./BaselineSettingsClient";
 
 const emptyBaseline = {
@@ -68,16 +67,14 @@ describe("BaselineSettingsPage", () => {
     vi.mocked(showError).mockClear();
   });
 
-  it("renders operator header chrome with breadcrumb back to Settings", async () => {
+  it("renders operator header chrome without breadcrumb trail", async () => {
     vi.stubGlobal("fetch", createFetchMock());
     render(<BaselineSettingsClient />);
 
     expect(await screen.findByTestId("baseline-settings-page-title")).toHaveTextContent(BASELINE_SETTINGS_PAGE_TITLE);
-    const breadcrumb = screen.getByTestId("baseline-settings-page-breadcrumb");
-    expect(breadcrumb).toHaveTextContent("Administration");
-    expect(breadcrumb).toHaveTextContent("Settings");
-    expect(breadcrumb).toHaveTextContent(BASELINE_SETTINGS_PAGE_TITLE);
-    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("href", SETTINGS_ROOT_PATH);
+    expect(screen.queryByTestId("baseline-settings-page-breadcrumb")).toBeNull();
+    expect(screen.queryByTestId("baseline-settings-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });
@@ -92,11 +89,11 @@ describe("BaselineSettingsPage", () => {
     const summary = await screen.findByTestId("baseline-settings-summary");
     expect(within(summary).getByRole("link", { name: "Value report" })).toHaveAttribute(
       "href",
-      "/insights/executive-summary",
+      "/insights/sponsor-report",
     );
-    expect(within(summary).getByRole("link", { name: "Executive dashboard" })).toHaveAttribute(
+    expect(within(summary).getByRole("link", { name: "Sponsor dashboard" })).toHaveAttribute(
       "href",
-      "/architecture/executive-dashboard",
+      "/architecture/sponsor-dashboard",
     );
     expect(within(summary).getByRole("link", { name: "ROI summary" })).toHaveAttribute("href", "/insights/roi-summary");
     expect(screen.getByTestId("baseline-settings-recommended-path")).toBeInTheDocument();
@@ -188,7 +185,7 @@ describe("BaselineSettingsPage", () => {
     vi.unstubAllGlobals();
   });
 
-  it("blocks save when hours are not positive", async () => {
+  it("blocks save when hours are not positive without validation toast (TB-2009)", async () => {
     const fetchMock = createFetchMock();
     vi.stubGlobal("fetch", fetchMock);
     render(<BaselineSettingsClient />);

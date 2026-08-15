@@ -118,3 +118,26 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "cosmos_data_plane_workload_principal_ids" {
+  type        = list(string)
+  description = "Entra object IDs (API/Worker user-assigned or system-assigned identities) granted Cosmos DB Built-in Data Contributor when MI data plane is enabled."
+  default     = []
+}
+
+variable "write_connection_string_to_key_vault" {
+  type        = bool
+  description = "When false and workload principals are configured, skip writing the Cosmos connection string to Key Vault (TB-906 managed-identity path)."
+  default     = true
+}
+
+variable "managed_key_vault_secret_ttl_days" {
+  type        = number
+  description = "Expiration offset in days for Terraform-managed Key Vault secrets (TB-907)."
+  default     = 365
+
+  validation {
+    condition     = var.managed_key_vault_secret_ttl_days >= 30 && var.managed_key_vault_secret_ttl_days <= 730
+    error_message = "managed_key_vault_secret_ttl_days must be between 30 and 730."
+  }
+}

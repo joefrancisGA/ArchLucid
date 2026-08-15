@@ -16,7 +16,7 @@ import {
 } from "@/lib/usability/core-pilot-progress-tracker";
 import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type CorePilotProgressTrackerSummaryProps = {
@@ -75,7 +75,7 @@ export function CorePilotProgressTrackerSummary(props: CorePilotProgressTrackerS
               {" · "}
               <Link
                 href={canOpenInternalRunbook ? FIRST_VALUE_20_HELP_PATH : FIRST_ARCHITECTURE_REVIEW_HELP_PATH}
-                className="font-medium text-teal-800 underline dark:text-teal-300"
+                className={OPERATOR_LINK.optional}
               >
                 Complete one review in about {FIRST_VALUE_MINUTES_ESTIMATE} minutes
               </Link>

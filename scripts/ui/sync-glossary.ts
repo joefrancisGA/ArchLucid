@@ -25,16 +25,16 @@ const CATALOG: Record<string, CatalogEntry> = {
     docLink: "/help/glossary#term-review",
   },
   golden_manifest: {
-    term: "Signed review record",
-    glossaryMatch: "Signed review record",
+    term: "Sealed review record",
+    glossaryMatch: "Sealed review record",
     definition:
       "The versioned, finalized design record for an architecture review—the source of truth for governance, comparison, and artifacts.",
-    docLink: "/help/glossary#term-signed-review-record",
+    docLink: "/help/glossary#term-sealed-review-record",
   },
   review_package: {
     term: "Review package",
     definition:
-      "A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
+      "A governed architecture review with sealed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
     docLink: "/help/glossary#term-review-package",
   },
   findings: {
@@ -139,7 +139,7 @@ const CATALOG: Record<string, CatalogEntry> = {
       "The structured path to request, review, and activate manifest changes for a run, with approver and evidence trail.",
   },
   architecture_manifest: {
-    term: "Signed review record",
+    term: "Sealed review record",
     glossaryMatch: "Signed manifest",
     definition:
       "A finalized architecture record containing decisions, findings, and evidence — ready for governance review and sponsor export.",
@@ -148,7 +148,7 @@ const CATALOG: Record<string, CatalogEntry> = {
   manifest_diff: {
     term: "Review comparison",
     definition:
-      "A field-level comparison between two finalized signed review records (or their persisted projection), used in Compare to see what changed between reviews.",
+      "A field-level comparison between two finalized sealed review records (or their persisted projection), used in Compare to see what changed between reviews.",
     docLink: "/docs/library/COMPARISON_REPLAY.md",
   },
   comparison_record: {

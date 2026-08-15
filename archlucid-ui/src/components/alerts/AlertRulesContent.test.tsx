@@ -257,7 +257,7 @@ describe("AlertRulesContent", () => {
     expect(source).not.toMatch(/<select\b/);
   });
 
-  it("stacks live preview rail when empty list uses default draft (TB-1574)", async () => {
+  it("stacks live preview rail when empty list uses default draft (TB-1574 / TB-1479)", async () => {
     renderWithOperatorQuery(<AlertRulesContent />);
 
     await waitFor(() => {
@@ -265,6 +265,7 @@ describe("AlertRulesContent", () => {
     });
 
     expect(screen.getByTestId("alert-rules-layout").className).not.toMatch(/xl:grid-cols-/);
+    expect(screen.getByTestId("alert-rules-layout").className).toContain("gap-4");
     expect(screen.queryByTestId("alert-rule-live-preview")).toBeNull();
 
     await waitForCreateForm();

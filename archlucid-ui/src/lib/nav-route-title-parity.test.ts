@@ -12,7 +12,7 @@ const NAV_TITLE_PARITY_EXCEPTIONS = new Set<string>([
  * Every configured sidebar href (path only) should match getRouteTitle for route announcer parity.
  * Query strings on nav links (e.g. Reviews default project) are stripped before lookup.
  *
- * Anchor deep-links are skipped: a row like `…/executive-dashboard#workspace-health` names the **section** it
+ * Anchor deep-links are skipped: a row like `…/sponsor-dashboard#workspace-health` names the **section** it
  * scrolls to, not the page, so its label is intentionally different from the host route title.
  */
 describe("nav route title parity", () => {

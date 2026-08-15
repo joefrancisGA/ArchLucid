@@ -42,34 +42,18 @@ describe("composeNavSurface — equivalence with underlying Visibility + Capabil
     AUTHORITY_RANK.AdminAuthority,
   ];
 
-  const tierMatrix: ReadonlyArray<readonly [boolean, boolean]> = [
-    [false, false],
-    [true, false],
-    [true, true],
-  ];
-
   const allRouteKeys: ReadonlyArray<LayerGuidancePageKey> = Object.keys(
     LAYER_PAGE_GUIDANCE,
   ) as ReadonlyArray<LayerGuidancePageKey>;
 
-  it("returns links identical to listNavGroupsVisibleInOperatorShell for every rank × tier combination", () => {
+  it("returns links identical to listNavGroupsVisibleInOperatorShell for every rank", () => {
     const sampleRouteKey: LayerGuidancePageKey = "governance-workflow";
 
     for (const rank of allRanks) {
-      for (const [showExtended, showAdvanced] of tierMatrix) {
-        const composed = composeNavSurface(sampleRouteKey, rank, showExtended, showAdvanced, true);
-        const direct = listNavGroupsVisibleInOperatorShell(
-          NAV_GROUPS,
-          showExtended,
-          showAdvanced,
-          rank,
-          false,
-          "all",
-          true,
-        );
+      const composed = composeNavSurface(sampleRouteKey, rank, true);
+      const direct = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, rank, "all", true);
 
-        expect(composed.links).toEqual(direct);
-      }
+      expect(composed.links).toEqual(direct);
     }
   });
 
@@ -77,7 +61,7 @@ describe("composeNavSurface — equivalence with underlying Visibility + Capabil
     const sampleRouteKey: LayerGuidancePageKey = "governance-workflow";
 
     for (const rank of allRanks) {
-      const composed = composeNavSurface(sampleRouteKey, rank, false, false, true);
+      const composed = composeNavSurface(sampleRouteKey, rank, true);
 
       expect(composed.mutationCapability).toBe(operateCapabilityFromRank(rank));
     }
@@ -85,20 +69,14 @@ describe("composeNavSurface — equivalence with underlying Visibility + Capabil
 
   it("returns the LAYER_PAGE_GUIDANCE block matching the route key for every defined key", () => {
     for (const routeKey of allRouteKeys) {
-      const composed = composeNavSurface(routeKey, AUTHORITY_RANK.ReadAuthority, false, false, true);
+      const composed = composeNavSurface(routeKey, AUTHORITY_RANK.ReadAuthority, true);
 
       expect(composed.layerGuidance).toBe(LAYER_PAGE_GUIDANCE[routeKey]);
     }
   });
 
   it("returns the same rank cue strings OperateCapabilityHints helpers would render at Read rank", () => {
-    const composed = composeNavSurface(
-      "governance-workflow",
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      false,
-      true,
-    );
+    const composed = composeNavSurface("governance-workflow", AUTHORITY_RANK.ReadAuthority, true);
 
     expect(composed.contextHints.enterpriseNavGroupHint).toBe("");
     expect(composed.contextHints.enterpriseExecutePageHint).toBe(enterpriseExecutePageHintReaderRank);
@@ -110,13 +88,7 @@ describe("composeNavSurface — equivalence with underlying Visibility + Capabil
   });
 
   it("returns the same rank cue strings OperateCapabilityHints helpers would render at Execute rank", () => {
-    const composed = composeNavSurface(
-      "governance-workflow",
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      false,
-      true,
-    );
+    const composed = composeNavSurface("governance-workflow", AUTHORITY_RANK.ExecuteAuthority, true);
 
     expect(composed.contextHints.enterpriseNavGroupHint).toBe(enterpriseNavHintOperatorRank);
     expect(composed.contextHints.enterpriseExecutePageHint).toBeNull();
@@ -131,27 +103,9 @@ describe("composeNavSurface — equivalence with underlying Visibility + Capabil
     const enterpriseRouteKey: LayerGuidancePageKey = "governance-workflow";
     const advancedRouteKey: LayerGuidancePageKey = "compare";
 
-    const enterpriseAtReader = composeNavSurface(
-      enterpriseRouteKey,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      false,
-      true,
-    );
-    const enterpriseAtExecute = composeNavSurface(
-      enterpriseRouteKey,
-      AUTHORITY_RANK.ExecuteAuthority,
-      false,
-      false,
-      true,
-    );
-    const advancedAtReader = composeNavSurface(
-      advancedRouteKey,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      false,
-      true,
-    );
+    const enterpriseAtReader = composeNavSurface(enterpriseRouteKey, AUTHORITY_RANK.ReadAuthority, true);
+    const enterpriseAtExecute = composeNavSurface(enterpriseRouteKey, AUTHORITY_RANK.ExecuteAuthority, true);
+    const advancedAtReader = composeNavSurface(advancedRouteKey, AUTHORITY_RANK.ReadAuthority, true);
 
     expect(enterpriseAtReader.contextHints.layerHeaderEnterpriseRankCue).toBeNull();
     expect(enterpriseAtExecute.contextHints.layerHeaderEnterpriseRankCue).toBe(
@@ -162,7 +116,7 @@ describe("composeNavSurface — equivalence with underlying Visibility + Capabil
 
   it("does not duplicate logic — the Execute floor used by mutationCapability matches the rank cue branching", () => {
     for (const rank of allRanks) {
-      const composed = composeNavSurface("governance-workflow", rank, false, false, true);
+      const composed = composeNavSurface("governance-workflow", rank, true);
 
       const isReader = !composed.mutationCapability;
       const expectedNavHint = isReader ? enterpriseNavHintReaderRank : enterpriseNavHintOperatorRank;

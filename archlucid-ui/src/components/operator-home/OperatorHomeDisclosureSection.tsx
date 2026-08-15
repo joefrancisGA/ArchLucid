@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useCallback, useId, useLayoutEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useState, type ReactNode } from "react";
 
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
   writeOperatorHomeDisclosureExpanded,
 } from "@/lib/operator/operator-home-disclosure-storage";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 
 type OperatorHomeDisclosureSectionProps = {
   title: string;
@@ -32,6 +33,10 @@ type OperatorHomeDisclosureSectionProps = {
   sectionClassName?: string;
   bodyClassName?: string;
   sectionDataAttributes?: Record<string, string>;
+  /** When true and `titleId` is set, matching `location.hash` expands the section after hydration. */
+  autoExpandOnHashMatch?: boolean;
+  /** Optional hash matcher; defaults to `location.hash` id equals `titleId`. */
+  deepLinkHashMatches?: (hash: string) => boolean;
   children: ReactNode;
 };
 
@@ -52,6 +57,8 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     sectionClassName,
     bodyClassName,
     sectionDataAttributes,
+    autoExpandOnHashMatch = false,
+    deepLinkHashMatches,
     children,
   } = props;
 
@@ -63,10 +70,54 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
   const [hydrated, setHydrated] = useState(false);
   const [expanded, setExpanded] = useState(defaultExpanded);
 
+  const matchesDeepLinkHash = useCallback(
+    (hash: string): boolean => {
+      if (deepLinkHashMatches !== undefined) {
+        return deepLinkHashMatches(hash);
+      }
+
+      return hash.replace(/^#/, "").trim() === titleIdProp;
+    },
+    [deepLinkHashMatches, titleIdProp],
+  );
+
+  const scrollToDeepLinkTarget = useCallback(() => {
+    if (!autoExpandOnHashMatch || titleIdProp === undefined || titleIdProp.trim() === "") {
+      return;
+    }
+
+    scheduleScrollDeepLinkTargetIntoView(titleIdProp);
+  }, [autoExpandOnHashMatch, titleIdProp]);
+
   useLayoutEffect(() => {
-    setExpanded(readOperatorHomeDisclosureExpanded(storageKey, defaultExpanded, legacyStorageKeys));
+    let nextExpanded = readOperatorHomeDisclosureExpanded(storageKey, defaultExpanded, legacyStorageKeys);
+    let shouldScrollToHashTarget = false;
+
+    if (autoExpandOnHashMatch && titleIdProp !== undefined && titleIdProp.trim() !== "") {
+      const hash = typeof window !== "undefined" ? window.location.hash : "";
+
+      if (matchesDeepLinkHash(hash)) {
+        nextExpanded = true;
+        writeOperatorHomeDisclosureExpanded(storageKey, true);
+        shouldScrollToHashTarget = true;
+      }
+    }
+
+    setExpanded(nextExpanded);
     setHydrated(true);
-  }, [defaultExpanded, legacyStorageKeys, storageKey]);
+
+    if (shouldScrollToHashTarget) {
+      scrollToDeepLinkTarget();
+    }
+  }, [
+    autoExpandOnHashMatch,
+    defaultExpanded,
+    legacyStorageKeys,
+    matchesDeepLinkHash,
+    scrollToDeepLinkTarget,
+    storageKey,
+    titleIdProp,
+  ]);
 
   const persistExpanded = useCallback(
     (nextExpanded: boolean) => {
@@ -75,6 +126,25 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     },
     [storageKey],
   );
+
+  useEffect(() => {
+    if (!autoExpandOnHashMatch || titleIdProp === undefined || titleIdProp.trim() === "") {
+      return;
+    }
+
+    const onHashChange = () => {
+      if (matchesDeepLinkHash(window.location.hash)) {
+        persistExpanded(true);
+        scrollToDeepLinkTarget();
+      }
+    };
+
+    window.addEventListener("hashchange", onHashChange);
+
+    return () => {
+      window.removeEventListener("hashchange", onHashChange);
+    };
+  }, [autoExpandOnHashMatch, matchesDeepLinkHash, persistExpanded, scrollToDeepLinkTarget, titleIdProp]);
 
   const toggleExpanded = useCallback(() => {
     persistExpanded(!expanded);

@@ -14,6 +14,11 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 describe("WizardStepAzureContext", () => {
+  const baseProps = {
+    pendingFile: null,
+    onPendingFileChange: vi.fn(),
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     Object.assign(navigator, {
@@ -24,7 +29,7 @@ describe("WizardStepAzureContext", () => {
   it("renders the optional enrichment heading", () => {
     render(
       <WizardFormTestHarness>
-        <WizardStepAzureContext />
+        <WizardStepAzureContext {...baseProps} />
       </WizardFormTestHarness>,
     );
 
@@ -34,7 +39,7 @@ describe("WizardStepAzureContext", () => {
   it("renders helper copy indicating the brief is sufficient without uploading", () => {
     render(
       <WizardFormTestHarness>
-        <WizardStepAzureContext />
+        <WizardStepAzureContext {...baseProps} />
       </WizardFormTestHarness>,
     );
 
@@ -46,7 +51,7 @@ describe("WizardStepAzureContext", () => {
   it("renders the inventory ZIP disclosure toggle without Azure-only labeling", () => {
     render(
       <WizardFormTestHarness>
-        <WizardStepAzureContext />
+        <WizardStepAzureContext {...baseProps} />
       </WizardFormTestHarness>,
     );
 
@@ -59,7 +64,7 @@ describe("WizardStepAzureContext", () => {
   it("starts with the inventory ZIP section collapsed (aria-expanded=false)", () => {
     render(
       <WizardFormTestHarness>
-        <WizardStepAzureContext />
+        <WizardStepAzureContext {...baseProps} />
       </WizardFormTestHarness>,
     );
 
@@ -70,7 +75,7 @@ describe("WizardStepAzureContext", () => {
   it("expands the inventory ZIP section when the toggle is clicked", () => {
     render(
       <WizardFormTestHarness>
-        <WizardStepAzureContext />
+        <WizardStepAzureContext {...baseProps} />
       </WizardFormTestHarness>,
     );
 
@@ -84,7 +89,7 @@ describe("WizardStepAzureContext", () => {
   it("does not show the Azure inventory command when cloud target is None until a provider is selected", async () => {
     render(
       <WizardFormTestHarness>
-        <WizardStepAzureContext />
+        <WizardStepAzureContext {...baseProps} />
       </WizardFormTestHarness>,
     );
 
@@ -101,7 +106,7 @@ describe("WizardStepAzureContext", () => {
   it("shows the Azure inventory command after selecting Azure in the optional inventory picker", async () => {
     render(
       <WizardFormTestHarness>
-        <WizardStepAzureContext />
+        <WizardStepAzureContext {...baseProps} />
       </WizardFormTestHarness>,
     );
 
@@ -111,42 +116,62 @@ describe("WizardStepAzureContext", () => {
     fireEvent.click(await screen.findByRole("option", { name: WIZARD_CLOUD_PROVIDER_OPTIONS.azure }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("wizard-cloud-inventory-ingest-panel")).toHaveAttribute("data-platform", "azure");
+      expect(screen.getByTestId("wizard-ingest-extractor-panel")).toHaveAttribute("data-platform", "azure");
     });
 
-    expect(screen.getByTestId("wizard-cloud-inventory-ingest-command")).toHaveTextContent(
+    expect(screen.getByTestId("wizard-ingest-extractor-command")).toHaveTextContent(
       new RegExp(`-SubscriptionId '${DEV_SCOPE_TENANT_ID}'`),
     );
   });
 
-  it("shows the AWS inventory command when cloud target is Aws", async () => {
+  it("shows the AWS Tier-1 ZIP upload panel when cloud target is Aws", async () => {
     render(
       <WizardFormTestHarness values={{ cloudProvider: "Aws" }}>
-        <WizardStepAzureContext />
+        <WizardStepAzureContext {...baseProps} />
       </WizardFormTestHarness>,
     );
 
     fireEvent.click(screen.getByTestId("wizard-azure-optional-toggle"));
 
     await waitFor(() => {
-      expect(screen.getByTestId("wizard-cloud-inventory-ingest-panel")).toHaveAttribute("data-platform", "aws");
+      expect(screen.getByTestId("tier1-inventory-upload-panel-aws")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("wizard-enrichment-upload-dropzone")).toBeInTheDocument();
     expect(screen.getByTestId("wizard-cloud-inventory-ingest-command")).toHaveTextContent(
       "Get-ArchLucidAwsPackage.ps1",
+    );
+  });
+
+  it("shows the GCP Tier-1 ZIP upload panel when cloud target is Gcp", async () => {
+    render(
+      <WizardFormTestHarness values={{ cloudProvider: "Gcp" }}>
+        <WizardStepAzureContext {...baseProps} />
+      </WizardFormTestHarness>,
+    );
+
+    fireEvent.click(screen.getByTestId("wizard-azure-optional-toggle"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tier1-inventory-upload-panel-gcp")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("wizard-enrichment-upload-dropzone")).toBeInTheDocument();
+    expect(screen.getByTestId("wizard-cloud-inventory-ingest-command")).toHaveTextContent(
+      "Get-ArchLucidGcpPackage.ps1",
     );
   });
 
   it("copies the active cloud inventory command", async () => {
     render(
       <WizardFormTestHarness values={{ cloudProvider: "Azure" }}>
-        <WizardStepAzureContext />
+        <WizardStepAzureContext {...baseProps} />
       </WizardFormTestHarness>,
     );
 
     fireEvent.click(screen.getByTestId("wizard-azure-optional-toggle"));
 
-    fireEvent.click(screen.getByTestId("wizard-cloud-inventory-ingest-copy"));
+    fireEvent.click(screen.getByTestId("wizard-ingest-extractor-copy"));
 
     await waitFor(() => {
       expect(writeTextMock).toHaveBeenCalledTimes(1);

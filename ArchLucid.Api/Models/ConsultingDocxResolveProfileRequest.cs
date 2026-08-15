@@ -6,7 +6,7 @@ namespace ArchLucid.Api.Models;
 public sealed class ConsultingDocxResolveProfileRequest
 {
     /// <summary>
-    ///     Requested template profile key (e.g. internal/client/regulated/executive). Optional; when null the selector may
+    ///     Requested template profile key (e.g. internal/client/regulated/sponsor). Optional; when null the selector may
     ///     auto-select.
     /// </summary>
     public string? Profile

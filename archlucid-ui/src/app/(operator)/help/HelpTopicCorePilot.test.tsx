@@ -22,6 +22,14 @@ import {
 import { CORE_PILOT_HELP_CLAIM_DISCIPLINE } from "@/lib/core-pilot-help-evidence-copy";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { firstArchitectureReviewHelpCopyContainsBannedPattern } from "@/lib/first-architecture-review-help-banned-copy";
+import {
+  CORE_PILOT_HELP_IA_DUAL_HEADING,
+  CORE_PILOT_HELP_IA_DUAL_INBOUND_LABEL,
+  CORE_PILOT_HELP_JOB_MATRIX_TEST_ID,
+  EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF,
+  EVIDENCE_ONLY_REVIEW_HELP_IA_DUAL_INBOUND_LABEL,
+} from "@/lib/core-pilot-help-ia-dual";
+import { CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID } from "@/lib/core-pilot-help-guide-content";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -118,7 +126,7 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.getAllByTestId("core-pilot-primary-start-cta")).toHaveLength(1);
   });
 
-  it("limits /architecture/reviews/new links to the hero and gate note", () => {
+  it("limits /architecture/reviews/new links to buyer start paths (hero, stepper, optional disclosure)", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }
@@ -129,14 +137,18 @@ describe("HelpCorePilotGuideView", () => {
       .getAllByRole("link")
       .filter((link) => link.getAttribute("href") === "/architecture/reviews/new");
 
-    expect(newReviewLinks).toHaveLength(4);
+    expect(newReviewLinks).toHaveLength(6);
     expect(newReviewLinks.map((link) => link.textContent)).toEqual(
       expect.arrayContaining([
         BUYER_START_ARCHITECTURE_REVIEW_CTA,
         "Start a review to add evidence",
         "Start a review first",
+        "Start evidence-only review",
       ]),
     );
+    expect(
+      newReviewLinks.filter((link) => link.textContent === "Start evidence-only review"),
+    ).toHaveLength(2);
   });
 
   it("does not link recursively to View pilot guide in the hero path (TB-1040)", () => {
@@ -338,6 +350,78 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(disclosure).getByText(/evidence-only review first/i)).toBeInTheDocument();
   });
 
+  it("TB-1683: first-viewport job matrix links full review vs evidence-only fast path once each", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    const firstViewport = screen.getByTestId("core-pilot-first-viewport");
+    const jobMatrix = within(firstViewport).getByTestId(CORE_PILOT_HELP_JOB_MATRIX_TEST_ID);
+
+    expect(within(jobMatrix).getByRole("heading", { name: CORE_PILOT_HELP_IA_DUAL_HEADING })).toBeInTheDocument();
+    expect(within(jobMatrix).getByText(/This first architecture review guide/i)).toBeInTheDocument();
+    expect(
+      within(jobMatrix).getByRole("link", { name: EVIDENCE_ONLY_REVIEW_HELP_IA_DUAL_INBOUND_LABEL }),
+    ).toHaveAttribute("href", EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF);
+
+    const disclosure = screen.getByTestId("core-pilot-optional-paths-disclosure");
+    expect(
+      within(disclosure).getByRole("link", { name: CORE_PILOT_HELP_IA_DUAL_INBOUND_LABEL }),
+    ).toHaveAttribute("href", `${FIRST_ARCHITECTURE_REVIEW_HELP_PATH}#first-review-path`);
+    expect(within(disclosure).getByTestId("core-pilot-fast-path-panel")).toHaveAttribute(
+      "id",
+      "fast-path-evidence-only-review",
+    );
+  });
+
+  it("TB-1684: optional cloud cards do not promote extract-upload as the buyer start path", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    const firstViewport = screen.getByTestId("core-pilot-first-viewport");
+    const extractUploadLinks = within(firstViewport)
+      .queryAllByRole("link")
+      .filter((link) => link.getAttribute("href")?.includes("/administration/extract-upload"));
+
+    expect(extractUploadLinks).toHaveLength(0);
+
+    const disclosure = screen.getByTestId("core-pilot-optional-paths-disclosure");
+    const cloudActions = within(disclosure).getByTestId("core-pilot-cloud-actions");
+    const evidenceOnlyCard = within(cloudActions).getByRole("link", { name: "Start evidence-only review" });
+
+    expect(evidenceOnlyCard).toHaveAttribute("href", "/architecture/reviews/new");
+    expect(within(disclosure).queryByRole("link", { name: /upload settings/i })).toBeNull();
+    expect(
+      within(disclosure)
+        .queryAllByRole("link")
+        .filter((link) => link.getAttribute("href")?.includes("/administration/extract-upload")),
+    ).toHaveLength(0);
+  });
+
+  it("TB-1685: first-viewport job chrome shows three numbered steps before Related guides", () => {
+    if (entry === undefined) {
+      throw new Error("Expected first-architecture-review documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    const firstViewport = screen.getByTestId("core-pilot-first-viewport");
+    const jobChrome = within(firstViewport).getByTestId(CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID);
+
+    expect(within(jobChrome).getByRole("heading", { name: /Your first review in three steps/i })).toBeInTheDocument();
+    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-step-1")).toHaveTextContent(/Start a review/);
+    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-step-2")).toHaveTextContent(/Add evidence/);
+    expect(within(jobChrome).getByTestId("core-pilot-first-viewport-step-3")).toHaveTextContent(/Finalize and share/);
+    expect(within(firstViewport).queryByTestId("core-pilot-related-guides")).toBeNull();
+    expect(within(firstViewport).queryByTestId("core-pilot-optional-paths-disclosure")).toBeNull();
+    expect(screen.getByTestId("core-pilot-workflow-stepper")).toBeInTheDocument();
+  });
+
   it("uses customer-facing deferral copy and closing CTAs", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
@@ -368,7 +452,8 @@ describe("HelpCorePilotGuideView", () => {
 
     const firstViewport = screen.getByTestId("core-pilot-first-viewport");
     expect(within(firstViewport).getByTestId("core-pilot-summary-card")).toBeInTheDocument();
-    expect(within(firstViewport).getByTestId("core-pilot-workflow-stepper")).toBeInTheDocument();
+    expect(within(firstViewport).getByTestId(CORE_PILOT_HELP_FIRST_VIEWPORT_JOB_CHROME_TEST_ID)).toBeInTheDocument();
+    expect(within(firstViewport).queryByTestId("core-pilot-workflow-stepper")).toBeNull();
     expect(within(firstViewport).queryByTestId("core-pilot-optional-paths-disclosure")).toBeNull();
     expect(within(firstViewport).queryByTestId("core-pilot-related-guides")).toBeNull();
     expect(within(firstViewport).queryByTestId("core-pilot-help-orientation")).toBeNull();
@@ -461,10 +546,12 @@ describe("HelpCorePilotGuideView", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Before you share externally" })).toBeInTheDocument();
   });
 
-  it("canonicalizes first-hour-operator-path into specialty first-review chrome (TB-1374)", () => {
-    expect(resolveHelpTopicPermanentRedirect("first-hour-operator-path")).toBe(FIRST_ARCHITECTURE_REVIEW_HELP_PATH);
+  it("does not resolve retired first-hour-operator-path bookmark", () => {
+    expect(resolveHelpTopicPermanentRedirect("first-hour-operator-path")).toBeNull();
     expect(getProductDocumentationEntry("first-hour-operator-path")).toBeNull();
+  });
 
+  it("renders specialty first-review chrome on canonical slug (TB-1374)", () => {
     if (entry === undefined) {
       throw new Error("Expected first-architecture-review documentation entry.");
     }

@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PROVENANCE_CLAIM_DISCIPLINE =
-  "This coordinator provenance graph and timeline show linkage for one review — they are not a complete signed-review diligence Sources export by themselves. Open the Evidence trail or the review workspace before briefing sponsors.";
+  "This coordinator provenance graph and timeline show linkage for one review — they are not a complete sealed-review diligence Sources export by themselves. Open the Evidence trail or the review workspace before briefing sponsors.";
 
 export const PROVENANCE_SOURCES_INTRO =
   "Use these follow-ups when provenance nodes need a fuller evidence trail, search, or review context.";

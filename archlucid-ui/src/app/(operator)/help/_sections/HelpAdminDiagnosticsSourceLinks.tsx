@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   ADMIN_DIAGNOSTICS_HELP_LIVE_PANEL_INTRO,
   ADMIN_DIAGNOSTICS_HELP_LIVE_PANEL_TITLE,
   ADMIN_DIAGNOSTICS_HELP_LIVE_SURFACES,
-  ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS,
   ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS_INTRO,
   ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS_TITLE,
   type AdminDiagnosticsHelpSourceLink,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
+import { listAdminDiagnosticsHelpRelatedTopics } from "@/lib/admin-diagnostics-help-related-topics";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -52,6 +54,10 @@ function AdminDiagnosticsHelpSourceList(props: {
 
 /** Live surfaces and related Help topics for admin diagnostics (HAE). */
 export function HelpAdminDiagnosticsSourceLinks(): React.ReactElement {
+  const { callerAuthorityRank } = useOperatorNavAuthority();
+  const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const relatedTopics = listAdminDiagnosticsHelpRelatedTopics(isAdmin);
+
   return (
     <div className="space-y-6" data-testid="help-admin-diagnostics-source-links">
       <section aria-labelledby="help-admin-diagnostics-live-surfaces-heading">
@@ -84,7 +90,7 @@ export function HelpAdminDiagnosticsSourceLinks(): React.ReactElement {
         </p>
         <div className="mt-2">
           <AdminDiagnosticsHelpSourceList
-            links={ADMIN_DIAGNOSTICS_HELP_RELATED_TOPICS}
+            links={relatedTopics}
             testId="help-admin-diagnostics-related-topics"
           />
         </div>

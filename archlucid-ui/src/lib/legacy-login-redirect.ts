@@ -1,7 +1,7 @@
 import {
   AUTH_SESSION_EXPIRED_PATH,
-  CANONICAL_AUTH_SIGNIN_PATH,
-} from "@/lib/legacy-login-route";
+  AUTH_SIGNIN_PATH,
+} from "@/lib/auth-operator-route-paths";
 
 function reasonIncludesIdleTimeout(value: string | string[] | undefined): boolean {
   if (value === undefined) {
@@ -17,7 +17,7 @@ function reasonIncludesIdleTimeout(value: string | string[] | undefined): boolea
 
 /**
  * Builds `/auth/signin` (or `/auth/session-expired` for idle-timeout) plus the same query
- * string as the incoming legacy `/login` shim so bookmarks keep deep-link params.
+ * string as an incoming legacy `/login` bookmark so a future redirect shim preserves params.
  */
 export function buildLoginRedirectPath(
   searchParams: Record<string, string | string[] | undefined>,
@@ -25,7 +25,7 @@ export function buildLoginRedirectPath(
   const u = new URL("http://local");
   u.pathname = reasonIncludesIdleTimeout(searchParams.reason)
     ? AUTH_SESSION_EXPIRED_PATH
-    : CANONICAL_AUTH_SIGNIN_PATH;
+    : AUTH_SIGNIN_PATH;
 
   for (const [key, value] of Object.entries(searchParams)) {
     if (value === undefined) {

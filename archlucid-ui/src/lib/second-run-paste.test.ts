@@ -35,6 +35,25 @@ environment = "prod"
     expect(bad.ok).toBe(false);
   });
 
+  it("parses cloud_provider from TOML without forcing Azure", () => {
+    const toml = `
+name = "Acme.Api"
+description = "Handles orders with at least ten chars."
+cloud_provider = "aws"
+environment = "prod"
+`;
+    const defaults = buildWizardDefaultsForSecondRunPaste();
+    const result = applySecondRunPasteToWizard(toml, defaults);
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.values.cloudProvider).toBe("Aws");
+  });
+
   it("normalizeEnvironmentForWizard maps prod to production", () => {
     expect(normalizeEnvironmentForWizard("prod")).toBe("production");
   });

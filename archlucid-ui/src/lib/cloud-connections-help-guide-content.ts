@@ -19,7 +19,7 @@ export const CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD =
   "This guide explains optional read-only cloud connectors and how to pick an evidence tier for architecture reviews.";
 
 export const CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_BEFORE_LINKS =
-  `It is not the ${HELP_DILIGENCE_ARTIFACT_INDEX_TITLE} for a signed review record. Open`;
+  `It is not the ${HELP_DILIGENCE_ARTIFACT_INDEX_TITLE} for a sealed review record. Open`;
 
 export const CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_AFTER_LINKS =
   "before treating setup guidance as assurance evidence.";

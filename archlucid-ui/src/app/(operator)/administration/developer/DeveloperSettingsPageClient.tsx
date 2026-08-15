@@ -2,7 +2,6 @@
 
 import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { AuthorityThemeDevSelector } from "@/components/settings/AuthorityThemeDevSelector";
 import { TryCliDemoCard } from "@/components/TryCliDemoCard";
@@ -13,7 +12,6 @@ import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
 } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { cn } from "@/lib/utils";
 
 import { DeveloperSettingsBuildIdentityCard } from "./DeveloperSettingsBuildIdentityCard";
@@ -33,15 +31,6 @@ export function DeveloperSettingsPageClient() {
         title={INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE}
         subtitle={INTERNAL_DEVELOPER_TOOLS_INTRO}
         titleTestId="developer-settings-page-title"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="developer-settings-page-breadcrumb"
-            items={[
-              { label: "Administration", href: SETTINGS_ROOT_PATH },
-              { label: INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE },
-            ]}
-          />
-        }
         statusBadge={
           <StatusTag
             kind="neutral"

@@ -38,7 +38,7 @@ export const EVIDENCE_INTAKE_HELP_PATH_OPTIONS: readonly EvidenceIntakeHelpPathO
     id: "quick-review",
     label: REVIEWS_NEW_QUICK_START_TAB_LABEL,
     description:
-      "You want the fastest first review: title, optional attachments, and start analysis on one screen.",
+      "You want the fastest first review: title, optional attachments, required baseline clarifications, then start analysis on one screen.",
     actionLabel: "Open Quick start",
     href: REVIEWS_NEW_QUICK_REVIEW_HREF,
     recommended: true,
@@ -144,7 +144,7 @@ export const EVIDENCE_INTAKE_HELP_SOURCE_DRIFT_ANCHORS: readonly EvidenceIntakeH
     id: "path-quick-start",
     phrases: [
       REVIEWS_NEW_QUICK_START_TAB_LABEL,
-      "You want the fastest first review: title, optional attachments, and start analysis on one screen.",
+      "You want the fastest first review: title, optional attachments, required baseline clarifications, then start analysis on one screen.",
     ],
   },
   {

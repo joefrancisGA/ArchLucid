@@ -9,6 +9,8 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/administration",
 }));
 
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+
 import { SettingsMasterOverviewHeader } from "./SettingsMasterOverviewHeader";
 
 describe("SettingsMasterOverviewHeader (TB-1199 / TB-1201)", () => {
@@ -53,6 +55,8 @@ describe("SettingsMasterOverviewHeader (TB-1199 / TB-1201)", () => {
     );
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 1, name: "Settings" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: OPERATOR_NAV_LINK_LABELS.settings }),
+    ).toBeInTheDocument();
   });
 });

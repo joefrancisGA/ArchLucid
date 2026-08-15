@@ -30,15 +30,6 @@ vi.mock("@/hooks/use-governance-mode", async () => {
   };
 });
 
-vi.mock("@/hooks/useNavProgressiveDisclosure", () => ({
-  useNavProgressiveDisclosure: () => ({
-    showExtended: true,
-    showAdvanced: true,
-    setShowExtended: vi.fn(),
-    setShowAdvanced: vi.fn(),
-  }),
-}));
-
 /** TB-2139: Admin density hides Internal / Operate groups unless expanded. */
 vi.mock("@/hooks/use-role-nav-density-expanded", () => ({
   useRoleNavDensityExpanded: () => ({

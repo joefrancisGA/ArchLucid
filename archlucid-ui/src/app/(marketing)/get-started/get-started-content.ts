@@ -69,7 +69,7 @@ export const GET_STARTED_MILESTONES: readonly GetStartedMilestone[] = [
     n: 4,
     title: "Inspect the result and choose a next step",
     estimate: "10 minutes",
-    body: "Review the conclusion, findings, evidence links, audit history, and sponsor summary. Then run another sample, invite a colleague, or begin an evaluation using your own material.",
+    body: "Review the conclusion, findings, evidence links, audit history, and sponsor report. Then run another sample, invite a colleague, or begin an evaluation using your own material.",
     outcome: "You understand what ArchLucid produces and which next step fits your evaluation.",
   },
 ] as const;
@@ -92,7 +92,7 @@ export const GET_STARTED_REVIEW_OUTPUTS = [
     description: "A record of significant review and governance actions.",
   },
   {
-    title: "Sponsor summary",
+    title: "Sponsor report",
     description: "A concise explanation suitable for decision-makers.",
   },
 ] as const;

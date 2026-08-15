@@ -22,7 +22,7 @@ public sealed class FirstReviewUiRouteSmokeProbeTests
             "/",
             "/reviews/new",
             $"/reviews/{RunId}",
-            $"/reviews/{RunId}/signed-record",
+            $"/reviews/{RunId}/sealed-record",
             "/signed-records",
             "/help/first-review",
         ];
@@ -73,9 +73,9 @@ public sealed class FirstReviewUiRouteSmokeProbeTests
     [Fact]
     public void ResolvePath_EscapesRunId()
     {
-        string resolved = FirstReviewUiRouteSmokeProbe.ResolvePath("/reviews/{runId}/signed-record", RunId);
+        string resolved = FirstReviewUiRouteSmokeProbe.ResolvePath("/reviews/{runId}/sealed-record", RunId);
 
-        resolved.Should().Be($"/reviews/{RunId}/signed-record");
+        resolved.Should().Be($"/reviews/{RunId}/sealed-record");
     }
 
     private static HttpClient CreateClient(HttpMessageHandler handler)

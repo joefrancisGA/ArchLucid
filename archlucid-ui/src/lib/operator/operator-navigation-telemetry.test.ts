@@ -72,7 +72,7 @@ describe("operator-navigation-telemetry (IA-019)", () => {
       expect(trackEvent).toHaveBeenCalledWith(
         { name: "RouteEntered" },
         expect.objectContaining({
-          route: "/architecture/reviews/[runId]/findings",
+          route: "/architecture/reviews/[reviewId]/findings",
           referrerType: "nav",
           shellMode: "demo",
         }),

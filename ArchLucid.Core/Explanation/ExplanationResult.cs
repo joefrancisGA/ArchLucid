@@ -100,7 +100,7 @@ public class ExplanationResult
 /// <remarks>Produced by <c>ArchLucid.Application.Explanation.IExplanationService.ExplainComparisonAsync</c>.</remarks>
 public class ComparisonExplanationResult
 {
-    /// <summary>Short executive summary of what changed.</summary>
+    /// <summary>Short Sponsor report of what changed.</summary>
     public string HighLevelSummary
     {
         get;

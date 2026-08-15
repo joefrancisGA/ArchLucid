@@ -27,7 +27,7 @@ export type OperatorWelcomeOnboardingProps = {
 const DEFAULT_PROJECT_ID = "default";
 
 /**
- * First-time welcome dialog on home, reviews (`/architecture/reviews`), or executive `/dashboard`: shown when the welcome modal was
+ * First-time welcome dialog on home, reviews (`/architecture/reviews`), or sponsor `/dashboard`: shown when the welcome modal was
  * not dismissed and the default project has no runs (unless `serverEligible` is false).
  */
 export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps) {

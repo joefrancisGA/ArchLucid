@@ -9,7 +9,7 @@ describe("resolveBuyerTrailPathBreadcrumb", () => {
       { id: "ev", label: "Source", type: "Artifact" },
       { id: "f1", label: "PHI risk", type: "Finding" },
       { id: "d1", label: "Accept", type: "Decision" },
-      { id: "gm", label: "Signed record", type: "GoldenManifest" },
+      { id: "gm", label: "Sealed record", type: "GoldenManifest" },
     ],
     edges: [
       { id: "e1", source: "ev", target: "f1", type: "supports" },

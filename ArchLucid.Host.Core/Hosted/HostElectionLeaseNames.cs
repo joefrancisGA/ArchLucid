@@ -27,7 +27,9 @@ public static class HostElectionLeaseNames
 
     public const string ExecDigestWeeklyPolling = "hosted:exec-digest-weekly-polling";
 
-    public const string WeeklyExecutiveSummaryPolling = "hosted:weekly-executive-summary-polling";
+    public const string WeeklySponsorReportPolling = "hosted:weekly-sponsor-report-polling";
+
+    public const string WeeklySponsorSummaryPolling = "hosted:weekly-sponsor-summary-polling";
 
     public const string WeeklyArchitectureDigestPolling = "hosted:weekly-architecture-digest-polling";
 
@@ -63,9 +65,9 @@ public static class HostElectionLeaseNames
 
     public const string IntegrationEventDlqRetry = "hosted:integration-event-dlq-retry";
 
-    public const string ExecutiveRoiCacheWarmup = "hosted:executive-roi-cache-warmup";
+    public const string SponsorRoiCacheWarmup = "hosted:sponsor-roi-cache-warmup";
 
-    public const string ExecutiveRoiSavingsGauge = "hosted:executive-roi-savings-gauge";
+    public const string SponsorRoiSavingsGauge = "hosted:sponsor-roi-savings-gauge";
 
     public const string AgentResultBlobCleanup = "hosted:agent-result-blob-cleanup";
 

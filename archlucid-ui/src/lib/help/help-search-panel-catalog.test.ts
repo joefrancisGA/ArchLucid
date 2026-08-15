@@ -205,8 +205,13 @@ describe("help-search-panel-catalog", () => {
   it("names the support footer action after the destination it opens", () => {
     const supportTopic = listHelpSearchPanelTopics(false).find((topic) => topic.id === "contact-support");
 
-    expect(HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL).toBe("Support and troubleshooting");
+    expect(HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL).toBe("Contact support");
     expect(supportTopic?.title).toBe(HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL);
+    expect(supportTopic?.action).toEqual({
+      kind: "route",
+      href: "/help/contact-support",
+      helpSlug: "contact-support",
+    });
   });
 
   it("exposes a report-a-problem topic for defect intake", () => {
@@ -217,5 +222,20 @@ describe("help-search-panel-catalog", () => {
       href: "/help/report-a-problem",
       helpSlug: "report-a-problem",
     });
+  });
+
+  it("exposes improvement-planning help topic in the Insights group", () => {
+    const topic = listHelpSearchPanelTopics(false).find((topic) => topic.id === "improvement-planning-help");
+
+    expect(topic?.title).toBe("Improvement planning");
+    expect(topic?.action).toEqual({
+      kind: "route",
+      href: "/help/improvement-planning",
+      helpSlug: "improvement-planning",
+    });
+
+    const insightsGroup = listHelpSearchPanelGroups(false).find((group) => group.id === "insights");
+
+    expect(insightsGroup?.topics.map((row) => row.id)).toContain("improvement-planning-help");
   });
 });

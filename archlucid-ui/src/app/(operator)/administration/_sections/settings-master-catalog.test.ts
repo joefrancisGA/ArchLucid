@@ -65,4 +65,21 @@ describe("settings-master-catalog (TB-1198)", () => {
     expect(destination?.requiredAuthority).toBe("ReadAuthority");
   });
 
+  it("publishes baseline and extract-upload hub destinations", () => {
+    const destinations = SETTINGS_MASTER_SECTIONS.flatMap((section) => section.destinations);
+    const baseline = destinations.find((entry) => entry.id === "workspace-baseline");
+    const extractUpload = destinations.find((entry) => entry.id === "extract-upload");
+
+    expect(baseline).toMatchObject({
+      href: "/administration/baseline",
+      requiredAuthority: "AdminAuthority",
+      tier: "advanced",
+    });
+    expect(extractUpload).toMatchObject({
+      href: "/administration/extract-upload",
+      requiredAuthority: "ExecuteAuthority",
+      tier: "common",
+    });
+  });
+
 });

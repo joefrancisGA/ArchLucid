@@ -9,10 +9,10 @@ ArchLucid keeps the sidebar focused on the first-review path until you finalize 
 - **Sidebar** — each nav group shows a short caption (what that group is for).
 - **Home** — a first-review checklist and recommended next action after each step.
 - **Review work** — Home, Onboarding, New architecture review, and Reviews stay available by default.
-- **Analysis tools** — Compare, Replay, and Evidence graph appear when you choose **Show analysis & investigation tools** (after a finalized package is most useful).
+- **Analysis tools** — Compare, Replay, and Evidence graph appear in the sidebar when your role allows and you expand the relevant groups (or choose **Show all sidebar links** when role-shaped density hides them).
 - **Governance and admin** — policy packs, audit, and advanced controls appear when you expand those groups and your role allows them.
 
-The **architect workspace** and **executive** reading surfaces are separate shells. Cross-shell links (for example **Open Executive Summary** on review detail) move you between them — there is no single Architect | Executive toggle in the top bar.
+The **architect workspace** and **sponsor** reading surfaces are separate shells. Cross-shell links (for example **Open Sponsor Summary** on review detail) move you between them — there is no single Architect | Sponsor toggle in the top bar.
 
 ## Main workflow {#main-workflow}
 
@@ -20,7 +20,7 @@ The **architect workspace** and **executive** reading surfaces are separate shel
 
 1. **Start** — Open Home (`/`). Use the first-review checklist, or go to **New architecture review** (`/architecture/reviews/new`).
 2. **Reviews** — Open **Reviews**, pick your project, and open a row.
-3. **Review detail** — Watch assessment progress. After you **finalize**, the signed review record, findings, and exports appear.
+3. **Review detail** — Watch assessment progress. After you **finalize**, the sealed review record, findings, and exports appear.
 4. **Artifacts** — Download sponsor-ready outputs from the architecture package.
 
 Saving an **architecture draft** (Architectures workspace) is optional and does not start a review.

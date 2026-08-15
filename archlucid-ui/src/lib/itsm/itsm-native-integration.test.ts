@@ -6,7 +6,6 @@ import {
 } from "@/lib/itsm/itsm-native-integration";
 
 const fetchItsmIntegrationHealth = vi.fn();
-const fetchAzureBoardsHealth = vi.fn();
 const fetchAzureBoardsSettings = vi.fn();
 
 vi.mock("@/lib/api/itsm-outbound-api", () => ({
@@ -14,7 +13,6 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 }));
 
 vi.mock("@/lib/api/azure-boards-api", () => ({
-  fetchAzureBoardsHealth: (...args: unknown[]) => fetchAzureBoardsHealth(...args),
   fetchAzureBoardsSettings: (...args: unknown[]) => fetchAzureBoardsSettings(...args),
   isAzureBoardsNativeCreateReady: () => false,
 }));
@@ -23,14 +21,12 @@ describe("resolveItsmNativeCreateReadiness", () => {
   beforeEach(() => {
     resetItsmNativeCreateEnabledCacheForTests();
     fetchItsmIntegrationHealth.mockReset();
-    fetchAzureBoardsHealth.mockReset();
     fetchAzureBoardsSettings.mockReset();
     fetchItsmIntegrationHealth.mockResolvedValue({
       nativeEnabled: true,
       jira: { status: "healthy" },
       serviceNow: { status: "not_configured" },
     });
-    fetchAzureBoardsHealth.mockResolvedValue({ status: "healthy" });
     fetchAzureBoardsSettings.mockResolvedValue({ defaultWorkItemType: "Task" });
   });
 

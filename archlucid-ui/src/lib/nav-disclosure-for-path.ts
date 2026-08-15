@@ -1,11 +1,11 @@
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 
 /** Core Pilot surfaces: essential-tier nav only (no Show more / extended / advanced links). */
 const CORE_PILOT_ESSENTIAL_ONLY_PATHS = new Set<string>([
   "/",
-  EXECUTIVE_DASHBOARD_HREF,
+  SPONSOR_DASHBOARD_HREF,
   FIRST_REVIEW_GUIDE_PATH,
   "/architecture/reviews/new",
   "/architecture/reviews",

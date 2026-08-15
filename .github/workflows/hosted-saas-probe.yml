@@ -45,7 +45,7 @@ jobs:
           showcase_http_code="$(curl -fsS --max-time 60 -o "${showcase_body}" -w '%{http_code}' "${showcase_url}" || true)"
           if [ "${showcase_http_code}" = "200" ]; then
             if grep -q 'data-testid="demo-preview-marketing-body"' "${showcase_body}" \
-              && grep -qi 'Executive summary' "${showcase_body}" \
+              && grep -qi 'Sponsor summary' "${showcase_body}" \
               && ! grep -q 'data-testid="demo-preview-not-available"' "${showcase_body}"; then
               showcase_ok=true
             fi

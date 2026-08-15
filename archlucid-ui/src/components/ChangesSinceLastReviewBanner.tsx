@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -40,7 +40,7 @@ export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBanner
         <p className="m-0">
           <Link
             href={compareHref}
-            className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
           >
             {compareLinkLabel}
           </Link>

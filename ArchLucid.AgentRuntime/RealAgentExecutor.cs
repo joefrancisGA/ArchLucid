@@ -187,6 +187,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 if (_dependencies.Logger.IsEnabled(LogLevel.Information))
                     _dependencies.Logger.LogInformationAgentExecutionBatchCompleted(runId, finished.Length);
 
+                AgentDownstreamConsistency.StampCriticResults(finished);
+
                 return finished;
             }
             catch (OperationCanceledException)

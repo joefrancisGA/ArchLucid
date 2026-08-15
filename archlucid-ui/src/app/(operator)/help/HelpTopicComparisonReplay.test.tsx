@@ -25,11 +25,24 @@ import {
   COMPARISON_REPLAY_HELP_SOURCES,
 } from "@/lib/comparison-replay-help-evidence-copy";
 import {
+  COMPARISON_REPLAY_HELP_IA_DUAL_INBOUND_LABEL,
+  COMPARISON_REPLAY_HELP_JOB_MATRIX_TEST_ID,
+} from "@/lib/compare-repeat-review-help-ia-dual";
+import {
+  COMPARISON_REPLAY_HELP_DECISION_COMPARE,
+  COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID,
+  COMPARISON_REPLAY_HELP_DECISION_VALIDATE,
   COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME,
   COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE,
+  COMPARISON_REPLAY_HELP_FIRST_VIEWPORT_TEST_ID,
   COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS,
 } from "@/lib/comparison-replay-help-guide-content";
+import {
+  COMPARISON_REPLAY_HELP_RELATED_GUIDES,
+  COMPARISON_REPLAY_HELP_RELATED_TEST_ID,
+} from "@/lib/comparison-replay-help-related-guides";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
@@ -80,6 +93,36 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     expect(OPERATOR_NAV_LINK_LABELS.replayReview).toBe("Validate review");
   });
 
+  it("forces compare vs replay job chrome above deferred markdown detail (TB-1639)", () => {
+    if (loaded === null) {
+      throw new Error("Expected comparison-replay documentation to load.");
+    }
+
+    demoEnv.isDemoStrictNavigationRedirectsActive.mockReturnValue(false);
+
+    render(<HelpComparisonReplayGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const firstViewport = screen.getByTestId(COMPARISON_REPLAY_HELP_FIRST_VIEWPORT_TEST_ID);
+
+    expect(within(firstViewport).getByTestId(COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID)).toBeInTheDocument();
+    expect(
+      within(firstViewport).getByRole("heading", { name: COMPARISON_REPLAY_HELP_DECISION_COMPARE.title }),
+    ).toBeInTheDocument();
+    expect(
+      within(firstViewport).getByRole("heading", { name: COMPARISON_REPLAY_HELP_DECISION_VALIDATE.title }),
+    ).toBeInTheDocument();
+    expect(within(firstViewport).getByTestId("help-comparison-replay-decision-diagram-panel")).toBeInTheDocument();
+
+    const decisionPanel = screen.getByTestId(COMPARISON_REPLAY_HELP_DECISION_PANEL_TEST_ID);
+    const whenToCompare = screen.getByRole("heading", { name: "When to compare" });
+
+    expect(decisionPanel.compareDocumentPosition(whenToCompare) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    const jobMatrix = screen.getByTestId(COMPARISON_REPLAY_HELP_JOB_MATRIX_TEST_ID);
+
+    expect(decisionPanel.compareDocumentPosition(jobMatrix) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("renders primary actions, provenance, evidence strip, and visible decision diagram", () => {
     if (loaded === null) {
       throw new Error("Expected comparison-replay documentation to load.");
@@ -109,14 +152,19 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     );
     expect(screen.getByRole("link", { name: COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.validateReview.label })).toHaveAttribute(
       "href",
-      "/internal/replay",
+      "/internal/validate-route",
     );
 
     expect(screen.getByRole("heading", { name: "When to compare" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "When to replay" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "When to use this guide" })).toBeInTheDocument();
-    const repeatReviewLinks = screen.getAllByRole("link", { name: /repeat architecture review|Repeat-review loop/i });
-    expect(repeatReviewLinks.some((link) => link.getAttribute("href") === "/help/repeat-review-loop")).toBe(true);
+    expect(screen.getByTestId(COMPARISON_REPLAY_HELP_JOB_MATRIX_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByTestId("help-comparison-replay-job-matrix-current")).toHaveTextContent(
+      "This Compare and replay guide",
+    );
+    const repeatReviewCrossLinks = screen.getAllByRole("link", { name: REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE });
+    expect(repeatReviewCrossLinks).toHaveLength(1);
+    expect(repeatReviewCrossLinks[0]).toHaveAttribute("href", "/help/repeat-review-loop");
     expect(screen.getByText(/Validate review.*in the workspace/i)).toBeInTheDocument();
 
     expect(screen.getByTestId("help-comparison-replay-decision-diagram-panel")).toBeInTheDocument();
@@ -138,6 +186,22 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     for (const phrase of BANNED_DIAGRAM_COPY) {
       expect(diagramText, `diagram should not contain "${phrase}"`).not.toContain(phrase);
     }
+  });
+
+  it("renders curated Related help without markdown workspace hub duplication (TB-1640)", () => {
+    if (loaded === null) {
+      throw new Error("Expected comparison-replay documentation to load.");
+    }
+
+    render(<HelpComparisonReplayGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const relatedLinks = within(screen.getByTestId(COMPARISON_REPLAY_HELP_RELATED_TEST_ID)).getAllByRole("link");
+
+    expect(relatedLinks).toHaveLength(COMPARISON_REPLAY_HELP_RELATED_GUIDES.length);
+    expect(relatedLinks.map((link) => link.getAttribute("href"))).toEqual(
+      COMPARISON_REPLAY_HELP_RELATED_GUIDES.map((guide) => guide.href),
+    );
+    expect(screen.queryByRole("heading", { name: "Related guides" })).toBeNull();
   });
 
   it("discloses Validate review unavailable copy in demo workspace mode", () => {

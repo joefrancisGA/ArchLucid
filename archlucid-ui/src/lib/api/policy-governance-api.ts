@@ -27,11 +27,25 @@ import type {
   PolicyPackCatalogListItem,
   PolicyPackContentDocument,
   PolicyPackVersion,
+  PlatformBundledPolicyPackRegistryEntry,
+  PolicyPackWorkspaceSelectionItem,
 } from "@/types/policy-packs";
-import { apiGet, apiPostJson } from "./http";
+import type { AlertRoutingSubscription } from "@/types/alert-routing";
+import { apiGet, apiPostJson, apiPutJson, apiPutNoContent } from "./http";
+
+const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
 export async function listPolicyPacks(): Promise<PolicyPack[]> {
   return apiGet<PolicyPack[]>(`/${ApiV1Routes.policyPacks}`);
+}
+
+/** Policy packs hub: list, effective assignments, and merged content in one GET. */
+export async function fetchPolicyPacksPageBundle(): Promise<{
+  packs: PolicyPack[];
+  effective: EffectivePolicyPackSet;
+  effectiveContent: PolicyPackContentDocument;
+}> {
+  return apiGet(`/${ApiV1Routes.policyPacks}/page-bundle`);
 }
 
 /** Lists platform-promoted policy packs available to clone into the tenant. */
@@ -70,6 +84,14 @@ export async function getEffectivePolicyPacks(): Promise<EffectivePolicyPackSet>
   return apiGet<EffectivePolicyPackSet>(`/${ApiV1Routes.policyPacks}/effective`);
 }
 
+/** Governance setup guide: effective policy packs and alert routing subscriptions. */
+export async function fetchGovernanceSetupGuideBundle(): Promise<{
+  effectivePolicyPacks: EffectivePolicyPackSet;
+  alertRoutingSubscriptions: AlertRoutingSubscription[];
+}> {
+  return apiGet(`${governanceBase()}/setup-guide-bundle`);
+}
+
 /** Fetches the merged content document from all effective policy packs. */
 export async function getEffectivePolicyContent(): Promise<PolicyPackContentDocument> {
   return apiGet<PolicyPackContentDocument>(`/${ApiV1Routes.policyPacks}/effective-content`);
@@ -79,8 +101,6 @@ export async function getEffectivePolicyContent(): Promise<PolicyPackContentDocu
 export async function getGovernanceResolution(): Promise<EffectiveGovernanceResolutionResult> {
   return apiGet<EffectiveGovernanceResolutionResult>(`/${ApiV1Routes.governanceResolution}`);
 }
-
-const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
 /** Cross-run governance dashboard: pending approvals, recent decisions, tenant policy change log. */
 export async function getGovernanceDashboard(
@@ -305,6 +325,35 @@ export async function assignPolicyPack(
   return apiPostJson<PolicyPackAssignment>(
     `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/assign`,
     body,
+  );
+}
+
+/** Lists workspace policy packs with assignment ids for tenant opt-in/opt-out. */
+export async function listPolicyPackWorkspaceSelection(): Promise<PolicyPackWorkspaceSelectionItem[]> {
+  return apiGet(`/${ApiV1Routes.policyPacks}/workspace-selection`);
+}
+
+/** Enables or disables one policy pack assignment for the current workspace. */
+export async function setPolicyPackAssignmentEnabled(assignmentId: string, isEnabled: boolean): Promise<void> {
+  await apiPutNoContent(
+    `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/enabled`,
+    { isEnabled },
+  );
+}
+
+/** Lists bundled platform policy packs and global activation flags (internal admin). */
+export async function listPlatformBundledPolicyPacks(): Promise<PlatformBundledPolicyPackRegistryEntry[]> {
+  return apiGet("/v1/admin/platform-bundled-policy-packs");
+}
+
+/** Activates or deactivates a bundled policy pack platform-wide (internal admin). */
+export async function setPlatformBundledPolicyPackActivation(
+  bundleContentFile: string,
+  isGloballyActive: boolean,
+): Promise<PlatformBundledPolicyPackRegistryEntry> {
+  return apiPutJson(
+    `/v1/admin/platform-bundled-policy-packs/${encodeURIComponent(bundleContentFile)}/activation`,
+    { isGloballyActive },
   );
 }
 

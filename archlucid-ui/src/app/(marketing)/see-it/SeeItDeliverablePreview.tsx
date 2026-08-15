@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
-import { MARKETING_MOTION, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
   CUSTOMER_INTAKE_PRIMARY_FINDING_TITLE,
@@ -12,9 +12,9 @@ import { cn } from "@/lib/utils";
 
 const PREVIEW_LAYERS = [
   {
-    id: "executive-summary",
-    title: "Executive summary",
-    detail: "Sponsor briefing · signed review record",
+    id: "sponsor-report",
+    title: "Sponsor report",
+    detail: "Sponsor briefing · sealed review record",
   },
   {
     id: "findings",
@@ -63,7 +63,7 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
           <StatusTag kind="approved" className="px-2.5 py-1 text-sm font-semibold" />
         </div>
         <p className={cn("m-0 mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
-          Signed review record · Policy pack · Fabricated sample data
+          Sealed review record · Policy pack · Fabricated sample data
         </p>
       </div>
 
@@ -99,10 +99,7 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
         </ul>
 
         <p
-          className={cn(
-            "m-0 text-center text-teal-800 group-hover:underline dark:text-teal-300",
-            MARKETING_TYPOGRAPHY.meta,
-          )}
+          className={cn("m-0 text-center", MARKETING_SURFACES.inlineLink, MARKETING_TYPOGRAPHY.meta)}
         >
           Open interactive sample review →
         </p>

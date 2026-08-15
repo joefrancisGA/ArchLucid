@@ -31,6 +31,32 @@ function readStringList(record: Record<string, unknown>, ...keys: string[]): str
   return [];
 }
 
+function normalizeCloudProviderForWizard(raw: string | undefined): WizardFormValues["cloudProvider"] | undefined {
+  const normalized = (raw ?? "").trim().toLowerCase();
+
+  if (normalized.length === 0) {
+    return undefined;
+  }
+
+  if (normalized === "azure") {
+    return "Azure";
+  }
+
+  if (normalized === "aws") {
+    return "Aws";
+  }
+
+  if (normalized === "gcp") {
+    return "Gcp";
+  }
+
+  if (normalized === "none") {
+    return "None";
+  }
+
+  return undefined;
+}
+
 /** Maps SECOND_RUN `environment` to a wizard `<Select>` value (identity step options). */
 export function normalizeEnvironmentForWizard(raw: string | undefined): string {
   const e = (raw ?? "staging").trim().toLowerCase();
@@ -130,7 +156,10 @@ export function applySecondRunPasteToWizard(raw: string, defaults: WizardFormVal
     systemName: name,
     description,
     environment: normalizeEnvironmentForWizard(readString(record, "environment", "Environment")),
-    cloudProvider: "Azure",
+    cloudProvider:
+      normalizeCloudProviderForWizard(
+        readString(record, "cloud_provider", "cloudProvider", "CloudProvider"),
+      ) ?? defaults.cloudProvider,
     requiredCapabilities: components,
     constraints,
     assumptions,

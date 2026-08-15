@@ -91,6 +91,13 @@ export type CreateArchitectureRunRequestPayload = {
   requestSource?: "wizard" | "cli";
   wizardPresetUsed?: string;
   modelExecutionProfileOverride?: "Economy" | "Balanced" | "HighAssurance";
+  modelAliasOverride?: string;
+  intakeQuestionAnswers?: Record<string, string>;
+  intakeTransparencyTrail?: {
+    asserted: readonly { key: string; value: string }[];
+    inferred: readonly { key: string; value: string; confidence: number }[];
+    skipped: readonly { questionKey: string; tier: "Must" | "Should" }[];
+  };
 };
 
 /** Response envelope for POST /v1/architecture/request. */
@@ -200,7 +207,7 @@ export async function pinArchitectureRun(
   );
 }
 
-/** Finalizes agent results into a signed review record (POST /v1/architecture/review/{runId}/finalize). */
+/** Finalizes agent results into a sealed review record (POST /v1/architecture/review/{runId}/finalize). */
 export async function commitArchitectureRun(
   runId: string,
   options?: { readonly notifySponsor?: boolean },
@@ -350,6 +357,17 @@ export async function listRunsInScopePaged(
 /** Restores a soft-archived architecture request (POST /v1/architecture/request/{requestId}/restore). */
 export async function restoreArchitectureRequest(requestId: string): Promise<void> {
   return apiPostNoContent(`/v1/architecture/request/${encodeURIComponent(requestId)}/restore`, {});
+}
+
+/** Loads a persisted architecture request (constraints + intake answers for review calibration). */
+export async function getArchitectureRequest(
+  requestId: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<components["schemas"]["ArchitectureRequest"]> {
+  return apiGet<components["schemas"]["ArchitectureRequest"]>(
+    `/v1/architecture/request/${encodeURIComponent(requestId)}`,
+    options,
+  );
 }
 
 /** Fetches the lightweight summary for a single run. */
@@ -595,7 +613,7 @@ export async function explainRun(runId: string): Promise<RunExplanation> {
   return apiGet<RunExplanation>(`/v1/explain/runs/${encodeURIComponent(runId)}/explain`);
 }
 
-/** Aggregate executive explanation (themes, posture, counts) with nested full explanation payload. */
+/** Aggregate sponsor explanation (themes, posture, counts) with nested full explanation payload. */
 export async function getRunExplanationSummary(
   runId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },

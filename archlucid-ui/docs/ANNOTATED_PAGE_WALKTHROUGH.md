@@ -313,13 +313,13 @@ In JavaScript, `.map()` transforms each element of an array into something else 
 
 ---
 
-## Run detail page — Explanation section (`src/app/runs/[runId]/page.tsx`)
+## Run detail page — Explanation section (`src/app/runs/[reviewId]/page.tsx`)
 
 When the run has a **`goldenManifestId`**, the server also calls **`getRunExplanationSummary(runId)`** → **`GET /v1/explain/runs/{runId}/aggregate`** (after manifest summary loads, before artifacts). The **Explanation** `<section>` renders **`RunExplanationSection`** (`src/components/RunExplanationSection.tsx`).
 
 **What operators see**
 
-- **Overall assessment** — One executive line from the API (includes **risk posture** label and counts of unresolved issues / compliance gaps when non-zero, then the model **summary**).
+- **Overall assessment** — One sponsor line from the API (includes **risk posture** label and counts of unresolved issues / compliance gaps when non-zero, then the model **summary**).
 - **Risk posture** — **Low** / **Medium** / **High** / **Critical** badge. This is **not** the model’s opinion: it is computed from **unresolved issue severities** on the golden manifest (see **`docs/EXPLANATION_SCHEMA.md`** → *Risk posture derivation*).
 - **Model confidence** — A **0–100%** progress bar when the nested explanation includes a **confidence** score (**model-estimated**, 0.0–1.0); otherwise **“Not available”**. Same value as **`structured.confidence`** on the API; nullable when the model did not return a score.
 - **Themes** — Bullet list of **theme summaries** (drivers grouped by decision **category**).

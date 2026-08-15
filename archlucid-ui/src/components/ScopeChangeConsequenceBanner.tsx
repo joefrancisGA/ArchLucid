@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type JSX } from "react";
 
 import { DismissControl } from "@/components/usability/DismissControl";
@@ -31,6 +32,7 @@ export type ScopeChangeConsequenceBannerProps = {
 export function ScopeChangeConsequenceBanner(
   props: ScopeChangeConsequenceBannerProps,
 ): JSX.Element | null {
+  const pathname = usePathname();
   const model = props.model ?? buildScopeChangeConsequenceBanner();
   const [eventKey, setEventKey] = useState<string | null>(null);
 
@@ -68,6 +70,10 @@ export function ScopeChangeConsequenceBanner(
     setEventKey(null);
   }, [eventKey]);
 
+  if (pathname.startsWith("/help/")) {
+    return null;
+  }
+
   if (eventKey === null) {
     return null;
   }
@@ -75,7 +81,7 @@ export function ScopeChangeConsequenceBanner(
   return (
     <aside
       className={cn(
-        "mb-4 space-y-1 rounded-md border border-teal-700/25 bg-teal-50/40 px-4 py-3 dark:border-teal-600/30 dark:bg-teal-950/20",
+        "mb-4 space-y-1 rounded-md border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/50",
         props.className,
       )}
       role="status"
@@ -84,7 +90,7 @@ export function ScopeChangeConsequenceBanner(
       data-event-key={eventKey}
     >
       <div className="flex items-start justify-between gap-3">
-        <h2
+        <p
           id="scope-change-consequence-banner-heading"
           className={cn(
             "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
@@ -92,7 +98,7 @@ export function ScopeChangeConsequenceBanner(
           )}
         >
           {model.heading}
-        </h2>
+        </p>
         <DismissControl
           className="shrink-0"
           label={model.dismissLabel}

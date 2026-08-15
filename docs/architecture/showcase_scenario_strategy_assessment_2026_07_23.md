@@ -11,11 +11,11 @@
 
 ---
 
-## 1. Executive conclusion
+## 1. Sponsor conclusion
 
 **The healthcare framing is real but it is not the biggest problem. The biggest problem is that ArchLucid does not have one primary example ΓÇö it has three, with colliding labels.**
 
-1. **Claims Intake Modernization** ΓÇö the only fully-built, buyer-polished spine (static TypeScript payload, 9 findings / 1 warning / 12 decisions, evidence traces, compare pair, signed record, governance approvals). Healthcare-heavy (PHI minimization hero finding, "Healthcare Claims Policy Pack v3.4.1").
+1. **Claims Intake Modernization** ΓÇö the only fully-built, buyer-polished spine (static TypeScript payload, 9 findings / 1 warning / 12 decisions, evidence traces, compare pair, sealed record, governance approvals). Healthcare-heavy (PHI minimization hero finding, "Healthcare Claims Policy Pack v3.4.1").
 2. **Contoso Retail Modernization** ΓÇö the backend SQL demo-seed family that actually powers the live marketing API (`/v1/marketing/showcase/contoso-*`), `/demo/preview`, and **trial onboarding** (`TRIAL_ONBOARDING_SAMPLE_RUN_ID` is the Contoso baseline GUID, not the Claims slug).
 3. **Northwind Copilot RAG Platform** ΓÇö the "created package" sample (TB-742), which already demonstrates architecture *creation* and AI governance.
 
@@ -48,7 +48,7 @@ This partially confirms and partially corrects the expected outcome ("generic pr
 | Quick Scan | `/quick-scan` | Separate product; example form is claims-flavored |
 | Review workspace | `/reviews/claims-intake-modernization` | `operator-static-demo.ts` fallback / demo env |
 | Primary finding | `ΓÇª/findings/phi-minimization-risk` (+ `/inspect`, `/evidence-trace`) | Static |
-| Signed record | `ΓÇª/signed-record` ΓåÆ `/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` | Static manifest |
+| Sealed record | `ΓÇª/signed-record` ΓåÆ `/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890` | Static manifest |
 | Graph | `/graph?runId=claims-intake-modernization&graphNodeId=n-phi` | Static |
 | Compare | `/compare` (`claims-intake-run-v1` vs `-v2`) | Static |
 | Policy pack | `/governance/policy-packs/demo-healthcare-claims-pack` | Dedicated component `HealthcareClaimsPolicyPackDetail.tsx` |
@@ -77,7 +77,7 @@ Marketing funnel
 
 Public showcase (static-first)
   /showcase/claims-intake-modernization ΓùäΓöÇΓöÇ showcase-static-demo.ts  (no SQL, no AI, shared across visitors)
-      ΓööΓöÇΓöÇ QuickNav ΓöÇΓöÇΓû║ operator deep links (review / finding / signed record / graph / compare)
+      ΓööΓöÇΓöÇ QuickNav ΓöÇΓöÇΓû║ operator deep links (review / finding / sealed record / graph / compare)
                         ΓùäΓöÇΓöÇ operator-static-demo.ts (offline fallback)
 
 Backend SQL universe (separate)
@@ -100,7 +100,7 @@ Backend SQL universe (separate)
 | Persona | Can they get it in 30s? | Why |
 |---|---|---|
 | Enterprise/principal architect (regulated) | **Yes** | Intake boundary, PHI minimization, idempotency, retention ΓÇö recognizable and credible |
-| CTO/CIO (regulated) | **Mostly** | Executive summary + illustrative savings ($94,360) work; healthcare vocabulary is a mild translation tax |
+| CTO/CIO (regulated) | **Mostly** | Sponsor summary + illustrative savings ($94,360) work; healthcare vocabulary is a mild translation tax |
 | Engineering leader (tech company) | **Partial** | Findings like OCR bypass, back-pressure, idempotency translate; "claims/adjudication/PHI" does not |
 | Financial-services buyer | **Partial** | Regulated posture resonates; must self-translate PHIΓåÆPII, claimsΓåÆapplications |
 | Government buyer | **Partial** | Governance/evidence/audit resonates; healthcare wrapper distracts |
@@ -245,10 +245,10 @@ Assessing **Enterprise Customer Intake Modernization** as specified (multi-chann
 
 - **Concrete enough?** Yes, *if* it keeps named components and named failure modes. The current claims architecture (Intake API, Document Upload, Validation Worker, Intake DB, Document Storage, Handoff Queue, Operations Portal, Audit Event Store) maps 1:1 with only two renames (FHIR Validation Worker ΓåÆ Document Validation Worker; Adjudication Handoff ΓåÆ Case/Decision Handoff). **Proven** reuse path.
 - **Too generic?** The risk is real but manageable: 7 of the 10 proposed findings already exist in the claims spine in generic form (idempotency, OCR bypass, retry inconsistency, retention divergence, events-before-commit, DR evidence gap, review-queue recovery). The two weakest proposed findings ("sensitive data collected earlier than required" and "AI classification lacks confidence thresholds") need concrete policy hooks: recommend anchoring the first to the existing data-classification/GDPR bundled packs and the second to the existing AI-governance pack ΓÇö both already ship in `DefaultPolicyPacks/Bundled/`.
-- **Evidence/governance story weakened?** No ΓÇö evidence traces, signed record, approvals, and compare mechanics are scenario-agnostic (Proven: they render Northwind created-sample content today).
+- **Evidence/governance story weakened?** No ΓÇö evidence traces, sealed record, approvals, and compare mechanics are scenario-agnostic (Proven: they render Northwind created-sample content today).
 - **Sponsor metrics?** The illustrative-savings mechanism (`SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD`) is scenario-agnostic; re-derive the number for the new narrative.
 - **Cloud posture?** Keep it an **Azure reference architecture with honest labeling** (the TB-778 pattern), consistent with ADR 0020. Do not fake neutrality.
-- **Executive comprehension?** Better than claims (no vocabulary tax) but keep the hero finding *visceral* ΓÇö recommend "sensitive personal data crosses the intake boundary before minimization" as the direct generic descendant of the PHI hero, mapped to privacy/data-minimization policy rather than HIPAA.
+- **Sponsor comprehension?** Better than claims (no vocabulary tax) but keep the hero finding *visceral* ΓÇö recommend "sensitive personal data crosses the intake boundary before minimization" as the direct generic descendant of the PHI hero, mapped to privacy/data-minimization policy rather than HIPAA.
 
 **Adjustment recommended:** one hero finding, not ten equals ΓÇö the claims spine works because PHI minimization is a single memorable spike with eight supporting decisions. Reproduce that shape.
 

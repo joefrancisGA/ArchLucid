@@ -77,7 +77,7 @@ Use precise product language throughout the UI — labels, headings, empty state
 | Finding | Issue, alert (unless it is an alert) |
 | Residual risk | Open issue |
 | Evidence trail / Evidence graph (see split below) | Logs, output |
-| Signed review record (package) | Signed decision record, golden manifest |
+| Sealed review record (package) | Signed decision record, golden manifest |
 | Decision (disposition) | Calling the package a decision record |
 | Governance approval | Sign-off, approval |
 | Audit trail | History |
@@ -86,7 +86,7 @@ Use precise product language throughout the UI — labels, headings, empty state
 
 | Term | Role | Use when |
 |------|------|----------|
-| **Evidence trail** | **Concept** — the diligence chain evidence → findings → decisions → signed review record | Glossary, Related-links, help topics, and copy that names the *idea* of governed linkage |
+| **Evidence trail** | **Concept** — the diligence chain evidence → findings → decisions → sealed review record | Glossary, Related-links, help topics, and copy that names the *idea* of governed linkage |
 | **Evidence graph** | **Surface** — `/insights/evidence-graph` and journey destinations that open that route | Page titles, nav, golden-journey step pills, surface CTAs that name the graph UI |
 
 Do **not** use “Evidence trail” as the title, tab, or destination pill for `/insights/evidence-graph`. Keep glossary and Related-links “Evidence trail” labels unless an explicit rename of the concept is approved.
@@ -177,7 +177,7 @@ Every navigable operator surface must teach its own job in place. The shell top-
 
 **Code touchpoints:** `PageContextualHelpButton` / `PageScopedContextualHelpPanel`, `page-help-topic-map.ts`, `contextual-help-registry.ts`, `components/ui/help-popover.tsx`, `components/ui/popover.tsx`.
 
-**Good exemplars:** `/architecture/reviews`, `/architecture/architectures`, findings / alerts / alert-rules / advisory-scans, `/architecture/digests`, improvement planning, executive summary, readiness. Mount waves **TB-1667**–**TB-1669** Done; Vitest allowlist + non-null topic guard **TB-1670** Done. **Learn more** destinations are governed by the next section (**TB-2048**) — this section owns mount, trigger, and panel semantics only.
+**Good exemplars:** `/architecture/reviews`, `/architecture/architectures`, findings / alerts / alert-rules / advisory-scans, `/architecture/digests`, improvement planning, sponsor summary, readiness. Mount waves **TB-1667**–**TB-1669** Done; Vitest allowlist + non-null topic guard **TB-1670** Done. **Learn more** destinations are governed by the next section (**TB-2048**) — this section owns mount, trigger, and panel semantics only.
 
 ### Operator page contextual help — Learn more job match (**TB-2048** — done 2026-08-05)
 
@@ -272,7 +272,45 @@ Carbon and Fluent both enforce **one filled primary action** per viewport. This 
 
 **Out of scope here:** Marketing/auth/help CTAs; Vitest dual-primary guard (**TB-1544** — extend from `operator-primary-cta-inventory.ts`).
 
+### Primary action color usage (**TB-2279** — done 2026-08-14)
+
+Extends the operator primary CTA contract (**TB-1539**) and inline link contract (**TB-1671**). Teal fill is for **forward workflow**, not navigation wallpaper.
+
+| Use filled teal (`Button variant="primary"`) | Use outline / link instead |
+|------|------|
+| Start review, submit intake, approve disposition, save settings commit | Open drafts list, help topic, audit trail, related settings tab |
+| Irreversible or state-changing workflow on the current surface | Refresh, preview, export, view detail in another route |
+| Exactly one forward job per viewport (pairs **TB-1539**) | `OPERATOR_LINK`, `variant="outline"`, or quiet text links for surface opens |
+
+Canonical strings live in `OPERATOR_PRIMARY_FILL_USAGE_CONTRACT` (`design-tokens.ts`). New surfaces default to outline/link for navigation opens; migrate existing filled navigation CTAs incrementally (**TB-2291** cluster).
+
 **UI architecture pointer:** `archlucid-ui/docs/ARCHITECTURE.md` § *Where to go next*.
+
+### Button variant/color matrix (**TB-2290** — done 2026-08-14)
+
+Extends § *Visible-boundary `Button` contract* (**TB-2168** Done) and § *Primary action color usage* (**TB-2279** Done). Canonical implementation: `archlucid-ui/src/components/ui/button.tsx` (`buttonVariants`). Programmatic mirror: `OPERATOR_BUTTON_VARIANT_COLOR_MATRIX` in `design-tokens.ts`.
+
+| `variant` | Visual | Use when | Do not use for |
+| --- | --- | --- | --- |
+| **`primary`** | Filled teal (`--al-primary-action-*`) | Exactly one forward or irreversible workflow commit per viewport (**TB-1539**) — Start review, Submit, Save, Approve | Navigation opens, list filters, refresh/export utilities, multiple filled actions on one strip |
+| **`outline`** | Raised white/dark + neutral border | Secondary utilities (Refresh, Preview, Export), dismissible panels, dense row actions that need a visible boundary | The page's single forward job (use `primary`) |
+| **`default`** / **`secondary`** | Quiet neutral grey fill + border | Secondary filled actions when outline is too light — bulk secondary commits, quiet confirms | Forward workflow primary; list-scope filter toggles (**TB-2293**) |
+| **`destructive`** | Red token fill (`OPERATOR_DANGER`) | Irreversible destructive commits (Delete tenant, purge queue) | Semantic status coloring; cautionary non-destructive actions |
+
+**Color override rules (operator `Button`)**
+
+| Rule | Required behavior |
+| --- | --- |
+| Variants only | Set color via `variant` + `size` — not inline `className` `bg-*` / `text-*` fill overrides on operator surfaces. |
+| Banned overrides | `bg-teal-*`, `bg-emerald-*`, `bg-rose-*`, `bg-amber-*`, and hand-rolled semantic success/warn fills on `Button` — they bypass `--al-primary-action-*` and read as duplicate primaries beside real CTAs. |
+| Filter toggles | List-scope filters and view switches use **`FilterChip`** (`aria-pressed`) — not filled `primary` `Button` (**TB-665**, **TB-2293**). |
+| Status metadata | Read-only posture uses **`StatusTag`** / **`SeverityTag`** — never a filled `Button` painted as status (**TB-2284**). |
+| Marketing primary CTA | `MARKETING_PRIMARY_CTA_CLASS` uses the same `--al-primary-action-*` tokens as operator `variant="primary"` (**TB-2292**). |
+| Interactive shell budget | Shell LLM budget control may compose `enterpriseStatusTagClass` on an interactive `Button` + popover (**TB-2287**) — not a second primary CTA. |
+
+**Migration cluster (out of scope for this row):** inline teal `Button` sweeps **TB-2291** (Done); marketing teal alignment **TB-2292** (Done); filter-toggle demotion **TB-2293** (Done); semantic filled buttons **TB-2294**; Vitest drift guard **TB-2295**.
+
+**Do not:** add `ghost` / `link` variants; stack multiple filled teal buttons in one viewport; override `buttonVariants` colors per call site without a documented carve-out.
 
 ### Operator empty states (**TB-1552** — done 2026-08-11)
 
@@ -365,7 +403,7 @@ Bans playful empties — this section defines **empty kinds**, Compact-vs-center
 > - Compact, readable enterprise spacing; no giant marketing cards in architect workspace views.
 > - Hide CLI/script/API/model/runtime details from normal surfaces.
 > - Keep technical details behind diagnostics or technical appendix disclosures.
-> - Use precise product language: architecture package, finding, residual risk, evidence trail, signed review record, decision, governance approval, audit trail. Never call the package a signed decision record.
+> - Use precise product language: architecture package, finding, residual risk, evidence trail, sealed review record, decision, governance approval, audit trail. Never call the package a signed decision record.
 > - Design for CIO/procurement/compliance credibility.
 
 ---
@@ -376,11 +414,13 @@ Authoritative implementation: `archlucid-ui/src/lib/design-tokens.ts` and CSS va
 
 | Token | Light-mode role |
 |-------|-----------------|
-| `--al-surface-base` | Page background (`$layer-00`) |
-| `--al-surface-raised` | Cards, tables, callouts (`$layer-01`) |
+| `--al-surface-base` | Page background (`$layer-00`) — micro-shifted from raised white for panel-on-canvas separation (**TB-2278**) |
+| `--al-surface-raised` | Cards, tables, callouts (`$layer-01`) — always paired with `border-neutral-200` hairline on operator cards |
 | `--al-accent-interactive` | Links, selected row left border |
 | `--al-accent-border-focus` | Focus rings (interactive only) |
 | `--al-status-*` | Semantic fills for `StatusTag` / `SeverityTag` |
+| `--al-status-neutral-*` | Informational/limitation metadata — scope honesty, not configured, draft (**TB-2277**) |
+| `--al-status-approved-monitoring-*` | Cool gray-teal monitoring posture — distinct from ready green (**TB-2280**) |
 | `--al-layer-hover` | Table row hover |
 
 Use `DESIGN_TOKENS.callout.*` for warn/blocked/info banners — not decorative `bg-*-50` pastels on neutral cards.
@@ -513,6 +553,36 @@ Done **TB-118** compact page density and **TB-2000** form breathing room address
 | `SeverityTag` | `archlucid-ui/src/components/ui/severity-tag.tsx` | Findings, governance queue |
 | `EnterpriseTable` | `archlucid-ui/src/components/ui/enterprise-table.tsx` | Reviews list, governance findings, operator audit |
 | `Tabs` / `EnterpriseTabs` | `archlucid-ui/src/components/ui/tabs.tsx` | Shared WAI-ARIA tabs (**TB-665**); **line-tab visual contract** (**TB-1661**); `line` is the default and normative; `variant="pill"` is legacy and guard-banned (**TB-1665**) |
+| `FilterChip` | `archlucid-ui/src/components/ui/filter-chip.tsx` | Interactive list filters and compact toggles (**TB-665**) |
+| `BooleanStatusChip` | `archlucid-ui/src/components/ui/boolean-status-chip.tsx` | Boolean Active/Inactive (and custom labels) in operator tables |
+
+### Metadata chip taxonomy (**TB-2284** — done 2026-08-14)
+
+Two parallel chip systems (`StatusTag` vs legacy `StatusPill`) and ad-hoc `rounded-full` pills produced inconsistent shapes, uppercase rules, and color sources on the same surfaces (for example review detail headers mixing `RunStatusBadge` with governance `StatusPill`). This section is the **only** taxonomy for status metadata vs interactive chips vs action badges.
+
+| Control | Path | Use when | ARIA / behavior | Do not use for |
+| --- | --- | --- | --- | --- |
+| **`StatusTag`** | `components/ui/status-tag.tsx` | Read-only run, governance, health, and workflow status on tables, headers, and cards | Non-interactive `span`; `EnterpriseStatusKind` → `--al-status-*` via `enterpriseStatusTagClass` | List filters; clickable toggles |
+| **`SeverityTag`** | `components/ui/severity-tag.tsx` | Read-only finding / alert severity | Same metadata shell as `StatusTag` | Generic workflow status (use `StatusTag`) |
+| **`BooleanStatusChip`** | `components/ui/boolean-status-chip.tsx` | Boolean on/off columns (Active/Inactive, Enabled/Disabled) | Wraps `StatusTag` with `ready` / `needs-attention` / `neutral` kinds | Multi-value or string-backed status |
+| **`FilterChip`** | `components/ui/filter-chip.tsx` | Optional filters, drill-down links, compact toggles outside a tab strip | `button` or `link`; `aria-pressed` when toggling | Read-only status metadata |
+| **`Badge`** (`default` / `secondary` / `outline` / `destructive`) | `components/ui/badge.tsx` | Action-oriented counts and compact labels with hover/focus affordance | Interactive or decorative badge chrome | Read-only status — use `StatusTag` / `SeverityTag` / `BooleanStatusChip` |
+| **`StatusPill`** (deprecated) | `components/StatusPill.tsx` | **Legacy call sites only** — do not add new imports | Same read-only metadata job as `StatusTag` | **Banned on new surfaces** — migrate under **TB-2286** / **TB-2287**; delete after **TB-2289** |
+
+**Color and shape rules**
+
+- Metadata labels (`StatusTag`, `SeverityTag`, `BooleanStatusChip`) use `METADATA_STATUS_TAG_SHELL` + semantic fills from `--al-status-*` in `design-tokens.ts` / `globals.css` — not raw Tailwind `blue-500/10`, `violet-500/12`, or hand-rolled `rounded-full` status pills (**TB-116** Done).
+- Informational / limitation / draft posture uses `--al-status-neutral-*` (**TB-2277** Done) — scope honesty, not configured, draft.
+- Operator inventory and master-detail lists default to `EnterpriseTable` + `StatusTag` for status columns (**TB-1646** Done).
+- `Badge variant="metadata"` is legacy neutral filler — prefer `StatusTag kind="neutral"` for new read-only labels.
+
+**Resolver and migration (out of scope for this row)**
+
+- Display-string → `EnterpriseStatusKind` resolver: **TB-2285** (**Done** 2026-08-14) — `resolveEnterpriseStatusKind` in `enterprise-status-kind-resolver.ts`; consumed by `StatusPill` fills and `run-pipeline-status-presentation`.
+- Review/governance and health/ops `StatusPill` → `StatusTag` sweeps: **TB-2286** / **TB-2287**.
+- Ad-hoc pill inventory + Vitest drift guard: **TB-2288** / **TB-2289**.
+
+**Do not:** invent a new chip primitive; mix `StatusPill` and `StatusTag` in the same header band on new work; use `FilterChip` or filled `Button` chrome for read-only status.
 
 ### Operator line tabs — visual contract (**TB-1661** — done 2026-08-12)
 
@@ -631,5 +701,6 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 - Operator **side rails** contract: this file § *Operator side rails* (**TB-1572** Done) — single-column default; allow working-object / master-detail / live-when-live / TOC-wizard; ban teaching / static-scope / about-aside persistent rails; live pin policy **TB-1574** Done; hub inventory + about-aside demotion **TB-1575** Done (`operator-side-rail-inventory.ts`); Vitest allowlist **TB-1576**
 - Operator **primary CTA** contract: this file § *Operator primary CTA* (**TB-1539** Done) — one page job; ≤1 `variant="primary"` in first viewport; header order Help → Primary → outline utilities; hub inventory **TB-1543** Done (`operator-primary-cta-inventory.ts`); Vitest dual-primary guard **TB-1544**
 - Operator **empty states** contract: this file § *Operator empty states* (**TB-1552** Done) — name empty kind; default collection/hub-zone → `EnterpriseCompactEmptyState`; ban form+rail+empty stacks; presets in `enterprise-compact-empty-state-presets.ts`; migration inventory **TB-1554** (`operator-empty-state-migration-inventory.ts`)
+- Metadata **chip taxonomy**: this file § *Metadata chip taxonomy* (**TB-2284** Done) — `StatusTag` / `SeverityTag` / `BooleanStatusChip` vs `FilterChip` vs `Badge`; deprecate `StatusPill`; `--al-status-*` + neutral tokens (**TB-116**, **TB-2277**); list default **TB-1646**; shared resolver **TB-2285**; migrations **TB-2286**–**TB-2289**
 - Operator **populated lists** contract: this file § *Operator populated lists* (**TB-1646** Done) — name list kind; default inventory/master-detail → `EnterpriseTable` + `StatusTag`; entity-summary cards only when justified; ≤2 visible row actions; ban parallel raw HTML tables; apply **TB-1647**–**TB-1650**
 - Operator **line tabs** visual contract: this file § *Operator line tabs — visual contract* (**TB-1661** Done) — Carbon line tabs only; ban pill/chip/segmented/folder overrides on `TabsList`/`TabsTrigger`; gold exemplars Digests / Settings roles / reviews new / review detail; code migration **TB-1662**–**TB-1665**

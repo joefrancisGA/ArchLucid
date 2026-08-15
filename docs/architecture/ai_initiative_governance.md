@@ -5,7 +5,7 @@
 
 # AI initiative governance — strategic assessment
 
-## Executive verdict
+## Sponsor verdict
 
 **Go with modifications.**
 
@@ -48,7 +48,7 @@ ArchLucid should **lead adoption and monetization with AI initiative readiness**
 | Findings with severity, confidence, citations | Shipped | `Finding`, explainability traces, `PolicyRuleId` |
 | Finding dispositions | Shipped | `Accepted`, `Deferred`, `NeedsEvidence`, `Remediated`, `RejectedAsNotApplicable` |
 | Governance gate, exceptions, decision register, approvals | Shipped | `PreCommitGovernanceGate`, governance APIs |
-| Signed review record + sealed immutability | Shipped | `GoldenManifests`, `SealedEvidenceTableRegistry` |
+| Sealed review record + sealed immutability | Shipped | `GoldenManifests`, `SealedEvidenceTableRegistry` |
 | Exports (PDF, DOCX, ZIP, decision receipt, whitelabel consulting DOCX) | Shipped | `RunDetailArtifactsExportsSection.tsx` |
 | Comparison, replay, recurrence | Shipped | `ReplayRunService`, `ComparisonRecords` |
 | AI Governance / Responsible AI policy pack (25 rules) | Shipped | `ai-governance-responsible-ai.json` |
@@ -73,7 +73,7 @@ ArchLucid should **lead adoption and monetization with AI initiative readiness**
 
 - **Pricing (list):** Architect $99/mo, Team $499/mo (repriced 2026-07-29, M-200), Professional $1,799/mo, Enterprise $60K–$250K/yr.
 - **Market validation:** zero published customers, zero real-mode pilots (G-REAL-06 not started), GTM Stage 0.
-- **Assessment headline readiness:** 76.32%; executive purchase probability 25–40% (no live pilot cohort).
+- **Assessment headline readiness:** 76.32%; sponsor purchase probability 25–40% (no live pilot cohort).
 - **Positioning guardrail:** do not headline as standalone "AI governance platform" (`POSITIONING.md` §7).
 
 ### Market evidence (July 2026) [E]
@@ -136,7 +136,7 @@ ArchLucid should **lead adoption and monetization with AI initiative readiness**
 | **Core promise** | Turn vague AI proposals into evidence-backed decisions and exact next steps |
 | **Public benefit** | Move prepared AI initiatives faster; show incomplete ones exactly what they need next |
 | **Private architect benefit** | Defensible, professional way to say not yet, more information required, or proceed with conditions |
-| **Executive expansion** | Same platform governs the full architecture portfolio, not only AI |
+| **Sponsor expansion** | Same platform governs the full architecture portfolio, not only AI |
 | **Economic buyer** | CTO / chief architect (Team–Professional); CAIO co-signer at enterprise, not entry buyer |
 | **Expansion path** | Individual architect → architecture team → AI initiative portfolio → enterprise ARB governance → all significant design reviews |
 
@@ -247,7 +247,7 @@ ArchLucid owns the **decision record about the design**; runtime artifacts flow 
 | Architect self-serve workbench | Model registry metadata | Runtime monitoring |
 | RFI + decision memos with audit chain | | Regulatory certification claims |
 
-**Durable moat [I]:** sealed evidence → rule → finding → disposition → signed record chain with deterministic gates and replay — not policy-pack content or questionnaire UX alone.
+**Durable moat [I]:** sealed evidence → rule → finding → disposition → sealed record chain with deterministic gates and replay — not policy-pack content or questionnaire UX alone.
 
 ---
 

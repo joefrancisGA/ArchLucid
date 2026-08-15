@@ -5,7 +5,7 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
@@ -17,7 +17,7 @@ import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-o
 
 export type RouteReadinessTier = "demo-ready" | "advanced-only" | "admin-only" | "hidden";
 
-const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
+export const OPERATOR_ROUTE_READINESS_LIVE_PATHS: Readonly<Record<string, RouteReadinessTier>> = {
   "/": "demo-ready",
   "/architecture/first-review-guide": "demo-ready",
   "/architecture/reviews/new": "demo-ready",
@@ -26,16 +26,15 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/insights/ask-review-questions": "demo-ready",
   "/insights/search-review-evidence": "demo-ready",
   [ARCHITECTURE_SCORECARD_PATH]: "demo-ready",
-  [EXECUTIVE_DASHBOARD_HREF]: "demo-ready",
+  [SPONSOR_DASHBOARD_HREF]: "demo-ready",
   "/governance/findings": "advanced-only",
   "/administration/security-trust": "demo-ready",
-  "/administration/preferences": "demo-ready",
-  "/insights/executive-summary": "advanced-only",
-  "/insights/pilot-outcomes": "advanced-only",
+  "/account/preferences": "demo-ready",
+  "/insights/sponsor-report": "advanced-only",
   "/insights/roi-summary": "advanced-only",
   [EVIDENCE_GRAPH_PATH]: "advanced-only",
   [COMPARE_TWO_REVIEWS_PATH]: "advanced-only",
-  "/internal/replay": "advanced-only",
+  "/internal/validate-route": "advanced-only",
   "/governance/advisory-scans": "advanced-only",
   [PLANNING_PATH]: "advanced-only",
   [DIGESTS_HUB_PATH]: "advanced-only",
@@ -92,7 +91,7 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
   const [path, query] = href.split("?", 2);
 
   if (path === "/architecture/reviews" && query !== undefined && query.includes("projectId=")) {
-    const fromTable = READINESS_BY_PATH["/architecture/reviews"];
+    const fromTable = OPERATOR_ROUTE_READINESS_LIVE_PATHS["/architecture/reviews"];
 
     return fromTable ?? "demo-ready";
   }
@@ -104,7 +103,7 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
     return "admin-only";
   }
 
-  const exact = READINESS_BY_PATH[href] ?? READINESS_BY_PATH[trimmedPath];
+  const exact = OPERATOR_ROUTE_READINESS_LIVE_PATHS[href] ?? OPERATOR_ROUTE_READINESS_LIVE_PATHS[trimmedPath];
 
   if (exact !== undefined) {
     return exact;
@@ -155,8 +154,7 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
   "/administration/identity-providers/diagnostics",
   "/administration/identity/sso-wizard",
   "/administration/scim-provisioning",
-  "/insights/executive-summary",
-  "/insights/pilot-outcomes",
+  "/insights/sponsor-report",
   "/insights/roi-summary",
 ]);
 

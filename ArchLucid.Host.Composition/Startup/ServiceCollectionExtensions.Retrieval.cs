@@ -126,6 +126,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgenticRetrievalCompletionClient, AgenticRetrievalCompletionClient>();
         services.AddScoped<IAgenticRetrievalQueryExpander, AgenticRetrievalQueryExpander>();
         services.AddScoped<IGraphRagNeighborExpander, GraphRagNeighborExpander>();
+        services.AddSingleton<IGraphCommunityDetector, LouvainGraphCommunityDetector>();
+        services.AddScoped<IGraphCommunitySummaryCompletionClient, GraphCommunitySummaryCompletionClient>();
+        services.AddScoped<IGraphCommunitySummarizationService, GraphCommunitySummarizationService>();
         services.AddScoped<IRetrievalQueryService, RetrievalQueryService>();
         services.AddScoped<IRetrievalRunCompletionIndexer, RetrievalRunCompletionIndexer>();
 

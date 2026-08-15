@@ -35,7 +35,7 @@ P1_DEFAULT_CATEGORIES = frozenset(
         "Interoperability",
         "Compliance readiness",
         "Supportability",
-        "Proof-of-ROI / executive value",
+        "Proof-of-ROI / sponsor value",
         "Stickiness",
     }
 )

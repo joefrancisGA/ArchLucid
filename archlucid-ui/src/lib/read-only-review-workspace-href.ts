@@ -1,16 +1,16 @@
 import {
   getCanonicalReviewWorkspaceHref,
-  getShowcaseExecutiveHref,
+  getShowcaseSponsorHref,
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 
 /**
  * Showcase Claims Intake spine (and legacy aliases) use the canonical review workspace;
- * all other runs use their tenant review workspace path (never sponsor-report executive summary).
+ * all other runs use their tenant review workspace path (never sponsor-report sponsor report).
  */
 export function resolveReadOnlyReviewWorkspacePath(runId: string): string {
   if (isShowcaseStaticDemoRunId(runId)) {
-    return getShowcaseExecutiveHref();
+    return getShowcaseSponsorHref();
   }
 
   return getCanonicalReviewWorkspaceHref(runId);

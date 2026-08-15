@@ -11,7 +11,7 @@ export const LIVE_DEMO_PAGE_SUBTITLE = "Sample architecture review using fabrica
 export const LIVE_DEMO_START_WALKTHROUGH_CTA = "Start walkthrough";
 
 export const LIVE_DEMO_VALUE_PROPOSITION =
-  "In about five minutes, see how ArchLucid turns captured evidence into an executive conclusion, signed review record, evidence chain, governance approval, and retained audit history.";
+  "In about five minutes, see how ArchLucid turns captured evidence into an sponsor conclusion, sealed review record, evidence chain, governance approval, and retained audit history.";
 
 export const LIVE_DEMO_SAMPLE_IDENTITY = "Claims Intake Modernization";
 
@@ -37,9 +37,9 @@ export const LIVE_DEMO_RETURN_TO_GUIDED = "Return to guided steps";
 
 export const LIVE_DEMO_KEY_TAKEAWAY_HEADING = "Key takeaway";
 
-export const LIVE_DEMO_INSPECT_ACTION_EXECUTIVE = "Inspect executive summary";
+export const LIVE_DEMO_INSPECT_ACTION_SPONSOR = "Inspect sponsor report";
 
-export const LIVE_DEMO_INSPECT_ACTION_SIGNED = "Inspect signed review record";
+export const LIVE_DEMO_INSPECT_ACTION_SIGNED = "Inspect sealed review record";
 
 export const LIVE_DEMO_INSPECT_ACTION_EVIDENCE = "Explore evidence graph";
 

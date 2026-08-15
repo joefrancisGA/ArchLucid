@@ -10,32 +10,16 @@ namespace ArchLucid.Host.Core.Hosted;
 public sealed class AuthorityPipelineWorkHostedService(
     IAuthorityPipelineWorkProcessor processor,
     ILogger<AuthorityPipelineWorkHostedService> logger,
-    HostLeaderElectionCoordinator electionCoordinator) : BackgroundService
+    HostLeaderElectionCoordinator electionCoordinator)
+    : LeaderElectedOutboxHostedServiceBase(electionCoordinator, logger)
 {
     private readonly IAuthorityPipelineWorkProcessor _processor =
         processor ?? throw new ArgumentNullException(nameof(processor));
 
-    private readonly ILogger<AuthorityPipelineWorkHostedService> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    protected override string LeaseName => HostElectionLeaseNames.AuthorityPipelineWorkOutbox;
 
-    private readonly HostLeaderElectionCoordinator _electionCoordinator =
-        electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
+    protected override string LoopName => "Authority pipeline work outbox";
 
-    /// <inheritdoc />
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        return _electionCoordinator.RunLeaderWorkAsync(
-            HostElectionLeaseNames.AuthorityPipelineWorkOutbox,
-            LoopAsync,
-            stoppingToken);
-    }
-
-    private Task LoopAsync(CancellationToken leaderToken)
-    {
-        return AdaptiveOutboxDrainLoop.RunAsync(
-            _processor.ProcessPendingBatchAsync,
-            _logger,
-            "Authority pipeline work outbox",
-            leaderToken);
-    }
+    protected override Func<CancellationToken, Task<int>> ProcessPendingBatch =>
+        _processor.ProcessPendingBatchAsync;
 }

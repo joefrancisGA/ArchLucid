@@ -118,7 +118,7 @@ export function PathChooserCreateObjectVocabularyRail(
             >
               <Link
                 href={job.href}
-                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper, "font-medium")}
+                className={cn(OPERATOR_LINK.optional, "font-medium")}
                 data-testid={`path-chooser-create-object-vocabulary-peer-${job.id}`}
               >
                 {job.label}

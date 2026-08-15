@@ -89,7 +89,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
     renderWithOperatorQuery(<OperatorFirstRunWorkflowPanel exploreCompletedOutput />);
 
     expect(await screen.findByRole("heading", { name: "Sample review shortcuts" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View signed record summary" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "View sealed record summary" })).toHaveAttribute(
       "href",
       getShowcaseManifestHref(),
     );

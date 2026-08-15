@@ -9,7 +9,7 @@ public sealed class EndToEndComparisonExportProfileTests
 {
     [Theory]
     [InlineData(null, EndToEndComparisonExportProfile.Default)]
-    [InlineData("  EXECUTIVE ", "executive")]
+    [InlineData("  SPONSOR ", "sponsor")]
     public void Normalize_trims_and_defaults(string? profile, string expected)
     {
         EndToEndComparisonExportProfile.Normalize(profile).Should().Be(expected);
@@ -25,7 +25,7 @@ public sealed class EndToEndComparisonExportProfileTests
     }
 
     [Theory]
-    [InlineData(EndToEndComparisonExportProfile.Executive, true)]
+    [InlineData(EndToEndComparisonExportProfile.Sponsor, true)]
     [InlineData(EndToEndComparisonExportProfile.Default, false)]
     public void IsExecutive_detects_executive_profile(string profile, bool expected)
     {

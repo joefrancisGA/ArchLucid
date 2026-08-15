@@ -11,7 +11,6 @@ import {
   INTERNAL_DEVELOPER_TOOLS_SHIPPED_INVENTORY,
 } from "./developer-settings-copy";
 import { DEVELOPER_API_CONTRACTS_API_KEYS_COMPACT_LINE } from "@/lib/vocabulary/developer-api-contracts-api-keys-vocabulary";
-import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
@@ -39,13 +38,10 @@ describe("DeveloperSettingsPageClient", () => {
     expect(screen.queryByRole("heading", { name: /^Diagnostics$/i })).not.toBeInTheDocument();
   });
 
-  it("renders breadcrumb, internal-only tag, and gate note in the header", () => {
+  it("renders internal-only tag and gate note in the header", () => {
     render(<DeveloperSettingsPageClient />);
 
-    const breadcrumb = screen.getByTestId("developer-settings-page-breadcrumb");
-    expect(breadcrumb).toHaveTextContent("Administration");
-    expect(breadcrumb).toHaveTextContent(INTERNAL_DEVELOPER_TOOLS_PAGE_TITLE);
-    expect(screen.getByRole("link", { name: "Administration" })).toHaveAttribute("href", SETTINGS_ROOT_PATH);
+    expect(screen.queryByTestId("developer-settings-page-breadcrumb")).toBeNull();
     expect(screen.getByTestId("developer-settings-internal-only-tag")).toHaveTextContent(
       INTERNAL_DEVELOPER_TOOLS_INTERNAL_ONLY_TAG,
     );

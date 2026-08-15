@@ -1,6 +1,6 @@
 "use client";
 
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -15,6 +15,7 @@ import { RunTableRowErrorBoundary } from "@/components/runs/RunTableRowErrorBoun
 import { RunStatusBadge } from "@/components/runs/RunStatusBadge";
 import { ArchitecturePackageOriginBadge } from "@/components/operator-home/runs-dashboard-helpers";
 import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -42,6 +43,7 @@ import { getBuyerSafeReviewsTableLink, getBuyerSafeReviewsTableLinkForRun, getBu
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import { BUYER_PIPELINE_IN_PROGRESS_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
@@ -61,6 +63,37 @@ export type RunsListClientProps = {
 type SortOrder = "createdDesc" | "createdAsc";
 
 type BuyerPackageScopeFilter = "all" | "finalized" | "in_flight";
+
+function BuyerPackageScopeFilterChips(props: {
+  readonly scope: BuyerPackageScopeFilter;
+  readonly buyerPipelineLabels: boolean;
+  readonly onScopeChange: (scope: BuyerPackageScopeFilter) => void;
+}) {
+  const inFlightLabel = props.buyerPipelineLabels ? BUYER_PIPELINE_IN_PROGRESS_LABEL : "In flight";
+  const options: readonly { readonly id: BuyerPackageScopeFilter; readonly label: string }[] = [
+    { id: "all", label: "All" },
+    { id: "finalized", label: "Finalized packages" },
+    { id: "in_flight", label: inFlightLabel },
+  ];
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((option) => (
+        <FilterChip
+          key={option.id}
+          className={buyerFilterChipClass(props.scope === option.id, false)}
+          aria-pressed={props.scope === option.id}
+          aria-label={`Show: ${option.label}`}
+          onClick={() => {
+            props.onScopeChange(option.id);
+          }}
+        >
+          {option.label}
+        </FilterChip>
+      ))}
+    </div>
+  );
+}
 
 function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
@@ -522,8 +555,8 @@ export function RunsListClient({
           <p className="m-0 mt-1 leading-snug">
             Showing reviews in context for orphan-candidate ROI evidence. Open a committed review&apos;s artifacts for{" "}
             <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>orphan-candidates.json</span>, or return to the{" "}
-            <Link href={EXECUTIVE_DASHBOARD_HREF} className={OPERATOR_LINK.nav}>
-              executive dashboard
+            <Link href={SPONSOR_DASHBOARD_HREF} className={OPERATOR_LINK.nav}>
+              sponsor dashboard
             </Link>{" "}
             KPI tile.
           </p>
@@ -542,39 +575,11 @@ export function RunsListClient({
                   Show
                 </legend>
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={buyerPackageScope === "all" ? "primary" : "outline"}
-                    className="h-8"
-                    onClick={() => {
-                      setBuyerPackageScope("all");
-                    }}
-                  >
-                    All
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={buyerPackageScope === "finalized" ? "primary" : "outline"}
-                    className="h-8"
-                    onClick={() => {
-                      setBuyerPackageScope("finalized");
-                    }}
-                  >
-                    Finalized packages
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={buyerPackageScope === "in_flight" ? "primary" : "outline"}
-                    className="h-8"
-                    onClick={() => {
-                      setBuyerPackageScope("in_flight");
-                    }}
-                  >
-                    {buyerPipelineLabels ? BUYER_PIPELINE_IN_PROGRESS_LABEL : "In flight"}
-                  </Button>
+                  <BuyerPackageScopeFilterChips
+                    scope={buyerPackageScope}
+                    buyerPipelineLabels={buyerPipelineLabels}
+                    onScopeChange={setBuyerPackageScope}
+                  />
                 </div>
               </fieldset>
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
@@ -591,39 +596,11 @@ export function RunsListClient({
                 Show
               </legend>
               <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={buyerPackageScope === "all" ? "primary" : "outline"}
-                  className="h-8"
-                  onClick={() => {
-                    setBuyerPackageScope("all");
-                  }}
-                >
-                  All
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={buyerPackageScope === "finalized" ? "primary" : "outline"}
-                  className="h-8"
-                  onClick={() => {
-                    setBuyerPackageScope("finalized");
-                  }}
-                >
-                  Finalized packages
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={buyerPackageScope === "in_flight" ? "primary" : "outline"}
-                  className="h-8"
-                  onClick={() => {
-                    setBuyerPackageScope("in_flight");
-                  }}
-                >
-                  {buyerPolished ? BUYER_PIPELINE_IN_PROGRESS_LABEL : "In flight"}
-                </Button>
+                <BuyerPackageScopeFilterChips
+                  scope={buyerPackageScope}
+                  buyerPipelineLabels={buyerPipelineLabels}
+                  onScopeChange={setBuyerPackageScope}
+                />
               </div>
             </fieldset>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">

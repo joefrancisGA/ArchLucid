@@ -209,7 +209,7 @@ Requires **DevelopmentBypass** + **Simulator** (same as other operator-path load
 
 | File | Purpose |
 |------|---------|
-| **`post-commit-operator-path.js`** | Post-commit read mix: explain aggregate, provenance, executive ROI, sponsor packet (after seed+commit) |
+| **`post-commit-operator-path.js`** | Post-commit read mix: explain aggregate, provenance, sponsor ROI, sponsor packet (after seed+commit) |
 | **`smoke.js`** | Read-only paths; used for broader read mix (see **`docs/LOAD_TEST_BASELINE.md`**) |
 
 Deeper baselines and Compose full-stack runs: **`docs/LOAD_TEST_BASELINE.md`**, **`scripts/load/README.md`**.

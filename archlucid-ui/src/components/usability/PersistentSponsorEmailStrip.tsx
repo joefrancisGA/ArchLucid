@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import Link from "next/link";
 
 type PersistentSponsorEmailStripProps = {
   readonly runId: string;
@@ -23,12 +25,11 @@ export function PersistentSponsorEmailStrip(props: PersistentSponsorEmailStripPr
       <p className={cn("m-0 text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>
         Review finalized — download sponsor exports below or open the full handoff package.
       </p>
-      <Link
-        href="#sponsor-handoff"
-        className={cn("font-semibold text-teal-900 underline underline-offset-2 dark:text-teal-200", OPERATOR_TYPOGRAPHY.cardTitle)}
-      >
-        Send to sponsor
-      </Link>
+      <Button type="button" variant="outline" size="sm" asChild>
+        <Link href="#sponsor-handoff" data-testid="persistent-sponsor-email-strip-cta">
+          Send to sponsor
+        </Link>
+      </Button>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 namespace ArchLucid.Application.Reports;
 
-public interface IExecutiveReportsSummaryService
+public interface ISponsorReportsSummaryService
 {
-    Task<ExecutiveSummaryResult> BuildAsync(CancellationToken cancellationToken = default);
+    Task<SponsorReportResult> BuildAsync(CancellationToken cancellationToken = default);
 }

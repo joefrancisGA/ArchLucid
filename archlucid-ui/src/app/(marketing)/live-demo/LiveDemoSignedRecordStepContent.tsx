@@ -49,7 +49,7 @@ export function LiveDemoSignedRecordStepContent(props: LiveDemoSignedRecordStepC
   return (
     <article data-testid="live-demo-step-signed-record">
       <h2 className={cn("m-0 text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}>
-        Signed review record
+        Sealed review record
       </h2>
 
       <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-950">

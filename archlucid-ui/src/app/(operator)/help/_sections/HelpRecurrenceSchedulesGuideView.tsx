@@ -2,17 +2,15 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
+import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
 import { RecurrenceSchedulesHelpEvidenceOrientationStrip } from "@/components/help/RecurrenceSchedulesHelpEvidenceOrientationStrip";
+import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   DESIGN_TOKENS,
-  OPERATOR_CARD,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -23,8 +21,10 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 import {
   RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS,
   RECURRENCE_SCHEDULES_HELP_AUTOMATION_SECTION_TITLE,
-  RECURRENCE_SCHEDULES_HELP_EXAMPLES,
+  RECURRENCE_SCHEDULES_HELP_BREADCRUMB_TOPIC_TITLE,
   RECURRENCE_SCHEDULES_HELP_EXAMPLES_SECTION_TITLE,
+  RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION,
+  RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION_TAG,
   RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS,
   RECURRENCE_SCHEDULES_HELP_HOW_IT_WORKS_STEPS,
   RECURRENCE_SCHEDULES_HELP_OVERVIEW,
@@ -36,6 +36,7 @@ import {
 import {
   RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH,
   RECURRENCE_SCHEDULES_HELP_DIGEST_SCHEDULE_LINK,
+  RECURRENCE_SCHEDULES_HELP_HEALTH_AUDIT_TRAIL_NOTE,
   RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS,
   RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS_TITLE,
 } from "@/lib/recurrence-schedules-help-evidence-copy";
@@ -116,24 +117,7 @@ function RecurrenceSchedulesHelpExamplesSection(): React.ReactElement {
       <HelpSectionHeading id="common-schedule-examples">
         {RECURRENCE_SCHEDULES_HELP_EXAMPLES_SECTION_TITLE}
       </HelpSectionHeading>
-      <div className="grid gap-3 sm:grid-cols-2" data-testid="help-recurrence-schedules-example-cards">
-        {RECURRENCE_SCHEDULES_HELP_EXAMPLES.map((example) => (
-          <Card key={example.title} className="border-neutral-200 dark:border-neutral-800">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle as="h3" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {example.title}
-              </CardTitle>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{example.humanCadence}</p>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-2")}>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{example.whenToUse}</p>
-              <p className={cn("m-0 font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {example.cronExpression}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <RecurrenceScheduleExamplesSection suppressHeading variant="compact" />
     </section>
   );
 }
@@ -144,7 +128,9 @@ function RecurrenceSchedulesHelpHealthConstraintsBlock(): React.ReactElement {
       className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")}
       data-testid="help-recurrence-schedules-health-constraints"
     >
-      <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS_TITLE}</h3>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-recurrence-schedules-health-audit-trail-note">
+        {RECURRENCE_SCHEDULES_HELP_HEALTH_AUDIT_TRAIL_NOTE}
+      </p>
       <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         {RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS.map((constraint) => (
           <div key={constraint.label}>
@@ -154,7 +140,7 @@ function RecurrenceSchedulesHelpHealthConstraintsBlock(): React.ReactElement {
         ))}
       </dl>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-        Executive digest email uses a separate surface.{" "}
+        Sponsor digest email uses a separate surface.{" "}
         <Link className={OPERATOR_LINK.inline} href={RECURRENCE_SCHEDULES_HELP_DIGEST_SCHEDULE_LINK.href}>
           {RECURRENCE_SCHEDULES_HELP_DIGEST_SCHEDULE_LINK.label}
         </Link>
@@ -178,20 +164,35 @@ export function HelpRecurrenceSchedulesGuideView(
     >
       <HelpTopicHashScroll />
 
-      <OperatorPageHeader
+      <HelpTopicGuidePageHeader
         title={RECURRENCE_SCHEDULES_HELP_PAGE_TITLE}
         titleTestId="help-recurrence-schedules-page-title"
         subtitle={RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE}
         navHref={RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="help-recurrence-schedules-breadcrumb"
-            items={[{ label: "Help", href: "/help" }, { label: RECURRENCE_SCHEDULES_HELP_PAGE_TITLE }]}
-          />
-        }
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
+        actions={
+          <div className="flex flex-col items-start gap-2" data-testid="help-recurrence-schedules-header-actions">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm" variant="primary">
+                <Link href={RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION.href}>
+                  {RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION.label}
+                </Link>
+              </Button>
+              <StatusTag
+                kind="neutral"
+                label={RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION_TAG}
+                data-testid="help-recurrence-schedules-finalized-review-precondition-tag"
+              />
+            </div>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="help-recurrence-schedules-finalized-review-precondition"
+            >
+              {RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION}
+            </p>
+          </div>
+        }
       />
 
       <div className={contentGridClass}>
@@ -202,19 +203,6 @@ export function HelpRecurrenceSchedulesGuideView(
           >
             {RECURRENCE_SCHEDULES_HELP_OVERVIEW}
           </p>
-
-          <Card className="border-neutral-200 dark:border-neutral-800" data-testid="help-recurrence-schedules-action-panel">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Manage recurrence schedules</CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap items-center gap-2")}>
-              <Button asChild size="sm" variant="primary">
-                <Link href={RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION.href}>
-                  {RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION.label}
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
 
           <RecurrenceSchedulesHelpAutomationSection />
 
@@ -238,7 +226,15 @@ export function HelpRecurrenceSchedulesGuideView(
             <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" variant="compact" />
           </section>
 
-          <RecurrenceSchedulesHelpHealthConstraintsBlock />
+          <section
+            aria-labelledby="schedule-health-and-trust"
+            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+          >
+            <HelpSectionHeading id="schedule-health-and-trust">
+              {RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS_TITLE}
+            </HelpSectionHeading>
+            <RecurrenceSchedulesHelpHealthConstraintsBlock />
+          </section>
 
           <RecurrenceSchedulesHelpEvidenceOrientationStrip />
         </div>

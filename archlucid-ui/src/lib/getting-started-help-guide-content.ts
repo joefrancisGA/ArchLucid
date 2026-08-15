@@ -10,7 +10,7 @@ export const GETTING_STARTED_HELP_AUDIENCE_LINE =
   "For architects, pilot teams, and sponsors who want to understand the review flow before starting.";
 
 export const GETTING_STARTED_HELP_CLAIM_DISCIPLINE =
-  "This guide orients you through the review flow — it is not a signed-review diligence Sources package. Open Security & Trust or a finalized review before treating onboarding copy as procurement evidence.";
+  "This guide orients you through the review flow — it is not a sealed-review diligence Sources package. Open Security & Trust or a finalized review before treating onboarding copy as procurement evidence.";
 
 export const GETTING_STARTED_HELP_SOURCES_INTRO =
   "Use these follow-ups when getting-started orientation turns into a first review, path choice, or assurance questions.";
@@ -33,6 +33,11 @@ export const GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink
 
 export const GETTING_STARTED_HELP_PATH = "/help/getting-started" as const;
 
+/** Retired operator bookmark — no App Router page; help lives at GETTING_STARTED_HELP_PATH. */
+export const LEGACY_GETTING_STARTED_PATH = "/getting-started" as const;
+
+export const GETTING_STARTED_HELP_TOPIC_LABEL = "How to get started" as const;
+
 export const GETTING_STARTED_HELP_QUICK_START_TITLE = "Start with your first review";
 
 export const GETTING_STARTED_HELP_QUICK_START_COPY =
@@ -54,12 +59,12 @@ export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
 export const GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES = [
   "Architecture request opens a review session and feeds context ingestion.",
   "Authority pipeline stages: knowledge graph, findings, decisioning, and artifacts.",
-  "Governance gate: allow commits the signed review record; block or warn policy holds finalize.",
-  "Committed outputs: signed review record and downloadable exports.",
+  "Governance gate: allow commits the sealed review record; block or warn policy holds finalize.",
+  "Committed outputs: sealed review record and downloadable exports.",
 ] as const;
 
 export const GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION =
-  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), governance gate (allow commits the signed review record; block or warn policy holds finalize), and committed outputs (signed review record and exports).";
+  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), governance gate (allow commits the sealed review record; block or warn policy holds finalize), and committed outputs (sealed review record and exports).";
 
 export type GettingStartedPlainLanguageTerm = {
   readonly term: string;
@@ -88,7 +93,7 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
       "A recorded disposition on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit.",
   },
   {
-    term: "Signed review record",
+    term: "Sealed review record",
     definition:
       "The immutable package locked when a review is finalized — the authoritative anchor for governance, exports, and evidence lineage.",
   },
@@ -155,7 +160,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     stepNumber: 5,
     title: "Finalize and share outputs",
     description: "Lock the review and export sponsor-ready artifacts for stakeholders.",
-    expectedOutputs: "Signed review record, evidence trail, and exports.",
+    expectedOutputs: "Sealed review record, evidence trail, and exports.",
     href: "/architecture/reviews",
     ctaLabel: "Open reviews",
   },
@@ -185,7 +190,7 @@ export const GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActi
   },
   {
     title: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE,
-    description: "Walk through a labeled sample from signed review record to sponsor-ready exports.",
+    description: "Walk through a labeled sample from sealed review record to sponsor-ready exports.",
     href: sampleReviewHref,
     ctaLabel: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
   },
@@ -249,7 +254,7 @@ export const GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
     ART[Artifacts]
   end
   subgraph outputs [Committed outputs]
-    SR[Signed review record]
+    SR[Sealed review record]
     PKG[Downloads / exports]
   end
   AR --> CI --> KG --> FD --> DV --> ART

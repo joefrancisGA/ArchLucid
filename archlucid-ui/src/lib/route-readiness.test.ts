@@ -4,7 +4,7 @@ import { isOperatorNavLinkAdvancedInDemo, operatorRouteReadiness, shouldHideOper
 
 describe("shouldHideOperatorNavLinkInDemo", () => {
   it("hides non-allowlisted advanced routes in demo mode", () => {
-    expect(shouldHideOperatorNavLinkInDemo("/internal/replay", true)).toBe(true);
+    expect(shouldHideOperatorNavLinkInDemo("/internal/validate-route", true)).toBe(true);
     expect(shouldHideOperatorNavLinkInDemo("/insights/compare-two-reviews", true)).toBe(true);
   });
 
@@ -15,7 +15,7 @@ describe("shouldHideOperatorNavLinkInDemo", () => {
   });
 
   it("does not hide when demo mode is off", () => {
-    expect(shouldHideOperatorNavLinkInDemo("/internal/replay", false)).toBe(false);
+    expect(shouldHideOperatorNavLinkInDemo("/internal/validate-route", false)).toBe(false);
   });
 });
 
@@ -51,6 +51,6 @@ describe("isOperatorNavLinkAdvancedInDemo", () => {
   });
 
   it("still marks non-allowlisted advanced routes as advanced in demo", () => {
-    expect(isOperatorNavLinkAdvancedInDemo("/internal/replay", true)).toBe(true);
+    expect(isOperatorNavLinkAdvancedInDemo("/internal/validate-route", true)).toBe(true);
   });
 });

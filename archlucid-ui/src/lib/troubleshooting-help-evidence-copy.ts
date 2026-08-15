@@ -9,6 +9,8 @@ import {
 
 export const TROUBLESHOOTING_HELP_CANONICAL_PATH = "/help/troubleshooting" as const;
 
+export const TROUBLESHOOTING_HELP_TOPIC_LABEL = "How troubleshooting works" as const;
+
 export const TROUBLESHOOTING_HELP_LAST_REVIEWED = "2026-08-11" as const;
 
 export const TROUBLESHOOTING_HELP_LAST_REVIEWED_LABEL =
@@ -19,14 +21,19 @@ export const TROUBLESHOOTING_HELP_APPLICABILITY =
 
 export const TROUBLESHOOTING_HELP_RELATED_TITLE = "Live checks and follow-ups" as const;
 
+export const TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
+export const TROUBLESHOOTING_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE =
-  "This troubleshooting guide helps architects unblock reviews and connections — it is not a signed-review diligence Sources package. Open System health or Audit when you need operational or governed trails.";
+  "This guide helps architects unblock reviews and connections — open System health or Audit when you need operational status or governed trails.";
+
+export const TROUBLESHOOTING_HELP_CLAIM_HEADING_ID = "help-troubleshooting-claim-discipline-heading" as const;
 
 export const TROUBLESHOOTING_HELP_SOURCES_INTRO =
   "Use these follow-ups when a symptom needs live health checks, audit context, or product orientation.";
 
-export const TROUBLESHOOTING_SUPPORT_EXPECTATIONS =
-  "Email support covers business days (Monday–Friday). Target first response is next business day. Prefer Report a problem on error surfaces for structured intake with the same response commitment.";
+export { TROUBLESHOOTING_SUPPORT_EXPECTATIONS } from "@/lib/support-workspace-present";
 
 export const TROUBLESHOOTING_SUPPORT_BUNDLE_DISCLOSURE =
   `${SUPPORT_BUNDLE_SAFETY_SUMMARY} Includes: ${SUPPORT_BUNDLE_INCLUDED_ITEMS.join(", ")}. Excludes: ${SUPPORT_BUNDLE_EXCLUDED_ITEMS.join(", ")}. The ZIP stays on your device until you attach or email it.`;

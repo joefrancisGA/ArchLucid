@@ -10,7 +10,8 @@ public sealed class CosmosGraphSnapshotOutboxHostedService(
     ICosmosGraphSnapshotOutboxProcessor processor,
     IOptions<CosmosGraphSnapshotOutboxProcessorOptions> processorOptions,
     ILogger<CosmosGraphSnapshotOutboxHostedService> logger,
-    HostLeaderElectionCoordinator electionCoordinator) : BackgroundService
+    HostLeaderElectionCoordinator electionCoordinator)
+    : LeaderElectedOutboxHostedServiceBase(electionCoordinator, logger)
 {
     private readonly ICosmosGraphSnapshotOutboxProcessor _processor =
         processor ?? throw new ArgumentNullException(nameof(processor));
@@ -18,32 +19,20 @@ public sealed class CosmosGraphSnapshotOutboxHostedService(
     private readonly IOptions<CosmosGraphSnapshotOutboxProcessorOptions> _processorOptions =
         processorOptions ?? throw new ArgumentNullException(nameof(processorOptions));
 
-    private readonly ILogger<CosmosGraphSnapshotOutboxHostedService> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    protected override string LeaseName => HostElectionLeaseNames.CosmosGraphSnapshotOutbox;
 
-    private readonly HostLeaderElectionCoordinator _electionCoordinator =
-        electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
+    protected override string LoopName => "Cosmos graph snapshot outbox";
 
-    /// <inheritdoc />
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Func<CancellationToken, Task<int>> ProcessPendingBatch =>
+        _processor.ProcessPendingBatchAsync;
+
+    protected override TimeSpan? MaxIdleDelay
     {
-        return _electionCoordinator.RunLeaderWorkAsync(
-            HostElectionLeaseNames.CosmosGraphSnapshotOutbox,
-            LoopAsync,
-            stoppingToken);
-    }
+        get
+        {
+            int maxIdleSeconds = Math.Clamp(_processorOptions.Value.PollIntervalSeconds, 5, 300);
 
-    private Task LoopAsync(CancellationToken leaderToken)
-    {
-        int maxIdleSeconds = Math.Clamp(_processorOptions.Value.PollIntervalSeconds, 5, 300);
-        TimeSpan maxIdleDelay = TimeSpan.FromSeconds(maxIdleSeconds);
-
-        return AdaptiveOutboxDrainLoop.RunAsync(
-            _processor.ProcessPendingBatchAsync,
-            _logger,
-            "Cosmos graph snapshot outbox",
-            leaderToken,
-            baseIdleDelay: AdaptiveOutboxIdleBackoff.BaseIdleDelay,
-            maxIdleDelay: maxIdleDelay);
+            return TimeSpan.FromSeconds(maxIdleSeconds);
+        }
     }
 }

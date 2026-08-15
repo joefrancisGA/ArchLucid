@@ -398,7 +398,7 @@ def render_facilitator_key_markdown(packet: dict[str, Any]) -> str:
 def render_exec_summary_template(packet: dict[str, Any]) -> str:
     return "\n".join(
         [
-            "# Blind insight validation — executive summary (template)",
+            "# Blind insight validation — Sponsor report (template)",
             "",
             f"**Fixture / packet:** {packet.get('packetLabel')}",
             f"**Sessions aggregated:** _(fill after ≥3 sessions)_",

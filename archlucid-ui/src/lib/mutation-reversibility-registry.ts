@@ -9,7 +9,9 @@ export type GovernanceMutationReversibilityId =
   | "governance_workflow_activate"
   | "governance_bulk_disposition"
   | "governance_keyboard_finding_disposition"
-  | "governance_policy_pack_publish";
+  | "governance_policy_pack_publish"
+  | "platform_bundled_policy_pack_activate"
+  | "platform_bundled_policy_pack_deactivate";
 
 export type MutationReversibilityEntry = {
   readonly id: GovernanceMutationReversibilityId;
@@ -27,7 +29,7 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     id: "governance_quick_approve",
     classification: "permanent",
     confirmationLead:
-      "This records a governance approval on the signed review record. It cannot be undone from this workspace.",
+      "This records a governance approval on the sealed review record. It cannot be undone from this workspace.",
   },
   governance_workflow_approve: {
     id: "governance_workflow_approve",
@@ -72,6 +74,18 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     classification: "permanent",
     confirmationLead:
       "Publishing creates an immutable version row for this policy pack. It cannot be unpublished from this workspace.",
+  },
+  platform_bundled_policy_pack_activate: {
+    id: "platform_bundled_policy_pack_activate",
+    classification: "reversible_with_audit",
+    confirmationLead:
+      "Activating this pack makes it available to every tenant. You can deactivate it later from this registry; changes are recorded on the audit trail.",
+  },
+  platform_bundled_policy_pack_deactivate: {
+    id: "platform_bundled_policy_pack_deactivate",
+    classification: "reversible_with_audit",
+    confirmationLead:
+      "Deactivating removes this pack from tenant workspaces and stops it from applying to reviews. You can activate it again later; changes are recorded on the audit trail.",
   },
 };
 

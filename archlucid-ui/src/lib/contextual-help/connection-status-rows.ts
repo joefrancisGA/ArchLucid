@@ -32,18 +32,19 @@ export const CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelp
     prefix: CONNECTION_STATUS_HELP_CANONICAL_PATH,
     entry: {
       whatIsThisPage:
-        "Connection status — how readiness tiles are read, what configured vs recommended means, and when to open integration methodology help.",
-      whatToDoNext: "Open connection status to review tiles, then follow connector pages or integration readiness help for setup work.",
-      whyEmpty: "This guide is always available; tiles reflect connectors as they are configured.",
+        "Connection status help — how the summary strip and connector inventory table are read, and what each status tag means.",
+      whatToDoNext:
+        "Use the header action to open connection status, then follow connector pages or integration readiness help for setup work.",
+      whyEmpty: "This guide is always available; counts reflect connectors as they are configured.",
       whereToConfigurePrerequisite:
         "Integration readiness help covers procurement-oriented setup guidance across connector families.",
       whatToDoNextAction: {
-        label: "Open connection status",
-        href: CONNECTION_STATUS_CANONICAL_PATH,
-      },
-      whereToConfigureAction: {
         label: "Read integration readiness help",
         href: inAppHelpHref("integration-readiness"),
+      },
+      whereToConfigureAction: {
+        label: "Open cloud connections",
+        href: "/integrations/cloud-connections",
       },
     },
   },

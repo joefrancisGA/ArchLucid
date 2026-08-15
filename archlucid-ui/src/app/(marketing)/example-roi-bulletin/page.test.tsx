@@ -83,7 +83,7 @@ describe("example-roi-bulletin marketing page", () => {
     expect(pageSource).toContain("index: true");
     expect(bodySource).toContain("EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF");
     expect(EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF).toBe(
-      "/help/executive-summary#pilot-roi-measurement",
+      "/help/sponsor-report#pilot-roi-measurement",
     );
   });
 

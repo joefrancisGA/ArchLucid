@@ -3,7 +3,11 @@ import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
+import * as demoUiEnv from "@/lib/demo-ui-env";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
+import * as facetsStorage from "@/lib/governance/governance-findings-queue-facets-storage";
+import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
+import { ApiRequestError } from "@/lib/api-request-error";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
@@ -30,18 +34,24 @@ vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: vi.fn().mockResolvedValue({ items: [] }),
 }));
 
-function renderGovernanceFindingsQueue() {
+function renderGovernanceFindingsQueue(mode: "tenant" | "assigned-to-me" = "tenant") {
   return render(
     <OperatorQueryProvider>
-      <GovernanceFindingsQueueClient />
+      <GovernanceFindingsQueueClient mode={mode} />
     </OperatorQueryProvider>,
   );
 }
 
-vi.mock("@/lib/api/governance-stickiness-api", () => ({
+const governanceStickinessApiMocks = vi.hoisted(() => ({
   getArchitectureDecisionRegister: vi.fn(),
   getArchitectureRiskRegister: vi.fn(),
+  fetchGovernanceFindingsRegistersBundle: vi.fn(async () => ({
+    riskRegister: await governanceStickinessApiMocks.getArchitectureRiskRegister(),
+    decisionRegister: await governanceStickinessApiMocks.getArchitectureDecisionRegister(),
+  })),
 }));
+
+vi.mock("@/lib/api/governance-stickiness-api", () => governanceStickinessApiMocks);
 
 vi.mock("@/lib/buyer/buyer-demo-content-gating", () => ({
   shouldUseGovernanceCuratedDemoSpine: () => false,
@@ -65,7 +75,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
       headline: "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions.",
       useWhen: "Start with open risks, expiring exceptions, or risks without owners.",
       firstPilotNote: null,
-      enterpriseFootnote: "Each row should trace back to its source review, evidence trail, and signed review record.",
+      enterpriseFootnote: "Each row should trace back to its source review, evidence trail, and sealed review record.",
       omitReviewPackageScopeHelp: true,
     },
     contextHints: {
@@ -84,6 +94,45 @@ vi.mock("@/lib/use-nav-surface", () => ({
     mounted: true,
   }),
 }));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => null,
+}));
+
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/operator/OperatorNavAuthorityProvider")>();
+
+  return {
+    ...actual,
+    useOperatorNavAuthority: () => ({
+      currentPrincipal: {
+        name: "Jordan Lee",
+        roleClaimValues: [],
+        authorityRank: 2,
+        primaryAppRole: "Architect",
+        hasCommittedArchitectureReview: true,
+      },
+      callerAuthorityRank: 2,
+      isAuthorityLoading: false,
+    }),
+    useNavCallerAuthorityRank: () => 2,
+  };
+});
+
+vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/operator/operator-scope-storage")>();
+
+  return {
+    ...actual,
+    readOperatorScopeFromStorage: vi.fn(() => ({
+      tenantId: "tenant-1",
+      workspaceId: "ws-1",
+      projectId: "proj-1",
+      workspaceLabel: "Claims Intake Demo",
+      projectLabel: "Default",
+    })),
+  };
+});
 
 vi.mock("@/components/usability/ItsmOutboundQuickActions", () => ({
   ItsmOutboundQuickActions: () => null,
@@ -200,8 +249,9 @@ describe("GovernanceFindingsQueueClient", () => {
 
     renderGovernanceFindingsQueue();
 
-    expect(await screen.findByTestId("governance-findings-load-failed")).toBeInTheDocument();
-    expect(screen.getByText("Could not load architecture risk register")).toBeInTheDocument();
+    const failure = await screen.findByTestId("governance-findings-load-failed");
+    expect(failure).toHaveAttribute("role", "alert");
+    expect(screen.getByRole("heading", { name: "Could not load architecture risk register" })).toBeInTheDocument();
     expect(screen.getByTestId("governance-findings-retry-load")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-findings-empty-state")).not.toBeInTheDocument();
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
@@ -209,25 +259,16 @@ describe("GovernanceFindingsQueueClient", () => {
   });
 
   it("retries the risk register load from the failure state", async () => {
-    let riskRegisterCalls = 0;
-    vi.mocked(governanceApi.getArchitectureRiskRegister).mockImplementation(async () => {
-      riskRegisterCalls += 1;
-
-      if (riskRegisterCalls === 1) {
-        throw new Error("network");
-      }
-
-      return { entries: [loadedRiskRow] };
-    });
+    vi.mocked(governanceApi.getArchitectureRiskRegister)
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValue({ entries: [loadedRiskRow] });
 
     renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("governance-findings-retry-load")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("governance-findings-retry-load"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("architecture-risk-register-filters")).toBeInTheDocument();
-    });
+    expect(await screen.findByTestId("architecture-risk-register-filters", {}, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
   });
 
@@ -277,5 +318,157 @@ describe("GovernanceFindingsQueueClient", () => {
     );
     expect(screen.getByTestId("architecture-risk-register-summary-open-value")).toHaveTextContent("1");
     expect(screen.getByTestId("bulk-triage-remaining-progress")).toHaveTextContent("1 of 1 left");
+  });
+});
+
+describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
+  beforeEach(() => {
+    vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue({
+      tenantId: "tenant-1",
+      workspaceId: "ws-1",
+      projectId: "proj-1",
+      workspaceLabel: "Claims Intake Demo",
+      projectLabel: "Default",
+    });
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
+    vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
+    vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(false);
+    vi.spyOn(facetsStorage, "readGovernanceFindingsQueueFacets").mockReturnValue({
+      registerFilter: "all",
+      jobView: "needs-my-decision",
+      nlFacets: { severity: null, status: null, titleKeywords: [] },
+    });
+  });
+
+  it("uses assigned-to-me failure copy without risk-register scope language", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(new Error("network"));
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByRole("heading", { name: "Could not load your assigned findings" })).toBeInTheDocument();
+    expect(screen.queryByText(/risk register/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/risks for this review/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/this review/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("governance-findings-load-failed")).toHaveAttribute("role", "alert");
+  });
+
+  it("renders benign empty state distinct from load failure", async () => {
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    const empty = await screen.findByTestId("governance-findings-empty-state");
+    expect(empty).toHaveAttribute("role", "status");
+    expect(screen.getByText("No findings assigned to you")).toBeInTheDocument();
+    expect(within(empty).getByText(/Jordan Lee \(Architect\)/)).toBeInTheDocument();
+    expect(within(empty).getByText(/Claims Intake Demo/)).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-empty-checked-at")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-empty-basis")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open findings queue" })).toHaveAttribute("href", "/governance/findings");
+    expect(screen.getByTestId("governance-assigned-to-me-header-actions")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Refresh" }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole("link", { name: "Open reviews" })).not.toBeInTheDocument();
+  });
+
+  it("does not render raw workspace ids when operator scope storage is empty", async () => {
+    vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue(null);
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+    const workspace = await screen.findByTestId("governance-assigned-to-me-workspace");
+    const checkedAt = await screen.findByTestId("governance-assigned-to-me-empty-checked-at");
+
+    expect(workspace.textContent ?? "").not.toMatch(uuidPattern);
+    expect(checkedAt.textContent ?? "").not.toMatch(uuidPattern);
+    expect(workspace).toHaveTextContent("Claims Intake Demo");
+  });
+
+  it("renders related queues disclosure, breadcrumb, and queue status after the work object", async () => {
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByTestId("governance-assigned-to-me-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Governance" })).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
+    expect(screen.getByTestId("governance-assigned-to-me-workspace")).toHaveTextContent("Claims Intake Demo");
+    expect(await screen.findByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
+      "0 open findings assigned",
+    );
+    expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
+
+    const body = screen.getByTestId("governance-findings-queue-body");
+    const empty = within(body).getByTestId("governance-findings-empty-state");
+    const disclosure = within(body).getByTestId("governance-findings-related-queues-disclosure");
+    expect(within(disclosure).getByTestId("governance-job-router")).toHaveAttribute(
+      "data-current-job",
+      "assigned-to-me-findings",
+    );
+    expect(empty.compareDocumentPosition(disclosure) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("keeps header refresh visible while loading", () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockImplementation(
+      () => new Promise(() => undefined),
+    );
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(screen.getByTestId("governance-assigned-to-me-header-actions")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-assigned-to-me-queue-status")).not.toBeInTheDocument();
+  });
+
+  it("surfaces failure diagnostics for assigned-to-me loads", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(
+      new ApiRequestError("upstream unavailable", {
+        problem: { title: "Unavailable", status: 503, errorCode: "DATABASE_UNAVAILABLE" },
+        correlationId: "corr-assigned-ui",
+        httpStatus: 503,
+      }),
+    );
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByTestId("enterprise-inline-error-diagnostics")).toBeInTheDocument();
+    expect(screen.getByText("corr-assigned-ui")).toBeInTheDocument();
+    expect(screen.getByText("DATABASE_UNAVAILABLE")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-header-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
+  });
+
+  it("shows assigned queue status and header refresh while populated", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
+      "1 open finding assigned",
+    );
+    expect(screen.getByTestId("governance-assigned-to-me-header-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-assigned-to-me-last-checked")).toBeInTheDocument();
+  });
+
+  it("shows job view filter chip when the filter bar is visible and job view is non-default", async () => {
+    vi.spyOn(facetsStorage, "readGovernanceFindingsQueueFacets").mockReturnValue({
+      registerFilter: "all",
+      jobView: "ready-for-sponsor-packet",
+      nlFacets: { severity: null, status: null, titleKeywords: [] },
+    });
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByTestId("governance-findings-job-view-filter-chip")).toBeInTheDocument();
+  });
+
+  it("suppresses the governance approval banner when the assigned-to-me load fails in buyer shell", async () => {
+    vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(new Error("network"));
+
+    renderGovernanceFindingsQueue("assigned-to-me");
+
+    expect(await screen.findByTestId("governance-findings-load-failed")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-approval-status-banner")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "View approval record" })).not.toBeInTheDocument();
   });
 });

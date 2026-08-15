@@ -4,20 +4,19 @@
  * Why two surfaces exist:
  * - First pilot (`/` Overview command center) steers the next best action for
  *   starting and finalizing a first architecture review.
- * - Operate unlock (`#operate-features-unlock-panel`) reveals Compare, evidence
- *   graph, Ask, and related analysis nav that stay hidden during the focused
- *   pilot path.
+ * - Role-shaped sidebar density (`RoleNavDensityExpandControl`) reveals Compare,
+ *   evidence graph, Ask, and related analysis nav when groups are collapsed.
  *
- * They stay separate because pilot next-best-action is not the Operate nav
- * unlock that reveals deeper analysis routes.
+ * They stay separate because pilot next-best-action is not the sidebar density
+ * escape hatch that reveals deeper analysis routes.
  */
 
 /** Operator home hosts the first-pilot command center. */
 export const FIRST_PILOT_SURFACE_PATH = "/" as const;
 
 /**
- * Operate unlock lives in the mobile nav panel (no dedicated page).
- * Hash targets {@link OperateFeaturesUnlockPanel} `id` for same-shell scroll.
+ * Legacy hash anchor for operate-unlock vocabulary peer links (retired
+ * `OperateFeaturesUnlockPanel`; kept for stable test ids and in-page scroll).
  */
 export const OPERATE_UNLOCK_PANEL_HREF = "#operate-features-unlock-panel" as const;
 

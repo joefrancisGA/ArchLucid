@@ -799,7 +799,7 @@ Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CP
 
 **Audience:** Procurement and security reviewers for a **controlled pilot**; founder assembling the packet.
 
-**Claim:** The Stage 0 pilot trust bar is a **six-element Real SEND executive packet** plus **labeled self-attested** assurance substitutes — not a CPA-issued SOC 2 report and not a published third-party pen-test summary.
+**Claim:** The Stage 0 pilot trust bar is a **six-element Real SEND sponsor packet** plus **labeled self-attested** assurance substitutes — not a CPA-issued SOC 2 report and not a published third-party pen-test summary.
 
 ### Include (minimum bar)
 
@@ -853,7 +853,7 @@ Former standalone body: `docs/go-to-market/COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRU
 | Ask response or chat | Yes | No |
 | Simulator demo or UI summary | Yes, labelled | No |
 
-Buyer-facing terms are “finalized architecture package” or “signed review record” only after commit. `review-backed` in the proof-language audit refers to that committed package.
+Buyer-facing terms are “finalized architecture package” or “sealed review record” only after commit. `review-backed` in the proof-language audit refers to that committed package.
 
 ### Chain integrity
 
@@ -1753,7 +1753,7 @@ Former standalone body: `docs/go-to-market/REST_CLI_BREAKING_CHANGE_COMPATIBILIT
 
 ### Residuals (honest)
 
-- **TB-1560** owns honesty CI for CI-guarantees-compat / Sunset-always-on overclaims.
+- **TB-1560** **Done** — honesty CI (`check_rest_cli_breaking_change_compat_honesty.py`) guards CI-guarantees-compat / Sunset-always-on overclaims.
 - Optional product follow-ons: `oasdiff`, CLI surface snapshot, enable Sunset in prod — not claimed as shipped.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
@@ -2476,14 +2476,14 @@ Former standalone body: `docs/go-to-market/OWNER_SCREENSHOT_BELOW_50_SPECIALTY_H
 
 | Score (approx) | Route | Owning cluster |
 | --- | --- | --- |
-| ~32 | `/help/developer-troubleshooting` | **TB-1246**–**TB-1250** |
-| ~33 | `/help/api-contracts` | **TB-1384**–**TB-1388** |
-| ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** |
-| ~40 | `/help/repeat-review-loop` | **TB-1394**–**TB-1398** |
-| ~42 | `/help/evaluator-workbook` | **TB-1345**–**TB-1349** |
-| ~42 | `/help/executive-summary#pilot-roi-measurement` (folded from pilot-roi-model) | **TB-1389**–**TB-1393** **Done** |
-| ~46 | `/help/first-hour-operator-path` | **TB-1374**–**TB-1378** |
-| ~49 | `/help/procurement` | **TB-1253**–**TB-1257** |
+| ~32 | `/help/engineering-troubleshooting` | **TB-1246**–**TB-1250** **Done** |
+| ~33 | `/help/api-contracts` | **TB-1384**–**TB-1388** **Done** |
+| ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** **Done** |
+| ~40 | `/help/repeat-review-loop` | **TB-1394**–**TB-1398** **Done** |
+| ~42 | `/help/sponsor-report` (pilot ROI depth) | **TB-1389**–**TB-1393** **Done** |
+| ~49 | `/help/procurement` | **TB-1253**–**TB-1257** **Done** |
+
+Retired alias folds (not live inventory; redirects removed 2026-08-13): `/help/evaluator-workbook` folded into `/help/choose-your-next-step` (**TB-1345**–**TB-1349**); `/help/first-hour-operator-path` folded into `/help/first-architecture-review` (**TB-1374**).
 
 Reuse exemplars: `HelpCorePilotGuideView`, Azure connect specialty. Generic markdown remains fallback only for true internal docs after gate.
 
@@ -2500,7 +2500,7 @@ Do not claim product help is specialty-guided / Start-CTA ready while â‰¤~50
 
 ### Residuals (honest)
 
-- **TB-1414** / **TB-1415** own the shared chrome contract and language guards.
+- **TB-1414** **Done** — engineering SoT [`SPECIALTY_HELP_CHROME_CONTRACT.md`](../library/SPECIALTY_HELP_CHROME_CONTRACT.md) + Vitest inventory; **TB-1415** owns language guards.
 - Per-route clusters own shipping chrome for each row; this handout does not replace those P0s.
 - Out of scope: integration empty/not-configured theater (**M-257**/**M-258**).
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -2806,7 +2806,7 @@ Former standalone body: `docs/go-to-market/LIVE_DEMO_SEE_IT_LADDER_PA_ONE_PAGER.
 
 **Audience:** Principal architects, SE facilitators, and marketing reviewers of public proof CTAs.
 
-**Decision / verdict today:** `/live-demo` title honesty is **shipped** (**TB-1265** Done — H1/metadata/Resources use “Guided sample walkthrough”), but the page remains **conditionally hurting** when mode chip is absent, offline fallback is narrated as a live API session, ladder UI between `/see-it` and `/live-demo` is missing (**TB-1267** / **TB-1282**), or Contoso payload sits under Claims chrome. Keep it as rung 2 of a labeled see-it ladder with universe/mode pins.
+**Decision / verdict today:** `/live-demo` title honesty is **shipped** (**TB-1265** Done — H1/metadata/Resources use “Guided sample walkthrough”), ladder UI between `/see-it` and `/live-demo` is **shipped** (**TB-1267** / **TB-1282** Done), but the page remains **conditionally hurting** when mode chip is absent, offline fallback is narrated as a live API session, or Contoso payload sits under Claims chrome. Keep it as rung 2 of a labeled see-it ladder with universe/mode pins.
 
 ### 3-rung ladder (buyer-safe)
 
@@ -2829,7 +2829,7 @@ Former standalone body: `docs/go-to-market/LIVE_DEMO_SEE_IT_LADDER_PA_ONE_PAGER.
 1. Ask which rung the buyer will open and whether ladder UI labels the `/see-it` ↔ `/live-demo` relationship (**TB-1267** / **TB-1282**).
 2. Confirm offline curated fallback is not narrated as a live API session.
 3. Confirm Contoso payload is not under Claims chrome.
-4. Treat “ladder done” while **TB-1267** / **TB-1282** / **TB-1029** remain open as a review finding.
+4. Treat “ladder done” while **TB-1029** or mode-chip / hero-budget rows remain open as a review finding.
 
 ### Claim boundary
 
@@ -2838,7 +2838,7 @@ Do not sell `/live-demo` as a live product/tenant demo, treat offline curated fa
 ### Residuals (honest)
 
 - **TB-1427** **Done** (2026-08-09) — fused ladder + claim-honesty contract published in [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md).
-- **TB-1428** owns anti-live-demo-as-live / ladder-closed language guards (depends on **TB-1427**).
+- **TB-1428** **Done** (2026-08-14) — anti-live-demo-as-live / ladder-closed language guard CI (`scripts/ci/check_live_demo_see_it_ladder_honesty.py`; depends on **TB-1427**).
 - UI ship remains on **TB-1266**–**TB-1269** / **TB-1281**–**TB-1282**; title-honesty rows **TB-1265** / **TB-1280** / **TB-1283** are Done.
 - Does not reopen Done **M-107** / **TB-1028** / **TB-1279**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
@@ -4921,7 +4921,7 @@ When extractor schema, RBAC posture, or trust-center rows change, update this pr
 
 | Reviewer | Start with | Decision focus |
 | --- | --- | --- |
-| CIO / executive sponsor | [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md) Â· [Core Pilot](../CORE_PILOT.md) Â· [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md) | Cycle time, defensible package, proof for broader use |
+| CIO / sponsor sponsor | [Sponsor Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md) Â· [Core Pilot](../CORE_PILOT.md) Â· [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md) | Cycle time, defensible package, proof for broader use |
 | Architecture review board | [Architecture on one page](../ARCHITECTURE_ON_ONE_PAGE.md) Â· [V1 Scope](../library/V1_SCOPE.md) Â· [Core Pilot](../CORE_PILOT.md) | Findings, decisions, evidence, governance fit |
 | Security / GRC / procurement | [Trust Center](trust-center.md) Â· [Procurement Pack Index](PROCUREMENT_PACK_INDEX.md) Â· [Procurement Response Accelerator](#procurement-response-accelerator) Â· [DPA](DPA_TEMPLATE.md) | Current controls, evidence boundaries, deferred scope |
 | Pilot owner / sales engineer | [Core Pilot](../CORE_PILOT.md) Â· [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md) Â· [Second Run](../library/SECOND_RUN.md) | First-session path, baseline inputs, honest ROI |

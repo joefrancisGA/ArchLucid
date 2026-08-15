@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -39,7 +39,7 @@ export function DemoUnavailableNotice({
         <p className="mt-3 mb-0">
           <Link
             href={learnMoreHref}
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
           >
             {learnMoreLabel}
           </Link>

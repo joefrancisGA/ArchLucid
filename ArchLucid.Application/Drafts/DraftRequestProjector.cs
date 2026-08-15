@@ -20,6 +20,8 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
         string systemName = ResolveSystemName(document, draftId);
         List<string> assumptions = BuildAssumptions(document);
 
+        ArchitectureDraftStructuredBrief structuredBrief = document.StructuredBrief ?? new ArchitectureDraftStructuredBrief();
+
         return new ArchitectureRequest
         {
             RequestId = Guid.NewGuid().ToString("N"),
@@ -27,9 +29,11 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             SystemName = systemName,
             Environment = "prod",
             CloudProvider = ResolveCloudProvider(document),
-            Assumptions = assumptions,
+            Constraints = CopyTrimmedList(structuredBrief.ConfirmedConstraints),
+            RequiredCapabilities = CopyTrimmedList(structuredBrief.ConfirmedRequiredCapabilities),
+            Assumptions = MergeAssumptions(assumptions, structuredBrief.ConfirmedAssumptions),
             RequestSource = "draft-intake",
-            InlineRequirements = BuildInlineRequirements(document),
+            InlineRequirements = BuildInlineRequirements(document, structuredBrief),
             IntakeTransparencyTrail = CloneTransparencyTrail(document.TransparencyTrail),
             PolicyReferences = BuildPolicyReferences(document),
             WorkflowIntent = ResolveWorkflowIntent(document),
@@ -82,12 +86,59 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
         return intent.PadRight(MinimumDescriptionLength, '.');
     }
 
-    private static List<string> BuildInlineRequirements(DraftRequestDocument document)
+    private static List<string> BuildInlineRequirements(
+        DraftRequestDocument document,
+        ArchitectureDraftStructuredBrief structuredBrief)
     {
-        if (string.IsNullOrWhiteSpace(document.BusinessOutcome))
-            return [];
+        List<string> requirements = [];
 
-        return [document.BusinessOutcome.Trim()];
+        if (!string.IsNullOrWhiteSpace(document.BusinessOutcome))
+            requirements.Add(document.BusinessOutcome.Trim());
+
+        if (!string.IsNullOrWhiteSpace(structuredBrief.QualityAttribute))
+            requirements.Add($"Quality attribute: {structuredBrief.QualityAttribute.Trim()}");
+
+        if (!string.IsNullOrWhiteSpace(structuredBrief.FailureModeNote))
+            requirements.Add($"Failure mode / continuity: {structuredBrief.FailureModeNote.Trim()}");
+
+        if (!string.IsNullOrWhiteSpace(structuredBrief.OperationalOwner))
+            requirements.Add($"Operational owner: {structuredBrief.OperationalOwner.Trim()}");
+
+        return requirements;
+    }
+
+    private static List<string> CopyTrimmedList(IReadOnlyList<string> items)
+    {
+        List<string> copied = [];
+
+        foreach (string item in items)
+        {
+            string trimmed = item.Trim();
+
+            if (trimmed.Length == 0)
+                continue;
+
+            copied.Add(trimmed);
+        }
+
+        return copied;
+    }
+
+    private static List<string> MergeAssumptions(List<string> actorAssumptions, IReadOnlyList<string> confirmedAssumptions)
+    {
+        List<string> merged = [.. actorAssumptions];
+
+        foreach (string assumption in confirmedAssumptions)
+        {
+            string trimmed = assumption.Trim();
+
+            if (trimmed.Length == 0)
+                continue;
+
+            merged.Add(trimmed);
+        }
+
+        return merged;
     }
 
     private static List<string> BuildAssumptions(DraftRequestDocument document)

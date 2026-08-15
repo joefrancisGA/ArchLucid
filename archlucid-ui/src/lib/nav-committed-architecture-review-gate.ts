@@ -1,13 +1,13 @@
 import type { NavLinkItem } from "@/lib/nav-config";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { EXECUTIVE_DASHBOARD_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { isEvidenceGraphPath } from "@/lib/evidence-graph-route";
 import { isFirstReviewGuidePath } from "@/lib/first-review-guide-route";
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review
  * (`CurrentPrincipal.hasCommittedArchitectureReview`). Allowed: home, architectures, review hub/detail,
- * evidence graph, executive dashboard, help/onboarding, and tenant-admin break-glass paths (baseline + tenant).
+ * evidence graph, sponsor dashboard, help/onboarding, and tenant-admin break-glass paths (baseline + tenant).
  * Operate destinations (governance, diagnostics, integrations, digests, compare, …) stay out until commit;
  * deep links remain valid at route level.
  */
@@ -32,7 +32,7 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
     return true;
   }
 
-  if (pathWithoutQuery === EXECUTIVE_DASHBOARD_HREF || pathWithoutQuery.startsWith(`${EXECUTIVE_DASHBOARD_HREF}/`)) {
+  if (pathWithoutQuery === SPONSOR_DASHBOARD_HREF || pathWithoutQuery.startsWith(`${SPONSOR_DASHBOARD_HREF}/`)) {
     return true;
   }
 
@@ -84,7 +84,7 @@ function preCommitNavLinkSortRank(pathWithoutQuery: string): number {
     return 4;
   }
 
-  if (pathWithoutQuery === EXECUTIVE_DASHBOARD_HREF || pathWithoutQuery.startsWith(`${EXECUTIVE_DASHBOARD_HREF}/`)) {
+  if (pathWithoutQuery === SPONSOR_DASHBOARD_HREF || pathWithoutQuery.startsWith(`${SPONSOR_DASHBOARD_HREF}/`)) {
     return 5;
   }
 

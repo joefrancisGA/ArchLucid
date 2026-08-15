@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using ArchLucid.AgentRuntime.Caching;
+using ArchLucid.AgentRuntime.AgentModelAliases;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -33,6 +34,7 @@ internal static class RealAgentExecutorSingleHandlerExecution
     {
         using (AgentHandlerLlmReasoningTrace.BeginHandlerScope())
         using (LlmCompletionCacheServedAmbient.BeginTaskScope())
+        using (RunReviewModelAliasAmbient.BeginScope(request.EffectiveModelAliasId ?? request.ModelAliasOverride))
         {
             string dispatchKey = AgentTypeKeys.ResolveDispatchKey(task);
 
@@ -90,6 +92,7 @@ internal static class RealAgentExecutorSingleHandlerExecution
                 try
                 {
                     using (LlmAccountingInvocationScope.Begin(task.AgentType, LlmInvokeKind.Primary))
+                    using (AgentLogicalStepSpendScope.Begin(runId, task.TaskId))
                     {
                         result = await dependencies.ConcurrencyGate.ExecuteAsync(
                             async ct =>

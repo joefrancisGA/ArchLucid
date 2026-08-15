@@ -1,18 +1,18 @@
-# Executive review overview refinement
+# Sponsor review overview refinement
 
 ## Route
 
 - **Primary surface:** `/reviews/[runId]` with default `reviewTab=overview`
-- **Showcase executive entry:** `getShowcaseExecutiveHref()` → `/reviews/{SHOWCASE_STATIC_DEMO_RUN_ID}`
+- **Showcase sponsor entry:** `getShowcaseExecutiveHref()` → `/reviews/{SHOWCASE_STATIC_DEMO_RUN_ID}`
 - **Server shell:** `archlucid-ui/src/app/(operator)/reviews/[runId]/page.tsx` → `RunDetailPageView`
 
-This refinement targets the **Overview** tab of the review-package workspace — the board-ready executive summary shown before sponsors drill into findings, evidence, or exports.
+This refinement targets the **Overview** tab of the review-package workspace — the board-ready sponsor summary shown before sponsors drill into findings, evidence, or exports.
 
 ## Navigation distinction
 
 | Layer | Responsibility | Implementation |
 | --- | --- | --- |
-| **Review package workflow** (top step strip) | Finalized deliverable spine for sponsors/auditors: executive summary → signed record → evidence trail → governance → audit | Existing `BuyerGoldenJourneyLayerContextStrip` / `BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS` (unchanged) |
+| **Review package workflow** (top step strip) | Finalized deliverable spine for sponsors/auditors: sponsor summary → sealed record → evidence trail → governance → audit | Existing `BuyerGoldenJourneyLayerContextStrip` / `BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS` (unchanged) |
 | **Review sections** (in-page tabs) | Working review detail: findings, evidence, decisions, package exports, architecture source, activity | `ReviewDetailWorkspace` with primary tabs + **More sections** menu |
 
 `ReviewDetailWorkspaceOrientation` explains the distinction on buyer-polished review pages.
@@ -22,7 +22,7 @@ Overflow tabs (**Policies and standards**, **Architecture**, **Activity**) moved
 ## Duplicated sections removed
 
 - **Review summary strip** merged into `RunDetailExecutiveSummary` (single authoritative block).
-- **Header metrics** (posture, severity, last evaluated) removed from `RunDetailWorkspaceHeader` to avoid repeating the executive summary.
+- **Header metrics** (posture, severity, last evaluated) removed from `RunDetailWorkspaceHeader` to avoid repeating the sponsor summary.
 - **Overview shortcut cards** (Findings / Evidence / Decisions / Review package with generic **Open**) removed; destinations live in recommended actions and tabs.
 - **Duplicate blocking banner** in overview tab removed (page-level `RunDetailWorkspaceBlockingBanner` retained).
 - **Duplicate primary Export proof packet** on desktop: inline `ReviewPackagePrimaryAction` is **mobile-only** (`lg:hidden`); desktop uses sticky action bar.
@@ -58,7 +58,7 @@ Overflow tabs (**Policies and standards**, **Architecture**, **Activity**) moved
 
 | File | Change |
 | --- | --- |
-| `RunDetailPageView.tsx` | Executive summary, rail layout, orientation flag, action dedupe, bottom-line in overview |
+| `RunDetailPageView.tsx` | Sponsor summary, rail layout, orientation flag, action dedupe, bottom-line in overview |
 | `RunDetailWorkspaceChrome.tsx` | Slim header, responsive rail |
 | `RunDetailExecutiveSummary.tsx` | **New** consolidated summary |
 | `RunDetailOverviewTab.tsx` | Actions-only overview |
@@ -94,7 +94,7 @@ pnpm exec vitest run \
 
 **41 / 41 passed** (Vitest, targeted suites listed above).
 
-UI `agent-compile-check.ps1` could not run in this agent environment (`Start-Process` Win32 error). Full-repo `tsc` reports pre-existing errors in unrelated files; no type errors in the executive-overview changed paths.
+UI `agent-compile-check.ps1` could not run in this agent environment (`Start-Process` Win32 error). Full-repo `tsc` reports pre-existing errors in unrelated files; no type errors in the sponsor-overview changed paths.
 
 ## Unresolved limitations
 

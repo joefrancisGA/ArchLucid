@@ -185,7 +185,7 @@ export async function waitForScreenshotOperatorShellChildren(
     await expect(page.getByTestId("advisory-hub")).toBeVisible({ timeout: 60_000 });
   }
 
-  if (pathOnly === "/internal/replay") {
+  if (pathOnly === "/internal/validate-route") {
     const validateReviewHeading = page.getByRole("heading", { name: /^Validate review$/i });
 
     if ((await validateReviewHeading.count()) > 0) {

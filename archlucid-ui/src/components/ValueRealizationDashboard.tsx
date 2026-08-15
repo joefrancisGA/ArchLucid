@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -136,7 +136,7 @@ export function ValueRealizationDashboard() {
           <p className="m-0 mt-2">
             <Link
               href="/insights/roi-summary"
-              className={cn("font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400", OPERATOR_TYPOGRAPHY.body)}
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
             >
               Open ROI assumptions &amp; sensitivity →
             </Link>

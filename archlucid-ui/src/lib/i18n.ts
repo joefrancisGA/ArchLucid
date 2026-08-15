@@ -1,9 +1,9 @@
 /**
- * Central dictionary for operator-facing domain terms and reusable UI labels.
+ * Central dictionary for architect-workspace domain terms and reusable UI labels.
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
@@ -22,7 +22,7 @@ export {
 } from "@/lib/operator/operator-health-labels";
 
 export const DOMAIN_TERMS = {
-  goldenManifest: "Signed review record",
+  goldenManifest: "Sealed review record",
   decisionTrace: "Decision Trace",
   policyPack: "Policy Pack",
   policyPackContentDocument: "Policy Pack Content Document",
@@ -68,9 +68,9 @@ export const RUNS_DASHBOARD_LABELS = {
   packagingPreFinalPosture: "Reviews nearing finalization",
   reviewOutcomes: "Review outcomes",
   recentSummary: "Showing the latest architecture reviews for this workspace.",
-  attentionSummary: "Reviews with findings awaiting a finalized signed review record.",
+  attentionSummary: "Reviews with findings awaiting a finalized sealed review record.",
   attentionSummaryBuyer:
-    "Architecture reviews still moving toward a finalized signed review record before sponsor sign-off.",
+    "Architecture reviews still moving toward a finalized sealed review record before sponsor sign-off.",
   noReviewsNeedAttention: "No reviews currently need attention.",
   oneReviewNeedsAttention: "1 review needs attention.",
   reviewsNeedAttentionCount: (count: number) => `${count} reviews need attention.`,
@@ -114,9 +114,9 @@ export const OPERATOR_NAV_GROUP_LABELS = {
 export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator workspace landing (`/`) — left nav label; logo also routes here. */
   home: "Home",
-  /** Operator-shell ROI dashboard (`/architecture/executive-dashboard`); the standalone executive-chrome duplicate was retired (TB-608). */
-  portfolioOverview: "Executive dashboard",
-  executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
+  /** Operator-shell ROI dashboard (`/architecture/sponsor-dashboard`); the standalone sponsor-chrome duplicate was retired (TB-608). */
+  portfolioOverview: "Sponsor dashboard",
+  SponsorReport: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
   /** Architecture draft inventory (`/architectures`). */
   architectures: ARCHITECTURE_DRAFTS_LIST_LABEL,
   reviewPackage: "Reviews",
@@ -130,10 +130,11 @@ export const OPERATOR_NAV_LINK_LABELS = {
   assignedToMeFindings: "Assigned to me",
   riskExceptions: "Exceptions",
   decisionRegister: "Decision register",
-  signedReviewRecords: "Signed review records",
+  signedReviewRecords: "Sealed review records",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
-  pilotBaselines: "ROI baselines",
+  /** Baseline settings (`/administration/baseline`) — sidebar short form; the page H1 keeps the "— ROI measurement" qualifier. */
+  baselineSettings: "Baseline settings",
   /** Architecture scorecard (`/insights/architecture-scorecard`). */
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alerts",
@@ -152,7 +153,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   failedIntegrationMessages: "Failed integration messages",
   teamsNotifications: "Teams notifications",
   itsmConnectors: "Jira & ServiceNow",
-  valueReport: "Executive summary",
+  valueReport: "Sponsor report",
   /** Compare two reviews (`/insights/compare-two-reviews`). */
   compareTwoReviews: "Compare two reviews",
   replayReview: "Validate review",
@@ -168,8 +169,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   evolutionCandidates: "Impact preview",
   pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
   roiReport: "ROI summary",
-  connectorOperations: "Integration readiness",
-  integrationReadiness: "Connection status",
+  /** Connection status (`/administration/connection-status`) — connector health and integration readiness. */
+  connectionStatus: "Connection status",
   jira: "Jira",
   azureBoards: "Azure Boards",
   itsm: "ITSM",
@@ -184,8 +185,11 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Notification preference hub (`/administration/notifications`) TB-2203. */
   notifications: "Notifications",
   digests: "Digests",
-  /** Settings hub (`/administration`); workspace entry often `/administration/workspace-settings`. */
-  settings: "Settings",
+  /**
+   * Settings hub (`/administration`) — the searchable index, not a leaf page. Named "All settings" so the
+   * sidebar row reads distinctly from the `workspaceSettings` leaf below it.
+   */
+  settings: "All settings",
   workspaceSettings: "Workspace settings",
   /** Users & roles hub (`/administration/users`) — ampersand matches Security & Trust nav spelling. */
   usersAndRoles: "Users & roles",

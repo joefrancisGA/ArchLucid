@@ -133,7 +133,7 @@ export function RunDetailArchitectureSummaryCard(
     [props.userAssertions, text],
   );
 
-  const purposeSection = structured !== null ? findSection(structured.sections, "executive-summary") : undefined;
+  const purposeSection = structured !== null ? findSection(structured.sections, "sponsor-report") : undefined;
   const outcomeSection = structured !== null ? findSection(structured.sections, "business-outcome") : undefined;
   const scopeSection = structured !== null ? findSection(structured.sections, "scope") : undefined;
   const domainsSection = structured !== null ? findSection(structured.sections, "systems-and-services") : undefined;

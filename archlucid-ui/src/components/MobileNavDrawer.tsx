@@ -7,8 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useState } from "react";
 
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
-import { OperateFeaturesUnlockPanel } from "@/components/usability/OperateFeaturesUnlockPanel";
-import { OperateUnlockAutoHint } from "@/components/usability/OperateUnlockAutoHint";
+import { RoleNavDensityExpandControl } from "@/components/sidebar-nav/RoleNavDensityExpandControl";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -43,9 +42,9 @@ export function MobileNavDrawer() {
     demoUi,
     effectiveHasCommittedArchitectureReview,
     effectiveOperateUnlockPhase,
-    unlockOperateFeatures,
-    showAutoUnlockHint,
-    dismissAutoUnlockHint,
+    roleNavDensityHiddenGroupCount,
+    roleNavDensityShowFullNav,
+    toggleRoleNavDensityShowFullNav,
   } = useOperatorShellNavRows();
 
   useLayoutEffect(() => {
@@ -125,8 +124,11 @@ export function MobileNavDrawer() {
                 />
               );
             })}
-            <OperateFeaturesUnlockPanel phase={effectiveOperateUnlockPhase} onUnlock={unlockOperateFeatures} />
-            <OperateUnlockAutoHint visible={showAutoUnlockHint} onDismiss={dismissAutoUnlockHint} />
+            <RoleNavDensityExpandControl
+              hiddenGroupCount={roleNavDensityHiddenGroupCount}
+              showFullNav={roleNavDensityShowFullNav}
+              onToggle={toggleRoleNavDensityShowFullNav}
+            />
           </div>
         </DialogContent>
       </Dialog>

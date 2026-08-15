@@ -36,10 +36,8 @@ const FIRST_REVIEW_HELP_BANNED_SUBSTRINGS = [
 describe("HelpFirstReviewEvidenceChecklistGuideView (folded into COR, Batch R)", () => {
   const loaded = tryLoadFoldedInternalRunbook("first-review");
 
-  it("permanently redirects the retired first-review slug to COR printable checklist anchor", () => {
-    expect(resolveHelpTopicPermanentRedirect("first-review")).toBe(
-      "/help/first-architecture-review#printable-first-run-evidence-checklist",
-    );
+  it("does not redirect the retired first-review slug", () => {
+    expect(resolveHelpTopicPermanentRedirect("first-review")).toBeNull();
   });
 
   it("loads first-review help from the operator-path printable section", () => {

@@ -26,6 +26,7 @@ import {
 } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { buildArchLucidAzurePackageZipFromFileList, type FolderPackageFileStatus } from "@/lib/read-arch-lucid-azure-folder-package";
 import { readArchLucidAzurePackageZipFromBytes, readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
+import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
@@ -51,6 +52,7 @@ import {
   EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
 } from "@/lib/extract-upload-settings-page-copy";
 import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
+import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 
 const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
@@ -107,9 +109,9 @@ export function ExtractUploadSettingsPageClient() {
         let baseline: WorkspaceBaselineArtifactsPayload | null = null;
 
         if (baselineResponse.ok) {
-          baseline = (await baselineResponse.json()) as WorkspaceBaselineArtifactsPayload;
-          setHasBaselineArtifacts(baseline.hasBaselineArtifacts === true);
-          setExtractorScriptVersion(baseline.extractorScriptVersion?.trim() || null);
+          baseline = tryParseJsonResponseText<WorkspaceBaselineArtifactsPayload>(await baselineResponse.text());
+          setHasBaselineArtifacts(baseline?.hasBaselineArtifacts === true);
+          setExtractorScriptVersion(baseline?.extractorScriptVersion?.trim() || null);
         } else {
           setHasBaselineArtifacts(null);
           setExtractorScriptVersion(null);
@@ -163,7 +165,6 @@ export function ExtractUploadSettingsPageClient() {
         problem: null,
         correlationId: null,
       });
-      showError("Azure upload", built.message);
 
       return;
     }
@@ -185,7 +186,6 @@ export function ExtractUploadSettingsPageClient() {
         problem: null,
         correlationId: null,
       });
-      showError("Azure upload", validation.message);
 
       return;
     }
@@ -208,7 +208,6 @@ export function ExtractUploadSettingsPageClient() {
         problem: null,
         correlationId: null,
       });
-      showError("Azure upload", validation.message);
 
       return;
     }
@@ -278,6 +277,8 @@ export function ExtractUploadSettingsPageClient() {
         hasBaselineArtifacts={hasBaselineArtifacts}
         extractorScriptVersion={extractorScriptVersion}
       />
+
+      <ExtractUploadSettingsEvidenceOrientationStrip />
 
       <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="extract-upload" />
 

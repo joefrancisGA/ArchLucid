@@ -4,6 +4,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export type CloudProviderConnectionKey = "aws" | "azure" | "gcp";
 
+export const CONNECT_AZURE_SECURELY_HELP_TOPIC_LABEL = "How Azure cloud connection works" as const;
+
 export const CLOUD_PROVIDER_CONNECTION_PATHS: Record<CloudProviderConnectionKey, string> = {
   aws: "/integrations/cloud-connections/aws",
   azure: "/integrations/cloud-connections/azure",
@@ -11,7 +13,7 @@ export const CLOUD_PROVIDER_CONNECTION_PATHS: Record<CloudProviderConnectionKey,
 };
 
 export const CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE =
-  "Cloud provider connection pages configure read-only federated inventory collection — they are not a signed-review diligence Sources package. Open Cloud connections or Connection status when you need operational readiness trails.";
+  "Cloud provider connection pages configure read-only federated inventory collection — they are not a sealed-review diligence Sources package. Open Cloud connections or Connection status when you need operational readiness trails.";
 
 export const CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO =
   "Use these follow-ups when federation setup, connection health, or provider help needs attention before treating inventory as authoritative.";

@@ -17,6 +17,7 @@ import {
 } from "@/components/help/help-drawer-row-class";
 import { HelpDrawerDoThisNowRow } from "@/components/help/HelpDrawerDoThisNowRow";
 import { HelpDrawerTopicRow } from "@/components/help/HelpDrawerTopicRow";
+import { OperatorShellSupportQuickLinks } from "@/components/help/OperatorShellSupportQuickLinks";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -40,7 +41,6 @@ import {
   HELP_SEARCH_PANEL_START_HERE_COLLAPSED_SUMMARY,
   HELP_SEARCH_PANEL_START_HERE_GROUP_ID,
   HELP_SEARCH_PANEL_SUBTITLE,
-  HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL,
   listHelpSearchPanelGroups,
   listHelpSearchPanelTopics,
   recommendedHelpSearchPanelTopics,
@@ -765,20 +765,10 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                 data-testid="help-search-panel-footer"
               >
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  Need help?{" "}
-                  <button
-                    type="button"
-                    className={cn(
-                      "font-medium underline-offset-2 hover:underline",
-                      OPERATOR_LINK.optional,
-                    )}
-                    onClick={() => {
-                      openGuidesTab("troubleshooting");
-                    }}
-                  >
-                    {HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL}
-                  </button>
-                  {" · "}
+                  Need help?
+                </p>
+                <OperatorShellSupportQuickLinks onNavigate={() => onOpenChange(false)} />
+                <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   <button
                     type="button"
                     className={cn(

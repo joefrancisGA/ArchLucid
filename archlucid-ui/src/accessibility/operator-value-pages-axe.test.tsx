@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), refresh: vi.fn() }),
-  usePathname: () => "/insights/executive-summary",
+  usePathname: () => "/insights/sponsor-report",
   useSearchParams: () => ({
     get: () => null,
     toString: () => "",
@@ -162,7 +162,7 @@ vi.mock("@/app/(operator)/insights/improvement-planning/_sections/load-planning-
   };
 });
 
-vi.mock("@/app/(operator)/insights/executive-summary/_sections/load-value-report-page-data", () => ({
+vi.mock("@/app/(operator)/insights/sponsor-report/_sections/load-value-report-page-data", () => ({
   loadValueReportPageData: () =>
     Promise.resolve({
       initialFromUtc: "2026-01-01T00:00",
@@ -190,7 +190,7 @@ vi.mock("@/app/(operator)/insights/executive-summary/_sections/load-value-report
     }),
 }));
 
-import SponsorReportExecutiveSummaryPage from "@/app/(operator)/insights/executive-summary/page";
+import SponsorReportSponsorReportPage from "@/app/(operator)/insights/sponsor-report/page";
 import AdvisoryScansPage from "@/app/(operator)/governance/advisory-scans/page";
 import DigestsPage from "@/app/(operator)/architecture/digests/page";
 import PlanningPage from "@/app/(operator)/insights/improvement-planning/page";
@@ -199,9 +199,9 @@ expect.extend(toHaveNoViolations);
 
 describe("operator value + advisory pages — axe (Vitest)", () => {
   it(
-    "SponsorReportExecutiveSummaryPage has no serious axe violations",
+    "SponsorReportSponsorReportPage has no serious axe violations",
     async () => {
-      const page = await SponsorReportExecutiveSummaryPage();
+      const page = await SponsorReportSponsorReportPage();
       const { container } = render(page);
 
       expect(await axe(container)).toHaveNoViolations();

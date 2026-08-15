@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import {
   getGovernanceReviewsAwaitingAction,
   type GovernanceReviewAwaitingActionItem,
@@ -17,10 +18,12 @@ const EMPTY_ITEMS: GovernanceReviewAwaitingActionItem[] = [];
 
 export function useGovernanceReviewsAwaitingActionQuery() {
   const scope = useOperatorScopeQueryKey();
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
 
   const query = useQuery({
     queryKey: operatorQueryKeys.governanceReviewsAwaitingAction(scope),
     queryFn: getGovernanceReviewsAwaitingAction,
+    enabled: concernFetchEnabled,
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
   });

@@ -1,11 +1,14 @@
 import { stripMarkdownSectionsByTitlePrefix } from "@/lib/help-markdown/section-strips";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  reviewPackagesHelpRelatedGuides,
+  type ReviewPackagesHelpRelatedLink,
+} from "@/lib/review-packages-help-related-guides";
 
-/** Page title for the Reviews hub companion — artifact noun in body is architecture package. */
-export const REVIEW_PACKAGES_HELP_PAGE_TITLE = "Architecture reviews";
-
+export {
+  REVIEW_PACKAGES_HELP_PAGE_TITLE,
+} from "@/lib/review-packages-help-page-copy";
 export const REVIEW_PACKAGES_HELP_PAGE_SUBTITLE =
-  "Open Reviews to find architecture packages in your workspace, then inspect findings and export sponsor-ready artifacts.";
+  "Open Architecture reviews to find packages in your workspace, then inspect findings and export sponsor-ready artifacts.";
 
 /** One orientation statement: definition + review↔package relationship (not browse/inspect/export again). */
 export const REVIEW_PACKAGES_HELP_OVERVIEW =
@@ -18,19 +21,11 @@ export const REVIEW_PACKAGES_HELP_PRIMARY_ACTIONS = {
   },
 } as const;
 
-export type ReviewPackagesHelpRelatedLink = {
-  readonly label: string;
-  readonly href: string;
-};
+export type { ReviewPackagesHelpRelatedLink };
 
 /** Authoritative Related guides rail — markdown Related section is stripped for presentation. */
-export const REVIEW_PACKAGES_HELP_RELATED: readonly ReviewPackagesHelpRelatedLink[] = [
-  { label: "Review guide", href: inAppHelpHref("review-guide") },
-  { label: "Start a review", href: inAppHelpHref("evidence-intake") },
-  { label: "Findings", href: inAppHelpHref("findings") },
-  { label: "Evidence graph", href: inAppHelpHref("evidence-trail") },
-  { label: "Governance approval", href: inAppHelpHref("governance-approval") },
-] as const;
+export const REVIEW_PACKAGES_HELP_RELATED: readonly ReviewPackagesHelpRelatedLink[] =
+  reviewPackagesHelpRelatedGuides();
 
 const REVIEW_PACKAGES_OPENING_LEDE =
   "Browse, inspect, and export governed architecture packages in the architect workspace.";

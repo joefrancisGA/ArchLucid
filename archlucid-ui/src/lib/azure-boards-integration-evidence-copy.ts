@@ -5,12 +5,12 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const AZURE_BOARDS_INTEGRATION_CANONICAL_PATH = "/integrations/azure-boards" as const;
 
-export const AZURE_BOARDS_INTEGRATION_CLAIM_DISCIPLINE =
-  "Azure Boards outbound settings configure how findings and reviews create work items — they are not a signed-review diligence Sources package. Open Integration readiness or Audit when you need operational or governed trails.";
+export const AZURE_BOARDS_INTEGRATION_HELP_TOPIC_LABEL = "How Azure Boards integration works";
+
+export const AZURE_BOARDS_INTEGRATION_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const AZURE_BOARDS_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when connection health, readiness checks, or related work-item integrations need attention.";
-
 
 /** Operator Sources — no self-href to `/integrations/azure-boards`. */
 export const AZURE_BOARDS_INTEGRATION_SOURCES: readonly EvidenceSourceLink[] = [

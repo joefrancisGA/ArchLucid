@@ -12,13 +12,13 @@ test.describe("marketing-demo-preview", () => {
 
     await expect(page.getByTestId("demo-preview-result-at-a-glance")).toBeVisible();
     await expect(page.getByTestId("demo-preview-artifact-nav")).toBeVisible();
-    await expect(page.getByTestId("demo-preview-executive-conclusion")).toBeVisible();
+    await expect(page.getByTestId("demo-preview-sponsor-conclusion")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Review lifecycle" })).toBeVisible();
     await expect(page.locator('[data-testid="demo-preview-review-trail"]')).toBeVisible();
 
     const artifactNav = page.getByTestId("demo-preview-artifact-nav");
-    await expect(artifactNav.getByRole("button", { name: /1 · Executive summary/i })).toBeVisible();
-    await expect(artifactNav.getByRole("button", { name: /2 · Signed review record/i })).toBeVisible();
+    await expect(artifactNav.getByRole("button", { name: /1 · Sponsor report/i })).toBeVisible();
+    await expect(artifactNav.getByRole("button", { name: /2 · Sealed review record/i })).toBeVisible();
 
     const signup = page.locator('[data-testid="demo-preview-cta-signup"]');
 

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -20,7 +21,8 @@ const URGENT_TRIAL_DAYS_MAX = 7;
  * (not only home). Uses `GET /v1/tenant/trial-status` — same source as {@link TrialBanner}.
  */
 export function TrialExpiryBanner() {
-  const { data: payload, isFetched } = useTenantTrialStatusQuery();
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const { data: payload, isFetched } = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export function TrialExpiryBanner() {
           Upgrade or talk to us before access changes.
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
-          <Button asChild type="button" size="sm" className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700">
+          <Button asChild type="button" variant="primary" size="sm">
             <Link href="/pricing#pricing-quote-request">Talk to us</Link>
           </Button>
         </div>

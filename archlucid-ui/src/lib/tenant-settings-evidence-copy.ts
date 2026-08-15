@@ -3,12 +3,12 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const TENANT_SETTINGS_CANONICAL_PATH = "/administration/workspace-settings" as const;
 
-export const TENANT_SETTINGS_CLAIM_DISCIPLINE =
-  "This Tenant settings page configures workspace defaults and tenant-wide options - it is not a signed-review diligence Sources package. Open Projects recycle bin, Digests schedule, or Assurance status when you need restore, digest timing, or trust cites.";
+export const WORKSPACE_SETTINGS_HELP_TOPIC_LABEL = "How workspace settings work";
+
+export const TENANT_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const TENANT_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when tenant defaults turn into recycle-bin restore, digest schedules, or assurance cites.";
-
 
 /** Operator Sources - no self-href to tenant settings. */
 export const TENANT_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [

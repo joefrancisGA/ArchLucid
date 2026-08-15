@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a one-screen executive brief from existing pilot/release evidence artifacts."""
+"""Generate a one-screen sponsor brief from existing pilot/release evidence artifacts."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ sys.path.insert(0, str(_CI_DIR))
 
 from release_evidence_common import load_json  # noqa: E402
 
-_SCHEMA = "archlucid.executive-one-screen-brief.v1"
+_SCHEMA = "archlucid.sponsor-one-screen-brief.v1"
 
 
 def _disposition_label(raw: Any) -> str:
@@ -73,7 +73,7 @@ def render_markdown(payload: dict[str, Any]) -> str:
     timing = payload.get("firstValueTiming") or {}
 
     lines = [
-        "# Executive one-screen brief",
+        "# Sponsor one-screen brief",
         "",
         f"**Readiness:** **{payload.get('readinessDisposition')}** · "
         f"Release rollup: **{payload.get('releaseReadinessRollup') or 'n/a'}** · "
@@ -120,7 +120,7 @@ def main(argv: list[str] | None = None) -> int:
     args.json_out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     args.markdown_out.write_text(render_markdown(payload), encoding="utf-8")
 
-    print(f"Executive one-screen brief: {payload['readinessDisposition']}")
+    print(f"Sponsor one-screen brief: {payload['readinessDisposition']}")
 
     return 0
 

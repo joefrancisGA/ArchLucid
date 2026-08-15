@@ -19,7 +19,7 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
         messageId: "demo-msg-claims-001-user",
         threadId: tid,
         role: "User",
-        content: "Summarize the PHI risk for this review for an executive sponsor.",
+        content: "Summarize the PHI risk for this review for an sponsor sponsor.",
         createdUtc: "2026-01-12T10:06:00.000Z",
         metadataJson: "{}",
       },
@@ -28,11 +28,11 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
         threadId: tid,
         role: "Assistant",
         content:
-          "PHI minimization at intake is the primary executive concern: legacy connectors may retain more identifiers than the target architecture allows. The risk is accepted with monitoring and is non-blocking for go-live.\n\n" +
+          "PHI minimization at intake is the primary sponsor concern: legacy connectors may retain more identifiers than the target architecture allows. The risk is accepted with monitoring and is non-blocking for go-live.\n\n" +
           "Risk:\n\nExpanded breach and audit scope if minimization is understated at the intake boundary.\n\n" +
-          "Evidence:\n\nSigned review record disposition, evidence trail anchors, and audit events for approval and findings capture.\n\n" +
+          "Evidence:\n\nSealed review record disposition, evidence trail anchors, and audit events for approval and findings capture.\n\n" +
           "Mitigation:\n\nAlign adapters to the minimization posture documented in the review before sign-off.\n\n" +
-          "Validation:\n\nConfirm checklist completion on the findings record and signed review record before go-live.",
+          "Validation:\n\nConfirm checklist completion on the findings record and sealed review record before go-live.",
         createdUtc: "2026-01-12T10:06:12.000Z",
         metadataJson: "{}",
       },

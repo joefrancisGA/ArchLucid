@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -14,7 +13,6 @@ import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integ
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import {
   JIRA_ACTION_REFRESHING,
-  JIRA_BREADCRUMB_INTEGRATIONS_LABEL,
   JIRA_CONNECT_WITH_ATLASSIAN_LABEL,
   JIRA_CONNECT_WITH_ATLASSIAN_PENDING,
   JIRA_INTEGRATION_PAGE_TITLE,
@@ -54,15 +52,6 @@ export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps)
           data-testid="jira-header-status-badge"
         />
       }
-      breadcrumb={
-        <OperatorPageBreadcrumb
-          data-testid="jira-page-breadcrumb"
-          items={[
-            { label: JIRA_BREADCRUMB_INTEGRATIONS_LABEL },
-            { label: JIRA_INTEGRATION_PAGE_TITLE, href: INTEGRATIONS_JIRA_PATH },
-          ]}
-        />
-      }
       actions={
         <div className="flex flex-col items-end gap-2" data-testid="jira-header-actions">
           <div className="flex flex-wrap items-center gap-2">
@@ -84,7 +73,7 @@ export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps)
             />
             <Link
               href={INTEGRATIONS_READINESS_PATH}
-              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+              className={OPERATOR_LINK.optional}
               data-testid="jira-readiness-link"
             >
               {JIRA_READINESS_LINK_LABEL}

@@ -111,8 +111,8 @@ public sealed class PolicyPackBeforeAfterDiffDemoTests : VerifyBase
         artifact.Changes.AddedComplianceRuleKeys.Should().Contain(PolicyAbDemoFixture.AddedComplianceRuleKey);
         artifact.Changes.GateBlockedFlipped.Should().BeTrue();
         artifact.Changes.FindingsNewlyBlockingCommit.Should().Contain("demo-finding-critical");
-        artifact.Changes.ExecutiveSummaryLinesAdded.Should().NotBeEmpty();
-        artifact.Changes.ExecutiveSummaryLinesRemoved.Should().NotBeEmpty();
+        artifact.Changes.SponsorReportLinesAdded.Should().NotBeEmpty();
+        artifact.Changes.SponsorReportLinesRemoved.Should().NotBeEmpty();
         artifact.Before.ActiveComplianceRuleKeysOrdered.Count.Should().BeLessThan(artifact.After.ActiveComplianceRuleKeysOrdered.Count);
         artifact.AuditTrailCitations.Should().ContainSingle(c => c.EventType == AuditEventTypes.PolicyPackAssignmentCreated);
 

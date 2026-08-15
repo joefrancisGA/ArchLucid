@@ -50,7 +50,7 @@ vi.mock("@/lib/use-nav-surface", async (importOriginal) => {
     ...mod,
     useNavSurface: (routeKey: import("@/lib/layer-guidance").LayerGuidancePageKey) => {
       const callerRank = mutateCapability.current ? AUTHORITY_RANK.ExecuteAuthority : AUTHORITY_RANK.ReadAuthority;
-      const real = mod.composeNavSurface(routeKey, callerRank, false, false, true);
+      const real = mod.composeNavSurface(routeKey, callerRank, true);
 
       return { ...real, mutationCapability: mutateCapability.current };
     },

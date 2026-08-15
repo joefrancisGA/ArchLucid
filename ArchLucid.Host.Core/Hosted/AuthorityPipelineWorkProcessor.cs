@@ -11,11 +11,11 @@ using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Coordination;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -35,70 +35,73 @@ public sealed class AuthorityPipelineWorkProcessor(
     IServiceScopeFactory scopeFactory,
     IOptions<AuthorityPipelineWorkProcessorOptions> processorOptions,
     TimeProvider timeProvider,
-    ILogger<AuthorityPipelineWorkProcessor> logger) : IAuthorityPipelineWorkProcessor
+    ILogger<AuthorityPipelineWorkProcessor> logger)
+    : RecoverableOutboxProcessorBase<
+            AuthorityPipelineWorkOutboxEntry,
+            IAuthorityPipelineWorkRepository,
+            AuthorityPipelineWorkProcessorOptions>(
+        scopeFactory,
+        processorOptions,
+        timeProvider,
+        logger),
+        IAuthorityPipelineWorkProcessor
 {
-    private const int MaxBatch = 25;
+    protected override int GetMaxConcurrentBatchEntries(AuthorityPipelineWorkProcessorOptions opts) =>
+        opts.MaxConcurrentBatchEntries;
 
-    private readonly IServiceScopeFactory _scopeFactory =
-        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
-
-    private readonly IOptions<AuthorityPipelineWorkProcessorOptions> _processorOptions =
-        processorOptions ?? throw new ArgumentNullException(nameof(processorOptions));
-
-    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-
-    private readonly ILogger<AuthorityPipelineWorkProcessor> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
-
-    /// <inheritdoc />
-    public async Task<int> ProcessPendingBatchAsync(CancellationToken cancellationToken)
+    protected override void LogProcessingFailure(Exception fault, AuthorityPipelineWorkOutboxEntry entry)
     {
-        AuthorityPipelineWorkProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
-
-        using IServiceScope dequeueScope = _scopeFactory.CreateScope();
-        IAuthorityPipelineWorkRepository workOutbox =
-            dequeueScope.ServiceProvider.GetRequiredService<IAuthorityPipelineWorkRepository>();
-
-        IReadOnlyList<AuthorityPipelineWorkOutboxEntry> batch =
-            await workOutbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, cancellationToken)
-                .ConfigureAwait(false);
-
-        await BoundedBatchParallelism.ForEachAsync(
-            batch,
-            opts.MaxConcurrentBatchEntries,
-            (entry, ct) => ProcessEntryWithIsolationAsync(entry, opts, ct),
-            cancellationToken).ConfigureAwait(false);
-
-        return batch.Count;
+        if (Logger.IsEnabled(LogLevel.Warning))
+        {
+            Logger.LogWarning(
+                fault,
+                "Authority pipeline work failed for outbox {OutboxId}, run {RunId}.",
+                LogSanitizer.Sanitize(entry.OutboxId.ToString()),
+                LogSanitizer.Sanitize(entry.RunId.ToString("N")));
+        }
     }
 
-    private async Task ProcessEntryWithIsolationAsync(
+    protected override async Task OnDeadLetterAsync(
+        IServiceScope scope,
         AuthorityPipelineWorkOutboxEntry entry,
+        string summary,
         AuthorityPipelineWorkProcessorOptions opts,
         CancellationToken cancellationToken)
     {
-        using IServiceScope scope = _scopeFactory.CreateScope();
-        IAuthorityPipelineWorkRepository workOutbox =
-            scope.ServiceProvider.GetRequiredService<IAuthorityPipelineWorkRepository>();
+        ScopeContext jobScope = new()
+        {
+            TenantId = entry.TenantId,
+            WorkspaceId = entry.WorkspaceId,
+            ProjectId = entry.ProjectId
+        };
 
-        try
+        IRunRepository runRepository =
+            scope.ServiceProvider.GetRequiredService<IRunRepository>();
+
+        await AuthorityPipelineDeadLetterRunMarker.TryMarkRunDeadLetteredAsync(
+            runRepository,
+            jobScope,
+            entry.RunId,
+            summary,
+            TimeProvider.UtcNowDateTime(),
+            cancellationToken);
+
+        if (Logger.IsEnabled(LogLevel.Error))
         {
-            await ProcessEntryAsync(scope, entry, workOutbox, cancellationToken).ConfigureAwait(false);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            await OnProcessingFailedAsync(scope, workOutbox, entry, ex, opts, cancellationToken).ConfigureAwait(false);
+            Logger.LogError(
+                "Authority pipeline work dead-lettered outbox {OutboxId}, run {RunId}, after exhausting retries ({Max}). Summary={Summary}",
+                LogSanitizer.Sanitize(entry.OutboxId.ToString()),
+                LogSanitizer.Sanitize(entry.RunId.ToString("N")),
+                opts.MaxAttemptsBeforeDeadLetter,
+                LogSanitizer.Sanitize(summary));
         }
     }
 
-    private async Task ProcessEntryAsync(
+    protected override async Task ProcessEntryAsync(
         IServiceScope scope,
-        AuthorityPipelineWorkOutboxEntry entry,
         IAuthorityPipelineWorkRepository workOutbox,
+        AuthorityPipelineWorkOutboxEntry entry,
+        AuthorityPipelineWorkProcessorOptions opts,
         CancellationToken cancellationToken)
     {
         AuthorityPipelineWorkPayload? payload = AuthorityPipelineWorkPayloadJson.Deserialize(entry.PayloadJson);
@@ -106,7 +109,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         if (payload?.ContextIngestionRequest is null ||
             string.IsNullOrWhiteSpace(payload.EvidenceBundleId))
         {
-            _logger.LogError(
+            Logger.LogError(
                 "Authority pipeline work outbox {OutboxId} has invalid payload; marking processed.",
                 LogSanitizer.Sanitize(entry.OutboxId.ToString()));
             await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
@@ -129,7 +132,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         ContextIngestionRequest request = payload.ContextIngestionRequest;
         request.RunId = entry.RunId;
 
-        _logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
+        Logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
             entry.RunId,
             "queued_outbox_claimed",
             "authority_pipeline_resume",
@@ -138,7 +141,7 @@ public sealed class AuthorityPipelineWorkProcessor(
 
         await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken);
 
-        _logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
+        Logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
             entry.RunId,
             "authority_pipeline_resume",
             "post_authority_coordination",
@@ -179,17 +182,19 @@ public sealed class AuthorityPipelineWorkProcessor(
         IAzureExtractorPackageRepository azureExtractorPackages =
             scope.ServiceProvider.GetRequiredService<IAzureExtractorPackageRepository>();
 
-        AzureExtractorPackageProvenance? deferredExtractorProvenance =
-            await azureExtractorPackages.TryGetLatestProvenanceByRunIdAsync(jobScope, entry.RunId, cancellationToken);
+        ICloudInventoryExtractorPackageRepository cloudInventoryExtractorPackages =
+            scope.ServiceProvider.GetRequiredService<ICloudInventoryExtractorPackageRepository>();
 
-        if (deferredExtractorProvenance is not null)
-
+        if (await RunStarterInventoryEvidenceBundleMerger.MergeLinkedInventoryPackagesAsync(
+            evidenceBundle,
+            architectureRequest,
+            jobScope,
+            entry.RunId,
+            azureExtractorPackages,
+            cloudInventoryExtractorPackages,
+            cancellationToken))
         {
-
-            AzureExtractorEvidenceBundleMerger.Merge(evidenceBundle, deferredExtractorProvenance);
-
             await evidenceBundleRepository.UpdateAsync(evidenceBundle, cancellationToken);
-
         }
 
         ScopeContext materializedScope = AmbientScopeContext.CurrentOverride ?? jobScope;
@@ -206,7 +211,7 @@ public sealed class AuthorityPipelineWorkProcessor(
             architectureRequest,
             requestSeeder,
             evidenceSeeder,
-            _logger,
+            Logger,
             cancellationToken);
 
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
@@ -250,7 +255,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         IReadOnlyList<AgentTask> materializedTasksForLog =
             existingTasks.Count > 0 ? existingTasks : starterTasks;
 
-        _logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
+        Logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
             entry.RunId,
             "post_authority_coordination",
             "agent_tasks_materialized",
@@ -280,14 +285,14 @@ public sealed class AuthorityPipelineWorkProcessor(
         else
             nextAfterMaterialize = "run_legacy_status_left_advanced";
 
-        _logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
+        Logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
             entry.RunId,
             "agent_tasks_materialized",
             nextAfterMaterialize,
             AgentExecutionStateTransitionTaskIds.Format(materializedTasksForLog),
             entry.OutboxId.ToString());
 
-        _logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
+        Logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
             entry.RunId,
             nextAfterMaterialize,
             "authority_work_outbox_processed",
@@ -297,104 +302,20 @@ public sealed class AuthorityPipelineWorkProcessor(
         await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
     }
 
-    private async Task OnProcessingFailedAsync(
-        IServiceScope scope,
-        IAuthorityPipelineWorkRepository workOutbox,
-        AuthorityPipelineWorkOutboxEntry entry,
-        Exception fault,
-        AuthorityPipelineWorkProcessorOptions opts,
-        CancellationToken cancellationToken)
+    protected override AuthorityPipelineWorkProcessorOptions VerifyOptions(
+        AuthorityPipelineWorkProcessorOptions configured)
     {
-        if (_logger.IsEnabled(LogLevel.Warning))
+        ArgumentNullException.ThrowIfNull(configured);
 
-            _logger.LogWarning(
-                fault,
-                "Authority pipeline work failed for outbox {OutboxId}, run {RunId}.",
-                LogSanitizer.Sanitize(entry.OutboxId.ToString()),
-                LogSanitizer.Sanitize(entry.RunId.ToString("N")));
-
-        string summary = AuthorityPipelineWorkErrorSummary.From(fault);
-
-        if (RetriesExhaustedAfterThisFailure(entry, opts))
-        {
-            await workOutbox.RecordDeadLetterAsync(entry.OutboxId, summary, cancellationToken);
-
-            ScopeContext jobScope = new()
-            {
-                TenantId = entry.TenantId,
-                WorkspaceId = entry.WorkspaceId,
-                ProjectId = entry.ProjectId
-            };
-
-            IRunRepository runRepository =
-                scope.ServiceProvider.GetRequiredService<IRunRepository>();
-
-            await AuthorityPipelineDeadLetterRunMarker.TryMarkRunDeadLetteredAsync(
-                runRepository,
-                jobScope,
-                entry.RunId,
-                summary,
-                _timeProvider.UtcNowDateTime(),
-                cancellationToken);
-
-            if (_logger.IsEnabled(LogLevel.Error))
-
-                _logger.LogError(
-                    "Authority pipeline work dead-lettered outbox {OutboxId}, run {RunId}, after exhausting retries ({Max}). Summary={Summary}",
-                    LogSanitizer.Sanitize(entry.OutboxId.ToString()),
-                    LogSanitizer.Sanitize(entry.RunId.ToString("N")),
-                    opts.MaxAttemptsBeforeDeadLetter,
-                    LogSanitizer.Sanitize(summary));
-
-            return;
-        }
-
-        DateTime utcNow = _timeProvider.UtcNowDateTime();
-
-        TimeSpan delay = RetryDelayAfterFailure(entry, opts);
-
-        DateTime nextAttemptUtc = utcNow.Add(delay);
-
-        await workOutbox.RecordBackoffAfterProcessingFailureAsync(entry.OutboxId, nextAttemptUtc, summary,
-            cancellationToken);
-    }
-
-    private static bool RetriesExhaustedAfterThisFailure(
-        AuthorityPipelineWorkOutboxEntry entry,
-        AuthorityPipelineWorkProcessorOptions opts)
-    {
-        int max = opts.MaxAttemptsBeforeDeadLetter <= 1 ? 1 : opts.MaxAttemptsBeforeDeadLetter;
-        long attemptAfterPersist = entry.AttemptCount + 1L;
-
-        return attemptAfterPersist >= max;
-    }
-
-    private static TimeSpan RetryDelayAfterFailure(
-        AuthorityPipelineWorkOutboxEntry entry,
-        AuthorityPipelineWorkProcessorOptions opts)
-    {
-        int floor = opts.RetryBackoffBaseSeconds < 1 ? 1 : opts.RetryBackoffBaseSeconds;
-        int cap = opts.RetryBackoffMaxSeconds < floor ? floor : opts.RetryBackoffMaxSeconds;
-        double scaled = floor * Math.Pow(2, entry.AttemptCount);
-        double clamped = scaled > cap ? cap : scaled;
-        double secondsRounded = clamped <= 1 ? 1 : Math.Ceiling(clamped);
-
-        return TimeSpan.FromSeconds(secondsRounded);
-    }
-
-    private static AuthorityPipelineWorkProcessorOptions VerifiedOptions(AuthorityPipelineWorkProcessorOptions configured)
-    {
-        if (configured is null)
-            throw new ArgumentNullException(nameof(configured));
-
-        int lease = ClampInt(configured.LeaseDurationSeconds, 60, 7200);
-        int maxAttempts = ClampInt(configured.MaxAttemptsBeforeDeadLetter, 1, 999);
-        int baseSecs = ClampInt(configured.RetryBackoffBaseSeconds, 1, 86_400);
-        int maxSecs = ClampInt(configured.RetryBackoffMaxSeconds, 1, 86_400 * 7);
-        int maxConcurrent = ClampInt(configured.MaxConcurrentBatchEntries, 1, MaxBatch);
-
-        if (maxSecs < baseSecs)
-            maxSecs = baseSecs;
+        (int lease, int maxAttempts, int baseSecs, int maxSecs, int maxConcurrent) =
+            OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry(
+                configured.LeaseDurationSeconds,
+                configured.MaxAttemptsBeforeDeadLetter,
+                configured.RetryBackoffBaseSeconds,
+                configured.RetryBackoffMaxSeconds,
+                configured.MaxConcurrentBatchEntries,
+                MaxBatchSize,
+                minLeaseDurationSeconds: 60);
 
         return new AuthorityPipelineWorkProcessorOptions
         {
@@ -404,10 +325,5 @@ public sealed class AuthorityPipelineWorkProcessor(
             RetryBackoffMaxSeconds = maxSecs,
             MaxConcurrentBatchEntries = maxConcurrent,
         };
-    }
-
-    private static int ClampInt(int value, int minInclusive, int maxInclusive)
-    {
-        return value < minInclusive ? minInclusive : value > maxInclusive ? maxInclusive : value;
     }
 }

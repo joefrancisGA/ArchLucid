@@ -17,11 +17,11 @@ const BANNED_PRODUCT_VOCAB_PATTERNS = [
 
 describe("accelerator-chooser-help-guide-content", () => {
   it("uses buyer-facing page title", () => {
-    expect(ACCELERATOR_CHOOSER_HELP_PAGE_TITLE).toBe("Pick an accelerator pack");
+    expect(ACCELERATOR_CHOOSER_HELP_PAGE_TITLE).toBe("Starter proof packs");
   });
 
   it("defines workflow steps with signed-review prerequisite first", () => {
-    expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS[0]?.title).toBe("Confirm a signed review record");
+    expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS[0]?.title).toBe("Confirm a sealed review record");
     expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS.length).toBe(3);
     expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS.every((step) => step.href.length > 0)).toBe(true);
     expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS[2]?.href).toBe("/help/repeat-review-loop");
@@ -41,7 +41,7 @@ describe("accelerator-chooser-help-guide-content", () => {
       expect(corpus).not.toMatch(pattern);
     }
 
-    expect(corpus.toLowerCase()).toContain("signed review record");
+    expect(corpus.toLowerCase()).toContain("sealed review record");
     expect(corpus.toLowerCase()).not.toMatch(/\blog\b/);
   });
 });

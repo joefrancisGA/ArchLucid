@@ -46,7 +46,7 @@ const EVIDENCE_TRAIL_LINEAGE_NODES = [
   "evidence and artifacts",
   "findings",
   "governance decisions",
-  "signed review record",
+  "sealed review record",
   "exports and downloads",
 ] as const;
 
@@ -115,7 +115,7 @@ describe("HelpEvidenceTrailGuideView (TB-1360–TB-1364)", () => {
     const claimDiscipline = screen.getByTestId("evidence-trail-help-claim-discipline");
 
     expect(claimDiscipline).toHaveTextContent(EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE);
-    expect(claimDiscipline).toHaveTextContent("not a signed-review diligence Sources package");
+    expect(claimDiscipline).toHaveTextContent("not a sealed-review diligence Sources package");
 
     const exportActions = screen.getByTestId("help-topic-export-actions");
 
@@ -164,7 +164,7 @@ describe("HelpEvidenceTrailGuideView (TB-1360–TB-1364)", () => {
     expect(diagram).toHaveTextContent("Evidence and artifacts");
     expect(diagram).toHaveTextContent("Findings");
     expect(diagram).toHaveTextContent("Governance decisions");
-    expect(diagram).toHaveTextContent("Signed review record");
+    expect(diagram).toHaveTextContent("Sealed review record");
     expect(diagram).toHaveTextContent("Exports and downloads");
 
     const diagramText = diagram.textContent ?? "";

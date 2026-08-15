@@ -1,9 +1,7 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import {
-  EXECUTIVE_SUMMARY_PAGE_TITLE,
-  PILOT_OUTCOMES_PAGE_TITLE,
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
@@ -14,11 +12,11 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
-import { EXECUTIVE_DASHBOARD_HREF, EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/executive/executive-dashboard-route";
+import { SPONSOR_DASHBOARD_HREF, SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   INTERNAL_DEMO_READINESS_PAGE_TITLE,
 } from "@/lib/demo-readiness-evidence-copy";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { AUDIT_TRAIL_PAGE_TITLE } from "@/lib/audit-trail-page-copy";
@@ -36,7 +34,7 @@ import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 
 /**
- * Static pathname → announcement title mappings for canonical operator routes only.
+ * Static pathname → announcement title mappings for canonical architect workspace routes only.
  * Legacy bookmark paths resolve via next.config redirects — do not register them here.
  */
 export const ROUTE_TITLES: Record<string, string> = {
@@ -53,7 +51,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/insights/patterns": PATTERN_LIBRARY_PAGE_TITLE,
   "/architecture/architecture-intelligence": "Architecture intelligence",
   [GOVERNANCE_APPROVAL_QUEUE_PATH]: GOVERNANCE_OVERVIEW_PAGE_TITLE,
-  [EXECUTIVE_DASHBOARD_WORKSPACE_HEALTH_HREF]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
+  [SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF]: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
   "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,
   "/governance/findings/assigned-to-me": OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
   [GOVERNANCE_EXCEPTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.riskExceptions,
@@ -67,7 +65,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/governance/advisory-scans": OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
   "/governance/recurrence-schedules": OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
   "/governance/setup": OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
-  "/internal/replay": OPERATOR_NAV_LINK_LABELS.replayReview,
+  "/internal/validate-route": OPERATOR_NAV_LINK_LABELS.replayReview,
   "/administration/system-health": OPERATOR_NAV_LINK_LABELS.systemHealth,
   [PLANNING_PATH]: OPERATOR_NAV_LINK_LABELS.planning,
   "/architecture/first-review-guide": OPERATOR_NAV_LINK_LABELS.onboarding,
@@ -77,20 +75,20 @@ export const ROUTE_TITLES: Record<string, string> = {
   [CLOUD_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.cloudConnections,
   [AI_USAGE_SETTINGS_PATH]: OPERATOR_NAV_LINK_LABELS.aiUsage,
   "/administration/api-keys": API_KEYS_PAGE_TITLE,
-  "/administration/preferences": "Preferences",
+  "/account/preferences": "Preferences",
   "/administration/notifications": OPERATOR_NAV_LINK_LABELS.notifications,
   "/integrations/jira": OPERATOR_NAV_LINK_LABELS.jira,
   "/integrations/servicenow": OPERATOR_NAV_LINK_LABELS.servicenow,
-  [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
-  [EXECUTIVE_DASHBOARD_HREF]: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+  [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.connectionStatus,
+  [SPONSOR_DASHBOARD_HREF]: BUYER_SPONSOR_SUMMARY_VOCABULARY.pageTitle,
   [DIGESTS_HUB_PATH]: OPERATOR_NAV_LINK_LABELS.digests,
-  "/insights/executive-summary": EXECUTIVE_SUMMARY_PAGE_TITLE,
-  [SPONSOR_REPORT_PILOT_OUTCOMES_PATH]: PILOT_OUTCOMES_PAGE_TITLE,
+  "/insights/sponsor-report": SPONSOR_REPORT_PAGE_TITLE,
   [SPONSOR_REPORT_ROI_SUMMARY_PATH]: OPERATOR_NAV_LINK_LABELS.roiReport,
   [ARCHITECTURE_SCORECARD_PATH]: OPERATOR_NAV_LINK_LABELS.scorecard,
   "/internal/demo-readiness": INTERNAL_DEMO_READINESS_PAGE_TITLE,
   [ITSM_CONNECTORS_ADMIN_PATH]: ITSM_CONNECTORS_ADMIN_LABEL,
   "/administration": OPERATOR_NAV_LINK_LABELS.settings,
+  "/administration/baseline": OPERATOR_NAV_LINK_LABELS.baselineSettings,
   "/administration/users": OPERATOR_NAV_LINK_LABELS.usersAndRoles,
   "/administration/identity-providers": "Identity providers",
   "/administration/identity/sso-wizard": "SSO wizard",
@@ -104,13 +102,14 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/internal/pricing-quote-aging": "Pricing quote follow-up",
   "/internal/trial-funnel": "Trial funnel",
   "/internal/fleet-llm-cogs": "Fleet LLM COGS",
+  "/internal/agent-model-catalog": "Agent model catalog",
   "/internal/tenant-health": "Tenant health",
   "/internal/tenants": "Tenants",
   "/internal/health": "Diagnostics dashboard",
   "/internal/deployment-status": "Deployment status",
   "/internal/rag-health": OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth,
   "/internal/configuration": "Configuration",
-  "/internal/integration-events/dlq": OPERATOR_NAV_LINK_LABELS.failedIntegrationMessages,
+  "/internal/failed-integration-messages": OPERATOR_NAV_LINK_LABELS.failedIntegrationMessages,
   "/internal/evidence-proposals": "Evidence proposals",
   "/internal/platform-bundled-policy-packs": "Platform policy packs",
   "/internal/recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,

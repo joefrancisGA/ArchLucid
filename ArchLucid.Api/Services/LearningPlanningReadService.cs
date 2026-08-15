@@ -139,6 +139,77 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
         };
     }
 
+    public async Task<LearningPlanningListBundleResponse> GetListBundleAsync(
+        ProductLearningScope scope,
+        int maxThemes,
+        int maxPlans,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<ProductLearningImprovementThemeRecord> themeRows =
+            await planningRepository.ListThemesAsync(scope, maxThemes, cancellationToken);
+
+        IReadOnlyList<ProductLearningImprovementPlanRecord> planRows =
+            await planningRepository.ListPlansAsync(scope, maxPlans, cancellationToken);
+
+        DateTime generatedUtc = TimeProvider.System.UtcNowDateTime();
+
+        Dictionary<Guid, ProductLearningImprovementThemeRecord> themeById =
+            themeRows.ToDictionary(t => t.ThemeId);
+
+        Guid[] missingThemeIds = planRows
+            .Select(p => p.ThemeId)
+            .Distinct()
+            .Where(id => !themeById.ContainsKey(id))
+            .ToArray();
+
+        if (missingThemeIds.Length > 0)
+        {
+            ProductLearningImprovementThemeRecord?[] extraThemeRows =
+                await Task.WhenAll(
+                        missingThemeIds.Select(id =>
+                            planningRepository.GetThemeAsync(id, scope, cancellationToken)))
+                    .ConfigureAwait(false);
+
+            foreach (ProductLearningImprovementThemeRecord? extra in extraThemeRows)
+            {
+                if (extra is not null)
+                    themeById[extra.ThemeId] = extra;
+            }
+        }
+
+        List<LearningThemeResponse> themes = themeRows.Select(MapTheme).ToList();
+
+        List<LearningPlanListItemResponse> plans = planRows
+            .Select(p => MapPlanListItem(p,
+                themeById.TryGetValue(p.ThemeId, out ProductLearningImprovementThemeRecord? t) ? t : null))
+            .ToList();
+
+        int[] linkCounts = await Task.WhenAll(
+                planRows.Select(async p =>
+                    (await planningRepository
+                        .ListPlanSignalLinksAsync(p.PlanId, scope, cancellationToken)
+                        .ConfigureAwait(false))
+                    .Count))
+            .ConfigureAwait(false);
+
+        LearningSummaryResponse summary = new()
+        {
+            GeneratedUtc = generatedUtc,
+            ThemeCount = themeRows.Count,
+            PlanCount = planRows.Count,
+            TotalThemeEvidenceSignals = themeRows.Sum(t => t.EvidenceSignalCount),
+            MaxPlanPriorityScore = planRows.Count == 0 ? null : planRows.Max(p => p.PriorityScore),
+            TotalLinkedSignalsAcrossPlans = linkCounts.Sum()
+        };
+
+        return new LearningPlanningListBundleResponse
+        {
+            Summary = summary,
+            Themes = new LearningThemesListResponse { GeneratedUtc = generatedUtc, Themes = themes },
+            Plans = new LearningPlansListResponse { GeneratedUtc = generatedUtc, Plans = plans }
+        };
+    }
+
     public Task<LearningPlanningReportDocument> GetPlanningReportAsync(
         ProductLearningScope scope,
         LearningPlanningReportLimits limits,

@@ -1,7 +1,7 @@
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
 
-/** Shown before the first successful load completes. */
+/** Shown before the first successful load completes (TB-2111 — shared across operator headers). */
 export const OPERATOR_NOT_REFRESHED_LABEL = "Not refreshed yet" as const;
 
 /**

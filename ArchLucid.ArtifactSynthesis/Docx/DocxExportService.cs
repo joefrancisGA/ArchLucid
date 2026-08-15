@@ -124,7 +124,7 @@ public sealed class DocxExportService(
             $"\"/reviews/{manifest.RunId:D}\" to return to this run after export.");
         WordDocumentBuilder.AddSpacer(body, 2);
 
-        WordDocumentBuilder.AddHeading(body, "Executive Summary");
+        WordDocumentBuilder.AddHeading(body, "Sponsor Summary");
         if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
             WordDocumentBuilder.AddBodyText(body, "No summary was recorded for this manifest.");
         else
@@ -503,7 +503,7 @@ public sealed class DocxExportService(
 
     private static void AppendRunExplanation(Body body, ExplanationResult e)
     {
-        WordDocumentBuilder.AddHeading(body, "Executive Narrative (AI)");
+        WordDocumentBuilder.AddHeading(body, "Sponsor Narrative (AI)");
         WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(e.Summary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Key Drivers", DocxStyleIds.Heading2);
@@ -522,7 +522,7 @@ public sealed class DocxExportService(
 
     private static void AppendComparisonExplanation(Body body, ComparisonExplanationResult e)
     {
-        WordDocumentBuilder.AddHeading(body, "Executive Change Narrative (AI)");
+        WordDocumentBuilder.AddHeading(body, "Sponsor Change Narrative (AI)");
         WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(e.HighLevelSummary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Major Changes (structured)", DocxStyleIds.Heading2);

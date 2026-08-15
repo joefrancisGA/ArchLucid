@@ -3057,7 +3057,7 @@ function Add-PilotReuseCohortTrackerFinding {
     $scriptPath = Join-Path $PSScriptRoot 'ci\report_pilot_reuse_cohort_tracker.py'
 
     if ($null -eq $resolvedTrackerPath) {
-        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-reuse-cohort-tracker' -Detail 'No 30-day reuse cohort tracker JSON found. Copy docs/go-to-market/templates/pilot-reuse-cohort-tracker.template.json to artifacts/pilot-reuse-cohort/<runId>/tracker.json and update day-7/14/30 checkpoints as follow-up dates pass.' -Remediation 'Record voluntary usage checkpoints for executive reuse cohort rollup.' -TriageCard 'FP-T029'
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-reuse-cohort-tracker' -Detail 'No 30-day reuse cohort tracker JSON found. Copy docs/go-to-market/templates/pilot-reuse-cohort-tracker.template.json to artifacts/pilot-reuse-cohort/<runId>/tracker.json and update day-7/14/30 checkpoints as follow-up dates pass.' -Remediation 'Record voluntary usage checkpoints for sponsor reuse cohort rollup.' -TriageCard 'FP-T029'
         return
     }
 

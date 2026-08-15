@@ -24,7 +24,7 @@ export const OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES: readonly OperatorI
       id: "integrations-cloud-connections-azure",
       pathname: "/integrations/cloud-connections/azure",
       modulePath: "app/(operator)/integrations/cloud-connections/_sections/CloudConnectionsProviderHeader.tsx",
-      notes: "Azure cloud connection detail — azure-permissions help topic.",
+      notes: "Azure cloud connection detail — Connect Azure securely help topic (TB-1629).",
     },
     {
       id: "integrations-cloud-connections-aws",
@@ -60,19 +60,19 @@ export const OPERATOR_INTEGRATIONS_PAGE_HELP_TB1669_SURFACES: readonly OperatorI
       id: "integrations-teams",
       pathname: "/integrations/teams",
       modulePath: "app/(operator)/integrations/teams/_sections/TeamsNotificationsIntegrationPageView.tsx",
-      notes: "Microsoft Teams notifications — troubleshooting help topic.",
+      notes: "Microsoft Teams notifications — teams-integration specialty help topic.",
     },
     {
       id: "integrations-slack",
       pathname: "/integrations/slack",
       modulePath: "app/(operator)/integrations/slack/_sections/SlackIntegrationPageHeader.tsx",
-      notes: "Slack notifications — troubleshooting help topic.",
+      notes: "Slack notifications — slack-integration specialty help topic.",
     },
     {
       id: "integrations-webhooks",
       pathname: "/integrations/webhooks",
       modulePath: "app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx",
-      notes: "Outbound webhooks — alerts help topic.",
+      notes: "Outbound webhooks — webhooks-integration specialty help topic.",
     },
     {
       id: "integrations-atlassian-oauth-callback",

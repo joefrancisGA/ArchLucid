@@ -9,7 +9,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { StatusTag } from "@/components/ui/status-tag";
-import { StatusPill } from "@/components/StatusPill";
+import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { EXPORT_FORMAT_DOCX, EXPORT_FORMAT_PDF } from "@/lib/export-format-when-to-use";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
-import { runExecutiveSummaryExportHref } from "@/lib/api/run-summary-export-api";
+import { runSponsorReportExportHref } from "@/lib/api/run-summary-export-api";
 import {
   getRunPackageExportUrl,
   SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
@@ -35,11 +35,11 @@ import {
 import type { RunSummary } from "@/types/authority";
 
 /** Shown instead of a live download link when the page is rendering curated sample data (no backend-persisted review). */
-function BuyerExecutiveBriefExports({ runId, usedStaticDemoRun }: { runId: string; usedStaticDemoRun: boolean }) {
+function BuyerSponsorBriefExports({ runId, usedStaticDemoRun }: { runId: string; usedStaticDemoRun: boolean }) {
   return (
     <details className="text-right">
       <summary className={cn("cursor-pointer list-none marker:content-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.nav)}>
-        Download executive brief
+        Download sponsor brief
       </summary>
       <div className="mt-2">
         <RunPackageExportButtons runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
@@ -71,7 +71,7 @@ function RunPackageExportButtons({
           <DisabledExportButton label={EXPORT_FORMAT_DOCX.label} />
           <DisabledExportButton label={EXPORT_FORMAT_PDF.label} />
           <DisabledExportButton label={RUN_PACKAGE_EXPORT_LABELS.html} />
-          <DisabledExportButton label="Download Executive Summary" />
+          <DisabledExportButton label="Download Sponsor Report" />
         </div>
         <p
           id="run-detail-package-export-disabled-hint"
@@ -111,9 +111,9 @@ function RunPackageExportButtons({
           </Link>
         </Button>
         <Button variant="outline" size="sm" asChild>
-          <Link href={runExecutiveSummaryExportHref(runId)} prefetch={false} target="_blank">
+          <Link href={runSponsorReportExportHref(runId)} prefetch={false} target="_blank">
             <Download className="mr-2 h-4 w-4" />
-            Download Executive Summary
+            Download Sponsor Report
           </Link>
         </Button>
       </div>
@@ -284,10 +284,8 @@ export function RunDetailPageHeader({
                   <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>
                     {approvalStatusLabel}
                   </p>
-                  <StatusPill
+                  <GovernanceStatusTag
                     status={buyerGovernanceApprovalLabel.trim()}
-                    domain="governance"
-                    uppercase={false}
                     className={cn("font-semibold normal-case tracking-normal", OPERATOR_TYPOGRAPHY.helper)}
                   />
                 </div>
@@ -295,7 +293,7 @@ export function RunDetailPageHeader({
                 <p className={cn("m-0 font-semibold text-neutral-950 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>Finalized package</p>
               )}
               {hasGoldenManifest ? (
-                <BuyerExecutiveBriefExports runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
+                <BuyerSponsorBriefExports runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
               ) : null}
             </div>
           ) : (
@@ -318,7 +316,7 @@ export function RunDetailPageHeader({
                 buttonVariant={demoteFinalizeButton ? "outline" : "primary"}
               />
               {hasGoldenManifest ? (
-                <BuyerExecutiveBriefExports runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
+                <BuyerSponsorBriefExports runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
               ) : null}
               <div className={cn("m-0 flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 <span className="whitespace-nowrap">{approvalStatusLabel}</span>

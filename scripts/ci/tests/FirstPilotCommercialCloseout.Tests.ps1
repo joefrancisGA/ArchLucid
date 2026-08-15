@@ -36,7 +36,7 @@ Describe 'Write-FirstPilotCommercialCloseoutArtifacts' {
             -RoiSponsorSafe $true `
             -BlockCount 0 `
             -DeferredScopeReasons @('Buyer requires SOC 2 CPA attestation (V1.1/(B) deferral).') `
-            -CommercialStep ([ordered]@{ action = 'Deferred buyer requirement'; owner = 'Executive owner'; reason = 'Document deferred requirements separately.' }) `
+            -CommercialStep ([ordered]@{ action = 'Deferred buyer requirement'; owner = 'Sponsor owner'; reason = 'Document deferred requirements separately.' }) `
             -DataConsistencyStatus 'PASS' `
             -ProcurementDisposition 'PASS'
 

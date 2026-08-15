@@ -14,7 +14,7 @@ import {
 describe("persona-shell-vocabulary", () => {
   it("uses Architect as the customer-facing working persona label", () => {
     expect(PERSONA_SHELL_LABELS.architect).toBe("Architect");
-    expect(PERSONA_SHELL_LABELS.executive).toBe("Executive");
+    expect(PERSONA_SHELL_LABELS.sponsor).toBe("Sponsor");
     expect(PERSONA_SHELL_HANDOFF_LINK).toContain("Architect");
     expect(PERSONA_SHELL_OPEN_IN_ARCHITECT_VIEW.toLowerCase()).toContain("architect");
     expect(PERSONA_SHELL_WORKSPACE_LABEL).toContain("Architect");

@@ -1,6 +1,6 @@
 namespace ArchLucid.Application.Advisory;
 
-/// <summary>Weekly operating loop coverage derived from schedules, digest subscriptions, and executive email prefs.</summary>
+/// <summary>Weekly operating loop coverage derived from schedules, digest subscriptions, and sponsor email prefs.</summary>
 public sealed class WeeklyDigestHealthSnapshot
 {
     public int EnabledAdvisoryScheduleCount

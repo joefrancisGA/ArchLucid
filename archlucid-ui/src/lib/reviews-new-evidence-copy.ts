@@ -2,7 +2,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const REVIEWS_NEW_CLAIM_DISCIPLINE =
-  "Starting a review captures your architecture context for analysis — not a signed-review diligence Sources trail.";
+  "Starting a review captures your architecture context for analysis — not a sealed-review diligence Sources trail.";
 
 export const REVIEWS_NEW_SOURCES_INTRO =
   "Choose a start path below, or open Reviews and the first-review guide when you need orientation before submitting.";

@@ -15,29 +15,26 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
 import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
-  PageContextualHelpButton,
-} from "@/components/usability/PageContextualHelpButton";
-import { Button } from "@/components/ui/button";
-import { RefreshButton } from "@/components/ui/refresh-button";
+  buildStandardsRulesGovernanceBannerModel,
+  buildStandardsRulesReviewContextModel,
+} from "@/lib/governance/governance-resolution-page-presentation";
 import {
-  governanceResolutionChangeRelatedControlsLead,
-  governanceResolutionChangeRelatedControlsReaderSupplement,
   governanceResolutionEffectivePolicyHeadingOperator,
   governanceResolutionEffectivePolicyHeadingReader,
   governanceResolutionPageLeadOperator,
   governanceResolutionPageLeadReader,
   governanceResolutionRawOutputAccordionLabel,
-  governanceResolutionRefreshPolicySectionHeading,
   governanceResolutionResolutionDetailsHeadingOperator,
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
-import { triggerGovernanceResolutionMarkdownDownload } from "@/lib/governance/governance-resolution-markdown";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH, governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
+import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   buildStandardsRuleRows,
@@ -45,14 +42,18 @@ import {
   collectStandardsRulesFilterOptions,
   EMPTY_STANDARDS_RULES_FILTER_STATE,
   filterStandardsRuleRows,
+  resolveStandardsRulesPolicyPackProvenanceLabel,
 } from "@/lib/standards-rules-rows";
 import {
   STANDARDS_RULES_PAGE_SUBTITLE,
   STANDARDS_RULES_PAGE_TITLE,
 } from "@/lib/standards-rules-page";
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
+import { GovernanceResolutionExportControls } from "./GovernanceResolutionExportControls";
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
 import { StandardsRulesFilters } from "./StandardsRulesFilters";
+import { StandardsRulesPolicyPackReference } from "./StandardsRulesPolicyPackReference";
+import { StandardsRulesReviewContextRow } from "./StandardsRulesReviewContextRow";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
 import { StandardsRulesTable } from "./StandardsRulesTable";
 type Props = {
@@ -144,7 +145,26 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
                 <strong>{d.itemType}</strong> <code>{d.itemKey}</code>
               </div>
               <div className={cn("mt-1.5", OPERATOR_TYPOGRAPHY.body)}>
-                Winner: <strong>{d.winningPolicyPackName}</strong> ({d.winningVersion}) — scope <code>{d.winningScopeLevel}</code>
+                <div className="flex flex-wrap items-center gap-x-1 gap-y-1">
+                  <span>Winner:</span>
+                  <StandardsRulesPolicyPackReference
+                    label={d.winningPolicyPackName}
+                    href={
+                      d.winningPolicyPackId.trim().length > 0
+                        ? policyPackBuyerGovernanceDetailHref(d.winningPolicyPackId) ??
+                          governancePolicyPackDetailPath(d.winningPolicyPackId)
+                        : null
+                    }
+                    provenanceLabel={resolveStandardsRulesPolicyPackProvenanceLabel({
+                      ruleKey: d.itemKey,
+                      policyPackId: d.winningPolicyPackId,
+                      data: m.data,
+                    })}
+                  />
+                  <span>
+                    ({d.winningVersion}) — scope <code>{d.winningScopeLevel}</code>
+                  </span>
+                </div>
               </div>
               <div className={cn("mt-1.5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{d.resolutionReason}</div>
               <details className={cn("mt-2", OPERATOR_TYPOGRAPHY.micro)}>
@@ -156,54 +176,7 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
         </div>
       </section>
 
-      <section
-        aria-labelledby="governance-change-controls-heading"
-        className={cn(
-          !canMutateEnterprisePolicySurfaces &&
-            "rounded-md border border-neutral-200/80 bg-neutral-50/60 p-3 dark:border-neutral-700/60 dark:bg-neutral-900/35",
-        )}
-      >
-        <h3 id="governance-change-controls-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-          {governanceResolutionRefreshPolicySectionHeading}
-        </h3>
-        <p className={cn("mb-2.5 mt-0 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {governanceResolutionChangeRelatedControlsLead}
-        </p>
-        {!canMutateEnterprisePolicySurfaces ? (
-          <p className={cn("mb-2 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
-            {governanceResolutionChangeRelatedControlsReaderSupplement}
-          </p>
-        ) : null}
-        <div className="mb-0 flex flex-wrap gap-2">
-          <RefreshButton busy={m.loading} onClick={() => void m.load()} />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            data-testid="governance-resolution-export-markdown"
-            aria-label="Download a point-in-time diagnostic report with notes, conflicts, decisions, and effective content"
-            disabled={m.loading || m.data === null}
-            aria-describedby={m.data === null && !m.loading ? "governance-resolution-export-disabled-hint" : undefined}
-            onClick={() => {
-              if (m.data === null) {
-                return;
-              }
-
-              triggerGovernanceResolutionMarkdownDownload(m.data);
-            }}
-          >
-            Export diagnostic report
-          </Button>
-        </div>
-        {m.data === null && !m.loading ? (
-          <p
-            id="governance-resolution-export-disabled-hint"
-            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          >
-            Refresh governance resolution data before exporting a diagnostic report.
-          </p>
-        ) : null}
-      </section>
+      <GovernanceResolutionExportControls model={m} />
     </>
   );
 }
@@ -212,25 +185,56 @@ export function GovernanceResolutionPageView(props: Props) {
   const m = props.model;
   const [filters, setFilters] = useState(EMPTY_STANDARDS_RULES_FILTER_STATE);
   const allRuleRows = useMemo(
-    () => buildStandardsRuleRows(m.data, { useShowcaseFallback: m.buyerPolishedShell }),
-    [m.buyerPolishedShell, m.data],
+    () =>
+      buildStandardsRuleRows(m.data, {
+        useShowcaseFallback: m.buyerPolishedShell && m.failure === null,
+      }),
+    [m.buyerPolishedShell, m.data, m.failure],
   );
   const filteredRuleRows = useMemo(() => filterStandardsRuleRows(allRuleRows, filters), [allRuleRows, filters]);
   const summary = useMemo(() => buildStandardsRulesSummary(allRuleRows), [allRuleRows]);
   const filterOptions = useMemo(() => collectStandardsRulesFilterOptions(allRuleRows), [allRuleRows]);
+  const useShowcaseFallback = m.buyerPolishedShell;
+  const governanceBanner = useMemo(
+    () =>
+      m.failure === null
+        ? buildStandardsRulesGovernanceBannerModel({
+            data: m.data,
+            useShowcaseFallback,
+          })
+        : null,
+    [m.data, m.failure, useShowcaseFallback],
+  );
+  const reviewContext = useMemo(
+    () =>
+      m.failure === null
+        ? buildStandardsRulesReviewContextModel({
+            data: m.data,
+            contributingPolicyPacks: summary.contributingPolicyPacks,
+            useShowcaseFallback,
+          })
+        : null,
+    [m.data, m.failure, summary.contributingPolicyPacks, useShowcaseFallback],
+  );
 
   if (m.buyerPolishedShell) {
     return (
       <div className="w-full max-w-[1440px]">
-        <StandardsRulesGovernanceStatusBanner className="mb-3" />
+        {governanceBanner !== null ? (
+          <StandardsRulesGovernanceStatusBanner
+            className="mb-3"
+            subjectLabel={governanceBanner.subjectLabel}
+            provenance={governanceBanner.provenance}
+            hrefs={governanceBanner.hrefs}
+          />
+        ) : null}
         <OperatorPageHeader
           navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
           title={STANDARDS_RULES_PAGE_TITLE}
           subtitle={STANDARDS_RULES_PAGE_SUBTITLE}
           actions={<PageContextualHelpButton />}
         />
-        <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />
-        <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="standards" />
+        <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" variant="compact" />
         {m.failure !== null ? (
           <div role="alert">
             <OperatorApiProblem
@@ -240,9 +244,17 @@ export function GovernanceResolutionPageView(props: Props) {
             />
           </div>
         ) : null}
-        <StandardsRulesSummaryStrip summary={summary} />
+        {reviewContext !== null ? <StandardsRulesReviewContextRow context={reviewContext} /> : null}
+        <StandardsRulesSummaryStrip
+          summary={summary}
+          onApplyFilter={(partial) => {
+            setFilters((current) => ({ ...current, ...partial }));
+          }}
+        />
         <StandardsRulesFilters
           filters={filters}
+          visibleCount={filteredRuleRows.length}
+          totalCount={allRuleRows.length}
           options={filterOptions}
           onChange={setFilters}
           onReset={() => {
@@ -253,6 +265,7 @@ export function GovernanceResolutionPageView(props: Props) {
           }}
           refreshing={m.loading}
         />
+        <GovernanceResolutionExportControls compact exportRows={filteredRuleRows} model={m} />
         {allRuleRows.length === 0 ? (
           <StandardsRulesEmptyState />
         ) : filteredRuleRows.length === 0 ? (

@@ -95,7 +95,7 @@ export type ExecDigestScheduleContentProps = {
   readonly refreshing?: boolean;
 };
 
-/** Schedule tab: executive digest delivery settings (direct recipients + weekly cadence). */
+/** Schedule tab: sponsor digest delivery settings (direct recipients + weekly cadence). */
 export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps = {}): ReactElement {
   const { refreshToken = 0, healthSnap = null, onRefresh, refreshing = false } = props;
   const operateCapability: boolean = useOperateCapability();
@@ -317,7 +317,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
           className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
           data-testid="exec-digest-schedule-heading"
         >
-          Schedule executive digest
+          Schedule sponsor digest
         </h2>
         <p className={cn("m-0 mt-2 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {EXEC_DIGEST_PRODUCT_INTRO}
@@ -645,7 +645,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
 
               <DigestPreviewBeforeSubscribePanel
                 className="mt-3"
-                variant="executive-schedule"
+                variant="sponsor-schedule"
                 recipientEmails={recipientEmails}
                 cadenceSummary={liveScheduleSummary ?? undefined}
               />

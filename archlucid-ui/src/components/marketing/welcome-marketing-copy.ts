@@ -26,7 +26,7 @@ export const WELCOME_HERO_PITCH =
  */
 export const WELCOME_HERO_DIFFERENTIATORS: readonly string[] = [
   "Every finding traces to evidence",
-  "Signed review records with an audit trail",
+  "Sealed review records with an audit trail",
   "Governance policy packs included",
   "Exports for ARB, audit, and procurement",
 ];
@@ -66,13 +66,19 @@ export const WELCOME_PROOF_LADDER_SAMPLE_HREF = CANONICAL_ANONYMOUS_PROOF_HREF;
 
 export const WELCOME_PROOF_LADDER_SAMPLE_LABEL = "Healthcare Claims sample review";
 
-export const WELCOME_PROOF_LADDER_SECONDARY_WALKTHROUGH_HREF = "/live-demo" as const;
+export const WELCOME_PROOF_LADDER_SECONDARY_WALKTHROUGH_HREF = "/get-started" as const;
 
-export const WELCOME_PROOF_LADDER_SECONDARY_WALKTHROUGH_LABEL = "Prefer a longer walkthrough?";
+export const WELCOME_PROOF_LADDER_SECONDARY_WALKTHROUGH_LABEL = "Ready to start your evaluation?";
 
-export const WELCOME_CONTOSO_ROI_PDF_HREF = "/WORKED_EXAMPLE_ROI.pdf" as const;
+export const WELCOME_ILLUSTRATIVE_RETAIL_ROI_PDF_HREF = "/WORKED_EXAMPLE_ROI.pdf" as const;
 
-export const WELCOME_CONTOSO_ROI_PDF_LABEL = "Retail sample ROI (PDF)";
+export const WELCOME_ILLUSTRATIVE_RETAIL_ROI_PDF_LABEL = "Illustrative retail ROI (PDF)";
+
+/** @deprecated Use {@link WELCOME_ILLUSTRATIVE_RETAIL_ROI_PDF_HREF}. */
+export const WELCOME_CONTOSO_ROI_PDF_HREF = WELCOME_ILLUSTRATIVE_RETAIL_ROI_PDF_HREF;
+
+/** @deprecated Use {@link WELCOME_ILLUSTRATIVE_RETAIL_ROI_PDF_LABEL}. */
+export const WELCOME_CONTOSO_ROI_PDF_LABEL = WELCOME_ILLUSTRATIVE_RETAIL_ROI_PDF_LABEL;
 
 export const WELCOME_ENGAGEMENT_PATHS_HEADING = "Other ways to engage";
 

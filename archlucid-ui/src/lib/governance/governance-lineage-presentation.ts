@@ -122,7 +122,7 @@ export function governanceLineageReviewCheckpointStatusTagPresentation(
   return { kind: "neutral", label: label.length > 0 ? label : "—" };
 }
 
-/** Maps signed review record verification status to StatusTag presentation. */
+/** Maps sealed review record verification status to StatusTag presentation. */
 export function governanceLineageVerificationStatusTagPresentation(
   verificationStatus: string,
 ): GovernanceLineageStatusTagPresentation {
@@ -181,7 +181,7 @@ export function deriveGovernanceLineageVersionAssertion(
   } else if (primaryVersion !== null) {
     assertionLabel = "Version alignment could not be determined from the available promotion records.";
   } else {
-    assertionLabel = "Signed review record version not available.";
+    assertionLabel = "Sealed review record version not available.";
   }
 
   return {

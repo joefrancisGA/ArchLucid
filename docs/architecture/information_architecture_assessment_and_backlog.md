@@ -10,14 +10,14 @@
 
 ---
 
-## 1. Executive conclusion
+## 1. Sponsor conclusion
 
-ArchLucid's information architecture is **fundamentally sound at the object level and cluttered at the route level**. The product has exactly two durable customer objects — the architecture review (`Run`) and its signed record (`GoldenManifest`) — and the primary navigation ("Overview → Create architecture → Start review → Reviews → Executive dashboard") correctly reflects that lifecycle. The recent (uncommitted) terminology consolidation to "Reviews" resolved what was previously the single worst IA defect (four nouns for one destination on one page render).
+ArchLucid's information architecture is **fundamentally sound at the object level and cluttered at the route level**. The product has exactly two durable customer objects — the architecture review (`Run`) and its sealed record (`GoldenManifest`) — and the primary navigation ("Overview → Create architecture → Start review → Reviews → Sponsor dashboard") correctly reflects that lifecycle. The recent (uncommitted) terminology consolidation to "Reviews" resolved what was previously the single worst IA defect (four nouns for one destination on one page render).
 
 The remaining problems are of three kinds:
 
 1. **Dead ends and orphans that will strand beta users.** The `/signed-records` list URL resolves to a 404 (a rewrite exists but no index page); the `/architectures` draft list is reachable only by deep link, so a user who saves a draft and signs out has no navigational path back to it; an empty-state CTA still targets the legacy `/policy-packs` path. These are P0 — they can materially strand users and invalidate beta feedback.
-2. **Accretion duplication.** Six executive/reporting surfaces (`/dashboard`, `/executive/dashboard`, `/executive/scorecard`, `/insights/architecture-scorecard`, `/governance/dashboard`, `/value-report{,/pilot,/roi}`) show overlapping rollups of the same run data; two health pages, two ITSM hubs, and three cost-reporting URLs coexist. Most are already mitigated by redirects; the residue is page files behind permanent redirects and naming that makes near-duplicates look like distinct capabilities.
+2. **Accretion duplication.** Six sponsor/reporting surfaces (`/dashboard`, `/sponsor/dashboard`, `/sponsor/scorecard`, `/insights/architecture-scorecard`, `/governance/dashboard`, `/value-report{,/pilot,/roi}`) show overlapping rollups of the same run data; two health pages, two ITSM hubs, and three cost-reporting URLs coexist. Most are already mitigated by redirects; the residue is page files behind permanent redirects and naming that makes near-duplicates look like distinct capabilities.
 3. **Discoverability trade-offs from progressive disclosure.** The Operate unlock phases (phase 0 hides Insights, Governance, Reports, Integrations entirely) plus "consolidated omissions" (`/digests`, `/value-report/pilot`, `/value-report/roi`, `/governance/dashboard` never in nav) plus a command palette that lists some of those hidden destinations create a system where what a user *can* reach is a function of five interacting gates. This is defensible for a guided pilot; it must be instrumented, not assumed, during beta.
 
 What the assessment does **not** recommend: wholesale restructuring. The nav group model, the tenant→workspace→project scoping, the authority-rank gating, and the review-detail tab workspace are coherent and recently hardened by drift-guard tests. The brief's product framing (creation, evidence, governance, patterns, reporting as peer capabilities) is *ahead of* the data model — evidence and architecture content exist only inside reviews — and the IA should stay truthful to the shipped model rather than manufacture peer inventories the backend cannot support (consistent with `architecture_review_object_model_assessment.md` §3–4).
@@ -31,14 +31,14 @@ What the assessment does **not** recommend: wholesale restructuring. The nav gro
 | # | Dimension | Score | Evidence for score |
 |---|---|---|---|
 | 1 | Navigation clarity | **72** | Primary "Architecture" group reads as a task sequence with an explicit caption (`pilot-nav-group-builder.ts:29-30`) `[PI]`. Deductions: two verb items ("Create architecture", "Start review") sit beside noun items; group label "Architecture" vs. its contents (reviews) is a mild mismatch; "Programs" group name is opaque `[PUI]`. |
-| 2 | Conceptual grouping | **68** | Governance, Insights, Reports, Integrations, Administration groups are internally coherent `[PI]`. Deductions: "Advisory scans" and "Recurrence schedules" live under Governance but are operational, not approval concepts; `/governance/first-30-days` is onboarding content inside Governance; `/insights/architecture-scorecard` (Insights) vs. `/executive/scorecard` (executive shell) split one concept across two groups `[PI]`. |
-| 3 | Route necessity | **55** | 134 pages for a pre-beta product. 18 page-level redirect routes and 40+ config redirect rules `[PI]`. Superseded page files historically persisted behind permanent redirects (`/integrations/itsm` **removed**, `/executive/dashboard`, `/admin/ai-usage-cost`) `[PI]`. Six overlapping executive/reporting routes (§6). Marketing surface (~20 routes) is large but separately grouped. |
+| 2 | Conceptual grouping | **68** | Governance, Insights, Reports, Integrations, Administration groups are internally coherent `[PI]`. Deductions: "Advisory scans" and "Recurrence schedules" live under Governance but are operational, not approval concepts; `/governance/first-30-days` is onboarding content inside Governance; `/insights/architecture-scorecard` (Insights) vs. `/sponsor/scorecard` (sponsor shell) split one concept across two groups `[PI]`. |
+| 3 | Route necessity | **55** | 134 pages for a pre-beta product. 18 page-level redirect routes and 40+ config redirect rules `[PI]`. Superseded page files historically persisted behind permanent redirects (`/integrations/itsm` **removed**, `/sponsor/dashboard`, `/admin/ai-usage-cost`) `[PI]`. Six overlapping sponsor/reporting routes (§6). Marketing surface (~20 routes) is large but separately grouped. |
 | 4 | Workflow continuity | **74** | Golden path (create → intake → run detail → finalize → governance → dashboard) is fully linked, with post-commit next-best-action CTAs (`resolve-pilot-next-best-action.ts`) `[PI]`. Deductions: draft→review hand-off leaves the draft editable in parallel with the review that consumed it `[PI]`; approval requests have a lineage subpage but no detail page `[PI]`; `/ask` requires a finalized record but is nav-visible before one exists `[SMI]`. |
-| 5 | Terminology consistency | **70** | The uncommitted consolidation fixed the list noun: nav, H1, browser tab, and breadcrumb for `/reviews` all now say "Reviews" (`i18n.ts:44-45,119`, `reviews-hub-copy.ts:4`, `breadcrumb-map.ts:49`) `[PUI]`. Residuals: "Review record" vs. "Signed review record" in the same includes list (`reviews-hub-copy.ts:54-61`); "Evidence graph" (nav) vs. "Evidence trail" (help/hub copy) vs. "Graph" (default breadcrumb) vs. "Provenance graph" (command palette); "Executive dashboard" (nav) vs. "Executive summary" (page vocabulary); "Risk register" (nav) vs. "Findings" (breadcrumb) `[PUI]`. |
-| 6 | Page-boundary quality | **62** | Review detail is one route with 8 tabs mixing object views (Architecture, Evidence, Findings), lifecycle actions (Review/finalize), and meta (Activity) — workable but the "Review" tab (id `review-package`) is a label that does not describe its finalize/export content (`review-detail-workspace-tabs.ts:24`) `[PI]`. Executive reporting is split across six routes where tabs or one hub would serve (§6). Alerts vs. Alert rules as two nav items is correct (inbox vs. config). |
+| 5 | Terminology consistency | **70** | The uncommitted consolidation fixed the list noun: nav, H1, browser tab, and breadcrumb for `/reviews` all now say "Reviews" (`i18n.ts:44-45,119`, `reviews-hub-copy.ts:4`, `breadcrumb-map.ts:49`) `[PUI]`. Residuals: "Review record" vs. "Sealed review record" in the same includes list (`reviews-hub-copy.ts:54-61`); "Evidence graph" (nav) vs. "Evidence trail" (help/hub copy) vs. "Graph" (default breadcrumb) vs. "Provenance graph" (command palette); "Sponsor dashboard" (nav) vs. "Sponsor summary" (page vocabulary); "Risk register" (nav) vs. "Findings" (breadcrumb) `[PUI]`. |
+| 6 | Page-boundary quality | **62** | Review detail is one route with 8 tabs mixing object views (Architecture, Evidence, Findings), lifecycle actions (Review/finalize), and meta (Activity) — workable but the "Review" tab (id `review-package`) is a label that does not describe its finalize/export content (`review-detail-workspace-tabs.ts:24`) `[PI]`. Sponsor reporting is split across six routes where tabs or one hub would serve (§6). Alerts vs. Alert rules as two nav items is correct (inbox vs. config). |
 | 7 | Discoverability | **58** | Five interacting visibility gates (tier, authority, unlock phase, demo omissions, consolidated omissions) mean the same user sees different navs at different lifecycle moments `[PI]`. `/architectures` list, `/signed-records` list, `/administration/settings/baseline`, `/digests`, `/value-report/roi` reachable only by deep link `[PI]`. Help is not a nav item (top-bar icon + contextual only) `[PI]`. Command palette lists destinations the sidebar hides `[PI]`. |
 | 8 | Role and persona alignment | **78** | Authority ranks mirror API policies; sponsor-only users are confined to `/dashboard` and review surfaces (`SponsorExecutiveShellRedirect`); admin surfaces split cleanly into customer Administration vs. employee Internal Operations, and hub pages are contractually forbidden from linking internal ops (`onboarding-hub-contract.ts`, TB-680) `[PI]`. Deduction: "AdminAuthority"/"ExecuteAuthority" internal rank names render in customer-visible forbidden-state messages (`SettingsRolesPageView.tsx`, cloud connection wizard) `[PUI]`. |
-| 9 | Product-model clarity | **66** | One durable object, one lifecycle, one sequence — and the nav caption states it `[PI]`. Deductions: home dual-path cards ("Create an architecture" / "Review an existing architecture") still frame two peer objects when both terminate in a `Run` (`buyer-polish-copy.ts`) `[PI]`; the signed record has a detail page but no home/inventory `[PI]`; draft vs. in-review architecture content has two live editors `[PI]`. |
+| 9 | Product-model clarity | **66** | One durable object, one lifecycle, one sequence — and the nav caption states it `[PI]`. Deductions: home dual-path cards ("Create an architecture" / "Review an existing architecture") still frame two peer objects when both terminate in a `Run` (`buyer-polish-copy.ts`) `[PI]`; the sealed record has a detail page but no home/inventory `[PI]`; draft vs. in-review architecture content has two live editors `[PI]`. |
 | 10 | Administrative separation | **75** | Administration (customer) vs. Internal Operations (employee, feature-flagged, hidden in buyer shell) is a clean two-surface split `[PI]`. Deductions: `/health` ("System health", buyer-safe) vs. `/admin/health` ("Diagnostics dashboard") naming does not convey the distinction; nav "Settings" targets `/administration/settings/tenant` while a `/administration/settings` hub index also exists; AI usage and cost reporting canonical URL is `/administration/ai-usage` (legacy `/admin/ai-usage-cost` is a retired redirect-only bookmark — IA-014) `[PI]`. |
 | 11 | Scalability | **60** | Nav config is centralized with drift guards (`NAV_CONFIG_CONTRACT.md`, `nav-config.structure.test.ts`) — good `[PI]`. But the mode matrix (buyer-polished × full-operator × demo × static-demo × CTO tour × governance view × unlock phases × dev overrides) is already at the edge of testability; the governance-view nav filter is implemented and tested but never wired into the live shell (`filterNavGroupsForGovernanceMode` unused) `[PI]`. |
 | 12 | Private-beta readiness | **70** | Golden path, onboarding hub, sample workspace, and role gating are beta-ready `[PI]`. Blocked by: the P0 dead ends (§10); Pattern library nav that will render an empty aggregate for beta tenants (requires ≥5 contributing tenants, `PatternLibraryPageClient.tsx`) `[PI]`; absence of navigation telemetry to validate the progressive-unlock bet `[SMI]`. |
@@ -47,22 +47,22 @@ What the assessment does **not** recommend: wholesale restructuring. The nav gro
 
 ## 3. Top ten findings
 
-1. **`/signed-records` (list) is a customer-visible 404.** `next.config.ts` rewrites `/signed-records` → `/manifests`, but no `manifests/page.tsx` index exists — only `[manifestId]`. Breadcrumb map and command palette reference "Signed review records" as a parent concept. Any user who trims the URL from a signed-record detail, or follows a generated parent crumb, lands on a 404. `[PI]`
+1. **`/signed-records` (list) is a customer-visible 404.** `next.config.ts` rewrites `/signed-records` → `/manifests`, but no `manifests/page.tsx` index exists — only `[manifestId]`. Breadcrumb map and command palette reference "Sealed review records" as a parent concept. Any user who trims the URL from a signed-record detail, or follows a generated parent crumb, lands on a 404. `[PI]`
 2. **Architecture drafts can be stranded.** `/architectures` (draft list) is not a configured nav item; it is reachable only from within the create flow ("Save and exit"). A user who saves a draft, signs out, and returns has no visible navigation path to resume it — "Create architecture" starts a *new* draft. `[PI]`
-3. **The signed record — the product's core proof artifact — has no home.** It is reachable only from a review detail or a governance link. For an audit/governance-lead persona whose primary question is "show me every signed decision," the closest surface is `/governance/decision-register`, whose relationship to signed records is not stated on either page. `[PI]`
-4. **Six executive/reporting surfaces overlap.** `/dashboard` (canonical), `/executive/dashboard` (redirected but page file retained), `/executive/scorecard` (separate shell, not in operator nav), `/insights/architecture-scorecard` ("Review scorecard", Insights group), `/governance/dashboard` (deep-link only, redirects home in demo), and the `/value-report` trio. Each has a defensible purpose; nothing in the IA tells a user which one answers which question. `[PI]`
+3. **The sealed record — the product's core proof artifact — has no home.** It is reachable only from a review detail or a governance link. For an audit/governance-lead persona whose primary question is "show me every signed decision," the closest surface is `/governance/decision-register`, whose relationship to sealed records is not stated on either page. `[PI]`
+4. **Six sponsor/reporting surfaces overlap.** `/dashboard` (canonical), `/sponsor/dashboard` (redirected but page file retained), `/sponsor/scorecard` (separate shell, not in operator nav), `/insights/architecture-scorecard` ("Review scorecard", Insights group), `/governance/dashboard` (deep-link only, redirects home in demo), and the `/value-report` trio. Each has a defensible purpose; nothing in the IA tells a user which one answers which question. `[PI]`
 5. **Progressive unlock is unvalidated.** At phase 0 (every new workspace), Insights, Governance, Reports, and Integrations groups do not exist in the nav. A governance-lead evaluator invited into a fresh beta workspace cannot discover the governance capabilities they are evaluating until someone finalizes a review. This may be the right guided-pilot bet, but there is no telemetry to prove it and no visible "what's locked and why" affordance beyond the unlock hint. `[PI]` for behavior; `[PRV]` for user impact.
 6. **Home dual-path cards contradict the lifecycle model.** "Create an architecture" and "Review an existing architecture" render as two peer objects/workflows; both terminate in the same `createArchitectureRun` call, and `/reviews/new?intent=create-architecture` already server-redirects to `/architectures/new`. The nav caption gets this right (a sequence); the home cards re-fork it. `[PI]`
 7. **Evidence has no landing, and its tools carry four names.** Evidence enters review-scoped (upload tabs, wizards, cloud connectors, extract-upload) and is consumed via `/graph`, `/ask`, `/search` — three sibling nav items whose shared corpus is invisible. The same surface is "Evidence graph" (nav), "Evidence trail" (hub includes, help topic), "Graph" (default breadcrumb segment), and "Provenance graph" (command palette). `[PUI]`
 8. **Governance view is half-wired.** Vocabulary switching and detail-section behavior exist and are tested; the sidebar toggle component is not mounted, and `filterNavGroupsForGovernanceMode` is used only by tests. A mode that can only be enabled by editing `localStorage` is dead weight in the IA and a drift risk. `[PI]`
 9. **Internal rank names and dev-state labels leak into customer surfaces.** "AdminAuthority"/"ExecuteAuthority" in forbidden-state messages; "V1 is sold through guided evaluation…" on public `/pricing`; help slug `creating-runs` in a customer URL; breadcrumb segment "pilot" for `/value-report/pilot` labeled "Review value report" in nav. `[PUI]`
-10. **Superseded page files historically persisted behind permanent redirects.** `/integrations/itsm` is **removed** (OAuth callback retained); `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` were unreachable behind config redirects or later retired. They cost build size, test surface, and future-engineer confusion, and `/why-archlucid` plus `/demo/explain` sit in customer route space as internal/demo tooling. `[PI]`
+10. **Superseded page files historically persisted behind permanent redirects.** `/integrations/itsm` is **removed** (OAuth callback retained); `/sponsor/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` were unreachable behind config redirects or later retired. They cost build size, test surface, and future-engineer confusion, and `/why-archlucid` plus `/demo/explain` sit in customer route space as internal/demo tooling. `[PI]`
 
 ---
 
 ## 4. Current-state route inventory
 
-Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-page, D = deep-link/card/palette only, R = redirect, X = orphaned/unreachable. **Disposition** uses the classification set from §9.1. Route groups `(operator)`, `(marketing)`, `(executive)` do not appear in URLs. Full per-route guard detail was verified against page files and `nav-config.ts`; guards summarized here.
+Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-page, D = deep-link/card/palette only, R = redirect, X = orphaned/unreachable. **Disposition** uses the classification set from §9.1. Route groups `(operator)`, `(marketing)`, `(sponsor)` do not appear in URLs. Full per-route guard detail was verified against page files and `nav-config.ts`; guards summarized here.
 
 ### 4.1 Core review lifecycle (persona: architect, reviewer)
 
@@ -79,7 +79,7 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 | `/reviews/[runId]/findings/[findingId]/inspect` | Technical finding inspection + citations | D | Finding detail | Retain as-is |
 | `/reviews/[runId]/provenance` | Review-scoped provenance graph + timeline | D | Run detail | Retain as-is |
 | `/reviews/[runId]/artifacts/[artifactId]` | Artifact preview (**RER** retired — 404; Preview SoT is **GAR**) | D | Exports section | Remove / do not reintroduce |
-| `/manifests/[manifestId]` (alias `/signed-records/[id]`) | Signed review record detail | D | Run detail, governance, golden journey | Retain as-is |
+| `/manifests/[manifestId]` (alias `/signed-records/[id]`) | Sealed review record detail | D | Run detail, governance, golden journey | Retain as-is |
 | `/signed-records` (list) | **404 — rewrite target has no index page** | **X** | Breadcrumb parent, palette concept | **Add index page in Governance group** (IA-001; D1 resolved 2026-07-14) |
 | `/snapshot/[runId]` | Legacy bookmark alias → review workspace `readOnly=1` (redirect only) | R | Generated links, CTO recap | Retain redirect shim (not a standalone page) |
 
@@ -109,7 +109,7 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 | `/governance/risk-exceptions` | Waivers and expirations | P (phase 2) | Retain as-is |
 | `/governance/policy-packs`, `[id]` | Review standards | P (phase 2) | Retain as-is |
 | `/governance/standards-and-rules` | Effective policy / precedence diagnostics | P ("Standards & rules") | Retain as-is |
-| `/governance/decision-register` | Signed decisions ledger | P (phase 2) | Retain; cross-link to signed records (IA-001) |
+| `/governance/decision-register` | Signed decisions ledger | P (phase 2) | Retain; cross-link to sealed records (IA-001) |
 | `/governance/audit` | Immutable audit trail + export | P ("Audit trail") | Retain as-is |
 | `/governance/alerts` | Alerts inbox | P (phase 2) | Retain as-is |
 | `/governance/alert-rules` | Rules/routing/composite/simulation (`?tab=`) | P (phase 2) | Retain as-is |
@@ -121,13 +121,13 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 | `/alert-routing`, `/advisory-scheduling` | Legacy redirects | R | Retain redirects; remove page files where config covers them (IA-014) |
 | `/settings/alerts` | Retired pre-release path | — | Removed (no redirect); use left nav Alert rules (`/governance/alert-rules`) |
 
-### 4.4 Reporting (persona: executive, sponsor)
+### 4.4 Reporting (persona: sponsor, sponsor)
 
 | Route | Purpose | Nav | Disposition |
 |---|---|---|---|
-| `/dashboard` | Canonical executive/portfolio ROI dashboard | P ("Executive dashboard") | Retain; reconcile "dashboard vs summary" naming (IA-010) |
-| `/executive/dashboard` | Same component in retired executive chrome | R (config redirect) | **Remove** page file (IA-014) |
-| `/executive/scorecard` | Sponsor scorecard, standalone executive shell | D (from dashboard) | Retain with revised purpose; label relationship to `/insights/architecture-scorecard` (IA-010) |
+| `/dashboard` | Canonical sponsor/portfolio ROI dashboard | P ("Sponsor dashboard") | Retain; reconcile "dashboard vs summary" naming (IA-010) |
+| `/sponsor/dashboard` | Same component in retired sponsor chrome | R (config redirect) | **Remove** page file (IA-014) |
+| `/sponsor/scorecard` | Sponsor scorecard, standalone sponsor shell | D (from dashboard) | Retain with revised purpose; label relationship to `/insights/architecture-scorecard` (IA-010) |
 | `/value-report` | Sponsor DOCX value report (Execute+) | P (advanced) | Retain as-is |
 | `/value-report/pilot` | Evaluation value report | D (consolidated omission) | Convert to tab of `/value-report` — defer (IA-009) |
 | `/value-report/roi` | ROI hours estimate | D (consolidated omission) | Convert to tab of `/value-report` — defer (IA-009) |
@@ -192,7 +192,7 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 
 ### 4.9 Redirect ledger
 
-40+ `next.config.ts` redirect rules (`/runs*`→`/reviews*`, `/manifests*`→`/signed-records*`, `/policy-packs*`→`/governance/policy-packs*`, `/audit*`, `/alerts*`, `/admin/users*`→`/administration/settings/users*`, `/executive/dashboard`→`/dashboard`, `/portfolio`→`/dashboard`, etc.), 4 rewrite aliases, and 18 page-level redirects were enumerated and verified `[PI]`. All customer-visible links checked resolve — **except** the `/signed-records` index (Finding 1) and the deliberately legacy `/policy-packs` empty-state CTA (resolves via redirect; normalize anyway, IA-012).
+40+ `next.config.ts` redirect rules (`/runs*`→`/reviews*`, `/manifests*`→`/signed-records*`, `/policy-packs*`→`/governance/policy-packs*`, `/audit*`, `/alerts*`, `/admin/users*`→`/administration/settings/users*`, `/sponsor/dashboard`→`/dashboard`, `/portfolio`→`/dashboard`, etc.), 4 rewrite aliases, and 18 page-level redirects were enumerated and verified `[PI]`. All customer-visible links checked resolve — **except** the `/signed-records` index (Finding 1) and the deliberately legacy `/policy-packs` empty-state CTA (resolves via redirect; normalize anyway, IA-012).
 
 ---
 
@@ -206,9 +206,9 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 
 **C. Reviewer examining evidence and asking questions.** Path: hub → run detail → Findings/Evidence tabs → finding inspect → `/ask`. Works. Weak points: `/ask` is nav-visible pre-finalization but requires a finalized record (subtitle states it) — an invitation to a dead end for a mid-review reviewer `[SMI]`; the graph/trail naming split (Finding 7) forces the reviewer to learn that "Evidence graph," "Evidence trail," and "Provenance" are one capability `[PUI]`.
 
-**D. Governance or risk leader.** Path: Governance group → approval queue → decision register → audit trail. Coherent once unlocked. Failure points: at unlock phase 0/1 most of this group does not exist in nav (Finding 5); the signed-record inventory gap (Finding 3) means "show me all signed decisions" lands on the decision register, which does not explain its relation to signed review records; approval request has lineage but no detail page `[PI]`.
+**D. Governance or risk leader.** Path: Governance group → approval queue → decision register → audit trail. Coherent once unlocked. Failure points: at unlock phase 0/1 most of this group does not exist in nav (Finding 5); the signed-record inventory gap (Finding 3) means "show me all signed decisions" lands on the decision register, which does not explain its relation to sealed review records; approval request has lineage but no detail page `[PI]`.
 
-**E. Executive seeking status/value/portfolio insight.** Path: `/dashboard` (sponsor-only users are hard-redirected there). Strong single landing `[PI]`. Failure point: the six-surface reporting overlap (Finding 4) — an executive who is *also* an operator sees "Executive dashboard," "Review scorecard," "Value report," and (via palette) "Digests," with no surface explaining which answers what.
+**E. Sponsor seeking status/value/portfolio insight.** Path: `/dashboard` (sponsor-only users are hard-redirected there). Strong single landing `[PI]`. Failure point: the six-surface reporting overlap (Finding 4) — an sponsor who is *also* an operator sees "Sponsor dashboard," "Review scorecard," "Value report," and (via palette) "Digests," with no surface explaining which answers what.
 
 **F. Administrator.** Path: Administration group → settings/users/identity/integrations health. Coherent; internal ops correctly separated. Failure points: `/administration/settings` hub vs. nav-target `/administration/settings/tenant` ambiguity; `/health` vs. `/admin/health` naming; internal rank names in error messages (Finding 9).
 
@@ -223,7 +223,7 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 | Governance and approval | Finalize → approval queue | Same | Continuous post-unlock. Defects: unlock gating pre-first-commit; no approval-request detail route; governance-mode vocabulary half-wired |
 | Evidence | Review intake / connectors | Same | Works review-scoped. Defect: no cross-review evidence landing; naming split; classification is implicit (policy packs / severity), with no classification surface — acceptable for the current model, should be stated in help `[SMI]` |
 | Patterns and reuse | `/patterns` | Same | Will be empty for beta tenants (threshold ≥5 tenants) — hide nav until populated |
-| Executive/value reporting | `/dashboard` | Same | Landing is right; family fragmentation (Finding 4) |
+| Sponsor/value reporting | `/dashboard` | Same | Landing is right; family fragmentation (Finding 4) |
 | Administration | Administration group | Same | Sound; naming defects only |
 
 ---
@@ -232,16 +232,16 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 
 | Page A | Page B | Shared content/action | Meaningful distinction | Confusion risk | Recommendation | Migration risk |
 |---|---|---|---|---|---|---|
-| `/dashboard` | `/executive/dashboard` | Identical dashboard component (`surface="executive"`) | Chrome only; A is canonical, B config-redirected | Low (redirect live) | **Remove B's page file**; keep redirect | None — redirect already permanent `[PI]` |
+| `/dashboard` | `/sponsor/dashboard` | Identical dashboard component (`surface="sponsor"`) | Chrome only; A is canonical, B config-redirected | Low (redirect live) | **Remove B's page file**; keep redirect | None — redirect already permanent `[PI]` |
 | `/dashboard` | `/governance/dashboard` | Workspace-health KPIs over same run data | B is governance-posture tiles; deep-link only | Medium if B is ever promoted | **Remove B now** (D6, 2026-07-14): redirect to `/dashboard`, fold unique tiles in | Low |
-| `/insights/architecture-scorecard` | `/executive/scorecard` | Finalized-review metrics vs. sponsor scorecard | A is operator analysis; B is sponsor-facing leave-behind | **High** — same word, different shells | Rename one (e.g., B → "Sponsor scorecard") and cross-link | Low — label change |
+| `/insights/architecture-scorecard` | `/sponsor/scorecard` | Finalized-review metrics vs. sponsor scorecard | A is operator analysis; B is sponsor-facing leave-behind | **High** — same word, different shells | Rename one (e.g., B → "Sponsor scorecard") and cross-link | Low — label change |
 | `/value-report` | `/value-report/pilot`, `/value-report/roi` | Value reporting family | DOCX generator vs. read-only reports | Medium — two of three are nav-invisible | Convert pilot/roi to tabs of `/value-report` after usage data | Medium — deep links must redirect |
 | `/health` | `/admin/health` | System health signals | Buyer-safe liveness vs. employee diagnostics | Medium — identical concept name | Rename nav labels to state audience ("Service status" vs. "Internal diagnostics") | None |
 | `/integrations/readiness` | `/admin/integrations/itsm` | Connector health | Customer hub vs. employee probes | Low (separate surfaces) | Retain both | None |
 | `/administration/ai-usage` | `/admin/ai-usage-cost` (retired redirect-only bookmark) | Tenant LLM spend reporting | Canonical vs. legacy bookmark | Low | Link docs to `/administration/ai-usage` only | None |
 | `/governance/alerts` | `/governance/alert-rules` | Alerting | Inbox vs. configuration | Low — correct split | Retain both | — |
 | `/reviews/[runId]` Architecture tab | `/architectures/[id]` draft editor | Editable architecture content | Pre-review draft vs. in-review content | **High** — two live editors for one narrative | Hand-off lock when draft spawns a review (IA-007) | Low |
-| `/reviews/[runId]` Review tab (finalize/exports) | `/manifests/[manifestId]` | Finalized outputs, export CTAs | In-review action vs. durable record | Medium | Retain both; tab rename (IA-003) + explicit "view signed record" link | None |
+| `/reviews/[runId]` Review tab (finalize/exports) | `/manifests/[manifestId]` | Finalized outputs, export CTAs | In-review action vs. durable record | Medium | Retain both; tab rename (IA-003) + explicit "view sealed record" link | None |
 | `/onboarding` | `/governance/first-30-days` | Guided setup checklists | First review vs. governance rhythm | Medium — two "getting started" surfaces in different groups | Requires product decision: fold B into help or into `/onboarding` phase 2 | Low |
 | `/search` | `/ask` | Query over evidence corpus | Retrieval vs. grounded Q&A | Low-medium | Retain both; shared empty-state cross-link | None |
 | `/reviews` hub summary | `/` home recent reviews | Same run rows, different framing | Home = next action; hub = inventory | Low — intentional | Retain both | — |
@@ -258,7 +258,7 @@ No merge is recommended purely on component similarity; each recommendation abov
 | `/architectures` (list) | **Near-orphan** | Not in any nav builder; only "Save and exit" reaches it `[PI]` | IA-002 (P0) |
 | `/demo/explain` | Orphan (internal) | No inbound nav links; only registry entries `[PI]` | IA-014 |
 | `/why-archlucid` | Orphan (internal) | Only `public-marketing-seo-paths.ts`; buyer shell redirects away `[PI]` | IA-014 |
-| `/integrations/itsm` (**removed**), `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` | Unreachable or retired page files behind permanent redirects / removals | Config redirects verified or hub removed `[PI]` | IA-014 |
+| `/integrations/itsm` (**removed**), `/sponsor/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` | Unreachable or retired page files behind permanent redirects / removals | Config redirects verified or hub removed `[PI]` | IA-014 |
 | `/governance/dashboard`, `/digests`, `/value-report/pilot`, `/value-report/roi` | Deliberately nav-omitted ("consolidated omissions") but palette lists some | `nav-config` omission set vs. `command-palette-curated-tasks.ts` `[PI]` | IA-011 |
 | `/administration/settings/baseline`, `/administration/settings/extract-upload` | Intentional deep links | Linked from ROI surfaces / pilot checklist `[PI]` | Retain; document in help |
 | `/governance/approval-requests/[id]/lineage` | Deep-only child without a parent detail route | No `[id]/page.tsx` `[PI]` | IA-015 |
@@ -272,9 +272,9 @@ The recent uncommitted consolidation resolved the primary conflict (list noun). 
 | Concept | Surface A says | Surface B says | Resolution direction |
 |---|---|---|---|
 | Evidence visualization | "Evidence graph" (nav, `i18n.ts:120`) | "Evidence trail" (hub includes, help topic map); "Graph" (default breadcrumb segment); "Provenance graph" (command palette) | One noun everywhere; recommend **"Evidence graph"** for the tool, "evidence trail" reserved for prose about lineage (IA-006) |
-| Signed output | "Signed review record" (canonical) | "Review record" (first item of `REVIEWS_HUB_INCLUDES_ITEMS`, which also lists "Signed review record" as item 4) | Delete or rename the redundant "Review record" item (IA-004) |
-| Signed output (governance view off) | "Approved design" | "Signed review record" (view on) | Resolved by D2 (delete mode branch): "Signed review record" becomes the single vocabulary (IA-020) |
-| Executive landing | "Executive dashboard" (nav) | "Executive summary" (page vocabulary); "Portfolio overview" (i18n key name) | Pick one customer noun (IA-010) |
+| Signed output | "Sealed review record" (canonical) | "Review record" (first item of `REVIEWS_HUB_INCLUDES_ITEMS`, which also lists "Sealed review record" as item 4) | Delete or rename the redundant "Review record" item (IA-004) |
+| Signed output (governance view off) | "Approved design" | "Sealed review record" (view on) | Resolved by D2 (delete mode branch): "Sealed review record" becomes the single vocabulary (IA-020) |
+| Sponsor landing | "Sponsor dashboard" (nav) | "Sponsor summary" (page vocabulary); "Portfolio overview" (i18n key name) | Pick one customer noun (IA-010) |
 | Findings queue | "Risk register" (nav) | "Findings" (breadcrumb segment) | Align breadcrumb to nav (IA-006 family) |
 | Review detail finalize tab | Label "Review" | Tab id `review-package`; legacy hash `run-actions` | Rename label to describe content ("Finalize & exports" or "Deliverables"); ids stay for deep-link stability (IA-003) |
 | Value report | "Review value report" (nav vocabulary) | URL segment and breadcrumb "pilot" | Alias or relabel (IA-013) |
@@ -305,7 +305,7 @@ ArchLucid (workspace scope: tenant → workspace → project)
 │   │   └── Review detail           /reviews/[runId]  (tabs: Overview · Findings · Evidence ·
 │   │        Policies & standards · Decisions & remediation · Finalize & exports ·
 │   │        Architecture · Activity)
-│   ├── Executive dashboard         /dashboard
+│   ├── Sponsor dashboard         /dashboard
 │   └── First review guide          /onboarding (demoted post-commit)
 ├── Insights
 │   ├── Evidence graph              /graph
@@ -319,7 +319,7 @@ ArchLucid (workspace scope: tenant → workspace → project)
 │   ├── Approval queue              /governance
 │   ├── Risk register               /governance/findings
 │   ├── Risk exceptions · Policy packs · Standards & rules · Decision register
-│   ├── Signed review records       /signed-records            ← new index (or de-referenced)
+│   ├── Sealed review records       /signed-records            ← new index (or de-referenced)
 │   ├── Audit trail · Alerts · Alert rules · Recurrence schedules
 │   └── Advisory scans              /advisory
 ├── Reports
@@ -335,7 +335,7 @@ ArchLucid (workspace scope: tenant → workspace → project)
 | Item | Current | Proposed | Why |
 |---|---|---|---|
 | Drafts list | Unreachable | "Drafts" strip/link on `/reviews` hub + breadcrumb parent of `/architectures/[id]` (not a top-level nav item) | Reachability without manufacturing a peer "Architectures" inventory the data model doesn't support |
-| Signed records | 404 index | Either a Governance-group "Signed review records" index or removal of all parent references | Fix broken concept |
+| Sealed records | 404 index | Either a Governance-group "Sealed review records" index or removal of all parent references | Fix broken concept |
 | "Review" tab | `/reviews/[runId]` tab label "Review" | "Finalize & exports" | Label describes content |
 | Pattern library | Nav item behind flag | Nav hidden until aggregate threshold met | No empty destination in beta |
 | Palette vs. nav | Palette lists nav-omitted destinations | Palette honors `visibleOperatorShellHrefSet` uniformly | One visibility contract |
@@ -348,14 +348,14 @@ ArchLucid (workspace scope: tenant → workspace → project)
 | Architect (create) | `/` | Create architecture → Drafts → Start review → Review detail | Evidence graph, Compare |
 | Architect (prepare/review) | `/` | Start review → Review detail (Findings/Evidence) | Ask, Search |
 | Reviewer | `/reviews` | Review detail → Finding inspect → Ask | Graph, Compare |
-| Governance lead | `/governance` | Approval queue → Decision register → Signed records → Audit trail | Policy packs, Risk register |
-| Executive / sponsor | `/dashboard` (hard redirect for sponsor-only) | Dashboard → Value report | Sponsor scorecard |
+| Governance lead | `/governance` | Approval queue → Decision register → Sealed records → Audit trail | Policy packs, Risk register |
+| Sponsor / sponsor | `/dashboard` (hard redirect for sponsor-only) | Dashboard → Value report | Sponsor scorecard |
 | Administrator | `/administration/settings/tenant` | Users, Identity, Connection status, Billing | Service status, Support |
 | First-time evaluator | `/` (sample workspace) | Sample review → Start review → First review guide | Help topics |
 
 ### 9.4 Current-route → proposed-route mapping
 
-All routes map 1:1 except: `/signed-records` (new index page or removed references); page-file deletions behind existing redirects or removals (`/integrations/itsm` **removed**, `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph`, `/why-archlucid`, `/demo/explain` — files removed; legacy config redirects largely emptied in IA batch 4); future `/value-report/pilot|roi` → `/value-report?tab=` (deferred, redirects required at cut-over).
+All routes map 1:1 except: `/signed-records` (new index page or removed references); page-file deletions behind existing redirects or removals (`/integrations/itsm` **removed**, `/sponsor/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph`, `/why-archlucid`, `/demo/explain` — files removed; legacy config redirects largely emptied in IA batch 4); future `/value-report/pilot|roi` → `/value-report?tab=` (deferred, redirects required at cut-over).
 
 **Breadcrumb strategy:** breadcrumb labels must be sourced from the same constants as nav labels (extend the drift-guard pattern already used by `review-terminology-guard.test.ts` to `breadcrumb-map.ts` segment labels). Help breadcrumbs standardize on "Help".
 
@@ -385,8 +385,8 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 ---
 
 **IA-001 · Resolve the `/signed-records` index dead end** — **Done (2026-07-14)** — **P0 · S**
-- **Problem:** `next.config.ts` rewrites `/signed-records` → `/manifests`, but no `manifests/page.tsx` index exists; only `[manifestId]` detail. Breadcrumb map and command palette use "Signed review records" as a parent concept. `[PI]`
-- **User impact:** Governance leads and anyone URL-trimming from a signed record hit a 404 on a canonical product noun. **Personas:** governance lead, reviewer, executive.
+- **Problem:** `next.config.ts` rewrites `/signed-records` → `/manifests`, but no `manifests/page.tsx` index exists; only `[manifestId]` detail. Breadcrumb map and command palette use "Sealed review records" as a parent concept. `[PI]`
+- **User impact:** Governance leads and anyone URL-trimming from a sealed record hit a 404 on a canonical product noun. **Personas:** governance lead, reviewer, sponsor.
 - **Routes:** `/signed-records`, `/manifests`. **Files:** `archlucid-ui/next.config.ts`, `src/app/(operator)/manifests/`, `src/lib/breadcrumb-map.ts`, `command-palette-curated-tasks.ts`.
 - **Change (per D1, resolved 2026-07-14):** Add a signed-records index page (list of committed manifests per project scope, columns: review title, version, committed date, link to review) placed in the Governance group. The redirect-to-decision-register alternative was considered and rejected by the owner.
 - **Implementation notes:** List data derivable from the runs list filtered `hasGoldenManifest`; reuse `EnterpriseTable`. If redirect option chosen, it is one config rule + breadcrumb edits.
@@ -418,8 +418,8 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Risk if deferred:** low individually; contributes to "can't find export" support load.
 
 **IA-004 · Fix the hub includes-list redundancy** — **Done (2026-07-14)** — **P1 · XS**
-- **Problem:** `REVIEWS_HUB_INCLUDES_ITEMS` lists both "Review record" and "Signed review record" (`reviews-hub-copy.ts:54-61`) — two near-identical nouns in a six-item list defining the product. `[PUI]`
-- **Change:** Replace "Review record" with the concept it means (likely "Architecture description" or drop it); keep "Signed review record".
+- **Problem:** `REVIEWS_HUB_INCLUDES_ITEMS` lists both "Review record" and "Sealed review record" (`reviews-hub-copy.ts:54-61`) — two near-identical nouns in a six-item list defining the product. `[PUI]`
+- **Change:** Replace "Review record" with the concept it means (likely "Architecture description" or drop it); keep "Sealed review record".
 - **Files:** `reviews-hub-copy.ts`, `ReviewsHubPackageIncludes.tsx` test. **Complexity/priority:** XS/P1. **Acceptance:** includes list has no two items differing only by a qualifier; glossary terms match.
 
 **IA-005 · Reframe home dual-path cards as one lifecycle** — **Done (2026-07-14)** — **P0 · S**
@@ -458,16 +458,16 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 
 **IA-009 · Reports family consolidation (deferred design)** — **P2 · M**
 - **Problem:** `/value-report`, `/value-report/pilot`, `/value-report/roi`, `/insights/architecture-scorecard`, `/governance/dashboard`, `/digests` fragment reporting; two of six are nav-invisible. `[PI]`
-- **Change (post-telemetry, except the D6 carve-out):** Convert `/value-report/pilot` and `/value-report/roi` into tabs of `/value-report` (redirects for old URLs); rename `/executive/scorecard` label to "Sponsor scorecard" and cross-link with `/insights/architecture-scorecard`.
+- **Change (post-telemetry, except the D6 carve-out):** Convert `/value-report/pilot` and `/value-report/roi` into tabs of `/value-report` (redirects for old URLs); rename `/sponsor/scorecard` label to "Sponsor scorecard" and cross-link with `/insights/architecture-scorecard`.
 - **D6 carve-out (resolved 2026-07-14 — immediately actionable, not telemetry-gated):** remove `/governance/dashboard` now — redirect it to `/dashboard` and fold any unique workspace-health KPI tiles into `/dashboard`. This portion can ship in Wave 4 independently of the rest of IA-009.
 - **Dependencies:** IA-019 telemetry (route entries per surface) for the value-report portion only. **Migration:** redirects for the two tab-ified routes and for `/governance/dashboard`; preserve DOCX generation deep link.
-- **Acceptance:** an executive-persona click path from `/dashboard` reaches every report within one hop; no report reachable only by palette.
+- **Acceptance:** an sponsor-persona click path from `/dashboard` reaches every report within one hop; no report reachable only by palette.
 - **Priority/complexity:** P2/M. **Risk if deferred:** manageable — palette covers power users; confusion cost grows with adoption.
 
-**IA-010 · Executive naming reconciliation** — **Done (2026-07-14)** — **P1 · XS**
-- **Problem:** Nav "Executive dashboard" → `/dashboard`; page vocabulary "Executive summary"; i18n key `portfolioOverview`; `/executive/scorecard` vs. `/insights/architecture-scorecard` share a word across shells. `[PUI]`
-- **Change:** One customer noun for `/dashboard` (recommend "Executive dashboard" since it's already the nav string) across page title, vocabulary module, and crumbs; rename `/executive/scorecard` visible title to "Sponsor scorecard".
-- **Files:** `i18n.ts`, `BUYER_EXECUTIVE_SUMMARY_VOCABULARY` module, executive scorecard page metadata, tests. **Acceptance:** per shared criteria. **Risk if deferred:** low, but cheap.
+**IA-010 · Sponsor naming reconciliation** — **Done (2026-07-14)** — **P1 · XS**
+- **Problem:** Nav "Sponsor dashboard" → `/dashboard`; page vocabulary "Sponsor summary"; i18n key `portfolioOverview`; `/sponsor/scorecard` vs. `/insights/architecture-scorecard` share a word across shells. `[PUI]`
+- **Change:** One customer noun for `/dashboard` (recommend "Sponsor dashboard" since it's already the nav string) across page title, vocabulary module, and crumbs; rename `/sponsor/scorecard` visible title to "Sponsor scorecard".
+- **Files:** `i18n.ts`, `BUYER_EXECUTIVE_SUMMARY_VOCABULARY` module, sponsor scorecard page metadata, tests. **Acceptance:** per shared criteria. **Risk if deferred:** low, but cheap.
 
 **IA-011 · Align command palette with nav visibility** — **P1 · S**
 - **Problem:** Palette curates tasks including consolidated-omission destinations (e.g., "Digests & subscriptions") while nav deliberately omits them; palette is documented as gated to `visibleOperatorShellHrefSet` but drift exists on omission-set entries. `[SMI]` — verify each palette entry against the omission set during implementation.
@@ -491,7 +491,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Shipped:** `FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE*` on settings/trial-funnel gates; `BUYER_SALES_LED_PRICING_NOTE` without version label; `starting-reviews` help slug + `creating-runs` alias; `internal-concept-leakage-guard.test.ts`.
 
 **IA-014 · Dead page-file and internal-route cleanup** — **P2 · S**
-- **Problem:** Page files historically persisted for `/integrations/itsm` (**now removed**; OAuth callback retained), `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` (unreachable behind permanent redirects or later retired); `/why-archlucid` and `/demo/explain` are internal tooling in customer route space. `[PI]`
+- **Problem:** Page files historically persisted for `/integrations/itsm` (**now removed**; OAuth callback retained), `/sponsor/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` (unreachable behind permanent redirects or later retired); `/why-archlucid` and `/demo/explain` are internal tooling in customer route space. `[PI]`
 - **Change:** Delete the four unreachable page files (config redirects remain authoritative); fold `/why-archlucid` content into `/why` or delete with redirect; gate `/demo/explain` behind the demo-tooling env (404 otherwise).
 - **Migration:** verify each config redirect covers all former sub-paths before deletion; keep `public-marketing-seo-paths.ts` in sync.
 - **Tests:** redirect e2e for each removed path; build passes; First Load JS budget unchanged or improved.
@@ -508,7 +508,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Problem:** Nav "Settings" targets `/administration/settings/tenant` while a searchable `/administration/settings` hub index exists, reachable only by URL. `[PI]`
 - **Change (per D5 — hub-first):** Point the sidebar "Settings" item at `/administration/settings` (the searchable index); `/administration/settings/tenant` remains a first-class hub destination. Update the breadcrumb parent chain accordingly.
 - **Acceptance:** exactly one settings landing pattern (hub-first); breadcrumbs consistent.
-- **Shipped:** sidebar "Settings" → `/administration/settings` at `ReadAuthority`; `/administration/settings/tenant` is a separate "Workspace settings" entry at `AdminAuthority` (label, breadcrumbs, and static title all say "Workspace settings", closing the IA-006-family mismatch in §8). Implementation also split the hub by **audience**: `settings-master-audience.ts` derives audience from each destination's data scope, the hub publishes only `workspace-admin` rows, and personal settings (`preferences`, `account-security`) moved to a new ungated top-bar account menu — they were previously unreachable from any nav builder. The duplicated executive digest editor was removed from the tenant page in favor of the Digests hub.
+- **Shipped:** sidebar "Settings" → `/administration/settings` at `ReadAuthority`; `/administration/settings/tenant` is a separate "Workspace settings" entry at `AdminAuthority` (label, breadcrumbs, and static title all say "Workspace settings", closing the IA-006-family mismatch in §8). Implementation also split the hub by **audience**: `settings-master-audience.ts` derives audience from each destination's data scope, the hub publishes only `workspace-admin` rows, and personal settings (`preferences`, `account-security`) moved to a new ungated top-bar account menu — they were previously unreachable from any nav builder. The duplicated sponsor digest editor was removed from the tenant page in favor of the Digests hub.
 
 **IA-017 · Health-surface audience naming** — **P2 · XS**
 - **Problem:** `/health` ("System health", customer Administration) vs. `/admin/health` ("Diagnostics dashboard", Internal Operations) — same concept name, different audiences. `[PI]`
@@ -529,7 +529,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 
 **IA-020 · Remove the governance-view mode branch** — **P1 · S (D2 resolved 2026-07-14 — delete)**
 - **Problem:** Vocabulary switching, presentation gate, and a nav filter exist for "governance view"; the toggle is not mounted and the nav filter is unused outside tests. Mode is enable-able only via `localStorage`. `[PI]`
-- **Change (per D2 — delete):** Remove `GovernanceModeToggle`, `filterNavGroupsForGovernanceMode`, the `archlucid_governance_mode_enabled` storage key handling, and the dual-vocabulary branches in `governance-mode-vocabulary.ts`; collapse to one vocabulary using the already-canonical terms ("Signed review record", "Authority chain" per the canonical-product-terms module — confirm final noun choice against the D7 baseline during implementation). Delete the associated mode tests rather than leaving them asserting dead code.
+- **Change (per D2 — delete):** Remove `GovernanceModeToggle`, `filterNavGroupsForGovernanceMode`, the `archlucid_governance_mode_enabled` storage key handling, and the dual-vocabulary branches in `governance-mode-vocabulary.ts`; collapse to one vocabulary using the already-canonical terms ("Sealed review record", "Authority chain" per the canonical-product-terms module — confirm final noun choice against the D7 baseline during implementation). Delete the associated mode tests rather than leaving them asserting dead code.
 - **Acceptance:** no unreachable vocabulary branch ships; grep finds no references to the removed storage key or filter; tests match the shipped single-vocabulary behavior.
 
 **IA-021 · Opaque nav label pass** — **P3 · XS**
@@ -582,7 +582,7 @@ All seven decisions were put to the owner one at a time on 2026-07-14 and resolv
 | # | Decision | Owner resolution (2026-07-14) | Effect on backlog |
 |---|---|---|---|
 | **D1** | Signed-records inventory | **Build a real signed-records index page** in the Governance group (review title, version, committed date, link to review) | IA-001 proceeds with the index-page option; redirect fallback discarded |
-| **D2** | Governance view mode | **Delete the branch** — remove the unmounted toggle, the unused nav filter, and collapse to one vocabulary | IA-020 becomes a removal task; IA-006 converges on the single (governance-view-on) canonical nouns already marked canonical ("Signed review record") |
+| **D2** | Governance view mode | **Delete the branch** — remove the unmounted toggle, the unused nav filter, and collapse to one vocabulary | IA-020 becomes a removal task; IA-006 converges on the single (governance-view-on) canonical nouns already marked canonical ("Sealed review record") |
 | **D3** | Pattern library in beta | **Data-driven visibility** — nav item appears only when the aggregates endpoint reports the threshold met; route stays live for deep links with an honest below-threshold state | IA-008 implemented as the S-complexity data-driven option, not the XS flag-off option |
 | **D4** | Draft post-spawn policy | **Acknowledged divergence** — draft stays editable, but only after the user explicitly acknowledges that edits will not flow into the already-spawned review | IA-007 implements the soft gate, not the hard lock; keep the post-spawn-edit telemetry to revisit |
 | **D5** | Settings landing | **Hub-first** — the sidebar "Settings" item targets the searchable `/administration/settings` index | IA-016 unblocked; breadcrumbs and nav label updated together |
@@ -596,14 +596,14 @@ All seven decisions were put to the owner one at a time on 2026-07-14 and resolv
 1. **Navbar: customer goals or internal modules?** Customer goals — the pilot group is a task sequence, not module names `[PI]`. "Programs" is the exception (module-ish name).
 2. **Is "Reviews" carrying foreign responsibilities?** Less than before: the hub now carries lifecycle stages (Architecture definition → … → Approval, `reviews-hub-review-status.ts`), which correctly absorbs creation/evidence/governance *status* without absorbing their workflows. Acceptable.
 3. **Creation vs. review distinct but connected?** Connected in data (both end in `Run`), distinct in entry. The defect is the home cards' peer-object framing (IA-005) and the dual-editor overlap (IA-007), not the route split.
-4. **Governance / Audit / Evidence / Executive non-overlapping?** Governance and Audit: yes (queue vs. ledger, audit nested under governance — defensible). Evidence: no single home (accepted, deferred). Executive: overlapping (Finding 4).
+4. **Governance / Audit / Evidence / Sponsor non-overlapping?** Governance and Audit: yes (queue vs. ledger, audit nested under governance — defensible). Evidence: no single home (accepted, deferred). Sponsor: overlapping (Finding 4).
 5. **System-health/admin placement?** Yes — Administration group is where admins expect it; naming defect only (IA-017).
 6. **Top-level → secondary candidates?** "First review guide" already auto-demotes post-commit (good pattern). "Governance setup guide" should follow it (IA-022).
 7. **Secondary/hidden → top-level candidates?** Drafts list (to reachable, not top-level); signed-records index (to Governance group).
-8. **Pages existing because features shipped at different times?** Yes: the six reporting surfaces; three cost-reporting URLs; two ITSM hubs (one redirected); `/insights/architecture-scorecard` vs. `/executive/scorecard`.
+8. **Pages existing because features shipped at different times?** Yes: the six reporting surfaces; three cost-reporting URLs; two ITSM hubs (one redirected); `/insights/architecture-scorecard` vs. `/sponsor/scorecard`.
 9. **Same object, multiple presentations?** `Run`: hub row, home card, detail workspace, showcase, snapshot, compare picker — all intentional views. The problematic pair is draft editor vs. Architecture tab (IA-007).
 10. **Tabs where routes would be clearer?** No — the 8-tab review workspace is right for one object. **Routes where tabs would be clearer?** `/value-report/{pilot,roi}` (IA-009).
-11. **Users taken out of the shell unnecessarily?** `/executive/scorecard` uses a separate executive chrome; acceptable for a sponsor leave-behind, but label it (IA-010). Help stays in-shell (good, TB-143–148).
+11. **Users taken out of the shell unnecessarily?** `/sponsor/scorecard` uses a separate sponsor chrome; acceptable for a sponsor leave-behind, but label it (IA-010). Help stays in-shell (good, TB-143–148).
 12. **Demo/sample/setup/production differentiated?** Yes — badges, seeded-sample flows, strict demo nav gates `[PI]`. Residual: internal demo tooling in customer route space (IA-014).
 13. **Disabled/future capabilities harming clarity?** Pattern library pre-threshold (IA-008); governance view half-wired (IA-020).
 14. **Version labels/internal API/dev-state shaping IA?** Copy-level only (IA-013); not structural.
@@ -616,7 +616,7 @@ All seven decisions were put to the owner one at a time on 2026-07-14 and resolv
 | Disposition | Routes |
 |---|---|
 | Retain as-is | ~100 of 134 (all marketing, auth, most governance/insights/settings/integrations/internal-ops, review lifecycle core) |
-| Retain with revised purpose | `/`, `/architectures/[id]`, `/reviews/[runId]` (tab label), `/executive/scorecard` |
+| Retain with revised purpose | `/`, `/architectures/[id]`, `/reviews/[runId]` (tab label), `/sponsor/scorecard` |
 | Rename (labels only) | `/graph` family surfaces, `/health`, `/admin/health`, `/governance/findings` crumb, `/dashboard` title family |
 | Move within navigation | `/governance/first-30-days` (P3, post-beta) |
 | Promote to reachable | `/architectures`, `/signed-records` (index) |
@@ -625,5 +625,5 @@ All seven decisions were put to the owner one at a time on 2026-07-14 and resolv
 | Convert from tab to route | none |
 | Redirect | keep all 40+ existing rules |
 | Hide from private beta | `/patterns` nav item, `/demo/explain`, `/example-roi-bulletin` (decision) |
-| Remove (page files) | `/integrations/itsm` (**removed**), `/executive/dashboard`, `/admin/ai-usage-cost` (retired redirect-only), `/operate/architecture-graph`, `/why-archlucid` (fold into `/why`) |
+| Remove (page files) | `/integrations/itsm` (**removed**), `/sponsor/dashboard`, `/admin/ai-usage-cost` (retired redirect-only), `/operate/architecture-graph`, `/why-archlucid` (fold into `/why`) |
 | Requires product decision | `/example-roi-bulletin` beta visibility; `/governance/first-30-days` placement (IA-022, P3). D1–D7 were resolved by the owner on 2026-07-14 (§14) |

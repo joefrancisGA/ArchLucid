@@ -1,5 +1,10 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
+  BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE_HEADING,
+  BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID,
+  BILLING_AND_PLANS_HELP_FOLLOW_UPS_TITLE,
+} from "@/lib/billing-and-plans-help-evidence-copy";
+import {
   BILLING_AND_PLANS_HELP_PATH,
   SETTINGS_BILLING_PATH,
 } from "@/lib/billing-and-plans-help-route";
@@ -163,7 +168,18 @@ export const BILLING_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "how-billing-works", title: "How billing works" },
   { level: 2, id: "common-questions", title: "Common questions" },
   { level: 2, id: "support", title: "Support" },
+  {
+    level: 2,
+    id: BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID,
+    title: BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
+  { level: 2, id: "where-to-go-next", title: BILLING_AND_PLANS_HELP_FOLLOW_UPS_TITLE },
 ];
+
+/** Drift guard: claim band owns diligence limits; overview and FAQ bodies stay affirmative. */
+export const BILLING_HELP_NEGATION_DRIFT_MARKERS = {
+  claimMustNotContain: ["sources package", "sealed-review diligence"],
+} as const;
 
 export type BillingHelpSourceDriftAnchor = {
   readonly id: string;

@@ -16,13 +16,13 @@ export const GLOSSARY_TERMS = {
     docLink: "/help/glossary#term-review",
   },
   golden_manifest: {
-    term: "Signed review record",
-    definition: "The provenance-backed record that closes a finalized review (what was decided, bound to lineage). PKI-style cryptographic signing is not claimed for current storage unless a deployment explicitly enables it — treat \"signed\" as lineage / provenance closure unless an architecture note says otherwise. Former terms: *signed manifest*, *golden manifest*.",
-    docLink: "/help/glossary#term-signed-review-record",
+    term: "Sealed review record",
+    definition: "The provenance-backed record that closes a finalized review (what was decided, bound to lineage). PKI-style cryptographic signing is not claimed for current V1 storage unless a deployment explicitly enables it — treat \"signed\" as lineage / provenance closure unless an architecture note says otherwise. Former terms: *signed manifest*, *golden manifest*.",
+    docLink: "/help/glossary#term-sealed-review-record",
   },
   review_package: {
     term: "Review package",
-    definition: "A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
+    definition: "A governed architecture review with sealed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
     docLink: "/help/glossary#term-review-package",
   },
   findings: {
@@ -67,7 +67,7 @@ export const GLOSSARY_TERMS = {
   },
   artifact_bundle: {
     term: "Artifact bundle",
-    definition: "An exportable artifact aimed at a specific audience (executive summary, architecture board packet, security appendix, diligence bundle). Distinct from a raw finding row: deliverables are packaged outputs.",
+    definition: "An exportable artifact aimed at a specific audience (sponsor report, architecture board packet, security appendix, diligence bundle). Distinct from a raw finding row: deliverables are packaged outputs.",
     docLink: "/help/glossary#term-deliverable",
   },
   scope: {
@@ -104,13 +104,13 @@ export const GLOSSARY_TERMS = {
     definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
   },
   architecture_manifest: {
-    term: "Signed review record",
+    term: "Sealed review record",
     definition: "A finalized architecture record containing decisions, findings, and evidence — ready for governance review and sponsor export.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   manifest_diff: {
     term: "Review comparison",
-    definition: "A field-level comparison between two finalized signed review records (or their persisted projection), used in Compare to see what changed between reviews.",
+    definition: "A field-level comparison between two finalized sealed review records (or their persisted projection), used in Compare to see what changed between reviews.",
     docLink: "/docs/library/COMPARISON_REPLAY.md",
   },
   comparison_record: {

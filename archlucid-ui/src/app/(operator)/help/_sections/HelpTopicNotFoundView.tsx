@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export function HelpTopicNotFoundView(): React.ReactElement {
@@ -12,7 +12,7 @@ export function HelpTopicNotFoundView(): React.ReactElement {
         This help topic is unavailable or you do not have access to view it.
       </p>
       <p className={cn("mt-4", OPERATOR_TYPOGRAPHY.body)}>
-        <Link href="/help" className="font-medium text-teal-800 underline dark:text-teal-300">
+        <Link href="/help" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
           Back to Help
         </Link>
       </p>

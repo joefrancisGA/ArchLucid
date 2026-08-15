@@ -1,6 +1,6 @@
 namespace ArchLucid.Retrieval.Pricing;
 
-/// <summary>Normalizes tenant EA discount multipliers for Retail grounding (matches executive ROI rules).</summary>
+/// <summary>Normalizes tenant EA discount multipliers for Retail grounding (matches sponsor ROI rules).</summary>
 public static class TenantEaDiscountMultiplierNormalizer
 {
     public static decimal Normalize(decimal? raw)

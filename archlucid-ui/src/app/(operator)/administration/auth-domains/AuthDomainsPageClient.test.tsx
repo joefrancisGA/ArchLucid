@@ -24,17 +24,13 @@ import {
   AUTH_DOMAINS_EMPTY_TITLE,
   AUTH_DOMAINS_MUTATION_ERROR_SUMMARY,
   AUTH_DOMAINS_PAGE_TITLE,
-  AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE,
   AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_DETAIL,
   AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_LABEL,
   AUTH_DOMAINS_ADD_DOMAIN_PREREQUISITES_TITLE,
   authDomainsJourneyStepAriaLabel,
 } from "@/lib/auth-domains-page-copy";
 import { AUTH_DOMAINS_ZERO_DOMAIN_ENFORCEMENT_CALLOUT } from "@/lib/auth-domains-confirm-copy";
-import {
-  AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
-  AUTH_DOMAINS_SETTINGS_SOURCES,
-} from "@/lib/auth-domains-settings-evidence-copy";
+import { AUTH_DOMAINS_SETTINGS_SOURCES } from "@/lib/auth-domains-settings-evidence-copy";
 import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -107,9 +103,7 @@ describe("AuthDomainsPageClient", () => {
 
     render(<AuthDomainsPageClient />);
 
-    expect(await screen.findByTestId("auth-domains-page-breadcrumb")).toHaveTextContent("Administration");
-    expect(screen.getByTestId("auth-domains-page-breadcrumb")).not.toHaveTextContent("Settings");
-    expect(screen.getByTestId("auth-domains-page-breadcrumb")).toHaveTextContent(AUTH_DOMAINS_PAGE_TITLE);
+    expect(screen.queryByTestId("auth-domains-page-breadcrumb")).toBeNull();
     expect(screen.getByTestId("auth-domains-page-title")).toHaveTextContent(AUTH_DOMAINS_PAGE_TITLE);
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
@@ -117,7 +111,7 @@ describe("AuthDomainsPageClient", () => {
     expect(screen.getByTestId("auth-domains-admin-authority-tag")).toHaveTextContent(
       AUTH_DOMAINS_ADMIN_AUTHORITY_READY_LABEL,
     );
-    expect(screen.getByTestId("auth-domains-sign-in-posture-tag")).toHaveTextContent(
+    expect(await screen.findByTestId("auth-domains-sign-in-posture-tag")).toHaveTextContent(
       AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_LABEL,
     );
     expect(screen.getByTestId("auth-domains-sign-in-posture")).toHaveTextContent(AUTH_DOMAINS_ZERO_DOMAIN_POSTURE_DETAIL);
@@ -137,15 +131,7 @@ describe("AuthDomainsPageClient", () => {
       "href",
       inAppHelpHref("authentication-sign-in"),
     );
-    expect(screen.getByTestId("auth-domains-sources-disclosure")).toHaveTextContent(
-      AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE,
-    );
-
-    fireEvent.click(screen.getByText(AUTH_DOMAINS_SOURCES_DISCLOSURE_TITLE));
-
-    expect(screen.getByTestId("auth-domains-settings-claim-discipline")).toHaveTextContent(
-      AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE,
-    );
+    expect(screen.queryByTestId("auth-domains-settings-claim-discipline")).not.toBeInTheDocument();
 
     for (const source of AUTH_DOMAINS_SETTINGS_SOURCES) {
       expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);

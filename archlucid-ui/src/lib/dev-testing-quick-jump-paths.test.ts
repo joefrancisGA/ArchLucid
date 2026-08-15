@@ -15,9 +15,9 @@ describe("dev-testing-quick-jump-paths", () => {
     expect(devTestingApprovalLineagePath("approval-1")).toBe(
       "/governance/approval-requests/approval-1/lineage",
     );
-    expect(devTestingManifestDetailPath("manifest-1")).toBe("/governance/signed-records/manifest-1");
+    expect(devTestingManifestDetailPath("manifest-1")).toBe("/governance/sealed-records/manifest-1");
     expect(devTestingManifestArtifactPath("manifest-1", "artifact-1")).toBe(
-      "/governance/signed-records/manifest-1/artifacts/artifact-1",
+      "/governance/sealed-records/manifest-1/artifacts/artifact-1",
     );
   });
 });

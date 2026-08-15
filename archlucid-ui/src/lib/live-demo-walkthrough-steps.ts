@@ -3,8 +3,8 @@ import {
   DEMO_PREVIEW_ARTIFACT_AUDIT_TITLE,
   DEMO_PREVIEW_ARTIFACT_EVIDENCE_DESC,
   DEMO_PREVIEW_ARTIFACT_EVIDENCE_TITLE,
-  DEMO_PREVIEW_ARTIFACT_EXECUTIVE_DESC,
-  DEMO_PREVIEW_ARTIFACT_EXECUTIVE_TITLE,
+  DEMO_PREVIEW_ARTIFACT_SPONSOR_DESC,
+  DEMO_PREVIEW_ARTIFACT_SPONSOR_TITLE,
   DEMO_PREVIEW_ARTIFACT_GOVERNANCE_DESC,
   DEMO_PREVIEW_ARTIFACT_GOVERNANCE_TITLE,
   DEMO_PREVIEW_ARTIFACT_SIGNED_DESC,
@@ -12,7 +12,7 @@ import {
 } from "@/lib/demo-preview-page-copy";
 
 export type LiveDemoWalkthroughStepId =
-  | "executive"
+  | "sponsor"
   | "signed-record"
   | "evidence"
   | "governance"
@@ -30,11 +30,11 @@ export type LiveDemoWalkthroughStep = {
 
 export const LIVE_DEMO_WALKTHROUGH_STEPS: readonly LiveDemoWalkthroughStep[] = [
   {
-    id: "executive",
+    id: "sponsor",
     number: 1,
-    title: DEMO_PREVIEW_ARTIFACT_EXECUTIVE_TITLE,
-    shortLabel: "Executive",
-    description: DEMO_PREVIEW_ARTIFACT_EXECUTIVE_DESC,
+    title: DEMO_PREVIEW_ARTIFACT_SPONSOR_TITLE,
+    shortLabel: "Sponsor",
+    description: DEMO_PREVIEW_ARTIFACT_SPONSOR_DESC,
     keyTakeaway:
       "Sponsors see the decision, supporting evidence basis, and monitored conditions before drilling into artifacts.",
   },
@@ -42,10 +42,10 @@ export const LIVE_DEMO_WALKTHROUGH_STEPS: readonly LiveDemoWalkthroughStep[] = [
     id: "signed-record",
     number: 2,
     title: DEMO_PREVIEW_ARTIFACT_SIGNED_TITLE,
-    shortLabel: "Signed record",
+    shortLabel: "Sealed record",
     description: DEMO_PREVIEW_ARTIFACT_SIGNED_DESC,
     keyTakeaway:
-      "The signed review record captures finalized status, accountable reviewer, policy coverage, and integrity checks.",
+      "The sealed review record captures finalized status, accountable reviewer, policy coverage, and integrity checks.",
   },
   {
     id: "evidence",
@@ -95,7 +95,7 @@ export function parseLiveDemoWalkthroughStepId(value: string | null | undefined)
     return "audit-trail";
   }
 
-  return "executive";
+  return "sponsor";
 }
 
 export function liveDemoWalkthroughStepIndex(stepId: LiveDemoWalkthroughStepId): number {

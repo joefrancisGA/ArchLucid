@@ -45,13 +45,13 @@ public static class ApiV1Routes
     /// <summary>Soft-deleted architecture projects by workspace (<c>GET /v1/tenant/workspaces/recycle-bin</c>).</summary>
     public const string TenantWorkspacesRecycleBin = "v1/tenant/workspaces/recycle-bin";
 
-    /// <summary>Mocked executive ROI aggregates until analytics persistence is wired.</summary>
+    /// <summary>Mocked sponsor ROI aggregates until analytics persistence is wired.</summary>
     public const string AnalyticsRoi = "v1/analytics/roi";
 
-    /// <summary>Cross-run executive ROI summary (latest run per system + top systemic issues).</summary>
-    public const string RoiExecutiveSummary = "v1/roi/executive-summary";
+    /// <summary>Cross-run sponsor ROI summary (latest run per system + top systemic issues).</summary>
+    public const string RoiSponsorReport = "v1/roi/sponsor-report";
 
-    public const string RoiExecutiveSummaryBoardPack = "v1/roi/executive-summary/board-pack";
+    public const string RoiSponsorReportBoardPack = "v1/roi/sponsor-report/board-pack";
 
     /// <summary>Operator-only anonymized cross-tenant SQL aggregates.</summary>
     public const string InternalCrossTenantAnalytics = "v1/internal/analytics/cross-tenant";

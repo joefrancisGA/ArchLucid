@@ -312,7 +312,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
          * `NEXT_PUBLIC_DEMO_MODE` / static-operator flags are on. Returning a non-empty "live" page skips that path,
          * shrinks the document (~full-page screenshots), and breaks `chromium-visual` goldens.
          *
-         * Client pickers use `loadProjectRunsMergedWithDemoFallback` (`afterEmptyLiveList`); executive/admin SSR uses
+         * Client pickers use `loadProjectRunsMergedWithDemoFallback` (`afterEmptyLiveList`); sponsor/admin SSR uses
          * demo fallback when the live list is empty and demo mode is enabled.
          */
         sendJson(res, 200, {

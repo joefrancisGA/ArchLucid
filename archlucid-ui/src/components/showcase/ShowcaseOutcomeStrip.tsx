@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { MARKETING_CAPTION_TEXT_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
@@ -54,17 +54,17 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/architecture/reviews/${encRun}`}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {`1 · ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel}`}
+            {`1 · ${BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel}`}
           </span>
           <span className={outcomeCaptionClass}>Decision, evidence, and audit package</span>
         </Link>
       ) : (
         <div className={disabledCardClass}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {`1 · ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel}`}
+            {`1 · ${BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel}`}
           </span>
           <span className={outcomeCaptionClass}>
-            Sign in with a connected workspace to open the executive summary and finalized signed record.
+            Sign in with a connected workspace to open the sponsor report and finalized sealed record.
           </span>
         </div>
       )}
@@ -93,7 +93,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`3 · ${BUYER_SURFACE_VOCABULARY.evidenceGraphNav}`}
           </span>
-          <span className={outcomeCaptionClass}>See summarized posture on the finalized signed review record</span>
+          <span className={outcomeCaptionClass}>See summarized posture on the finalized sealed review record</span>
         </Link>
       ) : (
         <div className={disabledCardClass}>
@@ -134,7 +134,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
             <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {`5 · ${BUYER_SURFACE_VOCABULARY.auditTrail}`}
             </span>
-            <span className={outcomeCaptionClass}>PHI minimization posture — see related items in the signed review record</span>
+            <span className={outcomeCaptionClass}>PHI minimization posture — see related items in the sealed review record</span>
           </Link>
         ) : (
           <div className={disabledCardClass}>

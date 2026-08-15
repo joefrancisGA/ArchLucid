@@ -8,9 +8,9 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
-///     Merges Topology agent <see cref="AgentTopologyProposal" /> into the run's graph so authority commit
-///     can project <see cref="ManifestService" /> / <see cref="ManifestDatastore" /> after execute, when the
-///     graph from context ingestion had no <see cref="GraphNodeTypes.TopologyResource" /> nodes.
+///     Merges agent topology proposals into the run's graph so authority commit can project
+///     <see cref="ManifestService" /> / <see cref="ManifestDatastore" /> after execute. Topology agent
+///     proposals may add nodes; topology, cost, compliance, and critic proposals may add relationship edges.
 /// </summary>
 public static class AgentTopologyProposalGraphMerge
 {
@@ -40,19 +40,24 @@ public static class AgentTopologyProposalGraphMerge
         if (validatedResults.Count == 0)
             return graph;
 
-        HashSet<string> seenLabels = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> seenTopologyKeys = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (GraphNode n in graph.Nodes.Where(n => !string.IsNullOrWhiteSpace(n.Label)))
+        foreach (GraphNode node in graph.Nodes)
         {
-            seenLabels.Add(n.Label);
+            if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys(seenTopologyKeys, node);
         }
 
         List<GraphNode> added = [];
         List<GraphEdge> addedEdges = [];
+        HashSet<string> seenDirectedEdgeKeys = CollectDirectedEdgeKeys(graph.Edges);
+        Dictionary<string, string> accumulatedEndpointAliases = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (AgentResult result in validatedResults)
         {
-            if (result.AgentType != AgentType.Topology)
+            if (!ContributesProposalEndpointAliases(result.AgentType))
                 continue;
 
             AgentTopologyProposal? proposal = result.ProposedChanges;
@@ -60,51 +65,68 @@ public static class AgentTopologyProposalGraphMerge
             if (proposal is null)
                 continue;
 
+            bool materializeNodes = result.AgentType == AgentType.Topology;
             string? reasoning = result.ReasoningTrace?.Trim();
+            Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase);
 
             if (proposal.AddedServices is { Count: > 0 })
             {
                 foreach (ManifestService svc in proposal.AddedServices)
                 {
-                    if (string.IsNullOrWhiteSpace(svc.ServiceName))
-                        continue;
+                    if (TopologyProposalRelationshipEndpointIndex.TryClaimService(svc, seenTopologyKeys))
+                    {
+                        if (materializeNodes)
+                            added.Add(TopologyServiceNode(svc, reasoning));
 
-                    if (!seenLabels.Add(svc.ServiceName))
                         continue;
+                    }
 
-                    added.Add(TopologyServiceNode(svc, reasoning));
+                    TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases(
+                        endpointAliases,
+                        svc,
+                        [.. graph.Nodes, .. added]);
                 }
             }
 
-            if (proposal.AddedDatastores is not { Count: > 0 })
+            if (proposal.AddedDatastores is { Count: > 0 })
             {
-                if (proposal.AddedRelationships is { Count: > 0 })
+                foreach (ManifestDatastore ds in proposal.AddedDatastores)
                 {
-                    addedEdges.AddRange(TopologyProposalRelationshipEdgeMapper.MapRelationships(
-                        [.. graph.Nodes, .. added],
-                        proposal.AddedRelationships));
+                    if (TopologyProposalRelationshipEndpointIndex.TryClaimDatastore(ds, seenTopologyKeys))
+                    {
+                        if (materializeNodes)
+                            added.Add(TopologyDatastoreNode(ds, reasoning));
+
+                        continue;
+                    }
+
+                    TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointAliases(
+                        endpointAliases,
+                        ds,
+                        [.. graph.Nodes, .. added]);
                 }
+            }
 
+            MergeEndpointAliasesInto(accumulatedEndpointAliases, endpointAliases);
+        }
+
+        foreach (AgentResult result in validatedResults)
+        {
+            if (!MaterializesProposalRelationships(result.AgentType))
                 continue;
-            }
 
-            foreach (ManifestDatastore ds in proposal.AddedDatastores)
-            {
-                if (string.IsNullOrWhiteSpace(ds.DatastoreName))
-                    continue;
+            AgentTopologyProposal? proposal = result.ProposedChanges;
 
-                if (!seenLabels.Add(ds.DatastoreName))
-                    continue;
+            if (proposal is null || proposal.AddedRelationships is not { Count: > 0 })
+                continue;
 
-                added.Add(TopologyDatastoreNode(ds, reasoning));
-            }
-
-            if (proposal.AddedRelationships is { Count: > 0 })
-            {
-                addedEdges.AddRange(TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            AppendUniqueEdges(
+                addedEdges,
+                seenDirectedEdgeKeys,
+                TopologyProposalRelationshipEdgeMapper.MapRelationships(
                     [.. graph.Nodes, .. added],
-                    proposal.AddedRelationships));
-            }
+                    proposal.AddedRelationships,
+                    accumulatedEndpointAliases));
         }
 
         if (added.Count == 0 && addedEdges.Count == 0)
@@ -159,5 +181,52 @@ public static class AgentTopologyProposalGraphMerge
         Enum e2)
     {
         return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [key1] = e1.ToString(), [key2] = e2.ToString() };
+    }
+
+    private static bool ContributesProposalEndpointAliases(AgentType agentType) =>
+        agentType is AgentType.Topology or AgentType.Cost or AgentType.Compliance or AgentType.Critic;
+
+    private static bool MaterializesProposalRelationships(AgentType agentType) =>
+        ContributesProposalEndpointAliases(agentType);
+
+    private static HashSet<string> CollectDirectedEdgeKeys(IReadOnlyList<GraphEdge> edges)
+    {
+        HashSet<string> seenDirectedEdgeKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (GraphEdge edge in edges)
+        {
+            seenDirectedEdgeKeys.Add(BuildDirectedEdgeKey(edge.FromNodeId, edge.ToNodeId, edge.EdgeType));
+        }
+
+        return seenDirectedEdgeKeys;
+    }
+
+    private static void AppendUniqueEdges(
+        List<GraphEdge> target,
+        HashSet<string> seenDirectedEdgeKeys,
+        IReadOnlyList<GraphEdge> candidateEdges)
+    {
+        foreach (GraphEdge edge in candidateEdges)
+        {
+            string edgeKey = BuildDirectedEdgeKey(edge.FromNodeId, edge.ToNodeId, edge.EdgeType);
+
+            if (!seenDirectedEdgeKeys.Add(edgeKey))
+                continue;
+
+            target.Add(edge);
+        }
+    }
+
+    private static string BuildDirectedEdgeKey(string fromNodeId, string toNodeId, string edgeType) =>
+        $"{fromNodeId}|{toNodeId}|{edgeType}";
+
+    private static void MergeEndpointAliasesInto(
+        Dictionary<string, string> target,
+        IReadOnlyDictionary<string, string> source)
+    {
+        foreach (KeyValuePair<string, string> alias in source)
+        {
+            target.TryAdd(alias.Key, alias.Value);
+        }
     }
 }

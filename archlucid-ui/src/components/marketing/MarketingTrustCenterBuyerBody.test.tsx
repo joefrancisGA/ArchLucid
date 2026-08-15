@@ -112,6 +112,10 @@ describe("MarketingTrustCenterBuyerBody", () => {
       "/help/data-handling",
     );
     expect(within(related).getByTestId("trust-related-help-subprocessors")).toHaveAttribute("href", "/help/subprocessors");
+    expect(within(related).getByTestId("trust-related-help-caiq-sig-response")).toHaveAttribute(
+      "href",
+      "/help/caiq-sig-response",
+    );
     expect(within(related).getByTestId("trust-related-help-getting-started")).toHaveAttribute(
       "href",
       "/help/getting-started#how-archlucid-works",

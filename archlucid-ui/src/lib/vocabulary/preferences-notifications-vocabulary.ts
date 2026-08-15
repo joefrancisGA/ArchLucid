@@ -2,7 +2,7 @@
  * TB-2295 — Preferences ≠ Notifications vocabulary rail.
  *
  * Why two surfaces exist:
- * - Preferences (`/administration/preferences`) is personal appearance/theme
+ * - Preferences (`/account/preferences`) is personal appearance/theme
  *   settings saved to your account.
  * - Notifications (`/administration/notifications`) is the channel preference
  *   launcher for digests, alerts, Teams, and Slack configure pages.
@@ -12,10 +12,8 @@
  * (TB-2254).
  */
 
-import {
-  SETTINGS_NOTIFICATIONS_PATH,
-  SETTINGS_PREFERENCES_PATH,
-} from "@/lib/settings-admin-route-paths";
+import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
+import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
 
 export type PreferencesNotificationsSurfaceId = "preferences" | "notifications";
 
@@ -46,7 +44,7 @@ export const PREFERENCES_NOTIFICATIONS_COMPACT_LINE =
 export const PREFERENCES_NOTIFICATIONS_PREFERENCES_LINK: PreferencesNotificationsLink = {
   id: "preferences",
   label: "Preferences",
-  href: SETTINGS_PREFERENCES_PATH,
+  href: ACCOUNT_PREFERENCES_PATH,
   whenToUse: "Set personal appearance and theme for your account.",
 };
 

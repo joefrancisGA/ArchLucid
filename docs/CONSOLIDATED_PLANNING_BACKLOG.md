@@ -74,7 +74,7 @@ Ordered by weighted deficiency (highest first). Source: [`assessments/LATEST_GPT
 | CPB-A04 | **Time-to-Value** — vertical sample run at trial signup; extractor resilient to missing RBAC | LATEST category 3 | **Keep** | V1-now | Confirmed 2026-05-21. Metric shipped; open: trial vertical seed run + graceful extractor on missing optional RBAC. |
 | CPB-A05 | **Usability** — tooltips, guided tour, progressive disclosure (#19 engineering) | LATEST category 4 | **Keep** | V1-now | Confirmed 2026-05-21. Top weakness #1; supports live demos (M-19). |
 | CPB-A06 | **Proof-of-ROI** — surface `EstimatedUsdSavings` in pilot deltas; customer baselines | LATEST category 5 | **Keep** | V1-now | Confirmed 2026-05-21. Empirical ROI narrative for service-led wedge. |
-| CPB-A07 | **Executive Value Visibility** — UI discoverability for pilot exports; demo vs real indicators | LATEST category 6 | **Keep** | V1-now | Confirmed 2026-05-21. Executive summary API shipped; UI polish only. |
+| CPB-A07 | **Sponsor Value Visibility** — UI discoverability for pilot exports; demo vs real indicators | LATEST category 6 | **Keep** | V1-now | Confirmed 2026-05-21. Sponsor summary API shipped; UI polish only. |
 | CPB-A08 | **Reliability** — Dapper `CommandTimeout`, HttpClient timeouts, failover drill doc | LATEST category 7; weakness #7 | **Keep** | V1-now | Confirmed 2026-05-21. |
 | CPB-A09 | **Maintainability** — `GovernanceConstants`; planning doc hygiene | LATEST category 8; weakness #10 | **Keep** | V1-now | Confirmed 2026-05-21. Constants extraction + treat this file as active planning spine (archive stays historical). |
 | CPB-A10 | **Decision Velocity** — `POST /v1/governance/simulate` dry-run | LATEST category 9; enterprise blocker #6 | **Keep** | V1-now | Confirmed 2026-05-21. |
@@ -150,7 +150,7 @@ Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only
 | CPB-D08 | CI test coverage ratchet to 95% | `V1_DEFERRED.md` §4 | **Keep** | V1.1 | Confirmed 2026-05-22. |
 | CPB-D09 | Hosted trials V1→V1.1 migration doc | `V1_DEFERRED.md` §6i | **Keep** | **V1** | Delivered 2026-05-15; refreshed 2026-05-30 with V1-shipped vs V1.1-owner-gated delta table. |
 | CPB-D10 | Evidence Bulk Upload enhancements | `V1_DEFERRED.md` §6k | **Promote** | **V1** | Cap raised to 200; ZIP expansion shipped server-side + UI hint. Browser folder recursion evaluated and **rejected** by owner (2026-07-05) — no remainder tracked. |
-| CPB-D11 | Executive ROI summary endpoint (cross-run dedup) | `V1_SCOPE.md` §2.8 (promoted from `V1_DEFERRED.md` §6o) | **Promoted** | **V1** | Owner 2026-05-22 — in V1 contract; harden `FindingId` dedup in `ExecutiveRoiSummaryService` if gaps remain. |
+| CPB-D11 | Sponsor ROI summary endpoint (cross-run dedup) | `V1_SCOPE.md` §2.8 (promoted from `V1_DEFERRED.md` §6o) | **Promoted** | **V1** | Owner 2026-05-22 — in V1 contract; harden `FindingId` dedup in `ExecutiveRoiSummaryService` if gaps remain. |
 | CPB-D12 | Outbound MCP client (ArchLucid calls external) | `V1_DEFERRED.md` §6d | **Keep** | V2 | Confirmed 2026-05-22. Requires explicit allowlist and approval-class mapping. |
 | CPB-D13 | Platform scale-out (Redis defaults, distributed graph) | `V1_DEFERRED.md` §6e | **Keep** | V2 | Confirmed 2026-05-22. Redis as expected baseline for scaled fleets. |
 | CPB-D14 | Azure Container Apps Jobs + Durable Task Framework | `V1_DEFERRED.md` §6f | **Keep** | V2 | Confirmed 2026-05-22. Situational — only if pipeline complexity exceeds current limits. |

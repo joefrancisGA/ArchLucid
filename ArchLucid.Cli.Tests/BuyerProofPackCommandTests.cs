@@ -305,7 +305,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
             names.Should().Contain("first-value-report.pdf");
             names.Should().Contain("pilot-run-deltas.json");
             names.Should().Contain("artifact-and-proof-summary.md");
-            names.Should().Contain("executive-sponsor-brief.md");
+            names.Should().Contain("sponsor-sponsor-brief.md");
             names.Should().Contain("trust-posture-pointer.md");
             names.Should().Contain("pilot-scorecard-blank.md");
 

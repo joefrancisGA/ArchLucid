@@ -44,7 +44,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
     const outcomeStrip = await openVisibleReviewOutcomeSummaryStrip(page, SHOWCASE_DEMO_RUN_ID);
 
     const manifestLink = outcomeStripSignedRecordLink(outcomeStrip);
-    const manifestHref = `/governance/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
+    const manifestHref = `/governance/sealed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
 
     await expect(manifestLink).toBeVisible({ timeout: 60_000 });
     await expect(manifestLink).toContainText(/Finalized/i);

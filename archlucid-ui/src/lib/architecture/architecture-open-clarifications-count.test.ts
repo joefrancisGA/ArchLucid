@@ -55,6 +55,6 @@ describe("architecture-open-clarifications-count (TB-1838)", () => {
       peopleAndSystems: [{ label: "Claims analyst", kind: "Human" }],
     };
 
-    expect(countOpenQuestionEntities("## Executive summary\nNo questions here.", userAssertions)).toBe(0);
+    expect(countOpenQuestionEntities("## Sponsor report\nNo questions here.", userAssertions)).toBe(0);
   });
 });

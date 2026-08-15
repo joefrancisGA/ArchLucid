@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { LIVE_DEMO_PAGE_TITLE } from "@/lib/live-demo-page-copy";
+import { SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
+import { MARKETING_CANONICAL_DEMO_PATH } from "@/lib/marketing/marketing-entry-spine";
 import { MARKETING_PUBLIC_NAV_LINK_CLASS } from "@/lib/marketing-public-nav-link-class";
 import { cn } from "@/lib/utils";
 
@@ -159,7 +160,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
           </Link>
           {liveDemoLinked ? (
             <Link
-              href="/live-demo"
+              href={MARKETING_CANONICAL_DEMO_PATH}
               role="menuitem"
               className={cn(
                 "block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900",
@@ -167,7 +168,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
               )}
               onClick={closeMenu}
             >
-              {LIVE_DEMO_PAGE_TITLE}
+              {SEE_IT_PAGE_TITLE}
             </Link>
           ) : null}
         </div>

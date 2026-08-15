@@ -115,10 +115,16 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentCuratedEvidenceProposer, AgentCuratedEvidenceProposer>();
         services.AddScoped<AgentResultPostExecutionEnricher>();
         services.AddScoped<AgentResultRegionMismatchEnricher>();
+        services.AddScoped<AgentProposalStructuralPostProcessorEnricher>();
+        services.AddScoped<CrossAgentProposalConsistencyEnricher>();
+        services.AddScoped<AgentArchitectureFindingEmissionEnricher>();
         services.AddScoped<IAgentResultPostExecutionEnricher>(static sp =>
             new CompositeAgentResultPostExecutionEnricher(
             [
                 sp.GetRequiredService<AgentResultPostExecutionEnricher>(),
+                sp.GetRequiredService<AgentProposalStructuralPostProcessorEnricher>(),
+                sp.GetRequiredService<CrossAgentProposalConsistencyEnricher>(),
+                sp.GetRequiredService<AgentArchitectureFindingEmissionEnricher>(),
                 sp.GetRequiredService<AgentResultRegionMismatchEnricher>(),
             ]));
         services.AddSingleton<IAgentEvidenceUntrustedInputSanitizer, AgentEvidenceUntrustedInputSanitizer>();
@@ -266,6 +272,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<LlmPromptRedactionOptions>(configuration.GetSection(LlmPromptRedactionOptions.SectionName));
         services.Configure<LlmContextWindowOptions>(configuration.GetSection(LlmContextWindowOptions.SectionPath));
         services.AddSingleton<ITokenCounter, CharHeuristicTokenCounter>();
+        services.AddSingleton<ITokenCounterResolver, CatalogTokenCounterResolver>();
         services.AddSingleton<IPostConfigureOptions<LlmPromptRedactionOptions>, LlmPromptRedactionProductionWarningPostConfigure>();
         services.Configure<LlmCompletionCacheOptions>(configuration.GetSection(LlmCompletionCacheOptions.SectionName));
         services.AddSingleton<ISemanticCache>(sp =>
@@ -368,6 +375,10 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AgentSchemaRemediationOptions>(
             configuration.GetSection(AgentSchemaRemediationOptions.SectionPath));
         services.PostConfigure<AgentSchemaRemediationOptions>(static o => o.Normalize());
+        services.Configure<AgentLogicalStepSpendCapOptions>(
+            configuration.GetSection(AgentLogicalStepSpendCapOptions.SectionPath));
+        services.PostConfigure<AgentLogicalStepSpendCapOptions>(static o => o.Normalize());
+        services.AddSingleton<IAgentLogicalStepSpendCapPolicy, AgentLogicalStepSpendCapPolicy>();
 
         RegisterAgentModelTierOrchestration(services, configuration);
 

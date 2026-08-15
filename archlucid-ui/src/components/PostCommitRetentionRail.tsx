@@ -50,8 +50,8 @@ export function PostCommitRetentionRail({
         <CardDescription className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
             ? showcaseSpine
-              ? "After the sample review, continue Executive Summary → signed review record → evidence trail → governance approval → audit trail."
-              : "Finalized package — use Executive Summary, then signed review record, evidence trail, governance, and audit trail in order."
+              ? "After the sample review, continue Sponsor Report → sealed review record → evidence trail → governance approval → audit trail."
+              : "Finalized package — use Sponsor Report, then sealed review record, evidence trail, governance, and audit trail in order."
             : "You have a finalized review. Pick the next loop that fits your team—navigation stays inside this workspace."}
         </CardDescription>
       </CardHeader>
@@ -59,7 +59,7 @@ export function PostCommitRetentionRail({
         {buyerPolishedShell ? (
           <>
             {/*
-              Executive summary is already the prominent CTA on review detail; this rail continues the package path.
+              Sponsor report is already the prominent CTA on review detail; this rail continues the package path.
             */}
             <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
               <Link href={`/governance/approval-queue?runId=${encodeURIComponent(runId)}`}>View governance approval</Link>
@@ -89,7 +89,7 @@ export function PostCommitRetentionRail({
         {!buyerPolishedShell ? (
           <>
             <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
-              <Link href={DIGESTS_HUB_PATH} title="Advisory scans, architecture digests, and executive email">
+              <Link href={DIGESTS_HUB_PATH} title="Advisory scans, architecture digests, and sponsor email">
                 Weekly architecture digest
               </Link>
             </Button>

@@ -2,12 +2,21 @@ import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
 } from "@/lib/guided-intake-copy";
 
+import type { ArchitectureDraftStructuredBriefState } from "./architecture-draft-structured-brief";
+import {
+  hasConfirmedActor,
+  listHasConfirmedEntry,
+  qualityAttributeMeetsMinimum,
+} from "./architecture-draft-structured-brief";
+import type { ActorDescriptor } from "@/types/draft-intake";
+
 const MIN_OUTCOME_CHARS = 10;
 
 export type ArchitectureDraftFieldState = {
   readonly freeTextIntent: string;
   readonly businessOutcome: string;
   readonly systemName: string;
+  readonly structuredBrief: ArchitectureDraftStructuredBriefState;
 };
 
 export type ArchitectureDraftValidationResult = {
@@ -49,6 +58,7 @@ export function validateArchitectureDraftIntegrity(
 
 export function validateArchitectureReviewReadiness(
   fields: ArchitectureDraftFieldState,
+  actors: readonly ActorDescriptor[] = [],
 ): ArchitectureDraftValidationResult {
   const blockers: string[] = [];
 
@@ -62,6 +72,22 @@ export function validateArchitectureReviewReadiness(
 
   if (fields.businessOutcome.trim().length < MIN_OUTCOME_CHARS) {
     blockers.push("business outcome");
+  }
+
+  if (!listHasConfirmedEntry(fields.structuredBrief.confirmedConstraints)) {
+    blockers.push("constraint");
+  }
+
+  if (!listHasConfirmedEntry(fields.structuredBrief.confirmedAssumptions)) {
+    blockers.push("assumption");
+  }
+
+  if (!hasConfirmedActor(actors)) {
+    blockers.push("confirmed actor");
+  }
+
+  if (!qualityAttributeMeetsMinimum(fields.structuredBrief.qualityAttribute)) {
+    blockers.push("quality attribute with a numeric target");
   }
 
   return {

@@ -12,4 +12,11 @@ public sealed class NoOpArchitectureRiskRegisterQuery : IArchitectureRiskRegiste
         ArchitectureRiskRegisterListOptions? options = null,
         CancellationToken cancellationToken = default) =>
         Task.FromResult<IReadOnlyList<ArchitectureRiskRegisterEntry>>([]);
+
+    public Task<int> CountAsync(
+        Guid tenantId,
+        Guid? projectId,
+        ArchitectureRiskRegisterListOptions? options = null,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(0);
 }

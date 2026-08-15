@@ -15,7 +15,7 @@ import {
   DIGESTS_BROWSE_SETUP_STATUS_LABEL,
   DIGESTS_CHECKLIST_ACTION_ADD_SUBSCRIPTIONS,
   DIGESTS_CHECKLIST_ACTION_OPEN_ADVISORY,
-  DIGESTS_CHECKLIST_ACTION_OPEN_EXECUTIVE,
+  DIGESTS_CHECKLIST_ACTION_OPEN_SPONSOR,
   DIGESTS_CHECKLIST_ACTION_RUN_SCAN,
   DIGESTS_CHECKLIST_RECIPIENTS_DETAIL_SUFFIX,
   DIGESTS_CHECKLIST_SCHEDULE_DETAIL_PENDING,
@@ -37,7 +37,7 @@ const ADVISORY_SCHEDULE_GAP =
 const SUBSCRIPTION_GAP =
   "No digest subscriptions — generated digests have no outbound recipients in this scope.";
 const EXEC_EMAIL_GAP =
-  "Executive email digest is not fully configured — sponsor emails will not receive the separate executive rollup.";
+  "Sponsor email digest is not fully configured — sponsor emails will not receive the separate sponsor rollup.";
 
 /**
  * Maps a backend setup-gap string to title, impact, and a next-action link.
@@ -64,11 +64,11 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
     };
   }
 
-  if (trimmed === EXEC_EMAIL_GAP || /executive email digest/i.test(trimmed)) {
+  if (trimmed === EXEC_EMAIL_GAP || /sponsor email digest/i.test(trimmed)) {
     return {
-      title: "Executive recipients not configured",
-      impact: "Sponsor emails will not receive the executive rollup.",
-      actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_EXECUTIVE,
+      title: "Sponsor recipients not configured",
+      impact: "Sponsor emails will not receive the sponsor rollup.",
+      actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_SPONSOR,
       href: DIGESTS_SCHEDULE_TAB_PATH,
     };
   }
@@ -76,7 +76,7 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
   return {
     title: "Digest setup needs attention",
     impact: trimmed.length > 0 ? trimmed : "Complete digest configuration to enable delivery.",
-    actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_EXECUTIVE,
+    actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_SPONSOR,
     href: DIGESTS_SCHEDULE_TAB_PATH,
   };
 }
@@ -144,9 +144,9 @@ export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): Digest
 
   if (!snap.executiveEmailDigestEnabled && snap.executiveDigestRecipientCount === 0) {
     return {
-      title: "Configure executive recipients",
-      impact: "Optional sponsor rollup emails are configured on the Executive schedule tab.",
-      actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_EXECUTIVE,
+      title: "Configure sponsor recipients",
+      impact: "Optional sponsor rollup emails are configured on the Sponsor schedule tab.",
+      actionLabel: DIGESTS_CHECKLIST_ACTION_OPEN_SPONSOR,
       href: DIGESTS_SCHEDULE_TAB_PATH,
     };
   }
@@ -265,7 +265,7 @@ export function digestSetupHasIncompleteActionableStep(
   return items.some((item) => item.href !== null && !item.complete);
 }
 
-/** True when schedules, subscriptions, or executive email already have some configuration. */
+/** True when schedules, subscriptions, or sponsor email already have some configuration. */
 export function digestsHaveExistingConfiguration(snap: WeeklyDigestHealthDto): boolean {
   return (
     snap.enabledAdvisoryScheduleCount > 0 ||

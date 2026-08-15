@@ -10,7 +10,8 @@ public enum CorpusKind
     PlatformDoc,
     ReferenceArchitecture,
     AzureRetailPrice,
-    KnowledgeGraphNode
+    KnowledgeGraphNode,
+    KnowledgeGraphCommunity
 }
 
 /// <summary>Platform-scoped corpus sentinel values.</summary>

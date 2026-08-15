@@ -6,10 +6,10 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export type SignedRecordSourceLink = EvidenceSourceLink;
 
 /** Workbook path pattern for MMX (dynamic manifest id). */
-export const SIGNED_RECORD_CANONICAL_PATH_PATTERN = "/governance/signed-records/[manifestId]" as const;
+export const SIGNED_RECORD_CANONICAL_PATH_PATTERN = "/governance/sealed-records/[manifestId]" as const;
 
 export const SIGNED_RECORD_CLAIM_DISCIPLINE =
-  "This signed review record packages decisions, findings, and downloadable artifacts for one finalized review — it is application-layer lineage closure. Open Audit or Assurance status when you need broader assurance cites.";
+  "This sealed review record packages decisions, findings, and downloadable artifacts for one finalized review — it is application-layer lineage closure. Open Audit or Assurance status when you need broader assurance cites.";
 
 export const SIGNED_RECORD_SOURCES_INTRO =
   "Use these follow-ups when the signed review needs findings triage, audit trail, or assurance cites.";

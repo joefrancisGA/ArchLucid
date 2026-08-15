@@ -5,7 +5,7 @@
  * - Findings queue (`/governance/findings`) is the governance triage inbox for
  *   dispositioning risks, assigning owners, and clearing open items.
  * - Search review evidence (`/insights/search-review-evidence`) retrieves
- *   findings, decisions, and signed review records across architecture packages
+ *   findings, decisions, and sealed review records across architecture packages
  *   in the evidence trail.
  *
  * They stay separate because triage disposition is not the same task as
@@ -37,7 +37,7 @@ export const FINDINGS_QUEUE_SEARCH_EVIDENCE_HEADING =
   "Findings queue and Search review evidence serve different purposes" as const;
 
 export const FINDINGS_QUEUE_SEARCH_EVIDENCE_WHY_TWO =
-  "The findings queue is the governance triage inbox for dispositioning risks, assigning owners, and clearing open items. Search review evidence finds findings, decisions, and signed review records across architecture packages in the evidence trail. Use the findings queue to triage; open Search when you need to locate evidence across packages." as const;
+  "The findings queue is the governance triage inbox for dispositioning risks, assigning owners, and clearing open items. Search review evidence finds findings, decisions, and sealed review records across architecture packages in the evidence trail. Use the findings queue to triage; open Search when you need to locate evidence across packages." as const;
 
 export const FINDINGS_QUEUE_SEARCH_EVIDENCE_COMPACT_LINE =
   "Findings queue triages risks; Search finds evidence across architecture packages — open the other when you need both." as const;
@@ -53,7 +53,7 @@ export const FINDINGS_QUEUE_SEARCH_EVIDENCE_SEARCH_LINK: FindingsQueueSearchEvid
   id: "search-evidence",
   label: "Search review evidence",
   href: SEARCH_REVIEW_EVIDENCE_PATH,
-  whenToUse: "Find findings, decisions, and signed review records across architecture packages.",
+  whenToUse: "Find findings, decisions, and sealed review records across architecture packages.",
 };
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */

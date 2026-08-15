@@ -36,7 +36,7 @@ vi.mock("@/lib/use-nav-surface", async (importOriginal) => {
   return {
     ...mod,
     useNavSurface: (routeKey: import("@/lib/layer-guidance").LayerGuidancePageKey) => {
-      const real = mod.composeNavSurface(routeKey, 0, false, false, true);
+      const real = mod.composeNavSurface(routeKey, 0, true);
 
       return { ...real, mutationCapability: mutateCapability.current };
     },

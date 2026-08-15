@@ -12,6 +12,8 @@ import { useAiUsageRouteShellState } from "@/app/(operator)/administration/ai-us
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { OPERATOR_LINK, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
 import Link from "next/link";
+import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { useImpactPreviewShellPageState } from "@/lib/impact-preview-route-shell-state";
 import { routeViewExplanationForPathname, explainViewDismissKey } from "@/lib/usability/route-view-explanations";
 
 /** Compact per-route orientation — merged into the main column, not a competing right-side hero card. */
@@ -19,10 +21,15 @@ export function ExplainThisViewBanner() {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const aiUsageShell = useAiUsageRouteShellState();
+  const impactPreviewPageState = useImpactPreviewShellPageState();
   const quietEmptyPeriod =
     pathname === AI_USAGE_SETTINGS_PATH && aiUsageShell?.isQuietEmptyPeriod === true;
   const explanation = routeViewExplanationForPathname(pathname, {
     isAiUsageQuietEmptyPeriod: quietEmptyPeriod,
+    impactPreviewPageState:
+      pathname === IMPACT_PREVIEW_PATH || pathname.startsWith(`${IMPACT_PREVIEW_PATH}/`)
+        ? impactPreviewPageState
+        : undefined,
     search: searchParams.toString(),
   });
   const [dismissed, setDismissed] = useState(false);

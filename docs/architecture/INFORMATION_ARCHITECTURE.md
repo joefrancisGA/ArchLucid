@@ -24,9 +24,9 @@ Next.js route groups map **authentication shell**, not content kind alone:
 |-------------|--------------|-------------------|
 | `(marketing)` | `/welcome`, `/pricing`, `/signup`, `/trust`, `/faq` | **4** Marketing; **5** Security & Trust on `/trust`, `/security-trust`, `/compliance-journey` |
 | `(operator)` | `/reviews`, `/governance/**`, `/help/**`, `/administration/settings/**` | **1** Contextual help on feature pages; **2** and **3** under `/help/{slug}`; settings pages may link to **3** |
-| `(executive)` | Executive scorecard and value surfaces | **1** Contextual help; links to **2** guides |
+| `(sponsor)` | Sponsor scorecard and value surfaces | **1** Contextual help; links to **2** guides |
 
-**Decision record:** Marketing and trust pages stay **public and outside** the architect workspace so evaluators and procurement reviewers never need a tenant login to read buyer-safe posture material. Architect (`(operator)`) and executive groups require authentication because they expose tenant-scoped data and configuration. Category **1** intentionally has **no dedicated routes** — it is an in-page UI pattern (`ContextualHelp`, `PageContextualHelpButton`, future `contextual-help-registry.ts`), not a browsable help tree.
+**Decision record:** Marketing and trust pages stay **public and outside** the architect workspace so evaluators and procurement reviewers never need a tenant login to read buyer-safe posture material. Architect (`(operator)`) and sponsor groups require authentication because they expose tenant-scoped data and configuration. Category **1** intentionally has **no dedicated routes** — it is an in-page UI pattern (`ContextualHelp`, `PageContextualHelpButton`, future `contextual-help-registry.ts`), not a browsable help tree.
 
 Canonical route inventory: [`docs/architecture/ui_routes.md`](ui_routes.md).
 

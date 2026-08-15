@@ -1,7 +1,7 @@
-import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { getShowcaseSponsorHref, getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { isBuyerGoldenSpineRunId } from "@/lib/buyer/buyer-golden-spine-run-id";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { comparePageHref } from "@/lib/compare-url-query-params";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
@@ -29,8 +29,8 @@ const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   {
     step: 1,
-    label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
-    href: getShowcaseExecutiveHref(),
+    label: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
+    href: getShowcaseSponsorHref(),
     chipTooltip:
       "Condensed outcomes, posture, and monitored risks for sponsor sign-off — the diligence starting point.",
   },
@@ -45,7 +45,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
     // Surface name (TB-2097 B): destination pill; “Evidence trail” remains the glossary concept.
     label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
     href: `/insights/evidence-graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`,
-    chipTooltip: "Interactive graph linking evidence → findings → decisions → signed review record outputs.",
+    chipTooltip: "Interactive graph linking evidence → findings → decisions → sealed review record outputs.",
   },
   {
     step: 4,
@@ -101,16 +101,16 @@ export function resolveBuyerGoldenJourneyNav(
   const path = normalizedPath(pathname);
   const defs = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS;
 
-  const execBase = normalizedPath(getShowcaseExecutiveHref());
+  const execBase = normalizedPath(getShowcaseSponsorHref());
   const manifestBase = normalizedPath(getShowcaseManifestHref());
   const manifestRecord = signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
   const manifestArchitecturePath = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}/architecture`;
 
   let stepIdx: number | null = null;
 
-  const signedRecordFriendly = /^\/architecture\/reviews\/([^/]+)\/signed-record\b/.exec(path);
-  // Live SQL golden manifests use seeded GUIDs under `/governance/signed-records/{id}` (legacy `/signed-records/{id}` redirects here).
-  const signedRecordCanonical = /^\/(?:governance\/)?signed-records\/([^/]+)$/.exec(path);
+  const signedRecordFriendly = /^\/architecture\/reviews\/([^/]+)\/(?:signed|sealed)-record\b/.exec(path);
+  // Live SQL golden manifests use seeded GUIDs under `/governance/sealed-records/{id}` (legacy `/signed-records/{id}` redirects here).
+  const signedRecordCanonical = /^\/(?:governance\/)?(?:signed|sealed)-records\/([^/]+)$/.exec(path);
 
   if (signedRecordFriendly !== null && isBuyerGoldenSpineRunId(signedRecordFriendly[1] ?? "")) {
     stepIdx = 1;
@@ -125,9 +125,9 @@ export function resolveBuyerGoldenJourneyNav(
   } else if (path === execBase) {
     stepIdx = 0;
   } else {
-    const reviewExecutive = /^\/architecture\/reviews\/([^/]+)$/.exec(path);
+    const reviewSponsor = /^\/architecture\/reviews\/([^/]+)$/.exec(path);
 
-    if (reviewExecutive !== null && isBuyerGoldenSpineRunId(reviewExecutive[1])) {
+    if (reviewSponsor !== null && isBuyerGoldenSpineRunId(reviewSponsor[1])) {
       stepIdx = 0;
     } else if (path.startsWith("/insights/evidence-graph")) {
       const graphRunId =

@@ -3,7 +3,7 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Core.Explanation;
 
 /// <summary>
-///     Builds an aggregated <see cref="RunExplanationSummary" /> for dashboard and executive views.
+///     Builds an aggregated <see cref="RunExplanationSummary" /> for dashboard and sponsor views.
 /// </summary>
 public interface IRunExplanationSummaryService
 {

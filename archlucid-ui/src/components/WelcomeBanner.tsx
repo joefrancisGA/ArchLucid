@@ -9,6 +9,7 @@ import type { CSSProperties } from "react";
 import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Button } from "@/components/ui/button";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -40,10 +41,11 @@ export function WelcomeBanner() {
   const [dismissed, setDismissed] = useState(true);
   const [hydrated, setHydrated] = useState(false);
 
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const skipShellProbes = shouldSkipTenantTrialStatusFetch();
   const runsQueryEnabled = hydrated && !dismissed && !skipShellProbes;
 
-  const trialQuery = useTenantTrialStatusQuery();
+  const trialQuery = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
   const runsQuery = useAskProjectRunsQuery(DEFAULT_PROJECT_ID, { enabled: runsQueryEnabled });
 
   const trialStatusResolved = skipShellProbes || !trialQuery.isPending;
@@ -154,7 +156,7 @@ export function WelcomeBanner() {
     </>
   ) : buyerPolishedShell ? (
     <>
-      Start with the <strong>executive view</strong>, then the <strong>signed review record</strong>, <strong>audit trail</strong>, and prioritized{" "}
+      Start with the <strong>sponsor view</strong>, then the <strong>sealed review record</strong>, <strong>audit trail</strong>, and prioritized{" "}
       <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
     </>
   ) : (
@@ -226,7 +228,7 @@ export function WelcomeBanner() {
             <ul className="m-0 mb-2.5 list-none space-y-2 p-0">
               {(
                 [
-                  { id: "governed-manifest", label: "Signed review record" as const, Icon: FileCheck2 },
+                  { id: "governed-manifest", label: "Sealed review record" as const, Icon: FileCheck2 },
                   { id: "actionable-findings", label: "Actionable findings" as const, Icon: Target },
                   {
                     id: "artifact-bundle",
@@ -244,7 +246,7 @@ export function WelcomeBanner() {
             </ul>
             <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerPolishedShell
-                ? "Executive view for sponsors; signed review record summary for the finalized package; optional read-only walkthrough when you want a guided tour."
+                ? "Sponsor view for sponsors; sealed review record summary for the finalized package; optional read-only walkthrough when you want a guided tour."
                 : "One request produces everything needed for review."}
             </p>
           </div>

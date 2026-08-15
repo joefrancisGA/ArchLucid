@@ -3,15 +3,21 @@ import { COMPARE_TWO_REVIEWS_PATH, LEGACY_COMPARE_PATH } from "@/lib/compare-two
 import { EVIDENCE_GRAPH_PATH, LEGACY_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { ARCHITECTURE_SCORECARD_PATH, LEGACY_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { IMPACT_PREVIEW_PATH, LEGACY_EVOLUTION_REVIEW_PATH } from "@/lib/impact-preview-route";
-import { LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH } from "@/lib/legacy-architecture-graph-route";
-import { LEGACY_ONBOARD_PATH } from "@/lib/legacy-onboard-route";
-import { LEGACY_LOGIN_PATH } from "@/lib/legacy-login-route";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { PLANNING_PATH, LEGACY_INSIGHTS_PLANNING_PATH, LEGACY_PLANNING_PATH } from "@/lib/planning-route";
 import { LEGACY_PRODUCT_LEARNING_PATH, PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import { LEGACY_SEARCH_PATH, SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
+import { RETIRED_PILOT_OUTCOMES_PATH } from "@/lib/sponsor-report-navigation";
+import {
+  RETIRED_LOGIN_BOOKMARK_PATH,
+  RETIRED_ONBOARD_BOOKMARK_PATH,
+  RETIRED_ONBOARDING_START_BOOKMARK_PATH,
+  RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
+} from "@/lib/ui-route-traffic-retired-redirect-shims";
+import { LEGACY_ONBOARDING_PATH } from "@/lib/first-review-guide-route";
+import { LEGACY_GETTING_STARTED_PATH } from "@/lib/getting-started-help-guide-content";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
 
 /** Extra marketing paths not always in the sitemap (noindex / funnel). */
@@ -36,25 +42,20 @@ const CANONICAL_OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/integrations",
   "/administration",
   "/internal",
-  "/insights/executive-summary",
-  "/insights/pilot-outcomes",
+  "/insights/sponsor-report",
   "/insights/roi-summary",
   "/help",
   "/why-archlucid",
   COMPARE_TWO_REVIEWS_PATH,
-  "/internal/replay",
-  "/executive",
+  "/internal/validate-route",
+  "/sponsor",
   EVIDENCE_GRAPH_PATH,
   PATTERN_LIBRARY_PATH,
-  LEGACY_OPERATE_ARCHITECTURE_GRAPH_PATH,
-  LEGACY_ONBOARD_PATH,
-  "/onboarding",
   PLANNING_PATH,
   PRODUCT_LEARNING_PATH,
   "/advisory-scheduling",
   SEARCH_REVIEW_EVIDENCE_PATH,
   "/demo",
-  "/getting-started",
   IMPACT_PREVIEW_PATH,
   DIGESTS_HUB_PATH,
   "/workspace",
@@ -85,9 +86,15 @@ const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
   LEGACY_ASK_PATH,
   LEGACY_EVOLUTION_REVIEW_PATH,
   LEGACY_DIGESTS_HUB_PATH,
-  LEGACY_LOGIN_PATH,
   LEGACY_PLANNING_PATH,
   LEGACY_INSIGHTS_PLANNING_PATH,
+  RETIRED_PILOT_OUTCOMES_PATH,
+  RETIRED_LOGIN_BOOKMARK_PATH,
+  RETIRED_ONBOARD_BOOKMARK_PATH,
+  RETIRED_ONBOARDING_START_BOOKMARK_PATH,
+  RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
+  LEGACY_ONBOARDING_PATH,
+  LEGACY_GETTING_STARTED_PATH,
 ];
 
 const OPERATOR_PATH_PREFIXES: readonly string[] = [

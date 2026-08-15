@@ -50,7 +50,10 @@ export const MODEL_GOVERNANCE_PROFILE_AUDIT_DEEP_LINK_EVENT_TYPE =
   "Workspace.ModelExecutionProfileUpdated" as const;
 
 export const MODEL_GOVERNANCE_CONNECTION_STATEMENT_COPY =
-  "Provider connections run through ArchLucid-managed trust boundaries.";
+  "Provider connections run through ArchLucid-managed trust boundaries. Engine choice applies to review completions only — embeddings and retrieval indexes remain ArchLucid-managed Azure OpenAI.";
+
+export const MODEL_GOVERNANCE_EXTERNAL_SUBPROCESSOR_BOUNDARY_COPY =
+  "Optional third-party completion engines are offered only after the subprocessors register and trust-center disclosure checklist is complete. Workspace administrators must acknowledge regulated-evidence routing before first use.";
 
 export const MODEL_GOVERNANCE_CONNECTION_TRUST_CENTER_LABEL = "Security & Trust";
 

@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Shield } from "lucide-react";
 import { cloneElement, isValidElement, useState, type ReactElement } from "react";
@@ -36,7 +36,7 @@ export function CtoDemoHowItWorksTrigger(props: CtoDemoHowItWorksTriggerProps): 
     variant === "link" ? (
       <button
         type="button"
-        className={cn("font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
+        className={OPERATOR_BODY_INLINE_LINK_CLASS}
         data-testid="cto-demo-how-it-works-link"
       >
         How we handle your data →

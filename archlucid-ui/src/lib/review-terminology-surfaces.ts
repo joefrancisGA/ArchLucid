@@ -25,7 +25,7 @@ export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
   "src/components/draft-intake/DraftIntakeWhatIfBranchPanel.tsx",
   "src/app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
   "src/app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx",
-  "src/app/(operator)/insights/executive-summary/_sections/PilotValueReportPageView.tsx",
+  "src/app/(operator)/insights/sponsor-report/_sections/PilotValueReportPageView.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard.tsx",
 ] as const;
 
@@ -132,7 +132,7 @@ export const REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS: readonly string[] = [
   "completed review package",
   "sample review package",
   "governance evidence package",
-  "executive briefing package",
+  "sponsor briefing package",
   "proof package",
   "diligence package",
   "download review package",
@@ -289,9 +289,9 @@ export const REVIEW_TERMINOLOGY_GOLDEN_PATH_SURFACE_PATHS = [
   "src/lib/invite-reviewer-evidence-copy.ts",
   "src/lib/operator/operator-home-evidence-copy.ts",
   "src/components/operator-home/OperatorHomeGlossarySections.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPreFinalizedEmptyState.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPreFinalizedEmptyState.tsx",
   "src/app/(operator)/architecture/reviews/new/ReviewsNewMoreWaysToStart.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/resolve-review-package-attention-line.ts",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/resolve-review-package-attention-line.ts",
 ] as const;
 
 /** Lowercase phrase fragments banned on golden-path primary chrome (TB-2131). */
@@ -315,14 +315,14 @@ export const REVIEW_TERMINOLOGY_GOLDEN_PATH_BANNED_PATTERNS = [
 ] as const;
 
 export const REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS = [
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailPageView.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/ReviewPackageSummaryHeader.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/ReviewPackagePrimaryAction.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/resolve-review-package-attention-line.ts",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailExecutiveSummaryCtaCard.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailGovernanceCta.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailCaptureEvidenceSection.tsx",
-  "src/app/(operator)/architecture/reviews/[runId]/_sections/RunDetailExecutiveBottomLine.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailPageView.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackageSummaryHeader.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackagePrimaryAction.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/resolve-review-package-attention-line.ts",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailExecutiveSummaryCtaCard.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailGovernanceCta.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCaptureEvidenceSection.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSponsorBottomLine.tsx",
   "src/components/runs/RunDetailOutcomeCards.tsx",
   "src/components/usability/ReviewPackagePlainSummary.tsx",
   "src/components/usability/ReviewPackageEvidenceDensityStrip.tsx",
@@ -339,11 +339,11 @@ export const REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS = [
  * golden-path scans above.
  */
 export const REVIEW_TERMINOLOGY_FINALIZE_AUDIT_SURFACE_PATHS = [
-  "src/app/(operator)/governance/signed-records/_sections/signed-records-list-copy.ts",
-  "src/app/(operator)/governance/signed-records/_sections/SignedRecordsListTable.tsx",
+  "src/app/(operator)/governance/sealed-records/_sections/signed-records-list-copy.ts",
+  "src/app/(operator)/governance/sealed-records/_sections/SignedRecordsListTable.tsx",
   "src/app/(operator)/governance/audit/_sections/AuditResultsSection.tsx",
   "src/app/(operator)/why-archlucid/_sections/WhyArchLucidSponsorPackBody.tsx",
-  "src/components/ExecutiveWorkspaceHealthDashboard.tsx",
+  "src/components/SponsorWorkspaceHealthDashboard.tsx",
   "src/components/ValueRealizationDashboard.tsx",
   "src/components/governance/PolicySimulator.tsx",
   "src/components/operator-home/HomeMaturityLayerCards.tsx",

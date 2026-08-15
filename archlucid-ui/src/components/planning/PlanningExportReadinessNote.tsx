@@ -29,15 +29,24 @@ export function PlanningExportReadinessNote() {
   const showTechnicalExport = isShowSystemAdministrationNavEnabled();
 
   return (
-    <aside className={boxCls} aria-label={IMPROVEMENT_PLANNING_EXPORT_SECTION_TITLE} data-testid="planning-export-section">
+    <aside
+      id="planning-export-section"
+      className={boxCls}
+      aria-label={IMPROVEMENT_PLANNING_EXPORT_SECTION_TITLE}
+      data-testid="planning-export-section"
+    >
       <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{IMPROVEMENT_PLANNING_EXPORT_SECTION_TITLE}</h3>
       <p className="mt-2">{IMPROVEMENT_PLANNING_EXPORT_SECTION_DESCRIPTION}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button asChild variant="outline" size="sm">
-          <a href={buildLearningPlanningReportFileUrl("markdown")}>{IMPROVEMENT_PLANNING_DOWNLOAD_REPORT_CTA}</a>
+          <a id="planning-export-report" href={buildLearningPlanningReportFileUrl("markdown")}>
+            {IMPROVEMENT_PLANNING_DOWNLOAD_REPORT_CTA}
+          </a>
         </Button>
         <Button asChild variant="outline" size="sm">
-          <a href={buildLearningPlanningReportFileUrl("json")}>{IMPROVEMENT_PLANNING_EXPORT_DATA_CTA}</a>
+          <a id="planning-export-data" href={buildLearningPlanningReportFileUrl("json")}>
+            {IMPROVEMENT_PLANNING_EXPORT_DATA_CTA}
+          </a>
         </Button>
       </div>
 

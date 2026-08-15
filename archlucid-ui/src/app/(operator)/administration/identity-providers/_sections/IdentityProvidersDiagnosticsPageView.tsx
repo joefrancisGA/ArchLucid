@@ -26,6 +26,7 @@ import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
 import { IdentityProviderHealthStrip } from "./IdentityProviderHealthStrip";
 import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
 import { IdentityProvidersCatalogTable } from "./IdentityProvidersCatalogTable";
+import { IdentityProvidersDiagnosticsSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 import { OidcDiagnosticsStrip } from "./OidcDiagnosticsStrip";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
@@ -106,6 +107,7 @@ export function IdentityProvidersDiagnosticsPageView(
       diagnosticsDataUnavailable={props.model.diagnosticsDataUnavailable}
       onRefresh={() => void props.model.refresh()}
     >
+      <IdentityProvidersDiagnosticsSettingsEvidenceOrientationStrip />
       <div className="space-y-4" data-testid="identity-providers-diagnostics-primary-lead">
         {bundlePending ? (
           <p

@@ -49,3 +49,6 @@ export function hasExecDigestScheduleLivePreviewPinContent(input: {
 
   return input.hasPreviewDigest;
 }
+
+/** Sponsor digest schedule tab — same pin policy as exec digest schedule. */
+export const hasSponsorDigestScheduleLivePreviewPinContent = hasExecDigestScheduleLivePreviewPinContent;

@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
-
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -54,7 +52,7 @@ export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.
           />
           <Link
             href={POLICY_PACKS_RESOLUTION_LINK_HREF}
-            className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+            className={OPERATOR_LINK.optional}
             data-testid="policy-packs-resolution-link"
           >
             {POLICY_PACKS_RESOLUTION_LINK_LABEL}

@@ -6,10 +6,10 @@ import {
   VALUE_REPORT_OUTCOMES_TABS,
 } from "@/lib/value-report-outcomes-nav-tabs";
 import {
-  EXECUTIVE_SUMMARY_PAGE_TITLE,
+  RETIRED_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_PATH,
+  SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 
@@ -20,24 +20,26 @@ describe("value-report-outcomes-nav-tabs", () => {
     expect(internalHrefs).toEqual([]);
   });
 
-  it("uses canonical sponsor report routes and executive summary tab label", () => {
+  it("uses canonical sponsor report routes and the merged sponsor report tab label", () => {
     const visible = resolveVisibleValueReportOutcomesTabs(false);
 
     expect(visible.map((tab) => tab.href)).toEqual([
-      SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-      SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+      SPONSOR_REPORT_PATH,
       SPONSOR_REPORT_ROI_SUMMARY_PATH,
       SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
     ]);
-    expect(visible[0]?.label).toBe(EXECUTIVE_SUMMARY_PAGE_TITLE);
-    expect(visible[1]?.label).toBe("Pilot outcomes");
+    expect(visible[0]?.label).toBe(SPONSOR_REPORT_PAGE_TITLE);
   });
 
   it("detects outcomes surfaces on canonical sponsor report routes", () => {
-    expect(isValueReportOutcomesSurface(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH)).toBe(true);
-    expect(isValueReportOutcomesSurface(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)).toBe(true);
+    expect(isValueReportOutcomesSurface(SPONSOR_REPORT_PATH)).toBe(true);
     expect(isValueReportOutcomesSurface("/insights/architecture-scorecard")).toBe(true);
     expect(isValueReportOutcomesSurface("/value-report/pilot")).toBe(false);
     expect(isValueReportOutcomesSurface("/architecture/reviews")).toBe(false);
+  });
+
+  it("drops the retired pilot outcomes tab after the merge", () => {
+    expect(VALUE_REPORT_OUTCOMES_TABS.map((tab) => tab.href)).not.toContain(RETIRED_PILOT_OUTCOMES_PATH);
+    expect(isValueReportOutcomesSurface(RETIRED_PILOT_OUTCOMES_PATH)).toBe(false);
   });
 });

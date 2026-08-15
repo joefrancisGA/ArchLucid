@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Roi;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
@@ -28,30 +29,30 @@ public sealed class RoiControllerTests
     };
 
     [Fact]
-    public async Task GetExecutiveSummaryAsync_returns_service_payload()
+    public async Task GetSponsorReportAsync_returns_service_payload()
     {
-        ExecutiveRoiSummaryResponse summary = new() { TotalEstimatedUsdSavings = 12_500m };
+        SponsorRoiSummaryResponse summary = new() { TotalEstimatedUsdSavings = 12_500m };
 
-        Mock<IExecutiveRoiSummaryService> roi = new();
+        Mock<ISponsorRoiSummaryService> roi = new();
         roi.Setup(s => s.BuildAsync(It.IsAny<CancellationToken>())).ReturnsAsync(summary);
 
-        RoiController controller = CreateController(roi.Object, Mock.Of<IExecutiveRoiBoardPackExporter>());
+        RoiController controller = CreateController(roi.Object, Mock.Of<ISponsorRoiBoardPackExporter>());
 
         IActionResult action =
-            await controller.GetExecutiveSummaryAsync(CancellationToken.None);
+            await controller.GetSponsorReportAsync(CancellationToken.None);
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().BeSameAs(summary);
     }
 
     [Fact]
-    public async Task GetExecutiveSummaryBoardPackAsync_returns_bad_request_for_invalid_format()
+    public async Task GetSponsorReportBoardPackAsync_returns_bad_request_for_invalid_format()
     {
         RoiController controller = CreateController(
-            Mock.Of<IExecutiveRoiSummaryService>(),
-            Mock.Of<IExecutiveRoiBoardPackExporter>());
+            Mock.Of<ISponsorRoiSummaryService>(),
+            Mock.Of<ISponsorRoiBoardPackExporter>());
 
-        IActionResult action = await controller.GetExecutiveSummaryBoardPackAsync(
+        IActionResult action = await controller.GetSponsorReportBoardPackAsync(
             format: "docx",
             generateNarrative: false,
             CancellationToken.None);
@@ -61,19 +62,19 @@ public sealed class RoiControllerTests
     }
 
     [Fact]
-    public async Task GetExecutiveSummaryBoardPackAsync_returns_markdown_and_audits()
+    public async Task GetSponsorReportBoardPackAsync_returns_markdown_and_audits()
     {
-        ExecutiveRoiBoardPackExportResult export = new()
+        SponsorRoiBoardPackExportResult export = new()
         {
-            Format = ExecutiveRoiBoardPackFormat.Markdown,
+            Format = SponsorRoiBoardPackFormat.Markdown,
             ContentType = "text/markdown; charset=utf-8",
             Markdown = "# ROI"
         };
 
-        Mock<IExecutiveRoiBoardPackExporter> exporter = new();
+        Mock<ISponsorRoiBoardPackExporter> exporter = new();
         exporter
             .Setup(e => e.ExportAsync(
-                ExecutiveRoiBoardPackFormat.Markdown,
+                SponsorRoiBoardPackFormat.Markdown,
                 It.IsAny<string?>(),
                 false,
                 It.IsAny<CancellationToken>()))
@@ -82,11 +83,11 @@ public sealed class RoiControllerTests
         Mock<IAuditService> audit = new();
 
         RoiController controller = CreateController(
-            Mock.Of<IExecutiveRoiSummaryService>(),
+            Mock.Of<ISponsorRoiSummaryService>(),
             exporter.Object,
             audit.Object);
 
-        IActionResult action = await controller.GetExecutiveSummaryBoardPackAsync(
+        IActionResult action = await controller.GetSponsorReportBoardPackAsync(
             format: "md",
             generateNarrative: false,
             CancellationToken.None);
@@ -97,7 +98,7 @@ public sealed class RoiControllerTests
         audit.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
-                    e.EventType == AuditEventTypes.ExecutiveRoiBoardPackExported
+                    e.EventType == AuditEventTypes.SponsorRoiBoardPackExported
                     && !string.IsNullOrWhiteSpace(e.DataJson)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -108,20 +109,20 @@ public sealed class RoiControllerTests
     }
 
     [Fact]
-    public async Task GetExecutiveSummaryBoardPackAsync_returns_pdf_and_audits_with_json_payload()
+    public async Task GetSponsorReportBoardPackAsync_returns_pdf_and_audits_with_json_payload()
     {
-        ExecutiveRoiBoardPackExportResult export = new()
+        SponsorRoiBoardPackExportResult export = new()
         {
-            Format = ExecutiveRoiBoardPackFormat.Pdf,
+            Format = SponsorRoiBoardPackFormat.Pdf,
             ContentType = "application/pdf",
-            FileName = "executive-roi-board-pack.pdf",
+            FileName = "sponsor-roi-board-pack.pdf",
             FileBytes = [0x25, 0x50, 0x44, 0x46],
         };
 
-        Mock<IExecutiveRoiBoardPackExporter> exporter = new();
+        Mock<ISponsorRoiBoardPackExporter> exporter = new();
         exporter
             .Setup(e => e.ExportAsync(
-                ExecutiveRoiBoardPackFormat.Pdf,
+                SponsorRoiBoardPackFormat.Pdf,
                 It.IsAny<string?>(),
                 false,
                 It.IsAny<CancellationToken>()))
@@ -130,11 +131,11 @@ public sealed class RoiControllerTests
         Mock<IAuditService> audit = new();
 
         RoiController controller = CreateController(
-            Mock.Of<IExecutiveRoiSummaryService>(),
+            Mock.Of<ISponsorRoiSummaryService>(),
             exporter.Object,
             audit.Object);
 
-        IActionResult action = await controller.GetExecutiveSummaryBoardPackAsync(
+        IActionResult action = await controller.GetSponsorReportBoardPackAsync(
             format: "pdf",
             generateNarrative: false,
             CancellationToken.None);
@@ -145,7 +146,7 @@ public sealed class RoiControllerTests
         audit.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
-                    e.EventType == AuditEventTypes.ExecutiveRoiBoardPackExported
+                    e.EventType == AuditEventTypes.SponsorRoiBoardPackExported
                     && !string.IsNullOrWhiteSpace(e.DataJson)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -159,8 +160,8 @@ public sealed class RoiControllerTests
     public async Task GetCrossTenantPortfolioSummaryAsync_returns_forbidden_when_directory_key_missing()
     {
         RoiController controller = CreateController(
-            Mock.Of<IExecutiveRoiSummaryService>(),
-            Mock.Of<IExecutiveRoiBoardPackExporter>());
+            Mock.Of<ISponsorRoiSummaryService>(),
+            Mock.Of<ISponsorRoiBoardPackExporter>());
 
         ActionResult<CrossTenantPortfolioSummaryResponse> action =
             await controller.GetCrossTenantPortfolioSummaryAsync(CancellationToken.None);
@@ -170,9 +171,10 @@ public sealed class RoiControllerTests
     }
 
     private static RoiController CreateController(
-        IExecutiveRoiSummaryService executiveRoiSummaryService,
-        IExecutiveRoiBoardPackExporter boardPackExporter,
-        IAuditService? audit = null)
+        ISponsorRoiSummaryService SponsorRoiSummaryService,
+        ISponsorRoiBoardPackExporter boardPackExporter,
+        IAuditService? audit = null,
+        IComplianceDriftTrendService? complianceDriftTrendService = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -183,10 +185,11 @@ public sealed class RoiControllerTests
             authenticationType: "test"));
 
         return new RoiController(
-                executiveRoiSummaryService,
+                SponsorRoiSummaryService,
                 boardPackExporter,
                 audit ?? Mock.Of<IAuditService>(),
-                scopeProvider.Object)
+                scopeProvider.Object,
+                complianceDriftTrendService ?? Mock.Of<IComplianceDriftTrendService>())
             {
                 ControllerContext = new ControllerContext { HttpContext = httpContext }
             };

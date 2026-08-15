@@ -16,7 +16,7 @@ Key rules for every component:
 - Compact enterprise spacing (`space-y-4`, `p-4`) — not marketing-scale spacing.
 - Status is communicated via `<StatusTag>` and `<SeverityTag>` with canonical copy.
 - Technical details (IDs, CLI commands, model names) are hidden behind disclosure affordances on normal surfaces.
-- Product language: *architecture package*, *finding*, *evidence trail*, *signed review record*, *decision* (disposition in Decision register), *governance approval*, *audit trail* — not *run*, *job*, *alert* (unless it is an alert), *log*. Never call the package a *signed decision record*; *ADR* remains *Architecture Decision Record* for ADR export wording.
+- Product language: *architecture package*, *finding*, *evidence trail*, *sealed review record*, *decision* (disposition in Decision register), *governance approval*, *audit trail* — not *run*, *job*, *alert* (unless it is an alert), *log*. Never call the package a *signed decision record*; *ADR* remains *Architecture Decision Record* for ADR export wording.
 - Form validation (**TB-2005**): disable primary submit/continue until hard client validation passes; show errors on the form (field and/or readiness near CTA); use `showError` toasts only for system/async failures — see [`UI_DESIGN_SYSTEM.md`](../docs/library/UI_DESIGN_SYSTEM.md) § Form validation affordances and **`.cursor/rules/UI-Form-Validation-Affordances.mdc`**. Apply/cleanup backlog: **TB-2006**–**TB-2011**.
 
 Carbon design system (**TB-114 – TB-120**, done 2026-05-31): tokens, neutral surfaces (**TB-115**), `StatusTag` / `SeverityTag` (**TB-116**), `EnterpriseTable` on reviews / governance findings / operator audit (**TB-117**), compact spacing on procurement landing pages (**TB-118**), `OPERATOR_TYPOGRAPHY` scale (**TB-119**), Cursor rule **`.cursor/rules/UI-Enterprise-Design-Standard.mdc`** (**TB-120**). Form validation affordances (**TB-2005**, done 2026-07-29). Migration scripts: `scripts/migrate-tb115-operator-surfaces.ps1`, `scripts/migrate-tb119-operator-typography.ps1`. Canonical backlog: [`docs/library/TECH_BACKLOG.md`](../docs/library/TECH_BACKLOG.md).
@@ -74,4 +74,14 @@ Implementation detail for this app (architect workspace, nav contract, testing).
 | Keyboard shortcuts | [KEYBOARD_SHORTCUTS.md](./docs/KEYBOARD_SHORTCUTS.md) |
 | Annotated walkthrough | [ANNOTATED_PAGE_WALKTHROUGH.md](./docs/ANNOTATED_PAGE_WALKTHROUGH.md) |
 
-**Canonical buyer narrative** (repo root, not UI-only): [`../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md).
+**Canonical buyer narrative** (repo root, not UI-only): [`../docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md`](../docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md).
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { Component, type ErrorInfo, type ReactNode } from "react";
@@ -60,7 +60,7 @@ function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
                 )}
               </EnterpriseTableCell>
               <EnterpriseTableCell className="whitespace-nowrap align-top">
-                <Link href={action.href} className="font-medium text-teal-800 underline dark:text-teal-300">
+                <Link href={action.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                   {action.label}
                 </Link>
               </EnterpriseTableCell>

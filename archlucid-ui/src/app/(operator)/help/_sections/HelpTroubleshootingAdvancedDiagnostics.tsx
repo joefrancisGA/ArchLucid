@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS } from "@/lib/troubleshooting-help-guide-content";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,7 @@ export function HelpTroubleshootingAdvancedDiagnostics(): React.JSX.Element {
             <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{item.body}</p>
             <Link
               href={item.href}
-              className={cn("mt-2 inline-block font-medium underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+              className={cn("mt-2 inline-block", OPERATOR_BODY_INLINE_LINK_CLASS)}
             >
               {item.linkLabel}
             </Link>

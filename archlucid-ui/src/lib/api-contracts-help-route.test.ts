@@ -11,7 +11,6 @@ import {
   MARKETING_SITEMAP_PATHNAMES,
 } from "@/lib/marketing/public-marketing-seo-paths";
 import {
-  HELP_TOPIC_PERMANENT_REDIRECTS,
   resolveHelpTopicPermanentRedirect,
 } from "@/lib/help/help-topic-permanent-redirects";
 import { listProductDocumentationEntries } from "@/lib/product-documentation-registry";
@@ -78,14 +77,13 @@ describe("api-contracts-help-route (HG)", () => {
     expect(liveSlugs).not.toContain("governance-api-contracts");
   });
 
-  it("matches Python workbook HEP migration for governance-api-contracts bookmark", () => {
+  it("matches Python workbook without governance-api-contracts help migration", () => {
     const catalogSource = readFileSync(
       join(process.cwd(), "..", "scripts", "ci", "archlucid_ui_route_catalog.py"),
       "utf8",
     );
 
-    expect(HELP_TOPIC_PERMANENT_REDIRECTS["governance-api-contracts"]).toBe(API_CONTRACTS_HELP_PATH);
-    expect(resolveHelpTopicPermanentRedirect("governance-api-contracts")).toBe(API_CONTRACTS_HELP_PATH);
-    expect(catalogSource).toContain('"/help/governance-api-contracts": "/help/api-contracts"');
+    expect(resolveHelpTopicPermanentRedirect("governance-api-contracts")).toBeNull();
+    expect(catalogSource).not.toContain('"/help/governance-api-contracts": "/help/api-contracts"');
   });
 });

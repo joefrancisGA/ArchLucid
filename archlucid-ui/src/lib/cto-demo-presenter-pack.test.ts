@@ -11,7 +11,7 @@ vi.mock("@/lib/operator/operator-static-demo", () => ({
 }));
 
 import {
-  isCtoDemoExecutiveLandingEnv,
+  isCtoDemoSponsorLandingEnv,
   isCtoDemoInternalOperatorControlsEnv,
   isCtoDemoNavExpandedEnv,
   isCtoDemoOperatorToolingEnv,
@@ -47,7 +47,7 @@ describe("cto-demo-presenter-pack", () => {
   it("enables packaged demo presenter features when demo mode is on", () => {
     expect(isCtoDemoPackEnv()).toBe(true);
     expect(isCtoDemoPresenterSafeModeEnv()).toBe(true);
-    expect(isCtoDemoExecutiveLandingEnv()).toBe(true);
+    expect(isCtoDemoSponsorLandingEnv()).toBe(true);
     expect(isCtoDemoNavExpandedEnv()).toBe(false);
   });
 

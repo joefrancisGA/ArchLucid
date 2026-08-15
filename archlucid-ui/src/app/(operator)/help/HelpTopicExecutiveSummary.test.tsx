@@ -1,10 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { HelpExecutiveSummaryGuideView } from "@/app/(operator)/help/_sections/HelpExecutiveSummaryGuideView";
+import { HelpSponsorReportGuideView } from "@/app/(operator)/help/_sections/HelpSponsorReportGuideView";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
-import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
@@ -22,7 +22,7 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => null,
 }));
 
-const EXECUTIVE_SUMMARY_HELP_BANNED_SUBSTRINGS = [
+const SPONSOR_SUMMARY_HELP_BANNED_SUBSTRINGS = [
   "frequently asked questions",
   "day-one-developer",
   "archlucid.contracts",
@@ -30,16 +30,16 @@ const EXECUTIVE_SUMMARY_HELP_BANNED_SUBSTRINGS = [
   "api_contracts.md",
 ] as const;
 
-describe("HelpTopicExecutiveSummary", () => {
-  const loaded = tryLoadProductDocumentation("executive-summary");
+describe("HelpTopicSponsorReport", () => {
+  const loaded = tryLoadProductDocumentation("sponsor-report");
 
-  it("loads executive-summary from sponsor brief sections (TB-1686)", () => {
+  it("loads sponsor-report from sponsor brief sections (TB-1686)", () => {
     expect(loaded).not.toBeNull();
-    expect(loaded?.entry.title).toBe("Executive summary");
+    expect(loaded?.entry.title).toBe("Sponsor report");
     expect(loaded?.entry.sourcePaths[0]?.toLowerCase()).toContain("executive_sponsor_brief.md");
   });
 
-  it("loads executive-summary with pilot ROI measurement section from scorecard", () => {
+  it("loads sponsor-report with pilot ROI measurement section from scorecard", () => {
     expect(loaded).not.toBeNull();
     expect(loaded?.markdown.toLowerCase()).toContain("pilot roi measurement");
     expect(loaded?.markdown.toLowerCase()).toContain("baseline questions");
@@ -47,7 +47,7 @@ describe("HelpTopicExecutiveSummary", () => {
 
   it("purges FAQ dump leakage and renders sponsor framing with primary CTA (TB-1687, TB-1690)", () => {
     if (loaded === null) {
-      throw new Error("Expected executive-summary documentation to load.");
+      throw new Error("Expected sponsor-report documentation to load.");
     }
 
     const sourcePath = loaded.entry.sourcePaths[0] ?? "";
@@ -57,28 +57,28 @@ describe("HelpTopicExecutiveSummary", () => {
       { helpTopicSlug: loaded.entry.slug },
     ).toLowerCase();
 
-    for (const banned of EXECUTIVE_SUMMARY_HELP_BANNED_SUBSTRINGS) {
+    for (const banned of SPONSOR_SUMMARY_HELP_BANNED_SUBSTRINGS) {
       expect(preparedMarkdown, `prepared markdown contains "${banned}"`).not.toContain(banned);
     }
 
     expect(preparedMarkdown).toContain("what pilot proves");
     expect(preparedMarkdown).not.toMatch(/^##\s+\d+\./m);
 
-    render(<HelpExecutiveSummaryGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+    render(<HelpSponsorReportGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByTestId("help-executive-summary-guide")).toBeInTheDocument();
-    expect(screen.getByTestId("help-executive-summary-page-title")).toHaveTextContent("Executive summary");
-    expect(screen.getAllByRole("heading", { level: 1, name: "Executive summary" })).toHaveLength(1);
-    expect(screen.queryByTestId("help-executive-summary-refresh-button")).toBeNull();
-    expect(screen.queryByTestId("help-executive-summary-last-refreshed")).toBeNull();
-    expect(screen.getByTestId("help-executive-summary-claim-discipline")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-executive-summary-source-of-record")).toBeNull();
-    expect(screen.getByRole("link", { name: /open executive value report/i })).toHaveAttribute(
+    expect(screen.getByTestId("help-sponsor-report-guide")).toBeInTheDocument();
+    expect(screen.getByTestId("help-sponsor-report-page-title")).toHaveTextContent("Sponsor report");
+    expect(screen.getAllByRole("heading", { level: 1, name: "Sponsor report" })).toHaveLength(1);
+    expect(screen.queryByTestId("help-sponsor-report-refresh-button")).toBeNull();
+    expect(screen.queryByTestId("help-sponsor-report-last-refreshed")).toBeNull();
+    expect(screen.getByTestId("help-sponsor-report-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-sponsor-report-source-of-record")).toBeNull();
+    expect(screen.getByRole("link", { name: /open sponsor value report/i })).toHaveAttribute(
       "href",
-      SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+      SPONSOR_REPORT_PATH,
     );
 
-    const contentRegion = screen.getByTestId("help-executive-summary-content");
+    const contentRegion = screen.getByTestId("help-sponsor-report-content");
     const numberedHeadings = within(contentRegion)
       .getAllByRole("heading")
       .filter((heading) => /^\d+\./.test(heading.textContent ?? ""));
@@ -88,7 +88,7 @@ describe("HelpTopicExecutiveSummary", () => {
     expect(pilotRoiLinks.length).toBeGreaterThan(0);
     for (const link of pilotRoiLinks) {
       expect(link.getAttribute("href")).toMatch(
-        /^(\/help\/executive-summary#pilot-roi-measurement|#pilot-roi-measurement)$/,
+        /^(\/help\/sponsor-report#pilot-roi-measurement|#pilot-roi-measurement)$/,
       );
     }
 
@@ -98,7 +98,7 @@ describe("HelpTopicExecutiveSummary", () => {
     expect(screen.queryByText(/last refreshed/i)).toBeNull();
     expect(screen.queryByText(/not refreshed yet/i)).toBeNull();
 
-    const actionPanel = screen.getByTestId("help-executive-summary-action-panel");
+    const actionPanel = screen.getByTestId("help-sponsor-report-action-panel");
     expect(actionPanel.className).not.toMatch(/bg-teal-/);
     expect(actionPanel.className).not.toMatch(/border-teal-/);
   });

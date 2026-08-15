@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -16,7 +17,7 @@ export function RunDetailWhatsNextSection(props: RunDetailWhatsNextSectionProps)
   const encodedRunId = encodeURIComponent(runId);
   const planNextReviewHref = `/architecture/reviews/new?sourceRunId=${encodedRunId}&mode=followup`;
   const compareHref = comparePageHrefAdaptive(runId);
-  const replayHref = `/replay?runId=${encodedRunId}`;
+  const replayHref = `${INTERNAL_REPLAY_PATH}?runId=${encodedRunId}`;
 
   return (
     <section
@@ -29,7 +30,7 @@ export function RunDetailWhatsNextSection(props: RunDetailWhatsNextSectionProps)
         This review is committed. Review the findings, then plan your next architecture check.
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" asChild variant="default" size="sm" data-testid="run-detail-plan-next-review">
+        <Button type="button" asChild variant="outline" size="sm" data-testid="run-detail-plan-next-review">
           <Link href={planNextReviewHref}>Plan next review</Link>
         </Button>
         <Button type="button" asChild variant="outline" size="sm" data-testid="run-detail-compare-review">

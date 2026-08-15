@@ -53,7 +53,7 @@ describe("ask-vs-frontier-ai-differentiation (TB-2191)", () => {
 
     expect(corpus).toContain("architecture review");
     expect(corpus).toContain("evidence");
-    expect(corpus).toContain("signed review record");
+    expect(corpus).toContain("sealed review record");
     expect(corpus).not.toMatch(/\bjob\b/);
     expect(corpus).not.toMatch(/\brun\b/);
   });

@@ -18,6 +18,14 @@ import {
   PROCUREMENT_HELP_SALES_CONTACT_HREF,
 } from "@/lib/procurement-help-evidence-copy";
 import {
+  PROCUREMENT_HELP_JOB_MATRIX,
+  PROCUREMENT_HELP_JOB_MATRIX_TEST_ID,
+} from "@/lib/procurement-help-ia-dual";
+import {
+  PROCUREMENT_HELP_RELATED_TEST_ID,
+  procurementHelpRelatedGuides,
+} from "@/lib/procurement-help-related-guides";
+import {
   prepareProcurementHelpBodyMarkdown,
   PROCUREMENT_HELP_PAGE_TITLE,
 } from "@/lib/procurement-help-guide-content";
@@ -170,6 +178,21 @@ describe("HelpProcurementGuideView procurement FAQ", () => {
 
     expect(screen.getByTestId("help-procurement-guide")).toBeInTheDocument();
     expect(screen.getByTestId("help-procurement-page-title")).toHaveTextContent(PROCUREMENT_HELP_PAGE_TITLE);
+    expect(screen.getByTestId(PROCUREMENT_HELP_JOB_MATRIX_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByTestId("help-procurement-job-matrix-current")).toHaveTextContent(
+      PROCUREMENT_HELP_JOB_MATRIX.find((row) => row.isCurrent === true)?.label ?? "",
+    );
+    expect(screen.getByTestId(PROCUREMENT_HELP_RELATED_TEST_ID)).toBeInTheDocument();
+
+    const relatedSection = screen.getByTestId(PROCUREMENT_HELP_RELATED_TEST_ID);
+
+    for (const guide of procurementHelpRelatedGuides()) {
+      expect(within(relatedSection).getByRole("link", { name: guide.label })).toHaveAttribute(
+        "href",
+        guide.href,
+      );
+    }
+
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
   });
@@ -275,7 +298,6 @@ describe("HelpProcurementGuideView procurement FAQ", () => {
     expect(screen.getByTestId("procurement-help-answer-penetration-test")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-export-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-print-pdf")).toBeInTheDocument();
-    expect(screen.getByTestId("help-procurement-breadcrumb")).toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
   });
 

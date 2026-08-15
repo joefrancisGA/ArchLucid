@@ -44,7 +44,6 @@ describe("HelpAuditTrailGuideView buyer-polished shell", () => {
 
     expect(screen.getByText(AUDIT_TRAIL_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(AUDIT_TRAIL_HELP_PAGE_SUBTITLE_OPERATOR)).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-audit-trail-breadcrumb")).toHaveTextContent("Help");
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const sourceOfRecordLink = screen.getByRole("link", { name: "Data handling" });

@@ -42,7 +42,7 @@ export function AvailableAfterFirstRun() {
         <p className={cn("mx-auto mt-2 max-w-md text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Complete an architecture request and finalize the review to unlock this view.
         </p>
-        <Button asChild className="mt-4 bg-teal-600 hover:bg-teal-700" type="button">
+        <Button asChild variant="primary" className="mt-4" type="button">
           <Link href="/architecture/reviews/new">Start a new request</Link>
         </Button>
       </CardContent>

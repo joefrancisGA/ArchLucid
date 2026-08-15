@@ -61,7 +61,7 @@
 |---------|-----------|------------|-------|
 | Users directory | Users & roles | Users and roles | Ampersand vs “and” — page copy kept; reported only |
 | Evidence graph | Evidence trail (nav) | Evidence graph / buyer vocabulary on page | Existing product vocabulary split preserved |
-| Executive dashboard | Portfolio overview (nav) | Executive summary vocabulary on `/dashboard` | Pre-existing; not altered in this pass |
+| Sponsor dashboard | Portfolio overview (nav) | Sponsor summary vocabulary on `/dashboard` | Pre-existing; not altered in this pass |
 
 ## Bundle and rendering considerations
 

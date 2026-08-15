@@ -29,7 +29,7 @@ flowchart LR
   end
 
   subgraph outputs [Committed outputs]
-    SR[Signed review record]
+    SR[Sealed review record]
     PKG[Exports and downloads]
   end
 
@@ -39,7 +39,7 @@ flowchart LR
   SR --> PKG
 ```
 
-In order: **evidence and artifacts** feed **findings**; **findings** feed **governance decisions**; **governance decisions** commit to the **signed review record**; the **signed review record** produces **exports and downloads**.
+In order: **evidence and artifacts** feed **findings**; **findings** feed **governance decisions**; **governance decisions** commit to the **sealed review record**; the **sealed review record** produces **exports and downloads**.
 
 ## Open the Evidence graph {#open-the-evidence-graph}
 
@@ -71,7 +71,7 @@ In **Graph view**, pick a mode from the control above the canvas:
 | Mode | What it emphasizes |
 | --- | --- |
 | **Evidence provenance** | How findings link back to uploaded artifacts and intake evidence. |
-| **Decision traceability** | How governance decisions, approvals, and the signed review record connect to findings. |
+| **Decision traceability** | How governance decisions, approvals, and the sealed review record connect to findings. |
 | **Architecture context** | How analyzed components and topology relate to the evidence that produced them. |
 
 Start with **Evidence provenance** when your question is “what file or artifact supports this finding?” Switch modes when you need decision or architecture context for the same review.

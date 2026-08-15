@@ -47,7 +47,7 @@ describe("finding-source-evidence-links", () => {
     const link = parseEvidenceRefToSourceLink(`manifest:${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`, ctx);
 
     expect(link?.kind).toBe("manifestRecord");
-    expect(link?.href).toContain(`/governance/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}#manifest-decisions`);
+    expect(link?.href).toContain(`/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}#manifest-decisions`);
   });
 
   it("buildSourceEvidenceLinksFromInspectEvidence honors artifact section anchors", () => {

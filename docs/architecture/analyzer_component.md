@@ -62,11 +62,11 @@ The fix is **not** a fabricated probability. "This creates a 70% chance of missi
 | Reader | Same finding, their currency |
 |--------|------------------------------|
 | **Architect** | *"Adoption depends on six business units; the plan you described covers one."* (mechanism + evidence) |
-| **Executive** | *"Adoption scope is ~6× what is resourced — a delivery-date and benefit-realization exposure on this initiative."* (consequence on schedule / cost / compliance, no invented probability) |
+| **Sponsor** | *"Adoption scope is ~6× what is resourced — a delivery-date and benefit-realization exposure on this initiative."* (consequence on schedule / cost / compliance, no invented probability) |
 
-One detection, two renderings. The architect rendering carries the mechanism and evidence chain; the executive rendering carries the consequence to **schedule, cost, or compliance exposure**. Both link to the same evidence. The **governance packet** (§0.2, below) carries only evidence-backed items — an executive will not delay a project over an "AI-suggested, unverified" item, but will over a defensible conflict stated as a delivery risk.
+One detection, two renderings. The architect rendering carries the mechanism and evidence chain; the sponsor rendering carries the consequence to **schedule, cost, or compliance exposure**. Both link to the same evidence. The **governance packet** (§0.2, below) carries only evidence-backed items — an sponsor will not delay a project over an "AI-suggested, unverified" item, but will over a defensible conflict stated as a delivery risk.
 
-**The executive form factor is a governance packet, not a dashboard (rev-7 change).** Most CIOs do not log into tools and consume findings — they consume **narratives**: program status, steering-committee summaries, escalations, risk registers. The architect consumes findings; the executive consumes the *slide the architect carries up*. So the consequence rendering does **not** become a separate executive login — it composes into **the steering-committee artifact the champion presents** (reusing `ExecutiveReviewPacketComposer`, which is already a *packet*, not a dashboard). This is a better-fitting and stickier form factor than an exec dashboard, and it makes the architect the hero in the governance meeting — which is precisely the relationship that drives renewal.
+**The sponsor form factor is a governance packet, not a dashboard (rev-7 change).** Most CIOs do not log into tools and consume findings — they consume **narratives**: program status, steering-committee summaries, escalations, risk registers. The architect consumes findings; the sponsor consumes the *slide the architect carries up*. So the consequence rendering does **not** become a separate sponsor login — it composes into **the steering-committee artifact the champion presents** (reusing `ExecutiveReviewPacketComposer`, which is already a *packet*, not a dashboard). This is a better-fitting and stickier form factor than an exec dashboard, and it makes the architect the hero in the governance meeting — which is precisely the relationship that drives renewal.
 
 ### 0.3 Review system or recommendation system — the funnel (rev-7, the product-identity question)
 
@@ -136,15 +136,15 @@ Every item cites evidence ArchLucid holds — a stated requirement, finding id, 
 | 9 | **Requirements** | **Scrutinized as evidence, not trusted as truth** — requirement smells, **raised once and dismissible** (rev-6); posture is question, not assertion |
 | 10 | **Explanation / counterfactual** | **First-class — likely the long-term center of gravity** (rev-6). V1 ships catalog-grounded options; full remediation advisory deferred (liability) |
 | 11 | **Value model** | **Evidence-backed = consistent enforcement of the obvious; concerns = non-obvious** (rev-6). Two buckets, two validation criteria |
-| 12 | **Buyer output** | **Consequence-translation layer** (rev-6) — same finding, rendered in architect detail vs executive decision currency; no fabricated probability |
+| 12 | **Buyer output** | **Consequence-translation layer** (rev-6) — same finding, rendered in architect detail vs sponsor decision currency; no fabricated probability |
 | 13 | Durability | Immutable per-run snapshot (delta/audit/export); mutable lifecycle deferred |
 | 14 | Defensibility | **Judgment is the value; provenance + flywheel is the durable, deployable moat** (rev-6 refinement) — judgment commoditizes, grounding/audit/flywheel do not |
 | 15 | Positioning | Unit assured is the architectural **decision**; **design for generalization, ship narrow** |
 | 16 | Naming / UX | "Risk & Tradeoffs"; plain language; **governance packet** (not exec dashboard) = evidence-backed only |
-| 17 | Validation | **Gates** (rev-7): coverage (core) · principal (concerns) · executive/behavior-change · **signal-to-noise/dismiss-rate** (§11) |
+| 17 | Validation | **Gates** (rev-7): coverage (core) · principal (concerns) · sponsor/behavior-change · **signal-to-noise/dismiss-rate** (§11) |
 | 18 | **Metrics** | **Two decoupled** (rev-7): **behavior change** steers (commercial, never trains the model); **predictive validity** calibrates (feeds the flywheel). Ignored-but-correct (Case B) is first-class |
 | 19 | **Product identity** | **Review system that earns the right to be a recommendation system** (rev-7) — review = trust substrate; recommendation = value surface; build recommendation as an extension point |
-| 20 | **Executive form factor** | **Governance packet, not dashboard** (rev-7) — the slide the architect carries into the steering committee (reuse `ExecutiveReviewPacketComposer`) |
+| 20 | **Sponsor form factor** | **Governance packet, not dashboard** (rev-7) — the slide the architect carries into the steering committee (reuse `ExecutiveReviewPacketComposer`) |
 | 21 | **Post-deployment trust** | **Earned by being right over time** (rev-7) — visible per-bucket track record + per-tenant calibration + fail-quiet; burden sits on judgment items only (conflicts are verifiable) |
 | 22 | **Counterfactual scope** | **Closed-form, not conversational** in V1 (rev-7) — one question, catalog-bounded; no "why not B?" loop |
 | 23 | **Moat strategy** | **Wedge-to-moat conversion** (rev-7) — judgment is the wedge, governance embedding is the moat; build system-of-record early; cold-start is the risk |
@@ -325,7 +325,7 @@ Org risk enters as intake elicitation questions in a new `execution-context` gro
 | Answered, negative | Disclosed-Risk → suggested concern (quality-gated) |
 | **Skipped MUST** | **Unknown / Undisclosed** (`HasSkippedMustQuestions`) |
 
-Salvaged questions (~7 durable rows from the PM model): executive sponsor + tenure · technical leadership · skills/staffing for this architecture · business case w/ measurable benefits · end-user adoption · schedule/budget realism. All other PM-model rows are out of scope.
+Salvaged questions (~7 durable rows from the PM model): sponsor sponsor + tenure · technical leadership · skills/staffing for this architecture · business case w/ measurable benefits · end-user adoption · schedule/budget realism. All other PM-model rows are out of scope.
 
 ---
 
@@ -351,7 +351,7 @@ A snapshot is a record, not a mutable object — not the deferred ontology. The 
 5. **Requirements are interrogated, not trusted** — but **once and dismissibly** (§5); ArchLucid stops questioning when you disposition.
 6. **Explanation ≥ detection** — always show reasoning + counterfactual.
 7. **Absence is a signal** — unacknowledged tradeoffs (= unvalidated assumptions) and undisclosed MUSTs are first-class.
-8. **One finding, two readers** — render the same evidence-backed item in architect detail *and* executive decision currency inside the **governance packet** (§0.2). **Governance packet = evidence-backed only.** Plain language always — *"one conflicts with what you said you needed,"* never "WAF pillar consequence classification."
+8. **One finding, two readers** — render the same evidence-backed item in architect detail *and* sponsor decision currency inside the **governance packet** (§0.2). **Governance packet = evidence-backed only.** Plain language always — *"one conflicts with what you said you needed,"* never "WAF pillar consequence classification."
 9. **Two decoupled metrics** — behavior change *steers* (commercial), predictive validity *calibrates* (the flywheel; trains on what proved true, never on what got clicked). Capture outcomes on ignored findings (§11.3).
 10. **Earn trust by being right** — visible per-bucket track record, per-tenant calibration, fail-quiet on low-accuracy categories (§11.5). Default to suppression over surfacing (§11.4).
 11. **Review earns recommendation** — recommendations are grounded in detected, evidence-anchored conflicts; the counterfactual is closed-form in V1, never a chat (§0.3, §6.1).
@@ -374,7 +374,7 @@ A snapshot is a record, not a mutable object — not the deferred ontology. The 
 | Snapshot pattern | `FindingsSnapshot` |
 | Disposition trail | `FindingReviewTrailAppendService` |
 | Delta surface | `/compare`, `pilot-run-deltas` |
-| Executive export / governance packet | `ExecutiveReviewPacketComposer` |
+| Sponsor export / governance packet | `ExecutiveReviewPacketComposer` |
 
 **Coverage honesty:** Operations and Performance pillars have thin finding-engine coverage — report "low evidence on this pillar," not silence.
 
@@ -421,7 +421,7 @@ Two rules follow:
 
 **Why behavior change still leads commercially:** predictive validity cannot run a business — outcomes take 6–18 months, attribution is confounded, and Case B requires a customer to fail *and* admit ArchLucid called it. So behavior change is the dial you watch weekly; predictive validity is the slow truth that keeps the dial honest.
 
-**The executive / behavior-change gate (the pre-launch form of the leading metric).** Show the output to a **CIO / CTO / VP Engineering** and ask: *"Would you delay, re-scope, or change this project based on this finding?"* If the answer is *no* across the board, ArchLucid is an architecture toy, not a governance platform — regardless of how well it clears 11.1/11.2. Instrument it from day one: a conflict leading to `[ change requirement ]`, an accepted counterfactual, or a subsequent manifest revision is a **logged behavior-change event** (tenant-scoped, on the snapshot trail, §8).
+**The sponsor / behavior-change gate (the pre-launch form of the leading metric).** Show the output to a **CIO / CTO / VP Engineering** and ask: *"Would you delay, re-scope, or change this project based on this finding?"* If the answer is *no* across the board, ArchLucid is an architecture toy, not a governance platform — regardless of how well it clears 11.1/11.2. Instrument it from day one: a conflict leading to `[ change requirement ]`, an accepted counterfactual, or a subsequent manifest revision is a **logged behavior-change event** (tenant-scoped, on the snapshot trail, §8).
 
 **Interpretation:** clears 11.1/11.2/11.3 *and* the dismiss-rate floor (§11.4) → a company. Clears the gates but drowns the user in noise → alert fatigue kills it anyway. The thesis (§0) is settled only when behavior change is observed *and* predictive validity confirms it was warranted.
 
@@ -467,7 +467,7 @@ Pre-launch gates (11.1–11.4) get you in the door; they do not keep you there. 
 | Feature, not a product (zero conflicts) | Articulated bets + named assumptions + requirement smells are the floor (§0.1) |
 | Hostage to bad requirements | Requirement interrogation (§5) — scrutinized, not trusted; raised once and dismissible |
 | Value (AI) is replicable | Judgment is the value; provenance + flywheel is the durable, deployable moat (§12) |
-| **Architects love it, executives don't pay** | **Consequence-translation layer — same finding in executive decision currency (§0.2); behavior-change gate (§11.3)** |
+| **Architects love it, executives don't pay** | **Consequence-translation layer — same finding in sponsor decision currency (§0.2); behavior-change gate (§11.3)** |
 | **Optimizing for rare insight over repeatability** | **Evidence-backed core = consistent enforcement of the obvious; non-obvious gate applies to concerns only (§1.1a)** |
 | **Requirement interrogation becomes nagging** | **Once, dismissible, question-posture, scoped to four kinds (§5)** |
 | **Ranking embeds a non-universal philosophy** | **Consequence leads; reversibility is a tiebreaker; dimensions visible + re-sortable (§1.2)** |
@@ -517,8 +517,8 @@ Graph risk node/edge types · **mutable** risk lifecycle (waiver/disposition *st
 5. Azure WAF tradeoff catalog as versioned data (+ inverse for counterfactuals).
 6. `execution-context` elicitation questions (7) + orphaned-outcome clarification in `QuestionSelectionEngine`.
 7. `RiskSnapshot` mirroring `FindingsSnapshot`; delta on `/compare`; disposition via `FindingReviewTrailAppendService`. **Log behavior-change events** (`[ change requirement ]` / accepted counterfactual / subsequent manifest revision) **and a lightweight outcome-capture loop on ignored findings** (Case B) on the snapshot trail — keep the two metric streams separate: behavior change steers, predictive validity calibrates (§11.3). **Build this system-of-record substrate early** (the moat compounds only once it exists, §12). Per-tenant calibration + dismiss-rate tracking (§11.4–11.5).
-8. Extend `ExecutiveReviewPacketComposer` (evidence-backed only) with the **consequence-translation** rendering as a **governance packet / steering-committee artifact** (§0.2 — schedule/cost/compliance, no fabricated probability), not an executive dashboard.
-9. **Run the §11 gates before committing further engineering** — coverage (§11.1), principal (§11.2), executive/behavior-change (§11.3), and the signal-to-noise/dismiss-rate floor (§11.4) once pilots exist.
+8. Extend `ExecutiveReviewPacketComposer` (evidence-backed only) with the **consequence-translation** rendering as a **governance packet / steering-committee artifact** (§0.2 — schedule/cost/compliance, no fabricated probability), not an sponsor dashboard.
+9. **Run the §11 gates before committing further engineering** — coverage (§11.1), principal (§11.2), sponsor/behavior-change (§11.3), and the signal-to-noise/dismiss-rate floor (§11.4) once pilots exist.
 10. API routes + OpenAPI snapshot + nav builders; ADR (non-goals: register, mutable ontology, four-class taxonomy, fabricated probability, full remediation advisory, conversational advisor). **Design the counterfactual contract as a recommendation extension point** (§0.3) even though V1 ships closed-form.
 
 ---
@@ -538,7 +538,7 @@ Graph risk node/edge types · **mutable** risk lifecycle (waiver/disposition *st
 | Findings snapshot (pattern) | `ArchLucid.Contracts/Findings/FindingsSnapshot.cs` |
 | Disposition trail | `ArchLucid.Application/Governance/FindingReview/FindingReviewTrailAppendService.cs` |
 | Trust label | `ArchLucid.Contracts/Findings/FindingTrustLabel.cs` |
-| Executive export | `ArchLucid.Application/Exports/ExecutiveReviewPacketComposer.cs` |
+| Sponsor export | `ArchLucid.Application/Exports/ExecutiveReviewPacketComposer.cs` |
 | Existing risk register surfaces | `ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs`, `ArchLucid.Contracts/Governance/ArchitectureRiskRegisterResponse.cs` |
 
 ---
@@ -621,13 +621,13 @@ This round moved off architecture entirely — onto product strategy, epistemolo
 
 | Attack | Verdict | Resolution |
 |--------|---------|-----------|
-| Optimizing for architects, not buyers | **Concede framing / reject the example** | Consequence-translation layer (§0.2) — same finding in executive decision currency. **But no fabricated "70% chance"** — that is the invented precision rounds 2–4 deleted |
+| Optimizing for architects, not buyers | **Concede framing / reject the example** | Consequence-translation layer (§0.2) — same finding in sponsor decision currency. **But no fabricated "70% chance"** — that is the invented precision rounds 2–4 deleted |
 | "Non-obvious" is a dangerous target | **Concede — corrects a rev-5 over-rotation** | Non-obviousness gates *concerns only*; evidence-backed core = **consistent enforcement of the obvious** (§1.1a); two validation criteria (§11.1/11.2) |
 | Requirement smells = rabbit hole | **Concede** | Raised once, dismissible, question-posture, scoped to four kinds; stops on disposition (§5) |
 | Reversibility is the wrong ranking signal | **Concede — over-elevated in rev 5** | Consequence leads; reversibility is a tiebreaker; dimensions visible + re-sortable, not a baked-in philosophy (§1.2) |
 | Counterfactual becomes the whole product | **Agree, with liability caveat** | Likely the long-term center of gravity (§6.1); V1 ships catalog-grounded options; full advisory deferred (wrong remediation acted-on is high harm) |
 | Moat isn't the graph | **Partial** | Judgment *is* the value; provenance is a deployability requirement in regulated governance + the durable moat (judgment commoditizes, grounding/flywheel don't) (§12) |
-| Principal test is insufficient | **Concede** | Added executive/behavior-change gate (§11.3) — the better commercial gate |
+| Principal test is insufficient | **Concede** | Added sponsor/behavior-change gate (§11.3) — the better commercial gate |
 | **The thesis: prove customers change decisions** | **Concede fully — superseded in rev 7** | Rev 6: decision change as sole north star. Rev 7: behavior change *steers*, predictive validity *calibrates*; Case B is first-class (§11.3) |
 
 ### Round 6 — "deeper assumptions" (→ rev 7): metrics, trust, and product identity
@@ -656,10 +656,10 @@ The reviewer stopped finding fatal flaws and went after foundational assumptions
 7. A snapshot is a record, not the deferred mutable lifecycle.
 8. Decision-assurance is the North Star; design to generalize, build narrow.
 9. **The evidence-backed core is valued for consistent enforcement of the obvious; non-obviousness gates concerns only.**
-10. **One finding, two readers** — architect detail and executive decision currency; no invented probabilities.
+10. **One finding, two readers** — architect detail and sponsor decision currency; no invented probabilities.
 11. **Judgment is the value; provenance + flywheel is the durable, deployable moat.** Judgment is the wedge; governance embedding is the moat; build the system-of-record early.
 12. **Two decoupled metrics:** behavior change steers (never trains the model); predictive validity calibrates (trains on what proved true, including ignored-but-correct). The gates — coverage · principal · behavior-change · signal-to-noise (§11) — gate further engineering.
 13. **Earn trust by being right over time** — visible track record, per-tenant calibration, fail-quiet; the burden is on judgment items, not verifiable conflicts.
 14. **It is a review system that earns the right to be a recommendation system.** Review is the trust substrate; recommendation is the value surface; counterfactual is closed-form in V1 but designed as an extension point.
-15. **Governance packet, not executive dashboard** — the buyer consumes the champion's artifact, not a login (§0.2).
+15. **Governance packet, not sponsor dashboard** — the buyer consumes the champion's artifact, not a login (§0.2).
 16. **Design is complete; falsification is in the pilot** — no rev 8 until real architectures run through §0 (§18).

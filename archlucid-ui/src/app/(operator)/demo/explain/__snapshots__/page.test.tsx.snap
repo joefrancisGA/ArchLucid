@@ -192,12 +192,12 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
           <p
             class="text-[15px] font-semibold leading-[22px] text-al-text-primary"
           >
-            Signed review record v3
+            Sealed review record v3
              
             <span
               class="rounded bg-neutral-200 px-1 py-0.5 text-al-text-primary dark:bg-neutral-800 text-[11px] font-medium leading-none"
             >
-              Signed review record
+              Sealed review record
             </span>
           </p>
         </li>
@@ -258,7 +258,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
             <p
               class="font-mono text-[11px] font-normal leading-[15px] text-al-text-secondary"
             >
-              Signed review record v3
+              Sealed review record v3
               : 
               n-manifest
             </p>
@@ -373,7 +373,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
             <span
               class="rounded bg-neutral-100 px-1 py-0.5 text-al-text-primary dark:bg-neutral-800 text-[11px] font-medium leading-none"
             >
-              Signed review record
+              Sealed review record
             </span>
              
             <span>

@@ -23,7 +23,7 @@ import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
+import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -41,7 +41,13 @@ import {
 import {
   REPEAT_REVIEW_LOOP_HELP_RELATED,
   REPEAT_REVIEW_LOOP_HELP_RELATED_HEADING,
+  REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID,
 } from "@/lib/repeat-review-loop-help-evidence-copy";
+import {
+  COMPARE_REPEAT_REVIEW_HELP_JOB_MATRIX_HEADING,
+  REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX,
+  REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX_TEST_ID,
+} from "@/lib/compare-repeat-review-help-ia-dual";
 import { cn } from "@/lib/utils";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 
@@ -59,7 +65,10 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
   });
-  const headings = extractHelpMarkdownHeadings(preparedMarkdown);
+  const headings = appendHelpClaimDisciplineTocHeadings(
+    extractHelpMarkdownHeadings(preparedMarkdown),
+    REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID,
+  );
   const diagramThemeVariables = dark
     ? REPEAT_REVIEW_LOOP_HELP_DIAGRAM_THEME_VARIABLES_DARK
     : REPEAT_REVIEW_LOOP_HELP_DIAGRAM_THEME_VARIABLES;
@@ -93,6 +102,38 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
         </p>
       </div>
 
+      <section
+        aria-labelledby="help-repeat-review-loop-job-matrix-heading"
+        className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+        data-testid={REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX_TEST_ID}
+      >
+        <h2
+          id="help-repeat-review-loop-job-matrix-heading"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+        >
+          {COMPARE_REPEAT_REVIEW_HELP_JOB_MATRIX_HEADING}
+        </h2>
+        <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}>
+          {REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX.map((row) => (
+            <li key={row.label} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+              {row.isCurrent === true ? (
+                <span
+                  className="shrink-0 font-medium text-al-text-primary"
+                  data-testid="help-repeat-review-loop-job-matrix-current"
+                >
+                  {row.label}
+                </span>
+              ) : (
+                <Link className={cn(OPERATOR_LINK.inline, "shrink-0 font-medium")} href={row.href ?? "#"}>
+                  {row.label}
+                </Link>
+              )}
+              <span className="text-al-text-secondary">{row.when}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <Card
           className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
@@ -115,8 +156,6 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
           </CardContent>
         </Card>
       </div>
-
-      <RepeatReviewLoopHelpEvidenceOrientationStrip />
 
       <HelpRepeatReviewLoopWorkflowStepper />
 
@@ -178,6 +217,8 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
               ))}
             </ul>
           </section>
+
+          <RepeatReviewLoopHelpEvidenceOrientationStrip />
         </div>
 
         <HelpTopicTableOfContents headings={headings} />

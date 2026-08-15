@@ -70,8 +70,8 @@ Pick one:
 | 3 | Execute the review (`POST …/execute` or UI equivalent) | Run progresses through agent/simulator pipeline |
 | 4 | Wait until run status is **Ready for commit** | Poll run detail until commit is allowed |
 | 5 | Commit the review | Golden manifest created; status **Committed** |
-| 6 | Open **Reviews list** → **Review detail** | **Golden manifest** / signed record link visible |
-| 7 | Open **Manifest / signed record** detail | Manifest heading, artifacts table, **Download bundle (ZIP)** |
+| 6 | Open **Reviews list** → **Review detail** | **Golden manifest** / sealed record link visible |
+| 7 | Open **Manifest / sealed record** detail | Manifest heading, artifacts table, **Download bundle (ZIP)** |
 | 8 | Download export ZIP (`GET /v1/artifacts/runs/{runId}/export`) | Non-empty ZIP; audit event **RunExported** |
 | 9 | Submit governance approval (`POST /v1/governance/approval-requests`) | Approval request created |
 | 10 | Negative check: approve as **same actor** who submitted | **400** self-approval blocked (soft expectation in automation) |
@@ -120,13 +120,13 @@ Use **Pass / Fail / Notes** when executing manually. **API** = mostly API calls;
 | G-07 | live-api-analysis-report | Analysis report + audit | API | **ArchitectureAnalysisReportGenerated** |
 | G-08 | live-api-email-run-to-sponsor | Post-commit PDF from first-value-report Markdown | Both | Sponsor-facing download |
 
-### 4.3 Search, graph, executive, marketing
+### 4.3 Search, graph, sponsor, marketing
 
 | ID | Spec file | Scenario | Type | What to verify |
 |----|-----------|----------|------|----------------|
 | M-01 | live-api-search-ask-graph | List by systemName; graph API; Ask; `/search` and `/ask` | Both | Optional Ask non-2xx OK in CI |
-| M-02 | live-api-executive-board-pack | Executive summary orphan/freshness; board-pack markdown | API | |
-| M-03 | live-api-executive-board-pack | Portfolio summary deduplicates findings | API | |
+| M-02 | live-api-sponsor-board-pack | Sponsor summary orphan/freshness; board-pack markdown | API | |
+| M-03 | live-api-sponsor-board-pack | Portfolio summary deduplicates findings | API | |
 | M-04 | live-api-why-archlucid | Proof page sections backed by live API | UI | `/why-archlucid` |
 | M-05 | live-api-marketing-pricing-quote | POST quote request 204; pricing page confirmation | Both | |
 | M-06 | live-api-marketing-pricing-stripe-checkout | Team tier Stripe hidden until real checkout URL | UI | |
@@ -251,7 +251,7 @@ Use **Pass / Fail / Notes** when executing manually. **API** = mostly API calls;
 | 31 | Alerts — notifications tab | `/governance/alert-rules?tab=notifications` |
 | 32 | Alerts — simulation tab | `/alerts?tab=simulation` |
 | 33 | Alerts — composite tab | `/alerts?tab=composite` |
-| 34 | Executive Workspace Health | `/governance/dashboard` |
+| 34 | Sponsor Workspace Health | `/governance/dashboard` |
 | 35 | Governance workflow | `/governance` |
 | 36 | Policy resolution | `/governance/standards-and-rules` |
 | 37 | Governance findings queue | `/governance/findings` |
@@ -280,10 +280,10 @@ Use **Pass / Fail / Notes** when executing manually. **API** = mostly API calls;
 | 60 | Settings support | `/administration/settings/support` |
 | 61 | Admin health | `/admin/health` |
 | 62 | Admin configuration | `/admin/configuration` |
-| 63 | Executive reviews list | `/executive/reviews` |
-| 64 | Executive scorecard | `/executive/scorecard` |
-| 65 | Executive run detail (showcase) | `/executive/reviews/claims-intake-modernization` |
-| 66 | Executive finding (showcase) | `/executive/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
+| 63 | Sponsor reviews list | `/sponsor/reviews` |
+| 64 | Sponsor scorecard | `/sponsor/scorecard` |
+| 65 | Sponsor run detail (showcase) | `/sponsor/reviews/claims-intake-modernization` |
+| 66 | Sponsor finding (showcase) | `/sponsor/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
 | 67 | Compare (fixture pair) | `/compare?leftRunId=e2e-fixture-left-run&rightRunId=e2e-fixture-right-run` |
 | 68 | Operator sign in | `/auth/signin` |
 | 69 | Marketing accessibility | `/accessibility` |
@@ -310,7 +310,7 @@ Merge **`docs/quality/MANUAL_QA_CHECKLIST.md`** into your Word pack for:
 - Sponsor / architect **narrative coherence** (Claims Intake demo story)
 - **Real Entra ID**, Marketplace, Stripe TEST on staging
 - **Assistive technology** beyond axe
-- **Alert fatigue** and executive readability judgments
+- **Alert fatigue** and sponsor readability judgments
 - **On-call runbook** readability
 
 ---

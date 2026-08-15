@@ -1,4 +1,7 @@
 import {
+  AI_KNOWLEDGE_ASSISTANT_SAMPLE_DEFINITION,
+} from "@/lib/samples/ai-knowledge-assistant/definition";
+import {
   CLAIMS_INTAKE_SAMPLE_DEFINITION,
 } from "@/lib/samples/claims-intake/definition";
 import { CUSTOMER_INTAKE_SAMPLE_DEFINITION } from "@/lib/samples/customer-intake-modernization/definition";
@@ -8,6 +11,7 @@ import type { SampleScenarioDefinition } from "@/lib/samples/types";
 export const ACTIVE_SAMPLE_SCENARIO_SLUG = CUSTOMER_INTAKE_SAMPLE_DEFINITION.slug;
 
 const REGISTERED_SAMPLE_SCENARIOS: readonly SampleScenarioDefinition[] = [
+  AI_KNOWLEDGE_ASSISTANT_SAMPLE_DEFINITION,
   CLAIMS_INTAKE_SAMPLE_DEFINITION,
   CUSTOMER_INTAKE_SAMPLE_DEFINITION,
 ];
