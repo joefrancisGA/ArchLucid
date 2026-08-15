@@ -8,11 +8,45 @@ import {
 } from "./assumption-and-severity";
 import type { FinalizeQualityScorecardInput } from "./finalize-quality-scorecard";
 
+const FINALIZE_RESOLVED_DISPOSITIONS = new Set([
+  "Accepted",
+  "RejectedAsNotApplicable",
+  "Remediated",
+]);
+
+function readDispositionFromReviewFinding(finding: QuickDecisionFinding): string | null {
+  try {
+    const parsed: unknown = JSON.parse(finding.aiReasoning.wireJson);
+
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return null;
+    }
+
+    const disposition = (parsed as { latestDisposition?: unknown }).latestDisposition;
+
+    return typeof disposition === "string" && disposition.trim().length > 0 ? disposition.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+function isFinalizeResolvedReviewFinding(finding: QuickDecisionFinding): boolean {
+  const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
+
+  if (reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden") {
+    return true;
+  }
+
+  const disposition = readDispositionFromReviewFinding(finding);
+
+  return disposition !== null && FINALIZE_RESOLVED_DISPOSITIONS.has(disposition);
+}
+
 function deriveUnverifiedAssumptionTexts(findings: readonly QuickDecisionFinding[]): string[] {
   const texts: string[] = [];
 
   for (const finding of findings) {
-    if (finding.isMuted) {
+    if (finding.isMuted || isFinalizeResolvedReviewFinding(finding)) {
       continue;
     }
 
@@ -41,7 +75,7 @@ export function deriveFinalizeQualityScorecardInput(
   let lowExtractionConfidenceCount = 0;
 
   for (const finding of findings) {
-    if (finding.isMuted || finding.severityValue < 2) {
+    if (finding.isMuted || finding.severityValue < 2 || isFinalizeResolvedReviewFinding(finding)) {
       continue;
     }
 

@@ -137,6 +137,48 @@ describe("finalize-quality-scorecard-from-findings", () => {
     expect(input.unverifiedAssumptionCount).toBe(4);
   });
 
+  it("does not count approved assumption findings toward finalize assumption totals", () => {
+    const input = deriveFinalizeQualityScorecardInput(
+      [
+        sampleFinding({
+          findingId: "a1",
+          title: "Assumption about cache",
+          humanReviewStatus: 2,
+        }),
+        sampleFinding({
+          findingId: "a2",
+          title: "Assumption about API versioning",
+          humanReviewStatus: 2,
+        }),
+        sampleFinding({
+          findingId: "a3",
+          title: "Assumption about auth",
+          humanReviewStatus: 2,
+        }),
+      ],
+      0,
+    );
+
+    expect(input.unverifiedAssumptionCount).toBe(0);
+  });
+
+  it("does not count approved low-confidence findings toward extraction fidelity blockers", () => {
+    const input = deriveFinalizeQualityScorecardInput(
+      [
+        sampleFinding({
+          findingId: "f1",
+          title: "Critical field extracted with low confidence",
+          severityValue: 2,
+          humanReviewStatus: 2,
+          confidenceLevel: "Low",
+        }),
+      ],
+      0,
+    );
+
+    expect(input.lowExtractionConfidenceCount).toBe(0);
+  });
+
   it("derives approved decision titles from approved human review rows", () => {
     const titles = deriveApprovedDecisionTitlesFromFindings([
       sampleFinding({
