@@ -11,13 +11,13 @@ Regenerate after opening or closing summary-table rows:
 
 | Architectural quality | Open |
 | --- | ---: |
-| Correctness | 2 |
+| Correctness | 1 |
 | Testability | 5 |
 | Reliability | 3 |
 | Deployability | 2 |
 | AI/Agent readiness | 4 |
 | Architectural integrity | 3 |
-| Adoption friction | 7 |
+| Adoption friction | 3 |
 | Cutting-edge AI | 3 |
 | Explainability | 1 |
 | Trustworthiness | 1 |
@@ -27,10 +27,9 @@ Regenerate after opening or closing summary-table rows:
 | Code hygiene | 1 |
 | Stickiness | 4 |
 | Differentiability | 3 |
-| Other / uncategorized | 7 |
-| **Total (unique open)** | **58** |
+| **Total (unique open)** | **46** |
 
-**By priority band:** P0 **0** | P1 **7** | P2 **35** | P3 **9** | unlabeled **7**.
+**By priority band:** P0 **0** | P1 **2** | P2 **35** | P3 **9**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1321,7 +1320,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2215 | Multi-cloud cost constraint parity (AWS/GCP); see ## TB-2215 below | Cost-effectiveness P2 ? **V1.1**; non-policy-pack assessment wave 2026-08-13; pairs **TB-874**?**TB-876** | L |
 | TB-2216 | **Done** (2026-08-13) ? Graph ? Azure inventory reconciliation; see ## TB-2216 below | Correctness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; closes topology validation loop | L |
 | TB-2217 | **Done** (2026-08-13) ? Expand deterministic Azure orphan/drift classifiers; see ## TB-2217 below | Correctness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; extends `OrphanedResourceClassifier` | M |
-| TB-2218 | AWS/GCP inventory reality finding engines; see ## TB-2218 below | Correctness P1 ? **V1.1** ? **Done** 2026-08-13; `orphaned-aws-resource` + `orphaned-gcp-resource` engines; pairs **TB-874**?**TB-876** | L |
+| TB-2218 | **Done** (2026-08-13) ? AWS/GCP inventory reality finding engines; see ## TB-2218 below | Correctness P1 ? **V1.1**; `orphaned-aws-resource` + `orphaned-gcp-resource` engines; pairs **TB-874**?**TB-876** | L |
 | TB-2219 | **Done** (2026-08-13) ? Inventory collection freshness gate; see ## TB-2219 below | Reliability P1 ? **V1**; non-policy-pack assessment wave 2026-08-13; stale ZIP must not drive findings | S |
 | TB-2220 | **Done** (2026-08-15) — Inventory findings linked to topology graph nodes; see ## TB-2220 below | Explainability P2 ? **V1**; non-policy-pack assessment wave 2026-08-13; evidence graph visibility | M |
 | TB-2221 | **Done** (2026-08-13) ? Validate-before-overlay for all agent proposals; see ## TB-2221 below | AI/Agent readiness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; implements **TB-1196** for cost/compliance/critic | L |
@@ -1385,9 +1384,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2097 | **Done** ? Rename golden-journey step pill ?Evidence trail? ? ?Evidence graph?; see ## TB-2097 below | Adoption friction P0 ? **V1**; owner ask 2026-08-07; aligns BUYER_SURFACE_VOCABULARY | S |
 | TB-2006 | **Done** (2026-08-13) ? Architecture draft workspace: disable Start review until readiness; drop validation toast; see ## TB-2006 below | Adoption friction P1 ? **V1** | S |
 | TB-2007 | **Done** (2026-08-13) ? Pilot baseline wizard: disable Next/Save until valid; inline field errors; see ## TB-2007 below | Adoption friction P1 ? **V1** | S |
-| TB-2008 | Admin toast-validation ? Tenant cost settings + governance bulk disposition; see ## TB-2008 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
-| TB-2012 | Design-system ? date/datetime range Start/End date labels + content-sized pickers; see ## TB-2012 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
-| TB-2013 | Decision Register ? Start/End date labels + content-sized date inputs; see ## TB-2013 below | Adoption friction P1 ? **V1** ? **Done** 2026-08-12 | S |
+| TB-2008 | **Done** (2026-08-12) ? Admin toast-validation ? Tenant cost settings + governance bulk disposition; see ## TB-2008 below | Adoption friction P1 ? **V1** | S |
+| TB-2012 | **Done** (2026-08-12) ? Design-system ? date/datetime range Start/End date labels + content-sized pickers; see ## TB-2012 below | Adoption friction P1 ? **V1** | S |
+| TB-2013 | **Done** (2026-08-12) ? Decision Register ? Start/End date labels + content-sized date inputs; see ## TB-2013 below | Adoption friction P1 ? **V1** | S |
 | TB-2014 | ~~Audit + Value report ? From/To ? Start/End date + picker width~~ **Done** (2026-08-12); see ## TB-2014 below | Adoption friction P1 ? **V1** | S |
 | TB-891 | **Done** (2026-08-12) ? showcase render-mode + scenario telemetry; see `## TB-891` / `## TB-978` below | Traceability P1 ? **V1**; assessment 2026-07-19; portfolio assessment 2026-07-23 | S |
 | TB-964 | **Done** (2026-08-12) ? durable quality-outcome persistence; see `## TB-964` below | Traceability P1 ? **V1**; after **TB-963**; builds on quality gate Done path | M |
@@ -1921,7 +1920,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1999 | **Done** (2026-08-04) ? Follow-up inventory ? remaining flat `Label: value` metadata surfaces; Vitest band; see ## TB-1999 below | Adoption friction P2 ? **V1**; after **TB-1996**/**TB-1997** | M |
 | TB-2003 | **Done** (2026-08-14) ? Form/helper breathing room ? Vitest contract + Guided intake golden; see ## TB-2003 below | Testability P2 ? **V1**; after **TB-2000**?**TB-2002** | S |
 | TB-2004 | **Done** (2026-08-14) ? Follow-up inventory ? remaining cramped form/helper stacks; see ## TB-2004 below | Adoption friction P2 ? **V1**; after **TB-2000**?**TB-2002** | M |
-| TB-2005 | Design-system ? form validation affordances (disable CTA + inline errors + toast scope); see ## TB-2005 below | Adoption friction P1 ? **V1**; **Done** 2026-07-29; owner create-architecture draft CTA toast ask | S |
+| TB-2005 | **Done** (2026-07-29) ? Design-system ? form validation affordances (disable CTA + inline errors + toast scope); see ## TB-2005 below | Adoption friction P1 ? **V1**; owner create-architecture draft CTA toast ask | S |
 | TB-2009 | **Done** (2026-08-14) ? Dual toast+inline cleanup ? extract-upload + extractor ZIP + baseline leftover; see ## TB-2009 below | Adoption friction P2 ? **V1**; with **TB-2005** | S |
 | TB-2010 | Follow-up inventory ? disable-until-ready where inline already exists; see ## TB-2010 below | Adoption friction P2 ? **V1**; after **TB-2005**; Signup / Webhooks / Alert routing / wizards | M |
 | TB-2011 | Form validation affordances ? Vitest contract + dead validation-toast cleanup; see ## TB-2011 below | Testability P2 ? **V1**; after **TB-2006**?**TB-2008** | S |
@@ -2382,7 +2381,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-098 | ~~Add `azurerm_monitor_workspace` to `terraform-monitoring`~~ ? **Done** (2026-06-01) | IaC coverage ? **Done** 2026-06-01; managed workspace + `azure_monitor_workspace_id_effective` | XS |
 | TB-099 | ~~Add diagnostic settings for Container Apps, Service Bus namespace, and artifact storage account~~ ? **Done** (2026-06-01) | Ops / observability ? **Done** 2026-06-01; optional flags in container-apps, servicebus, storage (+ hosted platform diagnostics) | S |
 | TB-100 | ~~Migrate Logic App Standard storage from access-key to managed identity~~ ? **Done** (2026-06-01, platform-constrained) | IaC hygiene ? **Done** 2026-06-01 (RBAC on hosting storage; access key still required by platform for file share mount) | M |
-| TB-101 | Resolve legacy App Service VNet integration in `terraform-private/app_service.tf` | IaC hygiene ? **Done** 2026-06-01 (documented legacy optional path; Container Apps is active compute) | XS |
+| TB-101 | **Done** (2026-06-01) ? Resolve legacy App Service VNet integration in `terraform-private/app_service.tf` | IaC hygiene; documented legacy optional path; Container Apps is active compute | XS |
 | TB-102 | ~~Parameterize `application_insights_sampling_percentage` in `terraform-monitoring`~~ ? **Done** (2026-06-01) | IaC hygiene ? **Done** 2026-06-01; `application_insights_sampling_percentage` variable (0?100, default 100) | XS |
 | TB-085 | ~~SqlRelationalBackfill ? paged scans + checkpoint table~~ ? **Done** (2026-06-01): `--batch-size`, `dbo.BackfillCheckpoints`, keyset paging | Maintainability P2 ? **V1** | M |
 | TB-086 | ~~Backfill poison-row quarantine~~ ? **Done** (2026-06-01): `dbo.BackfillFailures`, `--max-retries`, `--force-retry`, JSON `skippedQuarantinedCount` | Maintainability P2 ? **V1** | S |
@@ -2397,9 +2396,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-106 | ~~RunDetailPageView ? enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]`~~ ? **Done** (2026-05-31): `AuthorityRunDetailOperatorEnricher` on `GetRunDetail`; explanation-trace fallback label when `results[]` empty | Maintainability P2 ? **V1** | M |
 | TB-107 | ~~RunDetailPageView ? surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord`~~ ? **Done** (2026-05-31): `RunDetailGovernanceAlerts` + metadata `retryCount` when &gt; 0 | Maintainability P2 ? **V1** | S |
 | TB-108 | ~~RunDetailPageView ? render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures`~~ ? **Done** (2026-05-31): `FindingCoverageDispositionPanel` + `commitBlockedReason` on `CommitRunButton` | Maintainability P2 ? **V1** | S |
-| TB-103 | Orphan candidate count + savings ? expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness ? **Done** 2026-05-31; reaffirmed 2026-06-01 | M |
-| TB-104 | 14-day expiring waiver KPI ? server-compute the window; remove client-side date rule | Customer-visible correctness ? **Done**; dashboard uses `waiversExpiringWithin14Days` only (**TB-155**, **TB-168**) | S |
-| TB-105 | Business-impact category buckets ? add pre-bucketed counts to `SponsorRoiSummaryResponse`; remove substring matcher | Customer-visible correctness ? **Done** 2026-05-31 | S |
+| TB-103 | **Done** (2026-06-01) ? Orphan candidate count + savings ? expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness; reaffirmed 2026-06-01 | M |
+| TB-104 | **Done** (2026-05-31) ? 14-day expiring waiver KPI ? server-compute the window; remove client-side date rule | Customer-visible correctness; dashboard uses `waiversExpiringWithin14Days` only (**TB-155**, **TB-168**) | S |
+| TB-105 | **Done** (2026-05-31) ? Business-impact category buckets ? add pre-bucketed counts to `SponsorRoiSummaryResponse`; remove substring matcher | Customer-visible correctness | S |
 | TB-149 | ~~Canonical 14-day expiring-waiver window ? single server implementation; delete `CountExpiringWaivers` duplicate~~ ? **Done** (2026-05-31): `GovernanceWaiverExpiryWindow.CountExpiringWithinDays` | Maintainability P2 ? **V1** | S |
 | TB-150 | ~~Decisions-needed `TotalDecisionItems` ? union cardinality across buckets, not sum~~ ? **Done** (2026-05-31): `GovernanceDecisionsNeededSummaryCalculator` | Maintainability P2 ? **V1** | S |
 | TB-151 | ~~`SponsorSummaryResult.TotalRiskReductionScore` ? rename or map to pending-decision count~~ ? **Done** (2026-05-31): `ResolvedFindingsCount30Days` + `PendingGovernanceDecisionCount` | Maintainability P2 ? **V1** | XS |
@@ -2437,10 +2436,10 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-159 | ~~Buyer security/procurement packet~~ ? **Done** (2026-06-01): `BUYER_SECURITY_PROCUREMENT_PACKET.md` | Maintainability P2 ? **V1** | S-M |
 | TB-160 | ~~Legal/procurement terms packet~~ ? **Done** (2026-06-01): `LEGAL_PROCUREMENT_TERMS_PACKET.md` | Maintainability P2 ? **V1** | M |
 | TB-165 | ~~Assessment score consistency guard~~ ? **Done** (2026-06-01): `check_assessment_score_consistency.py` + `Assert-AssessmentScoreConsistency.ps1`; extended by **TB-354**; not an open engineering item (cleared from `TECH_BACKLOG_OPEN.md` 2026-07-18) | Maintainability P2 ? **V1** | XS-S |
-| TB-166 | Release claim gate for full real-mode AI evidence | Release safety ? **Done** (2026-06-01): `check_release_real_mode_claim.py` + `Invoke-ReleaseRealModeClaimGate.ps1` | S |
+| TB-166 | **Done** (2026-06-01) ? Release claim gate for full real-mode AI evidence | Release safety; `check_release_real_mode_claim.py` + `Invoke-ReleaseRealModeClaimGate.ps1` | S |
 | TB-167 | ~~Sponsor AI readiness posture artifact~~ ? **Done** (2026-06-03, batch 5CP): `Write-AiReadinessPosture.ps1` wired via `Add-AiReadinessPostureFinding` in `collect-first-pilot-proof.ps1`; `AI_READINESS_POSTURE.md` updated; `test_proof_roi_batch_5cp.py` | Maintainability P2 ? **V1** | S-M |
-| TB-168 | Sponsor KPI semantic contract and UI heuristic regression guard | Customer-visible correctness ? **Done** (2026-06-01): `SPONSOR_KPI_SEMANTIC_CONTRACT.json`, UI + Application.Tests guards | S |
-| TB-169 | Pilot-first onboarding and Operate-surface progressive disclosure | Adoption friction ? **Done** (2026-06-01): committed-review nav gate + first-run workflow panel | M |
+| TB-168 | **Done** (2026-06-01) ? Sponsor KPI semantic contract and UI heuristic regression guard | Customer-visible correctness; `SPONSOR_KPI_SEMANTIC_CONTRACT.json`, UI + Application.Tests guards | S |
+| TB-169 | **Done** (2026-06-01) ? Pilot-first onboarding and Operate-surface progressive disclosure | Adoption friction; committed-review nav gate + first-run workflow panel | M |
 | TB-170 | ~~Remediate stale relative markdown links (docs/nav consolidation drift)~~ ? **Done** (2026-06-01, batch 5F): `repair_doc_links_batch5f.py` + stubs; `check_doc_links.py` exit 0; CI merge-blocking | Maintainability P2 ? **V1** | L |
 | TB-143 | ~~In-app markdown documentation renderer + `/help/{topic}` routes~~ ? **Done** (2026-06-01): registry-backed `/help/{topic}` renderer | Maintainability P2 ? **V1** | M |
 | TB-144 | ~~Customer-facing documentation registry~~ ? **Done** (2026-06-01): `product-documentation-registry.ts` | Maintainability P2 ? **V1** | S |
