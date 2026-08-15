@@ -30,7 +30,7 @@ import {
   ITSM_TICKET_LINKAGE_CREATE_INTRO,
   ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED,
 } from "@/lib/vocabulary/finding-correlation-vocabulary";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { showSuccess } from "@/lib/toast";
 
@@ -203,7 +203,7 @@ export function ItsmOutboundCreateIssueDialog({
                           href={correlation.externalUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-teal-700 underline dark:text-teal-400"
+                          className={OPERATOR_BODY_INLINE_LINK_CLASS}
                         >
                           Open
                         </a>

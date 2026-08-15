@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import {
+  MARKETING_SURFACES,
   MARKETING_TYPOGRAPHY,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_SHELL_STICKY_TOP_CLASS,
@@ -52,10 +53,7 @@ export const PRIVACY_POLICY_TOC = {
   mobileDetails: "rounded-md border border-neutral-200 bg-al-surface-raised p-3 xl:hidden dark:border-neutral-800",
   mobileSummary: cn("cursor-pointer font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle),
   list: "m-0 mt-3 list-none space-y-2 p-0",
-  link: cn(
-    "block rounded-sm py-1.5 text-al-text-secondary underline-offset-2 transition-colors hover:text-teal-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:hover:text-teal-300",
-    MARKETING_TYPOGRAPHY.body,
-  ),
+  link: cn("block rounded-sm py-1.5", MARKETING_SURFACES.inlineLink, MARKETING_TYPOGRAPHY.body),
   linkActive: "font-semibold text-teal-900 dark:text-teal-200",
   linkNested: "pl-3 text-[0.95em]",
 } as const;

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
-import { MARKETING_MOTION, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
   CUSTOMER_INTAKE_PRIMARY_FINDING_TITLE,
@@ -99,10 +99,7 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
         </ul>
 
         <p
-          className={cn(
-            "m-0 text-center text-teal-800 group-hover:underline dark:text-teal-300",
-            MARKETING_TYPOGRAPHY.meta,
-          )}
+          className={cn("m-0 text-center", MARKETING_SURFACES.inlineLink, MARKETING_TYPOGRAPHY.meta)}
         >
           Open interactive sample review →
         </p>

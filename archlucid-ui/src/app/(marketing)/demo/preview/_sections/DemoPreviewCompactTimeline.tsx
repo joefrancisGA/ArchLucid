@@ -9,7 +9,7 @@ import {
   DEMO_PREVIEW_TECHNICAL_DETAILS_DISCLOSURE,
 } from "@/lib/demo-preview-page-copy";
 import { buildDemoPreviewTimelineRows } from "@/lib/demo-preview-timeline-present";
-import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ShowcaseFunnelTelemetryAnchor } from "@/lib/marketing/showcase-funnel-telemetry-anchor";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import type { ShowcaseDemoPreviewTelemetry } from "@/lib/marketing/showcase-telemetry";
@@ -99,7 +99,7 @@ export function DemoPreviewCompactTimeline(props: DemoPreviewCompactTimelineProp
                   {props.showcaseTelemetry && row.action.href.includes("/findings/") ? (
                     <ShowcaseFunnelTelemetryAnchor
                       href={row.action.href}
-                      className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                      className={MARKETING_SURFACES.inlineLink}
                       data-testid={`demo-preview-timeline-action-${row.eventId}`}
                       scenario={props.showcaseTelemetry.scenario}
                       renderMode={props.showcaseTelemetry.renderMode}
@@ -110,7 +110,7 @@ export function DemoPreviewCompactTimeline(props: DemoPreviewCompactTimelineProp
                   ) : (
                     <Link
                       href={row.action.href}
-                      className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                      className={MARKETING_SURFACES.inlineLink}
                       data-testid={`demo-preview-timeline-action-${row.eventId}`}
                     >
                       {row.action.label}

@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { DESIGN_TOKENS, OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -730,7 +730,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
             {BUYER_CTO_DEMO_COMPARE_DRIFT_LABEL}:{" "}
             <Link
               href={BUYER_CTO_DEMO_COMPARE_HREF}
-              className="text-teal-800 underline underline-offset-2 dark:text-teal-300"
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
               data-testid="cto-demo-compare-drift-link"
             >
               {BUYER_CTO_DEMO_COMPARE_DRIFT_CTA}
@@ -1017,7 +1017,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
                   href={buildCtoDemoProofHref(row)}
 
-                  className="mt-0.5 inline-block text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                  className={cn("mt-0.5 inline-block", OPERATOR_BODY_INLINE_LINK_CLASS)}
 
                 >
 

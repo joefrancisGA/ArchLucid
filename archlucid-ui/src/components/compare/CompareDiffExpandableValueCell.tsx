@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 import { EnterpriseTableCell } from "@/components/ui/enterprise-table";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareDiffExpandableValueCellProps = {
   readonly value: string | null;
@@ -31,7 +31,7 @@ export function CompareDiffExpandableValueCell(props: CompareDiffExpandableValue
       <span className={expanded ? undefined : "line-clamp-2"}>{display}</span>
       <button
         type="button"
-        className={cn("mt-1 block text-teal-800 hover:underline dark:text-teal-200", OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+        className={cn("mt-1 block", OPERATOR_LINK.inline, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY.helper)}
         onClick={() => setExpanded((current) => !current)}
       >
         {expanded ? "Show less" : "Show full value"}

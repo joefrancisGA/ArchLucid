@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { MARKETING_LAYOUT, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_LAYOUT, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import {
@@ -34,7 +34,7 @@ export function WelcomeMarketingUseCasesSection() {
             <p className={cn("mt-2 leading-relaxed text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{useCase.body}</p>
             <p className="mt-3">
               <Link
-                className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+                className={MARKETING_SURFACES.inlineLink}
                 data-testid={`welcome-use-case-${useCase.id}-cta`}
                 href={useCase.href}
               >
@@ -52,7 +52,7 @@ export function WelcomeMarketingUseCasesSection() {
           {WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE}{" "}
           {WELCOME_POLICY_PACK_DISCLAIMER}{" "}
           <Link
-            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+            className={MARKETING_SURFACES.inlineLink}
             href={resolveInAppDocHref("docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md")}
           >
             Default policy packs

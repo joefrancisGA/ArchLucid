@@ -45,7 +45,7 @@ export function WelcomeMarketingHeroVisual(): React.JSX.Element {
             <span className={MARKETING_SURFACES.inlineLink}>policy-pack-rule-14</span>
           </p>
         </div>
-        <p className={cn("m-0 text-center text-teal-800 group-hover:underline dark:text-teal-300", MARKETING_TYPOGRAPHY.meta)}>
+        <p className={cn("m-0 text-center", MARKETING_SURFACES.inlineLink, MARKETING_TYPOGRAPHY.meta)}>
           Inspect the full sample review →
         </p>
       </div>

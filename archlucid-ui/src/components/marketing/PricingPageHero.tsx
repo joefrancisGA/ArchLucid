@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   PRICING_PAGE_FAQ_LINK_LABEL,
   PRICING_PAGE_FAQ_LINK_PREFIX,
@@ -23,7 +23,7 @@ export function PricingPageHero(): React.JSX.Element {
       <p className={cn("m-0 mt-4 max-w-3xl", MARKETING_TYPOGRAPHY.lead)}>{PRICING_PAGE_INTRO}</p>
       <p className={cn("m-0 mt-4 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)} data-testid="pricing-faq-link-line">
         {PRICING_PAGE_FAQ_LINK_PREFIX}{" "}
-        <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/faq">
+        <Link className={MARKETING_SURFACES.inlineLink} href="/faq">
           {PRICING_PAGE_FAQ_LINK_LABEL}
         </Link>
         .
