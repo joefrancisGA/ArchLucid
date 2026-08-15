@@ -66,6 +66,16 @@ export const WHY_HERO_SECONDARY_CTA_LABEL = WHY_CLOSING_SECONDARY_CTA_LABEL;
 
 export const WHY_HERO_SECONDARY_CTA_HREF = WHY_CLOSING_SECONDARY_CTA_HREF;
 
+/** Operator Home screenshot for the /why hero proof card (TB-1671). */
+export const WHY_HERO_PRODUCT_SCREENSHOT_SRC =
+  "/marketing/why/why-hero-operator-home-2026-08.png" as const;
+
+export const WHY_HERO_PRODUCT_SCREENSHOT_ALT =
+  "ArchLucid operator Home showing a finalized architecture review workspace";
+
+export const WHY_HERO_PRODUCT_SCREENSHOT_CAPTION =
+  "Healthcare Claims intake modernization — sample review with findings, approvals, and evidence trail";
+
 /**
  * TB-1302 / M-107 Option A: canonical anonymous proof ladder — Claims-static primary;
  * Contoso `/demo/preview` is secondary and explicitly labeled.

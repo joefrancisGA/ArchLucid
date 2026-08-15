@@ -1,18 +1,8 @@
-import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { PilotValueReportPageClient } from "@/app/(operator)/insights/executive-summary/_sections/PilotValueReportPageClient";
-import { loadPilotValueReportPageData } from "@/app/(operator)/insights/executive-summary/_sections/load-pilot-value-report-page-data";
-import {
-  PILOT_OUTCOMES_PAGE_TITLE,
-  SPONSOR_REPORT_SECTION_LABEL,
-} from "@/lib/sponsor-report-navigation";
+import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 
-export const metadata: Metadata = {
-  title: `${PILOT_OUTCOMES_PAGE_TITLE} | ${SPONSOR_REPORT_SECTION_LABEL}`,
-};
-
-export default async function SponsorReportPilotOutcomesPage() {
-  const loaded = await loadPilotValueReportPageData();
-
-  return <PilotValueReportPageClient loaded={loaded} />;
+/** Retired route — pilot outcomes content lives on the merged sponsor report page. */
+export default function RetiredPilotOutcomesRedirect(): void {
+  redirect(SPONSOR_REPORT_PATH);
 }
