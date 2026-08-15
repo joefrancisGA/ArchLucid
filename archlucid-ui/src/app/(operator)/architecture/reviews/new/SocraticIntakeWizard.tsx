@@ -11,6 +11,7 @@ import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/WizardPolicyPackCloudMismatchCallout";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
 import { Button } from "@/components/ui/button";
@@ -131,6 +132,7 @@ export function SocraticIntakeWizard() {
     canAdvanceIntent,
     canReviewAnswers,
     canSubmit,
+    policyPackCloudMismatch,
   } = useGuidedIntakeWizard();
 
   return (
@@ -595,6 +597,9 @@ export function SocraticIntakeWizard() {
               </section>
             ) : null}
             {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
+            {policyPackCloudMismatch !== null ? (
+              <WizardPolicyPackCloudMismatchCallout detail={policyPackCloudMismatch} />
+            ) : null}
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="outline" disabled={busy} onClick={() => setStep(1)}>
                 Back to questions

@@ -13,6 +13,8 @@ import {
   resolveArchitectureWorkflowIntent,
 } from "@/lib/architecture/architecture-workflow-intent";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator/operator-home-example-request";
+import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
+import { deriveGuidedIntakePolicyPackCloudMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
 import { WIZARD_SESSION_IDS, wizardSessionHasTextContent } from "@/lib/wizard-session-persistence";
 
 import {
@@ -47,6 +49,7 @@ export function useGuidedIntakeWizard() {
   );
   const isCreateArchitectureFlow = isCreateArchitectureIntent(workflowIntent);
   const sourceArchitectureId = searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ?? "";
+  const deeplinkPolicyPackId = searchParams?.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
 
   const { stepIndex: step, setStepIndex: setStep } = useWizardStepNavigation({
     steps: INTAKE_STEP_DEFINITIONS,
@@ -126,6 +129,16 @@ export function useGuidedIntakeWizard() {
     clearSessionRef.current = wizardSession.clearSession;
   }, [wizardSession.clearSession]);
 
+  const policyPackCloudMismatch = useMemo(
+    () =>
+      deriveGuidedIntakePolicyPackCloudMismatch(
+        form.focusedPilotModeEnabled,
+        deeplinkPolicyPackId.length > 0 ? deeplinkPolicyPackId : null,
+        workflow.answers,
+      ),
+    [deeplinkPolicyPackId, form.focusedPilotModeEnabled, workflow.answers],
+  );
+
   const canAdvanceIntent = form.advanceBlockers.length === 0 && !workflow.busy;
   const canReviewAnswers = workflow.allClarificationsHandled && !workflow.busy;
   // Scope is gated on step 0 and already persisted on the draft, so it is not re-gated here.
@@ -133,7 +146,8 @@ export function useGuidedIntakeWizard() {
     workflow.draftId !== null &&
     workflow.allClarificationsHandled &&
     !workflow.busy &&
-    !blocksLlmExecution;
+    !blocksLlmExecution &&
+    policyPackCloudMismatch === null;
 
   const stepLabel = useMemo(() => `Step ${step + 1} of ${INTAKE_STEPS.length}`, [step]);
 
@@ -158,6 +172,7 @@ export function useGuidedIntakeWizard() {
     canAdvanceIntent,
     canReviewAnswers,
     canSubmit,
+    policyPackCloudMismatch,
     stepLabel,
   };
 }
