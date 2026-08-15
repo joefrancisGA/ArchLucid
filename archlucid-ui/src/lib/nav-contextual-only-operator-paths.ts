@@ -23,9 +23,9 @@ export const CONTEXTUAL_ONLY_OPERATOR_NAV_DESTINATIONS: readonly ContextualOnlyO
   },
 ];
 
-export const CONTEXTUAL_ONLY_OPERATOR_NAV_PATHS = CONTEXTUAL_ONLY_OPERATOR_NAV_DESTINATIONS.map(
-  (destination) => destination.href,
-) as readonly [typeof ARCHITECTURE_INTELLIGENCE_PATH];
+export const CONTEXTUAL_ONLY_OPERATOR_NAV_PATHS = [
+  ARCHITECTURE_INTELLIGENCE_PATH,
+] as const;
 
 export type ContextualOnlyOperatorNavPath = (typeof CONTEXTUAL_ONLY_OPERATOR_NAV_PATHS)[number];
 

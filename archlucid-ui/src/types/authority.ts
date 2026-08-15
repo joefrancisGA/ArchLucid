@@ -29,6 +29,8 @@ type RunSummaryWireExtensions = {
   retryCount?: number | null;
   /** Detail merge: creation-span OTel trace id from `RunRecord` when run detail is projected onto summary props. */
   otelTraceId?: string | null;
+  /** List/detail merge: finalization timestamp when the API returns it for ordering committed runs. */
+  completedUtc?: string | null;
 };
 
 /**

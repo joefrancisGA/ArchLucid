@@ -55,7 +55,7 @@ public sealed class SponsorKpiSemanticContractTests
 
         while (dir is not null)
         {
-            string candidate = Path.Combine(dir.FullName, "docs", "library", "SPONSOR_KPI_SEMANTIC_CONTRACT.json");
+            string candidate = Path.Combine(dir.FullName, "docs", "library", "EXECUTIVE_KPI_SEMANTIC_CONTRACT.json");
 
             if (File.Exists(candidate))
             {
@@ -65,6 +65,6 @@ public sealed class SponsorKpiSemanticContractTests
             dir = dir.Parent;
         }
 
-        throw new FileNotFoundException("SPONSOR_KPI_SEMANTIC_CONTRACT.json not found from test output directory.");
+        throw new FileNotFoundException("EXECUTIVE_KPI_SEMANTIC_CONTRACT.json not found from test output directory.");
     }
 }

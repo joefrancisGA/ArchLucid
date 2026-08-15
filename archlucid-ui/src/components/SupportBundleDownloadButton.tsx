@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { TROUBLESHOOTING_SUPPORT_BUNDLE_DISCLOSURE } from "@/lib/troubleshooting-help-evidence-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -23,6 +23,20 @@ export type SupportBundleDownloadModel = {
   readonly lastGeneratedAt: Date | null;
   readonly onDownload: () => Promise<void>;
 };
+
+function supportBundleButtonVariant(
+  variant: SupportBundleDownloadButtonProps["variant"],
+): ButtonProps["variant"] {
+  switch (variant) {
+    case "link":
+    case "ghost":
+      return "outline";
+    case undefined:
+      return undefined;
+    default:
+      return variant;
+  }
+}
 
 type SupportBundleDownloadButtonProps = {
   className?: string;
@@ -135,7 +149,7 @@ export function SupportBundleDownloadButton({
     <Button
       type="button"
       size={size}
-      variant={variant}
+      variant={supportBundleButtonVariant(variant)}
       data-testid="support-bundle-download-button"
       disabled={downloading || !canGenerateBundle}
       onClick={() => void onDownload()}

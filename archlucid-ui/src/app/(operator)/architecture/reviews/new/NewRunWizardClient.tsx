@@ -255,7 +255,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
       const applied = applyBundledSamplePackageToWizard(
         setValue,
         evidence.handlePendingEvidenceFileChange,
-        scenarioId,
+        { platform: "azure", scenarioId },
       );
 
       if (!applied.ok) {

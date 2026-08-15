@@ -47,7 +47,7 @@ COPY docs/go-to-market/trust-center.md ./go-to-market-samples/trust-center.md
 
 # TB-168: `src/lib/sponsor-kpi-semantic-contract.ts` imports ../../../docs/library/… from /app/src/lib
 # (resolves to /docs/library/ on Linux). Monorepo dev has the file at repo root; Docker must mirror that path.
-COPY docs/library/SPONSOR_KPI_SEMANTIC_CONTRACT.json /docs/library/SPONSOR_KPI_SEMANTIC_CONTRACT.json
+COPY docs/library/EXECUTIVE_KPI_SEMANTIC_CONTRACT.json /docs/library/EXECUTIVE_KPI_SEMANTIC_CONTRACT.json
 # TB-320 / TB-328: run-detail and finding-severity semantic contracts use the same ../../../docs/library import path.
 COPY docs/library/RUN_DETAIL_KPI_SEMANTIC_CONTRACT.json /docs/library/RUN_DETAIL_KPI_SEMANTIC_CONTRACT.json
 COPY docs/library/FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json /docs/library/FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json

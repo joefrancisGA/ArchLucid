@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { REPORT_PROBLEM_ACTION_LABEL } from "@/lib/report-problem-copy";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +10,21 @@ export type ReportProblemTriggerButtonProps = {
   readonly className?: string;
   readonly variant?: "default" | "primary" | "outline" | "secondary" | "ghost" | "link" | "destructive";
 };
+
+/** Maps legacy shadcn variant names to canonical operator Button variants (TB-2290). */
+function reportProblemButtonVariant(
+  variant: ReportProblemTriggerButtonProps["variant"],
+): ButtonProps["variant"] {
+  switch (variant) {
+    case "link":
+    case "ghost":
+      return "outline";
+    case undefined:
+      return undefined;
+    default:
+      return variant;
+  }
+}
 
 /** Opens `ReportProblemDialog` from error shells and fatal page failures (TB-784). */
 export function ReportProblemTriggerButton({
@@ -21,7 +36,7 @@ export function ReportProblemTriggerButton({
   return (
     <Button
       type="button"
-      variant={variant}
+      variant={reportProblemButtonVariant(variant)}
       size="sm"
       disabled={disabled}
       className={cn(className)}

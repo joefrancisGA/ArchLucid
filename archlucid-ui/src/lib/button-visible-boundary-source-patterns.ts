@@ -29,7 +29,7 @@ export const BUTTON_CLASSNAME_COLOR_UTILITY_PATTERN = new RegExp(
   String.raw`\b(?:(?:hover:|dark:)?(?:bg|text|border)-${TAILWIND_CHROMATIC_SCALE}|text-al-text|bg-al-|border-al-|hover:bg-\[var\(--al-)`,
 );
 
-const BUTTON_OPEN_TAG_PATTERN = /<Button\b[^>]*>/gs;
+const BUTTON_OPEN_TAG_PATTERN = /<Button\b[^>]*>/g;
 
 function collectButtonOpenTags(source: string): string[] {
   return source.match(BUTTON_OPEN_TAG_PATTERN) ?? [];

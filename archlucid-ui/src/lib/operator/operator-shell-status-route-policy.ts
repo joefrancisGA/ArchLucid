@@ -1,3 +1,5 @@
+import type { ReadonlyURLSearchParams } from "next/navigation";
+
 /** Operator routes that do not need Tier-1 shell status fan-out (help, auth handoff, access denied). */
 const OPERATOR_SHELL_STATUS_READONLY_ROUTE_PREFIXES = [
   "/help",

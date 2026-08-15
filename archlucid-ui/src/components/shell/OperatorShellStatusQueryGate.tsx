@@ -60,9 +60,9 @@ export function OperatorShellStatusQueryGate(props: OperatorShellStatusQueryGate
     hydrateOperatorShellStatusCaches(queryClient, scope, bootstrap.data);
     writeOperatorShellStableCache({
       trialStatus: bootstrap.data.trialStatus,
-      catalogMigration: bootstrap.data.catalogMigration,
-      llmMonthlyBudgetStatus: bootstrap.data.llmMonthlyBudgetStatus,
-      alertsInboxSummary: bootstrap.data.alertsInboxSummary,
+      catalogMigration: bootstrap.data.catalogMigration ?? undefined,
+      llmMonthlyBudgetStatus: bootstrap.data.llmMonthlyBudgetStatus ?? undefined,
+      alertsInboxSummary: bootstrap.data.alertsInboxSummary ?? undefined,
     });
   }, [bootstrap.data, queryClient, scope]);
 

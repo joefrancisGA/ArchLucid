@@ -6,6 +6,7 @@ import type {
   DraftAdmissionResponse,
   DraftIntakeReasonResponse,
   DraftQuestionsResponse,
+  DraftRequestDocument,
   DraftRequestResponse,
   SubmitDraftResponse,
 } from "@/types/draft-intake";

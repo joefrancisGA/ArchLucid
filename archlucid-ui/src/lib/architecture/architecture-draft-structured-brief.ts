@@ -1,4 +1,4 @@
-import type { ActorDescriptor } from "@/types/draft-intake";
+import type { ActorDescriptor, DraftRequestDocument } from "@/types/draft-intake";
 
 /** Explicit unknown sentinel — silence is not treated as “none” (TB-2282). */
 export const ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL = "Unknown — confirm before review" as const;
@@ -91,7 +91,7 @@ export function structuredBriefFromDocument(
 
 export function structuredBriefToPatchPayload(
   brief: ArchitectureDraftStructuredBriefState,
-): ArchitectureDraftStructuredBriefState {
+): NonNullable<DraftRequestDocument["structuredBrief"]> {
   return {
     confirmedConstraints: [...brief.confirmedConstraints],
     confirmedAssumptions: [...brief.confirmedAssumptions],

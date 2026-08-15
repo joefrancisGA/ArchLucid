@@ -28,7 +28,7 @@ describe("demo-vs-live-chrome (TB-2218)", () => {
 
     expect(resolveDemoVsLiveChromeMode({ isSimulator: true })).toBe("simulator");
     expect(copy?.mode).toBe("simulator");
-    expect(copy?.bannerTitle).toContain("SIMULATOR");
+    expect(copy?.bannerTitle).toContain("RULE-BASED");
     expect(copy?.watermark).toContain("NOT LIVE");
   });
 });

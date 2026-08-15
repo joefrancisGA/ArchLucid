@@ -12,11 +12,13 @@ import {
   DECISION_REGISTER_EMPTY_TEACHING_TITLE,
 } from "@/lib/decision-register-empty-teaching";
 import {
-  DECISION_REGISTER_HELP_CLAIM_DISCIPLINE,
   DECISION_REGISTER_HELP_OVERVIEW,
   DECISION_REGISTER_HELP_PAGE_SUBTITLE,
 } from "@/lib/decision-register-help-guide-content";
-import { DECISION_REGISTER_HELP_CLAIM_DISCIPLINE as DECISION_REGISTER_HELP_EVIDENCE_CLAIM } from "@/lib/decision-register-help-evidence-copy";
+import {
+  DECISION_REGISTER_HELP_CLAIM_DISCIPLINE,
+  DECISION_REGISTER_HELP_CLAIM_DISCIPLINE as DECISION_REGISTER_HELP_EVIDENCE_CLAIM,
+} from "@/lib/decision-register-help-evidence-copy";
 import {
   FOCUSED_PILOT_MODE_COPY,
   REVIEW_SCOPE_HELP_EXPLANATION,

@@ -1,4 +1,7 @@
-import { PATH_CHOOSER_HELP_TRAFFIC_PATH } from "@/lib/ui-route-traffic-path-chooser-help";
+import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
+
+/** Traffic workbook path for path-chooser help (row HPX). */
+export const PATH_CHOOSER_HELP_TRAFFIC_PATH = PATH_CHOOSER_HELP_PATH;
 
 /**
  * Removed traffic workbook row ID for the retired `/help/evaluator-workbook` alias (merged into HPX).

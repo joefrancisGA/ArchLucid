@@ -5,6 +5,8 @@
 
 import { RULE_BASED_ANALYSIS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 
+export type DemoVsLiveChromeMode = "live" | "static-demo" | "simulator";
+
 export type DemoVsLiveChromeCopy = {
   readonly mode: Exclude<DemoVsLiveChromeMode, "live">;
   readonly bannerTitle: string;

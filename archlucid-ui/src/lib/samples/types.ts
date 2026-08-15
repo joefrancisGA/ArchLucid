@@ -1,5 +1,9 @@
 /** Disclosure kind for buyer-facing sample surfaces (static JSON vs live SQL seed). */
-export type SampleScenarioDisclosureKind = "illustrative-static" | "live-seed" | "api-fallback";
+export type SampleScenarioDisclosureKind =
+  | "illustrative-static"
+  | "illustrative-created-static"
+  | "live-seed"
+  | "api-fallback";
 
 /**
  * Typed per-scenario sample package — single source for stable IDs, counts, labels, and deep links.

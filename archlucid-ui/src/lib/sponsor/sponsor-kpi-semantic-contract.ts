@@ -1,4 +1,4 @@
-import contractJson from "../../../../docs/library/SPONSOR_KPI_SEMANTIC_CONTRACT.json";
+import contractJson from "../../../../docs/library/EXECUTIVE_KPI_SEMANTIC_CONTRACT.json";
 
 /** TB-168: server-authoritative sponsor KPI field contract (display/formatting only in UI). */
 export type SponsorKpiSemanticField = {

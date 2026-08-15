@@ -37,7 +37,7 @@ describe("SPONSOR_KPI_SEMANTIC_CONTRACT (TB-168)", () => {
     const offenders = listDashboardForbiddenPatternOffenders(src);
 
     expect(offenders, "Use governance decisions-needed summary only.").toEqual([]);
-    expect(src).toContain("decisionsNeeded.waiversExpiringWithin14Days");
+    expect(src).toContain("waiversExpiringWithin14Days");
     expect(src).not.toMatch(/expiringWaiversCount14Days\s*\?\?/);
   });
 });

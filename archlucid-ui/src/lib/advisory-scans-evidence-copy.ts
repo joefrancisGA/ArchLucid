@@ -1,6 +1,6 @@
 import { ADVISORY_SCANS_HREF } from "@/lib/advisory-scans-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
 
 export const ADVISORY_SCANS_CANONICAL_PATH = ADVISORY_SCANS_HREF;
 
@@ -13,7 +13,7 @@ export const ADVISORY_SCANS_SOURCES_INTRO =
   "Follow-ups for review intake, governed trails, AI spend signals, or product orientation.";
 
 /** Operator Sources — no self-href to the default advisory-scans hub path or tile-covered destinations. */
-export const ADVISORY_SCANS_SOURCES: readonly EvidenceSourceLink[] = [
+export const ADVISORY_SCANS_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
   {
     label: "AI usage help",
     href: inAppHelpHref("ai-usage"),
