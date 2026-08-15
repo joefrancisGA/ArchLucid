@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
@@ -65,7 +65,7 @@ export function OperatorNextActionsCard() {
           <li key={item.actionId} className={cn("text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
             <Link
               href={item.href}
-              className={cn("font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300")}
+              className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}
             >
               {item.title}
             </Link>

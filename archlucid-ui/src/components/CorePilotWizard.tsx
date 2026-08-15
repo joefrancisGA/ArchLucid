@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -58,7 +58,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
         <p className="m-0">
           <Link
             href="/architecture/first-review-guide"
-            className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
           >
             Open {BUYER_ONBOARDING_PAGE_TITLE} →
           </Link>
@@ -75,7 +75,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
           Hit <strong>live/ready</strong> probes and jot the <strong>version</strong> string for ticketing. The footer strip surfaces quick health cues in-product.
         </p>
         <p className="m-0">
-          <Link href="/internal/health" className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400">
+          <Link href="/internal/health" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Open admin health diagnostics →
           </Link>
         </p>
@@ -89,7 +89,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">Capture identity, constraints, and evidence through the wizard (same payload as POST /v1/architecture/request).</p>
         <p className="m-0">
-          <Link href="/architecture/reviews/new" className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400">
+          <Link href="/architecture/reviews/new" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Launch new-review wizard →
           </Link>
         </p>
@@ -107,7 +107,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
         <p className="m-0">
           <Link
             href="/architecture/reviews"
-            className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
           >
             Open Reviews → pick your review →
           </Link>
@@ -126,7 +126,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
         <p className="m-0">
           <Link
             href="/architecture/reviews"
-            className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
           >
             Open Reviews → finalize from review detail →
           </Link>

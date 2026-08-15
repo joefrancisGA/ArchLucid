@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { useLongOperationWait } from "@/hooks/use-long-operation-wait";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type LongOperationWaitNoticeProps = {
@@ -54,12 +54,12 @@ export function LongOperationWaitNotice(props: LongOperationWaitNoticeProps): Re
           Recovery:{" "}
           <Link
             href="/architecture/reviews?projectId=default"
-            className="font-medium text-teal-900 underline underline-offset-2 dark:text-teal-300"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
           >
             Reviews
           </Link>
           {" · "}
-          <Link href="/help" className="font-medium text-teal-900 underline underline-offset-2 dark:text-teal-300">
+          <Link href="/help" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Help
           </Link>
         </p>

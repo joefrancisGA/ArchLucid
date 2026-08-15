@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -247,10 +247,10 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
         >
           {isRetryPending ? "Retrying…" : "Retry loading review"}
         </Button>
-        <Link className="text-teal-800 underline dark:text-teal-300" href={REVIEW_PACKAGES_HREF} data-testid="open-review-packages">
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={REVIEW_PACKAGES_HREF} data-testid="open-review-packages">
           Open reviews
         </Link>
-        <Link className="text-teal-800 underline dark:text-teal-300" href={START_REVIEW_HREF} data-testid="start-new-review">
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={START_REVIEW_HREF} data-testid="start-new-review">
           {OPERATOR_NAV_LINK_LABELS.capture}
         </Link>
       </div>

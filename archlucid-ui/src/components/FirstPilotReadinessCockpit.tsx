@@ -55,7 +55,7 @@ import {
 } from "@/lib/core-pilot-commit-context";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
 
 const EMPTY_COMMIT_CONTEXT: CorePilotCommitContext = {
@@ -404,7 +404,7 @@ export function FirstPilotReadinessCockpit() {
               >
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   Tier-1 inventory scripts (Azure, AWS, GCP) — run locally, then upload from{" "}
-                  <Link href="/architecture/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
+                  <Link href="/architecture/reviews/new" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                     {CREATE_ARCHITECTURE_LABEL}
                   </Link>
                   .

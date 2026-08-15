@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { RefObject } from "react";
 import Link from "next/link";
@@ -44,14 +44,14 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
       >
         <Link
           href={`/governance/approval-queue?runId=${runEnc}`}
-          className="text-teal-800 underline underline-offset-2 dark:text-teal-300"
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
         >
           View governance approval
         </Link>
-        <Link href={auditTrailNavHref(props.runId)} className="text-teal-800 underline underline-offset-2 dark:text-teal-300">
+        <Link href={auditTrailNavHref(props.runId)} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
           View audit trail
         </Link>
-        <Link href={`/insights/ask-review-questions?runId=${runEnc}`} className="text-teal-800 underline underline-offset-2 dark:text-teal-300">
+        <Link href={`/insights/ask-review-questions?runId=${runEnc}`} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
           Ask about this review
         </Link>
       </div>
@@ -68,7 +68,7 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
       }}
     >
       <summary
-        className={cn("cursor-pointer list-none font-semibold text-teal-800 underline-offset-2 hover:underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper,
+        className={cn("cursor-pointer list-none", OPERATOR_LINK.optional,
           "[&::-webkit-details-marker]:hidden",
         )}
       >

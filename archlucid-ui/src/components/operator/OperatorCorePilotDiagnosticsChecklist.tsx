@@ -1,6 +1,6 @@
 "use client";
 
-import { OPERATOR_CARD, OPERATOR_HOME_SUBSECTION_LABEL, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_CARD, OPERATOR_HOME_SUBSECTION_LABEL, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
@@ -165,7 +165,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
                       </p>
                     ) : null}
                     <Link
-                      className="mt-1 inline-block text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-950 dark:text-teal-300 dark:hover:text-teal-200"
+                      className={cn("mt-1 inline-block", OPERATOR_BODY_INLINE_LINK_CLASS)}
                       href={step.primaryHref}
                     >
                       {step.primaryLabel} →
@@ -188,7 +188,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
 
           <Link
             href="/architecture/reviews/new"
-            className={cn("inline-flex rounded-md border border-neutral-300 bg-white px-2.5 py-1 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-950 dark:text-teal-200 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.helper)}
+            className={OPERATOR_LINK.stepPill}
           >
             Jump to first review checklist
           </Link>

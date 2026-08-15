@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
@@ -134,7 +134,7 @@ export function AfterCorePilotChecklistHint() {
                   return (
                     <li key={s.href} className={cn("text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                       <div className="font-medium text-teal-900 dark:text-teal-200">
-                        <Link href={s.href} className="underline decoration-teal-600/50 underline-offset-2 hover:decoration-teal-800 dark:decoration-teal-500/50 dark:hover:text-teal-100">
+                        <Link href={s.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                           {s.title}
                         </Link>
                       </div>

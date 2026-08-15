@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
@@ -83,7 +83,7 @@ export function ArchitectureRequestWizardHelpDrawer() {
                   <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{item.title}</p>
                   <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{item.blurb}</p>
                   <Link
-                    className={cn("mt-2 inline-block font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-400", OPERATOR_TYPOGRAPHY.body)}
+                    className={cn("mt-2 inline-block", OPERATOR_BODY_INLINE_LINK_CLASS)}
                     href={href}
                   >
                     View in Help

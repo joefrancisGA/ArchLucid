@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
@@ -59,14 +59,14 @@ export function OperatorBrandedNotFound({
       <div className={cn("mt-4 flex flex-wrap items-center gap-4 font-medium", OPERATOR_TYPOGRAPHY.body)}>
         <OperatorSectionRetryButton label={retryLabel} />
         <Link
-          className="text-teal-800 underline dark:text-teal-300"
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
           href={REVIEW_PACKAGES_HREF}
           data-testid="not-found-review-packages"
         >
           {OPERATOR_NAV_LINK_LABELS.reviewPackage}
         </Link>
         <Link
-          className="text-teal-800 underline dark:text-teal-300"
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
           href={START_REVIEW_HREF}
           data-testid="not-found-start-review"
         >
@@ -74,7 +74,7 @@ export function OperatorBrandedNotFound({
         </Link>
         {showSampleReviewLink ? (
           <Link
-            className="text-teal-800 underline dark:text-teal-300"
+            className={OPERATOR_BODY_INLINE_LINK_CLASS}
             href={SAMPLE_REVIEW_HREF}
             data-testid="not-found-sample-review"
           >

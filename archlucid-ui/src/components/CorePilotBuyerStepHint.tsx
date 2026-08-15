@@ -14,7 +14,7 @@ import {
 } from "@/lib/core-pilot-commit-progress";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
 
 
@@ -44,7 +44,7 @@ function buyerHintBody(
         Start a review on your own architecture when ready.{" "}
         <Link
           href="/architecture/reviews/new"
-          className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-600"
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
         >
           {OPERATOR_START_REVIEW_QUICK_ACTION_LABEL}
         </Link>
@@ -61,7 +61,7 @@ function buyerHintBody(
         Finish automation and finalize the review from review detail.{" "}
         <Link
           href={href}
-          className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-600"
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
         >
           Open your in-progress review
         </Link>
@@ -80,7 +80,7 @@ function buyerHintBody(
       Review detail holds sponsor report and deliverables.{" "}
       <Link
         href={href}
-        className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-600"
+        className={OPERATOR_BODY_INLINE_LINK_CLASS}
       >
         Open review
       </Link>
