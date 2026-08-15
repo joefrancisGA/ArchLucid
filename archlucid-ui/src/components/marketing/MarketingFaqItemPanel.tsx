@@ -6,16 +6,19 @@ import { cn } from "@/lib/utils";
 
 export type MarketingFaqItemPanelProps = {
   readonly item: MarketingFaqItem;
-  readonly forceOpen: boolean;
+  readonly forceOpen?: boolean;
+  readonly defaultOpen?: boolean;
 };
 
 export function MarketingFaqItemPanel(props: MarketingFaqItemPanelProps): React.JSX.Element {
-  const { item, forceOpen } = props;
+  const { item, forceOpen = false, defaultOpen = false } = props;
+  const detailsProps =
+    forceOpen ? { open: true } : defaultOpen ? { defaultOpen: true as const } : {};
 
   return (
     <details
       id={item.id}
-      open={forceOpen ? true : undefined}
+      {...detailsProps}
       className="group scroll-mt-24 rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm open:shadow-md dark:border-neutral-800 dark:bg-neutral-950"
       data-testid={`marketing-faq-item-${item.id}`}
     >

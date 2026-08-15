@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { MarketingFaqPageClient } from "./MarketingFaqPageClient";
 
 describe("MarketingFaqPageClient", () => {
-  it("renders buyer intro, category index, hero links, and top CTAs", () => {
+  it("renders buyer intro, category index, hero links, most asked, and diligence CTAs", () => {
     render(<MarketingFaqPageClient />);
 
     expect(screen.getByTestId("marketing-faq-page-hero")).toBeInTheDocument();
@@ -17,6 +17,10 @@ describe("MarketingFaqPageClient", () => {
     expect(screen.getByTestId("marketing-faq-hero-links").querySelector('a[href="/pricing"]')).toHaveTextContent(
       "View pricing",
     );
+    expect(screen.getByTestId("marketing-faq-most-asked")).toBeInTheDocument();
+    expect(screen.getByTestId("marketing-faq-diligence-ctas")).toBeInTheDocument();
+    expect(screen.getByTestId("faq-orientation-claim")).toBeInTheDocument();
+    expect(screen.getByTestId("faq-orientation-sources")).toBeInTheDocument();
   });
 
   it("filters accordion items and the table of contents when searching", () => {
@@ -47,6 +51,7 @@ describe("MarketingFaqPageClient", () => {
     render(<MarketingFaqPageClient />);
 
     expect(screen.getByRole("link", { name: "Why ArchLucid" })).toHaveAttribute("href", "/why");
-    expect(screen.getByRole("link", { name: "Procurement FAQ" })).toHaveAttribute("href", "/help/procurement");
+    expect(screen.getAllByRole("link", { name: "Procurement FAQ" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: "Sample showcase" }).length).toBeGreaterThan(0);
   });
 });

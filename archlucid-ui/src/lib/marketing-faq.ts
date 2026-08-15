@@ -1,4 +1,5 @@
 import { formatPublicWorkSchoolProviderClaim } from "@/lib/marketing/public-auth-provider-claims";
+import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 /**
@@ -18,7 +19,15 @@ export type MarketingFaqCategoryId =
 export type MarketingFaqCategory = {
   readonly id: MarketingFaqCategoryId;
   readonly title: string;
+  readonly intro: string;
 };
+
+/** Default-open accordion items for the “Most asked” band on `/faq`. */
+export const MARKETING_FAQ_MOST_ASKED_ITEM_IDS = [
+  "first-review-outcomes",
+  "pricing-plans",
+  "security-assurance-materials",
+] as const satisfies ReadonlyArray<string>;
 
 export type MarketingFaqRelatedLink = {
   readonly label: string;
@@ -34,13 +43,41 @@ export type MarketingFaqItem = {
 };
 
 export const MARKETING_FAQ_CATEGORIES: ReadonlyArray<MarketingFaqCategory> = [
-  { id: "product-basics", title: "Product basics" },
-  { id: "evaluation-first-review", title: "Evaluation and first review" },
-  { id: "sign-in-access", title: "Sign-in and access" },
-  { id: "evidence-cloud", title: "Evidence and cloud access" },
-  { id: "pricing-ai", title: "Pricing and AI usage" },
-  { id: "governance-audit", title: "Governance and audit" },
-  { id: "security-trust", title: "Assurance status" },
+  {
+    id: "product-basics",
+    title: "Product basics",
+    intro: "What ArchLucid is, who it serves, and how it differs from general-purpose AI assistants.",
+  },
+  {
+    id: "evaluation-first-review",
+    title: "Evaluation and first review",
+    intro: "Paths to your first review, demo workspaces, and what is included in an evaluation.",
+  },
+  {
+    id: "sign-in-access",
+    title: "Sign-in and access",
+    intro: "Work or school sign-in, email codes, and when SSO enforcement applies.",
+  },
+  {
+    id: "evidence-cloud",
+    title: "Evidence and cloud access",
+    intro: "Evidence-only reviews, supported clouds, and upload limits.",
+  },
+  {
+    id: "pricing-ai",
+    title: "Pricing and AI usage",
+    intro: "Plans, AI usage allowances, and how budgeting works in trial workspaces.",
+  },
+  {
+    id: "governance-audit",
+    title: "Governance and audit",
+    intro: "Sponsor outputs, sealed review records, and governance workflows.",
+  },
+  {
+    id: "security-trust",
+    title: "Security & assurance",
+    intro: "Data protection, assurance materials, and procurement diligence entry points.",
+  },
 ] as const;
 
 export function buildHowDoISignInFaqAnswer(): string {
@@ -55,6 +92,10 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     question: "What is ArchLucid?",
     answer:
       "ArchLucid turns scattered architecture evidence into a prioritized, evidence-linked architecture review — structured findings, traceability, and exportable outputs for enterprise architects and sponsors.",
+    relatedLinks: [
+      { label: "Get started", href: "/get-started" },
+      { label: "View pricing", href: "/pricing" },
+    ],
   },
   {
     id: "who-is-archlucid-for",
@@ -77,6 +118,10 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     question: "What do I get after my first architecture review?",
     answer:
       "A review with prioritized findings, evidence links, governance-ready outputs, and exportable artifacts you can share with sponsors, review boards, or procurement — without rebuilding the narrative in slides.",
+    relatedLinks: [
+      { label: "Get started", href: "/get-started" },
+      { label: "See it in 30 seconds", href: "/see-it" },
+    ],
   },
   {
     id: "one-architect-license",
@@ -91,6 +136,10 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     question: "How does the evaluation workspace work?",
     answer:
       "Start an evaluation workspace from the signup page, then sign in with a work or school account or a one-time email code. You can inspect sample findings, evidence trails, governance outputs, and reports before running your own review.",
+    relatedLinks: [
+      { label: "Start evaluation", href: "/signup" },
+      { label: "Getting started help", href: inAppHelpHref("getting-started") },
+    ],
   },
   {
     id: "how-do-i-sign-in",
@@ -112,6 +161,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     question: "Do I need cloud access to get value?",
     answer:
       "No. You can complete a review using uploaded evidence such as briefs, diagrams, documents, IaC exports, and screenshots. Azure, AWS, and GCP connectors are optional and can be added later for read-only evidence collection.",
+    relatedLinks: [{ label: "Get started", href: "/get-started" }],
   },
   {
     id: "cloud-platforms",
@@ -139,7 +189,11 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "security-trust",
     question: "How does ArchLucid protect customer data?",
     answer:
-      "Tenant isolation, scoped access, encryption in transit, and audit logging are core to the platform. See Assurance status and the Trust Center for current control summaries and diligence materials.",
+      "Tenant isolation, scoped access, encryption in transit, and audit logging are core to the platform. See Security & assurance and the Trust Center for current control summaries and diligence materials.",
+    relatedLinks: [
+      { label: "Security & assurance", href: "/security-trust" },
+      { label: "Trust Center", href: "/trust" },
+    ],
   },
   {
     id: "demo-workspaces",
@@ -147,6 +201,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     question: "Are demo workspaces real customer data?",
     answer:
       "Demo workspaces use sample architecture data so evaluators can inspect findings, evidence trails, governance outputs, and reports without uploading customer data.",
+    relatedLinks: [{ label: "Sample showcase", href: CANONICAL_ANONYMOUS_PROOF_HREF }],
   },
   {
     id: "pricing-plans",
@@ -154,20 +209,32 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     question: "How does pricing work?",
     answer:
       "ArchLucid is packaged for individual architects, teams, professional review practices, and enterprise deployments. Plans include a defined AI usage allowance, with larger evaluations supported through prepaid credits or approved customer AI providers. Enterprise options can include SSO, directory sync, and advanced governance — specifics depend on your plan and diligence process.",
+    relatedLinks: [
+      { label: "View pricing", href: "/pricing" },
+      { label: "Procurement FAQ", href: inAppHelpHref("procurement") },
+    ],
   },
   {
     id: "ai-usage-allowance",
     categoryId: "pricing-ai",
     question: "How does AI usage or AI budget work?",
     answer:
-      "Plans include AI usage allowances. Expensive actions are budgeted and may be limited in demo or trial workspaces to prevent surprise usage.",
+      "Each plan includes a monthly AI usage allowance for review generation, specialist analysis, and export preparation. ArchLucid surfaces budget status in the workspace and may throttle or pause expensive actions when an allowance is exhausted. Demo and trial workspaces use lower caps to prevent surprise usage; teams can add prepaid credits or connect an approved customer AI provider on enterprise plans.",
+    relatedLinks: [
+      { label: "View pricing", href: "/pricing" },
+      { label: "AI usage help", href: inAppHelpHref("ai-usage") },
+    ],
   },
   {
     id: "sponsor-sponsor-value",
     categoryId: "governance-audit",
-    question: "What does the sponsor sponsor get?",
+    question: "What does the sponsor get?",
     answer:
-      "An sponsor report, value narrative, and exportable proof packet that tie findings and decisions to evidence — so sponsors can approve, fund, or remediate with traceability instead of anecdote.",
+      "A sponsor report, value narrative, and exportable proof packet that tie findings and decisions to evidence — so sponsors can approve, fund, or remediate with traceability instead of anecdote.",
+    relatedLinks: [
+      { label: "Sponsor report help", href: inAppHelpHref("sponsor-report") },
+      { label: "View pricing", href: "/pricing" },
+    ],
   },
   {
     id: "governance-and-audit",
@@ -181,8 +248,12 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "security-trust",
     question: "What security assurance materials are available?",
     answer:
-      "Assurance status and the Trust Center describe current controls, data handling, and assurance posture. For procurement diligence (SOC 2 posture, penetration testing, subprocessors), open the procurement FAQ. Formal third-party attestations, where applicable, should be handled through the security review process.",
-    relatedLinks: [{ label: "Procurement FAQ", href: inAppHelpHref("procurement") }],
+      "Security & assurance and the Trust Center describe current controls, data handling, and assurance posture. For procurement diligence (SOC 2 posture, penetration testing, subprocessors), open the procurement FAQ. Formal third-party attestations, where applicable, should be handled through the security review process.",
+    relatedLinks: [
+      { label: "Security & assurance", href: "/security-trust" },
+      { label: "Trust Center", href: "/trust" },
+      { label: "Procurement FAQ", href: inAppHelpHref("procurement") },
+    ],
   },
   {
     id: "evaluation-not-included",
@@ -197,6 +268,10 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     question: "How do I request help or a guided trial?",
     answer:
       "Start an evaluation workspace from the signup page, request a guided trial from pricing, or contact sales for a walkthrough tailored to your architecture review process.",
+    relatedLinks: [
+      { label: "View pricing", href: "/pricing" },
+      { label: "Get started", href: "/get-started" },
+    ],
   },
 ] as const;
 

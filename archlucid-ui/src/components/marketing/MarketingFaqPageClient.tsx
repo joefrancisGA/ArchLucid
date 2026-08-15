@@ -9,6 +9,8 @@ import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   MARKETING_FAQ_CLEAR_SEARCH_LABEL,
   MARKETING_FAQ_EMPTY_SEARCH_MESSAGE,
+  MARKETING_FAQ_MOST_ASKED_HEADING,
+  MARKETING_FAQ_MOST_ASKED_INTRO,
   MARKETING_FAQ_SEARCH_LABEL,
   MARKETING_FAQ_SEARCH_PLACEHOLDER,
   MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL,
@@ -18,10 +20,12 @@ import {
 import {
   filterMarketingFaqItems,
   MARKETING_FAQ_ITEMS,
+  MARKETING_FAQ_MOST_ASKED_ITEM_IDS,
   marketingFaqItemsByCategory,
 } from "@/lib/marketing-faq";
 
 import { FaqEvidenceOrientationStrip } from "./FaqEvidenceOrientationStrip";
+import { MarketingFaqDiligenceCtaSection } from "./MarketingFaqDiligenceCtaSection";
 import { MarketingFaqItemPanel } from "./MarketingFaqItemPanel";
 import { MarketingFaqCtaRow, MarketingFaqPageHero } from "./MarketingFaqPageHero";
 import { MarketingFaqPageToc } from "./MarketingFaqPageToc";
@@ -33,9 +37,17 @@ export function MarketingFaqPageClient(): React.JSX.Element {
   const filteredItems = useMemo(() => filterMarketingFaqItems(MARKETING_FAQ_ITEMS, query), [query]);
   const grouped = useMemo(() => marketingFaqItemsByCategory(filteredItems), [filteredItems]);
   const visibleCategories = useMemo(() => grouped.map((group) => group.category), [grouped]);
+  const mostAskedItems = useMemo(
+    () =>
+      MARKETING_FAQ_MOST_ASKED_ITEM_IDS.map((itemId) => MARKETING_FAQ_ITEMS.find((item) => item.id === itemId)).filter(
+        (item): item is NonNullable<typeof item> => item !== undefined,
+      ),
+    [],
+  );
   const normalizedQuery = query.trim();
   const isSearchActive = normalizedQuery.length > 0;
   const searchStatusId = "marketing-faq-search-status";
+  const showMostAsked = !isSearchActive;
 
   useEffect(() => {
     function readHashTarget(): void {
@@ -79,8 +91,6 @@ export function MarketingFaqPageClient(): React.JSX.Element {
       <div className="min-w-0">
         <MarketingFaqPageHero />
 
-        <FaqEvidenceOrientationStrip />
-
         <label className={cn("mt-8 block font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)} htmlFor="marketing-faq-search">
           {MARKETING_FAQ_SEARCH_LABEL}
         </label>
@@ -107,6 +117,31 @@ export function MarketingFaqPageClient(): React.JSX.Element {
           {formatMarketingFaqSearchStatus(filteredItems.length, MARKETING_FAQ_ITEMS.length)}
         </p>
 
+        <FaqEvidenceOrientationStrip part="claim" />
+
+        {showMostAsked ? (
+          <section
+            aria-labelledby="marketing-faq-most-asked-heading"
+            className="mt-8 scroll-mt-24"
+            data-testid="marketing-faq-most-asked"
+          >
+            <h2 id="marketing-faq-most-asked-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
+              {MARKETING_FAQ_MOST_ASKED_HEADING}
+            </h2>
+            <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{MARKETING_FAQ_MOST_ASKED_INTRO}</p>
+            <div className="mt-4 space-y-3">
+              {mostAskedItems.map((item) => (
+                <MarketingFaqItemPanel
+                  key={item.id}
+                  item={item}
+                  forceOpen={item.id === hashTargetId}
+                  defaultOpen
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         {grouped.length === 0 ? (
           <div className="mt-8 space-y-3" data-testid="marketing-faq-empty">
             <p className={cn("text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{MARKETING_FAQ_EMPTY_SEARCH_MESSAGE}</p>
@@ -129,15 +164,22 @@ export function MarketingFaqPageClient(): React.JSX.Element {
                 aria-labelledby={`marketing-faq-category-${group.category.id}`}
                 className="scroll-mt-24"
               >
+                {group.category.id === "security-trust" && !isSearchActive ? (
+                  <div className="mb-6">
+                    <MarketingFaqDiligenceCtaSection />
+                  </div>
+                ) : null}
                 <h2 id={`marketing-faq-category-${group.category.id}`} className={MARKETING_TYPOGRAPHY.sectionTitle}>
                   {group.category.title}
                 </h2>
+                <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{group.category.intro}</p>
                 <div className="mt-4 space-y-3">
-                  {group.items.map((item) => (
+                  {group.items.map((item, index) => (
                     <MarketingFaqItemPanel
                       key={item.id}
                       item={item}
                       forceOpen={isSearchActive || item.id === hashTargetId}
+                      defaultOpen={!isSearchActive && index === 0}
                     />
                   ))}
                 </div>
@@ -145,6 +187,8 @@ export function MarketingFaqPageClient(): React.JSX.Element {
             ))}
           </div>
         )}
+
+        <FaqEvidenceOrientationStrip part="sources" />
 
         <footer className="mt-10 space-y-4 border-t border-neutral-200 pt-8 dark:border-neutral-800">
           <MarketingFaqCtaRow testId="marketing-faq-cta-bottom" />

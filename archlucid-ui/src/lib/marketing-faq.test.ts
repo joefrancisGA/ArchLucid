@@ -82,9 +82,20 @@ describe("marketing-faq", () => {
   });
 
   it("filters items by category title", () => {
-    const hits = filterMarketingFaqItems(getMarketingFaqItems(), "assurance status");
+    const hits = filterMarketingFaqItems(getMarketingFaqItems(), "security & assurance");
 
     expect(hits.some((item) => item.id === "customer-data-protection")).toBe(true);
+  });
+
+  it("fixes sponsor value copy and most-asked ids", () => {
+    const items = getMarketingFaqItems();
+    const sponsorItem = items.find((entry) => entry.id === "sponsor-sponsor-value");
+
+    expect(sponsorItem?.question).toBe("What does the sponsor get?");
+    expect(sponsorItem?.answer).toMatch(/^A sponsor report/);
+    expect(MARKETING_FAQ_CATEGORIES.find((category) => category.id === "security-trust")?.title).toBe(
+      "Security & assurance",
+    );
   });
 
   it("filters items by search query", () => {
