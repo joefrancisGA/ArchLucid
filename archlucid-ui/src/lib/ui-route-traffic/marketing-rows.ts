@@ -7,8 +7,13 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "AXX",
     path: "/accessibility",
     section: "Marketing",
-    note: "Accessibility (Marketing) - AccessibilityMarketingPublicView with AccessibilityEvidenceOrientationStrip (evaluation Sources + claim-discipline: public accessibility statement only / completed VPAT download), status card, WCAG target, known limitations, barrier reporting. Not an operator PageContextualHelp surface.marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["AccessibilityEvidenceOrientationStrip", "cannot improve further toward 80"],
+    note: "Accessibility (Marketing) - AccessibilityMarketingPublicView on trust-center rail with at-a-glance summary, revision history, skip link, header report CTA, and AccessibilityEvidenceOrientationStrip below body content (evaluation Sources + claim-discipline: public accessibility statement only). WCAG 2.1 Level AA target, known limitations, barrier reporting. Not an operator PageContextualHelp surface. Score 58/100 Evidence (marketing statement ceiling); UX 84/100 (2026-08-15) after layout pass — evidence strip moved below content, status card folded into at-a-glance. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: [
+      "AccessibilityMarketingPublicView",
+      "AccessibilityEvidenceOrientationStrip",
+      "at-a-glance",
+      "cannot improve further toward 80",
+    ],
   },
   /** Traffic workbook row ID for compliance-journey marketing page. Owner backlog shorthand: COM. */
   {
