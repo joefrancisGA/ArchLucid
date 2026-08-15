@@ -116,7 +116,7 @@ export function derivePrimaryConcernLabel(findings: readonly QuickDecisionFindin
 }
 export function countFindingsAwaitingAction(findings: readonly QuickDecisionFinding[]): number {
   return findings.filter((finding) => {
-    if (finding.isMuted) {
+    if (finding.isMuted || isFindingResolved(finding)) {
       return false;
     }
 

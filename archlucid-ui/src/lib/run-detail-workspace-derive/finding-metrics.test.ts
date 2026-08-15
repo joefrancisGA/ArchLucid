@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
-import { countOpenFindings } from "./finding-metrics";
+import { countFindingsAwaitingAction, countOpenFindings } from "./finding-metrics";
 
 function sampleFinding(
   partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,
@@ -44,5 +44,21 @@ describe("finding-metrics", () => {
     ]);
 
     expect(openCount).toBe(1);
+  });
+
+  it("does not count disposition-accepted high-severity findings as awaiting action", () => {
+    const awaitingActionCount = countFindingsAwaitingAction([
+      sampleFinding({
+        findingId: "f-accepted-high",
+        severityValue: 2,
+        humanReviewStatus: null,
+        aiReasoning: {
+          reasoningTrace: "",
+          wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+        },
+      }),
+    ]);
+
+    expect(awaitingActionCount).toBe(0);
   });
 });
