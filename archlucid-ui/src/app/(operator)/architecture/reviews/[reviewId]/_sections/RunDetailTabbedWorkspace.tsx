@@ -108,6 +108,7 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
     showcasePolicyPackStrip,
     submittedArchitectureText,
     workspaceStatus,
+    requestAssumptionTexts,
   } = p;
 
 const outcomeCardsEl = (
@@ -221,6 +222,7 @@ const explanationDeferredEl = (
     goldenManifestJsonForExport={m.goldenManifestJsonForExport}
     manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
     manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+    requestAssumptionTexts={requestAssumptionTexts}
   />
 );
 const governanceDecisionSectionEl = (

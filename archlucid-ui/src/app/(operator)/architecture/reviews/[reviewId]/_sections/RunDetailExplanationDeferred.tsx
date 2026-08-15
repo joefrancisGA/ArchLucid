@@ -12,6 +12,7 @@ import type { RunExplanationSummary } from "@/types/explanation";
 
 import { loadRunDetailExplanationSummary } from "./load-run-detail-explanation-summary";
 import { tryStaticDemoExplanationSummary } from "@/lib/operator/operator-static-demo";
+import { tryLoadRequestAssumptionsForRun } from "@/lib/try-load-request-assumptions-for-run";
 import { RunDetailRunExplanationCollapsibleDeferred } from "./run-detail-page-view-deferred-chunks";
 
 type RunDetailExplanationDeferredProps = {
@@ -34,6 +35,7 @@ type RunDetailExplanationDeferredProps = {
   readonly packageCommitted?: boolean;
   readonly analysisStagesComplete?: boolean;
   readonly triageVisibleCount?: number;
+  readonly requestAssumptionTexts?: readonly string[];
 };
 
 /**
@@ -60,7 +62,11 @@ export async function RunDetailExplanationDeferred(
     packageCommitted,
     analysisStagesComplete,
     triageVisibleCount,
+    requestAssumptionTexts,
   } = props;
+
+  const resolvedRequestAssumptionTexts =
+    requestAssumptionTexts ?? await tryLoadRequestAssumptionsForRun(runId);
 
   let explanationSummary = props.explanationSummary;
   let explanationFailure = props.explanationFailure ?? null;
@@ -121,6 +127,7 @@ export async function RunDetailExplanationDeferred(
       packageCommitted={packageCommitted}
       analysisStagesComplete={analysisStagesComplete}
       triageVisibleCount={triageVisibleCount}
+      requestAssumptionTexts={resolvedRequestAssumptionTexts}
     />
   );
 }

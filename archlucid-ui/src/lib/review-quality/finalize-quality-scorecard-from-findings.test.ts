@@ -6,6 +6,7 @@ import {
   deriveApprovedDecisionTitlesFromFindings,
   deriveFinalizeQualityScorecardInput,
 } from "./finalize-quality-scorecard-from-findings";
+import { parseUnverifiedAssumptions } from "./assumption-and-severity";
 
 function sampleFinding(
   partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,
@@ -233,5 +234,30 @@ describe("finalize-quality-scorecard-from-findings", () => {
     ]);
 
     expect(titles).toEqual(["Approved API gateway decision"]);
+  });
+
+  it("subtracts acknowledged assumptions from finalize totals", () => {
+    const assumptions = parseUnverifiedAssumptions([
+      "Assumption about cache",
+      "Assumption about API versioning",
+    ]);
+    const acknowledged = new Set([assumptions[0]?.id ?? ""]);
+
+    const input = deriveFinalizeQualityScorecardInput(
+      [
+        sampleFinding({
+          findingId: "a1",
+          title: "Assumption about cache",
+        }),
+        sampleFinding({
+          findingId: "a2",
+          title: "Assumption about API versioning",
+        }),
+      ],
+      0,
+      { acknowledgedAssumptionIds: acknowledged },
+    );
+
+    expect(input.unverifiedAssumptionCount).toBe(1);
   });
 });

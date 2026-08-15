@@ -82,6 +82,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly packageCommitted?: boolean;
   readonly analysisStagesComplete?: boolean;
   readonly triageVisibleCount?: number;
+  readonly requestAssumptionTexts?: readonly string[];
 };
 
 function buildFindingTitlesById(findings: readonly QuickDecisionFinding[]): Record<string, string> {
@@ -137,6 +138,7 @@ export function RunDetailRunExplanationCollapsible(
           packageCommitted={packageCommitted}
           analysisStagesComplete={analysisStagesComplete}
           triageVisibleCount={triageVisibleCount}
+          requestAssumptionTexts={props.requestAssumptionTexts}
         />
 
         {showCoverageAndCuration ? (

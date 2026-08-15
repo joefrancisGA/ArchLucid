@@ -1,5 +1,7 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
+import { stableAssumptionIdFromText } from "./stable-assumption-id";
+
 export type UnverifiedAssumption = {
   readonly id: string;
   readonly text: string;
@@ -21,8 +23,8 @@ const EXISTENTIAL_TOKENS = [
 export function parseUnverifiedAssumptions(assumptions: readonly string[]): readonly UnverifiedAssumption[] {
   const results: UnverifiedAssumption[] = [];
 
-  for (let index = 0; index < assumptions.length; index += 1) {
-    const text = assumptions[index]?.trim() ?? "";
+  for (const assumptionText of assumptions) {
+    const text = assumptionText?.trim() ?? "";
 
     if (text.length === 0) {
       continue;
@@ -32,7 +34,7 @@ export function parseUnverifiedAssumptions(assumptions: readonly string[]): read
     const existential = EXISTENTIAL_TOKENS.some((token) => lower.includes(token));
 
     results.push({
-      id: `assumption-${index + 1}`,
+      id: stableAssumptionIdFromText(text),
       text,
       existential,
     });
@@ -93,6 +95,29 @@ export function deriveUnverifiedAssumptionTextsFromFindings(
   }
 
   return texts;
+}
+
+/** Merge finding-derived and request assumptions without duplicate labels (TB-2314). */
+export function mergeUnverifiedAssumptionTexts(
+  findingTexts: readonly string[],
+  requestAssumptionTexts: readonly string[],
+): string[] {
+  const seen = new Set<string>();
+  const merged: string[] = [];
+
+  for (const text of [...findingTexts, ...requestAssumptionTexts]) {
+    const trimmed = text.trim();
+    const dedupeKey = trimmed.toLowerCase();
+
+    if (trimmed.length === 0 || seen.has(dedupeKey)) {
+      continue;
+    }
+
+    seen.add(dedupeKey);
+    merged.push(trimmed);
+  }
+
+  return merged;
 }
 
 export type StatedConstraintContext = {

@@ -5,9 +5,15 @@ import { humanReviewStatusDisplay, type QuickDecisionFinding } from "@/lib/quick
 
 import {
   deriveUnverifiedAssumptionTextsFromFindings,
+  mergeUnverifiedAssumptionTexts,
   parseUnverifiedAssumptions,
 } from "./assumption-and-severity";
 import type { FinalizeQualityScorecardInput } from "./finalize-quality-scorecard";
+
+export type DeriveFinalizeQualityScorecardOptions = {
+  readonly acknowledgedAssumptionIds?: ReadonlySet<string>;
+  readonly requestAssumptionTexts?: readonly string[];
+};
 
 const FINALIZE_RESOLVED_DISPOSITIONS = new Set([
   "Accepted",
@@ -54,8 +60,22 @@ function deriveUnverifiedAssumptionTexts(findings: readonly QuickDecisionFinding
 export function deriveFinalizeQualityScorecardInput(
   findings: readonly QuickDecisionFinding[],
   blockingFindingCount: number,
+  options?: DeriveFinalizeQualityScorecardOptions,
 ): FinalizeQualityScorecardInput {
-  const assumptions = parseUnverifiedAssumptions(deriveUnverifiedAssumptionTexts(findings));
+  const mergedAssumptionTexts = mergeUnverifiedAssumptionTexts(
+    deriveUnverifiedAssumptionTexts(findings),
+    options?.requestAssumptionTexts ?? [],
+  );
+  let assumptions = parseUnverifiedAssumptions(mergedAssumptionTexts);
+  const acknowledgedIds = options?.acknowledgedAssumptionIds;
+
+  if (acknowledgedIds !== undefined) {
+    assumptions = assumptions.filter((assumption) => !acknowledgedIds.has(assumption.id));
+  }
+
+  const unacknowledgedExistentialAssumptionCount = assumptions.filter(
+    (assumption) => assumption.existential,
+  ).length;
   let lowExtractionConfidenceCount = 0;
 
   for (const finding of findings) {
@@ -78,6 +98,7 @@ export function deriveFinalizeQualityScorecardInput(
   return {
     blockingFindingCount: Math.max(0, Math.trunc(blockingFindingCount)),
     unverifiedAssumptionCount: assumptions.length,
+    unacknowledgedExistentialAssumptionCount,
     uncoveredMandatoryRequirementCount,
     openCannotDetermineCount,
     lowExtractionConfidenceCount,

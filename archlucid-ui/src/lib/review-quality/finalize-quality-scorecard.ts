@@ -1,6 +1,7 @@
 export type FinalizeQualityScorecardInput = {
   readonly blockingFindingCount: number;
   readonly unverifiedAssumptionCount: number;
+  readonly unacknowledgedExistentialAssumptionCount: number;
   readonly uncoveredMandatoryRequirementCount: number;
   readonly openCannotDetermineCount: number;
   readonly lowExtractionConfidenceCount: number;
@@ -38,6 +39,15 @@ export function evaluateFinalizeQualityScorecard(input: FinalizeQualityScorecard
   if (input.unverifiedAssumptionCount >= 3) {
     blockingReasons.push(
       `${input.unverifiedAssumptionCount} unverified assumptions remain — confirm or caveat existential ones before finalize.`,
+    );
+  }
+
+  if (input.unacknowledgedExistentialAssumptionCount > 0) {
+    const noun =
+      input.unacknowledgedExistentialAssumptionCount === 1 ? "assumption" : "assumptions";
+
+    blockingReasons.push(
+      `${input.unacknowledgedExistentialAssumptionCount} existential ${noun} still need confirmation before finalize.`,
     );
   }
 

@@ -20,6 +20,7 @@ import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evide
 import { deriveRunDetailFindingsTriageCounts } from "@/lib/runs/run-detail-findings-triage-counts";
 import { evaluateFinalizeQualityScorecard } from "@/lib/review-quality/finalize-quality-scorecard";
 import { deriveFinalizeQualityScorecardInput } from "@/lib/review-quality/finalize-quality-scorecard-from-findings";
+import { tryLoadRequestAssumptionsForRun } from "@/lib/try-load-request-assumptions-for-run";
 import { shouldShowRunDetailGovernanceCta } from "@/lib/runs/run-detail-governance-cta-visibility";
 import type {
   EvidenceCoverageSummary,
@@ -59,6 +60,8 @@ export type RunDetailPresentation = {
 
   readonly findingCoverageSummary: FindingCoverageSummary | null;
   readonly commitBlockedReason: string | null;
+  readonly finalizeAssumptionGateApplies: boolean;
+  readonly requestAssumptionTexts: readonly string[];
 
   readonly quickDecisionFindings: readonly QuickDecisionFinding[];
   readonly findingsTriageVisibleCount: number;
@@ -336,10 +339,14 @@ export async function buildRunDetailPresentation(
     fromArchitectureCreation && (model.manifestId ?? "").trim().length === 0;
   const createHomeAnalysisStagesComplete = analysisStagesCompleteOnSummary(model.progressForPipelineUi);
   const baseCommitBlockedReason = resolveCommitBlockedReason(model, findingCoverageSummary);
+  const finalizeAssumptionGateApplies = baseCommitBlockedReason === null && !hasManifest;
+  const requestAssumptionTexts = await tryLoadRequestAssumptionsForRun(model.routeRunId);
   const finalizeScorecard =
-    baseCommitBlockedReason === null && !hasManifest
+    finalizeAssumptionGateApplies
       ? evaluateFinalizeQualityScorecard(
-          deriveFinalizeQualityScorecardInput(quickDecisionFindings, blockingApprovalCount),
+          deriveFinalizeQualityScorecardInput(quickDecisionFindings, blockingApprovalCount, {
+            requestAssumptionTexts,
+          }),
         )
       : null;
   const commitBlockedReason =
@@ -355,6 +362,8 @@ export async function buildRunDetailPresentation(
 
     findingCoverageSummary,
     commitBlockedReason,
+    finalizeAssumptionGateApplies,
+    requestAssumptionTexts,
 
     quickDecisionFindings,
     findingsTriageVisibleCount: deriveRunDetailFindingsTriageCounts(quickDecisionFindings).triageVisibleCount,

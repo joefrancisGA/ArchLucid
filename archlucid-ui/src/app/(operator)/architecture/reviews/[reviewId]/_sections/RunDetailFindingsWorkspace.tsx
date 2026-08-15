@@ -52,6 +52,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly packageCommitted?: boolean;
   readonly analysisStagesComplete?: boolean;
   readonly triageVisibleCount?: number;
+  readonly requestAssumptionTexts?: readonly string[];
   readonly onNavigateActivity?: () => void;
   readonly onNavigateClarifications?: () => void;
 };
@@ -224,7 +225,11 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         />
       ) : null}
       {metricCountEl}
-      <ReviewAssumptionConfirmationStrip findings={props.findings} />
+      <ReviewAssumptionConfirmationStrip
+        runId={props.runId}
+        findings={props.findings}
+        requestAssumptionTexts={props.requestAssumptionTexts}
+      />
       {createHomeSurface ? (
         <>
           {findingsSummaryEl}

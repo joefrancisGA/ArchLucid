@@ -1,54 +1,49 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useReviewAssumptionAcknowledgements } from "@/hooks/use-review-assumption-acknowledgements";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   countExistentialUnverifiedAssumptions,
   deriveUnverifiedAssumptionTextsFromFindings,
+  mergeUnverifiedAssumptionTexts,
   parseUnverifiedAssumptions,
   type UnverifiedAssumption,
 } from "@/lib/review-quality/assumption-and-severity";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type ReviewAssumptionConfirmationStripProps = {
+  readonly runId: string;
   readonly findings: readonly QuickDecisionFinding[];
+  readonly requestAssumptionTexts?: readonly string[];
 };
 
 /** TB-2314: existential assumptions need confirm-or-caveat before finalize. */
 export function ReviewAssumptionConfirmationStrip(
   props: ReviewAssumptionConfirmationStripProps,
 ): React.JSX.Element | null {
+  const { acknowledgedIds, setAssumptionAcknowledged } = useReviewAssumptionAcknowledgements(props.runId);
   const assumptions = useMemo(
     () =>
       parseUnverifiedAssumptions(
-        deriveUnverifiedAssumptionTextsFromFindings(
-          props.findings,
-          (finding) => !finding.isMuted,
+        mergeUnverifiedAssumptionTexts(
+          deriveUnverifiedAssumptionTextsFromFindings(
+            props.findings,
+            (finding) => !finding.isMuted,
+          ),
+          props.requestAssumptionTexts ?? [],
         ),
       ),
-    [props.findings],
+    [props.findings, props.requestAssumptionTexts],
   );
   const existentialCount = countExistentialUnverifiedAssumptions(assumptions);
-  const [acknowledgedIds, setAcknowledgedIds] = useState<ReadonlySet<string>>(() => new Set());
 
   if (assumptions.length === 0) {
     return null;
-  }
-
-  function toggleAssumption(id: string, checked: boolean): void {
-    const next = new Set(acknowledgedIds);
-
-    if (checked) {
-      next.add(id);
-    } else {
-      next.delete(id);
-    }
-
-    setAcknowledgedIds(next);
   }
 
   return (
@@ -75,7 +70,7 @@ export function ReviewAssumptionConfirmationStrip(
               id={assumption.id}
               checked={acknowledgedIds.has(assumption.id)}
               onCheckedChange={(checked) => {
-                toggleAssumption(assumption.id, checked === true);
+                setAssumptionAcknowledged(assumption.id, checked === true);
               }}
               data-testid={`assumption-ack-${assumption.id}`}
             />

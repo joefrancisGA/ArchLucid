@@ -110,6 +110,8 @@ export async function RunDetailPageView(props: {
     buyerFinalizedPackage,
     buyerGoldenPageReady,
     commitBlockedReason,
+    finalizeAssumptionGateApplies,
+    requestAssumptionTexts,
     createHomeActivityProvenanceAsOfLabel,
     createHomeActivityStatusLine,
     createHomeAnalysisStagesComplete,
@@ -266,6 +268,9 @@ export async function RunDetailPageView(props: {
                     useCreateHomeWorkspaceTabs
                     hasGoldenManifest={Boolean(m.manifestId)}
                     commitBlockedReason={commitBlockedReason}
+                    finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
+                    quickDecisionFindings={quickDecisionFindings}
+                    requestAssumptionTexts={requestAssumptionTexts}
                     {...reviewPackageDoThisNextEvidenceProps}
                   />
                   <RunDetailWorkspaceDisclosureControls />
@@ -297,6 +302,7 @@ export async function RunDetailPageView(props: {
                             packageCommitted={Boolean(m.manifestId)}
                             analysisStagesComplete={createHomeAnalysisStagesComplete}
                             triageVisibleCount={findingsTriageVisibleCount}
+                            requestAssumptionTexts={requestAssumptionTexts}
                             providerNeutralWorkItems={Boolean(m.manifestId)}
                             architectureWorkItemContext={
                               m.manifestId
@@ -426,6 +432,9 @@ export async function RunDetailPageView(props: {
                     useCreateHomeWorkspaceTabs={false}
                     hasGoldenManifest={Boolean(m.manifestId)}
                     commitBlockedReason={commitBlockedReason}
+                    finalizeAssumptionGateApplies={finalizeAssumptionGateApplies}
+                    quickDecisionFindings={quickDecisionFindings}
+                    requestAssumptionTexts={requestAssumptionTexts}
                     {...reviewPackageDoThisNextEvidenceProps}
                   />
 

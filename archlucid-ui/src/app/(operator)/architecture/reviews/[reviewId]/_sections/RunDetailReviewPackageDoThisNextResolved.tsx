@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
 import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
 
 import { cn } from "@/lib/utils";
@@ -12,10 +13,14 @@ import type {
   ResolveReviewPackageDoThisNextInput,
   ReviewPackageDoThisNext,
 } from "./resolve-review-package-do-this-next";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
+  readonly finalizeAssumptionGateApplies: boolean;
+  readonly quickDecisionFindings: readonly QuickDecisionFinding[];
+  readonly requestAssumptionTexts: readonly string[];
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -38,6 +43,14 @@ export function RunDetailReviewPackageDoThisNextResolved(
 ): React.JSX.Element {
   const [next, setNext] = useState<ReviewPackageDoThisNext | null>(null);
   const priorCompare = usePriorSameRequestCompareHref(props.runId, 25);
+  const assumptionAwareCommitBlockedReason = useAssumptionAwareCommitBlockedReason({
+    runId: props.runId,
+    serverCommitBlockedReason: props.commitBlockedReason,
+    finalizeAssumptionGateApplies: props.finalizeAssumptionGateApplies,
+    findings: props.quickDecisionFindings,
+    blockingFindingCount: props.blockingFindingCount,
+    requestAssumptionTexts: props.requestAssumptionTexts,
+  });
 
   useEffect(() => {
     let canceled = false;
@@ -102,7 +115,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
       next={next}
       runId={props.runId}
       hasGoldenManifest={props.hasGoldenManifest}
-      commitBlockedReason={props.commitBlockedReason}
+      commitBlockedReason={assumptionAwareCommitBlockedReason}
     />
   );
 }
