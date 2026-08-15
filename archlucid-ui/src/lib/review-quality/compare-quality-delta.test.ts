@@ -137,4 +137,26 @@ describe("compare-quality-delta", () => {
     expect(clusters.length).toBe(1);
     expect(clusters[0]?.openCount).toBe(2);
   });
+
+  it("omits root-cause clusters when all members are disposition-closed", () => {
+    const dispositionClosedWire = {
+      reasoningTrace: "",
+      wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+    };
+
+    const clusters = listOpenRootCauseClusters([
+      finding({
+        findingId: "a",
+        policyRuleId: "cost.budget",
+        aiReasoning: dispositionClosedWire,
+      }),
+      finding({
+        findingId: "b",
+        policyRuleId: "cost.budget",
+        aiReasoning: dispositionClosedWire,
+      }),
+    ]);
+
+    expect(clusters).toEqual([]);
+  });
 });

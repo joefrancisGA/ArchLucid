@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { clusterReviewFindingsByRootCause } from "@/lib/review-quality/compare-quality-delta";
+import { listOpenRootCauseClusters } from "@/lib/review-quality/compare-quality-delta";
 import { formatFindingsVisibilitySummaryLine } from "@/lib/findings/finding-confidence-filter";
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
@@ -118,7 +118,7 @@ function FindingsSortSelect(props: {
         <option value="trust-then-severity">Trust then severity</option>
         <option value="severity-desc">Severity (high first)</option>
         <option value="severity-asc">Severity (low first)</option>
-        <option value="title-asc">Title (A–Z)</option>
+        <option value="title-asc">Title (AΓÇôZ)</option>
       </select>
     </div>
   );
@@ -358,6 +358,10 @@ export function deriveFindingsToolbarSeverityCounts(findings: readonly QuickDeci
   return counts;
 }
 
+export function deriveOpenRootCauseClusterCount(findings: readonly QuickDecisionFinding[]): number {
+  return listOpenRootCauseClusters(findings).length;
+}
+
 export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
   const layout = props.layout ?? "full";
   const severityCounts = useMemo(
@@ -369,11 +373,10 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
     () => deriveFindingsToolbarStatusCounts(props.findings),
     [props.findings],
   );
-  const rootCauseClusterCount = useMemo(() => {
-    const clusters = clusterReviewFindingsByRootCause(props.findings);
-
-    return [...clusters.values()].filter((members) => members.length > 1).length;
-  }, [props.findings]);
+  const rootCauseClusterCount = useMemo(
+    () => deriveOpenRootCauseClusterCount(props.findings),
+    [props.findings],
+  );
   const visibilitySummaryLine = formatFindingsVisibilitySummaryLine(
     props.renderedFindingCount ?? props.findings.length,
     props.toolbarFilteredCount ?? props.findings.length,

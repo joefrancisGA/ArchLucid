@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
-import { deriveFindingsToolbarStatusCounts, deriveFindingsToolbarSeverityCounts } from "./RunDetailFindingsToolbar";
+import {
+  deriveFindingsToolbarStatusCounts,
+  deriveFindingsToolbarSeverityCounts,
+  deriveOpenRootCauseClusterCount,
+} from "./RunDetailFindingsToolbar";
 
 function sampleFinding(
   partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,
@@ -62,5 +66,27 @@ describe("RunDetailFindingsToolbar helpers", () => {
     ]);
 
     expect(counts).toEqual({ critical: 0, high: 1, medium: 0, low: 0 });
+  });
+
+  it("does not count root-cause clusters when all members are disposition-closed", () => {
+    const dispositionClosedWire = {
+      reasoningTrace: "",
+      wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+    };
+
+    const count = deriveOpenRootCauseClusterCount([
+      sampleFinding({
+        findingId: "f-a",
+        policyRuleId: "cost.budget",
+        aiReasoning: dispositionClosedWire,
+      }),
+      sampleFinding({
+        findingId: "f-b",
+        policyRuleId: "cost.budget",
+        aiReasoning: dispositionClosedWire,
+      }),
+    ]);
+
+    expect(count).toBe(0);
   });
 });
