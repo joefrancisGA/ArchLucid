@@ -217,81 +217,72 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
     });
   });
 
-  it("shows review-start tabs and switches modes", async () => {
+  it("leads with the job chooser and hides peer path tabs (TB-2332)", async () => {
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
     });
 
     expect(screen.getByTestId("reviews-new-specimen-preview")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-new-path-toggle")).toBeTruthy();
-    expect(screen.queryByTestId("reviews-new-more-intake-options")).toBeNull();
-    expect(screen.getByRole("tab", { name: "Quick start" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("reviews-new-primary-path-layout")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-more-intake-options")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
+    expect(screen.queryByTestId("reviews-new-path-hint")).toBeNull();
+  });
 
-    fireEvent.click(screen.getByRole("tab", { name: "Guided questions" }));
+  it("opens guided intake from the disclosure without showing peer tabs", async () => {
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-more-path-guided-intake")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-more-path-guided-intake"));
 
     await waitFor(() => {
       expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
     });
 
-    expect(screen.getByRole("tab", { name: "Guided questions" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
+    expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
+    expect(screen.getByTestId("reviews-new-back-to-quick-start")).toBeInTheDocument();
     expect(replace).toHaveBeenCalledWith(
       "/architecture/reviews/new?path=guided-intake",
       expect.objectContaining({ scroll: false }),
     );
   });
 
-  it("syncs path=guided-intake when the Guided questions tab is selected (TB-1877)", async () => {
+  it("opens templates and imports from the disclosure and syncs path=detailed (TB-1867 / TB-2332)", async () => {
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+      expect(screen.getByTestId("reviews-new-more-path-detailed")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("tab", { name: "Guided questions" }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
-    });
-
-    expect(screen.getByRole("tab", { name: "Guided questions" })).toHaveAttribute("aria-selected", "true");
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=guided-intake",
-      expect.objectContaining({ scroll: false }),
-    );
-  });
-
-  it("syncs path=detailed when the Templates and imports tab is selected (TB-1867)", async () => {
-    render(<ReviewsNewPathSwitcher />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
-    });
-
-    fireEvent.click(screen.getByRole("tab", { name: "Templates and imports" }));
+    fireEvent.click(screen.getByTestId("reviews-new-more-path-detailed"));
 
     await waitFor(() => {
       expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
     });
 
-    expect(screen.getByRole("tab", { name: "Templates and imports" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
     expect(replace).toHaveBeenCalledWith(
       "/architecture/reviews/new?path=detailed",
       expect.objectContaining({ scroll: false }),
     );
   });
 
-  it("preserves unrelated query keys when switching path tabs (TB-1867)", async () => {
+  it("preserves unrelated query keys when switching paths from the disclosure (TB-1867)", async () => {
     useSearchParams.mockReturnValue(new URLSearchParams("intent=create-architecture"));
 
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+      expect(screen.getByTestId("reviews-new-more-path-guided-intake")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("tab", { name: "Guided questions" }));
+    fireEvent.click(screen.getByTestId("reviews-new-more-path-guided-intake"));
 
     await waitFor(() => {
       expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
@@ -312,80 +303,21 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
       expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
     });
 
-    expect(screen.getByRole("tab", { name: "Templates and imports" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();
+    expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
   });
 
-  it("syncs path=quick-review when the Quick start tab is selected (TB-1872)", async () => {
-    render(<ReviewsNewPathSwitcher />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
-    });
-
-    fireEvent.click(screen.getByRole("tab", { name: "Guided questions" }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
-    });
-
-    replace.mockClear();
-
-    fireEvent.click(screen.getByRole("tab", { name: "Quick start" }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
-    });
-
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=quick-review",
-      expect.objectContaining({ scroll: false }),
-    );
-  });
-
-  it("defaults to quick start when localStorage remembers guided-intake but the URL has no path query", async () => {
+  it("defaults to the job chooser when localStorage remembers guided-intake but the URL has no path query", async () => {
     window.localStorage.setItem("archlucid_reviews_new_path_v2", "full-guided");
     window.localStorage.setItem("archlucid_reviews_new_full_guided_sub_v1", "guided-intake");
 
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("tab", { name: "Quick start" })).toHaveAttribute("aria-selected", "true");
     expect(screen.queryByTestId("socratic-intake-wizard-stub")).toBeNull();
-  });
-
-  it("moves selection with ArrowRight keyboard navigation on the tablist", async () => {
-    render(<ReviewsNewPathSwitcher />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-intake-wizard-stub")).toBeTruthy();
-    });
-
-    const quickStartTab = screen.getByRole("tab", { name: "Quick start" });
-    quickStartTab.focus();
-
-    fireEvent.keyDown(screen.getByRole("tablist"), { key: "ArrowRight" });
-
-    await waitFor(() => {
-      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
-    });
-
-    expect(screen.getByRole("tab", { name: "Guided questions" })).toHaveAttribute("aria-selected", "true");
-    expect(replace).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=guided-intake",
-      expect.objectContaining({ scroll: false }),
-    );
-  });
-
-  it("prevents vertical overflow scrollbars on the path tab row", async () => {
-    render(<ReviewsNewPathSwitcher />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-path-toggle")).toBeInTheDocument();
-    });
-
-    expect(screen.getByTestId("reviews-new-path-toggle").className).toContain("overflow-y-hidden");
+    expect(screen.queryByTestId("reviews-new-back-to-quick-start")).toBeNull();
   });
 });

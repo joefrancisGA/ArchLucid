@@ -11,14 +11,10 @@ import { Button } from "@/components/ui/button";
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
 import {
   REVIEWS_NEW_BACK_TO_QUICK_START_CTA,
-  REVIEWS_NEW_GUIDED_QUESTIONS_LABEL,
   REVIEWS_NEW_PATH_HINTS,
-  REVIEWS_NEW_QUICK_START_TAB_LABEL,
 } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
-import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
@@ -49,27 +45,6 @@ const NewRunWizardClient = dynamic(
   { loading: () => <NewRunWizardSkeleton /> },
 );
 
-const REVIEWS_NEW_PATH_TABS: readonly { id: ReviewsNewActivePath; label: string }[] = [
-  { id: "quick-review", label: REVIEWS_NEW_QUICK_START_TAB_LABEL },
-  { id: "guided-intake", label: REVIEWS_NEW_GUIDED_QUESTIONS_LABEL },
-  { id: "detailed", label: "Templates and imports" },
-] as const;
-
-function reviewsNewPathTabTestId(path: ReviewsNewActivePath): string {
-  switch (path) {
-    case "quick-review":
-      return "reviews-new-path-quick";
-    case "guided-intake":
-      return "reviews-new-path-guided-intake";
-    case "detailed":
-      return "reviews-new-path-detailed";
-    default: {
-      const exhaustive: never = path;
-      return exhaustive;
-    }
-  }
-}
-
 function ReviewsNewActiveWizard(props: { readonly activePath: ReviewsNewActivePath }): React.JSX.Element {
   const { activePath } = props;
 
@@ -92,7 +67,6 @@ export function ReviewsNewPathSwitcher() {
   const router = useRouter();
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
-  const commitContextQuery = useCorePilotCommitContextQuery();
   const baselineFirst = searchParams?.get("baseline") === "1";
   const presetGreenfield = searchParams?.get("preset") === "greenfield";
   const invalidExampleTemplateId = useMemo(
@@ -108,14 +82,8 @@ export function ReviewsNewPathSwitcher() {
   const [activePath, setActivePath] = useState<ReviewsNewActivePath>("quick-review");
   const [ready, setReady] = useState(false);
   const [suppressAcceleratorStartIntent, setSuppressAcceleratorStartIntent] = useState(false);
-  const pathTabLabels = Object.fromEntries(REVIEWS_NEW_PATH_TABS.map((tab) => [tab.id, tab.label])) as Record<
-    ReviewsNewActivePath,
-    string
-  >;
   const pathHints = REVIEWS_NEW_PATH_HINTS;
-  const hasCommittedManifest = commitContextQuery.data?.hasCommittedManifest ?? false;
-  const usePrimaryPathLayout = !hasCommittedManifest;
-  const shellReady = ready && !commitContextQuery.isPending;
+  const shellReady = ready;
   const acceleratorPackId = searchParams?.get("accelerator")?.trim() ?? "";
   const hasAcceleratorStartIntent =
     !suppressAcceleratorStartIntent &&
@@ -123,8 +91,7 @@ export function ReviewsNewPathSwitcher() {
       presetGreenfield ||
       hasExampleTemplateIntent ||
       isAcceleratorPackId(acceleratorPackId));
-  const showFirstRunStartOptions =
-    usePrimaryPathLayout && activePath === "quick-review" && !hasAcceleratorStartIntent;
+  const showJobChooserStartOptions = activePath === "quick-review" && !hasAcceleratorStartIntent;
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
@@ -166,86 +133,43 @@ export function ReviewsNewPathSwitcher() {
         <ReviewIntakeInvalidTemplateCallout templateId={invalidExampleTemplateId} />
       ) : null}
       {shellReady ? (
-        usePrimaryPathLayout ? (
-          <div className="space-y-4" data-testid="reviews-new-primary-path-layout">
-            <SpecimenDeliverablePreviewCallout />
-            {showFirstRunStartOptions ? (
-              <>
-                <ReviewsNewOwnEvidenceStart />
-                <ReviewsNewJobChooserSection />
+        <div className="space-y-4" data-testid="reviews-new-primary-path-layout">
+          <SpecimenDeliverablePreviewCallout />
+          {showJobChooserStartOptions ? (
+            <>
+              <ReviewsNewOwnEvidenceStart />
+              <ReviewsNewJobChooserSection />
+              <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
+            </>
+          ) : (
+            <>
+              <p
+                className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="reviews-new-path-hint"
+              >
+                <InlineGuidanceText text={pathHints[activePath]} />
+              </p>
+              <div className="pt-2" data-testid="reviews-new-path-panel">
+                <ReviewsNewActiveWizard activePath={activePath} />
+              </div>
+              {activePath === "quick-review" ? (
                 <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
-              </>
-            ) : (
-              <>
-                <p
-                  className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="reviews-new-path-hint"
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  data-testid="reviews-new-back-to-quick-start"
+                  onClick={() => {
+                    selectPath("quick-review");
+                  }}
                 >
-                  <InlineGuidanceText text={pathHints[activePath]} />
-                </p>
-                <div className="pt-2" data-testid="reviews-new-path-panel">
-                  <ReviewsNewActiveWizard activePath={activePath} />
-                </div>
-                {activePath === "quick-review" ? (
-                  <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
-                ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    data-testid="reviews-new-back-to-quick-start"
-                    onClick={() => {
-                      selectPath("quick-review");
-                    }}
-                  >
-                    {REVIEWS_NEW_BACK_TO_QUICK_START_CTA}
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
-        ) : (
-          <Tabs
-            value={activePath}
-            onValueChange={(next) => {
-              selectPath(next as ReviewsNewActivePath);
-            }}
-            className="space-y-4"
-          >
-            <SpecimenDeliverablePreviewCallout />
-            <TabsList
-              aria-label="Review creation path"
-              data-testid="reviews-new-path-toggle"
-              className="overflow-x-auto overflow-y-hidden"
-            >
-              {REVIEWS_NEW_PATH_TABS.map((tab) => (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  data-testid={reviewsNewPathTabTestId(tab.id)}
-                  className="shrink-0"
-                >
-                  {pathTabLabels[tab.id]}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            <p
-              className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="reviews-new-path-hint"
-            >
-              <InlineGuidanceText text={pathHints[activePath]} />
-            </p>
-            <TabsContent value="quick-review" className="mt-0 pt-2" data-testid="reviews-new-path-panel">
-              <FirstPilotIntakeWizard />
-            </TabsContent>
-            <TabsContent value="guided-intake" className="mt-0 pt-2" data-testid="reviews-new-path-panel">
-              <SocraticIntakeWizard />
-            </TabsContent>
-            <TabsContent value="detailed" className="mt-0 pt-2" data-testid="reviews-new-path-panel">
-              <NewRunWizardClient embeddedInPathSwitcher />
-            </TabsContent>
-          </Tabs>
-        )
+                  {REVIEWS_NEW_BACK_TO_QUICK_START_CTA}
+                </Button>
+              )}
+            </>
+          )}
+        </div>
       ) : (
         <p className={OPERATOR_TYPOGRAPHY.helper}>Loading…</p>
       )}

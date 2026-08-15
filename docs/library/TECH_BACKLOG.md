@@ -1648,9 +1648,9 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2302 | `GET /v1/operator/bootstrap` cold-start mega-bundle (residual reads after shell-status) ? **V1.1**; see ## TB-2302 below | Performance P2 ? **V1.1**; operator home startup; after **TB-2304** | L |
 | TB-2303 | User preferences cross-tree TanStack dedupe (root layout vs operator QueryClient) ? **V1.1**; see ## TB-2303 below | Performance P3 ? **V1.1**; pairs existing TTL dedupe in `user-preferences.ts` | M |
 | TB-2304 | Operator home startup proxy-trace baseline + regression gate ? **V1.1**; see ## TB-2304 below | Performance P2 ? **V1.1**; gates **TB-2302** scope; post shell-status wave | S |
-| TB-2330 | Committed-review nav gate single-input regression guard ? Vitest inventory that sidebar, command palette, and impact-preview reachability use `useEffectiveNavCommittedArchitectureReview()` only ? **V1**; see ## TB-2330 below | Testability P2 ? **V1**; 2026-08-15 nav gate regression after Done **TB-2133**; pairs fix `d3b4124071` | S |
-| TB-2331 | First-session home onboarding spine consolidation ? one primary empty-state onboarding object; demote parallel first-hour/stickiness/checklist/accelerator rails ? **V1.1**; see ## TB-2331 below | Adoption friction P2 ? **V1.1**; residual after Done **TB-2232**/**TB-2138**/**TB-345**; do not reopen **TB-345** | M |
-| TB-2332 | Intake job chooser vs path switcher honesty ? collapse quick/guided/detailed tabs after pack selection; align Socratic/guided labels ? **V1**; see ## TB-2332 below | Adoption friction P2 ? **V1**; residual after Done **TB-2136**/**TB-2283**; does not reopen **TB-2130** | M |
+| TB-2330 | **Done** (2026-08-15) ? Vitest `nav-committed-review-gate-drift-guard.test.ts`; NAV_CONFIG_CONTRACT single-input rule; see ## TB-2330 below | Testability P2 ? **V1**; nav gate regression after Done **TB-2133** | S |
+| TB-2331 | **Done** (2026-08-15) ? eval-empty hero demotes walkthrough panel; stickiness cockpit hidden on eval-empty; inventory guard extended; see ## TB-2331 below | Adoption friction P2 ? **V1.1**; after Done **TB-2232** | M |
+| TB-2332 | **Done** (2026-08-15) ? returning tenants use job chooser + More ways disclosure; path tabs removed; Vitest updated; see ## TB-2332 below | Adoption friction P2 ? **V1**; after Done **TB-2136**/**TB-2283** | M |
 | TB-2284 | **Done** (2026-08-14) ? Metadata chip taxonomy contract in `UI_DESIGN_SYSTEM.md`; `StatusPill` deprecated; Vitest `metadata-chip-taxonomy-contract.test.ts`; see ## TB-2284 below | Adoption friction P1 ? **V1**; chip consistency 2026-08-13; extends Done **TB-116**/**TB-1646** | S |
 | TB-2285 | **Done** (2026-08-14) ? `resolveEnterpriseStatusKind` + `enterpriseStatusMetadataFillClass`; `status-pill-domain-classes` token-backed; pipeline presentation delegates; Vitest; see ## TB-2285 below | Maintainability P1 ? **V1**; chip consistency 2026-08-13; replaces `status-pill-domain-classes` | M |
 | TB-2286 | **Done** (2026-08-14) ? `GovernanceStatusTag`; review detail + governance workflow migrations; Vitest drift guard; see ## TB-2286 below | Adoption friction P1 ? **V1**; chip consistency 2026-08-13; run detail + workflow | M |
@@ -28199,6 +28199,8 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 ## TB-2330 ? Committed-review nav gate single-input regression guard (P2) ? **V1**
 
+**Status:** **Done** (2026-08-15) ? `nav-committed-review-gate-source-patterns.ts` + Vitest drift guard; NAV_CONFIG_CONTRACT single-input rule; pairs `useEffectiveNavCommittedArchitectureReview()` fix.
+
 **Window:** V1 ? Testability.
 
 **Priority:** P2.
@@ -28226,6 +28228,8 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 ## TB-2331 ? First-session home onboarding spine consolidation (P2) ? **V1.1**
 
+**Status:** **Done** (2026-08-15) ? eval-empty command center keeps canonical next-action only; walkthrough demoted to below-fold explore sample; stickiness cockpit hidden on eval-empty; inventory guard extended.
+
 **Window:** V1.1 ? Adoption friction.
 
 **Priority:** P2.
@@ -28252,6 +28256,8 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 ---
 
 ## TB-2332 ? Intake job chooser vs path switcher honesty (P2) ? **V1**
+
+**Status:** **Done** (2026-08-15) ? all tenants use primary-path layout with job chooser + More ways disclosure; peer path tabs removed; returning-tenant Vitest updated.
 
 **Window:** V1 ? Adoption friction.
 
