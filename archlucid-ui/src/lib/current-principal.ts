@@ -135,6 +135,8 @@ export type CurrentPrincipal = {
    * Server policies remain authoritative.
    */
   permissionClaimValues: readonly string[];
+  /** Raw `/me` claims used for assigned-to-me identity resolution (mailbox, jwt actor id). */
+  meClaims?: readonly { type: string; value: string }[];
 };
 
 /** Policy permission claim for consulting-template DOCX (`ArchLucidPolicies.CanExportConsultingDocx`). */
@@ -296,6 +298,7 @@ export function normalizeAuthMeResponse(payload: AuthMeResponse): CurrentPrincip
     hasCommittedArchitectureReview: payload.hasCommittedArchitectureReview === true,
     hasRecognizedArchLucidRole: hasRecognizedArchLucidRoleValues(roleClaimValues),
     permissionClaimValues,
+    meClaims: claims,
   };
 }
 
