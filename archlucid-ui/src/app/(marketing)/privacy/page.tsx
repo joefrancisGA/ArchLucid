@@ -34,7 +34,7 @@ export default function MarketingPrivacyPolicyPage(): ReactNode {
   const content = loadPrivacyPolicyContent();
 
   return (
-    <MarketingPageShell variant="reading" className="print:px-0">
+    <MarketingPageShell variant="trust" className="print:px-0">
       <PrivacyPolicyPageClient
         metadata={content.metadata}
         bodyMarkdown={content.bodyMarkdown}

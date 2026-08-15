@@ -12,12 +12,12 @@ export const PRIVACY_POLICY_LAYOUT = {
   page: "privacy-policy-page w-full",
   skipLink:
     "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-neutral-900 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-600 dark:focus:bg-neutral-950 dark:focus:text-neutral-50",
-  grid: "grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,50rem)_minmax(12.5rem,15rem)] xl:items-start xl:gap-12",
+  grid: "grid grid-cols-1 gap-12 xl:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)] xl:items-start xl:gap-x-16 xl:gap-y-12",
   article:
-    "min-w-0 max-w-[50rem] flex-1 text-neutral-800 dark:text-neutral-200 print:max-w-none print:text-black",
-  header: "border-b border-neutral-200 pb-6 dark:border-neutral-800 print:border-neutral-300",
+    "min-w-0 flex-1 text-neutral-800 dark:text-neutral-200 print:max-w-none print:text-black",
+  header: "border-b border-neutral-200 pb-8 dark:border-neutral-800 print:border-neutral-300",
   title: cn(MARKETING_TYPOGRAPHY.pageTitle, "text-balance text-neutral-900 dark:text-neutral-50"),
-  lede: cn("mt-2 max-w-prose text-balance text-al-text-secondary", MARKETING_TYPOGRAPHY.body),
+  lede: cn("mt-3 max-w-3xl text-balance text-al-text-secondary", MARKETING_TYPOGRAPHY.body),
   metaRow: cn("mt-3 flex flex-wrap gap-x-4 gap-y-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta),
   utilities: "mt-4 flex flex-wrap gap-2 print:hidden",
   utilityButton:
@@ -45,7 +45,7 @@ export const PRIVACY_POLICY_LAYOUT = {
 
 export const PRIVACY_POLICY_TOC = {
   nav: cn(
-    "xl:sticky xl:self-start print:hidden",
+    "xl:sticky xl:self-start xl:pl-2 print:hidden",
     OPERATOR_SHELL_STICKY_TOP_CLASS,
     "xl:max-h-[calc(100dvh-var(--app-shell-sticky,6rem)-2rem)] xl:overflow-y-auto xl:overscroll-y-contain",
   ),
@@ -62,25 +62,25 @@ export const PRIVACY_POLICY_PROSE = {
   root: "flex flex-col",
   sectionH2: cn(
     OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-    "mt-12 border-t border-neutral-200 pt-10 first:mt-0 first:border-t-0 first:pt-0 dark:border-neutral-800",
+    "mt-14 border-t border-neutral-200 pt-12 first:mt-0 first:border-t-0 first:pt-0 dark:border-neutral-800",
     MARKETING_TYPOGRAPHY.sectionTitle,
     "text-neutral-900 dark:text-neutral-50",
   ),
   sectionH3: cn(
     OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-    "mt-8",
+    "mt-10",
     MARKETING_TYPOGRAPHY.cardTitle,
     "text-al-text-primary",
   ),
-  paragraph: cn("my-4 max-w-prose leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
-  bulletList: cn("my-4 max-w-prose list-disc space-y-2 pl-6 leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
-  orderedList: cn("my-4 max-w-prose list-decimal space-y-2 pl-6 leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
+  paragraph: cn("my-5 leading-8", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
+  bulletList: cn("my-5 list-disc space-y-2.5 pl-6 leading-8", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
+  orderedList: cn("my-5 list-decimal space-y-2.5 pl-6 leading-8", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
   tableWrap:
-    "my-6 -mx-1 overflow-x-auto rounded-md border border-neutral-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-800",
-  table: cn("w-full min-w-[36rem] border-collapse text-left", MARKETING_TYPOGRAPHY.body),
+    "my-8 overflow-x-auto rounded-md border border-neutral-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-800",
+  table: cn("w-full min-w-[42rem] border-collapse text-left", MARKETING_TYPOGRAPHY.body),
   tableHeadCell:
-    "border-b border-neutral-200 bg-neutral-100 px-4 py-3 font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900",
-  tableBodyCell: "border-b border-neutral-200 px-4 py-3 align-top dark:border-neutral-800",
+    "border-b border-neutral-200 bg-neutral-100 px-5 py-3.5 font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900",
+  tableBodyCell: "border-b border-neutral-200 px-5 py-3.5 align-top dark:border-neutral-800",
   tableRowOdd: "bg-white dark:bg-neutral-950",
   tableRowEven: "bg-neutral-50/80 dark:bg-neutral-900/50",
 } as const;
