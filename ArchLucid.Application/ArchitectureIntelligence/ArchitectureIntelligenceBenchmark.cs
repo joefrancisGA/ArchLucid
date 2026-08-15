@@ -71,7 +71,19 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
                 MutationId = "mutate-data-regulated",
                 Description = "Change data from public to regulated.",
                 ApplyDelta = "data-classification:regulated"
-            }
+            },
+            new BenchmarkMutation
+            {
+                MutationId = "mutate-add-authentication",
+                Description = "Add explicit authentication control evidence.",
+                ApplyDelta = "add:authentication:required"
+            },
+            new BenchmarkMutation
+            {
+                MutationId = "mutate-remove-replication",
+                Description = "Remove replication evidence.",
+                ApplyDelta = "remove:replication"
+            },
         ];
     }
 
@@ -203,7 +215,8 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
                     ExtractionConfidence = e.ExtractionConfidence,
                     SourcePassageIds = [.. e.SourcePassageIds],
                     RelatedElementIds = [.. e.RelatedElementIds],
-                    Properties = new Dictionary<string, string>(e.Properties)
+                    Properties = new Dictionary<string, string>(e.Properties),
+                    LifecycleScope = e.LifecycleScope,
                 })
                 .ToList(),
             DeclaredPriorities = [.. source.DeclaredPriorities],
@@ -284,6 +297,37 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
                     Confidence = 1.0
                 }
             });
+
+            return;
+        }
+
+        if (applyDelta.StartsWith("add:authentication:", StringComparison.OrdinalIgnoreCase))
+        {
+            model.Elements.Add(new ArchitectureModelElement
+            {
+                ElementId = Guid.NewGuid().ToString("N"),
+                Kind = ArchitectureElementKind.TrustBoundary,
+                Name = "Authentication required",
+                Description = applyDelta,
+                ExtractionConfidence = 1.0,
+                Properties = new Dictionary<string, string> { ["authentication"] = "required" },
+                Provenance = new ClaimProvenance
+                {
+                    Origin = ClaimOrigin.UserAsserted,
+                    SupportStatus = SupportStatus.DirectlyEstablished,
+                    Confidence = 1.0
+                }
+            });
+
+            return;
+        }
+
+        if (applyDelta.StartsWith("remove:replication", StringComparison.OrdinalIgnoreCase))
+        {
+            model.Elements.RemoveAll(element =>
+                element.Name.Contains("replication", StringComparison.OrdinalIgnoreCase));
+
+            return;
         }
     }
 

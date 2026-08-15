@@ -26,12 +26,14 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
-    public void Extract_detects_public_endpoint()
+    public void Extract_tags_current_and_target_state_elements_with_lifecycle_scope()
     {
         IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
-            "Public API exposes customer data.",
-            "src-test");
+            "Current state uses monolith. Target state uses microservices.",
+            "src-lifecycle");
 
-        elements.Should().Contain(element => element.Name.Contains("Public endpoint", StringComparison.OrdinalIgnoreCase));
+        elements.Should().Contain(element =>
+            element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase)
+            && element.LifecycleScope == ArchitectureLifecycleScope.Transition);
     }
 }

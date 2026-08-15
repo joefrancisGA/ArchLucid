@@ -56,7 +56,8 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 artifactId,
                 supportStatus,
                 confidence,
-                "Component mention extracted from source text."));
+                "Component mention extracted from source text.",
+                InferLifecycleScopeForIndex(sourceText, match.Index)));
         }
 
         foreach (Match match in RequirementLinePattern().Matches(sourceText))
@@ -67,7 +68,8 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 artifactId,
                 supportStatus,
                 confidence,
-                "Functional requirement extracted from source text."));
+                "Functional requirement extracted from source text.",
+                InferLifecycleScopeForIndex(sourceText, match.Index)));
         }
 
         if (sourceText.Contains("RTO", StringComparison.OrdinalIgnoreCase)
@@ -164,7 +166,8 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 artifactId,
                 supportStatus,
                 confidence,
-                "Current and target state markers detected."));
+                "Current and target state markers detected.",
+                ArchitectureLifecycleScope.Transition));
         }
 
         if (sourceText.Contains("contradict", StringComparison.OrdinalIgnoreCase))
@@ -274,7 +277,8 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
         string artifactId,
         SupportStatus supportStatus,
         double confidence,
-        string notes)
+        string notes,
+        ArchitectureLifecycleScope lifecycleScope = ArchitectureLifecycleScope.Unspecified)
     {
         return new ArchitectureModelElement
         {
@@ -282,6 +286,7 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
             Kind = kind,
             Name = name,
             ExtractionConfidence = confidence,
+            LifecycleScope = lifecycleScope,
             SourcePassageIds = [artifactId],
             Provenance = new ClaimProvenance
             {
@@ -292,6 +297,29 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 Notes = notes,
             },
         };
+    }
+
+    private static ArchitectureLifecycleScope InferLifecycleScopeForIndex(string sourceText, int matchIndex)
+    {
+        int targetStateIndex = sourceText.IndexOf("target state", StringComparison.OrdinalIgnoreCase);
+        int currentStateIndex = sourceText.IndexOf("current state", StringComparison.OrdinalIgnoreCase);
+        int asIsIndex = sourceText.IndexOf("as-is", StringComparison.OrdinalIgnoreCase);
+        int toBeIndex = sourceText.IndexOf("to-be", StringComparison.OrdinalIgnoreCase);
+
+        int targetBoundary = targetStateIndex >= 0 ? targetStateIndex : toBeIndex;
+
+        if (targetBoundary >= 0 && matchIndex > targetBoundary)
+        {
+            return ArchitectureLifecycleScope.TargetState;
+        }
+
+        if (currentStateIndex >= 0 && matchIndex > currentStateIndex
+            || asIsIndex >= 0 && matchIndex > asIsIndex)
+        {
+            return ArchitectureLifecycleScope.CurrentState;
+        }
+
+        return ArchitectureLifecycleScope.Unspecified;
     }
 
     [GeneratedRegex(@"(?im)^(?:component|service)\s*[:\-]\s*(?<name>.+)$")]
