@@ -8,34 +8,11 @@ import { Label } from "@/components/ui/label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   countExistentialUnverifiedAssumptions,
+  deriveUnverifiedAssumptionTextsFromFindings,
   parseUnverifiedAssumptions,
   type UnverifiedAssumption,
 } from "@/lib/review-quality/assumption-and-severity";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-
-function deriveAssumptionTextsFromFindings(findings: readonly QuickDecisionFinding[]): string[] {
-  const texts: string[] = [];
-
-  for (const finding of findings) {
-    if (finding.isMuted) {
-      continue;
-    }
-
-    const combined = `${finding.title}\n${finding.recommendation}\n${finding.aiReasoning.reasoningTrace}`;
-
-    if (!/assumption/i.test(combined)) {
-      continue;
-    }
-
-    const trimmed = finding.title.trim();
-
-    if (trimmed.length > 0) {
-      texts.push(trimmed);
-    }
-  }
-
-  return texts;
-}
 
 export type ReviewAssumptionConfirmationStripProps = {
   readonly findings: readonly QuickDecisionFinding[];
@@ -46,7 +23,13 @@ export function ReviewAssumptionConfirmationStrip(
   props: ReviewAssumptionConfirmationStripProps,
 ): React.JSX.Element | null {
   const assumptions = useMemo(
-    () => parseUnverifiedAssumptions(deriveAssumptionTextsFromFindings(props.findings)),
+    () =>
+      parseUnverifiedAssumptions(
+        deriveUnverifiedAssumptionTextsFromFindings(
+          props.findings,
+          (finding) => !finding.isMuted,
+        ),
+      ),
     [props.findings],
   );
   const existentialCount = countExistentialUnverifiedAssumptions(assumptions);

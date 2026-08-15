@@ -4,6 +4,7 @@ import {
 import { humanReviewStatusDisplay, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 import {
+  deriveUnverifiedAssumptionTextsFromFindings,
   parseUnverifiedAssumptions,
 } from "./assumption-and-severity";
 import type { FinalizeQualityScorecardInput } from "./finalize-quality-scorecard";
@@ -43,27 +44,10 @@ function isFinalizeResolvedReviewFinding(finding: QuickDecisionFinding): boolean
 }
 
 function deriveUnverifiedAssumptionTexts(findings: readonly QuickDecisionFinding[]): string[] {
-  const texts: string[] = [];
-
-  for (const finding of findings) {
-    if (finding.isMuted || isFinalizeResolvedReviewFinding(finding)) {
-      continue;
-    }
-
-    const combined = `${finding.title}\n${finding.recommendation}\n${finding.aiReasoning.reasoningTrace}`;
-
-    if (!/assumption/i.test(combined)) {
-      continue;
-    }
-
-    const trimmedTitle = finding.title.trim();
-
-    if (trimmedTitle.length > 0) {
-      texts.push(trimmedTitle);
-    }
-  }
-
-  return texts;
+  return deriveUnverifiedAssumptionTextsFromFindings(
+    findings,
+    (finding) => !finding.isMuted && !isFinalizeResolvedReviewFinding(finding),
+  );
 }
 
 /** TB-2321: derive finalize scorecard inputs from live finding rows when API metrics are absent. */

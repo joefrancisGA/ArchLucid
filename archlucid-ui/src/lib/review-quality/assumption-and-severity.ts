@@ -1,3 +1,5 @@
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+
 export type UnverifiedAssumption = {
   readonly id: string;
   readonly text: string;
@@ -41,6 +43,50 @@ export function parseUnverifiedAssumptions(assumptions: readonly string[]): read
 
 export function countExistentialUnverifiedAssumptions(assumptions: readonly UnverifiedAssumption[]): number {
   return assumptions.filter((assumption) => assumption.existential).length;
+}
+
+function readAssumptionLabelFromFinding(finding: QuickDecisionFinding): string | null {
+  const combined = `${finding.title}\n${finding.recommendation}\n${finding.aiReasoning.reasoningTrace}`;
+
+  if (!/assumption/i.test(combined)) {
+    return null;
+  }
+
+  const trimmedTitle = finding.title.trim();
+
+  if (trimmedTitle.length > 0) {
+    return trimmedTitle;
+  }
+
+  const trimmedRecommendation = finding.recommendation.trim();
+
+  if (trimmedRecommendation.length > 0) {
+    return trimmedRecommendation;
+  }
+
+  return null;
+}
+
+/** TB-2314 / TB-2321: assumption findings may carry the label only in recommendation when title is empty. */
+export function deriveUnverifiedAssumptionTextsFromFindings(
+  findings: readonly QuickDecisionFinding[],
+  shouldIncludeFinding: (finding: QuickDecisionFinding) => boolean = () => true,
+): string[] {
+  const texts: string[] = [];
+
+  for (const finding of findings) {
+    if (!shouldIncludeFinding(finding)) {
+      continue;
+    }
+
+    const label = readAssumptionLabelFromFinding(finding);
+
+    if (label !== null) {
+      texts.push(label);
+    }
+  }
+
+  return texts;
 }
 
 export type StatedConstraintContext = {
