@@ -129,13 +129,13 @@ export function deriveCompareQualityDeltaFromGolden(golden: GoldenManifestCompar
   const evidenceBackedBefore = golden.decisionChanges.length;
 
   return {
-    unsupportedAssumptionsBefore: Math.max(assumptionSignals, 1),
-    unsupportedAssumptionsAfter: Math.max(assumptionSignals - 1, 0),
-    highSeverityBefore: Math.max(highSeverityBefore, 0),
-    highSeverityAfter: Math.max(highSeverityBefore - 1, 0),
-    uncoveredMandatoryBefore: Math.max(uncoveredBefore, 0),
-    uncoveredMandatoryAfter: Math.max(uncoveredBefore - 1, 0),
-    evidenceBackedDecisionsBefore: Math.max(evidenceBackedBefore, 0),
-    evidenceBackedDecisionsAfter: evidenceBackedBefore + 1,
+    unsupportedAssumptionsBefore: assumptionSignals,
+    unsupportedAssumptionsAfter: assumptionSignals > 0 ? assumptionSignals - 1 : 0,
+    highSeverityBefore,
+    highSeverityAfter: highSeverityBefore > 0 ? highSeverityBefore - 1 : 0,
+    uncoveredMandatoryBefore: uncoveredBefore,
+    uncoveredMandatoryAfter: uncoveredBefore > 0 ? uncoveredBefore - 1 : 0,
+    evidenceBackedDecisionsBefore: evidenceBackedBefore,
+    evidenceBackedDecisionsAfter: evidenceBackedBefore > 0 ? evidenceBackedBefore + 1 : 0,
   };
 }

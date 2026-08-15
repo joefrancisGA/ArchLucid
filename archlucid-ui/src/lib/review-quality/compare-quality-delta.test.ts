@@ -4,6 +4,7 @@ import {
   buildCompareQualityDeltaRows,
   buildWithinReviewClusterKey,
   clusterReviewFindingsByRootCause,
+  deriveCompareQualityDeltaFromGolden,
 } from "@/lib/review-quality/compare-quality-delta";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -49,5 +50,46 @@ describe("compare-quality-delta", () => {
 
     expect(clusters.get("rule:cost.budget")?.length).toBe(2);
     expect(buildWithinReviewClusterKey(finding({ findingId: "d", policyRuleId: "foo" }))).toBe("rule:foo");
+  });
+
+  it("does not fabricate improvement when golden comparison has no deltas", () => {
+    const counts = deriveCompareQualityDeltaFromGolden({
+      baseRunId: "run-a",
+      targetRunId: "run-b",
+      summaryHighlights: [],
+      decisionChanges: [],
+      securityChanges: [],
+      requirementChanges: [],
+      topologyChanges: [],
+      costChanges: [],
+    });
+    const rows = buildCompareQualityDeltaRows(counts);
+
+    expect(rows.every((row) => row.before === row.after)).toBe(true);
+    expect(rows.some((row) => row.improved)).toBe(false);
+  });
+
+  it("derives directional counts from golden manifest deltas", () => {
+    const counts = deriveCompareQualityDeltaFromGolden({
+      baseRunId: "run-a",
+      targetRunId: "run-b",
+      summaryHighlights: ["Unsupported assumption in intake"],
+      decisionChanges: [{ label: "Decision A", before: "open", after: "evidence-backed" }],
+      securityChanges: [{ label: "TLS gap", before: "open", after: "closed" }],
+      requirementChanges: [{ label: "Req 1", before: "missing", after: "covered" }],
+      topologyChanges: [],
+      costChanges: [],
+    });
+
+    expect(counts).toEqual({
+      unsupportedAssumptionsBefore: 2,
+      unsupportedAssumptionsAfter: 1,
+      highSeverityBefore: 1,
+      highSeverityAfter: 0,
+      uncoveredMandatoryBefore: 1,
+      uncoveredMandatoryAfter: 0,
+      evidenceBackedDecisionsBefore: 1,
+      evidenceBackedDecisionsAfter: 2,
+    });
   });
 });
