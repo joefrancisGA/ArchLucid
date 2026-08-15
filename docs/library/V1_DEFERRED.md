@@ -217,10 +217,24 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 **Verdict:** **Backlog / V2 candidate**, situational — **not** required for current pipeline complexity.
 
+### DTF adoption decision gate (TB-921)
+
+Before scheduling **TB-924** (DTF cutover) or treating a new orchestration/outbox proposal as DTF-worthy, count how many of the following are **simultaneously true**. **Two or more** must be true before DTF adoption becomes a scheduled engineering item.
+
+| # | Criterion | Fires when… | Does **not** fire when… |
+|---|-----------|-------------|-------------------------|
+| **(a)** | Durable timer **with action** | A product requirement needs a timer that **changes state** (escalate, reroute, auto-expire, auto-act) beyond `AuthorityPipelineOptions.PipelineTimeout` wall clock — not notify-only. | Notify-only SLA breach (**TB-923** candidate); SQL outbox resume after API crash; async agent execute via existing worker/outbox (**TB-1311** / **M-231**). |
+| **(b)** | Compensation / saga | A workflow needs **undo or compensating steps**, not resume-from-checkpoint on the same hand-rolled state machine. | Idempotent retry of the same stage; dead-letter + manual replay; transactional outbox redelivery. |
+| **(c)** | Novel outbox outside shared base | A proposed side-effect queue is **not** a trivial extension of the shared outbox base from **TB-920** (entry model + repository + processor + hosted service + metrics). | Another consumer of the shared outbox pattern; a new processor on an existing outbox table. |
+| **(d)** | Checkpointed fan-out / fan-in at stage granularity | Pipeline parallelism needs **durable checkpointed** fan-out/fan-in **per authority stage**, not in-process `Task.WhenAll` inside one worker invocation. | Bounded in-process parallelism (**TB-586**); queue mode splitting API from worker completion. |
+
+**Gate rule:** Record which criteria fired (with evidence links) in **TB-924** before implementation starts. One criterion alone — especially async agent execute — is **insufficient**.
+
 **Rules:**
 
 - Quality assessments **must not** treat absence of Container Apps Jobs or DTF as a **V1** defect.
 - Promoting this row to a **dated** engineering commitment requires [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+- Outbox/orchestration PRs should cite this checklist when proposing durable-execution substrate changes (see [CONTRIBUTOR_ON_ONE_PAGE.md](../CONTRIBUTOR_ON_ONE_PAGE.md)).
 
 ---
 

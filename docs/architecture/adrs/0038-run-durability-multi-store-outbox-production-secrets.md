@@ -22,7 +22,7 @@ Architecture reviews (2026-06-06) identified three production-readiness gaps:
 
 | Alternative | Outcome |
 |-------------|---------|
-| **Durable Functions / DTF for all authority stages** | Deferred — see **TB-302** / [V1_DEFERRED.md](../../library/V1_DEFERRED.md) §6r; transactional outbox + worker resume retained for V1. |
+| **Durable Functions / DTF for all authority stages** | Deferred — see **TB-302** / [V1_DEFERRED.md](../../library/V1_DEFERRED.md) §6f **DTF adoption decision gate (TB-921)**; transactional outbox + worker resume retained for V1. |
 | **Cosmos-first graph write with SQL mirror** | Rejected — SQL is authority-of-record for run state; Cosmos is a polyglot projection. |
 | **Keep async pipeline opt-in on SQL** | Rejected for production — queue mode reduces API latency and aligns with worker-hosted completion; explicit `false` remains for Advanced/local profiles. |
 | **SQL + transactional outbox + unified create UoW + production-like KV/MI rules** (this ADR) | **Accepted** |

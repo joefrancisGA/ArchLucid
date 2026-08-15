@@ -6,6 +6,8 @@
 
 This document describes how **`AuthorityRunOrchestrator`** recovers from transient failures, bounds pipeline duration, and resumes queued work. It applies to the SQL-backed authority pipeline registered behind **`IAuthorityRunOrchestrator`** in production hosts.
 
+**DTF adoption gate:** Replacing this hand-rolled SQL state machine with the Durable Task Framework requires **two or more** simultaneous triggers from the [V1_DEFERRED.md §6f DTF adoption decision gate (TB-921)](V1_DEFERRED.md#dtf-adoption-decision-gate-tb-921). Async agent execute via the existing SQL outbox/worker path alone is **not** sufficient. The dormant `DtfAuthorityRunOrchestrator` seam is kept compiling via **TB-922**.
+
 ---
 
 ## Transient SQL retries (state persist and commit)

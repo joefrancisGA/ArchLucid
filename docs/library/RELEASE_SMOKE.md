@@ -92,6 +92,8 @@ $env:ARCHLUCID_SMOKE_SQL = 'Server=localhost,1433;Database=ArchLucid;User Id=sa;
 
 The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary API process only (**`-SkipE2E`** is incompatible). See **`docs/runbooks/PRODUCTION_DEPLOYMENT.md`** (Part A — Authority pipeline section).
 
+**CI parity (TB-922):** `ArchLucid.Host.Composition.Tests` boots SQL composition with `OrchestratorBackend=DurableTask` and validates the DI graph; `ArchLucid.Architecture.Tests` asserts `DtfAuthorityRunOrchestrator` still implements `IAuthorityRunOrchestrator` so the seam cannot bit-rot before a gated **TB-924** cutover.
+
 **Windows CMD:** connection strings contain `;` — avoid inline `set` (it breaks at the first semicolon). Prefer PowerShell above, or run **`scripts/release-smoke.cmd`** after setting the variable in PowerShell / System Properties. The **`.cmd`** wrapper invokes **`scripts/release-smoke.ps1`** with `%*`; you can pass **`-SqlConnectionString '...'`** from CMD if quoted carefully.
 
 **CI-style: include full Core suite (after fast core):**

@@ -77,10 +77,10 @@ export const OPERATOR_PRIMARY_CTA_INVENTORY: readonly OperatorPrimaryCtaInventor
     id: "advisory-scans-empty",
     pathOrSurface: "/governance/advisory-scans?tab=scans",
     pattern: "header-create-reveals-panel",
-    primaryTestId: "advisory-choose-review-cta",
+    primaryTestId: "advisory-generate-scan-button",
     componentOrModule: "components/advisory/AdvisoryScansContent.tsx",
     status: "verified",
-    notes: "Empty intro: Choose review primary reveals form; View sample outline (**TB-1567** / **TB-1569**).",
+    notes: "Generate scan is the sole filled primary once a review is selected; empty footer actions stay outline (**TB-1567** / **TB-1569**).",
   },
   {
     id: "alert-rules-rules-tab",
