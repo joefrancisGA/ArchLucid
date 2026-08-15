@@ -154,6 +154,17 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         }
 
         List<SpecialistReviewResult> specialistReviews = await RunSpecialistReviewsAsync(model, cancellationToken);
+
+        if (!interview.IsFramingComplete)
+        {
+            model.IsProvisionalSynthesis = true;
+            SpecialistReviewProvisionalGating.ApplyWhileFramingIncomplete(specialistReviews);
+        }
+        else
+        {
+            model.IsProvisionalSynthesis = false;
+        }
+
         List<SpecialistReviewFinding> allFindings = specialistReviews
             .SelectMany(review => review.Findings)
             .ToList();

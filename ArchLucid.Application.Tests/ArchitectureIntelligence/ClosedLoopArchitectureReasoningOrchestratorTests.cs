@@ -88,4 +88,39 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
                 stage.Stage == EvidenceValidationStage.DeterministicIntegrity
                 && stage.IsDeterministic));
     }
+
+    [Fact]
+    public async Task RunAsync_marks_provisional_synthesis_and_holds_fail_until_framing_complete()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-provisional",
+            RunId = "run-provisional",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "vague.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API exposes customer records without authentication.",
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult result = await orchestrator.RunAsync(request);
+
+        result.Interview.IsFramingComplete.Should().BeFalse();
+        result.Model.IsProvisionalSynthesis.Should().BeTrue();
+        result.SpecialistReviews
+            .SelectMany(review => review.Findings)
+            .Should()
+            .NotContain(finding => finding.Conclusion == ReviewConclusion.Fail);
+    }
 }
