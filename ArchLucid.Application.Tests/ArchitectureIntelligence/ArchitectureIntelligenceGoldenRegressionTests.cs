@@ -48,5 +48,11 @@ public sealed class ArchitectureIntelligenceGoldenRegressionTests
             "golden planted-defect recall must meet the committed CI floor");
         result.PlantedDefectRecall.Should().BeGreaterThanOrEqualTo(
             ArchitectureIntelligenceGoldenRecallPolicy.GoldenIncompleteMinimumRecall);
+
+        result.FalsePositivesByDimension.Should().NotBeNull();
+        ArchitectureIntelligenceFalsePositiveBudgetPolicy.IsWithinGoldenBudget(
+            result.FalsePositivesByDimension,
+            result.FalsePositiveCount).Should().BeTrue(
+            "golden measured false positives must stay within per-dimension and total CI budgets");
     }
 }

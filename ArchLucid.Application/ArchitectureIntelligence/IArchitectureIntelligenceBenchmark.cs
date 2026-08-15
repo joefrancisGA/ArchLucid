@@ -17,6 +17,9 @@ public interface IArchitectureIntelligenceBenchmark
 
     IReadOnlyList<ExtractionFidelityScore> ScoreExtraction(IDifficultyBasedExtractionRouter router);
 
+    /// <summary>Scores held-out extraction microcases — never mixed into visible iteration scores.</summary>
+    IReadOnlyList<ExtractionFidelityScore> ScoreHeldOutExtraction(IDifficultyBasedExtractionRouter router);
+
     /// <summary>
     /// Applies a single-fact mutation description and returns whether specialist findings changed.
     /// </summary>

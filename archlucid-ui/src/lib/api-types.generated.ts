@@ -99297,6 +99297,9 @@ export interface components {
             };
             /** Format: int32 */
             falsePositiveCount?: number;
+            falsePositivesByDimension?: {
+                [key: string]: number;
+            };
             mutationChangedFindings?: boolean;
             notes?: null | string;
             passed?: boolean;

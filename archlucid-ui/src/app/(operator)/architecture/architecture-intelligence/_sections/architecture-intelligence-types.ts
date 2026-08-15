@@ -104,6 +104,7 @@ export type GoldenArchitectureTestResult = {
   plantedDefectsDetected?: string[];
   plantedDefectsMissed?: string[];
   falsePositiveCount: number;
+  falsePositivesByDimension?: Record<string, number>;
   categoryScores?: CategoryBenchmarkScore[];
   mutationChangedFindings?: boolean;
   reReviewTriggered?: boolean;

@@ -1973,7 +1973,7 @@ jobs:
         run: |
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj \
             -c Release --no-build \
-            --filter "FullyQualifiedName~ArchitectureIntelligenceGoldenRegression|FullyQualifiedName~ArchitectureIntelligenceBatch48"
+            --filter "FullyQualifiedName~ArchitectureIntelligenceGoldenRegression|FullyQualifiedName~ArchitectureIntelligenceBatch48|FullyQualifiedName~ArchitectureIntelligenceBatch49"
 
       - name: Setup Node.js (architecture lifecycle batch helpers)
         uses: actions/setup-node@v6

@@ -32,14 +32,14 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
                 CaseId = "holdout-rpo-backup-mismatch",
                 SourceText = "RPO is 15 minutes. Database backups run nightly only. No transaction log shipping.",
                 ExpectedElementKinds = [ArchitectureElementKind.RecoveryObjective, ArchitectureElementKind.Constraint],
-                ExpectedNames = ["RPO", "backup"]
+                ExpectedNames = ["Recovery objective", "backup"]
             },
             new ExtractionFidelityCase
             {
                 CaseId = "holdout-intentional-tradeoff",
                 SourceText = "We accept single-region deployment to reduce cost; regional outage risk is an approved trade-off.",
                 ExpectedElementKinds = [ArchitectureElementKind.TradeOff, ArchitectureElementKind.Decision],
-                ExpectedNames = ["trade-off", "single-region"]
+                ExpectedNames = ["trade-off", "Single-region"]
             }
         ];
     }
@@ -164,6 +164,13 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
 
         // Visible cases only — held-out cases must not drive iteration scores.
         return _extractionFidelityBenchmark.Score(router);
+    }
+
+    public IReadOnlyList<ExtractionFidelityScore> ScoreHeldOutExtraction(IDifficultyBasedExtractionRouter router)
+    {
+        ArgumentNullException.ThrowIfNull(router);
+
+        return _extractionFidelityBenchmark.ScoreCases(router, GetHeldOutMicrocases());
     }
 
     public bool MutationChangesFindings(

@@ -181,6 +181,42 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
                 "Contradiction marker detected."));
         }
 
+        if (sourceText.Contains("backup", StringComparison.OrdinalIgnoreCase)
+            && elements.All(element =>
+                !element.Name.Contains("backup", StringComparison.OrdinalIgnoreCase)))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Constraint,
+                "Database backup schedule",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Backup schedule mention detected."));
+        }
+
+        if (sourceText.Contains("trade-off", StringComparison.OrdinalIgnoreCase)
+            || sourceText.Contains("trade off", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.TradeOff,
+                "Approved trade-off",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Trade-off marker detected."));
+        }
+
+        if (sourceText.Contains("single-region", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Decision,
+                "Single-region deployment",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Single-region deployment decision detected."));
+        }
+
         if (elements.Count == 0)
         {
             elements.Add(CreateElement(

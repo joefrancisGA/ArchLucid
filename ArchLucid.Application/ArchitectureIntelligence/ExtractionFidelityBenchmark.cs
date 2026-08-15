@@ -52,11 +52,19 @@ public sealed class ExtractionFidelityBenchmark : IExtractionFidelityBenchmark
 
     public IReadOnlyList<ExtractionFidelityScore> Score(IDifficultyBasedExtractionRouter router)
     {
+        return ScoreCases(router, MicroCases);
+    }
+
+    public IReadOnlyList<ExtractionFidelityScore> ScoreCases(
+        IDifficultyBasedExtractionRouter router,
+        IReadOnlyList<ExtractionFidelityCase> cases)
+    {
         ArgumentNullException.ThrowIfNull(router);
+        ArgumentNullException.ThrowIfNull(cases);
 
         List<ExtractionFidelityScore> scores = [];
 
-        foreach (ExtractionFidelityCase microCase in MicroCases)
+        foreach (ExtractionFidelityCase microCase in cases)
         {
             IReadOnlyList<ArchitectureModelElement> extracted = router.Extract(
                 microCase.SourceText,

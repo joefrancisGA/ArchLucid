@@ -19,6 +19,15 @@ export function ArchitectureIntelligenceGoldenResults(props: ArchitectureIntelli
         Planted defect recall: {result.plantedDefectRecall.toFixed(2)} · False positives: {result.falsePositiveCount} ·
         Mutation changed findings: {result.mutationChangedFindings ? "Yes" : "No"}
       </p>
+      {(result.falsePositivesByDimension ?? null) &&
+      Object.keys(result.falsePositivesByDimension ?? {}).length > 0 ? (
+        <p
+          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="architecture-intelligence-false-positives-by-dimension"
+        >
+          False positives by dimension: {formatCountMap(result.falsePositivesByDimension ?? {})}
+        </p>
+      ) : null}
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-before-counts">
         Before counts: {formatCountMap(result.beforeCounts ?? {})}
       </p>
