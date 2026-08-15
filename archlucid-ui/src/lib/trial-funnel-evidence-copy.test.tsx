@@ -1,10 +1,8 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { TrialFunnelEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 import {
   TRIAL_FUNNEL_CANONICAL_PATH,
   TRIAL_FUNNEL_FOLLOW_UPS_TITLE,
@@ -14,11 +12,7 @@ import {
 
 describe("trial-funnel-evidence-copy", () => {
   it("wires exports into the Trial funnel evidence strip registry", () => {
-    const registryPath = path.join(
-      process.cwd(),
-      "src/components/evidence-orientation/registry/claim-and-sources-strips.tsx",
-    );
-    const registrySource = readFileSync(registryPath, "utf8");
+    const registrySource = readClaimAndSourcesRegistrySource();
 
     expect(registrySource).toContain("trial-funnel-evidence-copy");
     expect(registrySource).toContain("TrialFunnelEvidenceOrientationStrip");

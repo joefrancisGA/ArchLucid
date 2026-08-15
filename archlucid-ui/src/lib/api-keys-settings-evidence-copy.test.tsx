@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -11,14 +8,11 @@ import {
   API_KEYS_SETTINGS_SOURCES,
   API_KEYS_SETTINGS_SOURCES_INTRO,
 } from "@/lib/api-keys-settings-evidence-copy";
+import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("api-keys-settings-evidence-copy", () => {
   it("wires exports into the API keys settings evidence strip registry", () => {
-    const registryPath = path.join(
-      process.cwd(),
-      "src/components/evidence-orientation/registry/claim-and-sources-strips.tsx",
-    );
-    const registrySource = readFileSync(registryPath, "utf8");
+    const registrySource = readClaimAndSourcesRegistrySource();
 
     expect(registrySource).toContain("api-keys-settings-evidence-copy");
     expect(registrySource).toContain("ApiKeysSettingsEvidenceOrientationStrip");

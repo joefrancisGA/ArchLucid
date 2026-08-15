@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -11,14 +8,11 @@ import {
   RAG_HEALTH_SOURCES,
   RAG_HEALTH_SOURCES_INTRO,
 } from "@/lib/rag-health-evidence-copy";
+import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("rag-health-evidence-copy", () => {
   it("wires exports into the RAG corpus health evidence strip registry", () => {
-    const registryPath = path.join(
-      process.cwd(),
-      "src/components/evidence-orientation/registry/claim-and-sources-strips.tsx",
-    );
-    const registrySource = readFileSync(registryPath, "utf8");
+    const registrySource = readClaimAndSourcesRegistrySource();
 
     expect(registrySource).toContain("rag-health-evidence-copy");
     expect(registrySource).toContain("RagHealthEvidenceOrientationStrip");
