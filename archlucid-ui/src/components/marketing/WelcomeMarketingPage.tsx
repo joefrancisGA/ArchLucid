@@ -101,7 +101,7 @@ export function WelcomeMarketingPage(props: {
               Healthcare Claims sample review
             </Link>
             {" · "}
-            <Link className={MARKETING_SURFACES.inlineLink} href="/security-trust">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/assurance-status">
               Assurance status
             </Link>
           </p>

@@ -56,7 +56,7 @@ describe("EvidenceOrientationSourcesSection", () => {
         headingId="caiq-sig-response-help-sources-heading"
         title="Diligence artifact index"
         intro="Follow-ups."
-        links={[{ label: "Trust center", href: "/security-trust", when: "During vendor review" }]}
+        links={[{ label: "Trust center", href: "/assurance-status", when: "During vendor review" }]}
         layout="stacked"
       />,
     );

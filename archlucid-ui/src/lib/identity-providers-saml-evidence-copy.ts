@@ -17,5 +17,5 @@ export const IDENTITY_PROVIDERS_SAML_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Enterprise onboarding help", href: inAppHelpHref("enterprise-onboarding") },
   { label: "Role mapping", href: "/administration/identity-providers/role-mapping" },
   { label: "Identity diagnostics", href: "/administration/identity-providers/diagnostics" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

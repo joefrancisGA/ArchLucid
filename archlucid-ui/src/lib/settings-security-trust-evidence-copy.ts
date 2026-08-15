@@ -16,7 +16,7 @@ export const SETTINGS_SECURITY_TRUST_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to settings security-trust. */
 export const SETTINGS_SECURITY_TRUST_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Trust Center", href: "/trust" },
   { label: "Security and trust help", href: inAppHelpHref("security-trust") },
   { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },

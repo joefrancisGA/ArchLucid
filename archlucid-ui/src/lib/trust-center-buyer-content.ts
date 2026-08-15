@@ -86,7 +86,7 @@ export const TRUST_ASSURANCE_GLANCE_PANELS: readonly TrustAssuranceGlancePanel[]
       "Customer-specific evidence bundles when approved",
     ],
     actionLabel: "Assurance status",
-    actionHref: "/security-trust",
+    actionHref: "/assurance-status",
   },
   {
     id: "planned",
@@ -111,7 +111,7 @@ export const TRUST_CONTENT_CARDS: readonly TrustContentCard[] = [
       "Tenant isolation, scope-filtered APIs, and audit instrumentation for material changes. Control narratives deepen during diligence.",
     classification: "public",
     actionLabel: "Assurance status",
-    actionHref: "/security-trust",
+    actionHref: "/assurance-status",
     sectionId: "isolation-section",
   },
   {

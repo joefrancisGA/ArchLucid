@@ -84,7 +84,7 @@ const PROCUREMENT_FAQ_BANNED_HREF_FRAGMENTS = [
 const PROCUREMENT_FAQ_ALLOWED_HREF_PREFIXES = [
   "/help/",
   "/trust",
-  "/security-trust",
+  "/assurance-status",
   "/pricing",
   "/administration/",
   "mailto:",

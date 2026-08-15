@@ -126,7 +126,7 @@ export function MarketingResourcesMenu({ seeItLinked }: MarketingResourcesMenuPr
             Trust Center
           </Link>
           <Link
-            href="/security-trust"
+            href="/assurance-status"
             role="menuitem"
             className={cn(
               "block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900",

@@ -191,7 +191,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     answer:
       "Tenant isolation, scoped access, encryption in transit, and audit logging are core to the platform. See Security & assurance and the Trust Center for current control summaries and diligence materials.",
     relatedLinks: [
-      { label: "Security & assurance", href: "/security-trust" },
+      { label: "Assurance status", href: "/assurance-status" },
       { label: "Trust Center", href: "/trust" },
     ],
   },
@@ -250,7 +250,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     answer:
       "Security & assurance and the Trust Center describe current controls, data handling, and assurance posture. For procurement diligence (SOC 2 posture, penetration testing, subprocessors), open the procurement FAQ. Formal third-party attestations, where applicable, should be handled through the security review process.",
     relatedLinks: [
-      { label: "Security & assurance", href: "/security-trust" },
+      { label: "Assurance status", href: "/assurance-status" },
       { label: "Trust Center", href: "/trust" },
       { label: "Procurement FAQ", href: inAppHelpHref("procurement") },
     ],

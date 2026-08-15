@@ -25,5 +25,5 @@ export const PREFERENCES_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Sign-in methods", href: ACCOUNT_SECURITY_PATH },
   { label: "Users and roles", href: "/administration/users" },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

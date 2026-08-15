@@ -85,7 +85,7 @@ export const PRIVACY_POLICY_RELATED_DOCUMENTS: readonly PrivacyPolicyRelatedDocu
   {
     title: "Assurance status",
     purpose: "Assurance engagement and diligence materials",
-    href: "/security-trust",
+    href: "/assurance-status",
   },
 ] as const;
 
@@ -221,7 +221,7 @@ export function preparePrivacyPolicyMarkdownForPresentation(markdown: string): s
       "see the [Trust Center](/trust)",
     )
     .replace(/\[Trust Center\]\([^)]*trust-center\.md[^)]*\)/gi, "[Trust Center](/trust)")
-    .replace(/\[[^\]]*\]\([^)]*SECURITY\.md[^)]*\)/gi, "[Assurance status](/security-trust)")
+    .replace(/\[[^\]]*\]\([^)]*SECURITY\.md[^)]*\)/gi, "[Assurance status](/assurance-status)")
     .replace(
       /Prior versions will be available in the repository's git history\./gi,
       "Prior versions are retained for compliance review.",

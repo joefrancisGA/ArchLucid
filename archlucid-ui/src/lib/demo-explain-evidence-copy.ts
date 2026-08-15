@@ -18,5 +18,5 @@ export const DEMO_EXPLAIN_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Evidence trail help", href: "/help/evidence-trail" },
   { label: "Why ArchLucid", href: "/why-archlucid" },
   { label: "See it in 30 seconds", href: "/see-it" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

@@ -18,6 +18,6 @@ export const SETTINGS_USERS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Users and roles help", href: inAppHelpHref("users-and-roles") },
   { label: "SSO and identity", href: "/administration/identity-providers" },
   { label: "Invite a reviewer", href: `${SETTINGS_USERS_PATH}/invite-reviewer` },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

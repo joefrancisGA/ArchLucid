@@ -1144,7 +1144,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                     </a>
                     <a
                       class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                      href="/security-trust"
+                      href="/assurance-status"
                     >
                       Assurance status
                     </a>
@@ -1510,7 +1510,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         <li>
           <a
             class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-            href="/security-trust"
+            href="/assurance-status"
           >
             Assurance status
           </a>

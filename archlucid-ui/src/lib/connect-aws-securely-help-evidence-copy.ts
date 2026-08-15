@@ -24,7 +24,7 @@ export const CONNECT_AWS_SECURELY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },
   { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure") },
   { label: "Connect GCP securely", href: inAppHelpHref("cloud-connections-gcp") },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;
 
 export { AWS_CLOUD_CONNECTION_BANNED_COPY as CONNECT_AWS_SECURELY_BANNED_COPY } from "@/lib/aws-cloud-connection-copy";

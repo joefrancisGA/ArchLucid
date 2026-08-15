@@ -19,7 +19,7 @@ export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
   ],
   [
     { label: "Data handling and tenant isolation", href: "/help/data-handling" },
-    { label: "Assurance status", href: "/security-trust" },
+    { label: "Assurance status", href: "/assurance-status" },
   ],
   [
     { label: "Authentication and sign-in", href: "/help/authentication-sign-in" },

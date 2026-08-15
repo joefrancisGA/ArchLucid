@@ -28,7 +28,7 @@ export const GETTING_STARTED_HELP_SOURCES: readonly GettingStartedHelpSourceLink
   { label: "Start a review", href: "/architecture/reviews/new" },
   { label: "Choose your next step", href: inAppHelpHref("choose-your-next-step") },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },
-  { label: "Security & Trust", href: "/security-trust" },
+  { label: "Security & Trust", href: "/assurance-status" },
 ] as const;
 
 export const GETTING_STARTED_HELP_PATH = "/help/getting-started" as const;

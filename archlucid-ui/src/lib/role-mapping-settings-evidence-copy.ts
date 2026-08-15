@@ -17,5 +17,5 @@ export const ROLE_MAPPING_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "SSO and identity", href: "/administration/identity-providers" },
   { label: "Users and roles", href: "/administration/users" },
   { label: "Identity diagnostics", href: "/administration/identity-providers/diagnostics" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

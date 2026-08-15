@@ -11,6 +11,17 @@ describe("MarketingSecurityTrustView", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Assurance status" })).toBeInTheDocument();
   });
 
+  it("renders skip link and hero metadata", () => {
+    render(<MarketingSecurityTrustView lastReviewedUtc="2026-08-15T12:00:00.000Z" />);
+
+    expect(screen.getByRole("link", { name: /Skip to assurance status content/i })).toHaveAttribute(
+      "href",
+      "#assurance-status-primary-content",
+    );
+    expect(screen.getByTestId("assurance-status-hero-meta")).toHaveTextContent("Last reviewed");
+    expect(screen.getByTestId("assurance-status-hero-meta")).toHaveTextContent("Evidence pack version");
+  });
+
   it("renders all five engagement rows from the content lib", () => {
     render(<MarketingSecurityTrustView />);
 
@@ -55,12 +66,16 @@ describe("MarketingSecurityTrustView", () => {
     expect(text).not.toMatch(/At a glance/i);
   });
 
-  it("surfaces public, NDA, and planned status labels with text badges", () => {
+  it("does not render duplicate summary or evidence-group sections", () => {
     render(<MarketingSecurityTrustView />);
 
-    expect(screen.getByTestId("security-trust-summary-public-evidence")).toHaveTextContent("Available now");
-    expect(screen.getByTestId("security-trust-summary-nda-materials")).toHaveTextContent("Available under NDA");
-    expect(screen.getByTestId("security-trust-summary-next-cycle")).toHaveTextContent("Planned");
+    expect(screen.queryByTestId("security-trust-summary-row")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("security-trust-evidence-group-public")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "What you can review today" })).not.toBeInTheDocument();
+  });
+
+  it("surfaces maturity and access status tags on engagement cards", () => {
+    render(<MarketingSecurityTrustView />);
 
     const penTest = screen.getByTestId("assurance-row-pen-test-third-party-planned");
     expect(within(penTest).getByTestId("assurance-maturity-badge")).toHaveTextContent("Planned");
@@ -69,6 +84,13 @@ describe("MarketingSecurityTrustView", () => {
     const soc2 = screen.getByTestId("assurance-row-owner-security-self-assessment-2026");
     expect(within(soc2).getByTestId("assurance-maturity-badge")).toHaveTextContent("Available now");
     expect(within(soc2).getByTestId("assurance-access-badge")).toHaveTextContent("Public");
+  });
+
+  it("labels engagement timing as review cadence", () => {
+    render(<MarketingSecurityTrustView />);
+
+    expect(screen.getAllByText(/Review cadence:/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Next milestone:/i)).not.toBeInTheDocument();
   });
 
   it("renders hero actions and primary diligence CTAs", () => {
@@ -92,6 +114,13 @@ describe("MarketingSecurityTrustView", () => {
     );
   });
 
+  it("renders demoted vocabulary disclosure and revision history", () => {
+    render(<MarketingSecurityTrustView />);
+
+    expect(screen.getByTestId("assurance-status-vocabulary-disclosure")).toBeInTheDocument();
+    expect(screen.getByTestId("trust-center-revision-history")).toBeInTheDocument();
+  });
+
   it("uses semantic heading order", () => {
     render(<MarketingSecurityTrustView />);
 
@@ -100,10 +129,9 @@ describe("MarketingSecurityTrustView", () => {
   });
 
   it("renders desktop assurance grids by maturity tier", () => {
-    const { container } = render(<MarketingSecurityTrustView />);
+    render(<MarketingSecurityTrustView />);
 
     expect(screen.getByTestId("security-trust-assurance-grid-available_now")).toHaveClass("lg:grid-cols-2");
-    expect(container.querySelector('[data-testid="security-trust-summary-row"] .lg\\:grid-cols-3')).not.toBeNull();
   });
 
   it("does not render a duplicate marketing navigation header", () => {

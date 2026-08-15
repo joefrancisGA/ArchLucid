@@ -12,7 +12,7 @@ export const TRUST_CENTER_SOURCES_INTRO =
 
 /** Marketing Sources — no self-href to `/trust`. */
 export const TRUST_CENTER_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Product FAQ", href: "/faq" },
   { label: "Pricing", href: "/pricing" },
   { label: "Privacy policy", href: "/privacy" },

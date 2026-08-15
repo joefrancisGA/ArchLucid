@@ -15,6 +15,6 @@ export const QUICK_SCAN_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
   { label: "Product FAQ", href: "/faq" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Data handling help", href: inAppHelpHref("data-handling") },
 ] as const;

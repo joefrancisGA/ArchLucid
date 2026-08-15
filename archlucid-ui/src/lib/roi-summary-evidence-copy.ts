@@ -16,5 +16,5 @@ export const ROI_SUMMARY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Sponsor dashboard", href: "/architecture/sponsor-dashboard" },
   { label: "Sponsor report", href: "/insights/sponsor-report" },
   { label: "ROI methodology help", href: inAppHelpHref("sponsor-report") },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

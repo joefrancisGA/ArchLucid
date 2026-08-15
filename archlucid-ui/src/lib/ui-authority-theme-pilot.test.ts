@@ -10,7 +10,7 @@ describe("ui-authority-theme-pilot", () => {
     expect(isUiAuthorityThemePilotRoute("/architecture/sponsor-dashboard")).toBe(true);
     expect(isUiAuthorityThemePilotRoute("/insights/sponsor-report")).toBe(true);
     expect(isUiAuthorityThemePilotRoute("/governance/sealed-records/abc")).toBe(true);
-    expect(isUiAuthorityThemePilotRoute("/security-trust")).toBe(true);
+    expect(isUiAuthorityThemePilotRoute("/assurance-status")).toBe(true);
     expect(isUiAuthorityThemePilotRoute("/administration/security-trust")).toBe(true);
     expect(isUiAuthorityThemePilotRoute("/architecture/reviews")).toBe(false);
   });

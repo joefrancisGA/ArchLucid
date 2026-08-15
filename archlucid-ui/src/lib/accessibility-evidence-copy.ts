@@ -12,7 +12,7 @@ export const ACCESSIBILITY_SOURCES_INTRO =
 
 /** Marketing Sources — no self-href to /accessibility. */
 export const ACCESSIBILITY_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Trust Center", href: "/trust" },
   { label: "Product FAQ", href: "/faq" },
   { label: "Data handling", href: inAppHelpHref("data-handling") },

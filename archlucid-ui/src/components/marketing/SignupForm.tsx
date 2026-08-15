@@ -365,7 +365,7 @@ export function SignupForm() {
             and{" "}
             <Link
               className="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-              href="/security-trust"
+              href="/assurance-status"
             >
               assurance status
             </Link>

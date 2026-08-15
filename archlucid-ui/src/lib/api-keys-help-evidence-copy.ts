@@ -17,5 +17,5 @@ export const API_KEYS_HELP_SOURCES_INTRO =
 /** Help Sources — excludes action-panel destinations (Users and roles, CLI usage help, Audit). */
 export const API_KEYS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Users and roles help", href: inAppHelpHref("users-and-roles") },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

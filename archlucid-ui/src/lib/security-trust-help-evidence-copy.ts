@@ -27,7 +27,7 @@ export const SECURITY_TRUST_HELP_PRIMARY_ACTION = {
 
 /** Operator Sources — no self-href to `/help/security-trust`. */
 export const SECURITY_TRUST_HELP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Trust Center", href: "/trust" },
   { label: "Data handling & isolation", href: inAppHelpHref("data-handling") },
   { label: "SOC 2 self-assessment", href: inAppHelpHref("soc2-self-assessment") },

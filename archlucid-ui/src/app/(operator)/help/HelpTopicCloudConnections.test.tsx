@@ -71,7 +71,7 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
 
     expect(within(orientation).getByRole("link", { name: "Assurance status" })).toHaveAttribute(
       "href",
-      "/security-trust",
+      "/assurance-status",
     );
     expect(within(orientation).getByRole("link", { name: "Cloud connections hub" })).toHaveAttribute(
       "href",

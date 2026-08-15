@@ -38,6 +38,11 @@ export const BOOKMARK_PERMANENT_REDIRECTS: Redirect[] = [
     destination: "/governance/sealed-records/:path*",
     permanent: true,
   },
+  {
+    source: "/security-trust",
+    destination: "/assurance-status",
+    permanent: true,
+  },
 ];
 
 export const BOOKMARK_PERMANENT_REDIRECT_SOURCES: readonly string[] = BOOKMARK_PERMANENT_REDIRECTS.map(

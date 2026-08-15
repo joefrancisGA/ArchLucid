@@ -18,5 +18,5 @@ export const IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES: readonly EvidenceSourceLink
     { label: "Enterprise onboarding help", href: inAppHelpHref("enterprise-onboarding") },
     { label: "OIDC/JWT", href: "/administration/identity-providers/oidc" },
     { label: "Role mapping", href: "/administration/identity-providers/role-mapping" },
-    { label: "Assurance status", href: "/security-trust" },
+    { label: "Assurance status", href: "/assurance-status" },
   ] as const;

@@ -33,7 +33,7 @@ describe("MarketingTrustCenterBuyerBody", () => {
     expect(within(secondary).getByRole("link", { name: /Privacy policy/i })).toHaveAttribute("href", "/privacy");
     expect(within(secondary).getByRole("link", { name: /Assurance status/i })).toHaveAttribute(
       "href",
-      "/security-trust",
+      "/assurance-status",
     );
   });
 

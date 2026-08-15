@@ -22,5 +22,5 @@ export const CONNECT_GCP_SECURELY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "GCP connection settings", href: CONNECT_GCP_SECURELY_CONFIGURE_HREF },
   { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure") },
   { label: "Connect AWS securely", href: inAppHelpHref("cloud-connections-aws") },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

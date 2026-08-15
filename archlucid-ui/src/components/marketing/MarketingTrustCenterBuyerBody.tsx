@@ -1,4 +1,4 @@
-﻿import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -133,7 +133,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
             <Link href="/privacy" className={MARKETING_SURFACES.inlineLink}>
               Privacy policy
             </Link>
-            <Link href="/security-trust" className={MARKETING_SURFACES.inlineLink}>
+            <Link href="/assurance-status" className={MARKETING_SURFACES.inlineLink}>
               Assurance status
             </Link>
           </nav>
@@ -198,7 +198,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         <p className={cn("m-0 mt-2 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           CAIQ, SOC 2 self-assessment, SIG Core, and owner-conducted pen-test materials are included in the
           anonymous evidence pack ZIP above. Individual help topics may require sign-in; the ZIP does not.
-          Independent third-party penetration testing is planned, not yet scheduled — not implied by these artifacts.
+          Independent third-party penetration testing is planned, not yet scheduled � not implied by these artifacts.
         </p>
         <ul className="m-0 mt-5 grid list-none gap-4 p-0 md:grid-cols-2">
           {TRUST_PUBLIC_DOWNLOAD_ARTIFACTS.map((artifact) => (

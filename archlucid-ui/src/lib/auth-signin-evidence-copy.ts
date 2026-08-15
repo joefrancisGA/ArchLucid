@@ -11,7 +11,7 @@ export const AUTH_SIGNIN_SOURCES_INTRO =
 export const AUTH_SIGNIN_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Product FAQ", href: "/faq" },
   { label: "Privacy", href: "/privacy" },
 ] as const;

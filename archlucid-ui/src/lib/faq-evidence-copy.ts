@@ -14,7 +14,7 @@ export const FAQ_SOURCES_INTRO =
 /** Marketing Sources — no self-href to /faq. */
 export const FAQ_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Pricing", href: "/pricing" },
-  { label: "Security & assurance", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Trust Center", href: "/trust" },
   { label: "Procurement FAQ", href: inAppHelpHref("procurement") },
   { label: "Start evaluation", href: "/signup" },

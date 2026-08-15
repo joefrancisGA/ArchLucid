@@ -33,7 +33,7 @@ export const WORKSPACE_SETTINGS_HELP_SOURCES: readonly EvidenceOrientationLink[]
   },
   {
     label: "Assurance status",
-    href: "/security-trust",
+    href: "/assurance-status",
     when: "Open assurance status when tenant defaults turn into procurement diligence questions",
   },
 ] as const;

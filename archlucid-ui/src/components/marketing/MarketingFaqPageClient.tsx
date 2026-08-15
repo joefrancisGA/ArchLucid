@@ -194,7 +194,7 @@ export function MarketingFaqPageClient(): React.JSX.Element {
             <Link className={MARKETING_SURFACES.inlineLink} href="/pricing">
               {MARKETING_FAQ_VIEW_PRICING_LABEL}
             </Link>
-            <Link className={MARKETING_SURFACES.inlineLink} href="/security-trust">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/assurance-status">
               {MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL}
             </Link>
           </div>

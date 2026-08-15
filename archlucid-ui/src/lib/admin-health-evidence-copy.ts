@@ -18,5 +18,5 @@ export const ADMIN_HEALTH_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Configuration summary", href: "/internal/configuration" },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Troubleshooting", href: inAppHelpHref("troubleshooting") },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
 ] as const;

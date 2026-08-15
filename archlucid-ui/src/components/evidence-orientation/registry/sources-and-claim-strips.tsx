@@ -246,11 +246,13 @@ export function QuickScanEvidenceOrientationStrip({
 export function SecurityTrustEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
-      slug="security-trust"
+      slug="assurance-status"
+      part="sources"
+      margin="mt-8"
       sourcesIntro={SECURITY_TRUST_SOURCES_INTRO}
       sources={SECURITY_TRUST_SOURCES}
-      claimHeading="Engagement metadata only"
-      claim={SECURITY_TRUST_CLAIM_DISCIPLINE}
+      claimHeading=""
+      claim=""
     />
   );
 }

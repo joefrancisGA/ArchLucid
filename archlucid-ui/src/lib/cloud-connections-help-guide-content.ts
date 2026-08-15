@@ -120,13 +120,13 @@ export const CLOUD_CONNECTIONS_HELP_FOLLOW_UP_LINKS: readonly CloudConnectionsHe
     href: row.guideHref,
     kind: "help" as const,
   })),
-  { label: "Assurance status", href: "/security-trust", kind: "product" },
+  { label: "Assurance status", href: "/assurance-status", kind: "product" },
 ];
 
 /** Operator Sources — no self-href to `/help/cloud-connections`. */
 export const CLOUD_CONNECTIONS_HELP_SOURCES: readonly CloudConnectionsHelpFollowUpLink[] = [
   { label: "Cloud connections hub", href: "/integrations/cloud-connections", kind: "product" },
-  { label: "Assurance status", href: "/security-trust", kind: "product" },
+  { label: "Assurance status", href: "/assurance-status", kind: "product" },
   { label: "Getting started", href: inAppHelpHref("getting-started"), kind: "help" },
   {
     label: "How ArchLucid works",

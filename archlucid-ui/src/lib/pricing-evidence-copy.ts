@@ -10,7 +10,7 @@ export const PRICING_SOURCES_INTRO =
 /** Marketing Sources — no self-href to /pricing. */
 export const PRICING_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Product FAQ", href: "/faq" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Trust Center", href: "/trust" },
   { label: "Billing and plans help", href: inAppHelpHref("billing-and-plans") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },

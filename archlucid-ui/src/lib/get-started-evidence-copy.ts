@@ -14,7 +14,7 @@ export const GET_STARTED_SOURCES_INTRO =
 export const GET_STARTED_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start evaluation", href: "/signup" },
   { label: "Product FAQ", href: "/faq" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Trust Center", href: "/trust" },
   { label: "Getting started help", href: inAppHelpHref("getting-started") },
 ] as const;

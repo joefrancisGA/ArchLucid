@@ -13,7 +13,7 @@ export const ACCESS_DENIED_SOURCES_INTRO =
 export const ACCESS_DENIED_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Sign in", href: "/auth/signin" },
   { label: "Start evaluation", href: "/signup" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Product FAQ", href: "/faq" },
   { label: "Privacy", href: "/privacy" },
 ] as const;

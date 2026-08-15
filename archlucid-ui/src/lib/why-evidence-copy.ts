@@ -14,6 +14,6 @@ export const WHY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "See a sample review", href: "/see-it" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Trust Center", href: "/trust" },
 ] as const;

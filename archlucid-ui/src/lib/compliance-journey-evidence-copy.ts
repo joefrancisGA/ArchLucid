@@ -12,7 +12,7 @@ export const COMPLIANCE_JOURNEY_SOURCES_INTRO =
 /** Marketing Sources - no self-href to `/compliance-journey`. */
 export const COMPLIANCE_JOURNEY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Trust Center", href: "/trust" },
-  { label: "Assurance status", href: "/security-trust" },
+  { label: "Assurance status", href: "/assurance-status" },
   { label: "Start evaluation", href: "/signup" },
   { label: "Get started", href: "/get-started" },
   { label: "Product FAQ", href: "/faq" },

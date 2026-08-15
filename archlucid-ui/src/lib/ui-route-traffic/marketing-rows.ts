@@ -101,9 +101,9 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   /** Traffic workbook row ID for Security & Trust marketing page. Owner backlog shorthand: SEC. */
   {
     rowId: "SEC",
-    path: "/security-trust",
+    path: "/assurance-status",
     section: "Marketing",
-    note: "Assurance status (Marketing) - MarketingSecurityTrustView with SecurityTrustEvidenceOrientationStrip (evaluation Sources + claim-discipline: engagement metadata only; not diligence Sources trail / CPA SOC 2 / third-party pen-test), assurance ladder + public/NDA CTAs. Not an operator PageContextualHelp surface. Score 58/100 (2026-08-08) - marketing assurance ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Assurance status (Marketing) - MarketingSecurityTrustView on /assurance-status with skip link, hero last-reviewed meta, assurance ladder primary IA, Related trust surfaces disclosure, revision history, StatusTag engagement cards, Sources-only SecurityTrustEvidenceOrientationStrip footer, and permanent redirect from /security-trust. Not an operator PageContextualHelp surface. Score 58/100 Evidence (marketing assurance ceiling); UX 78/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["MarketingSecurityTrustView", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for see-it marketing page. Owner backlog shorthand: SEE. */
