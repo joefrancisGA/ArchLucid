@@ -57,6 +57,7 @@ public sealed class ItsmIntegrationHealthController(
     }
 
     /// <summary>Issues lightweight read-only pings to configured Jira / ServiceNow endpoints.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("probe")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [MutatingAuditExcluded("Audit: read-only vendor connectivity probe; no persisted state change.")]
