@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  areFinishSetupRequiredStepsComplete,
   countFinishSetupReadySteps,
   FINISH_SETUP_SYSTEM_HEALTH_PATH,
   FINISH_SETUP_WIZARD_STEPS,
@@ -72,5 +73,58 @@ describe("finish-setup-wizard-steps", () => {
         managedSaas,
       ),
     ).toEqual({ ready: 1, total: 2 });
+  });
+
+  it("does not require identity for required-step completion", () => {
+    const managedSaas = { selfHosted: false } as const;
+    const selfHosted = { selfHosted: true } as const;
+
+    expect(
+      areFinishSetupRequiredStepsComplete(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: true,
+          identityConfigured: false,
+        },
+        managedSaas,
+      ),
+    ).toBe(true);
+
+    expect(
+      areFinishSetupRequiredStepsComplete(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: false,
+          identityConfigured: true,
+        },
+        managedSaas,
+      ),
+    ).toBe(false);
+
+    expect(
+      areFinishSetupRequiredStepsComplete(
+        {
+          healthReady: true,
+          healthLoadFailed: false,
+          principalAdmin: true,
+          identityConfigured: false,
+        },
+        selfHosted,
+      ),
+    ).toBe(true);
+
+    expect(
+      areFinishSetupRequiredStepsComplete(
+        {
+          healthReady: false,
+          healthLoadFailed: false,
+          principalAdmin: true,
+          identityConfigured: true,
+        },
+        selfHosted,
+      ),
+    ).toBe(false);
   });
 });

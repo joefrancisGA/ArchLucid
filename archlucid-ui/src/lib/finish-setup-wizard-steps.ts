@@ -6,6 +6,7 @@ import { isSelfHostedDeploymentEnv } from "@/lib/finish-setup-deployment";
 export const FINISH_SETUP_SYSTEM_HEALTH_PATH = ADMINISTRATION_SYSTEM_HEALTH_PATH;
 
 const FINISH_SETUP_HEALTH_STEP_ID = "health";
+const FINISH_SETUP_OPTIONAL_STEP_IDS = new Set<string>(["identity"]);
 
 export type FinishSetupWizardContext = {
   readonly healthReady: boolean;
@@ -90,5 +91,7 @@ export function areFinishSetupRequiredStepsComplete(
   ctx: FinishSetupWizardContext,
   deployment: FinishSetupWizardDeploymentOptions = resolveFinishSetupWizardDeploymentOptions(),
 ): boolean {
-  return resolveFinishSetupWizardSteps(deployment).every((step) => step.isDone(ctx));
+  return resolveFinishSetupWizardSteps(deployment)
+    .filter((step) => !FINISH_SETUP_OPTIONAL_STEP_IDS.has(step.id))
+    .every((step) => step.isDone(ctx));
 }
