@@ -48,7 +48,7 @@ export const EVALUATION_SOURCES_TITLE_SURFACES: readonly EvaluationSourcesSurfac
   { slug: "pricing", kind: "marketing", module: BESPOKE_STRIP_REGISTRY_MODULE },
   { slug: "privacy", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "quick-scan", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
-  { slug: "security-trust", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "assurance-status", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "see-it", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "showcase", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "signup-verify", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
