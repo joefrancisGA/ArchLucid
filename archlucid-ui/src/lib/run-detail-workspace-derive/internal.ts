@@ -6,11 +6,11 @@ import { PIPELINE_STATUS_LABELS } from "@/lib/pipeline-status-labels";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { shouldShowRunDetailGovernanceCta } from "@/lib/runs/run-detail-governance-cta-visibility";
 import {
-  humanReviewStatusDisplay,
   severityBadgeLabel,
   sortQuickDecisionFindings,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { evidenceAbsenceFindingLabel } from "@/lib/evidence-absence-finding-copy";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
@@ -66,9 +66,7 @@ export function runAnalysisComplete(run: RunDetail["run"]): boolean {
 
 
 export function isFindingResolved(finding: QuickDecisionFinding): boolean {
-  const status = humanReviewStatusDisplay(finding.humanReviewStatus);
-
-  return status?.label === "Approved" || status?.label === "Overridden";
+  return isReviewFindingDispositionClosed(finding);
 }
 
 

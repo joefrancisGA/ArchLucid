@@ -16,6 +16,7 @@ import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natu
 import {
   DEFAULT_FINDING_JOB_VIEW,
   filterReviewFindingsForJobView,
+  isReviewFindingDispositionClosed,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
 import {
@@ -233,15 +234,15 @@ export function filterFindingsForToolbar(
 
     const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
 
-    if (filter === "awaiting-decision" && reviewStatus?.label !== "Pending review") {
+    if (filter === "awaiting-decision" && (reviewStatus?.label !== "Pending review" || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
-    if (filter === "resolved" && reviewStatus?.label !== "Approved" && reviewStatus?.label !== "Overridden") {
+    if (filter === "resolved" && !isReviewFindingDispositionClosed(finding)) {
       return false;
     }
 
-    if (filter === "unresolved" && (reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden")) {
+    if (filter === "unresolved" && isReviewFindingDispositionClosed(finding)) {
       return false;
     }
 
@@ -318,7 +319,7 @@ export function deriveFindingsToolbarStatusCounts(findings: readonly QuickDecisi
 
     const status = humanReviewStatusDisplay(finding.humanReviewStatus);
 
-    if (status?.label === "Approved" || status?.label === "Overridden") {
+    if (isReviewFindingDispositionClosed(finding)) {
       resolved += 1;
     } else if (status?.label === "Pending review") {
       awaitingDecision += 1;
