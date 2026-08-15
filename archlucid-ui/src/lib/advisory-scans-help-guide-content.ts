@@ -1,4 +1,34 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import {
+  ADVISORY_SCANS_BASELINE_REVIEW_HELPER,
+  ADVISORY_SCANS_CARD_DISPOSITION_LABEL,
+  ADVISORY_SCANS_CARD_EVIDENCE_LABEL,
+  ADVISORY_SCANS_CARD_IMPACT_LABEL,
+  ADVISORY_SCANS_CARD_OWNER_LABEL,
+  ADVISORY_SCANS_CARD_RELATED_FINDING_LABEL,
+  ADVISORY_SCANS_CARD_SUGGESTED_ACTION_LABEL,
+  ADVISORY_SCANS_DISPOSITION_ACCEPT,
+  ADVISORY_SCANS_DISPOSITION_ACCEPT_HINT,
+  ADVISORY_SCANS_DISPOSITION_DEFER,
+  ADVISORY_SCANS_DISPOSITION_DEFER_HINT,
+  ADVISORY_SCANS_DISPOSITION_DIALOG_DESCRIPTION,
+  ADVISORY_SCANS_DISPOSITION_IMPLEMENTED,
+  ADVISORY_SCANS_DISPOSITION_IMPLEMENTED_HINT,
+  ADVISORY_SCANS_DISPOSITION_REJECT,
+  ADVISORY_SCANS_DISPOSITION_REJECT_HINT,
+  ADVISORY_SCANS_HOW_IT_WORKS_BODY,
+  ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY,
+  ADVISORY_SCANS_SAMPLE_ANCHOR_HREF,
+  ADVISORY_SCANS_SUMMARY_ACCEPTED,
+  ADVISORY_SCANS_SUMMARY_COMPARED_TO,
+  ADVISORY_SCANS_SUMMARY_DEFERRED,
+  ADVISORY_SCANS_SUMMARY_HIGH_IMPACT,
+  ADVISORY_SCANS_SUMMARY_IMPLEMENTED,
+  ADVISORY_SCANS_SUMMARY_LAST_SCAN,
+  ADVISORY_SCANS_SUMMARY_RECOMMENDATIONS_GENERATED,
+  ADVISORY_SCANS_SUMMARY_REJECTED,
+  ADVISORY_SCANS_SUMMARY_SECTION_TITLE,
+} from "@/lib/advisory-copy";
 import { ADVISORY_SCANS_CANONICAL_PATH } from "@/lib/advisory-scans-evidence-copy";
 import { ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/advisory-scans-help-evidence-copy";
 import { ADVISORY_SCANS_HELP_TOPIC_LABEL } from "@/lib/advisory-scans-help-evidence-copy";
@@ -15,7 +45,7 @@ export const ADVISORY_SCANS_HELP_PAGE_SUBTITLE =
   "Generate prioritized follow-up recommendations from finalized architecture reviews.";
 
 export const ADVISORY_SCANS_HELP_OVERVIEW =
-  "Advisory scans prioritize follow-up work after a review is finalized. Scan output is recommendations — not a sealed diligence package.";
+  "Each recommendation includes impact level, evidence basis, suggested action, and governance disposition status so owners can triage follow-up in one place.";
 
 /** Hub screen-reader hint on Schedules tab when the caller cannot mutate advisory schedules. */
 export const ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION =
@@ -32,6 +62,20 @@ export const ADVISORY_SCANS_HELP_START_HERE_ROLE_LINK = {
 
 export const ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE = "Start here";
 
+export const ADVISORY_SCANS_HELP_START_HERE_HEADING_ID = "start-here" as const;
+
+export const ADVISORY_SCANS_HELP_BEFORE_YOU_START_TITLE = "Before you start";
+
+export const ADVISORY_SCANS_HELP_BEFORE_YOU_START_HEADING_ID = "before-you-start" as const;
+
+export const ADVISORY_SCANS_HELP_BEFORE_YOU_START_BODY =
+  "Advisory scans require at least one finalized architecture review in scope. Optionally choose a baseline review for comparison so the scan highlights drift since an earlier package.";
+
+export const ADVISORY_SCANS_HELP_SAMPLE_RECOMMENDATION_LINK = {
+  label: "View sample advisory recommendation",
+  href: `${ADVISORY_SCANS_CANONICAL_PATH}${ADVISORY_SCANS_SAMPLE_ANCHOR_HREF}`,
+} as const;
+
 export const ADVISORY_SCANS_HELP_FINALIZE_REVIEW_LINK = {
   label: "Finalize an architecture review",
   href: "/architecture/reviews",
@@ -47,24 +91,129 @@ export type AdvisoryScansHelpOutputField = {
   readonly detail: string;
 };
 
+/** Card field labels — imported from advisory-copy so help stays aligned with the hub card. */
+export const ADVISORY_SCANS_HELP_CARD_FIELD_LABELS = [
+  ADVISORY_SCANS_CARD_IMPACT_LABEL,
+  ADVISORY_SCANS_CARD_RELATED_FINDING_LABEL,
+  ADVISORY_SCANS_CARD_EVIDENCE_LABEL,
+  ADVISORY_SCANS_CARD_SUGGESTED_ACTION_LABEL,
+  ADVISORY_SCANS_CARD_OWNER_LABEL,
+  ADVISORY_SCANS_CARD_DISPOSITION_LABEL,
+] as const;
+
 export const ADVISORY_SCANS_HELP_OUTPUT_FIELDS: readonly AdvisoryScansHelpOutputField[] = [
   {
-    label: "Priority",
-    detail: "Numeric priority score that ranks follow-up recommendations for triage.",
+    label: ADVISORY_SCANS_CARD_IMPACT_LABEL,
+    detail: "Impact or urgency label that ranks the recommendation for triage.",
   },
   {
-    label: "Linked finding",
-    detail: "Governance finding opened when the scan surfaces a material architecture concern.",
+    label: ADVISORY_SCANS_CARD_RELATED_FINDING_LABEL,
+    detail: "Governance finding or risk the recommendation addresses.",
   },
   {
-    label: "Source review",
-    detail: "Finalized architecture review that generated the recommendation.",
+    label: ADVISORY_SCANS_CARD_EVIDENCE_LABEL,
+    detail: "Evidence basis and rationale cites supporting the recommendation.",
   },
   {
-    label: "Evidence trail pointer",
-    detail: "Link into the evidence trail when a recommendation needs governed cites.",
+    label: ADVISORY_SCANS_CARD_SUGGESTED_ACTION_LABEL,
+    detail: "Concrete follow-up action the scan suggests for owners.",
+  },
+  {
+    label: ADVISORY_SCANS_CARD_OWNER_LABEL,
+    detail: "Owner or role accountable for disposition and follow-up.",
+  },
+  {
+    label: ADVISORY_SCANS_CARD_DISPOSITION_LABEL,
+    detail: "Recorded Accept, Defer, Reject, or Mark implemented status for governance.",
   },
 ] as const;
+
+export type AdvisoryScansHelpSummaryMetric = {
+  readonly label: string;
+  readonly detail: string;
+};
+
+/** Scan summary metric labels — imported from advisory-copy for hub parity. */
+export const ADVISORY_SCANS_HELP_SUMMARY_METRIC_LABELS = [
+  ADVISORY_SCANS_SUMMARY_RECOMMENDATIONS_GENERATED,
+  ADVISORY_SCANS_SUMMARY_HIGH_IMPACT,
+  ADVISORY_SCANS_SUMMARY_ACCEPTED,
+  ADVISORY_SCANS_SUMMARY_DEFERRED,
+  ADVISORY_SCANS_SUMMARY_REJECTED,
+  ADVISORY_SCANS_SUMMARY_IMPLEMENTED,
+  ADVISORY_SCANS_SUMMARY_LAST_SCAN,
+  ADVISORY_SCANS_SUMMARY_COMPARED_TO,
+] as const;
+
+export const ADVISORY_SCANS_HELP_SUMMARY_METRICS: readonly AdvisoryScansHelpSummaryMetric[] = [
+  {
+    label: ADVISORY_SCANS_SUMMARY_RECOMMENDATIONS_GENERATED,
+    detail: "Count of recommendations produced by the latest scan in scope.",
+  },
+  {
+    label: ADVISORY_SCANS_SUMMARY_HIGH_IMPACT,
+    detail: "Recommendations flagged as high impact for priority triage.",
+  },
+  {
+    label: ADVISORY_SCANS_SUMMARY_ACCEPTED,
+    detail: "Recommendations accepted into governance follow-up.",
+  },
+  {
+    label: ADVISORY_SCANS_SUMMARY_DEFERRED,
+    detail: "Recommendations deferred for later review.",
+  },
+  {
+    label: ADVISORY_SCANS_SUMMARY_REJECTED,
+    detail: "Recommendations rejected with recorded rationale.",
+  },
+  {
+    label: ADVISORY_SCANS_SUMMARY_IMPLEMENTED,
+    detail: "Recommendations marked implemented after completion.",
+  },
+  {
+    label: ADVISORY_SCANS_SUMMARY_LAST_SCAN,
+    detail: "Timestamp of the most recent scan load for the selected review scope.",
+  },
+  {
+    label: ADVISORY_SCANS_SUMMARY_COMPARED_TO,
+    detail: "Baseline review used when comparison signals were included in the scan.",
+  },
+] as const;
+
+export const ADVISORY_SCANS_HELP_SUMMARY_SECTION_TITLE = ADVISORY_SCANS_SUMMARY_SECTION_TITLE;
+
+export const ADVISORY_SCANS_HELP_DISPOSITION_SECTION_TITLE = "Record a disposition";
+
+export const ADVISORY_SCANS_HELP_DISPOSITION_HEADING_ID = "record-a-disposition" as const;
+
+export type AdvisoryScansHelpDispositionAction = {
+  readonly label: string;
+  readonly hint: string;
+};
+
+/** Disposition actions — label/hint pairs sourced from advisory-copy (parity with hub card). */
+export const ADVISORY_SCANS_HELP_DISPOSITION_ACTIONS: readonly AdvisoryScansHelpDispositionAction[] = [
+  { label: ADVISORY_SCANS_DISPOSITION_ACCEPT, hint: ADVISORY_SCANS_DISPOSITION_ACCEPT_HINT },
+  { label: ADVISORY_SCANS_DISPOSITION_DEFER, hint: ADVISORY_SCANS_DISPOSITION_DEFER_HINT },
+  { label: ADVISORY_SCANS_DISPOSITION_REJECT, hint: ADVISORY_SCANS_DISPOSITION_REJECT_HINT },
+  { label: ADVISORY_SCANS_DISPOSITION_IMPLEMENTED, hint: ADVISORY_SCANS_DISPOSITION_IMPLEMENTED_HINT },
+] as const;
+
+export const ADVISORY_SCANS_HELP_DISPOSITION_AUDIT_NOTE = ADVISORY_SCANS_DISPOSITION_DIALOG_DESCRIPTION;
+
+export const ADVISORY_SCANS_HELP_HOW_DERIVATION_SENTENCE = ADVISORY_SCANS_HOW_IT_WORKS_BODY.slice(
+  ADVISORY_SCANS_HOW_IT_WORKS_BODY.indexOf("Recommendations"),
+);
+
+export const ADVISORY_SCANS_HELP_AI_USAGE_DISCLOSURE_LEAD =
+  "Generating a scan may invoke model activity against finalized review content. Monitor estimated AI spend on the";
+
+export const ADVISORY_SCANS_HELP_AI_USAGE_DISCLOSURE_TAIL = "when scan generation adds model activity.";
+
+export const ADVISORY_SCANS_HELP_AI_USAGE_LINK = {
+  label: "AI usage help",
+  href: inAppHelpHref("ai-usage"),
+} as const;
 
 export const ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_HEADING_ID = "related-governance-surfaces" as const;
 
@@ -127,20 +276,19 @@ export const ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS: readonly AdvisoryScansHelpHo
     ],
   },
   {
-    parts: [
-      { type: "text", value: "Open " },
-      { type: "link", label: "findings", href: GOVERNANCE_FINDINGS_PATH },
-      { type: "text", value: " or " },
-      { type: "link", label: "audit", href: GOVERNANCE_AUDIT_PATH },
-      { type: "text", value: " when a recommendation needs governed triage." },
-    ],
+    parts: [{ type: "text", value: "Record a governance disposition on each recommendation to feed audit and follow-up workflows." }],
   },
 ] as const;
+
+export const ADVISORY_SCANS_HELP_BASELINE_COMPARISON_NOTE = ADVISORY_SCANS_BASELINE_REVIEW_HELPER;
 
 export const ADVISORY_SCANS_HELP_CLAIM_HEADING_ID = "help-advisory-scans-claim-discipline-heading" as const;
 
 export const ADVISORY_SCANS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
+  { level: 2, id: ADVISORY_SCANS_HELP_START_HERE_HEADING_ID, title: ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE },
+  { level: 2, id: ADVISORY_SCANS_HELP_BEFORE_YOU_START_HEADING_ID, title: ADVISORY_SCANS_HELP_BEFORE_YOU_START_TITLE },
   { level: 2, id: "what-advisory-scans-show", title: "What advisory scans show" },
+  { level: 2, id: ADVISORY_SCANS_HELP_DISPOSITION_HEADING_ID, title: ADVISORY_SCANS_HELP_DISPOSITION_SECTION_TITLE },
   {
     level: 2,
     id: ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_HEADING_ID,
@@ -155,8 +303,15 @@ export const ADVISORY_SCANS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] 
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 
-/** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
+/** Drift guard: overview stays positive-only; claim band owns capability boundaries once. */
 export const ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed-review diligence Sources package", "not a diligence Sources package"],
-  claimMustContain: "not a sealed-review diligence Sources package",
+  overviewMustNotContain: [
+    "not a sealed review record",
+    "governance approval",
+    "automatic remediation",
+    "sealed-review diligence",
+    "Sources package",
+    "sources package",
+  ],
+  claimMustContain: ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY,
 } as const;

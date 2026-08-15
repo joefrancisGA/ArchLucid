@@ -578,6 +578,8 @@ export function ImpactPreviewHelpEvidenceOrientationStrip(
 }
 
 export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
+  const sectionHeadingClass = cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY.sectionTitle, "m-0");
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-advisory-scans"
@@ -588,10 +590,11 @@ export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={ADVISORY_SCANS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ADVISORY_SCANS_HELP_SOURCES_INTRO}
       sources={ADVISORY_SCANS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorNeutral}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="stacked"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
+      headingClassName={sectionHeadingClass}
     />
   );
 }

@@ -13,20 +13,15 @@ import {
 } from "@/lib/advisory-scans-help-guide-content";
 
 describe("advisory-scans help negation drift guard", () => {
-  it("keeps overview positive-only and claim band as the single diligence negation", () => {
+  it("keeps overview positive-only and claim band as the capability boundary", () => {
     for (const phrase of ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS.overviewMustNotContain) {
       expect(ADVISORY_SCANS_HELP_OVERVIEW, `overview must not contain "${phrase}"`).not.toContain(phrase);
     }
 
-    expect(ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE).toContain(
+    expect(ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE).toBe(
       ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS.claimMustContain,
     );
-
-    const diligenceNegationCount =
-      (ADVISORY_SCANS_HELP_OVERVIEW.match(/Sources package/gi) ?? []).length +
-      (ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE.match(/Sources package/gi) ?? []).length;
-
-    expect(diligenceNegationCount).toBe(1);
+    expect(ADVISORY_SCANS_CLAIM_DISCIPLINE).toBe(ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS.claimMustContain);
   });
 
   it("keeps overview distinct from the page subtitle", () => {
