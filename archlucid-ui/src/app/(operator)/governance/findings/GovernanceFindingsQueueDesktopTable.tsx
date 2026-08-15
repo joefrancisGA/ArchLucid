@@ -1,11 +1,10 @@
 "use client";
 
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import type { CSSProperties, ReactElement } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
@@ -15,17 +14,28 @@ import {
   EnterpriseTableHeadRow,
   EnterpriseTableHeaderCell,
 } from "@/components/ui/enterprise-table";
+import { Button } from "@/components/ui/button";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   governanceFindingInspectHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import { groupGovernanceFindingQueueRows } from "@/lib/group-governance-finding-queue-rows";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
+import {
+  GOVERNANCE_FINDINGS_QUEUE_KEYBOARD_HINT_AT,
+  governanceFindingsQueueRecordColumnLabel,
+  governanceFindingsQueueTableAriaLabel,
+} from "@/lib/governance/governance-assigned-to-me-queue-copy";
+import {
+  sortGovernanceAssignedToMeQueueRows,
+  type GovernanceAssignedToMeQueueSortKey,
+} from "@/lib/governance/governance-assigned-to-me-queue-sort";
+import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 
 import type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 import { GovernanceFindingsQueueTableRow } from "./GovernanceFindingsQueueTableRow";
 import {
-  GOVERNANCE_FINDINGS_QUEUE_ROW_ESTIMATE_PX,
+  governanceFindingsQueueRowEstimatePx,
   shouldVirtualizeGovernanceFindingsQueue,
 } from "./governance-findings-queue-virtualization";
 
@@ -33,6 +43,7 @@ export type GovernanceFindingsQueueDesktopTableProps = {
   readonly rows: readonly GovernanceFindingQueueRow[];
   readonly buyerPolishedShell: boolean;
   readonly groupByResource?: boolean;
+  readonly queueMode?: GovernanceFindingsQueueMode;
   /** When provided, the table renders a leading checkbox column for bulk selection. */
   readonly selectedFindingIds?: ReadonlySet<string>;
   readonly onSelectionChange?: (ids: ReadonlySet<string>) => void;
@@ -43,23 +54,72 @@ export type GovernanceFindingsQueueDesktopTableProps = {
 type GovernanceFindingsQueueTableBodyProps = {
   readonly rows: readonly GovernanceFindingQueueRow[];
   readonly buyerPolishedShell: boolean;
+  readonly queueMode: GovernanceFindingsQueueMode;
   readonly hasBulkSelect: boolean;
   readonly selectedFindingIds?: ReadonlySet<string>;
   readonly onToggleRow?: (findingId: string) => void;
   readonly isRowFocused?: (index: number) => boolean;
   readonly isRowNewSinceLastVisit?: (row: GovernanceFindingQueueRow) => boolean;
   readonly onRowOpened?: (row: GovernanceFindingQueueRow) => void;
+  readonly ariaRowCount?: number;
 };
+
+function GovernanceFindingsQueueSortHeaderCell(props: {
+  readonly label: string;
+  readonly sortKey: GovernanceAssignedToMeQueueSortKey;
+  readonly activeSortKey: GovernanceAssignedToMeQueueSortKey;
+  readonly sortAsc: boolean;
+  readonly onSort: (sortKey: GovernanceAssignedToMeQueueSortKey) => void;
+}): ReactElement {
+  const isActive = props.activeSortKey === props.sortKey;
+  const directionLabel = props.sortAsc ? "ascending" : "descending";
+
+  return (
+    <EnterpriseTableHeaderCell>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className={cn("h-auto px-0 font-semibold", isActive ? "text-al-text-primary" : undefined)}
+        aria-label={
+          isActive ? `Sort by ${props.label}, ${directionLabel}` : `Sort by ${props.label}`
+        }
+        onClick={() => {
+          props.onSort(props.sortKey);
+        }}
+      >
+        {props.label}
+        {isActive ? (props.sortAsc ? " ↑" : " ↓") : null}
+      </Button>
+    </EnterpriseTableHeaderCell>
+  );
+}
 
 function GovernanceFindingsQueueTableHead(props: {
   readonly buyerPolishedShell: boolean;
+  readonly queueMode: GovernanceFindingsQueueMode;
   readonly hasBulkSelect: boolean;
   readonly allSelected: boolean;
   readonly someSelected: boolean;
   readonly onToggleAll: () => void;
   readonly sticky?: boolean;
+  readonly assignedToMeSortKey?: GovernanceAssignedToMeQueueSortKey;
+  readonly assignedToMeSortAsc?: boolean;
+  readonly onAssignedToMeSort?: (sortKey: GovernanceAssignedToMeQueueSortKey) => void;
 }): ReactElement {
-  const { buyerPolishedShell, hasBulkSelect, allSelected, someSelected, onToggleAll, sticky } = props;
+  const {
+    buyerPolishedShell,
+    queueMode,
+    hasBulkSelect,
+    allSelected,
+    someSelected,
+    onToggleAll,
+    sticky,
+    assignedToMeSortKey = "severity",
+    assignedToMeSortAsc = true,
+    onAssignedToMeSort,
+  } = props;
+  const isAssignedToMe = queueMode === "assigned-to-me";
 
   return (
     <EnterpriseTableHead
@@ -96,6 +156,47 @@ function GovernanceFindingsQueueTableHead(props: {
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Recommended action</EnterpriseTableHeaderCell>
           </>
+        ) : isAssignedToMe ? (
+          <>
+            <GovernanceFindingsQueueSortHeaderCell
+              label={governanceFindingsQueueRecordColumnLabel(queueMode)}
+              sortKey="title"
+              activeSortKey={assignedToMeSortKey}
+              sortAsc={assignedToMeSortAsc}
+              onSort={(sortKey) => {
+                onAssignedToMeSort?.(sortKey);
+              }}
+            />
+            <GovernanceFindingsQueueSortHeaderCell
+              label="Source review"
+              sortKey="sourceReview"
+              activeSortKey={assignedToMeSortKey}
+              sortAsc={assignedToMeSortAsc}
+              onSort={(sortKey) => {
+                onAssignedToMeSort?.(sortKey);
+              }}
+            />
+            <GovernanceFindingsQueueSortHeaderCell
+              label="Severity"
+              sortKey="severity"
+              activeSortKey={assignedToMeSortKey}
+              sortAsc={assignedToMeSortAsc}
+              onSort={(sortKey) => {
+                onAssignedToMeSort?.(sortKey);
+              }}
+            />
+            <GovernanceFindingsQueueSortHeaderCell
+              label="Due / revisit"
+              sortKey="due"
+              activeSortKey={assignedToMeSortKey}
+              sortAsc={assignedToMeSortAsc}
+              onSort={(sortKey) => {
+                onAssignedToMeSort?.(sortKey);
+              }}
+            />
+            <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+          </>
         ) : (
           <>
             <EnterpriseTableHeaderCell>Risk</EnterpriseTableHeaderCell>
@@ -119,21 +220,24 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
   const {
     rows,
     buyerPolishedShell,
+    queueMode,
     hasBulkSelect,
     selectedFindingIds,
     onToggleRow,
     isRowFocused,
     isRowNewSinceLastVisit,
     onRowOpened,
+    ariaRowCount,
   } = props;
 
   return (
-    <EnterpriseTableBody>
+    <EnterpriseTableBody aria-rowcount={ariaRowCount}>
       {rows.map((row, rowIndex) => (
         <GovernanceFindingsQueueTableRow
           key={`${row.runId}:${row.findingId}:table`}
           row={row}
           buyerPolishedShell={buyerPolishedShell}
+          queueMode={queueMode}
           hasBulkSelect={hasBulkSelect}
           selectedFindingIds={selectedFindingIds}
           onToggleRow={onToggleRow}
@@ -158,6 +262,7 @@ function GovernanceFindingsQueueVirtualizedTableBody(
   const {
     rows,
     buyerPolishedShell,
+    queueMode,
     hasBulkSelect,
     selectedFindingIds,
     onToggleRow,
@@ -165,10 +270,12 @@ function GovernanceFindingsQueueVirtualizedTableBody(
     rowVirtualizer,
     isRowNewSinceLastVisit,
     onRowOpened,
+    ariaRowCount,
   } = props;
 
   return (
     <EnterpriseTableBody
+      aria-rowcount={ariaRowCount}
       style={{
         height: `${rowVirtualizer.getTotalSize()}px`,
         position: "relative",
@@ -196,6 +303,7 @@ function GovernanceFindingsQueueVirtualizedTableBody(
             key={`${row.runId}:${row.findingId}:virtual`}
             row={row}
             buyerPolishedShell={buyerPolishedShell}
+            queueMode={queueMode}
             hasBulkSelect={hasBulkSelect}
             selectedFindingIds={selectedFindingIds}
             onToggleRow={onToggleRow}
@@ -220,6 +328,7 @@ export function GovernanceFindingsQueueDesktopTable(
     rows,
     buyerPolishedShell,
     groupByResource = false,
+    queueMode = "tenant",
     selectedFindingIds,
     onSelectionChange,
     isRowNewSinceLastVisit,
@@ -227,15 +336,26 @@ export function GovernanceFindingsQueueDesktopTable(
   } = props;
   const router = useRouter();
   const scrollParentRef = useRef<HTMLDivElement>(null);
+  const [assignedToMeSortKey, setAssignedToMeSortKey] =
+    useState<GovernanceAssignedToMeQueueSortKey>("severity");
+  const [assignedToMeSortAsc, setAssignedToMeSortAsc] = useState(true);
+  const displayRows = useMemo(() => {
+    if (queueMode !== "assigned-to-me") {
+      return rows;
+    }
+
+    return sortGovernanceAssignedToMeQueueRows(rows, assignedToMeSortKey, assignedToMeSortAsc);
+  }, [assignedToMeSortAsc, assignedToMeSortKey, queueMode, rows]);
   const hasBulkSelect = selectedFindingIds !== undefined && onSelectionChange !== undefined;
-  const allSelected = hasBulkSelect && rows.length > 0 && rows.every((r) => selectedFindingIds.has(r.findingId));
-  const someSelected = hasBulkSelect && rows.some((r) => selectedFindingIds.has(r.findingId));
-  const useVirtualization = !groupByResource && shouldVirtualizeGovernanceFindingsQueue(rows.length);
+  const allSelected =
+    hasBulkSelect && displayRows.length > 0 && displayRows.every((r) => selectedFindingIds.has(r.findingId));
+  const someSelected = hasBulkSelect && displayRows.some((r) => selectedFindingIds.has(r.findingId));
+  const useVirtualization = !groupByResource && shouldVirtualizeGovernanceFindingsQueue(displayRows.length);
 
   const keyboardNav = useEnterpriseTableKeyboardNav({
-    rowCount: groupByResource ? 0 : rows.length,
+    rowCount: groupByResource ? 0 : displayRows.length,
     onActivateRow: (index) => {
-      const row = rows[index];
+      const row = displayRows[index];
 
       if (row === undefined) {
         return;
@@ -247,9 +367,9 @@ export function GovernanceFindingsQueueDesktopTable(
   });
 
   const rowVirtualizer = useVirtualizer({
-    count: useVirtualization ? rows.length : 0,
+    count: useVirtualization ? displayRows.length : 0,
     getScrollElement: () => scrollParentRef.current,
-    estimateSize: () => GOVERNANCE_FINDINGS_QUEUE_ROW_ESTIMATE_PX,
+    estimateSize: () => governanceFindingsQueueRowEstimatePx(queueMode),
     overscan: 8,
   });
 
@@ -260,6 +380,16 @@ export function GovernanceFindingsQueueDesktopTable(
 
     rowVirtualizer.scrollToIndex(keyboardNav.focusedRowIndex, { align: "auto" });
   }, [keyboardNav.focusedRowIndex, rowVirtualizer, useVirtualization]);
+
+  function toggleAssignedToMeSort(nextSortKey: GovernanceAssignedToMeQueueSortKey): void {
+    if (assignedToMeSortKey === nextSortKey) {
+      setAssignedToMeSortAsc((current) => !current);
+      return;
+    }
+
+    setAssignedToMeSortKey(nextSortKey);
+    setAssignedToMeSortAsc(nextSortKey === "title" || nextSortKey === "sourceReview");
+  }
 
   function toggleRow(findingId: string) {
     if (!hasBulkSelect) {
@@ -277,7 +407,7 @@ export function GovernanceFindingsQueueDesktopTable(
     onSelectionChange(next);
   }
 
-  function toggleAll(scopeRows: readonly GovernanceFindingQueueRow[] = rows) {
+  function toggleAll(scopeRows: readonly GovernanceFindingQueueRow[] = displayRows) {
     if (!hasBulkSelect) {
       return;
     }
@@ -306,12 +436,14 @@ export function GovernanceFindingsQueueDesktopTable(
     onSelectionChange(next);
   }
 
-  const ariaLabel = OPERATOR_NAV_LINK_LABELS.findings;
-  const resourceGroups = groupByResource ? groupGovernanceFindingQueueRows(rows) : [];
+  const ariaLabel = governanceFindingsQueueTableAriaLabel(queueMode);
+  const resourceGroups = groupByResource ? groupGovernanceFindingQueueRows(displayRows) : [];
+  const ariaRowCount = displayRows.length + 1;
 
   const tableHead = (
     <GovernanceFindingsQueueTableHead
       buyerPolishedShell={buyerPolishedShell}
+      queueMode={queueMode}
       hasBulkSelect={hasBulkSelect}
       allSelected={allSelected}
       someSelected={someSelected}
@@ -319,18 +451,23 @@ export function GovernanceFindingsQueueDesktopTable(
         toggleAll();
       }}
       sticky={useVirtualization}
+      assignedToMeSortKey={assignedToMeSortKey}
+      assignedToMeSortAsc={assignedToMeSortAsc}
+      onAssignedToMeSort={toggleAssignedToMeSort}
     />
   );
 
   const tableBodyProps: GovernanceFindingsQueueTableBodyProps = {
-    rows,
+    rows: displayRows,
     buyerPolishedShell,
+    queueMode,
     hasBulkSelect,
     selectedFindingIds,
     onToggleRow: toggleRow,
     isRowFocused: keyboardNav.isRowFocused,
     isRowNewSinceLastVisit,
     onRowOpened,
+    ariaRowCount: useVirtualization ? ariaRowCount : undefined,
   };
 
   return (
@@ -342,6 +479,7 @@ export function GovernanceFindingsQueueDesktopTable(
       onKeyDown={groupByResource ? undefined : keyboardNav.onTableKeyDown}
       data-testid="governance-findings-queue-keyboard-region"
     >
+      <p className="sr-only">{GOVERNANCE_FINDINGS_QUEUE_KEYBOARD_HINT_AT}</p>
       {groupByResource ? (
         <p className={cn("mb-2 text-neutral-500", DESIGN_TOKENS.table.cellSecondary)} aria-hidden="true">
           Findings are grouped by resource or system context. Turn off Group by resource to restore row keyboard navigation.
@@ -383,6 +521,7 @@ export function GovernanceFindingsQueueDesktopTable(
                 <EnterpriseTable ariaLabel={`${group.label} findings`}>
                   <GovernanceFindingsQueueTableHead
                     buyerPolishedShell={buyerPolishedShell}
+                    queueMode={queueMode}
                     hasBulkSelect={hasBulkSelect}
                     allSelected={groupAllSelected}
                     someSelected={groupSomeSelected}
@@ -393,6 +532,7 @@ export function GovernanceFindingsQueueDesktopTable(
                   <GovernanceFindingsQueueTableBody
                     rows={group.rows}
                     buyerPolishedShell={buyerPolishedShell}
+                    queueMode={queueMode}
                     hasBulkSelect={hasBulkSelect}
                     selectedFindingIds={selectedFindingIds}
                     onToggleRow={toggleRow}

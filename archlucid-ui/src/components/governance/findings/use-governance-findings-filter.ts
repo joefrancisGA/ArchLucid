@@ -11,6 +11,7 @@ import {
   patchGovernanceFindingsQueueFacets,
   readGovernanceFindingsQueueFacets,
 } from "@/lib/governance/governance-findings-queue-facets-storage";
+import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import {
   riskRegisterFilterFromQuery,
   scopedRunIdFromQuery,
@@ -24,18 +25,26 @@ import {
   type GovernanceFindingsFilterPreset,
 } from "@/components/governance/findings/governance-findings-filter-presets";
 
-function initialRegisterFilterFromUrlOrStorage(rawFilter: string | null): RiskRegisterFilter {
+function initialRegisterFilterFromUrlOrStorage(
+  rawFilter: string | null,
+  mode: GovernanceFindingsQueueMode,
+): RiskRegisterFilter {
   if (rawFilter !== null && rawFilter.trim().length > 0) {
     return riskRegisterFilterFromQuery(rawFilter);
   }
 
-  return readGovernanceFindingsQueueFacets().registerFilter;
+  return readGovernanceFindingsQueueFacets(mode).registerFilter;
 }
 
-export function useGovernanceFindingsFilter() {
+export type UseGovernanceFindingsFilterOptions = {
+  readonly mode?: GovernanceFindingsQueueMode;
+};
+
+export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilterOptions) {
+  const mode = options?.mode ?? "tenant";
   const searchParams = useSearchParams();
   const [registerFilter, setRegisterFilterState] = useState<RiskRegisterFilter>(() =>
-    initialRegisterFilterFromUrlOrStorage(searchParams.get("filter")),
+    initialRegisterFilterFromUrlOrStorage(searchParams.get("filter"), mode),
   );
   const [scopedRunId, setScopedRunId] = useState<string | null>(() =>
     scopedRunIdFromQuery(searchParams.get("runId")),
@@ -56,16 +65,16 @@ export function useGovernanceFindingsFilter() {
       const fromUrl = riskRegisterFilterFromQuery(rawFilter);
 
       setRegisterFilterState(fromUrl);
-      patchGovernanceFindingsQueueFacets({ registerFilter: fromUrl });
+      patchGovernanceFindingsQueueFacets({ registerFilter: fromUrl }, mode);
     }
 
     setScopedRunId(scopedRunIdFromQuery(searchParams.get("runId")));
-  }, [searchParams]);
+  }, [mode, searchParams]);
 
   const setRegisterFilter = useCallback((next: RiskRegisterFilter): void => {
     setRegisterFilterState(next);
-    patchGovernanceFindingsQueueFacets({ registerFilter: next });
-  }, []);
+    patchGovernanceFindingsQueueFacets({ registerFilter: next }, mode);
+  }, [mode]);
 
   const saveCurrentFilterAsPreset = useCallback((): void => {
     if (registerFilter === "all") {

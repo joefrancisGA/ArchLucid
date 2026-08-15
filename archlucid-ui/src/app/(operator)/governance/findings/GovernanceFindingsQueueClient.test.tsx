@@ -12,6 +12,7 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
+import { BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL } from "@/lib/buyer/buyer-polish-copy";
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -128,7 +129,7 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
       tenantId: "tenant-1",
       workspaceId: "ws-1",
       projectId: "proj-1",
-      workspaceLabel: "Claims Intake Demo",
+      workspaceLabel: BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
       projectLabel: "Default",
     })),
   };
@@ -327,7 +328,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
       tenantId: "tenant-1",
       workspaceId: "ws-1",
       projectId: "proj-1",
-      workspaceLabel: "Claims Intake Demo",
+      workspaceLabel: BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
       projectLabel: "Default",
     });
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
@@ -359,7 +360,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(empty).toHaveAttribute("role", "status");
     expect(screen.getByText("No findings assigned to you")).toBeInTheDocument();
     expect(within(empty).getByText(/Jordan Lee \(Architect\)/)).toBeInTheDocument();
-    expect(within(empty).getByText(/Claims Intake Demo/)).toBeInTheDocument();
+    expect(within(empty).getByText(new RegExp(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL))).toBeInTheDocument();
     expect(screen.getByTestId("governance-assigned-to-me-empty-checked-at")).toBeInTheDocument();
     expect(screen.getByTestId("governance-assigned-to-me-empty-basis")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-findings-load-failed")).not.toBeInTheDocument();
@@ -380,7 +381,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
 
     expect(workspace.textContent ?? "").not.toMatch(uuidPattern);
     expect(checkedAt.textContent ?? "").not.toMatch(uuidPattern);
-    expect(workspace).toHaveTextContent("Claims Intake Demo");
+    expect(workspace).toHaveTextContent(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
   });
 
   it("renders related queues disclosure, breadcrumb, and queue status after the work object", async () => {
@@ -389,7 +390,9 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(await screen.findByTestId("governance-assigned-to-me-breadcrumb")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Governance" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
-    expect(screen.getByTestId("governance-assigned-to-me-workspace")).toHaveTextContent("Claims Intake Demo");
+    expect(screen.getByTestId("governance-assigned-to-me-workspace")).toHaveTextContent(
+      BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
+    );
     expect(await screen.findByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
       "0 open findings assigned",
     );
