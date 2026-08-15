@@ -216,7 +216,7 @@ export async function buildRunDetailPresentation(
     deriveBlockingApprovalCount,
     deriveEvidenceCoverageSummary,
     deriveSponsorBottomLineContent,
-    deriveHighestFindingSeverityLabel,
+    deriveHighestUnresolvedSeverityLabel,
     derivePrimaryConcernFinding,
     derivePrimaryConcernLabel,
     deriveFinalizedAtUtc,
@@ -249,10 +249,10 @@ export async function buildRunDetailPresentation(
   const severityCounts = countFindingsBySeverity(filterUnresolvedFindings(quickDecisionFindings));
   const reviewDisplayTitle = deriveReviewDisplayTitle(runSummaryForBadge, model.headline);
   const systemName = deriveArchitectureSystemName(runSummaryForBadge, reviewDisplayTitle);
-  const highestSeverity = deriveHighestFindingSeverityLabel(
-    quickDecisionFindings,
-    model.explanationSummary?.riskPosture ?? null,
-  );
+  const highestSeverity =
+    deriveHighestUnresolvedSeverityLabel(quickDecisionFindings) ??
+    model.explanationSummary?.riskPosture ??
+    null;
   const overallPosture = deriveOverallPostureLabel(
     model.explanationSummary?.riskPosture,
     model.governanceGateLabel,

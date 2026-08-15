@@ -188,4 +188,24 @@ describe("buildRunDetailPresentation", () => {
 
     expect(presentation.materialSeverityLine).toBeNull();
   });
+
+  it("does not surface disposition-closed findings in highest severity summary", async () => {
+    const presentation = await buildRunDetailPresentation(
+      model({
+        manifestId: "manifest-1",
+        findings: [
+          {
+            findingId: "f-critical-accepted",
+            message: "Critical accepted",
+            severity: 3,
+            latestDisposition: "Accepted",
+          },
+        ],
+      }),
+      false,
+    );
+
+    expect(presentation.overallPosture).toBe("Not assessed");
+    expect(presentation.reviewStatusSummary.highestUnresolvedSeverity).toBeNull();
+  });
 });
