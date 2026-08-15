@@ -49,8 +49,8 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
             Problem = finding.Title,
             Evidence = finding.Rationale,
             AffectedRequirementOrQualityAttribute = finding.Dimension.ToString(),
-            ConsequenceOfInaction = $"Unresolved {finding.Dimension} risk may remain open.",
-            ProposedChange = $"Address finding: {finding.Title}",
+            ConsequenceOfInaction = ArchitectureRecommendationProposedChange.BuildConsequence(finding),
+            ProposedChange = ArchitectureRecommendationProposedChange.Build(finding),
             Alternatives = ["Defer with documented exception", "Collect additional evidence before changing design"],
             Effort = new EffortEstimate
             {
@@ -63,7 +63,7 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
                 Level = riskReductionLevel,
                 ScenarioNotes = $"Resolving this finding reduces {finding.Dimension} exposure.",
             },
-            ValidationMethod = "Re-run specialist review after design update.",
+            ValidationMethod = ArchitectureRecommendationProposedChange.BuildValidationMethod(finding),
             Confidence = finding.Confidence,
             RequiresHumanApproval = finding.Severity.Equals("Critical", StringComparison.OrdinalIgnoreCase),
             Provenance = new ClaimProvenance
