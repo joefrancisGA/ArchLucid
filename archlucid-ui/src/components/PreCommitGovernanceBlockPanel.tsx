@@ -7,6 +7,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import type { PreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-block-problem";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { APPROVAL_GATE_LABEL } from "@/lib/usability/canonical-product-terms";
 
