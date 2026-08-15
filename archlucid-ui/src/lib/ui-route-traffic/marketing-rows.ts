@@ -111,8 +111,8 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "SEE",
     path: "/see-it",
     section: "Marketing",
-    note: "See it (Marketing) - SeeItMarketingPage with SeeItHeroSection (first-viewport H1 + lead + single primary CTA + deliverable preview rail — TB-1281), SeeItEvidenceOrientationStrip below sample body (evaluation Sources + claim-discipline: fabricated sample proof only), secondary row PDF only (no duplicate preview CTA). Not an operator PageContextualHelp surface. Sibling SRH = /showcase/[reviewId]. Score 68/100 (2026-08-11) after TB-1281–TB-1282 hero budget — marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.; 2026-08-11 al-ui-rate: First viewport stacked proof strip + duplicate preview CTAs + manifest jargon; shipped TB-1281–TB-1282 (batch 21–24); open: TB-1280",
-    noteMustContain: ["SeeItHeroSection", "TB-1281", "cannot improve further toward 80"],
+    note: "See it (Marketing) - SeeItMarketingPage with skip link, hero last-reviewed meta, SeeItHeroSection (H1 + lead + primary showcase CTA + get-started ladder + visual-only deliverable preview rail), demoted What this page is not disclosure, revision history, softened sample summary labels, and Sources-only SeeItEvidenceOrientationStrip footer (amber claim callout removed). Secondary row PDF only (no duplicate preview CTA). Not an operator PageContextualHelp surface. Sibling SRH = /showcase/[reviewId]. Score 58/100 Evidence (marketing sample ceiling); UX 82/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: ["SeeItHeroSection", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Signup. Owner backlog shorthand: SIG. */
   {

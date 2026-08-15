@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
-import { SeeItEvidenceOrientationStrip } from "@/components/marketing/SeeItEvidenceOrientationStrip";
 import {
   MARKETING_LAYOUT,
   MARKETING_MOTION,
@@ -16,8 +15,8 @@ import { cn } from "@/lib/utils";
 
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
 import { normalizeSeeItMarketingPayload } from "./normalize-see-it-payload";
-import { SeeItHeroSection } from "./SeeItHeroSection";
 import { SeeItMarketingBody } from "./SeeItMarketingBody";
+import { SeeItMarketingPageChrome } from "./SeeItMarketingPageChrome";
 
 export const revalidate = 300;
 
@@ -36,29 +35,27 @@ export default async function SeeItMarketingPage() {
   const normalized = normalizeSeeItMarketingPayload(payload);
 
   return (
-    <MarketingPageShell variant="default" className={MARKETING_MOTION.revealIn}>
-      <SeeItHeroSection />
+    <MarketingPageShell variant="default" className={MARKETING_MOTION.revealIn} data-testid="see-it-page">
+      <SeeItMarketingPageChrome>
+        <div
+          className={cn(
+            MARKETING_LAYOUT.majorSectionGap,
+            "border-t border-neutral-200 pt-12 dark:border-neutral-800",
+          )}
+          data-testid="see-it-sample-transition"
+        >
+          <p className={cn("m-0", MARKETING_TYPOGRAPHY.eyebrow)}>Sample review preview</p>
+          <p className={cn("mt-2 m-0 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
+            Evaluation slice for this sample — the same proof shape buyers use on sponsor report and review
+            pages. Open the interactive sample above for the full walkthrough; this section summarizes the
+            package from demo preview data.
+          </p>
 
-      <div
-        className={cn(
-          MARKETING_LAYOUT.majorSectionGap,
-          "mt-14 border-t border-neutral-200 pt-12 dark:border-neutral-800",
-        )}
-        data-testid="see-it-sample-transition"
-      >
-        <p className={cn("m-0", MARKETING_TYPOGRAPHY.eyebrow)}>Sample review preview</p>
-        <p className={cn("mt-2 m-0 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-          Evaluation slice for this sample — the same proof shape buyers use on sponsor report and review
-          pages.
-        </p>
-        <SeeItEvidenceOrientationStrip part="claim" />
-
-        <div className="mt-8">
-          <SeeItMarketingBody source={source} payload={normalized} />
+          <div className="mt-8">
+            <SeeItMarketingBody source={source} payload={normalized} />
+          </div>
         </div>
-      </div>
-
-      <SeeItEvidenceOrientationStrip part="sources" />
+      </SeeItMarketingPageChrome>
     </MarketingPageShell>
   );
 }

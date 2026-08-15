@@ -1,13 +1,10 @@
-import Link from "next/link";
-
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
-import { MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_MOTION, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
   CUSTOMER_INTAKE_PRIMARY_FINDING_TITLE,
 } from "@/lib/samples/customer-intake-modernization/definition";
-import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
 const PREVIEW_LAYERS = [
@@ -39,21 +36,18 @@ const PREVIEW_LAYERS = [
 ] as const;
 
 /**
- * Static deliverable stack for the `/see-it` hero — fills the empty marketing rail
- * with a show-don't-tell preview of the proof package (links to the primary showcase).
+ * Static deliverable stack for the `/see-it` hero — visual preview only (primary CTA lives in hero).
  */
 export function SeeItDeliverablePreview(): React.JSX.Element {
   return (
-    <Link
-      href={CANONICAL_ANONYMOUS_PROOF_HREF}
+    <div
       className={cn(
-        "group block rounded-lg border border-neutral-200 bg-al-surface-raised text-left shadow-sm transition-shadow hover:shadow-md",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2",
+        "rounded-lg border border-neutral-200 bg-al-surface-raised text-left shadow-sm",
         "dark:border-neutral-700 dark:bg-neutral-900",
         MARKETING_MOTION.heroVisual,
       )}
       data-testid="see-it-deliverable-preview"
-      aria-label="Open interactive sample review — preview of deliverables in the enterprise customer intake package"
+      aria-label="Sample deliverable preview for the enterprise customer intake package"
     >
       <div className="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
         <div className="flex flex-wrap items-center gap-2">
@@ -63,7 +57,7 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
           <StatusTag kind="approved" className="px-2.5 py-1 text-sm font-semibold" />
         </div>
         <p className={cn("m-0 mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
-          Sealed review record · Policy pack · Fabricated sample data
+          Sealed review record · Policy pack · Enterprise customer intake sample
         </p>
       </div>
 
@@ -97,13 +91,7 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
             </li>
           ))}
         </ul>
-
-        <p
-          className={cn("m-0 text-center", MARKETING_SURFACES.inlineLink, MARKETING_TYPOGRAPHY.meta)}
-        >
-          Open interactive sample review →
-        </p>
       </div>
-    </Link>
+    </div>
   );
 }

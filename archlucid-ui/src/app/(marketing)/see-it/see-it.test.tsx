@@ -9,7 +9,6 @@ import {
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 import {
-  CANONICAL_ANONYMOUS_PROOF_HREF,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 
@@ -301,15 +300,16 @@ describe("SeeItMarketingBody", () => {
 });
 
 describe("SeeItDeliverablePreview", () => {
-  it("links the visual proof stack to the primary showcase (TB-1029)", () => {
+  it("renders a visual-only preview rail without a duplicate showcase link (TB-1281)", () => {
     render(<SeeItDeliverablePreview />);
 
-    expect(screen.getByTestId("see-it-deliverable-preview")).toHaveAttribute(
-      "href",
-      CANONICAL_ANONYMOUS_PROOF_HREF,
-    );
+    const preview = screen.getByTestId("see-it-deliverable-preview");
+
+    expect(preview.tagName).toBe("DIV");
+    expect(preview).not.toHaveAttribute("href");
     expect(screen.getByText(/Sponsor report/i)).toBeInTheDocument();
     expect(screen.getByText(/Audit trail/i)).toBeInTheDocument();
     expect(screen.queryByText(/Healthcare Claims/i)).toBeNull();
+    expect(screen.queryByText(/Open interactive sample review/i)).toBeNull();
   });
 });

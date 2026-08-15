@@ -3,12 +3,20 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   MARKETING_CAPTION_TEXT_CLASS,
+  MARKETING_SURFACES,
   MARKETING_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { CANONICAL_GET_STARTED_PATH } from "@/lib/legacy-quick-start-route";
 import { SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+import { TRUST_CENTER_PUBLIC_EVIDENCE_VERSION } from "@/lib/trust-center-buyer-content";
+import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { cn } from "@/lib/utils";
 
+import {
+  SEE_IT_LAST_REVIEWED_LABEL,
+  SEE_IT_SECONDARY_GET_STARTED_LABEL,
+} from "./see-it-page-content";
 import { SeeItDeliverablePreview } from "./SeeItDeliverablePreview";
 
 /** Shorter than the shared outcome-led line — hero visuals carry the rest. */
@@ -33,14 +41,31 @@ export function SeeItHeroSection(): React.JSX.Element {
         >
           {SEE_IT_HERO_LEAD}
         </p>
-        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="see-it-hero-meta">
+          <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
+            Last reviewed{" "}
+            <time dateTime={SEE_IT_LAST_REVIEWED_LABEL}>{SEE_IT_LAST_REVIEWED_LABEL}</time>
+          </span>
+          <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
+            Orientation pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
+          </span>
+        </div>
+        <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <Button asChild variant="primary" size="lg" data-testid="see-it-cta-showcase">
             <Link href={CANONICAL_ANONYMOUS_PROOF_HREF}>Open interactive sample review</Link>
           </Button>
-          <p className={cn("m-0", MARKETING_TYPOGRAPHY.meta, MARKETING_CAPTION_TEXT_CLASS)}>
-            No sign-in · enterprise customer intake sample
-          </p>
+          <Button asChild variant="outline" size="lg" data-testid="see-it-cta-get-started">
+            <Link href={CANONICAL_GET_STARTED_PATH}>{SEE_IT_SECONDARY_GET_STARTED_LABEL}</Link>
+          </Button>
         </div>
+        <p className={cn("mt-3 m-0", MARKETING_TYPOGRAPHY.meta, MARKETING_CAPTION_TEXT_CLASS)}>
+          Primary CTA opens the full interactive sample — no sign-in required.
+        </p>
+        <p className={cn("mt-2 m-0", MARKETING_TYPOGRAPHY.meta)}>
+          <Link className={MARKETING_SURFACES.inlineLink} href={CANONICAL_GET_STARTED_PATH}>
+            Compare guided trial vs sample paths
+          </Link>
+        </p>
       </div>
 
       <SeeItDeliverablePreview />

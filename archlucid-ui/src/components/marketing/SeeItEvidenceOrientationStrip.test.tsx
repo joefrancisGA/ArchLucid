@@ -5,11 +5,11 @@ import { SeeItEvidenceOrientationStrip } from "@/components/marketing/SeeItEvide
 import { SEE_IT_CANONICAL_PATH, SEE_IT_SOURCES } from "@/lib/see-it-evidence-copy";
 
 describe("SeeItEvidenceOrientationStrip", () => {
-  it("lists follow-up Sources without self-linking see-it", () => {
+  it("lists follow-up Sources without self-linking see-it or amber claim callout", () => {
     render(<SeeItEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("see-it-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("see-it-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("see-it-claim-discipline")).toBeNull();
 
     for (const link of SEE_IT_SOURCES) {
       expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);

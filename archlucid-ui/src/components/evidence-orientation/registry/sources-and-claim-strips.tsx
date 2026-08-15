@@ -54,7 +54,7 @@ import {
   SECURITY_TRUST_SOURCES,
   SECURITY_TRUST_SOURCES_INTRO,
 } from "@/lib/security-trust-evidence-copy";
-import { SEE_IT_CLAIM_DISCIPLINE, SEE_IT_SOURCES, SEE_IT_SOURCES_INTRO } from "@/lib/see-it-evidence-copy";
+import { SEE_IT_SOURCES, SEE_IT_SOURCES_INTRO } from "@/lib/see-it-evidence-copy";
 import {
   SHOWCASE_CLAIM_DISCIPLINE,
   SHOWCASE_SOURCES,
@@ -257,19 +257,18 @@ export function SecurityTrustEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function SeeItEvidenceOrientationStrip({
-  part,
-}: SplitEvidenceOrientationStripProps = {}): React.JSX.Element {
+export function SeeItEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="see-it"
-      part={part}
-      margin={part === "claim" ? "mt-6" : "mt-10"}
+      part="sources"
+      margin="mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800"
       align="text-left"
       sourcesIntro={SEE_IT_SOURCES_INTRO}
       sources={SEE_IT_SOURCES}
-      claimHeading="Illustrative sample only"
-      claim={SEE_IT_CLAIM_DISCIPLINE}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
+      claimHeading=""
+      claim=""
     />
   );
 }
