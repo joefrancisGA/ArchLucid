@@ -123,13 +123,10 @@ export function SlackIntegrationHelpEvidenceOrientationStrip(
       claim={SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE}
       claimHeading={SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SLACK_INTEGRATION_HELP_SOURCES_INTRO}
       sources={SLACK_INTEGRATION_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -139,13 +136,10 @@ export function SlackIntegrationEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="slack-integration"
-      claimElement="div"
       sourcesTitle={SLACK_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={SLACK_INTEGRATION_SOURCES_INTRO}
       sources={SLACK_INTEGRATION_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -221,13 +215,10 @@ export function WebhooksIntegrationHelpEvidenceOrientationStrip(
       claim={WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE}
       claimHeading={WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={WEBHOOKS_INTEGRATION_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={WEBHOOKS_INTEGRATION_HELP_SOURCES_INTRO}
       sources={WEBHOOKS_INTEGRATION_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
       promotedSourceHref={WEBHOOKS_INTEGRATION_HELP_ALERT_RULES_HREF}
     />
@@ -238,13 +229,10 @@ export function WebhooksIntegrationEvidenceOrientationStrip(): React.JSX.Element
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="webhooks-integration"
-      claimElement="div"
       sourcesTitle={WEBHOOKS_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={WEBHOOKS_INTEGRATION_SOURCES_INTRO}
       sources={WEBHOOKS_INTEGRATION_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -253,13 +241,10 @@ export function TeamsIntegrationEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="teams-integration"
-      claimElement="div"
       sourcesTitle={TEAMS_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={TEAMS_INTEGRATION_SOURCES_INTRO}
       sources={TEAMS_INTEGRATION_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -268,13 +253,10 @@ export function AzureBoardsIntegrationEvidenceOrientationStrip(): React.JSX.Elem
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="azure-boards-integration"
-      claimElement="div"
       sourcesTitle={AZURE_BOARDS_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={AZURE_BOARDS_INTEGRATION_SOURCES_INTRO}
       sources={AZURE_BOARDS_INTEGRATION_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -283,13 +265,10 @@ export function CloudConnectionsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="cloud-connections"
-      claimElement="div"
       sourcesTitle={CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE}
       sourcesIntro={CLOUD_CONNECTIONS_SOURCES_INTRO}
       sources={CLOUD_CONNECTIONS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -307,13 +286,10 @@ export function JiraIntegrationHelpEvidenceOrientationStrip(
       claim={JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE}
       claimHeading={JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={JIRA_INTEGRATION_HELP_SOURCES_INTRO}
       sources={JIRA_INTEGRATION_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -323,13 +299,10 @@ export function JiraIntegrationEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="jira-integration"
-      claimElement="div"
       sourcesTitle={JIRA_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={JIRA_INTEGRATION_SOURCES_INTRO}
       sources={JIRA_INTEGRATION_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -338,13 +311,10 @@ export function ServiceNowIntegrationEvidenceOrientationStrip(): React.JSX.Eleme
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="servicenow-integration"
-      claimElement="div"
       sourcesTitle={SERVICENOW_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={SERVICENOW_INTEGRATION_SOURCES_INTRO}
       sources={SERVICENOW_INTEGRATION_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -363,13 +333,10 @@ export function ServiceNowIntegrationHelpEvidenceOrientationStrip(
       claimHeading={SERVICENOW_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SERVICENOW_INTEGRATION_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorInlineNote}
-      claimElement="div"
       sourcesTitle={SERVICENOW_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SERVICENOW_INTEGRATION_HELP_SOURCES_INTRO}
       sources={SERVICENOW_INTEGRATION_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -379,13 +346,10 @@ export function ItsmOAuthCallbackEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="itsm-oauth-callback"
-      claimElement="div"
       sourcesTitle={ITSM_OAUTH_CALLBACK_FOLLOW_UPS_TITLE}
       sourcesIntro={ITSM_OAUTH_CALLBACK_SOURCES_INTRO}
       sources={ITSM_OAUTH_CALLBACK_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }

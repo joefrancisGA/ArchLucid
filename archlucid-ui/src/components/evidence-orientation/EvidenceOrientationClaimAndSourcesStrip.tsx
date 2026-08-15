@@ -1,9 +1,10 @@
 import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientation/EvidenceOrientationClaimCallout";
 import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
-import type {
-  EvidenceOrientationClaimStyle,
-  EvidenceOrientationSourcesStyle,
+import {
+  EVIDENCE_SOURCES_STYLE,
+  type EvidenceOrientationClaimStyle,
+  type EvidenceOrientationSourcesStyle,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
@@ -48,6 +49,10 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
  * Claim-discipline band followed by a Sources index — the shape operator help strips use.
  * Surfaces needing extra bands (lead sentence, freshness line, bulleted scope) compose the underlying
  * primitives directly instead of extending this composite.
+ *
+ * `claimElement`, `sourcesStyle`, and `sourcesLayout` default to that operator preset rather than
+ * to the leaf-primitive defaults, which are tuned for marketing bands. Surfaces wanting the leaf
+ * look pass `"aside"` / `operatorMuted` / `"wrap"` explicitly.
  */
 export function EvidenceOrientationClaimAndSourcesStrip({
   slug,
@@ -58,12 +63,12 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   sources,
   sourcesTitle = HELP_DILIGENCE_ARTIFACT_INDEX_TITLE,
   claimStyle,
-  claimElement,
+  claimElement = "div",
   claimTestId,
-  sourcesStyle,
+  sourcesStyle = EVIDENCE_SOURCES_STYLE.operatorRaised,
   sourcesHeadingId,
   sourcesTestId,
-  sourcesLayout,
+  sourcesLayout = "stacked",
   readingBodyClassName,
   headingClassName,
   stripTestId,

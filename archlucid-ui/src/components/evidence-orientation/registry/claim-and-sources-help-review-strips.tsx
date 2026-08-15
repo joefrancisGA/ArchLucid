@@ -18,7 +18,6 @@ import {
   COMPARISON_REPLAY_HELP_SOURCES,
   COMPARISON_REPLAY_HELP_SOURCES_INTRO,
 } from "@/lib/comparison-replay-help-evidence-copy";
-import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   ROI_SUMMARY_HELP_CLAIM_DISCIPLINE,
   ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -179,13 +178,10 @@ export function AuditTrailHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE}
       claimHeading={AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={AUDIT_TRAIL_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={AUDIT_TRAIL_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={AUDIT_TRAIL_HELP_SOURCES_INTRO}
       sources={AUDIT_TRAIL_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -197,13 +193,10 @@ export function ComparisonReplayHelpEvidenceOrientationStrip(): React.JSX.Elemen
       claim={COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE}
       claimHeading={COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={COMPARISON_REPLAY_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={COMPARISON_REPLAY_HELP_SOURCES_INTRO}
       sources={COMPARISON_REPLAY_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -221,13 +214,10 @@ export function RoiSummaryHelpEvidenceOrientationStrip(
       claim={ROI_SUMMARY_HELP_CLAIM_DISCIPLINE}
       claimHeading={ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ROI_SUMMARY_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ROI_SUMMARY_HELP_SOURCES_INTRO}
       sources={ROI_SUMMARY_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -241,13 +231,10 @@ export function ArchitectureScorecardHelpEvidenceOrientationStrip(): React.JSX.E
       claim={ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE}
       claimHeading={ARCHITECTURE_SCORECARD_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ARCHITECTURE_SCORECARD_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={ARCHITECTURE_SCORECARD_HELP_RELATED_SOURCES_TITLE}
       sourcesIntro={ARCHITECTURE_SCORECARD_HELP_SOURCES_INTRO}
       sources={ARCHITECTURE_SCORECARD_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="related-evidence-and-sources"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -271,13 +258,10 @@ export function StandardsRulesHelpEvidenceOrientationStrip(
       claim={STANDARDS_RULES_HELP_CLAIM_DISCIPLINE}
       claimHeading={STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={STANDARDS_RULES_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={STANDARDS_RULES_HELP_SOURCES_INTRO}
       sources={STANDARDS_RULES_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
       headingClassName={sectionHeadingClass}
     />
@@ -297,13 +281,10 @@ export function BaselineSettingsHelpEvidenceOrientationStrip(
       claim={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE}
       claimHeading={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={BASELINE_SETTINGS_HELP_SOURCES_INTRO}
       sources={BASELINE_SETTINGS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -317,13 +298,10 @@ export function GovernanceApprovalHelpEvidenceOrientationStrip(): React.JSX.Elem
       claim={GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE}
       claimHeading={GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={GOVERNANCE_APPROVAL_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={GOVERNANCE_APPROVAL_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={GOVERNANCE_APPROVAL_HELP_SOURCES_INTRO}
       sources={GOVERNANCE_APPROVAL_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -336,13 +314,10 @@ export function FindingsHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={FINDINGS_HELP_CLAIM_DISCIPLINE}
       claimHeading={FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={FINDINGS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={FINDINGS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={FINDINGS_HELP_SOURCES_INTRO}
       sources={FINDINGS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -354,13 +329,10 @@ export function PriorManifestRetrievalHelpEvidenceOrientationStrip(): React.JSX.
       claim={PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE}
       claimHeading={PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={PRIOR_MANIFEST_RETRIEVAL_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={PRIOR_MANIFEST_RETRIEVAL_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES_INTRO}
       sources={PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -372,13 +344,10 @@ export function PolicyPacksHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={POLICY_PACKS_HELP_CLAIM_DISCIPLINE}
       claimHeading={POLICY_PACKS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={POLICY_PACKS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={POLICY_PACKS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={POLICY_PACKS_HELP_SOURCES_INTRO}
       sources={POLICY_PACKS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -390,13 +359,10 @@ export function RepeatReviewLoopHelpEvidenceOrientationStrip(): React.JSX.Elemen
       claim={REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE}
       claimHeading={REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={REPEAT_REVIEW_LOOP_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO}
       sources={REPEAT_REVIEW_LOOP_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -408,13 +374,10 @@ export function EvidenceGraphHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE}
       claimHeading={EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={EVIDENCE_GRAPH_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={EVIDENCE_GRAPH_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={EVIDENCE_GRAPH_HELP_SOURCES_INTRO}
       sources={EVIDENCE_GRAPH_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -427,11 +390,9 @@ export function SearchReviewEvidenceHelpEvidenceOrientationStrip(): React.JSX.El
       claim={SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE}
       claimHeading={SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={SEARCH_REVIEW_EVIDENCE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES_INTRO}
       sources={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="wrap"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
@@ -446,13 +407,10 @@ export function ArchitectureIntelligenceHelpEvidenceOrientationStrip(): React.JS
       claim={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE}
       claimHeading={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ARCHITECTURE_INTELLIGENCE_HELP_SOURCES_INTRO}
       sources={ARCHITECTURE_INTELLIGENCE_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -470,13 +428,10 @@ export function SponsorDashboardHelpEvidenceOrientationStrip(
       claim={SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE}
       claimHeading={SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SPONSOR_DASHBOARD_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SPONSOR_DASHBOARD_HELP_SOURCES_INTRO}
       sources={SPONSOR_DASHBOARD_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -489,12 +444,11 @@ export function ArchitectureDraftsHelpEvidenceOrientationStrip(): React.JSX.Elem
       claim={ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE}
       claimHeading={ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ARCHITECTURE_DRAFTS_HELP_SOURCES_INTRO}
       sources={ARCHITECTURE_DRAFTS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="wrap"
     />
   );
 }
@@ -512,13 +466,10 @@ export function DecisionRegisterHelpEvidenceOrientationStrip(
       claim={DECISION_REGISTER_HELP_CLAIM_DISCIPLINE}
       claimHeading={DECISION_REGISTER_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={DECISION_REGISTER_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={DECISION_REGISTER_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={DECISION_REGISTER_HELP_SOURCES_INTRO}
       sources={DECISION_REGISTER_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -537,13 +488,10 @@ export function ImprovementPlanningHelpEvidenceOrientationStrip(
       claim={IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE}
       claimHeading={IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={IMPROVEMENT_PLANNING_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={IMPROVEMENT_PLANNING_HELP_SOURCES_INTRO}
       sources={IMPROVEMENT_PLANNING_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -562,13 +510,10 @@ export function ImpactPreviewHelpEvidenceOrientationStrip(
       claim={IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE}
       claimHeading={IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={IMPACT_PREVIEW_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={IMPACT_PREVIEW_HELP_SOURCES_INTRO}
       sources={IMPACT_PREVIEW_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -583,9 +528,7 @@ export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={ADVISORY_SCANS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ADVISORY_SCANS_HELP_SOURCES_INTRO}
       sources={ADVISORY_SCANS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       headingClassName={sectionHeadingClass}
     />

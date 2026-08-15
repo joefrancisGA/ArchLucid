@@ -2,7 +2,6 @@
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
-import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   BASELINE_SETTINGS_FOLLOW_UPS_TITLE,
   BASELINE_SETTINGS_SOURCES,
@@ -102,13 +101,10 @@ export function BaselineSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="baseline-settings"
-      claimElement="div"
       sourcesTitle={BASELINE_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={BASELINE_SETTINGS_SOURCES_INTRO}
       sources={BASELINE_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -117,13 +113,10 @@ export function ExtractUploadSettingsEvidenceOrientationStrip(): React.JSX.Eleme
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="extract-upload-settings"
-      claimElement="div"
       sourcesTitle={EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO}
       sources={EXTRACT_UPLOAD_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -132,13 +125,10 @@ export function OperatorBillingSettingsEvidenceOrientationStrip(): React.JSX.Ele
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="operator-billing-settings"
-      claimElement="div"
       sourcesTitle={OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={OPERATOR_BILLING_SETTINGS_SOURCES_INTRO}
       sources={OPERATOR_BILLING_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -150,13 +140,10 @@ export function PreferencesSettingsEvidenceOrientationStrip(): React.JSX.Element
       claim={PREFERENCES_SETTINGS_CLAIM_DISCIPLINE}
       claimHeading={PREFERENCES_SETTINGS_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={PREFERENCES_SETTINGS_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={PREFERENCES_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={PREFERENCES_SETTINGS_SOURCES_INTRO}
       sources={PREFERENCES_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -165,13 +152,10 @@ export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="role-mapping-settings"
-      claimElement="div"
       sourcesTitle={ROLE_MAPPING_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={ROLE_MAPPING_SETTINGS_SOURCES_INTRO}
       sources={ROLE_MAPPING_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -183,13 +167,10 @@ export function AccountSecuritySettingsEvidenceOrientationStrip(): React.JSX.Ele
       claim={ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE}
       claimHeading={ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ACCOUNT_SECURITY_SETTINGS_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={ACCOUNT_SECURITY_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={ACCOUNT_SECURITY_SETTINGS_SOURCES_INTRO}
       sources={ACCOUNT_SECURITY_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -201,13 +182,10 @@ export function AuthDomainsSettingsEvidenceOrientationStrip(): React.JSX.Element
       claim={AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE}
       claimHeading={AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={AUTH_DOMAINS_SETTINGS_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={AUTH_DOMAINS_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={AUTH_DOMAINS_SETTINGS_SOURCES_INTRO}
       sources={AUTH_DOMAINS_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -216,13 +194,10 @@ export function ModelGovernanceSettingsEvidenceOrientationStrip(): React.JSX.Ele
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="model-governance-settings"
-      claimElement="div"
       sourcesTitle={MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO}
       sources={MODEL_GOVERNANCE_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -231,13 +206,10 @@ export function AiUsageSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="ai-usage-settings"
-      claimElement="div"
       sourcesTitle={AI_USAGE_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={AI_USAGE_SETTINGS_SOURCES_INTRO}
       sources={AI_USAGE_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -246,13 +218,10 @@ export function IdentityProvidersSettingsEvidenceOrientationStrip(): React.JSX.E
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-settings"
-      claimElement="div"
       sourcesTitle={IDENTITY_PROVIDERS_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_SETTINGS_SOURCES_INTRO}
       sources={IDENTITY_PROVIDERS_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -261,13 +230,10 @@ export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(): React.J
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-oidc-settings"
-      claimElement="div"
       sourcesTitle={IDENTITY_PROVIDERS_OIDC_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_OIDC_SOURCES_INTRO}
       sources={IDENTITY_PROVIDERS_OIDC_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -276,13 +242,10 @@ export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(): React.J
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-saml-settings"
-      claimElement="div"
       sourcesTitle={IDENTITY_PROVIDERS_SAML_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_SAML_SOURCES_INTRO}
       sources={IDENTITY_PROVIDERS_SAML_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -291,13 +254,10 @@ export function IdentityProvidersDiagnosticsSettingsEvidenceOrientationStrip(): 
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-diagnostics-settings"
-      claimElement="div"
       sourcesTitle={IDENTITY_PROVIDERS_DIAGNOSTICS_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES_INTRO}
       sources={IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -306,13 +266,10 @@ export function ScimProvisioningSettingsEvidenceOrientationStrip(): React.JSX.El
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="scim-provisioning-settings"
-      claimElement="div"
       sourcesTitle={SCIM_PROVISIONING_FOLLOW_UPS_TITLE}
       sourcesIntro={SCIM_PROVISIONING_SOURCES_INTRO}
       sources={SCIM_PROVISIONING_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -321,13 +278,10 @@ export function SsoWizardSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="sso-wizard-settings"
-      claimElement="div"
       sourcesTitle={SSO_WIZARD_FOLLOW_UPS_TITLE}
       sourcesIntro={SSO_WIZARD_SOURCES_INTRO}
       sources={SSO_WIZARD_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -336,13 +290,10 @@ export function TenantSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="tenant-settings"
-      claimElement="div"
       sourcesTitle={TENANT_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={TENANT_SETTINGS_SOURCES_INTRO}
       sources={TENANT_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -351,13 +302,10 @@ export function ApiKeysSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="api-keys-settings"
-      claimElement="div"
       sourcesTitle={API_KEYS_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={API_KEYS_SETTINGS_SOURCES_INTRO}
       sources={API_KEYS_SETTINGS_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }

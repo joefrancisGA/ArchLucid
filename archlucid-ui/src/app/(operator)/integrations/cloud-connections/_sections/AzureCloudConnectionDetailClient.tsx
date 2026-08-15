@@ -3,6 +3,7 @@
 
 
 import Link from "next/link";
+import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 
@@ -237,6 +238,9 @@ function AzureConnectionDetailBody() {
         claim={CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE}
         sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
         sources={cloudProviderConnectionSources("azure")}
+        claimElement="aside"
+        sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
+        sourcesLayout="wrap"
       />
 
     </>

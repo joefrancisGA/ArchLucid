@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -116,6 +117,9 @@ export function GcpCloudConnectionDetailClient() {
           claim={CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE}
           sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
           sources={cloudProviderConnectionSources("gcp")}
+          claimElement="aside"
+          sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
+          sourcesLayout="wrap"
         />
       </div>
     </GcpConnectionDataProvider>

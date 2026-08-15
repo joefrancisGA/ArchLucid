@@ -243,13 +243,10 @@ export function TroubleshootingHelpEvidenceOrientationStrip(): React.JSX.Element
       claimHeading={TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={TROUBLESHOOTING_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
-      claimElement="div"
       sourcesTitle={TROUBLESHOOTING_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={TROUBLESHOOTING_HELP_SOURCES_INTRO}
       sources={TROUBLESHOOTING_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }

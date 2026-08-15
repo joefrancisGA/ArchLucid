@@ -189,13 +189,10 @@ export function AlertsHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={ALERTS_HELP_CLAIM_DISCIPLINE}
       claimHeading={ALERTS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ALERTS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={ALERTS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ALERTS_HELP_SOURCES_INTRO}
       sources={ALERTS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -207,13 +204,10 @@ export function AuthenticationSignInHelpEvidenceOrientationStrip(): React.JSX.El
       claim={AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE}
       claimHeading={AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={AUTHENTICATION_SIGN_IN_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={AUTHENTICATION_SIGN_IN_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={AUTHENTICATION_SIGN_IN_HELP_SOURCES_INTRO}
       sources={AUTHENTICATION_SIGN_IN_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -226,13 +220,10 @@ export function BillingAndPlansHelpEvidenceOrientationStrip(): React.JSX.Element
       claim={BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE}
       claimHeading={BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={BILLING_AND_PLANS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={BILLING_AND_PLANS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={BILLING_AND_PLANS_HELP_SOURCES_INTRO}
       sources={BILLING_AND_PLANS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -245,13 +236,10 @@ export function ConnectAwsSecurelyHelpEvidenceOrientationStrip(): React.JSX.Elem
       claim={CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE}
       claimHeading={CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={CONNECT_AWS_SECURELY_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECT_AWS_SECURELY_SOURCES_INTRO}
       sources={CONNECT_AWS_SECURELY_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -263,13 +251,10 @@ export function ConnectAzureSecurelyHelpEvidenceOrientationStrip(): React.JSX.El
       claim={CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE}
       claimHeading={CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={CONNECT_AZURE_SECURELY_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={CONNECT_AZURE_SECURELY_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECT_AZURE_SECURELY_SOURCES_INTRO}
       sources={CONNECT_AZURE_SECURELY_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -281,13 +266,10 @@ export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={DIGESTS_HELP_CLAIM_DISCIPLINE}
       claimHeading={DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={DIGESTS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={DIGESTS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={DIGESTS_HELP_SOURCES_INTRO}
       sources={DIGESTS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -299,13 +281,10 @@ export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Ele
       claim={RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE}
       claimHeading={RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={RECURRENCE_SCHEDULES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO}
       sources={RECURRENCE_SCHEDULES_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -323,13 +302,10 @@ export function ConnectionStatusHelpEvidenceOrientationStrip(
       claim={CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE}
       claimHeading={CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={CONNECTION_STATUS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={CONNECTION_STATUS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECTION_STATUS_HELP_SOURCES_INTRO}
       sources={CONNECTION_STATUS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -342,12 +318,11 @@ export function ApiKeysHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={API_KEYS_HELP_CLAIM_DISCIPLINE}
       claimHeading={API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={API_KEYS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={API_KEYS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={API_KEYS_HELP_SOURCES_INTRO}
       sources={API_KEYS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="wrap"
     />
   );
 }
@@ -359,13 +334,10 @@ export function SystemHealthHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE}
       claimHeading={SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SYSTEM_HEALTH_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SYSTEM_HEALTH_HELP_SOURCES_INTRO}
       sources={SYSTEM_HEALTH_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -378,12 +350,11 @@ export function AiUsageHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={AI_USAGE_HELP_CLAIM_DISCIPLINE}
       claimHeading={AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={AI_USAGE_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={AI_USAGE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={AI_USAGE_HELP_SOURCES_INTRO}
       sources={AI_USAGE_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="wrap"
     />
   );
 }
@@ -401,13 +372,10 @@ export function PreferencesHelpEvidenceOrientationStrip(
       claim={PREFERENCES_HELP_CLAIM_DISCIPLINE}
       claimHeading={PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={PREFERENCES_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={PREFERENCES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={PREFERENCES_HELP_SOURCES_INTRO}
       sources={PREFERENCES_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -426,13 +394,10 @@ export function NotificationsHelpEvidenceOrientationStrip(
       claim={NOTIFICATIONS_HELP_CLAIM_DISCIPLINE}
       claimHeading={NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={NOTIFICATIONS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={NOTIFICATIONS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={NOTIFICATIONS_HELP_SOURCES_INTRO}
       sources={NOTIFICATIONS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -458,7 +423,6 @@ export function WorkspaceSettingsHelpEvidenceOrientationStrip(
       claimHeading={WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorInlineNote}
-      claimElement="div"
       sourcesTitle={WORKSPACE_SETTINGS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={WORKSPACE_SETTINGS_HELP_SOURCES_INTRO}
       sources={WORKSPACE_SETTINGS_HELP_SOURCES}
@@ -478,13 +442,10 @@ export function EnterpriseOnboardingHelpEvidenceOrientationStrip(): React.JSX.El
       claim={ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE}
       claimHeading={ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={ENTERPRISE_ONBOARDING_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ENTERPRISE_ONBOARDING_HELP_SOURCES_INTRO}
       sources={ENTERPRISE_ONBOARDING_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -496,13 +457,10 @@ export function IntegrationReadinessHelpEvidenceOrientationStrip(): React.JSX.El
       claim={INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE}
       claimHeading={INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={INTEGRATION_READINESS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={INTEGRATION_READINESS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={INTEGRATION_READINESS_HELP_SOURCES_INTRO}
       sources={INTEGRATION_READINESS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -514,13 +472,10 @@ export function PilotFeedbackHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE}
       claimHeading={PILOT_FEEDBACK_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={PILOT_FEEDBACK_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={PILOT_FEEDBACK_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={PILOT_FEEDBACK_HELP_SOURCES_INTRO}
       sources={PILOT_FEEDBACK_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -532,13 +487,10 @@ export function ReportProblemHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE}
       claimHeading={REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={REPORT_A_PROBLEM_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={REPORT_A_PROBLEM_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={REPORT_A_PROBLEM_HELP_SOURCES_INTRO}
       sources={REPORT_A_PROBLEM_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -550,13 +502,10 @@ export function SecurityTrustHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={SECURITY_TRUST_HELP_CLAIM_DISCIPLINE}
       claimHeading={SECURITY_TRUST_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SECURITY_TRUST_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={SECURITY_TRUST_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SECURITY_TRUST_HELP_SOURCES_INTRO}
       sources={SECURITY_TRUST_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -568,13 +517,10 @@ export function SubprocessorsHelpEvidenceOrientationStrip(): React.JSX.Element {
       claim={SUBPROCESSORS_HELP_CLAIM_DISCIPLINE}
       claimHeading={SUBPROCESSORS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={SUBPROCESSORS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={SUBPROCESSORS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SUBPROCESSORS_HELP_SOURCES_INTRO}
       sources={SUBPROCESSORS_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
     />
   );
 }
@@ -592,13 +538,10 @@ export function ModelGovernanceHelpEvidenceOrientationStrip(
       claim={MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE}
       claimHeading={MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={MODEL_GOVERNANCE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={MODEL_GOVERNANCE_HELP_SOURCES_INTRO}
       sources={MODEL_GOVERNANCE_HELP_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorRaised}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
