@@ -7080,6 +7080,9 @@
             },
             "type": "array"
           },
+          "reviewCompleteBlocked": {
+            "type": "boolean"
+          },
           "runId": {
             "type": [
               "null",
