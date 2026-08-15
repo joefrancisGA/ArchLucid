@@ -1386,7 +1386,8 @@ jobs:
             STATE=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
               --revision "$A_LATEST" --query "properties.runningState" -o tsv 2>/dev/null || true)
             echo "  [${ELAPSED}s] runningState=${STATE}"
-            if [ "$STATE" = "Running" ]; then break; fi
+            # maxReplicas=1 reports RunningAtMaxScale instead of Running — treat as healthy.
+            if [ "$STATE" = "Running" ] || [ "$STATE" = "RunningAtMaxScale" ]; then break; fi
             # Azure reports ActivationFailed/Degraded — not plain Failed — when startup crashes.
             if [ "$STATE" = "Failed" ] || [ "$STATE" = "Stopped" ] || [ "$STATE" = "ActivationFailed" ] || [ "$STATE" = "Degraded" ]; then
               echo "::error::API revision ${A_LATEST} entered state '${STATE}' — startup failure. Check Container Apps logs."
@@ -1395,11 +1396,11 @@ jobs:
             sleep "$INTERVAL"
             ELAPSED=$((ELAPSED + INTERVAL))
           done
-          if [ "$STATE" != "Running" ]; then
+          if [ "$STATE" != "Running" ] && [ "$STATE" != "RunningAtMaxScale" ]; then
             echo "::error::API revision ${A_LATEST} did not reach Running state within ${MAX_WAIT}s (last state: ${STATE})."
             exit 1
           fi
-          echo "API revision ${A_LATEST} is Running."
+          echo "API revision ${A_LATEST} is healthy (${STATE})."
           # Verify 100% traffic weight when not in canary mode.
           if [ "${CD_CANARY_ENABLED:-}" != "true" ]; then
             TRAFFIC_MAX_WAIT=120
