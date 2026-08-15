@@ -4,9 +4,11 @@ import { findCustomerAuthBannedPhrases } from "@/lib/auth/customer-auth-messagin
 
 import {
   buildHowDoISignInFaqAnswer,
-  filterMarketingFaqItems,
   getMarketingFaqItems,
   MARKETING_FAQ_CATEGORIES,
+  MARKETING_FAQ_MOST_ASKED_ITEM_IDS,
+  selectMarketingFaqCategoryItems,
+  selectMarketingFaqMostAskedItems,
 } from "./marketing-faq";
 
 const BANNED_FAQ_TERMS = [
@@ -81,10 +83,37 @@ describe("marketing-faq", () => {
     expect(items.find((entry) => entry.id === "enterprise-sso-enforcement")?.categoryId).toBe("sign-in-access");
   });
 
-  it("filters items by category title", () => {
-    const hits = filterMarketingFaqItems(getMarketingFaqItems(), "security & assurance");
+  it("selects most-asked items in promotion order", () => {
+    const promoted = selectMarketingFaqMostAskedItems(getMarketingFaqItems());
 
-    expect(hits.some((item) => item.id === "customer-data-protection")).toBe(true);
+    expect(promoted.map((item) => item.id)).toEqual([...MARKETING_FAQ_MOST_ASKED_ITEM_IDS]);
+  });
+
+  it("excludes promoted items from category items so each question renders once", () => {
+    const items = getMarketingFaqItems();
+    const categoryItems = selectMarketingFaqCategoryItems(items);
+    const categoryIds = categoryItems.map((item) => item.id);
+
+    for (const promotedId of MARKETING_FAQ_MOST_ASKED_ITEM_IDS) {
+      expect(categoryIds, promotedId).not.toContain(promotedId);
+    }
+
+    expect(categoryItems).toHaveLength(items.length - MARKETING_FAQ_MOST_ASKED_ITEM_IDS.length);
+  });
+
+  it("keeps every category populated after most-asked promotion", () => {
+    const categoryItems = selectMarketingFaqCategoryItems(getMarketingFaqItems());
+
+    for (const category of MARKETING_FAQ_CATEGORIES) {
+      expect(categoryItems.some((item) => item.categoryId === category.id), category.id).toBe(true);
+    }
+  });
+
+  it("returns empty selections for missing item collections", () => {
+    expect(selectMarketingFaqMostAskedItems(null)).toEqual([]);
+    expect(selectMarketingFaqMostAskedItems(undefined)).toEqual([]);
+    expect(selectMarketingFaqCategoryItems(null)).toEqual([]);
+    expect(selectMarketingFaqCategoryItems(undefined)).toEqual([]);
   });
 
   it("fixes sponsor value copy and most-asked ids", () => {
@@ -96,11 +125,5 @@ describe("marketing-faq", () => {
     expect(MARKETING_FAQ_CATEGORIES.find((category) => category.id === "security-trust")?.title).toBe(
       "Security & assurance",
     );
-  });
-
-  it("filters items by search query", () => {
-    const hits = filterMarketingFaqItems(getMarketingFaqItems(), "guided trial");
-
-    expect(hits.map((item) => item.id)).toEqual(["request-help-guided-trial"]);
   });
 });

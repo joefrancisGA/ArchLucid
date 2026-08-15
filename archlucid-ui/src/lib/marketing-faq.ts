@@ -292,24 +292,34 @@ export function getMarketingFaqItems(): ReadonlyArray<MarketingFaqItem> {
  */
 export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = getMarketingFaqItems();
 
-export function filterMarketingFaqItems(
-  items: ReadonlyArray<MarketingFaqItem>,
-  query: string,
+/** Returns the promoted "Most asked" items in curated promotion order. */
+export function selectMarketingFaqMostAskedItems(
+  items: ReadonlyArray<MarketingFaqItem> | null | undefined,
 ): MarketingFaqItem[] {
-  const normalized = query.trim().toLowerCase();
-
-  if (normalized.length === 0) {
-    return [...items];
+  if (items === null || items === undefined) {
+    return [];
   }
 
-  const categoryTitleById = new Map(MARKETING_FAQ_CATEGORIES.map((category) => [category.id, category.title]));
+  return MARKETING_FAQ_MOST_ASKED_ITEM_IDS.map((itemId) => items.find((item) => item.id === itemId)).filter(
+    (item): item is MarketingFaqItem => item !== undefined,
+  );
+}
 
-  return items.filter((item) => {
-    const categoryTitle = categoryTitleById.get(item.categoryId) ?? "";
-    const haystack = `${item.question} ${item.answer} ${categoryTitle}`.toLowerCase();
+/**
+ * Returns items for the category sections, excluding promoted "Most asked" items.
+ * Each panel id doubles as a `/faq#<id>` deep-link target, so rendering a question in
+ * both places would emit duplicate DOM ids and make the anchor ambiguous.
+ */
+export function selectMarketingFaqCategoryItems(
+  items: ReadonlyArray<MarketingFaqItem> | null | undefined,
+): MarketingFaqItem[] {
+  if (items === null || items === undefined) {
+    return [];
+  }
 
-    return haystack.includes(normalized);
-  });
+  const promotedIds = new Set<string>(MARKETING_FAQ_MOST_ASKED_ITEM_IDS);
+
+  return items.filter((item) => !promotedIds.has(item.id));
 }
 
 export function marketingFaqItemsByCategory(
