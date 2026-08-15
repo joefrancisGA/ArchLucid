@@ -3,7 +3,7 @@ namespace ArchLucid.Host.Core.Configuration;
 /// <summary>
 ///     Background worker knobs for post-commit projection SQL outbox rows (lease time, backoff, dead-letter).
 /// </summary>
-public sealed class PostCommitProjectionOutboxProcessorOptions
+public sealed class PostCommitProjectionOutboxProcessorOptions : IOutboxLeaseRetryProcessorOptions
 {
     public const string SectionName = "PostCommitProjectionOutbox";
 

@@ -11,32 +11,16 @@ namespace ArchLucid.Host.Core.Hosted;
 public sealed class RunExportBlobPushOutboxHostedService(
     IRunExportBlobPushOutboxProcessor processor,
     ILogger<RunExportBlobPushOutboxHostedService> logger,
-    HostLeaderElectionCoordinator electionCoordinator) : BackgroundService
+    HostLeaderElectionCoordinator electionCoordinator)
+    : LeaderElectedOutboxHostedServiceBase(electionCoordinator, logger)
 {
     private readonly IRunExportBlobPushOutboxProcessor _processor =
         processor ?? throw new ArgumentNullException(nameof(processor));
 
-    private readonly ILogger<RunExportBlobPushOutboxHostedService> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    protected override string LeaseName => HostElectionLeaseNames.RunExportBlobPushOutbox;
 
-    private readonly HostLeaderElectionCoordinator _electionCoordinator =
-        electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
+    protected override string LoopName => "Run export blob push outbox";
 
-    /// <inheritdoc />
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        return _electionCoordinator.RunLeaderWorkAsync(
-            HostElectionLeaseNames.RunExportBlobPushOutbox,
-            LoopAsync,
-            stoppingToken);
-    }
-
-    private Task LoopAsync(CancellationToken leaderToken)
-    {
-        return AdaptiveOutboxDrainLoop.RunAsync(
-            _processor.ProcessPendingBatchAsync,
-            _logger,
-            "Run export blob push outbox",
-            leaderToken);
-    }
+    protected override Func<CancellationToken, Task<int>> ProcessPendingBatch =>
+        _processor.ProcessPendingBatchAsync;
 }

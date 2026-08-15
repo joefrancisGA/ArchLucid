@@ -7,10 +7,10 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Orchestration.Events;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Coordination;
 using ArchLucid.Persistence.Coordination.Projection;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Queries;
@@ -27,74 +27,72 @@ public sealed class PostCommitProjectionOutboxProcessor(
     IServiceScopeFactory scopeFactory,
     IOptions<PostCommitProjectionOutboxProcessorOptions> processorOptions,
     TimeProvider timeProvider,
-    ILogger<PostCommitProjectionOutboxProcessor> logger) : IPostCommitProjectionOutboxProcessor
+    ILogger<PostCommitProjectionOutboxProcessor> logger)
+    : RecoverableOutboxProcessorBase<
+            PostCommitProjectionOutboxEntry,
+            IPostCommitProjectionOutboxRepository,
+            PostCommitProjectionOutboxProcessorOptions>(
+        scopeFactory,
+        processorOptions,
+        timeProvider,
+        logger),
+        IPostCommitProjectionOutboxProcessor
 {
-    private const int MaxBatch = 25;
+    protected override int GetMaxConcurrentBatchEntries(PostCommitProjectionOutboxProcessorOptions opts) =>
+        opts.MaxConcurrentBatchEntries;
 
-    private readonly ILogger<PostCommitProjectionOutboxProcessor> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
-
-    private readonly IOptions<PostCommitProjectionOutboxProcessorOptions> _processorOptions =
-        processorOptions ?? throw new ArgumentNullException(nameof(processorOptions));
-
-    private readonly IServiceScopeFactory _scopeFactory =
-        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
-
-    private readonly TimeProvider _timeProvider =
-        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-
-    /// <inheritdoc />
-    public async Task<int> ProcessPendingBatchAsync(CancellationToken ct)
+    protected override void LogProcessingFailure(Exception fault, PostCommitProjectionOutboxEntry entry)
     {
-        PostCommitProjectionOutboxProcessorOptions opts = VerifiedOptions(_processorOptions.Value);
-        int maxConcurrent = Math.Clamp(opts.MaxConcurrentBatchEntries, 1, MaxBatch);
-
-        using IServiceScope dequeueScope = _scopeFactory.CreateScope();
-        IPostCommitProjectionOutboxRepository outbox =
-            dequeueScope.ServiceProvider.GetRequiredService<IPostCommitProjectionOutboxRepository>();
-
-        IReadOnlyList<PostCommitProjectionOutboxEntry> batch =
-            await outbox.DequeuePendingAsync(MaxBatch, opts.LeaseDurationSeconds, ct).ConfigureAwait(false);
-
-        await BoundedBatchParallelism.ForEachAsync(
-            batch,
-            maxConcurrent,
-            (entry, token) => ProcessEntryWithIsolationAsync(entry, opts, token),
-            ct).ConfigureAwait(false);
-
-        return batch.Count;
+        if (Logger.IsEnabled(LogLevel.Warning))
+        {
+            Logger.LogWarning(
+                fault,
+                "Post-commit projection outbox processing failed for outbox {OutboxId}, workType {WorkType}, run {RunId}.",
+                entry.OutboxId,
+                entry.WorkType,
+                entry.RunId?.ToString("D") ?? "(none)");
+        }
     }
 
-    private async Task ProcessEntryWithIsolationAsync(
+    protected override async Task OnDeadLetterAsync(
+        IServiceScope scope,
+        PostCommitProjectionOutboxEntry entry,
+        string summary,
+        PostCommitProjectionOutboxProcessorOptions opts,
+        CancellationToken cancellationToken)
+    {
+        IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
+        ArchLucidInstrumentation.RecordPostCommitProjectionOutboxDeadLettered();
+        await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken).ConfigureAwait(false);
+
+        if (Logger.IsEnabled(LogLevel.Error))
+        {
+            Logger.LogError(
+                "Post-commit projection outbox dead-lettered outbox {OutboxId}, workType {WorkType}, run {RunId}, after exhausting retries ({Max}). Summary={Summary}",
+                entry.OutboxId,
+                entry.WorkType,
+                entry.RunId?.ToString("D") ?? "(none)",
+                opts.MaxAttemptsBeforeDeadLetter,
+                summary);
+        }
+    }
+
+    protected override Task OnRetryScheduledAsync(
         PostCommitProjectionOutboxEntry entry,
         PostCommitProjectionOutboxProcessorOptions opts,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
-        using IServiceScope scope = _scopeFactory.CreateScope();
-        IPostCommitProjectionOutboxRepository outbox =
-            scope.ServiceProvider.GetRequiredService<IPostCommitProjectionOutboxRepository>();
-        IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
+        ArchLucidInstrumentation.RecordPostCommitProjectionOutboxRetryScheduled();
 
-        try
-        {
-            await ProcessEntryAsync(scope, outbox, auditService, entry, ct).ConfigureAwait(false);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            await OnProcessingFailedAsync(outbox, auditService, entry, ex, opts, ct).ConfigureAwait(false);
-        }
+        return Task.CompletedTask;
     }
 
-    private async Task ProcessEntryAsync(
+    protected override async Task ProcessEntryAsync(
         IServiceScope scope,
         IPostCommitProjectionOutboxRepository outbox,
-        IAuditService auditService,
         PostCommitProjectionOutboxEntry entry,
-        CancellationToken ct)
+        PostCommitProjectionOutboxProcessorOptions opts,
+        CancellationToken cancellationToken)
     {
         using Activity? activity = ArchLucidInstrumentation.AuthorityRun.StartActivity(
             "PostCommitProjectionOutbox.ProcessEntry");
@@ -119,19 +117,45 @@ public sealed class PostCommitProjectionOutboxProcessor(
 
         using IDisposable ambient = AmbientScopeContext.Push(jobScope);
 
-        bool benignSkip = await DispatchWorkTypeAsync(scope, entry, jobScope, ct);
+        bool benignSkip = await DispatchWorkTypeAsync(scope, entry, jobScope, cancellationToken);
 
-        await outbox.MarkProcessedAsync(entry.OutboxId, ct);
+        await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
         ArchLucidInstrumentation.RecordPostCommitProjectionOutboxProcessedSuccess();
 
-        if (benignSkip && _logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug(
+        if (benignSkip && Logger.IsEnabled(LogLevel.Debug))
+        {
+            Logger.LogDebug(
                 "Post-commit projection outbox processed with benign skip outbox {OutboxId}, workType {WorkType}.",
                 entry.OutboxId,
                 entry.WorkType);
+        }
     }
 
-    private async Task<bool> DispatchWorkTypeAsync(
+    protected override PostCommitProjectionOutboxProcessorOptions VerifyOptions(
+        PostCommitProjectionOutboxProcessorOptions configured)
+    {
+        ArgumentNullException.ThrowIfNull(configured);
+
+        (int lease, int maxAttempts, int baseSecs, int maxSecs, int maxConcurrent) =
+            OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry(
+                configured.LeaseDurationSeconds,
+                configured.MaxAttemptsBeforeDeadLetter,
+                configured.RetryBackoffBaseSeconds,
+                configured.RetryBackoffMaxSeconds,
+                configured.MaxConcurrentBatchEntries,
+                MaxBatchSize);
+
+        return new PostCommitProjectionOutboxProcessorOptions
+        {
+            LeaseDurationSeconds = lease,
+            MaxAttemptsBeforeDeadLetter = maxAttempts,
+            RetryBackoffBaseSeconds = baseSecs,
+            RetryBackoffMaxSeconds = maxSecs,
+            MaxConcurrentBatchEntries = maxConcurrent,
+        };
+    }
+
+    private static async Task<bool> DispatchWorkTypeAsync(
         IServiceScope scope,
         PostCommitProjectionOutboxEntry entry,
         ScopeContext jobScope,
@@ -272,52 +296,6 @@ public sealed class PostCommitProjectionOutboxProcessor(
         await materializer.MaterializeIfMissingAsync(runGuid.ToString("N"), ct);
     }
 
-    private async Task OnProcessingFailedAsync(
-        IPostCommitProjectionOutboxRepository outbox,
-        IAuditService auditService,
-        PostCommitProjectionOutboxEntry entry,
-        Exception fault,
-        PostCommitProjectionOutboxProcessorOptions opts,
-        CancellationToken ct)
-    {
-        if (_logger.IsEnabled(LogLevel.Warning))
-
-            _logger.LogWarning(
-                fault,
-                "Post-commit projection outbox processing failed for outbox {OutboxId}, workType {WorkType}, run {RunId}.",
-                entry.OutboxId,
-                entry.WorkType,
-                entry.RunId?.ToString("D") ?? "(none)");
-
-        string summary = AuthorityPipelineWorkErrorSummary.From(fault);
-
-        if (RetriesExhaustedAfterThisFailure(entry, opts))
-        {
-            await outbox.RecordDeadLetterAsync(entry.OutboxId, summary, ct);
-            ArchLucidInstrumentation.RecordPostCommitProjectionOutboxDeadLettered();
-            await LogDeadLetterAuditAsync(auditService, entry.RunId, ct);
-
-            if (_logger.IsEnabled(LogLevel.Error))
-
-                _logger.LogError(
-                    "Post-commit projection outbox dead-lettered outbox {OutboxId}, workType {WorkType}, run {RunId}, after exhausting retries ({Max}). Summary={Summary}",
-                    entry.OutboxId,
-                    entry.WorkType,
-                    entry.RunId?.ToString("D") ?? "(none)",
-                    opts.MaxAttemptsBeforeDeadLetter,
-                    summary);
-
-            return;
-        }
-
-        DateTime utcNow = _timeProvider.UtcNowDateTime();
-        TimeSpan delay = RetryDelayAfterFailure(entry, opts);
-        DateTime nextAttemptUtc = utcNow.Add(delay);
-
-        await outbox.RecordBackoffAfterProcessingFailureAsync(entry.OutboxId, nextAttemptUtc, summary, ct);
-        ArchLucidInstrumentation.RecordPostCommitProjectionOutboxRetryScheduled();
-    }
-
     [InformationalAudit]
     private static async Task LogDeadLetterAuditAsync(IAuditService auditService, Guid? runId, CancellationToken ct)
     {
@@ -328,58 +306,5 @@ public sealed class PostCommitProjectionOutboxProcessor(
                 RunId = runId
             },
             ct);
-    }
-
-    private static bool RetriesExhaustedAfterThisFailure(
-        PostCommitProjectionOutboxEntry entry,
-        PostCommitProjectionOutboxProcessorOptions opts)
-    {
-        int max = opts.MaxAttemptsBeforeDeadLetter <= 1 ? 1 : opts.MaxAttemptsBeforeDeadLetter;
-        long attemptAfterPersist = entry.AttemptCount + 1L;
-
-        return attemptAfterPersist >= max;
-    }
-
-    private static TimeSpan RetryDelayAfterFailure(
-        PostCommitProjectionOutboxEntry entry,
-        PostCommitProjectionOutboxProcessorOptions opts)
-    {
-        int floor = opts.RetryBackoffBaseSeconds < 1 ? 1 : opts.RetryBackoffBaseSeconds;
-        int cap = opts.RetryBackoffMaxSeconds < floor ? floor : opts.RetryBackoffMaxSeconds;
-        double scaled = floor * Math.Pow(2, entry.AttemptCount);
-        double clamped = scaled > cap ? cap : scaled;
-        double secondsRounded = clamped <= 1 ? 1 : Math.Ceiling(clamped);
-
-        return TimeSpan.FromSeconds(secondsRounded);
-    }
-
-    private static PostCommitProjectionOutboxProcessorOptions VerifiedOptions(
-        PostCommitProjectionOutboxProcessorOptions configured)
-    {
-        if (configured is null)
-            throw new ArgumentNullException(nameof(configured));
-
-        int lease = ClampInt(configured.LeaseDurationSeconds, 300, 7200);
-        int maxAttempts = ClampInt(configured.MaxAttemptsBeforeDeadLetter, 1, 999);
-        int baseSecs = ClampInt(configured.RetryBackoffBaseSeconds, 1, 86_400);
-        int maxSecs = ClampInt(configured.RetryBackoffMaxSeconds, 1, 86_400 * 7);
-        int maxConcurrent = ClampInt(configured.MaxConcurrentBatchEntries, 1, MaxBatch);
-
-        if (maxSecs < baseSecs)
-            maxSecs = baseSecs;
-
-        return new PostCommitProjectionOutboxProcessorOptions
-        {
-            LeaseDurationSeconds = lease,
-            MaxAttemptsBeforeDeadLetter = maxAttempts,
-            RetryBackoffBaseSeconds = baseSecs,
-            RetryBackoffMaxSeconds = maxSecs,
-            MaxConcurrentBatchEntries = maxConcurrent,
-        };
-    }
-
-    private static int ClampInt(int value, int minInclusive, int maxInclusive)
-    {
-        return value < minInclusive ? minInclusive : value > maxInclusive ? maxInclusive : value;
     }
 }

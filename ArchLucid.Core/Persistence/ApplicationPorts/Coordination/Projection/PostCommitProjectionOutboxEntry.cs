@@ -1,7 +1,9 @@
+using ArchLucid.Core.Persistence.ApplicationPorts.Coordination;
+
 namespace ArchLucid.Persistence.Coordination.Projection;
 
 /// <summary>One row in <c>dbo.PostCommitProjectionOutbox</c> awaiting post-commit side-effect processing.</summary>
-public sealed class PostCommitProjectionOutboxEntry
+public sealed class PostCommitProjectionOutboxEntry : IRecoverableOutboxEntry
 {
     public Guid OutboxId
     {

@@ -3,7 +3,7 @@ namespace ArchLucid.Host.Core.Configuration;
 /// <summary>
 ///     Background worker knobs for deferred authority pipeline SQL outbox rows (lease time, backoff, dead-letter).
 /// </summary>
-public sealed class AuthorityPipelineWorkProcessorOptions
+public sealed class AuthorityPipelineWorkProcessorOptions : IOutboxLeaseRetryProcessorOptions
 {
     public const string SectionName = "AuthorityPipelineWork";
 

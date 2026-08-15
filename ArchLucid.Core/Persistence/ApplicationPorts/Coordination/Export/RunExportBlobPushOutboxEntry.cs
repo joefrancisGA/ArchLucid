@@ -1,9 +1,11 @@
+using ArchLucid.Core.Persistence.ApplicationPorts.Coordination;
+
 namespace ArchLucid.Persistence.Coordination.Export;
 
 /// <summary>
 ///     One row in <c>dbo.RunExportBlobPushOutbox</c> (or in-memory equivalent) awaiting blob upload.
 /// </summary>
-public sealed class RunExportBlobPushOutboxEntry
+public sealed class RunExportBlobPushOutboxEntry : IRecoverableOutboxEntry
 {
     public Guid OutboxId
     {

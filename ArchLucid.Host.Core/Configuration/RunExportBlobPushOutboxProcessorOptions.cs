@@ -3,7 +3,7 @@ namespace ArchLucid.Host.Core.Configuration;
 /// <summary>
 ///     Background worker knobs for run-export blob push SQL outbox rows (lease time, backoff, dead-letter).
 /// </summary>
-public sealed class RunExportBlobPushOutboxProcessorOptions
+public sealed class RunExportBlobPushOutboxProcessorOptions : IOutboxLeaseRetryProcessorOptions
 {
     public const string SectionName = "RunExportBlobPushOutbox";
 

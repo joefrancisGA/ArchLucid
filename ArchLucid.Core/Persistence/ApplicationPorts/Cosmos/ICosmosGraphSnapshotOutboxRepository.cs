@@ -1,11 +1,13 @@
 using System.Data;
 
+using ArchLucid.Core.Persistence.ApplicationPorts.Coordination;
+
 namespace ArchLucid.Persistence.Cosmos;
 
 /// <summary>
 ///     Transactional outbox for replicating SQL graph snapshots to Cosmos after the authority SQL unit of work commits.
 /// </summary>
-public interface ICosmosGraphSnapshotOutboxRepository
+public interface ICosmosGraphSnapshotOutboxRepository : IRecoverableOutboxRepository<CosmosGraphSnapshotOutboxEntry>
 {
     Task EnqueueAsync(
         Guid graphSnapshotId,
@@ -23,23 +25,5 @@ public interface ICosmosGraphSnapshotOutboxRepository
         Guid projectId,
         IDbConnection connection,
         IDbTransaction transaction,
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<CosmosGraphSnapshotOutboxEntry>> DequeuePendingAsync(
-        int maxBatch,
-        int leaseDurationSeconds,
-        CancellationToken cancellationToken = default);
-
-    Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken = default);
-
-    Task RecordBackoffAfterProcessingFailureAsync(
-        Guid outboxId,
-        DateTime nextAttemptUtc,
-        string failedAttemptErrorSummaryTruncatedTo400,
-        CancellationToken cancellationToken = default);
-
-    Task RecordDeadLetterAsync(
-        Guid outboxId,
-        string failedAttemptErrorSummaryTruncatedTo400,
         CancellationToken cancellationToken = default);
 }

@@ -1,7 +1,7 @@
 namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>Background drain settings for <c>dbo.CosmosGraphSnapshotOutbox</c>.</summary>
-public sealed class CosmosGraphSnapshotOutboxProcessorOptions
+public sealed class CosmosGraphSnapshotOutboxProcessorOptions : IOutboxLeaseRetryProcessorOptions
 {
     public const string SectionName = "CosmosGraphSnapshotOutbox";
 
