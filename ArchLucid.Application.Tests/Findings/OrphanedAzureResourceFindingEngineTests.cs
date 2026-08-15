@@ -7,6 +7,8 @@ using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 
@@ -56,6 +58,45 @@ public sealed class OrphanedAzureResourceFindingEngineTests
         findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(3);
         findings[0].Trace.AlternativePathsConsidered.Should()
             .Contain(path => path.Contains("Attach the disk", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_links_related_topology_node_when_resource_id_matches_graph()
+    {
+        const string resourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/disk1";
+
+        const string resourcesJson =
+            $$"""
+            [
+              {
+                "resourceType": "Microsoft.Compute/disks",
+                "resourceId": "{{resourceId}}",
+                "properties": {}
+              }
+            ]
+            """;
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "topology-disk-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "disk1",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = resourceId },
+                },
+            ],
+        };
+
+        OrphanedAzureResourceFindingEngine sut = CreateSut(CreatePackage(resourcesJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].RelatedNodeIds.Should().ContainSingle().Which.Should().Be("topology-disk-1");
     }
 
     [Theory]

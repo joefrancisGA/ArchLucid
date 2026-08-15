@@ -19,7 +19,7 @@ Regenerate after opening or closing summary-table rows:
 | Architectural integrity | 3 |
 | Adoption friction | 7 |
 | Cutting-edge AI | 3 |
-| Explainability | 2 |
+| Explainability | 1 |
 | Trustworthiness | 1 |
 | Interoperability | 3 |
 | Performance | 5 |
@@ -28,9 +28,9 @@ Regenerate after opening or closing summary-table rows:
 | Stickiness | 4 |
 | Differentiability | 3 |
 | Other / uncategorized | 7 |
-| **Total (unique open)** | **59** |
+| **Total (unique open)** | **58** |
 
-**By priority band:** P0 **0** | P1 **7** | P2 **36** | P3 **9** | unlabeled **7**.
+**By priority band:** P0 **0** | P1 **7** | P2 **35** | P3 **9** | unlabeled **7**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1323,7 +1323,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2217 | **Done** (2026-08-13) ? Expand deterministic Azure orphan/drift classifiers; see ## TB-2217 below | Correctness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; extends `OrphanedResourceClassifier` | M |
 | TB-2218 | AWS/GCP inventory reality finding engines; see ## TB-2218 below | Correctness P1 ? **V1.1** ? **Done** 2026-08-13; `orphaned-aws-resource` + `orphaned-gcp-resource` engines; pairs **TB-874**?**TB-876** | L |
 | TB-2219 | **Done** (2026-08-13) ? Inventory collection freshness gate; see ## TB-2219 below | Reliability P1 ? **V1**; non-policy-pack assessment wave 2026-08-13; stale ZIP must not drive findings | S |
-| TB-2220 | Inventory findings linked to topology graph nodes; see ## TB-2220 below | Explainability P2 ? **V1**; non-policy-pack assessment wave 2026-08-13; evidence graph visibility | M |
+| TB-2220 | **Done** (2026-08-15) — Inventory findings linked to topology graph nodes; see ## TB-2220 below | Explainability P2 ? **V1**; non-policy-pack assessment wave 2026-08-13; evidence graph visibility | M |
 | TB-2221 | **Done** (2026-08-13) ? Validate-before-overlay for all agent proposals; see ## TB-2221 below | AI/Agent readiness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; implements **TB-1196** for cost/compliance/critic | L |
 | TB-2222 | **Done** (2026-08-13) ? Typed finding emission required from agents; see ## TB-2222 below | AI/Agent readiness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; closes **TB-1369** prose path | L |
 | TB-2223 | **Done** (2026-08-13) ? Agent-specific deterministic structural post-processors; see ## TB-2223 below | Correctness P1 ? **V1**; non-policy-pack assessment wave 2026-08-13; LLM proposes, graph verifies | M |
@@ -51511,6 +51511,22 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Peers:** Done **TB-2262** (Aws/Gcp parity), **TB-2219** (freshness gate).
 
 **Size estimate:** L.
+
+---
+
+## TB-2220 — Inventory findings linked to topology graph nodes (P2)
+
+**Window:** V1.
+
+**Status:** **Done** 2026-08-15 — `InventoryTopologyResourceNodeIndex` maps normalized inventory resource ids to topology node ids; orphan + inventory-security-baseline finding engines (Azure/Aws/Gcp) populate `RelatedNodeIds`; Application.Tests.
+
+**Why:** Inventory-driven findings were disconnected from the evidence graph, blocking operator drill-down from finding to topology resource.
+
+**Approach:** Reuse reconciliation analyzer resource-id normalization; build per-run index from `GraphSnapshot` topology resources; resolve `RelatedNodeIds` for orphan and security-baseline engines (advisor-cost rows lack stable resource ids — unchanged).
+
+**Peers:** Done **TB-2216**/**TB-2248** (reconciliation already linked graph-only mismatches), **TB-2210**/**TB-2262** (security baseline), **TB-2218** (orphan engines).
+
+**Size estimate:** M.
 
 ---
 
