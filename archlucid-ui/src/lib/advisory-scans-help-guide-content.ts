@@ -11,12 +11,10 @@ import {
   ADVISORY_SCANS_DISPOSITION_ACCEPT_HINT,
   ADVISORY_SCANS_DISPOSITION_DEFER,
   ADVISORY_SCANS_DISPOSITION_DEFER_HINT,
-  ADVISORY_SCANS_DISPOSITION_DIALOG_DESCRIPTION,
   ADVISORY_SCANS_DISPOSITION_IMPLEMENTED,
   ADVISORY_SCANS_DISPOSITION_IMPLEMENTED_HINT,
   ADVISORY_SCANS_DISPOSITION_REJECT,
   ADVISORY_SCANS_DISPOSITION_REJECT_HINT,
-  ADVISORY_SCANS_HOW_IT_WORKS_BODY,
   ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY,
   ADVISORY_SCANS_SAMPLE_ANCHOR_HREF,
   ADVISORY_SCANS_SUMMARY_ACCEPTED,
@@ -47,18 +45,21 @@ export const ADVISORY_SCANS_HELP_PAGE_SUBTITLE =
 export const ADVISORY_SCANS_HELP_OVERVIEW =
   "Each recommendation includes impact level, evidence basis, suggested action, and governance disposition status so owners can triage follow-up in one place.";
 
-/** Hub screen-reader hint on Schedules tab when the caller cannot mutate advisory schedules. */
-export const ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION =
-  "View schedules and prior scan results; creating schedules and generating scans requires execute access or a management role.";
-
-/** Help Start here card — schedule mutation honesty; not the hub tab screen-reader constant. */
-export const ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE =
-  "View schedules and prior scan results here; creating schedules and generating scans requires execute access or a management role.";
-
 export const ADVISORY_SCANS_HELP_START_HERE_ROLE_LINK = {
   label: "execute access or a management role",
   href: inAppHelpHref("users-and-roles"),
 } as const;
+
+/** Help Start here card — schedule mutation honesty; not the hub tab screen-reader constant. */
+export const ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE_LEAD =
+  "View schedules and prior scan results here; creating schedules and generating scans requires ";
+
+export const ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE_TAIL = ".";
+
+export const ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE = `${ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE_LEAD}${ADVISORY_SCANS_HELP_START_HERE_ROLE_LINK.label}${ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE_TAIL}`;
+
+/** Hub screen-reader hint on Schedules tab when the caller cannot mutate advisory schedules. */
+export const ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION = `View schedules and prior scan results; creating schedules and generating scans requires ${ADVISORY_SCANS_HELP_START_HERE_ROLE_LINK.label}.`;
 
 export const ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE = "Start here";
 
@@ -199,16 +200,62 @@ export const ADVISORY_SCANS_HELP_DISPOSITION_ACTIONS: readonly AdvisoryScansHelp
   { label: ADVISORY_SCANS_DISPOSITION_IMPLEMENTED, hint: ADVISORY_SCANS_DISPOSITION_IMPLEMENTED_HINT },
 ] as const;
 
-export const ADVISORY_SCANS_HELP_DISPOSITION_AUDIT_NOTE = ADVISORY_SCANS_DISPOSITION_DIALOG_DESCRIPTION;
+export const ADVISORY_SCANS_HELP_DISPOSITION_AUDIT_NOTE =
+  "Optional comments and rationale persist with each governance disposition for audit and follow-up.";
 
-export const ADVISORY_SCANS_HELP_HOW_DERIVATION_SENTENCE = ADVISORY_SCANS_HOW_IT_WORKS_BODY.slice(
-  ADVISORY_SCANS_HOW_IT_WORKS_BODY.indexOf("Recommendations"),
-);
+export const ADVISORY_SCANS_HELP_HOW_DERIVATION_SENTENCE =
+  "Recommendations come from review findings, evidence, governance rules, and optional comparison signals.";
 
 export const ADVISORY_SCANS_HELP_AI_USAGE_DISCLOSURE_LEAD =
-  "Generating a scan may invoke model activity against finalized review content. Monitor estimated AI spend on the";
+  "Scan generation runs asynchronously (tier B — typically seconds to a few minutes). Monitor estimated AI spend on the";
 
-export const ADVISORY_SCANS_HELP_AI_USAGE_DISCLOSURE_TAIL = "when scan generation adds model activity.";
+export const ADVISORY_SCANS_HELP_AI_USAGE_DISCLOSURE_TAIL = " when scan generation adds model activity.";
+
+export const ADVISORY_SCANS_HELP_WHAT_SHOWS_HEADING_ID = "what-advisory-scans-show" as const;
+
+export const ADVISORY_SCANS_HELP_WHAT_SHOWS_SECTION_TITLE = "What advisory scans show" as const;
+
+export const ADVISORY_SCANS_HELP_HOW_SECTION_HEADING_ID = "how-advisory-scans-work" as const;
+
+export type AdvisoryScansHelpTroubleshootingItem = {
+  readonly issue: string;
+  readonly resolution: string;
+  readonly href?: string;
+  readonly linkLabel?: string;
+};
+
+export const ADVISORY_SCANS_HELP_TROUBLESHOOTING_TITLE = "If something looks wrong";
+
+export const ADVISORY_SCANS_HELP_TROUBLESHOOTING_HEADING_ID = "if-something-looks-wrong" as const;
+
+export const ADVISORY_SCANS_HELP_TROUBLESHOOTING: readonly AdvisoryScansHelpTroubleshootingItem[] = [
+  {
+    issue: "Generate scan is unavailable",
+    resolution:
+      "Confirm at least one architecture review is finalized in scope and your role includes execute access or a management role for schedule mutations.",
+  },
+  {
+    issue: "Recommendations look empty or stale",
+    resolution:
+      "Reload the advisory scans hub and verify the latest scan completed. Check the last scan timestamp in the summary metrics.",
+  },
+  {
+    issue: "Disposition controls are missing",
+    resolution: "Readers can view recommendations but cannot record dispositions without execute access. Confirm role permissions on",
+    href: inAppHelpHref("users-and-roles"),
+    linkLabel: "users and roles help",
+  },
+  {
+    issue: "Schedules tab shows no cadence",
+    resolution:
+      "Open the Schedules tab after confirming execute access. Create or enable a recurring schedule when scans should run automatically.",
+  },
+  {
+    issue: "Baseline comparison is missing",
+    resolution:
+      "Baseline review selection is optional. Choose a finalized baseline review when the scan should highlight drift since an earlier package.",
+  },
+] as const;
 
 export const ADVISORY_SCANS_HELP_AI_USAGE_LINK = {
   label: "AI usage help",
@@ -282,24 +329,25 @@ export const ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS: readonly AdvisoryScansHelpHo
 
 export const ADVISORY_SCANS_HELP_BASELINE_COMPARISON_NOTE = ADVISORY_SCANS_BASELINE_REVIEW_HELPER;
 
-export const ADVISORY_SCANS_HELP_CLAIM_HEADING_ID = "help-advisory-scans-claim-discipline-heading" as const;
+export const ADVISORY_SCANS_HELP_CLAIM_HEADING_ID = "what-advisory-scans-are-not" as const;
 
 export const ADVISORY_SCANS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
+  {
+    level: 2,
+    id: ADVISORY_SCANS_HELP_CLAIM_HEADING_ID,
+    title: ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING,
+  },
   { level: 2, id: ADVISORY_SCANS_HELP_START_HERE_HEADING_ID, title: ADVISORY_SCANS_HELP_START_HERE_CARD_TITLE },
   { level: 2, id: ADVISORY_SCANS_HELP_BEFORE_YOU_START_HEADING_ID, title: ADVISORY_SCANS_HELP_BEFORE_YOU_START_TITLE },
-  { level: 2, id: "what-advisory-scans-show", title: "What advisory scans show" },
+  { level: 2, id: ADVISORY_SCANS_HELP_WHAT_SHOWS_HEADING_ID, title: ADVISORY_SCANS_HELP_WHAT_SHOWS_SECTION_TITLE },
   { level: 2, id: ADVISORY_SCANS_HELP_DISPOSITION_HEADING_ID, title: ADVISORY_SCANS_HELP_DISPOSITION_SECTION_TITLE },
   {
     level: 2,
     id: ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_HEADING_ID,
     title: ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_TITLE,
   },
-  { level: 2, id: "how-advisory-scans-work", title: ADVISORY_SCANS_HELP_TOPIC_LABEL },
-  {
-    level: 2,
-    id: ADVISORY_SCANS_HELP_CLAIM_HEADING_ID,
-    title: ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING,
-  },
+  { level: 2, id: ADVISORY_SCANS_HELP_HOW_SECTION_HEADING_ID, title: ADVISORY_SCANS_HELP_TOPIC_LABEL },
+  { level: 2, id: ADVISORY_SCANS_HELP_TROUBLESHOOTING_HEADING_ID, title: ADVISORY_SCANS_HELP_TROUBLESHOOTING_TITLE },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 

@@ -55,8 +55,11 @@ describe("advisory-scans help negation drift guard", () => {
     const sourceHrefs = ADVISORY_SCANS_SOURCES.map((source) => source.href);
 
     expect(new Set(sourceHrefs).size).toBe(sourceHrefs.length);
+    expect(ADVISORY_SCANS_SOURCES).toHaveLength(4);
     expect(ADVISORY_SCANS_SOURCES.every((source) => source.when !== undefined)).toBe(true);
     expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "AI usage help")).toBe(true);
+    expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "Architecture review guide")).toBe(true);
+    expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "Audit trail help")).toBe(true);
     expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "Architecture reviews")).toBe(false);
     expect(ADVISORY_SCANS_SOURCES.some((source) => source.label === "Audit")).toBe(false);
   });

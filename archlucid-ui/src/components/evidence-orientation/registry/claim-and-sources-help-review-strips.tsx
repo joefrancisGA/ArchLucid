@@ -112,13 +112,10 @@ import {
 } from "@/lib/impact-preview-help-evidence-copy";
 import { IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID } from "@/lib/impact-preview-help-guide-content";
 import {
-  ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE,
-  ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING,
   ADVISORY_SCANS_HELP_FOLLOW_UPS_TITLE,
   ADVISORY_SCANS_HELP_SOURCES,
   ADVISORY_SCANS_HELP_SOURCES_INTRO,
 } from "@/lib/advisory-scans-help-evidence-copy";
-import { ADVISORY_SCANS_HELP_CLAIM_HEADING_ID } from "@/lib/advisory-scans-help-guide-content";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -583,10 +580,6 @@ export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-advisory-scans"
-      claim={ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE}
-      claimHeading={ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={ADVISORY_SCANS_HELP_CLAIM_HEADING_ID}
-      claimElement="div"
       sourcesTitle={ADVISORY_SCANS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ADVISORY_SCANS_HELP_SOURCES_INTRO}
       sources={ADVISORY_SCANS_HELP_SOURCES}

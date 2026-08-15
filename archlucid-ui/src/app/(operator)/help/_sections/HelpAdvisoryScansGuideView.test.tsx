@@ -34,6 +34,7 @@ import {
   ADVISORY_SCANS_HELP_START_HERE_ROLE_LINK,
   ADVISORY_SCANS_HELP_START_HERE_SCOPE_NOTE,
   ADVISORY_SCANS_HELP_SUMMARY_METRICS,
+  ADVISORY_SCANS_HELP_TROUBLESHOOTING_TITLE,
   ADVISORY_SCANS_HELP_TILE_ITEMS,
 } from "@/lib/advisory-scans-help-guide-content";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
@@ -96,6 +97,15 @@ describe("HelpAdvisoryScansGuideView", () => {
     expect(screen.getByRole("heading", { name: "What advisory scans show" }).className).toContain(
       OPERATOR_TYPOGRAPHY.sectionTitle.split(" ")[0],
     );
+    expect(screen.getByRole("heading", { name: ADVISORY_SCANS_HELP_TROUBLESHOOTING_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("help-advisory-scans-troubleshooting")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-toc-mobile")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
+    expect(screen.getByTestId("help-advisory-scans-start-here-primary-cta")).toBeInTheDocument();
+    const startHerePanel = screen.getByTestId("help-advisory-scans-action-panel");
+    const cta = within(startHerePanel).getByTestId("help-advisory-scans-start-here-primary-cta");
+    const scopeNote = within(startHerePanel).getByTestId("help-advisory-scans-start-here-scope-note");
+    expect(cta.compareDocumentPosition(scopeNote) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByRole("heading", { name: ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-advisory-scans-how-derivation")).toHaveTextContent(
       ADVISORY_SCANS_HELP_HOW_DERIVATION_SENTENCE,
@@ -201,6 +211,11 @@ describe("HelpAdvisoryScansGuideView", () => {
     }
 
     expect(screen.getByRole("link", { name: "Read AI usage help" })).toHaveAttribute("href", "/help/ai-usage");
+    expect(screen.getByRole("link", { name: "Read Architecture review guide" })).toHaveAttribute(
+      "href",
+      "/help/review-guide",
+    );
+    expect(screen.getByRole("link", { name: "Read Audit trail help" })).toHaveAttribute("href", "/help/audit-trail");
     expect(screen.queryByRole("link", { name: "Architecture reviews" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Scan generation" })).not.toBeInTheDocument();
   });
