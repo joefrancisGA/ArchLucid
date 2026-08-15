@@ -57,6 +57,56 @@ describe("ArchitectureCreatedFindingsNextAction", () => {
       "/architecture/reviews/run-1/findings/f-visible",
     );
   });
+
+  it("skips disposition-closed findings when choosing triage target", () => {
+    render(
+      <ArchitectureCreatedFindingsNextAction
+        runId="run-1"
+        findings={[
+          finding({
+            findingId: "f-accepted-critical",
+            severityValue: 4,
+            aiReasoning: {
+              wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+              reasoningTrace: "",
+            },
+          }),
+          finding({ findingId: "f-open", severityValue: 2, confidenceLevel: "High" }),
+        ]}
+        analysisStagesComplete={false}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-findings-triage-primary-action")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-1/findings/f-open",
+    );
+  });
+
+  it("surfaces finalize readiness when only disposition-closed findings remain", () => {
+    render(
+      <ArchitectureCreatedFindingsNextAction
+        runId="run-1"
+        findings={[
+          finding({
+            findingId: "f-accepted-critical",
+            severityValue: 4,
+            aiReasoning: {
+              wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+              reasoningTrace: "",
+            },
+          }),
+        ]}
+        analysisStagesComplete
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-findings-finalize-primary-action")).toHaveAttribute(
+      "href",
+      expect.stringContaining("archTab=governance"),
+    );
+  });
+
   it("surfaces finalize readiness when stages complete with zero findings", () => {
     render(
       <ArchitectureCreatedFindingsNextAction runId="run-1" findings={[]} analysisStagesComplete />,

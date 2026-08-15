@@ -5,6 +5,7 @@ import { buildArchitectureGovernanceFinalizeReadinessHref } from "@/lib/architec
 import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { applyFindingsConfidenceVisibility } from "@/lib/findings/finding-confidence-filter";
+import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import {
   sortQuickDecisionFindings,
   type QuickDecisionFinding,
@@ -21,7 +22,9 @@ export type ArchitectureCreatedFindingsNextActionProps = {
 function triageVisibleFindings(
   findings: readonly QuickDecisionFinding[],
 ): readonly QuickDecisionFinding[] {
-  const nonMuted = findings.filter((finding) => !finding.isMuted);
+  const nonMuted = findings.filter(
+    (finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding),
+  );
   const { visibleFindings } = applyFindingsConfidenceVisibility(nonMuted, false);
 
   return visibleFindings;
