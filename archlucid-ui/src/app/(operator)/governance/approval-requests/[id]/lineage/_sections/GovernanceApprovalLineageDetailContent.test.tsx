@@ -31,7 +31,7 @@ function sampleLineage(): GovernanceLineageResult {
   return {
     approvalRequest: {
       approvalRequestId: "claims-intake-approval-001",
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       manifestVersion: "3.4.1",
       sourceEnvironment: "dev",
       targetEnvironment: "test",
@@ -44,7 +44,7 @@ function sampleLineage(): GovernanceLineageResult {
       reviewedUtc: "2026-01-14T22:00:00.000Z",
     },
     run: {
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       status: "Finalized",
       createdUtc: "2026-01-12T10:00:00.000Z",
       completedUtc: "2026-01-14T22:00:00.000Z",
@@ -62,7 +62,7 @@ function sampleLineage(): GovernanceLineageResult {
     },
     topFindings: [
       {
-        findingId: "phi-minimization-risk",
+        findingId: "sensitive-data-minimization-risk",
         title: "Residual PHI minimization risk (monitored)",
         engineType: "Policy",
         severity: "High",
@@ -80,7 +80,7 @@ function sampleLineage(): GovernanceLineageResult {
     promotions: [
       {
         promotionRecordId: "promo-1",
-        runId: "claims-intake-modernization",
+        runId: "customer-intake-modernization",
         manifestVersion: "3.4.1",
         sourceEnvironment: "dev",
         targetEnvironment: "test",
@@ -112,11 +112,11 @@ describe("GovernanceApprovalLineageDetailContent", () => {
     );
     expect(screen.getByTestId("approval-lineage-manifest-unresolvedIssueCount-value")).toHaveAttribute(
       "href",
-      "/governance/findings?runId=claims-intake-modernization&filter=open",
+      "/governance/findings?runId=customer-intake-modernization&filter=open",
     );
     expect(screen.getByTestId("approval-lineage-manifest-complianceGapCount-value")).toHaveAttribute(
       "href",
-      "/governance/findings?runId=claims-intake-modernization&filter=open",
+      "/governance/findings?runId=customer-intake-modernization&filter=open",
     );
 
     expect(screen.getByText("Verified")).toBeInTheDocument();
@@ -124,12 +124,12 @@ describe("GovernanceApprovalLineageDetailContent", () => {
     expect(screen.getByTestId("approval-lineage-record-digest")).toBeInTheDocument();
 
     const reviewLink = screen.getByRole("link", { name: /Open architecture review/ });
-    expect(reviewLink).toHaveAttribute("href", "/architecture/reviews/claims-intake-modernization");
+    expect(reviewLink).toHaveAttribute("href", "/architecture/reviews/customer-intake-modernization");
 
     const backLink = screen.getByRole("link", { name: "Back to approval request" });
     expect(backLink).toHaveAttribute(
       "href",
-      "/governance/approval-queue?runId=claims-intake-modernization#governance-approval-requests",
+      "/governance/approval-queue?runId=customer-intake-modernization#governance-approval-requests",
     );
 
     const highFinding = screen.getByRole("link", {
@@ -137,13 +137,13 @@ describe("GovernanceApprovalLineageDetailContent", () => {
     });
     expect(highFinding).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization/findings/phi-minimization-risk",
+      "/architecture/reviews/customer-intake-modernization/findings/sensitive-data-minimization-risk",
     );
 
     const lowFinding = screen.getByRole("link", { name: "Open finding: Logging retention gap" });
     expect(lowFinding).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization/findings/logging-gap",
+      "/architecture/reviews/customer-intake-modernization/findings/logging-gap",
     );
 
     expect(screen.getByRole("button", { name: "Help" })).toBeInTheDocument();

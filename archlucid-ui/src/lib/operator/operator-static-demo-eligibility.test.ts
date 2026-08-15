@@ -33,7 +33,7 @@ describe("operator-static-demo — showcase eligibility without demo env vars", 
     delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
 
     expect(isStaticDemoPayloadFallbackActiveForRun(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(false);
-    expect(isStaticDemoPayloadFallbackActiveForRun("claims-intake-modernization-run")).toBe(false);
+    expect(isStaticDemoPayloadFallbackActiveForRun("customer-intake-modernization-run")).toBe(false);
     expect(isStaticDemoPayloadFallbackActiveForRun("claims-intake-run-v1")).toBe(false);
     expect(isStaticDemoPayloadFallbackActiveForRun("not-a-demo-run")).toBe(false);
 
@@ -53,7 +53,7 @@ describe("operator-static-demo — showcase eligibility without demo env vars", 
     process.env.NEXT_PUBLIC_DEMO_MODE = "true";
 
     expect(isStaticDemoPayloadFallbackActiveForRun(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(true);
-    expect(isStaticDemoPayloadFallbackActiveForRun("claims-intake-modernization-run")).toBe(true);
+    expect(isStaticDemoPayloadFallbackActiveForRun("customer-intake-modernization-run")).toBe(true);
 
     if (originalDemo !== undefined) {
       process.env.NEXT_PUBLIC_DEMO_MODE = originalDemo;

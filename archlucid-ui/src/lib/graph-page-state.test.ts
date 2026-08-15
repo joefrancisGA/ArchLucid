@@ -46,7 +46,7 @@ describe("graph-page-state", () => {
 
   it("detects showcase sample review ids", () => {
     expect(isShowcaseDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(true);
-    expect(isShowcaseDemoRunId("claims-intake-modernization")).toBe(true);
+    expect(isShowcaseDemoRunId("customer-intake-modernization")).toBe(true);
     expect(isShowcaseDemoRunId("real-review-123")).toBe(false);
   });
 

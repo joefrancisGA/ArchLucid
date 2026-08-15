@@ -52,14 +52,14 @@ describe("finding-policy-evidence-citations", () => {
       inspectPayload({
         typedPayload: {
           policyPackId: "healthcare-claims-v3",
-          policyPackName: "Healthcare Claims Policy Pack v3",
+          policyPackName: "Enterprise Privacy Policy Pack v3",
         },
       }),
     );
 
     expect(model.pack).toEqual({
       packId: "healthcare-claims-v3",
-      packName: "Healthcare Claims Policy Pack v3",
+      packName: "Enterprise Privacy Policy Pack v3",
       href: "/governance/policy-packs?packId=healthcare-claims-v3",
     });
   });

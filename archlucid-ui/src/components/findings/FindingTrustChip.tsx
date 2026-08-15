@@ -75,7 +75,7 @@ export function FindingTrustChipFromSet(props: FindingTrustChipFromSetProps) {
         chipClassByKind[chip.kind],
         OPERATOR_TYPOGRAPHY.helper,
       )}
-      title={chip.title}
+      aria-label={chip.title}
       data-testid={`finding-trust-chip-${chip.kind}`}
       data-finding-origin={chip.origin}
       data-finding-grounding={chip.grounding}

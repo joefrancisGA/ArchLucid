@@ -108,7 +108,7 @@ describe("ReviewDetailWorkspace", () => {
     ).toBe(false);
   });
 
-  it("with draft tabLifecycle hides Findings from primary tabs and opens it from More sections", () => {
+  it("with draft tabLifecycle keeps Findings on primary tabs for early risk review", () => {
     render(
       <ReviewDetailWorkspace
         runId={RUN_ID}
@@ -122,8 +122,7 @@ describe("ReviewDetailWorkspace", () => {
       />,
     );
 
-    expect(screen.queryByRole("tab", { name: /Findings/i })).not.toBeInTheDocument();
-    expect(screen.getByTestId("review-detail-workspace-more-tabs")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Findings/i })).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("review-detail-workspace-tab-findings"));
 

@@ -1,4 +1,4 @@
-> **Scope:** Engineering source of truth — Dapper/DDL/satellite dual-write breakdown signals and pre-ORM strategy ladder (**TB-1263**). Honesty CI **TB-1264**.
+> **Scope:** Contributor reference — engineering source of truth — Dapper/DDL/satellite dual-write breakdown signals and pre-ORM strategy ladder (**TB-1263**). Honesty CI **TB-1264**.
 
 # Dapper / DDL / satellite breakdown signals contract (TB-1263)
 

@@ -8,25 +8,25 @@ describe("FindingPolicyPackBadge", () => {
     render(
       <FindingPolicyPackBadge
         policyPackId="healthcare-claims-v3"
-        policyPackLabel="Healthcare Claims Policy Pack v3"
+        policyPackLabel="Enterprise Privacy Policy Pack v3"
       />,
     );
 
     const link = screen.getByTestId("finding-policy-pack-badge");
     expect(link).toHaveAttribute("href", "/governance/policy-packs?packId=healthcare-claims-v3");
     expect(link.className).toMatch(/underline/);
-    expect(screen.getByText("Pack Healthcare Claims Policy Pack v3")).toBeInTheDocument();
+    expect(screen.getByText("Pack Enterprise Privacy Policy Pack v3")).toBeInTheDocument();
   });
 
   it("renders a button when preview click handler is provided", () => {
     render(
       <FindingPolicyPackBadge
         policyPackId="healthcare-claims-v3"
-        policyPackLabel="Healthcare Claims Policy Pack v3"
+        policyPackLabel="Enterprise Privacy Policy Pack v3"
         onPreviewClick={() => undefined}
       />,
     );
 
-    expect(screen.getByRole("button", { name: /Pack Healthcare Claims Policy Pack v3/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Pack Enterprise Privacy Policy Pack v3/i })).toBeTruthy();
   });
 });

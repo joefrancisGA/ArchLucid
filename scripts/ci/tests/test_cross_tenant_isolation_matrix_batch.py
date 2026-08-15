@@ -138,7 +138,6 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
     def test_internal_governance_scim_controllers_declare_idempotency_posture(self) -> None:
         controller_paths = (
             REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "InternalArchitectureDiagnosticsController.cs",
-            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Governance" / "GovernanceController.cs",
             REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Governance" / "GovernanceStickinessController.cs",
             REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Governance" / "GovernancePreCommitSimulationController.cs",
             REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Scim" / "ScimUsersController.cs",
@@ -152,6 +151,17 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
                 text,
                 f"{path.name} must declare INV-009 posture before mutating routes",
             )
+
+        governance_dir = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Governance"
+        governance_sources = "".join(
+            partial.read_text(encoding="utf-8")
+            for partial in sorted(governance_dir.glob("GovernanceController*.cs"))
+        )
+        self.assertIn(
+            "idempotency-posture:",
+            governance_sources,
+            "GovernanceController partials must declare INV-009 posture before mutating routes",
+        )
 
     def test_scoped_snapshot_idor_matrix_covers_ingest_routes(self) -> None:
         path = REPO_ROOT / "ArchLucid.Api.Tests" / "Security" / "ScopedSnapshotReadIdorIntegrationTests.cs"

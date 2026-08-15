@@ -1,7 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { FindingsWhatIfAnalysisPanel } from "@/components/findings/FindingsWhatIfAnalysisPanel";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+
+vi.mock("@/lib/demo-ui-env", () => ({
+  isOperatorExperienceFullShellEnv: () => true,
+}));
 
 describe("FindingsWhatIfAnalysisPanel", () => {
   const dummyFindings: QuickDecisionFinding[] = [
@@ -24,6 +28,9 @@ describe("FindingsWhatIfAnalysisPanel", () => {
     const badge = screen.getByTestId("illustrative-pricing-badge");
     expect(badge).toBeInTheDocument();
     expect(badge).toHaveTextContent("Illustrative Retail Pricing");
-    expect(badge).toHaveAttribute("title", "Illustrative Retail Pricing: Actual EA discounts may vary");
+    expect(badge).toHaveAttribute(
+      "aria-label",
+      "Illustrative Retail Pricing: Actual EA discounts may vary",
+    );
   });
 });

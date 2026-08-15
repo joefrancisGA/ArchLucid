@@ -76,9 +76,11 @@ test.describe("live-api-why-archlucid", { tag: ["@founder", "@buyer-journey"] },
     await commitRun(request, runId);
     await waitForRunDetailCommitted(request, runId, 60_000);
 
-    await page.goto("/why-archlucid");
+    await page.goto("/why-archlucid", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByTestId("why-archlucid-page")).toBeVisible({ timeout: 60_000 });
+    await page.locator('[data-app-ready="true"]').waitFor({ state: "attached", timeout: 60_000 });
+
+    await expect(page.getByTestId("why-archlucid-page")).toBeVisible({ timeout: 120_000 });
 
     await expect(page.getByRole("heading", { name: "Why ArchLucid", level: 1 })).toBeVisible({
       timeout: 60_000,

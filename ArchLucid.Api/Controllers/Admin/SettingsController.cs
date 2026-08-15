@@ -198,7 +198,7 @@ public sealed class SettingsController(
             },
             cancellationToken).ConfigureAwait(false);
 
-        return Ok(MapModelExecutionProfile(snapshot, _timeProvider.GetUtcNow().UtcDateTime, actor));
+        return Ok(await MapModelExecutionProfileAsync(snapshot, cancellationToken).ConfigureAwait(false));
     }
 
     /// <summary>Remove tenant override so the workspace default profile applies.</summary>
@@ -227,7 +227,7 @@ public sealed class SettingsController(
             },
             cancellationToken).ConfigureAwait(false);
 
-        return Ok(MapModelExecutionProfile(snapshot, _timeProvider.GetUtcNow().UtcDateTime, actor));
+        return Ok(await MapModelExecutionProfileAsync(snapshot, cancellationToken).ConfigureAwait(false));
     }
 
     /// <summary>Workspace allowed engine alias set for per-review selection (TB-2110).</summary>
@@ -407,7 +407,12 @@ public sealed class SettingsController(
     private async Task<(DateTime? LastChangedAtUtc, string? LastChangedBy)> TryGetLastProfileChangeAsync(
         CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ScopeContext? scope = _scopeContextProvider.GetCurrentScope();
+
+        if (scope is null)
+        {
+            return (null, null);
+        }
 
         AuditEventFilter updatedFilter = new()
         {
@@ -437,8 +442,11 @@ public sealed class SettingsController(
 
         await Task.WhenAll(updatedTask, clearedTask).ConfigureAwait(false);
 
-        AuditEvent? latest = updatedTask.Result
-            .Concat(clearedTask.Result)
+        IReadOnlyList<AuditEvent> updatedEvents = updatedTask.Result ?? Array.Empty<AuditEvent>();
+        IReadOnlyList<AuditEvent> clearedEvents = clearedTask.Result ?? Array.Empty<AuditEvent>();
+
+        AuditEvent? latest = updatedEvents
+            .Concat(clearedEvents)
             .OrderByDescending(static auditEvent => auditEvent.OccurredUtc)
             .FirstOrDefault();
 

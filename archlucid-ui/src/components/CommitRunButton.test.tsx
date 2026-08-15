@@ -122,7 +122,7 @@ describe("CommitRunButton", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
 
     const panel = await screen.findByTestId("pre-commit-governance-block-panel");
-    expect(panel).toHaveTextContent(/pre-commit governance gate/i);
+    expect(panel).toHaveTextContent(/approval gate/i);
     expect(screen.getByTestId("pre-commit-governance-block-finding-link-finding-blocked")).toHaveAttribute(
       "href",
       "/architecture/reviews/run-blocked-structured/findings/finding-blocked",

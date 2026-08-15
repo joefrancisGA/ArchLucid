@@ -5,7 +5,7 @@
 **Status:** Active (V1)  
 **Backlog:** **TB-975** (this contract) · **TB-976** (durable per-reservation leases + orphan reclaim — open) · **TB-977** (SQL-owned UTC period + admission fairness — **Done** 2026-08-11)  
 **Audience:** Principal architects, FinOps reviewers, platform reviewers, coding agents  
-**Related:** [ARCHITECTURE_INVARIANTS.md](./ARCHITECTURE_INVARIANTS.md) (**INV-004**) · [LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md](./LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md) (**TB-1287**) · [LLM_BUDGET_TOP_UP.md](./LLM_BUDGET_TOP_UP.md) (**TB-014**) · [PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md](./PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md) (**TB-1570**) · ADR [0005](../architecture/adrs/0005-llm-cost-guardrails.md) · GTM **M-131** / **M-132** · Done **TB-011** / **TB-894** / **TB-939**
+**Related:** [ARCHITECTURE_INVARIANTS.md](./ARCHITECTURE_INVARIANTS.md) (**INV-004**) · [LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md](./LLM_COST_CONTROL_PLANE_BEYOND_BUDGET_GATES_CONTRACT.md) (**TB-1287**) · [LLM_BUDGET_TOP_UP.md](./LLM_BUDGET_TOP_UP.md) (**TB-014**) · [PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md](./PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md) (**TB-1570**) · ADR [0005](../architecture/adrs/0005-llm-completion-pipeline.md) · GTM **M-131** / **M-132** · Done **TB-011** / **TB-894** / **TB-939**
 
 ---
 

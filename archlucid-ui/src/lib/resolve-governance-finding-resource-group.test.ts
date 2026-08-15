@@ -12,7 +12,7 @@ import {
 function sampleRow(overrides: Partial<GovernanceFindingQueueRow> = {}): GovernanceFindingQueueRow {
   return {
     runId: "run-1",
-    runLabel: "Claims Intake Modernization Review",
+    runLabel: "Enterprise Customer Intake Modernization Review",
     manifestId: "—",
     findingId: "finding-1",
     title: "Sample finding",
@@ -62,11 +62,11 @@ describe("resolveGovernanceFindingResourceGroup", () => {
   it("uses review label when it is human-readable", () => {
     const group = resolveGovernanceFindingResourceGroup(
       sampleRow({
-        runLabel: "Claims Intake Modernization Review",
+        runLabel: "Enterprise Customer Intake Modernization Review",
       }),
     );
 
-    expect(group.label).toBe("Claims Intake Modernization Review");
+    expect(group.label).toBe("Enterprise Customer Intake Modernization Review");
   });
 });
 

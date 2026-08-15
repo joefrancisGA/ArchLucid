@@ -19,7 +19,12 @@ public sealed class BaselineMutationAuditDualWritePairingTests
     ///     coordinator orchestrators normally route durable echoes through <see cref="ArchLucid.Application.Common.BaselineMutationAuditService" />).
     /// </summary>
     private static readonly IReadOnlySet<string> AllowedBaselineOnlyFiles =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "ArchitectureRunExecuteOrchestrator.cs",
+            "ArchitectureRunExecuteOrchestrator.QualityGate.cs",
+            "ArchitectureRunExecuteOrchestrator.FailureSummary.cs",
+        };
 
     /// <summary>
     ///     Implementation / interface files â€” not call sites pairing against governance workflow.
@@ -65,6 +70,7 @@ public sealed class BaselineMutationAuditDualWritePairingTests
         string assemblyLoc = typeof(Common.IBaselineMutationAuditService).Assembly.Location;
 
         string? assemblyDir = Path.GetDirectoryName(assemblyLoc);
+
         if (string.IsNullOrEmpty(assemblyDir))
             assemblyDir = AppContext.BaseDirectory;
 

@@ -36,7 +36,7 @@ describe("auditBuyerEventIsSystemRecordedActor", () => {
 describe("formatBuyerAuditTrailSummaryLine", () => {
   it("uses a buyer narrative tied to the review title (counts live in metric tiles)", () => {
     const demo = getDemoSampleAuditTrailEvents();
-    const line = formatBuyerAuditTrailSummaryLine(demo, "claims-intake-modernization", "");
+    const line = formatBuyerAuditTrailSummaryLine(demo, "customer-intake-modernization", "");
 
     expect(line).toContain("This audit trail shows the lifecycle from review creation through governance approval");
     expect(line).toContain(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);

@@ -57,18 +57,18 @@ describe("useSoftNavigationLoading", () => {
     );
 
     act(() => {
-      expect(result.current.navigate("/architecture/reviews/claims-intake-modernization")).toBe(true);
+      expect(result.current.navigate("/architecture/reviews/customer-intake-modernization")).toBe(true);
     });
 
     expect(result.current.isNavigating).toBe(true);
-    expect(push).toHaveBeenCalledWith("/architecture/reviews/claims-intake-modernization");
+    expect(push).toHaveBeenCalledWith("/architecture/reviews/customer-intake-modernization");
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(SOFT_NAVIGATION_TIMEOUT_MS);
     });
 
     expect(result.current.isNavigating).toBe(false);
-    expect(assign).toHaveBeenCalledWith("/architecture/reviews/claims-intake-modernization");
+    expect(assign).toHaveBeenCalledWith("/architecture/reviews/customer-intake-modernization");
     expect(result.current.error).toBeNull();
   });
 

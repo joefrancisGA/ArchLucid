@@ -1,4 +1,4 @@
-> **Scope:** Engineering source of truth for fine-tuned model promote / reject / rollback audit (**TB-1292**). Distinct from governance manifest promotion records.
+> **Scope:** Contributor reference — engineering source of truth for fine-tuned model promote / reject / rollback audit (**TB-1292**). Distinct from governance manifest promotion records.
 
 # Fine-tuning promotion decision record contract (TB-1292)
 

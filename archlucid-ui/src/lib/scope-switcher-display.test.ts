@@ -3,6 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME,
+  BUYER_WORKSPACE_DISPLAY_NAME,
+  BUYER_WORKSPACE_SHORT_NAME,
 } from "@/lib/buyer/buyer-polish-copy";
 import {
   countSelectableScopeOptions,
@@ -25,42 +28,42 @@ describe("scope-switcher-display", () => {
 
   it("formats compact and accessible sample workspace labels separately", () => {
     const args = {
-      workspaceLabel: "Claims Intake Workspace",
+      workspaceLabel: BUYER_WORKSPACE_DISPLAY_NAME,
       projectLabel: "Primary project",
       isSampleWorkspaceSession: true,
       includeProject: false,
     };
 
     expect(formatScopeSwitcherTriggerLabel(args)).toBe(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
-    expect(formatScopeSwitcherSampleFullTitle()).toBe("Sample workspace: Claims Intake Modernization");
+    expect(formatScopeSwitcherSampleFullTitle()).toBe(`Sample workspace: ${BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME}`);
     expect(formatScopeSwitcherTriggerAccessibleLabel(args)).toBe(
-      `Sample workspace: Claims Intake Modernization. ${BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT}`,
+      `Sample workspace: ${BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME}. ${BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT}`,
     );
   });
 
   it("formats connected trigger labels without sample metadata in the compact label", () => {
     expect(
       formatScopeSwitcherTriggerLabel({
-        workspaceLabel: "Claims Intake Workspace",
+        workspaceLabel: BUYER_WORKSPACE_DISPLAY_NAME,
         projectLabel: "Primary project",
         isSampleWorkspaceSession: false,
         includeProject: true,
       }),
-    ).toBe("Workspace: Claims Intake — Primary project");
+    ).toBe(`Workspace: ${BUYER_WORKSPACE_SHORT_NAME} — Primary project`);
 
     expect(
       formatScopeSwitcherTriggerAccessibleLabel({
-        workspaceLabel: "Claims Intake Workspace",
+        workspaceLabel: BUYER_WORKSPACE_DISPLAY_NAME,
         projectLabel: "Primary project",
         isSampleWorkspaceSession: false,
         includeProject: true,
       }),
-    ).toBe("Active workspace: Workspace: Claims Intake — Primary project");
+    ).toBe(`Active workspace: Workspace: ${BUYER_WORKSPACE_SHORT_NAME} — Primary project`);
   });
 
   it("derives short workspace names from display labels", () => {
-    expect(workspaceShortNameFromLabel("Claims Intake Workspace")).toBe("Claims Intake");
-    expect(workspaceShortNameFromLabel("")).toBe("Claims Intake");
+    expect(workspaceShortNameFromLabel(BUYER_WORKSPACE_DISPLAY_NAME)).toBe(BUYER_WORKSPACE_SHORT_NAME);
+    expect(workspaceShortNameFromLabel("")).toBe(BUYER_WORKSPACE_SHORT_NAME);
   });
 
   it("treats switching as available only when more than one project option exists", () => {

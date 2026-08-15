@@ -242,7 +242,7 @@ describe("run-detail-workspace-derive", () => {
     const summary = deriveReviewStatusSummary({
       reviewOutcome: "Approved with monitoring",
       findings: [
-        finding(2, { findingId: "phi-minimization-risk", title: "PHI Minimization Risk" }),
+        finding(2, { findingId: "sensitive-data-minimization-risk", title: "PHI Minimization Risk" }),
         finding(0, { findingId: "f-low", title: "Low item" }),
       ],
       recommendedActions: [],

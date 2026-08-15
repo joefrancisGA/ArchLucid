@@ -29,7 +29,7 @@ describe("CtoDemoAuditIntegrityExportButton", () => {
     await waitFor(() => {
       expect(downloadAuditExportCsv).toHaveBeenCalledWith(
         expect.objectContaining({
-          runId: "claims-intake-modernization",
+          runId: "customer-intake-modernization",
         }),
       );
     });

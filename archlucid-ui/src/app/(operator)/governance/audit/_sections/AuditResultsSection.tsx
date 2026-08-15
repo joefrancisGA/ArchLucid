@@ -270,7 +270,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                   type="button"
                   onClick={() => void loadMore()}
                   disabled={loadingMore || searching}
-                  title={
+                  aria-label={
                     callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
                       ? auditLoadMoreButtonTitleReader
                       : auditLoadMoreButtonTitleOperator

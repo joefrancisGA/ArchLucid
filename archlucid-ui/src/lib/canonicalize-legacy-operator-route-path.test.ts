@@ -18,7 +18,7 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
 
   it("maps retired /demo bookmark to the CTO demo tour entry", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/demo")).toBe(
-      "/architecture/reviews/claims-intake-modernization?ctoDemoTour=1",
+      "/architecture/reviews/customer-intake-modernization?ctoDemoTour=1",
     );
   });
 

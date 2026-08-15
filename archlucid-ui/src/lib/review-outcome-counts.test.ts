@@ -33,7 +33,7 @@ function stubExplanation(overrides: Partial<RunExplanationSummary> = {}): RunExp
 describe("resolveReviewOutcomeCounts", () => {
   const baseManifest: ManifestSummary = {
     manifestId: "m1",
-    runId: "claims-intake-modernization",
+    runId: "customer-intake-modernization",
     createdUtc: "2026-01-01T00:00:00.000Z",
     manifestHash: "h",
     ruleSetId: "healthcare-claims-v3",
@@ -48,7 +48,7 @@ describe("resolveReviewOutcomeCounts", () => {
     const explanation = stubExplanation({ findingCount: 0 });
 
     const { findingCountDisplay, warningCountDisplay } = resolveReviewOutcomeCounts({
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       usedStaticDemoRun: true,
       explanationSummary: explanation,
       manifestSummary: baseManifest,

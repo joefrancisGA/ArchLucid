@@ -32,7 +32,7 @@ class TestCorrectnessGuardrailsBatch328(unittest.TestCase):
 
     def test_tb_320_run_detail_kpi_contract_present(self) -> None:
         json_path = REPO_ROOT / "docs" / "library" / "RUN_DETAIL_KPI_SEMANTIC_CONTRACT.json"
-        ts_path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "run-detail-kpi-semantic-contract.ts"
+        ts_path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "runs" / "run-detail-kpi-semantic-contract.ts"
         self.assertTrue(json_path.is_file())
         self.assertTrue(ts_path.is_file())
 

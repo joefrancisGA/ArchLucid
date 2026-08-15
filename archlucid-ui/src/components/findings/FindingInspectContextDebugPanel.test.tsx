@@ -16,7 +16,7 @@ import { getFindingProvenance } from "@/lib/api/finding-provenance";
 import { getFindingLlmAudit } from "@/lib/api";
 
 const inspectPayload: FindingInspectPayload = {
-  findingId: "phi-minimization-risk",
+  findingId: "sensitive-data-minimization-risk",
   typedPayload: null,
   decisionRuleId: "phi.minimization.intake",
   decisionRuleName: "PHI minimization at intake",
@@ -29,7 +29,7 @@ const inspectPayload: FindingInspectPayload = {
   ],
   recommendedActions: [],
   auditRowId: null,
-  runId: "claims-intake-modernization",
+  runId: "customer-intake-modernization",
   manifestVersion: "v1",
 };
 
@@ -37,8 +37,8 @@ describe("FindingInspectContextDebugPanel", () => {
   it("renders collapsed by default", () => {
     render(
       <FindingInspectContextDebugPanel
-        runId="claims-intake-modernization"
-        findingId="phi-minimization-risk"
+        runId="customer-intake-modernization"
+        findingId="sensitive-data-minimization-risk"
         inspectPayload={inspectPayload}
       />,
     );
@@ -49,7 +49,7 @@ describe("FindingInspectContextDebugPanel", () => {
 
   it("loads provenance and shows raw context blocks when enabled", async () => {
     vi.mocked(getFindingProvenance).mockResolvedValue({
-      findingId: "phi-minimization-risk",
+      findingId: "sensitive-data-minimization-risk",
       steps: [
         {
           kind: "evidence",
@@ -70,8 +70,8 @@ describe("FindingInspectContextDebugPanel", () => {
 
     render(
       <FindingInspectContextDebugPanel
-        runId="claims-intake-modernization"
-        findingId="phi-minimization-risk"
+        runId="customer-intake-modernization"
+        findingId="sensitive-data-minimization-risk"
         inspectPayload={inspectPayload}
       />,
     );
@@ -79,7 +79,7 @@ describe("FindingInspectContextDebugPanel", () => {
     fireEvent.click(screen.getByLabelText("Evidence trace detail"));
 
     await waitFor(() => {
-      expect(getFindingProvenance).toHaveBeenCalledWith("claims-intake-modernization", "phi-minimization-risk");
+      expect(getFindingProvenance).toHaveBeenCalledWith("customer-intake-modernization", "sensitive-data-minimization-risk");
     });
 
     expect(await screen.findByText(/Ingress PHI classification rules/i)).toBeInTheDocument();

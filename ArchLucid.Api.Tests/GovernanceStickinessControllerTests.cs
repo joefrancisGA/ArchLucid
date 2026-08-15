@@ -158,6 +158,7 @@ public sealed class GovernanceStickinessControllerTests
         IActionResult action = await controller.GetRiskRegister(
             projectId: null,
             maxRows: 200,
+            assignedToMe: false,
             cancellationToken: CancellationToken.None);
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;

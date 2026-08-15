@@ -92,7 +92,7 @@ test.describe("operator shell smoke — core proof path", () => {
     );
     await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
 
-    await page.goto("/showcase/claims-intake-modernization");
+    await page.goto("/showcase/customer-intake-modernization");
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
 
     await page.goto("/insights/ask-review-questions");

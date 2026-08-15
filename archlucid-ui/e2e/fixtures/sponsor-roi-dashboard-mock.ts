@@ -44,7 +44,7 @@ export function getSponsorRoiSummaryMockJson(): unknown {
     firstCommitUtc: "2026-04-01T00:00:00.000Z",
     systems: [
       {
-        systemName: "Claims Intake",
+        systemName: "Customer Intake",
         runId: "run-a-claims-intake",
         committedUtc: iso,
         estimatedUsdSavings: 82_000,
@@ -123,7 +123,7 @@ export function getSponsorRoiExportMockJson(): unknown {
       {
         findingId: SPONSOR_ROI_DEDUP_SCENARIO.sharedFindingId,
         runId: "run-a-claims-intake",
-        systemName: "Claims Intake",
+        systemName: "Customer Intake",
         environment: "production",
         category: "CostOptimization",
         severity: "Warning",
@@ -217,7 +217,7 @@ export function getTenantPilotValueReportMockJson(): unknown {
         runId: "run-a-claims-intake",
         createdUtc: "2026-04-10T08:00:00.000Z",
         committedUtc: iso,
-        systemName: "Claims Intake",
+        systemName: "Customer Intake",
       },
       {
         runId: "run-b-payments-api",

@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
 
 const BACKUP_ENV = process.env;
 
@@ -19,13 +24,13 @@ describe("buyer-safe-review-navigation", () => {
 
     const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
 
-    expect(mod.isBuyerSafePrimaryReviewNavigationPreferred("claims-intake-modernization")).toBe(true);
-    expect(mod.isBuyerSafePrimaryReviewNavigationPreferred("claims-intake-run-v1")).toBe(true);
+    expect(mod.isBuyerSafePrimaryReviewNavigationPreferred(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(true);
+    expect(mod.isBuyerSafePrimaryReviewNavigationPreferred(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID)).toBe(true);
 
-    const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
+    const link = mod.getBuyerSafeReviewsTableLink(SHOWCASE_STATIC_DEMO_RUN_ID);
 
     expect(link.label).toBe("Open review");
-    expect(link.href).toBe("/architecture/reviews/claims-intake-modernization");
+    expect(link.href).toBe(`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`);
   });
 
   it("uses review link for static spine IDs even when buyer chrome env is off", async () => {
@@ -58,7 +63,7 @@ describe("buyer-safe-review-navigation", () => {
     const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
 
     expect(mod.getCanonicalReviewWorkspaceHref("claims-intake-modernization-run")).toBe(
-      "/architecture/reviews/claims-intake-modernization",
+      `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
     );
   });
 
@@ -76,7 +81,7 @@ describe("buyer-safe-review-navigation", () => {
     const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
 
     expect(mod.getShowcaseCompareHref()).toBe(
-      "/insights/compare-two-reviews?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2",
+      `/insights/compare-two-reviews?priorRunId=${SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID}&laterRunId=${SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID}`,
     );
   });
 
@@ -84,7 +89,7 @@ describe("buyer-safe-review-navigation", () => {
     process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "true", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
 
     const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
-    const manifest = mod.getBuyerSafeSignedManifestTableLink("claims-intake-modernization");
+    const manifest = mod.getBuyerSafeSignedManifestTableLink(SHOWCASE_STATIC_DEMO_RUN_ID);
 
     expect(manifest.label).toBe("View sealed record");
     expect(manifest.href).toBe(`/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`);

@@ -5,7 +5,7 @@ import { expectBuyerGoldenPageReady } from "./helpers/buyer-golden-path";
 import { expandFindingWorkspaceCard, openReviewDetailWorkspaceTab } from "./helpers/operator-journey";
 import { waitForAppReady } from "./helpers/waits";
 
-const showcaseFindingId = "phi-minimization-risk";
+const showcaseFindingId = "sensitive-data-minimization-risk";
 
 test.describe(
   "finding evidence deep-links @demo-readiness",

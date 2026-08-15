@@ -19,7 +19,7 @@ function hit(partial: Partial<RetrievalHit>): RetrievalHit {
     chunkId: "chunk-1",
     documentId: "",
     sourceType: "ManifestFinding",
-    sourceId: "phi-minimization-risk",
+    sourceId: "sensitive-data-minimization-risk",
     title: "PHI boundary",
     text: "Sample snippet",
     score: 0.82,
@@ -43,7 +43,7 @@ describe("resolveRetrievalHitRunId", () => {
   it("parses run id from manifest finding document id", () => {
     const resolved = resolveRetrievalHitRunId(
       hit({
-        documentId: `manifest-${SAMPLE_RUN_ID}-finding-phi-minimization-risk`,
+        documentId: `manifest-${SAMPLE_RUN_ID}-finding-sensitive-data-minimization-risk`,
       }),
     );
 
@@ -59,13 +59,13 @@ describe("buildRetrievalHitActionLink", () => {
   it("links findings to inspect route", () => {
     const link = buildRetrievalHitActionLink(
       hit({
-        findingId: "phi-minimization-risk",
-        documentId: `manifest-${SAMPLE_RUN_ID}-finding-phi-minimization-risk`,
+        findingId: "sensitive-data-minimization-risk",
+        documentId: `manifest-${SAMPLE_RUN_ID}-finding-sensitive-data-minimization-risk`,
       }),
     );
 
     expect(link).toEqual({
-      href: `/architecture/reviews/${SAMPLE_RUN_ID}/findings/phi-minimization-risk/evidence-trace`,
+      href: `/architecture/reviews/${SAMPLE_RUN_ID}/findings/sensitive-data-minimization-risk/evidence-trace`,
       label: "Open finding",
     });
   });
@@ -124,7 +124,7 @@ describe("buildRetrievalHitEvidenceTrailHref", () => {
     expect(
       buildRetrievalHitEvidenceTrailHref(
         hit({
-          documentId: `manifest-${SAMPLE_RUN_ID}-finding-phi-minimization-risk`,
+          documentId: `manifest-${SAMPLE_RUN_ID}-finding-sensitive-data-minimization-risk`,
         }),
       ),
     ).toBe(`/insights/evidence-graph?runId=${SAMPLE_RUN_ID}`);

@@ -9,7 +9,7 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 describe("buyer-golden-spine-run-id", () => {
   it("treats showcase static and pinned demo workspace runs as golden spine ids", () => {
     expect(isBuyerGoldenSpineRunId(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(true);
-    expect(isBuyerGoldenSpineRunId("claims-intake-modernization-run")).toBe(true);
+    expect(isBuyerGoldenSpineRunId("customer-intake-modernization-run")).toBe(true);
     expect(isBuyerGoldenSpineRunId("b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf")).toBe(true);
     expect(isBuyerGoldenSpineRunId("61c60d76-2b80-93f9-46bb-2f66fd608b9b")).toBe(true);
   });
@@ -35,7 +35,7 @@ describe("buyer-golden-spine-run-id", () => {
     const base = {
       buyerPolishedArtifactTable: true,
       runId: SHOWCASE_STATIC_DEMO_RUN_ID,
-      headline: "Claims Intake Modernization Review Package",
+      headline: "Enterprise Customer Intake Modernization Review Package",
       manifestId: "manifest-1",
     } as const;
 

@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
 
 import {
   buyerAuditTrailGovernanceSummaryCounts,
@@ -15,7 +18,7 @@ import {
 describe("formatAuditTrailPageTitle", () => {
   it("uses a human review name for the showcase run", () => {
     expect(formatAuditTrailPageTitle(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(
-      "Audit trail for Claims Intake Modernization",
+      `Audit trail for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}`,
     );
   });
 
@@ -30,14 +33,16 @@ describe("buyerFacingAuditTrailScopeLabel", () => {
   });
 
   it("returns a shortened showcase label", () => {
-    expect(buyerFacingAuditTrailScopeLabel(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe("Claims Intake Modernization");
+    expect(buyerFacingAuditTrailScopeLabel(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(
+      SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+    );
   });
 });
 
 describe("formatAuditTrailReviewFilterChipLabel", () => {
   it("uses a review label when one is known", () => {
     expect(formatAuditTrailReviewFilterChipLabel(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(
-      "Review: Claims Intake Modernization",
+      `Review: ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}`,
     );
   });
 

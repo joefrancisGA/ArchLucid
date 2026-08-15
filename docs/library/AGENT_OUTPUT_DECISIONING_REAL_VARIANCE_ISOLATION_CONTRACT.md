@@ -1,4 +1,4 @@
-> **Scope:** Engineering source of truth — Real-mode LLM variance cannot corrupt committed manifests (**TB-1196**). Distinct from PilotStrict floors (Done **TB-684**) and execution-mode labeling (**TB-969**–**TB-971**).
+> **Scope:** Contributor reference — engineering source of truth — Real-mode LLM variance cannot corrupt committed manifests (**TB-1196**). Distinct from PilotStrict floors (Done **TB-684**) and execution-mode labeling (**TB-969**–**TB-971**).
 
 # Agent output → decisioning Real-variance isolation contract (TB-1196)
 

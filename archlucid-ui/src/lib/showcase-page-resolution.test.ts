@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
+import { CLAIMS_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/claims-intake/definition";
 import {
   decodeShowcaseRunId,
   hasCuratedShowcaseStaticPayload,
@@ -8,9 +9,9 @@ import {
 } from "./showcase-page-resolution";
 
 describe("showcase-page-resolution", () => {
-  it("treats claims-intake-modernization as static-first", () => {
-    expect(isShowcaseStaticFirstRunId("claims-intake-modernization")).toBe(true);
-    expect(hasCuratedShowcaseStaticPayload("claims-intake-modernization")).toBe(true);
+  it("treats claims-intake-modernization as a secondary sample slug, not static-first", () => {
+    expect(isShowcaseStaticFirstRunId(CLAIMS_INTAKE_SAMPLE_RUN_ID)).toBe(false);
+    expect(hasCuratedShowcaseStaticPayload(CLAIMS_INTAKE_SAMPLE_RUN_ID)).toBe(false);
   });
 
   it("treats customer-intake-modernization as static-first", () => {

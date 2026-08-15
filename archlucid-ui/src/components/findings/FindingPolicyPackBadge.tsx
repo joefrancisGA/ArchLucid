@@ -39,7 +39,6 @@ export function FindingPolicyPackBadge(props: FindingPolicyPackBadgeProps): Reac
         type="button"
         className={props.className}
         data-testid="finding-policy-pack-badge"
-        title={`Policy pack ${packId || labelSource}`}
         onClick={props.onPreviewClick}
       >
         <StatusTag kind="neutral" label={statusLabel} />
@@ -52,7 +51,6 @@ export function FindingPolicyPackBadge(props: FindingPolicyPackBadgeProps): Reac
       href={policyPacksEditHref(packId.length > 0 ? packId : labelSource ?? "")}
       className={cn(OPERATOR_LINK.inline, props.className)}
       data-testid="finding-policy-pack-badge"
-      title={`Policy pack ${packId || labelSource}`}
     >
       <StatusTag kind="neutral" label={statusLabel} />
     </Link>

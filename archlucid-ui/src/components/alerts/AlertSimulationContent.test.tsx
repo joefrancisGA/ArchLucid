@@ -106,9 +106,9 @@ describe("AlertSimulationContent TB-1590", () => {
 
     expect(source).not.toMatch(/<input\b/);
     expect(source).not.toMatch(/<button\b/);
-    expect(source).toContain('data-testid="alert-simulation-simple-submit"');
-    expect(source).toContain('data-testid="alert-simulation-composite-submit"');
-    expect(source).toContain('data-testid="alert-simulation-compare-submit"');
+    expect(source).toContain('testId="alert-simulation-simple-submit"');
+    expect(source).toContain('testId="alert-simulation-composite-submit"');
+    expect(source).toContain('testId="alert-simulation-compare-submit"');
     expect(source).toContain('variant="primary"');
   });
 });
@@ -300,9 +300,9 @@ describe("AlertSimulationContent P0-5 submit button width", () => {
       "utf8",
     );
 
-    expect(source).toContain('data-testid="alert-simulation-simple-submit"');
-    expect(source).toContain('data-testid="alert-simulation-composite-submit"');
-    expect(source).toContain('data-testid="alert-simulation-compare-submit"');
-    expect(source.match(/className="justify-self-start"/g)?.length).toBe(3);
+    expect(source).toContain('testId="alert-simulation-simple-submit"');
+    expect(source).toContain('testId="alert-simulation-composite-submit"');
+    expect(source).toContain('testId="alert-simulation-compare-submit"');
+    expect(source.match(/justify-self-start/g)?.length).toBe(1);
   });
 });

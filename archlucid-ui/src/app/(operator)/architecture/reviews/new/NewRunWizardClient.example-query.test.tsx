@@ -6,7 +6,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   return {
     ...actual,
   useSearchParams: () => ({
-    get: (key: string) => (key === "template" ? "claims-intake-modernization" : null),
+    get: (key: string) => (key === "template" ? "customer-intake-modernization" : null),
   }),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
   usePathname: () => "",
@@ -91,7 +91,7 @@ describe("NewRunWizardClient (example query)", { timeout: 60_000 }, () => {
     );
   });
 
-  it("prefills description and system name when template=claims-intake-modernization", async () => {
+  it("prefills description and system name when template=customer-intake-modernization", async () => {
     render(<NewRunWizardClient />);
 
     await waitFor(() => {

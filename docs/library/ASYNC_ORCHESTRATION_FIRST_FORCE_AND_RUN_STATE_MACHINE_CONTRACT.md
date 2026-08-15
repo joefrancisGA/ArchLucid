@@ -93,4 +93,4 @@ Create → Authority pipeline (queued OK) → Agent execute
 
 - [`LONG_RUNNING_OPERATIONS_CONTRACT.md`](LONG_RUNNING_OPERATIONS_CONTRACT.md) (**TB-2072**)
 - [`CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md`](CONCURRENT_EXECUTE_AND_COMMIT_RACE_CONTRACT.md) (**TB-1270**)
-- ADR [0038](../architecture/adrs/0038-async-authority-pipeline-sql-queue.md) (authority SQL queue)
+- ADR [0038](../architecture/adrs/0038-run-durability-multi-store-outbox-production-secrets.md) (authority SQL queue)

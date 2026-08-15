@@ -8,7 +8,7 @@ const RETIRED_BOOKMARK_REWRITE_SOURCES = [
   "/governance/risk-exceptions",
   "/governance/risk-exceptions/:path*",
   "/settings/roles",
-  "/architecture/reviews/claims-intake-modernization/sealed-record",
+  "/architecture/reviews/customer-intake-modernization/sealed-record",
   "/architecture/reviews/:id/sealed-record",
 ] as const;
 

@@ -575,9 +575,14 @@ export function buildRecurrenceLocalTimeSummary(
 
   // When the operator is in UTC, keep a single honest line (no fake local shift).
   if (isUtcZone) {
+    const localPrimary =
+      isBrowserSniffed && utcSecondary.length > 0
+        ? `${utcSecondary} (from your browser)`
+        : utcSecondary;
+
     return {
       timeZoneId,
-      localPrimary: utcSecondary,
+      localPrimary,
       utcSecondary: "",
       isUtcZone,
     };

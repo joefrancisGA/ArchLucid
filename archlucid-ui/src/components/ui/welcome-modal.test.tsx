@@ -79,6 +79,6 @@ describe("WelcomeModal", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open sample sponsor report" }));
 
     expect(onDismiss).toHaveBeenCalledTimes(1);
-    expect(routerPushSpy).toHaveBeenCalledWith("/architecture/reviews/claims-intake-modernization");
+    expect(routerPushSpy).toHaveBeenCalledWith("/architecture/reviews/customer-intake-modernization");
   });
 });

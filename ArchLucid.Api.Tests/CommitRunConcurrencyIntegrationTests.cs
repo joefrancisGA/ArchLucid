@@ -48,6 +48,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
 
         HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
         await executeResponse.EnsureSuccessForTestAsync();
+        await GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(client, runId);
         const int parallel = 8;
         Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
 

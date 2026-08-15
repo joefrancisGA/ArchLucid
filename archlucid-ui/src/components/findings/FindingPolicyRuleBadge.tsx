@@ -38,7 +38,6 @@ export function FindingPolicyRuleBadge(props: FindingPolicyRuleBadgeProps): Reac
         type="button"
         className={props.className}
         data-testid="finding-policy-rule-badge"
-        title={`Compliance rule key ${ruleId}`}
         onClick={props.onPreviewClick}
       >
         <StatusTag kind="in-progress" label={statusLabel} />
@@ -51,7 +50,6 @@ export function FindingPolicyRuleBadge(props: FindingPolicyRuleBadgeProps): Reac
       href={policyPacksRuleHref(ruleId)}
       className={cn(OPERATOR_LINK.inline, props.className)}
       data-testid="finding-policy-rule-badge"
-      title={`Compliance rule key ${ruleId}`}
     >
       <StatusTag kind="in-progress" label={statusLabel} />
     </Link>

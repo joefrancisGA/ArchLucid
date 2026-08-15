@@ -14,6 +14,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { SHOWCASE_HOME_AHA_MOMENT, showcasePrimaryFindingHref } from "@/lib/showcase-home-aha-moment";
+import { CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/samples/customer-intake-modernization/definition";
 import { SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 
 type SampleReviewPackageSummaryProps = {
@@ -50,7 +51,7 @@ export function SampleReviewPackageSummary({
       >
         <p className={cn("m-0 font-semibold uppercase tracking-wide", OPERATOR_TYPOGRAPHY.helper)}>Sample review</p>
         <h2 id="sample-review-package-summary-heading" className="m-0 mt-1 text-lg font-semibold">
-          Claims Intake sample review
+          {CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE} sample review
         </h2>
         <p className={cn("m-0 mt-2 max-w-2xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
           Inspect the sealed review record, evidence trail, and audit record when you need the full package. Numbers are

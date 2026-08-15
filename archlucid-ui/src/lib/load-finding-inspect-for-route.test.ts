@@ -41,23 +41,23 @@ describe("load-finding-inspect-for-route", () => {
     });
 
     tryStatic.mockReturnValue({
-      findingId: "phi-minimization-risk",
+      findingId: "sensitive-data-minimization-risk",
       typedPayload: { title: "ok" },
       decisionRuleId: "r",
       decisionRuleName: "R",
       evidence: [],
       recommendedActions: ["a"],
       auditRowId: null,
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       manifestVersion: "v",
     });
 
-    const r = await loadFindingInspectForRoute("claims-intake-modernization", "phi-minimization-risk");
+    const r = await loadFindingInspectForRoute("customer-intake-modernization", "sensitive-data-minimization-risk");
 
     expect(r.failure).toBeNull();
     expect(r.invalidRouteAlignment).toBe(false);
-    expect(r.payload?.findingId).toBe("phi-minimization-risk");
-    expect(r.payload?.runId).toBe("claims-intake-modernization");
+    expect(r.payload?.findingId).toBe("sensitive-data-minimization-risk");
+    expect(r.payload?.runId).toBe("customer-intake-modernization");
   });
 
   it("signals invalid alignment when inspect disagrees with URL and no static applies", async () => {
@@ -77,7 +77,7 @@ describe("load-finding-inspect-for-route", () => {
 
     const r = await loadFindingInspectForRoute(
       "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
-      "phi-minimization-risk",
+      "sensitive-data-minimization-risk",
     );
 
     expect(r.payload).toBeNull();

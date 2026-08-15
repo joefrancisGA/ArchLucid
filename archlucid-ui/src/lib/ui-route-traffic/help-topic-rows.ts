@@ -377,4 +377,52 @@ export const HELP_TOPIC_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     note: "Reviews / architecture packages help (Help topic) - HelpReviewPackagesGuideView with PageContextualHelpButton (topic map review-packages; Category-1 registry), informative when-to-use summary, Architecture package definition callout, Getting started five-step workflow, prepared REVIEW_PACKAGES_OPERATOR_GUIDE.md body, compact HelpRelatedGuideCards (review-guide, evidence-intake, findings, evidence-trail, governance-approval). Shared HELP_PAGE_LAYOUT rhythm. Operator orientation guide - not a signed-record Sources trail. Sibling RE = reviews hub; RRE = review workspace. Score 65/100 (2026-08-08) - help-topic package-orientation hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["HelpReviewPackagesGuideView", "Sources", "cannot improve further toward 80"],
   },
+  /** Traffic workbook row ID for Architecture scorecard help. Owner backlog shorthand: HAS. */
+  {
+    rowId: "HAS",
+    path: "/help/architecture-scorecard",
+    section: "Help topic",
+    note: "Architecture scorecard help (Help topic) - HelpArchitectureScorecardGuideView with PageContextualHelpButton (topic map architecture-scorecard; Category-1 registry), scorecard orientation strip, methodology disclosure, sibling report links. Sibling SCX = /insights/architecture-scorecard; EXE = executive-summary. Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    noteMustContain: ["HelpArchitectureScorecardGuideView", "Score 58", "cannot improve further toward 80"],
+  },
+  /** Traffic workbook row ID for Connection status help. Owner backlog shorthand: HCO. */
+  {
+    rowId: "HCO",
+    path: "/help/connection-status",
+    section: "Help topic",
+    note: "Connection status help (Help topic) - HelpConnectionStatusGuideView with PageContextualHelpButton (topic map connection-status; Category-1 registry), connection readiness orientation strip, integration readiness CTAs. Sibling ADC = /administration/connection-status; HEI = integration-readiness. Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    noteMustContain: ["HelpConnectionStatusGuideView", "Score 58", "cannot improve further toward 80"],
+  },
+  /** Traffic workbook row ID for Pilot outcomes help topic. Owner backlog shorthand: HPO. */
+  {
+    rowId: "HPO",
+    path: "/help/pilot-outcomes",
+    section: "Help topic",
+    note: "Pilot outcomes help (Help topic) - HelpPilotOutcomesGuideView with PageContextualHelpButton (topic map pilot-outcomes; Category-1 registry), outcomes orientation strip, pilot value report CTAs. Sibling SPP = /insights/pilot-outcomes. Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    noteMustContain: ["HelpPilotOutcomesGuideView", "Score 58", "cannot improve further toward 80"],
+  },
+  /** Traffic workbook row ID for Recurrence schedules help. Owner backlog shorthand: HRC. */
+  {
+    rowId: "HRC",
+    path: "/help/recurrence-schedules",
+    section: "Help topic",
+    note: "Recurrence schedules help (Help topic) - HelpRecurrenceSchedulesGuideView with PageContextualHelpButton (topic map recurrence-schedules; Category-1 registry), schedule orientation strip, governance recurrence CTAs. Sibling GRS = /governance/recurrence-schedules. Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    noteMustContain: ["HelpRecurrenceSchedulesGuideView", "Score 58", "cannot improve further toward 80"],
+  },
+  /** Traffic workbook row ID for ROI summary help. Owner backlog shorthand: HRO. */
+  {
+    rowId: "HRO",
+    path: "/help/roi-summary",
+    section: "Help topic",
+    note: "ROI summary help (Help topic) - HelpRoiSummaryGuideView with PageContextualHelpButton (topic map roi-summary; Category-1 registry), directional ROI orientation strip, executive summary and scorecard sibling links. Sibling SPR = /insights/roi-summary. Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    noteMustContain: ["HelpRoiSummaryGuideView", "Score 58", "cannot improve further toward 80"],
+  },
+  /** Traffic workbook row ID for Standards and rules help. Owner backlog shorthand: HSR. */
+  {
+    rowId: "HSR",
+    path: "/help/standards-and-rules",
+    section: "Help topic",
+    note: "Standards and rules help (Help topic) - HelpStandardsRulesGuideView with PageContextualHelpButton (topic map standards-and-rules; Category-1 registry), standards orientation strip, policy pack library CTAs. Sibling GRS = /governance/standards-and-rules. Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without signed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a signed-record diligence Sources trail.",
+    noteMustContain: ["HelpStandardsRulesGuideView", "Score 58", "cannot improve further toward 80"],
+  },
 ];

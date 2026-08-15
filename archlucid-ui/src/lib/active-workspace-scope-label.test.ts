@@ -4,6 +4,11 @@ import {
   resolveWorkspaceScopeLabelFromRecord,
   readActiveWorkspaceScopeLabel,
 } from "@/lib/active-workspace-scope-label";
+import {
+  BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
+  BUYER_WORKSPACE_DISPLAY_NAME,
+  BUYER_WORKSPACE_SHORT_NAME,
+} from "@/lib/buyer/buyer-polish-copy";
 import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 
@@ -20,8 +25,8 @@ function record(overrides: Partial<OperatorScopeRecord> = {}): OperatorScopeReco
 
 describe("resolveWorkspaceScopeLabelFromRecord", () => {
   it("prefers the sample-workspace compact label for the dev-default scope even when storage has a label", () => {
-    expect(resolveWorkspaceScopeLabelFromRecord(record({ workspaceLabel: "Claims Intake" }))).toBe(
-      "Claims Intake Demo",
+    expect(resolveWorkspaceScopeLabelFromRecord(record({ workspaceLabel: BUYER_WORKSPACE_SHORT_NAME }))).toBe(
+      BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
     );
   });
 
@@ -30,19 +35,19 @@ describe("resolveWorkspaceScopeLabelFromRecord", () => {
       resolveWorkspaceScopeLabelFromRecord(
         record({
           workspaceId: "abcdef01-2345-6789-abcd-ef0123456789",
-          workspaceLabel: "Claims Intake Workspace",
+          workspaceLabel: BUYER_WORKSPACE_DISPLAY_NAME,
         }),
       ),
-    ).toBe("Claims Intake");
+    ).toBe(BUYER_WORKSPACE_SHORT_NAME);
   });
 
   it("falls back to the sample-workspace compact label for the dev-default scope", () => {
-    expect(resolveWorkspaceScopeLabelFromRecord(record())).toBe("Claims Intake Demo");
+    expect(resolveWorkspaceScopeLabelFromRecord(record())).toBe(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
   });
 
   it("treats a whitespace-only stored label as missing", () => {
     expect(resolveWorkspaceScopeLabelFromRecord(record({ workspaceLabel: "   " }))).toBe(
-      "Claims Intake Demo",
+      BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
     );
   });
 
@@ -55,7 +60,7 @@ describe("resolveWorkspaceScopeLabelFromRecord", () => {
   });
 
   it("resolves a label with no record present", () => {
-    expect(resolveWorkspaceScopeLabelFromRecord(null)).toBe("Claims Intake Demo");
+    expect(resolveWorkspaceScopeLabelFromRecord(null)).toBe(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
   });
 });
 

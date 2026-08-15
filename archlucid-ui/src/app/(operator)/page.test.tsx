@@ -62,7 +62,7 @@ vi.mock("./_sections/operator-home-page-view-deferred-chunks", async () => {
         <div data-testid="operator-home-dual-path-cards">
           <button type="button">{CREATE_ARCHITECTURE_LABEL}</button>
           <button type="button">{START_REVIEW_LABEL}</button>
-          <Link href="/architecture/reviews/claims-intake-modernization">{OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}</Link>
+          <Link href="/architecture/reviews/customer-intake-modernization">{OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}</Link>
         </div>
       </div>
     );
@@ -80,12 +80,13 @@ vi.mock("./_sections/operator-home-page-view-deferred-chunks", async () => {
       <section data-testid="operator-home-explore-sample-section">
         <Link
           data-testid="operator-home-explore-run-sample-review"
-          href="/architecture/reviews/new?template=claims-intake-modernization"
+          href="/architecture/reviews/new?template=customer-intake-modernization"
         >
           {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
         </Link>
       </section>
     ),
+    OperatorHomeStickinessCockpitDeferred: () => null,
     OperatorHomeGateDeferred: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
     CtoDemoSponsorLandingRedirectDeferred: () => null,
   };
@@ -95,11 +96,11 @@ vi.mock("./_sections/operator-home-page-view-deferred-chunks", async () => {
 
 vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", async () => {
   const Link = (await import("next/link")).default;
-  const { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } = await import("@/lib/architecture-workflow-labels");
+  const { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } = await import("@/lib/architecture/architecture-workflow-labels");
   const {
     OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
     OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
-  } = await import("@/lib/buyer-polish-copy");
+  } = await import("@/lib/buyer/buyer-polish-copy");
 
   function DualPathHeroMock() {
     return (
@@ -107,7 +108,7 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
         <div data-testid="operator-home-dual-path-cards">
           <button type="button">{CREATE_ARCHITECTURE_LABEL}</button>
           <button type="button">{START_REVIEW_LABEL}</button>
-          <Link href="/architecture/reviews/claims-intake-modernization">{OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}</Link>
+          <Link href="/architecture/reviews/customer-intake-modernization">{OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}</Link>
         </div>
       </div>
     );
@@ -125,12 +126,13 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
       <section data-testid="operator-home-explore-sample-section">
         <Link
           data-testid="operator-home-explore-run-sample-review"
-          href="/architecture/reviews/new?template=claims-intake-modernization"
+          href="/architecture/reviews/new?template=customer-intake-modernization"
         >
           {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
         </Link>
       </section>
     ),
+    OperatorHomeStickinessCockpitDeferred: () => null,
     OperatorHomeGateDeferred: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
     CtoDemoSponsorLandingRedirectDeferred: () => null,
   };
@@ -289,7 +291,7 @@ function featuredCompletedSampleAvailable() {
     isPending: false,
     isError: false,
     data: {
-      selectedRunId: "claims-intake-modernization",
+      selectedRunId: "customer-intake-modernization",
       isConfigured: true,
       isAvailable: true,
       reviewTitle: "Claims intake modernization",
@@ -435,7 +437,7 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.getByTestId("operator-home-explore-run-sample-review")).toHaveAttribute(
       "href",
-      "/architecture/reviews/new?template=claims-intake-modernization",
+      "/architecture/reviews/new?template=customer-intake-modernization",
     );
     expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-explore-open-completed-sample")).toBeNull();

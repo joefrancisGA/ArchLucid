@@ -38,6 +38,6 @@ describe("AlertRulesContent sample mode", () => {
       expect(screen.getByText(ALERT_RULES_SAMPLE_MODE_BANNER)).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("button", { name: alertRulesCreateButtonLabelReaderRank })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: alertRulesCreateButtonLabelReaderRank })).not.toBeInTheDocument();
   });
 });

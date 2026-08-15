@@ -1,4 +1,4 @@
-> **Scope:** Generated maintainability boundary map — do not edit by hand.
+> **Scope:** Generated contributor-reference maintainability boundary map — do not edit by hand.
 
 # Maintainability boundary map (generated)
 

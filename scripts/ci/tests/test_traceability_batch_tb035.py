@@ -38,9 +38,13 @@ class TestTraceabilityBatchTb035(unittest.TestCase):
         self.assertIn("UX_AgentExecutionTraces_RunId_TaskId_AgentType_AttemptIndex", text)
 
     def test_tb_035_repository_scopes_delete_by_attempt_index(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Persistence" / "Data" / "Repositories" / "AgentExecutionTraceRepository.cs"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("@AttemptIndex", text)
+        sql_path = REPO_ROOT / "ArchLucid.Persistence" / "Sql" / "AgentExecutionTraceSql.cs"
+        sql_text = sql_path.read_text(encoding="utf-8")
+        self.assertIn("@AttemptIndex", sql_text)
+
+        repo_path = REPO_ROOT / "ArchLucid.Persistence" / "Data" / "Repositories" / "AgentExecutionTraceRepository.cs"
+        repo_text = repo_path.read_text(encoding="utf-8")
+        self.assertIn("DeleteLaterAttempts", repo_text)
 
     def test_tb_035_unit_test_two_failures_then_success(self) -> None:
         path = REPO_ROOT / "ArchLucid.AgentRuntime.Tests" / "LlmAgentSchemaCompletionTests.cs"

@@ -118,7 +118,7 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
     const healthcareCard = screen.getByTestId("specialty-template-card-healthcare-claims");
     expect(
       within(healthcareCard).getByRole("link", { name: /Healthcare Claims Policy Pack v3\.4\.1/i }),
-    ).toHaveAttribute("href", "/governance/policy-packs/demo-healthcare-claims-pack");
+    ).toHaveAttribute("href", "/governance/policy-packs/demo-enterprise-privacy-pack");
   });
 
   it("links compare templates to the comparison section", () => {
@@ -150,7 +150,7 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
     expect(within(dialog).getByText("Example review questions")).toBeInTheDocument();
     expect(within(dialog).getByRole("link", { name: /Healthcare Claims Policy Pack v3\.4\.1/i })).toHaveAttribute(
       "href",
-      "/governance/policy-packs/demo-healthcare-claims-pack",
+      "/governance/policy-packs/demo-enterprise-privacy-pack",
     );
     expect(dialog.textContent?.toLowerCase() ?? "").not.toContain("healthcare-claims-v3");
   });

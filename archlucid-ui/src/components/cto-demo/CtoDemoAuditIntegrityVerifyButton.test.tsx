@@ -30,7 +30,7 @@ vi.mock("@/lib/demo-audit-sample-events", () => ({
       tenantId: "demo-tenant",
       workspaceId: "demo-workspace",
       projectId: "default",
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       manifestId: null,
       artifactId: null,
       dataJson: "{}",

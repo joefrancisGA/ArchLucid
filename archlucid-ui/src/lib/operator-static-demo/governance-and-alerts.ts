@@ -60,7 +60,7 @@ export function tryStaticDemoGovernanceApprovalRequests(runId: string): Governan
 
   return [
     {
-      approvalRequestId: "claims-intake-approval-001",
+      approvalRequestId: "customer-intake-approval-001",
       runId: effectiveRunId,
       manifestVersion: activeRuleSetVersion,
       sourceEnvironment: "dev",
@@ -97,7 +97,7 @@ export function tryStaticDemoGovernancePromotions(runId: string): GovernanceProm
       sourceEnvironment: "dev",
       targetEnvironment: "test",
       promotedBy: "Taylor Morgan",
-      approvalRequestId: "claims-intake-approval-001",
+      approvalRequestId: "customer-intake-approval-001",
       notes: "Governed-use record aligned with this architecture review.",
       promotedUtc: "2026-01-14T22:06:00.000Z",
     },
@@ -112,7 +112,7 @@ export function tryStaticDemoGovernanceApprovalLineage(approvalRequestId: string
 
   const id = approvalRequestId.trim();
 
-  if (id !== "claims-intake-approval-001") {
+  if (id !== "customer-intake-approval-001" && id !== "claims-intake-approval-001") {
     return null;
   }
 

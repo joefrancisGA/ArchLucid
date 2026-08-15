@@ -29,7 +29,7 @@ describe("findingDetailHeadingTitle", () => {
       findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
     };
 
-    expect(findingDetailHeadingTitle(payload)).toBe("PHI Minimization Risk");
+    expect(findingDetailHeadingTitle(payload)).toBe("Sensitive Data Minimization Risk");
   });
 });
 

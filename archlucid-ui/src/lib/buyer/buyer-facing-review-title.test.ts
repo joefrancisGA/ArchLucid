@@ -32,7 +32,7 @@ describe("buyerFacingReviewTitleFromSummary", () => {
   it("uses stable title for legacy demo run id aliases", () => {
     expect(
       buyerFacingReviewTitleFromSummary(
-        summary({ runId: "claims-intake-modernization-run", description: "Claims Intake Modernization — sample case…" }),
+        summary({ runId: "customer-intake-modernization-run", description: "Claims Intake Modernization — sample case…" }),
       ),
     ).toBe(SHOWCASE_BUYER_REVIEW_TITLE);
   });
@@ -41,7 +41,7 @@ describe("buyerFacingReviewTitleFromSummary", () => {
     expect(
       buyerFacingReviewTitleFromSummary(
         summary({
-          runId: "claims-intake-modernization-run",
+          runId: "customer-intake-modernization-run",
           displayName: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
           description: "Fallback description",
         }),

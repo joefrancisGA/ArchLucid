@@ -18,7 +18,7 @@ export function ArchitectureScopeUnderstandingCheckPanelVitestMock(
         props.onGateChange?.(true);
       }}
     >
-      Confirm scope (test stub)
+      Confirm scope understanding
     </button>
   );
 }

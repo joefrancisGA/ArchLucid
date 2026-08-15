@@ -46,7 +46,7 @@ vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
     isPending: false,
     isError: false,
     data: {
-      selectedRunId: "claims-intake-modernization",
+      selectedRunId: "customer-intake-modernization",
       isConfigured: true,
       isAvailable: true,
       reviewTitle: "Claims intake modernization",

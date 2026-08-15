@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { CitationReference } from "@/types/explanation";
 
@@ -52,7 +52,7 @@ describe("buildAskCitationActionFollowUps", () => {
     const citations: CitationReference[] = [
       {
         kind: "Finding",
-        id: "phi-minimization-risk",
+        id: "sensitive-data-minimization-risk",
         label: "PHI minimization risk",
         runId: "run-demo",
       },
@@ -63,7 +63,7 @@ describe("buildAskCitationActionFollowUps", () => {
       citations,
     });
 
-    expect(chips.some((c) => c.kind === "finding" && c.href.includes("/findings/phi-minimization-risk"))).toBe(
+    expect(chips.some((c) => c.kind === "finding" && c.href.includes("/findings/sensitive-data-minimization-risk"))).toBe(
       true,
     );
     expect(chips.some((c) => c.kind === "evidence" && c.href.endsWith("/evidence-trace"))).toBe(true);
@@ -76,25 +76,25 @@ describe("buildAskCitationActionFollowUps", () => {
       groundingLinks: [
         {
           label: "PHI minimization risk",
-          href: "/architecture/reviews/run-a/findings/phi-minimization-risk",
+          href: "/architecture/reviews/run-a/findings/sensitive-data-minimization-risk",
         },
       ],
     });
 
-    expect(ids).toEqual(["phi-minimization-risk"]);
+    expect(ids).toEqual(["sensitive-data-minimization-risk"]);
 
     const chips = buildAskCitationActionFollowUps({
       runId: "run-a",
       groundingLinks: [
         {
           label: "PHI minimization risk",
-          href: "/architecture/reviews/run-a/findings/phi-minimization-risk",
+          href: "/architecture/reviews/run-a/findings/sensitive-data-minimization-risk",
         },
       ],
     });
 
     expect(chips.length).toBeGreaterThan(0);
-    expect(chips[0]?.citationId).toBe("phi-minimization-risk");
+    expect(chips[0]?.citationId).toBe("sensitive-data-minimization-risk");
   });
 
   it("opens Decision register from DecisionTrace / referencedDecisions when no findings", () => {

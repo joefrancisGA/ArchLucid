@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
@@ -9,6 +9,7 @@ import * as facetsStorage from "@/lib/governance/governance-findings-queue-facet
 import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
 import { ApiRequestError } from "@/lib/api-request-error";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
@@ -172,6 +173,7 @@ const loadedRiskRow = {
 
 describe("GovernanceFindingsQueueClient", () => {
   beforeEach(() => {
+    resetOperatorQueryClientForTests();
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
   });

@@ -10,7 +10,7 @@ import {
 
 /**
  * Run detail aligned to marketing showcase data (mock API for `claims-intake-*` run URL segments).
- * Reuses the static demo builder so findings (including `phi-minimization-risk`) are present for E2E.
+ * Reuses the static demo builder so findings (including `sensitive-data-minimization-risk`) are present for E2E.
  */
 export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
   return buildStaticDemoRunDetailFromShowcase(urlRunId);
@@ -25,7 +25,7 @@ export function fixtureRunDetail(): RunDetail {
       runId: FIXTURE_RUN_ID,
       projectId: FIXTURE_PROJECT_ID,
       description:
-        "Claims Intake Modernization — integration boundaries, PHI handling posture, and sponsor-facing KPIs.",
+        "Enterprise Customer Intake Modernization — integration boundaries, PHI handling posture, and sponsor-facing KPIs.",
       createdUtc: "2025-06-01T12:00:00.000Z",
       contextSnapshotId: "ctx-snap-fixture",
       graphSnapshotId: "graph-snap-fixture",

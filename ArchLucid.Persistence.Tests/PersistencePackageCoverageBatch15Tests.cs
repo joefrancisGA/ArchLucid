@@ -131,6 +131,7 @@ public sealed class PersistencePackageCoverageBatch15Tests
             Guid.NewGuid(),
             projectId: null,
             maxRows: 10,
+            options: null,
             CancellationToken.None);
 
         entries.Should().BeEmpty();

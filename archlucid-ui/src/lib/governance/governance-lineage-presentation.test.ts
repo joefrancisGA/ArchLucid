@@ -14,7 +14,7 @@ function sampleLineage(overrides: Partial<GovernanceLineageResult> = {}): Govern
   return {
     approvalRequest: {
       approvalRequestId: "approval-1",
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       manifestVersion: "3.4.1",
       sourceEnvironment: "dev",
       targetEnvironment: "test",
@@ -27,7 +27,7 @@ function sampleLineage(overrides: Partial<GovernanceLineageResult> = {}): Govern
       reviewedUtc: "2026-01-14T22:00:00.000Z",
     },
     run: {
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       status: "Finalized",
       createdUtc: "2026-01-12T10:00:00.000Z",
       completedUtc: "2026-01-14T22:00:00.000Z",
@@ -45,7 +45,7 @@ function sampleLineage(overrides: Partial<GovernanceLineageResult> = {}): Govern
     },
     topFindings: [
       {
-        findingId: "phi-minimization-risk",
+        findingId: "sensitive-data-minimization-risk",
         title: "Residual PHI minimization risk",
         engineType: "Policy",
         severity: "High",
@@ -63,7 +63,7 @@ function sampleLineage(overrides: Partial<GovernanceLineageResult> = {}): Govern
     promotions: [
       {
         promotionRecordId: "promo-1",
-        runId: "claims-intake-modernization",
+        runId: "customer-intake-modernization",
         manifestVersion: "3.4.1",
         sourceEnvironment: "dev",
         targetEnvironment: "test",
@@ -116,7 +116,7 @@ describe("governance-lineage-presentation", () => {
         promotions: [
           {
             promotionRecordId: "promo-1",
-            runId: "claims-intake-modernization",
+            runId: "customer-intake-modernization",
             manifestVersion: "3.4.0",
             sourceEnvironment: "dev",
             targetEnvironment: "test",
@@ -147,7 +147,7 @@ describe("governance-lineage-presentation", () => {
   it("maps each manifest metric row to a distinct manifest property", () => {
     const fields = buildGovernanceLineageManifestMetricFields({
       manifest: sampleLineage().manifest!,
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
     });
 
     expect(fields.map((field) => field.manifestProperty)).toEqual([

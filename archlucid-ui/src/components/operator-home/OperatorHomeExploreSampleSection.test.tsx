@@ -76,7 +76,7 @@ describe("OperatorHomeExploreSampleSection", () => {
   it("hides when Recent reviews already lists a sample or tenant row", () => {
     committedReviewMock.value = false;
     workspaceReviewsMock.value = false;
-    recentRunIdsMock.value = ["claims-intake-modernization"];
+    recentRunIdsMock.value = ["customer-intake-modernization"];
 
     render(<OperatorHomeExploreSampleSection />);
 

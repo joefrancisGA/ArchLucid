@@ -20,7 +20,7 @@ describe("ReviewDetailPolicyPackImpactCallout", () => {
     expect(screen.getByTestId("review-detail-policy-pack-impact-counts")).toHaveTextContent("4 of 5");
     expect(screen.getByTestId("review-detail-policy-pack-impact-view-pack")).toHaveAttribute(
       "href",
-      "/governance/policy-packs/demo-healthcare-claims-pack",
+      "/governance/policy-packs/demo-enterprise-privacy-pack",
     );
     expect(screen.getByTestId("review-detail-policy-pack-impact-edit-rules")).toHaveAttribute(
       "href",

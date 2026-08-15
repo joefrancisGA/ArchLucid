@@ -46,7 +46,7 @@ describe("SampleFirstReviewPackageCard", () => {
     expect(screen.getByText(/audit evidence ready/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: BUYER_HOME_PRIMARY_CTA })).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization",
+      "/architecture/reviews/customer-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/architecture/reviews/new");
   });
@@ -72,7 +72,7 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     expect(screen.queryByText(/Illustrative sample review/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: BUYER_HOME_PRIMARY_CTA })).toHaveAttribute(
       "href",
-      "/architecture/reviews/claims-intake-modernization",
+      "/architecture/reviews/customer-intake-modernization",
     );
     expect(screen.getByRole("link", { name: BUYER_HOME_SECONDARY_CTA })).toHaveAttribute(
       "href",

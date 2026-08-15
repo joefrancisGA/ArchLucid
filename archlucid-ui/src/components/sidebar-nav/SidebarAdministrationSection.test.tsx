@@ -61,7 +61,10 @@ describe("SidebarAdministrationSection", () => {
     expect(toggle).toHaveTextContent("Administration");
     expect(toggle.textContent?.trim()).toBe("Administration");
     expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(toggle).toHaveAttribute("aria-label", SIDEBAR_ADMINISTRATION.ariaCollapsed);
+    expect(toggle).toHaveAttribute(
+      "aria-label",
+      `${SIDEBAR_ADMINISTRATION.ariaCollapsed}. ${SIDEBAR_ADMINISTRATION.title}`,
+    );
     expect(screen.queryByText("Show administration")).toBeNull();
     expect(screen.queryByText("Hide administration")).toBeNull();
     expect(screen.getByTestId("sidebar-administration-collapsed")).toBeInTheDocument();
@@ -89,7 +92,10 @@ describe("SidebarAdministrationSection", () => {
     expect(toggle).toHaveTextContent("Administration");
     expect(toggle.textContent?.trim()).toBe("Administration");
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    expect(toggle).toHaveAttribute("aria-label", SIDEBAR_ADMINISTRATION.ariaExpanded);
+    expect(toggle).toHaveAttribute(
+      "aria-label",
+      `${SIDEBAR_ADMINISTRATION.ariaExpanded}. ${SIDEBAR_ADMINISTRATION.title}`,
+    );
     expect(screen.queryByText("Show administration")).toBeNull();
     expect(screen.queryByText("Hide administration")).toBeNull();
     expect(screen.getByTestId("sidebar-administration-section")).toBeInTheDocument();

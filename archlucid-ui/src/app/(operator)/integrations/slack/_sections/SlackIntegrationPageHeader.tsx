@@ -73,7 +73,7 @@ export function SlackIntegrationPageHeader(props: SlackIntegrationPageHeaderProp
             data-testid="slack-last-checked"
           >
             {SLACK_LAST_CHECKED_PREFIX}:{" "}
-            <time dateTime={props.lastCheckedAt.toISOString()} title={operatorLastRefreshedExactLabel(props.lastCheckedAt)}>
+            <time dateTime={props.lastCheckedAt.toISOString()} aria-label={operatorLastRefreshedExactLabel(props.lastCheckedAt)}>
               {props.refreshing ? SLACK_ACTION_REFRESHING : props.lastCheckedAt.toLocaleString()}
             </time>
           </span>

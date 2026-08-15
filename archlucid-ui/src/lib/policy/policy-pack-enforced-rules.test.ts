@@ -26,7 +26,7 @@ const effectivePacks: EffectivePolicyPackSet = {
   projectId: "default",
   packs: [
     {
-      policyPackId: "demo-healthcare-claims-pack",
+      policyPackId: "demo-enterprise-privacy-pack",
       name: policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"),
       version: "3.4.1",
       packType: "BuiltIn",
@@ -65,13 +65,13 @@ describe("buildPolicyPackEnforcedRuleRows", () => {
 
 describe("formatActivePolicyPackSummaryBody", () => {
   it("uses singular rule copy for one enforced rule", () => {
-    expect(formatActivePolicyPackSummaryBody("Healthcare Claims Policy Pack v3.4.1", 1)).toBe(
-      "Healthcare Claims Policy Pack v3.4.1 is enabled for this workspace and applies 1 rule to this review.",
+    expect(formatActivePolicyPackSummaryBody("Enterprise Privacy Policy Pack v3.4.1", 1)).toBe(
+      "Enterprise Privacy Policy Pack v3.4.1 is enabled for this workspace and applies 1 rule to this review.",
     );
   });
 
   it("uses plural rule copy for multiple enforced rules", () => {
-    expect(formatActivePolicyPackSummaryBody("Healthcare Claims Policy Pack v3.4.1", 2)).toContain(
+    expect(formatActivePolicyPackSummaryBody("Enterprise Privacy Policy Pack v3.4.1", 2)).toContain(
       "applies 2 rules to this review.",
     );
   });

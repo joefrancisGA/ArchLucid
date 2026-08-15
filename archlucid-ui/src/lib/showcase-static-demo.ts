@@ -153,24 +153,10 @@ export type ShowcaseStaticDemoDecisionItem = IntakeShowcaseDecisionItem;
  * Curated synopses for the static Claims Intake manifest detail page (no list API on summary).
  * Keep length aligned with `manifest.decisionCount` / `warningCount` in this payload.
  */
-export const SHOWCASE_STATIC_DEMO_DECISION_ITEMS: readonly ShowcaseStaticDemoDecisionItem[] = [
-  { controlArea: "Integration", text: "Intake API remains system-of-record; channel adapters are stateless facades." },
-  { controlArea: "PHI handling", text: "PHI is classified at ingress; audit lineage follows the member correlation ID." },
-  { controlArea: "Performance", text: "Peak-load buffering uses bounded queues with explicit back-pressure to adjudication." },
-  { controlArea: "Auditability", text: "Manual rework queues are capped; overflow routes to a supervised exception path." },
-  { controlArea: "PHI handling", text: "Third-party OCR is optional; human confirm gates apply before downstream commit." },
-  { controlArea: "Integration", text: "Adjudication handoff uses signed event envelopes with idempotent consumers." },
-  { controlArea: "PHI handling", text: "Retention aligns to enterprise policy; cold paths avoid negotiable shorter windows." },
-  { controlArea: "Auditability", text: "Observability spans intake latency, queue depth, and exception-rate SLOs." },
-  { controlArea: "Auditability", text: "Disaster recovery favors replay-from-journal over dual-active intake writers." },
-  { controlArea: "Integration", text: "Feature flags scope rollout by cohort; kill switches are tested each release." },
-  { controlArea: "Auditability", text: "Data residency constraints are enforced at the storage account boundary." },
-  { controlArea: "Sponsor KPIs", text: "Sponsor KPI pack ties modernization outcomes to defensible operational metrics." },
-];
+export const SHOWCASE_STATIC_DEMO_DECISION_ITEMS: readonly ShowcaseStaticDemoDecisionItem[] =
+  CUSTOMER_INTAKE_SHOWCASE_DECISION_ITEMS;
 
-export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = SHOWCASE_STATIC_DEMO_DECISION_ITEMS.map(
-  (d) => d.text,
-);
+export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = CUSTOMER_INTAKE_SHOWCASE_DECISION_SYNOPSES;
 
 /** Buyer “at a glance” counts aligned with the demo graph and audit sample. */
 export const SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT =
@@ -180,9 +166,7 @@ export const SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT =
   CUSTOMER_INTAKE_SAMPLE_DEFINITION.auditTrailEventCount;
 
 /** Single curated warning matching `manifest.warningCount` for the static showcase. */
-export const SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES: readonly string[] = [
-  "Unstructured intake attachments require weekly exception-volume monitoring to maintain PHI minimization coverage.",
-];
+export const SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES: readonly string[] = CUSTOMER_INTAKE_SHOWCASE_WARNING_SYNOPSES;
 
 function buildClaimsIntakeShowcaseStaticPayload(urlRunId: string): DemoCommitPagePreviewResponse {
   return buildIntakeShowcaseStaticPayload({

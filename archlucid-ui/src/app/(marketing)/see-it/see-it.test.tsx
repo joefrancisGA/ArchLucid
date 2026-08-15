@@ -166,7 +166,7 @@ describe("resolveSeeItDemoUniverse", () => {
   it("classifies regulated Claims showcase run id with healthcare banner", () => {
     const payload = createMinimalDemoPreviewPayload();
     payload.run.runId = CLAIMS_INTAKE_SAMPLE_RUN_ID;
-    payload.run.description = "Claims Intake Modernization Review";
+    payload.run.description = "Enterprise Customer Intake Modernization Review";
 
     expect(resolveSeeItDemoUniverse(payload)).toBe("claims");
     expect(seeItUniverseBannerTitleForPayload(payload)).toContain("Healthcare claims");
@@ -243,7 +243,7 @@ describe("SeeItMarketingBody", () => {
   it("shows healthcare Claims banner only when payload is the regulated Claims showcase", () => {
     const payload = createMinimalDemoPreviewPayload();
     payload.run.runId = CLAIMS_INTAKE_SAMPLE_RUN_ID;
-    payload.run.description = "Claims Intake Modernization Review";
+    payload.run.description = "Enterprise Customer Intake Modernization Review";
 
     render(<SeeItMarketingBody source="live" payload={payload} />);
 

@@ -8,7 +8,7 @@ describe("GovernanceApprovalStoryCard", () => {
   it("renders four milestone rows for an approved sample request", () => {
     const row: GovernanceApprovalRequest = {
       approvalRequestId: "demo-approval-1",
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       manifestVersion: "3.4.1",
       sourceEnvironment: "dev",
       targetEnvironment: "test",
@@ -41,7 +41,7 @@ describe("GovernanceApprovalStoryCard", () => {
   it("renders audit trail link in the card footer when auditTrailHref is provided", () => {
     const row: GovernanceApprovalRequest = {
       approvalRequestId: "demo-approval-1",
-      runId: "claims-intake-modernization",
+      runId: "customer-intake-modernization",
       manifestVersion: "3.4.1",
       sourceEnvironment: "dev",
       targetEnvironment: "test",
@@ -55,11 +55,11 @@ describe("GovernanceApprovalStoryCard", () => {
     };
 
     render(
-      <GovernanceApprovalStoryCard row={row} auditTrailHref="/governance/audit?runId=claims-intake-modernization" />,
+      <GovernanceApprovalStoryCard row={row} auditTrailHref="/governance/audit?runId=customer-intake-modernization" />,
     );
 
     const link = screen.getByRole("link", { name: "Open audit trail" });
 
-    expect(link).toHaveAttribute("href", "/governance/audit?runId=claims-intake-modernization");
+    expect(link).toHaveAttribute("href", "/governance/audit?runId=customer-intake-modernization");
   });
 });

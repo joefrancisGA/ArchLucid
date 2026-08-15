@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const fetchPrincipalMock = vi.fn();
 const getServerCurrentPrincipalMock = vi.fn();
@@ -22,6 +22,10 @@ import { GET } from "@/app/api/help/[slug]/route";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 describe("GET /api/help/[slug] (TB-735 / TB-1329)", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   beforeEach(() => {
     fetchPrincipalMock.mockReset();
     getServerCurrentPrincipalMock.mockReset();
@@ -52,6 +56,7 @@ describe("GET /api/help/[slug] (TB-735 / TB-1329)", () => {
   });
 
   it("returns internal-runbook markdown for admins in development-bypass without inbound authorization", async () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
     readNextPublicAuthModeMock.mockReturnValue("development-bypass");
     getServerCurrentPrincipalMock.mockResolvedValue({
       authorityRank: AUTHORITY_RANK.AdminAuthority,
@@ -87,6 +92,7 @@ describe("GET /api/help/[slug] (TB-735 / TB-1329)", () => {
   });
 
   it("returns internal-runbook markdown for admin callers with inbound authorization", async () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
     fetchPrincipalMock.mockResolvedValue({
       authorityRank: AUTHORITY_RANK.AdminAuthority,
       hasRecognizedArchLucidRole: true,

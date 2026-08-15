@@ -13,7 +13,9 @@ const DESTINATION_SMOKE_TEST_IDS: Readonly<Partial<Record<string, string>>> = {
   "/help/first-architecture-review": "help-core-pilot-guide",
   "/help/api-contracts": "help-api-contracts-guide",
   "/help/review-guide": "help-review-guide",
-  "/help/cloud-connections/aws": "help-cloud-connections-guide",
+  "/help/cloud-connections/azure": "help-connect-azure-securely-guide",
+  "/help/cloud-connections/aws": "help-connect-aws-securely-guide",
+  "/help/cloud-connections/gcp": "help-connect-gcp-securely-guide",
   "/help/getting-started": "help-getting-started-guide",
 };
 

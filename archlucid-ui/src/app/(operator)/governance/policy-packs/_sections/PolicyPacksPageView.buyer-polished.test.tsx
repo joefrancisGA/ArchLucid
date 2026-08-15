@@ -14,7 +14,7 @@ import {
 import type { EffectivePolicyPackSet, PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
 const selectedPack: PolicyPack = {
-  policyPackId: "demo-healthcare-claims-pack",
+  policyPackId: "demo-enterprise-privacy-pack",
   tenantId: "demo-tenant",
   workspaceId: "demo-workspace",
   projectId: "default",

@@ -16,7 +16,7 @@ import {
 } from "./helpers/buyer-golden-path";
 import { expectGraphPageReadySurface, expectMainHasNoHardFailureChrome, runsDashboardBuyerProofSummary } from "./helpers/operator-journey";
 
-const claimsShowcasePath = "/showcase/claims-intake-modernization";
+const claimsShowcasePath = "/showcase/customer-intake-modernization";
 
 /**
  * Marketing showcase QuickNav (`ShowcaseQuickNav`) uses "Open manifest"; review-trail cards use "Manifest";
@@ -48,12 +48,12 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expectBrandedNotFoundSurface(page);
   });
 
-  test("runs list shows Claims Intake example without mock-provider leakage", async ({ page }) => {
+  test("runs list shows Customer Intake example without mock-provider leakage", async ({ page }) => {
     await page.goto("/architecture/reviews");
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
-    await expect(page.getByText(/Claims Intake Modernization/i).first()).toBeVisible();
+    await expect(page.getByText(/Enterprise Customer Intake Modernization/i).first()).toBeVisible();
     await expect(page.getByText(/mock API/i)).toHaveCount(0);
   });
 
@@ -108,7 +108,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       `/governance/sealed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
       "/governance/approval-queue",
       "/help",
-      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("sensitive-data-minimization-risk")}`,
     ];
 
     const banned = [
@@ -176,11 +176,11 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     ).toBeVisible({ timeout: 60_000 });
 
     await page.goto(
-      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
+      `/architecture/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("sensitive-data-minimization-risk")}`,
     );
     await expectMainHasNoHardFailureChrome(page);
 
-    await page.goto("/showcase/claims-intake-modernization");
+    await page.goto("/showcase/customer-intake-modernization");
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
     await expectMainHasNoHardFailureChrome(page);
 
@@ -222,7 +222,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await page.goto("/governance/policy-packs/e2e-policy-pack-001");
     // Pack detail body uses buyer-polished empty-state copy; breadcrumb uses demo fixture titles — not `getRouteTitle`'s "Policy pack detail".
     await expect(
-      page.getByRole("main").getByRole("link", { name: /Open policy pack library|Policy packs|registry catalog/i }),
+      page.getByRole("main").getByRole("link", { name: /Open policy pack library|Policy packs|registry catalog/i }).first(),
     ).toBeVisible();
     await expect(page.getByRole("heading", { level: 1, name: /^Governance workflow$/i })).toHaveCount(0);
   });

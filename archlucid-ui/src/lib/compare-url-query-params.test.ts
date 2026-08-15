@@ -50,7 +50,7 @@ describe("compareRunIdsAreSameAfterDemoCanonicalization", () => {
 
   it("is true when ids differ only by known demo alias normalization", () => {
     expect(
-      compareRunIdsAreSameAfterDemoCanonicalization("claims-intake-modernization-run", SHOWCASE_STATIC_DEMO_RUN_ID),
+      compareRunIdsAreSameAfterDemoCanonicalization("customer-intake-modernization-run", SHOWCASE_STATIC_DEMO_RUN_ID),
     ).toBe(true);
   });
 

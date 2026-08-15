@@ -5,7 +5,7 @@ import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-packa
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 export const AZURE_EXTRACTOR_DEMO_SCENARIO_IDS = [
-  "claims-intake-modernization",
+  "customer-intake-modernization",
   "multi-region-saas-platform",
   "finops-optimization-snapshot",
 ] as const;
@@ -15,7 +15,7 @@ export type DemoReviewScenarioId = (typeof AZURE_EXTRACTOR_DEMO_SCENARIO_IDS)[nu
 /** @deprecated Prefer {@link DemoReviewScenarioId} — Azure-only name retained for legacy imports. */
 export type AzureExtractorDemoScenarioId = DemoReviewScenarioId;
 
-export const DEFAULT_DEMO_REVIEW_SCENARIO_ID: DemoReviewScenarioId = "claims-intake-modernization";
+export const DEFAULT_DEMO_REVIEW_SCENARIO_ID: DemoReviewScenarioId = "customer-intake-modernization";
 
 /** @deprecated Prefer {@link DEFAULT_DEMO_REVIEW_SCENARIO_ID} — Azure-only name retained for legacy imports. */
 export const DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID = DEFAULT_DEMO_REVIEW_SCENARIO_ID;
@@ -130,8 +130,8 @@ function buildFinOpsResources(): DemoResourceRecord[] {
 
 export const AZURE_EXTRACTOR_DEMO_SCENARIOS: ReadonlyArray<AzureExtractorDemoScenario> = [
   {
-    id: "claims-intake-modernization",
-    title: "Claims intake modernization",
+    id: "customer-intake-modernization",
+    title: "Customer intake modernization",
     subtitle: "Regulated healthcare-style web + data plane with PHI-adjacent controls.",
     systemName: "ClaimsIntakeRg",
     wizardBrief:
@@ -253,8 +253,14 @@ export function isAzureExtractorDemoScenarioId(value: string | null | undefined)
 export function resolveAzureExtractorDemoScenarioId(
   raw: string | null | undefined,
 ): AzureExtractorDemoScenarioId {
-  if (isAzureExtractorDemoScenarioId(raw?.trim())) {
-    return raw.trim() as AzureExtractorDemoScenarioId;
+  const value = raw?.trim() ?? "";
+
+  if (value === "claims-intake-modernization") {
+    return "customer-intake-modernization";
+  }
+
+  if (isAzureExtractorDemoScenarioId(value)) {
+    return value as AzureExtractorDemoScenarioId;
   }
 
   return DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID;

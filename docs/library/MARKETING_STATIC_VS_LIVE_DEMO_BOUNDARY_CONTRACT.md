@@ -1,3 +1,5 @@
+> **Scope:** Contributor reference — marketing static vs anonymous-live vs tenant boundary contract (**TB-1028**). Honesty CI **TB-1029**.
+
 # Marketing static vs anonymous-live vs tenant boundary
 
 **Status:** Shipped for **TB-1028** (2026-08-02). Honesty CI shipped **TB-1029** (2026-08-12).  

@@ -102,10 +102,13 @@ describe("resolveAdminPrerequisitesReadiness (TB-2156)", () => {
             roleClaimNameConfigured: true,
             tenantClaimMappingConfigured: true,
           },
+          authConfigurationDiagnosticsAvailable: true,
           identityProviderDiagnostics: null,
+          identityProviderDiagnosticsAvailable: false,
           oidcDiagnostics: {
             discoverySucceeded: true,
           },
+          oidcDiagnosticsAvailable: true,
         },
         cloud: { anyConfigured: false, loadFailed: false },
       }),

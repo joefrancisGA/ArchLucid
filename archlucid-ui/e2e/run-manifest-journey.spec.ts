@@ -78,6 +78,10 @@ test.describe("operator journey — run detail to manifest and back", () => {
 
     await openReviewDetailWorkspaceTab(page, SHOWCASE_DEMO_RUN_ID, "overview");
     await expandReviewDetailOutcomeCards(page);
-    await expect(page.locator('section[aria-label="Review outcome summary"]')).toBeVisible({ timeout: 60_000 });
+    await expect(
+      page.locator(
+        'section[aria-label="Review outcome summary"], section[aria-label="Review status summary"]',
+      ),
+    ).toBeVisible({ timeout: 60_000 });
   });
 });

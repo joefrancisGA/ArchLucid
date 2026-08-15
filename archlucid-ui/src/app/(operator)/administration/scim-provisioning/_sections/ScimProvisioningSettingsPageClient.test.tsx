@@ -73,7 +73,7 @@ describe("ScimProvisioningSettingsPageClient", () => {
     });
 
     const page = screen.getByTestId("scim-provisioning-settings-page");
-    expect(page.className).toContain("w-full max-w-[62rem] space-y-6");
+    expect(page.className).toContain("w-full max-w-[62rem] space-y-4");
     expect(page.className).not.toContain("mx-auto");
   });
 

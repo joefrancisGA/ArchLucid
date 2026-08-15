@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference ADR — sunset plan for `POST …/result` agent append path (**TB-1034**); not a buyer-facing assurance claim.
+
 # ADR 0066: Agent result append path sunset (`POST …/result`)
 
 **Status:** Accepted  
@@ -5,7 +7,7 @@
 **Deciders:** Architecture review (owner)  
 **Related:** [ADR 0042](0042-canonical-run-write-surface.md), [ADR 0030](0030-coordinator-authority-pipeline-unification.md), **TB-1034**, **TB-1007**, GTM **M-185**
 
-**Engineering contract:** [`STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](../library/STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md).
+**Engineering contract:** [`STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md`](../../library/STRANGLER_NEXT_SLICE_AUTHORITY_FREEZE_AND_RESULT_SUNSET_CONTRACT.md).
 
 ## Context
 

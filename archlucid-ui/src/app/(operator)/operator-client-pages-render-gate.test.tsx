@@ -187,7 +187,6 @@ import { ADVISORY_SCANS_FORM_SECTION_TITLE } from "@/lib/advisory-copy";
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
-import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 import AskPage from "./insights/ask-review-questions/page";
 import EvolutionReviewPage from "./insights/impact-preview/page";
@@ -248,8 +247,6 @@ describe("operator client pages — render gate", () => {
   // heading (h3 under the hub page title) only mounts after Choose review.
   it("Advisory hub Scans tab content renders primary heading", () => {
     renderWithOperatorQuery(<AdvisoryScansContent />);
-
-    fireEvent.click(screen.getByTestId("advisory-choose-review-cta"));
 
     expect(screen.getByRole("heading", { level: 3, name: ADVISORY_SCANS_FORM_SECTION_TITLE })).toBeInTheDocument();
   });

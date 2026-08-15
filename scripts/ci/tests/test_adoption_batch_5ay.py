@@ -33,7 +33,7 @@ class TestAdoptionBatch5AY(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor-scorecard-recommended-actions.ts"
         text = path.read_text(encoding="utf-8")
         self.assertIn("orphan-candidates", text)
-        copy = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "buyer-polish-copy.ts").read_text(encoding="utf-8")
+        copy = (REPO_ROOT / "archlucid-ui" / "src" / "lib" / "buyer-copy" / "executive.ts").read_text(encoding="utf-8")
         self.assertIn("No actions needed", copy)
 
 

@@ -62,12 +62,14 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(IAuditSqlRetryPolicyProvider),
         typeof(SqlGraphSnapshotRepository),
         typeof(SqlFindingsSnapshotRepository),
+        typeof(SqlCommittedArchitectureReviewFlagReader),
     ];
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =
     [
         typeof(InMemoryAuditRepository),
         typeof(InMemoryRetrievalGroundingTraceWriter),
+        typeof(RunRepositoryCommittedArchitectureReviewFlagReader),
         // NoOp registered on InMemory storage; Sql path wires TenantMigrationRetrievalOutboxDrainer in host composition.
         typeof(ITenantMigrationRetrievalOutboxDrainer),
     ];

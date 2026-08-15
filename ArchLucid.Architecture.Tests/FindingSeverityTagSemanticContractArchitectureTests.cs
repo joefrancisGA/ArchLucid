@@ -61,6 +61,7 @@ public sealed class FindingSeverityTagSemanticContractArchitectureTests
             "archlucid-ui",
             "src",
             "lib",
+            "findings",
             "finding-severity-tag-semantic-contract.ts");
 
         string testPath = Path.Combine(
@@ -68,6 +69,7 @@ public sealed class FindingSeverityTagSemanticContractArchitectureTests
             "archlucid-ui",
             "src",
             "lib",
+            "findings",
             "finding-severity-tag-semantic-contract.test.ts");
 
         File.Exists(modulePath).Should().BeTrue();

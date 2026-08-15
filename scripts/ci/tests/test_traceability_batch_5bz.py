@@ -16,7 +16,7 @@ class TestTraceabilityBatch5BZ(unittest.TestCase):
         self.assertIn("RunDecisionExplainabilityBuilder", builder.read_text(encoding="utf-8"))
 
     def test_tb_054_operator_ui_section(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "RunDecisionExplainabilitySection.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "runs" / "RunDecisionExplainabilitySection.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("Decision explainability", text)
 

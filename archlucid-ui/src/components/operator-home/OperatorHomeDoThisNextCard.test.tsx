@@ -71,7 +71,7 @@ describe("OperatorHomeDoThisNextCard", () => {
       isPending: false,
       isError: false,
       data: {
-        selectedRunId: "claims-intake-modernization",
+        selectedRunId: "customer-intake-modernization",
         isConfigured: true,
         isAvailable: true,
         reviewTitle: "Claims intake modernization",

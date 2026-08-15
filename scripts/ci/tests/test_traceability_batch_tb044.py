@@ -11,11 +11,16 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestTraceabilityBatchTb044(unittest.TestCase):
     def test_tb_044_repository_delete_then_insert_upsert(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Persistence" / "Data" / "Repositories" / "AgentExecutionTraceRepository.cs"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("deleteSameAttemptSql", text)
-        self.assertIn("deleteLaterAttemptsSql", text)
-        self.assertIn("@AttemptIndex", text)
+        sql_path = REPO_ROOT / "ArchLucid.Persistence" / "Sql" / "AgentExecutionTraceSql.cs"
+        sql_text = sql_path.read_text(encoding="utf-8")
+        self.assertIn("DeleteSameAttempt", sql_text)
+        self.assertIn("DeleteLaterAttempts", sql_text)
+        self.assertIn("@AttemptIndex", sql_text)
+
+        repo_path = REPO_ROOT / "ArchLucid.Persistence" / "Data" / "Repositories" / "AgentExecutionTraceRepository.cs"
+        repo_text = repo_path.read_text(encoding="utf-8")
+        self.assertIn("DeleteSameAttempt", repo_text)
+        self.assertIn("DeleteLaterAttempts", repo_text)
 
     def test_tb_044_unique_index_includes_attempt_index(self) -> None:
         path = (

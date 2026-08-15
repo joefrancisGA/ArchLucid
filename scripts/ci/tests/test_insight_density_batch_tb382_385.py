@@ -85,7 +85,7 @@ class TestInsightDensityBatchTb382385(unittest.TestCase):
         self.assertTrue(snippets.is_file())
 
         lib = (
-            REPO_ROOT / "archlucid-ui" / "src" / "lib" / "findings-snapshot-insight-density.ts"
+            REPO_ROOT / "archlucid-ui" / "src" / "lib" / "findings" / "findings-snapshot-insight-density.ts"
         ).read_text(encoding="utf-8")
         self.assertIn("formatInsightDensityCurationMessage", lib)
 

@@ -98,7 +98,7 @@ describe("AuditPageView buyer-polished shell", () => {
     expect(screen.queryByText(AUDIT_TRAIL_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("audit-header-refresh-button")).toBeInTheDocument();
-    expect(screen.getByTestId("audit-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
+    expect(screen.getByTestId("audit-last-refreshed")).toHaveTextContent(/Not refreshed yet/i);
     expect(screen.queryAllByText(AUDIT_TRAIL_PRODUCT_SAFE_INTRO).length).toBe(1);
   });
 });

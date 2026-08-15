@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:371 -->
+<!-- audit-core-const-count:372 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -405,6 +405,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RiskExceptionRevoked` | `RiskExceptionRevoked` | `GovernanceStickinessController` (`POST /v1/governance/risk-exceptions/{riskExceptionId}/revoke`); `RiskExceptionService` |
 | `RiskExceptionRenewed` | `RiskExceptionRenewed` | `GovernanceStickinessController` (`POST /v1/governance/risk-exceptions/{riskExceptionId}/renew`); `RiskExceptionService` |
 | `RiskExceptionExpired` | `RiskExceptionExpired` | `RiskExceptionService` (expires active waivers past `ExpiresAtUtc` when listed) |
+| `RiskExceptionExpiryReminderSent` | `RiskExceptionExpiryReminderSent` | `WaiverExpiryNotificationService` (escalating waiver expiry email reminders at governance alert day boundaries) |
 | `ArchitectureReviewRecurrenceScheduleCreated` | `ArchitectureReviewRecurrenceScheduleCreated` | `GovernanceStickinessController` (`POST /v1/governance/recurrence-schedules`) |
 | `ArchitectureReviewRecurrenceScheduleUpdated` | `ArchitectureReviewRecurrenceScheduleUpdated` | `GovernanceStickinessController` (`PUT /v1/governance/recurrence-schedules/{scheduleId}`) |
 | `ArchitectureReviewRecurrenceTriggered` | `ArchitectureReviewRecurrenceTriggered` | `RecurringArchitectureReviewTriggerService` |

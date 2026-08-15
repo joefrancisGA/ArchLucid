@@ -54,8 +54,8 @@ describe("group-findings-by-policy-pack", () => {
 
     const summary = summarizeQuickDecisionFindingsByPolicyPack(findings, "healthcare-claims-v3", "3.4.1");
 
-    expect(summary[0]?.packDisplayName).toBe("Healthcare Claims Policy Pack v3.4.1");
-    expect(summary[0]?.packHref).toBe("/governance/policy-packs/demo-healthcare-claims-pack");
+    expect(summary[0]?.packDisplayName).toBe("Enterprise Privacy Policy Pack v3.4.1");
+    expect(summary[0]?.packHref).toBe("/governance/policy-packs/demo-enterprise-privacy-pack");
   });
 
   it("summarizePolicyPackFindingImpact counts mapped vs unmapped findings", () => {

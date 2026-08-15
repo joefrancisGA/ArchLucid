@@ -11,6 +11,7 @@ import {
   getTenantPilotValueReportMockJson,
 } from "./fixtures/sponsor-roi-dashboard-mock";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
+import { tryStaticDemoGovernanceApprovalLineage } from "@/lib/operator-static-demo/governance-and-alerts";
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 
 const emptyPaged = { items: [], totalCount: 0, page: 1, pageSize: 20, hasMore: false };
@@ -150,8 +151,15 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
   const mLineage = /^\/v1\/governance\/approval-requests\/([^/]+)\/lineage$/.exec(pathname);
 
   if (mLineage) {
+    const approvalRequestId = mLineage[1] ?? "";
+    const staticLineage = tryStaticDemoGovernanceApprovalLineage(approvalRequestId);
+
+    if (staticLineage !== null) {
+      return staticLineage;
+    }
+
     return {
-      approvalRequest: { approvalRequestId: mLineage[1] },
+      approvalRequest: { approvalRequestId },
       run: null,
       manifest: null,
       topFindings: [] as unknown[],

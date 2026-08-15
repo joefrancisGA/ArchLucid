@@ -34,6 +34,6 @@ describe("HelpTopicMarkdownView sponsor-report", () => {
     expect(preparedMarkdown.toLowerCase()).not.toContain("explainabilitytrace");
     expect(preparedMarkdown.toLowerCase()).not.toContain("m-245");
     expect(visible).toContain("what pilot proves");
-    expect(screen.getAllByRole("link", { name: /pilot roi measurement/i }).length).toBeGreaterThan(0);
+    expect(visible).toContain("sponsor roi methodology");
   });
 });

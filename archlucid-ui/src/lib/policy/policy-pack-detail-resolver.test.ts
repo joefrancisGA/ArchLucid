@@ -13,6 +13,11 @@ describe("policy-pack-detail-resolver", () => {
     expect(resolvePolicyPackDetailBreadcrumbLabel("1", null)).toBe(RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL);
   });
 
+  it("maps healthcare claims demo ids", () => {
+    expect(resolvePolicyPackDetailKind("demo-enterprise-privacy-pack", null)).toBe("healthcare-claims");
+    expect(resolvePolicyPackDetailBreadcrumbLabel("demo-enterprise-privacy-pack", null)).toBe("Enterprise Privacy");
+  });
+
   it("does not map inactive healthcare demo pack aliases without API metadata", () => {
     expect(resolvePolicyPackDetailKind("demo-healthcare-claims-pack", null)).toBe("unknown");
     expect(resolvePolicyPackDetailBreadcrumbLabel("demo-healthcare-claims-pack", null)).toBe("Policy pack detail");
