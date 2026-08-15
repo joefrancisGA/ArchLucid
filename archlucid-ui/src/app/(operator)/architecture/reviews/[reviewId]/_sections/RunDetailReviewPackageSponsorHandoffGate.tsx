@@ -16,6 +16,7 @@ export type RunDetailReviewPackageSponsorHandoffGateProps = ResolveReviewPackage
   readonly trustEvidenceCard: RunTrustEvidenceCard | null | undefined;
   readonly usedStaticDemoRun: boolean;
   readonly showExtendedSponsorBriefing: boolean;
+  readonly lowExtractionConfidenceCount?: number;
 };
 
 /** Renders sponsor handoff only when the deferred primary-action resolver picks send-to-sponsor. */
@@ -83,6 +84,7 @@ export function RunDetailReviewPackageSponsorHandoffGate(
         trustEvidenceCard={props.trustEvidenceCard}
         usedStaticDemoRun={props.usedStaticDemoRun}
         showExtendedSponsorBriefing={props.showExtendedSponsorBriefing}
+        lowExtractionConfidenceCount={props.lowExtractionConfidenceCount ?? 0}
       />
     </>
   );

@@ -78,6 +78,7 @@ export function RunDetailTabbedWorkspace(props: RunDetailTabbedWorkspaceProps): 
     architectureEditHref,
     architectureSummaryTitle,
     blockingApprovalCount,
+    lowExtractionConfidenceCount,
     buyerFinalizedPackage,
     deferredContext,
     evidenceCoverageSummary,
@@ -426,6 +427,7 @@ const architectureTabPanelEl = (
                 trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
                 usedStaticDemoRun={m.usedStaticDemoRun}
                 showExtendedSponsorBriefing={m.showPilotScorecardPackageCta}
+                lowExtractionConfidenceCount={lowExtractionConfidenceCount}
               />
             ) : null}
             <RunDetailReviewPackageSectionDeferred

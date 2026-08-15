@@ -5,6 +5,12 @@ import {
   isReviewFindingSponsorPacketTrustEligible,
 } from "@/lib/findings/finding-trust-triage";
 import {
+  isCannotDetermineReviewFinding,
+  isContradictionReviewFinding,
+  isCoverageGapReviewFinding,
+  isVerifyHypothesisReviewFinding,
+} from "@/lib/review-quality/finding-quality-signals";
+import {
   humanReviewStatusDisplay,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
@@ -13,7 +19,11 @@ export type FindingJobView =
   | "needs-my-decision"
   | "needs-governance"
   | "ready-for-sponsor-packet"
-  | "deferred";
+  | "deferred"
+  | "answer-these-questions"
+  | "verify-hypotheses"
+  | "resolve-contradictions"
+  | "coverage-gaps";
 
 export const DEFAULT_FINDING_JOB_VIEW: FindingJobView = "needs-my-decision";
 
@@ -22,6 +32,10 @@ export const FINDING_JOB_VIEW_LABELS: Record<FindingJobView, string> = {
   "needs-governance": "Needs governance",
   "ready-for-sponsor-packet": "Ready for sponsor packet",
   deferred: "Deferred",
+  "answer-these-questions": "Answer these questions",
+  "verify-hypotheses": "Verify hypotheses",
+  "resolve-contradictions": "Resolve contradictions",
+  "coverage-gaps": "Coverage gaps",
 };
 
 /**
@@ -30,6 +44,10 @@ export const FINDING_JOB_VIEW_LABELS: Record<FindingJobView, string> = {
  */
 export const FINDING_JOB_VIEW_ASSIGNMENT_ORDER: readonly FindingJobView[] = [
   "deferred",
+  "resolve-contradictions",
+  "answer-these-questions",
+  "verify-hypotheses",
+  "coverage-gaps",
   "ready-for-sponsor-packet",
   "needs-governance",
   "needs-my-decision",
@@ -87,12 +105,36 @@ export function classifyReviewFindingJobView(finding: QuickDecisionFinding): Fin
     return "deferred";
   }
 
-  if (isReadyDisposition(disposition) || reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden") {
+  if (isContradictionReviewFinding(finding)) {
+    return "resolve-contradictions";
+  }
+
+  if (isCannotDetermineReviewFinding(finding)) {
+    return "answer-these-questions";
+  }
+
+  if (
+    isReadyDisposition(disposition)
+    || reviewStatus?.label === "Approved"
+    || reviewStatus?.label === "Overridden"
+  ) {
     if (isReviewFindingSponsorPacketTrustEligible(finding)) {
       return "ready-for-sponsor-packet";
     }
 
     return "needs-my-decision";
+  }
+
+  if (isVerifyHypothesisReviewFinding(finding)) {
+    return "verify-hypotheses";
+  }
+
+  if (isCoverageGapReviewFinding(finding)) {
+    return "coverage-gaps";
+  }
+
+  if (isReviewFindingSponsorPacketTrustEligible(finding)) {
+    return "ready-for-sponsor-packet";
   }
 
   if (

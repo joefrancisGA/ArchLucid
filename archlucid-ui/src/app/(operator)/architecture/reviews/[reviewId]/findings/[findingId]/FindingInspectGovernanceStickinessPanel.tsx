@@ -54,6 +54,19 @@ import {
   findingApplyChangePreviewHref,
   isFindingApplyChangeDisposition,
 } from "@/lib/findings/finding-apply-change-preview-gate";
+import { incrementalRereviewAfterApplyHref } from "@/lib/review-quality/incremental-rereview-handoff";
+import {
+  APPROVED_DECISION_OVERRIDE_MESSAGE,
+  dispositionRequiresRationale,
+  dispositionRequiresTradeOffAcknowledgment,
+  DISPOSITION_RATIONALE_REQUIRED_MESSAGE,
+  isDispositionRationaleSatisfied,
+  isRecommendationActionable,
+  isTradeOffAcknowledgmentSatisfied,
+  proposedChangeOverridesApprovedDecision,
+  RECOMMENDATION_ACTIONABILITY_REQUIRED_MESSAGE,
+  TRADE_OFF_ACKNOWLEDGMENT_REQUIRED_MESSAGE,
+} from "@/lib/review-quality/finding-governance-gates";
 
 const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "Accepted",
@@ -79,6 +92,9 @@ export type FindingInspectGovernanceStickinessPanelProps = {
   readonly packageTitle?: string | null;
   readonly initialAssignedToUserId?: string | null;
   readonly initialRemediationDueUtc?: string | null;
+  readonly recommendation?: string | null;
+  readonly recommendedActions?: readonly string[];
+  readonly approvedDecisionTitles?: readonly string[];
 };
 
 function latestDispositionLabel(history: readonly FindingDispositionEvent[]): string {
@@ -96,6 +112,9 @@ export function FindingInspectGovernanceStickinessPanel({
   packageTitle = null,
   initialAssignedToUserId = null,
   initialRemediationDueUtc = null,
+  recommendation = null,
+  recommendedActions = [],
+  approvedDecisionTitles = [],
 }: FindingInspectGovernanceStickinessPanelProps) {
   const canMutate = useOperateCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -123,6 +142,8 @@ export function FindingInspectGovernanceStickinessPanel({
   );
   const [pendingRevokeWaiverConfirm, setPendingRevokeWaiverConfirm] = useState(false);
   const [applyChangePreviewOverride, setApplyChangePreviewOverride] = useState(false);
+  const [tradeOffAcknowledgment, setTradeOffAcknowledgment] = useState("");
+  const [showIncrementalRereviewLink, setShowIncrementalRereviewLink] = useState(false);
 
   const reload = useCallback(async (): Promise<FindingDispositionEvent[]> => {
     const [dispositions, waivers] = await Promise.all([
@@ -258,6 +279,7 @@ export function FindingInspectGovernanceStickinessPanel({
       const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
 
       setStatusMessage(concurrentNotice ?? "Finding marked as remediated.");
+      setShowIncrementalRereviewLink(true);
     } catch (error: unknown) {
       setErrorMessage(resolveMutationError(error));
     } finally {
@@ -342,6 +364,50 @@ export function FindingInspectGovernanceStickinessPanel({
     () => collabRecentActorsFromDispositionHistory(history, { take: 3 }),
     [history],
   );
+  const proposedChangeText = (recommendation ?? "").trim();
+  const approvedDecisionOverride = useMemo(
+    () => proposedChangeOverridesApprovedDecision(proposedChangeText, approvedDecisionTitles),
+    [approvedDecisionTitles, proposedChangeText],
+  );
+  const recommendationIsActionable = useMemo(
+    () => isRecommendationActionable(proposedChangeText, recommendedActions),
+    [proposedChangeText, recommendedActions],
+  );
+
+  function dispositionConfirmBlockedReason(kind: FindingDispositionKind): string | null {
+    if (dispositionRequiresRationale(kind) && !isDispositionRationaleSatisfied(rationale)) {
+      return DISPOSITION_RATIONALE_REQUIRED_MESSAGE;
+    }
+
+    if (dispositionRequiresTradeOffAcknowledgment(kind) && !isTradeOffAcknowledgmentSatisfied(tradeOffAcknowledgment)) {
+      return TRADE_OFF_ACKNOWLEDGMENT_REQUIRED_MESSAGE;
+    }
+
+    if (isFindingApplyChangeDisposition(kind) && !recommendationIsActionable) {
+      return RECOMMENDATION_ACTIONABILITY_REQUIRED_MESSAGE;
+    }
+
+    if (isFindingApplyChangeDisposition(kind) && approvedDecisionOverride !== null) {
+      if (!isDispositionRationaleSatisfied(rationale)) {
+        return APPROVED_DECISION_OVERRIDE_MESSAGE;
+      }
+    }
+
+    if (
+      isFindingApplyChangeDisposition(kind) &&
+      !canConfirmFindingApplyChange({
+        runId,
+        findingId,
+        overrideRecorded: applyChangePreviewOverride,
+      })
+    ) {
+      return FINDING_APPLY_CHANGE_PREVIEW_REQUIRED_MESSAGE;
+    }
+
+    return null;
+  }
+
+  const pendingDispositionBlockedReason = dispositionConfirmBlockedReason(pendingDispositionKind);
 
   return (
     <div className={cn(OPERATOR_LAYOUT.sectionStack, "rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
@@ -446,12 +512,31 @@ export function FindingInspectGovernanceStickinessPanel({
         </label>
         <label className="grid gap-1">
           <span className="font-medium">Rationale</span>
+          {dispositionRequiresRationale(disposition) ? (
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {DISPOSITION_RATIONALE_REQUIRED_MESSAGE}
+            </span>
+          ) : null}
           <textarea
             className="min-h-20 rounded-md border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
             value={rationale}
             onChange={(event) => setRationale(event.target.value)}
           />
         </label>
+        {disposition === "Accepted" ? (
+          <label className="grid gap-1">
+            <span className="font-medium">Trade-off you accept</span>
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {TRADE_OFF_ACKNOWLEDGMENT_REQUIRED_MESSAGE}
+            </span>
+            <textarea
+              className="min-h-16 rounded-md border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+              value={tradeOffAcknowledgment}
+              onChange={(event) => setTradeOffAcknowledgment(event.target.value)}
+              data-testid="finding-disposition-trade-off-ack"
+            />
+          </label>
+        ) : null}
         {disposition === "Deferred" ? (
           <label className="grid gap-1">
             <span className="font-medium">Revisit due (local)</span>
@@ -506,6 +591,17 @@ export function FindingInspectGovernanceStickinessPanel({
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {markRemediatedTransitionCopy()}
         </p>
+        {showIncrementalRereviewLink ? (
+          <p className="m-0">
+            <Link
+              href={incrementalRereviewAfterApplyHref(runId, findingId)}
+              className={OPERATOR_LINK.inline}
+              data-testid="finding-incremental-rereview-link"
+            >
+              Run incremental re-review on the affected subgraph
+            </Link>
+          </p>
+        ) : null}
       </section>
 
       <section className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800" aria-labelledby="governance-waiver-heading">
@@ -630,19 +726,17 @@ export function FindingInspectGovernanceStickinessPanel({
         confirmLabel="Record disposition"
         variant="default"
         busy={busyAction === "disposition" || busyAction === "mark-remediated"}
-        confirmDisabled={
-          isFindingApplyChangeDisposition(pendingDispositionKind) &&
-          !canConfirmFindingApplyChange({
-            runId,
-            findingId,
-            overrideRecorded: applyChangePreviewOverride,
-          })
-        }
+        confirmDisabled={pendingDispositionBlockedReason !== null}
         extraContent={
           pendingDispositionConfirm !== null ? (
             <div className="mt-2 space-y-2">
               <DispositionExportBeforeAfterPreview disposition={pendingDispositionKind} />
               <DispositionExportImpactNotice disposition={pendingDispositionKind} />
+              {pendingDispositionBlockedReason !== null ? (
+                <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+                  {pendingDispositionBlockedReason}
+                </p>
+              ) : null}
               {isFindingApplyChangeDisposition(pendingDispositionKind) ? (
                 <div className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

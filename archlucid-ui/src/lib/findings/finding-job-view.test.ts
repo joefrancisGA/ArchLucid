@@ -66,6 +66,19 @@ describe("finding-job-view", () => {
     expect(classifyGovernanceFindingJobView(governance)).toBe("deferred");
   });
 
+  it("maps cannot-determine findings to answer-these-questions", () => {
+    const finding = reviewFinding({
+      findingId: "f-cd",
+      title: "Recovery objective cannot be verified",
+      recommendation: "Insufficient evidence to confirm RTO",
+      severityValue: 2,
+      trustLabel: "Heuristic",
+      evidenceRefCount: 0,
+    });
+
+    expect(classifyReviewFindingJobView(finding)).toBe("answer-these-questions");
+  });
+
   it("maps approved evidence-backed review findings to ready-for-sponsor-packet", () => {
     const finding = reviewFinding({
       findingId: "f-3",

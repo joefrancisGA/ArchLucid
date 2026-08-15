@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useState } from "react";
 
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
@@ -11,6 +12,8 @@ import { SponsorRoiBaselineGateNotice } from "@/components/SponsorRoiBaselineGat
 import { SponsorRehearsalPreviewPanel } from "@/components/reviews/SponsorRehearsalPreviewPanel";
 import type { SponsorRehearsalPreviewInput } from "@/lib/sponsor-rehearsal-preview";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { getRunPackageExportUrl } from "@/lib/api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -21,6 +24,10 @@ import {
   RUN_DETAIL_SPONSOR_HANDOFF_MORE_EXPORTS_LABEL,
   RUN_DETAIL_SPONSOR_HANDOFF_TITLE,
 } from "@/lib/runs/run-detail-deliverables-copy";
+import {
+  EXTRACTION_FIDELITY_GATE_MESSAGE,
+  isExtractionFidelityGateSatisfied,
+} from "@/lib/review-quality/finalize-quality-scorecard";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 export type ReviewPackageSponsorHandoffStripProps = {
@@ -31,6 +38,7 @@ export type ReviewPackageSponsorHandoffStripProps = {
   readonly trustEvidenceCard: RunTrustEvidenceCard | null | undefined;
   readonly usedStaticDemoRun: boolean;
   readonly showExtendedSponsorBriefing: boolean;
+  readonly lowExtractionConfidenceCount?: number;
   /** Optional rehearsal inputs; empty sections stay honest when omitted. */
   readonly rehearsalPreview?: SponsorRehearsalPreviewInput | null;
 };
@@ -39,6 +47,13 @@ export type ReviewPackageSponsorHandoffStripProps = {
 export function ReviewPackageSponsorHandoffStrip(
   props: ReviewPackageSponsorHandoffStripProps,
 ): React.JSX.Element {
+  const lowExtractionConfidenceCount = Math.max(0, Math.trunc(props.lowExtractionConfidenceCount ?? 0));
+  const [extractionCaveatAcknowledged, setExtractionCaveatAcknowledged] = useState(false);
+  const extractionGateSatisfied = isExtractionFidelityGateSatisfied({
+    lowConfidenceCriticalFieldCount: lowExtractionConfidenceCount,
+    extractionCaveatAcknowledged,
+  });
+
   return (
     <section
       id="sponsor-handoff"
@@ -56,6 +71,30 @@ export function ReviewPackageSponsorHandoffStrip(
         {RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
       </p>
       <SponsorRoiBaselineGateNotice isFinalized />
+      {lowExtractionConfidenceCount > 0 ? (
+        <div
+          className="mt-3 flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50/80 p-3 dark:border-amber-900/50 dark:bg-amber-950/30"
+          data-testid="review-package-extraction-fidelity-gate"
+        >
+          <Checkbox
+            id="review-package-extraction-caveat-ack"
+            checked={extractionCaveatAcknowledged}
+            onCheckedChange={(checked) => {
+              setExtractionCaveatAcknowledged(checked === true);
+            }}
+            data-testid="review-package-extraction-caveat-ack-checkbox"
+          />
+          <div className="space-y-1">
+            <Label htmlFor="review-package-extraction-caveat-ack" className={OPERATOR_TYPOGRAPHY.body}>
+              {EXTRACTION_FIDELITY_GATE_MESSAGE}
+            </Label>
+            <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+              {lowExtractionConfidenceCount} critical finding
+              {lowExtractionConfidenceCount === 1 ? "" : "s"} were extracted with low confidence.
+            </p>
+          </div>
+        </div>
+      ) : null}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {props.usedStaticDemoRun ? (
           <div className="flex max-w-prose flex-col gap-1.5">
@@ -74,10 +113,20 @@ export function ReviewPackageSponsorHandoffStrip(
             />
           </div>
         ) : (
-          <Button variant="primary" size="sm" asChild data-testid="review-package-sponsor-handoff-docx">
-            <ExportTrackedAnchor href={getRunPackageExportUrl(props.runId, "docx")}>
-              Download architecture review report (DOCX)
-            </ExportTrackedAnchor>
+          <Button
+            variant="primary"
+            size="sm"
+            disabled={!extractionGateSatisfied}
+            asChild={extractionGateSatisfied}
+            data-testid="review-package-sponsor-handoff-docx"
+          >
+            {extractionGateSatisfied ? (
+              <ExportTrackedAnchor href={getRunPackageExportUrl(props.runId, "docx")}>
+                Download architecture review report (DOCX)
+              </ExportTrackedAnchor>
+            ) : (
+              <span>Download architecture review report (DOCX)</span>
+            )}
           </Button>
         )}
       </div>

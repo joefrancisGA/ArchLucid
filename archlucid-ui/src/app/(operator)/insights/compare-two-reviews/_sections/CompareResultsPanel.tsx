@@ -32,9 +32,11 @@ import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LA
 import type { ComparedPair } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import { CompareFindingCorrelationSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationSection";
 import { CompareGovernanceDiffSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffSection";
+import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
 import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
 import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
 import { resolveCompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
+import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
 import { useCompareGovernanceDiff } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff";
 
 export type CompareResultsPanelProps = {
@@ -195,6 +197,10 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
           baselinePickedSummary={leftPickedSummary}
           updatedPickedSummary={rightPickedSummary}
         />
+      ) : null}
+
+      {golden !== null ? (
+        <CompareQualityDeltaPanel counts={deriveCompareQualityDeltaFromGolden(golden)} />
       ) : null}
 
       {showStaleInputsWarning && (

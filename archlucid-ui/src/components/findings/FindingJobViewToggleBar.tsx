@@ -15,6 +15,10 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 const JOB_VIEW_OPTIONS: readonly FindingJobView[] = [
   "needs-my-decision",
+  "answer-these-questions",
+  "verify-hypotheses",
+  "resolve-contradictions",
+  "coverage-gaps",
   "needs-governance",
   "ready-for-sponsor-packet",
   "deferred",

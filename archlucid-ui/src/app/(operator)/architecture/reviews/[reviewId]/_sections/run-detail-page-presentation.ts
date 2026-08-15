@@ -18,6 +18,8 @@ import {
 } from "@/lib/runs/run-detail-evidence-inventory";
 import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
 import { deriveRunDetailFindingsTriageCounts } from "@/lib/runs/run-detail-findings-triage-counts";
+import { evaluateFinalizeQualityScorecard } from "@/lib/review-quality/finalize-quality-scorecard";
+import { deriveFinalizeQualityScorecardInput } from "@/lib/review-quality/finalize-quality-scorecard-from-findings";
 import { shouldShowRunDetailGovernanceCta } from "@/lib/runs/run-detail-governance-cta-visibility";
 import type {
   EvidenceCoverageSummary,
@@ -79,6 +81,7 @@ export type RunDetailPresentation = {
 
   readonly overallPosture: string;
   readonly blockingApprovalCount: number;
+  readonly lowExtractionConfidenceCount: number;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
   readonly reviewStatusSummary: ReviewStatusSummary;
@@ -332,13 +335,26 @@ export async function buildRunDetailPresentation(
   const showArchitectureCreatedHome =
     fromArchitectureCreation && (model.manifestId ?? "").trim().length === 0;
   const createHomeAnalysisStagesComplete = analysisStagesCompleteOnSummary(model.progressForPipelineUi);
+  const baseCommitBlockedReason = resolveCommitBlockedReason(model, findingCoverageSummary);
+  const finalizeScorecard =
+    baseCommitBlockedReason === null && !hasManifest
+      ? evaluateFinalizeQualityScorecard(
+          deriveFinalizeQualityScorecardInput(quickDecisionFindings, blockingApprovalCount),
+        )
+      : null;
+  const commitBlockedReason =
+    baseCommitBlockedReason !== null
+      ? baseCommitBlockedReason
+      : finalizeScorecard !== null && !finalizeScorecard.ready
+        ? finalizeScorecard.blockingReasons.join(" ")
+        : null;
 
   return {
     deferredContext: toDeferredSectionContext(model),
     runSummaryForBadge,
 
     findingCoverageSummary,
-    commitBlockedReason: resolveCommitBlockedReason(model, findingCoverageSummary),
+    commitBlockedReason,
 
     quickDecisionFindings,
     findingsTriageVisibleCount: deriveRunDetailFindingsTriageCounts(quickDecisionFindings).triageVisibleCount,
@@ -373,6 +389,9 @@ export async function buildRunDetailPresentation(
 
     overallPosture,
     blockingApprovalCount,
+    lowExtractionConfidenceCount: quickDecisionFindings.filter(
+      (finding) => !finding.isMuted && finding.severityValue >= 2 && finding.confidenceLevel === "Low",
+    ).length,
     workspaceStatus,
     recommendedActions,
     reviewStatusSummary,

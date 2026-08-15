@@ -8,6 +8,7 @@ import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture
 import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
+import { ReviewAssumptionConfirmationStrip } from "@/components/findings/ReviewAssumptionConfirmationStrip";
 import {
   RunDetailFindingsToolbar,
   filterFindingsForToolbar,
@@ -223,6 +224,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         />
       ) : null}
       {metricCountEl}
+      <ReviewAssumptionConfirmationStrip findings={props.findings} />
       {createHomeSurface ? (
         <>
           {findingsSummaryEl}

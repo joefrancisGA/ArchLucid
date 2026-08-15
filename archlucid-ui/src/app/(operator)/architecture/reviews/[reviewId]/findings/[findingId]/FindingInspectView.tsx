@@ -38,6 +38,8 @@ import {
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
+import { findingRecommendedActionParagraph } from "./_sections/finding-detail-route-display";
+
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
@@ -55,6 +57,7 @@ export type FindingInspectViewProps = {
   payload: FindingInspectPayload | null;
   failure: ApiLoadFailureState | null;
   runExecutionFootnote?: OperatorEvidenceLimitsExecutionProps | null;
+  readonly approvedDecisionTitles?: readonly string[];
 };
 
 /**
@@ -67,6 +70,7 @@ export function FindingInspectView({
   payload,
   failure,
   runExecutionFootnote = null,
+  approvedDecisionTitles = [],
 }: FindingInspectViewProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
@@ -156,6 +160,8 @@ export function FindingInspectView({
   );
   const policyCitationModel = buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, payload);
   const policyTraceExcerpt = resolvePolicyTraceExcerptFromInspect(payload);
+  const recommendedActionText =
+    payload !== null ? findingRecommendedActionParagraph(payload, decodedFindingId) : "";
 
   return (
     <div className={cn("w-full max-w-[1440px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="finding-inspect-view">
@@ -244,6 +250,9 @@ export function FindingInspectView({
           runId={runId}
           initialAssignedToUserId={payload.assignedToUserId}
           initialRemediationDueUtc={payload.remediationDueUtc}
+          recommendation={recommendedActionText}
+          recommendedActions={payload.recommendedActions}
+          approvedDecisionTitles={approvedDecisionTitles}
         />
 
         <FindingInspectItsmWorkflowPanel

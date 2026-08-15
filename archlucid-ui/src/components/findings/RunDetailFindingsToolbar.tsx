@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { clusterReviewFindingsByRootCause } from "@/lib/review-quality/compare-quality-delta";
 import { formatFindingsVisibilitySummaryLine } from "@/lib/findings/finding-confidence-filter";
 import { FindingJobViewToggleBar } from "@/components/findings/FindingJobViewToggleBar";
 import { FindingsNaturalLanguageFilter } from "@/components/findings/FindingsNaturalLanguageFilter";
@@ -357,6 +358,11 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
     () => deriveFindingsToolbarStatusCounts(props.findings),
     [props.findings],
   );
+  const rootCauseClusterCount = useMemo(() => {
+    const clusters = clusterReviewFindingsByRootCause(props.findings);
+
+    return [...clusters.values()].filter((members) => members.length > 1).length;
+  }, [props.findings]);
   const visibilitySummaryLine = formatFindingsVisibilitySummaryLine(
     props.renderedFindingCount ?? props.findings.length,
     props.toolbarFilteredCount ?? props.findings.length,
@@ -470,6 +476,15 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
             {visibilitySummaryLine}
           </p>
         ) : null}
+        {rootCauseClusterCount > 0 ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="run-detail-findings-root-cause-clusters"
+          >
+            {rootCauseClusterCount} root-cause cluster{rootCauseClusterCount === 1 ? "" : "s"} group related findings
+            before triage.
+          </p>
+        ) : null}
 
         {jobViewToggle}
 
@@ -564,6 +579,15 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
           data-testid="run-detail-findings-visibility-summary"
         >
           {visibilitySummaryLine}
+        </p>
+      ) : null}
+      {rootCauseClusterCount > 0 ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-findings-root-cause-clusters"
+        >
+          {rootCauseClusterCount} root-cause cluster{rootCauseClusterCount === 1 ? "" : "s"} group related findings
+          before triage.
         </p>
       ) : null}
       {jobViewToggle}
