@@ -97,6 +97,19 @@ function isGovernanceOpenRow(row: GovernanceFindingQueueRow): boolean {
   return true;
 }
 
+/** True when the finding records an affirmative approved decision for apply-change override checks (TB-2311). */
+export function isApprovedDecisionFinding(finding: QuickDecisionFinding): boolean {
+  const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
+
+  if (reviewStatus?.label === "Approved" || reviewStatus?.label === "Overridden") {
+    return true;
+  }
+
+  const disposition = normalizeDisposition(readDispositionFromReviewFinding(finding));
+
+  return disposition === "Accepted";
+}
+
 /** True when human review or disposition closes the finding for governance approval gating. */
 export function isReviewFindingDispositionClosed(finding: QuickDecisionFinding): boolean {
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);

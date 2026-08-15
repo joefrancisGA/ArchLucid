@@ -1,5 +1,6 @@
 import {
   classifyReviewFindingJobView,
+  isApprovedDecisionFinding,
 } from "@/lib/findings/finding-job-view";
 import { humanReviewStatusDisplay, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -104,13 +105,7 @@ export function deriveApprovedDecisionTitlesFromFindings(
   const titles: string[] = [];
 
   for (const finding of findings) {
-    if (finding.isMuted) {
-      continue;
-    }
-
-    const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
-
-    if (reviewStatus?.label !== "Approved") {
+    if (finding.isMuted || !isApprovedDecisionFinding(finding)) {
       continue;
     }
 

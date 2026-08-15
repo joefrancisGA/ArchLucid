@@ -236,6 +236,22 @@ describe("finalize-quality-scorecard-from-findings", () => {
     expect(titles).toEqual(["Approved API gateway decision"]);
   });
 
+  it("derives approved decision titles from disposition-accepted findings", () => {
+    const titles = deriveApprovedDecisionTitlesFromFindings([
+      sampleFinding({
+        findingId: "d2",
+        title: "Accepted regional failover decision",
+        humanReviewStatus: null,
+        aiReasoning: {
+          reasoningTrace: "",
+          wireJson: JSON.stringify({ latestDisposition: "Accepted" }),
+        },
+      }),
+    ]);
+
+    expect(titles).toEqual(["Accepted regional failover decision"]);
+  });
+
   it("subtracts acknowledged assumptions from finalize totals", () => {
     const assumptions = parseUnverifiedAssumptions([
       "Assumption about cache",
