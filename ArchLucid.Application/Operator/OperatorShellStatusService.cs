@@ -29,8 +29,6 @@ public sealed class OperatorShellStatusService(
     IReviewsAwaitingActionQueryService reviewsAwaitingActionQueryService,
     IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleSchedulerOptions) : IOperatorShellStatusService
 {
-    private const int AssignedToMeFindingsMaxRows = 500;
-
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
@@ -178,16 +176,13 @@ public sealed class OperatorShellStatusService(
                 OpenFindingsOnly = true,
             };
 
-            ArchitectureRiskRegisterResponse response = await _architectureRiskRegisterService
-                .GetRegisterAsync(
+            return await _architectureRiskRegisterService
+                .CountAsync(
                     scope.TenantId,
                     scope.ProjectId,
-                    AssignedToMeFindingsMaxRows,
                     options,
                     cancellationToken)
                 .ConfigureAwait(false);
-
-            return response.Entries.Count;
         }
         catch (OperationCanceledException)
         {

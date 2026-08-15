@@ -85,6 +85,35 @@ public sealed class GovernanceStickinessController(
         return Ok(response);
     }
 
+    [HttpGet("risk-register/assigned-to-me-count")]
+    [ProducesResponseType(typeof(GovernanceAssignedToMeFindingsCountResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAssignedToMeFindingsCount(
+        [FromQuery] Guid? projectId,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<string> identities = ArchitectureRiskRegisterAssignedToMeIdentityResolver.Resolve(actorContext);
+
+        if (identities.Count == 0)
+        {
+            return Ok(new GovernanceAssignedToMeFindingsCountResponse { Count = 0 });
+        }
+
+        ArchitectureRiskRegisterListOptions options = new()
+        {
+            AssignedToUserIds = identities,
+            OpenFindingsOnly = true,
+        };
+
+        int count = await riskRegisterService.CountAsync(
+            scope.TenantId,
+            projectId ?? scope.ProjectId,
+            options,
+            cancellationToken);
+
+        return Ok(new GovernanceAssignedToMeFindingsCountResponse { Count = count });
+    }
+
     [HttpGet("reviews-awaiting-action")]
     [ProducesResponseType(typeof(GovernanceReviewsAwaitingActionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]

@@ -10,4 +10,10 @@ public interface IArchitectureRiskRegisterService
         int maxRows,
         ArchitectureRiskRegisterListOptions? options = null,
         CancellationToken cancellationToken = default);
+
+    Task<int> CountAsync(
+        Guid tenantId,
+        Guid? projectId,
+        ArchitectureRiskRegisterListOptions? options = null,
+        CancellationToken cancellationToken = default);
 }

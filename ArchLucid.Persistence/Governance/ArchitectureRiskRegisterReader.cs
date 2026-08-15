@@ -158,6 +158,49 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
         return result;
     }
 
+    public async Task<int> CountAsync(
+        Guid tenantId,
+        Guid? projectId,
+        ArchitectureRiskRegisterListOptions? options = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
+        string projectFilter = projectId.HasValue ? " AND fr.ProjectId = @ProjectId" : string.Empty;
+        string assigneeFilter = BuildAssigneeFilter(options);
+        string openFindingsFilter = BuildOpenFindingsFilter(options);
+
+        string sql = $"""
+                      ;WITH latestDisposition AS (
+                          SELECT FindingId, Disposition, RevisitDueUtc, EvidenceRequestText, OccurredAtUtc, ReviewerUserId,
+                                 ROW_NUMBER() OVER (PARTITION BY FindingId ORDER BY OccurredAtUtc DESC) AS rn
+                          FROM dbo.FindingReviewEvents
+                          WHERE TenantId = @TenantId AND Disposition IS NOT NULL
+                      )
+                      SELECT COUNT(1)
+                      FROM dbo.FindingRecords AS fr
+                      INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                      LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.rn = 1
+                      WHERE fr.TenantId = @TenantId{projectFilter}{assigneeFilter}{openFindingsFilter};
+                      """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int count = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    ProjectId = projectId,
+                    AssignedToUserIdsLower = ResolveAssignedToUserIdsLower(options),
+                },
+                cancellationToken: cancellationToken));
+
+        return count;
+    }
+
     private static string BuildAssigneeFilter(ArchitectureRiskRegisterListOptions? options)
     {
         if (options?.AssignedToUserIds is not { Count: > 0 })

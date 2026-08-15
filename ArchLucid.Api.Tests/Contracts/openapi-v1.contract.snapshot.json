@@ -13900,6 +13900,15 @@
         },
         "type": "object"
       },
+      "GovernanceAssignedToMeFindingsCountResponse": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "GovernanceDecisionsNeededSummaryResponse": {
         "properties": {
           "deferredFindingsDue": {
@@ -120811,6 +120820,46 @@
               }
             },
             "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/governance/risk-register/assigned-to-me-count": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "projectId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceAssignedToMeFindingsCountResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceAssignedToMeFindingsCountResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceAssignedToMeFindingsCountResponse"
+                }
+              }
+            },
+            "description": "OK"
           }
         },
         "tags": [

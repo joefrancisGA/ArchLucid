@@ -19,4 +19,11 @@ public sealed class ArchitectureRiskRegisterService(IArchitectureRiskRegisterQue
 
         return new ArchitectureRiskRegisterResponse { Entries = entries };
     }
+
+    public Task<int> CountAsync(
+        Guid tenantId,
+        Guid? projectId,
+        ArchitectureRiskRegisterListOptions? options = null,
+        CancellationToken cancellationToken = default) =>
+        _reader.CountAsync(tenantId, projectId, options, cancellationToken);
 }

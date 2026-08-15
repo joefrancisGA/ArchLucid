@@ -116,6 +116,10 @@ export type GovernanceReviewsAwaitingActionResponse = {
   items: GovernanceReviewAwaitingActionItem[];
 };
 
+export type GovernanceAssignedToMeFindingsCountResponse = {
+  count: number;
+};
+
 export type RealizedValueSummary = {
   findingsRemediatedCount30Days: number;
   medianTimeToRemediationDays?: number | null;
@@ -169,6 +173,21 @@ export async function getArchitectureRiskRegister(
 
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
   return apiGet<ArchitectureRiskRegisterResponse>(`${governanceBase()}/risk-register${suffix}`);
+}
+
+export async function getGovernanceAssignedToMeFindingsCount(
+  projectId?: string,
+): Promise<GovernanceAssignedToMeFindingsCountResponse> {
+  const query = new URLSearchParams();
+
+  if (projectId) {
+    query.set("projectId", projectId);
+  }
+
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+  return apiGet<GovernanceAssignedToMeFindingsCountResponse>(
+    `${governanceBase()}/risk-register/assigned-to-me-count${suffix}`,
+  );
 }
 
 /** Risk and decision registers for the governance findings queue. */
