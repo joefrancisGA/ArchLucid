@@ -540,6 +540,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("mysql", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("redis_cache", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("sql_database", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("sql_server", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("key_vault", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("search_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("eventhub_namespace", StringComparison.OrdinalIgnoreCase)
