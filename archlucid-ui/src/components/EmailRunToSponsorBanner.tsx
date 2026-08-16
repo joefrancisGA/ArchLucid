@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { SponsorArtifactEvidenceBadge } from "@/components/SponsorArtifactEvidenceBadge";
 import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
@@ -13,6 +13,8 @@ import { ProductLearningFeedbackControls } from "@/components/ProductLearningFee
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
+import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import {
   downloadFirstValueReportPdf,
   markSponsorPackSent,
@@ -42,7 +44,6 @@ import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
-import { fetchTenantTrialStatusCached } from "@/lib/tenant-trial-status-client";
 
 export type EmailRunToSponsorBannerProps = {
   runId: string;
@@ -105,132 +106,153 @@ export function EmailRunToSponsorBanner({
   } | null>(null);
   const [badgeDayN, setBadgeDayN] = useState<number | null>(null);
   const [timeToFirstCommitHours, setTimeToFirstCommitHours] = useState<number | null>(null);
-  const [estimatedUsdSavings, setEstimatedUsdSavings] = useState<number | null>(null);
-  const [proofGate, setProofGate] = useState<ProofGateState>({ status: "loading" });
   const [roiBaselineGate, setRoiBaselineGate] = useState<boolean | null>(null);
   const telemetrySentRef = useRef(false);
   const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
+
+  const skipSidecarFetches =
+    AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn();
+  const sidecarFetchesEnabled = !skipSidecarFetches;
+
+  const { data: trialPayload } = useTenantTrialStatusQuery({ enabled: sidecarFetchesEnabled });
+  const { data: deltasPayload, isPending: deltasPending, isError: deltasError } = usePilotRunDeltasQuery(runId, {
+    enabled: sidecarFetchesEnabled,
+  });
+
+  const proofGate: ProofGateState = useMemo(() => {
+    if (skipSidecarFetches) {
+      return { status: "skipped" };
+    }
+
+    if (deltasPending) {
+      return { status: "loading" };
+    }
+
+    if (deltasError || deltasPayload === undefined) {
+      return { status: "error" };
+    }
+
+    return { status: "ok", payload: deltasPayload };
+  }, [skipSidecarFetches, deltasPending, deltasError, deltasPayload]);
+
+  const estimatedUsdSavings = useMemo((): number | null => {
+    if (proofGate.status !== "ok") {
+      return null;
+    }
+
+    if (
+      isProjectedUsdSponsorBadgeVisible(proofGate.payload)
+      && typeof proofGate.payload.estimatedUsdSavings === "number"
+      && Number.isFinite(proofGate.payload.estimatedUsdSavings)
+    ) {
+      return proofGate.payload.estimatedUsdSavings;
+    }
+
+    return null;
+  }, [proofGate]);
+
+  useEffect(() => {
+    if (trialPayload === undefined) {
+      return;
+    }
+
+    if (trialPayload === null) {
+      setBadgeDayN(null);
+      setTimeToFirstCommitHours(null);
+
+      return;
+    }
+
+    try {
+      const iso = trialPayload.firstCommitUtc;
+
+      if (
+        typeof trialPayload.timeToFirstCommittedManifestTotalSeconds === "number"
+        && Number.isFinite(trialPayload.timeToFirstCommittedManifestTotalSeconds)
+        && trialPayload.timeToFirstCommittedManifestTotalSeconds > 0
+      ) {
+        setTimeToFirstCommitHours(trialPayload.timeToFirstCommittedManifestTotalSeconds / 3600);
+      } else {
+        setTimeToFirstCommitHours(null);
+      }
+
+      if (typeof iso !== "string" || iso.length === 0) {
+        setBadgeDayN(null);
+      } else {
+        const n = computeUtcDayN(iso, Date.now());
+
+        setBadgeDayN(n);
+      }
+    } catch {
+      setBadgeDayN(null);
+      setTimeToFirstCommitHours(null);
+    }
+  }, [trialPayload]);
+
+  useEffect(() => {
+    if (badgeDayN === null || telemetrySentRef.current) {
+      return;
+    }
+
+    telemetrySentRef.current = true;
+    recordSponsorBannerFirstCommitBadge(badgeDayN);
+  }, [badgeDayN]);
+
+  useEffect(() => {
+    if (!sidecarFetchesEnabled) {
+      setRoiBaselineGate(null);
+
+      return;
+    }
+
+    let canceled = false;
+
+    async function loadBaseline(): Promise<void> {
+      try {
+        const baselineRes = await fetch(
+          "/api/proxy/v1/tenant/baseline",
+          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
+        );
+
+        if (canceled) {
+          return;
+        }
+
+        if (baselineRes.ok) {
+          try {
+            const baselinePayload = (await baselineRes.json()) as TenantBaselineRoiGatePayload;
+
+            setRoiBaselineGate(
+              isPilotRoiBaselineComplete({
+                baselineReviewCycleHours: baselinePayload.baselineReviewCycleHours,
+                manualPrepHoursPerReview: baselinePayload.manualPrepHoursPerReview,
+              }),
+            );
+          } catch {
+            setRoiBaselineGate(null);
+          }
+        } else {
+          setRoiBaselineGate(null);
+        }
+      } catch {
+        if (!canceled) {
+          setRoiBaselineGate(null);
+        }
+      }
+    }
+
+    void loadBaseline();
+
+    return () => {
+      canceled = true;
+    };
+  }, [sidecarFetchesEnabled]);
 
   const markdownHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`;
   const SponsorReviewPacketHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-review-packet`;
   const sponsorProofPackHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-proof-pack.zip`;
   const executiveBriefHref = resolveInAppDocHref("docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md");
   const pilotRoiModelHref = resolveInAppDocHref("docs/library/PILOT_ROI_MODEL.md");
-
-  useEffect(() => {
-    let canceled = false;
-
-    async function loadSidecars(): Promise<void> {
-      if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
-        if (!canceled) {
-          setProofGate({ status: "skipped" });
-          setRoiBaselineGate(null);
-        }
-
-        return;
-      }
-
-      if (!canceled) setProofGate({ status: "loading" });
-
-      const headers = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
-      const deltasUrl = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/pilot-run-deltas`;
-
-      try {
-        const [trialPayload, deltasRes, baselineRes] = await Promise.all([
-          fetchTenantTrialStatusCached(),
-          fetch(deltasUrl, headers),
-          fetch("/api/proxy/v1/tenant/baseline", headers),
-        ]);
-
-        if (canceled) return;
-
-        if (baselineRes.ok) {
-          try {
-            const baselinePayload = (await baselineRes.json()) as TenantBaselineRoiGatePayload;
-
-            if (!canceled) {
-              setRoiBaselineGate(
-                isPilotRoiBaselineComplete({
-                  baselineReviewCycleHours: baselinePayload.baselineReviewCycleHours,
-                  manualPrepHoursPerReview: baselinePayload.manualPrepHoursPerReview,
-                }),
-              );
-            }
-          } catch {
-            if (!canceled) setRoiBaselineGate(null);
-          }
-        } else if (!canceled) {
-          setRoiBaselineGate(null);
-        }
-
-        if (trialPayload !== null) {
-          try {
-            const iso = trialPayload.firstCommitUtc;
-
-            if (typeof trialPayload.timeToFirstCommittedManifestTotalSeconds === "number" &&
-                Number.isFinite(trialPayload.timeToFirstCommittedManifestTotalSeconds) &&
-                trialPayload.timeToFirstCommittedManifestTotalSeconds > 0) {
-              setTimeToFirstCommitHours(trialPayload.timeToFirstCommittedManifestTotalSeconds / 3600);
-            } else {
-              setTimeToFirstCommitHours(null);
-            }
-
-            if (typeof iso !== "string" || iso.length === 0) {
-              setBadgeDayN(null);
-            } else {
-              const n = computeUtcDayN(iso, Date.now());
-
-              if (n === null) {
-                setBadgeDayN(null);
-              } else {
-                if (!telemetrySentRef.current) {
-                  telemetrySentRef.current = true;
-                  recordSponsorBannerFirstCommitBadge(n);
-                }
-
-                setBadgeDayN(n);
-              }
-            }
-          } catch {
-            /* badge optional */
-          }
-        }
-
-        if (deltasRes.ok) {
-          try {
-            const deltasJson = (await deltasRes.json()) as PilotRunDeltasProofSummaryJson;
-
-            if (
-              isProjectedUsdSponsorBadgeVisible(deltasJson)
-              && typeof deltasJson.estimatedUsdSavings === "number"
-              && Number.isFinite(deltasJson.estimatedUsdSavings)
-            ) {
-              setEstimatedUsdSavings(deltasJson.estimatedUsdSavings);
-            } else {
-              setEstimatedUsdSavings(null);
-            }
-
-            if (!canceled) setProofGate({ status: "ok", payload: deltasJson });
-          } catch {
-            if (!canceled) setProofGate({ status: "error" });
-          }
-        } else if (!canceled) {
-          setProofGate({ status: "error" });
-        }
-      } catch {
-        if (!canceled) {
-          setProofGate({ status: "error" });
-          setRoiBaselineGate(null);
-        }
-      }
-    }
-
-    void loadSidecars();
-
-    return () => {
-      canceled = true;
-    };
-  }, [runId]);
 
   useEffect(() => {
     if (proofGate.status !== "loading") {
