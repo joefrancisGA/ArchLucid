@@ -69,6 +69,8 @@ export const operatorQueryKeys = {
   corePilotTeamChecklist: ["operator", "tenant", "core-pilot-team-checklist"] as const,
   pilotRecentDeltas: (scope: OperatorScopeQueryKey, count: number) =>
     ["operator", "pilots", "recent-deltas", scope, { count }] as const,
+  pilotRunDeltas: (scope: OperatorScopeQueryKey, runId: string) =>
+    ["operator", "pilots", "run-deltas", scope, runId] as const,
   runsByProjectPaged: (params: RunsByProjectPagedParams) => ["operator", "runs", "paged", params] as const,
   askProjectRuns: (projectId: string) => ["operator", "ask", "project-runs", projectId] as const,
   architectureDigestsBrowse: (scope: OperatorScopeQueryKey, take: number) =>
