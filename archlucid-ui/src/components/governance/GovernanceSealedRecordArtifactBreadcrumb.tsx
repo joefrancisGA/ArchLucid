@@ -1,4 +1,7 @@
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
+import {
+  OperatorPageBreadcrumb,
+  type OperatorPageBreadcrumbItem,
+} from "@/components/operator/OperatorPageBreadcrumb";
 import { SIGNED_RECORDS_LIST_PAGE_TITLE } from "@/app/(operator)/governance/sealed-records/_sections/signed-records-list-copy";
 import { getArtifactDisplayLabel } from "@/lib/artifact-review-helpers";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
@@ -21,7 +24,8 @@ export function GovernanceSealedRecordArtifactBreadcrumb(
     artifactType: props.artifactType,
   });
 
-  const items = [
+  // Annotated so the trailing current-page crumb below can omit href, which the item type allows.
+  const items: OperatorPageBreadcrumbItem[] = [
     { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
     { label: SIGNED_RECORDS_LIST_PAGE_TITLE, href: SIGNED_RECORDS_LIST_PATH },
     { label: "Sealed record", href: signedRecordDetailPath(props.manifestId) },

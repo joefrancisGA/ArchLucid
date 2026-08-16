@@ -166,7 +166,7 @@ export function ModelGovernanceAzureOpenAiConnectionCard() {
         <CardTitle>Azure OpenAI connection</CardTitle>
         {connection.isConfigured ? (
           <StatusTag
-            kind={connection.isEnabled ? "success" : "neutral"}
+            kind={connection.isEnabled ? "ready" : "neutral"}
             label={connection.isEnabled ? "Enabled" : "Disabled"}
           />
         ) : (

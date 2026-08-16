@@ -285,7 +285,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
     prefix: "/insights/ask-review-questions",
     topic: { slug: "prior-manifest-retrieval", label: PRIOR_MANIFEST_RETRIEVAL_HELP_TOPIC_LABEL },
   },
-  { prefix: "/insights/evidence-graph", topic: { slug: "evidence-graph", label: EVIDENCE_GRAPH_HELP_TOPIC_LABEL } },
+  { prefix: "/insights/evidence-graph", topic: { slug: "evidence-graph", label: OPERATOR_NAV_LINK_LABELS.evidenceGraph } },
   {
     prefix: "/insights/search-review-evidence",
     topic: { slug: "search-review-evidence", label: SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL },

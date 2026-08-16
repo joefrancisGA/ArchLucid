@@ -50,7 +50,6 @@ export function SignedRecordsListSealedTimestamp(props: SignedRecordsListSealedT
   return (
     <time
       dateTime={formatted.dateTime}
-      title={formatted.dateTime}
       className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
     >
       {formatted.display}

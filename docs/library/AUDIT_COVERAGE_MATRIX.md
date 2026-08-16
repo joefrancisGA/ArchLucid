@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:383 -->
+<!-- audit-core-const-count:385 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -248,6 +248,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Tenant architecture review board cover logo upload | `AdminController` (`POST /v1/admin/tenant/logo`) | `TenantReviewBoardCoverLogoUploaded` | Tenant + default workspace/project from scope | `{ logoByteLength }` — PNG/JPEG validated via `ArchitectureReviewBoardCoverLogoValidator`; image bytes are **not** stored in audit payload |
 | Microsoft Teams incoming-webhook connection upsert | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionUpserted` | Tenant + default workspace/project from scope | Key Vault reference metadata (no secret material) |
 | Microsoft Teams incoming-webhook connection remove | `TeamsIncomingWebhookConnectionsController` (`DELETE /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionRemoved` | Tenant + default workspace/project from scope | connection id / scope fields |
+| Tenant Azure OpenAI BYO connection upsert | `AdminAzureOpenAiConnectionController` (`POST /v1/admin/settings/azure-openai-connection`) | `TenantAzureOpenAiConnectionUpserted` | Tenant + default workspace/project from scope | endpoint host, secret name length, enabled flag — **no** API key material |
+| Tenant Azure OpenAI BYO connection remove | `AdminAzureOpenAiConnectionController` (`DELETE /v1/admin/settings/azure-openai-connection`) | `TenantAzureOpenAiConnectionRemoved` | Tenant + default workspace/project from scope | connection id / scope fields — **no** secret material |
 | Microsoft Teams incoming-webhook secret validation probe (no persistence) | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections/validate-secret`) | — | — | Key Vault probe only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Microsoft Teams incoming-webhook connection test notification (no persistence) | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections/test`) | — | — | Synthetic Teams ping only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Tenant ITSM connector credential reference upsert (Jira / ServiceNow) | `TenantItsmConnectorConnectionsController` (`POST /v1/integrations/itsm/connections/{provider}`) | `TenantItsmConnectorConnectionUpserted` | Tenant + default workspace/project from scope | provider label, credential secret name length, inbound webhook secret presence, enabled flag — **no** secret material |
@@ -722,6 +724,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantItsmConnectorConnectionRemoved` | `TenantItsmConnectorConnectionRemoved` | `TenantItsmConnectorConnectionsController` (`DELETE /v1/integrations/itsm/connections/{provider}`) |
 | `TenantItsmOutboundSettingsUpserted` | `TenantItsmOutboundSettingsUpserted` | `TenantItsmOutboundSettingsController` (`PUT /v1/integrations/itsm/settings`) |
 | `TenantAzureBoardsOutboundSettingsUpserted` | `TenantAzureBoardsOutboundSettingsUpserted` | `AzureBoardsIntegrationsController` (outbound settings upsert) |
+| `TenantAzureOpenAiConnectionUpserted` | `TenantAzureOpenAiConnectionUpserted` | `AdminAzureOpenAiConnectionController` (`POST /v1/admin/settings/azure-openai-connection`) |
+| `TenantAzureOpenAiConnectionRemoved` | `TenantAzureOpenAiConnectionRemoved` | `AdminAzureOpenAiConnectionController` (`DELETE /v1/admin/settings/azure-openai-connection`) |
 | `IntegrationAzureBoardsConnectionTested` | `Integration.AzureBoardsConnectionTested` | `AzureBoardsIntegrationsController` (connection test; no work item created) |
 | `IntegrationAzureBoardsWorkItemCreateSucceeded` | `Integration.AzureBoardsWorkItemCreateSucceeded` | `AzureBoardsExternalTicketConnector` / ITSM outbound create path |
 | `IntegrationAzureBoardsWorkItemCreateFailed` | `Integration.AzureBoardsWorkItemCreateFailed` | same |
