@@ -1,6 +1,6 @@
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Notifications.Email;
-using ArchLucid.Application.WeeklyExecutiveSummary;
+using ArchLucid.Application.WeeklySponsorReport;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Jobs;
@@ -22,18 +22,18 @@ namespace ArchLucid.Host.Composition.Tests.Jobs;
 public sealed class WeeklyExecutiveSummaryJobTests
 {
     [Fact]
-    public void Name_is_canonical_weekly_executive_summary_slug()
+    public void Name_is_canonical_weekly_sponsor_report_slug()
     {
-        WeeklyExecutiveSummaryJob job = new(Mock.Of<IServiceProvider>(), NullLogger<WeeklyExecutiveSummaryJob>.Instance);
+        WeeklySponsorReportJob job = new(Mock.Of<IServiceProvider>(), NullLogger<WeeklySponsorReportJob>.Instance);
 
-        job.Name.Should().Be(ArchLucidJobNames.WeeklyExecutiveSummary);
+        job.Name.Should().Be(ArchLucidJobNames.WeeklySponsorReport);
     }
 
     [Fact]
     public async Task RunOnceAsync_returns_success_when_feature_disabled()
     {
         await using ServiceProvider provider = BuildProviderWithFeatureDisabled();
-        WeeklyExecutiveSummaryJob job = new(provider, NullLogger<WeeklyExecutiveSummaryJob>.Instance);
+        WeeklySponsorReportJob job = new(provider, NullLogger<WeeklySponsorReportJob>.Instance);
 
         int code = await job.RunOnceAsync(CancellationToken.None);
 
@@ -46,16 +46,16 @@ public sealed class WeeklyExecutiveSummaryJobTests
         tenants.Setup(r => r.ListAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         ServiceCollection services = [];
-        services.Configure<WeeklyExecutiveSummaryOptions>(static o => o.Enabled = false);
+        services.Configure<WeeklySponsorReportOptions>(static o => o.Enabled = false);
         services.AddSingleton(tenants.Object);
         services.AddSingleton(Mock.Of<IAuthorityQueryService>());
         services.AddSingleton(Mock.Of<IRunSummaryOnePagerExportService>());
-        services.AddSingleton(Mock.Of<IExecutiveSummaryRecipientLookup>());
-        services.AddSingleton(Mock.Of<IWeeklyExecutiveSummaryEmailDispatcher>());
+        services.AddSingleton(Mock.Of<ISponsorReportRecipientLookup>());
+        services.AddSingleton(Mock.Of<IWeeklySponsorReportEmailDispatcher>());
         services.AddSingleton(Mock.Of<IOptionsMonitor<EmailNotificationOptions>>());
-        services.AddScoped<WeeklyExecutiveSummaryDeliveryScanner>();
-        services.AddSingleton<ILogger<WeeklyExecutiveSummaryDeliveryScanner>>(
-            NullLogger<WeeklyExecutiveSummaryDeliveryScanner>.Instance);
+        services.AddScoped<WeeklySponsorReportDeliveryScanner>();
+        services.AddSingleton<ILogger<WeeklySponsorReportDeliveryScanner>>(
+            NullLogger<WeeklySponsorReportDeliveryScanner>.Instance);
 
         return services.BuildServiceProvider();
     }

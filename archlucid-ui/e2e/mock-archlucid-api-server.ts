@@ -172,6 +172,25 @@ function jsonRunSummaryFromDetail(detail: RunDetail): unknown {
   };
 }
 
+function jsonCriticalPageBundleForRunId(runId: string): unknown | null {
+  const detail = resolveRunDetailBodyForRunId(runId);
+
+  if (detail === null) {
+    return null;
+  }
+
+  const manifestId = typeof detail.run.goldenManifestId === "string" ? detail.run.goldenManifestId.trim() : "";
+  const manifestPayload =
+    manifestId.length > 0 ? jsonForManifestSummary(manifestId) : { status: 200, body: null as unknown };
+
+  return {
+    buyerSummary: toMockBuyerRunDetailSummary(detail),
+    progressSummary: jsonRunSummaryFromDetail(detail),
+    manifestSummary: manifestPayload.status === 200 ? manifestPayload.body : null,
+    artifacts: manifestId.length > 0 ? jsonForArtifactList(manifestId) : [],
+  };
+}
+
 /**
  * Minimal HTTP stub for ArchLucid API routes used by RSC run/manifest pages and `/policy-packs` reads.
  *
@@ -435,6 +454,47 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
           sendJson(res, 200, toMockBuyerRunDetailSummary(detail));
         }
 
+        return;
+      }
+
+      const criticalBundleMatchV1 =
+        /^\/v1\/authority\/(?:runs|reviews)\/([^/]+)\/critical-page-bundle$/.exec(pathname);
+      const criticalBundleMatchLegacy =
+        /^\/api\/authority\/(?:runs|reviews)\/([^/]+)\/critical-page-bundle$/.exec(pathname);
+      const criticalBundleMatch = criticalBundleMatchV1 ?? criticalBundleMatchLegacy;
+
+      if (criticalBundleMatch) {
+        const bundle = jsonCriticalPageBundleForRunId(criticalBundleMatch[1]);
+
+        if (bundle === null) {
+          sendJson(res, 404, { detail: "Review not found." });
+        } else {
+          sendJson(res, 200, bundle);
+        }
+
+        return;
+      }
+
+      const timelinesBundleMatch =
+        /^\/v1\/authority\/(?:runs|reviews)\/([^/]+)\/timelines-bundle$/.exec(pathname) ??
+        /^\/api\/authority\/(?:runs|reviews)\/([^/]+)\/timelines-bundle$/.exec(pathname);
+
+      if (timelinesBundleMatch) {
+        sendJson(res, 200, { pipelineTimeline: [], stageTimeline: [] });
+        return;
+      }
+
+      const workspaceContextMatch =
+        /^\/v1\/authority\/(?:runs|reviews)\/([^/]+)\/workspace-context-bundle$/.exec(pathname) ??
+        /^\/api\/authority\/(?:runs|reviews)\/([^/]+)\/workspace-context-bundle$/.exec(pathname);
+
+      if (workspaceContextMatch) {
+        sendJson(res, 200, {
+          recentProjectRuns: [],
+          priorCommittedRunComparison: null,
+          priorCommittedRunId: null,
+          priorCommittedRunCreatedUtc: null,
+        });
         return;
       }
 

@@ -45,6 +45,13 @@ describe("effectiveRunSummaryForPipeline", () => {
     expect(effective.hasContextSnapshot).toBe(true);
   });
 
+  it("falls back to detail when API summary is undefined", () => {
+    const effective = effectiveRunSummaryForPipeline(undefined, baseDetail);
+
+    expect(effective.runId).toBe("customer-intake-modernization");
+    expect(effective.hasGoldenManifest).toBe(true);
+  });
+
   it("falls back to detail when API body does not match run id", () => {
     const junk: RunSummary = {
       ...runFromDetailToRunSummary(baseDetail),

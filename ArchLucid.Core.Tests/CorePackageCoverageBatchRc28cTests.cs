@@ -33,8 +33,8 @@ public sealed class CorePackageCoverageBatchRc28cTests
 
         CommercialTenantEligibility.MeetsCommercialTenantTierGate(trial, TenantTier.Standard).Should().BeFalse();
         CommercialTenantEligibility.MeetsCommercialTenantTierGate(paid, TenantTier.Standard).Should().BeTrue();
-        CommercialTenantEligibility.IsEligibleForWeeklyExecutiveSummary(trial).Should().BeFalse();
-        CommercialTenantEligibility.IsEligibleForWeeklyExecutiveSummary(paid).Should().BeTrue();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(trial).Should().BeFalse();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(paid).Should().BeTrue();
 
         TenantRecord suspended = new()
         {
@@ -42,7 +42,7 @@ public sealed class CorePackageCoverageBatchRc28cTests
             TrialStatus = TrialLifecycleStatus.Converted,
             SuspendedUtc = DateTimeOffset.UtcNow,
         };
-        CommercialTenantEligibility.IsEligibleForWeeklyExecutiveSummary(suspended).Should().BeFalse();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(suspended).Should().BeFalse();
     }
 
     [Fact]

@@ -80,10 +80,14 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   try {
     const bundleResponse = await fetchRunDetailCriticalPageBundle(runId, apiScopeOptions);
 
-    runDetailResponse = { data: bundleResponse.data.buyerSummary, traceId: bundleResponse.traceId };
-    progressInitialSummary = bundleResponse.data.progressSummary;
+    if (bundleResponse.data.buyerSummary == null) {
+      throw new Error("Review critical-page-bundle omitted buyerSummary.");
+    }
 
-    if (bundleResponse.data.manifestSummary !== null) {
+    runDetailResponse = { data: bundleResponse.data.buyerSummary, traceId: bundleResponse.traceId };
+    progressInitialSummary = bundleResponse.data.progressSummary ?? null;
+
+    if (bundleResponse.data.manifestSummary != null) {
       const coercedSummary = coerceManifestSummary(bundleResponse.data.manifestSummary);
 
       if (!coercedSummary.ok) {

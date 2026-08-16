@@ -81,7 +81,9 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
         string? reviewedByActorKey,
         string? reviewComment,
         DateTime reviewedUtc,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null) =>
         _inner.TryTransitionFromReviewableAsync(
             approvalRequestId,
             newStatus,
@@ -89,7 +91,9 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
             reviewedByActorKey,
             reviewComment,
             reviewedUtc,
-            cancellationToken);
+            cancellationToken,
+            connection,
+            transaction);
 
     /// <inheritdoc />
     public Task UpdateAsync(
