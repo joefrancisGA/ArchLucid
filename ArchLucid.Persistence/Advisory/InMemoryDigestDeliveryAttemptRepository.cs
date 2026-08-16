@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Advisory;
 /// </summary>
 public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAttemptRepository
 {
-    internal const int ListByDigestCap = 200;
+    internal const int ListByDigestCap = DigestDeliveryAttemptListCap.Value;
 
     private readonly List<DigestDeliveryAttempt> _items = [];
     private readonly Lock _gate = new();

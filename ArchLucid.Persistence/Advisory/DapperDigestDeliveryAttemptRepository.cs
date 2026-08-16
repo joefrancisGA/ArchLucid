@@ -14,8 +14,9 @@ namespace ArchLucid.Persistence.Advisory;
 public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory connectionFactory)
     : IDigestDeliveryAttemptRepository
 {
-    /// <summary>Maximum rows returned by <see cref="ListByDigestAsync"/>; kept in sync with <see cref="InMemoryDigestDeliveryAttemptRepository.ListByDigestCap"/>.</summary>
-    private const int ListByDigestCap = InMemoryDigestDeliveryAttemptRepository.ListByDigestCap;
+    /// <summary>Maximum rows returned by <see cref="ListByDigestAsync"/>; kept in sync with <see cref="DigestDeliveryAttemptListCap.Value"/>.</summary>
+    private const int ListByDigestCap = DigestDeliveryAttemptListCap.Value;
+
     /// <inheritdoc />
     public async Task CreateAsync(DigestDeliveryAttempt attempt, CancellationToken ct)
     {
