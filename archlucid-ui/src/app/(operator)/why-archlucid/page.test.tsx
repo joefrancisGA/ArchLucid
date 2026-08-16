@@ -315,13 +315,13 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
       expect(screen.getByTestId("why-archlucid-counters")).toBeInTheDocument();
     });
 
-    expect(screen.queryByTestId("why-archlucid-page-breadcrumb")).toBeNull();
+    expect(screen.getByTestId("why-archlucid-page-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("why-archlucid-page-heading-actions")).toBeInTheDocument();
     expect(screen.getByTestId("why-archlucid-internal-pilot-badge")).toHaveTextContent(/Internal pilot proof/i);
     expect(document.querySelector('[data-nav-href="/why-archlucid"]')).toBeInTheDocument();
   });
 
-  it("shows API-problem callouts when downstream calls fail", async () => {
+  it("shows page-level load failure with retry when telemetry bundle fails", async () => {
     measuredRoiMock.mockRejectedValue(new Error("snapshot failed"));
     sponsorPackMock.mockRejectedValue(new Error("pack failed"));
     reportMock.mockRejectedValue(new Error("report failed"));
@@ -330,8 +330,10 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     render(<WhyArchLucidPage />);
 
     await waitFor(() => {
-      const problems = screen.getAllByTestId("api-problem-mock");
-      expect(problems.some((p) => p.textContent?.includes("snapshot failed"))).toBe(true);
+      expect(screen.getByTestId("why-archlucid-page-load-failure")).toBeInTheDocument();
     });
+
+    expect(screen.getByTestId("why-archlucid-page-load-retry")).toHaveTextContent(/Retry loading telemetry/i);
+    expect(screen.queryByTestId("why-archlucid-counters")).not.toBeInTheDocument();
   });
 });

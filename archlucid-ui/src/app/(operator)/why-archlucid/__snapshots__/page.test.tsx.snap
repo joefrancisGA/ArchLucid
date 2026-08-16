@@ -9,6 +9,46 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
   <div
     class="mb-6"
   >
+    <div
+      class="mb-2"
+    >
+      <nav
+        aria-label="Breadcrumb"
+        class="m-0 text-xs font-normal leading-[18px] text-al-text-secondary"
+        data-testid="why-archlucid-page-breadcrumb"
+      >
+        <ol
+          class="m-0 flex flex-wrap items-center gap-1 p-0 list-none"
+        >
+          <li
+            class="flex items-center gap-1"
+          >
+            <a
+              class="inline-flex min-h-8 items-center font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
+              href="/help"
+            >
+              Help
+            </a>
+          </li>
+          <li
+            class="flex items-center gap-1"
+          >
+            <span
+              aria-hidden="true"
+              class="text-al-text-secondary"
+            >
+              /
+            </span>
+            <span
+              aria-current="page"
+              class="text-al-text-primary"
+            >
+              Pilot proof telemetry
+            </span>
+          </li>
+        </ol>
+      </nav>
+    </div>
     <header
       class="border-b border-neutral-200 pb-6 dark:border-neutral-800"
       data-nav-href="/why-archlucid"
@@ -30,7 +70,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
             </h1>
             <span
               aria-label="Status: Internal pilot proof"
-              class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none text-[11px] font-medium leading-tight border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70 border-l-neutral-400 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-500 dark:bg-neutral-800/80"
+              class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none text-[11px] font-medium leading-tight border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70 bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)] border-l-[var(--al-status-neutral-border)] dark:border-l-[var(--al-status-neutral-border)]"
               data-testid="why-archlucid-internal-pilot-badge"
             >
               Internal pilot proof
@@ -99,7 +139,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
               For competitive narrative, see
                
               <a
-                class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                class="inline-flex min-h-8 items-center font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
                 href="/why"
               >
                 Public differentiation (/why)
@@ -134,6 +174,89 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         </p>
       </div>
     </header>
+  </div>
+  <div
+    class="space-y-3"
+    data-testid="why-archlucid-orientation"
+  >
+    <div
+      aria-labelledby="why-archlucid-claim-discipline-heading"
+      class="rounded-md border border-amber-600/60 bg-al-surface-raised text-sm text-al-text-primary dark:border-amber-700/60 p-3"
+      data-testid="why-archlucid-claim-discipline"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+        id="why-archlucid-claim-discipline-heading"
+      >
+        Pilot proof only
+      </h2>
+      <p
+        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        This Why ArchLucid page is an architect demo/proof surface over seeded telemetry and sample review outputs — it is not a sealed-review diligence Sources bundle from your production tenant. Open the public /why comparison, Assurance status, or a finalized sealed review record when you need diligence-grade trails.
+      </p>
+    </div>
+    <section
+      aria-labelledby="why-archlucid-sources-heading"
+      class="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+      data-testid="why-archlucid-sources"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+        id="why-archlucid-sources-heading"
+      >
+        Diligence artifact index
+      </h2>
+      <p
+        class="m-0 mt-1 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
+      >
+        Use these follow-ups when demo proof turns into marketing comparison, sponsor packaging, or assurance orientation.
+      </p>
+      <ul
+        class="m-0 mt-2 list-none space-y-2 p-0 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
+            href="/why"
+          >
+            Why ArchLucid (marketing)
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
+            href="/see-it"
+          >
+            See a sample review
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
+            href="/insights/sponsor-report"
+          >
+            Sponsor report
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
+            href="/help/getting-started#how-archlucid-works"
+          >
+            How ArchLucid works
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
+            href="/assurance-status"
+          >
+            Assurance status
+          </a>
+        </li>
+      </ul>
+    </section>
   </div>
   <div
     class="flex flex-wrap items-center gap-3"
@@ -806,21 +929,21 @@ Demo body.
     Aggregated sponsor-facing proof from measured ROI, sponsor evidence pack, value report, and aggregate explanation services.
      
     <a
-      class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200"
+      class="text-[13px] leading-5 font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
       href="/help/sponsor-report"
     >
       Sponsor sponsor brief
     </a>
      · 
     <a
-      class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200"
+      class="text-[13px] leading-5 font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
       href="/get-started"
     >
       Getting started
     </a>
      · 
     <a
-      class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200"
+      class="text-[13px] leading-5 font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
       href="/trust"
     >
       Trust Center

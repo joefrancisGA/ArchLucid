@@ -109,6 +109,10 @@ test.describe("operator shell smoke — core proof path", () => {
     await expect(page.getByRole("heading", { name: /^Help$/i, level: 1 })).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
+    await page.goto("/why-archlucid");
+    await expect(page.getByTestId("why-archlucid-page-breadcrumb")).toBeVisible();
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
     await page.goto("/architecture/reviews");
     await page.getByTestId("operator-shell-help-trigger").click();
     await expect(page.getByTestId("contextual-help-drawer-breadcrumb")).toBeVisible();

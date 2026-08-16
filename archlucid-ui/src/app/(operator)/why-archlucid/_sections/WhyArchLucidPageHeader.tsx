@@ -18,6 +18,7 @@ import {
   whyArchLucidUniverseBannerTitle,
   whyArchLucidUniverseWalkthroughLead,
 } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-demo-universe";
+import { WhyArchLucidBreadcrumb } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidBreadcrumb";
 
 export type WhyArchLucidPageHeaderProps = {
   readonly universe: WhyArchLucidDemoUniverse;
@@ -35,6 +36,7 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps): Reac
       title={WHY_ARCHLUCID_PAGE_TITLE}
       titleTestId="why-archlucid-page-title"
       headingLevel="h1"
+      breadcrumb={<WhyArchLucidBreadcrumb />}
       subtitle={
         <>
           <span data-testid="why-archlucid-page-orientation">{WHY_ARCHLUCID_PAGE_ORIENTATION}</span>{" "}
