@@ -108,6 +108,11 @@ test.describe("operator shell smoke — core proof path", () => {
     await page.goto("/help");
     await expect(page.getByRole("heading", { name: /^Help$/i, level: 1 })).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/architecture/reviews");
+    await page.getByTestId("operator-shell-help-trigger").click();
+    await expect(page.getByTestId("contextual-help-drawer-breadcrumb")).toBeVisible();
+    await expect(page.getByTestId("help-search-panel")).toBeVisible();
   });
 });
 
