@@ -17,32 +17,34 @@ Provide a **repeatable, script-driven** path to validate and (optionally) apply 
 
 ## Constraints
 
-- **Do not expose SMB (port 445)** on the public internet; align with `docs/CUSTOMER_TRUST_AND_ACCESS.md`.
+- **Do not expose SMB (port 445)** on the public internet; align with `docs/library/CUSTOMER_TRUST_AND_ACCESS.md`.
 - `terraform apply` without review can destroy resources — default automation uses **validate-only** mode.
-- Greenfield IaC uses **`archlucid`** naming; first subscription deploy: [`docs/FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md). See [`V1_DEFERRED.md`](V1_DEFERRED.md) §3 — no brownfield **`state mv`** pre-release.
+- Greenfield IaC uses **`archlucid`** naming; first subscription deploy: [`docs/library/FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md). See [`V1_DEFERRED.md`](V1_DEFERRED.md) §3 — no brownfield **`state mv`** pre-release.
 
 ## Architecture overview
 
-**Nodes:** Terraform roots (storage, private networking, Container Apps, Entra, edge, monitoring, …).
+**Nodes:** Three metadata composition roots (`terraform-foundation`, `terraform-platform`, `terraform-app`) plus leaf Terraform roots (each with its own backend).
 
-**Edges:** Script order encodes soft dependencies (for example storage before Container Apps when large-payload offload is enabled).
+**Edges:** `infra/apply-saas.ps1 -MultiRoot` encodes wave order (foundation → platform → app). Landing-zone scripts wrap that entry.
 
-**Flows:** `init` → `validate` → optional `plan`/`apply` per root.
+**Flows:** validate composition roots → `init` / `validate` / optional `plan`/`apply` per leaf.
 
 ## Component breakdown
 
 | Artifact | Role |
 |----------|------|
-| `scripts/provision-landing-zone.ps1` | Windows entry: ordered `terraform` invocations. |
-| `scripts/provision-landing-zone.sh` | POSIX entry: same order, validate-only by default. |
+| `infra/apply-saas.ps1` | Canonical orchestrator: hosted 3-wave MultiRoot, optional `-LegacyLeafRoots`, default pilot-only. |
+| `scripts/provision-landing-zone.ps1` | Windows wrapper: always `-MultiRoot`; default **ValidateOnly**. |
+| `scripts/provision-landing-zone.sh` | POSIX wrapper: same; requires `pwsh`. |
+| `infra/terraform-foundation` / `platform` / `app` | Metadata waves (`azure_apply = false`). Never Azure-apply. |
 | `infra/environments/*.example.tfvars` | Non-secret sketches; copy into per-root `terraform.tfvars` or pass `-var-file`. |
-| `infra/terraform-orchestrator/` | Minimal root for CI `terraform validate` / `fmt` only. |
+| `infra/terraform-orchestrator/` | Legacy-only leaf (`-LegacyLeafRoots`); CI validate anchor. |
 
 ## Data flow
 
 1. Operator selects environment tier (dev / staging / prod) and prepares tfvars.
-2. Run `.\scripts\provision-landing-zone.ps1 -ValidateOnly` (or `-DryRun` to print steps only).
-3. For real infrastructure, configure remote backends per root, then re-run with `-ValidateOnly:$false` and inspect `terraform plan` per root before `-Apply`.
+2. Run `.\scripts\provision-landing-zone.ps1 -ValidateOnly` (or `-DryRun` to print steps only). This delegates to `infra/apply-saas.ps1 -MultiRoot`.
+3. For real infrastructure, configure remote backends per **leaf**, then re-run with `-Plan` or `-Apply`. Do **not** Azure-apply composition roots.
 
 ## Security model
 
@@ -52,10 +54,16 @@ Provide a **repeatable, script-driven** path to validate and (optionally) apply 
 ## Operational considerations
 
 - Add CI coverage: `.github/workflows/ci.yml` includes `infra/terraform-orchestrator` in the Terraform validate matrix.
-- After apply, run API smoke (`GET /health/ready`, `GET /version`) and `docs/V1_RELEASE_CHECKLIST.md` gates.
+- After apply, run API smoke (`GET /health/ready`, `GET /version`) and `docs/library/V1_RELEASE_CHECKLIST.md` gates.
 
 ## Related
 
 - `infra/README.md`
-- `docs/GOLDEN_PATH.md`
-- `docs/DEPLOYMENT_TERRAFORM.md`
+- `infra/apply-saas.ps1`
+- `docs/library/GOLDEN_PATH.md`
+- `docs/library/DEPLOYMENT_TERRAFORM.md`
+- `docs/library/REFERENCE_SAAS_STACK_ORDER.md`
+- `docs/library/FIRST_AZURE_DEPLOYMENT.md`
+- `docs/library/CUSTOMER_TRUST_AND_ACCESS.md`
+- `docs/library/V1_DEFERRED.md` §3
+- `docs/runbooks/TERRAFORM_COMPOSITION_STATE_MV.md`

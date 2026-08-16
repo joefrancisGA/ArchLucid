@@ -48,7 +48,7 @@ python3 scripts/ci/assert_terraform_roots_valid.py
 
 1. **Create the directory** under `infra/`, e.g. `infra/terraform-foo/`, with at least one `*.tf` file (and typically `versions.tf` / `providers.tf`).
 2. **Run** `validate-saas-infra.ps1` and fix any validate errors.
-3. **List the stack in** [infra/apply-saas.ps1](../../infra/apply-saas.ps1) — add a line to ` $multiRootSequence` (or `$pilotProfileOnly` for non-Azure pilot-only profiles) in **dependency order**; see [docs/library/REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md) if you maintain ordering.
+3. **List the stack in** [infra/apply-saas.ps1](../../infra/apply-saas.ps1) — Azure-apply leaves go in `$multiRootSequence` **and** the matching wave array (`$foundationWaveLeaves` / `$platformWaveLeaves` / `$appWaveLeaves`) in **dependency order**. Metadata-only composition roots go in `$hostedCompositionRoots` (validate, never Azure-apply). See [docs/library/REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md).
 4. **Re-run** `validate-saas-config-consistency.ps1` and ensure there is **no** warning for “stack on disk is not in apply-saas”.
 
 **Modules** — subfolders under `infra/modules/*` with `.tf` are validated by `validate-saas-infra.ps1` automatically; they are not added to `apply-saas` unless you intentionally deploy them as a standalone run.

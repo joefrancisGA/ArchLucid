@@ -1,92 +1,74 @@
 <#!
 .SYNOPSIS
-  Runs Terraform init/validate (default), optional plan, or apply across ArchLucid infra roots in dependency order.
+  Thin wrapper around infra/apply-saas.ps1 hosted 3-wave path.
 
 .DESCRIPTION
-  Each root under infra/terraform-* keeps its own state file. This script runs CLI steps in order only.
+  Landing-zone entry for operators who still call provision-landing-zone.ps1.
+  Always delegates to apply-saas.ps1 -MultiRoot. Default is validate-only
+  (composition roots + hosted leaves). Each leaf keeps its own Terraform state.
 
 .PARAMETER DryRun
   Print intended commands without executing Terraform.
 
 .PARAMETER Plan
-  After validate, run terraform plan per root (requires Azure auth for provider refresh).
+  Plan hosted leaves (Azure auth required for provider refresh). Wins over default validate.
 
 .PARAMETER Apply
-  After validate, run terraform apply -auto-approve per root (destructive — use only in controlled pipelines).
+  Apply hosted leaves. Wins over -Plan. Cannot combine with -ValidateOnly.
+
+.PARAMETER ValidateOnly
+  Explicit validate-only (same as the default when neither -Plan nor -Apply is set).
 
 .PARAMETER VarFile
-  Optional -var-file= path for plan/apply.
+  Optional -var-file passed through to plan/apply.
 
 .EXAMPLE
   ./scripts/provision-landing-zone.ps1
   ./scripts/provision-landing-zone.ps1 -DryRun
   ./scripts/provision-landing-zone.ps1 -Plan
+  ./scripts/provision-landing-zone.ps1 -Apply
 #>
 param(
     [switch] $DryRun,
     [switch] $Plan,
     [switch] $Apply,
+    [switch] $ValidateOnly,
     [string] $VarFile = ""
 )
 
 $ErrorActionPreference = "Stop"
+
+if ($Apply -and $ValidateOnly) {
+    throw "Cannot combine -Apply with -ValidateOnly."
+}
+
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
-Set-Location $repoRoot
+$applySaas = Join-Path $repoRoot "infra\apply-saas.ps1"
 
-$orderedRoots = @(
-    "infra/terraform-storage",
-    "infra/terraform-private",
-    "infra/terraform-container-apps",
-    "infra/terraform-sql-failover",
-    "infra/terraform-entra",
-    "infra/terraform-openai",
-    "infra/terraform-keyvault",
-    "infra/terraform-monitoring",
-    "infra/terraform-edge",
-    "infra/terraform",
-    "infra/terraform-servicebus",
-    "infra/terraform-orchestrator"
-)
-
-function Invoke-TerraformInRoot {
-    param(
-        [string] $Root
-    )
-    Write-Host "==> $Root" -ForegroundColor Cyan
-    Push-Location (Join-Path $repoRoot $Root)
-    try {
-        if ($DryRun) {
-            Write-Host "  [dry-run] terraform init -backend=false && validate && fmt -check" -ForegroundColor DarkGray
-            return
-        }
-        terraform init -backend=false | Write-Host
-        terraform validate | Write-Host
-        terraform fmt -check -recursive | Write-Host
-        if ($Plan -or $Apply) {
-            $extra = @()
-            if ($VarFile -ne "") {
-                $extra += "-var-file=$VarFile"
-            }
-            if ($Apply) {
-                terraform @("apply", "-auto-approve") + $extra | Write-Host
-            }
-            else {
-                terraform @("plan", "-input=false") + $extra | Write-Host
-            }
-        }
-    }
-    finally {
-        Pop-Location
-    }
+if (-not (Test-Path -LiteralPath $applySaas)) {
+    throw "Missing apply-saas.ps1 at $applySaas"
 }
 
-Write-Host "ArchLucid landing zone — $($orderedRoots.Count) Terraform roots" -ForegroundColor Green
-foreach ($r in $orderedRoots) {
-    $path = Join-Path $repoRoot $r
-    if (-not (Test-Path $path)) {
-        Write-Warning "Skip missing directory: $r"
-        continue
-    }
-    Invoke-TerraformInRoot -Root $r
+$forward = @("-MultiRoot")
+
+if ($DryRun) {
+    $forward += "-DryRun"
 }
-Write-Host "Done." -ForegroundColor Green
+
+if ($Apply) {
+    $forward += "-Apply"
+}
+elseif ($Plan) {
+    # Plan: neither -Apply nor -ValidateOnly.
+}
+else {
+    $forward += "-ValidateOnly"
+}
+
+if (-not [string]::IsNullOrWhiteSpace($VarFile)) {
+    $forward += "-VarFile"
+    $forward += $VarFile
+}
+
+& $applySaas @forward
+exit $LASTEXITCODE

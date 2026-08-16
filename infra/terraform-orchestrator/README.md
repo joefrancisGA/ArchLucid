@@ -9,7 +9,7 @@ This directory is a **minimal Terraform configuration** used for:
 
 Each stack under `infra/terraform-*` owns its own backend and lifecycle (private networking, Container Apps, Entra, edge, storage, monitoring, SQL failover, OpenAI, Key Vault). Combining them would force `terraform state mv` coordination across unrelated blast radii.
 
-Use **`scripts/provision-landing-zone.ps1`** (or **`.sh`**) with `-ValidateOnly` (default) or `-Apply` to run `init` + `plan`/`apply` per root in the order documented in **`docs/LANDING_ZONE_PROVISIONING.md`**.
+Use **`infra/apply-saas.ps1 -MultiRoot`** (or **`scripts/provision-landing-zone.ps1`** / **`.sh`**, which wrap it) to validate composition roots then `init` + `plan`/`apply` per leaf. This orchestrator root is **legacy-only** (`-LegacyLeafRoots`). Order: **`docs/library/REFERENCE_SAAS_STACK_ORDER.md`**.
 
 ## Local commands
 

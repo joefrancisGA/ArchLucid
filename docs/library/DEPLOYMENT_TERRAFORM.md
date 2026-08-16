@@ -48,7 +48,10 @@ flowchart LR
 
 | Root | Role |
 |------|------|
-| `infra/terraform-pilot` | **Default operator profile:** FinOps / sampling variables + **`nested_infrastructure_roots`** output (no Azure resources in this root). Entry point for the collapsed footprint; multi-root applies are **opt-in** ([`REFERENCE_SAAS_STACK_ORDER.md`](REFERENCE_SAAS_STACK_ORDER.md)). |
+| `infra/terraform-foundation` | **Metadata composition wave 1** (`azure_apply = false`): lists foundation leaves (`terraform-private`, `terraform-keyvault`). Validate only — never Azure-apply. |
+| `infra/terraform-platform` | **Metadata composition wave 2** (`azure_apply = false`): lists platform leaves (SQL failover through ACR). Validate only — never Azure-apply. |
+| `infra/terraform-app` | **Metadata composition wave 3** (`azure_apply = false`): lists app leaves (Entra through monitoring). Validate only — never Azure-apply. Hosted `-MultiRoot` omits `terraform-orchestrator`. |
+| `infra/terraform-pilot` | **Default operator profile:** FinOps / sampling variables + **`nested_infrastructure_roots`** / **`composition_roots`** outputs (no Azure resources in this root). Script default without `-MultiRoot` stays pilot-only; hosted Azure apply is **`infra/apply-saas.ps1 -MultiRoot`** ([`REFERENCE_SAAS_STACK_ORDER.md`](REFERENCE_SAAS_STACK_ORDER.md)). |
 | `infra/terraform-container-apps` | Primary **workload** pattern: Container Apps, identity, env wiring (parameters vary by fork/branch). |
 | `infra/terraform-storage` | Storage accounts, blobs, queues used by artifacts and durable jobs. |
 | `infra/terraform-redis` | **TB-094** optional Azure Cache for Redis for `HotPathCache` (connection string output / Key Vault secret). |
@@ -77,20 +80,22 @@ flowchart LR
 
 ## Operational considerations
 
-- **RTO / RPO by tier:** Default recovery targets (development best-effort; production e.g. relational RPO under five minutes via SQL geo-replication) are documented in **`docs/RTO_RPO_TARGETS.md`**. Implement with auto-failover groups, listeners, and drills per **`docs/runbooks/DATABASE_FAILOVER.md`**.
+- **RTO / RPO by tier:** Default recovery targets (development best-effort; production e.g. relational RPO under five minutes via SQL geo-replication) are documented in **`docs/library/RTO_RPO_TARGETS.md`**. Implement with auto-failover groups, listeners, and drills per **`docs/runbooks/DATABASE_FAILOVER.md`**.
 - **FinOps tags:** In `infra/terraform-container-apps`, set optional **`finops_environment`** and **`finops_cost_center`**; they merge with **`tags`** and a fixed **`Application = ArchLucid`** label on created resources for Azure Cost Management filters.
 - **Posture tier (TB-903):** Set **`posture_tier`** (`dev` | `staging` | `production`) in each affected root's tfvars (`production.tfvars.example` / `staging.tfvars.example`). `terraform plan` fails when staging/production-critical flags are off (WAF, secondary region, private endpoints, budgets, SQL failover). Documented exceptions use **`posture_waivers`** with a reason string (e.g. `staging-sql-failover-drill-window` for **TB-905**).
 - **Consumption budgets:** **`enable_*_consumption_budget`** defaults **true** (2026-07-20) in `infra/terraform-container-apps`, `infra/terraform-sql-failover`, `infra/terraform-openai`, and `infra/terraform/prod`. Budgets are free; each root still gates creation on prerequisites (Container Apps stack enabled, SQL/OpenAI resource group scope set). Tune amounts and `*_time_period_start` per root; set the flag **false** to opt out.
-- **Plan/apply:** Default **`infra/terraform-pilot`** for profile validation and outputs; run `terraform init` / `plan` / `apply` per nested root only on the **opt-in multi-root** path. Compose order is usually **network → data → compute → edge → monitoring**.
+- **Plan/apply:** Default **`infra/terraform-pilot`** for profile validation and outputs. Hosted Azure apply is **`infra/apply-saas.ps1 -MultiRoot`** (three operator waves: foundation → platform → app). Landing-zone scripts wrap that entry. Leaf roots keep separate backends; do not Azure-apply composition roots. Optional `state mv` is post-V1 ([`docs/runbooks/TERRAFORM_COMPOSITION_STATE_MV.md`](../runbooks/TERRAFORM_COMPOSITION_STATE_MV.md)).
 - **Drift:** Reconcile manual portal changes back into Terraform or expect the next apply to revert them.
 - **Contracts:** HTTP surface is versioned under `/v1/...`; OpenAPI snapshot tests live in `ArchLucid.Api.Tests`; optional AsyncAPI for outbound webhooks is under `docs/contracts/`.
 - **Image scanning:** CI runs **Trivy** on container images and Terraform directories — extend with registry gates and Defender for Containers per org policy.
-- **CD:** After the stack exists, routine image rollouts are described in **`docs/DEPLOYMENT_CD_PIPELINE.md`** (ACR push + Container App revision updates). Reconcile tfvars image pins when you run **`terraform apply`** so Terraform does not overwrite CLI-pushed tags unintentionally.
+- **CD:** After the stack exists, routine image rollouts are described in **`docs/library/DEPLOYMENT_CD_PIPELINE.md`** (ACR push + Container App revision updates). Reconcile tfvars image pins when you run **`terraform apply`** so Terraform does not overwrite CLI-pushed tags unintentionally.
 
 ## Related docs
 
-- **`docs/REFERENCE_SAAS_STACK_ORDER.md`** — recommended **Terraform apply order** (private networking → data → compute → edge → monitoring).
-- `docs/RTO_RPO_TARGETS.md` — RTO/RPO targets by environment tier (SQL HA, drills).
-- `docs/CONTAINERIZATION.md` — Docker images and local compose.
+- **`docs/library/REFERENCE_SAAS_STACK_ORDER.md`** — hosted 3-wave apply order (`apply-saas.ps1 -MultiRoot`) plus legacy leaf sequence.
+- `docs/library/RTO_RPO_TARGETS.md` — RTO/RPO targets by environment tier (SQL HA, drills).
+- `docs/engineering/CONTAINERIZATION.md` — Docker images and local compose.
 - `infra/terraform/README.md` — APIM-specific variables and OpenAPI import.
-- `docs/API_CONTRACTS.md` — versioning, deprecation, and contract artifacts.
+- `docs/library/API_CONTRACTS.md` — versioning, deprecation, and contract artifacts.
+- `docs/library/LANDING_ZONE_PROVISIONING.md` — landing-zone wrappers around `apply-saas.ps1`.
+- `docs/runbooks/TERRAFORM_COMPOSITION_STATE_MV.md` — optional post-V1 state migration.
