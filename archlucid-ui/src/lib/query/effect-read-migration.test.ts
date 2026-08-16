@@ -85,7 +85,6 @@ const MIGRATION_BACKLOG: readonly string[] = [
   "src/components/wizard/steps/WizardStepAdvanced.tsx",
   "src/hooks/use-admin-prerequisites-readiness.ts",
   "src/hooks/use-prior-same-request-compare-href.ts",
-  "src/hooks/use-workspace-review-duration-estimate.ts",
 ];
 
 const RECORDED_SITES: readonly string[] = [...NON_QUERY_SITES, ...MIGRATION_BACKLOG];
