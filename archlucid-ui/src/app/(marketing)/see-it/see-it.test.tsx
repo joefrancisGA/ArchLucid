@@ -307,6 +307,7 @@ describe("SeeItDeliverablePreview", () => {
 
     expect(preview.tagName).toBe("DIV");
     expect(preview).not.toHaveAttribute("href");
+    expect(screen.getByTestId("see-it-preview-sample-tag")).toHaveTextContent(/Sample data/i);
     expect(screen.getByText(/Sponsor report/i)).toBeInTheDocument();
     expect(screen.getByText(/Audit trail/i)).toBeInTheDocument();
     expect(screen.queryByText(/Healthcare Claims/i)).toBeNull();

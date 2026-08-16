@@ -452,6 +452,9 @@ export const MARKETING_TYPOGRAPHY = {
   formLabel: `${OPERATOR_TYPE_SCALE.body} font-medium text-al-text-primary`,
 } as const;
 
+/** Narrow marketing capture column (~28–30rem) for evaluation signup and similar forms. */
+export const MARKETING_FORM_COLUMN_CLASS = "w-full max-w-[30rem]" as const;
+
 /** Motion-safe marketing entrance — pair with globals `.marketing-reveal-in`. */
 export const MARKETING_MOTION = {
   revealIn: "marketing-reveal-in",

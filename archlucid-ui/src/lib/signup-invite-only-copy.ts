@@ -1,18 +1,26 @@
 /** Invite-only `/signup` copy — controlled evaluation posture (no “private beta” / seat-scarcity framing). */
 
+/** Shared response-time line — referenced once in panel lead and thanks to avoid repetition. */
+export const SIGNUP_INVITE_ONLY_RESPONSE_TIME =
+  "We typically respond within two business days with next steps or an evaluation invitation.";
+
 export const SIGNUP_INVITE_ONLY_PANEL_HEADING = "Evaluation access request";
 
 export const SIGNUP_INVITE_ONLY_PANEL_LEAD =
-  "Enter your work email below. We review each request and send an evaluation workspace invitation when approved—typically within two business days.";
+  "Enter your work email below. We review each request and send an evaluation workspace invitation when approved.";
 
 export const SIGNUP_INVITE_ONLY_FORM_INTRO =
-  "This starts a guided evaluation workspace request—not instant product access, checkout, or a procurement diligence Sources trail.";
+  "This starts a guided evaluation workspace request—not instant product access, checkout, or a procurement diligence trail.";
 
 /** Primary submit — action on filled fields, not a click-to-reveal gate. */
 export const SIGNUP_INVITE_ONLY_SUBMIT_LABEL = "Send evaluation request";
 
-export const SIGNUP_INVITE_ONLY_THANKS =
-  "Thanks. We typically respond within two business days with next steps or an evaluation invitation.";
+export const SIGNUP_INVITE_ONLY_SECONDARY_CTA_LABEL = "See a sample review";
+
+export const SIGNUP_INVITE_ONLY_THANKS = `Thanks. ${SIGNUP_INVITE_ONLY_RESPONSE_TIME}`;
+
+export const SIGNUP_INVITE_ONLY_DATA_USE_LINE =
+  "We use your email to review this request and send evaluation invitations. See our";
 
 export type SignupInviteOnlyOutcome = {
   readonly label: string;
@@ -27,12 +35,12 @@ export const SIGNUP_INVITE_ONLY_OUTCOMES: readonly SignupInviteOnlyOutcome[] = [
   },
   {
     label: "Response time",
-    detail: "Human follow-up within two business days on typical requests.",
+    detail: "Human follow-up on typical requests—see confirmation email for timing.",
   },
 ] as const;
 
 export const SIGNUP_PAGE_INVITE_ONLY_LEAD =
-  "Enter your details to request an evaluation workspace for your organization. When approved, you receive an invitation—typically within two business days.";
+  "Enter your details to request an evaluation workspace for your organization. When approved, you receive an invitation with next steps.";
 
 export type SignupProcessStep = {
   readonly title: string;
@@ -51,7 +59,7 @@ export const SIGNUP_PROCESS_STEPS: readonly SignupProcessStep[] = [
   {
     title: "Human review",
     detail:
-      "We review each request and respond within two business days—approval, follow-up questions, or next steps.",
+      "We review each request and follow up with approval, questions, or next steps.",
   },
   {
     title: "Workspace invitation",
@@ -64,6 +72,9 @@ export const SIGNUP_PROCESS_STEPS: readonly SignupProcessStep[] = [
       "Use your work account or a one-time email code. No checkout or procurement package is required to start.",
   },
 ] as const;
+
+export const SIGNUP_DEMO_PATH_NOTE =
+  "Need a live walkthrough before requesting access? Use Request demo on Pricing for a guided session—this form starts an evaluation workspace, not a sales demo.";
 
 export type SignupAssuranceFact = {
   readonly label: string;

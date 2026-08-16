@@ -36,7 +36,7 @@ const PREVIEW_LAYERS = [
 ] as const;
 
 /**
- * Static deliverable stack for the `/see-it` hero — visual preview only (primary CTA lives in hero).
+ * Static deliverable stack for marketing heroes — visual preview only (primary CTA lives in hero).
  */
 export function SeeItDeliverablePreview(): React.JSX.Element {
   return (
@@ -54,7 +54,12 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
           <p className={cn("m-0 font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
             {CUSTOMER_INTAKE_BUYER_REVIEW_PACKAGE_TITLE}
           </p>
-          <StatusTag kind="approved" className="px-2.5 py-1 text-sm font-semibold" />
+          <StatusTag
+            kind="draft"
+            label="Sample data"
+            className="px-2.5 py-1 text-sm font-semibold"
+            data-testid="see-it-preview-sample-tag"
+          />
         </div>
         <p className={cn("m-0 mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
           Sealed review record · Policy pack · Enterprise customer intake sample
@@ -74,20 +79,11 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
           </p>
         </div>
 
-        <ul className="m-0 list-none space-y-1.5 p-0" aria-label="Package deliverable previews">
+        <ul className="m-0 list-none space-y-1 p-0" aria-label="Package deliverable previews">
           {PREVIEW_LAYERS.map((layer) => (
-            <li
-              key={layer.id}
-              className={cn(
-                "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950/60",
-              )}
-            >
-              <p className={cn("m-0 font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.meta)}>
-                {layer.title}
-              </p>
-              <p className={cn("m-0 mt-0.5 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
-                {layer.detail}
-              </p>
+            <li key={layer.id} className="border-t border-neutral-200/80 pt-2 first:border-t-0 first:pt-0 dark:border-neutral-800/80">
+              <p className={cn("m-0 font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.meta)}>{layer.title}</p>
+              <p className={cn("m-0 mt-0.5 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>{layer.detail}</p>
             </li>
           ))}
         </ul>

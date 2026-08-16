@@ -63,7 +63,6 @@ import {
   SIGNUP_CLAIM_DISCIPLINE,
   SIGNUP_CLAIM_DISCIPLINE_HEADING,
   SIGNUP_SOURCES,
-  SIGNUP_SOURCES_HEADING,
   SIGNUP_SOURCES_INTRO,
 } from "@/lib/signup-evidence-copy";
 import {
@@ -288,15 +287,24 @@ export function ShowcaseEvidenceOrientationStrip({
   );
 }
 
-export function SignupEvidenceOrientationStrip(): React.JSX.Element {
+export function SignupEvidenceOrientationStrip({
+  part,
+}: SplitEvidenceOrientationStripProps = {}): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="signup"
-      margin="mt-8"
+      part={part}
+      margin={
+        part === "sources"
+          ? "mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800"
+          : part === "claim"
+            ? "mb-0"
+            : "mt-8"
+      }
       align="text-left"
-      sourcesTitle={SIGNUP_SOURCES_HEADING}
       sourcesIntro={SIGNUP_SOURCES_INTRO}
       sources={SIGNUP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
       claimHeading={SIGNUP_CLAIM_DISCIPLINE_HEADING}
       claim={SIGNUP_CLAIM_DISCIPLINE}
       claimStyle={EVIDENCE_CLAIM_STYLE.evaluationNeutral}
