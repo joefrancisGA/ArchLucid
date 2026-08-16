@@ -16,10 +16,11 @@ describe("prepareExampleRoiBulletinMarkdownForBuyer", () => {
     expect(prepared).not.toContain("## Related");
     expect(prepared).not.toContain("ROI_MODEL.md");
     expect(prepared).toContain("## Headline numbers");
+    expect(prepared).not.toMatch(/\.md/i);
     expect(prepared).toContain("illustrative sample");
   });
 
-  it("keeps full source in docs sample for Markdown source disclosure", () => {
+  it("keeps full source in docs sample for contributor source disclosure", () => {
     const mdPath = join(process.cwd(), "..", "docs", "go-to-market", "SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md");
     const md = readFileSync(mdPath, "utf8");
 

@@ -16,6 +16,7 @@ import {
   EXAMPLE_ROI_BULLETIN_PRIMARY_CTA_LABEL,
   EXAMPLE_ROI_BULLETIN_SAMPLE_SECTION_LEAD,
   EXAMPLE_ROI_BULLETIN_SAMPLE_SECTION_TITLE,
+  EXAMPLE_ROI_BULLETIN_SOURCE_DISCLOSURE_SUMMARY,
   EXAMPLE_ROI_BULLETIN_SOURCE_DISCLOSURE_TITLE,
   EXAMPLE_ROI_BULLETIN_TRUST_CENTER_CTA_LABEL,
   EXAMPLE_ROI_BULLETIN_TRUST_CENTER_HREF,
@@ -64,8 +65,8 @@ export function ExampleRoiBulletinPageBody(props: ExampleRoiBulletinPageBodyProp
         </div>
       </header>
 
-      <section aria-labelledby="synthetic-md-heading" className={MARKETING_SURFACES.sectionPanel}>
-        <h2 id="synthetic-md-heading" className={cn("m-0", MARKETING_TYPOGRAPHY.sectionTitle)}>
+      <section aria-labelledby="synthetic-sample-heading" className={MARKETING_SURFACES.sectionPanel}>
+        <h2 id="synthetic-sample-heading" className={cn("m-0", MARKETING_TYPOGRAPHY.sectionTitle)}>
           {EXAMPLE_ROI_BULLETIN_SAMPLE_SECTION_TITLE}
         </h2>
         <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
@@ -80,6 +81,7 @@ export function ExampleRoiBulletinPageBody(props: ExampleRoiBulletinPageBodyProp
         </div>
         <CollapsibleSection
           title={EXAMPLE_ROI_BULLETIN_SOURCE_DISCLOSURE_TITLE}
+          summaryLine={EXAMPLE_ROI_BULLETIN_SOURCE_DISCLOSURE_SUMMARY}
           sectionTestId="example-roi-bulletin-source-disclosure"
         >
           <pre

@@ -4,7 +4,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const EXAMPLE_ROI_BULLETIN_CANONICAL_PATH = "/example-roi-bulletin" as const;
 
 export const EXAMPLE_ROI_BULLETIN_SCOPE_DISCLOSURE_BODY =
-  "Synthetic aggregate ROI bulletin Markdown for evaluation orientation — not a signed publication, live tenant ROI, or SQL-sourced aggregate. Real numbers require operator admin preview after at least five qualifying tenants.";
+  "Synthetic aggregate ROI bulletin sample for evaluation orientation — not a signed publication, live tenant ROI, or SQL-sourced aggregate. Real numbers require operator admin preview after at least five qualifying tenants.";
 
 export const EXAMPLE_ROI_BULLETIN_CLAIM_DISCIPLINE = EXAMPLE_ROI_BULLETIN_SCOPE_DISCLOSURE_BODY;
 

@@ -16,7 +16,10 @@ export const EXAMPLE_ROI_BULLETIN_SAMPLE_SECTION_TITLE = "Sample bulletin" as co
 export const EXAMPLE_ROI_BULLETIN_SAMPLE_SECTION_LEAD =
   "Illustrative aggregate baseline bulletin shape — synthetic numbers only, not a signed publication." as const;
 
-export const EXAMPLE_ROI_BULLETIN_SOURCE_DISCLOSURE_TITLE = "View Markdown source" as const;
+export const EXAMPLE_ROI_BULLETIN_SOURCE_DISCLOSURE_TITLE = "View checked-in sample source" as const;
+
+export const EXAMPLE_ROI_BULLETIN_SOURCE_DISCLOSURE_SUMMARY =
+  "Contributor file — may list internal repository doc paths. Buyers should use the rendered sample above." as const;
 
 export const EXAMPLE_ROI_BULLETIN_HERO_LEAD =
   "This page shows the quarterly aggregate baseline bulletin shape procurement reviewers see once enough tenants have captured baselines. Numbers here are illustrative only — not a signed publication or live tenant ROI." as const;

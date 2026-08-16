@@ -9,6 +9,7 @@ import { EXAMPLE_ROI_BULLETIN_PRIMARY_CONTENT_ID } from "@/app/(marketing)/examp
 import { EXAMPLE_ROI_BULLETIN_PAGE_TITLE } from "@/components/marketing/ExampleRoiBulletinPageBody";
 import {
   EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF,
+  EXAMPLE_ROI_BULLETIN_SOURCE_DISCLOSURE_TITLE,
   EXAMPLE_ROI_BULLETIN_TRUST_CENTER_CTA_LABEL,
   EXAMPLE_ROI_BULLETIN_TRUST_CENTER_HREF,
   lastReviewedLabelFromSample,
@@ -72,6 +73,7 @@ describe("example-roi-bulletin marketing page", () => {
     expect(rendered.textContent).toMatch(/Headline numbers/i);
     expect(rendered.textContent).not.toMatch(/FORBIDDEN/i);
     expect(rendered.textContent).not.toMatch(/ROI_MODEL\.md/i);
+    expect(rendered.textContent).not.toMatch(/\.md/i);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByTestId("example-roi-bulletin-source-disclosure")).toBeInTheDocument();
     expect(screen.queryByTestId("example-roi-bulletin-markdown-source")).not.toBeVisible();
@@ -110,11 +112,11 @@ describe("example-roi-bulletin marketing page", () => {
     );
   });
 
-  it("exposes Markdown source inside the view-source disclosure (TB-1519)", () => {
+  it("exposes checked-in source inside the contributor disclosure (TB-1519)", () => {
     render(<ExampleRoiBulletinMarketingPage />);
 
     const disclosure = screen.getByTestId("example-roi-bulletin-source-disclosure");
-    const summary = within(disclosure).getByText("View Markdown source");
+    const summary = within(disclosure).getByText(EXAMPLE_ROI_BULLETIN_SOURCE_DISCLOSURE_TITLE);
 
     fireEvent.click(summary);
 
