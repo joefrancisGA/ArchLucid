@@ -2009,6 +2009,182 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_service_name_is_terraform_source_id_and_relationship_uses_synthetic()
+    {
+        // Agents sometimes copy the inventoried Terraform address into ServiceName. The merge gate then
+        // treats svc-{address} as a known endpoint, but graph merge only aliases svc-{label} unless the
+        // proposed name is recognized as the same node.
+        const string syntheticFromTerraformSourceId = $"svc-{ComputeSourceId}";
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult topology = TopologyResult(
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = ComputeSourceId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    Relationship(sourceId: syntheticFromTerraformSourceId, targetId: DataLabel)
+                ]
+            },
+            resultId: "topology-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == syntheticFromTerraformSourceId && r.TargetId == DataLabel);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_datastore_name_is_terraform_source_id_and_relationship_uses_synthetic()
+    {
+        const string syntheticFromTerraformSourceId = $"ds-{DataSourceId}";
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult topology = TopologyResult(
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = DataSourceId,
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ],
+                AddedRelationships =
+                [
+                    Relationship(sourceId: ComputeLabel, targetId: syntheticFromTerraformSourceId)
+                ]
+            },
+            resultId: "topology-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == ComputeLabel && r.TargetId == syntheticFromTerraformSourceId);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_service_name_is_synthetic_label_and_relationship_uses_service_id()
+    {
+        // Agents often emit ServiceName as svc-{label}. The merge gate treats that synthetic as inventoried,
+        // but overlay matching only treats ServiceId (not ServiceName) as svc-{label}. The extra ServiceId
+        // alias is then never attached, and graph merge drops the edge the gate kept.
+        const string syntheticFromLabel = $"svc-{ComputeLabel}";
+        const string proposedServiceId = "cost-alias-api";
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = ResultFor(
+            AgentType.Cost,
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceId = proposedServiceId,
+                        ServiceName = syntheticFromLabel,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    Relationship(sourceId: proposedServiceId, targetId: DataLabel)
+                ]
+            },
+            resultId: "cost-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == proposedServiceId && r.TargetId == DataLabel);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_datastore_name_is_synthetic_label_and_relationship_uses_datastore_id()
+    {
+        const string syntheticFromLabel = $"ds-{DataLabel}";
+        const string proposedDatastoreId = "cost-alias-sql";
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = ResultFor(
+            AgentType.Cost,
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreId = proposedDatastoreId,
+                        DatastoreName = syntheticFromLabel,
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ],
+                AddedRelationships =
+                [
+                    Relationship(sourceId: ComputeLabel, targetId: proposedDatastoreId)
+                ]
+            },
+            resultId: "cost-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == ComputeLabel && r.TargetId == proposedDatastoreId);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_datastore_node_has_missing_category_but_synthetic_datastore_id_used()
     {
         GraphSnapshot graph = Graph(
