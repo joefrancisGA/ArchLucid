@@ -184,7 +184,6 @@ _AUDIT_UX_SCORES: dict[str, int] = {
     "AUB": 77,
     "AUI": 77,
     "COM": 75,
-    "EXA": 75,
     "ADT": 74,
     "GOC": 74,
     "GLR": 74,

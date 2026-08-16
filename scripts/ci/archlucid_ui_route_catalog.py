@@ -206,7 +206,7 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/product-learning": "/internal/product-learning",
 }
 
-# Hub paths that stay live in the app but are not scored in the owner workbook (tab rows carry Hit%).
+# Hub/live paths that stay in the app but are not scored in the owner workbook.
 # /governance/advisory-scans hub retired (ADV removed); default Scans tab ADT is canonical.
 TRAFFIC_EXCLUDED_APP_ROUTER_PATHS: frozenset[str] = frozenset(
     {
@@ -216,6 +216,7 @@ TRAFFIC_EXCLUDED_APP_ROUTER_PATHS: frozenset[str] = frozenset(
 
 # Paths that must not appear as scored App Router catalog entries (pages gone / never traffic-scored).
 # RER run-scoped artifact Preview App Router shim removed — old bookmarks 404; Preview hrefs are GAR only.
+# /example-roi-bulletin marketing page removed (EXA retired); old bookmarks 404.
 REDIRECT_ONLY_APP_PATHS = frozenset(
     {
         "/advisory",
@@ -225,6 +226,7 @@ REDIRECT_ONLY_APP_PATHS = frozenset(
         "/administration/tenant/recycle-bin",
         "/architecture/reviews/[reviewId]/artifacts/[artifactId]",
         "/demo",
+        "/example-roi-bulletin",
         "/internal/replay",
     }
 )

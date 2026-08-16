@@ -24,7 +24,6 @@ import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigi
 const EXTRA_MARKETING_EXACT_PATHS: readonly string[] = [
   "/faq",
   "/quick-scan",
-  "/example-roi-bulletin",
 ];
 
 const EXTRA_MARKETING_PREFIXES: readonly string[] = ["/showcase/", "/signup/"];

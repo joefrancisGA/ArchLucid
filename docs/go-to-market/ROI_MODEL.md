@@ -502,7 +502,7 @@ Former standalone body: `docs/go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md` �
 | **Percentile bands** | **Mean + p50 + p90** all stay in v1 bulletins |
 | **First publication window** | Opens **once at least one PLG tenant reaches `Status: Published`** in [`reference-customers/README.md`](reference-customers/README.md) (item 19) — the first published reference is the trigger to ship the first bulletin |
 | **Repository of record for sign-off** | **Dedicated tagged section** in [`docs/CHANGELOG.md`](../CHANGELOG.md) — see [Sign-off audit format](#sign-off-audit-format-2026-04-21-owner-qa-follow-up) below for the exact heading shape and `grep` recipe an auditor can run. |
-| **Synthetic shape sample (not sign-off)** | Public Markdown + marketing page: [`SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md`](SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md) and `/example-roi-bulletin` — **never** append to CHANGELOG; no signed heading; illustrates artefact shape before N≥5. |
+| **Synthetic shape sample (not sign-off)** | Public Markdown: [`SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md`](SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md) — **never** append to CHANGELOG; no signed heading; illustrates artefact shape before N≥5. |
 
 ### Minimum-N privacy guard
 

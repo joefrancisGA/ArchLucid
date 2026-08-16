@@ -4,10 +4,6 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  EXAMPLE_ROI_BULLETIN_TRUST_CENTER_CTA_LABEL,
-  EXAMPLE_ROI_BULLETIN_TRUST_CENTER_HREF,
-} from "@/lib/marketing/example-roi-bulletin-honesty";
-import {
   MARKETING_FAQ_DILIGENCE_SECONDARY_CTAS,
   MARKETING_FAQ_NDA_REQUEST_HREF,
 } from "@/lib/marketing/marketing-faq-page-copy";
@@ -57,11 +53,5 @@ describe("marketing copy honesty (TB-2333)", () => {
     expect(ndaCta?.href).toBe(MARKETING_FAQ_NDA_REQUEST_HREF);
     expect(ndaCta?.href).toBe("/trust");
     expect(ndaCta?.href).not.toContain("/administration/");
-  });
-
-  it("aligns ROI bulletin Trust Center CTA label with /trust href", () => {
-    expect(EXAMPLE_ROI_BULLETIN_TRUST_CENTER_HREF).toBe("/trust");
-    expect(EXAMPLE_ROI_BULLETIN_TRUST_CENTER_CTA_LABEL).toBe("Trust Center");
-    expect(EXAMPLE_ROI_BULLETIN_TRUST_CENTER_CTA_LABEL).not.toMatch(/assurance status/i);
   });
 });

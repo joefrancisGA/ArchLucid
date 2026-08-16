@@ -122,7 +122,7 @@ shell — the main work is hygiene (phase 05), not relocation:
 | `/compliance-journey` | — | Category 5 content, kept as marketing-surfaced page |
 | `/privacy` | Privacy policy | — |
 | `/accessibility` | — | — |
-| `/example-roi-bulletin`, `/showcase/[runId]`, `/demo/preview`, `/live-demo` | Public demo/example surfaces | Confirm `noindex` + not linked to `/why-archlucid` or `/demo/explain` (phase 05) |
+| `/showcase/[runId]`, `/demo/preview`, `/live-demo` | Public demo/example surfaces | Confirm `noindex` + not linked to `/why-archlucid` or `/demo/explain` (phase 05) |
 
 **Request demo** is currently a CTA inside `/pricing` (`MarketingPricingQuotePanel.tsx`), not a
 standalone route — leave as-is unless phase 05 finds a reason to split it out.
@@ -190,7 +190,7 @@ Public (unauthenticated) — Marketing (Category 4)
 ├── /security-trust              Public security overview (Category 5, marketing-surfaced)
 ├── /compliance-journey          Category 5, marketing-surfaced
 ├── /privacy, /accessibility
-└── /example-roi-bulletin, /showcase/[runId], /demo/preview, /live-demo   Public demo/example (noindex)
+└── /showcase/[runId], /demo/preview, /live-demo   Public demo/example (noindex)
 
 Authenticated app shell (operator + executive route groups — not a "content" category, consumes Category 1)
 ├── /  (home), /onboarding, /reviews/*, /dashboard, /graph, /ask, /search, /compare, /replay,

@@ -16,10 +16,6 @@ describe("MARKETING_SITEMAP_PATHNAMES", () => {
     }
   });
 
-  it("includes the indexable example ROI bulletin after buyer rewrite (TB-1518)", () => {
-    expect(MARKETING_SITEMAP_PATHNAMES).toContain("/example-roi-bulletin");
-  });
-
   it("includes the indexable Product FAQ page", () => {
     expect(MARKETING_SITEMAP_PATHNAMES).toContain("/faq");
   });

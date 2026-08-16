@@ -30,10 +30,6 @@ import {
   COMPLIANCE_JOURNEY_SOURCES,
   COMPLIANCE_JOURNEY_SOURCES_INTRO,
 } from "@/lib/compliance-journey-evidence-copy";
-import {
-  EXAMPLE_ROI_BULLETIN_SOURCES,
-  EXAMPLE_ROI_BULLETIN_SOURCES_INTRO,
-} from "@/lib/example-roi-bulletin-evidence-copy";
 import { FAQ_CLAIM_DISCIPLINE, FAQ_SOURCES, FAQ_SOURCES_INTRO } from "@/lib/faq-evidence-copy";
 import {
   GET_STARTED_SOURCES,
@@ -154,22 +150,6 @@ export function ComplianceJourneyEvidenceOrientationStrip(): React.JSX.Element {
       align="text-left"
       sourcesIntro={COMPLIANCE_JOURNEY_SOURCES_INTRO}
       sources={COMPLIANCE_JOURNEY_SOURCES}
-      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
-      claimHeading=""
-      claim=""
-    />
-  );
-}
-
-export function ExampleRoiBulletinEvidenceOrientationStrip(): React.JSX.Element {
-  return (
-    <EvidenceOrientationSourcesAndClaimStrip
-      slug="example-roi-bulletin"
-      part="sources"
-      margin="mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800"
-      align="text-left"
-      sourcesIntro={EXAMPLE_ROI_BULLETIN_SOURCES_INTRO}
-      sources={EXAMPLE_ROI_BULLETIN_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
       claimHeading=""
       claim=""

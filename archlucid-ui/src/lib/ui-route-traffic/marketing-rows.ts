@@ -32,14 +32,6 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     noteMustContain: ["CompareForm", "Score 68", "cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
   },
-  /** Traffic workbook row ID for example-roi-bulletin marketing page. Owner backlog shorthand: EXA. */
-  {
-    rowId: "EXA",
-    path: "/example-roi-bulletin",
-    section: "Marketing",
-    note: "Example ROI bulletin (Marketing) - ExampleRoiBulletinMarketingPage with skip link, hero last-reviewed meta, demoted What this page is not disclosure, revision history, value-first hero copy, buyer-safe sample prep (no duplicate H1, repo preamble, or .md file references in rendered sample), shortened sample table notes, Sources-only ExampleRoiBulletinEvidenceOrientationStrip footer (amber claim callout removed), checked-in source disclosure with contributor path warning, and admin-only preview gate behind operator disclosure. robots indexable (TB-1520). Not an operator PageContextualHelp surface. Sibling SPE = sponsor-report#pilot-roi-measurement. Score 58/100 Evidence (marketing synthetic ceiling); UX 68/100 (2026-08-15) after markdown-reference cleanup. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["ExampleRoiBulletinEvidenceOrientationStrip", "Sources", "cannot improve further toward 80"],
-  },
   /** Traffic workbook row ID for Product FAQ marketing page. Owner backlog shorthand: FXX. */
   {
     rowId: "FXX",

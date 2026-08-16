@@ -80,7 +80,6 @@ Do once. Variants are mostly static or form-state, not inventory empty/full.
 | [ ] | `/get-started` | |
 | [ ] | `/quick-scan` | Form: primary CTA disabled until required fields valid (TB-2005). |
 | [ ] | `/see-it` | Demo preview spine. Honesty: not a live tenant session. |
-| [ ] | `/example-roi-bulletin` | |
 | [ ] | `/signup` | |
 | [ ] | `/signup/verify` | |
 | [ ] | `/showcase/{runId}` | Static sample when published. |

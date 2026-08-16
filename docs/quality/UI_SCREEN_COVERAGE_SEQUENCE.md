@@ -52,7 +52,6 @@ Do once. Variants are mostly static or form-state, not inventory empty/full.
 | [ ] | `/live-demo` | |
 | [ ] | `/see-it` | Demo preview spine |
 | [ ] | `/demo/preview` | |
-| [ ] | `/example-roi-bulletin` | |
 | [ ] | `/signup` | |
 | [ ] | `/signup/verify` | |
 | [ ] | `/showcase/{runId}` | Static sample when published |

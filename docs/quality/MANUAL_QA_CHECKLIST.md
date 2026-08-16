@@ -557,7 +557,6 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Marketing live demo** | `/live-demo` | [ ] |
 | **Marketing quick scan** | `/quick-scan` | [ ] |
 | **Marketing showcase** | `/showcase/{runId}` | [ ] |
-| **Marketing example ROI bulletin** | `/example-roi-bulletin` | [ ] |
 | **Marketing accessibility** | `/accessibility` | [ ] |
 | **Marketing privacy** | `/privacy` | [ ] |
 | **Signup** | `/signup` | [ ] |
@@ -800,7 +799,6 @@ These pages are **not** linked from operator home `/`. Reach them by signing out
 | Live demo | `/live-demo` | Marketing campaigns. |
 | Quick scan | `/quick-scan` | Marketing CTA. |
 | Showcase | `/showcase/{runId}` | Shared demo links (`/showcase/claims-intake-modernization`). |
-| Example ROI bulletin | `/example-roi-bulletin` | Marketing sample download page. |
 | Accessibility | `/accessibility` | Marketing footer. |
 | Privacy | `/privacy` | Marketing footer. |
 | Signup | `/signup` | Marketing **Start free trial**. |

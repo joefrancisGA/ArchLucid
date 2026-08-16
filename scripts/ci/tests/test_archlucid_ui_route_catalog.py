@@ -149,6 +149,11 @@ def test_build_catalog_does_not_track_retired_advisory_scans_hub() -> None:
     assert "/governance/advisory-scans" not in catalog
 
 
+def test_build_catalog_does_not_track_example_roi_bulletin() -> None:
+    catalog = build_catalog()
+    assert "/example-roi-bulletin" not in catalog
+
+
 def test_migrate_workbook_path_maps_legacy_tenant_settings_bookmarks() -> None:
     assert migrate_workbook_path("/administration/tenant") == "/administration/workspace-settings"
     assert (
