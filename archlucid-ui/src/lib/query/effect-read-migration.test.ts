@@ -54,7 +54,6 @@ const MIGRATION_BACKLOG: readonly string[] = [
   "src/app/(operator)/why-archlucid/_sections/WhyArchLucidPage.tsx",
   "src/components/advisory/CronExpressionBuilder.tsx",
   "src/components/architecture/ArchitectureDraftWorkspace.tsx",
-  "src/components/BeforeAfterDeltaPanel.tsx",
   "src/components/dashboard/ExecutiveRoiDashboard.tsx",
   "src/components/digests/DigestsBrowseContent.tsx",
   "src/components/digests/DigestSubscriptionCreateForm.tsx",
