@@ -29,10 +29,10 @@ type HelpFieldProps = {
 function HelpField({ label, body, action, actionTestId }: HelpFieldProps) {
   return (
     <div className="space-y-0.5">
-      <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn(OPERATOR_TYPOGRAPHY.helper, "m-0 font-medium text-al-text-primary")}>
         {label}
       </p>
-      <p className={cn("m-0 text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{body}</p>
+      <p className={cn(OPERATOR_TYPOGRAPHY.helper, "m-0")}>{body}</p>
       {action != null ? (
         <p className={cn("m-0 pt-0.5", OPERATOR_TYPOGRAPHY.helper)}>
           <Link

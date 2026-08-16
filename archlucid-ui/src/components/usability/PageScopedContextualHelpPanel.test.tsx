@@ -67,6 +67,24 @@ describe("PageScopedContextualHelpPanel", () => {
     expect(learnMore).toHaveAttribute("href", "/help/review-packages");
   });
 
+  it("keeps field headings medium and primary after helper token merge", async () => {
+    render(
+      <PageScopedContextualHelpPanel
+        entry={FULL_ENTRY}
+        triggerLabel="Reviews"
+        learnMoreHref="/help/review-packages"
+      />,
+    );
+
+    pressTrigger();
+
+    const heading = await screen.findByText("What is this page?");
+
+    expect(heading).toHaveClass("font-medium", "text-al-text-primary");
+    expect(heading).not.toHaveClass("font-normal");
+    expect(heading).not.toHaveClass("text-al-text-secondary");
+  });
+
   it("omits optional fields and learn more when absent", async () => {
     render(
       <PageScopedContextualHelpPanel entry={MINIMAL_ENTRY} triggerLabel="Fallback" learnMoreHref={null} />,
