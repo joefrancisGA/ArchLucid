@@ -16,6 +16,6 @@ describe("START_HERE core pilot links", () => {
   });
 
   it("keeps sponsor brief on the four-step path", () => {
-    expect(startHere).toMatch(/SPONSOR_SPONSOR_BRIEF\.md/);
+    expect(startHere).toMatch(/EXECUTIVE_SPONSOR_BRIEF\.md/);
   });
 });

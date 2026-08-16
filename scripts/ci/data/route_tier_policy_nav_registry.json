@@ -2,6 +2,16 @@
   "version": 1,
   "entries": [
     {
+      "controller_file": "Admin/AdminAgentModelCatalogController.cs",
+      "class_name": "AdminAgentModelCatalogController",
+      "route_template": "v{version:apiVersion}/admin/agent-model-catalog",
+      "normalized_prefix": "/v1/admin/agent-model-catalog",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminAiUsageDashboardController.cs",
       "class_name": "AdminAiUsageDashboardController",
       "route_template": "v{version:apiVersion}/admin",
@@ -29,6 +39,16 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": "auth_debug_api",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/AdminAzureOpenAiConnectionController.cs",
+      "class_name": "AdminAzureOpenAiConnectionController",
+      "route_template": "v{version:apiVersion}/admin/settings/azure-openai-connection",
+      "normalized_prefix": "/v1/admin/settings/azure-openai-connection",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
       "nav_operator_href": null
     },
     {
@@ -116,6 +136,26 @@
       "class_name": "AdminLlmMonthlyDollarBudgetStatusController",
       "route_template": "v{version:apiVersion}/admin",
       "normalized_prefix": "/v1/admin",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/AdminPlatformBundledPolicyPacksController.cs",
+      "class_name": "AdminPlatformBundledPolicyPacksController",
+      "route_template": "v{version:apiVersion}/admin/platform-bundled-policy-packs",
+      "normalized_prefix": "/v1/admin/platform-bundled-policy-packs",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/AdminPrerequisitesController.cs",
+      "class_name": "AdminPrerequisitesController",
+      "route_template": "v{version:apiVersion}/admin/prerequisites",
+      "normalized_prefix": "/v1/admin/prerequisites",
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
@@ -982,6 +1022,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Authority/RunDetailPageBundleController.cs",
+      "class_name": "RunDetailPageBundleController",
+      "route_template": "v{version:apiVersion}/authority/reviews/{runId:guid}",
+      "normalized_prefix": "/v1/authority/reviews/{runId:guid}",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/RunQueryController.cs",
       "class_name": "RunQueryController",
       "route_template": "v{version:apiVersion}/architecture",
@@ -1262,6 +1312,16 @@
       "nav_operator_href": "/governance/standards-and-rules"
     },
     {
+      "controller_file": "Governance/GovernanceSetupController.cs",
+      "class_name": "GovernanceSetupController",
+      "route_template": "v{version:apiVersion}/governance",
+      "normalized_prefix": "/v1/governance",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Governance/GovernanceStickinessController.cs",
       "class_name": "GovernanceStickinessController",
       "route_template": "v{version:apiVersion}/governance",
@@ -1338,6 +1398,16 @@
       "normalized_prefix": "/v1/integrations/itsm/outbound/issues",
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Integrations/ItsmProviderIntegrationPageController.cs",
+      "class_name": "ItsmProviderIntegrationPageController",
+      "route_template": "v{version:apiVersion}/integrations/itsm",
+      "normalized_prefix": "/v1/integrations/itsm",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -1512,6 +1582,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Notifications/ExecDigestSponsorDeepLinkController.cs",
+      "class_name": "ExecDigestSponsorDeepLinkController",
+      "route_template": "v{version:apiVersion}/notifications/exec-digest",
+      "normalized_prefix": "/v1/notifications/exec-digest",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Notifications/ExecDigestUnsubscribeController.cs",
       "class_name": "ExecDigestUnsubscribeController",
       "route_template": "v{version:apiVersion}/notifications/exec-digest",
@@ -1522,13 +1602,13 @@
       "nav_operator_href": null
     },
     {
-      "controller_file": "Notifications/ExecDigestSponsorDeepLinkController.cs",
-      "class_name": "ExecDigestSponsorDeepLinkController",
-      "route_template": "v{version:apiVersion}/notifications/exec-digest",
-      "normalized_prefix": "/v1/notifications/exec-digest",
+      "controller_file": "Notifications/SponsorDigestUnsubscribeController.cs",
+      "class_name": "SponsorDigestUnsubscribeController",
+      "route_template": "v{version:apiVersion}/notifications/sponsor-digest",
+      "normalized_prefix": "/v1/notifications/sponsor-digest",
       "commercial_tier": "none",
       "class_policy": "AllowAnonymous",
-      "exemption": "signed_token_sponsor_view",
+      "exemption": null,
       "nav_operator_href": null
     },
     {
@@ -1536,6 +1616,16 @@
       "class_name": "OperatorSavedViewsController",
       "route_template": "v{version:apiVersion}/operator/saved-views",
       "normalized_prefix": "/v1/operator/saved-views",
+      "commercial_tier": "standard",
+      "class_policy": "AuthenticatedUserOnly",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Operator/OperatorShellStatusController.cs",
+      "class_name": "OperatorShellStatusController",
+      "route_template": "v{version:apiVersion}/operator/shell-status",
+      "normalized_prefix": "/v1/operator/shell-status",
       "commercial_tier": "standard",
       "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
@@ -1672,7 +1762,7 @@
       "nav_operator_href": null
     },
     {
-      "controller_file": "Reports/SponsorReportController.cs",
+      "controller_file": "Reports/SponsorSummaryController.cs",
       "class_name": "SponsorReportController",
       "route_template": "v{version:apiVersion}/reports/sponsor-report",
       "normalized_prefix": "/v1/reports/sponsor-report",
@@ -1860,6 +1950,16 @@
       "class_policy": "Authorize",
       "exemption": null,
       "nav_operator_href": "/insights/sponsor-report"
+    },
+    {
+      "controller_file": "Tenancy/TenantSponsorDigestPreferencesController.cs",
+      "class_name": "TenantSponsorDigestPreferencesController",
+      "route_template": "v{version:apiVersion}/tenant",
+      "normalized_prefix": "/v1/tenant",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
     },
     {
       "controller_file": "Tenancy/TenantTrialController.cs",

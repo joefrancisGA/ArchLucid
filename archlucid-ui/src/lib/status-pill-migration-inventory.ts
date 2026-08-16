@@ -24,6 +24,7 @@ export const TB_2288_DEFERRED_AD_HOC_PILL_MODULES = [
   "app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardProtocolSelector.tsx",
   "components/alerts/AlertsOutstandingNavBadge.tsx",
   "components/governance/GovernanceReviewsAwaitingNavBadge.tsx",
+  "components/governance/findings/GovernanceAssignedToMeFindingsNavBadge.tsx",
   "components/cto-demo/CtoDemoSimulatorTrustBadge.tsx",
   "components/cto-demo/CtoDemoDataSourceBadge.tsx",
   "components/EmailRunToSponsorBanner.tsx",
