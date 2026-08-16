@@ -211,7 +211,9 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
 
       {golden !== null ? (
         <CompareQualityDeltaPanel
-          counts={deriveCompareQualityDeltaFromGolden(golden)}
+          counts={
+            findingCorrelationState.compareQualityDelta ?? deriveCompareQualityDeltaFromGolden(golden)
+          }
           newFindingTrustLanes={newFindingTrustLanes}
         />
       ) : null}

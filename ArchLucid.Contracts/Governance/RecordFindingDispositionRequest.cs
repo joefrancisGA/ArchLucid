@@ -29,6 +29,13 @@ public sealed class RecordFindingDispositionRequest
         init;
     }
 
+    /// <summary>Explicit trade-off narrative required when disposition is Accepted (assessment item 51).</summary>
+    public string? TradeOffAcknowledgment
+    {
+        get;
+        init;
+    }
+
     public DateTimeOffset? RevisitDueUtc
     {
         get;

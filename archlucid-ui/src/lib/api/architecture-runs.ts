@@ -567,6 +567,7 @@ type EndToEndReplayComparisonWireResponse = {
     readonly findingCorrelation?: unknown;
     readonly findingLifecycle?: unknown;
     readonly findingLifecycleRecords?: unknown;
+    readonly compareQualityDelta?: unknown;
   } | null;
 };
 

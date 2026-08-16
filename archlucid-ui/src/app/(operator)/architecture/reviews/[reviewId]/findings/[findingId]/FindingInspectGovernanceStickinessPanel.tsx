@@ -241,6 +241,10 @@ export function FindingInspectGovernanceStickinessPanel({
         disposition,
         rationale: rationale.trim().length > 0 ? rationale.trim() : undefined,
         runId,
+        tradeOffAcknowledgment:
+          disposition === "Accepted" && tradeOffAcknowledgment.trim().length > 0
+            ? tradeOffAcknowledgment.trim()
+            : undefined,
         revisitDueUtc: disposition === "Deferred" && revisitDueUtc.trim().length > 0 ? revisitDueUtc : undefined,
         evidenceRequestText:
           disposition === "NeedsEvidence" && evidenceRequestText.trim().length > 0

@@ -39,7 +39,7 @@ public sealed class FindingDispositionService(
             FindingId = request.FindingId.Trim(),
             ReviewerUserId = reviewerUserId.Trim(),
             Action = FindingReviewAction.RecordDisposition,
-            Notes = request.Rationale,
+            Notes = BuildDispositionNotes(request),
             OccurredAtUtc = TimeProvider.System.UtcNowDateTime(),
             RunId = request.RunId,
             Disposition = request.Disposition,
@@ -77,6 +77,22 @@ public sealed class FindingDispositionService(
         }
 
         return result;
+    }
+
+    private static string? BuildDispositionNotes(RecordFindingDispositionRequest request)
+    {
+        string? rationale = string.IsNullOrWhiteSpace(request.Rationale) ? null : request.Rationale.Trim();
+        string? tradeOff = string.IsNullOrWhiteSpace(request.TradeOffAcknowledgment)
+            ? null
+            : request.TradeOffAcknowledgment.Trim();
+
+        if (tradeOff is null)
+            return rationale;
+
+        if (rationale is null)
+            return $"Trade-off accepted: {tradeOff}";
+
+        return $"{rationale}\n\nTrade-off accepted: {tradeOff}";
     }
 
     internal static FindingDispositionEventDto ToDto(FindingReviewEventRecord record)

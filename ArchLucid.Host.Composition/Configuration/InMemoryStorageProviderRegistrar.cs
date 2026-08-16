@@ -15,7 +15,6 @@ using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.ContextIngestion.Repositories;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.Analytics;
-using ArchLucid.Contracts.Analytics;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Authority;

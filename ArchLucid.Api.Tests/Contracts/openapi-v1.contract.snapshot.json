@@ -10940,6 +10940,43 @@
         },
         "type": "object"
       },
+      "CompareQualityDeltaCounts": {
+        "properties": {
+          "evidenceBackedDecisionsAfter": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "evidenceBackedDecisionsBefore": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "highSeverityAfter": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "highSeverityBefore": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "uncoveredMandatoryAfter": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "uncoveredMandatoryBefore": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unsupportedAssumptionsAfter": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unsupportedAssumptionsBefore": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "EndToEndReplayComparisonReport": {
         "properties": {
           "agentResultDiff": {
@@ -10983,6 +11020,16 @@
               "$ref": "#/components/schemas/CrossReviewFindingLifecycleRecord"
             },
             "type": "array"
+          },
+          "compareQualityDelta": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CompareQualityDeltaCounts"
+              }
+            ]
           },
           "interpretationNotes": {
             "items": {
@@ -22879,6 +22926,12 @@
             "type": "string"
           },
           "rationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tradeOffAcknowledgment": {
             "type": [
               "null",
               "string"

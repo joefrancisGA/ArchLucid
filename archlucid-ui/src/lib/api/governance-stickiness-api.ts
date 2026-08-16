@@ -242,6 +242,7 @@ export async function recordFindingDisposition(
     runId: string;
     revisitDueUtc?: string;
     evidenceRequestText?: string;
+    tradeOffAcknowledgment?: string;
   },
   options?: { readonly idempotencyKey?: string },
 ): Promise<FindingDispositionEvent> {

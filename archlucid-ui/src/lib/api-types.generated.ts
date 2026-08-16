@@ -98432,8 +98432,27 @@ export interface components {
             fileName?: string;
             format?: string;
         };
+        CompareQualityDeltaCounts: {
+            /** Format: int32 */
+            evidenceBackedDecisionsAfter?: number;
+            /** Format: int32 */
+            evidenceBackedDecisionsBefore?: number;
+            /** Format: int32 */
+            highSeverityAfter?: number;
+            /** Format: int32 */
+            highSeverityBefore?: number;
+            /** Format: int32 */
+            uncoveredMandatoryAfter?: number;
+            /** Format: int32 */
+            uncoveredMandatoryBefore?: number;
+            /** Format: int32 */
+            unsupportedAssumptionsAfter?: number;
+            /** Format: int32 */
+            unsupportedAssumptionsBefore?: number;
+        };
         EndToEndReplayComparisonReport: {
             agentResultDiff?: null | components["schemas"]["AgentResultDiffResult"];
+            compareQualityDelta?: null | components["schemas"]["CompareQualityDeltaCounts"];
             exportDiffs?: components["schemas"]["ExportRecordDiffResult"][];
             findingCorrelation?: null | components["schemas"]["ComparisonFindingCorrelationMetadata"];
             findingLifecycle?: null | components["schemas"]["CrossReviewFindingLifecycleSummary"];
@@ -101985,6 +102004,7 @@ export interface components {
             evidenceRequestText?: null | string;
             findingId: string;
             rationale?: null | string;
+            tradeOffAcknowledgment?: null | string;
             /** Format: date-time */
             revisitDueUtc?: null | string;
             /** Format: uuid */

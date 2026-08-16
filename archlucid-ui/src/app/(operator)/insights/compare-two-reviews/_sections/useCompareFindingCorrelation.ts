@@ -13,6 +13,7 @@ import {
   type CompareFindingLifecycleRecord,
   type CompareFindingLifecycleSummary,
 } from "@/lib/compare-finding-lifecycle";
+import { coerceCompareQualityDeltaCounts, type CompareQualityDeltaCounts } from "@/lib/review-quality/compare-quality-delta";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 
 export type CompareFindingCorrelationLoadState = {
@@ -20,6 +21,7 @@ export type CompareFindingCorrelationLoadState = {
   readonly metadata: CompareFindingCorrelationMetadata | null;
   readonly lifecycle: CompareFindingLifecycleSummary | null;
   readonly lifecycleRecords: readonly CompareFindingLifecycleRecord[];
+  readonly compareQualityDelta: CompareQualityDeltaCounts | null;
   readonly softFailureMessage: string | null;
 };
 
@@ -34,6 +36,7 @@ export function useCompareFindingCorrelation(
   const [metadata, setMetadata] = useState<CompareFindingCorrelationMetadata | null>(null);
   const [lifecycle, setLifecycle] = useState<CompareFindingLifecycleSummary | null>(null);
   const [lifecycleRecords, setLifecycleRecords] = useState<readonly CompareFindingLifecycleRecord[]>([]);
+  const [compareQualityDelta, setCompareQualityDelta] = useState<CompareQualityDeltaCounts | null>(null);
   const [softFailureMessage, setSoftFailureMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,6 +48,7 @@ export function useCompareFindingCorrelation(
       setMetadata(null);
       setLifecycle(null);
       setLifecycleRecords([]);
+      setCompareQualityDelta(null);
       setSoftFailureMessage(null);
       return;
     }
@@ -54,6 +58,7 @@ export function useCompareFindingCorrelation(
       setMetadata(null);
       setLifecycle(null);
       setLifecycleRecords([]);
+      setCompareQualityDelta(null);
       setSoftFailureMessage(null);
       return;
     }
@@ -64,6 +69,7 @@ export function useCompareFindingCorrelation(
     setMetadata(null);
     setLifecycle(null);
     setLifecycleRecords([]);
+    setCompareQualityDelta(null);
     setSoftFailureMessage(null);
 
     async function load(): Promise<void> {
@@ -77,6 +83,7 @@ export function useCompareFindingCorrelation(
             setMetadata(null);
             setLifecycle(null);
             setLifecycleRecords([]);
+            setCompareQualityDelta(null);
             setSoftFailureMessage("finding correlation metadata");
           } else {
             setMetadata(nextMetadata);
@@ -84,6 +91,7 @@ export function useCompareFindingCorrelation(
             setLifecycleRecords(
               coerceCompareFindingLifecycleRecords(response.report?.findingLifecycleRecords ?? null),
             );
+            setCompareQualityDelta(coerceCompareQualityDeltaCounts(response.report?.compareQualityDelta ?? null));
             setSoftFailureMessage(null);
           }
 
@@ -94,6 +102,7 @@ export function useCompareFindingCorrelation(
           setMetadata(null);
           setLifecycle(null);
           setLifecycleRecords([]);
+          setCompareQualityDelta(null);
           setSoftFailureMessage("finding correlation metadata");
           setLoading(false);
         }
@@ -107,5 +116,5 @@ export function useCompareFindingCorrelation(
     };
   }, [baselineRunId, targetRunId]);
 
-  return { loading, metadata, lifecycle, lifecycleRecords, softFailureMessage };
+  return { loading, metadata, lifecycle, lifecycleRecords, compareQualityDelta, softFailureMessage };
 }

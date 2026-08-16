@@ -3,6 +3,7 @@ using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -32,6 +33,7 @@ public sealed class EndToEndReplayComparisonServiceTests
     private readonly Mock<IRunRepository> _runRepository = new();
     private readonly Mock<IFindingReviewTrailRepository> _reviewTrailRepository = new();
     private readonly Mock<IScopeContextProvider> _scopeContextProvider = new();
+    private readonly Mock<IArchitectureIntelligencePersistence> _architectureIntelligencePersistence = new();
     private readonly EndToEndReplayComparisonService _sut;
 
     public EndToEndReplayComparisonServiceTests()
@@ -44,6 +46,12 @@ public sealed class EndToEndReplayComparisonServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         _scopeContextProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext());
+        _architectureIntelligencePersistence
+            .Setup(persistence => persistence.GetModelByRunIdAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureKnowledgeModel?)null);
         _sut = new EndToEndReplayComparisonService(
             _runDetailQueryService.Object,
             _runRepository.Object,
@@ -53,6 +61,7 @@ public sealed class EndToEndReplayComparisonServiceTests
             _exportDiff.Object,
             new ArchLucid.Application.Findings.CrossReviewFindingCorrelationService(),
             new ArchLucid.Application.Findings.CrossReviewFindingLifecycleService(_reviewTrailRepository.Object),
+            _architectureIntelligencePersistence.Object,
             _scopeContextProvider.Object);
     }
 

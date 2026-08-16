@@ -1,6 +1,7 @@
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Runs;
@@ -33,6 +34,7 @@ public sealed class EndToEndReplayComparisonService(
     IExportRecordDiffService exportRecordDiffService,
     ICrossReviewFindingCorrelationService crossReviewFindingCorrelationService,
     ICrossReviewFindingLifecycleService crossReviewFindingLifecycleService,
+    IArchitectureIntelligencePersistence architectureIntelligencePersistence,
     IScopeContextProvider scopeContextProvider) : IEndToEndReplayComparisonService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -56,6 +58,9 @@ public sealed class EndToEndReplayComparisonService(
 
     private readonly ICrossReviewFindingLifecycleService _crossReviewFindingLifecycleService =
         crossReviewFindingLifecycleService ?? throw new ArgumentNullException(nameof(crossReviewFindingLifecycleService));
+
+    private readonly IArchitectureIntelligencePersistence _architectureIntelligencePersistence =
+        architectureIntelligencePersistence ?? throw new ArgumentNullException(nameof(architectureIntelligencePersistence));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -122,8 +127,37 @@ public sealed class EndToEndReplayComparisonService(
             rightFindings);
         report.FindingCorrelation = ComparisonFindingCorrelationMetadataBuilder.Build(correlation);
         await AddFindingLifecycleAsync(report, leftRun, leftFindings, rightFindings, leftResults, rightResults, correlation, cancellationToken);
+        await AddCompareQualityDeltaAsync(
+            report,
+            leftRunId,
+            rightRunId,
+            leftFindings,
+            rightFindings,
+            cancellationToken);
 
         return report;
+    }
+
+    private async Task AddCompareQualityDeltaAsync(
+        EndToEndReplayComparisonReport report,
+        string leftRunId,
+        string rightRunId,
+        IReadOnlyList<ArchitectureFinding> leftFindings,
+        IReadOnlyList<ArchitectureFinding> rightFindings,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string tenantId = scope.TenantId.ToString();
+        ArchitectureKnowledgeModel? leftModel =
+            await _architectureIntelligencePersistence.GetModelByRunIdAsync(tenantId, leftRunId, cancellationToken);
+        ArchitectureKnowledgeModel? rightModel =
+            await _architectureIntelligencePersistence.GetModelByRunIdAsync(tenantId, rightRunId, cancellationToken);
+
+        report.CompareQualityDelta = CompareQualityDeltaCalculator.Build(
+            leftModel,
+            leftFindings,
+            rightModel,
+            rightFindings);
     }
 
     /// <summary>
