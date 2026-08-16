@@ -35,16 +35,13 @@ export function AuthFlowShell({
   return (
     <div className="w-full text-al-text-primary" data-testid="auth-flow-shell">
       <div className="mx-auto flex w-full max-w-[520px] flex-col px-4 sm:px-6">
-        <header className="flex flex-col gap-2">
+        <header>
           <ArchLucidWordmarkLink
             href={publicSiteHref("/welcome")}
             aria-label="ArchLucid — welcome"
             variant="marketing"
             className="self-start"
           />
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Architecture review workspace
-          </p>
         </header>
 
         {hasReturnDestination ? (

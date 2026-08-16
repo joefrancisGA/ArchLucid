@@ -16,7 +16,7 @@ describe("AuthFlowShell", () => {
     expect(screen.getByTestId("auth-flow-panel")).toBeInTheDocument();
     expect(screen.getByText("Sign-in content")).toBeInTheDocument();
     expect(screen.getByLabelText("ArchLucid — welcome")).toBeInTheDocument();
-    expect(screen.getByText(/Architecture review workspace/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Architecture review workspace/i)).not.toBeInTheDocument();
     expect(screen.getByText(/does not use a product password/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Start an evaluation/i })).toHaveAttribute(
       "href",
