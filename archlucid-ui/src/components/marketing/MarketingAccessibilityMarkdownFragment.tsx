@@ -1,5 +1,12 @@
 import { cn } from "@/lib/utils";
-import { MARKETING_SURFACES, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  MARKETING_SURFACES,
+  MARKETING_TYPOGRAPHY,
+  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_LINK,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -290,6 +297,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
   const isHelp = props.presentation === "help";
   const isPrivacy = props.presentation === "privacy";
+  const isMarketingPresentation = props.presentation === "marketing";
   const isEngineeringTroubleshooting = props.helpTopicSlug === "engineering-troubleshooting";
   const isCaiqSigResponse = isHelp && isCaiqSigResponseHelpTopic(props.helpTopicSlug);
   const isSecurityTrustHelp = isHelp && isSecurityTrustHelpTopic(props.helpTopicSlug);
@@ -306,11 +314,13 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       ? isCaiqSigResponse
         ? HELP_PAGE_LAYOUT.compactSectionH2
         : HELP_PAGE_LAYOUT.sectionH2
-      : cn(
-          OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-          "mt-8 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50",
-          OPERATOR_TYPOGRAPHY.pageTitle,
-        );
+      : isMarketingPresentation
+        ? cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-8", MARKETING_TYPOGRAPHY.sectionTitle)
+        : cn(
+            OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+            "mt-8 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50",
+            OPERATOR_TYPOGRAPHY.pageTitle,
+          );
   const h3Class = isPrivacy
     ? PRIVACY_POLICY_PROSE.sectionH3
     : isHelp

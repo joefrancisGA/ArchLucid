@@ -8,11 +8,11 @@ import {
 } from "@/lib/example-roi-bulletin-evidence-copy";
 
 describe("ExampleRoiBulletinEvidenceOrientationStrip", () => {
-  it("lists follow-up Sources without self-linking example ROI bulletin", () => {
+  it("lists follow-up Sources without self-linking example ROI bulletin or amber claim callout", () => {
     render(<ExampleRoiBulletinEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("example-roi-bulletin-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("example-roi-bulletin-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("example-roi-bulletin-claim-discipline")).toBeNull();
 
     for (const link of EXAMPLE_ROI_BULLETIN_SOURCES) {
       expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);

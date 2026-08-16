@@ -5,11 +5,15 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import ExampleRoiBulletinMarketingPage from "@/app/(marketing)/example-roi-bulletin/page";
+import { EXAMPLE_ROI_BULLETIN_PRIMARY_CONTENT_ID } from "@/app/(marketing)/example-roi-bulletin/example-roi-bulletin-page-content";
 import { EXAMPLE_ROI_BULLETIN_PAGE_TITLE } from "@/components/marketing/ExampleRoiBulletinPageBody";
 import {
   EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF,
+  EXAMPLE_ROI_BULLETIN_TRUST_CENTER_CTA_LABEL,
   EXAMPLE_ROI_BULLETIN_TRUST_CENTER_HREF,
+  lastReviewedLabelFromSample,
 } from "@/lib/marketing/example-roi-bulletin-honesty";
+import { loadSampleAggregateRoiBulletinSyntheticMarkdown } from "@/marketing/load-sample-aggregate-roi-bulletin-synthetic";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -27,6 +31,21 @@ describe("example-roi-bulletin marketing page", () => {
     );
   });
 
+  it("exposes layout-pass chrome: skip link, last-reviewed meta, scope disclosure", () => {
+    const source = loadSampleAggregateRoiBulletinSyntheticMarkdown();
+    const lastReviewed = lastReviewedLabelFromSample(source);
+
+    render(<ExampleRoiBulletinMarketingPage />);
+
+    expect(screen.getByRole("link", { name: /Skip to sample bulletin/i })).toHaveAttribute(
+      "href",
+      `#${EXAMPLE_ROI_BULLETIN_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("example-roi-bulletin-hero-meta")).toHaveTextContent(lastReviewed);
+    expect(screen.getByTestId("example-roi-bulletin-scope-disclosure")).toBeInTheDocument();
+    expect(screen.queryByTestId("example-roi-bulletin-claim-discipline")).toBeNull();
+  });
+
   it("ranks buyer CTAs above operator admin preview (TB-1518)", () => {
     render(<ExampleRoiBulletinMarketingPage />);
 
@@ -35,21 +54,25 @@ describe("example-roi-bulletin marketing page", () => {
 
     expect(primaryCta).toHaveAttribute("href", EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF);
     expect(trustCta).toHaveAttribute("href", EXAMPLE_ROI_BULLETIN_TRUST_CENTER_HREF);
+    expect(trustCta).toHaveTextContent(EXAMPLE_ROI_BULLETIN_TRUST_CENTER_CTA_LABEL);
     expect(primaryCta.getAttribute("href")).not.toContain("/api/proxy/v1/admin/roi-bulletin-preview");
 
     const operatorDisclosure = screen.getByTestId("example-roi-bulletin-operator-disclosure");
 
     expect(within(operatorDisclosure).getByTestId("example-roi-bulletin-admin-gate")).toBeInTheDocument();
     expect(operatorDisclosure.textContent).toContain("minTenants=5");
+    expect(operatorDisclosure.textContent).toContain("changelog");
   });
 
-  it("renders the synthetic sample as Markdown with source pre secondary (TB-1519)", () => {
+  it("renders buyer-safe Markdown without duplicate H1 (TB-1519)", () => {
     render(<ExampleRoiBulletinMarketingPage />);
 
     const rendered = screen.getByTestId("example-roi-bulletin-rendered-markdown");
 
-    expect(rendered.textContent).toMatch(/SYNTHETIC EXAMPLE/i);
-    expect(rendered.textContent).toMatch(/FORBIDDEN/i);
+    expect(rendered.textContent).toMatch(/Headline numbers/i);
+    expect(rendered.textContent).not.toMatch(/FORBIDDEN/i);
+    expect(rendered.textContent).not.toMatch(/ROI_MODEL\.md/i);
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByTestId("example-roi-bulletin-source-disclosure")).toBeInTheDocument();
     expect(screen.queryByTestId("example-roi-bulletin-markdown-source")).not.toBeVisible();
   });
@@ -96,5 +119,6 @@ describe("example-roi-bulletin marketing page", () => {
     fireEvent.click(summary);
 
     expect(screen.getByTestId("example-roi-bulletin-markdown-source")).toBeVisible();
+    expect(screen.getByTestId("example-roi-bulletin-markdown-source").textContent).toContain("FORBIDDEN");
   });
 });

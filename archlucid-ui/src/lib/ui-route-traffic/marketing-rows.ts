@@ -37,8 +37,8 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "EXA",
     path: "/example-roi-bulletin",
     section: "Marketing",
-    note: "Example ROI bulletin (Marketing) - ExampleRoiBulletinMarketingPage with ExampleRoiBulletinEvidenceOrientationStrip (evaluation Sources + claim-discipline: synthetic sample only). Admin-only preview gate + checked-in sample Markdown; robots noindex. Not an operator PageContextualHelp surface. Sibling SPE = sponsor-report#pilot-roi-measurement. marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["ExampleRoiBulletinEvidenceOrientationStrip", "cannot improve further toward 80"],
+    note: "Example ROI bulletin (Marketing) - ExampleRoiBulletinMarketingPage with skip link, hero last-reviewed meta, demoted What this page is not disclosure, revision history, value-first hero copy, buyer-safe Markdown prep (no duplicate H1 or repo preamble), shortened sample table notes, Sources-only ExampleRoiBulletinEvidenceOrientationStrip footer (amber claim callout removed), and admin-only preview gate behind operator disclosure. robots indexable (TB-1520). Not an operator PageContextualHelp surface. Sibling SPE = sponsor-report#pilot-roi-measurement. Score 58/100 Evidence (marketing synthetic ceiling); UX 64/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: ["ExampleRoiBulletinEvidenceOrientationStrip", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Product FAQ marketing page. Owner backlog shorthand: FXX. */
   {

@@ -18,6 +18,12 @@ export const EXAMPLE_ROI_BULLETIN_SAMPLE_SECTION_LEAD =
 
 export const EXAMPLE_ROI_BULLETIN_SOURCE_DISCLOSURE_TITLE = "View Markdown source" as const;
 
+export const EXAMPLE_ROI_BULLETIN_HERO_LEAD =
+  "This page shows the quarterly aggregate baseline bulletin shape procurement reviewers see once enough tenants have captured baselines. Numbers here are illustrative only — not a signed publication or live tenant ROI." as const;
+
+export const EXAMPLE_ROI_BULLETIN_OPERATOR_GATE_LEAD =
+  "Real aggregate numbers require an API key with Admin access after sign-in. Publication requires minTenants=5 qualifying tenants. This synthetic sample must never receive a product changelog ROI bulletin signed entry." as const;
+
 /** Parses the illustrative quarter label from the checked-in synthetic sample Markdown. */
 export function illustrativeQuarterLabelFromSample(markdown: string): string {
   const match = markdown.match(/\*\*Quarter:\*\*\s*([^\n(]+)/);
@@ -33,6 +39,17 @@ export function illustrativeQuarterLabelFromSample(markdown: string): string {
   }
 
   return trimmed;
+}
+
+/** Parses the Reviewed date from the sample frontmatter blockquote. */
+export function lastReviewedLabelFromSample(markdown: string): string {
+  const match = markdown.match(/\*\*Reviewed:\*\*\s*(\d{4}-\d{2}-\d{2})/);
+
+  if (match === null || match[1] === undefined || match[1].trim().length === 0) {
+    return "2026-07-25";
+  }
+
+  return match[1].trim();
 }
 
 export function adminRoiBulletinPreviewHref(illustrativeQuarter: string): string {

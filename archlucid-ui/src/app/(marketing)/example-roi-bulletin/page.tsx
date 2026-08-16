@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 
 import { ExampleRoiBulletinPageBody } from "@/components/marketing/ExampleRoiBulletinPageBody";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
+import { prepareExampleRoiBulletinMarkdownForBuyer } from "@/lib/marketing/prepare-example-roi-bulletin-markdown";
 import {
   adminRoiBulletinPreviewHref,
   illustrativeQuarterLabelFromSample,
+  lastReviewedLabelFromSample,
 } from "@/lib/marketing/example-roi-bulletin-honesty";
 import { loadSampleAggregateRoiBulletinSyntheticMarkdown } from "@/marketing/load-sample-aggregate-roi-bulletin-synthetic";
+
+import { ExampleRoiBulletinMarketingPageChrome } from "./ExampleRoiBulletinMarketingPageChrome";
 
 export const revalidate = 300;
 
@@ -19,17 +23,23 @@ export const metadata: Metadata = {
 };
 
 export default function ExampleRoiBulletinMarketingPage() {
-  const markdown = loadSampleAggregateRoiBulletinSyntheticMarkdown();
-  const illustrativeQuarter = illustrativeQuarterLabelFromSample(markdown);
+  const sourceMarkdown = loadSampleAggregateRoiBulletinSyntheticMarkdown();
+  const buyerMarkdown = prepareExampleRoiBulletinMarkdownForBuyer(sourceMarkdown);
+  const illustrativeQuarter = illustrativeQuarterLabelFromSample(sourceMarkdown);
+  const lastReviewedLabel = lastReviewedLabelFromSample(sourceMarkdown);
   const operatorAdminPreviewHref = adminRoiBulletinPreviewHref(illustrativeQuarter);
 
   return (
     <MarketingPageShell variant="reading" data-testid="example-roi-bulletin-page">
-      <ExampleRoiBulletinPageBody
-        illustrativeQuarter={illustrativeQuarter}
-        markdown={markdown}
-        operatorAdminPreviewHref={operatorAdminPreviewHref}
-      />
+      <ExampleRoiBulletinMarketingPageChrome>
+        <ExampleRoiBulletinPageBody
+          buyerMarkdown={buyerMarkdown}
+          sourceMarkdown={sourceMarkdown}
+          illustrativeQuarter={illustrativeQuarter}
+          lastReviewedLabel={lastReviewedLabel}
+          operatorAdminPreviewHref={operatorAdminPreviewHref}
+        />
+      </ExampleRoiBulletinMarketingPageChrome>
     </MarketingPageShell>
   );
 }
