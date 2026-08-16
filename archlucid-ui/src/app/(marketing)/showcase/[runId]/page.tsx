@@ -5,6 +5,7 @@ import {
   DemoPreviewMarketingBody,
   DemoPreviewNotAvailable,
 } from "../../demo/preview/DemoPreviewMarketingBody";
+import { SeeItDeliverablePreview } from "@/app/(marketing)/see-it/SeeItDeliverablePreview";
 import { ShowcaseEvidenceOrientationStrip } from "@/components/marketing/ShowcaseEvidenceOrientationStrip";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
@@ -19,6 +20,8 @@ import {
   isShowcaseStaticFirstRunId,
 } from "@/lib/showcase-page-resolution";
 import { canShowcaseAnonymousVisitorOpenOperatorDeepLinks } from "@/lib/showcase-quick-nav-contract";
+import { MARKETING_MOTION, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import {
   ShowcaseOutcomeCards,
@@ -130,13 +133,24 @@ function ShowcaseHero({ runId }: { readonly runId: string }): ReactElement {
     ) : null;
 
   return (
-    <>
-      {demoRibbon}
-      <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
-        {showcaseTitleForRunId(runId)}
-      </h1>
-      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{SHOWCASE_HERO_SUBTITLE}</p>
-    </>
+    <section
+      className={cn(
+        "grid items-start gap-10 border-b border-neutral-200 pb-8 dark:border-neutral-800 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-12",
+        MARKETING_MOTION.revealIn,
+      )}
+      data-testid="showcase-hero"
+      aria-labelledby="showcase-hero-heading"
+    >
+      <div>
+        {demoRibbon}
+        <h1 id="showcase-hero-heading" className={MARKETING_TYPOGRAPHY.heroTitle}>
+          {showcaseTitleForRunId(runId)}
+        </h1>
+        <p className={cn("mt-2", MARKETING_TYPOGRAPHY.meta)}>{SHOWCASE_HERO_SUBTITLE}</p>
+      </div>
+
+      <SeeItDeliverablePreview />
+    </section>
   );
 }
 
