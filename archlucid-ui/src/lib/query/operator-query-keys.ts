@@ -17,6 +17,7 @@ export const operatorQueryKeys = {
   adminOutboxDiagnostics: ["operator", "admin", "outbox-diagnostics"] as const,
   pilotScorecard: ["operator", "pilots", "scorecard"] as const,
   operatorAiQualitySnapshot: ["operator", "assistant", "ai-quality-snapshot"] as const,
+  firstPilotProofStatusSnapshot: ["operator", "first-pilot", "proof-status-snapshot"] as const,
   operatorTaskSuccessRates: ["operator", "diagnostics", "task-success-rates"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
   devTestingQuickJumpSnapshot: (runIdsKey: string) =>

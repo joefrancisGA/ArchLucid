@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FirstPilotProofStatusStrip } from "@/components/FirstPilotProofStatusStrip";
 import { BUYER_PILOT_EVIDENCE_PENDING } from "@/lib/buyer/buyer-home-status-copy";
@@ -9,26 +9,33 @@ import {
   FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
   FIRST_PILOT_TECHNICAL_COMMAND_DISCLOSURE_SUMMARY,
 } from "@/lib/first-pilot-diagnostics-copy";
+import type { FirstPilotProofStatusSnapshot } from "@/lib/first-pilot-proof-status-snapshot";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
-function makeSnapshot(disposition: "PASS" | "WARN" | "BLOCK" | "NOT_RUN") {
+const fetchFirstPilotProofStatusSnapshot = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/first-pilot-proof-status-snapshot", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/first-pilot-proof-status-snapshot")>();
+
   return {
-    ok: true,
-    json: async () => ({
-      generatedUtc: "2026-01-01T00:00:00Z",
-      disposition,
-      verdict: disposition,
-      blockCount: disposition === "BLOCK" ? 1 : 0,
-      warnCount: disposition === "WARN" ? 2 : 0,
-      nextAction: "Run collect-first-pilot-proof.ps1 or dotnet run --project ArchLucid.Cli -- pilot proof after your first committed review.",
-      proofFolder: null,
-      remediationLinks: [],
-    }),
+    ...actual,
+    fetchFirstPilotProofStatusSnapshot,
+  };
+});
+
+function makeSnapshot(disposition: "PASS" | "WARN" | "BLOCK" | "NOT_RUN"): FirstPilotProofStatusSnapshot {
+  return {
+    generatedUtc: "2026-01-01T00:00:00Z",
+    disposition,
+    verdict: disposition,
+    blockCount: disposition === "BLOCK" ? 1 : 0,
+    warnCount: disposition === "WARN" ? 2 : 0,
+    nextAction: "Run collect-first-pilot-proof.ps1 or dotnet run --project ArchLucid.Cli -- pilot proof after your first committed review.",
+    proofFolder: null,
+    remediationLinks: [],
   };
 }
-
-afterEach(() => {
-  vi.restoreAllMocks();
-});
 
 function cliCommand(): HTMLElement {
   return screen.getByText(FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND);
@@ -39,11 +46,19 @@ function openTechnicalCommandDisclosure(): void {
 }
 
 describe("FirstPilotProofStatusStrip", () => {
+  beforeEach(() => {
+    resetOperatorQueryClientForTests();
+    fetchFirstPilotProofStatusSnapshot.mockReset();
+    fetchFirstPilotProofStatusSnapshot.mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   describe("load-failed state", () => {
     it("shows operator-safe unavailable copy without CLI text", async () => {
-      vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
-
-      render(<FirstPilotProofStatusStrip />);
+      renderWithOperatorQuery(<FirstPilotProofStatusStrip />);
 
       expect(await screen.findByText(FIRST_PILOT_PROOF_STATUS_UNAVAILABLE)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA })).toHaveAttribute("href", "/administration/system-health");
@@ -52,9 +67,7 @@ describe("FirstPilotProofStatusStrip", () => {
     });
 
     it("exposes CLI commands only after expanding the technical disclosure", async () => {
-      vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
-
-      render(<FirstPilotProofStatusStrip />);
+      renderWithOperatorQuery(<FirstPilotProofStatusStrip />);
 
       await screen.findByText(FIRST_PILOT_PROOF_STATUS_UNAVAILABLE);
 
@@ -70,9 +83,9 @@ describe("FirstPilotProofStatusStrip", () => {
 
   describe("NOT_RUN disposition", () => {
     it("shows operator-safe not-collected copy without CLI text visible", async () => {
-      vi.stubGlobal("fetch", vi.fn().mockResolvedValue(makeSnapshot("NOT_RUN")));
+      fetchFirstPilotProofStatusSnapshot.mockResolvedValue(makeSnapshot("NOT_RUN"));
 
-      render(<FirstPilotProofStatusStrip />);
+      renderWithOperatorQuery(<FirstPilotProofStatusStrip />);
 
       expect(await screen.findByText(BUYER_PILOT_EVIDENCE_PENDING)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA })).toHaveAttribute("href", "/administration/system-health");
@@ -84,9 +97,9 @@ describe("FirstPilotProofStatusStrip", () => {
     });
 
     it("exposes CLI commands only after expanding the technical disclosure", async () => {
-      vi.stubGlobal("fetch", vi.fn().mockResolvedValue(makeSnapshot("NOT_RUN")));
+      fetchFirstPilotProofStatusSnapshot.mockResolvedValue(makeSnapshot("NOT_RUN"));
 
-      render(<FirstPilotProofStatusStrip />);
+      renderWithOperatorQuery(<FirstPilotProofStatusStrip />);
 
       await screen.findByText(BUYER_PILOT_EVIDENCE_PENDING);
 
@@ -102,9 +115,9 @@ describe("FirstPilotProofStatusStrip", () => {
 
   describe("PASS disposition", () => {
     it("shows verdict badge and summary without nextAction CLI text", async () => {
-      vi.stubGlobal("fetch", vi.fn().mockResolvedValue(makeSnapshot("PASS")));
+      fetchFirstPilotProofStatusSnapshot.mockResolvedValue(makeSnapshot("PASS"));
 
-      render(<FirstPilotProofStatusStrip />);
+      renderWithOperatorQuery(<FirstPilotProofStatusStrip />);
 
       expect(await screen.findByText("PASS")).toBeInTheDocument();
       expect(screen.getByText("No blocks or warnings.")).toBeInTheDocument();
@@ -115,9 +128,9 @@ describe("FirstPilotProofStatusStrip", () => {
 
   describe("BLOCK disposition", () => {
     it("shows verdict badge and count without nextAction CLI text", async () => {
-      vi.stubGlobal("fetch", vi.fn().mockResolvedValue(makeSnapshot("BLOCK")));
+      fetchFirstPilotProofStatusSnapshot.mockResolvedValue(makeSnapshot("BLOCK"));
 
-      render(<FirstPilotProofStatusStrip />);
+      renderWithOperatorQuery(<FirstPilotProofStatusStrip />);
 
       expect(await screen.findByText("BLOCK")).toBeInTheDocument();
       expect(screen.getByText(/1 block/)).toBeInTheDocument();
