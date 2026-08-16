@@ -131,6 +131,28 @@ export function PlanningBridgePanel(props: Props) {
             <li>Already existed (skipped): {result.skippedExistingThemeKeys ?? 0}</li>
             <li>Feedback items linked: {result.signalLinksInserted ?? 0}</li>
           </ul>
+          {Array.isArray(result.retrievalCitations) && result.retrievalCitations.length > 0 ? (
+            <div className="mt-3" data-testid="planning-bridge-retrieval-citations">
+              <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Related pilot signals (semantic retrieval)
+              </p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300">
+                {result.retrievalCitations.map((citation) => (
+                  <li key={citation.signalId ?? citation.themeKey ?? citation.snippet}>
+                    {citation.themeKey ? (
+                      <span className="font-medium">{citation.themeKey}: </span>
+                    ) : null}
+                    {citation.snippet ?? "Related pilot signal"}
+                    {citation.signalId ? (
+                      <span className="block text-neutral-500 dark:text-neutral-400">
+                        Signal {citation.signalId}
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </section>

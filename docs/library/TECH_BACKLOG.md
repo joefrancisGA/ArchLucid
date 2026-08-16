@@ -1689,8 +1689,8 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-875 | **Done** (2026-07-22) ? Cloud-aware agent context for Aws/Gcp target reviews ? `CloudProviderAgentPromptComposer` system/user addenda, `AgentUserPromptStaticPrefix`, golden cohort fixtures, `AgentUserPromptCloudTargetTests`; see `## TB-875` below | AI/Agent readiness P1 ? **V1**; V1_SCOPE ?2.19 remainder; depends on **TB-874** (Done); found during promoted multi-cloud analysis backlogization 2026-07-19 | M |
 | TB-877 | ~~Community summarization Graph-RAG (RAG-V2-001 remainder)~~ **Done** 2026-08-14 ? Louvain community detection + LLM summarization on ADR 0004 index path; `EnableCommunitySummarization` default off; `CorpusKind.KnowledgeGraphCommunity`; see `## TB-877` below | AI/Agent readiness P1 ? **V1**; ADR 0057 option (a) owner override 2026-07-05; assign at implementation 2026-07-19 | L |
 | TB-878 | Iterative retrieve-critique-retry loop (RAG-V2-002 remainder) ? bounded multi-round retrieval with critique-driven re-query beyond single-pass expansion; feature default off; extend TB-595 ablation attribution; see `## TB-878` below | AI/Agent readiness P2 ? **V1**; owner promoted from validation-first hold (`LATEST_GPT55.md` ?17); overrides TB-598 deferral | L |
-| TB-879 | Pilot-feedback retrieval for planning materialize (RAG-V1.1-003) ? tenant-scoped retrieval over pilot signals to ground `POST /v1/learning/planning/materialize` themes/plans with citable signal links; see `## TB-879` below | Stickiness P2 ? **V1**; promoted from V1.1 (`LATEST_GPT55.md` ?17; `V1_DEFERRED.md` ?6q) | M |
-| TB-880 | Cross-tenant pattern library UI (RAG-V1.1-004) ? buyer-safe k-anon aggregate pattern insights (ADR 0031); not embedding-RAG; coordinates with `PatternInsightsController`; see `## TB-880` below | Explainability P2 ? **V1**; promoted from V1.1; nightly aggregates only | L |
+| TB-879 | **Done** (2026-08-16) — pilot-feedback retrieval priors for planning materialize (`ProductLearningPlanningRetrievalContributor`, `retrievalCitations` on materialize result, Planning Bridge panel); see ## TB-879 below | Stickiness P2 ? **V1**; promoted from V1.1 (`LATEST_GPT55.md` ?17; `V1_DEFERRED.md` ?6q) | M |
+| TB-880 | **Done** (2026-08-16) — cross-tenant pattern library UI on `/insights/patterns` consuming `GET /v1/analytics/patterns` with k-anon disclosure + audit (`PatternInsightsListed`); see ## TB-880 below | Explainability P2 ? **V1**; promoted from V1.1; nightly aggregates only | L |
 | TB-881 | ~~RC12 registration duplicate-organization conflict regression~~ ? **Done** (2026-07-21): `[assembly: CollectionBehavior(DisableTestParallelization = true)]` + `RegistrationDuplicateOrganizationRegressionTests`; `xunit.runner.json` serializes collections; `GreenfieldSqlApiFactory` catalog pins retained; see `## TB-881` below | Correctness P1 ? **RC12** release-candidate blocker; found 2026-07-19 investigating RC12 CI failure | M |
 | TB-887 | ~~Public showcase static-first SSR for `claims-intake-modernization`~~ ? **Done** (2026-07-19): `showcase-page-resolution.ts`; static-first + API 404 fallback in showcase page; `showcase-static-first.spec.ts`; `DEMO_PREVIEW.md` | Commercial / marketability P0 ? **V1** | M |
 | TB-888 | ~~Public showcase illustrative-sample disclosure copy~~ ? **Done** (2026-07-20): `showcase-disclosure-copy.ts`; illustrative-sample banners on static and API-fallback paths; Vitest + Playwright guard against live-preview failure copy; see `## TB-888` below | Trustworthiness P0 ? **V1**; assessment 2026-07-19 | S |
@@ -1785,7 +1785,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-1396 | ~~Repeat-review help ? purge contributor/.md/CLI/TB leakage~~ **Done** 2026-07-29 ? `stripRepeatReviewLoopContributor*` + in-app policy/scorecard links; Vitest | Trustworthiness P0 ? **V1**; with **TB-1394**; pairs **TB-1390**/**TB-1346**/**TB-1388** | S |
 | TB-1404 | ~~`/admin/ai-usage-cost` ? delete dead App Router page behind permanent redirect~~ **Done** 2026-08-14 | Maintainability P2 ? **V1**; owner ADA ~48/100 2026-07-26; traffic **ADI**; after Done **TB-753**; IA-014; pairs **TB-748** | S |
 | TB-1405 | ~~Legacy AI usage admin path ? drop live-page assumptions from route-readiness / nav-shell~~ **Done** 2026-08-14 | Maintainability P2 ? **V1**; with **TB-1404** | S |
-| TB-1406 | Owner traffic workbook ? mark ADA redirect-only (inherit canonical AI); see ## TB-1406 below | Adoption friction P2 ? **V1**; with **TB-1404**; pairs **TB-748** | XS |
+| TB-1406 | **Done** (2026-08-16) — retired AAX `/admin/ai-usage-cost` workbook row; ADI canonical + redirect-only legend (**TB-1404**/**TB-748**); see ## TB-1406 below | Adoption friction P2 ? **V1**; with **TB-1404**; pairs **TB-748** | XS |
 | TB-1407 | CI drift ? permanent-redirect AI usage sources must not ship product `page.tsx`; see ## TB-1407 below | Testability P2 ? **V1**; after **TB-1404**; pairs **TB-748** | S |
 | TB-1428 | ~~Anti-live-demo-as-live-product / offline-as-live / dual-universe honesty CI~~ **Done** 2026-08-14 ? `check_live_demo_see_it_ladder_honesty.py`; see `## TB-1428` below | Testability P1 ? **V1**; after **TB-1427**; pairs **M-259** | S |
 | TB-1429 | ~~`/admin/integrations/itsm` ? Internal Ops PageHeading + title hierarchy (ITSM vs connectors)~~ **Done** 2026-07-30 ? PageHeading + ITSM connectors route/breadcrumb/title alignment; contextual help; Vitest | Adoption friction P0 ? **V1**; owner review ~41/100 2026-07-26; traffic **ADT**; pairs **TB-1422**/**TB-1409** | S |
@@ -23615,9 +23615,9 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 ---
 
-## TB-879 ? Pilot-feedback retrieval for planning materialize (RAG-V1.1-003) (P2)
+## TB-879 ? Pilot-feedback retrieval for planning materialize (RAG-V1.1-003) (P2) ? **Done** (2026-08-16)
 
-**Window:** V1 ? promoted from V1.1 (`LATEST_GPT55.md` ?17; `V1_DEFERRED.md` ?6q **RAG-V1.1-003**).
+**Status:** **Done** (2026-08-16) — `ProductLearningPlanningRetrievalContributor` indexes tenant-scoped pilot signals and returns `retrievalCitations` on `POST /v1/learning/planning/materialize`; Planning Bridge panel surfaces citations; OpenAPI + Vitest/API tests.
 
 **Why:** `POST /v1/learning/planning/materialize` (**59R**) deterministically derives themes/plans from ranked pilot-feedback opportunities (`ProductLearningPlanningDerivationService`) but does not retrieve semantically related prior signals or themes ? limiting reuse of institutional pilot-learning context when materializing new plans.
 
@@ -23643,9 +23643,9 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 ---
 
-## TB-880 ? Cross-tenant pattern library UI (RAG-V1.1-004) (P2)
+## TB-880 ? Cross-tenant pattern library UI (RAG-V1.1-004) (P2) ? **Done** (2026-08-16)
 
-**Window:** V1 ? promoted from V1.1; ADR 0031 k-anonymous aggregates ? **not** embedding-RAG.
+**Status:** **Done** (2026-08-16) — operator pattern library at `/insights/patterns` consumes `GET /v1/analytics/patterns` with k ? 5 threshold, aggregate-only disclosure, `PatternInsightsListed` audit, and Vitest/OpenAPI redaction guards.
 
 **Why:** Cross-tenant "pattern library" moat is asserted narratively but buyers/operators lack a governed UI for k-anonymous aggregate insights. `PatternInsightsController` (`GET /v1/analytics/patterns`) exists; this item ships buyer-safe presentation and disclosure ? not a new vector index.
 
@@ -36094,11 +36094,11 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-1406 ? Owner traffic workbook ? mark ADA redirect-only (inherit canonical AI) (P0)
+## TB-1406 ? Owner traffic workbook ? mark ADA redirect-only (inherit canonical AI) (P0) ? **Done** (2026-08-16)
 
 **Window:** V1 ? Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-16) — retired workbook row **AAX** for `/admin/ai-usage-cost`; canonical **ADI** `/administration/ai-usage` note documents redirect-only legacy bookmark; `REMOVED_REDIRECT_SHIM_TRAFFIC_ROW_IDS` + Vitest guards (**TB-1404**/**TB-748**).
 
 **Priority:** P0.
 
