@@ -45,7 +45,6 @@ const MIGRATION_BACKLOG: readonly string[] = [
   "src/app/(operator)/governance/policy-packs/_sections/PolicyPackVisualBuilder.tsx",
   "src/app/(operator)/governance/policy-packs/_sections/use-policy-packs-page.ts",
   "src/app/(operator)/governance/policy-packs/[id]/PolicyPackDetailClient.tsx",
-  "src/app/(operator)/help/_sections/HelpBillingCurrentPlanCard.tsx",
   "src/app/(operator)/help/_sections/HelpTopicMarkdownClient.tsx",
   "src/app/(operator)/help/HelpDocsClient.tsx",
   "src/app/(operator)/insights/compare-two-reviews/_sections/useCompareFindingCorrelation.ts",

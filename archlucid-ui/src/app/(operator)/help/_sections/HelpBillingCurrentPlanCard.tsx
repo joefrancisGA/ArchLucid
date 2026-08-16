@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
+import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
   BILLING_HELP_NO_PERMISSION_HINT,
@@ -28,8 +29,6 @@ import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   readOperatorScopeFromStorage,
 } from "@/lib/operator/operator-scope-storage";
-import type { TeamExpansionNudgeStatusPayload } from "@/lib/team-expansion-nudge-trigger";
-import { fetchTenantUsageStatusCached } from "@/lib/tenant-usage-status-client";
 import { cn } from "@/lib/utils";
 
 export type BillingPlanDataLoadState =
@@ -162,11 +161,17 @@ function PublicPricingLink(props: {
 }
 
 type HelpBillingCurrentPlanCardProps = {
-  readonly refreshToken?: number;
   readonly onLoadStateChange?: (state: BillingPlanDataLoadState) => void;
 };
 
-/** Compact plan context and primary billing actions for `/help/billing-and-plans`. */
+/**
+ * Compact plan context and primary billing actions for `/help/billing-and-plans`.
+ *
+ * Both plan probes read through TanStack Query, so the page-header refresh control invalidates the
+ * shared keys rather than passing a token down. Usage pending is tracked with `isFetching` (not
+ * `isLoading`) so a refetch over cached data still reports pending, which is how the header knows
+ * its refresh finished.
+ */
 export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProps): React.ReactElement {
   const canMutate = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const {
@@ -174,17 +179,18 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
     isLoading: trialLoading,
     isError: trialError,
   } = useTenantTrialStatusQuery();
+  const { data: usagePayload, isFetching: usageFetching } = useTenantUsageStatusQuery();
   const [workspaceLabel, setWorkspaceLabel] = useState<string | null>(null);
-  const [usagePayload, setUsagePayload] = useState<TeamExpansionNudgeStatusPayload | null>(null);
-  const [usageLoaded, setUsageLoaded] = useState(false);
-  const [usageError, setUsageError] = useState(false);
-  const [seatRow, setSeatRow] = useState<SeatRow | null>(null);
+
+  // Client resolves null on HTTP/network failure and when the signed-out skip applies —
+  // never treat that as a resolved "no paid plan" answer.
+  const usageError = !usageFetching && usagePayload == null;
 
   const subscriptionLoadState = resolveSubscriptionLoadState(
     trialLoading,
     trialError,
     trialPayload != null,
-    usageLoaded,
+    !usageFetching,
     usageError,
     usagePayload != null,
   );
@@ -216,47 +222,6 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
     };
   }, []);
 
-  useEffect(() => {
-    let canceled = false;
-
-    setUsageLoaded(false);
-    setUsageError(false);
-
-    void (async () => {
-      try {
-        const usage = await fetchTenantUsageStatusCached({
-          force: (props.refreshToken ?? 0) > 0,
-        });
-
-        if (canceled) {
-          return;
-        }
-
-        // Client returns null on HTTP/network failure and when signed-out skip applies —
-        // never treat that as a resolved "no paid plan" answer.
-        if (usage === null) {
-          setUsagePayload(null);
-          setUsageError(true);
-          setUsageLoaded(true);
-          return;
-        }
-
-        setUsagePayload(usage);
-        setUsageError(false);
-        setUsageLoaded(true);
-      } catch {
-        if (!canceled) {
-          setUsageError(true);
-          setUsageLoaded(true);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [props.refreshToken]);
-
   const view = useMemo(
     () =>
       resolveOperatorBillingCurrentPlan({
@@ -281,8 +246,8 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
     ],
   );
 
-  useEffect(() => {
-    setSeatRow(
+  const seatRow = useMemo(
+    () =>
       resolveSeatRow(
         view.planKind,
         view.hasPaidPlan,
@@ -290,14 +255,14 @@ export function HelpBillingCurrentPlanCard(props: HelpBillingCurrentPlanCardProp
         usagePayload?.seatsLimit,
         subscriptionLoadState,
       ),
-    );
-  }, [
-    subscriptionLoadState,
-    usagePayload?.seatsLimit,
-    usagePayload?.seatsUsed,
-    view.hasPaidPlan,
-    view.planKind,
-  ]);
+    [
+      subscriptionLoadState,
+      usagePayload?.seatsLimit,
+      usagePayload?.seatsUsed,
+      view.hasPaidPlan,
+      view.planKind,
+    ],
+  );
 
   const statusDisplay = resolveSubscriptionStatusDisplay(subscriptionLoadState, view.hasPaidPlan);
   const planResolved = subscriptionLoadState === "resolved";

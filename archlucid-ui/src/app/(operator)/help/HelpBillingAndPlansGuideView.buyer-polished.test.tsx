@@ -43,11 +43,14 @@ vi.mock("@/lib/billing-portal-client", () => ({
   startBillingPortal: vi.fn(),
 }));
 
-vi.mock("@/lib/tenant-usage-status-client", () => ({
-  fetchTenantUsageStatusCached: vi.fn().mockResolvedValue({
-    isTrial: true,
-    seatsUsed: 2,
-    seatsLimit: 3,
+vi.mock("@/hooks/use-tenant-usage-status-query", () => ({
+  useTenantUsageStatusQuery: () => ({
+    data: {
+      isTrial: true,
+      seatsUsed: 2,
+      seatsLimit: 3,
+    },
+    isFetching: false,
   }),
 }));
 

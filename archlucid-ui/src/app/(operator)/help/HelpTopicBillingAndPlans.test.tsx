@@ -4,12 +4,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 const useNavCallerAuthorityRank = vi.hoisted(() => vi.fn(() => 3));
-const fetchTenantUsageStatusCached = vi.hoisted(() =>
-  vi.fn().mockResolvedValue({
-    isTrial: true,
-    seatsUsed: 2,
-    seatsLimit: 3,
-  }),
+const useTenantUsageStatusQuery = vi.hoisted(() =>
+  vi.fn(() => ({
+    data: {
+      isTrial: true,
+      seatsUsed: 2,
+      seatsLimit: 3,
+    },
+    isFetching: false,
+  })),
 );
 const useTenantTrialStatusQuery = vi.hoisted(() =>
   vi.fn(() => ({
@@ -17,7 +20,7 @@ const useTenantTrialStatusQuery = vi.hoisted(() =>
       status: "Active",
       daysRemaining: 5,
     },
-    isPending: false,
+    isLoading: false,
     isError: false,
   })),
 );
@@ -35,8 +38,8 @@ vi.mock("@/hooks/use-tenant-trial-status-query", () => ({
   useTenantTrialStatusQuery: () => useTenantTrialStatusQuery(),
 }));
 
-vi.mock("@/lib/tenant-usage-status-client", () => ({
-  fetchTenantUsageStatusCached,
+vi.mock("@/hooks/use-tenant-usage-status-query", () => ({
+  useTenantUsageStatusQuery: () => useTenantUsageStatusQuery(),
 }));
 
 vi.mock("@/lib/toast", () => ({
@@ -128,13 +131,16 @@ describe("HelpBillingAndPlansGuideView", () => {
         status: "Active",
         daysRemaining: 5,
       },
-      isPending: false,
+      isLoading: false,
       isError: false,
     });
-    fetchTenantUsageStatusCached.mockResolvedValue({
-      isTrial: true,
-      seatsUsed: 2,
-      seatsLimit: 3,
+    useTenantUsageStatusQuery.mockReturnValue({
+      data: {
+        isTrial: true,
+        seatsUsed: 2,
+        seatsLimit: 3,
+      },
+      isFetching: false,
     });
     showError.mockReset();
   });
@@ -241,13 +247,16 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     useTenantTrialStatusQuery.mockReturnValue({
       data: { status: "Expired", daysRemaining: 0 },
-      isPending: false,
+      isLoading: false,
       isError: false,
     });
-    fetchTenantUsageStatusCached.mockResolvedValue({
-      isTrial: false,
-      seatsUsed: 0,
-      seatsLimit: 5,
+    useTenantUsageStatusQuery.mockReturnValue({
+      data: {
+        isTrial: false,
+        seatsUsed: 0,
+        seatsLimit: 5,
+      },
+      isFetching: false,
     });
 
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
@@ -260,7 +269,7 @@ describe("HelpBillingAndPlansGuideView", () => {
         "No active subscription",
       );
       expect(within(context).queryByText(/seats/i)).not.toBeInTheDocument();
-      expect(fetchTenantUsageStatusCached).toHaveBeenCalled();
+      expect(useTenantUsageStatusQuery).toHaveBeenCalled();
     });
   });
 
@@ -271,9 +280,10 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     useTenantTrialStatusQuery.mockReturnValue({
       data: undefined,
-      isPending: true,
+      isLoading: true,
       isError: false,
     });
+    useTenantUsageStatusQuery.mockReturnValue({ data: undefined, isFetching: true });
 
     renderWithOperatorQuery(<HelpBillingAndPlansGuideView entry={entry} />);
 
@@ -294,7 +304,7 @@ describe("HelpBillingAndPlansGuideView", () => {
 
     useTenantTrialStatusQuery.mockReturnValue({
       data: undefined,
-      isPending: false,
+      isLoading: false,
       isError: true,
     });
 
