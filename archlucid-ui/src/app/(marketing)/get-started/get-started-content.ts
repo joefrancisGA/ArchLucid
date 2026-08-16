@@ -164,6 +164,10 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
 
 export const GET_STARTED_HELP_GETTING_STARTED_HREF = "/help/getting-started" as const;
 
+export const GET_STARTED_TRIAL_PATH_SCROLL_LABEL = "View trial milestones" as const;
+
+export const GET_STARTED_EVALUATION_SIGNUP_LABEL = "Start evaluation signup" as const;
+
 export function buildGuidedTrialHref(verticalSlug?: BuyerGetStartedVerticalSlug): string {
   const params = new URLSearchParams({ source: "get-started" });
 
