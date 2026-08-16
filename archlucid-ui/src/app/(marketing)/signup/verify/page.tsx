@@ -23,11 +23,14 @@ function VerifyFallback() {
 
 export default function SignupVerifyPage() {
   return (
-    <MarketingPageShell className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-lg flex-col justify-center px-4 py-10 sm:py-12">
-      <Suspense fallback={<VerifyFallback />}>
-        <SignupVerifyClient />
-      </Suspense>
-      <SignupVerifyEvidenceOrientationStrip />
+    <MarketingPageShell className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-lg flex-col justify-start px-4 py-10 sm:py-12">
+      {/* my-auto centers when the viewport is tall; auto margins collapse when the card is taller than leftover space, so the top never clips under the sticky header. */}
+      <div className="my-auto w-full">
+        <Suspense fallback={<VerifyFallback />}>
+          <SignupVerifyClient />
+        </Suspense>
+        <SignupVerifyEvidenceOrientationStrip />
+      </div>
     </MarketingPageShell>
   );
 }
