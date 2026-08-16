@@ -207,19 +207,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-16
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
+2026-08-16 dry hunt: listed hypotheses do not hold on `AgentProposalStructuralPostProcessor` / `CrossAgentProposalConsistencyGate`. Neither file rewrites datastore category (`storage` vs `data`); synthetic `ds-` aliases are unchanged. Existing keep-path tests (26) pass; the gate does not drop a relationship the post-processor retained under current claim/validation key unions.
+
 ### Hypotheses
 
-- [ ] Post-processor rewrites a datastore to `storage` while the consistency gate still keys it as `data`
-- [ ] Consistency gate drops a relationship the post-processor just added
-- [ ] Category rewrite does not update synthetic `ds-` aliases
+- [x] Post-processor rewrites a datastore to `storage` while the consistency gate still keys it as `data`
+- [x] Consistency gate drops a relationship the post-processor just added
+- [x] Category rewrite does not update synthetic `ds-` aliases
 
 ---
 
