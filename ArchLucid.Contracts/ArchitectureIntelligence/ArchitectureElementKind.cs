@@ -26,4 +26,5 @@ public enum ArchitectureElementKind
     Recommendation = 21,
     UnresolvedQuestion = 22,
     TradeOff = 23,
+    Contradiction = 24,
 }

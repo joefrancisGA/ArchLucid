@@ -172,13 +172,14 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
 
         if (sourceText.Contains("contradict", StringComparison.OrdinalIgnoreCase))
         {
+            (string name, string notes) = ArchitectureContradictionClassifier.Classify(sourceText);
             elements.Add(CreateElement(
-                ArchitectureElementKind.UnresolvedQuestion,
-                "Diagram vs prose contradiction",
+                ArchitectureElementKind.Contradiction,
+                name,
                 artifactId,
                 supportStatus,
                 confidence,
-                "Contradiction marker detected."));
+                notes));
         }
 
         if (sourceText.Contains("backup", StringComparison.OrdinalIgnoreCase)

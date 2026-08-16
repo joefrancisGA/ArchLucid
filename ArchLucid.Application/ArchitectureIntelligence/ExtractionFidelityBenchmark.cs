@@ -31,7 +31,7 @@ public sealed class ExtractionFidelityBenchmark : IExtractionFidelityBenchmark
         {
             CaseId = "diagram-prose-contradiction",
             SourceText = "The diagram contradicts the prose about database replication.",
-            ExpectedElementKinds = [ArchitectureElementKind.UnresolvedQuestion],
+            ExpectedElementKinds = [ArchitectureElementKind.Contradiction],
             ExpectedNames = ["Diagram vs prose contradiction"],
         },
         new ExtractionFidelityCase

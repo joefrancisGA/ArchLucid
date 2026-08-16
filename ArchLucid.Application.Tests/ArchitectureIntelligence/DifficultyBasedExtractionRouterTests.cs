@@ -36,4 +36,40 @@ public sealed class DifficultyBasedExtractionRouterTests
             element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase)
             && element.LifecycleScope == ArchitectureLifecycleScope.Transition);
     }
+
+    [Fact]
+    public void Extract_emits_diagram_vs_prose_contradiction()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The diagram contradicts the prose about database replication.",
+            "src-contradiction-diagram");
+
+        elements.Should().Contain(element =>
+            element.Kind == ArchitectureElementKind.Contradiction
+            && element.Name == "Diagram vs prose contradiction");
+    }
+
+    [Fact]
+    public void Extract_emits_policy_vs_component_contradiction()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The policy contradicts the component inventory.",
+            "src-contradiction-policy");
+
+        elements.Should().Contain(element =>
+            element.Kind == ArchitectureElementKind.Contradiction
+            && element.Name == "Policy vs component contradiction");
+    }
+
+    [Fact]
+    public void Extract_emits_generic_contradiction()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "These two artifacts contradict each other.",
+            "src-contradiction-generic");
+
+        elements.Should().Contain(element =>
+            element.Kind == ArchitectureElementKind.Contradiction
+            && element.Name == "Contradiction");
+    }
 }

@@ -44,6 +44,12 @@ public class ArchitectureRecommendation
         set;
     } = [];
 
+    public List<RecommendationAlternative> AlternativeOptions
+    {
+        get;
+        set;
+    } = [];
+
     public List<TradeOffObject> TradeOffs
     {
         get;

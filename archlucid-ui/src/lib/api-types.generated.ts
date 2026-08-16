@@ -102451,7 +102451,7 @@ export interface components {
             suggestedRequiredCapabilities?: string[];
         };
         /** @enum {string} */
-        ArchitectureElementKind: "BusinessObjective" | "Stakeholder" | "FunctionalRequirement" | "QualityAttribute" | "Constraint" | "Assumption" | "Decision" | "Alternative" | "Component" | "Interface" | "DataFlow" | "TrustBoundary" | "DeploymentTopology" | "FailureMode" | "RecoveryObjective" | "CapacityExpectation" | "CostDriver" | "OperationalOwnership" | "ComplianceObligation" | "Evidence" | "Risk" | "Recommendation" | "UnresolvedQuestion" | "TradeOff";
+        ArchitectureElementKind: "BusinessObjective" | "Stakeholder" | "FunctionalRequirement" | "QualityAttribute" | "Constraint" | "Assumption" | "Decision" | "Alternative" | "Component" | "Interface" | "DataFlow" | "TrustBoundary" | "DeploymentTopology" | "FailureMode" | "RecoveryObjective" | "CapacityExpectation" | "CostDriver" | "OperationalOwnership" | "ComplianceObligation" | "Evidence" | "Risk" | "Recommendation" | "UnresolvedQuestion" | "TradeOff" | "Contradiction";
         ArchitectureFinding: {
             category?: string;
             classification?: null | components["schemas"]["FindingClassification"];
@@ -102603,6 +102603,7 @@ export interface components {
         };
         ArchitectureRecommendation: {
             affectedRequirementOrQualityAttribute?: string;
+            alternativeOptions?: components["schemas"]["RecommendationAlternative"][];
             alternatives?: string[];
             /** Format: double */
             confidence?: number | string;
@@ -107735,6 +107736,10 @@ export interface components {
             action?: string;
             comment?: null | string;
             rationale?: null | string;
+        };
+        RecommendationAlternative: {
+            path?: string;
+            validationCriteria?: string;
         };
         RecommendationConfidence: number;
         RecommendationLearningOperationalStatusResponse: {

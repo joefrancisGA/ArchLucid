@@ -3995,7 +3995,8 @@
           "Risk",
           "Recommendation",
           "UnresolvedQuestion",
-          "TradeOff"
+          "TradeOff",
+          "Contradiction"
         ],
         "type": "string"
       },
@@ -4560,6 +4561,12 @@
         "properties": {
           "affectedRequirementOrQualityAttribute": {
             "type": "string"
+          },
+          "alternativeOptions": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationAlternative"
+            },
+            "type": "array"
           },
           "alternatives": {
             "items": {
@@ -22110,6 +22117,17 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "RecommendationAlternative": {
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "validationCriteria": {
+            "type": "string"
           }
         },
         "type": "object"
