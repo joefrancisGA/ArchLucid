@@ -8,6 +8,10 @@ import type { components } from "@/lib/api-types.generated";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { buildProductLearningPlanningMaterializeUrl } from "./planning-materialize-url";
+import {
+  listPlanningRetrievalCitations,
+  planningRetrievalCitationKey,
+} from "./planning-retrieval-citations";
 
 type MaterializeResult = components["schemas"]["ProductLearningPlanningMaterializeResult"];
 
@@ -53,6 +57,7 @@ export function PlanningBridgePanel(props: Props) {
   }, [props.since, maxPlans]);
 
   const blocked = props.disabled || busy;
+  const retrievalCitations = listPlanningRetrievalCitations(result?.retrievalCitations);
 
   return (
     <section className="mb-7" aria-labelledby="pl-planning-bridge-heading">
@@ -131,14 +136,14 @@ export function PlanningBridgePanel(props: Props) {
             <li>Already existed (skipped): {result.skippedExistingThemeKeys ?? 0}</li>
             <li>Feedback items linked: {result.signalLinksInserted ?? 0}</li>
           </ul>
-          {Array.isArray(result.retrievalCitations) && result.retrievalCitations.length > 0 ? (
+          {retrievalCitations.length > 0 ? (
             <div className="mt-3" data-testid="planning-bridge-retrieval-citations">
               <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 Related pilot signals (semantic retrieval)
               </p>
               <ul className="mt-2 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300">
-                {result.retrievalCitations.map((citation) => (
-                  <li key={citation.signalId ?? citation.themeKey ?? citation.snippet}>
+                {retrievalCitations.map((citation, index) => (
+                  <li key={planningRetrievalCitationKey(citation, index)}>
                     {citation.themeKey ? (
                       <span className="font-medium">{citation.themeKey}: </span>
                     ) : null}
