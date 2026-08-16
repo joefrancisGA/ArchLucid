@@ -1,16 +1,13 @@
-#Requires -Version 7.0
-# Run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugPickZone.Tests.ps1'
-# Agent shells are Windows PowerShell 5.1; ConvertTo-ObjectArray in the picker
-# avoids StrictMode "Argument types do not match" when wrapping List[object] in @().
+#Requires -Version 5.1
+# Run: Invoke-Pester -Path 'scripts/tests/AlBugPickZone.Tests.ps1'
+# Pester 3.4 syntax (Windows PowerShell 5.1). Do not use Pester 5 -Be / BeforeAll.
 Set-StrictMode -Version Latest
 
-Describe 'al-bug-pick-zone.ps1' {
+[string]$script:testsDir = $PSScriptRoot
+[string]$script:scriptsDir = Split-Path -Parent $script:testsDir
+[string]$script:pickerScript = Join-Path $script:scriptsDir 'agent\al-bug-pick-zone.ps1'
 
-    BeforeAll {
-        [string]$script:testsDir = $PSScriptRoot
-        [string]$script:scriptsDir = Split-Path -Parent $script:testsDir
-        [string]$script:pickerScript = Join-Path $script:scriptsDir 'agent\al-bug-pick-zone.ps1'
-    }
+Describe 'al-bug-pick-zone.ps1' {
 
     function New-LedgerFixture {
         param([string] $Content)
@@ -27,20 +24,21 @@ Describe 'al-bug-pick-zone.ps1' {
             [switch] $Refresh
         )
 
-        $args = @{
+        $pickerArgs = @{
             LedgerPath = $LedgerPath
             SkipGit    = $true
         }
 
         if (-not [string]::IsNullOrWhiteSpace($Hint)) {
-            $args.Hint = $Hint
+            $pickerArgs.Hint = $Hint
         }
 
         if ($Refresh) {
-            $args.Refresh = $true
+            $pickerArgs.Refresh = $true
         }
 
-        [string]$json = & $script:pickerScript @args
+        # 5.1 ConvertTo-Json may emit multiple lines; join before ConvertFrom-Json.
+        [string]$json = @(& $script:pickerScript @pickerArgs) -join "`n"
         return ($json | ConvertFrom-Json)
     }
 
@@ -109,26 +107,26 @@ $bOpen
         [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
         $result = Invoke-Picker -LedgerPath $ledger
 
-        $result.zoneId | Should -Be 'zone-a'
-        $result.score | Should -Be 8.0
-        $result.exhaustedAll | Should -BeFalse
-        @($result.openHypotheses).Count | Should -Be 3
+        $result.zoneId | Should Be 'zone-a'
+        $result.score | Should Be 8.0
+        $result.exhaustedAll | Should Be $false
+        @($result.openHypotheses).Count | Should Be 3
     }
 
     It 'pins the hinted zone even when another zone scores higher' {
         [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
         $result = Invoke-Picker -LedgerPath $ledger -Hint 'zone-b'
 
-        $result.zoneId | Should -Be 'zone-b'
-        $result.hintOverride | Should -BeTrue
-        $result.score | Should -Be 3.5
+        $result.zoneId | Should Be 'zone-b'
+        $result.hintOverride | Should Be $true
+        $result.score | Should Be 3.5
     }
 
     It 'matches a hint against an alias' {
         [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
         $result = Invoke-Picker -LedgerPath $ledger -Hint 'untried area'
 
-        $result.zoneId | Should -Be 'zone-b'
+        $result.zoneId | Should Be 'zone-b'
     }
 
     It 'skips exhausted zones when ledger churn is 0' {
@@ -136,8 +134,8 @@ $bOpen
         [string]$ledger = New-LedgerFixture -Content $content
         $result = Invoke-Picker -LedgerPath $ledger
 
-        $result.zoneId | Should -Be 'zone-b'
-        $result.reopened | Should -BeFalse
+        $result.zoneId | Should Be 'zone-b'
+        $result.reopened | Should Be $false
     }
 
     It 'reopens an exhausted zone when ledger churn is greater than 0' {
@@ -166,10 +164,10 @@ $bOpen
         [string]$ledger = New-LedgerFixture -Content $content
         $result = Invoke-Picker -LedgerPath $ledger -Refresh
 
-        $result.zoneId | Should -Be 'zone-d'
-        $result.reopened | Should -BeTrue
-        $result.codeChangedSince | Should -Be 2
-        $result.exhaustedAll | Should -BeFalse
+        $result.zoneId | Should Be 'zone-d'
+        $result.reopened | Should Be $true
+        $result.codeChangedSince | Should Be 2
+        $result.exhaustedAll | Should Be $false
     }
 
     It 'skips cooling while any open zone exists' {
@@ -221,7 +219,7 @@ $bOpen
         [string]$ledger = New-LedgerFixture -Content $content
         $result = Invoke-Picker -LedgerPath $ledger
 
-        $result.zoneId | Should -Be 'zone-open'
+        $result.zoneId | Should Be 'zone-open'
     }
 
     It 'picks cooling when no open zone remains' {
@@ -250,8 +248,8 @@ $bOpen
         [string]$ledger = New-LedgerFixture -Content $content
         $result = Invoke-Picker -LedgerPath $ledger
 
-        $result.zoneId | Should -Be 'zone-cool'
-        $result.status | Should -Be 'cooling'
+        $result.zoneId | Should Be 'zone-cool'
+        $result.status | Should Be 'cooling'
     }
 
     It 'returns exhaustedAll when no zone is eligible' {
@@ -280,14 +278,14 @@ $bOpen
         [string]$ledger = New-LedgerFixture -Content $content
         $result = Invoke-Picker -LedgerPath $ledger
 
-        $result.zoneId | Should -BeNullOrEmpty
-        $result.exhaustedAll | Should -BeTrue
-        $result.exhausted | Should -BeTrue
+        $result.zoneId | Should BeNullOrEmpty
+        $result.exhaustedAll | Should Be $true
+        $result.exhausted | Should Be $true
     }
 
     It 'throws when the hint matches no zone' {
         [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
-        { Invoke-Picker -LedgerPath $ledger -Hint 'no-such-zone' } | Should -Throw
+        { Invoke-Picker -LedgerPath $ledger -Hint 'no-such-zone' } | Should Throw
     }
 
     It 'adds related PD/TB weight to the untried score' {
@@ -317,7 +315,7 @@ $bOpen
         $result = Invoke-Picker -LedgerPath $ledger
 
         # 3*0.5 + 2*1 + min(2,2) = 1.5 + 2 + 2 = 5.5
-        $result.zoneId | Should -Be 'zone-pd'
-        $result.score | Should -Be 5.5
+        $result.zoneId | Should Be 'zone-pd'
+        $result.score | Should Be 5.5
     }
 }

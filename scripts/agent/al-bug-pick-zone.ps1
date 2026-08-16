@@ -454,7 +454,7 @@ function Get-EligibleZones {
     param($Zones)
 
     $hasOpen = @($Zones | Where-Object { $_.Status -eq 'open' }).Count -gt 0
-    $eligible = New-Object System.Collections.Generic.List[object]
+    $eligible = New-Object System.Collections.ArrayList
 
     foreach ($zone in $Zones) {
         switch ($zone.Status) {
@@ -510,10 +510,10 @@ function ConvertTo-PickResult {
         }
     }
 
-    $why = @($Zone.Why)
+    $why = ConvertTo-ObjectArray -Value $Zone.Why
 
     if ($HintOverride) {
-        $why = @('hint override') + $why
+        $why = @('hint override') + @($why)
     }
 
     return [pscustomobject]@{
@@ -521,8 +521,8 @@ function ConvertTo-PickResult {
         status              = $Zone.Status
         score               = $Zone.Score
         why                 = $why
-        openHypotheses      = @($Zone.OpenHypotheses)
-        paths               = @($Zone.Paths)
+        openHypotheses      = ConvertTo-ObjectArray -Value $Zone.OpenHypotheses
+        paths               = ConvertTo-ObjectArray -Value $Zone.Paths
         testFilter          = $Zone.TestFilter
         hunts               = $Zone.Hunts
         bugsFound           = $Zone.BugsFound
@@ -602,7 +602,7 @@ if (-not [string]::IsNullOrWhiteSpace($Hint)) {
         throw "Hunt hint '$Hint' did not match a ledger zone. Known ids: $ids"
     }
 
-    $picked = @($matched | Sort-Object -Property @{ Expression = 'Score'; Descending = $true }, @{ Expression = 'FileIndex'; Descending = $false })[0]
+    $picked = @($matched | Sort-Object @{ Expression = { $_.Score }; Descending = $true }, @{ Expression = { $_.FileIndex }; Descending = $false })[0]
     $hintOverride = $true
 }
 elseif ($eligible.Count -gt 0) {

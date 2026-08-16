@@ -10,11 +10,12 @@ Distinct from **`/al-defect`** (production defect intake + `PD-###` log) and **`
 
 **Default git target:** **`master`** (user may override by naming another branch in the same message).
 
-One invocation runs three phases **without stopping for approval between them**:
+One invocation runs these phases **without stopping for approval between them** (except `--status`, which stops after the preview):
 
 | Phase | Goal |
 |-------|------|
-| **1 — Find** | Identify a genuine defect; prove with a failing test |
+| **0 — Target** | Score the hunt ledger; hunt **only** the picked zone |
+| **1 — Find** | Prove a genuine defect in that zone with a failing test |
 | **2 — Fix** | Minimal correct fix + permanent regression test |
 | **3 — Ship** | Commit scoped paths and push to target branch |
 
@@ -29,11 +30,15 @@ One invocation runs three phases **without stopping for approval between them**:
 /al-bug master "<optional hunt hint>"
 /al-bug --find-only
 /al-bug master --find-only
+/al-bug --status
+/al-bug --refresh
 ```
 
 - **`master`** (optional) — explicit branch target; default is **`master`** when omitted (satisfies `.cursor/rules/Git-Commit-Requires-Branch.mdc`).
-- **`"<optional hunt hint>"`** — subsystem, file, symptom, or area to prioritize (e.g. `topology merge gate`, `ARM resource ids`).
+- **`"<optional hunt hint>"`** — pin a ledger zone by id or alias (e.g. `topology merge gate`, `ARM resource ids`).
 - **`--find-only`** — stop after Phase 1 with the bug report and failing repro; no fix, commit, or push.
+- **`--status`** — run the picker preview and **stop** (no hunt, no ledger write).
+- **`--refresh`** — pass `-Refresh` so git churn since `last-hunt` is recomputed into picker JSON; use those counts when updating the ledger.
 
 Examples:
 
@@ -42,6 +47,8 @@ Examples:
 /al-bug master
 /al-bug "topology proposal graph merge"
 /al-bug master --find-only
+/al-bug --status
+/al-bug --refresh
 ```
 
 ---
@@ -59,27 +66,44 @@ Examples:
 
 ---
 
+## Phase 0 — Target the next zone (required first)
+
+**Before** hunting, editing production code, or claiming a bug, score the ledger and **display the picker preview in chat**.
+
+```powershell
+.\scripts\agent\al-bug-pick-zone.ps1 -Preview
+```
+
+Add `-Hint '<user hint>'` when the message named an area. Add `-Refresh` when the user passed `--refresh`.
+
+The picker is **deterministic** (`docs/library/AL_BUG_HUNT_LEDGER.md` + `scripts/agent/al-bug-pick-zone.ps1`). Do **not** LLM-rank zones or fall back to a static “always topology first” walk.
+
+Rules:
+
+- Hunt **only** the returned `zoneId` (`paths` + open hypotheses). Do not invent another zone in the same invocation.
+- If JSON `exhaustedAll` is `true`, **stop** — report that every zone is exhausted without git churn. Do not invent a new zone.
+- If `--status`, print the preview and **stop** (do not hunt; do not write the ledger).
+- The script does **not** write the ledger. After the hunt, you edit `AL_BUG_HUNT_LEDGER.md`.
+
+### Exhaustion (leave the zone when all hold)
+
+1. Every listed hypothesis has a passing regression test, or was retired as invalid.
+2. **3 consecutive dry hunts**.
+3. **No production-path commits** in that zone since `last-hunt`.
+
+Set `status` to `cooling` when yield has dropped but exhaustion is not complete. Set `exhausted` only when all three hold. When picker JSON `reopened` is `true`, set `status` back to `open`.
+
+### Dry hunt
+
+If every listed open hypothesis was tested and **none** produced a failing repro: increment `hunts` and `consecutive-dry-hunts`, set `last-hunt` to today, tick or retire the attempted hypotheses, **stop**. Do not invent another bug in the same files or jump to another zone.
+
+---
+
 ## Phase 1 — Find a real defect
 
-### 1.1 Pick a hunt zone
+### 1.1 Hunt the picked zone only
 
-Walk this order until you find a **confirmed** bug (or exhaust the list):
-
-1. **User hint** — if provided in the message, start there.
-2. **Topology proposal orchestration** (high yield) — under `ArchLucid.Application/Runs/Orchestration/`:
-   - `AgentTopologyProposalMergeGate`
-   - `AgentTopologyProposalGraphMerge`
-   - `TopologyProposalRelationshipEdgeMapper`
-   - `TopologyProposalRelationshipEndpointIndex`
-   - `AgentProposalStructuralPostProcessor`
-   - `CrossAgentProposalConsistencyGate`
-   - Tests: `ArchLucid.Application.Tests/Runs/Orchestration/*`
-3. **Recent `master` commits** touching those paths — look for asymmetry between merge gate, graph merge, and edge mapper.
-4. **Gap patterns** (common in this subsystem):
-   - Merge gate keeps a relationship but graph merge drops the edge
-   - Endpoint keyed by synthetic id (`svc-` / `ds-`), Terraform `SourceId`, ARM property, or renamed label not resolved
-   - Inventoried vs agent-proposed node handling inconsistent
-   - Category mismatch (`storage` vs `data`) for synthetic datastore keys
+Work the picker’s `openHypotheses` against `paths`. Use `testFilter` for scoped tests. A user hint pins a zone; it does not authorize hunting other zones in the same run.
 
 ### 1.2 Prove it
 
@@ -94,7 +118,7 @@ dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj `
 
 Filter syntax: use `|` between patterns, not regex groups.
 
-4. If you cannot make a test fail, **do not claim a bug** — pick another hypothesis.
+4. If you cannot make a test fail, **do not claim a bug** — try the next listed hypothesis in this zone. If none remain, treat the run as a **dry hunt** (Phase 0) and stop.
 
 ### 1.3 Phase 1 output (always)
 
@@ -176,15 +200,21 @@ git log origin/master -1 --oneline
 
 ## Phase 4 — Report back (always)
 
+After a hit or dry hunt, **edit** `docs/library/AL_BUG_HUNT_LEDGER.md` for the picked zone (`hunts`, `bugs-found`, `last-hunt`, `consecutive-dry-hunts`, hypothesis checkboxes, `status`). Include that file in the same ship when the hunt produced a product fix; for a dry hunt, ship the ledger update only.
+
 ```markdown
 ## /al-bug result
 
 | Field | Value |
 | --- | --- |
 | Branch | `master` (or override) |
-| Bug | <one-line title> |
-| Root cause | <short mechanism> |
-| Fix | <what changed> |
+| Zone | `<zoneId>` |
+| Dry or hit | dry / hit |
+| Hypotheses left | N open (`- [ ]`) |
+| Zone status | open / cooling / exhausted |
+| Bug | <one-line title, or n/a if dry> |
+| Root cause | <short mechanism, or n/a if dry> |
+| Fix | <what changed, or ledger-only if dry> |
 | Tests | <test names> — N passed |
 | Commit | `<sha>` on `origin/master` |
 | Left unstaged | <paths or none> |
@@ -196,6 +226,8 @@ git log origin/master -1 --oneline
 
 - `.cursor/commands/al-bug.md` — this workflow
 - `.cursor/skills/al-bug/SKILL.md` — skill pointer + hunt heuristics
+- `docs/library/AL_BUG_HUNT_LEDGER.md` — zone yield, hypotheses, exhaustion
+- `scripts/agent/al-bug-pick-zone.ps1` — deterministic next-zone picker
 - `scripts/agent/al-bug-push-master.ps1` — worktree commit/push helper
 
 ## Related commands
