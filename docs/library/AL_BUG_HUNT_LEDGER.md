@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-16 (catalog expansion across API/persistence/UI/CLI; arm-terraform-source-ids hit: Terraform ARM ids in tf.id / tf.resource_id).
+**Updated:** 2026-08-16 (catalog expansion across API/persistence/UI/CLI; arm-terraform-source-ids hit: Terraform ARM ids in tf.id / tf.resource_id; sql-run-repository dry: get/list/update already tenant-scoped).
 
 ## How to use
 
@@ -393,19 +393,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-16
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
+2026-08-16 dry hunt: listed hypotheses do not hold on `SqlRunRepository`. `SelectByScopedId` and `Update` already require `TenantId` + `WorkspaceId` + `ScopeProjectId`; `GetById_wrong_scope_returns_null_when_run_saved_under_other_tenant` covers cross-tenant get. List shapes use `RunListWarningFlagSql.ScopeWhereTail` with `r.TenantId = @TenantId` always; `WorkspaceId` is a non-nullable `Guid` (empty workspace is not a security boundary). Cross-tenant update matches 0 rows and throws. Admin/archive paths are `[TenantScopeExempt]` by catalog routing, not Layer D bleed.
+
 ### Hypotheses
 
-- [ ] Get-by-id returns a run that belongs to a different tenant
-- [ ] List query omits tenant predicate when workspace filter is empty
-- [ ] Update succeeds against a run id from another tenant in the same database
+- [x] Get-by-id returns a run that belongs to a different tenant
+- [x] List query omits tenant predicate when workspace filter is empty
+- [x] Update succeeds against a run id from another tenant in the same database
 
 ---
 
