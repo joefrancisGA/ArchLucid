@@ -322,7 +322,7 @@ public static class TopologyProposalRelationshipEndpointIndex
 
         if (serviceName is not null)
         {
-            if (string.Equals(node.Label, serviceName, StringComparison.OrdinalIgnoreCase))
+            if (NodeIdentityMatchesProposedName(node, serviceName))
                 return true;
 
             if (string.Equals(node.NodeId, BuildSyntheticServiceNodeId(serviceName), StringComparison.OrdinalIgnoreCase))
@@ -357,7 +357,7 @@ public static class TopologyProposalRelationshipEndpointIndex
 
         if (datastoreName is not null)
         {
-            if (string.Equals(node.Label, datastoreName, StringComparison.OrdinalIgnoreCase))
+            if (NodeIdentityMatchesProposedName(node, datastoreName))
                 return true;
 
             if (string.Equals(node.NodeId, BuildSyntheticDatastoreNodeId(datastoreName), StringComparison.OrdinalIgnoreCase))
@@ -365,6 +365,25 @@ public static class TopologyProposalRelationshipEndpointIndex
         }
 
         return false;
+    }
+
+    /// <summary>
+    ///     True when <paramref name="proposedName" /> is the inventoried node's label, node id, Terraform source id,
+    ///     or ARM resource id. The merge gate already treats those as known endpoints; graph merge must alias the
+    ///     same keys or it drops edges the gate kept.
+    /// </summary>
+    private static bool NodeIdentityMatchesProposedName(GraphNode node, string proposedName)
+    {
+        if (string.Equals(node.Label, proposedName, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(node.NodeId, proposedName, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(node.SourceId, proposedName, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return ArmResourceIdMatches(proposedName, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node));
     }
 
     private static string? TrimManifestEndpointValue(string? value) =>
