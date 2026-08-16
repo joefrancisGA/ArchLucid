@@ -140,4 +140,56 @@ public sealed class ChangeImpactAnalyzerTests
             item.ElementId == "storage-linked"
             && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void Analyze_includes_multi_hop_related_elements_from_directly_impacted_sources()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-related-chain",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "downstream-consumer",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Downstream consumer",
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "middle-link",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Middle link",
+                    RelatedElementIds = ["downstream-consumer"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "comp-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout API",
+                    RelatedElementIds = ["middle-link"],
+                },
+            ],
+        };
+
+        ArchitectureRecommendation recommendation = new()
+        {
+            RecommendationId = "rec-related-chain",
+            Problem = "Checkout latency",
+            Evidence = "Trace data.",
+            AffectedRequirementOrQualityAttribute = "Performance",
+            ConsequenceOfInaction = "Latency remains.",
+            ProposedChange = "Optimize Checkout API caching.",
+            ValidationMethod = "Load test.",
+        };
+
+        ChangeImpactResult impact = _analyzer.Analyze(model, recommendation);
+
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "comp-target");
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "middle-link");
+        impact.ImpactedItems.Should().Contain(item =>
+            item.ElementId == "downstream-consumer"
+            && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
+    }
 }
