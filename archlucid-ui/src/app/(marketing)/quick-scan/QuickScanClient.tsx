@@ -12,11 +12,12 @@ import {
   QUICK_SCAN_PRIMARY_CONTENT_ID,
 } from "@/app/(marketing)/quick-scan/quick-scan-page-content";
 import { QuickScanForm, type QuickScanFormFieldName } from "@/app/(marketing)/quick-scan/QuickScanForm";
+import { SeeItDeliverablePreview } from "@/app/(marketing)/see-it/SeeItDeliverablePreview";
 import { QuickScanEvidenceOrientationStrip } from "@/components/marketing/QuickScanEvidenceOrientationStrip";
 import { QuickScanScopeDisclosure } from "@/components/marketing/quick-scan/QuickScanScopeDisclosure";
 import { TrustCenterRevisionHistory } from "@/components/marketing/trust-center/TrustCenterRevisionHistory";
 import { Button } from "@/components/ui/button";
-import { DESIGN_TOKENS, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findingSeverityLabel } from "@/lib/findings/finding-severity-label";
 import {
   isQuickScanAiSubmitAllowed,
@@ -410,19 +411,23 @@ export function QuickScanClient(): ReactElement {
         Skip to quick scan content
       </a>
 
-      <header className="max-w-3xl border-b border-neutral-200 pb-8 dark:border-neutral-800">
-        <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>{QUICK_SCAN_PAGE_TITLE}</h1>
-        <p className={cn("mt-3 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{QUICK_SCAN_HERO_LEAD}</p>
-        <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="quick-scan-hero-meta">
-          <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
-            Last reviewed{" "}
-            <time dateTime={QUICK_SCAN_LAST_REVIEWED_LABEL}>{QUICK_SCAN_LAST_REVIEWED_LABEL}</time>
-          </span>
-          <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
-            Demonstration pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
-          </span>
+      <section
+        className={cn(
+          "grid items-start gap-10 border-b border-neutral-200 pb-8 dark:border-neutral-800 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-12",
+          MARKETING_MOTION.revealIn,
+        )}
+        data-testid="quick-scan-hero"
+        aria-labelledby="quick-scan-hero-heading"
+      >
+        <div>
+          <h1 id="quick-scan-hero-heading" className={MARKETING_TYPOGRAPHY.heroTitle}>
+            {QUICK_SCAN_PAGE_TITLE}
+          </h1>
+          <p className={cn("mt-4 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{QUICK_SCAN_HERO_LEAD}</p>
         </div>
-      </header>
+
+        <SeeItDeliverablePreview />
+      </section>
 
       <QuickScanScopeDisclosure />
 
@@ -699,6 +704,16 @@ export function QuickScanClient(): ReactElement {
           </div>
         </section>
       ) : null}
+
+      <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="quick-scan-page-meta">
+        <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
+          Last reviewed{" "}
+          <time dateTime={QUICK_SCAN_LAST_REVIEWED_LABEL}>{QUICK_SCAN_LAST_REVIEWED_LABEL}</time>
+        </span>
+        <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
+          Demonstration pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
+        </span>
+      </div>
 
       <TrustCenterRevisionHistory entries={QUICK_SCAN_REVISION_HISTORY} />
 
