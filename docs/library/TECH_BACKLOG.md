@@ -1319,7 +1319,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2212 | **Done** (2026-08-13) ? Deterministic cost breach finding engine; see ## TB-2212 below | Cost-effectiveness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; typed decisioning vs agent prose | M |
 | TB-2213 | **Done** (2026-08-14) ? Extractor-grounded cost signals (`advisor-cost`, orphans); see ## TB-2213 below | Cost-effectiveness P1 ? **V1**; non-policy-pack assessment wave 2026-08-13; evidence already in Azure ZIP | M |
 | TB-2214 | **Done** (2026-08-13) ? Validate-before-overlay for cost agent proposals; see ## TB-2214 below | AI/Agent readiness P1 ? **V1**; non-policy-pack assessment wave 2026-08-13; extends topology merge gate | M |
-| TB-2215 | Multi-cloud cost constraint parity (AWS/GCP); see ## TB-2215 below | Cost-effectiveness P2 ? **V1.1**; non-policy-pack assessment wave 2026-08-13; pairs **TB-874**?**TB-876** | L |
+| TB-2215 | **Done** (2026-08-16) — Multi-cloud cost constraint parity (AWS/GCP); see ## TB-2215 below | Cost-effectiveness P2 ? **V1.1**; non-policy-pack assessment wave 2026-08-13; pairs **TB-874**?**TB-876** | L |
 | TB-2216 | **Done** (2026-08-13) ? Graph ? Azure inventory reconciliation; see ## TB-2216 below | Correctness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; closes topology validation loop | L |
 | TB-2217 | **Done** (2026-08-13) ? Expand deterministic Azure orphan/drift classifiers; see ## TB-2217 below | Correctness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; extends `OrphanedResourceClassifier` | M |
 | TB-2218 | **Done** (2026-08-13) ? AWS/GCP inventory reality finding engines; see ## TB-2218 below | Correctness P1 ? **V1.1**; `orphaned-aws-resource` + `orphaned-gcp-resource` engines; pairs **TB-874**?**TB-876** | L |
@@ -51602,6 +51602,22 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Approach:** Classify storage public access, NSG open admin ingress, and weak SQL server TLS/public access from inventory rows; emit typed `RequirementFindingPayload` findings with rules-applied trace.
 
 **Peers:** Done **TB-2262** (Aws/Gcp parity), **TB-2219** (freshness gate).
+
+**Size estimate:** L.
+
+---
+
+## TB-2215 — Multi-cloud cost constraint parity (AWS/GCP) (P2)
+
+**Window:** V1.1.
+
+**Status:** **Done** 2026-08-16 — `aws-cost-recommendation` / `gcp-cost-recommendation` finding engines; shared `CloudCostRecommendationFindingAnalyzer`; `ExtractorAdvisorCostClassifier` AWS/GCP field aliases; ZIP aliases `advisor-cost.json` / `cost-recommendations.json` / `compute-optimizer.json` / `recommender-cost.json`; DI registration; `DecisionGradeFindingProvenanceValidator` inventory-engine allow-list; ArtifactSynthesis/Application/Decisioning tests. Returns empty when cost JSON is absent (packagers still emit only `manifest.json` + `resources.json`).
+
+**Why:** Done **TB-2213** Azure extractor-grounded cost recommendations had no AWS/GCP peers. Inventory-driven cost findings stayed Azure-only even after orphan engines shipped for those clouds.
+
+**Approach:** Reuse `AdvisorCostRecommendationFindingPayload` and the existing classifier JSON shape; do not invent a `projectedMonthlySpendUsd` path. Azure-first hosting is unchanged — this is analysis-target parity only.
+
+**Peers:** Done **TB-2213**, **TB-2218**, **TB-2219**; pairs **TB-874**–**TB-876**.
 
 **Size estimate:** L.
 

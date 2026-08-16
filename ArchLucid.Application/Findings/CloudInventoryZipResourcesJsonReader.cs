@@ -8,6 +8,13 @@ internal static class CloudInventoryZipResourcesJsonReader
 {
     public static string? TryReadResourcesJson(byte[] packageBytes)
     {
+        return TryReadEntry(packageBytes, "resources.json");
+    }
+
+    public static string? TryReadEntry(byte[] packageBytes, string entryName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(entryName);
+
         if (packageBytes is null || packageBytes.Length == 0)
         {
             return null;
@@ -17,9 +24,9 @@ internal static class CloudInventoryZipResourcesJsonReader
         {
             using MemoryStream stream = new(packageBytes);
             using ZipArchive archive = new(stream, ZipArchiveMode.Read, leaveOpen: false);
-            ZipArchiveEntry? entry = archive.GetEntry("resources.json")
-                                   ?? archive.Entries.FirstOrDefault(static e =>
-                                       e.Name.Equals("resources.json", StringComparison.OrdinalIgnoreCase));
+            ZipArchiveEntry? entry = archive.GetEntry(entryName)
+                                   ?? archive.Entries.FirstOrDefault(e =>
+                                       e.Name.Equals(entryName, StringComparison.OrdinalIgnoreCase));
 
             if (entry is null)
             {

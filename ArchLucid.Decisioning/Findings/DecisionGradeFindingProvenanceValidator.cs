@@ -247,5 +247,7 @@ public static class DecisionGradeFindingProvenanceValidator
         || string.Equals(engineType, "orphaned-azure-resource", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "orphaned-aws-resource", StringComparison.OrdinalIgnoreCase)
         || string.Equals(engineType, "orphaned-gcp-resource", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(engineType, "advisor-cost-recommendation", StringComparison.OrdinalIgnoreCase);
+        || string.Equals(engineType, "advisor-cost-recommendation", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "aws-cost-recommendation", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "gcp-cost-recommendation", StringComparison.OrdinalIgnoreCase);
 }
