@@ -135,6 +135,54 @@ public sealed class IncrementalReReviewServiceTests
             .BeEquivalentTo(["affected-target", "middle-link", "upstream-consumer"]);
     }
 
+    [Fact]
+    public void ReReview_scoped_model_includes_forward_related_chain_regardless_of_element_order()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-forward-chain",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "downstream-consumer",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Downstream consumer",
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "middle-link",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Middle link",
+                    RelatedElementIds = ["downstream-consumer"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "affected-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Affected target",
+                    RelatedElementIds = ["middle-link"],
+                },
+            ],
+        };
+
+        CapturingSpecialistReviewService capturingSpecialist = new();
+        ReReviewScope scope = new()
+        {
+            AffectedElementIds = ["affected-target"],
+            FullReReview = false,
+            IncludeGlobalInvariantChecks = false,
+        };
+
+        _service.ReReview(model, scope, capturingSpecialist);
+
+        capturingSpecialist.CapturedModel.Should().NotBeNull();
+        capturingSpecialist.CapturedModel!.Elements.Select(element => element.ElementId)
+            .Should()
+            .BeEquivalentTo(["affected-target", "middle-link", "downstream-consumer"]);
+    }
+
     private sealed class CapturingSpecialistReviewService : ISpecialistReviewService
     {
         public ArchitectureKnowledgeModel? CapturedModel { get; private set; }

@@ -54,19 +54,29 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
     {
         HashSet<string> includedIds = affectedElementIds.ToHashSet(StringComparer.Ordinal);
 
-        // One-hop expansion so related decisions/risks in the subgraph are included.
-        foreach (ArchitectureModelElement element in model.Elements)
-        {
-            if (!includedIds.Contains(element.ElementId))
-            {
-                continue;
-            }
+        bool forwardRelatedExpansionAddedElements;
 
-            foreach (string relatedId in element.RelatedElementIds)
+        do
+        {
+            forwardRelatedExpansionAddedElements = false;
+
+            foreach (ArchitectureModelElement element in model.Elements)
             {
-                includedIds.Add(relatedId);
+                if (!includedIds.Contains(element.ElementId))
+                {
+                    continue;
+                }
+
+                foreach (string relatedId in element.RelatedElementIds)
+                {
+                    if (includedIds.Add(relatedId))
+                    {
+                        forwardRelatedExpansionAddedElements = true;
+                    }
+                }
             }
         }
+        while (forwardRelatedExpansionAddedElements);
 
         bool reverseRelatedExpansionAddedElements;
 
