@@ -54,11 +54,11 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
     {
         HashSet<string> includedIds = affectedElementIds.ToHashSet(StringComparer.Ordinal);
 
-        bool forwardRelatedExpansionAddedElements;
+        bool relatedExpansionAddedElements;
 
         do
         {
-            forwardRelatedExpansionAddedElements = false;
+            relatedExpansionAddedElements = false;
 
             foreach (ArchitectureModelElement element in model.Elements)
             {
@@ -71,18 +71,10 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
                 {
                     if (includedIds.Add(relatedId))
                     {
-                        forwardRelatedExpansionAddedElements = true;
+                        relatedExpansionAddedElements = true;
                     }
                 }
             }
-        }
-        while (forwardRelatedExpansionAddedElements);
-
-        bool reverseRelatedExpansionAddedElements;
-
-        do
-        {
-            reverseRelatedExpansionAddedElements = false;
 
             foreach (ArchitectureModelElement element in model.Elements)
             {
@@ -96,11 +88,13 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
                     continue;
                 }
 
-                includedIds.Add(element.ElementId);
-                reverseRelatedExpansionAddedElements = true;
+                if (includedIds.Add(element.ElementId))
+                {
+                    relatedExpansionAddedElements = true;
+                }
             }
         }
-        while (reverseRelatedExpansionAddedElements);
+        while (relatedExpansionAddedElements);
 
         return new ArchitectureKnowledgeModel
         {
