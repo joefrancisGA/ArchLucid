@@ -15,4 +15,4 @@ export const HELP_DRAWER_TRAFFIC_SECTION = "Shell overlay";
  * ASCII-only for Windows console note scripts.
  */
 export const HELP_DRAWER_TRAFFIC_NOTE =
-  "UX 74->89, Evidence 0->88. /al-ui-rate-lowest HCD: contextual help drawer breadcrumb, claim orientation strip, panel header, article skeleton, inline load failure retry, buyer-polished tests, smoke e2e breadcrumb. Commit a79a7d1471.";
+  "UX 74->89, Evidence 0->88. /al-ui-rate-lowest HCD: contextual help drawer breadcrumb, claim orientation strip, panel header, article skeleton, inline load failure retry, buyer-polished tests, smoke e2e breadcrumb. Commit b18728df0b.";
