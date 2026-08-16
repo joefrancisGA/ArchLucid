@@ -81,4 +81,23 @@ public sealed class AdvancedRetrievalOptions
     {
         return TimeSpan.FromSeconds(Math.Clamp(ExpansionTimeoutSeconds, 1, 30));
     }
+
+    /// <summary>When true, runs bounded retrieve-critique-retry after single-pass expansion (TB-878).</summary>
+    public bool EnableIterativeRetrieveCritiqueRetry
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Maximum retrieval rounds including the initial pass (default 2).</summary>
+    public int MaxIterativeRetrievalRounds
+    {
+        get;
+        set;
+    } = 2;
+
+    public int GetEffectiveMaxIterativeRetrievalRounds()
+    {
+        return Math.Clamp(MaxIterativeRetrievalRounds, 1, 4);
+    }
 }

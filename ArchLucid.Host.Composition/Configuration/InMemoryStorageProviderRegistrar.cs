@@ -14,6 +14,8 @@ using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.ContextIngestion.Repositories;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
+using ArchLucid.Contracts.Analytics;
+using ArchLucid.Contracts.Analytics;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Authority;
@@ -276,6 +278,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
         services.AddSingleton<IProductLearningDashboardService, ProductLearningDashboardService>();
         services.AddSingleton<IProductLearningPlanningDerivationService, ProductLearningPlanningDerivationService>();
+        services.AddSingleton<IPatternInsightAggregateRepository, InMemoryPatternInsightAggregateRepository>();
         services.AddSingleton<IEvolutionCandidateChangeSetRepository, InMemoryEvolutionCandidateChangeSetRepository>();
         services.AddSingleton<IEvolutionSimulationRunRepository, InMemoryEvolutionSimulationRunRepository>();
         services.AddSingleton<IConversationThreadRepository, InMemoryConversationThreadRepository>();

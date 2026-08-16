@@ -36,6 +36,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
+using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Http;
@@ -72,6 +73,7 @@ using ArchLucid.Retrieval.PolicyPacks;
 using ArchLucid.Retrieval.Reranking;
 using ArchLucid.Retrieval.Summarization;
 using ArchLucid.Retrieval.Pricing;
+using ArchLucid.Retrieval.ProductLearning;
 using ArchLucid.Retrieval.Queries;
 using ArchLucid.Retrieval.FineTuning;
 using ArchLucid.Retrieval.FineTuning.Consent;
@@ -103,6 +105,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AdvancedRetrievalOptions>(configuration.GetSection(AdvancedRetrievalOptions.SectionPath));
         services.Configure<RetrievalQueryBudgetOptions>(configuration.GetSection(RetrievalQueryBudgetOptions.SectionPath));
         services.Configure<PriorManifestRetrievalOptions>(configuration.GetSection(PriorManifestRetrievalOptions.SectionPath));
+        services.Configure<ProductLearningPlanningRetrievalOptions>(
+            configuration.GetSection(ProductLearningPlanningRetrievalOptions.SectionPath));
         services.Configure<FineTuningOptions>(configuration.GetSection(FineTuningOptions.SectionPath));
         services.Configure<ManifestChunkSummarizationOptions>(
             configuration.GetSection(ManifestChunkSummarizationOptions.SectionPath));
@@ -125,11 +129,13 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IManifestChunkSummarizer, ManifestChunkSummarizer>();
         services.AddScoped<IAgenticRetrievalCompletionClient, AgenticRetrievalCompletionClient>();
         services.AddScoped<IAgenticRetrievalQueryExpander, AgenticRetrievalQueryExpander>();
+        services.AddScoped<IterativeRetrievalLoop>();
         services.AddScoped<IGraphRagNeighborExpander, GraphRagNeighborExpander>();
         services.AddSingleton<IGraphCommunityDetector, LouvainGraphCommunityDetector>();
         services.AddScoped<IGraphCommunitySummaryCompletionClient, GraphCommunitySummaryCompletionClient>();
         services.AddScoped<IGraphCommunitySummarizationService, GraphCommunitySummarizationService>();
         services.AddScoped<IRetrievalQueryService, RetrievalQueryService>();
+        services.AddScoped<IProductLearningPlanningRetrievalContributor, ProductLearningPlanningRetrievalContributor>();
         services.AddScoped<IRetrievalRunCompletionIndexer, RetrievalRunCompletionIndexer>();
 
         RegisterFineTuning(services, configuration);

@@ -1,11 +1,12 @@
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Retrieval.Agentic;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
 using ArchLucid.Retrieval.PolicyPacks;
-using ArchLucid.Retrieval.Agentic;
 using ArchLucid.Retrieval.Graph;
 using ArchLucid.Retrieval.Queries;
 using ArchLucid.Retrieval.Reranking;
@@ -410,6 +411,17 @@ public sealed class RetrievalQueryServiceTests
 
         NullGraphRagNeighborExpander graphExpander = new();
 
+        HeuristicAgenticRetrievalCompletionClient iterativeCompletionClient = new();
+
+        IOptionsMonitor<AdvancedRetrievalOptions> advancedOptions =
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions { Enabled = false });
+
+        IterativeRetrievalLoop iterativeLoop = new(
+            iterativeCompletionClient,
+            resolvedExpander,
+            advancedOptions,
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<IterativeRetrievalLoop>>());
+
         return new RetrievalQueryService(
             embeddingService,
             vectorIndex,
@@ -418,9 +430,10 @@ public sealed class RetrievalQueryServiceTests
             new NoOpManifestChunkSummarizer(),
             resolvedExpander,
             graphExpander,
+            iterativeLoop,
             telemetryOptions,
             rerankingOptions,
-            new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions { Enabled = false }),
+            advancedOptions,
             new MockOptionsMonitor<RetrievalQueryBudgetOptions>(queryBudget ?? new RetrievalQueryBudgetOptions()));
     }
 

@@ -1,4 +1,6 @@
+using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Retrieval.ProductLearning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
@@ -77,8 +79,8 @@ public sealed class ProductLearningPlanningDerivationServiceTests
             aggregation,
             opportunityService,
             pilot,
-
-            planning);
+            planning,
+            new NullProductLearningPlanningRetrievalContributor());
     }
 
 
