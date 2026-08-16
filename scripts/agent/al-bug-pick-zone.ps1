@@ -4,7 +4,8 @@
   Scores curated /al-bug hunt zones and prints the next zone as JSON.
 
 .DESCRIPTION
-  Reads docs/library/AL_BUG_HUNT_LEDGER.md. Scoring is deterministic (not LLM ranking).
+  Reads docs/library/AL_BUG_HUNT_LEDGER.md. Scoring is deterministic explore/exploit
+  (not LLM ranking): prefer shorter mean hunts-per-bug, sample untried zones.
   This script does not write the ledger — the agent updates it after the hunt.
 
 .PARAMETER LedgerPath
@@ -174,15 +175,23 @@ function Get-RelatedIdCount {
     return @($tokens).Count
 }
 
-function Get-HistoricalYield {
+function Get-MeanHuntsPerBug {
     param([int] $Hunts, [int] $BugsFound)
 
-    # Untried zones get a 0.5 floor so a high-yield zone cannot dominate forever.
-    if ($Hunts -le 0) {
-        return 0.5
+    # Time unit is hunts, not wall-clock. Lower mean = faster to find a bug.
+    if ($BugsFound -gt 0) {
+        return [double]$Hunts / [double]$BugsFound
     }
 
-    return [double]$BugsFound / [double]$Hunts
+    # Untried / dry prior: 2 hunts to first bug; each extra hunt makes first-bug slower.
+    return [double]$Hunts + 2.0
+}
+
+function Get-ExploreBonus {
+    param([int] $Hunts)
+
+    # 1/sqrt(n+1) samples untried catalog so a high-hypothesis zone cannot lock the picker.
+    return 1.0 / [Math]::Sqrt([double]$Hunts + 1.0)
 }
 
 function Get-GitChurnCount {
@@ -323,6 +332,8 @@ function Read-AlBugHuntLedger {
             ClosedHypotheses    = ConvertTo-ObjectArray -Value $closedHypotheses
             CommitCount         = 0
             Score               = 0.0
+            MeanHuntsPerBug     = 0.0
+            ExploreBonus        = 0.0
             Why                 = @()
             Reopened            = $false
         }
@@ -383,20 +394,27 @@ function Test-HintMatchesZone {
 function Get-ZoneScoreBreakdown {
     param($Zone)
 
-    $yield = Get-HistoricalYield -Hunts $Zone.Hunts -BugsFound $Zone.BugsFound
+    $mean = Get-MeanHuntsPerBug -Hunts $Zone.Hunts -BugsFound $Zone.BugsFound
+    $speed = 1.0 / $mean
+    $explore = Get-ExploreBonus -Hunts $Zone.Hunts
     $churn = [Math]::Min(3, [Math]::Max(0, [int]$Zone.CommitCount))
     $openCount = @($Zone.OpenHypotheses).Count
     $relatedCount = [Math]::Min(2, (Get-RelatedIdCount $Zone.RelatedPdTb))
     $dry = [Math]::Max(0, [int]$Zone.ConsecutiveDryHunts)
-    $score = (3.0 * $yield) + (2.0 * $churn) + (2.0 * $openCount) + (1.0 * $relatedCount) - (2.0 * $dry)
+    # Open-hypothesis count is a small tie-break only — it must not lock the catalog.
+    $hyp = [Math]::Min(3, $openCount) * 0.25
+    $score = (6.0 * $speed) + (3.0 * $explore) + (2.0 * $churn) + (1.0 * $relatedCount) + $hyp - (2.0 * $dry)
     $why = New-Object System.Collections.ArrayList
 
     if ($Zone.Hunts -le 0) {
-        [void]$why.Add('untried yield floor 0.50')
+        [void]$why.Add('untried catalog sample')
     }
     else {
-        [void]$why.Add(('historical yield {0:N2}' -f $yield))
+        [void]$why.Add(('mean hunts/bug {0:N2}' -f $mean))
     }
+
+    [void]$why.Add(('speed {0:N2}' -f $speed))
+    [void]$why.Add(('explore bonus {0:N2}' -f $explore))
 
     if ($openCount -gt 0) {
         [void]$why.Add("$openCount open hypotheses")
@@ -419,8 +437,10 @@ function Get-ZoneScoreBreakdown {
     }
 
     return [pscustomobject]@{
-        Score = [Math]::Round($score, 2)
-        Why   = ConvertTo-ObjectArray -Value $why
+        Score           = [Math]::Round($score, 2)
+        MeanHuntsPerBug = [Math]::Round($mean, 2)
+        ExploreBonus    = [Math]::Round($explore, 2)
+        Why             = ConvertTo-ObjectArray -Value $why
     }
 }
 
@@ -446,6 +466,8 @@ function Set-ZoneComputedFields {
 
         $breakdown = Get-ZoneScoreBreakdown -Zone $zone
         $zone.Score = $breakdown.Score
+        $zone.MeanHuntsPerBug = $breakdown.MeanHuntsPerBug
+        $zone.ExploreBonus = $breakdown.ExploreBonus
         $zone.Why = $breakdown.Why
     }
 }
@@ -498,6 +520,8 @@ function ConvertTo-PickResult {
             testFilter          = ''
             hunts               = 0
             bugsFound           = 0
+            meanHuntsPerBug     = 0.0
+            exploreBonus        = 0.0
             consecutiveDryHunts = 0
             lastHunt            = 'never'
             exhausted           = $true
@@ -526,6 +550,8 @@ function ConvertTo-PickResult {
         testFilter          = $Zone.TestFilter
         hunts               = $Zone.Hunts
         bugsFound           = $Zone.BugsFound
+        meanHuntsPerBug     = $Zone.MeanHuntsPerBug
+        exploreBonus        = $Zone.ExploreBonus
         consecutiveDryHunts = $Zone.ConsecutiveDryHunts
         lastHunt            = $Zone.LastHunt
         exhausted           = ($Zone.Status -eq 'exhausted' -and -not $Zone.Reopened)
@@ -564,6 +590,8 @@ function Write-ZonePreview {
     Write-Host ("| Zone | `{0}` |" -f $Result.zoneId)
     Write-Host ("| Status | {0} |" -f $Result.status)
     Write-Host ("| Score | {0} |" -f $Result.score)
+    Write-Host ("| Mean hunts/bug | {0} |" -f $Result.meanHuntsPerBug)
+    Write-Host ("| Explore bonus | {0} |" -f $Result.exploreBonus)
     Write-Host ("| Why | {0} |" -f ($Result.why -join '; '))
     Write-Host ("| Hypotheses left | {0} |" -f @($Result.openHypotheses).Count)
     Write-Host ("| Test filter | `{0}` |" -f $Result.testFilter)

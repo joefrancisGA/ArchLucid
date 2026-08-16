@@ -2,9 +2,9 @@
 
 # `/al-bug` hunt ledger
 
-Curated zones for **yield-ranked** defect hunting. The picker is `scripts/agent/al-bug-pick-zone.ps1` (not LLM ranking). Do **not** treat this as a static “always hunt topology first” list.
+Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-16 (arm-terraform-source-ids hit: Terraform ARM ids in tf.id / tf.resource_id).
+**Updated:** 2026-08-16 (catalog expansion across API/persistence/UI/CLI; arm-terraform-source-ids hit: Terraform ARM ids in tf.id / tf.resource_id).
 
 ## How to use
 
@@ -17,14 +17,23 @@ Curated zones for **yield-ranked** defect hunting. The picker is `scripts/agent/
 
 ## Scoring (picker)
 
+Time unit is **hunts**, not wall-clock minutes. Exploit zones with a short mean hunts-per-bug; explore untried / under-sampled zones so the catalog can learn.
+
 ```text
+mean_hunts_per_bug = hunts / bugs when bugs > 0, else hunts + 2 (prior)
+speed              = 1 / mean_hunts_per_bug
+explore            = 1 / sqrt(hunts + 1)
+
 score =
-  3 × historical_yield          (bugs/hunts; floor 0.5 when hunts = 0)
+  6 × speed
++ 3 × explore
 + 2 × recent_churn              (min(3, commitCount since last-hunt))
-+ 2 × open_hypotheses           (unchecked - [ ] rows)
 + 1 × related_PD_or_TB          (min(2, id count))
++ 0.25 × min(3, open hypotheses)
 − 2 × consecutive_dry_hunts
 ```
+
+Open-hypothesis count is a small tie-break only. A zone with many unchecked rows must not permanently block the rest of the catalog.
 
 Eligibility: `open` always; `cooling` only when no `open` zone remains; `exhausted` only when git shows commits on `paths` since `last-hunt`.
 
@@ -280,3 +289,601 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] Retry policy retries a non-transient SQL error (constraint / timeout misclassified)
 - [ ] Commit retry exhausts attempts but still returns success to the caller
 - [ ] Transient retry does not include the same isolation / tenant scope on the replay
+
+---
+
+## Zone: email-otp-auth
+
+- **id:** email-otp-auth
+- **status:** open
+- **aliases:** email otp; otp auth; email challenge
+- **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
+- **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] A consumed or expired OTP still issues a session
+- [ ] Challenge lookup is not tenant-scoped and can verify another tenant’s code
+- [ ] Concurrent verify requests both succeed on the same one-time challenge
+
+---
+
+## Zone: auth-return-path
+
+- **id:** auth-return-path
+- **status:** open
+- **aliases:** return path; sign-in redirect; open redirect
+- **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
+- **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] A protocol-relative or encoded external URL is accepted as an in-app return path
+- [ ] Backslash or `@` host smuggling bypasses the leading-slash check
+- [ ] Control characters in the return path still survive normalization
+
+---
+
+## Zone: tenant-erasure
+
+- **id:** tenant-erasure
+- **status:** open
+- **aliases:** tenant delete; erasure; quarantine middleware
+- **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
+- **test-filter:** FullyQualifiedName~TenantErasure
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Erasure proceeds while a legal hold is still active
+- [ ] Quarantine middleware lets mutating requests through after erasure has started
+- [ ] Erasure command deletes another tenant’s rows when ids collide in cache
+
+---
+
+## Zone: tenant-scoped-analyzer
+
+- **id:** tenant-scoped-analyzer
+- **status:** open
+- **aliases:** ARCH006; tenant scoped query analyzer
+- **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
+- **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Analyzer misses a Dapper QueryAsync on a tenant table with no scope binding
+- [ ] Interpolated SQL is treated as scoped when the tenant predicate is only in a comment
+- [ ] Empty exemption justification does not fire the diagnostic
+
+---
+
+## Zone: sql-run-repository
+
+- **id:** sql-run-repository
+- **status:** open
+- **aliases:** run repository; sql run scope
+- **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
+- **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Get-by-id returns a run that belongs to a different tenant
+- [ ] List query omits tenant predicate when workspace filter is empty
+- [ ] Update succeeds against a run id from another tenant in the same database
+
+---
+
+## Zone: finding-inspect-sql
+
+- **id:** finding-inspect-sql
+- **status:** open
+- **aliases:** finding inspect; dapper inspect read
+- **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs
+- **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectEndpointTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Inspect read returns a finding whose tenant does not match the request scope
+- [ ] Mapper drops evidence fields so inspect shows success with empty trail
+- [ ] Inspect query joins without tenant on the child table and leaks sibling-tenant rows
+
+---
+
+## Zone: llm-wallet
+
+- **id:** llm-wallet
+- **status:** open
+- **aliases:** llm wallet; tenant wallet; billing wallet
+- **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
+- **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Debit applies to a different tenant’s wallet when the header tenant differs from the route
+- [ ] Concurrent debits both succeed past the remaining balance
+- [ ] Wallet read returns another tenant’s remaining credits
+
+---
+
+## Zone: finding-disposition
+
+- **id:** finding-disposition
+- **status:** open
+- **aliases:** disposition; finding decision
+- **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
+- **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Disposition writes succeed for a finding that belongs to another tenant
+- [ ] Validation accepts a closed finding as still actionable
+- [ ] Required rationale is skipped when the disposition kind is reject
+
+---
+
+## Zone: review-recurrence
+
+- **id:** review-recurrence
+- **status:** open
+- **aliases:** recurrence; next run calculator
+- **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
+- **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Next-run lands in the past so the scheduler fires immediately in a loop
+- [ ] Disabled recurrence still computes a next run
+- [ ] Time-zone conversion shifts the cadence by a day around DST
+
+---
+
+## Zone: alert-simulation
+
+- **id:** alert-simulation
+- **status:** open
+- **aliases:** alert sim; simulation context
+- **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
+- **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Simulation context loads findings from a tenant other than the caller
+- [ ] Dry-run simulation persists a real alert delivery
+- [ ] Missing workspace still returns 200 with another workspace’s rules
+
+---
+
+## Zone: weekly-digest-email
+
+- **id:** weekly-digest-email
+- **status:** open
+- **aliases:** weekly digest; executive summary email
+- **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
+- **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Digest email includes findings from a tenant the recipient cannot access
+- [ ] Dispatcher treats a send failure as success and skips retry
+- [ ] Unsubscribed address still receives the weekly summary
+
+---
+
+## Zone: outbound-webhook-dry-run
+
+- **id:** outbound-webhook-dry-run
+- **status:** open
+- **aliases:** webhook dry run; outbound webhook
+- **paths:** ArchLucid.Api/Services/OutboundWebhookDryRunService.cs; ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs
+- **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Dry-run posts to the live customer endpoint
+- [ ] Dry-run payload includes secrets from another tenant’s webhook config
+- [ ] Controller returns success when the dry-run service throws
+
+---
+
+## Zone: architecture-recommendation
+
+- **id:** architecture-recommendation
+- **status:** open
+- **aliases:** recommendation engine; alternatives
+- **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
+- **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Recommended change targets an element that is not in the current package
+- [ ] Alternative list duplicates the primary recommendation as if it were distinct
+- [ ] Engine emits a must-change when evidence only supports a suggestion
+
+---
+
+## Zone: extraction-router
+
+- **id:** extraction-router
+- **status:** open
+- **aliases:** extraction router; difficulty router
+- **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
+- **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Hard extraction is routed to the cheap path and still treated as high fidelity
+- [ ] Router swallows a failed extraction and returns an empty graph as success
+- [ ] Difficulty score is computed from a different document than the one extracted
+
+---
+
+## Zone: cli-tenant-isolation
+
+- **id:** cli-tenant-isolation
+- **status:** open
+- **aliases:** tenant isolation cli; negative isolation test
+- **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
+- **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Runner reports pass when a cross-tenant probe actually returned 200
+- [ ] Probe uses the victim tenant’s token instead of the attacker token
+- [ ] Aggregator treats skipped probes as isolation successes
+
+---
+
+## Zone: cli-draft-new
+
+- **id:** cli-draft-new
+- **status:** open
+- **aliases:** draft new; cli draft
+- **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
+- **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Draft is created under a tenant other than the signed-in CLI tenant
+- [ ] Command reports success when the API returned 4xx
+- [ ] Existing draft id is overwritten without confirmation
+
+---
+
+## Zone: cli-terraform-evidence
+
+- **id:** cli-terraform-evidence
+- **status:** open
+- **aliases:** terraform evidence; deployment evidence terraform
+- **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
+- **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] ARM resource id is stored in the wrong Terraform attribute (name vs id)
+- [ ] Module-wrapped resource is skipped so evidence omits a live ARM id
+- [ ] Parser treats a comment containing `resource_id` as a real binding
+
+---
+
+## Zone: ui-runs-list
+
+- **id:** ui-runs-list
+- **status:** open
+- **aliases:** reviews list; runs list client
+- **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
+- **test-filter:** RunsListClient
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] List renders reviews from a workspace the operator is not scoped to
+- [ ] Failed load still shows a previous tenant’s cached rows
+- [ ] Empty state is skipped so a spinner never ends after a 403
+
+---
+
+## Zone: ui-auth-callback
+
+- **id:** ui-auth-callback
+- **status:** open
+- **aliases:** auth callback; access panel
+- **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
+- **test-filter:** AuthCallbackAccessPanel
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Access-denied technical detail is shown as a successful sign-in
+- [ ] Callback continues into the operator shell when the grant is missing
+- [ ] Error copy includes another user’s email from a leftover query cache
+
+---
+
+## Zone: ui-help-docs
+
+- **id:** ui-help-docs
+- **status:** open
+- **aliases:** help docs; help client
+- **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
+- **test-filter:** HelpDocsClient
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Topic markdown fetch follows an external URL instead of the in-app help route
+- [ ] Missing topic is rendered as a GitHub blob link
+- [ ] Index lists topics the current role is not allowed to open
+
+---
+
+## Zone: ui-webhooks-settings
+
+- **id:** ui-webhooks-settings
+- **status:** open
+- **aliases:** webhooks settings; outbound webhook ui
+- **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx
+- **test-filter:** WebhooksSettings
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Signing secret from a previous workspace remains visible after scope switch
+- [ ] Save succeeds in the UI when the API returned 403
+- [ ] Dry-run control posts to the live endpoint from the settings form
+
+---
+
+## Zone: ui-host-gate
+
+- **id:** ui-host-gate
+- **status:** open
+- **aliases:** host gate; split site host
+- **paths:** archlucid-ui/src/lib/host-gate.ts
+- **test-filter:** host-gate
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Operator path is treated as marketing on the public host (or the reverse)
+- [ ] Retired bookmark is not redirected and 404s instead of the shim
+- [ ] Split-site origin check allows the operator app origin as a public page
+
+---
+
+## Zone: ui-architecture-intelligence
+
+- **id:** ui-architecture-intelligence
+- **status:** open
+- **aliases:** architecture intelligence page; ai page client
+- **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
+- **test-filter:** ArchitectureIntelligencePageClient
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Page shows recommendations for a package outside the current workspace
+- [ ] Stale query data from the previous tenant remains after scope switch
+- [ ] Error state is omitted so a failed load looks like an empty architecture
+
+---
+
+## Zone: scim-users
+
+- **id:** scim-users
+- **status:** open
+- **aliases:** scim; entra provisioning users
+- **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
+- **test-filter:** FullyQualifiedName~ScimUsers
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] PATCH/DELETE affects a user in another tenant when externalId collides
+- [ ] Filter query returns users outside the provisioning tenant
+- [ ] Create succeeds without mapping the user into the caller’s tenant
+
+---
+
+## Zone: identity-provider-config
+
+- **id:** identity-provider-config
+- **status:** open
+- **aliases:** identity provider; idp activation
+- **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
+- **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Activation writes IdP settings onto a tenant the admin does not own
+- [ ] Disable still leaves the previous client secret usable
+- [ ] Config GET returns another tenant’s client id
+
+---
+
+## Zone: worker-host
+
+- **id:** worker-host
+- **status:** open
+- **aliases:** worker program; worker host startup
+- **paths:** ArchLucid.Worker/Program.cs
+- **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Worker host starts without a tenant-scope constraint on background jobs
+- [ ] Composition registers a singleton that caches the first request’s tenant
+- [ ] Startup succeeds when a required hosted service failed to resolve

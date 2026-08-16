@@ -78,6 +78,8 @@ Add `-Hint '<user hint>'` when the message named an area. Add `-Refresh` when th
 
 The picker is **deterministic** (`docs/library/AL_BUG_HUNT_LEDGER.md` + `scripts/agent/al-bug-pick-zone.ps1`). Do **not** LLM-rank zones or fall back to a static “always topology first” walk.
 
+Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hunts-per-bug once data exists; sample untried zones so the catalog can learn. Open-hypothesis count is a small tie-break only — it must not lock the picker on one historically buggy slice.
+
 Rules:
 
 - Hunt **only** the returned `zoneId` (`paths` + open hypotheses). Do not invent another zone in the same invocation.

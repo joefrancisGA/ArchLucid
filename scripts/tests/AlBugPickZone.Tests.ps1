@@ -48,7 +48,14 @@ Describe 'al-bug-pick-zone.ps1' {
             [string] $ZoneBStatus = 'open',
             [string] $ZoneAChurn = '0',
             [string] $ZoneBChurn = '0',
-            [int] $ZoneBOpenCount = 1
+            [int] $ZoneBOpenCount = 1,
+            [int] $ZoneAHunts = 12,
+            [int] $ZoneABugs = 8,
+            [int] $ZoneADry = 0,
+            [int] $ZoneBHunts = 0,
+            [int] $ZoneBBugs = 0,
+            [int] $ZoneBDry = 0,
+            [string] $ZoneBRelated = 'none'
         )
 
         $bOpen = "- [ ] Untried hypothesis one`n"
@@ -67,9 +74,9 @@ Describe 'al-bug-pick-zone.ps1' {
 - **aliases:** high yield
 - **paths:** ArchLucid.Application/Foo.cs
 - **test-filter:** FullyQualifiedName~FooTests
-- **hunts:** 12
-- **bugs-found:** 8
-- **consecutive-dry-hunts:** 0
+- **hunts:** $ZoneAHunts
+- **bugs-found:** $ZoneABugs
+- **consecutive-dry-hunts:** $ZoneADry
 - **last-hunt:** 2026-08-01
 - **last-bug:** 2026-08-01
 - **related-pd-tb:** none
@@ -89,12 +96,12 @@ Describe 'al-bug-pick-zone.ps1' {
 - **aliases:** untried area
 - **paths:** ArchLucid.Application/Bar.cs
 - **test-filter:** FullyQualifiedName~BarTests
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
+- **hunts:** $ZoneBHunts
+- **bugs-found:** $ZoneBBugs
+- **consecutive-dry-hunts:** $ZoneBDry
 - **last-hunt:** never
 - **last-bug:** never
-- **related-pd-tb:** none
+- **related-pd-tb:** $ZoneBRelated
 - **code-changed-since:** $ZoneBChurn
 
 ### Hypotheses
@@ -103,14 +110,16 @@ $bOpen
 "@
     }
 
-    It 'picks the high-yield zone over an untried zone (score 8.0 vs 3.5)' {
+    It 'samples an untried zone ahead of a high-hypothesis sampled zone' {
         [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
         $result = Invoke-Picker -LedgerPath $ledger
 
-        $result.zoneId | Should Be 'zone-a'
-        $result.score | Should Be 8.0
+        $result.zoneId | Should Be 'zone-b'
+        $result.score | Should Be 6.25
+        $result.meanHuntsPerBug | Should Be 2
+        $result.exploreBonus | Should Be 1
         $result.exhaustedAll | Should Be $false
-        @($result.openHypotheses).Count | Should Be 3
+        @($result.openHypotheses).Count | Should Be 1
     }
 
     It 'pins the hinted zone even when another zone scores higher' {
@@ -119,7 +128,6 @@ $bOpen
 
         $result.zoneId | Should Be 'zone-b'
         $result.hintOverride | Should Be $true
-        $result.score | Should Be 3.5
     }
 
     It 'matches a hint against an alias' {
@@ -292,6 +300,25 @@ $bOpen
         $content = @"
 # fixture
 
+## Zone: zone-plain
+
+- **id:** zone-plain
+- **status:** open
+- **aliases:** plain zone
+- **paths:** ArchLucid.Persistence/Bar.cs
+- **test-filter:** FullyQualifiedName~BarTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] One open hypothesis
+
 ## Zone: zone-pd
 
 - **id:** zone-pd
@@ -314,8 +341,75 @@ $bOpen
         [string]$ledger = New-LedgerFixture -Content $content
         $result = Invoke-Picker -LedgerPath $ledger
 
-        # 3*0.5 + 2*1 + min(2,2) = 1.5 + 2 + 2 = 5.5
+        # Untried 6.25 + related 2 = 8.25 vs sibling untried 6.25
         $result.zoneId | Should Be 'zone-pd'
-        $result.score | Should Be 5.5
+        $result.score | Should Be 8.25
+    }
+
+    It 'prefers faster hunts-per-bug once both zones have been sampled' {
+        $content = @"
+# fixture
+
+## Zone: zone-slow
+
+- **id:** zone-slow
+- **status:** open
+- **aliases:** slow zone
+- **paths:** ArchLucid.Application/Slow.cs
+- **test-filter:** FullyQualifiedName~SlowTests
+- **hunts:** 20
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **last-bug:** 2026-08-01
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Slow remaining hypothesis
+
+## Zone: zone-fast
+
+- **id:** zone-fast
+- **status:** open
+- **aliases:** fast zone
+- **paths:** ArchLucid.Application/Fast.cs
+- **test-filter:** FullyQualifiedName~FastTests
+- **hunts:** 12
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **last-bug:** 2026-08-01
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Fast remaining hypothesis
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger
+
+        $result.zoneId | Should Be 'zone-fast'
+        $result.meanHuntsPerBug | Should Be 1.5
+    }
+
+    It 'prefers a fresh untried zone over a dry-streak zone' {
+        $content = Get-TwoZoneLedger -ZoneAHunts 1 -ZoneABugs 0 -ZoneADry 1
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger
+
+        $result.zoneId | Should Be 'zone-b'
+        $result.score | Should Be 6.25
+    }
+
+    It 'exploits a fast sampled zone after the untried sibling has a dry hunt' {
+        $content = Get-TwoZoneLedger -ZoneBHunts 1 -ZoneBBugs 0 -ZoneBDry 1
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger
+
+        $result.zoneId | Should Be 'zone-a'
+        $result.meanHuntsPerBug | Should Be 1.5
     }
 }

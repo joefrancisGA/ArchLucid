@@ -36,9 +36,9 @@ Default push target: **`master`**.
 
 ## Hunt the picked zone only
 
-Do **not** LLM-rank zones or default to topology-first. The picker scores `docs/library/AL_BUG_HUNT_LEDGER.md`. Use the JSON `paths`, `openHypotheses`, and `testFilter`.
+Do **not** LLM-rank zones or default to topology-first. The picker scores `docs/library/AL_BUG_HUNT_LEDGER.md` with explore/exploit (shorter mean hunts-per-bug once sampled; exploration bonus for untried zones). Use the JSON `paths`, `openHypotheses`, and `testFilter`.
 
-Topology orchestration remains a **high-yield zone** (`topology-proposal-merge`), not a global default. Typical defect shapes there:
+Topology orchestration remains a **high-yield zone** (`topology-proposal-merge`) after it has been sampled, not a global default. Hunt the rest of the catalog when those zones are still untried. Typical defect shapes there:
 
 | Component | Role |
 | --- | --- |
