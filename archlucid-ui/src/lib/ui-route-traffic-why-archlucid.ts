@@ -15,4 +15,4 @@ export const WHY_ARCHLUCID_TRAFFIC_SECTION = "Learning";
  * ASCII-only for Windows console note scripts.
  */
 export const WHY_ARCHLUCID_TRAFFIC_NOTE =
-  "UX 74->89, Evidence 0->88. /al-ui-rate-lowest WH: breadcrumb, claim orientation strip, page skeleton, inline telemetry load failure retry, buyer-polished tests, smoke e2e breadcrumb. Commit pending.";
+  "UX 74->89, Evidence 0->88. /al-ui-rate-lowest WH: breadcrumb, claim orientation strip, page skeleton, inline telemetry load failure retry, buyer-polished tests, smoke e2e breadcrumb. Commit 81674c6506.";
