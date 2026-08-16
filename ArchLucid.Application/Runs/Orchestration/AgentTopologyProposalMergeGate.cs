@@ -21,10 +21,11 @@ public static class AgentTopologyProposalMergeGate
         HashSet<string> inventoriedIdentifiers = ResolveInventoriedIdentifiers(graph);
         HashSet<string> relationshipEndpointKeys = ResolveRelationshipEndpointKeys(graph, inventoriedIdentifiers);
 
-        if (inventoriedIdentifiers.Count == 0 && !HasAgentProposedTopologyNodes(graph))
+        if (graph.Nodes.Count == 0)
             return FilterGreenfieldProposals(results, relationshipEndpointKeys);
 
-        bool allowTopologyExtension = HasAgentProposedTopologyNodes(graph);
+        bool allowTopologyExtension =
+            HasAgentProposedTopologyNodes(graph) || inventoriedIdentifiers.Count == 0;
         HashSet<string> accumulatedEndpointKeys = new(relationshipEndpointKeys, StringComparer.OrdinalIgnoreCase);
         List<AgentResult> orderedResults = results
             .OrderBy(static result => GetMergeOrder(result.AgentType))

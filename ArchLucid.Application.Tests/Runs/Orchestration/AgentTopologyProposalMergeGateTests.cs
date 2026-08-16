@@ -2628,4 +2628,34 @@ public sealed class AgentTopologyProposalMergeGateTests
 
         filtered.Should().BeEmpty();
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphHasOnlyNonTopologyNodes_RejectsUninventoriedCostProposalLabels()
+    {
+        GraphSnapshot graph = Graph(
+            new GraphNode { NodeId = "req-1", NodeType = GraphNodeTypes.Requirement, Label = "api" });
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().BeEmpty();
+    }
 }
