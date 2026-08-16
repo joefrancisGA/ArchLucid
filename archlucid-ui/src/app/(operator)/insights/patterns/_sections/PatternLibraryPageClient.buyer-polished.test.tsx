@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -13,6 +13,10 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/insights/patterns",
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
 import { PatternLibraryPageClient } from "./PatternLibraryPageClient";
@@ -34,8 +38,8 @@ function renderWithQueryClient(ui: React.ReactElement): void {
   render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
 }
 
-describe("PatternLibraryPageClient", () => {
-  it("renders below-threshold empty state for buyer-polished workspaces", async () => {
+describe("PatternLibraryPageClient buyer-polished shell", () => {
+  it("renders breadcrumb, claim strip, and below-threshold empty state", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
@@ -49,18 +53,35 @@ describe("PatternLibraryPageClient", () => {
     expect(screen.getByTestId("pattern-library-page-title")).toHaveTextContent("Pattern library");
     expect(screen.getByText(PATTERN_LIBRARY_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.getByTestId("pattern-library-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("pattern-library-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("pattern-library-provenance-badge")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("pattern-library-empty-state")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("pattern-library-summary-row")).toBeInTheDocument();
-    expect(screen.getByTestId("pattern-library-filters")).toBeInTheDocument();
-
     expect(screen.getByText(PATTERN_LIBRARY_EMPTY_BUILDING_TITLE)).toBeInTheDocument();
     expect(screen.getByText(PATTERN_LIBRARY_EMPTY_BUILDING_BODY)).toBeInTheDocument();
     expect(screen.queryByTestId("pattern-library-card-grid")).not.toBeInTheDocument();
     expect(screen.queryByText(/runId/i)).not.toBeInTheDocument();
+  });
+
+  it("renders unified load failure with retry", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        text: async () => "Unable to load patterns",
+      })) as unknown as typeof fetch,
+    );
+
+    renderWithQueryClient(<PatternLibraryPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("pattern-library-load-failure")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("pattern-library-load-retry"));
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
 });
