@@ -13,6 +13,7 @@ export const operatorQueryKeys = {
   operatorStickinessSnapshot: ["operator", "tenant", "stickiness-snapshot"] as const,
   adminConfigLintSummary: ["operator", "admin", "config-lint-summary"] as const,
   adminIdentityProvidersPageBundle: ["operator", "admin", "identity-providers-page-bundle"] as const,
+  adminPrerequisitesCloudSummary: ["operator", "admin", "prerequisites-cloud-summary"] as const,
   adminOutboxDiagnostics: ["operator", "admin", "outbox-diagnostics"] as const,
   pilotScorecard: ["operator", "pilots", "scorecard"] as const,
   operatorAiQualitySnapshot: ["operator", "assistant", "ai-quality-snapshot"] as const,

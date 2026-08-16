@@ -83,7 +83,6 @@ const MIGRATION_BACKLOG: readonly string[] = [
   "src/components/ValueRealizationDashboard.tsx",
   "src/components/wizard/RunWizardCostPreviewCard.tsx",
   "src/components/wizard/steps/WizardStepAdvanced.tsx",
-  "src/hooks/use-admin-prerequisites-readiness.ts",
   "src/hooks/use-prior-same-request-compare-href.ts",
 ];
 
