@@ -68,13 +68,29 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
             }
         }
 
-        foreach (ArchitectureModelElement element in model.Elements)
+        bool reverseRelatedExpansionAddedElements;
+
+        do
         {
-            if (element.RelatedElementIds.Any(relatedId => includedIds.Contains(relatedId)))
+            reverseRelatedExpansionAddedElements = false;
+
+            foreach (ArchitectureModelElement element in model.Elements)
             {
+                if (includedIds.Contains(element.ElementId))
+                {
+                    continue;
+                }
+
+                if (!element.RelatedElementIds.Any(relatedId => includedIds.Contains(relatedId)))
+                {
+                    continue;
+                }
+
                 includedIds.Add(element.ElementId);
+                reverseRelatedExpansionAddedElements = true;
             }
         }
+        while (reverseRelatedExpansionAddedElements);
 
         return new ArchitectureKnowledgeModel
         {

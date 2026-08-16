@@ -86,4 +86,65 @@ public sealed class IncrementalReReviewServiceTests
 
         result.GlobalInvariantResults.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ReReview_scoped_model_includes_reverse_related_chain_regardless_of_element_order()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-chain",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "upstream-consumer",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Upstream consumer",
+                    RelatedElementIds = ["middle-link"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "middle-link",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Middle link",
+                    RelatedElementIds = ["affected-target"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "affected-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Affected target",
+                },
+            ],
+        };
+
+        CapturingSpecialistReviewService capturingSpecialist = new();
+        ReReviewScope scope = new()
+        {
+            AffectedElementIds = ["affected-target"],
+            FullReReview = false,
+            IncludeGlobalInvariantChecks = false,
+        };
+
+        _service.ReReview(model, scope, capturingSpecialist);
+
+        capturingSpecialist.CapturedModel.Should().NotBeNull();
+        capturingSpecialist.CapturedModel!.Elements.Select(element => element.ElementId)
+            .Should()
+            .BeEquivalentTo(["affected-target", "middle-link", "upstream-consumer"]);
+    }
+
+    private sealed class CapturingSpecialistReviewService : ISpecialistReviewService
+    {
+        public ArchitectureKnowledgeModel? CapturedModel { get; private set; }
+
+        public SpecialistReviewResult Review(
+            ArchitectureKnowledgeModel model,
+            IReadOnlyList<QualityDimension>? dimensions = null)
+        {
+            CapturedModel = model;
+            return new SpecialistReviewResult();
+        }
+    }
 }
