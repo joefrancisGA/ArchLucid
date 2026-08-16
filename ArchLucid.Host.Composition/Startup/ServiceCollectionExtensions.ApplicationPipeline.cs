@@ -210,6 +210,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<ITechnologyConsistencyFindingEngine, TechnologyConsistencyFindingEngine>();
         services.AddScoped<ICommittedEffectiveGovernanceSnapshotCapturer, CommittedEffectiveGovernanceSnapshotCapturer>();
+        services.AddScoped<ICommittedReviewStandardsSnapshotCapturer, CommittedReviewStandardsSnapshotCapturer>();
         services.AddScoped<IManifestFinalizationService, ManifestFinalizationService>();
         services.AddSingleton<DefaultRequestContentSafetyPrecheck>();
         services.AddSingleton<LlmSemanticAdmissionGate>();

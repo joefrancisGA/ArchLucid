@@ -97304,6 +97304,7 @@ export interface components {
         /** @enum {string} */
         CloudProvider: "None" | "Azure" | "Aws" | "Gcp";
         CommitRunRequest: {
+            acknowledgedAssumptionIds?: null | string[];
             bypassJustification?: null | string;
             notifySponsor?: boolean;
         };
@@ -97340,6 +97341,14 @@ export interface components {
             ruleSetHash?: string;
             ruleSetId?: string;
             ruleSetVersion?: string;
+        };
+        CommittedReviewStandardsSnapshotDescriptor: {
+            cloudProvider?: string;
+            focusedPilotModeEnabled?: boolean;
+            /** Format: date-time */
+            generatedUtc?: string;
+            policyReferences?: string[];
+            reviewedQualityDimensions?: string[];
         };
         CommittedGovernancePackAssignmentSnapshot: {
             /** Format: uuid */
@@ -100332,6 +100341,7 @@ export interface components {
             projectId?: string;
             provenance?: components["schemas"]["ManifestProvenance"];
             requirements?: components["schemas"]["RequirementsCoverageSection"];
+            reviewStandardsAtCommit?: null | components["schemas"]["CommittedReviewStandardsSnapshotDescriptor"];
             ruleSetHash?: string;
             ruleSetId?: string;
             ruleSetVersion?: string;
@@ -100419,6 +100429,7 @@ export interface components {
             /** Format: uuid */
             manifestId: string;
             operatorSummary?: string;
+            reviewStandardsAtCommit?: null | components["schemas"]["CommittedReviewStandardsSnapshotDescriptor"];
             ruleSetId: string;
             ruleSetVersion: string;
             /** Format: uuid */

@@ -1,6 +1,8 @@
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
@@ -28,11 +30,14 @@ public sealed class CommitOutputIntegrityService(
         ArchitectureRun run,
         string runId,
         FindingsSnapshot findings,
+        ArchitectureRequest architectureRequest,
+        IReadOnlyList<string>? acknowledgedAssumptionIds,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(findings);
+        ArgumentNullException.ThrowIfNull(architectureRequest);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<AgentExecutionTrace> traces =
@@ -56,6 +61,20 @@ public sealed class CommitOutputIntegrityService(
             throw new ConflictException(
                 "Commit blocked: one or more findings lack decision-grade provenance. "
                 + string.Join(" ", provenanceViolations));
+        }
+
+        HashSet<string>? acknowledgedIds = acknowledgedAssumptionIds is null
+            ? null
+            : new HashSet<string>(acknowledgedAssumptionIds, StringComparer.Ordinal);
+
+        IReadOnlyList<string> assumptionGateReasons =
+            FinalizeAssumptionGateEvaluator.GetBlockingReasons(architectureRequest, findings, acknowledgedIds);
+
+        if (assumptionGateReasons.Count > 0)
+        {
+            throw new ConflictException(
+                "Commit blocked: existential assumptions require confirmation before finalize. "
+                + string.Join(" ", assumptionGateReasons));
         }
     }
 }

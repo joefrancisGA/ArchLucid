@@ -406,7 +406,13 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             if (traceabilityGaps.Count > 0)
                 throw new InvalidOperationException("Committed manifest traceability (authority) invariant failed: " + string.Join("; ", traceabilityGaps));
 
-            await _commitOutputIntegrityService.EnsurePassOrThrowAsync(run, runId, findings, cancellationToken);
+            await _commitOutputIntegrityService.EnsurePassOrThrowAsync(
+                run,
+                runId,
+                findings,
+                request,
+                commitOptions?.AcknowledgedAssumptionIds,
+                cancellationToken);
 
             string contractWireJson = JsonSerializer.Serialize(contract, ContractJson.Default);
             await EvaluatePreCommitGovernanceGateOrThrowAsync(
@@ -445,6 +451,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     Trace = trace,
                     PreloadedFindingsSnapshot = findingsForFinalization,
                     PreloadedScopePolicyPackAssignments = scopePolicyPackAssignments,
+                    PreloadedArchitectureRequest = request,
                     SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts
                 }, cancellationToken);
 

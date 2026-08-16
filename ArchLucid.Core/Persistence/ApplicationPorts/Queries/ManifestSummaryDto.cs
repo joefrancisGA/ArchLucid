@@ -94,4 +94,11 @@ public class ManifestSummaryDto
         get;
         set;
     }
+
+    /// <summary>Review standards sealed when the review was committed (TB-2345 item 50).</summary>
+    public CommittedReviewStandardsSnapshotDescriptor? ReviewStandardsAtCommit
+    {
+        get;
+        set;
+    }
 }

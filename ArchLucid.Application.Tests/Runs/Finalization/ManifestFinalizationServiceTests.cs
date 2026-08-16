@@ -626,6 +626,7 @@ public sealed class ManifestFinalizationServiceTests
             Mock.Of<IManifestFinalizationSqlRepository>(),
             new RunStateTransitionService(),
             Mock.Of<ICommittedEffectiveGovernanceSnapshotCapturer>(),
+            Mock.Of<ICommittedReviewStandardsSnapshotCapturer>(),
             NullLogger<ManifestFinalizationService>.Instance);
     }
 

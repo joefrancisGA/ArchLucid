@@ -7135,6 +7135,15 @@
       },
       "CommitRunRequest": {
         "properties": {
+          "acknowledgedAssumptionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
           "bypassJustification": {
             "type": [
               "null",
@@ -7279,6 +7288,33 @@
           },
           "scopeLevel": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CommittedReviewStandardsSnapshotDescriptor": {
+        "properties": {
+          "cloudProvider": {
+            "type": "string"
+          },
+          "focusedPilotModeEnabled": {
+            "type": "boolean"
+          },
+          "generatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "policyReferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "reviewedQualityDimensions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -17124,6 +17160,16 @@
           "requirements": {
             "$ref": "#/components/schemas/RequirementsCoverageSection"
           },
+          "reviewStandardsAtCommit": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CommittedReviewStandardsSnapshotDescriptor"
+              }
+            ]
+          },
           "ruleSetHash": {
             "type": "string"
           },
@@ -17431,6 +17477,16 @@
           },
           "operatorSummary": {
             "type": "string"
+          },
+          "reviewStandardsAtCommit": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CommittedReviewStandardsSnapshotDescriptor"
+              }
+            ]
           },
           "ruleSetId": {
             "type": "string"

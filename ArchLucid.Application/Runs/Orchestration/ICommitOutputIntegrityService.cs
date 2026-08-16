@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -10,5 +11,7 @@ public interface ICommitOutputIntegrityService
         ArchitectureRun run,
         string runId,
         FindingsSnapshot findings,
+        ArchitectureRequest architectureRequest,
+        IReadOnlyList<string>? acknowledgedAssumptionIds,
         CancellationToken cancellationToken = default);
 }

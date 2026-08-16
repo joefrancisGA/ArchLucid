@@ -69,7 +69,10 @@ describe("CommitRunButton", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
 
     await waitFor(() => {
-      expect(mockCommit).toHaveBeenCalledWith("run-1", { notifySponsor: false });
+      expect(mockCommit).toHaveBeenCalledWith("run-1", {
+        notifySponsor: false,
+        acknowledgedAssumptionIds: [],
+      });
     });
 
     expect(await screen.findByText(/decisions are now searchable in Ask/i)).toBeInTheDocument();
@@ -93,7 +96,10 @@ describe("CommitRunButton", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
 
     await waitFor(() => {
-      expect(mockCommit).toHaveBeenCalledWith("run-2", { notifySponsor: true });
+      expect(mockCommit).toHaveBeenCalledWith("run-2", {
+        notifySponsor: true,
+        acknowledgedAssumptionIds: [],
+      });
     });
   });
 

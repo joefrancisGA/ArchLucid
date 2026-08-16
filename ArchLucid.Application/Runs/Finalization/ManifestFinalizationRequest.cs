@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
 
@@ -85,6 +86,13 @@ public sealed class ManifestFinalizationRequest
 
     /// <summary>When set, governance snapshot capture skips reloading scope assignments (TB-588).</summary>
     public IReadOnlyList<PolicyPackAssignment>? PreloadedScopePolicyPackAssignments
+    {
+        get;
+        init;
+    }
+
+    /// <summary>When set, review standards snapshot capture skips reloading the architecture request (TB-2345).</summary>
+    public ArchitectureRequest? PreloadedArchitectureRequest
     {
         get;
         init;
