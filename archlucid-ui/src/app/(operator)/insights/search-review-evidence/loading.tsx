@@ -1,9 +1,5 @@
-import { GenericPageSkeleton } from "@/components/skeletons/GenericPageSkeleton";
+import { SearchPageSkeleton } from "./_sections/SearchPageSkeleton";
 
 export default function SearchLoading() {
-  return (
-    <div>
-      <GenericPageSkeleton />
-    </div>
-  );
+  return <SearchPageSkeleton />;
 }

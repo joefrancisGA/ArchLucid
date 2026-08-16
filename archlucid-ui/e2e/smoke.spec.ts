@@ -145,6 +145,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
         name: /^(Search this review's evidence|Search review evidence)$/i,
       }),
     ).toBeVisible();
+    await expect(page.getByTestId("search-review-evidence-breadcrumb")).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/governance/policy-packs");
