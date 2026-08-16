@@ -3,11 +3,10 @@
 import { cn } from "@/lib/utils";
 import { MessageSquareText, Search } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraphViewport";
 import { ProvenanceGraphErrorBoundary } from "@/components/provenance/ProvenanceGraphErrorBoundary";
-import { ProvenanceSectionNav, type ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
+import { ProvenanceSectionNav } from "@/components/provenance/ProvenanceSectionNav";
 import { ProvenanceWayfinding } from "@/components/provenance/ProvenanceWayfinding";
 import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/runs/RunProvenanceEvidenceGraphVocabularyRail";
 import {
@@ -31,8 +30,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buyerTrailEdgeDisplayPhrase } from "@/lib/graph-mapper";
 import {
   PROVENANCE_CLAIM_DISCIPLINE,
@@ -48,48 +46,24 @@ import {
 import {
   provenanceEdgeDisplayLabel,
   provenanceNodeDisplayName,
-  provenanceNodeFilterCategory,
-  provenanceNodeMatchesFilter,
   provenanceNodeTypeLabel,
-  type ProvenanceNodeFilterCategory,
 } from "@/lib/provenance-node-presentation";
 import {
   provenanceTimelinePrimaryLabel,
   provenanceTimelineShowsTechnicalKind,
   provenanceTimelineTechnicalKind,
 } from "@/lib/provenance-timeline-presentation";
-import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 
-export type ProvenanceReviewContext = {
-  readonly reviewTitle: string | null;
-  readonly statusLabel: string | null;
-  readonly statusTagKind: EnterpriseStatusKind | null;
-};
+import type { ProvenancePageWorkspaceProps } from "./provenance-page-workspace-types";
+import { FILTER_OPTIONS, SEARCH_THRESHOLD, useProvenancePageWorkspace } from "./use-provenance-page-workspace";
 
-export type ProvenancePageWorkspaceProps = {
-  readonly runId: string;
-  readonly graph: ArchitectureRunProvenanceGraph;
-  readonly provenanceTraceId: string | null;
-  readonly reviewContext?: ProvenanceReviewContext | null;
-  readonly dataOrigin?: "live" | "sample";
-};
+export type { ProvenancePageWorkspaceProps, ProvenanceReviewContext } from "./provenance-page-workspace-types";
 
 const VIEW_MODE_OPTIONS: ReadonlyArray<{ id: ProvenanceViewMode; label: string }> = [
   { id: "graph", label: PROVENANCE_VIEW_GRAPH_LABEL },
   { id: "timeline", label: PROVENANCE_VIEW_TIMELINE_LABEL },
   { id: "table", label: PROVENANCE_VIEW_TABLES_LABEL },
 ];
-
-const FILTER_OPTIONS: ReadonlyArray<{ id: ProvenanceNodeFilterCategory; label: string }> = [
-  { id: "evidence", label: "Evidence" },
-  { id: "findings", label: "Findings" },
-  { id: "controls", label: "Controls" },
-  { id: "decisions", label: "Decisions" },
-  { id: "governance", label: "Governance" },
-  { id: "artifacts", label: "Artifacts" },
-];
-
-const SEARCH_THRESHOLD = 8;
 
 function formatUtc(iso: string): string {
   const date = new Date(iso);
@@ -101,219 +75,51 @@ function formatUtc(iso: string): string {
   return date.toISOString().replace("T", " ").replace(/\.\d{3}Z$/, " UTC");
 }
 
-function flashNodeRow(nodeId: string): void {
-  const element = document.getElementById(`prov-node-row-${nodeId}`);
-
-  if (element === null) {
-    return;
-  }
-
-  element.scrollIntoView({ behavior: "smooth", block: "center" });
-  element.classList.add("prov-node-row--flash");
-  window.setTimeout(() => element.classList.remove("prov-node-row--flash"), 1600);
-}
-
 export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): React.JSX.Element {
-  const { runId, provenanceTraceId, reviewContext, dataOrigin = "live" } = props;
-  // OpenAPI may omit optional arrays; normalize before .length / .map so SSR/demo payloads cannot crash.
-  const graph: ArchitectureRunProvenanceGraph = {
-    ...props.graph,
-    nodes: props.graph.nodes ?? [],
-    edges: props.graph.edges ?? [],
-    timeline: props.graph.timeline ?? [],
-    traceabilityGaps: props.graph.traceabilityGaps ?? [],
-  };
-  const [viewMode, setViewMode] = useState<ProvenanceViewMode>("graph");
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [highlightedEdgeId, setHighlightedEdgeId] = useState<string | null>(null);
-  const [activeFilters, setActiveFilters] = useState<Set<ProvenanceNodeFilterCategory>>(new Set());
-  const [layoutSeed, setLayoutSeed] = useState(0);
-  const [edgesExpanded, setEdgesExpanded] = useState(() => graph.edges.length < SEARCH_THRESHOLD);
-  const [nodeSearch, setNodeSearch] = useState("");
-  const [nodeTypeFilter, setNodeTypeFilter] = useState("");
-  const [edgeSearch, setEdgeSearch] = useState("");
-
-  const nodeById = useMemo(() => new Map(graph.nodes.map((node) => [node.id, node])), [graph.nodes]);
-
-  const sections = useMemo((): ProvenanceSection[] => {
-    const next: ProvenanceSection[] = [];
-
-    if (graph.traceabilityGaps.length > 0) {
-      next.push({ id: "trace-gaps", label: "Traceability gaps" });
-    }
-
-    if (viewMode === "graph") {
-      next.push({ id: "prov-graph", label: PROVENANCE_SECTION_GRAPH_LABEL });
-    }
-
-    if (viewMode === "timeline") {
-      next.push({ id: "prov-timeline", label: PROVENANCE_SECTION_TRACE_TIMELINE_LABEL });
-    }
-
-    if (viewMode === "table") {
-      next.push({ id: "prov-timeline", label: PROVENANCE_SECTION_TRACE_TIMELINE_LABEL });
-      next.push({ id: "prov-nodes", label: PROVENANCE_SECTION_LINKAGE_POINTS_LABEL });
-      next.push({ id: "prov-edges", label: PROVENANCE_SECTION_RELATIONSHIPS_LABEL });
-    }
-
-    return next;
-  }, [graph.traceabilityGaps.length, viewMode]);
-
-  const selectedNode = selectedNodeId === null ? null : (nodeById.get(selectedNodeId) ?? null);
-
-  const incomingEdges = useMemo(() => {
-    if (selectedNodeId === null) {
-      return [];
-    }
-
-    return graph.edges.filter((edge) => edge.toNodeId === selectedNodeId);
-  }, [graph.edges, selectedNodeId]);
-
-  const outgoingEdges = useMemo(() => {
-    if (selectedNodeId === null) {
-      return [];
-    }
-
-    return graph.edges.filter((edge) => edge.fromNodeId === selectedNodeId);
-  }, [graph.edges, selectedNodeId]);
-
-  const filterCounts = useMemo(() => {
-    const counts = new Map<ProvenanceNodeFilterCategory, number>(
-      FILTER_OPTIONS.map((option) => [option.id, 0]),
-    );
-
-    for (const node of graph.nodes) {
-      const category = provenanceNodeFilterCategory(node.type);
-
-      if (category === null) {
-        continue;
-      }
-
-      counts.set(category, (counts.get(category) ?? 0) + 1);
-    }
-
-    return counts;
-  }, [graph.nodes]);
-
-  const filteredNodesForTable = useMemo(() => {
-    const query = nodeSearch.trim().toLowerCase();
-    const typeQuery = nodeTypeFilter.trim().toLowerCase();
-
-    return graph.nodes.filter((node) => {
-      if (typeQuery.length > 0 && !provenanceNodeTypeLabel(node.type).toLowerCase().includes(typeQuery)) {
-        return false;
-      }
-
-      if (query.length === 0) {
-        return true;
-      }
-
-      const haystack = `${provenanceNodeDisplayName(node)} ${node.referenceId} ${node.type}`.toLowerCase();
-
-      return haystack.includes(query);
-    });
-  }, [graph.nodes, nodeSearch, nodeTypeFilter]);
-
-  const filteredEdgesForTable = useMemo(() => {
-    const query = edgeSearch.trim().toLowerCase();
-
-    if (query.length === 0) {
-      return graph.edges;
-    }
-
-    return graph.edges.filter((edge) => {
-      const label = provenanceEdgeDisplayLabel(edge, nodeById).toLowerCase();
-
-      return label.includes(query) || edge.type.toLowerCase().includes(query);
-    });
-  }, [edgeSearch, graph.edges, nodeById]);
-
-  const nodeTypes = useMemo(() => {
-    const types = new Set(graph.nodes.map((node) => provenanceNodeTypeLabel(node.type)));
-
-    return [...types].sort((a, b) => a.localeCompare(b));
-  }, [graph.nodes]);
-
-  const onSelectNode = useCallback((nodeId: string | null) => {
-    setSelectedNodeId(nodeId);
-    setHighlightedEdgeId(null);
-
-    if (nodeId !== null) {
-      flashNodeRow(nodeId);
-    }
-  }, []);
-
-  const onSelectEdge = useCallback((edgeId: string) => {
-    setHighlightedEdgeId(edgeId);
-    const edge = graph.edges.find((item) => item.id === edgeId);
-
-    if (edge !== undefined) {
-      setSelectedNodeId(edge.fromNodeId);
-    }
-  }, [graph.edges]);
-
-  const toggleFilter = useCallback((filter: ProvenanceNodeFilterCategory) => {
-    const count = filterCounts.get(filter) ?? 0;
-
-    if (count === 0) {
-      return;
-    }
-
-    setActiveFilters((current) => {
-      const next = new Set(current);
-
-      if (next.has(filter)) {
-        next.delete(filter);
-      } else {
-        next.add(filter);
-      }
-
-      return next;
-    });
-    setLayoutSeed((value) => value + 1);
-  }, [filterCounts]);
-
-  const graphVisibleNodeCount = useMemo(() => {
-    return graph.nodes.filter((node) => provenanceNodeMatchesFilter(node, activeFilters)).length;
-  }, [activeFilters, graph.nodes]);
-
-  const onGraphRenderFailed = useCallback(() => {
-    setViewMode("table");
-  }, []);
-
-  const openTablesView = useCallback(() => {
-    setViewMode("table");
-  }, []);
-
-  const retryGraphLayout = useCallback(() => {
-    setLayoutSeed((value) => value + 1);
-  }, []);
-
-  const reviewTitle = reviewContext?.reviewTitle?.trim() ?? "";
-  const reviewHref = reviewDetailPath(runId);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") {
-        setSelectedNodeId(null);
-        setHighlightedEdgeId(null);
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, []);
-
-  const showGraph = viewMode === "graph";
-  const showTimeline = viewMode === "timeline" || viewMode === "table";
-  const showTables = viewMode === "table";
-  const evidenceGraphHref =
-    runId.trim().length > 0
-      ? `/insights/evidence-graph?runId=${encodeURIComponent(runId.trim())}`
-      : "/insights/evidence-graph";
+  const {
+    runId,
+    provenanceTraceId,
+    reviewContext,
+    dataOrigin,
+    graph,
+    viewMode,
+    setViewMode,
+    selectedNodeId,
+    highlightedEdgeId,
+    setHighlightedEdgeId,
+    activeFilters,
+    layoutSeed,
+    edgesExpanded,
+    setEdgesExpanded,
+    nodeSearch,
+    setNodeSearch,
+    nodeTypeFilter,
+    setNodeTypeFilter,
+    edgeSearch,
+    setEdgeSearch,
+    nodeById,
+    sections,
+    selectedNode,
+    incomingEdges,
+    outgoingEdges,
+    filterCounts,
+    filteredNodesForTable,
+    filteredEdgesForTable,
+    nodeTypes,
+    graphVisibleNodeCount,
+    onSelectNode,
+    onSelectEdge,
+    toggleFilter,
+    onGraphRenderFailed,
+    openTablesView,
+    retryGraphLayout,
+    reviewTitle,
+    reviewHref,
+    showGraph,
+    showTimeline,
+    showTables,
+    evidenceGraphHref,
+  } = useProvenancePageWorkspace(props);
 
   return (
     <div className="w-full max-w-[1160px] p-4 print:w-full" data-testid="provenance-page-workspace">
@@ -366,7 +172,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
               <Link className={OPERATOR_LINK.nav} href={evidenceGraphHref}>
                 Open Evidence graph
               </Link>
-              {" · "}
+              {" Â· "}
               <Link className={OPERATOR_LINK.nav} href="/insights/search-review-evidence">
                 Search review evidence
               </Link>
@@ -428,7 +234,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
 
           {viewMode === "graph" && activeFilters.size > 0 ? (
             <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.micro)} role="status">
-              Filters hide graph elements for focus only — all provenance data remains available in the tables view.
+              Filters hide graph elements for focus only â€” all provenance data remains available in the tables view.
               Showing {graphVisibleNodeCount} of {graph.nodes.length} nodes in the graph.
             </p>
           ) : null}

@@ -2,16 +2,13 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
+import { useHelpDocsIndexQuery } from "@/hooks/use-help-docs-index-query";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { DocIndexEntry } from "@/lib/help-docs-index";
 
-export type DocIndexEntry = {
-  title: string;
-  summary: string;
-  category: string;
-  url: string;
-};
+export type { DocIndexEntry } from "@/lib/help-docs-index";
 
 const CATEGORY_ORDER = [
   "Getting Started",
@@ -98,38 +95,17 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
 }
 
 export function HelpDocsClient() {
-  const [entries, setEntries] = useState<DocIndexEntry[] | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const indexQuery = useHelpDocsIndexQuery();
   const [query, setQuery] = useState("");
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const res = await fetch("/doc-index.json", { cache: "no-store" });
-
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-
-        const data = (await res.json()) as DocIndexEntry[];
-
-        if (!canceled) {
-          setEntries(Array.isArray(data) ? mergeDocIndex(HELP_DOCS_STATIC_ENTRIES, data) : [...HELP_DOCS_STATIC_ENTRIES]);
-        }
-      } catch (e) {
-        if (!canceled) {
-          setLoadError(e instanceof Error ? e.message : "Failed to load documentation index.");
-          setEntries([...HELP_DOCS_STATIC_ENTRIES]);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+  const loadError =
+    indexQuery.isError
+      ? indexQuery.error instanceof Error
+        ? indexQuery.error.message
+        : "Failed to load documentation index."
+      : null;
+  const entries = indexQuery.isPending
+    ? null
+    : mergeDocIndex(HELP_DOCS_STATIC_ENTRIES, indexQuery.data ?? null);
 
   /** Same reference while `entries` is null — avoids a new array reference every render before fetch settles. */
   const mergedEntries = useMemo(() => entries ?? [...HELP_DOCS_STATIC_ENTRIES], [entries]);

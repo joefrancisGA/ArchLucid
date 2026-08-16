@@ -1,15 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
+import { Controller, FormProvider } from "react-hook-form";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
-import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { WEBHOOKS_SUBSCRIPTIONS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { PageHeading } from "@/components/PageHeading";
 import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocabularyRail";
@@ -33,25 +30,13 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WebhooksIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
-import { useOperateCapability } from "@/hooks/use-operate-capability";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-import {
-  createAlertRoutingSubscription,
-  listAlertRoutingSubscriptions,
-  testWebhookSubscription,
-  toggleAlertRoutingSubscription,
-} from "@/lib/api";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { formatWebhookDestinationLabel } from "@/lib/webhooks-destination-present";
-import {
-  formatWebhooksCustomerError,
-  formatWebhooksSaveError,
-} from "@/lib/webhooks-page-error-present";
+import { formatWebhooksCustomerError } from "@/lib/webhooks-page-error-present";
 import {
   WEBHOOKS_ABOUT_DEVELOPERS,
   WEBHOOKS_ABOUT_SECURITY,
@@ -86,7 +71,6 @@ import {
   WEBHOOKS_SUBSCRIPTIONS_HEADING,
   WEBHOOKS_TEST_LABEL,
   WEBHOOKS_TESTING_LABEL,
-  describeWebhooksSaveReadinessMessage,
   webhooksEnableConfirmDescription,
   webhooksConfigurationStatusLabel,
   webhooksConfigurationStatusTagKind,
@@ -96,255 +80,53 @@ import { INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
 import {
   labelForWebhookEventId,
   webhookOutboundEventCatalog,
-  webhookSettingsDefaultValues,
-  webhookSettingsFormSchema,
-  type WebhookSettingsFormValues,
 } from "@/lib/webhook-settings-form-schema";
-import { summarizeMaskedWebhookSubscription, buildWebhookSubscriptionMetadata, formatWebhookSubscriptionLastDeliveryLabel } from "@/lib/webhook-subscription-metadata";
-import { presentWebhookConnectionTestRequestFailure,
-  presentWebhookConnectionTestToasts,
-} from "@/lib/webhook-subscription-connection-test";
+import { summarizeMaskedWebhookSubscription, formatWebhookSubscriptionLastDeliveryLabel } from "@/lib/webhook-subscription-metadata";
 
-import {
-  AlertRoutingSubscriptionDisableDialog,
-  type AlertRoutingSubscriptionDisableTarget,
-} from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
+import { AlertRoutingSubscriptionDisableDialog } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 
-import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
-
-type WebhookEnableTarget = {
-  readonly routingSubscriptionId: string;
-  readonly subscriptionName: string;
-};
-
-function isGenericOutboundWebhookChannel(channelType: string): boolean {
-  return channelType === "OnCallWebhook";
-}
-
-function formatCustomerApiFailure(failure: ApiLoadFailureState): string {
-  return formatWebhooksCustomerError(
-    "Something went wrong. Try again or contact your administrator.",
-    failure.message,
-  );
-}
+import { formatCustomerApiFailure, useWebhooksSettings } from "./use-webhooks-settings";
 
 /** Integration hub for outbound HTTPS webhook subscriptions. */
 export function WebhooksSettingsClient() {
-  const canMutate = useOperateCapability();
-  const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const isSavingRef = useRef(false);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [testingId, setTestingId] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<Record<string, WebhookTestResponse>>({});
-  const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
-  const [pendingDisable, setPendingDisable] = useState<AlertRoutingSubscriptionDisableTarget | null>(null);
-  const [disableBusy, setDisableBusy] = useState(false);
-  const [disableErrorMessage, setDisableErrorMessage] = useState<string | null>(null);
-  const [pendingEnable, setPendingEnable] = useState<WebhookEnableTarget | null>(null);
-  const [enableBusy, setEnableBusy] = useState(false);
-  const [enableErrorMessage, setEnableErrorMessage] = useState<string | null>(null);
-  const [secretVisible, setSecretVisible] = useState(false);
-
-  const form = useForm<WebhookSettingsFormValues>({
-    resolver: zodResolver(webhookSettingsFormSchema),
-    defaultValues: { ...webhookSettingsDefaultValues },
-    mode: "onBlur",
-  });
-
   const {
+    form,
     register,
-    handleSubmit,
     control,
-    formState: { errors },
-    reset,
-    setError,
-  } = form;
-
-  const watchedEventTypes = useWatch({ control, name: "eventTypes" });
-  const watchedFormValues = useWatch({ control }) as WebhookSettingsFormValues;
-  const formReadinessMessage = useMemo(
-    () => describeWebhooksSaveReadinessMessage(watchedFormValues ?? webhookSettingsDefaultValues),
-    [watchedFormValues],
-  );
-  const canSubmitForm = useMemo(
-    () => webhookSettingsFormSchema.safeParse(watchedFormValues ?? webhookSettingsDefaultValues).success,
-    [watchedFormValues],
-  );
-  const showAlertSeverityFilter =
-    watchedEventTypes !== undefined &&
-    watchedEventTypes.length > 0 &&
-    watchedEventTypes.every((eventId) => eventId.startsWith("archlucid.alert."));
-
-  const webhookRows = useMemo(
-    () => items.filter((subscription) => isGenericOutboundWebhookChannel(subscription.channelType)),
-    [items],
-  );
-
-  const activeSubscriptionCount = useMemo(
-    () => webhookRows.filter((subscription) => subscription.isEnabled === true).length,
-    [webhookRows],
-  );
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setFailure(null);
-
-    try {
-      const data = await listAlertRoutingSubscriptions();
-
-      setItems(data);
-    } catch (error: unknown) {
-      setFailure(toApiLoadFailure(error));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  async function onTestWebhook(routingSubscriptionId: string) {
-    if (testingId !== null) {
-      return;
-    }
-
-    setTestingId(routingSubscriptionId);
-
-    try {
-      const result = await testWebhookSubscription(routingSubscriptionId);
-
-      setTestResults((prev) => ({ ...prev, [routingSubscriptionId]: result }));
-      presentWebhookConnectionTestToasts(result);
-    } catch (error: unknown) {
-      setTestResults((prev) => {
-        const next = { ...prev };
-
-        delete next[routingSubscriptionId];
-
-        return next;
-      });
-      presentWebhookConnectionTestRequestFailure(error);
-    } finally {
-      setTestingId(null);
-    }
-  }
-
-  async function onToggle(routingSubscriptionId: string, subscriptionName: string, isEnabled: boolean) {
-    if (!canMutate) {
-      return;
-    }
-
-    if (isEnabled) {
-      setDisableErrorMessage(null);
-      setPendingDisable({
-        routingSubscriptionId,
-        subscriptionName,
-        channel: "webhook",
-      });
-
-      return;
-    }
-
-    setEnableErrorMessage(null);
-    setPendingEnable({ routingSubscriptionId, subscriptionName });
-  }
-
-  async function confirmEnableSubscription(): Promise<void> {
-    if (pendingEnable === null || enableBusy) {
-      return;
-    }
-
-    setEnableBusy(true);
-    setEnableErrorMessage(null);
-
-    try {
-      await executeToggle(pendingEnable.routingSubscriptionId);
-      setPendingEnable(null);
-    } catch (error: unknown) {
-      setEnableErrorMessage(formatCustomerApiFailure(toApiLoadFailure(error)));
-    } finally {
-      setEnableBusy(false);
-    }
-  }
-
-  async function executeToggle(routingSubscriptionId: string): Promise<void> {
-    setFailure(null);
-
-    try {
-      await toggleAlertRoutingSubscription(routingSubscriptionId);
-      await load();
-    } catch (error: unknown) {
-      setFailure(toApiLoadFailure(error));
-      throw error;
-    }
-  }
-
-  async function confirmDisableSubscription(): Promise<void> {
-    if (pendingDisable === null || disableBusy) {
-      return;
-    }
-
-    setDisableBusy(true);
-    setDisableErrorMessage(null);
-
-    try {
-      await executeToggle(pendingDisable.routingSubscriptionId);
-      setPendingDisable(null);
-    } catch (error: unknown) {
-      const apiFailure = toApiLoadFailure(error);
-      setDisableErrorMessage(formatCustomerApiFailure(apiFailure));
-    } finally {
-      setDisableBusy(false);
-    }
-  }
-
-  const submit = handleSubmit(async (values) => {
-    if (!canMutate || isSavingRef.current) {
-      return;
-    }
-
-    const normalizedName = values.name.trim();
-    const duplicate = webhookRows.some(
-      (row) => row.name.trim().toLowerCase() === normalizedName.toLowerCase(),
-    );
-
-    if (duplicate) {
-      setError("name", { type: "manual", message: "A subscription with this name already exists." });
-
-      return;
-    }
-
-    setFailure(null);
-    setSaveSuccessMessage(null);
-    isSavingRef.current = true;
-    setIsSaving(true);
-
-    try {
-      await createAlertRoutingSubscription({
-        name: normalizedName,
-        channelType: values.channelType,
-        destination: values.webhookUrl.trim(),
-        minimumSeverity: values.minimumSeverity,
-        isEnabled: true,
-        metadataJson: buildWebhookSubscriptionMetadata(values.secret, values.eventTypes),
-      });
-      reset({ ...webhookSettingsDefaultValues });
-      await load();
-      setSaveSuccessMessage(WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE);
-    } catch (error: unknown) {
-      const apiFailure = toApiLoadFailure(error);
-      setFailure({
-        ...apiFailure,
-        message: formatWebhooksSaveError(apiFailure.message),
-      });
-    } finally {
-      isSavingRef.current = false;
-      setIsSaving(false);
-    }
-  });
+    errors,
+    isSavingRef,
+    submit,
+    canMutate,
+    loading,
+    isSaving,
+    failure,
+    testingId,
+    testResults,
+    saveSuccessMessage,
+    pendingDisable,
+    disableBusy,
+    disableErrorMessage,
+    pendingEnable,
+    enableBusy,
+    enableErrorMessage,
+    secretVisible,
+    formReadinessMessage,
+    canSubmitForm,
+    showAlertSeverityFilter,
+    webhookRows,
+    activeSubscriptionCount,
+    load,
+    onTestWebhook,
+    onToggle,
+    confirmEnableSubscription,
+    confirmDisableSubscription,
+    setSecretVisible,
+    setSaveSuccessMessage,
+    setPendingDisable,
+    setDisableErrorMessage,
+    setPendingEnable,
+    setEnableErrorMessage,
+  } = useWebhooksSettings();
 
   return (
     <div

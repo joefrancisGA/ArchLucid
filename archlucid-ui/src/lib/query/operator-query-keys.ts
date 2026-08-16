@@ -78,6 +78,18 @@ export const operatorQueryKeys = {
     ["operator", "digests", "architecture-list", scope, { take }] as const,
   digestSubscriptions: (scope: OperatorScopeQueryKey) =>
     ["operator", "digests", "subscriptions", scope] as const,
+  digestSubscriptionDeliveryAttempts: (
+    scope: OperatorScopeQueryKey,
+    subscriptionId: string,
+    refreshToken: number,
+  ) =>
+    ["operator", "digests", "subscription-attempts", scope, subscriptionId, refreshToken] as const,
+  helpTopicMarkdown: (slug: string) => ["operator", "help", "topic-markdown", slug] as const,
+  helpDocsIndex: ["operator", "help", "docs-index"] as const,
+  marketingPublicPricing: ["marketing", "pricing-json"] as const,
+  pilotOutcomeSummary: ["operator", "pilots", "outcome-summary"] as const,
+  recurrenceSchedulePreview: (cron: string) =>
+    ["operator", "governance", "recurrence-preview", cron] as const,
   advisoryRecommendations: (scope: OperatorScopeQueryKey, runId: string) =>
     ["operator", "advisory", "recommendations", scope, runId] as const,
   conversationThreads: (take: number) => ["operator", "conversations", "threads", { take }] as const,

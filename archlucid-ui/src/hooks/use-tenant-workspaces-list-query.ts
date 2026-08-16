@@ -10,12 +10,13 @@ import {
 } from "@/lib/query/operator-query-stale-time";
 import { fetchTenantWorkspacesList } from "@/lib/tenant-workspaces-list-client";
 
-export function useTenantWorkspacesListQuery() {
+export function useTenantWorkspacesListQuery(options?: { readonly enabled?: boolean }) {
   const scope = useOperatorScopeQueryKey();
 
   return useQuery({
     queryKey: operatorQueryKeys.tenantWorkspacesList(scope),
     queryFn: fetchTenantWorkspacesList,
+    enabled: options?.enabled ?? true,
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
   });

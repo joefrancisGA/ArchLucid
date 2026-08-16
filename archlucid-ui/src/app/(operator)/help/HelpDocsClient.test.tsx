@@ -1,9 +1,13 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
+import { renderWithOperatorQuery, useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 
 import { HelpDocsClient } from "./HelpDocsClient";
 
 describe("HelpDocsClient", () => {
+  useOperatorQueryTestLifecycle();
+
   it("loads index and filters by title or summary", async () => {
     const data = [
       {
@@ -30,7 +34,7 @@ describe("HelpDocsClient", () => {
       ),
     );
 
-    render(<HelpDocsClient />);
+    renderWithOperatorQuery(<HelpDocsClient />);
 
     expect(await screen.findByText("Alpha Doc")).toBeInTheDocument();
     expect(screen.getByText("Beta API")).toBeInTheDocument();

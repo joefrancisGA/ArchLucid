@@ -1,99 +1,47 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import type { HelpArticleResponse } from "@/app/api/help/[slug]/route";
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { HelpApiContractsGuideView } from "@/app/(operator)/help/_sections/HelpApiContractsGuideView";
 import { HelpConfigurationReferenceGuideView } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceGuideView";
 import { HelpEngineeringTroubleshootingGuideView } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingGuideView";
 import { HelpTopicNotFoundView } from "@/app/(operator)/help/_sections/HelpTopicNotFoundView";
-import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
-import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { OperatorShellAccessGateLoading } from "@/components/operator/OperatorShellAccessGateLoading";
+import { useHelpTopicMarkdownQuery } from "@/hooks/use-help-topic-markdown-query";
+import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 export type HelpTopicMarkdownClientProps = {
   readonly entry: ProductDocumentationEntry;
 };
 
-type LoadState =
-  | { status: "loading" }
-  | { status: "error" }
-  | { status: "loaded"; markdown: string };
-
 export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): React.ReactElement {
-  const [state, setState] = useState<LoadState>({ status: "loading" });
+  const markdownQuery = useHelpTopicMarkdownQuery(props.entry.slug);
 
-  useEffect(() => {
-    let canceled = false;
-
-    async function loadMarkdown(): Promise<void> {
-      try {
-        await ensureAccessTokenFresh();
-        const headers = new Headers({ Accept: "application/json" });
-        const bearer = getAccessTokenForApi();
-
-        if (bearer !== undefined && bearer !== null && bearer.trim().length > 0) {
-          headers.set("Authorization", `Bearer ${bearer}`);
-        }
-
-        const response = await fetch(`/api/help/${encodeURIComponent(props.entry.slug)}`, {
-          cache: "no-store",
-          credentials: "same-origin",
-          headers,
-        });
-
-        if (!response.ok) {
-          if (!canceled) {
-            setState({ status: "error" });
-          }
-
-          return;
-        }
-
-        const article = (await response.json()) as HelpArticleResponse;
-
-        if (!canceled) {
-          setState({ status: "loaded", markdown: article.markdown });
-        }
-      } catch {
-        if (!canceled) {
-          setState({ status: "error" });
-        }
-      }
-    }
-
-    void loadMarkdown();
-
-    return () => {
-      canceled = true;
-    };
-  }, [props.entry.slug]);
-
-  if (state.status === "loading") {
+  if (markdownQuery.isPending) {
     return <OperatorShellAccessGateLoading />;
   }
 
-  if (state.status === "error") {
+  if (markdownQuery.isError || markdownQuery.data === undefined) {
     return <HelpTopicNotFoundView />;
   }
 
+  const markdown = markdownQuery.data;
+
   if (props.entry.slug === "engineering-troubleshooting") {
-    return <HelpEngineeringTroubleshootingGuideView entry={props.entry} markdown={state.markdown} />;
+    return <HelpEngineeringTroubleshootingGuideView entry={props.entry} markdown={markdown} />;
   }
 
   if (props.entry.slug === "configuration-reference") {
-    return <HelpConfigurationReferenceGuideView entry={props.entry} markdown={state.markdown} />;
+    return <HelpConfigurationReferenceGuideView entry={props.entry} markdown={markdown} />;
   }
 
   if (props.entry.slug === "api-contracts") {
-    return <HelpApiContractsGuideView entry={props.entry} markdown={state.markdown} />;
+    return <HelpApiContractsGuideView entry={props.entry} markdown={markdown} />;
   }
 
   return (
     <HelpTopicMarkdownView
       entry={props.entry}
-      markdown={state.markdown}
+      markdown={markdown}
       showContextualHelp
     />
   );

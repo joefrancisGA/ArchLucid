@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+
 import { MarketingTierPricingSection } from "./MarketingTierPricingSection";
 
 const mockPricingDoc = {
@@ -54,6 +56,7 @@ const mockPricingDoc = {
 
 describe("MarketingTierPricingSection", () => {
   beforeEach(() => {
+    resetOperatorQueryClientForTests();
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -64,6 +67,7 @@ describe("MarketingTierPricingSection", () => {
   });
 
   afterEach(() => {
+    resetOperatorQueryClientForTests();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
@@ -124,7 +128,11 @@ describe("MarketingTierPricingSection", () => {
     expect(billingLink.getAttribute("href")).toBe(
       "/auth/signin?returnUrl=%2Fadministration%2Fbilling%3Fplan%3Dteam",
     );
-    expect(teamScope.getAllByRole("link", { name: /start team evaluation/i })).toHaveLength(2);
+    expect(teamScope.getByRole("link", { name: /start team evaluation/i })).toBe(billingLink);
+    expect(teamScope.getByRole("link", { name: /sign up for team/i })).toHaveAttribute(
+      "href",
+      "/signup?utm=test",
+    );
   });
 
   it("does not link marketing CTAs to external Stripe checkout URLs when self-serve is enabled", async () => {

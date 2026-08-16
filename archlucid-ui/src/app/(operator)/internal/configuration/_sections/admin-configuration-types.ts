@@ -1,4 +1,4 @@
-import type { components } from "@archlucid/api-types";
+import type { components } from "@/lib/openapi-schemas";
 
 export type ConfigSummaryKeyRow = components["schemas"]["ConfigSummaryKeyRow"];
 export type AdminConfigLintFinding = components["schemas"]["AdminConfigLintFinding"];

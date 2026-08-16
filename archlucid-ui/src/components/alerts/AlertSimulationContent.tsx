@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
@@ -21,8 +20,6 @@ import {
 } from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
 import {
   ALERT_SIMULATION_BEHAVIOR_EMPTY_GETTING_STARTED,
   ALERT_SIMULATION_COMPARED_REVIEW_DISABLED_HELPER,
@@ -41,9 +38,6 @@ import {
   ALERT_SIMULATION_REVIEW_ID_PRECEDENCE,
   ALERT_SIMULATION_SPECIFIC_REVIEW_REPLACES_WINDOW_NOTE,
   ALERT_TOOLING_FORM_SELECT_CLASS,
-  isAlertSimulationRecentCountValid,
-  isAlertSimulationThresholdValid,
-  resolveAlertSimulationRunProjectSlug,
   type AlertSimulationModeTabId,
 } from "@/lib/alert-simulation-form";
 import {
@@ -53,19 +47,16 @@ import {
   alertSimulationRunControlTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import {
   firstWhyDisabledCtaReason,
   whyDisabledIncompleteInput,
   type WhyDisabledCtaReason,
 } from "@/lib/why-disabled-cta";
 import type {
-  RuleCandidateComparisonResult,
   RuleSimulationResult,
   SimulatedAlertOutcome,
 } from "@/types/alert-simulation";
+import { useAlertSimulation } from "./use-alert-simulation";
 
 const SIMPLE_RULE_TYPES = [
   { value: "CriticalRecommendationCount", label: "Critical / high recommendation count" },
@@ -229,191 +220,97 @@ function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
 }
 
 export function AlertSimulationContent() {
-  const canMutateEnterpriseShell = useOperateCapability();
-  const [tab, setTab] = useState<AlertSimulationModeTabId>("simple");
-  const [loading, setLoading] = useState(false);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [simpleResult, setSimpleResult] = useState<RuleSimulationResult | null>(null);
-  const [compositeResult, setCompositeResult] = useState<RuleSimulationResult | null>(null);
-  const [compareResult, setCompareResult] = useState<RuleCandidateComparisonResult | null>(null);
+  const {
+    canMutateEnterpriseShell,
+    tab,
+    setTab,
+    loading,
+    failure,
+    simpleResult,
+    compositeResult,
+    compareResult,
+    sName,
+    setSName,
+    sRuleType,
+    setSRuleType,
+    sSeverity,
+    setSSeverity,
+    sThreshold,
+    setSThreshold,
+    sRecent,
+    setSRecent,
+    sSlug,
+    setSSlug,
+    sRunId,
+    setSRunId,
+    sCompareRun,
+    setSCompareRun,
+    sUseHistory,
+    setSUseHistory,
+    sRecentTouched,
+    setSRecentTouched,
+    sThresholdTouched,
+    setSThresholdTouched,
+    sScopeTouched,
+    setSScopeTouched,
+    hasSpecificReviewId,
+    recentCountValid,
+    thresholdValid,
+    reviewScopeValid,
+    simpleFormValid,
+    cName,
+    setCName,
+    cSeverity,
+    setCSeverity,
+    cJoin,
+    setCJoin,
+    cSuppression,
+    setCSuppression,
+    cCooldown,
+    setCCooldown,
+    cDedupe,
+    setCDedupe,
+    cRecent,
+    setCRecent,
+    cSlug,
+    setCSlug,
+    cM1,
+    setCM1,
+    cO1,
+    setCO1,
+    cV1,
+    setCV1,
+    cM2,
+    setCM2,
+    cO2,
+    setCO2,
+    cV2,
+    setCV2,
+    cmpName,
+    setCmpName,
+    cmpRuleType,
+    setCmpRuleType,
+    cmpSeverity,
+    setCmpSeverity,
+    cmpA,
+    setCmpA,
+    cmpB,
+    setCmpB,
+    cmpRecent,
+    setCmpRecent,
+    cmpSlug,
+    setCmpSlug,
+    runSimple,
+    runComposite,
+    runCompare,
+  } = useAlertSimulation();
 
-  // Simple
-  const [sName, setSName] = useState("Dry-run rule");
-  const [sRuleType, setSRuleType] = useState("CostIncreasePercent");
-  const [sSeverity, setSSeverity] = useState("Warning");
-  const [sThreshold, setSThreshold] = useState(15);
-  const [sRecent, setSRecent] = useState(10);
-  const [sSlug, setSSlug] = useState("");
-  const [sRunId, setSRunId] = useState("");
-  const [sCompareRun, setSCompareRun] = useState("");
-  const [sUseHistory, setSUseHistory] = useState(true);
-  const [sRecentTouched, setSRecentTouched] = useState(false);
-  const [sThresholdTouched, setSThresholdTouched] = useState(false);
-  const [sScopeTouched, setSScopeTouched] = useState(false);
-
-  const hasSpecificReviewId = sRunId.trim().length > 0;
-  const recentCountValid =
-    hasSpecificReviewId || isAlertSimulationRecentCountValid(sRecent);
-  const thresholdValid = isAlertSimulationThresholdValid(sThreshold);
-  const reviewScopeValid = hasSpecificReviewId || sUseHistory;
-  const simpleFormValid = recentCountValid && thresholdValid && reviewScopeValid;
   const simpleSimulationReadiness = resolveSimpleSimulationReadiness(
     hasSpecificReviewId,
     recentCountValid,
     thresholdValid,
     reviewScopeValid,
   );
-
-  // Composite
-  const [cName, setCName] = useState("Composite dry-run");
-  const [cSeverity, setCSeverity] = useState("High");
-  const [cJoin, setCJoin] = useState("And");
-  const [cSuppression, setCSuppression] = useState(1440);
-  const [cCooldown, setCCooldown] = useState(60);
-  const [cDedupe, setCDedupe] = useState("RuleAndRun");
-  const [cRecent, setCRecent] = useState(10);
-  const [cSlug, setCSlug] = useState("");
-  const [cM1, setCM1] = useState("CostIncreasePercent");
-  const [cO1, setCO1] = useState("GreaterThanOrEqual");
-  const [cV1, setCV1] = useState(15);
-  const [cM2, setCM2] = useState("NewComplianceGapCount");
-  const [cO2, setCO2] = useState("GreaterThanOrEqual");
-  const [cV2, setCV2] = useState(1);
-
-  // Compare simple
-  const [cmpName, setCmpName] = useState("Threshold compare");
-  const [cmpRuleType, setCmpRuleType] = useState("CostIncreasePercent");
-  const [cmpSeverity, setCmpSeverity] = useState("Warning");
-  const [cmpA, setCmpA] = useState(10);
-  const [cmpB, setCmpB] = useState(20);
-  const [cmpRecent, setCmpRecent] = useState(10);
-  const [cmpSlug, setCmpSlug] = useState("");
-
-  function parseOptionalGuid(s: string): string | undefined {
-    const t = s.trim();
-    if (!t) return undefined;
-    return t;
-  }
-
-  function resolveRunProjectSlug(typedSlug: string): string {
-    return resolveAlertSimulationRunProjectSlug(
-      typedSlug,
-      readOperatorScopeFromStorage()?.projectId,
-    );
-  }
-
-  async function runSimple() {
-    if (!simpleFormValid) {
-      return;
-    }
-
-    setLoading(true);
-    setFailure(null);
-    setSimpleResult(null);
-    try {
-      const runId = parseOptionalGuid(sRunId);
-      const comparedToRunId = runId ? parseOptionalGuid(sCompareRun) : undefined;
-      const res = await simulateAlertRule({
-        ruleKind: "Simple",
-        simpleRule: {
-          ruleId: "00000000-0000-0000-0000-000000000000",
-          tenantId: "00000000-0000-0000-0000-000000000000",
-          workspaceId: "00000000-0000-0000-0000-000000000000",
-          projectId: "00000000-0000-0000-0000-000000000000",
-          name: sName.trim() || "Rule",
-          ruleType: sRuleType,
-          severity: sSeverity,
-          thresholdValue: sThreshold,
-          isEnabled: true,
-          targetChannelType: "DigestOnly",
-          metadataJson: "{}",
-          createdUtc: new Date().toISOString(),
-        },
-        runId: runId ?? null,
-        comparedToRunId: comparedToRunId ?? null,
-        recentRunCount: sRecent,
-        useHistoricalWindow: sUseHistory,
-        runProjectSlug: resolveRunProjectSlug(sSlug),
-      });
-      setSimpleResult(res);
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function runComposite() {
-    setLoading(true);
-    setFailure(null);
-    setCompositeResult(null);
-    try {
-      const res = await simulateAlertRule({
-        ruleKind: "Composite",
-        compositeRule: {
-          compositeRuleId: "00000000-0000-0000-0000-000000000000",
-          tenantId: "00000000-0000-0000-0000-000000000000",
-          workspaceId: "00000000-0000-0000-0000-000000000000",
-          projectId: "00000000-0000-0000-0000-000000000000",
-          name: cName.trim() || "Composite",
-          severity: cSeverity,
-          operator: cJoin,
-          isEnabled: true,
-          suppressionWindowMinutes: cSuppression,
-          cooldownMinutes: cCooldown,
-          reopenDeltaThreshold: 0,
-          dedupeScope: cDedupe,
-          targetChannelType: "AlertRouting",
-          createdUtc: new Date().toISOString(),
-          conditions: [
-            { metricType: cM1, operator: cO1, thresholdValue: cV1 },
-            { metricType: cM2, operator: cO2, thresholdValue: cV2 },
-          ],
-        },
-        recentRunCount: cRecent,
-        useHistoricalWindow: true,
-        runProjectSlug: resolveRunProjectSlug(cSlug),
-      });
-      setCompositeResult(res);
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function runCompare() {
-    setLoading(true);
-    setFailure(null);
-    setCompareResult(null);
-    try {
-      const base = {
-        ruleId: "00000000-0000-0000-0000-000000000000",
-        tenantId: "00000000-0000-0000-0000-000000000000",
-        workspaceId: "00000000-0000-0000-0000-000000000000",
-        projectId: "00000000-0000-0000-0000-000000000000",
-        name: cmpName.trim() || "Candidate",
-        ruleType: cmpRuleType,
-        severity: cmpSeverity,
-        isEnabled: true,
-        targetChannelType: "DigestOnly",
-        metadataJson: "{}",
-        createdUtc: new Date().toISOString(),
-      };
-      const res = await compareAlertRuleCandidates({
-        ruleKind: "Simple",
-        candidateA_SimpleRule: { ...base, thresholdValue: cmpA },
-        candidateB_SimpleRule: { ...base, thresholdValue: cmpB },
-        recentRunCount: cmpRecent,
-        runProjectSlug: resolveRunProjectSlug(cmpSlug),
-      });
-      setCompareResult(res);
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
-    } finally {
-      setLoading(false);
-    }
-  }
 
   return (
     <div className="max-w-[1100px]">

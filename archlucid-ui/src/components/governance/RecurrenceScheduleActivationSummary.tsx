@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { RecurrenceLocalTimeDisplay } from "@/components/governance/RecurrenceLocalTimeDisplay";
-import { previewRecurrenceScheduleRuns } from "@/lib/api/governance-stickiness-api";
+import { useRecurrenceSchedulePreviewQuery } from "@/hooks/use-recurrence-schedule-preview-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildRecurrenceLocalTimeSummary,
@@ -24,8 +24,9 @@ export type RecurrenceScheduleActivationSummaryProps = {
 /** Cadence, next run, and activation status shown before saving or enabling a recurrence schedule. */
 export function RecurrenceScheduleActivationSummary(props: RecurrenceScheduleActivationSummaryProps) {
   const { cronExpression, isActive } = props;
-  const [nextRunUtc, setNextRunUtc] = useState<string | null>(null);
   const trimmedCron = cronExpression.trim();
+  const previewQuery = useRecurrenceSchedulePreviewQuery(trimmedCron);
+  const nextRunUtc = previewQuery.isError ? null : (previewQuery.data ?? null);
   const displayTimeZoneId = useMemo(() => resolveRecurrenceDisplayTimeZoneId(), []);
   const cadenceSummary = useMemo(
     () =>
@@ -40,40 +41,6 @@ export function RecurrenceScheduleActivationSummary(props: RecurrenceScheduleAct
     () => formatRecurrenceInstantLocalFirst(nextRunUtc, displayTimeZoneId),
     [nextRunUtc, displayTimeZoneId],
   );
-
-  useEffect(() => {
-    let canceled = false;
-
-    if (trimmedCron.length === 0) {
-      setNextRunUtc(null);
-
-      return () => {
-        canceled = true;
-      };
-    }
-
-    void previewRecurrenceScheduleRuns({ cronExpression: trimmedCron, count: 1 })
-      .then((result) => {
-        if (canceled) {
-          return;
-        }
-
-        if (result.isValid && result.nextRunUtc.length > 0) {
-          setNextRunUtc(result.nextRunUtc[0] ?? null);
-        } else {
-          setNextRunUtc(null);
-        }
-      })
-      .catch(() => {
-        if (!canceled) {
-          setNextRunUtc(null);
-        }
-      });
-
-    return () => {
-      canceled = true;
-    };
-  }, [trimmedCron]);
 
   return (
     <section
