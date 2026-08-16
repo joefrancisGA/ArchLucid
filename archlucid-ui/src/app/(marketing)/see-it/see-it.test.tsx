@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { CLAIMS_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/claims-intake/definition";
@@ -268,7 +268,7 @@ describe("SeeItMarketingBody", () => {
     render(<SeeItMarketingBody source="snapshot" payload={malformed} />);
 
     expect(screen.getByTestId("see-it-no-artifacts")).toBeInTheDocument();
-    expect(screen.getByText(/Sponsor sponsor briefing/i)).toBeInTheDocument();
+    expect(within(screen.getByTestId("see-it-no-artifacts")).getByText(/Sponsor briefing/i)).toBeInTheDocument();
   });
 
   it("normalizes the secondary CTA row to a single PDF outline action (TB-1282)", () => {

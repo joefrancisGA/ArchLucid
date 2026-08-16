@@ -12,7 +12,7 @@ type PreviewArtifact = NonNullable<DemoCommitPagePreviewResponse["artifacts"]>[n
 const FALLBACK_DELIVERABLES = [
   {
     key: "sponsor-briefing",
-    title: "Sponsor sponsor briefing",
+    title: "Sponsor briefing",
     detail: "Board-ready summary of risk posture, decisions, and residual monitoring.",
   },
   {

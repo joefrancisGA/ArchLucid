@@ -335,7 +335,7 @@ export function GetStartedPageClient(): ReactElement {
               className={MARKETING_SURFACES.inlineLink}
               href={resolveInAppDocHref("docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md")}
             >
-              Read the sponsor sponsor brief
+              Read the sponsor brief
             </Link>
             {" · "}
             <Link

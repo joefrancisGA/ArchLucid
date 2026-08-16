@@ -7,7 +7,7 @@ export const EXAMPLE_ROI_BULLETIN_TRUST_CENTER_HREF = "/trust" as const;
 
 export const EXAMPLE_ROI_BULLETIN_PRIMARY_CTA_LABEL = "Pilot ROI model (help)" as const;
 
-export const EXAMPLE_ROI_BULLETIN_TRUST_CENTER_CTA_LABEL = "Assurance status (Trust Center)" as const;
+export const EXAMPLE_ROI_BULLETIN_TRUST_CENTER_CTA_LABEL = "Trust Center" as const;
 
 export const EXAMPLE_ROI_BULLETIN_OPERATOR_DISCLOSURE_TITLE = "For operators / CLI" as const;
 
