@@ -21,7 +21,7 @@ public static class AgentTopologyProposalMergeGate
         HashSet<string> inventoriedIdentifiers = ResolveInventoriedIdentifiers(graph);
         HashSet<string> relationshipEndpointKeys = ResolveRelationshipEndpointKeys(graph, inventoriedIdentifiers);
 
-        if (inventoriedIdentifiers.Count == 0)
+        if (inventoriedIdentifiers.Count == 0 && !HasAgentProposedTopologyNodes(graph))
             return FilterGreenfieldProposals(results, relationshipEndpointKeys);
 
         bool allowTopologyExtension = HasAgentProposedTopologyNodes(graph);

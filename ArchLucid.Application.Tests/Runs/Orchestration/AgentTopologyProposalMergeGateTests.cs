@@ -2598,4 +2598,34 @@ public sealed class AgentTopologyProposalMergeGateTests
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
     }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsAgentProposedOnly_RejectsUninventoriedCostProposalLabels()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-api", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)));
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().BeEmpty();
+    }
 }
