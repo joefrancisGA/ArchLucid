@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/auth-config", () => ({
@@ -17,6 +17,7 @@ import {
   TrialWelcomeRunDeepLink,
   TRIAL_WELCOME_HOME_REDIRECT_SUPPRESS_VALUE,
 } from "@/components/trial/TrialWelcomeRunDeepLink";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 describe("TrialWelcomeRunDeepLink", () => {
   beforeEach(() => {
@@ -47,7 +48,7 @@ describe("TrialWelcomeRunDeepLink", () => {
       }),
     );
 
-    render(<TrialWelcomeRunDeepLink />);
+    renderWithOperatorQuery(<TrialWelcomeRunDeepLink />);
 
     await waitFor(() => {
       expect(window.location.replace).toHaveBeenCalledWith(`/architecture/reviews/${welcomeId}`);
@@ -69,7 +70,7 @@ describe("TrialWelcomeRunDeepLink", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<TrialWelcomeRunDeepLink />);
+    renderWithOperatorQuery(<TrialWelcomeRunDeepLink />);
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled();
@@ -94,7 +95,7 @@ describe("TrialWelcomeRunDeepLink", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<TrialWelcomeRunDeepLink />);
+    renderWithOperatorQuery(<TrialWelcomeRunDeepLink />);
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled();

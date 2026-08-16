@@ -79,7 +79,6 @@ const MIGRATION_BACKLOG: readonly string[] = [
   "src/components/reviews/RunDetailFirstScreenProofStatusClient.tsx",
   "src/components/runs/RunDetailAiReadinessGateCard.tsx",
   "src/components/runs/RunProgressTracker.tsx",
-  "src/components/trial/TrialWelcomeRunDeepLink.tsx",
   "src/components/ValueRealizationDashboard.tsx",
   "src/components/wizard/RunWizardCostPreviewCard.tsx",
   "src/components/wizard/steps/WizardStepAdvanced.tsx",
