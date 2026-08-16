@@ -236,4 +236,55 @@ public sealed class ChangeImpactAnalyzerTests
             item.ElementId == "upstream-gateway"
             && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void Analyze_includes_forward_related_elements_discovered_via_reverse_related_hubs()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-related-mixed",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "checkout-cache",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout cache",
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "worker",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout worker",
+                    RelatedElementIds = ["comp-target", "checkout-cache"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "comp-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout API",
+                },
+            ],
+        };
+
+        ArchitectureRecommendation recommendation = new()
+        {
+            RecommendationId = "rec-related-mixed",
+            Problem = "Checkout latency",
+            Evidence = "Trace data.",
+            AffectedRequirementOrQualityAttribute = "Performance",
+            ConsequenceOfInaction = "Latency remains.",
+            ProposedChange = "Optimize Checkout API caching.",
+            ValidationMethod = "Load test.",
+        };
+
+        ChangeImpactResult impact = _analyzer.Analyze(model, recommendation);
+
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "comp-target");
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "worker");
+        impact.ImpactedItems.Should().Contain(item =>
+            item.ElementId == "checkout-cache"
+            && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
+    }
 }

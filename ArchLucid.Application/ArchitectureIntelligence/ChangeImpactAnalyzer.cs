@@ -73,11 +73,11 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
             });
         }
 
-        bool indirectImpactAddedElements;
+        bool relatedExpansionAddedElements;
 
         do
         {
-            indirectImpactAddedElements = false;
+            relatedExpansionAddedElements = false;
 
             foreach (ArchitectureModelElement element in model.Elements)
             {
@@ -108,17 +108,9 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                         Description = $"Related element {relatedElement.Name} may be indirectly impacted.",
                         Category = ChangeImpactCategoryMapper.FromElementKind(relatedElement.Kind),
                     });
-                    indirectImpactAddedElements = true;
+                    relatedExpansionAddedElements = true;
                 }
             }
-        }
-        while (indirectImpactAddedElements);
-
-        bool reverseIndirectImpactAddedElements;
-
-        do
-        {
-            reverseIndirectImpactAddedElements = false;
 
             foreach (ArchitectureModelElement element in model.Elements)
             {
@@ -144,10 +136,10 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                     Description = $"Related element {element.Name} may be indirectly impacted.",
                     Category = ChangeImpactCategoryMapper.FromElementKind(element.Kind),
                 });
-                reverseIndirectImpactAddedElements = true;
+                relatedExpansionAddedElements = true;
             }
         }
-        while (reverseIndirectImpactAddedElements);
+        while (relatedExpansionAddedElements);
 
         bool requiresFullReReview = RequiresFullReReview(model, recommendation, diffEntries);
 
