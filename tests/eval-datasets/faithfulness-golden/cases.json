@@ -360,6 +360,16 @@
         { "sourceId": "adr-0031-cross-tenant", "title": "ADR 0031 cross-tenant patterns", "corpusKind": "PlatformDoc" }
       ],
       "agentOutputText": "Cross-tenant retrieval is forbidden without citing retrieved ADR evidence."
+    },
+    {
+      "id": "ask-iterative-retry-recall-boost",
+      "category": "azure-saas-readiness",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "rule-kv-01", "title": "Key Vault", "corpusKind": "PolicyPack" },
+        { "sourceId": "rule-mi-02", "title": "Managed Identity", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "Store secrets in Key Vault (rule-kv-01) and use Managed Identity (rule-mi-02) for access."
     }
   ]
 }

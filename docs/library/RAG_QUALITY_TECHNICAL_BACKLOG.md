@@ -394,7 +394,7 @@
 | ID | Title | Notes |
 |----|-------|-------|
 | **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | Pulled forward to V1. Requires stable schema (ADR 0036). |
-| **RAG-V2-002** | Single-pass query expansion (HyDE, query rewrite, semantic rerank) | Pulled forward to V1. One LLM completion per transform + managed semantic rerank — not iterative multi-hop retrieval (**TB-598 closed 2026-07-04**). **Iterative retrieve-critique-retry remainder:** **TB-878** (promoted V1 2026-07-19). |
+| **RAG-V2-002** | Single-pass query expansion (HyDE, query rewrite, semantic rerank) | Pulled forward to V1. One LLM completion per transform + managed semantic rerank — not iterative multi-hop retrieval (**TB-598 closed 2026-07-04**). **Iterative retrieve-critique-retry:** **TB-878 Done 2026-08-16** (default off). |
 | **RAG-V2-003** | Online fine-tuning on accepted manifests | Pulled forward to V1. Requires explicit DPA + owner ADR. |
 
 ### Reranking — V1 decision (2026-05-26)

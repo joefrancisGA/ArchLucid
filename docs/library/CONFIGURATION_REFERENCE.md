@@ -233,6 +233,8 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | Retrieval | `Retrieval:Advanced:EnableGraphRag` | appsettings, env | true | Optional | All | When true, expands graph hits with bounded multi-hop neighbor traversal (**TB-597**). |
 | Retrieval | `Retrieval:Advanced:MaxGraphTraversalHops` | appsettings, env | 2 | Optional | All | Graph-RAG hop budget (1–4, cycle-safe BFS). |
 | Retrieval | `Retrieval:Advanced:ExpansionTimeoutSeconds` | appsettings, env | 5 | Optional | All | Per-transform LLM timeout for query rewrite / HyDE before heuristic fallback. |
+| Retrieval | `Retrieval:Advanced:EnableIterativeRetrieveCritiqueRetry` | appsettings, env | false | Optional | All | When true, runs bounded retrieve-critique-retry after single-pass expansion (**TB-878**). Default off; flag off preserves single-pass behavior. |
+| Retrieval | `Retrieval:Advanced:MaxIterativeRetrievalRounds` | appsettings, env | 2 | Optional | All | Maximum retrieval rounds including the initial pass when iterative retry is enabled (1–4, hard-clamped). |
 | AgentExecution | `AgentExecution:Mode` | appsettings, env | Simulator | Optional (not mode-gated) | All (Api, Worker, Combined) | Simulator (offline) or Real (calls Azure OpenAI) — see validation rules. Run-level traces tag `archlucid.execution_mode` (`simulator` / `real`). |
 | AgentExecution | `AgentExecution:CompletionClient` | appsettings, env | omit or Azure | Optional (not mode-gated) | All (Api, Worker, Combined) | Echo to skip real LLM; see AgentExecution rules. |
 | AgentExecution | `AgentExecution:LlmCostEstimation:Enabled` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Token cost heuristics for telemetry. |

@@ -8864,12 +8864,22 @@ BEGIN
         ScoresJson NVARCHAR(MAX) NULL,
         DocumentIdsJson NVARCHAR(MAX) NULL,
         AgentExecutionTraceId NVARCHAR(64) NULL,
+        IterativeRetrievalRounds INT NULL,
+        IterativeCritiqueDecisionsJson NVARCHAR(4000) NULL,
         CreatedUtc DATETIME2 NOT NULL CONSTRAINT DF_RetrievalGroundingTrace_CreatedUtc DEFAULT (SYSUTCDATETIME())
     );
 
     CREATE NONCLUSTERED INDEX IX_RetrievalGroundingTrace_RunId
         ON dbo.RetrievalGroundingTrace (RunId, CreatedUtc DESC);
 END;
+GO
+
+IF OBJECT_ID(N'dbo.RetrievalGroundingTrace', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.RetrievalGroundingTrace', N'IterativeRetrievalRounds') IS NULL
+    ALTER TABLE dbo.RetrievalGroundingTrace ADD IterativeRetrievalRounds INT NULL;
+GO
+
+IF OBJECT_ID(N'dbo.RetrievalGroundingTrace', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.RetrievalGroundingTrace', N'IterativeCritiqueDecisionsJson') IS NULL
+    ALTER TABLE dbo.RetrievalGroundingTrace ADD IterativeCritiqueDecisionsJson NVARCHAR(4000) NULL;
 GO
 
 /* ---- DbUp 221 parity: LLM prepaid wallet (see Migrations/221_LlmTenantWallet.sql) ---- */

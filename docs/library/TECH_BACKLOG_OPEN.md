@@ -135,7 +135,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Tenant isolation DiD structural vs convention | **TB-1418**–**TB-1419** (open P1 **V1**) | Structural \| Enforced DiD \| Convention \| Non-control \| Exception map + honesty CI; GTM **M-255**/**M-256**; ADR 0037 / RLS non-control; orchestrates **TB-1122**/**TB-1232**/**TB-999**/**TB-1251** |
 | Projects recycle bin + missing delete path | **TB-1179**–**TB-1182**, **TB-1289**–**TB-1291** (open P1 **V1**) | Governed delete affordance; retention/purge transparency; unbury entry; status density; Admin wayfinding + PageHeading/help; restore Dialog; empty/loading polish; owner reviews ~58/100 2026-07-25/26; traffic **STR** |
 | Community summarization Graph-RAG | **TB-877** (open P1) | RAG-V2-001 remainder — ADR 0057 (a) |
-| Promoted RAG remainders | **TB-878** – **TB-880**, **TB-686** (open P2 **V1**) | Retry loop; pilot-feedback retrieval; pattern library; semantic chunking |
+| Promoted RAG remainders | **TB-879** – **TB-880**, **TB-686** (open P2 **V1**) | Pilot-feedback retrieval; pattern library; semantic chunking (**TB-878** Done 2026-08-16) |
 | AI model chooser | **TB-872** open (**TB-869**–**TB-871** Done) | Customer Azure OpenAI BYO |
 | RC12 registration race (CI/test) | **TB-881** (**Done** 2026-07-21) | Was CI env-pin + parallel xUnit race — **not** V1 pilot ship blocker; PA class **TB-1371**/**TB-1372** / GTM **M-249**/**M-250** |
 | Tier 3 hold (assessment) | **TB-882**–**TB-886** (open; **Hold for reassessment**) | Nav guard; Graph-RAG live ablation; pack attribution; compounding ledger; manifest-verify docs |
@@ -184,7 +184,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | --- | --- | --- |
 | TB-876 | Customer-controlled Tier 1 AWS/GCP inventory ZIP | Multi-cloud P1 **V1** |
 | TB-877 | Community summarization Graph-RAG (RAG-V2-001 remainder) | AI/Agent P1 **V1** |
-| TB-878 | Iterative retrieve-critique-retry loop (RAG-V2-002 remainder) | AI/Agent P2 **V1** |
+| TB-878 | ~~Iterative retrieve-critique-retry loop (RAG-V2-002 remainder)~~ **Done** (2026-08-16) | AI/Agent P2 **V1** |
 | TB-879 | Pilot-feedback retrieval for planning materialize (RAG-V1.1-003) | Stickiness P2 **V1** |
 | TB-880 | Cross-tenant pattern library UI (RAG-V1.1-004) | Explainability P2 **V1** |
 | TB-686 | Semantic retrieval chunking | Cutting-edge AI P2 **V1**; gated on TB-595 |
