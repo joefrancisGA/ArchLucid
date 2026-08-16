@@ -2,6 +2,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 import { PatternLibraryDetailClient } from "./PatternLibraryDetailClient";
 import {
   PATTERN_LIBRARY_AGGREGATE_PRIVACY_COPY,
@@ -38,11 +47,15 @@ describe("PatternLibraryDetailClient (TB-1811 / TB-1812 / TB-1813 / TB-1815)", (
     renderWithQueryClient(<PatternLibraryDetailClient patternKey="private-endpoints-paas" />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("pattern-library-detail-provenance-badge")).toHaveTextContent("Sample data");
+      expect(screen.getByTestId("pattern-library-detail-provenance-badge")).toHaveTextContent("Internal test data");
     });
 
     expect(screen.getByText(PATTERN_LIBRARY_SAMPLE_NOTICE)).toBeInTheDocument();
-    expect(screen.getByText(PATTERN_LIBRARY_POLICY_RULES_GUIDANCE_LEAD)).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByText(PATTERN_LIBRARY_POLICY_RULES_GUIDANCE_LEAD)).toBeInTheDocument();
+    });
+
     expect(screen.queryByRole("link", { name: /private link required/i })).not.toBeInTheDocument();
   });
 
@@ -68,7 +81,7 @@ describe("PatternLibraryDetailClient (TB-1811 / TB-1812 / TB-1813 / TB-1815)", (
     renderWithQueryClient(<PatternLibraryDetailClient patternKey="api-gateway-bff" />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("pattern-library-detail-title")).toHaveTextContent("API gateway with backend-for-frontend");
+      expect(screen.getByRole("link", { name: /Compare with Three-tier app modernization/i })).toBeInTheDocument();
     });
 
     const peerLink = screen.getByRole("link", { name: /Compare with Three-tier app modernization/i });

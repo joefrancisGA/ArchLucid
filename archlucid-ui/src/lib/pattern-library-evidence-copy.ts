@@ -21,3 +21,18 @@ export const PATTERN_LIBRARY_SOURCES: readonly EvidenceSourceLink[] = [
 ] as const;
 
 export const PATTERN_LIBRARY_CANONICAL_PATH = PATTERN_LIBRARY_PATH;
+
+export const PATTERN_LIBRARY_DETAIL_CLAIM_DISCIPLINE =
+  "Pattern detail guidance is anonymized, thresholded catalog content — not a sealed-review diligence Sources package and not tenant-identifying usage. Return to the library or open Reviews before briefing sponsors.";
+
+export const PATTERN_LIBRARY_DETAIL_SOURCES_INTRO =
+  "Use the library for peer patterns, then open Reviews, Evidence trail, or Getting started when you need orientation before treating catalog signals as authoritative.";
+
+/** Detail Sources — includes hub return link; no self-href to the active pattern detail URL. */
+export const PATTERN_LIBRARY_DETAIL_SOURCES: readonly EvidenceSourceLink[] = [
+  { label: "Pattern library", href: PATTERN_LIBRARY_PATH },
+  { label: "Architecture reviews", href: "/architecture/reviews" },
+  { label: "Evidence trail", href: "/insights/evidence-graph" },
+  { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
+  { label: "Getting started", href: inAppHelpHref("getting-started") },
+] as const;

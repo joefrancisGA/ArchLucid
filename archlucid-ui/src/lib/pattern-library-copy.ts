@@ -13,6 +13,21 @@ export function patternLibraryPageSubtitle(buyerPolishedShell: boolean): string 
 
 export const PATTERN_LIBRARY_LOADING_STATUS = "Loading pattern library…";
 
+export const PATTERN_LIBRARY_DETAIL_PAGE_TITLE = "Pattern detail";
+
+export const PATTERN_LIBRARY_DETAIL_LOADING_STATUS = "Loading pattern detail…";
+
+export function patternLibraryDetailSubtitle(
+  recordDescription: string,
+  buyerPolishedShell: boolean,
+): string {
+  if (buyerPolishedShell) {
+    return "Anonymized pattern guidance for reviews and governance comparisons.";
+  }
+
+  return recordDescription;
+}
+
 export const PATTERN_LIBRARY_LOAD_RETRY_LABEL = "Try again";
 
 export const PATTERN_LIBRARY_REFRESH_LABEL = "Refresh";
