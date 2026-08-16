@@ -79,4 +79,33 @@ public sealed class FinalizeAssumptionGateEvaluatorTests
         id.Should().StartWith("assumption-");
         id.Length.Should().BeGreaterThan("assumption-".Length);
     }
+
+    [Fact]
+    public void StableAssumptionIdFromText_matches_client_base36_encoding()
+    {
+        string assumption = "Recovery RTO is 4 hours for tier-1 workloads";
+
+        FinalizeAssumptionGateEvaluator.StableAssumptionIdFromText(assumption)
+            .Should()
+            .Be("assumption-1cvx8t");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_allows_when_client_acknowledged_assumption_id_matches()
+    {
+        string assumption = "Recovery RTO is 4 hours for tier-1 workloads";
+        ArchitectureRequest request = new()
+        {
+            Assumptions = [assumption]
+        };
+        FindingsSnapshot findings = new();
+        string clientAckId = "assumption-1cvx8t";
+
+        IReadOnlyList<string> reasons = FinalizeAssumptionGateEvaluator.GetBlockingReasons(
+            request,
+            findings,
+            new HashSet<string>([clientAckId], StringComparer.Ordinal));
+
+        reasons.Should().BeEmpty();
+    }
 }

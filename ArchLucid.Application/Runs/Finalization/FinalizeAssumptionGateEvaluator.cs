@@ -139,7 +139,28 @@ public static class FinalizeAssumptionGateEvaluator
             hash *= 16777619;
         }
 
-        return $"assumption-{hash:x}";
+        return $"assumption-{ToBase36(hash)}";
+    }
+
+    private static string ToBase36(uint value)
+    {
+        const string digits = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+        if (value == 0)
+        {
+            return "0";
+        }
+
+        Span<char> buffer = stackalloc char[13];
+        int position = buffer.Length;
+
+        while (value > 0)
+        {
+            buffer[--position] = digits[(int)(value % 36)];
+            value /= 36;
+        }
+
+        return new string(buffer[position..]);
     }
 
     internal readonly record struct UnverifiedAssumption(string Id, string Text, bool Existential);
