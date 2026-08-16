@@ -114,6 +114,41 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
         }
         while (indirectImpactAddedElements);
 
+        bool reverseIndirectImpactAddedElements;
+
+        do
+        {
+            reverseIndirectImpactAddedElements = false;
+
+            foreach (ArchitectureModelElement element in model.Elements)
+            {
+                if (visitedElementIds.Contains(element.ElementId))
+                {
+                    continue;
+                }
+
+                if (!element.RelatedElementIds.Any(relatedElementId => visitedElementIds.Contains(relatedElementId)))
+                {
+                    continue;
+                }
+
+                if (!visitedElementIds.Add(element.ElementId))
+                {
+                    continue;
+                }
+
+                impactedItems.Add(new ChangeImpactItem
+                {
+                    ElementId = element.ElementId,
+                    ImpactKind = element.Kind.ToString(),
+                    Description = $"Related element {element.Name} may be indirectly impacted.",
+                    Category = ChangeImpactCategoryMapper.FromElementKind(element.Kind),
+                });
+                reverseIndirectImpactAddedElements = true;
+            }
+        }
+        while (reverseIndirectImpactAddedElements);
+
         bool requiresFullReReview = RequiresFullReReview(model, recommendation, diffEntries);
 
         return new ChangeImpactResult

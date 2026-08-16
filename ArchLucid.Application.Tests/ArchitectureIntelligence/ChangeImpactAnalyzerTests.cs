@@ -192,4 +192,48 @@ public sealed class ChangeImpactAnalyzerTests
             item.ElementId == "downstream-consumer"
             && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void Analyze_includes_reverse_related_elements_pointing_at_directly_impacted_targets()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-related-reverse",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "upstream-gateway",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Edge gateway",
+                    RelatedElementIds = ["comp-target"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "comp-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout API",
+                },
+            ],
+        };
+
+        ArchitectureRecommendation recommendation = new()
+        {
+            RecommendationId = "rec-related-reverse",
+            Problem = "Checkout latency",
+            Evidence = "Trace data.",
+            AffectedRequirementOrQualityAttribute = "Performance",
+            ConsequenceOfInaction = "Latency remains.",
+            ProposedChange = "Optimize Checkout API caching.",
+            ValidationMethod = "Load test.",
+        };
+
+        ChangeImpactResult impact = _analyzer.Analyze(model, recommendation);
+
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "comp-target");
+        impact.ImpactedItems.Should().Contain(item =>
+            item.ElementId == "upstream-gateway"
+            && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
+    }
 }
