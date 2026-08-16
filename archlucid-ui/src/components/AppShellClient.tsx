@@ -290,17 +290,19 @@ function AppShellInner({ children }: AppShellClientProps) {
     return (
       <div
         ref={shellRootRef}
-        className="flex min-h-dvh flex-col items-center justify-center bg-neutral-50 px-4 py-10 dark:bg-neutral-950 sm:py-16"
+        className="flex min-h-dvh flex-col items-center justify-center bg-neutral-50 px-4 py-6 dark:bg-neutral-950 sm:py-8"
       >
-        <div className="mb-8">
-          <ArchLucidWordmarkLink
-            href="/"
-            aria-label="ArchLucid"
-            variant="operator"
-            logoVariant="full"
-          />
-        </div>
-        <div className="w-full max-w-[560px]">
+        {isAccessDeniedRoute ? (
+          <div className="mb-6">
+            <ArchLucidWordmarkLink
+              href="/"
+              aria-label="ArchLucid"
+              variant="operator"
+              logoVariant="full"
+            />
+          </div>
+        ) : null}
+        <div className="w-full max-w-[520px]">
           {surfaceChildren}
         </div>
         <AppToasterDeferred />
