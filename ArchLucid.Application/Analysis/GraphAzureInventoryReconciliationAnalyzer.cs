@@ -10,6 +10,21 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public static class GraphAzureInventoryReconciliationAnalyzer
 {
+    /// <summary>
+    ///     Topology property-bag keys that may hold the node's own Azure ARM resource id.
+    ///     Terraform show JSON stores <c>values.id</c> as <c>tf.id</c> (and sometimes <c>tf.resource_id</c>),
+    ///     not as <c>resourceId</c>.
+    /// </summary>
+    private static readonly string[] TopologyArmResourceIdPropertyKeys =
+    [
+        "resourceId",
+        "azureResourceId",
+        "armResourceId",
+        "id",
+        "tf.id",
+        "tf.resource_id"
+    ];
+
     public static InventoryReconciliationResult Analyze(string? resourcesJson, GraphSnapshot graphSnapshot)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
@@ -60,9 +75,13 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
     internal static string? TryReadTopologyResourceId(GraphNode node)
     {
-        foreach (string key in new[] { "resourceId", "azureResourceId", "armResourceId", "id" })
+        ArgumentNullException.ThrowIfNull(node);
+
+        foreach (string key in TopologyArmResourceIdPropertyKeys)
         {
-            if (node.Properties.TryGetValue(key, out string? value) && LooksLikeArmResourceId(value))
+            if (node.Properties is not null
+                && node.Properties.TryGetValue(key, out string? value)
+                && LooksLikeArmResourceId(value))
                 return value.Trim();
         }
 

@@ -4,7 +4,7 @@
 
 Curated zones for **yield-ranked** defect hunting. The picker is `scripts/agent/al-bug-pick-zone.ps1` (not LLM ranking). Do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-16 (ui-form-validation dry hunt 1; picker PS 5.1 ConvertTo-ObjectArray).
+**Updated:** 2026-08-16 (arm-terraform-source-ids hit: Terraform ARM ids in tf.id / tf.resource_id).
 
 ## How to use
 
@@ -77,11 +77,11 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-16
+- **last-bug:** 2026-08-16
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -89,7 +89,7 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 
 - [ ] ARM resource id indexed in the endpoint index but not resolved by the edge mapper
 - [ ] Terraform SourceId claimed in merge but missing from alias resolution
-- [ ] Endpoint keyed by a property bag value that is not a SourceId
+- [x] Endpoint keyed by a property bag value that is not a SourceId
 
 ---
 

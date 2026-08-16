@@ -132,7 +132,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
 
         foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
         {
-            string? resourceId = TryReadTopologyResourceId(node);
+            string? resourceId = GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node);
 
             if (string.IsNullOrWhiteSpace(resourceId))
                 continue;
@@ -144,22 +144,5 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
         }
 
         return nodeIds;
-    }
-
-    private static string? TryReadTopologyResourceId(GraphNode node)
-    {
-        foreach (string key in new[] { "resourceId", "azureResourceId", "armResourceId", "id" })
-        {
-            if (node.Properties.TryGetValue(key, out string? value)
-                && GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(value))
-            {
-                return value;
-            }
-        }
-
-        if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(node.SourceId))
-            return node.SourceId;
-
-        return null;
     }
 }

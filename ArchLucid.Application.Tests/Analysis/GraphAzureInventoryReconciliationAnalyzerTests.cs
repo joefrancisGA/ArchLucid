@@ -244,4 +244,78 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
 
         result.HasMismatches.Should().BeFalse();
     }
+
+    [Fact]
+    public void TryReadTopologyResourceId_returns_arm_id_from_tf_id_property()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-tf";
+
+        GraphNode node = new()
+        {
+            NodeId = "obj-app",
+            NodeType = GraphNodeTypes.TopologyResource,
+            SourceId = "decl-tf-show-json-1",
+            Label = "azurerm_linux_web_app.app",
+            Properties = new Dictionary<string, string>
+            {
+                ["tf.id"] = armId
+            }
+        };
+
+        GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node).Should().Be(armId);
+    }
+
+    [Fact]
+    public void TryReadTopologyResourceId_returns_arm_id_from_tf_resource_id_property()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-tf-resource";
+
+        GraphNode node = new()
+        {
+            NodeId = "obj-app",
+            NodeType = GraphNodeTypes.TopologyResource,
+            SourceId = "decl-tf-show-json-1",
+            Label = "azurerm_linux_web_app.app",
+            Properties = new Dictionary<string, string>
+            {
+                ["tf.resource_id"] = armId
+            }
+        };
+
+        GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node).Should().Be(armId);
+    }
+
+    [Fact]
+    public void Analyze_reads_arm_id_from_terraform_tf_id_property()
+    {
+        const string graphResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-tf";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "obj-app",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-tf-show-json-1",
+                    Label = "azurerm_linux_web_app.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["tf.id"] = graphResourceId
+                    }
+                }
+            ]
+        };
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze("[]", graph);
+
+        result.HasMismatches.Should().BeTrue();
+        result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(graphResourceId.ToLowerInvariant());
+        result.InventoryOnlyResourceIds.Should().BeEmpty();
+    }
 }
