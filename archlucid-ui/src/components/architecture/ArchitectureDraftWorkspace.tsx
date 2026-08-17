@@ -65,6 +65,7 @@ import {
   architectureDraftDetailPageSubtitle,
   ARCHITECTURE_DRAFT_DETAIL_ARCHITECTURE_ID_LABEL,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
+import { architecturesNewWorkspaceLead } from "@/lib/architectures-new-page-copy";
 import {
   ARCHITECTURES_LIST_PATH,
   architectureDraftPath,
@@ -84,7 +85,6 @@ import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-work
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
-  ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showSuccess } from "@/lib/toast";
@@ -194,9 +194,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const workspaceHeading = isNewDraft ? ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE : displayName;
   const WorkspaceHeadingTag = isNewDraft ? "h2" : "h1";
 
-  const workspaceLead = hasLocalDraftsOnCreatePath
-    ? ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD
-    : architectureDraftDetailPageSubtitle(isDetailDraft && buyerPolishedShell);
+  const workspaceLead = isNewDraft
+    ? architecturesNewWorkspaceLead(buyerPolishedShell, hasLocalDraftsOnCreatePath)
+    : architectureDraftDetailPageSubtitle(buyerPolishedShell);
 
   const reviewReadiness = useMemo(
     () => validateArchitectureReviewReadiness(fields, actorSet.actors),
@@ -535,7 +535,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         />
       ) : null}
 
-      {isDetailDraft && buyerPolishedShell ? null : <ArchitectureDraftGuidanceDisclosure />}
+      {buyerPolishedShell ? null : <ArchitectureDraftGuidanceDisclosure />}
 
       {conflictMessage !== null ? (
         <div className="space-y-2" data-testid="architecture-draft-conflict">

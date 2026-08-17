@@ -6,6 +6,8 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
+import { ArchitecturesNewBreadcrumb } from "./_sections/ArchitecturesNewBreadcrumb";
+import { ArchitecturesNewBuyerChrome } from "./_sections/ArchitecturesNewBuyerChrome";
 import { ArchitecturesNewPageHeaderActions } from "./_sections/ArchitecturesNewPageHeaderActions";
 import { ArchitecturesNewPageSubtitle } from "./_sections/ArchitecturesNewPageSubtitle";
 
@@ -27,8 +29,10 @@ export default function NewArchitecturePage(): React.JSX.Element {
         headingLevel="h1"
         titleTestId="architecture-new-page-title"
         subtitleTestId="architecture-new-page-subtitle"
+        breadcrumb={<ArchitecturesNewBreadcrumb />}
         actions={<ArchitecturesNewPageHeaderActions />}
       />
+      <ArchitecturesNewBuyerChrome />
       <ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />
     </OperatorPageContainer>
   );
