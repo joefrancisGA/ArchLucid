@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
 import { PilotGuideGettingStartedFirstReviewVocabularyRail } from "@/components/PilotGuideGettingStartedFirstReviewVocabularyRail";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
@@ -11,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   GETTING_STARTED_HELP_AUDIENCE_LINE,
+  GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE,
   GETTING_STARTED_HELP_CLAIM_DISCIPLINE,
   GETTING_STARTED_HELP_DIAGRAM_SOURCE,
   GETTING_STARTED_HELP_DIAGRAM_STEPS,
@@ -28,7 +32,9 @@ import {
   GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE,
   GETTING_STARTED_HELP_TECHNICAL_TERMS,
   GETTING_STARTED_HELP_WORKFLOW_STEPS,
+  gettingStartedHelpPageSubtitle,
 } from "@/lib/getting-started-help-guide-content";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import {
   DESIGN_TOKENS,
@@ -130,12 +136,24 @@ function HowArchLucidWorksDiagram(): React.ReactElement {
 /** Buyer-safe onboarding guide for `/help/getting-started`. */
 export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-getting-started-guide">
       <HelpTopicHashScroll />
-      <HelpTopicMarkdownPageHeader entry={entry} showContextualHelp />
-      <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="getting-started" />
+      <HelpTopicMarkdownPageHeader
+        entry={entry}
+        subtitle={gettingStartedHelpPageSubtitle(buyerPolishedShell)}
+        breadcrumb={
+          buyerPolishedShell ? (
+            <HelpTopicBreadcrumb topicTitle={GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE} />
+          ) : undefined
+        }
+        showContextualHelp={!buyerPolishedShell}
+      />
+      {buyerPolishedShell ? null : (
+        <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="getting-started" />
+      )}
       <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{GETTING_STARTED_HELP_AUDIENCE_LINE}</p>
       <aside
         className={cn(DESIGN_TOKENS.callout.neutral, "p-3")}

@@ -18,6 +18,8 @@ export type HelpTopicMarkdownPrimaryAction = {
 
 export type HelpTopicMarkdownPageHeaderProps = {
   readonly entry: ProductDocumentationEntry;
+  readonly subtitle?: string;
+  readonly breadcrumb?: ReactNode;
   readonly showContextualHelp?: boolean;
   readonly showExportClaimDiscipline?: boolean;
   readonly allowWithoutServerPdf?: boolean;
@@ -51,7 +53,8 @@ export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderPr
     <OperatorPageHeader
       title={props.entry.title}
       titleTestId="help-topic-page-title"
-      subtitle={props.entry.summary}
+      subtitle={props.subtitle ?? props.entry.summary}
+      breadcrumb={props.breadcrumb}
       metadata={
         props.titleBlockOrientation !== undefined && props.titleBlockOrientation !== null ? (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-topic-header-metadata">
