@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-17 (finding-inspect-sql hit: main/follow-up inspect SQL now scopes FindingRecords.TenantId).
+**Updated:** 2026-08-17 (topology hit: classic CDN profile TF types omitted svc- synthetic on Data-category nodes).
 
 ## How to use
 
@@ -54,11 +54,11 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 12
-- **bugs-found:** 8
+- **hunts:** 13
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-16
-- **last-bug:** 2026-08-16
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -72,6 +72,7 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 - [x] ARM resource id with whitespace
 - [x] Storage vs data category for datastore synthetic ids
 - [x] Cost/compliance relationship-only edges with a rename overlay
+- [x] Classic `azurerm_cdn_profile` / `cdn_endpoint` Data-category nodes omit `svc-` synthetic (only `cdn_frontdoor` was recognized)
 - [ ] Merge gate keeps a relationship but graph merge drops the edge for a type family not in parameterized tests
 - [ ] Duplicate node-id collision when overlay and inventoried node share SourceId but different labels
 - [ ] Gate vs merge disagreement after structural post-processor strips a relationship
