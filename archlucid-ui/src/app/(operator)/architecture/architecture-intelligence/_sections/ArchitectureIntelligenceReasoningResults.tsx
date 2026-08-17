@@ -9,12 +9,15 @@ import type {
   SpecialistReviewFinding,
 } from "@/app/(operator)/architecture/architecture-intelligence/_sections/architecture-intelligence-types";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import { findingJobViewLaneLead } from "@/lib/findings/finding-job-view-lane-lead";
 import { buildReviewFindingsTabHref } from "@/lib/findings/review-findings-job-view-url";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +32,7 @@ type ArchitectureIntelligenceReasoningResultsProps = {
 };
 
 export function ArchitectureIntelligenceReasoningResults(props: ArchitectureIntelligenceReasoningResultsProps) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const integritySet = new Set(props.result.integrityPassedFindingIds ?? []);
   const validationById = new Map(
     (props.result.validationResults ?? []).map((validation) => [validation.findingId, validation]),
@@ -39,6 +43,7 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
     runId.length > 0 && adversarialChallengeCount > 0
       ? buildReviewFindingsTabHref(runId, "verify-hypotheses")
       : null;
+  const integrityPassedCount = props.result.integrityPassedFindingIds?.length ?? 0;
 
   return (
     <div className="space-y-4" data-testid="architecture-intelligence-reasoning-results">
@@ -68,18 +73,31 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
         </p>
       ) : null}
 
-      <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-element-count">
-        Model elements: {props.result.model?.elements?.length ?? 0} · Integrity-passed findings:{" "}
-        {props.result.integrityPassedFindingIds?.length ?? 0}
-        {props.result.runId ? ` · Run: ${props.result.runId}` : ""}
-      </p>
+      {buyerPolishedShell ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-element-count">
+          Integrity-passed findings: {integrityPassedCount}
+          {props.result.runId ? (
+            <>
+              {" · "}
+              <TechnicalIdDisclosure label="Run" value={props.result.runId} />
+            </>
+          ) : null}
+        </p>
+      ) : (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-element-count">
+          Model elements: {props.result.model?.elements?.length ?? 0} · Integrity-passed findings: {integrityPassedCount}
+          {props.result.runId ? ` · Run: ${props.result.runId}` : ""}
+        </p>
+      )}
 
-      <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-economics">
-        {props.result.cacheHit
-          ? `Cache hit${props.result.cacheReuseReason ? ` (${props.result.cacheReuseReason})` : ""}`
-          : "Cache miss"}
-        {formatReasoningSpendSummary(props.result)}
-      </p>
+      {!buyerPolishedShell ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-economics">
+          {props.result.cacheHit
+            ? `Cache hit${props.result.cacheReuseReason ? ` (${props.result.cacheReuseReason})` : ""}`
+            : "Cache miss"}
+          {formatReasoningSpendSummary(props.result)}
+        </p>
+      ) : null}
 
       <ArchitectureIntelligenceProductRoundTrip
         runId={props.result.runId}
@@ -90,7 +108,8 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
 
       {props.result.publishedToProduct && props.result.publishedFindingsSnapshotId ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-intelligence-published">
-          Findings snapshot {props.result.publishedFindingsSnapshotId}
+          Findings snapshot{" "}
+          <TechnicalIdDisclosure label="Snapshot" value={props.result.publishedFindingsSnapshotId} />
         </p>
       ) : null}
 
@@ -149,7 +168,10 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
                       <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{finding.title}</CardTitle>
                     </CardHeader>
                     <CardContent className={cn("space-y-1 pt-0", OPERATOR_TYPOGRAPHY.body)}>
-                      <p className="m-0">Severity: {finding.severity}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-al-text-secondary">Severity:</span>
+                        <SeverityTag severity={finding.severity} />
+                      </div>
                       <p className="m-0">Conclusion: {finding.conclusion}</p>
                       <p className="m-0">Integrity: {integrityPassed ? "passed" : "failed / not cited"}</p>
                       {provenanceBucket ? <p className="m-0">Provenance: {provenanceBucket}</p> : null}

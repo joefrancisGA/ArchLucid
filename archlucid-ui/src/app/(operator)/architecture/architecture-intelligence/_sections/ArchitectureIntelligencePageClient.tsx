@@ -1,12 +1,14 @@
 "use client";
 
 import { Brain } from "lucide-react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { ArchitectureIntelligenceBreadcrumb } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceBreadcrumb";
+import { ArchitectureIntelligenceClaimOrientationStrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceClaimOrientationStrip";
 import { ArchitectureIntelligenceGoldenResults } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceGoldenResults";
-import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
+import { ArchitectureIntelligencePageSkeleton } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageSkeleton";
+import { ArchitectureIntelligenceProductContextLoadFailure } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductContextLoadFailure";
 import { ArchitectureIntelligenceReasoningResults } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceReasoningResults";
 import {
   buildRequest,
@@ -30,22 +32,31 @@ import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import {
   ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS,
   architectureIntelligenceReviewTierLabel,
   isArchitectureIntelligenceReviewTier,
   type ArchitectureIntelligenceReviewTier,
 } from "@/lib/architecture/architecture-intelligence-review-tier";
+import {
+  ARCHITECTURE_INTELLIGENCE_ACTIVE_RUN_LABEL,
+  ARCHITECTURE_INTELLIGENCE_PAGE_TITLE,
+  ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL,
+  ARCHITECTURE_INTELLIGENCE_PUBLISH_TOGGLE_LABEL,
+  architectureIntelligencePageSubtitle,
+} from "@/lib/architecture/architecture-intelligence-page-copy";
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
-import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export function ArchitectureIntelligencePageClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const searchParams = useSearchParams();
   const inboundRunId = searchParams.get("runId")?.trim() ?? "";
   const inboundFrom = searchParams.get("from")?.trim() ?? "";
@@ -59,6 +70,7 @@ export function ArchitectureIntelligencePageClient() {
   const [productContextStatus, setProductContextStatus] = useState<
     "idle" | "loading" | "loaded" | "empty" | "error"
   >("idle");
+  const [productContextReloadNonce, setProductContextReloadNonce] = useState(0);
   const [publishToProduct, setPublishToProduct] = useState(false);
   const [reviewTier, setReviewTier] = useState<ArchitectureIntelligenceReviewTier>("Standard");
   const [loadingAction, setLoadingAction] = useState<
@@ -71,6 +83,9 @@ export function ArchitectureIntelligencePageClient() {
     productContextStatus === "loaded" &&
     (activeRunId?.trim().length ?? 0) > 0 &&
     architectureDescription.trim().length > 0;
+  const loadingInboundContext = inboundRunId.length > 0 && productContextStatus === "loading";
+  const productContextLoadFailed = inboundRunId.length > 0 && productContextStatus === "error";
+  const showIntakeForm = !loadingInboundContext && !productContextLoadFailed;
 
   useEffect(() => {
     if (inboundRunId.length === 0) {
@@ -129,7 +144,7 @@ export function ArchitectureIntelligencePageClient() {
     return () => {
       canceled = true;
     };
-  }, [inboundRunId]);
+  }, [inboundRunId, productContextReloadNonce]);
 
   const inboundContextLine = useMemo(() => {
     if (inboundRunId.length === 0) {
@@ -137,7 +152,9 @@ export function ArchitectureIntelligencePageClient() {
     }
 
     if (productContextStatus === "loading") {
-      return `Loading architecture intake for run ${inboundRunId}…`;
+      return buyerPolishedShell
+        ? "Loading architecture intake for this review…"
+        : `Loading architecture intake for run ${inboundRunId}…`;
     }
 
     if (productContextStatus === "loaded") {
@@ -146,26 +163,36 @@ export function ArchitectureIntelligencePageClient() {
         extraCount > 0 ? ` plus ${extraCount} attached document${extraCount === 1 ? "" : "s"}` : "";
 
       if (inboundFrom === "findings") {
-        return `Loaded product intake from governance findings for run ${inboundRunId}${extra}. Run reasoning, then publish gated findings back to this review.`;
+        return buyerPolishedShell
+          ? `Loaded product intake from governance findings for this review${extra}. Run reasoning, then publish gated findings back to this review.`
+          : `Loaded product intake from governance findings for run ${inboundRunId}${extra}. Run reasoning, then publish gated findings back to this review.`;
       }
 
       if (inboundFrom === "reviews") {
-        return `Loaded product intake from review ${inboundRunId}${extra}. Run closed-loop reasoning, then publish gated findings into the product path.`;
+        return buyerPolishedShell
+          ? `Loaded product intake from this review${extra}. Run closed-loop reasoning, then publish gated findings into the product path.`
+          : `Loaded product intake from review ${inboundRunId}${extra}. Run closed-loop reasoning, then publish gated findings into the product path.`;
       }
 
-      return `Loaded product intake for run ${inboundRunId}${extra}.`;
+      return buyerPolishedShell
+        ? `Loaded product intake for this review${extra}.`
+        : `Loaded product intake for run ${inboundRunId}${extra}.`;
     }
 
     if (inboundFrom === "findings") {
-      return `Opened from governance findings for run ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
+      return buyerPolishedShell
+        ? "Opened from governance findings for this review. Load failed or empty — paste a description or use the golden fixture."
+        : `Opened from governance findings for run ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
     }
 
     if (inboundFrom === "reviews") {
-      return `Opened from review ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
+      return buyerPolishedShell
+        ? "Opened from this review. Load failed or empty — paste a description or use the golden fixture."
+        : `Opened from review ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
     }
 
-    return `Scoped to run ${inboundRunId}.`;
-  }, [inboundFrom, inboundRunId, productContextStatus, hydratedSourceTexts.length]);
+    return buyerPolishedShell ? "Scoped to this review." : `Scoped to run ${inboundRunId}.`;
+  }, [buyerPolishedShell, inboundFrom, inboundRunId, productContextStatus, hydratedSourceTexts.length]);
 
   const findings = useMemo(() => {
     if (runState?.kind !== "reasoning") {
@@ -360,26 +387,39 @@ export function ArchitectureIntelligencePageClient() {
     }
   }, []);
 
+  const retryProductContextLoad = useCallback(() => {
+    setProductContextReloadNonce((previous) => previous + 1);
+  }, []);
+
   const isBusy = loadingAction !== null;
 
   return (
     <div
-      className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.majorSectionGap)}
+      className={cn("w-full", buyerPolishedShell ? "max-w-6xl" : "max-w-3xl", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="architecture-intelligence-page"
     >
       <OperatorPageHeader
         navHref={ARCHITECTURE_INTELLIGENCE_PATH}
         // Not a nav destination, so nav-config cannot resolve the header icon.
         icon={Brain}
-        title="Architecture intelligence"
-        subtitle="Run closed-loop architecture reasoning or the golden regression harness against a free-form description."
+        title={ARCHITECTURE_INTELLIGENCE_PAGE_TITLE}
+        subtitle={architectureIntelligencePageSubtitle(buyerPolishedShell)}
         titleTestId="architecture-intelligence-page-title"
+        breadcrumb={buyerPolishedShell ? <ArchitectureIntelligenceBreadcrumb /> : undefined}
         actions={<PageContextualHelpButton />}
       />
-      <PageCapabilityBoundaryStrip surfaceId="architectureIntelligence" />
-      <AskArchitectureIntelligenceVocabularyRail currentSurfaceId="architecture-intelligence" />
-      <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="architecture-intelligence" />
-{inboundContextLine ? (
+
+      {buyerPolishedShell ? <ArchitectureIntelligenceClaimOrientationStrip /> : null}
+
+      {!buyerPolishedShell ? (
+        <>
+          <PageCapabilityBoundaryStrip surfaceId="architectureIntelligence" />
+          <AskArchitectureIntelligenceVocabularyRail currentSurfaceId="architecture-intelligence" />
+          <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="architecture-intelligence" />
+        </>
+      ) : null}
+
+      {inboundContextLine ? (
         <p
           className={cn(OPERATOR_TYPOGRAPHY.body, "text-muted-foreground")}
           data-testid="architecture-intelligence-inbound-context"
@@ -388,149 +428,160 @@ export function ArchitectureIntelligencePageClient() {
         </p>
       ) : null}
 
-      {activeRunId ? (
+      {loadingInboundContext ? <ArchitectureIntelligencePageSkeleton /> : null}
+
+      {productContextLoadFailed ? (
+        <ArchitectureIntelligenceProductContextLoadFailure
+          message={
+            error ??
+            "Could not load product run source context. Paste a description or use the golden fixture."
+          }
+          retryLabel={ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL}
+          retryDisabled={isBusy}
+          onRetry={retryProductContextLoad}
+        />
+      ) : null}
+
+      {activeRunId && !loadingInboundContext ? (
         <p
-          className={cn(OPERATOR_TYPOGRAPHY.helper, "font-mono")}
+          className={cn(OPERATOR_TYPOGRAPHY.helper, !buyerPolishedShell ? "font-mono" : undefined)}
           data-testid="architecture-intelligence-active-run"
         >
-          Active run: {activeRunId}
+          {buyerPolishedShell ? ARCHITECTURE_INTELLIGENCE_ACTIVE_RUN_LABEL : "Active run"}:{" "}
+          <TechnicalIdDisclosure label="" value={activeRunId} />
         </p>
       ) : null}
 
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="architecture-description">Architecture description</Label>
-          <Textarea
-            id="architecture-description"
-            data-testid="architecture-intelligence-description"
-            value={architectureDescription}
-            onChange={(event) => setArchitectureDescription(event.target.value)}
-            rows={10}
-            placeholder="Describe components, data flows, quality goals, and constraints…"
-            disabled={isBusy}
+      {showIntakeForm ? (
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="architecture-description">Architecture description</Label>
+            <Textarea
+              id="architecture-description"
+              data-testid="architecture-intelligence-description"
+              value={architectureDescription}
+              onChange={(event) => setArchitectureDescription(event.target.value)}
+              rows={10}
+              placeholder="Describe components, data flows, quality goals, and constraints…"
+              disabled={isBusy}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="architecture-priorities">Declared priorities (optional, comma-separated)</Label>
+            <Input
+              id="architecture-priorities"
+              data-testid="architecture-intelligence-priorities"
+              value={prioritiesRaw}
+              onChange={(event) => setPrioritiesRaw(event.target.value)}
+              placeholder="security, reliability, cost"
+              disabled={isBusy}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="architecture-review-tier">Analysis depth</Label>
+            <select
+              id="architecture-review-tier"
+              data-testid="architecture-intelligence-review-tier"
+              className="flex h-9 w-full max-w-md rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+              value={reviewTier}
+              disabled={isBusy}
+              onChange={(event) => {
+                const next = event.target.value;
+
+                if (isArchitectureIntelligenceReviewTier(next)) {
+                  setReviewTier(next);
+                }
+              }}
+            >
+              {ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS.map((tier) => (
+                <option key={tier} value={tier}>
+                  {architectureIntelligenceReviewTierLabel(tier)}
+                </option>
+              ))}
+            </select>
+            <p className={cn(OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-intelligence-depth-hint">
+              Deeper analysis runs more specialist roles and accepts larger sources, so it costs more.
+            </p>
+          </div>
+
+          <AiBudgetSpendNotice
+            action="Architecture reasoning"
+            testId="architecture-intelligence-budget-notice"
           />
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="architecture-priorities">Declared priorities (optional, comma-separated)</Label>
-          <Input
-            id="architecture-priorities"
-            data-testid="architecture-intelligence-priorities"
-            value={prioritiesRaw}
-            onChange={(event) => setPrioritiesRaw(event.target.value)}
-            placeholder="security, reliability, cost"
-            disabled={isBusy}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="architecture-review-tier">Analysis depth</Label>
-          <select
-            id="architecture-review-tier"
-            data-testid="architecture-intelligence-review-tier"
-            className="flex h-9 w-full max-w-md rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-            value={reviewTier}
-            disabled={isBusy}
-            onChange={(event) => {
-              const next = event.target.value;
-
-              if (isArchitectureIntelligenceReviewTier(next)) {
-                setReviewTier(next);
-              }
-            }}
-          >
-            {ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS.map((tier) => (
-              <option key={tier} value={tier}>
-                {architectureIntelligenceReviewTierLabel(tier)}
-              </option>
-            ))}
-          </select>
-          <p className={cn(OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-intelligence-depth-hint">
-            Deeper analysis runs more specialist roles and accepts larger sources, so it costs more.
-          </p>
-        </div>
-
-        <AiBudgetSpendNotice
-          action="Architecture reasoning"
-          testId="architecture-intelligence-budget-notice"
-        />
-
-        <div className="flex flex-wrap gap-2" id="baseline-evaluation">
-          {canAnalyzeHydratedReview ? (
+          <div className="flex flex-wrap gap-2" id="architecture-intelligence-actions">
+            {canAnalyzeHydratedReview ? (
+              <Button
+                type="button"
+                data-testid="architecture-intelligence-analyze-review-button"
+                disabled={isBusy || blocksLlmExecution}
+                onClick={() => void analyzeThisReview()}
+              >
+                {loadingAction === "analyze"
+                  ? "Analyzing and publishing…"
+                  : "Analyze this review"}
+              </Button>
+            ) : null}
             <Button
               type="button"
-              data-testid="architecture-intelligence-analyze-review-button"
+              variant={canAnalyzeHydratedReview ? "outline" : "primary"}
+              data-testid="architecture-intelligence-run-button"
               disabled={isBusy || blocksLlmExecution}
-              onClick={() => void analyzeThisReview()}
+              onClick={() => void runReasoning()}
             >
-              {loadingAction === "analyze"
-                ? "Analyzing and publishing…"
-                : "Analyze this review"}
+              {loadingAction === "reasoning" ? "Running architecture reasoning…" : "Run architecture reasoning"}
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              data-testid="architecture-intelligence-golden-test-button"
+              disabled={isBusy || blocksLlmExecution}
+              onClick={() => void runGoldenTest()}
+            >
+              {loadingAction === "golden" ? "Running golden test…" : "Run golden test"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              data-testid="architecture-intelligence-load-fixture-button"
+              disabled={isBusy}
+              onClick={() => void loadGoldenFixture()}
+            >
+              {loadingAction === "fixture" ? "Loading fixture…" : "Load golden fixture"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              data-testid="architecture-intelligence-publish-button"
+              disabled={isBusy || activeRunId === null || blocksLlmExecution}
+              onClick={() => void publishRun()}
+            >
+              {loadingAction === "publish" ? "Publishing…" : "Publish to findings/advisory"}
+            </Button>
+          </div>
+
+          <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
+            <input
+              type="checkbox"
+              data-testid="architecture-intelligence-publish-toggle"
+              checked={publishToProduct}
+              disabled={isBusy}
+              onChange={(event) => setPublishToProduct(event.target.checked)}
+            />
+            {ARCHITECTURE_INTELLIGENCE_PUBLISH_TOGGLE_LABEL}
+          </label>
+          {canAnalyzeHydratedReview ? (
+            <p className={cn(OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-intelligence-analyze-hint">
+              Analyze this review runs closed-loop reasoning for the hydrated product run and publishes gated
+              output into findings/advisory.
+            </p>
           ) : null}
-          <Button
-            type="button"
-            variant={canAnalyzeHydratedReview ? "outline" : "primary"}
-            data-testid="architecture-intelligence-run-button"
-            disabled={isBusy || blocksLlmExecution}
-            onClick={() => void runReasoning()}
-          >
-            {loadingAction === "reasoning" ? "Running architecture reasoning…" : "Run architecture reasoning"}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            data-testid="architecture-intelligence-golden-test-button"
-            disabled={isBusy || blocksLlmExecution}
-            onClick={() => void runGoldenTest()}
-          >
-            {loadingAction === "golden" ? "Running golden test…" : "Run golden test"}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            data-testid="architecture-intelligence-load-fixture-button"
-            disabled={isBusy}
-            onClick={() => void loadGoldenFixture()}
-          >
-            {loadingAction === "fixture" ? "Loading fixture…" : "Load golden fixture"}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            data-testid="architecture-intelligence-publish-button"
-            disabled={isBusy || activeRunId === null || blocksLlmExecution}
-            onClick={() => void publishRun()}
-          >
-            {loadingAction === "publish" ? "Publishing…" : "Publish to findings/advisory"}
-          </Button>
         </div>
+      ) : null}
 
-        <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
-          <input
-            type="checkbox"
-            data-testid="architecture-intelligence-publish-toggle"
-            checked={publishToProduct}
-            disabled={isBusy}
-            onChange={(event) => setPublishToProduct(event.target.checked)}
-          />
-          Publish gated findings/recommendations into product stores on run
-        </label>
-        {canAnalyzeHydratedReview ? (
-          <p className={cn(OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-intelligence-analyze-hint">
-            Analyze this review runs closed-loop reasoning for the hydrated product run and publishes gated
-            output into findings/advisory.
-          </p>
-        ) : null}
-
-        {activeRunId ? (
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-run-id">
-            Active run: {activeRunId}
-          </p>
-        ) : null}
-      </div>
-
-      {error !== null ? (
+      {error !== null && !productContextLoadFailed ? (
         <p
           role="alert"
           data-testid="architecture-intelligence-error"
