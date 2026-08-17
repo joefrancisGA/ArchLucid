@@ -27,6 +27,7 @@ import { resolveImpactPreviewPageState } from "@/lib/resolve-impact-preview-page
 import { resolveImpactPreviewRecommendation } from "@/lib/resolve-impact-preview-recommendation";
 import { resolveImpactPreviewSummaryMetrics } from "@/lib/resolve-impact-preview-summary-metrics";
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
+import { ImpactPreviewBuyerChrome } from "./ImpactPreviewBuyerChrome";
 import { ImpactPreviewEmptyState } from "./ImpactPreviewEmptyState";
 import { ImpactPreviewEvidenceBasisSection } from "./ImpactPreviewEvidenceBasisSection";
 import { ImpactPreviewHowItWorksSection } from "./ImpactPreviewHowItWorksSection";
@@ -134,9 +135,11 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
         }}
       />
 
+      <ImpactPreviewBuyerChrome />
+
       {pageReady ? (
         <>
-          <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" />
+          {!buyerPolishedShell ? <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" /> : null}
           <PageCapabilityBoundaryStrip surfaceId="impactPreview" />
 
           <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -183,7 +186,9 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
 
       {shouldShowBlockedOutputPreview(pageState) ? <ImpactPreviewOutputPreviewPanel /> : null}
 
-      {!pageReady ? <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" /> : null}
+      {!pageReady && !buyerPolishedShell ? (
+        <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" />
+      ) : null}
 
       {pageReady ? (
         <>
