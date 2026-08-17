@@ -302,19 +302,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-17
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] A consumed or expired OTP still issues a session
-- [ ] Challenge lookup is not tenant-scoped and can verify another tenant’s code
-- [ ] Concurrent verify requests both succeed on the same one-time challenge
+- [x] A consumed or expired OTP still issues a session — retired: `VerifyCodeAsync_rejects_expired_code`, `VerifyCodeAsync_rejects_reused_code`, and `TryCompleteAsync` completion paths reject expired/already-completed challenges
+- [x] Challenge lookup is not tenant-scoped and can verify another tenant's code — retired (invalid): OTP challenges are pre-tenant and keyed by normalized email; verification requires challenge id + code hash bound to that row
+- [x] Concurrent verify requests both succeed on the same one-time challenge — retired: `EmailOtpChallengeRepositoryConcurrencyTests.TryCompleteAsync_allows_only_one_successful_completion`
 
 ---
 
