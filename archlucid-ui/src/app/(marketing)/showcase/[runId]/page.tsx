@@ -5,7 +5,6 @@ import {
   DemoPreviewMarketingBody,
   DemoPreviewNotAvailable,
 } from "../../demo/preview/DemoPreviewMarketingBody";
-import { SeeItDeliverablePreview } from "@/app/(marketing)/see-it/SeeItDeliverablePreview";
 import { ShowcaseEvidenceOrientationStrip } from "@/components/marketing/ShowcaseEvidenceOrientationStrip";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
@@ -19,9 +18,11 @@ import {
   hasCuratedShowcaseStaticPayload,
   isShowcaseStaticFirstRunId,
 } from "@/lib/showcase-page-resolution";
+import { SHOWCASE_PRIMARY_CONTENT_ID, showcaseTitleForRunId } from "@/lib/showcase-page-copy";
 import { canShowcaseAnonymousVisitorOpenOperatorDeepLinks } from "@/lib/showcase-quick-nav-contract";
-import { MARKETING_MOTION, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
+import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
+
+import { ShowcaseHero } from "./ShowcaseHero";
 
 import {
   ShowcaseOutcomeCards,
@@ -38,9 +39,6 @@ export const revalidate = 300;
 /** Showcase hero already surfaces demo disclosure — hide duplicate banner inside `DemoPreviewMarketingBody`. */
 const SHOWCASE_SUPPRESS_EMBEDDED_STATUS_BANNER =
   process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
-
-const SHOWCASE_HERO_SUBTITLE =
-  "Reviewed architecture output — review, findings, and audit trail";
 
 type PageProps = {
   params: Promise<{ runId: string }>;
@@ -76,34 +74,6 @@ function resolveShowcaseApiBase(): string {
   return "";
 }
 
-function showcaseTitleForRunId(runId: string): string {
-  const decoded = decodeURIComponent(runId);
-
-  if (decoded === "claims-intake-modernization") {
-    return "Claims Intake Modernization: Completed Architecture Output";
-  }
-
-  if (decoded === "customer-intake-modernization") {
-    return "Enterprise Customer Intake Modernization: Completed Architecture Output";
-  }
-
-  return `Completed example (${decoded})`;
-}
-
-function showcaseScenarioRibbonLabel(runId: string): string {
-  const decoded = decodeURIComponent(runId);
-
-  if (decoded === "customer-intake-modernization") {
-    return "Enterprise Customer Intake Modernization sample scenario.";
-  }
-
-  return "Claims Intake Modernization sample scenario.";
-}
-
-function ShowcaseLead({ children }: { readonly children: ReactNode }) {
-  return <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{children}</p>;
-}
-
 function ShowcaseOutcomeStripAboveBody({ payload }: { readonly payload: DemoCommitPagePreviewResponse }): ReactElement {
   return (
     <section aria-labelledby="showcase-outcome-strip-heading" className="mb-6 space-y-3">
@@ -118,39 +88,16 @@ function ShowcaseOutcomeStripAboveBody({ payload }: { readonly payload: DemoComm
   );
 }
 
-function ShowcaseHero({ runId }: { readonly runId: string }): ReactElement {
-  const demoRibbon =
-    process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1" ? (
-      <div
-        role="status"
-        className="mb-4 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100"
-        data-testid="showcase-demo-single-banner"
-      >
-        <strong className="font-semibold">{SHOWCASE_ILLUSTRATIVE_SAMPLE_TITLE}</strong>
-        {" — "}
-        {showcaseScenarioRibbonLabel(runId)}
-      </div>
-    ) : null;
+function ShowcaseLead({ children }: { readonly children: ReactNode }) {
+  return <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{children}</p>;
+}
 
+function ShowcaseOrientationTop(): ReactElement {
   return (
-    <section
-      className={cn(
-        "grid items-start gap-10 border-b border-neutral-200 pb-8 dark:border-neutral-800 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-12",
-        MARKETING_MOTION.revealIn,
-      )}
-      data-testid="showcase-hero"
-      aria-labelledby="showcase-hero-heading"
-    >
-      <div>
-        {demoRibbon}
-        <h1 id="showcase-hero-heading" className={MARKETING_TYPOGRAPHY.heroTitle}>
-          {showcaseTitleForRunId(runId)}
-        </h1>
-        <p className={cn("mt-2", MARKETING_TYPOGRAPHY.meta)}>{SHOWCASE_HERO_SUBTITLE}</p>
-      </div>
-
-      <SeeItDeliverablePreview />
-    </section>
+    <div data-testid="showcase-orientation-top">
+      <ShowcaseEvidenceOrientationStrip part="claim" />
+      <ShowcaseEvidenceOrientationStrip part="sources" />
+    </div>
   );
 }
 
@@ -276,11 +223,16 @@ function ShowcasePayloadView({
   return (
     <ShowcasePageTelemetry runId={runId} renderMode={renderMode}>
       <main className="mx-auto max-w-5xl px-4 py-10">
+      <a href={`#${SHOWCASE_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
+        Skip to sample showcase
+      </a>
+
       <ShowcaseHero runId={runId} />
 
+      <div id={SHOWCASE_PRIMARY_CONTENT_ID} className="scroll-mt-24">
       <ShowcaseLead>{trimLeadDescription(payload.run.description)}</ShowcaseLead>
 
-      <ShowcaseEvidenceOrientationStrip part="claim" />
+      <ShowcaseOrientationTop />
 
       <ShowcaseSponsorReport payload={payload} />
 
@@ -312,8 +264,7 @@ function ShowcasePayloadView({
       </div>
 
       <ShowcaseBottomCTASection runId={runId} renderMode={renderMode} />
-
-      <ShowcaseEvidenceOrientationStrip part="sources" />
+      </div>
       </main>
     </ShowcasePageTelemetry>
   );
@@ -329,10 +280,15 @@ function ShowcaseFailedShell({
   return (
     <ShowcasePageTelemetry runId={runId} renderMode="failed">
       <main className="mx-auto max-w-5xl px-4 py-10">
+        <a href={`#${SHOWCASE_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
+          Skip to sample showcase
+        </a>
         <ShowcaseHero runId={runId} />
-        {children}
+        <div id={SHOWCASE_PRIMARY_CONTENT_ID} className="scroll-mt-24">
+          <ShowcaseOrientationTop />
+          {children}
+        </div>
         <ShowcaseBottomCTASection runId={runId} renderMode="failed" />
-        <ShowcaseEvidenceOrientationStrip />
       </main>
     </ShowcasePageTelemetry>
   );
