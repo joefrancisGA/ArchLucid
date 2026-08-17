@@ -48,7 +48,11 @@ public static class TopologyProposalRelationshipEndpointIndex
     {
         AddEndpointKey(endpointKeys, node.Label);
         AddEndpointKey(endpointKeys, node.NodeId);
-        AddEndpointKey(endpointKeys, node.SourceId);
+
+        // "ProposedChanges" is a provenance sentinel shared by every topology-agent node, not an architecture endpoint.
+        if (!IsAgentProposedSourceSentinel(node.SourceId))
+            AddEndpointKey(endpointKeys, node.SourceId);
+
         AddArmResourceIdEndpointKeys(endpointKeys, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node));
         AddGraphNodeSyntheticLabelEndpointKeys(endpointKeys, node.Label, node.Category, node.SourceId);
     }
@@ -57,7 +61,10 @@ public static class TopologyProposalRelationshipEndpointIndex
     {
         AddResolutionAlias(endpointKeyToNodeId, node.NodeId, node.NodeId);
         AddResolutionAlias(endpointKeyToNodeId, node.Label, node.NodeId);
-        AddResolutionAlias(endpointKeyToNodeId, node.SourceId, node.NodeId);
+
+        if (!IsAgentProposedSourceSentinel(node.SourceId))
+            AddResolutionAlias(endpointKeyToNodeId, node.SourceId, node.NodeId);
+
         AddArmResourceIdResolutionAliases(endpointKeyToNodeId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node), node.NodeId);
         AddGraphNodeSyntheticLabelResolutionAliases(endpointKeyToNodeId, node.Label, node.Category, node.SourceId, node.NodeId);
     }
@@ -468,7 +475,10 @@ public static class TopologyProposalRelationshipEndpointIndex
 
     private static bool IsAgentProposedTopologyNode(GraphNode node) =>
         string.Equals(node.SourceType, nameof(AgentType.Topology), StringComparison.OrdinalIgnoreCase)
-        && string.Equals(node.SourceId, "ProposedChanges", StringComparison.OrdinalIgnoreCase);
+        && IsAgentProposedSourceSentinel(node.SourceId);
+
+    private static bool IsAgentProposedSourceSentinel(string? sourceId) =>
+        string.Equals(sourceId, "ProposedChanges", StringComparison.OrdinalIgnoreCase);
 
     private static void AddEndpointKey(HashSet<string> knownEndpointKeys, string? value)
     {
