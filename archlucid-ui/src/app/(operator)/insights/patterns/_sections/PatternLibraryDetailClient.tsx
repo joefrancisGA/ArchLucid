@@ -14,10 +14,8 @@ import {
 } from "@/lib/pattern-library-filters";
 import { resolvePatternLibraryPeerCompare } from "@/lib/pattern-library-peer-compare";
 import { PATTERN_LIBRARY_POLICY_RULES_SECTION_TITLE } from "@/lib/pattern-library-policy-guidance-copy";
-import {
-  PATTERN_LIBRARY_LOAD_RETRY_LABEL,
-  patternLibraryDetailSubtitle,
-} from "@/lib/pattern-library-copy";
+import { PATTERN_LIBRARY_LOAD_RETRY_LABEL, patternLibraryDetailSubtitle } from "@/lib/pattern-library-copy";
+import { PATTERN_LIBRARY_DETAIL_PATTERN_KEY_LABEL } from "@/lib/pattern-library-detail-evidence-copy";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
 import { cn } from "@/lib/utils";
@@ -27,11 +25,12 @@ import {
   PatternLibraryRelatedPolicyPacks,
   PatternLibraryRelatedPolicyRules,
 } from "./PatternLibraryPolicyGuidance";
-import { PatternLibraryDetailClaimOrientationStrip } from "./PatternLibraryDetailClaimOrientationStrip";
+import { PatternLibraryDetailBuyerChrome } from "./PatternLibraryDetailBuyerChrome";
 import { PatternLibraryDetailPageHeader } from "./PatternLibraryDetailPageHeader";
 import { PatternLibraryDetailSkeleton } from "./PatternLibraryDetailSkeleton";
 import { PatternLibraryLoadFailurePanel } from "./PatternLibraryLoadFailurePanel";
 import { Button } from "@/components/ui/button";
+import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 
 type PatternLibraryDetailClientProps = {
   readonly patternKey: string;
@@ -98,6 +97,12 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
     <>
       <PatternLibraryDomainPlatformBadges domains={record.domains} platforms={record.platforms} />
       <PatternLibrarySignalBadges adoption={record.adoption} risk={record.risk} governance={record.governance} />
+      {buyerPolishedShell ? (
+        <TechnicalIdDisclosure
+          label={PATTERN_LIBRARY_DETAIL_PATTERN_KEY_LABEL}
+          value={record.patternKey}
+        />
+      ) : null}
       {!buyerPolishedShell ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           {record.reviewCountLabel} · {record.tenantCountLabel}
@@ -120,7 +125,7 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
         onRefresh={refreshCatalog}
       />
 
-      {buyerPolishedShell ? <PatternLibraryDetailClaimOrientationStrip /> : null}
+      <PatternLibraryDetailBuyerChrome />
 
       {isPending ? <PatternLibraryDetailSkeleton /> : null}
 
