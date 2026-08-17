@@ -33,6 +33,7 @@ Simmy chaos tests run in the **`chaos-tests`** job are **CI-blocking**: a failin
 3. **LLM latency (Simmy)**: `ArchLucid.AgentRuntime.Tests.SimmyChaosPipelineTests` — `ChaosLatency` under a short Polly **timeout** (fails fast), plus SQL-style retry + fault composition (mirrors completion client protection patterns).
 4. **Agent execution bulkhead + timeout**: `ArchLucid.AgentRuntime.Tests.AgentExecutionResilienceTests` — process-wide `IAgentHandlerConcurrencyGate` (semaphore) and per-handler `ResiliencePipeline` timeout on `RealAgentExecutor` (configured under `AgentExecution:Resilience`).
 5. **Combined transient shapes (SQL + HTTP)**: `ArchLucid.AgentRuntime.Tests.CombinedFailureChaosTests` — one outer retry pipeline tolerates **alternating** transient `SqlException` and HTTP **429** faults (mixed-dependency incident shape).
+6. **Run-level multi-agent failures (TB-945)**: `ArchLucid.Application.Tests.Orchestration.MultiAgentFailureModeChaosSuiteTests` plus `LlmCompletionCacheAdmissionTests.TB940_poison_cache_hit_busts_and_calls_provider_again` — partial-run status, selective re-execute idempotency, run-scoped budget admission/release, poisoned cache bust. See [`MULTI_AGENT_FAILURE_MODE_CHAOS_SUITE.md`](MULTI_AGENT_FAILURE_MODE_CHAOS_SUITE.md).
 
 **Operational chaos** (staging)
 

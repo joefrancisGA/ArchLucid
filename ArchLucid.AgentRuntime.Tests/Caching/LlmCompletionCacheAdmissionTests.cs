@@ -62,7 +62,8 @@ public sealed class LlmCompletionCacheAdmissionTests
     }
 
     [Fact]
-    public async Task Poison_cache_hit_busts_and_calls_provider_again()
+    [Trait("ChaosSuite", "TB-945")]
+    public async Task TB940_poison_cache_hit_busts_and_calls_provider_again()
     {
         CountingCompletionClient inner = new("{\"ok\":true}");
         (CachingLlmCompletionClient sut, ILlmCompletionResponseCache cache) = CreateSut(inner);

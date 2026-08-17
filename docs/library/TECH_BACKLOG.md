@@ -12,7 +12,7 @@ Regenerate after opening or closing summary-table rows:
 | Architectural quality | Open |
 | --- | ---: |
 | Correctness | 1 |
-| Testability | 3 |
+| Testability | 2 |
 | Reliability | 3 |
 | Deployability | 1 |
 | AI/Agent readiness | 3 |
@@ -25,9 +25,9 @@ Regenerate after opening or closing summary-table rows:
 | Code hygiene | 1 |
 | Stickiness | 1 |
 | Differentiability | 3 |
-| **Total (unique open)** | **35** |
+| **Total (unique open)** | **34** |
 
-**By priority band:** P0 **0** | P1 **2** | P2 **24** | P3 **9**.
+**By priority band:** P0 **0** | P1 **2** | P2 **23** | P3 **9**.
 
 <!-- tech-backlog-open-by-category:end -->
 
@@ -1681,7 +1681,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-942 | **Done** (2026-08-14) ? `AgentDownstreamConsistency` stale Critic commit gate; selective re-execute includes Critic; UI copy + `RunStateTransitionEnforcementTests` | AI/Agent readiness P2 ? **V1**; after **TB-937**/**TB-938**; owner discussion 2026-07-22 | M |
 | TB-943 | **Done** (2026-08-14) ? execute ownership lease/heartbeat + reconciliation hosted service; `RunExecuteOwnershipReconciliationServiceTests` + replica-kill drill | Reliability P2 ? **V1**; multi-step LLM resilience; owner discussion 2026-07-22 | M |
 | TB-944 | **Done** (2026-08-14) ? `LlmCompletionFailureClassifier`; semantic-terminal skips Polly retry and breaker tick; `LLM_RETRY_AND_CIRCUIT_BREAKER.md` matrix | AI/Agent readiness P2 ? **V1**; pairs **TB-940**; owner discussion 2026-07-22 | S |
-| TB-945 | Chaos/integration suite for multi-agent failure modes ? kill agent 2/4, mid-run budget deny, poisoned cache hit; assert status/no commit/no double-bill; see `## TB-945` below | Testability P2 ? **V1**; locks **TB-937**?**TB-944**; owner discussion 2026-07-22 | M |
+| TB-945 | **Done** (2026-08-17) — Multi-agent failure-mode chaos suite; `MultiAgentFailureModeChaosSuiteTests` + CI inventory guard; see `## TB-945` below | Testability P2 ? **V1**; locks **TB-937**?**TB-944**; owner discussion 2026-07-22 | M |
 | TB-874 | **Done** (2026-07-21) ? Terraform AWS/GCP ? CanonicalObject classification + illustrative cost/service labels ? `ConnectorIntakeParserService` CloudProvider inference for aws/google; GCP parser + simple-terraform tests; AWS/GCP golden corpus cases 06?07; parse?enrich integration test; `InfrastructureCostSummaryNotesTests`; see `## TB-874` below | Correctness P1 ? **V1**; V1_SCOPE ?2.19 remainder; complements **TB-603** (live pricing Done); found during promoted multi-cloud analysis backlogization 2026-07-19 | L |
 | TB-875 | **Done** (2026-07-22) ? Cloud-aware agent context for Aws/Gcp target reviews ? `CloudProviderAgentPromptComposer` system/user addenda, `AgentUserPromptStaticPrefix`, golden cohort fixtures, `AgentUserPromptCloudTargetTests`; see `## TB-875` below | AI/Agent readiness P1 ? **V1**; V1_SCOPE ?2.19 remainder; depends on **TB-874** (Done); found during promoted multi-cloud analysis backlogization 2026-07-19 | M |
 | TB-877 | ~~Community summarization Graph-RAG (RAG-V2-001 remainder)~~ **Done** 2026-08-14 ? Louvain community detection + LLM summarization on ADR 0004 index path; `EnableCommunitySummarization` default off; `CorpusKind.KnowledgeGraphCommunity`; see `## TB-877` below | AI/Agent readiness P1 ? **V1**; ADR 0057 option (a) owner override 2026-07-05; assign at implementation 2026-07-19 | L |
@@ -25535,7 +25535,7 @@ Private-beta deploy P0 (**TB-928**): surface beta-blocking auth/email config in 
 
 **Window:** V1 ? Testability. Locks **TB-937**?**TB-944**.
 
-**Status:** Not started.
+**Status:** **Done** (2026-08-17) ? `MultiAgentFailureModeChaosSuiteTests` (partial-run, budget deny, selective resume) + `LlmCompletionCacheAdmissionTests.TB940_poison_cache_hit_busts_and_calls_provider_again`; inventory guard `assert_multi_agent_failure_chaos_suite.py`; doc `MULTI_AGENT_FAILURE_MODE_CHAOS_SUITE.md`.
 
 **Why:** These failure modes regress silently if only happy-path execute tests exist.
 
