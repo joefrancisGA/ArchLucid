@@ -54,6 +54,10 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
       break;
     }
 
+    if (CONTROL_CHARS_RE.test(decoded)) {
+      return false;
+    }
+
     if (!decoded.startsWith("/") || decoded.startsWith("//") || decoded.startsWith("/\\")) {
       return false;
     }

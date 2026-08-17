@@ -12,13 +12,9 @@ public static class AuthSignInReturnPathGuard
 
         string candidate = returnPath.Trim();
 
-        // Reject control-character smuggling used to bypass naive startsWith("/") checks.
-        foreach (char ch in candidate)
+        if (ContainsControlCharacter(candidate))
         {
-            if (char.IsControl(ch))
-            {
-                return null;
-            }
+            return null;
         }
 
         string? normalized = TryNormalizeRelativePath(candidate);
@@ -64,6 +60,9 @@ public static class AuthSignInReturnPathGuard
             if (string.Equals(decoded, working, StringComparison.Ordinal))
                 break;
 
+            if (ContainsControlCharacter(decoded))
+                return null;
+
             string? decodedNormalized = TryNormalizeRelativePath(decoded);
 
             if (decodedNormalized is null)
@@ -74,5 +73,18 @@ public static class AuthSignInReturnPathGuard
         }
 
         return normalized;
+    }
+
+    private static bool ContainsControlCharacter(string candidate)
+    {
+        foreach (char ch in candidate)
+        {
+            if (char.IsControl(ch))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

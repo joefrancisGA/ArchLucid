@@ -67,6 +67,14 @@ describe("isSafeReturnPath", () => {
   it("rejects a percent-encoded protocol-relative URL", () => {
     expect(isSafeReturnPath("/%2f%2fevil.example")).toBe(false);
   });
+
+  it("rejects a percent-encoded tab smuggling a protocol-relative URL", () => {
+    expect(isSafeReturnPath("/%09//evil.example")).toBe(false);
+  });
+
+  it("rejects a percent-encoded NUL smuggling a protocol-relative URL", () => {
+    expect(isSafeReturnPath("/%00//evil.example")).toBe(false);
+  });
 });
 
 describe("resolveSafeReturnPath", () => {

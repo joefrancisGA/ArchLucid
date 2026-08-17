@@ -1,15 +1,15 @@
-> **Scope:** Contributor-reference — curated `/al-bug` hunt zones. Not a buyer or operator document. Agents must not invent extra zones in the same invocation; update this file after each hunt.
+﻿> **Scope:** Contributor-reference — curated `/al-bug` hunt zones. Not a buyer or operator document. Agents must not invent extra zones in the same invocation; update this file after each hunt.
 
 # `/al-bug` hunt ledger
 
-Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
+Curated zones covering the full product surface (API, persistence, UI, CLI, orchestration, billing, governance, auth, exports, background jobs, analyzers, pipeline engines, core libraries). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit + **impact** weight, not LLM ranking). Do **not** invent extra zones mid-hunt. Use `.\scripts\agent\al-bug-pick-zone.ps1 -Nominate` to find gaps.
 
-**Updated:** 2026-08-17 (orchestrator-transient-retry hit: FK violation wrapped in TimeoutException was retried as transient).
+**Updated:** 2026-08-17 (full-catalog coarse zones + impact-weighted picker).
 
 ## How to use
 
 1. Run `.\scripts\agent\al-bug-pick-zone.ps1 -Preview` (add `-Hint '…'` when the user named an area; add `-Refresh` to recompute git churn).
-2. Hunt **only** the returned zone’s `paths` / open hypotheses.
+2. Hunt **only** the returned zone's `paths` / open hypotheses.
 3. After the hunt, edit this file (the script does **not** write it):
    - **Hit:** increment `hunts` and `bugs-found`; set `consecutive-dry-hunts` to `0`; set `last-hunt` and `last-bug` to today (`YYYY-MM-DD`); tick the proven hypothesis.
    - **Dry:** increment `hunts` and `consecutive-dry-hunts`; set `last-hunt` to today; tick attempted hypotheses (or retire invalid ones). Do not invent another bug in the same files.
@@ -24,18 +24,24 @@ mean_hunts_per_bug = hunts / bugs when bugs > 0, else hunts + 2 (prior)
 speed              = 1 / mean_hunts_per_bug
 explore            = 1 / sqrt(hunts + 1)
 
-score =
+base_score =
   6 × speed
 + 3 × explore
 + 2 × recent_churn              (min(3, commitCount since last-hunt))
 + 1 × related_PD_or_TB          (min(2, id count))
 + 0.25 × min(3, open hypotheses)
 − 2 × consecutive_dry_hunts
+
+score = base_score × impact_multiplier   (high ×1.40, medium ×1.00, low ×0.65)
 ```
 
 Open-hypothesis count is a small tie-break only. A zone with many unchecked rows must not permanently block the rest of the catalog.
 
 Eligibility: `open` always; `cooling` only when no `open` zone remains; `exhausted` only when git shows commits on `paths` since `last-hunt`.
+
+## Nominate mode
+
+`.\scripts\agent\al-bug-pick-zone.ps1 -Nominate -Preview` returns the same ranked pick with `nominate: true` in JSON — use it to preview which catalog row the picker would surface next when widening coverage.
 
 ## Exhaustion (all must hold)
 
@@ -46,11 +52,11 @@ Eligibility: `open` always; `cooling` only when no `open` zone remains; `exhaust
 Set `status` to `cooling` when yield has dropped (for example two dry hunts) but exhaustion is not complete. Set `exhausted` only when all three conditions hold.
 
 ---
-
 ## Zone: topology-proposal-merge
 
 - **id:** topology-proposal-merge
 - **status:** open
+- **impact:** medium
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
@@ -62,7 +68,7 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
-High historical yield. **Not exhausted** — remaining hypotheses are type-family and post-processor disagreements, not the parameterized alias cases already covered.
+High historical yield. **Not exhausted** ΓÇö remaining hypotheses are type-family and post-processor disagreements, not the parameterized alias cases already covered.
 
 ### Hypotheses
 
@@ -84,6 +90,7 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 
 - **id:** arm-terraform-source-ids
 - **status:** open
+- **impact:** medium
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
@@ -97,8 +104,8 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 
 ### Hypotheses
 
-- [x] ARM resource id indexed in the endpoint index but not resolved by the edge mapper — retired (invalid on current code): tf.id / tf.resource_id already indexed and resolved; rename via ARM ServiceId already matches
-- [x] Terraform SourceId claimed in merge but missing from alias resolution — fixed: NodeMatchesService/Datastore now compare ServiceId/DatastoreId to Label (tf show JSON address-on-label shape)
+- [x] ARM resource id indexed in the endpoint index but not resolved by the edge mapper ΓÇö retired (invalid on current code): tf.id / tf.resource_id already indexed and resolved; rename via ARM ServiceId already matches
+- [x] Terraform SourceId claimed in merge but missing from alias resolution ΓÇö fixed: NodeMatchesService/Datastore now compare ServiceId/DatastoreId to Label (tf show JSON address-on-label shape)
 - [x] Endpoint keyed by a property bag value that is not a SourceId
 
 ---
@@ -106,7 +113,8 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 ## Zone: tenant-settings-sql
 
 - **id:** tenant-settings-sql
-- **status:** cooling
+- **status:** open
+- **impact:** high
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
@@ -122,9 +130,9 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 
 ### Hypotheses
 
-- [x] Tenant-plane SQL still uses the host catalog or a hardcoded tenant id (retired — `SqlTenantSettingsRepositoryConnectionFactoryContractTests` + PD-003 fix on master)
+- [x] Tenant-plane SQL still uses the host catalog or a hardcoded tenant id (retired ΓÇö `SqlTenantSettingsRepositoryConnectionFactoryContractTests` + PD-003 fix on master)
 - [x] Cache wrapper returns stale miss after upsert when setting-key casing differs (`TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`)
-- [x] DefaultTenant FK insert/update disagrees with the cached read path (retired — PD-003 disposition merged on master: `ArchLucidPersistenceStartup` ApiKey DefaultTenant bootstrap + scoped `ISqlConnectionFactory`; repository uses same `tenantId` on read/write/cache keys)
+- [x] DefaultTenant FK insert/update disagrees with the cached read path (retired ΓÇö PD-003 disposition merged on master: `ArchLucidPersistenceStartup` ApiKey DefaultTenant bootstrap + scoped `ISqlConnectionFactory`; repository uses same `tenantId` on read/write/cache keys)
 
 ---
 
@@ -132,6 +140,7 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 
 - **id:** ui-form-validation
 - **status:** open
+- **impact:** low
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
@@ -159,6 +168,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** commit-output-integrity
 - **status:** open
+- **impact:** medium
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests
@@ -172,9 +182,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes — fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
-- [x] Missing optional artifact is treated as a hash match — retired: not applicable to commit quality-gate paths; superseded-retry trace selection was the real gap
-- [x] Integrity failure is logged but commit still proceeds — retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
+- [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes ΓÇö fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
+- [x] Missing optional artifact is treated as a hash match ΓÇö retired: not applicable to commit quality-gate paths; superseded-retry trace selection was the real gap
+- [x] Integrity failure is logged but commit still proceeds ΓÇö retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
 
 ---
 
@@ -182,6 +192,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** content-safety-admission
 - **status:** open
+- **impact:** medium
 - **aliases:** content safety; admission gate; prompt injection
 - **paths:** ArchLucid.Application/Runs/Orchestration/CompositeRequestContentSafetyPrecheck.cs; ArchLucid.Application/Runs/Orchestration/LlmSemanticAdmissionGate.cs; ArchLucid.Application/Runs/Orchestration/DefaultRequestContentSafetyPrecheck.cs
 - **test-filter:** FullyQualifiedName~DefaultRequestContentSafetyPrecheckTests|FullyQualifiedName~LlmSemanticAdmissionGateTests
@@ -205,6 +216,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** storage-vs-data-category
 - **status:** open
+- **impact:** medium
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
@@ -230,6 +242,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** authority-pipeline-payload
 - **status:** open
+- **impact:** medium
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests
@@ -253,6 +266,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** technology-ledger-merge
 - **status:** open
+- **impact:** medium
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
@@ -276,6 +290,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** orchestrator-transient-retry
 - **status:** open
+- **impact:** medium
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
@@ -289,9 +304,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] Retry policy retries a non-transient SQL error (constraint / timeout misclassified) — fixed: `SqlTransientDetector` treated outer `TimeoutException` before inner non-transient `SqlException`
-- [x] Commit retry exhausts attempts but still returns success to the caller — retired: `IsExhausted` and orchestrator loop throw `ConflictException` on budget/attempt exhaustion; idempotent reconcile success is intentional
-- [x] Transient retry does not include the same isolation / tenant scope on the replay — retired: `OrchestratorTransientDbRetry` re-invokes caller lambda; scope is captured by caller closure
+- [x] Retry policy retries a non-transient SQL error (constraint / timeout misclassified) ΓÇö fixed: `SqlTransientDetector` treated outer `TimeoutException` before inner non-transient `SqlException`
+- [x] Commit retry exhausts attempts but still returns success to the caller ΓÇö retired: `IsExhausted` and orchestrator loop throw `ConflictException` on budget/attempt exhaustion; idempotent reconcile success is intentional
+- [x] Transient retry does not include the same isolation / tenant scope on the replay ΓÇö retired: `OrchestratorTransientDbRetry` re-invokes caller lambda; scope is captured by caller closure
 
 ---
 
@@ -299,6 +314,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** email-otp-auth
 - **status:** open
+- **impact:** high
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
@@ -312,9 +328,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] A consumed or expired OTP still issues a session — retired: `VerifyCodeAsync_rejects_expired_code`, `VerifyCodeAsync_rejects_reused_code`, and `TryCompleteAsync` completion paths reject expired/already-completed challenges
-- [x] Challenge lookup is not tenant-scoped and can verify another tenant's code — retired (invalid): OTP challenges are pre-tenant and keyed by normalized email; verification requires challenge id + code hash bound to that row
-- [x] Concurrent verify requests both succeed on the same one-time challenge — retired: `EmailOtpChallengeRepositoryConcurrencyTests.TryCompleteAsync_allows_only_one_successful_completion`
+- [x] A consumed or expired OTP still issues a session ΓÇö retired: `VerifyCodeAsync_rejects_expired_code`, `VerifyCodeAsync_rejects_reused_code`, and `TryCompleteAsync` completion paths reject expired/already-completed challenges
+- [x] Challenge lookup is not tenant-scoped and can verify another tenant's code ΓÇö retired (invalid): OTP challenges are pre-tenant and keyed by normalized email; verification requires challenge id + code hash bound to that row
+- [x] Concurrent verify requests both succeed on the same one-time challenge ΓÇö retired: `EmailOtpChallengeRepositoryConcurrencyTests.TryCompleteAsync_allows_only_one_successful_completion`
 
 ---
 
@@ -322,6 +338,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** auth-return-path
 - **status:** open
+- **impact:** high
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
@@ -335,9 +352,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] A protocol-relative or encoded external URL is accepted as an in-app return path
-- [ ] Backslash or `@` host smuggling bypasses the leading-slash check
-- [ ] Control characters in the return path still survive normalization
+- [x] A protocol-relative or encoded external URL is accepted as an in-app return path — fixed earlier (`/%2f%2fevil.example`); regression in `TryNormalize_rejects_open_redirect_shapes`
+- [x] Backslash or `@` host smuggling bypasses the leading-slash check — retired: existing `TryNormalize_rejects_open_redirect_shapes` cases cover `/\\evil`, `/path@evil`, `/%40` decode
+- [x] Control characters in the return path still survive normalization — fixed: reject control chars after each percent-decode pass (`/%09//evil.example`, `/%00//evil.example`)
 
 ---
 
@@ -345,6 +362,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-erasure
 - **status:** open
+- **impact:** high
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
@@ -360,7 +378,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] Erasure proceeds while a legal hold is still active
 - [ ] Quarantine middleware lets mutating requests through after erasure has started
-- [ ] Erasure command deletes another tenant’s rows when ids collide in cache
+- [ ] Erasure command deletes another tenantΓÇÖs rows when ids collide in cache
 
 ---
 
@@ -368,6 +386,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** tenant-scoped-analyzer
 - **status:** open
+- **impact:** high
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
@@ -391,6 +410,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** sql-run-repository
 - **status:** open
+- **impact:** high
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests
@@ -415,7 +435,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: finding-inspect-sql
 
 - **id:** finding-inspect-sql
-- **status:** cooling
+- **status:** open
+- **impact:** high
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectEndpointTests
@@ -429,9 +450,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] Inspect read returns a finding whose tenant does not match the request scope — fixed: main inspect + FindingRecords joins in FollowUpBatch require `fr.TenantId`/`WorkspaceId`/`ProjectId` (run-only predicates were insufficient when row tenant diverges)
-- [x] Mapper drops evidence fields so inspect shows success with empty trail — retired (invalid): mapper only parses enums; evidence is built in the repository from related nodes
-- [x] Inspect query joins without tenant on the child table and leaks sibling-tenant rows — fixed: FollowUpBatch now scopes FindingRelatedNodes / rules / actions / AuditEvents / FindingReviewEvents / RiskExceptions to TenantId+WorkspaceId+ProjectId
+- [x] Inspect read returns a finding whose tenant does not match the request scope ΓÇö fixed: main inspect + FindingRecords joins in FollowUpBatch require `fr.TenantId`/`WorkspaceId`/`ProjectId` (run-only predicates were insufficient when row tenant diverges)
+- [x] Mapper drops evidence fields so inspect shows success with empty trail ΓÇö retired (invalid): mapper only parses enums; evidence is built in the repository from related nodes
+- [x] Inspect query joins without tenant on the child table and leaks sibling-tenant rows ΓÇö fixed: FollowUpBatch now scopes FindingRelatedNodes / rules / actions / AuditEvents / FindingReviewEvents / RiskExceptions to TenantId+WorkspaceId+ProjectId
 
 ---
 
@@ -439,6 +460,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** llm-wallet
 - **status:** open
+- **impact:** high
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
@@ -452,9 +474,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Debit applies to a different tenant’s wallet when the header tenant differs from the route
+- [ ] Debit applies to a different tenantΓÇÖs wallet when the header tenant differs from the route
 - [ ] Concurrent debits both succeed past the remaining balance
-- [ ] Wallet read returns another tenant’s remaining credits
+- [ ] Wallet read returns another tenantΓÇÖs remaining credits
 
 ---
 
@@ -462,6 +484,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** finding-disposition
 - **status:** open
+- **impact:** medium
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
@@ -485,6 +508,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** review-recurrence
 - **status:** open
+- **impact:** low
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
@@ -508,6 +532,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** alert-simulation
 - **status:** open
+- **impact:** high
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
@@ -521,9 +546,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] Simulation context loads findings from a tenant other than the caller — fixed: reject run detail / findings whose scope or RunId does not match the caller
-- [x] Dry-run simulation persists a real alert delivery — retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
-- [ ] Missing workspace still returns 200 with another workspace’s rules
+- [x] Simulation context loads findings from a tenant other than the caller ΓÇö fixed: reject run detail / findings whose scope or RunId does not match the caller
+- [x] Dry-run simulation persists a real alert delivery ΓÇö retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
+- [ ] Missing workspace still returns 200 with another workspaceΓÇÖs rules
 
 ---
 
@@ -531,6 +556,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** weekly-digest-email
 - **status:** open
+- **impact:** low
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
@@ -554,6 +580,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** outbound-webhook-dry-run
 - **status:** open
+- **impact:** high
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Services/OutboundWebhookDryRunService.cs; ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
@@ -568,7 +595,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [ ] Dry-run posts to the live customer endpoint
-- [ ] Dry-run payload includes secrets from another tenant’s webhook config
+- [ ] Dry-run payload includes secrets from another tenantΓÇÖs webhook config
 - [ ] Controller returns success when the dry-run service throws
 
 ---
@@ -577,6 +604,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** architecture-recommendation
 - **status:** open
+- **impact:** medium
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
@@ -599,7 +627,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: extraction-router
 
 - **id:** extraction-router
-- **status:** cooling
+- **status:** open
+- **impact:** medium
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
@@ -623,6 +652,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** cli-tenant-isolation
 - **status:** open
+- **impact:** high
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
@@ -637,7 +667,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [ ] Runner reports pass when a cross-tenant probe actually returned 200
-- [ ] Probe uses the victim tenant’s token instead of the attacker token
+- [ ] Probe uses the victim tenantΓÇÖs token instead of the attacker token
 - [ ] Aggregator treats skipped probes as isolation successes
 
 ---
@@ -646,6 +676,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** cli-draft-new
 - **status:** open
+- **impact:** low
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
@@ -669,6 +700,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** cli-terraform-evidence
 - **status:** open
+- **impact:** medium
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
@@ -691,7 +723,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-runs-list
 
 - **id:** ui-runs-list
-- **status:** cooling
+- **status:** open
+- **impact:** low
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
@@ -706,7 +739,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] List renders reviews from a workspace the operator is not scoped to (retired: no workspace field on RunSummary; cross-project rows are intentional hub scope listing)
-- [x] Failed load still shows a previous tenant’s cached rows (retired: props-only client; loader clears runs and Sets loadFailure; list not mounted when hubLoadOk is false)
+- [x] Failed load still shows a previous tenantΓÇÖs cached rows (retired: props-only client; loader clears runs and Sets loadFailure; list not mounted when hubLoadOk is false)
 - [x] Empty state is skipped so a spinner never ends after a 403 (retired: no spinner in RunsListClient; 403 surfaces OperatorApiProblem upstream)
 
 ---
@@ -715,6 +748,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** ui-auth-callback
 - **status:** open
+- **impact:** low
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
@@ -726,20 +760,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
-2026-08-17 dry hunt: listed hypotheses do not hold on `AuthCallbackAccessPanel`. Denial keeps `AUTH_CALLBACK_ACCESS_HEADING` + `technicalDetail` (success title only after 2xx access-request submit as “Access request sent”). Recovery links are only `/auth/signin` (no operator-shell href). Panel is props-only (no `useSearchParams` / react-query / email-otp session); error strings are fixed copy and do not interpolate emails. Existing `AuthCallbackAccessPanel` + `CallbackClient` tests (6) pass.
+2026-08-17 dry hunt: listed hypotheses do not hold on `AuthCallbackAccessPanel`. Denial keeps `AUTH_CALLBACK_ACCESS_HEADING` + `technicalDetail` (success title only after 2xx access-request submit as ΓÇ£Access request sentΓÇ¥). Recovery links are only `/auth/signin` (no operator-shell href). Panel is props-only (no `useSearchParams` / react-query / email-otp session); error strings are fixed copy and do not interpolate emails. Existing `AuthCallbackAccessPanel` + `CallbackClient` tests (6) pass.
 
 ### Hypotheses
 
 - [x] Access-denied technical detail is shown as a successful sign-in (retired: denial heading + detail until access-request 2xx; success copy is request-sent, not signed-in)
 - [x] Callback continues into the operator shell when the grant is missing (retired: panel only links to `/auth/signin`; no `window.location` / operator routes)
-- [x] Error copy includes another user’s email from a leftover query cache (retired: no query/session read; duplicate/submit errors are fixed strings)
+- [x] Error copy includes another userΓÇÖs email from a leftover query cache (retired: no query/session read; duplicate/submit errors are fixed strings)
 
 ---
 
 ## Zone: ui-help-docs
 
 - **id:** ui-help-docs
-- **status:** cooling
+- **status:** open
+- **impact:** low
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
@@ -754,7 +789,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] Topic markdown fetch follows an external URL instead of the in-app help route (retired: fetchHelpTopicMarkdown uses `/api/help/{slug}`)
-- [x] Missing topic is rendered as a GitHub blob link (retired: not-found → `/help`; doc-index has no github blob URLs)
+- [x] Missing topic is rendered as a GitHub blob link (retired: not-found ΓåÆ `/help`; doc-index has no github blob URLs)
 - [x] Index lists topics the current role is not allowed to open (fixed: generate_doc_index no longer bleeds internal-runbook titles onto public slugs)
 
 ---
@@ -762,7 +797,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-webhooks-settings
 
 - **id:** ui-webhooks-settings
-- **status:** cooling
+- **status:** open
+- **impact:** medium
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx
 - **test-filter:** WebhooksSettings
@@ -786,6 +822,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** ui-host-gate
 - **status:** open
+- **impact:** medium
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
@@ -801,7 +838,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] Operator path is treated as marketing on the public host (or the reverse)
 - [ ] Retired bookmark is not redirected and 404s instead of the shim
-- [x] Split-site origin check allows the operator app origin as a public page — fixed: `normalizeRequestHost` no longer strips ports; request Host must match `URL.host` from configured origins (localhost:3000 vs :3001)
+- [x] Split-site origin check allows the operator app origin as a public page ΓÇö fixed: `normalizeRequestHost` no longer strips ports; request Host must match `URL.host` from configured origins (localhost:3000 vs :3001)
 
 ---
 
@@ -809,6 +846,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** ui-architecture-intelligence
 - **status:** open
+- **impact:** medium
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
@@ -822,8 +860,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] Page shows recommendations for a package outside the current workspace — fixed: clear `runState` when inbound `runId` changes
-- [x] Stale query data from the previous tenant remains after scope switch — fixed: reset intake + reasoning on operator scope key change
+- [x] Page shows recommendations for a package outside the current workspace ΓÇö fixed: clear `runState` when inbound `runId` changes
+- [x] Stale query data from the previous tenant remains after scope switch ΓÇö fixed: reset intake + reasoning on operator scope key change
 - [ ] Error state is omitted so a failed load looks like an empty architecture
 
 ---
@@ -832,6 +870,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** scim-users
 - **status:** open
+- **impact:** high
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
@@ -847,7 +886,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] PATCH/DELETE affects a user in another tenant when externalId collides
 - [ ] Filter query returns users outside the provisioning tenant
-- [ ] Create succeeds without mapping the user into the caller’s tenant
+- [ ] Create succeeds without mapping the user into the callerΓÇÖs tenant
 
 ---
 
@@ -855,6 +894,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** identity-provider-config
 - **status:** open
+- **impact:** high
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
@@ -870,7 +910,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] Activation writes IdP settings onto a tenant the admin does not own
 - [ ] Disable still leaves the previous client secret usable
-- [ ] Config GET returns another tenant’s client id
+- [ ] Config GET returns another tenantΓÇÖs client id
 
 ---
 
@@ -878,6 +918,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - **id:** worker-host
 - **status:** open
+- **impact:** low
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
@@ -892,5 +933,868 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [ ] Worker host starts without a tenant-scope constraint on background jobs
-- [ ] Composition registers a singleton that caches the first request’s tenant
+- [ ] Composition registers a singleton that caches the first requestΓÇÖs tenant
 - [ ] Startup succeeds when a required hosted service failed to resolve
+---
+
+## Zone: billing-webhooks
+
+- **id:** billing-webhooks
+- **status:** open
+- **impact:** high
+- **aliases:** stripe webhook; marketplace webhook; billing webhook replay
+- **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
+- **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Replay guard accepts the same Stripe event id twice under concurrent delivery
+- [ ] Marketplace webhook credits a tenant that does not match the subscription payload
+- [ ] Invalid signature still returns 2xx so the provider stops retrying
+
+---
+
+## Zone: api-key-auth
+
+- **id:** api-key-auth
+- **status:** open
+- **impact:** high
+- **aliases:** API key auth; admin API key settings
+- **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
+- **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Revoked API key still authenticates until process restart
+- [ ] Admin can read or rotate another tenantâ€™s API key settings
+- [ ] Missing or malformed key header is treated as an authenticated principal
+
+---
+
+## Zone: scope-binding-middleware
+
+- **id:** scope-binding-middleware
+- **status:** open
+- **impact:** high
+- **aliases:** scope binding; tenant scope middleware; route tenant filter
+- **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
+- **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Route filter binds scope from the body while the URL names a different tenant
+- [ ] Middleware lets a mutating request through when scope resolution fails open
+- [ ] Workspace id from the route is not propagated to the scope context provider
+
+---
+
+## Zone: saml-jwt-bearer
+
+- **id:** saml-jwt-bearer
+- **status:** open
+- **impact:** high
+- **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
+- **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
+- **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] SAML metadata parser accepts an entity id that does not match the configured IdP
+- [ ] Trial JWT is accepted after the trial window has expired
+- [ ] SCIM bearer token for tenant A authorizes provisioning writes for tenant B
+
+---
+
+## Zone: tenant-data-export
+
+- **id:** tenant-data-export
+- **status:** open
+- **impact:** high
+- **aliases:** tenant export; run export; export SSRF
+- **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
+- **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Export includes runs or findings from a workspace outside the caller scope
+- [ ] Blob destination URL policy allows an internal/metadata endpoint (SSRF)
+- [ ] Export succeeds when the run is still in progress and returns partial or stale bytes
+
+---
+
+## Zone: host-core-jobs
+
+- **id:** host-core-jobs
+- **status:** open
+- **impact:** medium
+- **aliases:** background jobs; hosted services; durable job queue
+- **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
+- **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Job dequeue runs work without re-binding tenant scope from the job payload
+- [ ] Leader-elected hosted service runs the same outbox drain on every replica
+- [ ] Stuck-running watchdog marks a healthy job failed and it is retried into duplicate side effects
+
+---
+
+## Zone: itsm-inbound-webhooks
+
+- **id:** itsm-inbound-webhooks
+- **status:** open
+- **impact:** high
+- **aliases:** ITSM webhook; ServiceNow inbound; connector secret
+- **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
+- **test-filter:** FullyQualifiedName~ItsmInboundWebhook
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Webhook accepted when the shared secret does not match the connector config
+- [ ] Replay guard allows duplicate delivery of the same event id
+- [ ] Inbound payload is applied to a tenant inferred from the body instead of the authenticated connector
+
+---
+
+## Zone: ui-auth-proxy
+
+- **id:** ui-auth-proxy
+- **status:** open
+- **impact:** high
+- **aliases:** UI auth; API proxy; edge proxy
+- **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
+- **test-filter:** lib/auth|proxy-route|proxy.ts
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Proxy forwards operator cookies or auth headers to a marketing-only upstream path
+- [ ] Return-destination helper accepts an external URL that bypasses host-gate
+- [ ] Anonymous marketing proxy path can reach a mutating operator API route
+
+---
+
+## Zone: security-analyzers
+
+- **id:** security-analyzers
+- **status:** open
+- **impact:** high
+- **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
+- **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
+- **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Mutating controller without `[Authorize]` does not fire `RequireAuthorizationAnalyzer`
+- [ ] Cross-tenant repository call with only workspace id in scope passes `TenantIdentityBoundaryAnalyzer`
+- [ ] Controller action mutates state without audit attribute and analyzer stays silent
+
+---
+
+## Zone: agent-runtime-safety
+
+- **id:** agent-runtime-safety
+- **status:** open
+- **impact:** high
+- **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
+- **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
+- **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Content safety guard maps a blocked category to allow on SDK failure
+- [ ] Untrusted evidence delimiter is stripped so injection payload reaches the model prompt
+- [ ] Sanitizer runs after the prompt is assembled instead of before
+
+---
+
+## Zone: application-analysis
+
+- **id:** application-analysis
+- **status:** open
+- **impact:** medium
+- **aliases:** architecture analysis; compare quality delta
+- **paths:** ArchLucid.Application/Analysis/
+- **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Analysis compares runs from different tenants when scope keys collide
+- [ ] Quality delta treats a failed run as higher quality than a succeeded run
+- [ ] Compare summary omits a blocking finding that exists in the source run
+
+---
+
+## Zone: application-billing-logic
+
+- **id:** application-billing-logic
+- **status:** open
+- **impact:** high
+- **aliases:** marketplace billing; checkout mutation; billing application layer
+- **paths:** ArchLucid.Application/Billing/
+- **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Marketplace mutation handler applies a subscription change to the wrong tenant
+- [ ] Checkout session is created without binding the caller tenant id
+- [ ] Idempotent replay of a billing event double-applies seat or credit changes
+
+---
+
+## Zone: application-pilots
+
+- **id:** application-pilots
+- **status:** open
+- **impact:** medium
+- **aliases:** buyer proof pack; board pack; pilot artifacts
+- **paths:** ArchLucid.Application/Pilots/
+- **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Proof pack includes findings from a workspace outside the pilot scope
+- [ ] PDF builder silently drops a section when source data is missing
+- [ ] Pack builder uses cached tenant data after a scope switch
+
+---
+
+## Zone: agent-runtime-evaluation
+
+- **id:** agent-runtime-evaluation
+- **status:** open
+- **impact:** medium
+- **aliases:** agent evaluation; evaluation runner
+- **paths:** ArchLucid.AgentRuntime/Evaluation/
+- **test-filter:** FullyQualifiedName~Evaluation
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Evaluation runner scores a failed trace as passed
+- [ ] Runner uses a golden fixture from a different tenantâ€™s catalog
+- [ ] Batch evaluation swallows per-item failures and reports aggregate success
+
+---
+
+## Zone: decisioning
+
+- **id:** decisioning
+- **status:** open
+- **impact:** medium
+- **aliases:** decisioning engine; findings merge; advisory alerts
+- **paths:** ArchLucid.Decisioning/
+- **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Merge keeps conflicting findings from two agents without deduplication
+- [ ] Advisory alert fires for a finding outside the run scope
+- [ ] Compliance gate passes when required evidence nodes are absent
+
+---
+
+## Zone: persistence-identity
+
+- **id:** persistence-identity
+- **status:** open
+- **impact:** high
+- **aliases:** identity repository; authentication identity dapper
+- **paths:** ArchLucid.Persistence/Identity/
+- **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Identity lookup by email returns a user from another tenant
+- [ ] Link/unlink writes succeed without scoping to the caller tenant
+- [ ] Cached identity read returns stale data after a tenant-scoped upsert
+
+---
+
+## Zone: retrieval
+
+- **id:** retrieval
+- **status:** open
+- **impact:** medium
+- **aliases:** retrieval indexing; embedding; pricing retrieval
+- **paths:** ArchLucid.Retrieval/
+- **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Index query returns chunks from another tenantâ€™s corpus
+- [ ] Pricing estimate uses the wrong model tariff for the tenant plan
+- [ ] Reindex job deletes vectors for the wrong workspace
+
+---
+
+## Zone: ui-oidc
+
+- **id:** ui-oidc
+- **status:** open
+- **impact:** high
+- **aliases:** oidc authority; sign-in routing; OIDC host
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc-authority|oidc
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Authority host check accepts a look-alike domain as the configured issuer
+- [ ] OIDC redirect builds a return URL that leaves the operator origin
+- [ ] Silent renew uses a stale authority after tenant IdP switch
+
+---
+
+## Zone: archlucid-core
+
+- **id:** archlucid-core
+- **status:** open
+- **impact:** high
+- **aliases:** core domain; security policies; tenancy models
+- **paths:** ArchLucid.Core/
+- **test-filter:** FullyQualifiedName~ArchLucid.Core
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] URL allow-list policy accepts a credential-bearing redirect target
+- [ ] Tenant scope model treats empty workspace as a wildcard
+- [ ] Configuration default enables a production-unsafe integration flag
+
+---
+
+## Zone: archlucid-contracts
+
+- **id:** archlucid-contracts
+- **status:** open
+- **impact:** low
+- **aliases:** API contracts; DTO serialization; OpenAPI models
+- **paths:** ArchLucid.Contracts/
+- **test-filter:** FullyQualifiedName~Contracts
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] JSON round-trip drops a required field on a versioned request DTO
+- [ ] Enum serialization accepts an out-of-range value as the default variant
+- [ ] Contract change breaks backward compatibility without a version bump signal
+
+---
+
+## Zone: context-ingestion
+
+- **id:** context-ingestion
+- **status:** open
+- **impact:** medium
+- **aliases:** context ingestion; connector stages; canonicalization
+- **paths:** ArchLucid.ContextIngestion/
+- **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Canonicalization drops tenant id from ingested connector payload
+- [ ] Stage pipeline continues after a failed validation with partial graph
+- [ ] Duplicate external keys from two tenants collapse into one node
+
+---
+
+## Zone: knowledge-graph-provenance
+
+- **id:** knowledge-graph-provenance
+- **status:** open
+- **impact:** medium
+- **aliases:** knowledge graph; provenance; lineage
+- **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
+- **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Graph merge links a node to provenance from another tenant
+- [ ] Lineage query traverses into a sibling tenantâ€™s artifact store
+- [ ] Provenance record is written without workspace scope
+
+---
+
+## Zone: notifications-pipeline
+
+- **id:** notifications-pipeline
+- **status:** open
+- **impact:** medium
+- **aliases:** notifications; email dispatchers beyond weekly summary
+- **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/
+- **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Dispatcher sends to recipients outside the tenant membership list
+- [ ] Template render includes another userâ€™s email in the body
+- [ ] Send failure is treated as success and suppresses retry
+
+---
+
+## Zone: artifact-synthesis
+
+- **id:** artifact-synthesis
+- **status:** open
+- **impact:** medium
+- **aliases:** artifact synthesis; docx generator; packaging sanitization
+- **paths:** ArchLucid.ArtifactSynthesis/
+- **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Generated document embeds unsanitized user HTML/script
+- [ ] Packager includes artifacts from a run outside the requested scope
+- [ ] Validation passes when required manifest hash is missing
+
+---
+
+## Zone: host-composition
+
+- **id:** host-composition
+- **status:** open
+- **impact:** medium
+- **aliases:** host composition; DI registration; startup modules
+- **paths:** ArchLucid.Host.Composition/
+- **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Singleton service caches the first request tenant for the process lifetime
+- [ ] Optional security service is not registered in production configuration
+- [ ] Composition registers two implementations for the same tenant-scoped interface
+
+---
+
+## Zone: cloud-extractors
+
+- **id:** cloud-extractors
+- **status:** open
+- **impact:** high
+- **aliases:** aws extractor; gcp extractor; azure extractor
+- **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
+- **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Extractor pulls resources using credentials from another tenantâ€™s connector
+- [ ] ARM/resource id mapping drops subscription scope and mis-attributes resources
+- [ ] Extractor treats a parse warning as success with an empty inventory
+
+---
+
+## Zone: api-authority-admin-controllers
+
+- **id:** api-authority-admin-controllers
+- **status:** open
+- **impact:** high
+- **aliases:** authority controllers; admin controllers
+- **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
+- **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Admin mutating endpoint lacks tenant binding on route parameters
+- [ ] Authority read returns artifacts for a run in another workspace
+- [ ] Controller accepts a scope header that overrides the authenticated tenant
+
+---
+
+## Zone: api-governance-tenancy-controllers
+
+- **id:** api-governance-tenancy-controllers
+- **status:** open
+- **impact:** high
+- **aliases:** governance controllers; tenancy controllers
+- **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
+- **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Governance write succeeds for a policy pack owned by another tenant
+- [ ] Tenancy suspend endpoint affects a tenant id from the body not the principal
+- [ ] List endpoint omits tenant predicate when workspace filter is empty
+
+---
+
+## Zone: application-agents
+
+- **id:** application-agents
+- **status:** open
+- **impact:** medium
+- **aliases:** application agents; agent handlers wiring
+- **paths:** ArchLucid.Application/Agents/
+- **test-filter:** FullyQualifiedName~Application.Agents
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Agent invocation uses a default tenant when scope is missing
+- [ ] Handler result is cached across tenants with the same run id
+- [ ] Agent registry resolves a handler without checking feature flags per tenant
+
+---
+
+## Zone: application-governance-policy
+
+- **id:** application-governance-policy
+- **status:** open
+- **impact:** medium
+- **aliases:** policy packs; governance coverage; before-after diff
+- **paths:** ArchLucid.Application/Governance/
+- **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Policy pack diff includes rules from a seeded pack in another tenant
+- [ ] Coverage calculator counts a waived finding as still open
+- [ ] Default policy pack activation skips required approval metadata
+
+---
+
+## Zone: application-tenancy-lifecycle
+
+- **id:** application-tenancy-lifecycle
+- **status:** open
+- **impact:** high
+- **aliases:** tenant suspend; tenant migration; trial bootstrap
+- **paths:** ArchLucid.Application/Tenancy/
+- **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Suspend leaves mutating API paths active for the tenant
+- [ ] Migration copies rows without rewriting tenant id on child tables
+- [ ] Trial bootstrap creates resources under a host catalog tenant id
+
+---
+
+## Zone: host-core-coordination
+
+- **id:** host-core-coordination
+- **status:** open
+- **impact:** medium
+- **aliases:** host coordination; export outbox; backfill
+- **paths:** ArchLucid.Host.Core/Coordination/
+- **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Outbox processor pushes export blobs to a destination for the wrong tenant
+- [ ] Backfill job replays events without idempotency keys
+- [ ] Coordination lease is not released and blocks all replicas
+
+---
+
+## Zone: ui-operator-routes
+
+- **id:** ui-operator-routes
+- **status:** open
+- **impact:** medium
+- **aliases:** operator shell routes; operator pages
+- **paths:** archlucid-ui/src/app/(operator)/
+- **test-filter:** operator
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Page fetches data without forwarding the active workspace scope
+- [ ] Stale react-query cache shows the previous tenant after scope switch
+- [ ] Error boundary hides a 403 and renders an empty success state
+
+---
+
+## Zone: ui-marketing-surfaces
+
+- **id:** ui-marketing-surfaces
+- **status:** open
+- **impact:** low
+- **aliases:** marketing pages; pricing; trust center UI
+- **paths:** archlucid-ui/src/app/(marketing)/
+- **test-filter:** marketing
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Marketing form submits PII to the wrong API environment
+- [ ] Pricing page shows an internal-only plan tier to anonymous visitors
+- [ ] Trust center link resolves to a non-public document slug
+
+---
+
+## Zone: capabilities-cost-mcp
+
+- **id:** capabilities-cost-mcp
+- **status:** open
+- **impact:** medium
+- **aliases:** capabilities cost; MCP server; cost estimation
+- **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
+- **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Cost estimate uses list price when tenant has a negotiated discount
+- [ ] MCP tool invocation lacks tenant scope binding
+- [ ] Cost module returns zero for an unknown SKU instead of failing closed
+
+---
+
+## Zone: ui-operator-lib
+
+- **id:** ui-operator-lib
+- **status:** open
+- **impact:** medium
+- **aliases:** operator lib; operator scope; operator API client
+- **paths:** archlucid-ui/src/lib/operator/
+- **test-filter:** lib/operator
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] Operator API helper omits workspace scope on mutating requests
+- [ ] Cached operator context survives a tenant switch without invalidation
+- [ ] Error mapper surfaces another tenant’s problem detail in the toast
