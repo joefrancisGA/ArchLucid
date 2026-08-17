@@ -15,6 +15,8 @@ import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPag
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import { GovernanceFindingsAssignedToMeBreadcrumb } from "@/components/governance/findings/GovernanceFindingsAssignedToMeBreadcrumb";
+import { GovernanceFindingsBuyerChrome } from "@/components/governance/findings/GovernanceFindingsBuyerChrome";
+import { GovernanceFindingsQueueBreadcrumb } from "@/components/governance/findings/GovernanceFindingsQueueBreadcrumb";
 import { GovernanceFindingsRelatedQueuesDisclosure } from "@/components/governance/findings/GovernanceFindingsRelatedQueuesDisclosure";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
@@ -49,6 +51,11 @@ import {
   BUYER_RISK_REGISTER_EMPTY_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID,
+  GOVERNANCE_FINDINGS_SKIP_LINK_LABEL,
+} from "@/lib/governance-findings-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { hasGovernanceApprovalProvenance } from "@/lib/governance/governance-approval-provenance";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -370,6 +377,15 @@ export default function GovernanceFindingsQueueClient({
 
   return (
     <div className="w-full max-w-[1440px]">
+      {!isAssignedToMe ? (
+        <a
+          href={`#${GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_FINDINGS_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
       {showGovernanceApprovalBanner ? (
         <GovernanceApprovalStatusBanner
           className="mb-4"
@@ -377,7 +393,7 @@ export default function GovernanceFindingsQueueClient({
           onAssignedToMeFindingsPage={isAssignedToMe}
           provenance={governanceApprovalProvenance}
         />
-      ) : !isAssignedToMe ? (
+      ) : !isAssignedToMe && !buyerPolishedShell ? (
         <LayerHeader pageKey="governance-findings" density="compact" />
       ) : null}
 
@@ -386,7 +402,13 @@ export default function GovernanceFindingsQueueClient({
         title={pageTitle}
         subtitle={pageSubtitle}
         titleTestId="architecture-risk-register-page-title"
-        breadcrumb={isAssignedToMe ? <GovernanceFindingsAssignedToMeBreadcrumb /> : undefined}
+        breadcrumb={
+          isAssignedToMe ? (
+            <GovernanceFindingsAssignedToMeBreadcrumb />
+          ) : buyerPolishedShell ? (
+            <GovernanceFindingsQueueBreadcrumb />
+          ) : undefined
+        }
         statusBadge={assignedToMeStatusBadge}
         metadata={
           isAssignedToMe ? (
@@ -441,7 +463,8 @@ export default function GovernanceFindingsQueueClient({
       {!isAssignedToMe ? (
         <GovernanceJobRouterStrip currentJobId={currentJobId} layout="default" />
       ) : null}
-      {!isAssignedToMe ? (
+      {!isAssignedToMe && buyerPolishedShell ? <GovernanceFindingsBuyerChrome /> : null}
+      {!isAssignedToMe && !buyerPolishedShell ? (
         <>
           <AlertsFindingsVocabularyRail currentSurfaceId="findings-queue" />
           <DecisionRegisterFindingsVocabularyRail currentSurfaceId="findings-queue" />
@@ -450,7 +473,11 @@ export default function GovernanceFindingsQueueClient({
           <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
         </>
       ) : null}
-      <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)} data-testid="governance-findings-queue-body">
+      <div
+        id={!isAssignedToMe ? GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID : undefined}
+        className={cn("mt-4 scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+        data-testid="governance-findings-queue-body"
+      >
         {secondaryViewPresentation !== null ? (
           <CanonicalObjectSecondaryViewStrip
             presentation={secondaryViewPresentation}
