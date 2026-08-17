@@ -9,6 +9,46 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
   <div
     class="mb-6"
   >
+    <div
+      class="mb-2"
+    >
+      <nav
+        aria-label="Breadcrumb"
+        class="m-0 text-xs font-normal leading-[18px] text-al-text-secondary"
+        data-testid="why-archlucid-page-breadcrumb"
+      >
+        <ol
+          class="m-0 flex flex-wrap items-center gap-1 p-0 list-none"
+        >
+          <li
+            class="flex items-center gap-1"
+          >
+            <a
+              class="inline-flex min-h-8 items-center font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
+              href="/help"
+            >
+              Help
+            </a>
+          </li>
+          <li
+            class="flex items-center gap-1"
+          >
+            <span
+              aria-hidden="true"
+              class="text-al-text-secondary"
+            >
+              /
+            </span>
+            <span
+              aria-current="page"
+              class="text-al-text-primary"
+            >
+              Pilot proof telemetry
+            </span>
+          </li>
+        </ol>
+      </nav>
+    </div>
     <header
       class="border-b border-neutral-200 pb-6 dark:border-neutral-800"
       data-nav-href="/why-archlucid"
@@ -30,7 +70,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
             </h1>
             <span
               aria-label="Status: Internal pilot proof"
-              class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none text-[11px] font-medium leading-tight border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70 border-l-neutral-400 bg-neutral-100 text-al-text-secondary dark:border-l-neutral-500 dark:bg-neutral-800/80"
+              class="inline-flex max-w-full items-center rounded px-1.5 py-0.5 cursor-default select-none pointer-events-none text-[11px] font-medium leading-tight border border-neutral-200/70 border-l-[3px] dark:border-neutral-700/70 bg-[var(--al-status-neutral-bg)] text-[var(--al-status-neutral-fg)] border-l-[var(--al-status-neutral-border)] dark:border-l-[var(--al-status-neutral-border)]"
               data-testid="why-archlucid-internal-pilot-badge"
             >
               Internal pilot proof
@@ -99,7 +139,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
               For competitive narrative, see
                
               <a
-                class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                class="inline-flex min-h-8 items-center font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
                 href="/why"
               >
                 Public differentiation (/why)
@@ -136,6 +176,89 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     </header>
   </div>
   <div
+    class="space-y-3"
+    data-testid="why-archlucid-orientation"
+  >
+    <div
+      aria-labelledby="why-archlucid-claim-discipline-heading"
+      class="rounded-md border border-amber-600/60 bg-al-surface-raised text-sm text-al-text-primary dark:border-amber-700/60 p-3"
+      data-testid="why-archlucid-claim-discipline"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+        id="why-archlucid-claim-discipline-heading"
+      >
+        Pilot proof only
+      </h2>
+      <p
+        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        This Why ArchLucid page is an architect demo/proof surface over seeded telemetry and sample review outputs — it is not a sealed-review diligence Sources bundle from your production tenant. Open the public /why comparison, Assurance status, or a finalized sealed review record when you need diligence-grade trails.
+      </p>
+    </div>
+    <section
+      aria-labelledby="why-archlucid-sources-heading"
+      class="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+      data-testid="why-archlucid-sources"
+    >
+      <h2
+        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
+        id="why-archlucid-sources-heading"
+      >
+        Diligence artifact index
+      </h2>
+      <p
+        class="m-0 mt-1 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
+      >
+        Use these follow-ups when demo proof turns into marketing comparison, sponsor packaging, or assurance orientation.
+      </p>
+      <ul
+        class="m-0 mt-2 list-none space-y-2 p-0 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
+            href="/why"
+          >
+            Why ArchLucid (marketing)
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
+            href="/see-it"
+          >
+            See a sample review
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
+            href="/insights/sponsor-report"
+          >
+            Sponsor report
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
+            href="/help/getting-started#how-archlucid-works"
+          >
+            How ArchLucid works
+          </a>
+        </li>
+        <li>
+          <a
+            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
+            href="/assurance-status"
+          >
+            Assurance status
+          </a>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <div
     class="flex flex-wrap items-center gap-3"
     data-testid="why-archlucid-primary-cta-row"
   >
@@ -149,7 +272,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
   </div>
   <section
     aria-labelledby="why-archlucid-counters-heading"
-    class="space-y-3"
+    class="space-y-3 rounded border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40"
     data-testid="why-archlucid-counters"
   >
     <h2
@@ -161,97 +284,97 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     <p
       class="text-xs font-normal leading-[18px] text-al-text-secondary"
     >
-      Cumulative process totals since this API host started, plus audit trail rows in scope for the demo review.
+      Host-cumulative process totals since this API replica started. Persisted snapshot and single-review figures below use narrower scopes and may differ.
     </p>
     <div
-      class="grid grid-cols-1 gap-4 sm:grid-cols-3"
+      class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
     >
       <div
-        aria-label="Architecture reviews created"
+        aria-label="Architecture reviews created (host scope)"
         class="rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
         role="group"
       >
         <p
-          class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
+          class="text-xs font-semibold leading-4 text-al-text-primary text-al-text-secondary"
         >
-          Architecture reviews created
+          Architecture reviews created (host scope)
         </p>
         <p
-          class="mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary"
+          class="mt-1 text-3xl font-semibold tabular-nums tracking-tight text-al-text-primary"
         >
           7
         </p>
         <p
           class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
-          Reviews created since host start
+          Reviews created since this API host started
         </p>
       </div>
       <div
-        aria-label="Est. manual hours saved"
+        aria-label="Est. manual hours saved (host scope)"
         class="rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
         role="group"
       >
         <p
-          class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
+          class="text-xs font-semibold leading-4 text-al-text-primary text-al-text-secondary"
         >
-          Est. manual hours saved
+          Est. manual hours saved (host scope)
         </p>
         <p
-          class="mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary"
+          class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           0.00
         </p>
         <p
           class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
-          Planning heuristic — see methodology footnote
+          Not yet estimated — requires a completed review in scope
         </p>
       </div>
       <div
-        aria-label="Audit rows (demo scope)"
+        aria-label="Audit trail rows (host scope)"
         class="rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
         role="group"
       >
         <p
-          class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
+          class="text-xs font-semibold leading-4 text-al-text-primary text-al-text-secondary"
         >
-          Audit rows (demo scope)
+          Audit trail rows (host scope)
         </p>
         <p
-          class="mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary"
+          class="mt-1 text-3xl font-semibold tabular-nums tracking-tight text-al-text-primary"
         >
           12
         </p>
         <p
           class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
-          Audit trail rows in demo scope
+          Audit trail rows counted across the host process lifetime
         </p>
       </div>
       <div
-        aria-label="Findings (all severities)"
+        aria-label="Findings (host scope, all severities)"
         class="rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
         role="group"
       >
         <p
-          class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
+          class="text-xs font-semibold leading-4 text-al-text-primary text-al-text-secondary"
         >
-          Findings (all severities)
+          Findings (host scope, all severities)
         </p>
         <p
-          class="mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary"
+          class="mt-1 text-3xl font-semibold tabular-nums tracking-tight text-al-text-primary"
         >
           6
         </p>
         <p
           class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
-          Findings across all severities
+          Findings produced across all reviews since host start
         </p>
       </div>
       <div
-        class="sm:col-span-3"
+        class="lg:col-span-4"
       >
         <h3
           class="mb-2 text-[15px] font-semibold leading-[22px] text-al-text-primary"
@@ -312,12 +435,80 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         </ul>
       </div>
       <p
-        class="sm:col-span-3 text-xs font-normal leading-[18px] text-al-text-secondary"
+        class="lg:col-span-4 text-xs font-normal leading-[18px] text-al-text-secondary"
       >
         Snapshot generated 
-        2026-04-20T12:00:00.000Z
-         · demo review 
-        6e8c4a102b1f4c9a9d3e10b2a4f0c501
+        Apr 20, 2026, 12:00 PM UTC
+         ·
+         
+        <span
+          class="inline-flex flex-wrap items-center gap-2"
+        >
+          <span
+            class="dark:text-neutral-300 text-[13px] font-normal leading-5 text-al-text-primary"
+          >
+            Sample review identifier
+          </span>
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 rounded-md h-7 px-2 text-xs font-normal leading-[18px] text-al-text-secondary"
+            type="button"
+          >
+            Show details
+          </button>
+        </span>
+      </p>
+    </div>
+    <div
+      class="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+      data-testid="why-archlucid-measured-context"
+    >
+      <h3
+        class="text-[15px] font-semibold leading-[22px] text-al-text-primary"
+        id="why-archlucid-measured-context-heading"
+      >
+        Pilot cost guidance
+      </h3>
+      <p
+        class="text-xs font-normal leading-[18px] text-al-text-secondary"
+      >
+        Tenant tier and monthly spend band when configured. Planning guidance only — not an invoice.
+      </p>
+      <dl
+        class="grid grid-cols-1 gap-2 sm:grid-cols-2 text-[13px] font-normal leading-5 text-al-text-primary"
+      >
+        <div>
+          <dt
+            class="text-xs font-normal leading-[18px] text-al-text-secondary"
+          >
+            Tier
+          </dt>
+          <dd
+            class="font-medium text-al-text-primary"
+          >
+            Standard
+          </dd>
+        </div>
+        <div>
+          <dt
+            class="text-xs font-normal leading-[18px] text-al-text-secondary"
+          >
+            Monthly band (
+            USD
+            )
+          </dt>
+          <dd
+            class="font-medium tabular-nums text-al-text-primary"
+          >
+            10
+             — 
+            50
+          </dd>
+        </div>
+      </dl>
+      <p
+        class="text-xs font-normal leading-[18px] text-al-text-secondary"
+      >
+        Process counters are cumulative since this API replica started.
       </p>
     </div>
   </section>
@@ -347,13 +538,25 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         class="text-xs font-normal leading-[18px] text-al-text-secondary"
       >
         Generated 
-        2026-04-28T01:02:03.456Z
-         · demo review
+        Apr 28, 2026, 1:02 AM UTC
+         ·
          
-        <code>
-          6e8c4a102b1f4c9a9d3e10b2a4f0c501
-        </code>
-         · telemetry slice matches the process counters (
+        <span
+          class="inline-flex flex-wrap items-center gap-2"
+        >
+          <span
+            class="dark:text-neutral-300 text-[13px] font-normal leading-5 text-al-text-primary"
+          >
+            Sample review identifier
+          </span>
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 rounded-md h-7 px-2 text-xs font-normal leading-[18px] text-al-text-secondary"
+            type="button"
+          >
+            Show details
+          </button>
+        </span>
+         · telemetry slice matches the host process counters (
         7
          reviews tracked).
       </p>
@@ -361,30 +564,36 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         class="grid grid-cols-1 gap-3 sm:grid-cols-2"
       >
         <div
-          class="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/60 text-[13px] font-normal leading-5 text-al-text-primary"
+          class="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/60"
         >
           <p
-            class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
+            class="text-xs font-semibold leading-4 text-al-text-primary text-al-text-secondary"
           >
             Explainability trace
           </p>
           <p
-            class="mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary"
+            class="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-al-text-primary"
           >
             42.0%
           </p>
           <p
             class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
+            Share of explainability fields populated in the persisted evidence snapshot (100% = all tracked fields present)
+          </p>
+          <p
+            class="mt-2 text-xs font-normal leading-[18px] text-al-text-secondary"
+          >
             2
-             findings in persisted snapshot
+             
+            findings in the persisted evidence snapshot
           </p>
         </div>
         <div
-          class="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/60 text-[13px] font-normal leading-5 text-al-text-primary"
+          class="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/60"
         >
           <p
-            class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
+            class="text-xs font-semibold leading-4 text-al-text-primary text-al-text-secondary"
           >
             Governance outcomes
           </p>
@@ -440,7 +649,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         class="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/50"
       >
         <p
-          class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
+          class="text-xs font-semibold leading-4 text-al-text-primary text-al-text-secondary"
         >
           Value-report delta
         </p>
@@ -477,7 +686,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
             <dt
               class="text-al-text-secondary"
             >
-              Audit rows
+              Audit trail rows (this demo review)
             </dt>
             <dd
               class="tabular-nums text-al-text-primary"
@@ -537,62 +746,8 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     </div>
   </section>
   <section
-    aria-labelledby="why-archlucid-measured-context-heading"
-    class="space-y-3 rounded border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
-    data-testid="why-archlucid-measured-context"
-  >
-    <h2
-      class="text-lg font-semibold leading-[26px] text-al-text-primary"
-      id="why-archlucid-measured-context-heading"
-    >
-      Measured context (cost + disclaimers)
-    </h2>
-    <p
-      class="text-xs font-normal leading-[18px] text-al-text-secondary"
-    >
-      Same process counters as above, bundled with the tenant's configured monthly spend band (when available). This is planning guidance — not an invoice.
-    </p>
-    <dl
-      class="grid grid-cols-1 gap-2 sm:grid-cols-2 text-[13px] font-normal leading-5 text-al-text-primary"
-    >
-      <div>
-        <dt
-          class="text-xs font-normal leading-[18px] text-al-text-secondary"
-        >
-          Tier
-        </dt>
-        <dd
-          class="font-medium text-al-text-primary"
-        >
-          Standard
-        </dd>
-      </div>
-      <div>
-        <dt
-          class="text-xs font-normal leading-[18px] text-al-text-secondary"
-        >
-          Monthly band (
-          USD
-          )
-        </dt>
-        <dd
-          class="font-medium tabular-nums text-al-text-primary"
-        >
-          10
-           — 
-          50
-        </dd>
-      </div>
-    </dl>
-    <p
-      class="text-xs font-normal leading-[18px] text-al-text-secondary"
-    >
-      Process counters are cumulative since this API replica started.
-    </p>
-  </section>
-  <section
     aria-labelledby="why-archlucid-report-heading"
-    class="space-y-3"
+    class="space-y-3 rounded border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40"
     data-testid="why-archlucid-first-value-report"
   >
     <h2
@@ -605,17 +760,14 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
       class="text-xs font-normal leading-[18px] text-al-text-secondary"
       data-testid="why-archlucid-report-helper"
     >
-      Markdown generated by 
-      <code>
-        FirstValueReportBuilder
-      </code>
-       from 
-      the committed Retail baseline demo review
-      .
+      Sponsor-facing markdown generated from the committed Retail baseline demo review.
     </p>
     <pre
-      class="max-h-[480px] overflow-auto whitespace-pre-wrap rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900 text-[11px] font-normal leading-[15px] text-al-text-secondary"
+      aria-label="Sponsor first-value report body"
+      class="max-h-[480px] overflow-auto whitespace-pre-wrap rounded border border-neutral-200 bg-neutral-50 p-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-800 dark:bg-neutral-900 text-[13px] font-normal leading-5 text-al-text-primary"
       data-testid="why-archlucid-first-value-report-body"
+      role="region"
+      tabindex="0"
     >
       # ArchLucid — first value report (pilot)
 
@@ -624,7 +776,7 @@ Demo body.
   </section>
   <section
     aria-labelledby="why-archlucid-explanation-heading"
-    class="space-y-3"
+    class="space-y-3 rounded border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40"
     data-testid="why-archlucid-run-explanation"
   >
     <h2
@@ -806,24 +958,24 @@ Demo body.
     Aggregated sponsor-facing proof from measured ROI, sponsor evidence pack, value report, and aggregate explanation services.
      
     <a
-      class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200"
+      class="font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
       href="/help/sponsor-report"
     >
-      Sponsor sponsor brief
+      Sponsor brief
     </a>
      · 
     <a
-      class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200"
+      class="font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
       href="/get-started"
     >
       Getting started
     </a>
      · 
     <a
-      class="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200"
+      class="font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
       href="/trust"
     >
-      Trust Center
+      Trust center
     </a>
   </footer>
 </div>

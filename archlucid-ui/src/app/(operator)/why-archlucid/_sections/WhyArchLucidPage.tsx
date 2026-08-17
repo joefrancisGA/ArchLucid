@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { WHY_ARCHLUCID_PAGE_LOAD_RETRY_LABEL } from "@/lib/why-archlucid-page-copy";
 
 import {
   getFirstValueReportMarkdown,
@@ -19,10 +20,12 @@ import {
   type SectionError,
   type WhyArchLucidPageState,
 } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
+import { WhyArchLucidClaimOrientationStrip } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidClaimOrientationStrip";
 import { WhyArchLucidFirstValueReportSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidFirstValueReportSection";
-import { WhyArchLucidMeasuredContextSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidMeasuredContextSection";
 import { WhyArchLucidPageFooter } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageFooter";
 import { WhyArchLucidPageHeader } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageHeader";
+import { WhyArchLucidPageLoadFailure } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageLoadFailure";
+import { WhyArchLucidPageSkeleton } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageSkeleton";
 import { WhyArchLucidPrimaryCta } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPrimaryCta";
 import { WhyArchLucidRunExplanationSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidRunExplanationSection";
 import { WhyArchLucidSnapshotSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidSnapshotSection";
@@ -34,6 +37,7 @@ import { WhyArchLucidSponsorEvidencePackSection } from "@/app/(operator)/why-arc
  */
 export function WhyArchLucidPage() {
   const [state, setState] = useState<WhyArchLucidPageState>(initialWhyArchLucidPageState);
+  const [reloadNonce, setReloadNonce] = useState(0);
 
   useEffect(() => {
     let canceled = false;
@@ -110,12 +114,13 @@ export function WhyArchLucidPage() {
       });
     }
 
+    setState((previous) => ({ ...previous, loading: true }));
     void loadAll();
 
     return () => {
       canceled = true;
     };
-  }, []);
+  }, [reloadNonce]);
 
   const payloadUniverse = useMemo(() => {
     const demoRunId = state.snapshot?.demoRunId ?? state.sponsorPack?.demoRunId ?? null;
@@ -131,6 +136,7 @@ export function WhyArchLucidPage() {
 
   // Chrome follows the payload universe (Contoso-labeled-live Option B). Unknown fails closed after load (TB-1306).
   const failClosed = !state.loading && payloadUniverse === "unknown";
+  const pageLoadFailed = !state.loading && state.snapshot === null && state.snapshotError !== null;
 
   return (
     <div
@@ -139,18 +145,37 @@ export function WhyArchLucidPage() {
       aria-busy={state.loading}
     >
       <WhyArchLucidPageHeader universe={payloadUniverse} failClosed={failClosed} />
-      <WhyArchLucidPrimaryCta
-        demoRunId={state.snapshot?.demoRunId}
-        loading={state.loading}
-        failClosed={failClosed}
-      />
-      <WhyArchLucidSnapshotSection state={state} />
-      <WhyArchLucidSponsorEvidencePackSection state={state} universe={payloadUniverse} />
-      <WhyArchLucidMeasuredContextSection state={state} />
-      <WhyArchLucidFirstValueReportSection state={state} universe={payloadUniverse} />
-      <WhyArchLucidRunExplanationSection state={state} />
 
-      <WhyArchLucidPageFooter />
+      {state.loading ? <WhyArchLucidPageSkeleton /> : null}
+
+      {!state.loading ? <WhyArchLucidClaimOrientationStrip /> : null}
+
+      {!state.loading && pageLoadFailed && state.snapshotError !== null ? (
+        <WhyArchLucidPageLoadFailure
+          error={state.snapshotError}
+          retryLabel={WHY_ARCHLUCID_PAGE_LOAD_RETRY_LABEL}
+          retryDisabled={state.loading}
+          onRetry={() => {
+            setReloadNonce((previous) => previous + 1);
+          }}
+        />
+      ) : null}
+
+      {!state.loading && !pageLoadFailed ? (
+        <>
+          <WhyArchLucidPrimaryCta
+            demoRunId={state.snapshot?.demoRunId}
+            loading={state.loading}
+            failClosed={failClosed}
+          />
+          <WhyArchLucidSnapshotSection state={state} />
+          <WhyArchLucidSponsorEvidencePackSection state={state} universe={payloadUniverse} />
+          <WhyArchLucidFirstValueReportSection state={state} universe={payloadUniverse} />
+          <WhyArchLucidRunExplanationSection state={state} />
+
+          <WhyArchLucidPageFooter />
+        </>
+      ) : null}
     </div>
   );
 }
