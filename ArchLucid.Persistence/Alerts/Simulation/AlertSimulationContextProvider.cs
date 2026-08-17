@@ -1,5 +1,6 @@
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Persistence.Alerts.Simulation;
@@ -75,7 +76,7 @@ public sealed class AlertSimulationContextProvider(
     /// <summary>
     /// Loads run detail, builds plan (with optional comparison), attaches recommendations and learning profile.
     /// </summary>
-    /// <returns><c>null</c> when the run has no golden manifest.</returns>
+    /// <returns><c>null</c> when the run has no golden manifest or is outside the caller scope.</returns>
     private async Task<AlertEvaluationContext?> BuildContextAsync(
         ScopeContext scope,
         Guid runId,
@@ -86,7 +87,15 @@ public sealed class AlertSimulationContextProvider(
         if (detail?.GoldenManifest is null)
             return null;
 
+        // Defense in depth: never build simulation contexts from a run that does not match the caller scope,
+        // even if the query layer returned a row (mis-scoped catalog / IDOR residual).
+        if (!RunMatchesCallerScope(detail.Run, scope))
+            return null;
+
         FindingsSnapshot findings = detail.FindingsSnapshot ?? CreateEmptyFindings(detail.GoldenManifest);
+
+        if (findings.RunId != Guid.Empty && findings.RunId != runId)
+            return null;
 
         ComparisonResult? comparison = null;
 
@@ -96,8 +105,11 @@ public sealed class AlertSimulationContextProvider(
                 .GetRunDetailAsync(scope, comparedToRunId.Value, ct)
                 ;
 
-            if (comparedDetail?.GoldenManifest is not null)
+            if (comparedDetail?.GoldenManifest is not null
+                && RunMatchesCallerScope(comparedDetail.Run, scope))
+            {
                 comparison = comparisonService.Compare(comparedDetail.GoldenManifest, detail.GoldenManifest);
+            }
         }
 
         ImprovementPlan plan = comparison is null
@@ -129,6 +141,11 @@ public sealed class AlertSimulationContextProvider(
             LearningProfile = learning,
         };
     }
+
+    private static bool RunMatchesCallerScope(RunRecord run, ScopeContext scope) =>
+        run.TenantId == scope.TenantId
+        && run.WorkspaceId == scope.WorkspaceId
+        && run.ScopeProjectId == scope.ProjectId;
 
     private static FindingsSnapshot CreateEmptyFindings(ManifestDocument manifest) =>
         new()

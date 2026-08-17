@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-17 (commit-output-integrity hit: QualityRejected ignored when recorded outcome was non-Rejected).
+**Updated:** 2026-08-17 (alert-simulation hit: simulation context accepted foreign-tenant run detail).
 
 ## How to use
 
@@ -510,18 +510,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 2
 
 ### Hypotheses
 
-- [ ] Simulation context loads findings from a tenant other than the caller
-- [ ] Dry-run simulation persists a real alert delivery
+- [x] Simulation context loads findings from a tenant other than the caller — fixed: reject run detail / findings whose scope or RunId does not match the caller
+- [x] Dry-run simulation persists a real alert delivery — retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
 - [ ] Missing workspace still returns 200 with another workspace’s rules
 
 ---
