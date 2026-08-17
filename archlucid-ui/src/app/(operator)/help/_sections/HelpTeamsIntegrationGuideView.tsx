@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -8,6 +10,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
@@ -23,15 +26,17 @@ import {
   TEAMS_INTEGRATION_HELP_HOW_TO_READ_STEPS,
   TEAMS_INTEGRATION_HELP_OVERVIEW,
   TEAMS_INTEGRATION_HELP_PAGE_EYEBROW,
-  TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE,
   TEAMS_INTEGRATION_HELP_PAGE_TITLE,
   TEAMS_INTEGRATION_HELP_PRIMARY_ACTION,
+  TEAMS_INTEGRATION_HELP_PRIMARY_CONTENT_ID,
   TEAMS_INTEGRATION_HELP_SECURITY_CALLOUT_BODY,
   TEAMS_INTEGRATION_HELP_SECURITY_SECTION_ID,
   TEAMS_INTEGRATION_HELP_SECURITY_SECTION_TITLE,
   TEAMS_INTEGRATION_HELP_SETUP_STEPS,
+  TEAMS_INTEGRATION_HELP_SKIP_LINK_LABEL,
   TEAMS_INTEGRATION_HELP_START_HERE_CARD_TITLE,
   TEAMS_INTEGRATION_HELP_WEBHOOK_PRECONDITION,
+  teamsIntegrationHelpPageSubtitle,
 } from "@/lib/teams-integration-help-guide-content";
 import { TEAMS_INTEGRATION_HELP_CANONICAL_PATH } from "@/lib/teams-integration-help-evidence-copy";
 import { TEAMS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/teams-integration-evidence-copy";
@@ -55,6 +60,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Operator Teams integration orientation for `/help/teams-integration`. */
 export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const contentGridClass = resolveHelpPageContentGridClass(TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
@@ -63,21 +69,37 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
       data-testid="help-teams-integration-guide"
     >
+      <a
+        href={`#${TEAMS_INTEGRATION_HELP_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {TEAMS_INTEGRATION_HELP_SKIP_LINK_LABEL}
+      </a>
+
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        eyebrow={TEAMS_INTEGRATION_HELP_PAGE_EYEBROW}
+        eyebrow={buyerPolishedShell ? undefined : TEAMS_INTEGRATION_HELP_PAGE_EYEBROW}
         title={TEAMS_INTEGRATION_HELP_PAGE_TITLE}
         titleTestId="help-teams-integration-page-title"
-        subtitle={TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE}
+        subtitle={teamsIntegrationHelpPageSubtitle(buyerPolishedShell)}
         navHref={TEAMS_INTEGRATION_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={<PageContextualHelpButton />}
       />
 
       <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+        <div
+          id={TEAMS_INTEGRATION_HELP_PRIMARY_CONTENT_ID}
+          className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
+        >
+          {buyerPolishedShell ? (
+            <div data-testid="help-teams-integration-orientation-top">
+              <TeamsIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            </div>
+          ) : null}
+
           <p className={readingBodyClass} data-testid="help-teams-integration-overview">
             {TEAMS_INTEGRATION_HELP_OVERVIEW}
           </p>
@@ -166,9 +188,11 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
             </ul>
           </section>
 
-          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-            <TeamsIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-          </div>
+          {!buyerPolishedShell ? (
+            <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+              <TeamsIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            </div>
+          ) : null}
         </div>
 
         <HelpTopicTableOfContents headings={TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS} enableScrollSpy />
