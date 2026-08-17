@@ -202,15 +202,22 @@ public static class TopologyProposalRelationshipEndpointIndex
 
     public static bool IsRenameAliasService(ManifestService candidate, IReadOnlyList<ManifestService> acceptedServices)
     {
-        if (string.IsNullOrWhiteSpace(candidate.ServiceId) || string.IsNullOrWhiteSpace(candidate.ServiceName))
+        string? candidateId = TrimManifestEndpointValue(candidate.ServiceId);
+        string? candidateName = TrimManifestEndpointValue(candidate.ServiceName);
+
+        if (candidateId is null || candidateName is null)
             return false;
 
         foreach (ManifestService accepted in acceptedServices)
         {
-            if (!string.Equals(accepted.ServiceId, candidate.ServiceId, StringComparison.OrdinalIgnoreCase))
+            string? acceptedId = TrimManifestEndpointValue(accepted.ServiceId);
+
+            if (!string.Equals(acceptedId, candidateId, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            return !string.Equals(accepted.ServiceName, candidate.ServiceName, StringComparison.OrdinalIgnoreCase);
+            string? acceptedName = TrimManifestEndpointValue(accepted.ServiceName);
+
+            return !string.Equals(acceptedName, candidateName, StringComparison.OrdinalIgnoreCase);
         }
 
         return false;
@@ -218,15 +225,22 @@ public static class TopologyProposalRelationshipEndpointIndex
 
     public static bool IsRenameAliasDatastore(ManifestDatastore candidate, IReadOnlyList<ManifestDatastore> acceptedDatastores)
     {
-        if (string.IsNullOrWhiteSpace(candidate.DatastoreId) || string.IsNullOrWhiteSpace(candidate.DatastoreName))
+        string? candidateId = TrimManifestEndpointValue(candidate.DatastoreId);
+        string? candidateName = TrimManifestEndpointValue(candidate.DatastoreName);
+
+        if (candidateId is null || candidateName is null)
             return false;
 
         foreach (ManifestDatastore accepted in acceptedDatastores)
         {
-            if (!string.Equals(accepted.DatastoreId, candidate.DatastoreId, StringComparison.OrdinalIgnoreCase))
+            string? acceptedId = TrimManifestEndpointValue(accepted.DatastoreId);
+
+            if (!string.Equals(acceptedId, candidateId, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            return !string.Equals(accepted.DatastoreName, candidate.DatastoreName, StringComparison.OrdinalIgnoreCase);
+            string? acceptedName = TrimManifestEndpointValue(accepted.DatastoreName);
+
+            return !string.Equals(acceptedName, candidateName, StringComparison.OrdinalIgnoreCase);
         }
 
         return false;

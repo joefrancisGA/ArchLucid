@@ -237,6 +237,37 @@ public sealed class AgentProposalStructuralPostProcessorTests
     }
 
     [Fact]
+    public void ApplyToProposal_preserves_in_proposal_rename_when_ServiceId_has_surrounding_whitespace()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-1",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceName = "renamed-api",
+                    ServiceId = "  svc-1  ",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.Functions,
+                },
+            ],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedServices.Should().HaveCount(2);
+        proposal.AddedServices.Should().Contain(s => s.ServiceName == "renamed-api");
+    }
+
+    [Fact]
     public void ApplyToProposal_preserves_rename_alias_datastores_with_shared_ids_within_single_proposal()
     {
         AgentTopologyProposal proposal = new()
