@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import nextConfig from "../next.config";
+import { BOOKMARK_PERMANENT_REDIRECTS } from "@/lib/next/bookmark-permanent-redirects";
 
 describe("next.config integrations routes (TB-407 / TB-750)", () => {
-  it("does not ship permanent bookmark redirects (IA batch 4)", async () => {
+  it("ships only allowlisted permanent bookmark redirects (TB-2234 / IA batch 4)", async () => {
     const redirectRules = await nextConfig.redirects?.();
 
-    expect(redirectRules ?? []).toEqual([]);
+    expect(redirectRules ?? []).toEqual(BOOKMARK_PERMANENT_REDIRECTS);
   });
 
   it("does not keep pre-release Integration readiness / operations / ITSM hub redirects", async () => {

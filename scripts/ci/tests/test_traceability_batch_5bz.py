@@ -29,7 +29,7 @@ class TestTraceabilityBatch5BZ(unittest.TestCase):
             / "(operator)"
             / "architecture"
             / "reviews"
-            / "[runId]"
+            / "[reviewId]"
             / "_sections"
             / "RunDetailPageView.tsx"
         )
@@ -41,7 +41,7 @@ class TestTraceabilityBatch5BZ(unittest.TestCase):
             / "(operator)"
             / "architecture"
             / "reviews"
-            / "[runId]"
+            / "[reviewId]"
             / "_sections"
             / "RunDetailExplanationDeferred.tsx"
         )
