@@ -326,6 +326,13 @@ public static class TopologyProposalRelationshipEndpointIndex
             {
                 return true;
             }
+
+            // Merge gate indexes both svc- and ds- synthetics for a label; overlays may put ds-{label} on ServiceId.
+            if (nodeLabel is not null
+                && string.Equals(serviceId, BuildSyntheticDatastoreNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
         }
 
         if (serviceName is not null)
@@ -365,6 +372,13 @@ public static class TopologyProposalRelationshipEndpointIndex
 
             if (nodeLabel is not null
                 && string.Equals(datastoreId, BuildSyntheticDatastoreNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // Symmetric to services: merge gate may accept svc-{label} on DatastoreId for a compute overlay key.
+            if (nodeLabel is not null
+                && string.Equals(datastoreId, BuildSyntheticServiceNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
