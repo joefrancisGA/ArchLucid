@@ -1,11 +1,15 @@
+"use client";
+
 import Link from "next/link";
 
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PackagePrintButton } from "@/components/reviews/PackagePrintButton";
 import { StatusTag } from "@/components/ui/status-tag";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
+import { PACKAGE_PRINT_PAGE_SUBTITLE_BUYER } from "@/lib/package-print-page-copy";
 import {
   PACKAGE_PRINT_BACK_LABEL,
   PACKAGE_PRINT_FINDINGS_HEADING,
@@ -19,6 +23,9 @@ import {
 } from "@/lib/package-print-view";
 import { cn } from "@/lib/utils";
 
+import { PackagePrintBreadcrumb } from "./PackagePrintBreadcrumb";
+import { PackagePrintBuyerChrome } from "./PackagePrintBuyerChrome";
+
 export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
 };
@@ -27,6 +34,7 @@ export type PackagePrintPageViewProps = {
 export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JSX.Element {
   const { presentation } = props;
   const backHref = buildPackagePrintBackHref(presentation.runId);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
     <div
@@ -43,12 +51,14 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
         <PackagePrintButton />
       </div>
 
-      <p
-        className={cn("m-0 text-al-text-secondary print:hidden", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="package-print-instructions"
-      >
-        {PACKAGE_PRINT_INSTRUCTIONS}
-      </p>
+      {!buyerPolishedShell ? (
+        <p
+          className={cn("m-0 text-al-text-secondary print:hidden", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="package-print-instructions"
+        >
+          {PACKAGE_PRINT_INSTRUCTIONS}
+        </p>
+      ) : null}
 
       <DocumentLayout>
         <OperatorPageHeader
@@ -56,16 +66,28 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
           titleTestId="package-print-title"
           headingLevel="h1"
           breadcrumb={
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {PACKAGE_PRINT_PAGE_TITLE}
-            </p>
+            buyerPolishedShell ? (
+              <PackagePrintBreadcrumb runId={presentation.runId} reviewTitle={presentation.title} />
+            ) : (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {PACKAGE_PRINT_PAGE_TITLE}
+              </p>
+            )
           }
+          subtitle={
+            buyerPolishedShell ? (
+              <p className="m-0">{PACKAGE_PRINT_PAGE_SUBTITLE_BUYER}</p>
+            ) : undefined
+          }
+          subtitleClassName="max-w-3xl leading-relaxed"
           metadata={
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {PACKAGE_PRINT_META_CREATED_LABEL}: {formatInstantForLocale(presentation.createdUtc)}
             </span>
           }
         />
+
+        <PackagePrintBuyerChrome runId={presentation.runId} />
 
         <section className="space-y-2" aria-labelledby="package-print-status-heading">
           <h2 id="package-print-status-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>

@@ -35,7 +35,7 @@ describe("PackagePrintPage route (TB-2205)", () => {
   });
 
   it("rejects invalid run ids", async () => {
-    await expect(PackagePrintPage({ params: Promise.resolve({ runId: "undefined" }) })).rejects.toThrow(
+    await expect(PackagePrintPage({ params: Promise.resolve({ reviewId: "undefined" }) })).rejects.toThrow(
       "NEXT_NOT_FOUND",
     );
     expect(notFound).toHaveBeenCalledTimes(1);
@@ -55,7 +55,7 @@ describe("PackagePrintPage route (TB-2205)", () => {
     });
 
     const element = await PackagePrintPage({
-      params: Promise.resolve({ runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }),
+      params: Promise.resolve({ reviewId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }),
     });
 
     render(element);
