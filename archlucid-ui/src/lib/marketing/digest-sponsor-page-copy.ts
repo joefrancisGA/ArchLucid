@@ -21,6 +21,16 @@ export const DIGEST_SPONSOR_UNAVAILABLE_TITLE = "Sponsor digest link unavailable
 export const DIGEST_SPONSOR_UNAVAILABLE_BODY =
   "This read-only digest link is invalid, expired, or no longer available." as const;
 
+export const DIGEST_SPONSOR_COLLATERAL_MISSING_TOKEN_TITLE = "Sponsor collateral link" as const;
+
+export const DIGEST_SPONSOR_COLLATERAL_MISSING_TOKEN_BODY =
+  "This read-only collateral link is missing its access token. Open the latest weekly digest email and use the review CTA again." as const;
+
+export const DIGEST_SPONSOR_COLLATERAL_UNAVAILABLE_TITLE = "Sponsor collateral unavailable" as const;
+
+export const DIGEST_SPONSOR_COLLATERAL_UNAVAILABLE_BODY =
+  "This read-only collateral link is invalid, expired, or no longer available for this review." as const;
+
 export const DIGEST_SPONSOR_SIGN_IN_LABEL = "Sign in" as const;
 
 export const DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL = "Sign in to open the full workspace" as const;

@@ -4,6 +4,10 @@ import { DigestSponsorEvidenceOrientationStrip } from "@/components/marketing/Di
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  DIGEST_SPONSOR_COLLATERAL_MISSING_TOKEN_BODY,
+  DIGEST_SPONSOR_COLLATERAL_MISSING_TOKEN_TITLE,
+  DIGEST_SPONSOR_COLLATERAL_UNAVAILABLE_BODY,
+  DIGEST_SPONSOR_COLLATERAL_UNAVAILABLE_TITLE,
   DIGEST_SPONSOR_MISSING_TOKEN_BODY,
   DIGEST_SPONSOR_MISSING_TOKEN_TITLE,
   DIGEST_SPONSOR_PRIMARY_CONTENT_ID,
@@ -61,6 +65,24 @@ export function ExecDigestSponsorUnavailablePage(): React.JSX.Element {
     <ExecDigestSponsorDeepLinkIssuePage
       title={DIGEST_SPONSOR_UNAVAILABLE_TITLE}
       body={DIGEST_SPONSOR_UNAVAILABLE_BODY}
+    />
+  );
+}
+
+export function ExecDigestSponsorRunCollateralMissingTokenPage(): React.JSX.Element {
+  return (
+    <ExecDigestSponsorDeepLinkIssuePage
+      title={DIGEST_SPONSOR_COLLATERAL_MISSING_TOKEN_TITLE}
+      body={DIGEST_SPONSOR_COLLATERAL_MISSING_TOKEN_BODY}
+    />
+  );
+}
+
+export function ExecDigestSponsorRunCollateralUnavailablePage(): React.JSX.Element {
+  return (
+    <ExecDigestSponsorDeepLinkIssuePage
+      title={DIGEST_SPONSOR_COLLATERAL_UNAVAILABLE_TITLE}
+      body={DIGEST_SPONSOR_COLLATERAL_UNAVAILABLE_BODY}
     />
   );
 }
