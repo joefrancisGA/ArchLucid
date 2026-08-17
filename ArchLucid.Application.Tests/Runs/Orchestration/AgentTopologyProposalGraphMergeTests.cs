@@ -1799,6 +1799,60 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_compliance_service_rename_uses_storage_synthetic_datastore_id()
+    {
+        // Merge gate indexes ds-{label} for storage nodes type-agnostically. Agents sometimes put that key on
+        // AddedServices.ServiceId instead of AddedDatastores — gate keeps the rename, but NodeMatchesService
+        // only accepted svc-{label}, so aliases were skipped and the edge dropped.
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            Node("blob-1", "artifacts", category: GraphTopologyCategories.Storage, sourceId: "azurerm_storage_account.main", sourceType: "Terraform"));
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-artifacts",
+                        ServiceId = "ds-artifacts",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "renamed-artifacts",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedServices.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == "api" && r.TargetId == "renamed-artifacts");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [compliance]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "blob-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_adds_edges_when_compliance_rename_follows_topology_service_claim_in_same_batch()
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());

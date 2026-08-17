@@ -374,7 +374,7 @@ public sealed class MultiAgentFailureModeChaosSuiteTests
             tail.TopologyProposalSeeder,
             tail.DemoExpensiveActionGate,
             budgetService ?? tail.RunScopedLlmBudgetReservationService,
-            tail.CancellationRegistry,
+            tail.OperationCancellationRegistry,
             tail.RunCancellationMarker,
             tail.RunExecuteOwnershipLeaseService,
             tail.Logger);
