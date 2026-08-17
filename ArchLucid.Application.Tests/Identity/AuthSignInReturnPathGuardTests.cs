@@ -24,6 +24,7 @@ public sealed class AuthSignInReturnPathGuardTests
     [InlineData("https://evil.example/phish")]
     [InlineData("/path@evil")]
     [InlineData("reviews/1")]
+    [InlineData("/%2f%2fevil.example")]
     public void TryNormalize_rejects_open_redirect_shapes(string path)
     {
         AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();

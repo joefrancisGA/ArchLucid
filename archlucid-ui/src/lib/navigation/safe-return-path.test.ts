@@ -63,6 +63,10 @@ describe("isSafeReturnPath", () => {
   it("rejects a NUL-smuggled protocol-relative URL", () => {
     expect(isSafeReturnPath("/\u0000/evil.example")).toBe(false);
   });
+
+  it("rejects a percent-encoded protocol-relative URL", () => {
+    expect(isSafeReturnPath("/%2f%2fevil.example")).toBe(false);
+  });
 });
 
 describe("resolveSafeReturnPath", () => {

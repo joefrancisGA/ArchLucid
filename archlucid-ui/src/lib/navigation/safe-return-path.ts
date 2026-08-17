@@ -31,7 +31,41 @@ export function isSafeReturnPath(candidate: string | null | undefined): candidat
     return false;
   }
 
-  return !normalized.includes("://");
+  if (normalized.includes("://")) {
+    return false;
+  }
+
+  return isSafeReturnPathAfterPercentDecoding(normalized);
+}
+
+function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
+  let working = candidate;
+
+  for (let decodePass = 0; decodePass < 3 && working.includes("%"); decodePass++) {
+    let decoded: string;
+
+    try {
+      decoded = decodeURIComponent(working);
+    } catch {
+      return false;
+    }
+
+    if (decoded === working) {
+      break;
+    }
+
+    if (!decoded.startsWith("/") || decoded.startsWith("//") || decoded.startsWith("/\\")) {
+      return false;
+    }
+
+    if (decoded.includes("://") || decoded.includes("\\") || decoded.includes("@")) {
+      return false;
+    }
+
+    working = decoded;
+  }
+
+  return true;
 }
 
 /** Returns `candidate` when it is a safe relative path, otherwise `fallback` (default `"/"`). */
