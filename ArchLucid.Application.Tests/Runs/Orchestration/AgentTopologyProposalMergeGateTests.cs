@@ -1588,6 +1588,23 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_cdn_profile_node_has_data_category_but_synthetic_service_id_used()
+    {
+        // Classic CDN profile (not Front Door) is still a service endpoint; miscategorized Data nodes must accept svc-.
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "cdn-1", label: "edge", sourceId: "azurerm_cdn_profile.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edge")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_app_configuration_node_has_compute_category_but_synthetic_datastore_id_used()
     {
         GraphSnapshot graph = Graph(
