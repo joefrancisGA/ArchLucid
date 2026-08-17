@@ -85,19 +85,19 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 - **status:** open
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
-- **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1
-- **bugs-found:** 1
+- **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-16
-- **last-bug:** 2026-08-16
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] ARM resource id indexed in the endpoint index but not resolved by the edge mapper
-- [ ] Terraform SourceId claimed in merge but missing from alias resolution
+- [x] ARM resource id indexed in the endpoint index but not resolved by the edge mapper — retired (invalid on current code): tf.id / tf.resource_id already indexed and resolved; rename via ARM ServiceId already matches
+- [x] Terraform SourceId claimed in merge but missing from alias resolution — fixed: NodeMatchesService/Datastore now compare ServiceId/DatastoreId to Label (tf show JSON address-on-label shape)
 - [x] Endpoint keyed by a property bag value that is not a SourceId
 
 ---

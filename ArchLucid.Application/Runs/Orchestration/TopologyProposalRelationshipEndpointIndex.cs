@@ -313,6 +313,11 @@ public static class TopologyProposalRelationshipEndpointIndex
             if (string.Equals(nodeSourceId, serviceId, StringComparison.OrdinalIgnoreCase))
                 return true;
 
+            // tf show JSON stamps the Terraform address on Label (declaration id on SourceId); agents often key
+            // ServiceId to that address, which the merge gate already indexed via Label.
+            if (string.Equals(nodeLabel, serviceId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
             if (ArmResourceIdMatches(serviceId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node)))
                 return true;
 
@@ -349,6 +354,10 @@ public static class TopologyProposalRelationshipEndpointIndex
                 return true;
 
             if (string.Equals(nodeSourceId, datastoreId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            // Same tf show JSON shape as services: Terraform address on Label, declaration id on SourceId.
+            if (string.Equals(nodeLabel, datastoreId, StringComparison.OrdinalIgnoreCase))
                 return true;
 
             if (ArmResourceIdMatches(datastoreId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node)))

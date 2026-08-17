@@ -2059,6 +2059,65 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_rename_overlay_service_id_is_terraform_address_on_label()
+    {
+        // tf show JSON puts the Terraform address on Label and the declaration id on SourceId. The merge gate
+        // indexes Label, so ServiceId = address is known — but NodeMatchesService never compared ServiceId to Label.
+        const string terraformAddress = "azurerm_linux_web_app.app";
+        const string declarationId = "decl-tf-show-json-1";
+        const string armId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-tf";
+
+        GraphSnapshot graph = Graph(
+            Node(
+                "obj-app",
+                terraformAddress,
+                GraphTopologyCategories.Compute,
+                TerraformSourceType,
+                declarationId,
+                new Dictionary<string, string> { ["tf.id"] = armId }),
+            DataNode());
+
+        AgentResult topology = TopologyResult(
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = terraformAddress,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            },
+            resultId: "topology-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == "renamed-api" && r.TargetId == DataLabel);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "obj-app" &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_service_name_is_terraform_source_id_and_relationship_uses_synthetic()
     {
         // Agents sometimes copy the inventoried Terraform address into ServiceName. The merge gate then
