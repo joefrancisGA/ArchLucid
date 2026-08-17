@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-16 (catalog expansion across API/persistence/UI/CLI; arm-terraform-source-ids hit: Terraform ARM ids in tf.id / tf.resource_id; sql-run-repository dry: get/list/update already tenant-scoped).
+**Updated:** 2026-08-17 (topology hit: classic CDN profile TF types omitted svc- synthetic on Data-category nodes).
 
 ## How to use
 
@@ -54,11 +54,11 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 12
-- **bugs-found:** 8
+- **hunts:** 13
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-16
-- **last-bug:** 2026-08-16
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -72,6 +72,7 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 - [x] ARM resource id with whitespace
 - [x] Storage vs data category for datastore synthetic ids
 - [x] Cost/compliance relationship-only edges with a rename overlay
+- [x] Classic `azurerm_cdn_profile` / `cdn_endpoint` Data-category nodes omit `svc-` synthetic (only `cdn_frontdoor` was recognized)
 - [ ] Merge gate keeps a relationship but graph merge drops the edge for a type family not in parameterized tests
 - [ ] Duplicate node-id collision when overlay and inventoried node share SourceId but different labels
 - [ ] Gate vs merge disagreement after structural post-processor strips a relationship
@@ -159,19 +160,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **id:** commit-output-integrity
 - **status:** open
 - **aliases:** output integrity; commit integrity
-- **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs
-- **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs
+- **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
+- **related-pd-tb:** TB-2226
+- **code-changed-since:** 2
 
 ### Hypotheses
 
-- [ ] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes
+- [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes — fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
 - [ ] Missing optional artifact is treated as a hash match
 - [ ] Integrity failure is logged but commit still proceeds
 
@@ -414,21 +415,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: finding-inspect-sql
 
 - **id:** finding-inspect-sql
-- **status:** open
+- **status:** cooling
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-16
-- **last-bug:** 2026-08-16
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] Inspect read returns a finding whose tenant does not match the request scope
+- [x] Inspect read returns a finding whose tenant does not match the request scope — fixed: main inspect + FindingRecords joins in FollowUpBatch require `fr.TenantId`/`WorkspaceId`/`ProjectId` (run-only predicates were insufficient when row tenant diverges)
 - [x] Mapper drops evidence fields so inspect shows success with empty trail — retired (invalid): mapper only parses enums; evidence is built in the repository from related nodes
 - [x] Inspect query joins without tenant on the child table and leaks sibling-tenant rows — fixed: FollowUpBatch now scopes FindingRelatedNodes / rules / actions / AuditEvents / FindingReviewEvents / RiskExceptions to TenantId+WorkspaceId+ProjectId
 
@@ -510,18 +511,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 2
 
 ### Hypotheses
 
-- [ ] Simulation context loads findings from a tenant other than the caller
-- [ ] Dry-run simulation persists a real alert delivery
+- [x] Simulation context loads findings from a tenant other than the caller — fixed: reject run detail / findings whose scope or RunId does not match the caller
+- [x] Dry-run simulation persists a real alert delivery — retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
 - [ ] Missing workspace still returns 200 with another workspace’s rules
 
 ---
@@ -579,18 +580,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] Recommended change targets an element that is not in the current package
-- [ ] Alternative list duplicates the primary recommendation as if it were distinct
+- [x] Recommended change targets an element that is not in the current package (retired: engine has no package element targeting)
+- [x] Alternative list duplicates the primary recommendation as if it were distinct
 - [ ] Engine emits a must-change when evidence only supports a suggestion
 
 ---
@@ -598,23 +599,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: extraction-router
 
 - **id:** extraction-router
-- **status:** open
+- **status:** cooling
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] Hard extraction is routed to the cheap path and still treated as high fidelity
-- [ ] Router swallows a failed extraction and returns an empty graph as success
-- [ ] Difficulty score is computed from a different document than the one extracted
+- [x] Hard extraction is routed to the cheap path and still treated as high fidelity
+- [x] Router swallows a failed extraction and returns an empty graph as success (retired: no failure/empty-success path; placeholder Assumption on miss)
+- [x] Difficulty score is computed from a different document than the one extracted (retired: Classify and Extract share the same sourceText)
 
 ---
 
@@ -690,23 +691,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-runs-list
 
 - **id:** ui-runs-list
-- **status:** open
+- **status:** cooling
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-17
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] List renders reviews from a workspace the operator is not scoped to
-- [ ] Failed load still shows a previous tenant’s cached rows
-- [ ] Empty state is skipped so a spinner never ends after a 403
+- [x] List renders reviews from a workspace the operator is not scoped to (retired: no workspace field on RunSummary; cross-project rows are intentional hub scope listing)
+- [x] Failed load still shows a previous tenant’s cached rows (retired: props-only client; loader clears runs and Sets loadFailure; list not mounted when hubLoadOk is false)
+- [x] Empty state is skipped so a spinner never ends after a 403 (retired: no spinner in RunsListClient; 403 surfaces OperatorApiProblem upstream)
 
 ---
 
@@ -717,65 +718,67 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-17
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
+2026-08-17 dry hunt: listed hypotheses do not hold on `AuthCallbackAccessPanel`. Denial keeps `AUTH_CALLBACK_ACCESS_HEADING` + `technicalDetail` (success title only after 2xx access-request submit as “Access request sent”). Recovery links are only `/auth/signin` (no operator-shell href). Panel is props-only (no `useSearchParams` / react-query / email-otp session); error strings are fixed copy and do not interpolate emails. Existing `AuthCallbackAccessPanel` + `CallbackClient` tests (6) pass.
+
 ### Hypotheses
 
-- [ ] Access-denied technical detail is shown as a successful sign-in
-- [ ] Callback continues into the operator shell when the grant is missing
-- [ ] Error copy includes another user’s email from a leftover query cache
+- [x] Access-denied technical detail is shown as a successful sign-in (retired: denial heading + detail until access-request 2xx; success copy is request-sent, not signed-in)
+- [x] Callback continues into the operator shell when the grant is missing (retired: panel only links to `/auth/signin`; no `window.location` / operator routes)
+- [x] Error copy includes another user’s email from a leftover query cache (retired: no query/session read; duplicate/submit errors are fixed strings)
 
 ---
 
 ## Zone: ui-help-docs
 
 - **id:** ui-help-docs
-- **status:** open
+- **status:** cooling
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] Topic markdown fetch follows an external URL instead of the in-app help route
-- [ ] Missing topic is rendered as a GitHub blob link
-- [ ] Index lists topics the current role is not allowed to open
+- [x] Topic markdown fetch follows an external URL instead of the in-app help route (retired: fetchHelpTopicMarkdown uses `/api/help/{slug}`)
+- [x] Missing topic is rendered as a GitHub blob link (retired: not-found → `/help`; doc-index has no github blob URLs)
+- [x] Index lists topics the current role is not allowed to open (fixed: generate_doc_index no longer bleeds internal-runbook titles onto public slugs)
 
 ---
 
 ## Zone: ui-webhooks-settings
 
 - **id:** ui-webhooks-settings
-- **status:** open
+- **status:** cooling
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx
 - **test-filter:** WebhooksSettings
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] Signing secret from a previous workspace remains visible after scope switch
-- [ ] Save succeeds in the UI when the API returned 403
-- [ ] Dry-run control posts to the live endpoint from the settings form
+- [x] Signing secret from a previous workspace remains visible after scope switch
+- [x] Save succeeds in the UI when the API returned 403 (retired: create throws on !ok; success callout only after await)
+- [x] Dry-run control posts to the live endpoint from the settings form (retired: no dry-run on create form; Send test uses /test)
 
 ---
 
@@ -786,19 +789,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 29
 
 ### Hypotheses
 
 - [ ] Operator path is treated as marketing on the public host (or the reverse)
 - [ ] Retired bookmark is not redirected and 404s instead of the shim
-- [ ] Split-site origin check allows the operator app origin as a public page
+- [x] Split-site origin check allows the operator app origin as a public page — fixed: `normalizeRequestHost` no longer strips ports; request Host must match `URL.host` from configured origins (localhost:3000 vs :3001)
 
 ---
 
@@ -809,18 +812,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 15
 
 ### Hypotheses
 
-- [ ] Page shows recommendations for a package outside the current workspace
-- [ ] Stale query data from the previous tenant remains after scope switch
+- [x] Page shows recommendations for a package outside the current workspace — fixed: clear `runState` when inbound `runId` changes
+- [x] Stale query data from the previous tenant remains after scope switch — fixed: reset intake + reasoning on operator scope key change
 - [ ] Error state is omitted so a failed load looks like an empty architecture
 
 ---

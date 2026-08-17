@@ -44,6 +44,29 @@ public sealed class FindingInspectReadSqlTests
     }
 
     [Fact]
+    public void FollowUpBatch_scopes_finding_record_row_to_request_tenant()
+    {
+        // FindingRecords carries TenantId; run-only predicates can still surface a row when fr.TenantId diverges.
+        string relatedNodesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRelatedNodes");
+
+        relatedNodesSql.Should().Contain("fr.TenantId = @TenantId");
+        relatedNodesSql.Should().Contain("fr.WorkspaceId = @WorkspaceId");
+        relatedNodesSql.Should().Contain("fr.ProjectId = @ScopeProjectId");
+    }
+
+    [Fact]
+    public void MainInspect_scopes_finding_record_row_to_request_tenant()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.TenantId = @TenantId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.WorkspaceId = @WorkspaceId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.ProjectId = @ScopeProjectId");
+
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.TenantId = @TenantId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.WorkspaceId = @WorkspaceId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.ProjectId = @ScopeProjectId");
+    }
+
+    [Fact]
     public void FollowUpBatch_scopes_audit_event_to_workspace_and_project()
     {
         string auditSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.AuditEvents");

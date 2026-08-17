@@ -1037,6 +1037,33 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_ordinal_properties_use_pascal_resourceId()
+    {
+        // SQL relational reload builds Ordinal bags and keeps the persisted PropertyKey casing (often ResourceId).
+        // TryReadTopologyResourceId used exact TryGetValue("resourceId"), so ARM-keyed relationships were dropped.
+        const string armId =
+            "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Microsoft.Web/sites/app1";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["ResourceId"] = armId
+                }),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(armId)));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_graph_resource_id_has_surrounding_whitespace()
     {
         const string rawArmId =
@@ -1549,6 +1576,23 @@ public sealed class AgentTopologyProposalMergeGateTests
     {
         GraphSnapshot graph = Graph(
             DataNode(nodeId: "fd-1", label: "edge", sourceId: "azurerm_cdn_frontdoor_profile.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edge")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_cdn_profile_node_has_data_category_but_synthetic_service_id_used()
+    {
+        // Classic CDN profile (not Front Door) is still a service endpoint; miscategorized Data nodes must accept svc-.
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "cdn-1", label: "edge", sourceId: "azurerm_cdn_profile.main"),
             DataNode());
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edge")));

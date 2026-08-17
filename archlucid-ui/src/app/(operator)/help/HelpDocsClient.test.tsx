@@ -8,6 +8,41 @@ import { HelpDocsClient } from "./HelpDocsClient";
 describe("HelpDocsClient", () => {
   useOperatorQueryTestLifecycle();
 
+  it("does not list Admin-only internal-runbook titles from the shipped doc-index", async () => {
+    // generate_doc_index.py used to bleed string titles from skipped runbook entries onto prior
+    // public slugs when those slugs used TS constant titles (not string literals).
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const index = JSON.parse(readFileSync(join(process.cwd(), "public/doc-index.json"), "utf8")) as Array<{
+      title: string;
+      url: string;
+    }>;
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => index,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Getting started" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "CLI usage" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Engineering troubleshooting runbook" })).toBeNull();
+
+    const poisoned = index.filter(
+      (row) =>
+        row.title === "CLI usage" || row.title === "Engineering troubleshooting runbook",
+    );
+    expect(poisoned).toEqual([]);
+
+    vi.unstubAllGlobals();
+  });
+
   it("loads index and filters by title or summary", async () => {
     const data = [
       {

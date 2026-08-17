@@ -156,7 +156,7 @@ internal static class GraphSnapshotRelationalRead
         {
             if (!propsByNode.TryGetValue(pr.GraphNodeRowId, out Dictionary<string, string>? dict))
             {
-                dict = new Dictionary<string, string>(StringComparer.Ordinal);
+                dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                 propsByNode[pr.GraphNodeRowId] = dict;
             }
 
@@ -167,7 +167,7 @@ internal static class GraphSnapshotRelationalRead
         foreach (GraphNodeRow r in nodeRows)
         {
             propsByNode.TryGetValue(r.GraphNodeRowId, out Dictionary<string, string>? props);
-            props ??= new Dictionary<string, string>(StringComparer.Ordinal);
+            props ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             result.Add(
                 new GraphNode
@@ -259,7 +259,7 @@ internal static class GraphSnapshotRelationalRead
         foreach (GraphEdgeTableRow er in edgeRows)
         {
             string? label = null;
-            Dictionary<string, string> props = new(StringComparer.Ordinal);
+            Dictionary<string, string> props = new(StringComparer.OrdinalIgnoreCase);
 
             if (propsByEdge.TryGetValue(er.EdgeId, out List<EdgePropertyRow>? rowsForEdge))
 
@@ -296,7 +296,7 @@ internal static class GraphSnapshotRelationalRead
                     edge.ReasoningTrace = fromJson.ReasoningTrace;
 
                 if (edge.Properties.Count == 0 && fromJson.Properties.Count > 0)
-                    edge.Properties = new Dictionary<string, string>(fromJson.Properties, StringComparer.Ordinal);
+                    edge.Properties = new Dictionary<string, string>(fromJson.Properties, StringComparer.OrdinalIgnoreCase);
             }
 
             result.Add(edge);

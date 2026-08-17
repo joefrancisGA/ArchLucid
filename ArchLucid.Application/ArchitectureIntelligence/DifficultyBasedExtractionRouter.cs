@@ -14,11 +14,8 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
             return ExtractionDifficulty.ClearExtraction;
         }
 
-        if (LooksStructured(sourceText))
-        {
-            return ExtractionDifficulty.StructuredParse;
-        }
-
+        // Ambiguity / human-review signals must outrank superficial "structured" markers (tables, YAML
+        // front matter, JSON braces). Otherwise contradictory content is stamped DirectlyEstablished.
         if (RequiresHumanReview(sourceText))
         {
             return ExtractionDifficulty.HumanReviewRequired;
@@ -27,6 +24,11 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
         if (LooksAmbiguous(sourceText))
         {
             return ExtractionDifficulty.AmbiguousExtraction;
+        }
+
+        if (LooksStructured(sourceText))
+        {
+            return ExtractionDifficulty.StructuredParse;
         }
 
         return ExtractionDifficulty.ClearExtraction;

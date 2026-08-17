@@ -17,9 +17,10 @@ internal static class ArchitectureRecommendationAlternatives
                 Create(
                     "Restrict the endpoint to private network access until authentication is documented",
                     "Confirm the endpoint is unreachable from the public internet until authentication is recorded."),
+                // Distinct from ProposedChange (document trust boundary + auth before production).
                 Create(
-                    "Document authentication, authorization, and trust boundary before production exposure",
-                    "Reviewers can point to recorded authentication, authorization, and trust-boundary evidence."),
+                    "Place the public endpoint behind an API gateway that enforces authentication and authorization centrally",
+                    "Gateway policies deny unauthenticated requests and record the enforced trust boundary."),
             ];
         }
 

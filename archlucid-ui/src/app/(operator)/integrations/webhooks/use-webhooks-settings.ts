@@ -14,6 +14,7 @@ import {
 
 import type { AlertRoutingSubscriptionDisableTarget } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import {
   createAlertRoutingSubscription,
@@ -99,6 +100,7 @@ export function formatCustomerApiFailure(failure: ApiLoadFailureState): string {
 
 export function useWebhooksSettings(): UseWebhooksSettingsResult {
   const canMutate = useOperateCapability();
+  const scope = useOperatorScopeQueryKey();
   const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -170,9 +172,33 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     }
   }, []);
 
+  const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
+  const previousScopeKeyRef = useRef(scopeKey);
+
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (previousScopeKeyRef.current === scopeKey) {
+      return;
+    }
+
+    previousScopeKeyRef.current = scopeKey;
+
+    // Clear typed secrets and stale rows when the operator switches workspace/tenant/project.
+    reset({ ...webhookSettingsDefaultValues });
+    setSecretVisible(false);
+    setSaveSuccessMessage(null);
+    setItems([]);
+    setTestResults({});
+    setPendingDisable(null);
+    setPendingEnable(null);
+    setDisableErrorMessage(null);
+    setEnableErrorMessage(null);
+    setFailure(null);
+    void load();
+  }, [scopeKey, reset, load]);
 
   async function onTestWebhook(routingSubscriptionId: string) {
     if (testingId !== null) {

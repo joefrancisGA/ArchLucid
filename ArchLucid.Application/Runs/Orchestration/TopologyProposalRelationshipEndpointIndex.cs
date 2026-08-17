@@ -673,6 +673,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("traffic_manager", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("azurerm_lb", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cdn_frontdoor", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cdn_profile", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cdn_endpoint", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("azurerm_firewall", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("container_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("express_route", StringComparison.OrdinalIgnoreCase)

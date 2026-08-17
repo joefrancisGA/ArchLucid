@@ -21,8 +21,8 @@ public sealed class ArchitectureRecommendationAlternativesTests
         alternatives.Should().HaveCount(2);
         alternatives[0].Path.Should().Contain("private network");
         alternatives[0].ValidationCriteria.Should().Contain("public internet");
-        alternatives[1].Path.Should().Contain("trust boundary");
-        alternatives[1].ValidationCriteria.Should().Contain("authentication");
+        alternatives[1].Path.Should().Contain("API gateway");
+        alternatives[1].ValidationCriteria.Should().Contain("unauthenticated");
     }
 
     [Fact]
@@ -94,6 +94,37 @@ public sealed class ArchitectureRecommendationAlternativesTests
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void BuildRecommendations_security_trust_boundary_alternatives_are_distinct_from_proposed_change()
+    {
+        // Primary already requires documenting trust boundary + auth before production; alt[1] restated that path.
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding finding = CreateFinding(
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+
+        ArchitectureRecommendation recommendation = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel
+            {
+                ModelId = "m",
+                TenantId = "t",
+            },
+            [finding],
+            ["Security"]).Single();
+
+        recommendation.ProposedChange.Should().Contain("trust boundary");
+        recommendation.ProposedChange.Should().Contain("before production exposure");
+
+        recommendation.AlternativeOptions.Select(option => option.Path)
+            .Should()
+            .NotContain(path =>
+                path.Contains("Document authentication, authorization, and trust boundary", StringComparison.OrdinalIgnoreCase));
+
+        recommendation.AlternativeOptions.Should().OnlyContain(option =>
+            !IsParaphraseOfProposedChange(recommendation.ProposedChange, option.Path));
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void BuildRecommendations_mirrors_alternative_option_paths()
     {
         ArchitectureRecommendationEngine sut = new();
@@ -136,5 +167,22 @@ public sealed class ArchitectureRecommendationAlternativesTests
             Conclusion = ReviewConclusion.Fail,
             Severity = "High",
         };
+    }
+
+    /// <summary>
+    ///     True when an alternative restates documenting auth/trust-boundary before production — the primary path.
+    /// </summary>
+    private static bool IsParaphraseOfProposedChange(string proposedChange, string alternativePath)
+    {
+        bool proposedIsDocumentBeforeProduction =
+            proposedChange.Contains("Document a trust boundary", StringComparison.OrdinalIgnoreCase)
+            && proposedChange.Contains("before production exposure", StringComparison.OrdinalIgnoreCase);
+
+        bool alternativeIsDocumentBeforeProduction =
+            alternativePath.Contains("Document authentication", StringComparison.OrdinalIgnoreCase)
+            && alternativePath.Contains("trust boundary", StringComparison.OrdinalIgnoreCase)
+            && alternativePath.Contains("before production", StringComparison.OrdinalIgnoreCase);
+
+        return proposedIsDocumentBeforeProduction && alternativeIsDocumentBeforeProduction;
     }
 }

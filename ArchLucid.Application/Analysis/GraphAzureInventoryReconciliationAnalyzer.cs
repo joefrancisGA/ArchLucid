@@ -77,18 +77,42 @@ public static class GraphAzureInventoryReconciliationAnalyzer
     {
         ArgumentNullException.ThrowIfNull(node);
 
-        foreach (string key in TopologyArmResourceIdPropertyKeys)
+        if (node.Properties is not null)
         {
-            if (node.Properties is not null
-                && node.Properties.TryGetValue(key, out string? value)
-                && LooksLikeArmResourceId(value))
-                return value.Trim();
+            foreach (string key in TopologyArmResourceIdPropertyKeys)
+            {
+                // SQL Ordinal bags keep persisted PropertyKey casing (ResourceId vs resourceId).
+                if (TryGetPropertyIgnoreCase(node.Properties, key, out string? value)
+                    && LooksLikeArmResourceId(value))
+                    return value!.Trim();
+            }
         }
 
         if (LooksLikeArmResourceId(node.SourceId))
             return node.SourceId!.Trim();
 
         return null;
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        IReadOnlyDictionary<string, string> properties,
+        string key,
+        out string? value)
+    {
+        if (properties.TryGetValue(key, out value))
+            return true;
+
+        foreach (KeyValuePair<string, string> pair in properties)
+        {
+            if (!string.Equals(pair.Key, key, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = pair.Value;
+            return true;
+        }
+
+        value = null;
+        return false;
     }
 
     private static HashSet<string> CollectInventoryResourceIds(string resourcesJson)
