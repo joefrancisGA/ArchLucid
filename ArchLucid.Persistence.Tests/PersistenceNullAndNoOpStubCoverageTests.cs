@@ -13,9 +13,9 @@ namespace ArchLucid.Persistence.Tests;
 public sealed class PersistenceNullAndNoOpStubCoverageTests
 {
     [Fact]
-    public async Task NullExecutiveSummaryRecipientLookup_returns_empty_list()
+    public async Task NullSponsorReportRecipientLookup_returns_empty_list()
     {
-        NullExecutiveSummaryRecipientLookup sut = new();
+        NullSponsorReportRecipientLookup sut = new();
 
         IReadOnlyList<string> recipients =
             await sut.ListRecipientMailboxesAsync(Guid.NewGuid(), CancellationToken.None);

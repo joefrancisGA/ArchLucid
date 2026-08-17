@@ -416,21 +416,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **id:** finding-inspect-sql
 - **status:** open
 - **aliases:** finding inspect; dapper inspect read
-- **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs
-- **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
+- **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectEndpointTests
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-16
+- **last-bug:** 2026-08-16
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
 - [ ] Inspect read returns a finding whose tenant does not match the request scope
-- [ ] Mapper drops evidence fields so inspect shows success with empty trail
-- [ ] Inspect query joins without tenant on the child table and leaks sibling-tenant rows
+- [x] Mapper drops evidence fields so inspect shows success with empty trail — retired (invalid): mapper only parses enums; evidence is built in the repository from related nodes
+- [x] Inspect query joins without tenant on the child table and leaks sibling-tenant rows — fixed: FollowUpBatch now scopes FindingRelatedNodes / rules / actions / AuditEvents / FindingReviewEvents / RiskExceptions to TenantId+WorkspaceId+ProjectId
 
 ---
 

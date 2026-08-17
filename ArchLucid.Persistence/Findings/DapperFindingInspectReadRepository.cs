@@ -7,6 +7,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -144,64 +145,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             ActiveStatus = "Active",
         };
 
-        const string followUpBatchSql = """
-                                        SELECT frn.NodeId
-                                        FROM dbo.FindingRelatedNodes frn
-                                        INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = frn.FindingRecordId
-                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-                                        WHERE fr.FindingId = @FindingId
-                                          AND r.TenantId = @TenantId
-                                          AND r.WorkspaceId = @WorkspaceId
-                                          AND r.ScopeProjectId = @ScopeProjectId
-                                        ORDER BY frn.SortOrder;
-
-                                        SELECT TOP 1 tra.RuleText
-                                        FROM dbo.FindingTraceRulesApplied tra
-                                        INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = tra.FindingRecordId
-                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-                                        WHERE fr.FindingId = @FindingId
-                                          AND r.TenantId = @TenantId
-                                          AND r.WorkspaceId = @WorkspaceId
-                                          AND r.ScopeProjectId = @ScopeProjectId
-                                        ORDER BY tra.SortOrder;
-
-                                        SELECT fra.ActionText
-                                        FROM dbo.FindingRecommendedActions fra
-                                        INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = fra.FindingRecordId
-                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-                                        WHERE fr.FindingId = @FindingId
-                                          AND r.TenantId = @TenantId
-                                          AND r.WorkspaceId = @WorkspaceId
-                                          AND r.ScopeProjectId = @ScopeProjectId
-                                        ORDER BY fra.SortOrder;
-
-                                        SELECT TOP 1 ae.EventId
-                                        FROM dbo.AuditEvents ae
-                                        WHERE ae.RunId = @RunId
-                                          AND ae.TenantId = @TenantId
-                                          AND ae.EventType = @EventType
-                                        ORDER BY ae.OccurredUtc DESC, ae.EventId DESC;
-
-                                        SELECT TOP 1 Disposition, OccurredAtUtc
-                                        FROM dbo.FindingReviewEvents
-                                        WHERE TenantId = @TenantId
-                                          AND FindingId = @FindingId
-                                          AND Disposition IS NOT NULL
-                                        ORDER BY OccurredAtUtc DESC;
-
-                                        SELECT COUNT_BIG(1)
-                                        FROM dbo.RiskExceptions
-                                        WHERE TenantId = @TenantId
-                                          AND FindingId = @FindingId
-                                          AND Status = @ActiveStatus
-                                          AND ExpiresAtUtc > SYSUTCDATETIME();
-                                        """;
-
         await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
-            new CommandDefinition(followUpBatchSql, queryParams, cancellationToken: ct));
+            new CommandDefinition(FindingInspectReadSql.FollowUpBatch, queryParams, cancellationToken: ct));
 
         List<string> relatedNodes = (await multi.ReadAsync<string>()).ToList();
         string? firstRuleText = await multi.ReadSingleOrDefaultAsync<string>();
