@@ -3,6 +3,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { PrivacyPolicyPageClient } from "@/components/marketing/privacy-policy/PrivacyPolicyPageClient";
 import { readPrivacyPolicyMarkdown } from "@/lib/privacy-policy-marketing";
+import { PRIVACY_POLICY_PAGE_LEDE_BUYER } from "@/lib/privacy-policy-page-copy";
 import {
   preparePrivacyPolicyBodyMarkdown,
   parsePrivacyPolicyMetadata,
@@ -39,6 +40,8 @@ describe("PrivacyPolicyPageClient", () => {
     );
 
     expect(screen.getByRole("heading", { level: 1, name: "Privacy Policy" })).toBeInTheDocument();
+    expect(screen.getByText(PRIVACY_POLICY_PAGE_LEDE_BUYER)).toBeInTheDocument();
+    expect(screen.getByTestId("privacy-policy-breadcrumb")).toBeInTheDocument();
     expect(screen.getByText(/Effective date:/)).toBeInTheDocument();
     expect(screen.getByText(/Last reviewed \(UTC\):/)).toBeInTheDocument();
     expect(screen.getByText(/Document version:/)).toBeInTheDocument();
@@ -113,6 +116,9 @@ describe("PrivacyPolicyPageClient", () => {
 
     expect(screen.getByTestId("privacy-policy-body")).toBeInTheDocument();
     expect(screen.getByTestId("privacy-policy-markdown-mock")).toBeInTheDocument();
+    expect(screen.getByTestId("privacy-policy-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("privacy-claim-discipline")).toBeInTheDocument();
+    expect(screen.getAllByTestId("privacy-sources")).toHaveLength(1);
     expect(bodyMarkdown).toContain("## 6. Your rights under GDPR");
     expect(bodyMarkdown).not.toContain("## Related documents");
   });
