@@ -92,7 +92,7 @@ const HREFS: string[] = [
   `/showcase/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
   "/administration/baseline",
   "/architecture/digests?tab=schedule",
-  "/administration/tenant",
+  "/administration/workspace-settings",
   "/signup",
   "/signup/verify",
   "/trust",

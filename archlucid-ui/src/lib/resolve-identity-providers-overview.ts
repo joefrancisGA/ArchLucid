@@ -285,7 +285,9 @@ function buildTileCaptions(
 export function resolveIdentityProvidersOverview(
   input: ResolveIdentityProvidersOverviewInput,
 ): IdentityProvidersOverviewModel {
-  const config = input.authConfigurationDiagnosticsAvailable ? input.authConfigurationDiagnostics : null;
+  const config = input.authConfigurationDiagnosticsAvailable
+    ? (input.authConfigurationDiagnostics ?? null)
+    : null;
   const samlStatus = input.authConfigurationDiagnosticsAvailable
     ? resolveSamlStatus(config)
     : IDENTITY_PROVIDERS_STATUS_UNKNOWN;

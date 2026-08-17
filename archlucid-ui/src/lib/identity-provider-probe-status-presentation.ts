@@ -109,9 +109,9 @@ export function oidcDiscoveryStatusPresentation(
 
 /** Derives role-mapping customer status from configuration diagnostics — not probe applicability. */
 export function resolveRoleMappingConfigurationCustomerStatus(
-  config: AdminAuthConfigurationDiagnosticsResponse | null,
+  config: AdminAuthConfigurationDiagnosticsResponse | null | undefined,
 ): IdentityProviderCustomerStatus {
-  if (config === null) {
+  if (config === null || config === undefined) {
     return IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED_YET;
   }
 

@@ -64,6 +64,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
   const [pricing, setPricing] = useState<PricingDoc | null>(initialPricing);
   const [pricingError, setPricingError] = useState(false);
   const [pricingLoading, setPricingLoading] = useState(initialPricing === null);
+  const [quotePanelPresent, setQuotePanelPresent] = useState(false);
   const selfServeCheckoutEnabled = isPublicStripeTeamCheckoutEnabled();
 
   const focusQuotePanel = useCallback(() => {
@@ -80,6 +81,14 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
     panel.setAttribute("tabindex", "-1");
     panel.focus({ preventScroll: true });
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [quoteSectionDomId]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    setQuotePanelPresent(document.getElementById(quoteSectionDomId) !== null);
   }, [quoteSectionDomId]);
 
   useEffect(() => {
@@ -265,7 +274,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                           variant={primaryCtaVariant}
                           size="default"
                           className="w-full"
-                          aria-controls={quoteSectionDomId}
+                          aria-controls={quotePanelPresent ? quoteSectionDomId : undefined}
                           onClick={() => focusQuotePanel()}
                         >
                           {cta.primaryLabel}
@@ -278,7 +287,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                           variant={primaryCtaVariant}
                           size="default"
                           className="w-full"
-                          aria-controls={quoteSectionDomId}
+                          aria-controls={quotePanelPresent ? quoteSectionDomId : undefined}
                           onClick={() => focusQuotePanel()}
                         >
                           {cta.primaryLabel}

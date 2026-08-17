@@ -30,15 +30,18 @@ async function fetchIdentityDiagnostics(): Promise<{
 }> {
   try {
     const bundle = await fetchIdentityProvidersPageBundle();
+    const authConfigurationDiagnostics = bundle.authConfigurationDiagnostics ?? null;
+    const identityProviderDiagnostics = bundle.identityProviderDiagnostics ?? null;
+    const oidcDiagnostics = bundle.oidcDiagnostics ?? null;
 
     return {
       identity: {
-        authConfigurationDiagnostics: bundle.authConfigurationDiagnostics,
-        authConfigurationDiagnosticsAvailable: true,
-        identityProviderDiagnostics: bundle.identityProviderDiagnostics,
-        identityProviderDiagnosticsAvailable: true,
-        oidcDiagnostics: bundle.oidcDiagnostics,
-        oidcDiagnosticsAvailable: true,
+        authConfigurationDiagnostics,
+        authConfigurationDiagnosticsAvailable: authConfigurationDiagnostics !== null,
+        identityProviderDiagnostics,
+        identityProviderDiagnosticsAvailable: identityProviderDiagnostics !== null,
+        oidcDiagnostics,
+        oidcDiagnosticsAvailable: oidcDiagnostics !== null,
       },
       identityLoadFailed: false,
     };
