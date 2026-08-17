@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-17 (architecture-recommendation hit: security trust-boundary alternative duplicated primary ProposedChange).
+**Updated:** 2026-08-17 (extraction-router hit: structured markers outranked contradiction → DirectlyEstablished; architecture-recommendation hit earlier same day).
 
 ## How to use
 
@@ -598,23 +598,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: extraction-router
 
 - **id:** extraction-router
-- **status:** open
+- **status:** cooling
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] Hard extraction is routed to the cheap path and still treated as high fidelity
-- [ ] Router swallows a failed extraction and returns an empty graph as success
-- [ ] Difficulty score is computed from a different document than the one extracted
+- [x] Hard extraction is routed to the cheap path and still treated as high fidelity
+- [x] Router swallows a failed extraction and returns an empty graph as success (retired: no failure/empty-success path; placeholder Assumption on miss)
+- [x] Difficulty score is computed from a different document than the one extracted (retired: Classify and Extract share the same sourceText)
 
 ---
 
