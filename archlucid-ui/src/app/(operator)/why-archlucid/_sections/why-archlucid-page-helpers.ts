@@ -1,21 +1,10 @@
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { SectionError } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
 
 export function formatWhyPageInstant(iso: string | null | undefined): string {
-  const t = (iso ?? "").trim();
-
-  if (t.length === 0) {
-    return "—";
-  }
-
-  const d = new Date(t);
-
-  if (Number.isNaN(d.getTime())) {
-    return "—";
-  }
-
-  return t;
+  return formatInstantForLocale(iso);
 }
 
 export function whyArchLucidSectionErrorToLoadFailure(error: SectionError): ApiLoadFailureState {

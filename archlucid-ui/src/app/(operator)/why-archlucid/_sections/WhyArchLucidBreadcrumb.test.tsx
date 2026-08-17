@@ -1,16 +1,22 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { WHY_ARCHLUCID_PAGE_TITLE } from "@/lib/why-archlucid-page-copy";
-
-import { WhyArchLucidBreadcrumb } from "./WhyArchLucidBreadcrumb";
+import { WhyArchLucidBreadcrumb } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidBreadcrumb";
+import {
+  WHY_ARCHLUCID_BREADCRUMB_LEARNING_HREF,
+  WHY_ARCHLUCID_BREADCRUMB_LEARNING_LABEL,
+  WHY_ARCHLUCID_PAGE_TITLE,
+} from "@/lib/why-archlucid-page-copy";
 
 describe("WhyArchLucidBreadcrumb", () => {
-  it("renders Help trail ending on Pilot proof telemetry", () => {
+  it("renders Help trail to Pilot proof telemetry", () => {
     render(<WhyArchLucidBreadcrumb />);
 
     expect(screen.getByTestId("why-archlucid-page-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
-    expect(screen.getByText(WHY_ARCHLUCID_PAGE_TITLE)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: WHY_ARCHLUCID_BREADCRUMB_LEARNING_LABEL })).toHaveAttribute(
+      "href",
+      WHY_ARCHLUCID_BREADCRUMB_LEARNING_HREF,
+    );
+    expect(screen.getByText(WHY_ARCHLUCID_PAGE_TITLE)).toHaveAttribute("aria-current", "page");
   });
 });

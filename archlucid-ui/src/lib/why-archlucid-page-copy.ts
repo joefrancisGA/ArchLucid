@@ -36,21 +36,56 @@ export function whyArchLucidSampleReviewHref(demoRunId: string | null | undefine
 }
 
 export const WHY_ARCHLUCID_COUNTERS_INTRO =
-  "Cumulative process totals since this API host started, plus audit trail rows in scope for the demo review.";
+  "Host-cumulative process totals since this API replica started. Persisted snapshot and single-review figures below use narrower scopes and may differ.";
 
-export const WHY_ARCHLUCID_COUNTER_HINT_RUNS_CREATED = "Reviews created since host start";
+export const WHY_ARCHLUCID_COUNTER_LABEL_RUNS_CREATED = "Architecture reviews created (host scope)";
 
-export const WHY_ARCHLUCID_COUNTER_HINT_HOURS_SAVED = "Planning heuristic — see methodology footnote";
+export const WHY_ARCHLUCID_COUNTER_HINT_RUNS_CREATED = "Reviews created since this API host started";
 
-export const WHY_ARCHLUCID_COUNTER_HINT_AUDIT_ROWS = "Audit trail rows in demo scope";
+export const WHY_ARCHLUCID_COUNTER_LABEL_HOURS_SAVED = "Est. manual hours saved (host scope)";
+
+export const WHY_ARCHLUCID_COUNTER_HINT_HOURS_SAVED =
+  "Planning heuristic when a completed review is in scope";
+
+export const WHY_ARCHLUCID_COUNTER_HINT_HOURS_SAVED_ZERO =
+  "Not yet estimated — requires a completed review in scope";
+
+export const WHY_ARCHLUCID_COUNTER_LABEL_AUDIT_ROWS = "Audit trail rows (host scope)";
+
+export const WHY_ARCHLUCID_COUNTER_HINT_AUDIT_ROWS = "Audit trail rows counted across the host process lifetime";
 
 export function whyArchlucidCounterHintAuditRowsTruncated(cap: number): string {
-  return `Audit trail rows in demo scope (showing first ${cap})`;
+  return `Audit trail rows in host scope (showing first ${cap})`;
 }
 
-export const WHY_ARCHLUCID_COUNTER_HINT_FINDINGS = "Findings across all severities";
+export const WHY_ARCHLUCID_COUNTER_LABEL_FINDINGS = "Findings (host scope, all severities)";
 
-export const WHY_ARCHLUCID_FOOTER_SPONSOR_BRIEF_LABEL = "Sponsor sponsor brief";
+export const WHY_ARCHLUCID_COUNTER_HINT_FINDINGS = "Findings produced across all reviews since host start";
+
+export const WHY_ARCHLUCID_SNAPSHOT_REVIEW_ID_LABEL = "Sample review identifier";
+
+export const WHY_ARCHLUCID_EXPLAINABILITY_COMPLETENESS_CAPTION =
+  "Share of explainability fields populated in the persisted evidence snapshot (100% = all tracked fields present)";
+
+export const WHY_ARCHLUCID_SPONSOR_PACK_FINDINGS_CAPTION = "Findings in the persisted evidence snapshot";
+
+export const WHY_ARCHLUCID_VALUE_REPORT_DELTA_AUDIT_LABEL = "Audit trail rows (this demo review)";
+
+export const WHY_ARCHLUCID_FIRST_VALUE_REPORT_HELPER =
+  "Sponsor-facing markdown generated from the committed Retail baseline demo review.";
+
+export const WHY_ARCHLUCID_FIRST_VALUE_REPORT_MISSING =
+  "The demo review has not been committed yet — seed the Retail baseline sample workspace and refresh.";
+
+export const WHY_ARCHLUCID_VALUE_REPORT_DELTA_UNAVAILABLE =
+  "Value-report deltas are unavailable until the canonical demo review is present in scope — seed the Retail baseline sample workspace and refresh.";
+
+export const WHY_ARCHLUCID_MEASURED_CONTEXT_TITLE = "Pilot cost guidance";
+
+export const WHY_ARCHLUCID_MEASURED_CONTEXT_INTRO =
+  "Tenant tier and monthly spend band when configured. Planning guidance only — not an invoice.";
+
+export const WHY_ARCHLUCID_FOOTER_SPONSOR_BRIEF_LABEL = "Sponsor brief";
 
 export const WHY_ARCHLUCID_FOOTER_SPONSOR_BRIEF_HREF = "/help/sponsor-report" as const;
 
@@ -58,6 +93,6 @@ export const WHY_ARCHLUCID_FOOTER_GETTING_STARTED_LABEL = "Getting started";
 
 export const WHY_ARCHLUCID_FOOTER_GETTING_STARTED_HREF = "/get-started" as const;
 
-export const WHY_ARCHLUCID_FOOTER_TRUST_CENTER_LABEL = "Trust Center";
+export const WHY_ARCHLUCID_FOOTER_TRUST_CENTER_LABEL = "Trust center";
 
 export const WHY_ARCHLUCID_FOOTER_TRUST_CENTER_HREF = "/trust" as const;

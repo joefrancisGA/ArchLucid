@@ -4,9 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
-import {
-  WHY_ARCHLUCID_PAGE_LOAD_RETRY_LABEL,
-} from "@/lib/why-archlucid-page-copy";
+import { WHY_ARCHLUCID_PAGE_LOAD_RETRY_LABEL } from "@/lib/why-archlucid-page-copy";
 
 import {
   getFirstValueReportMarkdown,
@@ -15,12 +13,8 @@ import {
   getTenantMeasuredRoi,
   type WhyArchLucidSnapshot,
 } from "@/lib/api";
-import { SearchReviewEvidenceLoadFailurePanel } from "@/app/(operator)/insights/search-review-evidence/_sections/SearchReviewEvidenceLoadFailurePanel";
 import { resolveWhyArchLucidDemoUniverse } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-demo-universe";
-import {
-  toSectionError,
-  whyArchLucidSectionErrorToLoadFailure,
-} from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-helpers";
+import { toSectionError } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-helpers";
 import {
   initialWhyArchLucidPageState,
   type SectionError,
@@ -28,9 +22,9 @@ import {
 } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
 import { WhyArchLucidClaimOrientationStrip } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidClaimOrientationStrip";
 import { WhyArchLucidFirstValueReportSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidFirstValueReportSection";
-import { WhyArchLucidMeasuredContextSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidMeasuredContextSection";
 import { WhyArchLucidPageFooter } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageFooter";
 import { WhyArchLucidPageHeader } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageHeader";
+import { WhyArchLucidPageLoadFailure } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageLoadFailure";
 import { WhyArchLucidPageSkeleton } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageSkeleton";
 import { WhyArchLucidPrimaryCta } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPrimaryCta";
 import { WhyArchLucidRunExplanationSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidRunExplanationSection";
@@ -157,11 +151,9 @@ export function WhyArchLucidPage() {
       {!state.loading ? <WhyArchLucidClaimOrientationStrip /> : null}
 
       {!state.loading && pageLoadFailed && state.snapshotError !== null ? (
-        <SearchReviewEvidenceLoadFailurePanel
-          failure={whyArchLucidSectionErrorToLoadFailure(state.snapshotError)}
+        <WhyArchLucidPageLoadFailure
+          error={state.snapshotError}
           retryLabel={WHY_ARCHLUCID_PAGE_LOAD_RETRY_LABEL}
-          testId="why-archlucid-page-load-failure"
-          retryTestId="why-archlucid-page-load-retry"
           retryDisabled={state.loading}
           onRetry={() => {
             setReloadNonce((previous) => previous + 1);
@@ -178,7 +170,6 @@ export function WhyArchLucidPage() {
           />
           <WhyArchLucidSnapshotSection state={state} />
           <WhyArchLucidSponsorEvidencePackSection state={state} universe={payloadUniverse} />
-          <WhyArchLucidMeasuredContextSection state={state} />
           <WhyArchLucidFirstValueReportSection state={state} universe={payloadUniverse} />
           <WhyArchLucidRunExplanationSection state={state} />
 

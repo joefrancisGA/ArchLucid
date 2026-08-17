@@ -24,7 +24,7 @@ export function WhyArchLucidExplanationPanel(props: WhyArchLucidExplanationPanel
       </dl>
 
       <div className="rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950">
-        <h3 className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.cardTitle)}>Overall assessment</h3>
+        <h3 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Overall assessment</h3>
         <p className={cn("mt-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {summary.overallAssessment || "(no overall assessment recorded)"}
         </p>
@@ -36,7 +36,7 @@ export function WhyArchLucidExplanationPanel(props: WhyArchLucidExplanationPanel
 
       {themes.length > 0 ? (
         <div>
-          <h3 className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.cardTitle)}>Themes</h3>
+          <h3 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Themes</h3>
           <ul className={cn("mt-1 list-disc pl-5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {themes.map((t) => (
               <li key={t}>{t}</li>
@@ -46,7 +46,7 @@ export function WhyArchLucidExplanationPanel(props: WhyArchLucidExplanationPanel
       ) : null}
 
       <div data-testid="why-archlucid-citations">
-        <h3 className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.cardTitle)}>Citations ({citations.length})</h3>
+        <h3 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Citations ({citations.length})</h3>
         {citations.length === 0 ? (
           <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No citations were emitted for this review.</p>
         ) : (

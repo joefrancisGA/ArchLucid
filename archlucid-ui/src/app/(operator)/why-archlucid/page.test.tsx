@@ -133,9 +133,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("why-archlucid-counters")).toBeInTheDocument();
-      expect(screen.getByTestId("why-archlucid-first-value-report-body")).toHaveTextContent(
-        "ArchLucid — first value report",
-      );
+      expect(screen.getByRole("region", { name: "Sponsor first-value report body" })).toHaveTextContent("Demo body.");
       expect(screen.getByTestId("why-archlucid-citations")).toHaveTextContent("Sealed review record");
     });
 
@@ -225,12 +223,12 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     expect(pageText).not.toMatch(/docs\/go-to-market\/POSITIONING\.md/i);
 
     expect(screen.getByTestId("why-archlucid-page-footer")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Sponsor sponsor brief/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Sponsor brief/i })).toHaveAttribute(
       "href",
       "/help/sponsor-report",
     );
     expect(screen.getByRole("link", { name: /Getting started/i })).toHaveAttribute("href", "/get-started");
-    expect(screen.getByRole("link", { name: /Trust Center/i })).toHaveAttribute("href", "/trust");
+    expect(screen.getByRole("link", { name: /Trust center/i })).toHaveAttribute("href", "/trust");
   });
 
   it("TB-1307: disambiguates operator proof telemetry from marketing /why", async () => {
@@ -321,7 +319,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     expect(document.querySelector('[data-nav-href="/why-archlucid"]')).toBeInTheDocument();
   });
 
-  it("shows page-level load failure with retry when telemetry bundle fails", async () => {
+  it("shows page-level load failure when telemetry bundle fails", async () => {
     measuredRoiMock.mockRejectedValue(new Error("snapshot failed"));
     sponsorPackMock.mockRejectedValue(new Error("pack failed"));
     reportMock.mockRejectedValue(new Error("report failed"));
@@ -333,7 +331,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
       expect(screen.getByTestId("why-archlucid-page-load-failure")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("why-archlucid-page-load-retry")).toHaveTextContent(/Retry loading telemetry/i);
+    expect(screen.getByTestId("api-problem-mock")).toHaveTextContent("snapshot failed");
     expect(screen.queryByTestId("why-archlucid-counters")).not.toBeInTheDocument();
   });
 });

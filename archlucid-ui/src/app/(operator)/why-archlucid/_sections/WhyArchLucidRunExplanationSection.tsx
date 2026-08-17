@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import type { WhyArchLucidPageState } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
 import { WhyArchLucidExplanationPanel } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidExplanationPanel";
+import { WHY_ARCHLUCID_SECTION_SHELL_CLASS } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-section-shell";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type WhyArchLucidRunExplanationSectionProps = {
@@ -15,7 +16,7 @@ export function WhyArchLucidRunExplanationSection(props: WhyArchLucidRunExplanat
     <section
       aria-labelledby="why-archlucid-explanation-heading"
       data-testid="why-archlucid-run-explanation"
-      className="space-y-3"
+      className={WHY_ARCHLUCID_SECTION_SHELL_CLASS}
     >
       <h2
         id="why-archlucid-explanation-heading"
@@ -36,19 +37,7 @@ export function WhyArchLucidRunExplanationSection(props: WhyArchLucidRunExplanat
         />
       ) : null}
 
-      {state.explanation ? (
-        <WhyArchLucidExplanationPanel summary={state.explanation} />
-      ) : !state.explanationError && state.loading ? (
-        <div className="space-y-3" role="status" aria-busy aria-label="Loading architecture review explanation">
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <div className="h-16 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
-            <div className="h-16 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
-            <div className="h-16 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
-            <div className="h-16 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
-          </div>
-          <div className="h-24 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
-        </div>
-      ) : null}
+      {state.explanation ? <WhyArchLucidExplanationPanel summary={state.explanation} /> : null}
     </section>
   );
 }
