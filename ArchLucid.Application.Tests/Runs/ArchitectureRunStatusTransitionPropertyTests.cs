@@ -1,7 +1,10 @@
-﻿using ArchLucid.Contracts.Common;
+﻿using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Runs;
 
 using FluentAssertions;
 
+using FsCheck;
 using FsCheck.Xunit;
 
 namespace ArchLucid.Application.Tests.Runs;
@@ -36,5 +39,24 @@ public sealed class ArchitectureRunStatusTransitionPropertyTests
     {
         ((int)ArchitectureRunStatus.ReadyForCommit).Should().BeLessThan((int)ArchitectureRunStatus.Committed);
         ((int)ArchitectureRunStatus.TasksGenerated).Should().BeLessThan((int)ArchitectureRunStatus.Committed);
+    }
+
+    [Property(MaxTest = 80)]
+    public void Illegal_commit_finalized_pairs_are_rejected(byte fromRaw)
+    {
+        if (!Enum.IsDefined(typeof(ArchitectureRunStatus), (ArchitectureRunStatus)fromRaw))
+            return;
+
+        ArchitectureRunStatus from = (ArchitectureRunStatus)fromRaw;
+
+        if (from is ArchitectureRunStatus.ReadyForCommit)
+            return;
+
+        ArchitectureRunStatusTransitionResult result =
+            ArchitectureRunStatusTransitionTable.TryTransition(from, ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(from);
+        result.DenialReason.Should().NotBeNullOrWhiteSpace();
     }
 }
