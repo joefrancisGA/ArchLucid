@@ -15,10 +15,14 @@ import {
   policyPacksRefreshAssistReaderLineBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
 import { PolicyPacksActivePackSummaryCard } from "./PolicyPacksActivePackSummaryCard";
+import { PolicyPacksBreadcrumb } from "./PolicyPacksBreadcrumb";
+import { PolicyPacksBuyerChrome } from "./PolicyPacksBuyerChrome";
 import { PolicyPacksCatalogSection } from "./PolicyPacksCatalogSection";
 import { PolicyPacksEnforcedRulesTable } from "./PolicyPacksEnforcedRulesTable";
 import { PolicyPacksInspectSection } from "./PolicyPacksInspectSection";
 import { PolicyPacksLifecycleSection } from "./PolicyPacksLifecycleSection";
+import { PolicyPacksLoadFailure } from "./PolicyPacksLoadFailure";
+import { PolicyPacksLoadingSkeleton } from "./PolicyPacksLoadingSkeleton";
 import { PolicyPacksMarketingIntro } from "./PolicyPacksMarketingIntro";
 import { PolicyPacksMetricStrip } from "./PolicyPacksMetricStrip";
 import { PolicyPacksPageHeader } from "./PolicyPacksPageHeader";
@@ -84,25 +88,39 @@ export function PolicyPacksPageView(props: Props) {
     <div className="w-full max-w-[1440px]">
       {m.buyerPolishedShell ? <PolicyPackBasisStatusBanner className="mb-3" /> : null}
 
-      {m.buyerPolishedShell ? (
-        <LayerHeader
-          pageKey="policy-packs"
-          density="compact"
-className="mb-3"
-        />
-      ) : null}
-
       <PolicyPacksPageHeader
         subtitle={policyPacksPageSubtitle(m.buyerPolishedShell)}
         refreshing={m.loading}
         lastRefreshedAt={m.lastRefreshedAt}
         onRefresh={m.load}
+        breadcrumb={m.buyerPolishedShell ? <PolicyPacksBreadcrumb /> : undefined}
       />
+      <PolicyPacksBuyerChrome />
+      {m.buyerPolishedShell ? null : (
+        <>
+          <LayerHeader
+            pageKey="policy-packs"
+            density="compact"
+            className="mb-3"
+          />
+          <PolicyPacksStandardsVocabularyRail currentSurfaceId="policy-packs" />
+          <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="policy-packs" />
+          <PolicyPackDetailHubVocabularyRail currentSurfaceId="policy-packs" policyPackId={m.selectedPackId} />
+          <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="policy-packs" />
+        </>
+      )}
 
-      <PolicyPacksStandardsVocabularyRail currentSurfaceId="policy-packs" />
-      <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="policy-packs" />
-      <PolicyPackDetailHubVocabularyRail currentSurfaceId="policy-packs" policyPackId={m.selectedPackId} />
-      <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="policy-packs" />
+      {m.loading && m.buyerPolishedShell ? <PolicyPacksLoadingSkeleton /> : null}
+
+      {m.failure !== null && m.buyerPolishedShell ? (
+        <PolicyPacksLoadFailure
+          message={m.failure.message}
+          retrying={m.loading}
+          onRetry={() => {
+            void m.load();
+          }}
+        />
+      ) : null}
 
       {m.publishSuccessMessage !== null ? (
         <OperatorSuccessCallout
@@ -128,7 +146,7 @@ className="mb-3"
         </p>
       ) : null}
 
-      {m.buyerPolishedShell ? (
+      {m.buyerPolishedShell && !m.loading && m.failure === null ? (
         <div className={cn("mb-4 grid gap-4", OPERATOR_LAYOUT.sectionStack)}>
           <PolicyPacksActivePackSummaryCard
             effective={m.effective}
@@ -181,7 +199,7 @@ className="mb-3"
         </TabsContent>
 
         <TabsContent value="my-packs" className="pt-4" data-testid="policy-packs-panel-my-packs">
-          {m.failure !== null ? (
+          {m.failure !== null && !m.buyerPolishedShell ? (
             <div role="alert">
               <OperatorApiProblem
                 problem={m.failure.problem}
