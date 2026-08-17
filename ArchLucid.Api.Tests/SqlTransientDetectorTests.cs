@@ -60,6 +60,15 @@ public sealed class SqlTransientDetectorTests
     }
 
     [SkippableFact]
+    public void IsTransient_TimeoutException_wrapping_non_transient_sql_returns_false()
+    {
+        SqlException inner = SqlExceptionTestFactory.Create(547);
+        Exception ex = new TimeoutException("timed out", inner);
+
+        SqlTransientDetector.IsTransient(ex).Should().BeFalse();
+    }
+
+    [SkippableFact]
     public void IsTransient_GenericException_ReturnsFalse()
     {
         Exception ex = new InvalidOperationException("not transient");

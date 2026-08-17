@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-17 (commit-output-integrity hit: superseded rejected traces blocked commit after auto-retry).
+**Updated:** 2026-08-17 (orchestrator-transient-retry hit: FK violation wrapped in TimeoutException was retried as transient).
 
 ## How to use
 
@@ -279,19 +279,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 1
 
 ### Hypotheses
 
-- [ ] Retry policy retries a non-transient SQL error (constraint / timeout misclassified)
-- [ ] Commit retry exhausts attempts but still returns success to the caller
-- [ ] Transient retry does not include the same isolation / tenant scope on the replay
+- [x] Retry policy retries a non-transient SQL error (constraint / timeout misclassified) — fixed: `SqlTransientDetector` treated outer `TimeoutException` before inner non-transient `SqlException`
+- [x] Commit retry exhausts attempts but still returns success to the caller — retired: `IsExhausted` and orchestrator loop throw `ConflictException` on budget/attempt exhaustion; idempotent reconcile success is intentional
+- [x] Transient retry does not include the same isolation / tenant scope on the replay — retired: `OrchestratorTransientDbRetry` re-invokes caller lambda; scope is captured by caller closure
 
 ---
 

@@ -55,10 +55,13 @@ public static class SqlTransientDetector
 
         for (Exception? e = ex; e is not null; e = e.InnerException)
         {
-            if (e is TimeoutException)
-                return true;
+            if (e is SqlException sqlEx)
+                return IsTransient(sqlEx);
+        }
 
-            if (e is SqlException sqlEx && IsTransient(sqlEx))
+        for (Exception? e = ex; e is not null; e = e.InnerException)
+        {
+            if (e is TimeoutException)
                 return true;
         }
 
