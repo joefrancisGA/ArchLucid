@@ -171,10 +171,3 @@ public sealed class AdminAgentModelCatalogController(
         }
     }
 }
-
-public sealed class RecordAgentModelCatalogEvaluationRequest
-{
-    public string EvaluationState { get; set; } = nameof(AgentModelEvaluationStateKind.NotEvaluated);
-
-    public string? EvidenceJson { get; set; }
-}
