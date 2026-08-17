@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { HelpArticleLoadFailurePanel } from "@/components/help/HelpArticleLoadFailurePanel";
 import { HelpArticleSkeleton } from "@/components/help/HelpArticleSkeleton";
-import { HelpDrawerClaimOrientationStrip } from "@/components/help/HelpDrawerClaimOrientationStrip";
+import { HelpDrawerBuyerChrome } from "@/components/help/HelpDrawerBuyerChrome";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { focusHelpDrawerRow } from "@/components/help/help-drawer-list-keyboard";
 import { HelpSearchPanelHeader } from "@/components/help/HelpSearchPanelHeader";
@@ -523,7 +523,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
 
               {!isViewingArticle ? (
                 <div className="shrink-0 border-b border-neutral-200 px-5 pb-3 dark:border-neutral-800">
-                  <HelpDrawerClaimOrientationStrip />
+                  <HelpDrawerBuyerChrome />
                 </div>
               ) : null}
 

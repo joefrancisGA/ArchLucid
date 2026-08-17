@@ -1,6 +1,7 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
   CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE,
+  CONTEXTUAL_HELP_DRAWER_CLAIM_HEADING,
   CONTEXTUAL_HELP_DRAWER_SOURCES,
   CONTEXTUAL_HELP_DRAWER_SOURCES_INTRO,
 } from "@/lib/contextual-help-drawer-evidence-copy";
@@ -11,7 +12,7 @@ export function HelpDrawerClaimOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="contextual-help-drawer"
       claim={CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE}
-      claimHeading="Guidance only"
+      claimHeading={CONTEXTUAL_HELP_DRAWER_CLAIM_HEADING}
       sourcesIntro={CONTEXTUAL_HELP_DRAWER_SOURCES_INTRO}
       sources={CONTEXTUAL_HELP_DRAWER_SOURCES}
     />

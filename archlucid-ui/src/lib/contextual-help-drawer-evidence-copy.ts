@@ -5,6 +5,8 @@ import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governanc
 export const CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE =
   "Contextual help suggests next steps and in-app documentation — it does not open a sealed review record, evidence trail export, or governance approval on its own. Follow links into reviews, findings, or audit surfaces before treating guidance as authoritative.";
 
+export const CONTEXTUAL_HELP_DRAWER_CLAIM_HEADING = "Guidance only" as const;
+
 export const CONTEXTUAL_HELP_DRAWER_SOURCES_INTRO =
   "Use these follow-ups when help topics need review context, evidence trails, or governance queues.";
 

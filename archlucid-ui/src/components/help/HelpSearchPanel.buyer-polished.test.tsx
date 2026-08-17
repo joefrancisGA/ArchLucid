@@ -9,6 +9,15 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({ callerAuthorityRank: 1, isAuthorityLoading: false }),
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => true,
+  };
+});
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
 
@@ -23,7 +32,7 @@ vi.mock("next/navigation", async (importOriginal) => {
 });
 
 import { HelpSearchPanel } from "@/components/HelpSearchPanel";
-import { CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE } from "@/lib/contextual-help-drawer-evidence-copy";
+import { CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE, CONTEXTUAL_HELP_DRAWER_CLAIM_HEADING } from "@/lib/contextual-help-drawer-evidence-copy";
 import { HELP_SEARCH_PANEL_SUBTITLE } from "@/lib/help/help-search-panel-catalog";
 
 describe("HelpSearchPanel buyer-polished shell (HCD)", () => {
@@ -32,6 +41,8 @@ describe("HelpSearchPanel buyer-polished shell (HCD)", () => {
 
     expect(screen.getByTestId("contextual-help-drawer-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("help-search-panel-subtitle")).toHaveTextContent(HELP_SEARCH_PANEL_SUBTITLE);
+    expect(screen.getByTestId("contextual-help-drawer-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByText(CONTEXTUAL_HELP_DRAWER_CLAIM_HEADING)).toBeInTheDocument();
     expect(screen.getByText(CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.getByTestId("help-search-panel")).toBeInTheDocument();
   });
