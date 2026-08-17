@@ -10,6 +10,11 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { LayerHeader } from "@/components/LayerHeader";
+import { RiskExceptionsBreadcrumb } from "@/app/(operator)/governance/exceptions/_sections/RiskExceptionsBreadcrumb";
+import { RiskExceptionsBuyerChrome } from "@/app/(operator)/governance/exceptions/_sections/RiskExceptionsBuyerChrome";
+import { RiskExceptionsLoadFailure } from "@/app/(operator)/governance/exceptions/_sections/RiskExceptionsLoadFailure";
+import { RiskExceptionsLoadingSkeleton } from "@/app/(operator)/governance/exceptions/_sections/RiskExceptionsLoadingSkeleton";
+import { riskExceptionsPageSubtitle } from "@/app/(operator)/governance/exceptions/risk-exceptions-page-copy";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
@@ -39,7 +44,6 @@ import {
   BUYER_RISK_EXCEPTIONS_EMPTY_BODY,
   BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION,
   BUYER_RISK_EXCEPTIONS_EMPTY_TITLE,
-  BUYER_RISK_EXCEPTIONS_PAGE_LEAD,
   BUYER_RISK_EXCEPTIONS_PAGE_TITLE,
   BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -50,7 +54,6 @@ import {
   RISK_EXCEPTIONS_EMPTY_BODY,
   RISK_EXCEPTIONS_EMPTY_TITLE,
   RISK_EXCEPTIONS_EXPIRING_WARNING,
-  RISK_EXCEPTIONS_PAGE_SUBTITLE,
   RISK_EXCEPTIONS_PAGE_TITLE,
 } from "@/lib/risk-exceptions-page";
 
@@ -109,18 +112,25 @@ export default function RiskExceptionsClient() {
   const [renewExpiresAtUtc, setRenewExpiresAtUtc] = useState(defaultRiskExceptionExpiresAtUtc());
   const [renewRationale, setRenewRationale] = useState("");
   const [pendingRevoke, setPendingRevoke] = useState<RiskExceptionRecord | null>(null);
-
+  const [loading, setLoading] = useState(true);
   const [retryingLoad, setRetryingLoad] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
 
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listRiskExceptions();
     setRecords(sortByExpiryAsc(rows));
   }, []);
 
+  const retryLoad = useCallback(() => {
+    setLoadError(null);
+    setReloadToken((value) => value + 1);
+  }, []);
+
   useEffect(() => {
     let canceled = false;
 
     void (async () => {
+      setLoading(true);
       setLoadError(null);
 
       try {
@@ -129,27 +139,18 @@ export default function RiskExceptionsClient() {
         if (!canceled) {
           setLoadError(riskExceptionsLoadFailureMessage(error));
         }
+      } finally {
+        if (!canceled) {
+          setLoading(false);
+          setRetryingLoad(false);
+        }
       }
     })();
 
     return () => {
       canceled = true;
     };
-  }, [reload]);
-
-  /** `reload` throws rather than reporting, so the retry path owns the message the same way the effect does. */
-  const retryLoad = useCallback(async (): Promise<void> => {
-    setRetryingLoad(true);
-    setLoadError(null);
-
-    try {
-      await reload();
-    } catch (error: unknown) {
-      setLoadError(riskExceptionsLoadFailureMessage(error));
-    } finally {
-      setRetryingLoad(false);
-    }
-  }, [reload]);
+  }, [reload, reloadToken]);
 
   const expiringSoonCount = useMemo(
     () => records.filter((row) => resolveRiskExceptionDisplayStatus(row) === "expiring-soon").length,
@@ -157,7 +158,7 @@ export default function RiskExceptionsClient() {
   );
 
   const pageTitle = buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_PAGE_TITLE : RISK_EXCEPTIONS_PAGE_TITLE;
-  const pageSubtitle = buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_PAGE_LEAD : RISK_EXCEPTIONS_PAGE_SUBTITLE;
+  const pageSubtitle = riskExceptionsPageSubtitle(buyerPolishedShell);
 
   async function submitRenew(record: RiskExceptionRecord): Promise<void> {
     if (!canMutate) {
@@ -210,10 +211,44 @@ export default function RiskExceptionsClient() {
         <LayerHeader pageKey="exceptions" density="compact" className="mb-3" />
       )}
 
-      <OperatorPageHeader navHref={GOVERNANCE_EXCEPTIONS_PATH} title={pageTitle} subtitle={pageSubtitle} actions={<PageContextualHelpButton />} />
-      <RiskExceptionsFindingsVocabularyRail currentSurfaceId="risk-exceptions" />
-<div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
-        {expiringSoonCount > 0 ? (
+      <OperatorPageHeader
+        navHref={GOVERNANCE_EXCEPTIONS_PATH}
+        title={pageTitle}
+        subtitle={pageSubtitle}
+        breadcrumb={buyerPolishedShell ? <RiskExceptionsBreadcrumb /> : undefined}
+        actions={<PageContextualHelpButton />}
+      />
+      <RiskExceptionsBuyerChrome />
+      {buyerPolishedShell ? null : (
+        <RiskExceptionsFindingsVocabularyRail currentSurfaceId="risk-exceptions" />
+      )}
+      <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
+        {loading ? <RiskExceptionsLoadingSkeleton /> : null}
+
+        {loadError && buyerPolishedShell ? (
+          <RiskExceptionsLoadFailure
+            message={loadError}
+            retrying={retryingLoad}
+            onRetry={() => {
+              setRetryingLoad(true);
+              retryLoad();
+            }}
+          />
+        ) : null}
+
+        {loadError && !buyerPolishedShell ? (
+          <OperatorSectionLoadFailure
+            message={loadError}
+            retrying={retryingLoad}
+            testId="risk-exceptions-load-failure"
+            onRetry={() => {
+              setRetryingLoad(true);
+              retryLoad();
+            }}
+          />
+        ) : null}
+
+        {!loading && !loadError && expiringSoonCount > 0 ? (
           <div
             className={cn(
               "rounded-md border border-l-4 border-neutral-200 border-l-[var(--al-status-warn-fg)] bg-[var(--al-status-warn-bg)] px-4 py-3 text-neutral-800 dark:border-neutral-700 dark:text-neutral-200",
@@ -226,16 +261,7 @@ export default function RiskExceptionsClient() {
           </div>
         ) : null}
 
-        {loadError ? (
-          <OperatorSectionLoadFailure
-            message={loadError}
-            retrying={retryingLoad}
-            testId="risk-exceptions-load-failure"
-            onRetry={() => void retryLoad()}
-          />
-        ) : null}
-
-        {records.length === 0 ? (
+        {!loading && !loadError && records.length === 0 ? (
           <EnterpriseCompactEmptyState
             testId="risk-exceptions-empty-state"
             title={buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_EMPTY_TITLE : RISK_EXCEPTIONS_EMPTY_TITLE}
@@ -254,133 +280,133 @@ export default function RiskExceptionsClient() {
               </Link>
             }
           />
-        ) : (
+        ) : !loading && !loadError ? (
           <>
-          <WhyDisabledCtaHint
-            id={mutationDisabledHintId}
-            reason={mutationDisabledReason}
-            testId={mutationDisabledHintId}
-          />
-          <EnterpriseTable ariaLabel="Risk exceptions">
-            <EnterpriseTableHead>
-              <EnterpriseTableHeadRow>
-                <EnterpriseTableHeaderCell>Finding ID</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Rationale</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Expires</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
-              </EnterpriseTableHeadRow>
-            </EnterpriseTableHead>
-            <EnterpriseTableBody>
-              {records.map((record) => {
-                const displayStatus = resolveRiskExceptionDisplayStatus(record);
-                const tag = statusTagFor(displayStatus);
-                const isRenewing = renewingId === record.riskExceptionId;
+            <WhyDisabledCtaHint
+              id={mutationDisabledHintId}
+              reason={mutationDisabledReason}
+              testId={mutationDisabledHintId}
+            />
+            <EnterpriseTable ariaLabel="Risk exceptions">
+              <EnterpriseTableHead>
+                <EnterpriseTableHeadRow>
+                  <EnterpriseTableHeaderCell>Finding ID</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Rationale</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Expires</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                </EnterpriseTableHeadRow>
+              </EnterpriseTableHead>
+              <EnterpriseTableBody>
+                {records.map((record) => {
+                  const displayStatus = resolveRiskExceptionDisplayStatus(record);
+                  const tag = statusTagFor(displayStatus);
+                  const isRenewing = renewingId === record.riskExceptionId;
 
-                return (
-                  <EnterpriseTableRow key={record.riskExceptionId}>
-                    <EnterpriseTableCell>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
-                          {truncateMiddle(record.findingId, 24)}
-                        </code>
-                        <CopyIdButton value={record.findingId} aria-label="Copy finding ID" />
-                      </div>
-                    </EnterpriseTableCell>
-                    <EnterpriseTableCell>{record.ownerUserId}</EnterpriseTableCell>
-                    <EnterpriseTableCell title={record.rationale ?? undefined}>
-                      {truncateMiddle(record.rationale ?? "", 80)}
-                    </EnterpriseTableCell>
-                    <EnterpriseTableCell>
-                      <StatusTag kind={tag.kind} label={tag.label} />
-                    </EnterpriseTableCell>
-                    <EnterpriseTableCell>{formatRiskExceptionExpiresAtUtc(record.expiresAtUtc)}</EnterpriseTableCell>
-                    <EnterpriseTableCell>
-                      {isRenewing ? (
-                        <form
-                          className="flex min-w-[16rem] flex-col gap-2"
-                          onSubmit={(event) => {
-                            event.preventDefault();
-                            void submitRenew(record);
-                          }}
-                        >
-                          <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-                            <span>New expiry (UTC)</span>
-                            <input
-                              type="datetime-local"
-                              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
-                              value={toDatetimeLocalInputValue(renewExpiresAtUtc)}
-                              onChange={(event) => {
-                                const next = new Date(event.target.value);
+                  return (
+                    <EnterpriseTableRow key={record.riskExceptionId}>
+                      <EnterpriseTableCell>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
+                            {truncateMiddle(record.findingId, 24)}
+                          </code>
+                          <CopyIdButton value={record.findingId} aria-label="Copy finding ID" />
+                        </div>
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell>{record.ownerUserId}</EnterpriseTableCell>
+                      <EnterpriseTableCell title={record.rationale ?? undefined}>
+                        {truncateMiddle(record.rationale ?? "", 80)}
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        <StatusTag kind={tag.kind} label={tag.label} />
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell>{formatRiskExceptionExpiresAtUtc(record.expiresAtUtc)}</EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        {isRenewing ? (
+                          <form
+                            className="flex min-w-[16rem] flex-col gap-2"
+                            onSubmit={(event) => {
+                              event.preventDefault();
+                              void submitRenew(record);
+                            }}
+                          >
+                            <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
+                              <span>New expiry (UTC)</span>
+                              <input
+                                type="datetime-local"
+                                className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
+                                value={toDatetimeLocalInputValue(renewExpiresAtUtc)}
+                                onChange={(event) => {
+                                  const next = new Date(event.target.value);
 
-                                if (!Number.isNaN(next.getTime())) {
-                                  setRenewExpiresAtUtc(next.toISOString());
-                                }
-                              }}
-                            />
-                          </label>
-                          <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
-                            <span>Rationale (optional)</span>
-                            <input
-                              className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
-                              value={renewRationale}
-                              onChange={(event) => setRenewRationale(event.target.value)}
-                            />
-                          </label>
+                                  if (!Number.isNaN(next.getTime())) {
+                                    setRenewExpiresAtUtc(next.toISOString());
+                                  }
+                                }}
+                              />
+                            </label>
+                            <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
+                              <span>Rationale (optional)</span>
+                              <input
+                                className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
+                                value={renewRationale}
+                                onChange={(event) => setRenewRationale(event.target.value)}
+                              />
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              <Button
+                                type="submit"
+                                size="sm"
+                                disabled={busyId === record.riskExceptionId || !canMutate}
+                                aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+                              >
+                                Save renewal
+                              </Button>
+                              <Button type="button" size="sm" variant="outline" onClick={() => setRenewingId(null)}>
+                                Cancel
+                              </Button>
+                            </div>
+                          </form>
+                        ) : (
                           <div className="flex flex-wrap gap-2">
                             <Button
-                              type="submit"
+                              type="button"
                               size="sm"
+                              variant="outline"
                               disabled={busyId === record.riskExceptionId || !canMutate}
                               aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+                              onClick={() => {
+                                setRenewingId(record.riskExceptionId);
+                                setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
+                                setRenewRationale("");
+                              }}
                             >
-                              Save renewal
+                              Renew
                             </Button>
-                            <Button type="button" size="sm" variant="outline" onClick={() => setRenewingId(null)}>
-                              Cancel
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              disabled={busyId === record.riskExceptionId || !canMutate}
+                              aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
+                              onClick={() => {
+                                setPendingRevoke(record);
+                              }}
+                              data-testid={`risk-exception-revoke-${record.riskExceptionId}`}
+                            >
+                              Revoke
                             </Button>
                           </div>
-                        </form>
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            disabled={busyId === record.riskExceptionId || !canMutate}
-                            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
-                            onClick={() => {
-                              setRenewingId(record.riskExceptionId);
-                              setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
-                              setRenewRationale("");
-                            }}
-                          >
-                            Renew
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            disabled={busyId === record.riskExceptionId || !canMutate}
-                            aria-describedby={mutationDisabledReason === null ? undefined : mutationDisabledHintId}
-                            onClick={() => {
-                              setPendingRevoke(record);
-                            }}
-                            data-testid={`risk-exception-revoke-${record.riskExceptionId}`}
-                          >
-                            Revoke
-                          </Button>
-                        </div>
-                      )}
-                    </EnterpriseTableCell>
-                  </EnterpriseTableRow>
-                );
-              })}
-            </EnterpriseTableBody>
-          </EnterpriseTable>
+                        )}
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>
+                  );
+                })}
+              </EnterpriseTableBody>
+            </EnterpriseTable>
           </>
-        )}
+        ) : null}
       </div>
 
       <ConfirmationDialog
