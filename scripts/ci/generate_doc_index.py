@@ -13,9 +13,14 @@ CONTENT_KINDS_TS = REPO_ROOT / "archlucid-ui/src/lib/product-documentation-conte
 IN_APP_MAP_TS = REPO_ROOT / "archlucid-ui/src/lib/in-app-doc-href.ts"
 DOC_INDEX = REPO_ROOT / "archlucid-ui/public/doc-index.json"
 
-SLUG_BLOCK = re.compile(
-    r'slug:\s*"([^"]+)"[\s\S]*?title:\s*"([^"]+)"[\s\S]*?summary:\s*"([^"]+)"[\s\S]*?audience:\s*"([^"]+)"',
-    re.M,
+SLUG_START = re.compile(r'slug:\s*"([^"]+)"')
+STRING_TITLE = re.compile(r'title:\s*"([^"]+)"')
+IDENT_TITLE = re.compile(r'title:\s*([A-Za-z_][A-Za-z0-9_]*)\s*,')
+STRING_SUMMARY = re.compile(r'summary:\s*"([^"]+)"')
+IDENT_SUMMARY = re.compile(r'summary:\s*([A-Za-z_][A-Za-z0-9_]*)\s*,')
+STRING_AUDIENCE = re.compile(r'audience:\s*"([^"]+)"')
+EXPORT_STRING_CONST = re.compile(
+    r'export\s+const\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]+)"(?:\s+as\s+const)?\s*;',
 )
 PATH_ALIAS = re.compile(r'"([^"]+\.md)":\s*"([^"]+)"')
 
@@ -33,16 +38,65 @@ def _parse_internal_runbook_slugs() -> set[str]:
     return set(re.findall(r'"([^"]+)"', block_match.group(1)))
 
 
+def _load_string_constants() -> dict[str, str]:
+    """Resolve `title: SOME_CONST` / `summary: SOME_CONST` from archlucid-ui/src/lib copy modules."""
+    lib_root = REPO_ROOT / "archlucid-ui" / "src" / "lib"
+    constants: dict[str, str] = {}
+
+    for path in lib_root.rglob("*.ts"):
+        text = path.read_text(encoding="utf-8")
+
+        for name, value in EXPORT_STRING_CONST.findall(text):
+            constants[name] = value
+
+    return constants
+
+
+def _field_from_block(
+    block: str,
+    string_pattern: re.Pattern[str],
+    ident_pattern: re.Pattern[str],
+    constants: dict[str, str],
+) -> str | None:
+    string_match = string_pattern.search(block)
+
+    if string_match is not None:
+        return string_match.group(1)
+
+    ident_match = ident_pattern.search(block)
+
+    if ident_match is None:
+        return None
+
+    return constants.get(ident_match.group(1))
+
+
 def _parse_registry() -> list[dict[str, str]]:
     text = REGISTRY_TS.read_text(encoding="utf-8")
     internal_runbooks = _parse_internal_runbook_slugs()
+    constants = _load_string_constants()
     entries: list[dict[str, str]] = []
+    slug_matches = list(SLUG_START.finditer(text))
 
-    for match in SLUG_BLOCK.finditer(text):
-        slug, title, summary, audience = match.groups()
+    for index, match in enumerate(slug_matches):
+        slug = match.group(1)
 
         if slug in internal_runbooks:
             continue
+
+        # Scope fields to this entry only — never bleed the next slug's string title
+        # onto a prior entry that uses a TS constant title.
+        block_end = slug_matches[index + 1].start() if index + 1 < len(slug_matches) else len(text)
+        block = text[match.end() : block_end]
+
+        title = _field_from_block(block, STRING_TITLE, IDENT_TITLE, constants)
+        summary = _field_from_block(block, STRING_SUMMARY, IDENT_SUMMARY, constants)
+        audience_match = STRING_AUDIENCE.search(block)
+        audience = audience_match.group(1) if audience_match is not None else "operator"
+
+        if title is None or summary is None:
+            continue
+
         category = {
             "operator": "Operations",
             "buyer": "Go-to-Market",
@@ -94,8 +148,9 @@ def main() -> None:
 
         url = row.get("url", "")
 
-        # Retired in-app help topics must not reappear from the previous doc-index snapshot.
-        if url.startswith("/help/") and url not in registry_urls:
+        # Registry is the sole source for in-app /help/ rows; skip prior snapshot help URLs
+        # so poisoned titles cannot reattach to public slugs.
+        if url.startswith("/help/"):
             continue
 
         if "github.com" in url:
