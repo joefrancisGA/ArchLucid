@@ -26,7 +26,14 @@ import {
   BUYER_VALUE_REPORT_HOW_IT_WORKS_DETAILS,
   BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE,
   BUYER_VALUE_REPORT_OUTCOME_LEAD,
+  BUYER_VALUE_REPORT_PAGE_SUBTITLE,
 } from "@/lib/buyer/buyer-polish-copy";
+import { SponsorReportBreadcrumb } from "@/components/insights/SponsorReportBreadcrumb";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  PILOT_OUTCOMES_PRIMARY_CONTENT_ID,
+  PILOT_OUTCOMES_SKIP_LINK_LABEL,
+} from "@/lib/pilot-outcomes-page-copy";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -45,7 +52,6 @@ import {
   pilotOutcomesReportHasFinalizedReviews,
 } from "@/lib/pilot-outcomes-report-diagnostics";
 import {
-  SPONSOR_REPORT_PAGE_SUBTITLE,
   SPONSOR_REPORT_PAGE_TITLE,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
@@ -53,6 +59,7 @@ import { SponsorReportMetricCard } from "@/components/sponsor-report/SponsorRepo
 
 import { PilotOutcomesEmailConfirmDialog } from "./PilotOutcomesEmailConfirmDialog";
 import { PilotOutcomesEmptyState } from "./PilotOutcomesEmptyState";
+import { PilotValueReportBuyerChrome } from "./PilotValueReportBuyerChrome";
 import { PilotValueReportSeverityBars } from "./PilotValueReportSeverityBars";
 import { ValueReportIncludesSection } from "./ValueReportIncludesSection";
 import { PilotRoiValidationHandoffClient } from "@/components/pilots/PilotRoiValidationHandoffCard";
@@ -133,23 +140,34 @@ export function PilotValueReportPageView(props: Props) {
 
   return (
     <div className="w-full max-w-[1440px] space-y-4 print:w-full" data-testid="pilot-outcomes-page">
+      <a
+        href={`#${PILOT_OUTCOMES_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {PILOT_OUTCOMES_SKIP_LINK_LABEL}
+      </a>
+
       {buyerPolishedShell ? null : <LayerHeader pageKey="value-report-pilot" />}
       <ValueReportOutcomesNav />
       <DocumentLayout>
-        <OperatorPageHeader
-          navHref={SPONSOR_REPORT_PATH}
-          title={SPONSOR_REPORT_PAGE_TITLE}
-          headingLevel="h1"
-          subtitle={
-            buyerPolishedShell ? (
-              <>
-                <p className="m-0">{SPONSOR_REPORT_PAGE_SUBTITLE}</p>
-                <p className="m-0 mt-2">{BUYER_VALUE_REPORT_OUTCOME_LEAD}</p>
-              </>
-            ) : null
-          }
-          actions={<PageContextualHelpButton />}
-        />
+        <div id={PILOT_OUTCOMES_PRIMARY_CONTENT_ID} className="scroll-mt-24 space-y-4">
+          <OperatorPageHeader
+            navHref={SPONSOR_REPORT_PATH}
+            title={SPONSOR_REPORT_PAGE_TITLE}
+            headingLevel="h1"
+            breadcrumb={buyerPolishedShell ? <SponsorReportBreadcrumb /> : undefined}
+            subtitle={
+              buyerPolishedShell ? (
+                <>
+                  <p className="m-0">{BUYER_VALUE_REPORT_PAGE_SUBTITLE}</p>
+                  <p className="m-0 mt-2">{BUYER_VALUE_REPORT_OUTCOME_LEAD}</p>
+                </>
+              ) : null
+            }
+            actions={<PageContextualHelpButton />}
+          />
+
+          <PilotValueReportBuyerChrome />
 
         <CollapsibleSection
           title={BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE}
@@ -520,6 +538,7 @@ export function PilotValueReportPageView(props: Props) {
             </CollapsibleSection>
           </div>
         ) : null}
+        </div>
       </DocumentLayout>
 
       <PilotOutcomesEmailConfirmDialog

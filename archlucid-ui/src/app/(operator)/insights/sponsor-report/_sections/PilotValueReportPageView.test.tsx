@@ -4,7 +4,12 @@ import { describe, expect, it, vi } from "vitest";
 import { PilotValueReportPageView } from "./PilotValueReportPageView";
 import type { PilotValueReportPilotPageViewModel } from "./pilot-value-report-pilot-page-view-model";
 import { LAYER_PAGE_GUIDANCE } from "@/lib/layer-guidance";
-import { SPONSOR_REPORT_PAGE_SUBTITLE } from "@/lib/sponsor-report-navigation";
+import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer/buyer-polish-copy";
+import { PILOT_OUTCOMES_CLAIM_DISCIPLINE } from "@/lib/pilot-outcomes-evidence-copy";
+import {
+  PILOT_OUTCOMES_PRIMARY_CONTENT_ID,
+  PILOT_OUTCOMES_SKIP_LINK_LABEL,
+} from "@/lib/pilot-outcomes-page-copy";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -220,10 +225,32 @@ describe("PilotValueReportPageView buyer-polished chrome (TB-1969)", () => {
 
     render(<PilotValueReportPageView model={buildModel()} />);
 
-    expect(screen.getAllByText(SPONSOR_REPORT_PAGE_SUBTITLE)).toHaveLength(1);
+    expect(screen.getAllByText(BUYER_VALUE_REPORT_PAGE_SUBTITLE)).toHaveLength(1);
     expect(screen.queryByText(LAYER_PAGE_GUIDANCE["value-report-pilot"].headline)).not.toBeInTheDocument();
     expect(screen.queryByTestId("layer-header")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Start date")).toBeInTheDocument();
+  });
+
+  it("renders skip link, breadcrumb, and orientation above reporting period in buyer shell", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(true);
+
+    render(<PilotValueReportPageView model={buildModel()} />);
+
+    expect(screen.getByRole("link", { name: PILOT_OUTCOMES_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${PILOT_OUTCOMES_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("sponsor-report-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-outcomes-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-outcomes-claim-discipline").textContent).toContain(
+      PILOT_OUTCOMES_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+
+    const orientationTop = screen.getByTestId("pilot-outcomes-orientation-top");
+    const reportingPeriod = screen.getByRole("heading", { name: "Reporting period" });
+
+    expect(orientationTop.compareDocumentPosition(reportingPeriod) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("omits page subtitle when LayerHeader owns the lead in enterprise shell", async () => {
@@ -233,6 +260,6 @@ describe("PilotValueReportPageView buyer-polished chrome (TB-1969)", () => {
     render(<PilotValueReportPageView model={buildModel()} />);
 
     expect(screen.getByTestId("layer-header")).toBeInTheDocument();
-    expect(screen.queryByText(SPONSOR_REPORT_PAGE_SUBTITLE)).not.toBeInTheDocument();
+    expect(screen.queryByText(BUYER_VALUE_REPORT_PAGE_SUBTITLE)).not.toBeInTheDocument();
   });
 });
