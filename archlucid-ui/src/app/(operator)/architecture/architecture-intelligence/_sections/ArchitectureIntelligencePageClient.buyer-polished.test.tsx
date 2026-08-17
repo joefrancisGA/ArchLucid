@@ -6,6 +6,7 @@ import {
   ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER,
   ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL,
 } from "@/lib/architecture/architecture-intelligence-page-copy";
+import { ARCHITECTURE_INTELLIGENCE_CLAIM_HEADING } from "@/lib/architecture/architecture-intelligence-page-copy";
 import { ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE } from "@/lib/architecture/architecture-intelligence-evidence-copy";
 
 const searchParamsGet = vi.fn<(key: string) => string | null>(() => null);
@@ -77,6 +78,8 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell", () => {
     expect(screen.getByTestId("architecture-intelligence-page-title")).toHaveTextContent("Architecture intelligence");
     expect(screen.getByText(ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.getByTestId("architecture-intelligence-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByText(ARCHITECTURE_INTELLIGENCE_CLAIM_HEADING)).toBeInTheDocument();
     expect(screen.getByText(ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.queryByTestId("ask-architecture-intelligence-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-intelligence-evidence-graph-vocabulary")).not.toBeInTheDocument();

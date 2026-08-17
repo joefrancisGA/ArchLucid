@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ArchitectureIntelligenceBreadcrumb } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceBreadcrumb";
-import { ArchitectureIntelligenceClaimOrientationStrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceClaimOrientationStrip";
+import { ArchitectureIntelligenceBuyerChrome } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceBuyerChrome";
 import { ArchitectureIntelligenceGoldenResults } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceGoldenResults";
 import { ArchitectureIntelligencePageSkeleton } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageSkeleton";
 import { ArchitectureIntelligenceProductContextLoadFailure } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductContextLoadFailure";
@@ -409,7 +409,7 @@ export function ArchitectureIntelligencePageClient() {
         actions={<PageContextualHelpButton />}
       />
 
-      {buyerPolishedShell ? <ArchitectureIntelligenceClaimOrientationStrip /> : null}
+      <ArchitectureIntelligenceBuyerChrome />
 
       {!buyerPolishedShell ? (
         <>
