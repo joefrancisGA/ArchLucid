@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-17 (extraction-router hit: structured markers outranked contradiction → DirectlyEstablished; architecture-recommendation hit earlier same day).
+**Updated:** 2026-08-17 (ui-runs-list dry: client is props-only; workspace/cache/403-spinner hypotheses retired; extraction-router and architecture-recommendation hits earlier same day).
 
 ## How to use
 
@@ -690,23 +690,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-runs-list
 
 - **id:** ui-runs-list
-- **status:** open
+- **status:** cooling
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-17
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] List renders reviews from a workspace the operator is not scoped to
-- [ ] Failed load still shows a previous tenant’s cached rows
-- [ ] Empty state is skipped so a spinner never ends after a 403
+- [x] List renders reviews from a workspace the operator is not scoped to (retired: no workspace field on RunSummary; cross-project rows are intentional hub scope listing)
+- [x] Failed load still shows a previous tenant’s cached rows (retired: props-only client; loader clears runs and Sets loadFailure; list not mounted when hubLoadOk is false)
+- [x] Empty state is skipped so a spinner never ends after a 403 (retired: no spinner in RunsListClient; 403 surfaces OperatorApiProblem upstream)
 
 ---
 
