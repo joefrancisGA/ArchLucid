@@ -77,6 +77,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IOptions<RerankFindingsOptions> rerankFindingsOptions,
     IOptions<ExplainGovernanceBlocksOptions> explainGovernanceBlocksOptions,
     IAzureDevOpsCommitStatusPublisher azureDevOpsCommitStatusPublisher,
+    IGraphMergeRuntimeInvariantReporter graphMergeRuntimeInvariantReporter,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     /// <summary>
@@ -137,6 +138,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
+    private readonly IGraphMergeRuntimeInvariantReporter _graphMergeRuntimeInvariantReporter =
+        graphMergeRuntimeInvariantReporter ?? throw new ArgumentNullException(nameof(graphMergeRuntimeInvariantReporter));
 
     private readonly ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -368,6 +372,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
             agentResultsForTelemetry = await agentResultsTask;
             GraphSnapshot graphForDecision = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResultsForTelemetry);
+            await _graphMergeRuntimeInvariantReporter.ReportAfterMergeAsync(scope, graphForDecision, cancellationToken);
             FindingsSnapshot? findings = await findingsTask;
             scopePolicyPackAssignments = await scopeAssignmentsTask;
             findingsForFinalization = findings;

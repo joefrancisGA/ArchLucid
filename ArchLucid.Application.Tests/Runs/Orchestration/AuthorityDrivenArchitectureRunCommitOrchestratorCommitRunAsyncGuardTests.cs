@@ -169,6 +169,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Options.Create(new ArchLucid.Core.Configuration.RerankFindingsOptions()),
             Options.Create(new ArchLucid.Core.Configuration.ExplainGovernanceBlocksOptions()),
             Mock.Of<ArchLucid.Contracts.Abstractions.Integrations.IAzureDevOpsCommitStatusPublisher>(),
+            Mock.Of<IGraphMergeRuntimeInvariantReporter>(),
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 }

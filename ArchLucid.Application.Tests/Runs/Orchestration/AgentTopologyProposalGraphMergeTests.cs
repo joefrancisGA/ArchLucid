@@ -13,8 +13,11 @@ using static ArchLucid.Application.Tests.Runs.Orchestration.AgentTopologyProposa
 using static ArchLucid.Application.Tests.Runs.Orchestration.AgentTopologyProposalTestResult;
 
 namespace ArchLucid.Application.Tests.Runs.Orchestration;
+/// <summary>
+///     Named connector-family merge examples live here; algebraic invariants use
+///     <see cref="AgentTopologyProposalGraphMergePropertyTests" /> and the Prompt 6 reference oracle.
+/// </summary>
 [Trait("Category", "Unit")]
-
 public sealed class AgentTopologyProposalGraphMergeTests
 {
     [SkippableFact]

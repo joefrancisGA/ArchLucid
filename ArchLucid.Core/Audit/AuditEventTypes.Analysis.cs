@@ -3,6 +3,9 @@ namespace ArchLucid.Core.Audit;
 // Quick scan, Architecture Intelligence, recommendations, product learning, advisory scans, and digests.
 public static partial class AuditEventTypes
 {
+    /// <summary>Post-merge graph invariant checker detected dangling edges or topology endpoint collisions.</summary>
+    public const string GraphMergeInvariantViolation = "GraphMerge.InvariantViolation";
+
     /// <summary>Closed-loop Architecture Intelligence reasoning run completed (additive lane).</summary>
     public const string ArchitectureIntelligenceRunCompleted = "ArchitectureIntelligence.RunCompleted";
 

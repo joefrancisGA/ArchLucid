@@ -2,6 +2,7 @@ using ArchLucid.Application.OperatorHome;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Agents;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Common;
@@ -252,6 +253,9 @@ public static partial class ServiceCollectionExtensions
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector
         // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is the single commit implementation.
         services.AddScoped<PostCommitProjectionEnqueuer>();
+        services.Configure<GraphMergeRuntimeInvariantOptions>(
+            configuration.GetSection(GraphMergeRuntimeInvariantOptions.SectionName));
+        services.AddScoped<IGraphMergeRuntimeInvariantReporter, GraphMergeRuntimeInvariantReporter>();
         services.AddScoped<IDecisionEngineV2NodeMaterializer, DecisionEngineV2NodeMaterializer>();
         services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
         services.AddScoped<ICommitPipelineManifestReuseService, CommitPipelineManifestReuseService>();

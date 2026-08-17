@@ -272,7 +272,7 @@ public sealed class AgentTopologyProposalGraphMergePropertyTests
         };
     }
 
-    private static void AssertStructurallyEqual(GraphSnapshot actual, GraphSnapshot expected)
+    internal static void AssertStructurallyEqual(GraphSnapshot actual, GraphSnapshot expected)
     {
         actual.GraphSnapshotId.Should().Be(expected.GraphSnapshotId);
         actual.ContextSnapshotId.Should().Be(expected.ContextSnapshotId);
