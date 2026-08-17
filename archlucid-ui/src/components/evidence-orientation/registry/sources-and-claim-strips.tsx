@@ -161,7 +161,7 @@ export function FaqEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="faq"
-      margin="mt-10"
+      margin="mt-6"
       align="text-left"
       sourcesIntro={FAQ_SOURCES_INTRO}
       sources={FAQ_SOURCES}

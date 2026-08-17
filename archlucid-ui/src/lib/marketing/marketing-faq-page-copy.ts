@@ -1,8 +1,9 @@
 export const MARKETING_FAQ_PAGE_TITLE = "Product FAQ" as const;
 
-export const MARKETING_FAQ_PAGE_INTRO =
-  "Answers for architects and sponsors evaluating ArchLucid." as const;
+export const MARKETING_FAQ_PRIMARY_CONTENT_ID = "marketing-faq-primary-content" as const;
 
+export const MARKETING_FAQ_PAGE_INTRO =
+  "Evaluation Q&A for architects and sponsors — start with Most asked, then browse by category." as const;
 export const MARKETING_FAQ_BACK_TO_OVERVIEW_LABEL = "Back to overview" as const;
 
 export const MARKETING_FAQ_VIEW_PRICING_LABEL = "View pricing" as const;
