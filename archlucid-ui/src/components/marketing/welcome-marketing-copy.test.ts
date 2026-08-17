@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   WELCOME_HERO_DIFFERENTIATORS,
+  WELCOME_HERO_PITCH,
+  WELCOME_HERO_PITCH_BUYER,
+  WELCOME_HERO_PITCH_OPERATOR,
   WELCOME_SEE_IT_CTA_LABEL,
   WELCOME_USE_CASE_CARDS,
   WELCOME_WORKFLOW_STEPS,
@@ -23,6 +26,11 @@ describe("welcome-marketing-copy", () => {
       // Guard against social-proof language we cannot substantiate pre-first-customer.
       expect(line.toLowerCase()).not.toMatch(/customers?|trusted by|fortune|leading|award/);
     }
+  });
+
+  it("uses the shorter buyer hero pitch above the fold", () => {
+    expect(WELCOME_HERO_PITCH).toBe(WELCOME_HERO_PITCH_BUYER);
+    expect(WELCOME_HERO_PITCH_BUYER.length).toBeLessThan(WELCOME_HERO_PITCH_OPERATOR.length);
   });
 
   it("keeps workflow step summaries short enough to scan as a timeline", () => {

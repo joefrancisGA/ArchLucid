@@ -73,6 +73,13 @@ describe("WelcomeMarketingPage", () => {
   it("renders hero, pillars, and pricing cards from fetched JSON", async () => {
     renderWelcomePage();
 
+    expect(screen.getByRole("link", { name: "Skip to welcome content" })).toHaveAttribute(
+      "href",
+      "#welcome-primary-content",
+    );
+    expect(screen.getByTestId("welcome-orientation-top")).toBeInTheDocument();
+    expect(screen.getAllByTestId("welcome-sources")).toHaveLength(1);
+
     expect(screen.getByRole("heading", { level: 1, name: /Defensible architecture, on demand/i })).toBeInTheDocument();
     expect(screen.getByTestId("welcome-hero-pitch")).toHaveTextContent(WELCOME_HERO_PITCH);
 
@@ -153,7 +160,7 @@ describe("WelcomeMarketingPage", () => {
     expect(within(heroBand).getByTestId("welcome-hero-see-it-cta")).toHaveAttribute("href", WELCOME_SEE_IT_HREF);
     expect(within(heroBand).queryByTestId("welcome-proof-ladder")).not.toBeInTheDocument();
     expect(within(proofLadder).getByRole("link", { name: WELCOME_SEE_IT_CTA_LABEL })).toHaveAttribute("href", WELCOME_SEE_IT_HREF);
-    expect(within(proofLadder).getByRole("link", { name: /retail sample roi/i })).toHaveAttribute(
+    expect(within(proofLadder).getByRole("link", { name: /illustrative retail roi/i })).toHaveAttribute(
       "href",
       "/WORKED_EXAMPLE_ROI.pdf",
     );
@@ -172,7 +179,7 @@ describe("WelcomeMarketingPage", () => {
       "href",
       "/get-started",
     );
-    expect(within(engagement).getByRole("link", { name: /retail sample roi/i })).toHaveAttribute(
+    expect(within(engagement).getByRole("link", { name: /illustrative retail roi/i })).toHaveAttribute(
       "href",
       "/WORKED_EXAMPLE_ROI.pdf",
     );
