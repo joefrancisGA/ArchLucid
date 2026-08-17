@@ -6,6 +6,7 @@ import { StatusTag } from "@/components/StatusTag";
 import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveEnterpriseStatusKind } from "@/lib/enterprise-status-kind-resolver";
+import { PLANNING_PLAN_DETAIL_THEME_ID_LABEL } from "@/lib/planning-plan-detail-evidence-copy";
 
 import { cn } from "@/lib/utils";
 
@@ -77,9 +78,9 @@ export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsP
 
           <div className={detailGridClass}>
 
-            <span className="text-al-text-secondary">Theme id</span>
+            <span className="text-al-text-secondary">{PLANNING_PLAN_DETAIL_THEME_ID_LABEL}</span>
 
-            <TechnicalIdDisclosure label="" value={plan.themeId} />
+            <TechnicalIdDisclosure label={PLANNING_PLAN_DETAIL_THEME_ID_LABEL} value={plan.themeId} />
 
           </div>
 

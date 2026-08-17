@@ -35,6 +35,10 @@ export const PLANNING_PLAN_DETAIL_MISSING_PLAN_ID_BODY =
 export const PLANNING_PLAN_DETAIL_CLAIM_DISCIPLINE =
   "This plan is derived from captured review feedback in the current workspace — not a sealed-review diligence Sources trail.";
 
+export const PLANNING_PLAN_DETAIL_CLAIM_HEADING = "Derived plan only" as const;
+
+export const PLANNING_PLAN_DETAIL_THEME_ID_LABEL = "Theme id" as const;
+
 export const PLANNING_PLAN_DETAIL_SOURCES_INTRO =
   "Return to Improvement planning for themes and peer plans, or open reviews and findings when this plan needs execution follow-up.";
 
