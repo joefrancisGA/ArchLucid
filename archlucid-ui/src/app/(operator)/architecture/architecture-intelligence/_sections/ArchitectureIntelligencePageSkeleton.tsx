@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ARCHITECTURE_INTELLIGENCE_LOADING_STATUS } from "@/lib/architecture/architecture-intelligence-page-copy";
 
 const SKELETON_BLOCK_CLASS = "h-4 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800";
 
@@ -14,7 +15,7 @@ export function ArchitectureIntelligencePageSkeleton(): React.JSX.Element {
       </div>
       <div className={cn(SKELETON_BLOCK_CLASS, "w-full max-w-xl")} />
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
-        Loading architecture intelligence…
+        {ARCHITECTURE_INTELLIGENCE_LOADING_STATUS}
       </p>
     </div>
   );

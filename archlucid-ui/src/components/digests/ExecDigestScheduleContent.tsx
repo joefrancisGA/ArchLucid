@@ -1,10 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
+import { type ReactElement } from "react";
 
 import {
   OperatorFormSummaryRow,
@@ -16,7 +13,6 @@ import {
   OperatorRecipientChipField,
   OperatorRecipientSubscriptionsHelperLink,
 } from "@/components/advisory/OperatorRecipientChipField";
-import { useOperatorRecipientDraft } from "@/components/advisory/useOperatorRecipientDraft";
 import { DigestPreviewBeforeSubscribePanel } from "@/components/digests/DigestPreviewBeforeSubscribePanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -24,39 +20,21 @@ import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
-import { useOperateCapability } from "@/hooks/use-operate-capability";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { getExecDigestPreferences, saveExecDigestPreferences } from "@/lib/api";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
-import {
-  DIGESTS_HUB_PATH,
-  DIGESTS_SUBSCRIPTIONS_TAB_PATH,
-  digestsBrowseDigestDeepLink,
-} from "@/lib/digests-route-paths";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import {
   DIGESTS_SCHEDULE_GENERATE_TEST_LABEL,
   DIGESTS_SCHEDULE_PREVIEW_LABEL,
 } from "@/lib/digests-browse-copy";
+import { DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
 import {
   EXEC_DIGEST_DAY_NAMES,
   EXEC_DIGEST_HOUR_OPTIONS,
-  execDigestFormFromPreferencesWithBrowserDefault,
-  execDigestUpsertFromForm,
-  formatExecDigestLiveScheduleSummary,
-  hasUnsavedExecDigestChanges,
-  isExecDigestScheduleFormValid,
   maskExecDigestRecipientForDisplay,
-  parseExecDigestRecipientEmails,
-  validateExecDigestRecipientEmails,
-  type ExecDigestScheduleFormState,
 } from "@/lib/exec-digest-schedule-form";
 import {
-  buildExecDigestDeliveryReadiness,
   buildExecDigestRecipientSummary,
-  buildExecDigestSavedScheduleSummary,
   DIGESTS_SCHEDULE_TAB_RESPONSIBILITY,
   EXEC_DIGEST_DIRECT_RECIPIENTS_HELPER,
   EXEC_DIGEST_PREVIEW_HELPER,
@@ -67,248 +45,72 @@ import {
   EXEC_DIGEST_SUBSCRIPTIONS_HELPER,
   EXEC_DIGEST_TEST_GENERATION_HELPER,
   formatExecDigestNextSendLabel,
-  resolveExecDigestStatus,
 } from "@/lib/exec-digest-schedule-page-model";
 import {
   formatIanaTimeZoneOptionLabel,
-  getIanaTimeZoneSelectOptions,
   normalizeIanaTimeZoneForSelect,
   toStoredIanaTimeZoneId,
 } from "@/lib/iana-time-zone-select";
-import { whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
+import { cn } from "@/lib/utils";
+
 import {
-  hasExecDigestScheduleLivePreviewPinContent,
-  shouldPinLivePreviewReadinessRail,
-} from "@/lib/operator/operator-live-preview-readiness-rail";
-import type { ExecDigestPreferencesResponse } from "@/types/exec-digest-preferences";
-import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
+  useExecDigestSchedule,
+  type ExecDigestScheduleContentProps,
+} from "./use-exec-digest-schedule";
+
+export type { ExecDigestScheduleContentProps };
 
 const SELECT_CLASS = cn(
   "flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:focus-visible:ring-neutral-600",
   OPERATOR_TYPOGRAPHY.body,
 );
 
-export type ExecDigestScheduleContentProps = {
-  readonly refreshToken?: number;
-  readonly healthSnap?: WeeklyDigestHealthDto | null;
-  readonly onRefresh?: () => void;
-  readonly refreshing?: boolean;
-};
-
 /** Schedule tab: sponsor digest delivery settings (direct recipients + weekly cadence). */
 export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps = {}): ReactElement {
-  const { refreshToken = 0, healthSnap = null, onRefresh, refreshing = false } = props;
-  const operateCapability: boolean = useOperateCapability();
-  const sampleModeBlocked =
-    isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
-  const canMutate: boolean = operateCapability && !sampleModeBlocked;
-
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [enabling, setEnabling] = useState(false);
-  const [pausing, setPausing] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [prefs, setPrefs] = useState<ExecDigestPreferencesResponse | null>(null);
-  const [form, setForm] = useState<ExecDigestScheduleFormState | null>(null);
-  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const ianaTimeZoneOptions = useMemo(() => getIanaTimeZoneSelectOptions(), []);
-
-  const onRecipientsChange = useCallback((recipients: string) => {
-    setForm((current) => (current === null ? current : { ...current, recipients }));
-    setSaveSuccess(null);
-  }, []);
-
   const {
+    healthSnap,
+    onRefresh,
+    refreshing,
+    sampleModeBlocked,
+    canMutate,
+    loading,
+    saving,
+    enabling,
+    pausing,
+    saveSuccess,
+    statusMessage,
+    failure,
+    prefs,
+    form,
     recipientDraft,
     recipientDraftError,
     recipientsTouched,
     recipientEmails,
     recipientValidation,
-    setRecipientsTouched,
     onRecipientDraftChange,
     onRecipientDraftBlur,
     addRecipientFromDraft,
     removeRecipient,
-    resetRecipientDraftState,
-  } = useOperatorRecipientDraft({
-    recipients: form?.recipients ?? "",
-    canMutate,
-    parseEmails: parseExecDigestRecipientEmails,
-    validateEmails: validateExecDigestRecipientEmails,
-    onRecipientsChange,
-  });
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setFailure(null);
-
-    try {
-      const data = await getExecDigestPreferences();
-      setPrefs(data);
-      setForm(execDigestFormFromPreferencesWithBrowserDefault(data));
-      resetRecipientDraftState();
-      setSaveSuccess(null);
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
-    } finally {
-      setLoading(false);
-    }
-  }, [resetRecipientDraftState]);
-
-  useEffect(() => {
-    void load();
-
-    return () => {
-      if (successTimerRef.current !== null) {
-        clearTimeout(successTimerRef.current);
-      }
-    };
-  }, [load, refreshToken]);
-
-  const unsavedChanges: boolean =
-    prefs !== null && form !== null && hasUnsavedExecDigestChanges(prefs, form);
-  const formValid: boolean = form !== null && isExecDigestScheduleFormValid(form);
-  const status =
-    prefs !== null && form !== null
-      ? resolveExecDigestStatus(prefs, form, unsavedChanges)
-      : null;
-  const savedSummary =
-    prefs !== null ? buildExecDigestSavedScheduleSummary(prefs, healthSnap) : null;
-  const readiness =
-    prefs !== null && form !== null
-      ? buildExecDigestDeliveryReadiness(prefs, form, healthSnap, unsavedChanges)
-      : null;
-  const recipientCount: number = recipientEmails.length;
-  const enableDeliveryRecipientRequiredHintId = "exec-digest-enable-delivery-recipient-required-hint";
-  const enableDeliveryRecipientRequiredReason =
-    recipientCount === 0 && canMutate
-      ? whyDisabledIncompleteInput("Add at least one recipient before enabling scheduled delivery.")
-      : null;
-  const subscriptionDestinationCount: number = healthSnap?.enabledDigestSubscriptionCount ?? 0;
-  const latestDigestId: string = healthSnap?.latestArchitectureDigestId?.trim() ?? "";
-  const hasPreviewDigest: boolean = latestDigestId.length > 0;
-  const previewHref: string = hasPreviewDigest
-    ? digestsBrowseDigestDeepLink(latestDigestId)
-    : DIGESTS_HUB_PATH;
-  const busy: boolean = saving || enabling || pausing;
-  const liveScheduleSummary: string | null =
-    form !== null && prefs !== null
-      ? formatExecDigestLiveScheduleSummary(form, prefs.isConfigured)
-      : null;
-
-  // TB-1574: pin delivery readiness rail only when schedule/recipients/preview give it a job.
-  const pinLivePreviewRail =
-    prefs !== null
-      ? shouldPinLivePreviewReadinessRail(
-          hasExecDigestScheduleLivePreviewPinContent({
-            isConfigured: prefs.isConfigured,
-            recipientCount,
-            hasPreviewDigest,
-          }),
-        )
-      : false;
-
-  function announceSuccess(message: string): void {
-    setSaveSuccess(message);
-    setStatusMessage(message);
-
-    if (successTimerRef.current !== null) {
-      clearTimeout(successTimerRef.current);
-    }
-
-    successTimerRef.current = setTimeout(() => setSaveSuccess(null), 4000);
-  }
-
-  function updateForm(patch: Partial<ExecDigestScheduleFormState>): void {
-    setForm((current) => (current === null ? current : { ...current, ...patch }));
-    setSaveSuccess(null);
-  }
-
-  async function persistForm(
-    nextForm: ExecDigestScheduleFormState,
-    successMessage: string,
-  ): Promise<void> {
-    if (!canMutate || !isExecDigestScheduleFormValid(nextForm) || busy) {
-      return;
-    }
-
-    setFailure(null);
-
-    try {
-      const saved = await saveExecDigestPreferences(execDigestUpsertFromForm(nextForm));
-      setPrefs(saved);
-      setForm(execDigestFormFromPreferencesWithBrowserDefault(saved));
-      resetRecipientDraftState();
-      announceSuccess(successMessage);
-      onRefresh?.();
-    } catch (e) {
-      const loadFailure = toApiLoadFailure(e);
-      setFailure({
-        ...loadFailure,
-        message:
-          loadFailure.message.trim().length > 0
-            ? loadFailure.message
-            : "Could not save the schedule. Check recipients and try again.",
-      });
-    }
-  }
-
-  async function onSaveSchedule(): Promise<void> {
-    if (form === null) {
-      return;
-    }
-
-    setSaving(true);
-
-    try {
-      await persistForm(form, form.emailEnabled ? "Schedule saved. Scheduled delivery remains enabled." : "Schedule saved.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function onEnableDelivery(): Promise<void> {
-    if (form === null) {
-      return;
-    }
-
-    const nextForm: ExecDigestScheduleFormState = { ...form, emailEnabled: true };
-
-    if (!isExecDigestScheduleFormValid(nextForm)) {
-      setRecipientsTouched(true);
-      setStatusMessage("Add at least one valid recipient before enabling scheduled delivery.");
-
-      return;
-    }
-
-    setEnabling(true);
-    setForm(nextForm);
-
-    try {
-      await persistForm(nextForm, "Scheduled delivery enabled.");
-    } finally {
-      setEnabling(false);
-    }
-  }
-
-  async function onPauseDelivery(): Promise<void> {
-    if (form === null) {
-      return;
-    }
-
-    const nextForm: ExecDigestScheduleFormState = { ...form, emailEnabled: false };
-    setPausing(true);
-    setForm(nextForm);
-
-    try {
-      await persistForm(nextForm, "Scheduled delivery paused.");
-    } finally {
-      setPausing(false);
-    }
-  }
+    ianaTimeZoneOptions,
+    unsavedChanges,
+    formValid,
+    status,
+    savedSummary,
+    readiness,
+    recipientCount,
+    enableDeliveryRecipientRequiredHintId,
+    enableDeliveryRecipientRequiredReason,
+    subscriptionDestinationCount,
+    hasPreviewDigest,
+    previewHref,
+    busy,
+    liveScheduleSummary,
+    pinLivePreviewRail,
+    updateForm,
+    onSaveSchedule,
+    onEnableDelivery,
+    onPauseDelivery,
+  } = useExecDigestSchedule(props);
 
   return (
     <div className="w-full space-y-4" data-testid="exec-digest-schedule-content">

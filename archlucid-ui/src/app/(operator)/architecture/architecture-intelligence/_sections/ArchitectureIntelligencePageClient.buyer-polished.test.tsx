@@ -1,13 +1,15 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ArchitectureIntelligencePageClient } from "./ArchitectureIntelligencePageClient";
+import { ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE } from "@/lib/architecture/architecture-intelligence-evidence-copy";
 import {
+  ARCHITECTURE_INTELLIGENCE_CLAIM_HEADING,
   ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER,
+  ARCHITECTURE_INTELLIGENCE_PAGE_TITLE,
   ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL,
 } from "@/lib/architecture/architecture-intelligence-page-copy";
-import { ARCHITECTURE_INTELLIGENCE_CLAIM_HEADING } from "@/lib/architecture/architecture-intelligence-page-copy";
-import { ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE } from "@/lib/architecture/architecture-intelligence-evidence-copy";
+
+import { ArchitectureIntelligencePageClient } from "./ArchitectureIntelligencePageClient";
 
 const searchParamsGet = vi.fn<(key: string) => string | null>(() => null);
 
@@ -38,6 +40,10 @@ vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
     },
     blocksLlmExecution: false,
   }),
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
 vi.mock("next/navigation", async (importOriginal) => {
@@ -72,21 +78,26 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell", () => {
     );
   });
 
-  it("renders breadcrumb, claim strip, and buyer subtitle without vocabulary rails", () => {
+  it("uses help, claim orientation strip, and buyer subtitle", () => {
     render(<ArchitectureIntelligencePageClient />);
 
-    expect(screen.getByTestId("architecture-intelligence-page-title")).toHaveTextContent("Architecture intelligence");
+    expect(screen.getByTestId("architecture-intelligence-page-title")).toHaveTextContent(
+      ARCHITECTURE_INTELLIGENCE_PAGE_TITLE,
+    );
     expect(screen.getByText(ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-intelligence-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-intelligence-page-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-intelligence-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-intelligence-claim-discipline")).toBeInTheDocument();
     expect(screen.getByText(ARCHITECTURE_INTELLIGENCE_CLAIM_HEADING)).toBeInTheDocument();
     expect(screen.getByText(ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.queryByTestId("ask-architecture-intelligence-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-intelligence-evidence-graph-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-capability-boundary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-intelligence-active-run")).not.toBeInTheDocument();
   });
 
-  it("renders product-context load failure with retry", async () => {
+  it("shows intake load failure with retry when deep-linked product context fails", async () => {
     searchParamsGet.mockImplementation((key: string) => {
       if (key === "runId") {
         return "dddddddd-dddd-dddd-dddd-dddddddddddd";
@@ -99,25 +110,25 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell", () => {
       return null;
     });
 
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo) => {
-        const url = String(input);
+    const fetchMock = vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
 
-        if (url.includes("/product-runs/") && url.includes("/source-context")) {
-          return {
-            ok: false,
-            text: async () => "Unable to load product context",
-          };
-        }
-
+      if (url.includes("/product-runs/") && url.includes("/source-context")) {
         return {
-          ok: true,
-          json: async () => ({}),
-          text: async () => "",
+          ok: false,
+          status: 503,
+          text: async () => "Unable to load product context",
         };
-      }),
-    );
+      }
+
+      return {
+        ok: true,
+        json: async () => ({}),
+        text: async () => "",
+      };
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
 
     render(<ArchitectureIntelligencePageClient />);
 
@@ -126,9 +137,14 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell", () => {
     });
 
     expect(screen.queryByTestId("architecture-intelligence-description")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL }),
+    ).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("architecture-intelligence-product-context-load-retry"));
-    expect(fetch).toHaveBeenCalledTimes(2);
+
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
   });
 });

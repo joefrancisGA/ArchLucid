@@ -3,7 +3,6 @@
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -29,98 +28,32 @@ import { SettingsRolesMatrixConfirmDialog } from "./SettingsRolesMatrixConfirmDi
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { roleClaimCaption, roleDisplayLabel } from "@/lib/role-display-labels";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
-import { showError, showSuccess } from "@/lib/toast";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SETTINGS_ROLES_MATRIX_LOAD_FAILED_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
-import { CUSTOM_ROLE_PERMISSION_GROUPS, ALL_MATRIX_PERMISSION_IDS } from "./custom-role-permission-groups";
 import {
-  baselinePermissionsByKey,
-  clonedRoleName,
   countDirtyPermissions,
-  dirtyRoles,
   type DraftRole,
-  dirtyRoleDisplayNames,
-  hasUnsavedRoleEdits,
   isRoleDirty,
-  mergeUnsavedRoleEdits,
-  newlyGrantedHighRiskPermissionIds,
-  newlyGrantedHighRiskPermissionIdsFromList,
-  permissionChangesForRole,
-  restoreRoleToBaseline,
   roleMatrixKey,
-  type RolePermissionBaseline,
-  toggleRolePermission,
-  totalUnsavedPermissionChanges,
 } from "./custom-role-draft-state";
-import { type CustomRoleFailureKind, customRoleFailureCopy } from "./custom-role-failure-copy";
-import { CustomRoleRequestError, customRoleRequestStatus } from "./custom-role-request-error";
 import {
   formatRoleAssignmentDisplay,
 } from "./roles-matrix-assignment-counts";
 import {
-  EMPTY_ROLES_MATRIX_PERMISSION_FILTER,
-  filterPermissionGroupsForMatrix,
-} from "./roles-matrix-permission-filter";
-import {
   CUSTOM_ROLE_START_FROM_OPTIONS,
   type CustomRoleStartFromValue,
   HIGH_RISK_PERMISSION_IDS,
-  permissionLabelsFromIds,
   ROLES_MATRIX_CLONE_VS_CREATE_COPY,
-  ROLES_MATRIX_CONFIRMATION_DIALOG,
   ROLES_MATRIX_CREATE_READINESS_COPY,
   ROLES_MATRIX_HELPER_COPY,
   ROLES_MATRIX_PERMISSION_LEGEND,
   formatRoleLastUpdated,
-  sortMatrixRoles,
   unsavedRoleEditsNotice,
 } from "./roles-matrix-constants";
-
-function showCustomRoleFailure(kind: CustomRoleFailureKind, error: unknown): void {
-  const copy = customRoleFailureCopy(kind, customRoleRequestStatus(error));
-
-  showError(copy.title, copy.description);
-}
-
-type CustomRoleDto = {
-  id: string;
-  name: string;
-  description?: string | null;
-  permissions: string[];
-  isSystem: boolean;
-  updatedUtc: string;
-};
-
-/** Role columns and their last-saved permissions move together so dirty state can never drift apart. */
-type RoleMatrixState = {
-  readonly roles: readonly DraftRole[];
-  readonly baseline: RolePermissionBaseline;
-};
-
-const EMPTY_MATRIX_STATE: RoleMatrixState = { roles: [], baseline: new Map() };
-
-type PendingRoleConfirmation =
-  | { kind: "save"; role: DraftRole }
-  | { kind: "create"; name: string; permissions: string[] }
-  | { kind: "clone"; source: DraftRole; permissions: string[] };
-
-type SettingsRolesMatrixSectionProps = {
-  readonly assignmentCountsByRole?: ReadonlyMap<string, number>;
-  readonly assignmentCountsReliable?: boolean;
-};
-
-async function fetchRoles(): Promise<CustomRoleDto[]> {
-  const res = await fetch("/api/proxy/v1/admin/roles", mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }));
-
-  if (!res.ok)
-    throw new CustomRoleRequestError(res.status);
-
-  return (await res.json()) as CustomRoleDto[];
-}
+import { useSettingsRolesMatrix, type SettingsRolesMatrixSectionProps } from "./use-settings-roles-matrix";
 
 function PermissionValue({
   allowed,
@@ -254,260 +187,40 @@ function RolesMatrixCommandBar(props: RolesMatrixCommandBarProps) {
 }
 
 export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProps) {
-  const assignmentCountsReliable = props.assignmentCountsReliable ?? true;
-  const [matrix, setMatrix] = useState<RoleMatrixState>(EMPTY_MATRIX_STATE);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
-  const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
-  const [newRoleName, setNewRoleName] = useState("");
-  const [startFromRole, setStartFromRole] = useState<CustomRoleStartFromValue>("Operator");
-  const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<string>>(() => new Set());
-  const [pendingConfirmation, setPendingConfirmation] = useState<PendingRoleConfirmation | null>(null);
-  const [permissionFilter, setPermissionFilter] = useState(EMPTY_ROLES_MATRIX_PERMISSION_FILTER);
-  const roles = matrix.roles;
-  const trimmedRoleName = newRoleName.trim();
-  const canCreateRole = trimmedRoleName.length > 0;
-
-  const permissionLabelsById = useMemo(() => {
-    const labels = new Map<string, string>();
-
-    for (const group of CUSTOM_ROLE_PERMISSION_GROUPS) {
-      for (const permission of group.permissions)
-        labels.set(permission.id, permission.label);
-    }
-
-    return labels;
-  }, []);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setLoadError(false);
-
-    try {
-      const rows = await fetchRoles();
-      const reloaded: DraftRole[] = rows.map((row) => ({
-        id: row.id,
-        name: row.name,
-        isSystem: row.isSystem,
-        permissions: new Set(row.permissions),
-        updatedUtc: row.updatedUtc,
-      }));
-
-      // Creating or cloning a role refreshes the whole matrix; unsaved edits on other columns survive it.
-      setMatrix((current) => ({
-        roles: mergeUnsavedRoleEdits(reloaded, current.roles, current.baseline),
-        baseline: baselinePermissionsByKey(reloaded),
-      }));
-    } catch (error) {
-      setLoadError(true);
-      showCustomRoleFailure("load", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  const columns = useMemo(() => sortMatrixRoles(roles), [roles]);
-  const unsavedRoleNames = useMemo(() => dirtyRoleDisplayNames(roles, matrix.baseline), [matrix.baseline, roles]);
-  const dirtyRoleList = useMemo(() => dirtyRoles(roles, matrix.baseline), [matrix.baseline, roles]);
-  const unsavedChangeCount = useMemo(() => totalUnsavedPermissionChanges(roles, matrix.baseline), [matrix.baseline, roles]);
-  const hasUnsavedEdits = hasUnsavedRoleEdits(roles, matrix.baseline);
-  const visiblePermissionGroups = useMemo(
-    () => filterPermissionGroupsForMatrix(CUSTOM_ROLE_PERMISSION_GROUPS, columns, permissionFilter),
-    [columns, permissionFilter],
-  );
-
-  useEffect(() => {
-    if (!hasUnsavedEdits)
-      return;
-
-    // Browser-level guard only: the App Router has no navigation-blocking API, so the command bar
-    // and notice above the matrix remain the in-app signal for unsaved edits.
-    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-
-    window.addEventListener("beforeunload", warnBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", warnBeforeUnload);
-    };
-  }, [hasUnsavedEdits]);
-
-  function togglePermission(roleKey: string, permissionId: string) {
-    setMatrix((current) => ({ ...current, roles: toggleRolePermission(current.roles, roleKey, permissionId) }));
-  }
-
-  function discardRoleEdits(roleKey: string) {
-    setMatrix((current) => ({ ...current, roles: restoreRoleToBaseline(current.roles, roleKey, current.baseline) }));
-  }
-
-  function toggleGroupCollapsed(area: string) {
-    setCollapsedGroups((prev) => {
-      const next = new Set(prev);
-
-      if (next.has(area))
-        next.delete(area);
-      else
-        next.add(area);
-
-      return next;
-    });
-  }
-
-  async function persistRole(role: DraftRole) {
-    if (role.isSystem || !role.id)
-      return;
-
-    setSavingRoleId(role.id);
-
-    try {
-      const res = await fetch(
-        `/api/proxy/v1/admin/roles/${encodeURIComponent(role.id)}`,
-        mergeRegistrationScopeForProxy({
-          method: "PUT",
-          headers: { Accept: "application/json", "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: role.name,
-            permissions: ALL_MATRIX_PERMISSION_IDS.filter((permission) => role.permissions.has(permission)),
-          }),
-        }),
-      );
-
-      if (!res.ok)
-        throw new CustomRoleRequestError(res.status);
-
-      showSuccess(`Saved role "${roleDisplayLabel(role.name)}".`);
-      await load();
-    } catch (error) {
-      showCustomRoleFailure("save", error);
-    } finally {
-      setSavingRoleId(null);
-    }
-  }
-
-  async function persistCreate(name: string, permissions: string[]) {
-    try {
-      const res = await fetch(
-        "/api/proxy/v1/admin/roles",
-        mergeRegistrationScopeForProxy({
-          method: "POST",
-          headers: { Accept: "application/json", "Content-Type": "application/json" },
-          body: JSON.stringify({ name, permissions }),
-        }),
-      );
-
-      if (!res.ok)
-        throw new CustomRoleRequestError(res.status);
-
-      showSuccess(`Created custom role "${name}".`);
-      setNewRoleName("");
-      setStartFromRole("Operator");
-      await load();
-    } catch (error) {
-      showCustomRoleFailure("create", error);
-    }
-  }
-
-  function requestSaveRole(role: DraftRole) {
-    const changes = permissionChangesForRole(role, matrix.baseline);
-
-    if (changes.added.length === 0 && changes.removed.length === 0)
-      return;
-
-    setPendingConfirmation({ kind: "save", role });
-  }
-
-  function permissionsForStartFrom(startFrom: CustomRoleStartFromValue): string[] {
-    if (startFrom === "Empty")
-      return [];
-
-    const source = roles.find((role) => role.isSystem && role.name === startFrom);
-
-    if (!source)
-      return [];
-
-    return ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission));
-  }
-
-  function requestCreateCustomRole(name: string, permissions: string[]) {
-    const trimmed = name.trim();
-
-    if (!trimmed)
-      return;
-
-    setPendingConfirmation({ kind: "create", name: trimmed, permissions });
-  }
-
-  function requestCloneRole(source: DraftRole) {
-    const permissions = ALL_MATRIX_PERMISSION_IDS.filter((permission) => source.permissions.has(permission));
-
-    setPendingConfirmation({ kind: "clone", source, permissions });
-  }
-
-  async function confirmPendingAction() {
-    if (!pendingConfirmation)
-      return;
-
-    const action = pendingConfirmation;
-    setPendingConfirmation(null);
-
-    if (action.kind === "save") {
-      await persistRole(action.role);
-      return;
-    }
-
-    if (action.kind === "create") {
-      await persistCreate(action.name, action.permissions);
-      return;
-    }
-
-    await persistCreate(clonedRoleName(action.source), action.permissions);
-  }
-
-  const confirmationCopy = useMemo(() => {
-    if (!pendingConfirmation)
-      return null;
-
-    if (pendingConfirmation.kind === "save") {
-      const changes = permissionChangesForRole(pendingConfirmation.role, matrix.baseline);
-      const highRiskAdded = newlyGrantedHighRiskPermissionIds(pendingConfirmation.role, matrix.baseline);
-
-      return {
-        title: ROLES_MATRIX_CONFIRMATION_DIALOG.saveTitle,
-        primaryLabel: ROLES_MATRIX_CONFIRMATION_DIALOG.savePrimary,
-        addedLabels: permissionLabelsFromIds(changes.added, permissionLabelsById),
-        removedLabels: permissionLabelsFromIds(changes.removed, permissionLabelsById),
-        highRiskLabels: permissionLabelsFromIds(highRiskAdded, permissionLabelsById),
-      };
-    }
-
-    if (pendingConfirmation.kind === "create") {
-      const highRiskAdded = newlyGrantedHighRiskPermissionIdsFromList(pendingConfirmation.permissions);
-
-      return {
-        title: ROLES_MATRIX_CONFIRMATION_DIALOG.createTitle,
-        primaryLabel: ROLES_MATRIX_CONFIRMATION_DIALOG.createPrimary,
-        addedLabels: [],
-        removedLabels: [],
-        highRiskLabels: permissionLabelsFromIds(highRiskAdded, permissionLabelsById),
-      };
-    }
-
-    const highRiskAdded = newlyGrantedHighRiskPermissionIdsFromList(pendingConfirmation.permissions);
-
-    return {
-      title: ROLES_MATRIX_CONFIRMATION_DIALOG.cloneTitle,
-      primaryLabel: ROLES_MATRIX_CONFIRMATION_DIALOG.clonePrimary,
-      addedLabels: [],
-      removedLabels: [],
-      highRiskLabels: permissionLabelsFromIds(highRiskAdded, permissionLabelsById),
-    };
-  }, [matrix.baseline, pendingConfirmation, permissionLabelsById]);
+  const {
+    assignmentCountsByRole,
+    assignmentCountsReliable,
+    loading,
+    loadError,
+    load,
+    savingRoleId,
+    newRoleName,
+    setNewRoleName,
+    startFromRole,
+    setStartFromRole,
+    collapsedGroups,
+    pendingConfirmation,
+    setPendingConfirmation,
+    permissionFilter,
+    setPermissionFilter,
+    canCreateRole,
+    columns,
+    unsavedRoleNames,
+    dirtyRoleList,
+    unsavedChangeCount,
+    hasUnsavedEdits,
+    visiblePermissionGroups,
+    baseline,
+    togglePermission,
+    discardRoleEdits,
+    toggleGroupCollapsed,
+    requestSaveRole,
+    requestCreateCustomRole,
+    requestCloneRole,
+    confirmPendingAction,
+    confirmationCopy,
+    permissionsForStartFrom,
+  } = useSettingsRolesMatrix(props);
 
   if (loading)
     return <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading role matrix…</p>;
@@ -664,8 +377,8 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                     const roleKey = roleMatrixKey(role);
                     const displayName = roleDisplayLabel(role.name);
                     const claimCaption = roleClaimCaption(role.name);
-                    const isDirty = isRoleDirty(role, matrix.baseline);
-                    const assignmentCount = props.assignmentCountsByRole?.get(role.name) ?? 0;
+                    const isDirty = isRoleDirty(role, baseline);
+                    const assignmentCount = assignmentCountsByRole?.get(role.name) ?? 0;
                     const assignmentDisplay = formatRoleAssignmentDisplay(assignmentCount, assignmentCountsReliable);
                     const lastUpdated = formatRoleLastUpdated(role.updatedUtc);
 
@@ -718,7 +431,7 @@ export function SettingsRolesMatrixSection(props: SettingsRolesMatrixSectionProp
                               data-testid={`settings-roles-unsaved-badge-${roleKey}`}
                               className={cn("font-medium text-amber-700 dark:text-amber-300", OPERATOR_TYPOGRAPHY.micro)}
                             >
-                              Unsaved ({countDirtyPermissions(role, matrix.baseline)})
+                              Unsaved ({countDirtyPermissions(role, baseline)})
                             </span>
                           ) : null}
                           {role.isSystem ? (

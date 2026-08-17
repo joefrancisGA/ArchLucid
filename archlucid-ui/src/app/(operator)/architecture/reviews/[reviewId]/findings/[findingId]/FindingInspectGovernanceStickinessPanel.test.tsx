@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { FindingDispositionEvent } from "@/lib/api/governance-stickiness-api";
 import { formatDispositionConcurrentUpdateMessage } from "@/lib/findings/finding-disposition-concurrent-update";
+import { DISPOSITION_RATIONALE_REQUIRED_MESSAGE } from "@/lib/review-quality/finding-governance-gates";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 
 vi.mock("@/hooks/use-operate-capability", () => ({
@@ -70,6 +71,12 @@ describe("FindingInspectGovernanceStickinessPanel", () => {
       />,
     );
 
+    fireEvent.change(screen.getByLabelText(DISPOSITION_RATIONALE_REQUIRED_MESSAGE, { exact: false }), {
+      target: { value: "Accepted residual latency risk for pilot window." },
+    });
+    fireEvent.change(screen.getByTestId("finding-disposition-trade-off-ack"), {
+      target: { value: "Accepted residual latency risk for pilot window." },
+    });
     fireEvent.click(screen.getByTestId("finding-disposition-save"));
     fireEvent.click(screen.getByRole("button", { name: "Record disposition" }));
 
