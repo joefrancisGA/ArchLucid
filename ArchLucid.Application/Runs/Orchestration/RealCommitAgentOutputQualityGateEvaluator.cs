@@ -30,8 +30,9 @@ public static class RealCommitAgentOutputQualityGateEvaluator
         {
             AgentOutputQualityGateOutcome? outcome = trace.RecordedQualityGateOutcome;
 
-            if (outcome == AgentOutputQualityGateOutcome.Rejected
-                || (outcome is null && trace.QualityRejected))
+            // QualityRejected is the durable commit-blocking flag and can be patched independently of
+            // RecordedQualityGateOutcome; do not require outcome to be null or Rejected to honor it.
+            if (outcome == AgentOutputQualityGateOutcome.Rejected || trace.QualityRejected)
             {
                 reasons.Add(
                     $"Agent output quality gate rejected trace {trace.TraceId} ({trace.AgentType}).");

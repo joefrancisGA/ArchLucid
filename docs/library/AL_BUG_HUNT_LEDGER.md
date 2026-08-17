@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-17 (ui-architecture-intelligence hit: stale reasoning survived runId/scope switch).
+**Updated:** 2026-08-17 (commit-output-integrity hit: QualityRejected ignored when recorded outcome was non-Rejected).
 
 ## How to use
 
@@ -159,19 +159,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **id:** commit-output-integrity
 - **status:** open
 - **aliases:** output integrity; commit integrity
-- **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs
-- **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs
+- **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
+- **related-pd-tb:** TB-2226
+- **code-changed-since:** 2
 
 ### Hypotheses
 
-- [ ] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes
+- [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes — fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
 - [ ] Missing optional artifact is treated as a hash match
 - [ ] Integrity failure is logged but commit still proceeds
 

@@ -53,4 +53,29 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
         RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [trace])
             .Should().BeEmpty();
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "trace-mismatch",
+            AgentType = AgentType.Cost,
+            // Durable reject flag can be patched after an earlier non-reject recorded outcome.
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [trace]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-mismatch");
+    }
 }
