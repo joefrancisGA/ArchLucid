@@ -14,6 +14,19 @@ export const SPONSOR_DASHBOARD_HELP_PAGE_TITLE = "Sponsor dashboard";
 export const SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE =
   "How portfolio ROI trends, workspace-health KPI tiles, and sponsor exports fit sponsor governance briefings.";
 
+export const SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE_BUYER =
+  "Portfolio ROI, workspace-health KPIs, and sponsor exports for governance briefings in this workspace." as const;
+
+export const SPONSOR_DASHBOARD_HELP_PRIMARY_CONTENT_ID = "help-sponsor-dashboard-primary-content" as const;
+
+export const SPONSOR_DASHBOARD_HELP_SKIP_LINK_LABEL = "Skip to sponsor dashboard guide" as const;
+
+export function sponsorDashboardHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE_BUYER
+    : SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE;
+}
+
 export const SPONSOR_DASHBOARD_HELP_OVERVIEW =
   "The sponsor dashboard summarizes portfolio ROI trends, workspace-health KPI tiles, and sponsor exports for the selected scope — use it for governance posture at a glance before opening sponsor report help or architecture scorecard follow-ups.";
 
