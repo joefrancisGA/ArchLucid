@@ -19,6 +19,15 @@ vi.mock("@/lib/operator/operator-resource-scope", () => ({
   projectIdFromScopeHeaders: () => "default",
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 import { getArchitectureDecisionRegister } from "@/lib/api/governance-stickiness-api";
 
 const mockedGetRegister = vi.mocked(getArchitectureDecisionRegister);
