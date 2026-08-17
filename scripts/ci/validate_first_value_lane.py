@@ -9,8 +9,8 @@ from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
 _LANE_DOC = _REPO / "docs" / "runbooks" / "FIRST_VALUE_LANE.md"
-_UI_LIB = _REPO / "archlucid-ui" / "src" / "lib" / "first-value-lane.ts"
-_UI_PANEL = _REPO / "archlucid-ui" / "src" / "components" / "usability" / "FirstValueLanePanel.tsx"
+_UI_LIB = _REPO / "archlucid-ui" / "src" / "lib" / "first-pilot-operating-rail-steps.ts"
+_UI_PANEL = _REPO / "archlucid-ui" / "src" / "components" / "usability" / "PilotCommandCenterCard.tsx"
 _BUILDER_TESTS = _REPO / "ArchLucid.Application.Tests" / "Pilots" / "FirstValueReportBuilderTests.cs"
 
 _REQUIRED_DOC_PHRASES = (
@@ -23,13 +23,12 @@ _REQUIRED_DOC_PHRASES = (
 )
 
 _REQUIRED_UI_PHRASES = (
-    "FIRST_VALUE_LANE_HEADING",
+    "FIRST_PILOT_OPERATING_RAIL_STEPS",
     "create-review",
-    "retrieve-sponsor-artifact",
-    "not_started",
-    "in_progress",
-    "completed",
-    "blocked",
+    "sponsor-packet",
+    "verify-setup",
+    "execute-review",
+    "finalize-package",
 )
 
 _REQUIRED_TEST_ANCHORS = (
@@ -68,15 +67,15 @@ def main(argv: list[str] | None = None) -> int:
 
     for phrase in _REQUIRED_UI_PHRASES:
         if phrase not in ui_lib_text:
-            errors.append(f"first-value-lane.ts missing phrase: {phrase!r}")
+            errors.append(f"first-pilot-operating-rail-steps.ts missing phrase: {phrase!r}")
 
-    if "FirstValueLanePanel" not in _UI_PANEL.read_text(encoding="utf-8"):
-        errors.append("FirstValueLanePanel.tsx must define FirstValueLanePanel")
+    if "PilotCommandCenterCard" not in _UI_PANEL.read_text(encoding="utf-8"):
+        errors.append("PilotCommandCenterCard.tsx must define PilotCommandCenterCard")
 
-    unified_panel = _REPO / "archlucid-ui" / "src" / "components" / "usability" / "UnifiedFirstPilotProgressPanel.tsx"
+    home_view = _REPO / "archlucid-ui" / "src" / "app" / "(operator)" / "_sections" / "OperatorHomePageView.tsx"
 
-    if "FirstValueLanePanel" not in unified_panel.read_text(encoding="utf-8"):
-        errors.append("UnifiedFirstPilotProgressPanel must wire FirstValueLanePanel")
+    if "PilotCommandCenterCardDeferred" not in home_view.read_text(encoding="utf-8"):
+        errors.append("Operator home must wire PilotCommandCenterCardDeferred")
 
     builder_tests = _BUILDER_TESTS.read_text(encoding="utf-8")
 

@@ -22,7 +22,7 @@ class TestExecutiveValueBatch5CO(unittest.TestCase):
             / "_sections"
             / "SponsorRoiDashboardPageView.tsx"
         )
-        shell = REPO_ROOT / "archlucid-ui" / "src" / "components" / "ExecutiveShellFrame.tsx"
+        shell = REPO_ROOT / "archlucid-ui" / "src" / "components" / "SponsorShellFrame.tsx"
         traffic = (
             REPO_ROOT
             / "archlucid-ui"
@@ -33,16 +33,16 @@ class TestExecutiveValueBatch5CO(unittest.TestCase):
         self.assertTrue(page.is_file())
         self.assertIn("SponsorRoiDashboardPageView", page.read_text(encoding="utf-8"))
         self.assertIn("surface", view.read_text(encoding="utf-8"))
-        self.assertIn("EXECUTIVE_DASHBOARD_HREF", shell.read_text(encoding="utf-8"))
+        self.assertIn("SPONSOR_DASHBOARD_HREF", shell.read_text(encoding="utf-8"))
         traffic_text = traffic.read_text(encoding="utf-8")
-        self.assertIn('LEGACY_EXECUTIVE_SHELL_DASHBOARD_PATH = "/sponsor/dashboard"', traffic_text)
+        self.assertIn('LEGACY_SPONSOR_SHELL_DASHBOARD_PATH = "/sponsor/dashboard"', traffic_text)
         self.assertIn("hard-retired", traffic_text)
 
     def test_tb_268_executive_value_narrative(self) -> None:
         helper = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor-value-narrative.ts"
         banner = REPO_ROOT / "archlucid-ui" / "src" / "components" / "ExecutiveValueNarrativeBanner.tsx"
         self.assertTrue(helper.is_file())
-        self.assertIn("buildExecutiveValueNarrative", banner.read_text(encoding="utf-8"))
+        self.assertIn("buildSponsorValueNarrative", banner.read_text(encoding="utf-8"))
 
     def test_tb_269_roi_trend_time_range_selector(self) -> None:
         trend = (

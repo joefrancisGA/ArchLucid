@@ -14,11 +14,18 @@ class TestAdoptionBatch5AX(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         self.assertIn("KpiTileDrillThroughLink", text)
         self.assertIn("kpi-tile-stale-risks-link", text)
-        hrefs = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "sponsor-kpi-drill-through-hrefs.ts"
+        hrefs = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "lib"
+            / "sponsor"
+            / "sponsor-kpi-drill-through-hrefs.ts"
+        )
         self.assertIn("filter=stale", hrefs.read_text(encoding="utf-8"))
 
     def test_tb_244_orphan_card_link(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "sponsor-dashboard" / "_sections" / "ExecutiveOrphanCandidatesCard.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "sponsor-dashboard" / "_sections" / "SponsorOrphanCandidatesCard.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("kpi-tile-orphan-candidates-link", text)
         self.assertIn("orphan-candidates", text)
