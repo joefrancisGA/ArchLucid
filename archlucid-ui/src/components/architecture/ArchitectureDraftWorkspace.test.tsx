@@ -8,6 +8,15 @@ const reloadDraft = vi.fn();
 const acknowledgeArchitectureDraftHandoff = vi.fn();
 const isArchitectureDraftHandoffAcknowledged = vi.fn();
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("@/lib/api/draft-intake-api", async () => {
   const actual = await vi.importActual<typeof import("@/lib/api/draft-intake-api")>("@/lib/api/draft-intake-api");
 

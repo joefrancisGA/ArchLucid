@@ -4,8 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { ArchitectureDraftDetailBreadcrumb } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBreadcrumb";
+import { ArchitectureDraftDetailBuyerChrome } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBuyerChrome";
 import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
 import { ArchitectureDraftAiRefinePanel } from "@/components/architecture/ArchitectureDraftAiRefinePanel";
+import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
@@ -17,6 +20,7 @@ import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntak
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import { Button } from "@/components/ui/button";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
@@ -58,12 +62,17 @@ import {
 } from "@/lib/architecture/architecture-draft-readiness";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import {
+  architectureDraftDetailPageSubtitle,
+  ARCHITECTURE_DRAFT_DETAIL_ARCHITECTURE_ID_LABEL,
+} from "@/lib/architecture/architecture-draft-detail-page-copy";
+import {
   ARCHITECTURES_LIST_PATH,
   architectureDraftPath,
   isArchitectureNewDraftSegment,
   reviewDetailPath,
   startReviewFromArchitectureHref,
 } from "@/lib/architecture/architecture-routes";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import {
@@ -76,7 +85,6 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-co
 import {
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
   ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
-  ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showSuccess } from "@/lib/toast";
@@ -91,6 +99,8 @@ type ArchitectureDraftWorkspaceProps = {
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
   const router = useRouter();
   const isNewDraft = isArchitectureNewDraftSegment(props.architectureId);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const isDetailDraft = !isNewDraft;
   const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const [loading, setLoading] = useState(!isNewDraft);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -186,7 +196,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   const workspaceLead = hasLocalDraftsOnCreatePath
     ? ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD
-    : ARCHITECTURE_DRAFT_WORKSPACE_LEAD;
+    : architectureDraftDetailPageSubtitle(isDetailDraft && buyerPolishedShell);
 
   const reviewReadiness = useMemo(
     () => validateArchitectureReviewReadiness(fields, actorSet.actors),
@@ -437,6 +447,17 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }
 
   if (loadError !== null) {
+    if (isDetailDraft && buyerPolishedShell) {
+      return (
+        <ArchitectureDraftDetailLoadFailure
+          message={loadError}
+          onRetry={() => {
+            void loadDraft();
+          }}
+        />
+      );
+    }
+
     return (
       <div className="space-y-3" data-testid="architecture-draft-workspace-error">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert">
@@ -453,6 +474,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     <div className="space-y-4" data-testid="architecture-draft-workspace">
       {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
 
+      {isDetailDraft && buyerPolishedShell ? (
+        <ArchitectureDraftDetailBreadcrumb draftLabel={workspaceHeading} />
+      ) : null}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
           <WorkspaceHeadingTag
@@ -466,6 +491,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           <p className={cn("m-0", OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
             {workspaceLead}
           </p>
+          {isDetailDraft && buyerPolishedShell ? (
+            <TechnicalIdDisclosure
+              label={ARCHITECTURE_DRAFT_DETAIL_ARCHITECTURE_ID_LABEL}
+              value={props.architectureId}
+            />
+          ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <StatusTag
               kind={architectureDraftCustomerStatusTagKind(customerStatus)}
@@ -493,6 +524,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         </div>
       </div>
 
+      {isDetailDraft && buyerPolishedShell ? <ArchitectureDraftDetailBuyerChrome /> : null}
+
       {linkedReviewId !== null ? (
         <ArchitectureDraftHandoffBanner
           linkedReviewId={linkedReviewId}
@@ -502,7 +535,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         />
       ) : null}
 
-      <ArchitectureDraftGuidanceDisclosure />
+      {isDetailDraft && buyerPolishedShell ? null : <ArchitectureDraftGuidanceDisclosure />}
 
       {conflictMessage !== null ? (
         <div className="space-y-2" data-testid="architecture-draft-conflict">
