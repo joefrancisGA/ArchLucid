@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-17 (ui-help-docs hit: doc-index bled Admin-only runbook titles onto public help slugs; ui-runs-list dry earlier).
+**Updated:** 2026-08-17 (ui-webhooks-settings hit: signing secret retained across workspace scope switch; ui-help-docs hit earlier).
 
 ## How to use
 
@@ -759,23 +759,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-webhooks-settings
 
 - **id:** ui-webhooks-settings
-- **status:** open
+- **status:** cooling
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx
 - **test-filter:** WebhooksSettings
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] Signing secret from a previous workspace remains visible after scope switch
-- [ ] Save succeeds in the UI when the API returned 403
-- [ ] Dry-run control posts to the live endpoint from the settings form
+- [x] Signing secret from a previous workspace remains visible after scope switch
+- [x] Save succeeds in the UI when the API returned 403 (retired: create throws on !ok; success callout only after await)
+- [x] Dry-run control posts to the live endpoint from the settings form (retired: no dry-run on create form; Send test uses /test)
 
 ---
 

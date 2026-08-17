@@ -690,4 +690,38 @@ describe("WebhooksIntegrationPage", () => {
     expect(disclosure).toHaveTextContent(/Live alert deliveries are signed with the platform shared secret/i);
     expect(disclosure.textContent ?? "").not.toMatch(/keyed with your subscription signing secret/i);
   });
+
+  it("clears the signing secret when operator scope switches workspaces", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    render(<WebhooksIntegrationPage />);
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalled());
+
+    const secret = `${"z".repeat(16)}-from-workspace-a`;
+    fireEvent.change(screen.getByLabelText(/^Signing secret$/i), { target: { value: secret } });
+    fireEvent.click(screen.getByRole("button", { name: /Show signing secret/i }));
+    expect((screen.getByLabelText(/^Signing secret$/i) as HTMLInputElement).value).toBe(secret);
+
+    apiMocks.list.mockClear();
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect((screen.getByLabelText(/^Signing secret$/i) as HTMLInputElement).value).toBe("");
+    });
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalled());
+  });
 });
