@@ -12,12 +12,16 @@ import {
   INVITE_REVIEWER_BACK_TO_REVIEW_HREF,
   INVITE_REVIEWER_FOOTER_LEAD,
   INVITE_REVIEWER_FORBIDDEN_DESCRIPTION,
-  INVITE_REVIEWER_PAGE_LEAD,
   INVITE_REVIEWER_PAGE_TITLE,
   SETTINGS_ROLES_USERS_TAB_PATH,
 } from "@/lib/invite-reviewer-flow";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+
+import { InviteReviewerBuyerChrome } from "./InviteReviewerBuyerChrome";
+import { InviteReviewerBreadcrumb } from "./InviteReviewerBreadcrumb";
+import { inviteReviewerPageSubtitle } from "./invite-reviewer-page-copy";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
 import { InviteReviewerReaderCapabilitiesSummary } from "./InviteReviewerReaderCapabilitiesSummary";
@@ -29,6 +33,7 @@ type Props = {
 
 export function InviteReviewerPageView(props: Props) {
   const m = props.model;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   if (m.surface === "demo") {
     return (
@@ -50,7 +55,7 @@ export function InviteReviewerPageView(props: Props) {
   if (m.surface === "forbidden") {
     return (
       <div className={cn("w-full max-w-[720px]", OPERATOR_LAYOUT.sectionStack)} data-testid="invite-reviewer-page">
-        <InviteReviewerPageHeader />
+        <InviteReviewerPageHeader buyerPolishedShell={buyerPolishedShell} />
         <Card>
           <CardContent className="pt-6">
             <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="invite-reviewer-forbidden">
@@ -72,7 +77,7 @@ export function InviteReviewerPageView(props: Props) {
 
   return (
     <div className={cn("w-full max-w-[720px]", OPERATOR_LAYOUT.sectionStack)} data-testid="invite-reviewer-page">
-      <InviteReviewerPageHeader />
+      <InviteReviewerPageHeader buyerPolishedShell={buyerPolishedShell} />
       <Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviewer invitation</CardTitle>
@@ -93,22 +98,26 @@ export function InviteReviewerPageView(props: Props) {
   );
 }
 
-function InviteReviewerPageHeader(): React.JSX.Element {
+function InviteReviewerPageHeader(props: { readonly buyerPolishedShell: boolean }): React.JSX.Element {
   return (
-    <OperatorPageHeader
-      title={INVITE_REVIEWER_PAGE_TITLE}
-      headingLevel="h1"
-      subtitle={INVITE_REVIEWER_PAGE_LEAD}
-      actions={
-        <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" variant="outline" size="sm" className="h-8 px-2" asChild>
-            <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
-          </Button>
-          <PageContextualHelpButton />
-        </div>
-      }
-    >
-      <InviteReviewerReaderCapabilitiesSummary />
-    </OperatorPageHeader>
+    <>
+      <OperatorPageHeader
+        title={INVITE_REVIEWER_PAGE_TITLE}
+        headingLevel="h1"
+        subtitle={inviteReviewerPageSubtitle(props.buyerPolishedShell)}
+        breadcrumb={props.buyerPolishedShell ? <InviteReviewerBreadcrumb /> : undefined}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" variant="outline" size="sm" className="h-8 px-2" asChild>
+              <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
+            </Button>
+            {props.buyerPolishedShell ? null : <PageContextualHelpButton />}
+          </div>
+        }
+      >
+        <InviteReviewerReaderCapabilitiesSummary />
+      </OperatorPageHeader>
+      <InviteReviewerBuyerChrome />
+    </>
   );
 }
