@@ -106,13 +106,13 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 ## Zone: tenant-settings-sql
 
 - **id:** tenant-settings-sql
-- **status:** open
+- **status:** cooling
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-17
 - **last-bug:** 2026-08-17
 - **related-pd-tb:** PD-003
@@ -124,7 +124,7 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 
 - [x] Tenant-plane SQL still uses the host catalog or a hardcoded tenant id (retired — `SqlTenantSettingsRepositoryConnectionFactoryContractTests` + PD-003 fix on master)
 - [x] Cache wrapper returns stale miss after upsert when setting-key casing differs (`TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`)
-- [ ] DefaultTenant FK insert/update disagrees with the cached read path
+- [x] DefaultTenant FK insert/update disagrees with the cached read path (retired — PD-003 disposition merged on master: `ArchLucidPersistenceStartup` ApiKey DefaultTenant bootstrap + scoped `ISqlConnectionFactory`; repository uses same `tenantId` on read/write/cache keys)
 
 ---
 
