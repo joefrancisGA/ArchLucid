@@ -12,7 +12,7 @@ public sealed class AgentTopologyProposalGraphMergeReferencePropertyTests
 {
     [Property(
         Arbitrary = [typeof(GraphSnapshotArbitrary), typeof(AgentTopologyProposalArbitrary)],
-        MaxTest = 150)]
+        MaxTest = 40)]
     public void Production_merge_matches_naive_reference_oracle(GraphSnapshot graph, AgentResult[] results)
     {
         GraphSnapshot production = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, results);

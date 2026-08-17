@@ -32,6 +32,10 @@ FULL_MATRIX: list[tuple[str, str]] = [
         "ApplicationCommitCriticalPaths",
         "stryker-config.application-commit-critical-paths.json",
     ),
+    (
+        "ApplicationGraphMergeProperties",
+        "stryker-config.application-graph-merge-properties.json",
+    ),
 ]
 
 # Paths that should run the full matrix (config / CI / tool pins).
@@ -120,6 +124,21 @@ def _targets_for_path(path: str) -> list[tuple[str, str]]:
         return [
             ("ApplicationGovernance", "stryker-config.application-governance.json"),
             ("ApplicationCommitCriticalPaths", "stryker-config.application-commit-critical-paths.json"),
+        ]
+
+    if p.startswith("ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge"):
+        return [
+            ("ApplicationGraphMergeProperties", "stryker-config.application-graph-merge-properties.json"),
+        ]
+
+    if p.startswith("ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate"):
+        return [
+            ("ApplicationGraphMergeProperties", "stryker-config.application-graph-merge-properties.json"),
+        ]
+
+    if p.startswith("ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex"):
+        return [
+            ("ApplicationGraphMergeProperties", "stryker-config.application-graph-merge-properties.json"),
         ]
 
     if p.startswith("ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator"):

@@ -2,8 +2,6 @@ using ArchLucid.Application.OperatorHome;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Agents;
-using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.CustomerSuccess;

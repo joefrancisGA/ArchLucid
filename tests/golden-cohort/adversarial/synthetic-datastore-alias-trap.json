@@ -1,0 +1,5 @@
+{
+  "trap": "synthetic-datastore-alias-trap",
+  "description": "Relationship uses ds-{label} while graph only has compute label alias.",
+  "expectMergeInvariantClean": true
+}

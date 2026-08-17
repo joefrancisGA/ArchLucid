@@ -1,0 +1,5 @@
+{
+  "trap": "risk-accepted-not-pass",
+  "description": "Risk-accepted governance disposition must not be treated as unconditional pass.",
+  "expectDispositionNotPass": true
+}

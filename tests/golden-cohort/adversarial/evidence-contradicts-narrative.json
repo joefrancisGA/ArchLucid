@@ -1,0 +1,5 @@
+{
+  "trap": "evidence-contradicts-narrative",
+  "description": "Proposal references endpoints absent from inventoried graph.",
+  "expectGateRejectsAll": true
+}
