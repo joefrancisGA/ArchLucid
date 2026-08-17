@@ -1,5 +1,13 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/components/marketing/welcome-marketing-deferred-chunks", async () => {
+  const { MarketingTierPricingSection } = await import("./MarketingTierPricingSection");
+
+  return {
+    MarketingTierPricingSectionDeferred: MarketingTierPricingSection,
+  };
+});
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -22,13 +30,32 @@ import {
   WELCOME_WORKFLOW_STEPS,
 } from "@/components/marketing/welcome-marketing-copy";
 
+import type { PricingDoc } from "@/lib/pricing-types";
+
 import { WelcomeMarketingEngagementPathsSection } from "./WelcomeMarketingEngagementPathsSection";
 import { WelcomeMarketingProofAtGlanceSection } from "./WelcomeMarketingProofAtGlanceSection";
 import { WelcomeMarketingPage } from "./WelcomeMarketingPage";
 
+const WELCOME_TEST_INITIAL_PRICING: PricingDoc = {
+  schemaVersion: 1,
+  effectiveDate: "2026-01-01",
+  currency: "USD",
+  packages: [
+    {
+      id: "pilot",
+      title: "Pilot",
+      summary: "Pilot summary",
+      workspaceMonthlyUsd: 100,
+      seatMonthlyUsd: 10,
+      annualFloorUsd: 1200,
+    },
+  ],
+};
+
 function renderWelcomePage() {
   return render(
     <WelcomeMarketingPage
+      initialPricing={WELCOME_TEST_INITIAL_PRICING}
       serverStaticSections={
         <>
           <WelcomeMarketingProofAtGlanceSection />
@@ -40,33 +67,7 @@ function renderWelcomePage() {
 }
 
 describe("WelcomeMarketingPage", () => {
-  beforeEach(() => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => {
-        return new Response(
-          JSON.stringify({
-            schemaVersion: 1,
-            currency: "USD",
-            packages: [
-              {
-                id: "pilot",
-                title: "Pilot",
-                summary: "Pilot summary",
-                workspaceMonthlyUsd: 100,
-                seatMonthlyUsd: 10,
-                annualFloorUsd: 1200,
-              },
-            ],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }),
-    );
-  });
-
   afterEach(() => {
-    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -114,10 +115,8 @@ describe("WelcomeMarketingPage", () => {
     expect(screen.getByRole("heading", { name: /Proof at a glance/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Three pillars/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /AI-native architecture analysis/i })).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Pilot" })).toBeInTheDocument();
-    });
+    expect(screen.getByRole("heading", { name: /Packaging overview/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Pilot" })).toBeInTheDocument();
   });
 
   it("TB-1294: hero budget — pitch and CTAs stay inside the hero band without differentiator bullets", () => {
