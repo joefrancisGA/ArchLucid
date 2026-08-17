@@ -7,21 +7,18 @@ import {
   MARKETING_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { CANONICAL_GET_STARTED_PATH } from "@/lib/legacy-quick-start-route";
-import { SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
+import { SEE_IT_HERO_LEAD, SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 import { TRUST_CENTER_PUBLIC_EVIDENCE_VERSION } from "@/lib/trust-center-buyer-content";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { cn } from "@/lib/utils";
 
+import { SeeItBreadcrumb } from "@/components/marketing/see-it/SeeItBreadcrumb";
 import {
   SEE_IT_LAST_REVIEWED_LABEL,
   SEE_IT_SECONDARY_GET_STARTED_LABEL,
 } from "./see-it-page-content";
 import { SeeItDeliverablePreview } from "./SeeItDeliverablePreview";
-
-/** Shorter than the shared outcome-led line — hero visuals carry the rest. */
-export const SEE_IT_HERO_LEAD =
-  "Evidence-backed proof export — sealed review record, findings, and audit trail — not a chat transcript.";
 
 /** First-viewport hero for `/see-it` — one headline, one lead, one primary CTA, sample preview rail (TB-1281). */
 export function SeeItHeroSection(): React.JSX.Element {
@@ -32,6 +29,9 @@ export function SeeItHeroSection(): React.JSX.Element {
       data-testid="see-it-hero"
     >
       <div>
+        <div className="mb-3">
+          <SeeItBreadcrumb />
+        </div>
         <h1 id="see-it-hero-heading" className={MARKETING_TYPOGRAPHY.heroTitle}>
           {SEE_IT_PAGE_TITLE}
         </h1>
