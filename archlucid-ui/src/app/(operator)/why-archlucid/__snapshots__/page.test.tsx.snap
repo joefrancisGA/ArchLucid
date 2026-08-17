@@ -176,89 +176,6 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     </header>
   </div>
   <div
-    class="space-y-3"
-    data-testid="why-archlucid-orientation"
-  >
-    <div
-      aria-labelledby="why-archlucid-claim-discipline-heading"
-      class="rounded-md border border-amber-600/60 bg-al-surface-raised text-sm text-al-text-primary dark:border-amber-700/60 p-3"
-      data-testid="why-archlucid-claim-discipline"
-    >
-      <h2
-        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
-        id="why-archlucid-claim-discipline-heading"
-      >
-        Pilot proof only
-      </h2>
-      <p
-        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
-      >
-        This Why ArchLucid page is an architect demo/proof surface over seeded telemetry and sample review outputs — it is not a sealed-review diligence Sources bundle from your production tenant. Open the public /why comparison, Assurance status, or a finalized sealed review record when you need diligence-grade trails.
-      </p>
-    </div>
-    <section
-      aria-labelledby="why-archlucid-sources-heading"
-      class="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
-      data-testid="why-archlucid-sources"
-    >
-      <h2
-        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
-        id="why-archlucid-sources-heading"
-      >
-        Diligence artifact index
-      </h2>
-      <p
-        class="m-0 mt-1 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
-      >
-        Use these follow-ups when demo proof turns into marketing comparison, sponsor packaging, or assurance orientation.
-      </p>
-      <ul
-        class="m-0 mt-2 list-none space-y-2 p-0 text-[13px] font-normal leading-5 text-al-text-primary"
-      >
-        <li>
-          <a
-            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
-            href="/why"
-          >
-            Why ArchLucid (marketing)
-          </a>
-        </li>
-        <li>
-          <a
-            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
-            href="/see-it"
-          >
-            See a sample review
-          </a>
-        </li>
-        <li>
-          <a
-            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
-            href="/insights/sponsor-report"
-          >
-            Sponsor report
-          </a>
-        </li>
-        <li>
-          <a
-            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
-            href="/help/getting-started#how-archlucid-works"
-          >
-            How ArchLucid works
-          </a>
-        </li>
-        <li>
-          <a
-            class="text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] inline-flex min-h-8 items-center py-1 font-medium"
-            href="/assurance-status"
-          >
-            Assurance status
-          </a>
-        </li>
-      </ul>
-    </section>
-  </div>
-  <div
     class="flex flex-wrap items-center gap-3"
     data-testid="why-archlucid-primary-cta-row"
   >
@@ -441,21 +358,11 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         Apr 20, 2026, 12:00 PM UTC
          ·
          
-        <span
-          class="inline-flex flex-wrap items-center gap-2"
+        <code
+          class="break-all rounded bg-neutral-100 px-1 font-mono dark:bg-neutral-800 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
-          <span
-            class="dark:text-neutral-300 text-[13px] font-normal leading-5 text-al-text-primary"
-          >
-            Sample review identifier
-          </span>
-          <button
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 rounded-md h-7 px-2 text-xs font-normal leading-[18px] text-al-text-secondary"
-            type="button"
-          >
-            Show details
-          </button>
-        </span>
+          6e8c4a102b1f4c9a9d3e10b2a4f0c501
+        </code>
       </p>
     </div>
     <div
@@ -541,21 +448,11 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         Apr 28, 2026, 1:02 AM UTC
          ·
          
-        <span
-          class="inline-flex flex-wrap items-center gap-2"
+        <code
+          class="break-all rounded bg-neutral-100 px-1 font-mono dark:bg-neutral-800 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
-          <span
-            class="dark:text-neutral-300 text-[13px] font-normal leading-5 text-al-text-primary"
-          >
-            Sample review identifier
-          </span>
-          <button
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 rounded-md h-7 px-2 text-xs font-normal leading-[18px] text-al-text-secondary"
-            type="button"
-          >
-            Show details
-          </button>
-        </span>
+          6e8c4a102b1f4c9a9d3e10b2a4f0c501
+        </code>
          · telemetry slice matches the host process counters (
         7
          reviews tracked).

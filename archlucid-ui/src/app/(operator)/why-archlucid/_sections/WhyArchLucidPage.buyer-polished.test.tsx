@@ -32,8 +32,10 @@ import {
 import { WhyArchLucidPage } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPage";
 import { WHY_ARCHLUCID_CLAIM_DISCIPLINE, WHY_ARCHLUCID_CLAIM_HEADING } from "@/lib/why-archlucid-evidence-copy";
 import {
-  WHY_ARCHLUCID_PAGE_ORIENTATION,
+  WHY_ARCHLUCID_PAGE_ORIENTATION_BUYER,
+  WHY_ARCHLUCID_PAGE_ORIENTATION_OPERATOR,
   WHY_ARCHLUCID_PAGE_TITLE,
+  whyArchLucidPageOrientation,
 } from "@/lib/why-archlucid-page-copy";
 
 const measuredRoiMock = vi.mocked(getTenantMeasuredRoi);
@@ -116,7 +118,9 @@ describe("WhyArchLucidPage buyer-polished shell", () => {
     });
 
     expect(screen.getByRole("heading", { level: 1, name: WHY_ARCHLUCID_PAGE_TITLE })).toBeInTheDocument();
-    expect(screen.getByText(WHY_ARCHLUCID_PAGE_ORIENTATION)).toBeInTheDocument();
+    expect(screen.getByText(WHY_ARCHLUCID_PAGE_ORIENTATION_BUYER)).toBeInTheDocument();
+    expect(screen.queryByText(WHY_ARCHLUCID_PAGE_ORIENTATION_OPERATOR)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("why-archlucid-marketing-disambiguation")).toBeNull();
     expect(screen.getByTestId("why-archlucid-page-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("why-archlucid-claim-discipline")).toBeInTheDocument();

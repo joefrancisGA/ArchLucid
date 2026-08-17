@@ -3,8 +3,20 @@
 /** TB-1307: operator telemetry page title — not the marketing `/why` H1 twin. */
 export const WHY_ARCHLUCID_PAGE_TITLE = "Pilot proof telemetry";
 
-export const WHY_ARCHLUCID_PAGE_ORIENTATION =
+export const WHY_ARCHLUCID_PAGE_ORIENTATION_OPERATOR =
   "Live sponsor counters and seeded demo instrumentation for pilots — not the public marketing comparison page.";
+
+export const WHY_ARCHLUCID_PAGE_ORIENTATION_BUYER =
+  "Seeded pilot counters and sponsor-pack telemetry — orientation only, not procurement evidence.";
+
+/** @deprecated Use {@link whyArchLucidPageOrientation} — kept for legacy imports. */
+export const WHY_ARCHLUCID_PAGE_ORIENTATION = WHY_ARCHLUCID_PAGE_ORIENTATION_OPERATOR;
+
+export function whyArchLucidPageOrientation(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? WHY_ARCHLUCID_PAGE_ORIENTATION_BUYER
+    : WHY_ARCHLUCID_PAGE_ORIENTATION_OPERATOR;
+}
 
 export const WHY_ARCHLUCID_MARKETING_WHY_HREF = "/why" as const;
 

@@ -9,7 +9,10 @@ import {
   WHY_ARCHLUCID_FOOTER_GETTING_STARTED_HREF,
   WHY_ARCHLUCID_FOOTER_TRUST_CENTER_HREF,
   WHY_ARCHLUCID_MARKETING_WHY_HREF,
+  WHY_ARCHLUCID_PAGE_ORIENTATION_BUYER,
+  WHY_ARCHLUCID_PAGE_ORIENTATION_OPERATOR,
   WHY_ARCHLUCID_PAGE_TITLE,
+  whyArchLucidPageOrientation,
   whyArchlucidCounterHintAuditRowsTruncated,
   whyArchLucidSampleReviewHref,
 } from "@/lib/why-archlucid-page-copy";
@@ -53,6 +56,12 @@ describe("why-archlucid-page-copy (TB-1308)", () => {
   it("TB-1307: page title is not the marketing /why H1 twin", () => {
     expect(WHY_ARCHLUCID_PAGE_TITLE).not.toBe("Why ArchLucid");
     expect(WHY_ARCHLUCID_MARKETING_WHY_HREF).toBe("/why");
+  });
+
+  it("uses shorter buyer orientation copy", () => {
+    expect(whyArchLucidPageOrientation(true)).toBe(WHY_ARCHLUCID_PAGE_ORIENTATION_BUYER);
+    expect(whyArchLucidPageOrientation(false)).toBe(WHY_ARCHLUCID_PAGE_ORIENTATION_OPERATOR);
+    expect(WHY_ARCHLUCID_PAGE_ORIENTATION_BUYER.length).toBeLessThan(WHY_ARCHLUCID_PAGE_ORIENTATION_OPERATOR.length);
   });
 
   it("TB-1309: sample review href is null without a demo run id", () => {
