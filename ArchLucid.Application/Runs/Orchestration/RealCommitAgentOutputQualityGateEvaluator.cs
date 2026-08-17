@@ -24,9 +24,12 @@ public static class RealCommitAgentOutputQualityGateEvaluator
         if (!options.Enabled || options.Mode != AgentOutputQualityGateMode.PilotStrict)
             return [];
 
+        IReadOnlyList<AgentExecutionTrace> latestTracesPerTask =
+            AgentExecutionTraceLatestPerTaskSelector.Select(traces);
+
         List<string> reasons = [];
 
-        foreach (AgentExecutionTrace trace in traces)
+        foreach (AgentExecutionTrace trace in latestTracesPerTask)
         {
             AgentOutputQualityGateOutcome? outcome = trace.RecordedQualityGateOutcome;
 

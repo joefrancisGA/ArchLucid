@@ -118,7 +118,8 @@ public sealed class AgentOutputEvaluationRecorder(
 
         Dictionary<string, double?> calibratedByTaskId = BuildCalibratedConfidenceByTaskId(agentResults);
 
-        IReadOnlyList<AgentExecutionTrace> tracesForEvaluation = SelectLatestTracePerTask(traces);
+        IReadOnlyList<AgentExecutionTrace> tracesForEvaluation =
+            AgentExecutionTraceLatestPerTaskSelector.Select(traces);
 
         await Task.WhenAll(tracesForEvaluation.Select(trace => EvaluateOneAsync(trace, calibratedByTaskId))).ConfigureAwait(false);
 
@@ -353,19 +354,6 @@ public sealed class AgentOutputEvaluationRecorder(
         }
 
         return map;
-    }
-
-    private static IReadOnlyList<AgentExecutionTrace> SelectLatestTracePerTask(IReadOnlyList<AgentExecutionTrace> traces)
-    {
-        if (traces.Count <= 1)
-            return traces;
-
-        List<AgentExecutionTrace> latest = traces
-            .GroupBy(static t => t.TaskId, StringComparer.OrdinalIgnoreCase)
-            .Select(static g => g.OrderByDescending(static t => t.CreatedUtc).First())
-            .ToList();
-
-        return latest;
     }
 
     private async Task TryLogLlmFaithfulnessGateAuditAsync(

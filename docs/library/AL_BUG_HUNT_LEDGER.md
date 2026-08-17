@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-17 (topology hit: classic CDN profile TF types omitted svc- synthetic on Data-category nodes).
+**Updated:** 2026-08-17 (commit-output-integrity hit: superseded rejected traces blocked commit after auto-retry).
 
 ## How to use
 
@@ -162,19 +162,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-17
 - **last-bug:** 2026-08-17
 - **related-pd-tb:** TB-2226
-- **code-changed-since:** 2
+- **code-changed-since:** 3
 
 ### Hypotheses
 
 - [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes — fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
-- [ ] Missing optional artifact is treated as a hash match
-- [ ] Integrity failure is logged but commit still proceeds
+- [x] Missing optional artifact is treated as a hash match — retired: not applicable to commit quality-gate paths; superseded-retry trace selection was the real gap
+- [x] Integrity failure is logged but commit still proceeds — retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
 
 ---
 

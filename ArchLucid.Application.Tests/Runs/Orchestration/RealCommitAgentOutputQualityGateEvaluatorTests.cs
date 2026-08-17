@@ -78,4 +78,82 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
         reasons.Should().ContainSingle();
         reasons[0].Should().Contain("trace-mismatch");
     }
+
+    [Fact]
+    public void GetBlockingReasons_ignores_superseded_rejected_trace_when_latest_trace_accepted()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        const string taskId = "task-retry";
+        DateTime olderUtc = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 1, 1, 12, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededRejected = new()
+        {
+            TraceId = "trace-first-attempt",
+            TaskId = taskId,
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace latestAccepted = new()
+        {
+            TraceId = "trace-retry-success",
+            TaskId = taskId,
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededRejected, latestAccepted]);
+
+        reasons.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetBlockingReasons_blocks_when_latest_trace_rejected_even_if_older_trace_accepted()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        const string taskId = "task-regression";
+        DateTime olderUtc = new(2026, 2, 1, 8, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 2, 1, 8, 10, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededAccepted = new()
+        {
+            TraceId = "trace-accepted-first",
+            TaskId = taskId,
+            AgentType = AgentType.Compliance,
+            CreatedUtc = olderUtc,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+        AgentExecutionTrace latestRejected = new()
+        {
+            TraceId = "trace-rejected-latest",
+            TaskId = taskId,
+            AgentType = AgentType.Compliance,
+            CreatedUtc = newerUtc,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededAccepted, latestRejected]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-rejected-latest");
+    }
 }
