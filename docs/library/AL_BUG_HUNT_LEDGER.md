@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-16 (catalog expansion across API/persistence/UI/CLI; arm-terraform-source-ids hit: Terraform ARM ids in tf.id / tf.resource_id; sql-run-repository dry: get/list/update already tenant-scoped).
+**Updated:** 2026-08-17 (architecture-recommendation hit: security trust-boundary alternative duplicated primary ProposedChange).
 
 ## How to use
 
@@ -579,18 +579,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] Recommended change targets an element that is not in the current package
-- [ ] Alternative list duplicates the primary recommendation as if it were distinct
+- [x] Recommended change targets an element that is not in the current package (retired: engine has no package element targeting)
+- [x] Alternative list duplicates the primary recommendation as if it were distinct
 - [ ] Engine emits a must-change when evidence only supports a suggestion
 
 ---
