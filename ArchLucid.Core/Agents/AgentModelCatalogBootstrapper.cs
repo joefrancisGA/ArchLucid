@@ -1,9 +1,8 @@
 using ArchLucid.Contracts.Common;
-using ArchLucid.Core.Agents;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Persistence.Ports;
 
-namespace ArchLucid.Application.Agents;
+namespace ArchLucid.Core.Agents;
 
 /// <summary>Seeds the default three managed Azure aliases when the catalog is empty (TB-2103).</summary>
 public static class AgentModelCatalogDefaultSeed

@@ -115,7 +115,6 @@ public static class ApiWebLayerServiceCollectionExtensions
 
         services.AddScoped<IWebhookSubscriptionTestService, WebhookSubscriptionTestService>();
         services.AddScoped<ITeamsIncomingWebhookConnectionProbeService, TeamsIncomingWebhookConnectionProbeService>();
-        services.AddScoped<ITenantAzureOpenAiConnectionProbeService, TenantAzureOpenAiConnectionProbeService>();
         services.AddScoped<MarketplaceWebhookConnectivityService>();
 
         services.AddHealthChecks().AddCheck<AzureServiceBusNamespaceHealthCheck>(

@@ -1,4 +1,3 @@
-using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Persistence.Ports;

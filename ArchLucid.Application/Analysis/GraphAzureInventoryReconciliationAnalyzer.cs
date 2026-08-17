@@ -122,7 +122,7 @@ public sealed record InventoryReconciliationResult(
     IReadOnlyList<string> GraphOnlyResourceIds,
     IReadOnlyList<string> InventoryOnlyResourceIds)
 {
-    public static InventoryReconciliationResult Empty { get; } = new(0, 0, [], []);
+    public static readonly InventoryReconciliationResult Empty = new(0, 0, [], []);
 
     public bool HasMismatches => GraphOnlyResourceIds.Count > 0 || InventoryOnlyResourceIds.Count > 0;
 }

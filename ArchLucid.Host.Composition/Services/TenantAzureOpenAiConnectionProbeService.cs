@@ -8,12 +8,7 @@ using ArchLucid.Core.Secrets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace ArchLucid.Api.Services;
-
-public interface ITenantAzureOpenAiConnectionProbeService
-{
-    Task<TenantAzureOpenAiConnectionProbeResponse> ProbeAsync(Guid tenantId, CancellationToken cancellationToken);
-}
+namespace ArchLucid.Host.Composition.Services;
 
 public sealed class TenantAzureOpenAiConnectionProbeService(
     ITenantAzureOpenAiConnectionRepository repository,

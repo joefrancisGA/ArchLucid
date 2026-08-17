@@ -20,7 +20,7 @@ const showcaseRunEnc = encodeURIComponent(SHOWCASE_DEMO_RUN_ID);
 /** Canonical five-step buyer spine URLs (aligned with `buyer-golden-journey-nav.ts`). */
 export function showcaseSignedManifestBrowserUrlPattern(): RegExp {
   return new RegExp(
-    `(?:/(?:governance/)?signed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/sealed-record)`,
+    `(?:/(?:governance/)?sealed-records/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/sealed-record)`,
   );
 }
 

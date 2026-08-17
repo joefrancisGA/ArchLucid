@@ -13,6 +13,7 @@ public static partial class ServiceCollectionExtensions
         services.AddDataProtection();
         services.AddSingleton<IExecDigestUnsubscribeTokenFactory, ExecDigestUnsubscribeTokenFactory>();
         services.AddSingleton<IExecDigestSponsorDeepLinkTokenFactory, ExecDigestSponsorDeepLinkTokenFactory>();
+        services.AddSingleton<ISponsorDigestUnsubscribeTokenFactory, SponsorDigestUnsubscribeTokenFactory>();
         services.AddScoped<IExecDigestComposer, ExecDigestComposer>();
         services.AddScoped<IExecDigestSponsorDeepLinkReadService, ExecDigestSponsorDeepLinkReadService>();
         services.AddScoped<IExecDigestEmailDispatcher, ExecDigestEmailDispatcher>();
