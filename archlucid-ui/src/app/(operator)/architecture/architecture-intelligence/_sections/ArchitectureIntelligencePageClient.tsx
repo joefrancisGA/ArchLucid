@@ -2,7 +2,7 @@
 
 import { Brain } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ArchitectureIntelligenceBreadcrumb } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceBreadcrumb";
 import { ArchitectureIntelligenceBuyerChrome } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceBuyerChrome";
@@ -29,6 +29,7 @@ import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice"
 import { ArchitectureIntelligenceEvidenceGraphVocabularyRail } from "@/components/ArchitectureIntelligenceEvidenceGraphVocabularyRail";
 import { AskArchitectureIntelligenceVocabularyRail } from "@/components/AskArchitectureIntelligenceVocabularyRail";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { Button } from "@/components/ui/button";
@@ -61,6 +62,9 @@ export function ArchitectureIntelligencePageClient() {
   const inboundRunId = searchParams.get("runId")?.trim() ?? "";
   const inboundFrom = searchParams.get("from")?.trim() ?? "";
   const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
+  const scope = useOperatorScopeQueryKey();
+  const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
+  const previousScopeKeyRef = useRef(scopeKey);
 
   const [architectureDescription, setArchitectureDescription] = useState("");
   const [prioritiesRaw, setPrioritiesRaw] = useState("");
@@ -88,10 +92,40 @@ export function ArchitectureIntelligencePageClient() {
   const showIntakeForm = !loadingInboundContext && !productContextLoadFailed;
 
   useEffect(() => {
+    if (previousScopeKeyRef.current === scopeKey) {
+      return;
+    }
+
+    previousScopeKeyRef.current = scopeKey;
+
+    // Drop prior-tenant reasoning/intake when the operator switches workspace scope.
+    setRunState(null);
+    setInterviewAnswers({});
+    setError(null);
+    setArchitectureDescription("");
+    setPrioritiesRaw("");
+    setHydratedSourceTexts([]);
+    setPublishToProduct(false);
+    setLoadingAction(null);
+
+    if (inboundRunId.length === 0) {
+      setActiveRunId(null);
+      setProductContextStatus("idle");
+
+      return;
+    }
+
+    setProductContextReloadNonce((previous) => previous + 1);
+  }, [scopeKey, inboundRunId]);
+
+  useEffect(() => {
     if (inboundRunId.length === 0) {
       return;
     }
 
+    // Prior run's findings/recommendations must not ride along when the deep-linked review changes.
+    setRunState(null);
+    setInterviewAnswers({});
     setActiveRunId(inboundRunId);
     setProductContextStatus("loading");
     setLoadingAction("product-context");

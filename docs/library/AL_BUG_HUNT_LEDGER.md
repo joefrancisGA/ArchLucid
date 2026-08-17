@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-17 (ui-host-gate hit: Host header port stripped vs URL.host broke localhost split-origin gating).
+**Updated:** 2026-08-17 (ui-architecture-intelligence hit: stale reasoning survived runId/scope switch).
 
 ## How to use
 
@@ -809,18 +809,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 15
 
 ### Hypotheses
 
-- [ ] Page shows recommendations for a package outside the current workspace
-- [ ] Stale query data from the previous tenant remains after scope switch
+- [x] Page shows recommendations for a package outside the current workspace — fixed: clear `runState` when inbound `runId` changes
+- [x] Stale query data from the previous tenant remains after scope switch — fixed: reset intake + reasoning on operator scope key change
 - [ ] Error state is omitted so a failed load looks like an empty architecture
 
 ---
