@@ -23,7 +23,7 @@ class TestTenancyDefenseBatch(unittest.TestCase):
             / "(operator)"
             / "architecture"
             / "reviews"
-            / "[runId]"
+            / "[reviewId]"
             / "_sections"
             / "load-run-detail-page-model.ts"
         )

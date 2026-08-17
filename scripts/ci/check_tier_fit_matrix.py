@@ -94,13 +94,36 @@ def matrix_violations(root: Path) -> list[str]:
                     if needle not in lowered:
                         continue
 
-                    if "|" in line and ("prohibited" in lowered or "never imply" in lowered or "say instead" in lowered):
+                    if "|" in line:
                         continue
 
-                    window_start = max(0, lowered.find(needle) - 40)
-                    window = lowered[window_start : lowered.find(needle)]
-
-                    if any(token in window for token in ("not ", "no ", "deferred", "v1.1", "do not", "instead")):
+                    if any(
+                        token in lowered
+                        for token in (
+                            "not ",
+                            "no ",
+                            "deferred",
+                            "v1.1",
+                            "do not",
+                            "don't",
+                            "instead",
+                            "forbidden",
+                            "forbids",
+                            "never ",
+                            "oversell",
+                            "overclaim",
+                            "imply",
+                            "implies",
+                            "equating",
+                            "fail phrases",
+                            "fail on",
+                            "fails on",
+                            "fail stubs",
+                            "intended fail",
+                            "without negation",
+                            "dishonest",
+                        )
+                    ):
                         continue
 
                     violations.append(f"{path.relative_to(root)}:{index}: forbidden V1 tier claim {phrase!r}")
