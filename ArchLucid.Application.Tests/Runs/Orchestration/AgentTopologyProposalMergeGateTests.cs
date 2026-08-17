@@ -2,6 +2,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Persistence.Serialization;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -998,6 +999,38 @@ public sealed class AgentTopologyProposalMergeGateTests
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_after_json_round_trip_when_property_key_is_pascal_resourceId()
+    {
+        // In-memory bags use OrdinalIgnoreCase; JSON deserialize used a case-sensitive dictionary, so PascalCase
+        // ResourceId survived write but was invisible to TryReadTopologyResourceId("resourceId") after restore.
+        const string armId =
+            "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Microsoft.Web/sites/app1";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["ResourceId"] = armId
+                }),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(armId)));
+
+        AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]).Should().ContainSingle();
+
+        byte[] utf8 = GraphJsonSerialization.SerializeSnapshotToUtf8Bytes(graph);
+        GraphSnapshot restored = GraphJsonSerialization.DeserializeSnapshot(utf8)!;
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(restored, [topology]);
 
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();

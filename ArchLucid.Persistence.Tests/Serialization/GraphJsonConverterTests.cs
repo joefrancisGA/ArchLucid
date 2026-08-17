@@ -66,6 +66,20 @@ public sealed class GraphJsonConverterTests
     }
 
     [SkippableFact]
+    public void GraphNodeJsonConverter_Read_properties_dictionary_is_case_insensitive()
+    {
+        // System.Text.Json Deserialize<Dictionary<string,string>> defaults to ordinal comparer; ARM lookup keys
+        // are camelCase (resourceId) while some producers stamp PascalCase ResourceId.
+        const string json =
+            """{"nodeId":"n1","nodeType":"TopologyResource","label":"api","properties":{"ResourceId":"/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Web/sites/api-app"}}""";
+
+        GraphNode node = JsonSerializer.Deserialize<GraphNode>(json, NodeOptions())!;
+
+        node.Properties.Should().ContainKey("resourceId");
+        node.Properties["resourceId"].Should().Contain("/sites/api-app");
+    }
+
+    [SkippableFact]
     public void GraphNodeJsonConverter_Write_round_trips_null_optional_fields()
     {
         GraphNode original = new()

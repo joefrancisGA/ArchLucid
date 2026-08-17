@@ -67,9 +67,17 @@ public sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
 
         try
         {
+            // STJ Dictionary deserialize is case-sensitive; graph property lookups (resourceId, etc.) are ignore-case.
+            Dictionary<string, string>? deserialized =
+                JsonSerializer.Deserialize<Dictionary<string, string>>(propsEl.GetRawText(), options);
+
+            if (deserialized is null)
 #pragma warning disable IDE0028 // Simplify collection initialization
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(propsEl.GetRawText(), options)
-                   ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+#pragma warning restore IDE0028 // Simplify collection initialization
+
+#pragma warning disable IDE0028 // Simplify collection initialization
+            return new Dictionary<string, string>(deserialized, StringComparer.OrdinalIgnoreCase);
 #pragma warning restore IDE0028 // Simplify collection initialization
         }
         catch (JsonException)
