@@ -20,7 +20,7 @@ import {
   type SectionError,
   type WhyArchLucidPageState,
 } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
-import { WhyArchLucidClaimOrientationStrip } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidClaimOrientationStrip";
+import { WhyArchLucidBuyerChrome } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidBuyerChrome";
 import { WhyArchLucidFirstValueReportSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidFirstValueReportSection";
 import { WhyArchLucidPageFooter } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageFooter";
 import { WhyArchLucidPageHeader } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageHeader";
@@ -148,7 +148,7 @@ export function WhyArchLucidPage() {
 
       {state.loading ? <WhyArchLucidPageSkeleton /> : null}
 
-      {!state.loading ? <WhyArchLucidClaimOrientationStrip /> : null}
+      {!state.loading ? <WhyArchLucidBuyerChrome /> : null}
 
       {!state.loading && pageLoadFailed && state.snapshotError !== null ? (
         <WhyArchLucidPageLoadFailure

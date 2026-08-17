@@ -9,6 +9,8 @@ export const WHY_ARCHLUCID_HELP_TOPIC_LABEL = "Why ArchLucid" as const;
 export const WHY_ARCHLUCID_CLAIM_DISCIPLINE =
   "This Why ArchLucid page is an architect demo/proof surface over seeded telemetry and sample review outputs — it is not a sealed-review diligence Sources bundle from your production tenant. Open the public /why comparison, Assurance status, or a finalized sealed review record when you need diligence-grade trails.";
 
+export const WHY_ARCHLUCID_CLAIM_HEADING = "Pilot proof only" as const;
+
 export const WHY_ARCHLUCID_SOURCES_INTRO =
   "Use these follow-ups when demo proof turns into marketing comparison, sponsor packaging, or assurance orientation.";
 

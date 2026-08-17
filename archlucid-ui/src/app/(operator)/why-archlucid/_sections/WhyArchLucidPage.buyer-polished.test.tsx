@@ -30,7 +30,7 @@ import {
 } from "@/lib/api";
 
 import { WhyArchLucidPage } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPage";
-import { WHY_ARCHLUCID_CLAIM_DISCIPLINE } from "@/lib/why-archlucid-evidence-copy";
+import { WHY_ARCHLUCID_CLAIM_DISCIPLINE, WHY_ARCHLUCID_CLAIM_HEADING } from "@/lib/why-archlucid-evidence-copy";
 import {
   WHY_ARCHLUCID_PAGE_ORIENTATION,
   WHY_ARCHLUCID_PAGE_TITLE,
@@ -119,6 +119,8 @@ describe("WhyArchLucidPage buyer-polished shell", () => {
     expect(screen.getByText(WHY_ARCHLUCID_PAGE_ORIENTATION)).toBeInTheDocument();
     expect(screen.getByTestId("why-archlucid-page-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("why-archlucid-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByText(WHY_ARCHLUCID_CLAIM_HEADING)).toBeInTheDocument();
     expect(screen.getByText(WHY_ARCHLUCID_CLAIM_DISCIPLINE)).toBeInTheDocument();
   });
 });
