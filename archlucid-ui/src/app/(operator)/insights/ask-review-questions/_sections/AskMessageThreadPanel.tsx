@@ -32,7 +32,7 @@ export type AskMessageThreadPanelProps = {
   askAssistantGroundingLinks: readonly BuyerAskGroundingLink[] | null;
   askCitationActionFollowUps: readonly AskCitationActionFollowUp[];
   showPostAssistantFollowUps: boolean;
-  runMissing: boolean;
+  runAnchorUnset: boolean;
   onMergePromptLine: (line: string) => void;
   retrievalDegraded?: boolean;
   isFinalizedReview?: boolean;
@@ -70,14 +70,13 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     askAssistantGroundingLinks,
     askCitationActionFollowUps,
     showPostAssistantFollowUps,
-    runMissing,
     onMergePromptLine,
     retrievalDegraded = false,
     isFinalizedReview = true,
   } = props;
 
   const artifactStatus = resolveAskReviewArtifactStatus({
-    runMissing,
+    runMissing: false,
     isFinalized: isFinalizedReview,
   });
   const artifactStatusCopy = askReviewArtifactStatusCopy(artifactStatus);
@@ -216,7 +215,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                         "h-auto max-w-full whitespace-normal py-1.5 text-left font-normal text-al-text-secondary",
                         OPERATOR_TYPOGRAPHY.helper,
                       )}
-                      disabled={runMissing}
+                      disabled={false}
                       onClick={() => onMergePromptLine(line)}
                     >
                       {line}

@@ -45,8 +45,8 @@ function operatorAllowsSyntheticAskRunPick(): boolean {
   );
 }
 
-/** Legacy slug still appearing in bookmarks — canonical id is {@link SHOWCASE_STATIC_DEMO_RUN_ID}. */
-const DEMO_RUN_PREF_ID = SHOWCASE_STATIC_DEMO_RUN_ID;
+/** Sentinel select value for workspace-wide Ask (TB-2200). */
+export const ASK_WORKSPACE_ALL_REVIEWS_VALUE = "__workspace_all__";
 
 export type AskRunIdPickerProps = {
   readonly value: string;
@@ -179,7 +179,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
 
     const demoPreferred =
       items.find((r) => r.runId === SHOWCASE_STATIC_DEMO_RUN_ID) ??
-      items.find((r) => r.runId === DEMO_RUN_PREF_ID);
+      items.find((r) => r.runId === SHOWCASE_STATIC_DEMO_RUN_ID);
 
     const firstItem = items[0];
 
@@ -257,7 +257,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       ? null
       : selectedThreadId.trim().length > 0
         ? "(optional when a conversation already has review context)"
-        : null;
+        : "(optional — default searches all reviews in this workspace)";
 
   const reviewFieldLabel = (
     <Label htmlFor={selectControlId} data-testid="ask-run-id-picker-label">
@@ -413,17 +413,31 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   }
 
   const selectedRow = findRunSummaryById(items, value);
-  const selectValue = selectedRow?.runId ?? (trimmedValue.length > 0 ? trimmedValue : undefined);
+  const selectValue =
+    trimmedValue.length === 0
+      ? ASK_WORKSPACE_ALL_REVIEWS_VALUE
+      : (selectedRow?.runId ?? (trimmedValue.length > 0 ? trimmedValue : undefined));
   const showOrphanDeepLink = trimmedValue.length > 0 && selectedRow === undefined;
+
+  const handleValueChange = (next: string) => {
+    if (next === ASK_WORKSPACE_ALL_REVIEWS_VALUE) {
+      onChange("");
+
+      return;
+    }
+
+    onChange(next);
+  };
 
   return (
     <div className="space-y-2">
       {reviewFieldLabel}
-      <Select disabled={disabled} value={selectValue} onValueChange={onChange}>
+      <Select disabled={disabled} value={selectValue} onValueChange={handleValueChange}>
         <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
-          <SelectValue placeholder="Choose an architecture review" />
+          <SelectValue placeholder="All reviews in workspace" />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value={ASK_WORKSPACE_ALL_REVIEWS_VALUE}>All reviews in workspace</SelectItem>
           {items.map((row) => (
             <SelectItem key={row.runId} value={row.runId}>
               {buyerFacingReviewTitleFromSummary(row)}

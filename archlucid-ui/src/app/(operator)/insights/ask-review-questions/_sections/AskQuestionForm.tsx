@@ -26,7 +26,7 @@ export type AskQuestionFormProps = {
   onQuestionChange: (value: string) => void;
   buyerPolishedShell: boolean;
   showRunDeepLinkPrompts: boolean;
-  runMissing: boolean;
+  runAnchorUnset: boolean;
   onMergePromptLine: (line: string) => void;
   loading: boolean;
   askDisabled: boolean;
@@ -41,7 +41,7 @@ function SuggestedQuestionChips(props: {
   buyerPolishedShell: boolean;
   showRunDeepLinkPrompts: boolean;
   hideBuyerStarterPromptGroups: boolean;
-  runMissing: boolean;
+  runAnchorUnset: boolean;
   onMergePromptLine: (line: string) => void;
 }) {
   const showBuyerGroups =
@@ -60,7 +60,7 @@ function SuggestedQuestionChips(props: {
               "h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left font-normal dark:border-neutral-700",
               OPERATOR_TYPOGRAPHY.helper,
             )}
-            disabled={props.runMissing}
+            disabled={false}
             onClick={() => props.onMergePromptLine(line)}
           >
             {line}
@@ -100,7 +100,7 @@ function SuggestedQuestionChips(props: {
                     "h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left font-normal dark:border-neutral-700",
                     OPERATOR_TYPOGRAPHY.helper,
                   )}
-                  disabled={props.runMissing}
+                  disabled={false}
                   onClick={() => props.onMergePromptLine(line)}
                 >
                   {line}
@@ -121,7 +121,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
     onQuestionChange,
     buyerPolishedShell,
     showRunDeepLinkPrompts,
-    runMissing,
+    runAnchorUnset,
     onMergePromptLine,
     loading,
     askDisabled,
@@ -152,9 +152,9 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
         <Button type="button" variant="primary" className="w-fit" onClick={() => void onAsk()} disabled={askDisabled}>
           {loading ? "Thinking…" : "Ask"}
         </Button>
-        {runMissing ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-select-review-helper">
-            Select a review first.
+        {runAnchorUnset ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-workspace-scope-helper">
+            Searching all reviews in this workspace. Pick a review above to narrow scope.
           </p>
         ) : null}
       </div>
@@ -170,11 +170,11 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
         buyerPolishedShell={buyerPolishedShell}
         showRunDeepLinkPrompts={showRunDeepLinkPrompts}
         hideBuyerStarterPromptGroups={hideBuyerStarterPromptGroups}
-        runMissing={runMissing}
+        runAnchorUnset={runAnchorUnset}
         onMergePromptLine={onMergePromptLine}
       />
 
-      {runMissing ? (
+      {runAnchorUnset && buyerPolishedShell ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-prompts-sample-callout">
           Open the{" "}
           <Link className={OPERATOR_LINK.nav} href={`/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>

@@ -12,8 +12,8 @@ public sealed class AskRequest
     }
 
     /// <summary>
-    ///     Primary run whose GoldenManifest anchors the answer (optional when continuing a threaded conversation that
-    ///     already has a run).
+    ///     Primary run whose GoldenManifest anchors the answer. Omit for workspace-scoped Ask across all indexed reviews
+    ///     (TB-2200), or when continuing a threaded conversation that already has a run.
     /// </summary>
     public Guid? RunId
     {

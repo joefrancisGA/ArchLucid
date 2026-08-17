@@ -31,7 +31,7 @@ export type AskMainPanelProps = {
   question: string;
   onQuestionChange: (value: string) => void;
   showRunDeepLinkPrompts: boolean;
-  runMissing: boolean;
+  runAnchorUnset: boolean;
   onMergePromptLine: (line: string) => void;
   loading: boolean;
   askDisabled: boolean;
@@ -62,7 +62,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
     question,
     onQuestionChange,
     showRunDeepLinkPrompts,
-    runMissing,
+    runAnchorUnset,
     onMergePromptLine,
     loading,
     askDisabled,
@@ -84,7 +84,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
       askAssistantGroundingLinks={askAssistantGroundingLinks}
       askCitationActionFollowUps={askCitationActionFollowUps}
       showPostAssistantFollowUps={showPostAssistantFollowUps}
-      runMissing={runMissing}
+      runAnchorUnset={runAnchorUnset}
       onMergePromptLine={onMergePromptLine}
       retrievalDegraded={retrievalDegraded}
     />
@@ -141,7 +141,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
           onQuestionChange={onQuestionChange}
           buyerPolishedShell={buyerPolishedShell}
           showRunDeepLinkPrompts={showRunDeepLinkPrompts}
-          runMissing={runMissing}
+          runAnchorUnset={runAnchorUnset}
           onMergePromptLine={onMergePromptLine}
           loading={loading}
           askDisabled={askDisabled}

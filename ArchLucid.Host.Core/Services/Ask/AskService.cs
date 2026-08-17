@@ -280,17 +280,29 @@ public sealed class AskService(
         Guid? effectiveBaseRunId = request.BaseRunId ?? thread.BaseRunId;
         Guid? effectiveTargetRunId = request.TargetRunId ?? thread.TargetRunId;
 
-        if (!effectiveRunId.HasValue)
-
-            throw new InvalidOperationException(
-                "No run is anchored. Provide runId on the first message, or use a thread that already has a run.");
-
         string question = request.Question.Trim();
         await conversationService.AppendUserMessageAsync(thread.ThreadId, question, ct);
 
         IReadOnlyList<ConversationMessage> historyWindow = await conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
         IReadOnlyList<ConversationMessage> priorMessages = TrimCurrentUserTurn(historyWindow, question);
         string historyText = await BuildHistoryTextAsync(priorMessages, ct);
+
+        if (!effectiveRunId.HasValue)
+        {
+            if (effectiveBaseRunId.HasValue || effectiveTargetRunId.HasValue)
+            {
+                throw new ArgumentException(
+                    "Provide runId when comparing reviews.",
+                    nameof(request));
+            }
+
+            return await PrepareWorkspaceAskContextAsync(
+                thread,
+                question,
+                historyText,
+                scope,
+                ct);
+        }
 
         RunDetailDto? detail;
         GraphViewModel? graph;
@@ -406,6 +418,71 @@ public sealed class AskService(
             scope);
     }
 
+    private async Task<AskPreparedContext> PrepareWorkspaceAskContextAsync(
+        ConversationThread thread,
+        string question,
+        string historyText,
+        ScopeContext scope,
+        CancellationToken ct)
+    {
+        string contextJson = AskWorkspaceContextBuilder.BuildContextJson(scope);
+        bool retrievalDegraded = false;
+        string retrievalContext = string.Empty;
+
+        try
+        {
+            bool includePolicyPacks = AskRetrievalIntentDetector.DetectPolicyPackIntent(question);
+            bool includePlatformDocs = AskRetrievalIntentDetector.DetectPlatformDocIntent(question);
+            bool boostPriorManifest = AskRetrievalIntentDetector.DetectPriorManifestIntent(question);
+            const int retrievalTopK = 8;
+            bool skipExpensiveStages = _askRetrievalOptions.CurrentValue.SkipExpensiveStages;
+
+            IReadOnlyList<RetrievalHit> rawHits = await retrievalQuery.SearchAsync(
+                new RetrievalQuery
+                {
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = null,
+                    ManifestId = null,
+                    QueryText = question,
+                    TopK = retrievalTopK,
+                    IncludePlatformCorpora = includePolicyPacks || includePlatformDocs,
+                    SkipReranking = skipExpensiveStages,
+                    SkipQueryExpansion = skipExpensiveStages,
+                },
+                ct);
+
+            IReadOnlyList<RetrievalHit> retrievalHits =
+                AskRetrievalHitRanker.Rank(rawHits, boostPriorManifest, retrievalTopK);
+            retrievalContext = BuildRetrievalContext(retrievalHits);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Retrieval search failed for workspace-scoped Ask.");
+            ArchLucidInstrumentation.RecordRagRetrievalFallback();
+            retrievalDegraded = true;
+        }
+
+        return new AskPreparedContext(
+            thread,
+            question,
+            historyText,
+            null,
+            null,
+            null,
+            null,
+            null,
+            contextJson,
+            retrievalContext,
+            retrievalDegraded,
+            scope);
+    }
+
     private const string ComparisonNarrativeSystemPrompt =
         "You are an enterprise architect. Given the delta between two architecture runs, write a 3–5 sentence narrative: "
         + "(1) the most significant improvement, (2) any new risk introduced, (3) whether the architecture is net-better or net-worse. "
@@ -469,7 +546,9 @@ public sealed class AskService(
             ThreadId = prepared.Thread.ThreadId,
             Answer =
                 "The assistant could not be reached. Summarize from context manually or retry. " +
-                "Context included " + prepared.Manifest.Decisions.Count + " decision(s).",
+                (prepared.Manifest is { Decisions: { Count: var decisionCount } }
+                    ? $"Context included {decisionCount} decision(s)."
+                    : "Workspace-scoped context relies on retrieved evidence across reviews."),
             RetrievalDegraded = prepared.RetrievalDegraded,
         };
 
@@ -639,7 +718,7 @@ public sealed class AskService(
         ConversationThread Thread,
         string Question,
         string HistoryText,
-        ManifestDocument Manifest,
+        ManifestDocument? Manifest,
         Guid? EffectiveRunId,
         Guid? BaseRunId,
         Guid? TargetRunId,

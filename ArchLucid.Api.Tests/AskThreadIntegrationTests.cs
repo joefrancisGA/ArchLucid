@@ -340,7 +340,7 @@ public sealed class AskThreadIntegrationTests
 
     [SkippableFact]
 
-    public Task Ask_without_runId_or_threadId_returns_bad_request()
+    public Task Ask_without_runId_uses_workspace_scope_and_returns_answer()
 
     {
 
@@ -350,7 +350,7 @@ public sealed class AskThreadIntegrationTests
 
         return IntegrationTestDeadline.RunAsync(
 
-            nameof(Ask_without_runId_or_threadId_returns_bad_request),
+            nameof(Ask_without_runId_uses_workspace_scope_and_returns_answer),
 
             async testDeadline =>
 
@@ -370,7 +370,7 @@ public sealed class AskThreadIntegrationTests
 
                     "v1/ask",
 
-                    new AskRequest { Question = "Some question without anchor" },
+                    new AskRequest { Question = "What security patterns appear across our reviews?" },
 
                     JsonOptions,
 
@@ -378,7 +378,19 @@ public sealed class AskThreadIntegrationTests
 
 
 
-                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                AskResponse? result = await response.Content
+
+                    .ReadFromJsonAsync<AskResponse>(JsonOptions, requestTimeout.Token);
+
+
+
+                result.Should().NotBeNull();
+
+                result!.ThreadId.Should().NotBeEmpty();
+
+                result.Answer.Should().NotBeNullOrWhiteSpace();
 
             },
 

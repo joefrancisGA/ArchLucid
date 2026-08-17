@@ -155,17 +155,19 @@ public sealed class AskController(
         if (string.IsNullOrWhiteSpace(request.Question))
             return this.BadRequestProblem("Question is required.", ProblemTypes.ValidationFailed);
 
-        if (request.RunId is null && request.ThreadId is null)
-            return this.BadRequestProblem(
-                "Provide runId (new conversation) or threadId (continue an existing conversation).",
-                ProblemTypes.ValidationFailed);
-
         bool hasBase = request.BaseRunId.HasValue;
         bool hasTarget = request.TargetRunId.HasValue;
         if (hasBase != hasTarget)
             return this.BadRequestProblem(
                 "Provide both baseRunId and targetRunId for comparison, or omit both.",
                 ProblemTypes.ValidationFailed);
+
+        if (hasBase && request.RunId is null && request.ThreadId is null)
+        {
+            return this.BadRequestProblem(
+                "Provide runId when comparing reviews, or continue an existing comparison thread.",
+                ProblemTypes.ValidationFailed);
+        }
 
         return null;
     }
