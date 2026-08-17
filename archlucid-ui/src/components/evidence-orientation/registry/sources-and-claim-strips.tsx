@@ -32,6 +32,11 @@ import {
 } from "@/lib/compliance-journey-evidence-copy";
 import { FAQ_CLAIM_DISCIPLINE, FAQ_SOURCES, FAQ_SOURCES_INTRO } from "@/lib/faq-evidence-copy";
 import {
+  DIGEST_SPONSOR_CLAIM_DISCIPLINE,
+  DIGEST_SPONSOR_SOURCES,
+  DIGEST_SPONSOR_SOURCES_INTRO,
+} from "@/lib/marketing/digest-sponsor-evidence-copy";
+import {
   GET_STARTED_SOURCES,
   GET_STARTED_SOURCES_INTRO,
 } from "@/lib/get-started-evidence-copy";
@@ -168,6 +173,21 @@ export function FaqEvidenceOrientationStrip(): React.JSX.Element {
       sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
       claimHeading="Evaluation orientation only"
       claim={FAQ_CLAIM_DISCIPLINE}
+    />
+  );
+}
+
+export function DigestSponsorEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationSourcesAndClaimStrip
+      slug="digest-sponsor"
+      margin="mt-6"
+      align="text-left"
+      sourcesIntro={DIGEST_SPONSOR_SOURCES_INTRO}
+      sources={DIGEST_SPONSOR_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
+      claimHeading="Evaluation orientation only"
+      claim={DIGEST_SPONSOR_CLAIM_DISCIPLINE}
     />
   );
 }
