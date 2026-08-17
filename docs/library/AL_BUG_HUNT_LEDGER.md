@@ -110,11 +110,11 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
 
@@ -122,8 +122,8 @@ High historical yield. **Not exhausted** — remaining hypotheses are type-famil
 
 ### Hypotheses
 
-- [ ] Tenant-plane SQL still uses the host catalog or a hardcoded tenant id
-- [ ] Cache wrapper returns another tenant’s settings after a tenant switch
+- [x] Tenant-plane SQL still uses the host catalog or a hardcoded tenant id (retired — `SqlTenantSettingsRepositoryConnectionFactoryContractTests` + PD-003 fix on master)
+- [x] Cache wrapper returns stale miss after upsert when setting-key casing differs (`TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`)
 - [ ] DefaultTenant FK insert/update disagrees with the cached read path
 
 ---

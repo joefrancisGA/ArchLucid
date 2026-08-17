@@ -15,14 +15,14 @@ public sealed class CachingTenantSettingsRepository(
     /// <inheritdoc />
     public async Task<string?> TryGetAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(settingKey);
+        string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
 
         // Wrapper distinguishes "cached miss" (null Value) from HybridCache absent entry.
         TenantSettingCacheEntry? entry = await _hotPathReadCache.GetOrCreateAsync(
-            HotPathCacheKeys.TenantSetting(tenantId, settingKey),
+            HotPathCacheKeys.TenantSetting(tenantId, normalizedKey),
             async innerCt =>
             {
-                string? value = await _inner.TryGetAsync(tenantId, settingKey, innerCt);
+                string? value = await _inner.TryGetAsync(tenantId, normalizedKey, innerCt);
 
                 return new TenantSettingCacheEntry { Value = value, IsPresent = value is not null };
             },
@@ -41,15 +41,19 @@ public sealed class CachingTenantSettingsRepository(
         string settingValue,
         CancellationToken cancellationToken)
     {
-        await _inner.UpsertAsync(tenantId, settingKey, settingValue, cancellationToken);
-        await HotPathCacheEviction.RemoveTenantSettingAsync(_hotPathReadCache, tenantId, settingKey, cancellationToken);
+        string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
+
+        await _inner.UpsertAsync(tenantId, normalizedKey, settingValue, cancellationToken);
+        await HotPathCacheEviction.RemoveTenantSettingAsync(_hotPathReadCache, tenantId, normalizedKey, cancellationToken);
     }
 
     /// <inheritdoc />
     public async Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken)
     {
-        await _inner.DeleteAsync(tenantId, settingKey, cancellationToken);
-        await HotPathCacheEviction.RemoveTenantSettingAsync(_hotPathReadCache, tenantId, settingKey, cancellationToken);
+        string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
+
+        await _inner.DeleteAsync(tenantId, normalizedKey, cancellationToken);
+        await HotPathCacheEviction.RemoveTenantSettingAsync(_hotPathReadCache, tenantId, normalizedKey, cancellationToken);
     }
 }
 

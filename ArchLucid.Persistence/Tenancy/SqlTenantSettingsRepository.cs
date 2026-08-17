@@ -47,6 +47,8 @@ public sealed class SqlTenantSettingsRepository(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(settingKey);
 
+        string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
+
         const string sql = """
                              SELECT SettingValue
                              FROM dbo.TenantSettings
@@ -59,7 +61,7 @@ public sealed class SqlTenantSettingsRepository(
         string? value = await connection.QuerySingleOrDefaultAsync<string>(
                 new CommandDefinition(
                     sql,
-                    new { TenantId = tenantId, SettingKey = settingKey.Trim() },
+                    new { TenantId = tenantId, SettingKey = normalizedKey },
                     cancellationToken: cancellationToken))
             .ConfigureAwait(false);
 
@@ -77,6 +79,8 @@ public sealed class SqlTenantSettingsRepository(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(settingKey);
         ArgumentException.ThrowIfNullOrWhiteSpace(settingValue);
+
+        string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
 
         const string sql = """
                              MERGE dbo.TenantSettings AS target
@@ -97,7 +101,7 @@ public sealed class SqlTenantSettingsRepository(
                     new
                     {
                         TenantId = tenantId,
-                        SettingKey = settingKey.Trim(),
+                        SettingKey = normalizedKey,
                         SettingValue = settingValue.Trim()
                     },
                     cancellationToken: cancellationToken))
@@ -111,6 +115,8 @@ public sealed class SqlTenantSettingsRepository(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(settingKey);
 
+        string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
+
         const string sql = """
                              DELETE FROM dbo.TenantSettings
                              WHERE TenantId = @TenantId
@@ -122,7 +128,7 @@ public sealed class SqlTenantSettingsRepository(
         await connection.ExecuteAsync(
                 new CommandDefinition(
                     sql,
-                    new { TenantId = tenantId, SettingKey = settingKey.Trim() },
+                    new { TenantId = tenantId, SettingKey = normalizedKey },
                     cancellationToken: cancellationToken))
             .ConfigureAwait(false);
     }
