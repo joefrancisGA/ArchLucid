@@ -320,11 +320,6 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     );
 
     if (unresolvedQuestions.length > 0) {
-      showError(
-        REVIEWS_NEW_GUIDED_QUESTIONS_LABEL,
-        "Answer or skip each required clarification before reviewing.",
-      );
-
       return;
     }
 
@@ -367,8 +362,6 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
       const answer = answers[questionKey]?.trim() ?? "";
 
       if (answer.length === 0) {
-        showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, "Enter an answer or skip this clarification.");
-
         return;
       }
 
