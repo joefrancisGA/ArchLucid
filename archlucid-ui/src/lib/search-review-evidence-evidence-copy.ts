@@ -10,6 +10,8 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL = "How to search review evi
 export const SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE =
  "Search review evidence returns retrieval snippets across findings, decisions, and sealed records — it is a discovery launcher, not a sealed-review diligence Sources package. Open the cited review, evidence trail, or audit trail before treating snippets as authoritative.";
 
+export const SEARCH_REVIEW_EVIDENCE_CLAIM_HEADING = "Retrieval launcher only" as const;
+
 export const SEARCH_REVIEW_EVIDENCE_SOURCES_INTRO =
  "Use these follow-ups when search hits need review context, evidence trails, or governance queues.";
 

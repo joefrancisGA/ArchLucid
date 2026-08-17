@@ -1,6 +1,7 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
   SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE,
+  SEARCH_REVIEW_EVIDENCE_CLAIM_HEADING,
   SEARCH_REVIEW_EVIDENCE_SOURCES,
   SEARCH_REVIEW_EVIDENCE_SOURCES_INTRO,
 } from "@/lib/search-review-evidence-evidence-copy";
@@ -11,7 +12,7 @@ export function SearchReviewEvidenceClaimOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="search-review-evidence"
       claim={SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE}
-      claimHeading="Retrieval launcher only"
+      claimHeading={SEARCH_REVIEW_EVIDENCE_CLAIM_HEADING}
       sourcesIntro={SEARCH_REVIEW_EVIDENCE_SOURCES_INTRO}
       sources={SEARCH_REVIEW_EVIDENCE_SOURCES}
     />

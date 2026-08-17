@@ -24,7 +24,7 @@ import {
   SEARCH_PAGE_SUBTITLE_BUYER,
   SEARCH_PAGE_TITLE,
 } from "./search-page-copy";
-import { SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE } from "@/lib/search-review-evidence-evidence-copy";
+import { SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE, SEARCH_REVIEW_EVIDENCE_CLAIM_HEADING } from "@/lib/search-review-evidence-evidence-copy";
 
 function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageViewModel {
   return {
@@ -51,6 +51,8 @@ describe("SearchPageView buyer-polished shell", () => {
     expect(screen.getByText(SEARCH_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.getByTestId("search-review-evidence-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("search-review-evidence-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByText(SEARCH_REVIEW_EVIDENCE_CLAIM_HEADING)).toBeInTheDocument();
     expect(screen.getByText(SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.queryByTestId("ask-search-evidence-vocabulary-rail")).not.toBeInTheDocument();
     expect(screen.getByTestId("search-review-evidence-form")).toBeInTheDocument();
