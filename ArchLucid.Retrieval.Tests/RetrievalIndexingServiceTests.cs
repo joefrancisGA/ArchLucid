@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Embedding;
@@ -29,12 +30,17 @@ public sealed class RetrievalIndexingServiceTests
         IVectorIndex index,
         IRetrievalDocumentIndexCatalog catalog,
         IOptionsMonitor<RetrievalEmbeddingCapOptions> caps,
-        IScopeContextProvider? scopeContextProvider = null)
+        IScopeContextProvider? scopeContextProvider = null,
+        RetrievalChunkingStrategy chunkingStrategy = RetrievalChunkingStrategy.Simple)
     {
         IScopeContextProvider scope = scopeContextProvider ?? CreateMatchingScopeProvider();
 
+        Mock<IOptionsMonitor<RetrievalChunkingOptions>> chunking = new();
+        chunking.Setup(m => m.CurrentValue).Returns(new RetrievalChunkingOptions { Strategy = chunkingStrategy });
+
         return new RetrievalIndexingService(
             new SimpleTextChunker(),
+            new StructureAwareTextChunker(),
             new PolicyPackChunker(),
             new PriorManifestChunker(),
             embeddings,
@@ -42,6 +48,7 @@ public sealed class RetrievalIndexingServiceTests
             index,
             catalog,
             caps,
+            chunking.Object,
             scope);
     }
 
@@ -219,6 +226,63 @@ public sealed class RetrievalIndexingServiceTests
         await sut.IndexDocumentsAsync([doc], CancellationToken.None);
 
         embedCalls.Should().Be(1);
+    }
+
+    [Fact]
+    public void ChunkingStrategyFingerprint_differs_when_semantic_strategy_enabled()
+    {
+        string simple = ChunkingStrategyFingerprint.Compute(CorpusKind.Conversation, RetrievalChunkingStrategy.Simple);
+        string semantic = ChunkingStrategyFingerprint.Compute(CorpusKind.Conversation, RetrievalChunkingStrategy.Semantic);
+
+        semantic.Should().NotBe(simple);
+    }
+
+    [Fact]
+    public async Task IndexDocumentsAsync_uses_semantic_chunker_when_strategy_enabled()
+    {
+        List<string> embeddedTexts = [];
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .Callback<IReadOnlyList<string>, CancellationToken>((texts, _) => embeddedTexts.AddRange(texts))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            new InMemoryVectorIndex(),
+            new InMemoryRetrievalDocumentIndexCatalog(),
+            caps.Object,
+            chunkingStrategy: RetrievalChunkingStrategy.Semantic);
+
+        string sectionA = new string('a', 700);
+        string sectionB = new string('b', 700);
+        string content = $"## Section A\n{sectionA}\n\n## Section B\n{sectionB}";
+
+        RetrievalDocument doc = new()
+        {
+            DocumentId = "semantic-doc",
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = content,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.IndexDocumentsAsync([doc], CancellationToken.None);
+
+        embeddedTexts.Should().HaveCountGreaterThan(1);
+        embeddedTexts[0].Should().Contain("## Section A");
+        embeddedTexts.Should().Contain(chunk => chunk.Contains("## Section B"));
     }
 
     [Fact]

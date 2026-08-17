@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Pricing;
@@ -42,6 +43,15 @@ public sealed class RetrievalPackageCoverageBatchRc28Tests
         policy.Should().NotBe(prior);
         policy.Should().NotBe(simple);
         prior.Should().NotBe(simple);
+    }
+
+    [Fact]
+    public void ChunkingStrategyFingerprint_Compute_differs_for_semantic_vs_simple_default()
+    {
+        string simple = ChunkingStrategyFingerprint.Compute(CorpusKind.Conversation, RetrievalChunkingStrategy.Simple);
+        string semantic = ChunkingStrategyFingerprint.Compute(CorpusKind.Conversation, RetrievalChunkingStrategy.Semantic);
+
+        semantic.Should().NotBe(simple);
     }
 
     [Theory]
