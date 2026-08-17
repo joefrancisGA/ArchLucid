@@ -26,6 +26,7 @@ Release-candidate automation:
 | **`scenario-*.json`** | Expected / unexpected probes + pointer to **`recordings/*`** JSON; optional **`qualityEvidence`** for offline **AgentResult** scoring |
 | **`recordings/*.findings.json`** | Authoritative simplified “finding list” (category, severity, title + detail text) |
 | **`agent-results/*.simulator.json`** | Optional offline **AgentResult** JSON for structural / semantic / gate metrics (PR-safe, no AOAI) |
+| **`agent-structural-eval-pairs.json`** | Canonical **simulator↔real** pair per agent family (**Topology**, **Cost**, **Compliance**, **Critic**); guarded by **`assert_agent_structural_eval_pairs.py`** (**TB-2225**) |
 | **`qualityEvidence.mode: "real"`** | Offline scoring of **AgentResult** JSON from a path named by **`qualityEvidence.agentResultPathEnv`** — PR CI leaves vars unset (rows skip); RC pins vars to **synthetic** committed **`agent-results/*.real.json`** exemplars |
 
 Scenarios deliberately avoid shipping full **`ArchitectureRequest`** bodies: only **`inputSummary`** text is retained for readability. Extend with additional fields when simulator exports stabilize.
