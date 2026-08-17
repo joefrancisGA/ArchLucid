@@ -81,6 +81,8 @@ export const IMPROVEMENT_PLANNING_THEME_FILTER_NO_MATCH_BODY =
 
 export const IMPROVEMENT_PLANNING_SHOW_ALL_PLANS = "Show all plans" as const;
 
+export const IMPROVEMENT_PLANNING_THEME_ID_LABEL = "Theme id" as const;
+
 export const IMPROVEMENT_PLANNING_FAILURE_TRY_NEXT =
   "Confirm planning is enabled for this workspace, then refresh. Capture review feedback first if this workspace is new." as const;
 
