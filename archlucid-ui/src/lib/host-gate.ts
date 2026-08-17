@@ -117,10 +117,13 @@ function normalizeRequestHost(hostHeader: string | null): string | null {
 
   if (trimmed === "") return null;
 
-  // Strip port for local comparisons (localhost:3000).
-  const withoutPort = trimmed.replace(/:\d+$/, "");
-
-  return withoutPort;
+  // Keep host:port so local split hosting (localhost:3000 vs :3001) matches
+  // hostnameFromOrigin, which uses URL.host (includes non-default ports).
+  try {
+    return new URL(`http://${trimmed}`).host.toLowerCase();
+  } catch {
+    return trimmed;
+  }
 }
 
 /** Treat www.example.com as matching example.com for marketing-host decisions. */

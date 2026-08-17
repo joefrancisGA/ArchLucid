@@ -4,7 +4,7 @@
 
 Curated zones covering the product (API, persistence, UI, CLI, orchestration, billing, governance). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit, not LLM ranking). Do **not** invent extra zones mid-hunt; do **not** treat this as a static “always hunt topology first” list.
 
-**Updated:** 2026-08-17 (ui-webhooks-settings hit: signing secret retained across workspace scope switch; ui-help-docs hit earlier).
+**Updated:** 2026-08-17 (ui-host-gate hit: Host header port stripped vs URL.host broke localhost split-origin gating).
 
 ## How to use
 
@@ -786,19 +786,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-17
+- **last-bug:** 2026-08-17
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 29
 
 ### Hypotheses
 
 - [ ] Operator path is treated as marketing on the public host (or the reverse)
 - [ ] Retired bookmark is not redirected and 404s instead of the shim
-- [ ] Split-site origin check allows the operator app origin as a public page
+- [x] Split-site origin check allows the operator app origin as a public page — fixed: `normalizeRequestHost` no longer strips ports; request Host must match `URL.host` from configured origins (localhost:3000 vs :3001)
 
 ---
 
