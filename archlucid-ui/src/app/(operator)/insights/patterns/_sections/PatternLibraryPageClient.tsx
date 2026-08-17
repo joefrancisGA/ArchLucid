@@ -28,8 +28,8 @@ import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
 import { cn } from "@/lib/utils";
 
+import { PatternLibraryBuyerChrome } from "./PatternLibraryBuyerChrome";
 import { PatternLibraryCatalogSkeleton } from "./PatternLibraryCatalogSkeleton";
-import { PatternLibraryClaimOrientationStrip } from "./PatternLibraryClaimOrientationStrip";
 import { PatternLibraryFiltersPanel } from "./PatternLibraryFiltersPanel";
 import { PatternLibraryLoadFailurePanel } from "./PatternLibraryLoadFailurePanel";
 import { PatternLibraryPageHeader } from "./PatternLibraryPageHeader";
@@ -87,9 +87,11 @@ export function PatternLibraryPageClient(): React.JSX.Element {
         onRefresh={refreshCatalog}
       />
 
-      {buyerPolishedShell ? <PatternLibraryClaimOrientationStrip /> : null}
+      <PatternLibraryBuyerChrome />
 
-      <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="pattern-library" />
+      {!buyerPolishedShell ? (
+        <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="pattern-library" />
+      ) : null}
 
       {isPending ? <PatternLibraryCatalogSkeleton /> : null}
 

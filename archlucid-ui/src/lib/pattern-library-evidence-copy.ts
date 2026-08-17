@@ -7,6 +7,8 @@ export const PATTERN_LIBRARY_HELP_TOPIC_LABEL = "How the pattern library works";
 export const PATTERN_LIBRARY_CLAIM_DISCIPLINE =
   "Pattern library cards are anonymized, thresholded aggregates (or labeled sample catalog data) — not a sealed-review diligence Sources package and not tenant-identifying usage. Open Reviews or a pattern detail before briefing sponsors.";
 
+export const PATTERN_LIBRARY_CLAIM_HEADING = "Anonymized catalog only" as const;
+
 export const PATTERN_LIBRARY_SOURCES_INTRO =
   "Browse patterns below, then open Reviews, Evidence trail, or Getting started when you need orientation before treating catalog signals as authoritative.";
 
@@ -21,18 +23,3 @@ export const PATTERN_LIBRARY_SOURCES: readonly EvidenceSourceLink[] = [
 ] as const;
 
 export const PATTERN_LIBRARY_CANONICAL_PATH = PATTERN_LIBRARY_PATH;
-
-export const PATTERN_LIBRARY_DETAIL_CLAIM_DISCIPLINE =
-  "Pattern detail guidance is anonymized, thresholded catalog content — not a sealed-review diligence Sources package and not tenant-identifying usage. Return to the library or open Reviews before briefing sponsors.";
-
-export const PATTERN_LIBRARY_DETAIL_SOURCES_INTRO =
-  "Use the library for peer patterns, then open Reviews, Evidence trail, or Getting started when you need orientation before treating catalog signals as authoritative.";
-
-/** Detail Sources — includes hub return link; no self-href to the active pattern detail URL. */
-export const PATTERN_LIBRARY_DETAIL_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Pattern library", href: PATTERN_LIBRARY_PATH },
-  { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "Evidence trail", href: "/insights/evidence-graph" },
-  { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
-  { label: "Getting started", href: inAppHelpHref("getting-started") },
-] as const;

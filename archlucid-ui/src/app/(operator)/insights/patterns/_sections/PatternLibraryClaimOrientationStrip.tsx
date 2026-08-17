@@ -1,6 +1,7 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
   PATTERN_LIBRARY_CLAIM_DISCIPLINE,
+  PATTERN_LIBRARY_CLAIM_HEADING,
   PATTERN_LIBRARY_SOURCES,
   PATTERN_LIBRARY_SOURCES_INTRO,
 } from "@/lib/pattern-library-evidence-copy";
@@ -11,7 +12,7 @@ export function PatternLibraryClaimOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationClaimAndSourcesStrip
       slug="pattern-library"
       claim={PATTERN_LIBRARY_CLAIM_DISCIPLINE}
-      claimHeading="Anonymized catalog only"
+      claimHeading={PATTERN_LIBRARY_CLAIM_HEADING}
       sourcesIntro={PATTERN_LIBRARY_SOURCES_INTRO}
       sources={PATTERN_LIBRARY_SOURCES}
     />
