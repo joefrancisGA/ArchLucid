@@ -301,20 +301,23 @@ public static class TopologyProposalRelationshipEndpointIndex
     {
         string? serviceId = TrimManifestEndpointValue(service.ServiceId);
         string? serviceName = TrimManifestEndpointValue(service.ServiceName);
+        string? nodeId = TrimManifestEndpointValue(node.NodeId);
+        string? nodeSourceId = TrimManifestEndpointValue(node.SourceId);
+        string? nodeLabel = TrimManifestEndpointValue(node.Label);
 
         if (serviceId is not null)
         {
-            if (string.Equals(node.NodeId, serviceId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeId, serviceId, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            if (string.Equals(node.SourceId, serviceId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeSourceId, serviceId, StringComparison.OrdinalIgnoreCase))
                 return true;
 
             if (ArmResourceIdMatches(serviceId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node)))
                 return true;
 
-            if (!string.IsNullOrWhiteSpace(node.Label)
-                && string.Equals(serviceId, BuildSyntheticServiceNodeId(node.Label), StringComparison.OrdinalIgnoreCase))
+            if (nodeLabel is not null
+                && string.Equals(serviceId, BuildSyntheticServiceNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -325,7 +328,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             if (NodeIdentityMatchesProposedName(node, serviceName))
                 return true;
 
-            if (string.Equals(node.NodeId, BuildSyntheticServiceNodeId(serviceName), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeId, BuildSyntheticServiceNodeId(serviceName), StringComparison.OrdinalIgnoreCase))
                 return true;
         }
 
@@ -336,20 +339,23 @@ public static class TopologyProposalRelationshipEndpointIndex
     {
         string? datastoreId = TrimManifestEndpointValue(datastore.DatastoreId);
         string? datastoreName = TrimManifestEndpointValue(datastore.DatastoreName);
+        string? nodeId = TrimManifestEndpointValue(node.NodeId);
+        string? nodeSourceId = TrimManifestEndpointValue(node.SourceId);
+        string? nodeLabel = TrimManifestEndpointValue(node.Label);
 
         if (datastoreId is not null)
         {
-            if (string.Equals(node.NodeId, datastoreId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeId, datastoreId, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            if (string.Equals(node.SourceId, datastoreId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeSourceId, datastoreId, StringComparison.OrdinalIgnoreCase))
                 return true;
 
             if (ArmResourceIdMatches(datastoreId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node)))
                 return true;
 
-            if (!string.IsNullOrWhiteSpace(node.Label)
-                && string.Equals(datastoreId, BuildSyntheticDatastoreNodeId(node.Label), StringComparison.OrdinalIgnoreCase))
+            if (nodeLabel is not null
+                && string.Equals(datastoreId, BuildSyntheticDatastoreNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -360,7 +366,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             if (NodeIdentityMatchesProposedName(node, datastoreName))
                 return true;
 
-            if (string.Equals(node.NodeId, BuildSyntheticDatastoreNodeId(datastoreName), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeId, BuildSyntheticDatastoreNodeId(datastoreName), StringComparison.OrdinalIgnoreCase))
                 return true;
         }
 
@@ -374,21 +380,25 @@ public static class TopologyProposalRelationshipEndpointIndex
     /// </summary>
     private static bool NodeIdentityMatchesProposedName(GraphNode node, string proposedName)
     {
-        if (string.Equals(node.Label, proposedName, StringComparison.OrdinalIgnoreCase))
+        string? nodeLabel = TrimManifestEndpointValue(node.Label);
+        string? nodeId = TrimManifestEndpointValue(node.NodeId);
+        string? nodeSourceId = TrimManifestEndpointValue(node.SourceId);
+
+        if (string.Equals(nodeLabel, proposedName, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (string.Equals(node.NodeId, proposedName, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(nodeId, proposedName, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (string.Equals(node.SourceId, proposedName, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(nodeSourceId, proposedName, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (!string.IsNullOrWhiteSpace(node.Label))
+        if (nodeLabel is not null)
         {
-            if (string.Equals(proposedName, BuildSyntheticServiceNodeId(node.Label), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(proposedName, BuildSyntheticServiceNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            if (string.Equals(proposedName, BuildSyntheticDatastoreNodeId(node.Label), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(proposedName, BuildSyntheticDatastoreNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
                 return true;
         }
 

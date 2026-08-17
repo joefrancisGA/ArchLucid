@@ -2009,6 +2009,56 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_rename_overlay_uses_terraform_source_id_and_graph_source_id_has_whitespace()
+    {
+        // Indexing/merge-gate trim SourceId, but NodeMatchesService compared raw node.SourceId to the trimmed
+        // manifest ServiceId — so rename overlays failed while direct Terraform relationship keys still worked.
+        const string rawTerraformSourceId = ComputeSourceId;
+        const string paddedTerraformSourceId = $"  {rawTerraformSourceId}  ";
+
+        GraphSnapshot graph = Graph(ComputeNode(sourceId: paddedTerraformSourceId), DataNode());
+
+        AgentResult topology = TopologyResult(
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = rawTerraformSourceId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            },
+            resultId: "topology-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == "renamed-api" && r.TargetId == DataLabel);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_service_name_is_terraform_source_id_and_relationship_uses_synthetic()
     {
         // Agents sometimes copy the inventoried Terraform address into ServiceName. The merge gate then
