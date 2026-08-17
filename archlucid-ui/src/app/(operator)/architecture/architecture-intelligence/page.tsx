@@ -1,11 +1,14 @@
 import { Suspense } from "react";
 
+import { ArchitectureIntelligenceBuyerLabControlsGate } from "./_sections/ArchitectureIntelligenceBuyerLabControlsGate";
 import { ArchitectureIntelligencePageClient } from "./_sections/ArchitectureIntelligencePageClient";
 
 export default function ArchitectureIntelligencePage() {
   return (
     <Suspense fallback={null}>
-      <ArchitectureIntelligencePageClient />
+      <ArchitectureIntelligenceBuyerLabControlsGate>
+        <ArchitectureIntelligencePageClient />
+      </ArchitectureIntelligenceBuyerLabControlsGate>
     </Suspense>
   );
 }
