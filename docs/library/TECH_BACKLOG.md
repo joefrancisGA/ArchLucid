@@ -1304,7 +1304,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2197 | Two-way Microsoft Teams governance actions + Slack action surface beyond approve/reject; see ## TB-2197 below | Interoperability P2 ? **V1.1**; owner stickiness ask 2026-08-12; Teams notification-only today; mirrors shipped `SlackInteractivityController` | L |
 | TB-2198 | GitHub App + Check Runs for pull-request architecture review; see ## TB-2198 below | Interoperability P2 ? **V1.1**; owner stickiness ask 2026-08-12; GitHub is client-side Actions only vs server-side `AzureDevOpsPullRequestDecorator`; needs scoped incremental analysis for per-PR cost | L |
 | TB-2199 | Tenant-authored approved-architecture registry ? persistent golden-path / approved-technology library referenced by findings; see ## TB-2199 below | Stickiness P2 ? **V1.1**; owner stickiness ask 2026-08-12; policy packs already authorable, pattern library + technology ledger are not; switching-cost lever | L |
-| TB-2200 | Workspace-scoped Ask across all reviews ? `AskController` requires a `runId` while retrieval search is already workspace-wide; see ## TB-2200 below | Stickiness P2 ? **V1.1**; owner stickiness ask 2026-08-12; value compounds with corpus size; reuses `RetrievalController` scoping | M |
+| TB-2200 | **Done** (2026-08-16) — Workspace-scoped Ask across all reviews — `AskController` + `AskService` workspace retrieval path; UI optional review anchor; see ## TB-2200 below | Stickiness P2 ? **V1.1**; owner stickiness ask 2026-08-12; value compounds with corpus size; reuses `RetrievalController` scoping | M |
 | TB-2201 | **Done** (2026-08-13) ? Workload-conditioned requirement expectations from scope metadata; see ## TB-2201 below | Correctness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; reuses `TopologyExpectedCategoryResolver` pattern | M |
 | TB-2202 | **Done** (2026-08-13) ? Structural requirement traceability gap engine (`RequirementGap`); see ## TB-2202 below | Correctness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; parallel to `topology-structure` | M |
 | TB-2203 | **Done** (2026-08-13) ? Requirement `RELATES_TO` explicit targeting over heuristics; see ## TB-2203 below | Trustworthiness P1 ? **V1**; non-policy-pack assessment wave 2026-08-13; mirror policy/security targeted vs fallback weights | S |
@@ -1314,7 +1314,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2207 | **Done** (2026-08-13) ? Structural security coverage gap engine (`SecurityGap`); see ## TB-2207 below | Trustworthiness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; parallel to `topology-structure` | M |
 | TB-2208 | **Done** (2026-08-13) ? Topology sensitivity classification for baseline scoping; see ## TB-2208 below | Trustworthiness P1 ? **V1**; non-policy-pack assessment wave 2026-08-13; intake + extractor enrichment | M |
 | TB-2209 | **Done** (2026-08-14) ? Security baseline completeness matrix per workload; see ## TB-2209 below | Correctness P1 ? **V1**; non-policy-pack assessment wave 2026-08-13; control-family expectations | M |
-| TB-2210 | Inventory-backed security baseline validation; see ## TB-2210 below | Trustworthiness P2 ? **V1**; non-policy-pack assessment wave 2026-08-13; Azure extractor cross-check | L |
+| TB-2210 | **Done** (2026-08-14) — Inventory-backed security baseline validation; see ## TB-2210 below | Trustworthiness P2 ? **V1**; non-policy-pack assessment wave 2026-08-13; Azure extractor cross-check | L |
 | TB-2211 | **Done** (2026-08-13) ? Always-on cost constraint nodes from request `constraints`; see ## TB-2211 below | Cost-effectiveness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; empty graph must not skip cost | S |
 | TB-2212 | **Done** (2026-08-13) ? Deterministic cost breach finding engine; see ## TB-2212 below | Cost-effectiveness P0 ? **V1**; non-policy-pack assessment wave 2026-08-13; typed decisioning vs agent prose | M |
 | TB-2213 | **Done** (2026-08-14) ? Extractor-grounded cost signals (`advisor-cost`, orphans); see ## TB-2213 below | Cost-effectiveness P1 ? **V1**; non-policy-pack assessment wave 2026-08-13; evidence already in Azure ZIP | M |
@@ -51590,6 +51590,24 @@ while the four counters go through `countValue`, which ignores it (line ~58).
 **Acceptance:** Quick scan request accepts Aws/Gcp primary environment labels where product exposes the field.
 
 **Size estimate:** S.
+
+---
+
+---
+
+## TB-2200 — Workspace-scoped Ask across all reviews (P2)
+
+**Window:** V1.1.
+
+**Status:** **Done** 2026-08-16 — `AskController` accepts question-only new threads; `AskService.PrepareWorkspaceAskContextAsync` uses workspace-wide retrieval (`RunId = null`) with `AskWorkspaceContextBuilder` minimal structured context; optional review anchor in Ask UI (`AskRunIdPicker` “All reviews in workspace”); Host.Core.Tests + Api integration test; Vitest copy guards.
+
+**Why:** `RetrievalController` search was already workspace-scoped, but `AskController` required `runId`, blocking corpus-wide Q&A that compounds with indexed review volume.
+
+**Approach:** Reuse retrieval query scoping; keep run-anchored path for single-review manifest + provenance context and comparison mode.
+
+**Peers:** Done **TB-2191**–**TB-2195** stickiness spine; open **TB-2197**–**TB-2199**.
+
+**Size estimate:** M.
 
 ---
 

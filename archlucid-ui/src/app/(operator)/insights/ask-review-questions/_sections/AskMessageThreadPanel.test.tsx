@@ -13,7 +13,7 @@ const baseProps = {
   askAssistantGroundingLinks: [] as const,
   askCitationActionFollowUps: [] as const,
   showPostAssistantFollowUps: false,
-  runMissing: false,
+  runAnchorUnset: false,
   onMergePromptLine: () => {},
 };
 

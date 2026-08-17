@@ -8,7 +8,7 @@ export const ASK_CONVERSATION_EMPTY: EnterpriseCompactEmptyStateProps = {
   testId: "ask-conversation-empty-state",
   title: "No messages yet",
   description:
-    "Select an architecture review for a new conversation (or open one on the left), then ask a question. Follow-ups continue the same conversation without selecting the review again.",
+    "Ask a question to search evidence across this workspace, or pick a review above to narrow scope. Follow-ups continue the same conversation.",
 };
 
 /** Shown when the thread history panel has no saved conversations. */

@@ -13,7 +13,6 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { getConversationMessages } from "@/lib/conversation-api";
 import { useAskStream } from "@/hooks/useAskStream";
-import { useAskReviewAvailability } from "@/hooks/useAskReviewAvailability";
 import { useConversationThreadsQuery } from "@/hooks/use-conversation-threads-query";
 import { buyerAskGroundingLinksForRun } from "@/lib/ask-buyer-grounding-links";
 import {
@@ -29,14 +28,13 @@ import { BUYER_ASK_PAGE_HERO, BUYER_ASK_PAGE_TITLE } from "@/lib/buyer/buyer-pol
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 import { AskMainPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskMainPanel";
-import { AskNoReviewEmptyState } from "@/app/(operator)/insights/ask-review-questions/_sections/AskNoReviewEmptyState";
 import { AskArchitectureIntelligenceVocabularyRail } from "@/components/AskArchitectureIntelligenceVocabularyRail";
 import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceVocabularyRail";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskThreadHistoryPanel";
 const ASK_PAGE_SUBTITLE =
-  "Ask questions about a finalized review. Answers use the sealed review record and cite evidence when available.";
+  "Ask questions across finalized reviews in this workspace, or narrow to one review. Answers cite indexed evidence when available.";
 
 export function AskPageContent() {
   const searchParams = useSearchParams();
@@ -51,7 +49,6 @@ export function AskPageContent() {
   const [targetRunId, setTargetRunId] = useState("");
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
-  const { loading: reviewsLoading, hasSelectableReviews } = useAskReviewAvailability();
   const {
     tokens: streamingAssistantContent,
     isStreaming: askStreaming,
@@ -247,12 +244,6 @@ export function AskPageContent() {
 
     const rid = runId.trim();
     const tid = selectedThreadId.trim();
-    if (!tid && !rid) {
-      setActionFailure(
-        uiFailureFromMessage("Select an architecture review to start asking questions, or open an existing conversation."),
-      );
-      return;
-    }
 
     const base = baseRunId.trim();
     const target = targetRunId.trim();
@@ -392,12 +383,11 @@ export function AskPageContent() {
   }, [threads, selectedThreadId, listFailure, onSelectThread]);
 
   const threadSelected = selectedThreadId.trim().length > 0;
-  const needsRunForNewThread = !threadSelected;
-  const runMissing = needsRunForNewThread && runId.trim().length === 0;
+  const runAnchorUnset = !threadSelected && runId.trim().length === 0;
   const listDateFormatter = isBuyerPolishedOperatorShellEnv()
     ? formatConversationListDatePolished
     : formatConversationListDate;
-  const askDisabled = loading || askStreaming || question.trim().length === 0 || runMissing;
+  const askDisabled = loading || askStreaming || question.trim().length === 0;
   const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
   const showPostAssistantFollowUps =
     buyerPolishedShell &&
@@ -465,11 +455,6 @@ export function AskPageContent() {
     }
   }, [buyerPolishedShell, workspaceRun?.activeRunId]);
 
-  const showNoReviewEmptyState =
-    !reviewsLoading &&
-    !hasSelectableReviews &&
-    threads.length === 0 &&
-    selectedThreadId.trim().length === 0;
   const showThreadHistoryPanel = threads.length > 0;
 
   return (
@@ -485,7 +470,7 @@ export function AskPageContent() {
       <AskArchitectureIntelligenceVocabularyRail currentSurfaceId="ask-review-questions" />
       <AskVsFrontierAiDifferentiationStrip />
       <PageCapabilityBoundaryStrip surfaceId="ask" />
-{listFailure !== null ? (
+      {listFailure !== null ? (
         <div role="alert" className="mb-4">
           <OperatorApiProblem
             problem={listFailure.problem}
@@ -495,10 +480,7 @@ export function AskPageContent() {
         </div>
       ) : null}
 
-      {reviewsLoading ? null : showNoReviewEmptyState ? (
-        <AskNoReviewEmptyState />
-      ) : (
-        <div
+      <div
           className={cn(
             "grid grid-cols-1 gap-4",
             showThreadHistoryPanel && "md:grid-cols-[minmax(180px,220px)_1fr]",
@@ -532,7 +514,7 @@ export function AskPageContent() {
             question={question}
             onQuestionChange={setQuestion}
             showRunDeepLinkPrompts={showRunDeepLinkPrompts}
-            runMissing={runMissing}
+            runAnchorUnset={runAnchorUnset}
             onMergePromptLine={mergePromptLine}
             loading={loading || askStreaming}
             askDisabled={askDisabled}
@@ -546,7 +528,6 @@ export function AskPageContent() {
             retrievalDegraded={retrievalDegraded}
           />
         </div>
-      )}
     </div>
   );
 }
