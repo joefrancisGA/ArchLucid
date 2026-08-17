@@ -1,14 +1,107 @@
 namespace ArchLucid.Persistence.Sql;
 
 /// <summary>
-///     SQL text for <see cref="Findings.DapperFindingInspectReadRepository" /> follow-up batch reads.
+///     SQL text for <see cref="Findings.DapperFindingInspectReadRepository" /> reads.
 ///     Kept as constants so unit tests can assert tenant/workspace/project predicates without a database.
 /// </summary>
 internal static class FindingInspectReadSql
 {
+    /// <summary>Primary inspect row including <c>PayloadJson</c>.</summary>
+    public const string MainInspectWithTypedPayload = """
+                                                     SELECT TOP 1
+                                                         fr.FindingId,
+                                                         fr.Severity,
+                                                         fr.PayloadJson,
+                                                         fr.Title,
+                                                         fr.Rationale,
+                                                         fr.ModelDeploymentName,
+                                                         JSON_VALUE(aet.TraceJson, '$.modelAlias') AS ModelAlias,
+                                                         fr.PromptTemplateVersion,
+                                                         fr.ConfidenceScore,
+                                                         fr.EvaluationConfidenceScore,
+                                                         fr.EvaluationConfidenceLevel,
+                                                         fr.HumanReviewStatus,
+                                                         fr.IsMuted,
+                                                         fr.MuteReason,
+                                                         fr.AssignedToUserId,
+                                                         fr.RemediationDueUtc,
+                                                         fr.ReasoningTrace,
+                                                         fr.ReasoningTraceDigestSha256,
+                                                         r.RunId,
+                                                         r.CurrentManifestVersion,
+                                                         r.GoldenManifestId,
+                                                         r.StructuralExecutionMode,
+                                                         r.RealModeFellBackToSimulator,
+                                                         dt.AppliedRuleIdsJson
+                                                     FROM dbo.FindingRecords fr
+                                                     INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                                                     INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
+                                                     LEFT JOIN dbo.AgentExecutionTraces aet ON aet.TraceId = fr.AgentExecutionTraceId
+                                                     LEFT JOIN dbo.DecisioningTraces dt
+                                                         ON dt.DecisionTraceId = r.DecisionTraceId
+                                                        AND dt.TenantId = r.TenantId
+                                                        AND dt.WorkspaceId = r.WorkspaceId
+                                                        AND dt.ProjectId = r.ScopeProjectId
+                                                     WHERE fr.FindingId = @FindingId
+                                                       AND fr.TenantId = @TenantId
+                                                       AND fr.WorkspaceId = @WorkspaceId
+                                                       AND fr.ProjectId = @ScopeProjectId
+                                                       AND r.TenantId = @TenantId
+                                                       AND r.WorkspaceId = @WorkspaceId
+                                                       AND r.ScopeProjectId = @ScopeProjectId
+                                                       AND (r.ArchivedUtc IS NULL);
+                                                     """;
+
+    /// <summary>Primary inspect row with payload omitted (metadata-only typed payload built in-process).</summary>
+    public const string MainInspectWithoutTypedPayload = """
+                                                        SELECT TOP 1
+                                                            fr.FindingId,
+                                                            fr.Severity,
+                                                            CAST(NULL AS nvarchar(max)) AS PayloadJson,
+                                                            fr.Title,
+                                                            fr.Rationale,
+                                                            fr.ModelDeploymentName,
+                                                            JSON_VALUE(aet.TraceJson, '$.modelAlias') AS ModelAlias,
+                                                            fr.PromptTemplateVersion,
+                                                            fr.ConfidenceScore,
+                                                            fr.EvaluationConfidenceScore,
+                                                            fr.EvaluationConfidenceLevel,
+                                                            fr.HumanReviewStatus,
+                                                            fr.IsMuted,
+                                                            fr.MuteReason,
+                                                            fr.AssignedToUserId,
+                                                            fr.RemediationDueUtc,
+                                                            fr.ReasoningTrace,
+                                                            fr.ReasoningTraceDigestSha256,
+                                                            r.RunId,
+                                                            r.CurrentManifestVersion,
+                                                            r.GoldenManifestId,
+                                                            r.StructuralExecutionMode,
+                                                            r.RealModeFellBackToSimulator,
+                                                            dt.AppliedRuleIdsJson
+                                                        FROM dbo.FindingRecords fr
+                                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
+                                                        LEFT JOIN dbo.AgentExecutionTraces aet ON aet.TraceId = fr.AgentExecutionTraceId
+                                                        LEFT JOIN dbo.DecisioningTraces dt
+                                                            ON dt.DecisionTraceId = r.DecisionTraceId
+                                                           AND dt.TenantId = r.TenantId
+                                                           AND dt.WorkspaceId = r.WorkspaceId
+                                                           AND dt.ProjectId = r.ScopeProjectId
+                                                        WHERE fr.FindingId = @FindingId
+                                                          AND fr.TenantId = @TenantId
+                                                          AND fr.WorkspaceId = @WorkspaceId
+                                                          AND fr.ProjectId = @ScopeProjectId
+                                                          AND r.TenantId = @TenantId
+                                                          AND r.WorkspaceId = @WorkspaceId
+                                                          AND r.ScopeProjectId = @ScopeProjectId
+                                                          AND (r.ArchivedUtc IS NULL);
+                                                        """;
+
     /// <summary>
     ///     Related nodes, rule text, recommended actions, audit row, latest disposition, and active waiver count.
-    ///     Child-table and finding-scoped rows filter workspace/project because FindingId is not unique within a tenant.
+    ///     FindingRecords and child rows filter tenant/workspace/project because FindingId is not unique within a tenant,
+    ///     and run-only predicates can still surface a FindingRecords row when <c>fr.TenantId</c> diverges from the run.
     /// </summary>
     public const string FollowUpBatch = """
                                        SELECT frn.NodeId
@@ -17,6 +110,9 @@ internal static class FindingInspectReadSql
                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
                                        WHERE fr.FindingId = @FindingId
+                                         AND fr.TenantId = @TenantId
+                                         AND fr.WorkspaceId = @WorkspaceId
+                                         AND fr.ProjectId = @ScopeProjectId
                                          AND frn.TenantId = @TenantId
                                          AND frn.WorkspaceId = @WorkspaceId
                                          AND frn.ProjectId = @ScopeProjectId
@@ -31,6 +127,9 @@ internal static class FindingInspectReadSql
                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
                                        WHERE fr.FindingId = @FindingId
+                                         AND fr.TenantId = @TenantId
+                                         AND fr.WorkspaceId = @WorkspaceId
+                                         AND fr.ProjectId = @ScopeProjectId
                                          AND tra.TenantId = @TenantId
                                          AND tra.WorkspaceId = @WorkspaceId
                                          AND tra.ProjectId = @ScopeProjectId
@@ -45,6 +144,9 @@ internal static class FindingInspectReadSql
                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
                                        WHERE fr.FindingId = @FindingId
+                                         AND fr.TenantId = @TenantId
+                                         AND fr.WorkspaceId = @WorkspaceId
+                                         AND fr.ProjectId = @ScopeProjectId
                                          AND fra.TenantId = @TenantId
                                          AND fra.WorkspaceId = @WorkspaceId
                                          AND fra.ProjectId = @ScopeProjectId
