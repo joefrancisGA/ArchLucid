@@ -2,7 +2,9 @@ using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 
@@ -21,6 +23,8 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ExportsControllerCompareSummaryAuditTests
 {
+    private const string ScopedRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
     [SkippableFact]
     public async Task CompareExportRecordsSummary_WhenPersistTrue_LogsComparisonSummaryPersisted()
     {
@@ -30,9 +34,14 @@ public sealed class ExportsControllerCompareSummaryAuditTests
 
         Mock<IRunExportRecordRepository> runExports = new();
         runExports.Setup(r => r.GetByIdAsync(leftId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunExportRecord { ExportRecordId = leftId });
+            .ReturnsAsync(new RunExportRecord { ExportRecordId = leftId, RunId = ScopedRunId });
         runExports.Setup(r => r.GetByIdAsync(rightId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunExportRecord { ExportRecordId = rightId });
+            .ReturnsAsync(new RunExportRecord { ExportRecordId = rightId, RunId = ScopedRunId });
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(ScopedRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = ScopedRunId } });
 
         Mock<IExportRecordDiffService> diffService = new();
         diffService.Setup(d => d.Compare(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>()))
@@ -51,7 +60,7 @@ public sealed class ExportsControllerCompareSummaryAuditTests
         Mock<IAuditService> audit = new();
 
         ExportsController sut = new(
-            Mock.Of<IRunDetailQueryService>(),
+            runDetails.Object,
             runExports.Object,
             comparisonAudit.Object,
             Mock.Of<IExportReplayService>(),
@@ -91,9 +100,14 @@ public sealed class ExportsControllerCompareSummaryAuditTests
 
         Mock<IRunExportRecordRepository> runExports = new();
         runExports.Setup(r => r.GetByIdAsync(leftId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunExportRecord { ExportRecordId = leftId });
+            .ReturnsAsync(new RunExportRecord { ExportRecordId = leftId, RunId = ScopedRunId });
         runExports.Setup(r => r.GetByIdAsync(rightId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunExportRecord { ExportRecordId = rightId });
+            .ReturnsAsync(new RunExportRecord { ExportRecordId = rightId, RunId = ScopedRunId });
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(ScopedRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = ScopedRunId } });
 
         Mock<IExportRecordDiffService> diffService = new();
         diffService.Setup(d => d.Compare(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>()))
@@ -106,7 +120,7 @@ public sealed class ExportsControllerCompareSummaryAuditTests
         Mock<IAuditService> audit = new();
 
         ExportsController sut = new(
-            Mock.Of<IRunDetailQueryService>(),
+            runDetails.Object,
             runExports.Object,
             Mock.Of<IComparisonAuditService>(),
             Mock.Of<IExportReplayService>(),

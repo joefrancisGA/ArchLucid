@@ -66,7 +66,7 @@ public sealed class ExportsController(
         [FromRoute] string exportRecordId,
         CancellationToken cancellationToken)
     {
-        RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+        RunExportRecord? record = await LoadScopedExportRecordAsync(exportRecordId, cancellationToken);
         if (record is null)
             return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.",
                 ProblemTypes.ResourceNotFound);
@@ -154,6 +154,10 @@ public sealed class ExportsController(
     {
         request ??= new ApiReplayExportRequest(); // body is optional; defaults apply when omitted
 
+        if (await LoadScopedExportRecordAsync(exportRecordId, cancellationToken) is null)
+            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+
         ReplayExportResult result = await exportReplayService.ReplayAsync(
             new AppReplayExportRequest
             {
@@ -178,6 +182,10 @@ public sealed class ExportsController(
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayExportRequest();
+
+        if (await LoadScopedExportRecordAsync(exportRecordId, cancellationToken) is null)
+            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         ReplayExportResult result = await exportReplayService.ReplayAsync(
             new AppReplayExportRequest
@@ -228,6 +236,24 @@ public sealed class ExportsController(
     }
 
     /// <summary>
+    ///     Loads an export record only when its linked run is visible in the caller's tenant/workspace scope.
+    ///     Returns <see langword="null" /> when the record is missing or out of scope (same 404 surface).
+    /// </summary>
+    private async Task<RunExportRecord?> LoadScopedExportRecordAsync(
+        string exportRecordId,
+        CancellationToken cancellationToken)
+    {
+        RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+        if (record is null)
+            return null;
+
+        if (await runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken) is null)
+            return null;
+
+        return record;
+    }
+
+    /// <summary>
     ///     Validates query parameters and loads both export records.
     ///     Returns a non-null <see cref="LoadedExportRecordPair.Error" /> on any validation or 404 failure.
     /// </summary>
@@ -248,7 +274,7 @@ public sealed class ExportsController(
                 Error = this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed)
             };
 
-        RunExportRecord? left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
+        RunExportRecord? left = await LoadScopedExportRecordAsync(leftExportRecordId, cancellationToken);
         if (left is null)
             return new LoadedExportRecordPair
             {
@@ -256,7 +282,7 @@ public sealed class ExportsController(
                     ProblemTypes.ResourceNotFound)
             };
 
-        RunExportRecord? right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
+        RunExportRecord? right = await LoadScopedExportRecordAsync(rightExportRecordId, cancellationToken);
 
         return right is null
             ? new LoadedExportRecordPair
