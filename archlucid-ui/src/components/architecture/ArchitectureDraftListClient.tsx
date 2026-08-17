@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { ArchitecturesHubListSkeleton } from "@/app/(operator)/architecture/architectures/_sections/ArchitecturesHubListSkeleton";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import { ProjectsRecycleDraftsPackageVocabularyRail } from "@/components/ProjectsRecycleDraftsPackageVocabularyRail";
@@ -20,6 +21,7 @@ import {
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
+import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import {
   useArchitectureDraftRegistryEntries,
   useArchitectureDraftRegistryHydrated,
@@ -48,7 +50,6 @@ import {
   ARCHITECTURES_HUB_FILTER_NO_REVIEW_LABEL,
   ARCHITECTURES_HUB_FILTER_READY_LABEL,
   ARCHITECTURES_HUB_FILTER_SEARCH_PLACEHOLDER,
-  ARCHITECTURES_HUB_LIST_LOADING_LABEL,
   ARCHITECTURES_HUB_PAGE_TITLE,
   ARCHITECTURES_HUB_SORT_NAME_ASC_LABEL,
   ARCHITECTURES_HUB_SORT_NAME_DESC_LABEL,
@@ -63,6 +64,7 @@ import {
 } from "@/lib/architectures-hub-copy";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
@@ -173,6 +175,7 @@ function ArchitectureFilterChip(props: {
 
 /** Client-side architecture draft registry — search, filter, and sort saved drafts. */
 export function ArchitectureDraftListClient(): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const isHydrated = useArchitectureDraftRegistryHydrated();
   const entries = useArchitectureDraftRegistryEntries();
   const [searchQuery, setSearchQuery] = useState("");
@@ -197,20 +200,18 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
   }, [activeFilter, activeSort, entries, searchQuery]);
 
   if (!isHydrated) {
-    return (
-      <div className="mt-4" data-testid="architecture-draft-list-loading" aria-busy="true">
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-          {ARCHITECTURES_HUB_LIST_LOADING_LABEL}
-        </p>
-      </div>
-    );
+    return <ArchitecturesHubListSkeleton />;
   }
 
   if (entries.length === 0) {
     return (
       <div className="mt-4 space-y-4" data-testid="architecture-draft-list-empty">
-        <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />
-        <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
+        {!buyerPolishedShell ? (
+          <>
+            <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />
+            <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
+          </>
+        ) : null}
         <EnterpriseCompactEmptyState
           title={ARCHITECTURES_HUB_EMPTY_TITLE}
           description={ARCHITECTURES_HUB_EMPTY_BODY}
@@ -228,8 +229,12 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
 
   return (
     <div className="mt-4 space-y-4" data-testid="architecture-draft-list">
-      <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />
-      <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
+      {!buyerPolishedShell ? (
+        <>
+          <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />
+          <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
+        </>
+      ) : null}
       <ArchitectureDraftGuidanceDisclosure />
       <div
         className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center"
@@ -308,12 +313,19 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
                   data-testid={`architecture-draft-row-${entry.architectureId}`}
                 >
                   <EnterpriseTableCell>
-                    <Link
-                      href={architectureDraftPath(entry.architectureId)}
-                      className={OPERATOR_LINK.nav}
-                    >
-                      {entry.displayName}
-                    </Link>
+                    <div className="space-y-1">
+                      <Link
+                        href={architectureDraftPath(entry.architectureId)}
+                        className={OPERATOR_LINK.nav}
+                      >
+                        {entry.displayName}
+                      </Link>
+                      {buyerPolishedShell ? (
+                        <div data-testid={`architecture-draft-id-${entry.architectureId}`}>
+                          <TechnicalIdDisclosure label="Draft id" value={entry.architectureId} />
+                        </div>
+                      ) : null}
+                    </div>
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <StatusTag
