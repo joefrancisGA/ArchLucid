@@ -32,7 +32,7 @@ public sealed class CompareQualityDeltaCalculatorTests
             empty,
             leftFindings,
             empty,
-            rightFindings);
+            rightFindings)!;
 
         counts.HighSeverityBefore.Should().Be(1);
         counts.HighSeverityAfter.Should().Be(1);
@@ -60,9 +60,60 @@ public sealed class CompareQualityDeltaCalculatorTests
             },
         ];
 
-        CompareQualityDeltaCounts counts = CompareQualityDeltaCalculator.Build(empty, findings, empty, findings);
+        CompareQualityDeltaCounts counts = CompareQualityDeltaCalculator.Build(empty, findings, empty, findings)!;
 
         counts.HighSeverityBefore.Should().Be(0);
         counts.HighSeverityAfter.Should().Be(0);
+    }
+
+    [Fact]
+    public void Build_returns_null_when_after_model_is_missing_instead_of_fabricating_improvement()
+    {
+        ArchitectureKnowledgeModel left = new()
+        {
+            ModelId = "m1",
+            TenantId = "tenant",
+            RunId = "run-left",
+            Elements =
+            [
+                new()
+                {
+                    ElementId = "req-1",
+                    Kind = ArchitectureElementKind.FunctionalRequirement,
+                    Name = "Req 1",
+                },
+                new()
+                {
+                    ElementId = "req-2",
+                    Kind = ArchitectureElementKind.FunctionalRequirement,
+                    Name = "Req 2",
+                },
+                new()
+                {
+                    ElementId = "req-3",
+                    Kind = ArchitectureElementKind.FunctionalRequirement,
+                    Name = "Req 3",
+                },
+            ],
+        };
+
+        CompareQualityDeltaCounts? counts = CompareQualityDeltaCalculator.Build(left, [], null, []);
+
+        counts.Should().BeNull();
+    }
+
+    [Fact]
+    public void Build_returns_null_when_before_model_is_missing()
+    {
+        ArchitectureKnowledgeModel right = new()
+        {
+            ModelId = "m2",
+            TenantId = "tenant",
+            RunId = "run-right",
+        };
+
+        CompareQualityDeltaCounts? counts = CompareQualityDeltaCalculator.Build(null, [], right, []);
+
+        counts.Should().BeNull();
     }
 }

@@ -153,11 +153,20 @@ public sealed class EndToEndReplayComparisonService(
         ArchitectureKnowledgeModel? rightModel =
             await _architectureIntelligencePersistence.GetModelByRunIdAsync(tenantId, rightRunId, cancellationToken);
 
-        report.CompareQualityDelta = CompareQualityDeltaCalculator.Build(
+        CompareQualityDeltaCounts? delta = CompareQualityDeltaCalculator.Build(
             leftModel,
             leftFindings,
             rightModel,
             rightFindings);
+
+        if (delta is null)
+        {
+            report.Warnings.Add(
+                "Compare quality delta omitted because one or both architecture knowledge models were unavailable.");
+            return;
+        }
+
+        report.CompareQualityDelta = delta;
     }
 
     /// <summary>

@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Analysis;
 /// <summary>Builds API-backed compare quality delta counts from knowledge models and run findings.</summary>
 public static class CompareQualityDeltaCalculator
 {
-    public static CompareQualityDeltaCounts Build(
+    public static CompareQualityDeltaCounts? Build(
         ArchitectureKnowledgeModel? leftModel,
         IReadOnlyList<ArchitectureFinding> leftFindings,
         ArchitectureKnowledgeModel? rightModel,
@@ -16,8 +16,11 @@ public static class CompareQualityDeltaCalculator
         ArgumentNullException.ThrowIfNull(leftFindings);
         ArgumentNullException.ThrowIfNull(rightFindings);
 
-        ArchitectureKnowledgeModel left = leftModel ?? CreateEmptyModel();
-        ArchitectureKnowledgeModel right = rightModel ?? CreateEmptyModel();
+        if (leftModel is null || rightModel is null)
+            return null;
+
+        ArchitectureKnowledgeModel left = leftModel;
+        ArchitectureKnowledgeModel right = rightModel;
         List<SpecialistReviewFinding> leftSpecialist = MapFindings(leftFindings);
         List<SpecialistReviewFinding> rightSpecialist = MapFindings(rightFindings);
         Dictionary<string, int> leftMetrics = ArchitectureKnowledgeModelMetrics.CountMetrics(left, leftSpecialist);
@@ -45,16 +48,6 @@ public static class CompareQualityDeltaCalculator
         int covered = metrics[ArchitectureKnowledgeModelMetrics.RequirementsWithDesignCoverage];
 
         return Math.Max(0, requirements - covered);
-    }
-
-    private static ArchitectureKnowledgeModel CreateEmptyModel()
-    {
-        return new ArchitectureKnowledgeModel
-        {
-            ModelId = Guid.NewGuid().ToString("N"),
-            TenantId = string.Empty,
-            RunId = string.Empty,
-        };
     }
 
     private static List<SpecialistReviewFinding> MapFindings(IReadOnlyList<ArchitectureFinding> findings)
