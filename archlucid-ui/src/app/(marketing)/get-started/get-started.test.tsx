@@ -4,6 +4,8 @@ import { join, resolve } from "node:path";
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
+import { GET_STARTED_SKIP_LINK_LABEL } from "@/lib/get-started-page-copy";
+
 import { GetStartedPageClient } from "./GetStartedPageClient";
 import {
   GET_STARTED_LAST_REVIEWED_LABEL,
@@ -31,11 +33,16 @@ describe("BUYER_GET_STARTED_VERTICAL_SLUGS", () => {
 });
 
 describe("GetStartedPageClient", () => {
-  it("renders distinct sample and guided-trial paths with a primary hero action", () => {
+  it("renders distinct sample and guided-trial paths with hero proof and milestone trial CTA", () => {
     render(<GetStartedPageClient />);
 
-    expect(screen.getByRole("heading", { name: GET_STARTED_PAGE_TITLE, level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Skip to get started content/i })).toHaveAttribute(
+    const heroHeading = screen.getByRole("heading", { name: GET_STARTED_PAGE_TITLE, level: 1 });
+
+    expect(heroHeading).toBeInTheDocument();
+    expect(heroHeading.className).toContain("lg:text-5xl");
+    expect(screen.getByTestId("get-started-hero")).toBeInTheDocument();
+    expect(screen.getByTestId("see-it-deliverable-preview")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: GET_STARTED_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
       "#get-started-primary-content",
     );
@@ -45,6 +52,8 @@ describe("GetStartedPageClient", () => {
     expect(screen.getByTestId("get-started-primary-trial-cta")).toBeInTheDocument();
     expect(screen.getByTestId("get-started-sample-path")).toBeInTheDocument();
     expect(screen.getByTestId("get-started-guided-path")).toBeInTheDocument();
+    expect(screen.getByTestId("get-started-choose-trial-path")).toHaveTextContent("View trial milestones");
+    expect(screen.getByTestId("get-started-evaluation-signup-cta")).toHaveAttribute("href", "/signup");
   });
 
   it("does not expose internal template paths or promotional frictionless language", () => {

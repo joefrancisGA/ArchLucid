@@ -48,7 +48,11 @@ public static class TopologyProposalRelationshipEndpointIndex
     {
         AddEndpointKey(endpointKeys, node.Label);
         AddEndpointKey(endpointKeys, node.NodeId);
-        AddEndpointKey(endpointKeys, node.SourceId);
+
+        // "ProposedChanges" is a provenance sentinel shared by every topology-agent node, not an architecture endpoint.
+        if (!IsAgentProposedSourceSentinel(node.SourceId))
+            AddEndpointKey(endpointKeys, node.SourceId);
+
         AddArmResourceIdEndpointKeys(endpointKeys, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node));
         AddGraphNodeSyntheticLabelEndpointKeys(endpointKeys, node.Label, node.Category, node.SourceId);
     }
@@ -57,7 +61,10 @@ public static class TopologyProposalRelationshipEndpointIndex
     {
         AddResolutionAlias(endpointKeyToNodeId, node.NodeId, node.NodeId);
         AddResolutionAlias(endpointKeyToNodeId, node.Label, node.NodeId);
-        AddResolutionAlias(endpointKeyToNodeId, node.SourceId, node.NodeId);
+
+        if (!IsAgentProposedSourceSentinel(node.SourceId))
+            AddResolutionAlias(endpointKeyToNodeId, node.SourceId, node.NodeId);
+
         AddArmResourceIdResolutionAliases(endpointKeyToNodeId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node), node.NodeId);
         AddGraphNodeSyntheticLabelResolutionAliases(endpointKeyToNodeId, node.Label, node.Category, node.SourceId, node.NodeId);
     }
@@ -202,15 +209,22 @@ public static class TopologyProposalRelationshipEndpointIndex
 
     public static bool IsRenameAliasService(ManifestService candidate, IReadOnlyList<ManifestService> acceptedServices)
     {
-        if (string.IsNullOrWhiteSpace(candidate.ServiceId) || string.IsNullOrWhiteSpace(candidate.ServiceName))
+        string? candidateId = TrimManifestEndpointValue(candidate.ServiceId);
+        string? candidateName = TrimManifestEndpointValue(candidate.ServiceName);
+
+        if (candidateId is null || candidateName is null)
             return false;
 
         foreach (ManifestService accepted in acceptedServices)
         {
-            if (!string.Equals(accepted.ServiceId, candidate.ServiceId, StringComparison.OrdinalIgnoreCase))
+            string? acceptedId = TrimManifestEndpointValue(accepted.ServiceId);
+
+            if (!string.Equals(acceptedId, candidateId, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            return !string.Equals(accepted.ServiceName, candidate.ServiceName, StringComparison.OrdinalIgnoreCase);
+            string? acceptedName = TrimManifestEndpointValue(accepted.ServiceName);
+
+            return !string.Equals(acceptedName, candidateName, StringComparison.OrdinalIgnoreCase);
         }
 
         return false;
@@ -218,15 +232,22 @@ public static class TopologyProposalRelationshipEndpointIndex
 
     public static bool IsRenameAliasDatastore(ManifestDatastore candidate, IReadOnlyList<ManifestDatastore> acceptedDatastores)
     {
-        if (string.IsNullOrWhiteSpace(candidate.DatastoreId) || string.IsNullOrWhiteSpace(candidate.DatastoreName))
+        string? candidateId = TrimManifestEndpointValue(candidate.DatastoreId);
+        string? candidateName = TrimManifestEndpointValue(candidate.DatastoreName);
+
+        if (candidateId is null || candidateName is null)
             return false;
 
         foreach (ManifestDatastore accepted in acceptedDatastores)
         {
-            if (!string.Equals(accepted.DatastoreId, candidate.DatastoreId, StringComparison.OrdinalIgnoreCase))
+            string? acceptedId = TrimManifestEndpointValue(accepted.DatastoreId);
+
+            if (!string.Equals(acceptedId, candidateId, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            return !string.Equals(accepted.DatastoreName, candidate.DatastoreName, StringComparison.OrdinalIgnoreCase);
+            string? acceptedName = TrimManifestEndpointValue(accepted.DatastoreName);
+
+            return !string.Equals(acceptedName, candidateName, StringComparison.OrdinalIgnoreCase);
         }
 
         return false;
@@ -301,20 +322,35 @@ public static class TopologyProposalRelationshipEndpointIndex
     {
         string? serviceId = TrimManifestEndpointValue(service.ServiceId);
         string? serviceName = TrimManifestEndpointValue(service.ServiceName);
+        string? nodeId = TrimManifestEndpointValue(node.NodeId);
+        string? nodeSourceId = TrimManifestEndpointValue(node.SourceId);
+        string? nodeLabel = TrimManifestEndpointValue(node.Label);
 
         if (serviceId is not null)
         {
-            if (string.Equals(node.NodeId, serviceId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeId, serviceId, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            if (string.Equals(node.SourceId, serviceId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeSourceId, serviceId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            // tf show JSON stamps the Terraform address on Label (declaration id on SourceId); agents often key
+            // ServiceId to that address, which the merge gate already indexed via Label.
+            if (string.Equals(nodeLabel, serviceId, StringComparison.OrdinalIgnoreCase))
                 return true;
 
             if (ArmResourceIdMatches(serviceId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node)))
                 return true;
 
-            if (!string.IsNullOrWhiteSpace(node.Label)
-                && string.Equals(serviceId, BuildSyntheticServiceNodeId(node.Label), StringComparison.OrdinalIgnoreCase))
+            if (nodeLabel is not null
+                && string.Equals(serviceId, BuildSyntheticServiceNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // Merge gate indexes both svc- and ds- synthetics for a label; overlays may put ds-{label} on ServiceId.
+            if (nodeLabel is not null
+                && string.Equals(serviceId, BuildSyntheticDatastoreNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -322,10 +358,10 @@ public static class TopologyProposalRelationshipEndpointIndex
 
         if (serviceName is not null)
         {
-            if (string.Equals(node.Label, serviceName, StringComparison.OrdinalIgnoreCase))
+            if (NodeIdentityMatchesProposedName(node, serviceName))
                 return true;
 
-            if (string.Equals(node.NodeId, BuildSyntheticServiceNodeId(serviceName), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeId, BuildSyntheticServiceNodeId(serviceName), StringComparison.OrdinalIgnoreCase))
                 return true;
         }
 
@@ -336,20 +372,34 @@ public static class TopologyProposalRelationshipEndpointIndex
     {
         string? datastoreId = TrimManifestEndpointValue(datastore.DatastoreId);
         string? datastoreName = TrimManifestEndpointValue(datastore.DatastoreName);
+        string? nodeId = TrimManifestEndpointValue(node.NodeId);
+        string? nodeSourceId = TrimManifestEndpointValue(node.SourceId);
+        string? nodeLabel = TrimManifestEndpointValue(node.Label);
 
         if (datastoreId is not null)
         {
-            if (string.Equals(node.NodeId, datastoreId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeId, datastoreId, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            if (string.Equals(node.SourceId, datastoreId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeSourceId, datastoreId, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            // Same tf show JSON shape as services: Terraform address on Label, declaration id on SourceId.
+            if (string.Equals(nodeLabel, datastoreId, StringComparison.OrdinalIgnoreCase))
                 return true;
 
             if (ArmResourceIdMatches(datastoreId, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node)))
                 return true;
 
-            if (!string.IsNullOrWhiteSpace(node.Label)
-                && string.Equals(datastoreId, BuildSyntheticDatastoreNodeId(node.Label), StringComparison.OrdinalIgnoreCase))
+            if (nodeLabel is not null
+                && string.Equals(datastoreId, BuildSyntheticDatastoreNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // Symmetric to services: merge gate may accept svc-{label} on DatastoreId for a compute overlay key.
+            if (nodeLabel is not null
+                && string.Equals(datastoreId, BuildSyntheticServiceNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -357,14 +407,46 @@ public static class TopologyProposalRelationshipEndpointIndex
 
         if (datastoreName is not null)
         {
-            if (string.Equals(node.Label, datastoreName, StringComparison.OrdinalIgnoreCase))
+            if (NodeIdentityMatchesProposedName(node, datastoreName))
                 return true;
 
-            if (string.Equals(node.NodeId, BuildSyntheticDatastoreNodeId(datastoreName), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(nodeId, BuildSyntheticDatastoreNodeId(datastoreName), StringComparison.OrdinalIgnoreCase))
                 return true;
         }
 
         return false;
+    }
+
+    /// <summary>
+    ///     True when <paramref name="proposedName" /> is the inventoried node's label, node id, Terraform source id,
+    ///     ARM resource id, or the synthetic <c>svc-|ds-{label}</c> key the merge gate indexes from that label.
+    ///     Graph merge must alias the same keys or it drops edges the gate kept.
+    /// </summary>
+    private static bool NodeIdentityMatchesProposedName(GraphNode node, string proposedName)
+    {
+        string? nodeLabel = TrimManifestEndpointValue(node.Label);
+        string? nodeId = TrimManifestEndpointValue(node.NodeId);
+        string? nodeSourceId = TrimManifestEndpointValue(node.SourceId);
+
+        if (string.Equals(nodeLabel, proposedName, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(nodeId, proposedName, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(nodeSourceId, proposedName, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (nodeLabel is not null)
+        {
+            if (string.Equals(proposedName, BuildSyntheticServiceNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.Equals(proposedName, BuildSyntheticDatastoreNodeId(nodeLabel), StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return ArmResourceIdMatches(proposedName, GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId(node));
     }
 
     private static string? TrimManifestEndpointValue(string? value) =>
@@ -393,7 +475,10 @@ public static class TopologyProposalRelationshipEndpointIndex
 
     private static bool IsAgentProposedTopologyNode(GraphNode node) =>
         string.Equals(node.SourceType, nameof(AgentType.Topology), StringComparison.OrdinalIgnoreCase)
-        && string.Equals(node.SourceId, "ProposedChanges", StringComparison.OrdinalIgnoreCase);
+        && IsAgentProposedSourceSentinel(node.SourceId);
+
+    private static bool IsAgentProposedSourceSentinel(string? sourceId) =>
+        string.Equals(sourceId, "ProposedChanges", StringComparison.OrdinalIgnoreCase);
 
     private static void AddEndpointKey(HashSet<string> knownEndpointKeys, string? value)
     {
@@ -506,12 +591,14 @@ public static class TopologyProposalRelationshipEndpointIndex
         string normalized = sourceId.Trim();
 
         return normalized.Contains("mssql", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("sql_managed_instance", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("storage_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cosmosdb", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("postgresql", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("mysql", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("redis_cache", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("sql_database", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("sql_server", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("key_vault", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("search_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("eventhub_namespace", StringComparison.OrdinalIgnoreCase)
@@ -587,6 +674,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("traffic_manager", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("azurerm_lb", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cdn_frontdoor", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cdn_profile", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cdn_endpoint", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("azurerm_firewall", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("container_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("express_route", StringComparison.OrdinalIgnoreCase)

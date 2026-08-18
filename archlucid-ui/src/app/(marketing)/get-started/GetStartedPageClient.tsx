@@ -5,11 +5,15 @@ import Link from "next/link";
 import { useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
-import { GetStartedEvidenceOrientationStrip } from "@/components/marketing/GetStartedEvidenceOrientationStrip";
+import { GetStartedBreadcrumb } from "@/components/marketing/get-started/GetStartedBreadcrumb";
+import { GetStartedBuyerChrome } from "@/components/marketing/get-started/GetStartedBuyerChrome";
 import { GetStartedScopeDisclosure } from "@/components/marketing/get-started/GetStartedScopeDisclosure";
 import { TrustCenterRevisionHistory } from "@/components/marketing/trust-center/TrustCenterRevisionHistory";
+import { SeeItDeliverablePreview } from "@/app/(marketing)/see-it/SeeItDeliverablePreview";
 import {
+  GET_STARTED_EVALUATION_SIGNUP_LABEL,
   GET_STARTED_HELP_GETTING_STARTED_HREF,
+  GET_STARTED_TRIAL_PATH_SCROLL_LABEL,
   buildGuidedTrialHref,
   buildSignInTrialHref,
   GET_STARTED_HERO_LEAD,
@@ -25,8 +29,9 @@ import {
   GET_STARTED_VERTICAL_PRESENTATIONS,
   type GetStartedPathId,
 } from "@/app/(marketing)/get-started/get-started-content";
-import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GET_STARTED_REVISION_HISTORY } from "@/lib/get-started-marketing-revision-history";
+import { GET_STARTED_SKIP_LINK_LABEL } from "@/lib/get-started-page-copy";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { TRUST_CENTER_PUBLIC_EVIDENCE_VERSION } from "@/lib/trust-center-buyer-content";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
@@ -63,47 +68,53 @@ export function GetStartedPageClient(): ReactElement {
   return (
     <div className="space-y-12" data-testid="get-started-page">
       <a href={`#${GET_STARTED_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
-        Skip to get started content
+        {GET_STARTED_SKIP_LINK_LABEL}
       </a>
 
-      <header className="max-w-3xl border-b border-neutral-200 pb-8 dark:border-neutral-800">
-        <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>{GET_STARTED_PAGE_TITLE}</h1>
-        <p className={cn("mt-3 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)} data-testid="get-started-hero-lead">
-          {GET_STARTED_HERO_LEAD}
-        </p>
-        <p
-          className={cn("mt-3 text-al-text-primary", MARKETING_TYPOGRAPHY.body)}
-          data-testid="get-started-outcome-led-lead"
-        >
-          {GET_STARTED_OUTCOME_STATEMENT}
-        </p>
-        <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="get-started-hero-meta">
-          <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
-            Last reviewed{" "}
-            <time dateTime={GET_STARTED_LAST_REVIEWED_LABEL}>{GET_STARTED_LAST_REVIEWED_LABEL}</time>
-          </span>
-          <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
-            Orientation pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
-          </span>
-        </div>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Button asChild variant="primary" data-testid="get-started-primary-trial-cta">
-            <Link href={buildGuidedTrialHref()} data-analytics-event="get-started-start-guided-trial">
-              Start guided trial
+      <section
+        className={cn(
+          "grid items-start gap-10 border-b border-neutral-200 pb-8 dark:border-neutral-800 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-12",
+          MARKETING_MOTION.revealIn,
+        )}
+        data-testid="get-started-hero"
+        aria-labelledby="get-started-hero-heading"
+      >
+        <div>
+          <div className="mb-3">
+            <GetStartedBreadcrumb />
+          </div>
+          <h1 id="get-started-hero-heading" className={MARKETING_TYPOGRAPHY.heroTitle}>
+            {GET_STARTED_PAGE_TITLE}
+          </h1>
+          <p className={cn("mt-4 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)} data-testid="get-started-hero-lead">
+            {GET_STARTED_HERO_LEAD}
+          </p>
+          <p
+            className={cn("mt-3 text-al-text-primary", MARKETING_TYPOGRAPHY.body)}
+            data-testid="get-started-outcome-led-lead"
+          >
+            {GET_STARTED_OUTCOME_STATEMENT}
+          </p>
+          <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="get-started-hero-meta">
+            <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
+              Last reviewed{" "}
+              <time dateTime={GET_STARTED_LAST_REVIEWED_LABEL}>{GET_STARTED_LAST_REVIEWED_LABEL}</time>
+            </span>
+            <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
+              Orientation pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
+            </span>
+          </div>
+          <p className={cn("mt-4", MARKETING_TYPOGRAPHY.meta)}>
+            <Link className={MARKETING_SURFACES.inlineLink} href={GET_STARTED_HELP_GETTING_STARTED_HREF}>
+              Learn more in Getting started help
             </Link>
-          </Button>
-          <Button asChild variant="outline" data-testid="get-started-secondary-sample-cta">
-            <Link href="#choose-sample" data-analytics-event="get-started-explore-sample">
-              Explore a sample
-            </Link>
-          </Button>
+          </p>
         </div>
-        <p className={cn("mt-4", MARKETING_TYPOGRAPHY.meta)}>
-          <Link className={MARKETING_SURFACES.inlineLink} href={GET_STARTED_HELP_GETTING_STARTED_HREF}>
-            Learn more in Getting started help
-          </Link>
-        </p>
-      </header>
+
+        <SeeItDeliverablePreview />
+      </section>
+
+      <GetStartedBuyerChrome />
 
       <GetStartedScopeDisclosure />
 
@@ -170,7 +181,7 @@ export function GetStartedPageClient(): ReactElement {
                 onClick={selectTrialPath}
                 data-testid="get-started-choose-trial-path"
               >
-                Start guided trial
+                {GET_STARTED_TRIAL_PATH_SCROLL_LABEL}
               </Button>
             </article>
           </div>
@@ -267,7 +278,7 @@ export function GetStartedPageClient(): ReactElement {
             ))}
           </ol>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button asChild variant="primary">
+            <Button asChild variant="primary" data-testid="get-started-primary-trial-cta">
               <Link href={buildGuidedTrialHref()} data-analytics-event="get-started-milestone-start-trial">
                 Start guided trial
               </Link>
@@ -319,9 +330,9 @@ export function GetStartedPageClient(): ReactElement {
             deliverables.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <Button asChild variant="primary">
-              <Link href={buildGuidedTrialHref()} data-analytics-event="get-started-start-guided-evaluation">
-                Continue in onboarding
+            <Button asChild variant="primary" data-testid="get-started-evaluation-signup-cta">
+              <Link href="/signup" data-analytics-event="get-started-start-evaluation-signup">
+                {GET_STARTED_EVALUATION_SIGNUP_LABEL}
               </Link>
             </Button>
             <Button asChild variant="outline">
@@ -335,7 +346,7 @@ export function GetStartedPageClient(): ReactElement {
               className={MARKETING_SURFACES.inlineLink}
               href={resolveInAppDocHref("docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md")}
             >
-              Read the sponsor sponsor brief
+              Read the sponsor brief
             </Link>
             {" · "}
             <Link
@@ -350,8 +361,6 @@ export function GetStartedPageClient(): ReactElement {
 
         <TrustCenterRevisionHistory entries={GET_STARTED_REVISION_HISTORY} />
       </div>
-
-      <GetStartedEvidenceOrientationStrip />
     </div>
   );
 }

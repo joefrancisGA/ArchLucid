@@ -40,6 +40,10 @@ public static class AgentTopologyProposalGraphMerge
         if (validatedResults.Count == 0)
             return graph;
 
+        validatedResults = validatedResults
+            .OrderBy(static result => GetMergeOrder(result.AgentType))
+            .ToList();
+
         HashSet<string> seenTopologyKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode node in graph.Nodes)
@@ -145,6 +149,8 @@ public static class AgentTopologyProposalGraphMerge
                     accumulatedEndpointAliases));
         }
 
+        addedEdges = DropDanglingEdges(addedEdges, graph.Nodes, added);
+
         if (added.Count == 0 && addedEdges.Count == 0)
             return graph;
 
@@ -233,6 +239,36 @@ public static class AgentTopologyProposalGraphMerge
         }
     }
 
+    private static List<GraphEdge> DropDanglingEdges(
+        List<GraphEdge> edges,
+        IReadOnlyList<GraphNode> existingNodes,
+        IReadOnlyList<GraphNode> addedNodes)
+    {
+        HashSet<string> nodeIds = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (GraphNode node in existingNodes)
+        {
+            nodeIds.Add(node.NodeId);
+        }
+
+        foreach (GraphNode node in addedNodes)
+        {
+            nodeIds.Add(node.NodeId);
+        }
+
+        List<GraphEdge> kept = [];
+
+        foreach (GraphEdge edge in edges)
+        {
+            if (!nodeIds.Contains(edge.FromNodeId) || !nodeIds.Contains(edge.ToNodeId))
+                continue;
+
+            kept.Add(edge);
+        }
+
+        return kept;
+    }
+
     private static string BuildDirectedEdgeKey(string fromNodeId, string toNodeId, string edgeType) =>
         $"{fromNodeId}|{toNodeId}|{edgeType}";
 
@@ -245,4 +281,14 @@ public static class AgentTopologyProposalGraphMerge
             target.TryAdd(alias.Key, alias.Value);
         }
     }
+
+    private static int GetMergeOrder(AgentType agentType) =>
+        agentType switch
+        {
+            AgentType.Topology => 10,
+            AgentType.Cost => 20,
+            AgentType.Compliance => 30,
+            AgentType.Critic => 40,
+            _ => 100,
+        };
 }

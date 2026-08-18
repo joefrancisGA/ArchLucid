@@ -18,15 +18,13 @@
     ]
   },
   {
-    "findingId": "1a4d9a3b-8c91-bf99-21c4-67f84ee7a97b",
+    "findingId": "1a4d9f2e-6b3c-4a8e-9f1d-2e8c7b5a4d3e",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
-    "relatedNodeIds": [
-      "vpc-0"
-    ],
+    "relatedNodeIds": [],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [
       "security-coverage-protection"
@@ -36,15 +34,13 @@
     ]
   },
   {
-    "findingId": "d6046a3b-a81f-dd17-53d6-67530425bb91",
+    "findingId": "c4d2e517-4744-8c47-171d-38b2a913c342",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "Topology coverage is incomplete",
     "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
-    "relatedNodeIds": [
-      "t1"
-    ],
+    "relatedNodeIds": [],
     "payloadType": "TopologyCoverageFindingPayload",
     "rulesApplied": [
       "topology-coverage-categories"

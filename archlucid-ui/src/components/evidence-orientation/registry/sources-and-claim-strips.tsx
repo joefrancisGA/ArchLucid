@@ -2,6 +2,7 @@ import {
   EvidenceOrientationSourcesAndClaimStrip,
   type EvidenceOrientationStripPart,
 } from "@/components/evidence-orientation/EvidenceOrientationSourcesAndClaimStrip";
+import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import {
   ARCHITECTURE_CREATED_CLARIFICATIONS_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES,
@@ -30,12 +31,12 @@ import {
   COMPLIANCE_JOURNEY_SOURCES,
   COMPLIANCE_JOURNEY_SOURCES_INTRO,
 } from "@/lib/compliance-journey-evidence-copy";
-import {
-  EXAMPLE_ROI_BULLETIN_CLAIM_DISCIPLINE,
-  EXAMPLE_ROI_BULLETIN_SOURCES,
-  EXAMPLE_ROI_BULLETIN_SOURCES_INTRO,
-} from "@/lib/example-roi-bulletin-evidence-copy";
 import { FAQ_CLAIM_DISCIPLINE, FAQ_SOURCES, FAQ_SOURCES_INTRO } from "@/lib/faq-evidence-copy";
+import {
+  DIGEST_SPONSOR_CLAIM_DISCIPLINE,
+  DIGEST_SPONSOR_SOURCES,
+  DIGEST_SPONSOR_SOURCES_INTRO,
+} from "@/lib/marketing/digest-sponsor-evidence-copy";
 import {
   GET_STARTED_SOURCES,
   GET_STARTED_SOURCES_INTRO,
@@ -54,7 +55,7 @@ import {
   SECURITY_TRUST_SOURCES,
   SECURITY_TRUST_SOURCES_INTRO,
 } from "@/lib/security-trust-evidence-copy";
-import { SEE_IT_CLAIM_DISCIPLINE, SEE_IT_SOURCES, SEE_IT_SOURCES_INTRO } from "@/lib/see-it-evidence-copy";
+import { SEE_IT_SOURCES, SEE_IT_SOURCES_INTRO } from "@/lib/see-it-evidence-copy";
 import {
   SHOWCASE_CLAIM_DISCIPLINE,
   SHOWCASE_SOURCES,
@@ -64,7 +65,6 @@ import {
   SIGNUP_CLAIM_DISCIPLINE,
   SIGNUP_CLAIM_DISCIPLINE_HEADING,
   SIGNUP_SOURCES,
-  SIGNUP_SOURCES_HEADING,
   SIGNUP_SOURCES_INTRO,
 } from "@/lib/signup-evidence-copy";
 import {
@@ -163,28 +163,11 @@ export function ComplianceJourneyEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function ExampleRoiBulletinEvidenceOrientationStrip({
-  part,
-}: SplitEvidenceOrientationStripProps = {}): React.JSX.Element {
-  return (
-    <EvidenceOrientationSourcesAndClaimStrip
-      slug="example-roi-bulletin"
-      part={part}
-      margin="mt-6"
-      align="text-left"
-      sourcesIntro={EXAMPLE_ROI_BULLETIN_SOURCES_INTRO}
-      sources={EXAMPLE_ROI_BULLETIN_SOURCES}
-      claimHeading="Synthetic sample only"
-      claim={EXAMPLE_ROI_BULLETIN_CLAIM_DISCIPLINE}
-    />
-  );
-}
-
 export function FaqEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="faq"
-      margin="mt-10"
+      margin="mt-6"
       align="text-left"
       sourcesIntro={FAQ_SOURCES_INTRO}
       sources={FAQ_SOURCES}
@@ -195,15 +178,41 @@ export function FaqEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function GetStartedEvidenceOrientationStrip(): React.JSX.Element {
+export function DigestSponsorEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationSourcesAndClaimStrip
+      slug="digest-sponsor"
+      margin="mt-6"
+      align="text-left"
+      sourcesIntro={DIGEST_SPONSOR_SOURCES_INTRO}
+      sources={DIGEST_SPONSOR_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
+      claimHeading="Evaluation orientation only"
+      claim={DIGEST_SPONSOR_CLAIM_DISCIPLINE}
+    />
+  );
+}
+
+export function GetStartedEvidenceOrientationStrip(
+  props: {
+    readonly placement?: "top" | "footer";
+    readonly sources?: readonly EvidenceOrientationLink[];
+  } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? GET_STARTED_SOURCES;
+  const margin =
+    props.placement === "top"
+      ? "mb-8"
+      : "mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800";
+
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="get-started"
       part="sources"
-      margin="mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800"
+      margin={margin}
       align="text-left"
       sourcesIntro={GET_STARTED_SOURCES_INTRO}
-      sources={GET_STARTED_SOURCES}
+      sources={sources}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
       claimHeading=""
       claim=""
@@ -257,19 +266,18 @@ export function SecurityTrustEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function SeeItEvidenceOrientationStrip({
-  part,
-}: SplitEvidenceOrientationStripProps = {}): React.JSX.Element {
+export function SeeItEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="see-it"
-      part={part}
-      margin={part === "claim" ? "mt-6" : "mt-10"}
+      part="sources"
+      margin="mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800"
       align="text-left"
       sourcesIntro={SEE_IT_SOURCES_INTRO}
       sources={SEE_IT_SOURCES}
-      claimHeading="Illustrative sample only"
-      claim={SEE_IT_CLAIM_DISCIPLINE}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
+      claimHeading=""
+      claim=""
     />
   );
 }
@@ -291,15 +299,24 @@ export function ShowcaseEvidenceOrientationStrip({
   );
 }
 
-export function SignupEvidenceOrientationStrip(): React.JSX.Element {
+export function SignupEvidenceOrientationStrip({
+  part,
+}: SplitEvidenceOrientationStripProps = {}): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="signup"
-      margin="mt-8"
+      part={part}
+      margin={
+        part === "sources"
+          ? "mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800"
+          : part === "claim"
+            ? "mb-0"
+            : "mt-8"
+      }
       align="text-left"
-      sourcesTitle={SIGNUP_SOURCES_HEADING}
       sourcesIntro={SIGNUP_SOURCES_INTRO}
       sources={SIGNUP_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
       claimHeading={SIGNUP_CLAIM_DISCIPLINE_HEADING}
       claim={SIGNUP_CLAIM_DISCIPLINE}
       claimStyle={EVIDENCE_CLAIM_STYLE.evaluationNeutral}
