@@ -8,6 +8,14 @@ import {
   AUDIT_TRAIL_PAGE_SUBTITLE_BUYER,
   AUDIT_TRAIL_PRODUCT_SAFE_INTRO,
 } from "@/lib/audit-trail-page-copy";
+import {
+  AUDIT_TRAIL_CLAIM_HEADING,
+  AUDIT_TRAIL_FOLLOW_UPS_TITLE,
+} from "@/lib/audit-trail-evidence-copy";
+import {
+  GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID,
+  GOVERNANCE_AUDIT_SKIP_LINK_LABEL,
+} from "@/lib/governance-audit-page-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 vi.mock("@/components/LayerHeader", () => ({
@@ -91,6 +99,22 @@ function buildProps(overrides: Partial<AuditPageViewProps> = {}): AuditPageViewP
 }
 
 describe("AuditPageView buyer-polished shell", () => {
+  it("renders skip link, breadcrumb, and orientation above the audit body", () => {
+    render(<AuditPageView {...buildProps()} />);
+
+    expect(screen.getByRole("link", { name: GOVERNANCE_AUDIT_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("audit-page-breadcrumb")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: AUDIT_TRAIL_CLAIM_HEADING }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: AUDIT_TRAIL_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("governance-audit-primary-content")).toBeInTheDocument();
+    expect(screen.queryByTestId("audit-evidence-trail-vocabulary")).toBeNull();
+  });
+
   it("uses buyer subtitle in the header without a duplicate intro paragraph", () => {
     render(<AuditPageView {...buildProps()} />);
 

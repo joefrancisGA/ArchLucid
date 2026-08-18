@@ -8,6 +8,13 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  GOVERNANCE_AUDIT_LOAD_ERROR,
+  GOVERNANCE_AUDIT_LOAD_ERROR_RETRY_LABEL,
+  GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID,
+  GOVERNANCE_AUDIT_SKIP_LINK_LABEL,
+} from "@/lib/governance-audit-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
   BUYER_CTO_DEMO_AUDIT_DEMO_FILTER_BANNER,
   BUYER_CTO_DEMO_AUDIT_SHOW_ALL_EVENTS_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -38,6 +45,8 @@ import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemo
 import { AuditTrailIntegrityNote } from "@/components/audit/AuditTrailIntegrityNote";
 import { AuditBuyerHeaderMetrics } from "./AuditBuyerHeaderMetrics";
 import { AuditOperatorExportSection } from "./AuditOperatorExportSection";
+import { AuditPageBreadcrumb } from "./AuditPageBreadcrumb";
+import { AuditPageBuyerChrome } from "./AuditPageBuyerChrome";
 import { AuditPageHeader } from "./AuditPageHeader";
 import { AuditResultsSection } from "./AuditResultsSection";
 import { AuditSearchSection } from "./AuditSearchSection";
@@ -60,6 +69,15 @@ export function AuditPageView(props: AuditPageViewProps) {
 
   return (
     <div className={cn(OPERATOR_LAYOUT.sectionStack, buyerPolishedShell ? "max-w-6xl" : "max-w-4xl")}>
+      {buyerPolishedShell ? (
+        <a
+          href={`#${GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_AUDIT_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
       <LayerHeader
         pageKey="audit"
         density={buyerPolishedShell ? "compact" : "default"}
@@ -73,6 +91,7 @@ export function AuditPageView(props: AuditPageViewProps) {
         onRefresh={() => {
           void props.runSearch();
         }}
+        breadcrumb={buyerPolishedShell ? <AuditPageBreadcrumb /> : undefined}
         metadata={
           buyerPolishedShell && isTechnicalAuditRunIdentifier(effectiveRunId) ? (
             <details data-testid="audit-page-technical-details">
@@ -112,9 +131,22 @@ export function AuditPageView(props: AuditPageViewProps) {
           )
         }
       />
-      <AuditEvidenceTrailVocabularyRail currentSurfaceId="audit" />
-      <PackageActivityAuditTrailVocabularyRail currentSurfaceId="audit-trail" />
-      <ReportProblemAuditVocabularyRail currentSurfaceId="audit" />
+
+      {buyerPolishedShell ? <AuditPageBuyerChrome /> : null}
+
+      {!buyerPolishedShell ? (
+        <>
+          <AuditEvidenceTrailVocabularyRail currentSurfaceId="audit" />
+          <PackageActivityAuditTrailVocabularyRail currentSurfaceId="audit-trail" />
+          <ReportProblemAuditVocabularyRail currentSurfaceId="audit" />
+        </>
+      ) : null}
+
+      <div
+        id={buyerPolishedShell ? GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell ? "scroll-mt-24" : undefined, OPERATOR_LAYOUT.sectionStack)}
+        data-testid={buyerPolishedShell ? "governance-audit-primary-content" : undefined}
+      >
       {buyerPolishedShell && props.buyerAuditTrailMetrics !== null ? (
         <AuditBuyerHeaderMetrics buyerAuditTrailMetrics={props.buyerAuditTrailMetrics} />
       ) : null}
@@ -137,7 +169,7 @@ export function AuditPageView(props: AuditPageViewProps) {
         </div>
       ) : null}
 
-      <AuditLogRankCue className="mb-2" />
+      {buyerPolishedShell ? null : <AuditLogRankCue className="mb-2" />}
 
       {props.callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !props.exportRoleOk && !buyerPolishedShell ? (
         <p className={cn("mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
@@ -146,12 +178,33 @@ export function AuditPageView(props: AuditPageViewProps) {
       ) : null}
 
       {props.failure !== null ? (
-        <div role="alert">
-          <OperatorApiProblem
-            problem={props.failure.problem}
-            fallbackMessage={props.failure.message}
-            correlationId={props.failure.correlationId}
-          />
+        <div
+          role="alert"
+          data-testid={buyerPolishedShell ? "audit-page-load-error" : undefined}
+        >
+          {buyerPolishedShell ? (
+            <>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_AUDIT_LOAD_ERROR}</p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                data-testid="audit-page-load-retry"
+                onClick={() => {
+                  void props.runSearch();
+                }}
+              >
+                {GOVERNANCE_AUDIT_LOAD_ERROR_RETRY_LABEL}
+              </Button>
+            </>
+          ) : (
+            <OperatorApiProblem
+              problem={props.failure.problem}
+              fallbackMessage={props.failure.message}
+              correlationId={props.failure.correlationId}
+            />
+          )}
         </div>
       ) : null}
 
@@ -257,6 +310,7 @@ export function AuditPageView(props: AuditPageViewProps) {
           onExportCsv={props.onExportCsv}
         />
       ) : null}
+      </div>
     </div>
   );
 }

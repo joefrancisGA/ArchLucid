@@ -23,6 +23,7 @@ export type AuditPageHeaderProps = {
   readonly onRefresh: () => void;
   readonly metadata?: ReactNode;
   readonly actions?: ReactNode;
+  readonly breadcrumb?: ReactNode;
 };
 
 /** Shared `/governance/audit` hero — title, lead, contextual help, refresh, and last-refreshed metadata. */
@@ -41,6 +42,7 @@ export function AuditPageHeader(props: AuditPageHeaderProps): React.JSX.Element 
       title={props.title}
       titleTestId="audit-page-title"
       subtitle={props.subtitle}
+      breadcrumb={props.breadcrumb}
       metadata={
         <>
           {props.metadata}
