@@ -335,7 +335,7 @@ export const OPERATOR_TYPOGRAPHY = {
 /** Inverse tooltip surface — paired with `--al-tooltip-*` in `globals.css`; do not reuse page caption tokens inside tooltips. */
 export const TOOLTIP_SURFACE = {
   content:
-    "border border-[var(--al-tooltip-border)] bg-[var(--al-tooltip-bg)] text-[var(--al-tooltip-fg)] shadow-md",
+    "border border-[var(--al-tooltip-border)] bg-[var(--al-tooltip-bg)] text-[var(--al-tooltip-fg)] shadow-[var(--al-tooltip-shadow)]",
 } as const;
 
 export const TOOLTIP_TYPOGRAPHY = {

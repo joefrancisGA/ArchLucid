@@ -52,7 +52,9 @@ body {
   --al-tooltip-fg-muted: #d4d4d4;
   --al-tooltip-link: #5eead4;
   --al-tooltip-link-hover: #99f6e4;
-  --al-tooltip-border: #404040;
+  --al-tooltip-border: rgba(255, 255, 255, 0.08);
+  --al-tooltip-divider: #404040;
+  --al-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
   --app-shell-sticky: 6rem;
 }
 
@@ -108,7 +110,9 @@ html {
   --al-tooltip-fg-muted: #525252;
   --al-tooltip-link: #115e59;
   --al-tooltip-link-hover: #0f766e;
-  --al-tooltip-border: #d4d4d4;
+  --al-tooltip-border: rgba(0, 0, 0, 0.08);
+  --al-tooltip-divider: #d4d4d4;
+  --al-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
 }
 
 /* A/B evaluation — charcoal authority hierarchy (see ui-authority-theme.ts). Default teal tokens remain in :root. */
