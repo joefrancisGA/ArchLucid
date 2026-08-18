@@ -1,6 +1,6 @@
 # 4. Authority vs legacy coordinator
 
-Two mental models can produce a golden manifest. Always inspect `GET /v1/architecture/review/{runId}` before calling `execute` / `result` / `finalize`.
+Two mental models can produce a golden manifest. They are **not** the two product jobs in ADR 0067 (create vs review). They are two **finish paths** for a run: authority pipeline (review evaluation kernel) vs the four-agent coordinator (`IAgentExecutor` / misnamed `IReviewEngine`). Always inspect `GET /v1/architecture/review/{runId}` before calling `execute` / `result` / `finalize`.
 
 ## Diagram
 

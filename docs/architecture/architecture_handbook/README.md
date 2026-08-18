@@ -3,7 +3,7 @@
 
 # ArchLucid architecture handbook
 
-**Version:** [`VERSION`](VERSION) (current: `2026.08.06i`)
+**Version:** [`VERSION`](VERSION) (current: `2026.08.17a`)
 
 ## Generate / release
 
@@ -42,6 +42,9 @@ CI: `.github/workflows/architecture-handbook.yml` (drift + best-effort DOCX arti
 | 45–54 | LLM adapters → rate limiting | Expansion set 5 |
 | 55–64 | Private Link → hosting roles | Expansion set 6 |
 | 65–74 | idempotency → technology ledger | Expansion set 7 |
+| 75 | [`75-architecture-and-review-engines.md`](75-architecture-and-review-engines.md) | Formal spec: synthesis vs review-evaluation kernels, finding engines, unsatisfied boundaries |
 | 98–99 | changelog / refs | — |
+
+Standalone Word export of chapter 75 plus remediation prompts: [`../ARCHITECTURE_AND_REVIEW_ENGINES.docx`](../ARCHITECTURE_AND_REVIEW_ENGINES.docx).
 
 Buyer pack: [`buyer/`](buyer/). Security reviewer pack: [`security/`](security/).

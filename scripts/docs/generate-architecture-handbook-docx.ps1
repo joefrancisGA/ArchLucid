@@ -177,6 +177,7 @@ else {
     '72-ui-bff-proxy-session.md',
     '73-agent-allowed-tools-dispatch.md',
     '74-technology-ledger-lifecycle.md',
+    '75-architecture-and-review-engines.md',
     '98-changelog.md',
     '99-references.md'
   )

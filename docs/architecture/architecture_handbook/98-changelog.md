@@ -2,6 +2,7 @@
 
 | Version | Date | Notes |
 |---------|------|-------|
+| 2026.08.17a | 2026-08-17 | Chapter 75: formal architecture-synthesis and review-evaluation kernel spec. Standalone Word pack `docs/architecture/ARCHITECTURE_AND_REVIEW_ENGINES.docx` plus `ENGINE_KERNEL_REMEDIATION_PROMPTS.md`. |
 | 2026.08.06i | 2026-08-06 | Security reviewer audience pack (tenancy through compliance honesty) + generate/release `-Pack Security`. |
 | 2026.08.06h | 2026-08-06 | Expansion set 7: idempotency, retention purge, commit SoD, export formats, OpenAPI audiences, SQL resilience, billing adapters, BFF session, agent tools, technology ledger. |
 | 2026.08.06g | 2026-08-06 | Expansion set 6: Private Link, container deploy units, CI pipeline, golden cohort, workspace hierarchy, Entra claims, correlation, content safety, health checks, hosting roles. |

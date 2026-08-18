@@ -1,6 +1,6 @@
 # ArchLucid platform architecture handbook
 
-**Version:** `2026.08.06b` (see `VERSION`)  
+**Version:** `2026.08.17a` (see `VERSION`)  
 **Canonical poster:** `docs/ARCHITECTURE_ON_ONE_PAGE.md`  
 **Diagram index:** `docs/architecture/architecture_diagrams/`
 
@@ -9,8 +9,9 @@
 Provide a single, regenerable document that:
 
 1. Explains the ArchLucid **product platform** end-to-end (system context → containers → pipelines → trust → ops).
-2. Embeds the approved zoom-in diagrams next to the prose they illustrate.
-3. Points to ADRs and library docs for depth without duplicating every runbook.
+2. Specifies the two product kernels — **architecture synthesis** (create) and **review evaluation** (authority pipeline + finding engines) — as typed maps, not marketing synonyms.
+3. Embeds the approved zoom-in diagrams next to the prose they illustrate.
+4. Points to ADRs and library docs for depth without duplicating every runbook.
 
 ## Assumptions
 
