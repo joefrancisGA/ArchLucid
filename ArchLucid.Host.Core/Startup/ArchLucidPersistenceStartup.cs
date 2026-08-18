@@ -13,7 +13,9 @@ namespace ArchLucid.Host.Core.Startup;
 /// <summary>SQL DbUp migrations, idempotent consolidated bootstrap, and optional demo seed (shared by API and Worker).</summary>
 public static class ArchLucidPersistenceStartup
 {
-    private const int DefaultSchemaBootstrapTimeoutSeconds = 30;
+    // ArchLucid.sql / ArchLucid.System.sql are split into hundreds of GO batches; brownfield idempotent
+    // checks still round-trip per batch. 30s was too tight once the consolidated script grew past ~500 batches.
+    private const int DefaultSchemaBootstrapTimeoutSeconds = 300;
 
     /// <summary>
     ///     Prefers the elevated bootstrap connection (DDL + self-granting DENY/GRANT rights); falls back to the
