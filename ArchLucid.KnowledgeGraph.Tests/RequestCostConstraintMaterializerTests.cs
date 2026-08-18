@@ -78,6 +78,87 @@ public sealed class RequestCostConstraintMaterializerTests
         nodes[0].Properties["sourceConstraint"].Should().Be("Monthly budget $5000");
     }
 
+    [Theory]
+    [InlineData("Monthly budget $5000, projected spend $6200", "6200")]
+    [InlineData("Expected spend $8k per month with finops review", "8000")]
+    public void MaterializeFromConstraintsMetadata_parses_projected_spend_amounts(string constraint, string expectedProjected)
+    {
+        IReadOnlyList<GraphNode> nodes = RequestCostConstraintMaterializer.MaterializeFromConstraintsMetadata(
+            constraint,
+            Guid.NewGuid());
+
+        nodes.Should().ContainSingle();
+        nodes[0].Properties["projectedMonthlySpendUsd"].Should().Be(expectedProjected);
+        nodes[0].Properties.Should().ContainKey("projectedImpactUsdUpperBound");
+    }
+
+    [Fact]
+    public async Task BuildAsync_with_topology_and_budget_cap_enriches_projected_spend()
+    {
+        Mock<IGraphEdgeInferer> edgeInferer = new();
+        edgeInferer
+            .Setup(e => e.InferEdges(It.IsAny<ContextSnapshot>(), It.IsAny<IReadOnlyList<GraphNode>>()))
+            .Returns([]);
+
+        Mock<IGraphNodeFactory> nodeFactory = new();
+        nodeFactory
+            .Setup(f => f.CreateNode(It.IsAny<CanonicalObject>()))
+            .Returns<CanonicalObject>(item => new GraphNode
+            {
+                NodeId = item.ObjectId,
+                NodeType = item.ObjectType,
+                Label = item.Name,
+                Category = item.Properties.TryGetValue("category", out string? category) ? category : null,
+                Properties = new Dictionary<string, string>(item.Properties, StringComparer.OrdinalIgnoreCase),
+            });
+
+        DefaultGraphBuilder sut = new(nodeFactory.Object, edgeInferer.Object);
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "proj-cost-topology",
+            SourceHashes =
+            {
+                [ContextScopeMetadataKeys.Constraints] = "Monthly budget cap $100"
+            },
+            CanonicalObjects =
+            [
+                new CanonicalObject
+                {
+                    ObjectId = "cmp-1",
+                    ObjectType = GraphNodeTypes.TopologyResource,
+                    Name = "api",
+                    SourceType = "test",
+                    SourceId = "cmp-1",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["category"] = GraphTopologyCategories.Compute,
+                    },
+                },
+                new CanonicalObject
+                {
+                    ObjectId = "data-1",
+                    ObjectType = GraphNodeTypes.TopologyResource,
+                    Name = "sql",
+                    SourceType = "test",
+                    SourceId = "data-1",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["category"] = GraphTopologyCategories.Data,
+                    },
+                },
+            ],
+        };
+
+        GraphBuildResult result = await sut.BuildAsync(snapshot, CancellationToken.None);
+
+        GraphNode costNode = result.Nodes.Should().Contain(n => n.NodeType == GraphNodeTypes.CostConstraint).Subject;
+        costNode.Properties["maxMonthlyCost"].Should().Be("100");
+        costNode.Properties.Should().ContainKey("projectedMonthlySpendUsd");
+        decimal.Parse(costNode.Properties["projectedMonthlySpendUsd"]).Should().BeGreaterThan(100m);
+    }
+
     [Fact]
     public async Task BuildAsync_empty_snapshot_with_cost_constraint_still_materializes_cost_nodes()
     {
