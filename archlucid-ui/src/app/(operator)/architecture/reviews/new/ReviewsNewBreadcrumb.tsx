@@ -4,6 +4,7 @@ import type { ReviewsNewPathMode } from "@/lib/reviews-new-path-copy";
 import {
   REVIEWS_NEW_BREADCRUMB_DETAILED_TOPIC_TITLE,
   REVIEWS_NEW_BREADCRUMB_GUIDED_INTAKE_TOPIC_TITLE,
+  REVIEWS_NEW_BREADCRUMB_QUICK_REVIEW_TOPIC_TITLE,
   REVIEWS_NEW_BREADCRUMB_REVIEWS_LABEL,
   REVIEWS_NEW_BREADCRUMB_REVIEWS_PATH,
   REVIEWS_NEW_BREADCRUMB_TOPIC_TITLE,
@@ -44,6 +45,15 @@ export function ReviewsNewBreadcrumb(props: ReviewsNewBreadcrumbProps): React.JS
       <OperatorPageBreadcrumb
         data-testid="reviews-new-breadcrumb"
         items={reviewsNewPathTabBreadcrumbItems(REVIEWS_NEW_BREADCRUMB_GUIDED_INTAKE_TOPIC_TITLE)}
+      />
+    );
+  }
+
+  if (props.activePath === "quick-review") {
+    return (
+      <OperatorPageBreadcrumb
+        data-testid="reviews-new-breadcrumb"
+        items={reviewsNewPathTabBreadcrumbItems(REVIEWS_NEW_BREADCRUMB_QUICK_REVIEW_TOPIC_TITLE)}
       />
     );
   }
