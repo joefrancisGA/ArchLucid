@@ -13,6 +13,8 @@ describe("AuthCallbackLoadingView", () => {
 
     expect(screen.getByTestId("auth-callback-loading")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: AUTH_CALLBACK_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("auth-callback-loading-skeleton-card")).toBeInTheDocument();
+    expect(screen.getByTestId("auth-callback-loading-status")).toHaveAttribute("aria-busy", "true");
     expect(screen.getByText(AUTH_CALLBACK_LOADING_DETAIL)).toBeInTheDocument();
   });
 

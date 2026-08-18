@@ -1,5 +1,11 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
+export const AUTH_CALLBACK_CANONICAL_PATH = "/auth/callback" as const;
+
+export const AUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING = "What sign-in completion is not";
+
+export const AUTH_CALLBACK_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const AUTH_CALLBACK_CLAIM_DISCIPLINE =
   "The OAuth callback completes sign-in token exchange — it is an authentication handoff, not a sealed-review diligence Sources package. After you reach a workspace, open Assurance status or a finalized review when you need live evidence.";
 
