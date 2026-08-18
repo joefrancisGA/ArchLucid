@@ -1143,16 +1143,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-auth-proxy
 
 - **id:** ui-auth-proxy
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-18
+- **last-bug:** 2026-08-18
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
