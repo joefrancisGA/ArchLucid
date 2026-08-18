@@ -5,8 +5,9 @@ import { PilotValueReportPageView } from "./PilotValueReportPageView";
 import type { PilotValueReportPilotPageViewModel } from "./pilot-value-report-pilot-page-view-model";
 import { LAYER_PAGE_GUIDANCE } from "@/lib/layer-guidance";
 import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer/buyer-polish-copy";
-import { PILOT_OUTCOMES_CLAIM_DISCIPLINE } from "@/lib/pilot-outcomes-evidence-copy";
+import { PILOT_OUTCOMES_CLAIM_DISCIPLINE, PILOT_OUTCOMES_FOLLOW_UPS_TITLE } from "@/lib/pilot-outcomes-evidence-copy";
 import {
+  PILOT_OUTCOMES_LOAD_RETRY_LABEL,
   PILOT_OUTCOMES_PRIMARY_CONTENT_ID,
   PILOT_OUTCOMES_SKIP_LINK_LABEL,
 } from "@/lib/pilot-outcomes-page-copy";
@@ -246,11 +247,37 @@ describe("PilotValueReportPageView buyer-polished chrome (TB-1969)", () => {
     expect(screen.getByTestId("pilot-outcomes-claim-discipline").textContent).toContain(
       PILOT_OUTCOMES_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.getByRole("heading", { level: 2, name: PILOT_OUTCOMES_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
+    expect(screen.queryByTestId("value-report-outcomes-nav")).toBeNull();
 
     const orientationTop = screen.getByTestId("pilot-outcomes-orientation-top");
     const reportingPeriod = screen.getByRole("heading", { name: "Reporting period" });
 
     expect(orientationTop.compareDocumentPosition(reportingPeriod) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("renders load-failure retry and loading skeleton in buyer shell", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(true);
+
+    const load = vi.fn();
+    const { rerender } = render(
+      <PilotValueReportPageView
+        model={buildModel({
+          error: { message: "Sponsor report unavailable.", problem: null, correlationId: null },
+          load,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("pilot-outcomes-load-failure")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: PILOT_OUTCOMES_LOAD_RETRY_LABEL })).toBeInTheDocument();
+    screen.getByRole("button", { name: PILOT_OUTCOMES_LOAD_RETRY_LABEL }).click();
+    expect(load).toHaveBeenCalledTimes(1);
+
+    rerender(<PilotValueReportPageView model={buildModel({ busy: true, data: null })} />);
+    expect(screen.getByTestId("pilot-outcomes-loading-skeleton")).toBeInTheDocument();
   });
 
   it("omits page subtitle when LayerHeader owns the lead in enterprise shell", async () => {

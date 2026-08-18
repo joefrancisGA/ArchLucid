@@ -59,6 +59,8 @@ import { SponsorReportMetricCard } from "@/components/sponsor-report/SponsorRepo
 
 import { PilotOutcomesEmailConfirmDialog } from "./PilotOutcomesEmailConfirmDialog";
 import { PilotOutcomesEmptyState } from "./PilotOutcomesEmptyState";
+import { PilotOutcomesLoadFailure } from "./PilotOutcomesLoadFailure";
+import { PilotOutcomesLoadingSkeleton } from "./PilotOutcomesLoadingSkeleton";
 import { PilotValueReportBuyerChrome } from "./PilotValueReportBuyerChrome";
 import { PilotValueReportSeverityBars } from "./PilotValueReportSeverityBars";
 import { ValueReportIncludesSection } from "./ValueReportIncludesSection";
@@ -148,7 +150,7 @@ export function PilotValueReportPageView(props: Props) {
       </a>
 
       {buyerPolishedShell ? null : <LayerHeader pageKey="value-report-pilot" />}
-      <ValueReportOutcomesNav />
+      {buyerPolishedShell ? null : <ValueReportOutcomesNav />}
       <DocumentLayout>
         <div id={PILOT_OUTCOMES_PRIMARY_CONTENT_ID} className="scroll-mt-24 space-y-4">
           <OperatorPageHeader
@@ -164,7 +166,7 @@ export function PilotValueReportPageView(props: Props) {
                 </>
               ) : null
             }
-            actions={<PageContextualHelpButton />}
+            actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
           />
 
           <PilotValueReportBuyerChrome />
@@ -309,7 +311,19 @@ export function PilotValueReportPageView(props: Props) {
 
         <ValueReportIncludesSection />
 
-        {m.error ? (
+        {m.error && m.data === null && !m.busy ? (
+          buyerPolishedShell ? (
+            <PilotOutcomesLoadFailure message={m.error.message} onRetry={() => void m.load()} />
+          ) : (
+            <OperatorApiProblem
+              fallbackMessage={m.error.message}
+              problem={m.error.problem}
+              correlationId={m.error.correlationId}
+            />
+          )
+        ) : null}
+
+        {m.error && m.data !== null ? (
           <OperatorApiProblem
             fallbackMessage={m.error.message}
             problem={m.error.problem}
@@ -318,9 +332,13 @@ export function PilotValueReportPageView(props: Props) {
         ) : null}
 
         {m.busy && m.data === null ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} role="status" aria-live="polite">
-            Generating sponsor report…
-          </p>
+          buyerPolishedShell ? (
+            <PilotOutcomesLoadingSkeleton />
+          ) : (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} role="status" aria-live="polite">
+              Generating sponsor report…
+            </p>
+          )
         ) : null}
 
         {!m.busy && m.data !== null && !hasFinalizedReviews ? (
