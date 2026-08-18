@@ -294,6 +294,57 @@ public sealed class AlertEvaluatorTests
     }
 
     [Fact]
+    public void Evaluate_RejectedSecurityRecommendation_IgnoresRecordsFromOtherRun()
+    {
+        AlertRule rule = MakeRule(AlertRuleType.RejectedSecurityRecommendation, threshold: 0);
+        Guid currentRunId = Guid.NewGuid();
+
+        AlertEvaluationContext ctx = EmptyContext();
+        ctx.RunId = currentRunId;
+        ctx.RecommendationRecords =
+        [
+            new RecommendationRecord
+            {
+                RunId = Guid.NewGuid(),
+                Status = RecommendationStatus.Rejected,
+                Category = AlertCategories.Security,
+                Title = "Outside-scope MFA rejection",
+                RecommendationId = Guid.NewGuid()
+            }
+        ];
+
+        IReadOnlyList<AlertRecord> result = _sut.Evaluate([rule], ctx);
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Evaluate_DeferredHighPriorityAge_IgnoresRecordsFromOtherRun()
+    {
+        AlertRule rule = MakeRule(AlertRuleType.DeferredHighPriorityRecommendationAgeDays, threshold: 30);
+        Guid currentRunId = Guid.NewGuid();
+
+        AlertEvaluationContext ctx = EmptyContext();
+        ctx.RunId = currentRunId;
+        ctx.RecommendationRecords =
+        [
+            new RecommendationRecord
+            {
+                RunId = Guid.NewGuid(),
+                Status = RecommendationStatus.Deferred,
+                PriorityScore = 90,
+                LastUpdatedUtc = TimeProvider.System.UtcNowDateTime().AddDays(-40),
+                Title = "Outside-scope deferred rec",
+                RecommendationId = Guid.NewGuid()
+            }
+        ];
+
+        IReadOnlyList<AlertRecord> result = _sut.Evaluate([rule], ctx);
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Evaluate_RejectedSecurityRecommendation_RejectedSecurity_AlertFires()
     {
         AlertRule rule = MakeRule(AlertRuleType.RejectedSecurityRecommendation, threshold: 0);

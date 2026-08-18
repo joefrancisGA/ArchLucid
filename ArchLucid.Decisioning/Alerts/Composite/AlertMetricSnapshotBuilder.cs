@@ -26,11 +26,11 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
             NewComplianceGapCount =
                 context.ComparisonResult?.SecurityChanges.Count ?? 0,
             DeferredHighPriorityRecommendationCount =
-                context.RecommendationRecords.Count(x =>
+                AlertEvaluationRecordScope.ForRun(context).Count(x =>
                     string.Equals(x.Status, RecommendationStatus.Deferred, StringComparison.OrdinalIgnoreCase) &&
                     x.PriorityScore >= 80),
             RejectedSecurityRecommendationCount =
-                context.RecommendationRecords.Count(x =>
+                AlertEvaluationRecordScope.ForRun(context).Count(x =>
                     string.Equals(x.Status, RecommendationStatus.Rejected, StringComparison.OrdinalIgnoreCase) &&
                     x.Category.Equals(AlertCategories.Security, StringComparison.OrdinalIgnoreCase)),
             AcceptanceRatePercent = BuildAcceptanceRatePercent(context),

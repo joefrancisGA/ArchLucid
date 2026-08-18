@@ -1311,24 +1311,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: decisioning
 
 - **id:** decisioning
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-18
+- **last-bug:** 2026-08-18
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
 - [ ] (candidate) Merge keeps conflicting findings from two agents without deduplication
-- [ ] (candidate) Advisory alert fires for a finding outside the run scope
-- [ ] (candidate) Compliance gate passes when required evidence nodes are absent
+- [x] (proven) Advisory alert fires for a finding outside the run scope — **hit 2026-08-18:** `AlertEvaluator` / `AlertMetricSnapshotBuilder` did not filter `RecommendationRecords` by `context.RunId`.
+- [x] (valid-no-repro) Compliance gate passes when required evidence nodes are absent — `GraphComplianceEvaluator` flags uncovered required nodes; golden path tests confirm.
 
 ---
 

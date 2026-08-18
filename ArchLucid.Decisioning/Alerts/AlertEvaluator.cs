@@ -136,7 +136,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         DateTime cutoff = TimeProvider.System.UtcNowDateTime().AddDays(-(double)rule.ThresholdValue);
 
         alerts.AddRange(
-            context.RecommendationRecords
+            AlertEvaluationRecordScope.ForRun(context)
                 .Where(x =>
                     string.Equals(x.Status, RecommendationStatus.Deferred, StringComparison.OrdinalIgnoreCase) &&
                     x.PriorityScore >= 80 &&
@@ -158,7 +158,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         List<AlertRecord> alerts)
     {
         alerts.AddRange(
-            context.RecommendationRecords
+            AlertEvaluationRecordScope.ForRun(context)
                 .Where(x =>
                     string.Equals(x.Status, RecommendationStatus.Rejected, StringComparison.OrdinalIgnoreCase) &&
                     x.Category.Equals(AlertCategories.Security, StringComparison.OrdinalIgnoreCase))
