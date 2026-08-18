@@ -32,6 +32,13 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             Constraints = CopyTrimmedList(structuredBrief.ConfirmedConstraints),
             RequiredCapabilities = CopyTrimmedList(structuredBrief.ConfirmedRequiredCapabilities),
             Assumptions = MergeAssumptions(assumptions, structuredBrief.ConfirmedAssumptions),
+            DraftActors = [.. document.ActorSet.Actors],
+            QualityAttributeSnapshot = ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(structuredBrief.QualityAttribute)
+                ? structuredBrief.QualityAttribute!.Trim()
+                : null,
+            FailureModeNoteSnapshot = ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(structuredBrief.FailureModeNote)
+                ? structuredBrief.FailureModeNote!.Trim()
+                : null,
             RequestSource = "draft-intake",
             InlineRequirements = BuildInlineRequirements(document, structuredBrief),
             IntakeTransparencyTrail = CloneTransparencyTrail(document.TransparencyTrail),

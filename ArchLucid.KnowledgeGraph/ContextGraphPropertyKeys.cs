@@ -17,4 +17,12 @@ public static class ContextGraphPropertyKeys
 
     /// <summary>Pipe-separated requirement names from the prior committed context snapshot.</summary>
     public const string PriorRequirementNames = "priorRequirementNames";
+
+    public const string Assumptions = "assumptions";
+
+    public const string Actors = "actors";
+
+    public const string QualityAttribute = "qualityAttribute";
+
+    public const string FailureModeNote = "failureModeNote";
 }
