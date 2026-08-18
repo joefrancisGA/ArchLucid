@@ -13,7 +13,7 @@
     "systemRowSnapshotPotential": "Per-system component: estimated USD from each system's latest committed findings snapshot before disposition partitioning. Rows do not sum to the portfolio headline.",
     "crossTenantPortfolioHeadline": "Cross-tenant portfolio headline: sums the same disposition-aware open + needs-evidence basis per accessible tenant (k-anonymity ≥ 5). Not comparable to value-report hours ROI.",
     "trailing30DayFindingEvents": "Trailing 30-day UTC activity: distinct finding IDs resolved via review trail or discovered on committed runs. Counts only — not USD savings.",
-    "valueReportActivityWindowGeneric": "Tenant activity window (UTC): architect hours saved and annualized ROI-model USD for the requested period. Distinct from sponsor-summary disposition-aware USD headline.",
+    "valueReportActivityWindowGeneric": "Tenant activity window (UTC): architect hours saved and annualized ROI-model USD for the requested period. Distinct from sponsor-report disposition-aware USD headline.",
     "pilotScorecardUtcWindowGeneric": "Pilot scorecard UTC window: run volume and committed-manifest counts for the period. Does not emit disposition-aware USD headline totals."
   },
   "nonAdditivityCaveat": "Per-system rows do not sum to the portfolio headline.",

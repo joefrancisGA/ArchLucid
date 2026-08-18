@@ -82,6 +82,7 @@ public sealed class CloudInventoryExtractorUploadController(
         => DownloadPackageAsync(CloudProvider.Gcp, packageId, cancellationToken);
 
     /// <summary>Starts a chunked AWS inventory ingest session.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("aws/upload-sessions")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Consumes("application/json")]
@@ -131,6 +132,7 @@ public sealed class CloudInventoryExtractorUploadController(
     }
 
     /// <summary>Starts a chunked GCP inventory ingest session.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("gcp/upload-sessions")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Consumes("application/json")]
@@ -206,6 +208,7 @@ public sealed class CloudInventoryExtractorUploadController(
         => UploadChunkAsync(sessionId, chunkIndex, cancellationToken);
 
     /// <summary>Assembles staged AWS inventory chunks and runs ingest.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("aws/upload-sessions/{sessionId:guid}/complete")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
@@ -218,6 +221,7 @@ public sealed class CloudInventoryExtractorUploadController(
         => CompleteChunkUploadAsync(CloudProvider.Aws, sessionId, runId, cancellationToken);
 
     /// <summary>Assembles staged GCP inventory chunks and runs ingest.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("gcp/upload-sessions/{sessionId:guid}/complete")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]

@@ -7,7 +7,7 @@ export const SIGNED_RECORDS_LIST_PAGE_SUBTITLE =
   "Browse finalized sealed review records across your workspace — open the source review or inspect the sealed record.";
 
 export const SIGNED_RECORDS_LIST_LIST_LEAD =
-  "Only architecture reviews with a finalized golden manifest appear here. Open a row to inspect the sealed record or jump to the source review.";
+  "Only architecture reviews with a finalized sealed review record appear here. Open a row to inspect the sealed record or jump to the source review.";
 
 export const SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX = "Last refreshed";
 
@@ -83,7 +83,7 @@ export const SIGNED_RECORDS_LIST_TABLE_VERSION_COLUMN = "Version";
  * `Finalized`, so "Committed" here read as a status column in the API's vocabulary.
  */
 /** Seal timestamp from manifest `createdUtc` — not review start time. */
-export const SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN = "Sealed";
+export const SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN = "Finalized";
 
 export const SIGNED_RECORDS_LIST_TABLE_INTEGRITY_COLUMN = "Seal integrity";
 

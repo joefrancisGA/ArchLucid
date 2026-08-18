@@ -18,7 +18,7 @@ export const PLANNING_SOURCES: readonly EvidenceOrientationLink[] = [
   {
     label: "Architecture reviews",
     href: IMPROVEMENT_PLANNING_VIEW_REVIEWS_HREF,
-    when: "Open governed review packages when a plan needs execution or evidence trails",
+    when: "Open governed architecture reviews when a plan needs execution or evidence trails",
   },
   {
     label: "Findings",

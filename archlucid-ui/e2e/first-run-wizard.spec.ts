@@ -9,7 +9,7 @@ test.describe("first-run wizard", { tag: ["@founder", "@buyer-journey"] }, () =>
     await expect(
       page.getByRole("heading", { name: START_REVIEW_PAGE_HEADING_PATTERN, level: 1 }),
     ).toBeVisible();
-    await expect(page.getByTestId("reviews-new-path-toggle")).toBeVisible();
-    await expect(page.getByTestId("reviews-new-path-guided-intake")).toBeVisible();
+    await expect(page.getByTestId("reviews-new-path-switcher")).toBeVisible();
+    await expect(page.getByTestId("reviews-new-job-chooser-section")).toBeVisible();
   });
 });

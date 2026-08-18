@@ -97,7 +97,10 @@ public sealed class AuditPathClassificationArchitectureTests
         "PlatformRecoveryNotificationService",
         "PlatformIdentityService",
         "PostAuthBootstrapService",
-        "UserAccountRecoveryService"
+        "UserAccountRecoveryService",
+        "AgentModelCatalogEvaluationRecorder",
+        "ExternalSubprocessorEngineAcknowledgmentService",
+        "ReviewModelAliasOverrideAuditWriter"
     ];
 
     private static string FindRepoRoot()

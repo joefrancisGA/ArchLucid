@@ -49,7 +49,6 @@ export function SignedRecordArtifactGeneratedTimestamp(
   return (
     <time
       dateTime={formatted.dateTime}
-      title={formatted.dateTime}
       className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
       data-testid="signed-record-artifact-generated-timestamp"
     >

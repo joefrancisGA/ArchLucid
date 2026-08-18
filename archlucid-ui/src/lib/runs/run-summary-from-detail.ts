@@ -59,14 +59,15 @@ export function runFromDetailToRunSummary(detail: RunDetail): RunSummary {
  * contradict a finalized run that already lists snapshot IDs on the detail envelope.
  */
 export function effectiveRunSummaryForPipeline(
-  apiSummary: RunSummary | null,
+  apiSummary: RunSummary | null | undefined,
   detail: RunDetail,
 ): RunSummary {
   const fromDetail = runFromDetailToRunSummary(detail);
 
   const run = detail.run;
 
-  if (apiSummary === null || typeof apiSummary.runId !== "string" || apiSummary.runId !== run.runId) {
+  // Mock / screenshot stubs often omit progressSummary (undefined, not null).
+  if (apiSummary == null || typeof apiSummary.runId !== "string" || apiSummary.runId !== run.runId) {
     return fromDetail;
   }
 

@@ -33,13 +33,17 @@ function toIdentityOverviewInput(
     return null;
   }
 
+  const authConfigurationDiagnostics = bundle.authConfigurationDiagnostics ?? null;
+  const identityProviderDiagnostics = bundle.identityProviderDiagnostics ?? null;
+  const oidcDiagnostics = bundle.oidcDiagnostics ?? null;
+
   return {
-    authConfigurationDiagnostics: bundle.authConfigurationDiagnostics,
-    authConfigurationDiagnosticsAvailable: true,
-    identityProviderDiagnostics: bundle.identityProviderDiagnostics,
-    identityProviderDiagnosticsAvailable: true,
-    oidcDiagnostics: bundle.oidcDiagnostics,
-    oidcDiagnosticsAvailable: true,
+    authConfigurationDiagnostics,
+    authConfigurationDiagnosticsAvailable: authConfigurationDiagnostics !== null,
+    identityProviderDiagnostics,
+    identityProviderDiagnosticsAvailable: identityProviderDiagnostics !== null,
+    oidcDiagnostics,
+    oidcDiagnosticsAvailable: oidcDiagnostics !== null,
   };
 }
 

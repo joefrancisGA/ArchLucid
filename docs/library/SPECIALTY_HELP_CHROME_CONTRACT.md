@@ -6,7 +6,7 @@
 **Backlog:** **TB-1414** (this contract) · **TB-1415** (anti-bare-markdown / ungated-technical-doc honesty CI — Done)  
 **Audience:** Help specialty implementers, UX reviewers, coding agents  
 **GTM:** [M-251](https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/GTM_BACKLOG.md) (claim honesty) · [M-252](https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#owner-screenshot-below-50-specialty-help-chrome-m-252) (PA scoreboard)  
-**Related:** Done **TB-735** (Admin technical-help gating) · [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](./PRODUCT_DOCUMENTATION_PRESENTATION.md) · [`UI_DESIGN_SYSTEM.md`](./UI_DESIGN_SYSTEM.md) · [`archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts`](../archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts)
+**Related:** Done **TB-735** (Admin technical-help gating) · [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](./PRODUCT_DOCUMENTATION_PRESENTATION.md) · [`UI_DESIGN_SYSTEM.md`](./UI_DESIGN_SYSTEM.md) · [`archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts`](../../archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts)
 
 ---
 
@@ -16,7 +16,7 @@ Eight original help routes scored **≤~50/100** for the **same** presentation d
 
 Fix specialty chrome **once**, then apply per slug via existing TB clusters. Do **not** invent a second presentation system per help route.
 
-**2026-08-13 inventory pass:** all six **live** ≤~50 routes are `clusterDone`. Two retired bookmark aliases (`evaluator-workbook`, `first-hour-operator-path`) moved to [`specialty-help-chrome-retired-below-50-inventory.ts`](../archlucid-ui/src/lib/specialty-help-chrome-retired-below-50-inventory.ts). Permanent redirects for those slugs were removed the same day — legacy bookmarks 404; use canonical targets below.
+**2026-08-13 inventory pass:** all six **live** ≤~50 routes are `clusterDone`. Two retired bookmark aliases (`evaluator-workbook`, `first-hour-operator-path`) moved to [`specialty-help-chrome-retired-below-50-inventory.ts`](../../archlucid-ui/src/lib/specialty-help-chrome-retired-below-50-inventory.ts). Permanent redirects for those slugs were removed the same day — legacy bookmarks 404; use canonical targets below.
 
 ---
 
@@ -47,7 +47,7 @@ Generic markdown remains fallback **only** for true internal docs **after** gate
 
 ## 4. ≤~50 inventory (ranked)
 
-Machine-readable copy: [`archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts`](../archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts).
+Machine-readable copy: [`archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts`](../../archlucid-ui/src/lib/specialty-help-chrome-below-50-inventory.ts).
 
 ### 4a. Live routes (all `clusterDone`)
 
@@ -62,7 +62,7 @@ Machine-readable copy: [`archlucid-ui/src/lib/specialty-help-chrome-below-50-inv
 
 ### 4b. Retired alias folds (not live inventory)
 
-Machine-readable copy: [`archlucid-ui/src/lib/specialty-help-chrome-retired-below-50-inventory.ts`](../archlucid-ui/src/lib/specialty-help-chrome-retired-below-50-inventory.ts).
+Machine-readable copy: [`archlucid-ui/src/lib/specialty-help-chrome-retired-below-50-inventory.ts`](../../archlucid-ui/src/lib/specialty-help-chrome-retired-below-50-inventory.ts).
 
 | Score (approx) | Retired alias | Canonical target | Owning cluster |
 | --- | --- | --- | --- |
@@ -82,7 +82,7 @@ Do not open duplicate presentation TB rows — implement against the mapped clus
 | `HelpReviewPackagesGuideView` | Open product route CTA + Related cap + export next steps |
 | `HelpRepeatReviewLoopGuideView` | Loop-step deep links + Related density |
 
-Dispatch specialty roots from [`archlucid-ui/src/app/(operator)/help/[...topic]/page.tsx`](../archlucid-ui/src/app/(operator)/help/[...topic]/page.tsx); do not add parallel routers.
+Dispatch specialty roots from [`archlucid-ui/src/app/(operator)/help/[...topic]/page.tsx`](../../archlucid-ui/src/app/(operator)/help/[...topic]/page.tsx); do not add parallel routers.
 
 ---
 

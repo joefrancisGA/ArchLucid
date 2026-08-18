@@ -17,6 +17,7 @@ const operatorShellLoading = (
     className="flex min-h-dvh flex-col bg-neutral-50 dark:bg-neutral-950"
     aria-busy="true"
     aria-label="Loading workspace"
+    role="status"
     data-testid="operator-shell-deferred-loading"
   >
     <header

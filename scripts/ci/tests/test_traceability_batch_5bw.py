@@ -42,7 +42,7 @@ class TestTraceabilityBatch5BW(unittest.TestCase):
             / "(operator)"
             / "architecture"
             / "reviews"
-            / "[runId]"
+            / "[reviewId]"
             / "_sections"
             / "RunDetailPipelineStagesSection.tsx"
         )

@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Agents;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
@@ -66,12 +67,12 @@ public sealed class AdminAgentModelCatalogController(
     {
         if (row is null)
         {
-            return BadRequest("Request body is required.");
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         }
 
         if (!string.Equals(row.AliasId, aliasId, StringComparison.OrdinalIgnoreCase))
         {
-            return BadRequest("Route alias id must match body alias id.");
+            return this.BadRequestProblem("Route alias id must match body alias id.", ProblemTypes.ValidationFailed);
         }
 
         try
@@ -80,7 +81,7 @@ public sealed class AdminAgentModelCatalogController(
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(ex.Message);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
         AgentModelCatalogRow? before = await _catalogRepository.TryGetAsync(aliasId, cancellationToken).ConfigureAwait(false);
@@ -122,12 +123,12 @@ public sealed class AdminAgentModelCatalogController(
     {
         if (request is null)
         {
-            return BadRequest("Request body is required.");
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         }
 
         if (!Enum.TryParse(request.EvaluationState, true, out AgentModelEvaluationStateKind evaluationState))
         {
-            return BadRequest("EvaluationState is invalid.");
+            return this.BadRequestProblem("EvaluationState is invalid.", ProblemTypes.ValidationFailed);
         }
 
         string actor = User?.Identity?.Name ?? "admin";
@@ -162,18 +163,11 @@ public sealed class AdminAgentModelCatalogController(
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(ex.Message);
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(ex.Message);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
     }
-}
-
-public sealed class RecordAgentModelCatalogEvaluationRequest
-{
-    public string EvaluationState { get; set; } = nameof(AgentModelEvaluationStateKind.NotEvaluated);
-
-    public string? EvidenceJson { get; set; }
 }

@@ -66,9 +66,9 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let progressInitialSummary: RunSummary | null = null;
   let manifestSummary: ManifestSummary | null = null;
   let artifacts: ArtifactDescriptor[] = [];
-  let manifestSummaryFailure: ApiLoadFailureState | null = null;
+  const manifestSummaryFailure: ApiLoadFailureState | null = null;
   let manifestSummaryMalformed: string | null = null;
-  let artifactsFailure: ApiLoadFailureState | null = null;
+  const artifactsFailure: ApiLoadFailureState | null = null;
   let artifactsMalformed: string | null = null;
 
   const serverScopeHeaders = isBrowser() ? null : await resolveServerScopeHeadersForRun(runId);
@@ -80,10 +80,14 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   try {
     const bundleResponse = await fetchRunDetailCriticalPageBundle(runId, apiScopeOptions);
 
-    runDetailResponse = { data: bundleResponse.data.buyerSummary, traceId: bundleResponse.traceId };
-    progressInitialSummary = bundleResponse.data.progressSummary;
+    if (bundleResponse.data.buyerSummary == null) {
+      throw new Error("Review critical-page-bundle omitted buyerSummary.");
+    }
 
-    if (bundleResponse.data.manifestSummary !== null) {
+    runDetailResponse = { data: bundleResponse.data.buyerSummary, traceId: bundleResponse.traceId };
+    progressInitialSummary = bundleResponse.data.progressSummary ?? null;
+
+    if (bundleResponse.data.manifestSummary != null) {
       const coercedSummary = coerceManifestSummary(bundleResponse.data.manifestSummary);
 
       if (!coercedSummary.ok) {

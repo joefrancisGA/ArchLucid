@@ -42,7 +42,7 @@ public sealed class ExecDigestSponsorDeepLinkTokenFactoryTests
         claims.Target.Should().Be(ExecDigestSponsorDeepLinkTarget.RunCollateral);
         claims.TenantId.Should().Be(TenantId);
         claims.IsoWeekKey.Should().Be(IsoWeekKey);
-        claims.RunIdHex.Should().Be(RunIdHex);
+        claims.RunIdHex.Should().Be(RunIdHex.ToUpperInvariant());
     }
 
     private static ExecDigestSponsorDeepLinkTokenFactory CreateFactory()

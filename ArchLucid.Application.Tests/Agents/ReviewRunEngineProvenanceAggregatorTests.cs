@@ -116,8 +116,8 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
     {
         Mock<ILlmCostEstimator> estimator = new();
         estimator
-            .Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
-            .Returns<int, int, int, string?>((input, output, _, _) =>
+            .Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<string?>()))
+            .Returns<int, int, int, string?, string?>((input, output, _, _, _) =>
                 input * 0.00001m + output * 0.00002m);
 
         return estimator.Object;

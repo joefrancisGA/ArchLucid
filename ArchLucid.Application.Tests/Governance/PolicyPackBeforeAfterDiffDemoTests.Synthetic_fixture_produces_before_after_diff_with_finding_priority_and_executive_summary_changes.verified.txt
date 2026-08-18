@@ -17,7 +17,7 @@
       }
     ],
     "gateBlocked": false,
-    "executiveSummaryLines": [
+    "sponsorReportLines": [
       "Pre-commit gate: allowed (commit would proceed)",
       "Active compliance rules (2, priority floor P0): demo-ctrl-audit-logging, demo-ctrl-encryption-at-rest",
       "Committed findings in scope (1): demo-finding-critical (Critical)",
@@ -41,7 +41,7 @@
       }
     ],
     "gateBlocked": true,
-    "executiveSummaryLines": [
+    "sponsorReportLines": [
       "Pre-commit gate: blocked (commit would not proceed)",
       "Active compliance rules (3, priority floor P1): demo-ctrl-audit-logging, demo-ctrl-encryption-at-rest, demo-ctrl-network-isolation",
       "Committed findings in scope (1): demo-finding-critical (Critical)",
@@ -57,12 +57,12 @@
       "demo-finding-critical"
     ],
     "findingsNoLongerBlockingCommit": [],
-    "executiveSummaryLinesAdded": [
+    "sponsorReportLinesAdded": [
       "Pre-commit gate: blocked (commit would not proceed)",
       "Active compliance rules (3, priority floor P1): demo-ctrl-audit-logging, demo-ctrl-encryption-at-rest, demo-ctrl-network-isolation",
       "Enforcement: blockCommitOnCritical=True, blockCommitMinimumSeverity=3"
     ],
-    "executiveSummaryLinesRemoved": [
+    "sponsorReportLinesRemoved": [
       "Pre-commit gate: allowed (commit would proceed)",
       "Active compliance rules (2, priority floor P0): demo-ctrl-audit-logging, demo-ctrl-encryption-at-rest",
       "Enforcement: blockCommitOnCritical=False, blockCommitMinimumSeverity=null"

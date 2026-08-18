@@ -2,6 +2,7 @@ using ArchLucid.Core.Agents;
 
 namespace ArchLucid.Application.Tests.Agents;
 
+[Trait("Suite", "Core")]
 public sealed class AgentModelCatalogOfferabilityTests
 {
     [Fact]

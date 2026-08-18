@@ -1,5 +1,7 @@
 import type { Page, Route } from "@playwright/test";
 
+import { getIdentityProvidersPageBundleMockJson } from "../fixtures/identity-providers-page-bundle-mock";
+
 import { SHOWCASE_DEMO_RUN_ID } from "../fixtures/ids";
 import { backendApiPath } from "./route-match";
 
@@ -103,6 +105,12 @@ export async function registerFreshTenantOnboardingMocks(page: Page): Promise<vo
           },
         ],
       });
+
+      return;
+    }
+
+    if (method === "GET" && path === "/v1/admin/diagnostics/identity-providers-page-bundle") {
+      await fulfillJson(route, 200, getIdentityProvidersPageBundleMockJson());
 
       return;
     }

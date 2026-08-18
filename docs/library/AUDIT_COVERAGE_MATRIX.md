@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:372 -->
+<!-- audit-core-const-count:385 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -171,6 +171,16 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | GCP cloud inventory ZIP ingest | `CloudInventoryExtractorIngestService` (`POST /v1/extractor/gcp/upload`, `CloudInventoryExtractorUploadController`) | `CloudInventoryExtractorPackageUploaded`, `CloudInventoryExtractorPackageParseFailed`, `CloudInventoryExtractorPackageSchemaRejected`, `CloudInventoryExtractorPackageIngestSucceeded` | Tenant/Workspace/Project; optional `RunId` on success event | `cloudProvider`, `originalFileName`, `sizeBytes` on upload; `reason` on failures; `packageId` on success |
 | AWS cloud inventory ZIP download | `CloudInventoryExtractorUploadController` (`GET /v1/extractor/aws/packages/{packageId}`) | `CloudInventoryExtractorPackageDownloaded` | Tenant/Workspace/Project; optional `RunId` | `cloudProvider`, `packageId`, `runId`, `originalFileName`, `sizeBytes` |
 | GCP cloud inventory ZIP download | `CloudInventoryExtractorUploadController` (`GET /v1/extractor/gcp/packages/{packageId}`) | `CloudInventoryExtractorPackageDownloaded` | Tenant/Workspace/Project; optional `RunId` | `cloudProvider`, `packageId`, `runId`, `originalFileName`, `sizeBytes` |
+| AWS cloud inventory chunked chunk upload | `CloudInventoryExtractorUploadController` (`PUT /v1/extractor/aws/upload-sessions/{sessionId}/chunks/{chunkIndex}`) | — (chunk staging only; session start audited separately) | Tenant/Workspace/Project | `sessionId`, `chunkIndex` |
+| GCP cloud inventory chunked chunk upload | `CloudInventoryExtractorUploadController` (`PUT /v1/extractor/gcp/upload-sessions/{sessionId}/chunks/{chunkIndex}`) | — (chunk staging only; session start audited separately) | Tenant/Workspace/Project | `sessionId`, `chunkIndex` |
+| AWS cloud inventory chunked assemble + ingest | `CloudInventoryExtractorUploadController` (`POST /v1/extractor/aws/upload-sessions/{sessionId}/complete`; `CloudInventoryExtractorIngestService`) | `CloudInventoryExtractorPackageUploaded`, `CloudInventoryExtractorPackageParseFailed`, `CloudInventoryExtractorPackageSchemaRejected`, `CloudInventoryExtractorPackageIngestSucceeded` | Tenant/Workspace/Project; optional `RunId` on success | Same ingest pipeline as single-shot ZIP (`cloudProvider`, `sessionId`, optional `runId`) |
+| GCP cloud inventory chunked assemble + ingest | `CloudInventoryExtractorUploadController` (`POST /v1/extractor/gcp/upload-sessions/{sessionId}/complete`; `CloudInventoryExtractorIngestService`) | `CloudInventoryExtractorPackageUploaded`, `CloudInventoryExtractorPackageParseFailed`, `CloudInventoryExtractorPackageSchemaRejected`, `CloudInventoryExtractorPackageIngestSucceeded` | Tenant/Workspace/Project; optional `RunId` on success | Same ingest pipeline as single-shot ZIP (`cloudProvider`, `sessionId`, optional `runId`) |
+| ITSM outbound live connectivity probe | `ItsmIntegrationHealthController` (`POST /v1/integrations/itsm/health/probe`) | — (`[MutatingAuditExcluded]` read-only vendor ping; no persisted state change) | Tenant/Workspace/Project | Jira / ServiceNow probe outcomes in HTTP response only |
+| Tenant sponsor digest preferences upsert | `TenantSponsorDigestPreferencesController` (`POST /v1/tenant/sponsor-digest-preferences`) | `SponsorDigestPreferencesUpdated` | Tenant from ambient scope | `emailEnabled`, `dayOfWeek`, `hourOfDay`, recipient count |
+| Agent model catalog entry upsert | `AdminAgentModelCatalogController` (`PUT /v1/admin/agent-model-catalog/{aliasId}`) | `ModelCatalogEntryCreated`, `ModelCatalogEntryUpdated` | Tenant/Workspace/Project from ambient scope | `aliasId`, `lifecycle` |
+| Agent model catalog evaluation record | `AdminAgentModelCatalogController` (`POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/{taskType}/record`; `AgentModelCatalogEvaluationRecorder`) | `ModelCatalogEvaluationRecorded` | Tenant/Workspace/Project from ambient scope | `aliasId`, `taskType`, `evaluationState` |
+| Agent model catalog faithfulness harness import | `AdminAgentModelCatalogController` (`POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/import-faithfulness-harness`; `AgentModelCatalogFaithfulnessHarnessImporter`) | `ModelCatalogEvaluationRecorded` | Tenant/Workspace/Project from ambient scope | `aliasId`, harness import evidence |
+| Platform bundled policy pack activation toggle | `AdminPlatformBundledPolicyPacksController` (`PUT /v1/admin/platform-bundled-policy-packs/{bundleContentFile}/activation`) | `PlatformBundledPolicyPackActivationChanged` | Operator RBAC; platform catalog surface | `bundleContentFile`, `displayName`, `isGloballyActive` |
 | Chunked Azure extractor ingest session started | `AzureExtractorUploadController` (`POST …/azure-extractor/upload-sessions`; `AzureExtractorChunkedUploadService`) | `AzureExtractorPackageChunkSessionStarted` | Tenant/Workspace/Project | `sessionId`, `fileName`, `totalChunks`, `totalBytes`, `maxChunkBytes` |
 | Tier 2 hosted Azure extractor configured (customer SP + subscription scope via WIF) | `HostedAzureExtractorAdminController` (`POST /v1/admin/azure-extractor/hosted/configure`); `Tier2ConnectionController` (`POST /v1/azure-extractor/connections`) | `IntegrationHostedAzureExtractorConfigured` | Tenant/Workspace/Project from ambient scope | `{ subscriptionId, customerTenantId, customerAppId, includeCost }` — **no** customer secrets stored |
 | Tier 2 hosted Azure extractor collection run | `HostedAzureExtractorRunController` (`POST /v1/admin/azure-extractor/hosted/run`); `AzureExtractorIngestService` | `AzureExtractorPackageUploaded`, `AzureExtractorPackageParseFailed`, `AzureExtractorPackageSchemaRejected`, `AzureExtractorPackageIngestSucceeded` | Tenant/Workspace/Project; optional `RunId` on success event | Hosted collect → same ingest audit pipeline as ZIP upload (`[MutatingAuditExcluded]` on controller) |
@@ -238,6 +248,9 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Tenant architecture review board cover logo upload | `AdminController` (`POST /v1/admin/tenant/logo`) | `TenantReviewBoardCoverLogoUploaded` | Tenant + default workspace/project from scope | `{ logoByteLength }` — PNG/JPEG validated via `ArchitectureReviewBoardCoverLogoValidator`; image bytes are **not** stored in audit payload |
 | Microsoft Teams incoming-webhook connection upsert | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionUpserted` | Tenant + default workspace/project from scope | Key Vault reference metadata (no secret material) |
 | Microsoft Teams incoming-webhook connection remove | `TeamsIncomingWebhookConnectionsController` (`DELETE /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionRemoved` | Tenant + default workspace/project from scope | connection id / scope fields |
+| Tenant Azure OpenAI BYO connection upsert | `AdminAzureOpenAiConnectionController` (`POST /v1/admin/settings/azure-openai-connection`) | `TenantAzureOpenAiConnectionUpserted` | Tenant + default workspace/project from scope | endpoint host, secret name length, enabled flag — **no** API key material |
+| Tenant Azure OpenAI BYO connection remove | `AdminAzureOpenAiConnectionController` (`DELETE /v1/admin/settings/azure-openai-connection`) | `TenantAzureOpenAiConnectionRemoved` | Tenant + default workspace/project from scope | connection id / scope fields — **no** secret material |
+| Tenant Azure OpenAI BYO connection probe | `AdminAzureOpenAiConnectionController` (`POST /v1/admin/settings/azure-openai-connection/probe`) | — (`[MutatingAuditExcluded]` completion probe; connection row may update probe metadata only) | Tenant from ambient scope | HTTP probe outcome only — **no** API key material |
 | Microsoft Teams incoming-webhook secret validation probe (no persistence) | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections/validate-secret`) | — | — | Key Vault probe only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Microsoft Teams incoming-webhook connection test notification (no persistence) | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections/test`) | — | — | Synthetic Teams ping only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Tenant ITSM connector credential reference upsert (Jira / ServiceNow) | `TenantItsmConnectorConnectionsController` (`POST /v1/integrations/itsm/connections/{provider}`) | `TenantItsmConnectorConnectionUpserted` | Tenant + default workspace/project from scope | provider label, credential secret name length, inbound webhook secret presence, enabled flag — **no** secret material |
@@ -432,7 +445,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RunExported` | `RunExported` | `ArtifactExportController` |
 | `RunExportLineageVerified` | `RunExportLineageVerified` | `RunExportLineageVerifier` via `ArtifactExportController` (`GET …/export/verify`) |
 | `ExportDownloadSucceeded` | `Export.DownloadSucceeded` | `RunsExportController` (`GET /v1/runs/{runId}/export/{format}`), `RunQueryController` (`GET …/traceability-bundle.zip`, `GET /v1/runs/{runId}/review-trail/export`), `RunComparisonController` (`GET …/run/compare/end-to-end/export/file`, `GET …/run/compare/end-to-end/export/docx`) |
-| `ExecutiveRoiBoardPackExported` | `ExecutiveRoiBoardPackExported` | `RoiController` (`GET /v1/roi/sponsor-summary/board-pack`) |
+| `SponsorRoiBoardPackExported` | `SponsorRoiBoardPackExported` | `RoiController` (`GET /v1/roi/sponsor-summary/board-pack`) |
 | `RunExportFailed` | `Export.Failed` | `ArtifactExportController` |
 | `RunExportBlobPushQueued` | `RunExportBlobPushQueued` | `ArtifactExportController` (HTTP 202 accepts enqueue; background `RunExportBlobPushService` emits succeeded/failed) |
 | `RunExportBlobPushSucceeded` | `RunExportBlobPushSucceeded` | `RunExportBlobPushService` (`ArtifactExportController` queues background PUT to customer SAS) |
@@ -457,6 +470,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `CloudInventoryExtractorPackageSchemaRejected` | `CloudInventoryExtractorPackage.SchemaRejected` | `CloudInventoryExtractorIngestService` (`CloudInventoryExtractorUploadController`) |
 | `CloudInventoryExtractorPackageIngestSucceeded` | `CloudInventoryExtractorPackage.IngestSucceeded` | `CloudInventoryExtractorIngestService` (`CloudInventoryExtractorUploadController`) |
 | `CloudInventoryExtractorPackageDownloaded` | `Export.CloudInventoryExtractorPackageDownloaded` | `CloudInventoryExtractorUploadController` (`GET /v1/extractor/aws/packages/{packageId}`, `GET /v1/extractor/gcp/packages/{packageId}`) |
+| `CloudInventoryExtractorPackageChunkSessionStarted` | `CloudInventoryExtractorPackage.ChunkSessionStarted` | `CloudInventoryExtractorUploadController` (`POST /v1/extractor/aws/upload-sessions`, `POST /v1/extractor/gcp/upload-sessions`) |
 | `AzureExtractorPackageChunkSessionStarted` | `AzureExtractorPackage.ChunkSessionStarted` | `AzureExtractorUploadController` (`POST …/azure-extractor/upload-sessions`) |
 | `ValueReportGenerated` | `ValueReportGenerated` | `ValueReportController`, `InMemoryValueReportJobQueue` |
 | `ReplayExportRecorded` | `ReplayExportRecorded` | `ExportsController` |
@@ -520,9 +534,11 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `PolicyPackAssigned` | `PolicyPackAssigned` | `PolicyPacksAppService` |
 | `PolicyPackAssignmentCreated` | `PolicyPackAssignmentCreated` | `PolicyPacksAppService` |
 | `PolicyPackAssignmentArchived` | `PolicyPackAssignmentArchived` | `PolicyPacksAppService` |
+| `PolicyPackAssignmentEnabledChanged` | `PolicyPackAssignmentEnabledChanged` | `PolicyPacksController` (`PUT /v1/policy-packs/assignments/{assignmentId}/enabled`) |
 | `PolicyPackDuplicated` | `PolicyPackDuplicated` | `PolicyPacksAppService` (`POST /v1/policy-packs/{policyPackId}/duplicate`) |
 | `PolicyPackCatalogPromoted` | `PolicyPackCatalogPromoted` | `PolicyPacksController` (`POST /v1/policy-packs/catalog/promote`) |
 | `PolicyPackCatalogDemoted` | `PolicyPackCatalogDemoted` | `PolicyPacksController` (`POST /v1/policy-packs/catalog/demote`) |
+| `PlatformBundledPolicyPackActivationChanged` | `PlatformBundledPolicyPackActivationChanged` | `AdminPlatformBundledPolicyPacksController` (`PUT /v1/admin/platform-bundled-policy-packs/{bundleContentFile}/activation`) |
 | `PostCommitProjectionDeadLettered` | `PostCommitProjectionDeadLettered` | `PostCommitProjectionOutboxProcessor` (retries exhausted during background projection side-effects) |
 | `GovernanceResolutionExecuted` | `GovernanceResolutionExecuted` | `GovernanceResolutionController` |
 | `GovernanceConflictDetected` | `GovernanceConflictDetected` | `GovernanceResolutionController` |
@@ -587,6 +603,13 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `WorkspaceModelExecutionProfileUpdated` | `Workspace.ModelExecutionProfileUpdated` | `SettingsController` (`PUT …/admin/settings/model-execution-profile`) |
 | `WorkspaceModelExecutionProfileOverrideCleared` | `Workspace.ModelExecutionProfileOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/model-execution-profile`) |
 | `RunModelExecutionProfileOverrideApplied` | `Run.ModelExecutionProfileOverrideApplied` | `ModelExecutionProfileOverrideAuditWriter` (per-review override at run create) |
+| `WorkspaceAllowedEngineSetUpdated` | `Workspace.AllowedEngineSetUpdated` | `SettingsController` (`PUT …/admin/settings/allowed-engine-set`) |
+| `WorkspaceAllowedEngineSetOverrideCleared` | `Workspace.AllowedEngineSetOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/allowed-engine-set`) |
+| `RunModelAliasOverrideApplied` | `Run.ModelAliasOverrideApplied` | `ReviewModelAliasOverrideAuditWriter` (per-review override at run create) |
+| `WorkspaceExternalSubprocessorEngineAcknowledged` | `Workspace.ExternalSubprocessorEngineAcknowledged` | `ExternalSubprocessorEngineAcknowledgmentService` (`POST …/admin/settings/external-subprocessor-engine-acknowledgment`) |
+| `ModelCatalogEntryCreated` | `ModelCatalog.EntryCreated` | `AdminAgentModelCatalogController` (`PUT /v1/admin/agent-model-catalog/{aliasId}`) |
+| `ModelCatalogEntryUpdated` | `ModelCatalog.EntryUpdated` | `AdminAgentModelCatalogController` (`PUT /v1/admin/agent-model-catalog/{aliasId}`) |
+| `ModelCatalogEvaluationRecorded` | `ModelCatalog.EvaluationRecorded` | `AgentModelCatalogEvaluationRecorder` (`POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/{taskType}/record`, `POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/import-faithfulness-harness`) |
 | `AgentOutputLlmFaithfulnessWarned` | `AgentOutput.LlmFaithfulnessWarned` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness warn floor) |
 | `AgentOutputLlmFaithfulnessRejected` | `AgentOutput.LlmFaithfulnessRejected` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness reject floor) |
 | `AdminApiKeyRotationMaterialIssued` | `Admin.ApiKeyRotationMaterialIssued` | `AdminApiKeySettingsController` (`POST …/admin/settings/api-keys/rotate`) |
@@ -640,6 +663,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantTeamsIncomingWebhookConnectionUpserted` | `TenantTeamsIncomingWebhookConnectionUpserted` | `TeamsIncomingWebhookConnectionsController` |
 | `TenantTeamsIncomingWebhookConnectionRemoved` | `TenantTeamsIncomingWebhookConnectionRemoved` | `TeamsIncomingWebhookConnectionsController` |
 | `ExecDigestPreferencesUpdated` | `ExecDigestPreferencesUpdated` | `TenantExecDigestPreferencesController` |
+| `SponsorDigestPreferencesUpdated` | `SponsorDigestPreferencesUpdated` | `TenantSponsorDigestPreferencesController` (`POST /v1/tenant/sponsor-digest-preferences`) |
 | `TenantEntraDirectoryBound` | `TenantEntraDirectoryBound` | `TenantTrialController` (`POST …/tenant/link-entra`) |
 | `TenantTrialConverted` | `TenantTrialConverted` | `TenantTrialController` |
 | `TrialLifecycleTransition` | `TrialLifecycleTransition` | `TrialLifecycleTransitionEngine` |
@@ -701,6 +725,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantItsmConnectorConnectionRemoved` | `TenantItsmConnectorConnectionRemoved` | `TenantItsmConnectorConnectionsController` (`DELETE /v1/integrations/itsm/connections/{provider}`) |
 | `TenantItsmOutboundSettingsUpserted` | `TenantItsmOutboundSettingsUpserted` | `TenantItsmOutboundSettingsController` (`PUT /v1/integrations/itsm/settings`) |
 | `TenantAzureBoardsOutboundSettingsUpserted` | `TenantAzureBoardsOutboundSettingsUpserted` | `AzureBoardsIntegrationsController` (outbound settings upsert) |
+| `TenantAzureOpenAiConnectionUpserted` | `TenantAzureOpenAiConnectionUpserted` | `AdminAzureOpenAiConnectionController` (`POST /v1/admin/settings/azure-openai-connection`) |
+| `TenantAzureOpenAiConnectionRemoved` | `TenantAzureOpenAiConnectionRemoved` | `AdminAzureOpenAiConnectionController` (`DELETE /v1/admin/settings/azure-openai-connection`) |
 | `IntegrationAzureBoardsConnectionTested` | `Integration.AzureBoardsConnectionTested` | `AzureBoardsIntegrationsController` (connection test; no work item created) |
 | `IntegrationAzureBoardsWorkItemCreateSucceeded` | `Integration.AzureBoardsWorkItemCreateSucceeded` | `AzureBoardsExternalTicketConnector` / ITSM outbound create path |
 | `IntegrationAzureBoardsWorkItemCreateFailed` | `Integration.AzureBoardsWorkItemCreateFailed` | same |

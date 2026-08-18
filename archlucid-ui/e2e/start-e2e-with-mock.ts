@@ -65,19 +65,23 @@ function syncStandaloneRuntimeAssets(projectRoot: string): string {
   }
 
   /**
-   * Trust + privacy SSR read `go-to-market-samples/*.md` when `cwd` is `.next/standalone`
-   * (see `readPrivacyPolicyMarkdown` / `readTrustCenterMarkdown`). Copy from monorepo `docs/`.
+   * Trust, privacy, and synthetic ROI bulletin SSR read `go-to-market-samples/*.md` when `cwd`
+   * is `.next/standalone`. Copy from monorepo `docs/`.
    */
   const gtmDest = path.join(standaloneRoot, "go-to-market-samples");
   fs.mkdirSync(gtmDest, { recursive: true });
   const monorepoDocs = path.join(projectRoot, "..", "docs");
   const privacySrc = path.join(monorepoDocs, "go-to-market", "PRIVACY_POLICY.md");
   const trustSrc = path.join(monorepoDocs, "go-to-market", "trust-center.md");
+  const bulletinSrc = path.join(monorepoDocs, "go-to-market", "SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md");
   if (fs.existsSync(privacySrc)) {
     fs.copyFileSync(privacySrc, path.join(gtmDest, "PRIVACY_POLICY.md"));
   }
   if (fs.existsSync(trustSrc)) {
     fs.copyFileSync(trustSrc, path.join(gtmDest, "trust-center.md"));
+  }
+  if (fs.existsSync(bulletinSrc)) {
+    fs.copyFileSync(bulletinSrc, path.join(gtmDest, "SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md"));
   }
 
   /**

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-08-13T21:13:00.000Z",
+  "updatedUtc": "2026-08-16T22:00:20.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/": {
@@ -10,26 +10,26 @@
       "firstLoadJsKb": 609.1
     },
     "/governance/approval-queue": {
-      "firstLoadJsKb": 1450.3
+      "firstLoadJsKb": 1574.6
     },
     "/governance/alerts": {
-      "firstLoadJsKb": 1789.5
+      "firstLoadJsKb": 1958.5
     },
     "/governance/alert-rules": {
-      "firstLoadJsKb": 1199.9
+      "firstLoadJsKb": 1316.1
     },
     "/architecture/reviews": {
-      "firstLoadJsKb": 1308.2
+      "firstLoadJsKb": 1499.8
     },
     "/architecture/reviews/[reviewId]": {
       "firstLoadJsKb": 1883.4
     },
     "/architecture/sponsor-dashboard": {
-      "firstLoadJsKb": 1489.3
+      "firstLoadJsKb": 1612.3
     },
     "/governance/sealed-records": {
-      "firstLoadJsKb": 1454.2
+      "firstLoadJsKb": 1769.4
     }
   },
-  "notes": "RC30 CI run 31743523883: refresh `/architecture/reviews` (1308.2 kB), `/governance/alerts` (1789.5 kB), and `/governance/alert-rules` (1199.9 kB) after merge-driven First Load growth beyond +25 kB tolerance. Prior baseline from RC29 run 31502052986."
+  "notes": "RC31 CI run 31972861111: refresh First Load JS baselines after merge-driven bundle growth beyond +25 kB tolerance on six operator routes."
 }

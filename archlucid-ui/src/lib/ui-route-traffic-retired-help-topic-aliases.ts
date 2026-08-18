@@ -38,7 +38,6 @@ export type RetiredHelpTopicAliasTrafficEntry = {
  */
 export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopicAliasTrafficEntry[] = [
   {
-    removedRowId: "ECO",
     retiredPath: "/help/core-pilot",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
     historicalNote:
@@ -51,7 +50,6 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     ],
   },
   {
-    removedRowId: "HEV",
     retiredPath: "/help/evidence-only-review",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview,
     bannedBuyerCopy: ["/help/evidence-only-review"],
@@ -84,7 +82,6 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     ],
   },
   {
-    removedRowId: "HET",
     retiredPath: "/help/starting-reviews",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.reviewGuide,
     bannedBuyerCopy: ["/help/starting-reviews"],
@@ -95,7 +92,6 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     ],
   },
   {
-    removedRowId: "HER",
     retiredPath: "/help/creating-runs",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.reviewGuide,
     bannedBuyerCopy: ["/help/creating-runs", "creating runs", "Creating runs"],
@@ -108,7 +104,6 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     ],
   },
   {
-    removedRowId: "HEE",
     retiredPath: "/help/evaluator-workbook",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.pathChooser,
     bannedBuyerCopy: ["/help/evaluator-workbook"],
@@ -120,7 +115,6 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     ],
   },
   {
-    removedRowId: "HEP",
     retiredPath: "/help/governance-api-contracts",
     canonicalPath: RETIRED_HELP_TOPIC_CANONICAL_PATHS.apiContracts,
     bannedBuyerCopy: ["/help/governance-api-contracts"],
@@ -164,7 +158,6 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     ],
   },
   {
-    removedRowId: "EPR",
     retiredPath: "/help/product-overview",
     canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.SponsorReport}#what-archlucid-is`,
     bannedBuyerCopy: ["/help/product-overview"],
@@ -188,7 +181,6 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     ],
   },
   {
-    removedRowId: "HEF",
     retiredPath: "/help/first-value-20-minutes",
     canonicalPath: `${RETIRED_HELP_TOPIC_CANONICAL_PATHS.firstArchitectureReview}#first-value-in-20-minutes`,
     historicalNote:
@@ -234,9 +226,9 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
   {
     removedRowId: "HPI",
     retiredPath: "/help/pilot-outcomes",
-    canonicalPath: "/help/sponsor-summary",
+    canonicalPath: "/help/sponsor-report",
     historicalNote:
-      "Deprecated pilot-outcomes help twin (Help topic) - folded into sponsor-report specialty (EXE); canon EXE = /help/sponsor-summary.",
+      "Deprecated pilot-outcomes help twin (Help topic) - folded into sponsor-report specialty (EXE); canon EXE = /help/sponsor-report.",
     bannedBuyerCopy: ["/help/pilot-outcomes"],
     buyerSurfaceGuards: [
       "src/lib/usability/page-help-topic-map.ts",

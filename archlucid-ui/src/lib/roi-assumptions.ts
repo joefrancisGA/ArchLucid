@@ -9,7 +9,7 @@ export const HOURS_PER_PRECOMMIT_BLOCK = 2;
 
 /** Honest origin for severity-weighted hours — default planning coefficients, not workspace-tuned. */
 export const ROI_HOURS_COEFFICIENTS_PROVENANCE =
-  "Severity and governance-block coefficients are default v1.1 planning values in product source (not workspace-tuned); as of August 2026.";
+  "Severity and governance-block coefficients are v1.1 default planning values in product source (not workspace-tuned); as of August 2026.";
 export const DEFAULT_LOADED_HOURLY_USD = 150;
 export const ROI_HOURLY_USD_STORAGE_KEY = "archlucid.roi.hourlyUsd";
 

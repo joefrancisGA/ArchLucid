@@ -1,5 +1,5 @@
 {
-  "discoveredRouteCount": 214,
+  "discoveredRouteCount": 219,
   "formatVersion": "1.0",
   "routes": {
     "DELETE /scim/v2/Users/{id}": "naturally-idempotent",
@@ -110,6 +110,10 @@
     "POST /v1/azure-extractor/upload": "operator-documented-safe-retry",
     "POST /v1/azure-extractor/upload-sessions": "operator-documented-safe-retry",
     "POST /v1/azure-extractor/upload-sessions/{sessionId}/complete": "operator-documented-safe-retry",
+    "POST /v1/extractor/aws/upload-sessions": "operator-documented-safe-retry",
+    "POST /v1/extractor/aws/upload-sessions/{sessionId}/complete": "operator-documented-safe-retry",
+    "POST /v1/extractor/gcp/upload-sessions": "operator-documented-safe-retry",
+    "POST /v1/extractor/gcp/upload-sessions/{sessionId}/complete": "operator-documented-safe-retry",
     "POST /v1/billing/webhooks/marketplace": "inbound-webhook-pipeline",
     "POST /v1/billing/webhooks/stripe": "inbound-webhook-pipeline",
     "POST /v1/billing/webhooks/stripe/subscriptions": "inbound-webhook-pipeline",
@@ -155,6 +159,7 @@
     "POST /v1/governance/risk-exceptions/{riskExceptionId}/revoke": "operator-documented-safe-retry",
     "POST /v1/governance/simulate": "dry-run-no-persist",
     "POST /v1/integrations/itsm/correlations": "operator-documented-safe-retry",
+    "POST /v1/integrations/itsm/health/probe": "operator-documented-safe-retry",
     "POST /v1/integrations/itsm/outbound/issues": "operator-documented-safe-retry",
     "POST /v1/integrations/teams/connections": "operator-documented-safe-retry",
     "POST /v1/integrations/teams/connections/test": "dry-run-no-persist",

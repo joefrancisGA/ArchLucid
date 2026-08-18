@@ -4,6 +4,7 @@ import type { ComparisonExplanation } from "@/types/explanation";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ArtifactDescriptor, ManifestSummary, RunComparison, RunDetail } from "@/types/authority";
 
+import { getIdentityProvidersPageBundleMockJson } from "../fixtures/identity-providers-page-bundle-mock";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import {
   fixtureArtifactDescriptorsNonEmpty,
@@ -354,6 +355,12 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
         status: "Healthy",
         entries: [{ name: "database", status: "Healthy" }],
       });
+
+      return;
+    }
+
+    if (apiPath === "/v1/admin/diagnostics/identity-providers-page-bundle") {
+      await fulfillJson(route, 200, getIdentityProvidersPageBundleMockJson());
 
       return;
     }

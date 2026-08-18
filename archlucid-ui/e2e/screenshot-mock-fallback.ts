@@ -3,6 +3,7 @@
  * so operator pages render empty states instead of transport errors.
  */
 
+import { getIdentityProvidersPageBundleMockJson } from "./fixtures/identity-providers-page-bundle-mock";
 import {
   getSponsorRoiExportMockJson,
   getSponsorRoiHistoryMockJson,
@@ -533,6 +534,10 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
   }
 
   if (pathname.startsWith("/v1/admin/")) {
+    if (pathname.includes("identity-providers-page-bundle")) {
+      return getIdentityProvidersPageBundleMockJson();
+    }
+
     if (pathname.includes("users")) {
       return { users: [] as unknown[] };
     }

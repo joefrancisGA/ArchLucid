@@ -1,3 +1,4 @@
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Audit;
@@ -58,7 +59,7 @@ public sealed class AdminPlatformBundledPolicyPacksController(
         CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest("Request body is required.");
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         await _registryBootstrapper.EnsureRegistrySeededAsync(ct);
 
@@ -68,7 +69,9 @@ public sealed class AdminPlatformBundledPolicyPacksController(
             ct);
 
         if (!updated)
-            return NotFound();
+            return this.NotFoundProblem(
+                $"Bundled policy pack '{bundleContentFile}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         _platformAvailability.InvalidateCache();
 
@@ -77,7 +80,9 @@ public sealed class AdminPlatformBundledPolicyPacksController(
             entry => string.Equals(entry.BundleContentFile, bundleContentFile, StringComparison.OrdinalIgnoreCase));
 
         if (row is null)
-            return NotFound();
+            return this.NotFoundProblem(
+                $"Bundled policy pack '{bundleContentFile}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         await _auditService.LogAsync(
             new AuditEvent

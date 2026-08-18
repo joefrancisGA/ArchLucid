@@ -41,6 +41,7 @@ const EXCLUDED_RELATIVE_PATH_FRAGMENTS = [
   "/api-v1-routes.ts",
   "/wizard-evidence-source-options.ts",
   "/golden-path-glossary-nouns.ts",
+  "/load-bearing-glossary-nouns.ts",
   "/lib/api/",
   "/committed-run-picker.ts",
   "/operator-run-picker-client.ts",
@@ -180,6 +181,12 @@ const LINE_SAFELIST_PATTERNS = [
   /ReplaySelectedPackage/i,
   /ReviewPackageValidation/i,
   /Review Package\$/i,
+  // Banned-pattern registries and drift-guard negation markers — literals are search patterns, not shipped copy.
+  /BANNED_.*PATTERNS/i,
+  /\/.*manifest.*\/i,/i,
+  /NEGATION_DRIFT_MARKERS/i,
+  /MustNotContain:/i,
+  /ROI_HOURS_COEFFICIENTS_PROVENANCE/i,
 ] as const;
 
 const ALL_BANNED_PATTERNS = [

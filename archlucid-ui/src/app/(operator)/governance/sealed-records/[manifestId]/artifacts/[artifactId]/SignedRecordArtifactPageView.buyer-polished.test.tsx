@@ -55,11 +55,8 @@ const model: SignedRecordArtifactPageSuccessModel = {
   siblings: [],
   prepared: {
     viewKind: "json",
-    readableText: "{
-  "total": 1
-}
-",
-    rawText: "{"total":1}",
+    readableText: '{"total": 1}',
+    rawText: '{"total":1}',
     jsonPrettyFailed: false,
   },
   contentType: "application/json",
