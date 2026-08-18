@@ -1,12 +1,11 @@
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 
-import { ReviewsNewPageChrome } from "./ReviewsNewPageChrome";
+import { ReviewsNewPageShell } from "./ReviewsNewPageShell";
 
 const ReviewsNewPathSwitcher = dynamic(
   () => import("./ReviewsNewPathSwitcher").then((module) => module.ReviewsNewPathSwitcher),
@@ -19,13 +18,10 @@ export const metadata: Metadata = {
 
 export default async function NewRunPage() {
   return (
-    <OperatorPageContainer variant="workflow">
-      <ReviewsNewPageChrome />
-      <div id="new-review-wizard" className="mt-6 scroll-mt-24">
-        <Suspense fallback={<NewRunWizardSkeleton />}>
-          <ReviewsNewPathSwitcher />
-        </Suspense>
-      </div>
-    </OperatorPageContainer>
+    <Suspense fallback={<NewRunWizardSkeleton />}>
+      <ReviewsNewPageShell>
+        <ReviewsNewPathSwitcher />
+      </ReviewsNewPageShell>
+    </Suspense>
   );
 }

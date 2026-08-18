@@ -133,6 +133,11 @@ import {
   ADVISORY_SCANS_HELP_SOURCES,
   ADVISORY_SCANS_HELP_SOURCES_INTRO,
 } from "@/lib/advisory-scans-help-evidence-copy";
+import {
+  REVIEWS_NEW_FOLLOW_UPS_TITLE,
+  REVIEWS_NEW_ORIENTATION_SOURCES,
+  REVIEWS_NEW_SOURCES_INTRO,
+} from "@/lib/reviews-new-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -592,6 +597,23 @@ export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       headingClassName={sectionHeadingClass}
+    />
+  );
+}
+
+export function ReviewsNewEvidenceOrientationStrip(
+  props: { readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? REVIEWS_NEW_ORIENTATION_SOURCES;
+
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="reviews-new"
+      sourcesTestId="reviews-new-settings-sources"
+      sourcesTitle={REVIEWS_NEW_FOLLOW_UPS_TITLE}
+      sourcesIntro={REVIEWS_NEW_SOURCES_INTRO}
+      sources={sources}
+      sourcesHeadingId="where-to-go-next"
     />
   );
 }

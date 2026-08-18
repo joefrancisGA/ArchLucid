@@ -8,6 +8,9 @@ vi.mock("./ReviewsNewPathSwitcher", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/new",
+  useSearchParams: () => ({
+    get: () => null,
+  }),
 }));
 
 import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer/buyer-polish-copy";

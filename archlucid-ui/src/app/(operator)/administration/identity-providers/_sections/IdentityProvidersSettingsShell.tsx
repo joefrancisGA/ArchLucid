@@ -121,22 +121,6 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
         id={props.primaryContentId}
         data-testid={
           props.primaryContentId !== undefined ? "identity-providers-settings-primary-content" : undefined
-<<<<<<< HEAD
-        }
-        className={props.primaryContentId !== undefined ? cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack) : OPERATOR_LAYOUT.sectionStack}
-      >
-        <IdentityProvidersSettingsPageHeader
-          pageTitle={resolvedTitle}
-          subtitle={headerSubtitle}
-          breadcrumb={props.headerBreadcrumb}
-        statusLabel={
-          props.statusBadgeReady === false
-            || props.diagnosticsDataUnavailable === true
-            || props.overview?.headerStatusAvailable === false
-            ? undefined
-            : resolveHeaderStatusLabel(activeNavId, props.overview)
-=======
->>>>>>> 51e9177527 (AOI buyer polish: breadcrumb, orientation chrome, and deduped Sources.)
         }
         className={props.primaryContentId !== undefined ? cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack) : OPERATOR_LAYOUT.sectionStack}
       >
@@ -210,34 +194,7 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
           </ul>
         </nav>
 
-<<<<<<< HEAD
-            return (
-              <li key={item.id}>
-                <Link
-                  href={item.href}
-                  prefetch={false}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "inline-flex min-h-[30px] items-center rounded-full border px-3 py-1 transition-colors",
-                    OPERATOR_TYPOGRAPHY.badge,
-                    active
-                      ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
-                      : cn("border-neutral-300 text-al-text-primary hover:border-neutral-400 dark:border-neutral-700", OPERATOR_LINK.nav),
-                  )}
-                  data-testid={`identity-providers-nav-${item.id}`}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-
-      {props.children}
-=======
         {props.children}
->>>>>>> 51e9177527 (AOI buyer polish: breadcrumb, orientation chrome, and deduped Sources.)
       </div>
     </OperatorPageContainer>
   );
