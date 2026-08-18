@@ -203,13 +203,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **status:** open
 - **impact:** medium
 - **aliases:** output integrity; commit integrity
-- **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs
+- **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-17
-- **last-bug:** 2026-08-17
+- **last-hunt:** 2026-08-18
+- **last-bug:** 2026-08-18
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** 3
 
@@ -218,6 +218,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes ΓÇö fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
 - [x] Missing optional artifact is treated as a hash match ΓÇö retired: not applicable to commit quality-gate paths; superseded-retry trace selection was the real gap
 - [x] Integrity failure is logged but commit still proceeds ΓÇö retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
+- [x] Latest-per-task selector breaks on equal `CreatedUtc` and picks a superseded rejected schema-remediation attempt over a later accepted attempt ΓÇö fixed: tie-break on `AttemptIndex` then `TraceId` in `AgentExecutionTraceLatestPerTaskSelector`
 
 ---
 

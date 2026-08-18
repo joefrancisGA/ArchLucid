@@ -156,4 +156,44 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
         reasons.Should().ContainSingle();
         reasons[0].Should().Contain("trace-rejected-latest");
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_created_utc_ties_prefers_highest_attempt_index_accepted_trace()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        const string taskId = "task-attempt-tie";
+        DateTime sharedUtc = new(2026, 3, 1, 9, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace rejectedAttempt = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = taskId,
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace acceptedRetry = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = taskId,
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [rejectedAttempt, acceptedRetry]);
+
+        reasons.Should().BeEmpty();
+    }
 }

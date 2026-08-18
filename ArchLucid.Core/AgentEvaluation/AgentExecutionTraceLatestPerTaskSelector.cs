@@ -17,7 +17,11 @@ public static class AgentExecutionTraceLatestPerTaskSelector
 
         List<AgentExecutionTrace> latest = traces
             .GroupBy(static t => t.TaskId, StringComparer.OrdinalIgnoreCase)
-            .Select(static g => g.OrderByDescending(static t => t.CreatedUtc).First())
+            .Select(static g => g
+                .OrderByDescending(static t => t.CreatedUtc)
+                .ThenByDescending(static t => t.AttemptIndex)
+                .ThenByDescending(static t => t.TraceId, StringComparer.Ordinal)
+                .First())
             .ToList();
 
         return latest;
