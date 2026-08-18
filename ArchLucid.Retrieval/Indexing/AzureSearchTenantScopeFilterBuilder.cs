@@ -68,7 +68,7 @@ public static class AzureSearchTenantScopeFilterBuilder
                     allowedPacks.Select(static id => $"policyPackRulePackId eq '{EscapeODataString(id)}'"));
 
                 platformScope =
-                    $"((tenantId eq '{CorpusKindSentinels.PlatformSentinelTenantId:D}' and corpusKind ne 'PolicyPack') or (corpusKind eq 'PolicyPack' and ({packList})))";
+                    $"(tenantId eq '{CorpusKindSentinels.PlatformSentinelTenantId:D}' and ((corpusKind ne 'PolicyPack') or (corpusKind eq 'PolicyPack' and ({packList}))))";
             }
             else
             {

@@ -74,6 +74,19 @@ public sealed class AzureSearchTenantScopeFilterBuilderTests
     }
 
     [Fact]
+    public void BuildScopeFilter_with_assigned_policy_packs_requires_platform_sentinel_tenant_id()
+    {
+        RetrievalQuery query = BaseQuery(includePlatform: true);
+        query.AllowedPolicyPackRulePackIds = ["pack-a"];
+
+        string filter = AzureSearchTenantScopeFilterBuilder.BuildScopeFilter(query);
+
+        filter.Should().Contain(
+            $"tenantId eq '{CorpusKindSentinels.PlatformSentinelTenantId:D}' and ((corpusKind ne 'PolicyPack') or (corpusKind eq 'PolicyPack'");
+        filter.Should().NotContain("or (corpusKind eq 'PolicyPack'");
+    }
+
+    [Fact]
     public void BuildScopeFilter_without_platform_corpora_excludes_platform_sentinel()
     {
         RetrievalQuery query = BaseQuery(includePlatform: false);
