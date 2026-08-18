@@ -83,7 +83,8 @@ public sealed class AzureSearchTenantScopeFilterBuilderTests
 
         filter.Should().Contain(
             $"tenantId eq '{CorpusKindSentinels.PlatformSentinelTenantId:D}' and ((corpusKind ne 'PolicyPack') or (corpusKind eq 'PolicyPack'");
-        filter.Should().NotContain("or (corpusKind eq 'PolicyPack'");
+        filter.Should().NotContain(
+            $"(tenantId eq '{CorpusKindSentinels.PlatformSentinelTenantId:D}' and corpusKind ne 'PolicyPack') or (corpusKind eq 'PolicyPack'");
     }
 
     [Fact]

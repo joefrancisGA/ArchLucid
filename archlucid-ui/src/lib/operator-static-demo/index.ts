@@ -1,5 +1,7 @@
 export * from "./eligibility";
 export * from "./run-list-and-compare";
+export * from "./run-scoped-live-api";
+export * from "./pilot-run-deltas";
 export * from "./showcase-spine-payloads";
 export * from "./provenance-graph";
 export * from "./policy-packs";
