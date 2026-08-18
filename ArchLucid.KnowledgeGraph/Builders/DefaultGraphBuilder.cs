@@ -13,7 +13,7 @@ public class DefaultGraphBuilder(
     IGraphEdgeInferer edgeInferer)
     : IGraphBuilder
 {
-    public Task<GraphBuildResult> BuildAsync(
+    public async Task<GraphBuildResult> BuildAsync(
         ContextSnapshot contextSnapshot,
         CancellationToken ct)
     {
@@ -56,6 +56,8 @@ public class DefaultGraphBuilder(
                     contextSnapshot.SnapshotId));
         }
 
+        await CostConstraintProjectedSpendEnricher.EnrichFromTopologyAsync(nodes, ct).ConfigureAwait(false);
+
         IReadOnlyList<GraphEdge> inferredEdges = edgeInferer.InferEdges(contextSnapshot, nodes);
 
         GraphBuildResult result = new()
@@ -64,7 +66,7 @@ public class DefaultGraphBuilder(
             Edges = inferredEdges.Count == 0 ? [] : [.. inferredEdges]
         };
 
-        return Task.FromResult(result);
+        return result;
     }
 
     private static GraphNode CreateContextNode(ContextSnapshot contextSnapshot)
