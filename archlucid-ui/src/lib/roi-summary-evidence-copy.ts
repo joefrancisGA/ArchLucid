@@ -3,6 +3,10 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ROI_SUMMARY_CANONICAL_PATH = "/insights/roi-summary";
 
+export const ROI_SUMMARY_CLAIM_DISCIPLINE_HEADING = "What ROI summary is not";
+
+export const ROI_SUMMARY_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const ROI_SUMMARY_CLAIM_DISCIPLINE =
   "ROI summary hours and dollar estimates are directional portfolio metrics for the selected window — they are not invoices, audited financial reporting, or a signed-review evidence trail. Open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails.";
 
