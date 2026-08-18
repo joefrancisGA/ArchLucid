@@ -5,8 +5,7 @@ import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { MarketingPricingUsageFaqSection } from "@/components/marketing/MarketingPricingUsageFaqSection";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
-import { PricingEvidenceOrientationStrip } from "@/components/marketing/PricingEvidenceOrientationStrip";
-import { PricingPageHero } from "@/components/marketing/PricingPageHero";
+import { PricingPageChrome } from "@/components/marketing/PricingPageChrome";
 import { TrialNudgePricingQuoteFocus } from "@/components/marketing/TrialNudgePricingQuoteFocus";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -56,8 +55,8 @@ export default async function PricingPage(props: PricingPageProps) {
   return (
     <MarketingPageShell>
       {preferSalesLedQuoteCta ? <TrialNudgePricingQuoteFocus quoteSectionDomId="pricing-quote-request" /> : null}
-      <PricingPageHero />
-      <MarketingTierPricingSection
+      <PricingPageChrome>
+        <MarketingTierPricingSection
         sectionHeadingId="pricing-tier-grid-heading"
         sectionTitle="Pricing"
         showSectionHeading={false}
@@ -90,7 +89,7 @@ export default async function PricingPage(props: PricingPageProps) {
         }
         openOnMount={customPolicyPackQuoteInterest}
       />
-      <PricingEvidenceOrientationStrip />
+      </PricingPageChrome>
     </MarketingPageShell>
   );
 }

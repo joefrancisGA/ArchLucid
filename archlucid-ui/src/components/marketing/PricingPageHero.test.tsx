@@ -11,6 +11,7 @@ describe("PricingPageHero", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "Pricing" })).toHaveAttribute("id", "pricing-page-heading");
     expect(screen.getByRole("heading", { level: 1, name: "Pricing" }).className).toContain("lg:text-5xl");
+    expect(screen.getByTestId("pricing-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("welcome-hero-product-visual")).toHaveAttribute("href", "/see-it");
     expect(screen.getByText(PRICING_PAGE_INTRO)).toBeInTheDocument();
     expect(screen.getByTestId("pricing-faq-link-line")).toBeInTheDocument();

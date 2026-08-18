@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { WelcomeMarketingHeroVisual } from "@/components/marketing/WelcomeMarketingHeroVisual";
+import { PricingBreadcrumb } from "@/components/marketing/pricing/PricingBreadcrumb";
 import { MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   PRICING_PAGE_FAQ_LINK_LABEL,
@@ -22,6 +23,9 @@ export function PricingPageHero(): React.JSX.Element {
       aria-labelledby="pricing-page-heading"
     >
       <header>
+        <div className="mb-3">
+          <PricingBreadcrumb />
+        </div>
         <h1
           id="pricing-page-heading"
           className={cn("m-0", MARKETING_TYPOGRAPHY.heroTitle)}

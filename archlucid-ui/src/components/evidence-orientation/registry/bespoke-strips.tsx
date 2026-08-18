@@ -193,9 +193,13 @@ export function PilotGuideHelpEvidenceOrientationStrip(): React.JSX.Element {
  * Uses the shell for page rhythm (`mt-10`) rather than the shared sources-and-claim strip, whose
  * claim props are required.
  */
-export function PricingEvidenceOrientationStrip(): React.JSX.Element {
+export function PricingEvidenceOrientationStrip(props: {
+  readonly placement?: "top" | "footer";
+}): React.JSX.Element {
+  const margin = props.placement === "top" ? "mb-8" : "mt-10";
+
   return (
-    <EvidenceOrientationStripShell testId="pricing-orientation" margin="mt-10">
+    <EvidenceOrientationStripShell testId="pricing-orientation" margin={margin}>
       <EvidenceOrientationSourcesSection
         testId="pricing-sources"
         headingId="pricing-sources-heading"

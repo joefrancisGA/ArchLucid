@@ -2,6 +2,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
+import {
+  PRICING_PRIMARY_CONTENT_ID,
+  PRICING_SKIP_LINK_LABEL,
+} from "@/lib/marketing/pricing-page-copy";
 
 import PricingPage from "./page";
 
@@ -107,10 +111,16 @@ describe("PricingPage brand category", () => {
     const element = await PricingPage({ searchParams: Promise.resolve({}) });
     render(element);
 
+    expect(screen.getByRole("link", { name: PRICING_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${PRICING_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("pricing-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("pricing-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("pricing-page-hero")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Pricing" })).toBeInTheDocument();
     expect(screen.getByTestId("pricing-faq-link-line").querySelector('a[href="/faq"]')).toBeTruthy();
-    expect(screen.getByTestId("pricing-sources")).toBeInTheDocument();
+    expect(screen.getAllByTestId("pricing-sources")).toHaveLength(1);
     expect(screen.queryByTestId("pricing-claim-discipline")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 2, name: "Pricing" })).not.toBeInTheDocument();
   });
