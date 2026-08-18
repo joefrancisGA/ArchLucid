@@ -1,38 +1,43 @@
+using System.Threading.Tasks;
+
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Tasks;
 
 namespace ArchLucid.Host.Core.Tests.Coordination;
 
 /// <summary>Owns <see cref="OutboxLeaseFinalizeModel"/> for Coyote DST exploration (Prompt 15).</summary>
+[OnEventDoAction(typeof(OutboxLeaseFinalizeCoyoteApplyEvent), nameof(OnApply))]
+[OnEventDoAction(typeof(OutboxLeaseFinalizeCoyotePrepareFinalizeEvent), nameof(OnPrepareFinalize))]
+[OnEventDoAction(typeof(OutboxLeaseFinalizeCoyoteWorkerDoneEvent), nameof(OnWorkerDone))]
 internal sealed class OutboxLeaseFinalizeCoyoteControllerActor : Actor
 {
     private static readonly DateTime BaseUtc = new(2026, 8, 17, 12, 0, 0, DateTimeKind.Utc);
 
     private OutboxLeaseFinalizeModel _model = new();
-    private TaskCompletionSource<bool> _completed = TaskCompletionSource.Create<bool>();
+    private TaskCompletionSource<bool> _completed = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _expectedWorkerDoneSignals;
     private int _workerDoneSignals;
 
-    protected override void OnInitialize(Event initialEvent)
+    protected override Task OnInitializeAsync(Event initialEvent)
     {
-        if (initialEvent is not OutboxLeaseFinalizeCoyoteInitEvent initEvent)
-            return;
+        if (initialEvent is OutboxLeaseFinalizeCoyoteInitEvent initEvent)
+        {
+            _model.CoyoteInjectDoubleFinalizeBug = initEvent.InjectDoubleFinalizeBug;
+            _completed = initEvent.Completed;
+            _expectedWorkerDoneSignals = initEvent.ExpectedWorkerDoneSignals;
+        }
 
-        _model.CoyoteInjectDoubleFinalizeBug = initEvent.InjectDoubleFinalizeBug;
-        _completed = initEvent.Completed;
-        _expectedWorkerDoneSignals = initEvent.ExpectedWorkerDoneSignals;
+        return Task.CompletedTask;
     }
 
-    [OnEventDoAction(typeof(OutboxLeaseFinalizeCoyoteApplyEvent))]
-    private void OnApply(OutboxLeaseFinalizeCoyoteApplyEvent applyEvent)
+    public void OnApply(Event eventArgument)
     {
+        OutboxLeaseFinalizeCoyoteApplyEvent applyEvent = (OutboxLeaseFinalizeCoyoteApplyEvent)eventArgument;
         DateTime utcNow = BaseUtc.AddSeconds(applyEvent.OffsetSeconds);
         _model.TryApply(applyEvent.LifecycleEvent, utcNow);
         OutboxLeaseFinalizeCoyoteInvariants.Assert(_model);
     }
 
-    [OnEventDoAction(typeof(OutboxLeaseFinalizeCoyotePrepareFinalizeEvent))]
-    private void OnPrepareFinalize()
+    public void OnPrepareFinalize()
     {
         if (!_model.LeaseHeld)
             _model.TryApply(OutboxLeaseLifecycleEvent.Lease, BaseUtc);
@@ -42,8 +47,7 @@ internal sealed class OutboxLeaseFinalizeCoyoteControllerActor : Actor
         OutboxLeaseFinalizeCoyoteInvariants.Assert(_model);
     }
 
-    [OnEventDoAction(typeof(OutboxLeaseFinalizeCoyoteWorkerDoneEvent))]
-    private void OnWorkerDone()
+    public void OnWorkerDone()
     {
         _workerDoneSignals++;
 

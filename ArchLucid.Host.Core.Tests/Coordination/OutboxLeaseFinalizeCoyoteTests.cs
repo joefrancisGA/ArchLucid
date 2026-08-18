@@ -1,7 +1,8 @@
 using FluentAssertions;
 
-using Microsoft.Coyote;
 using Microsoft.Coyote.SystematicTesting;
+
+using CoyoteConfiguration = Microsoft.Coyote.Configuration;
 
 namespace ArchLucid.Host.Core.Tests.Coordination;
 
@@ -13,7 +14,7 @@ public sealed class OutboxLeaseFinalizeCoyoteTests
     public void Coyote_outbox_finalize_exploration_passes_without_injected_bug()
     {
         OutboxLeaseFinalizeCoyoteBugGate.InjectDoubleFinalizeBug = false;
-        Configuration config = Configuration.Create()
+        CoyoteConfiguration config = CoyoteConfiguration.Create()
             .WithTestingIterations(20)
             .WithMaxSchedulingSteps(30);
 
@@ -26,7 +27,7 @@ public sealed class OutboxLeaseFinalizeCoyoteTests
     public void Coyote_outbox_finalize_exploration_finds_injected_double_finalize_bug()
     {
         OutboxLeaseFinalizeCoyoteBugGate.InjectDoubleFinalizeBug = true;
-        Configuration config = Configuration.Create()
+        CoyoteConfiguration config = CoyoteConfiguration.Create()
             .WithTestingIterations(20)
             .WithMaxSchedulingSteps(30);
 
@@ -41,7 +42,7 @@ public sealed class OutboxLeaseFinalizeCoyoteTests
     public void Coyote_injected_bug_removed_passes_with_bounded_fair_scheduling_steps()
     {
         OutboxLeaseFinalizeCoyoteBugGate.InjectDoubleFinalizeBug = true;
-        Configuration buggyConfig = Configuration.Create()
+        CoyoteConfiguration buggyConfig = CoyoteConfiguration.Create()
             .WithTestingIterations(10)
             .WithMaxSchedulingSteps(15, 150);
 
@@ -50,7 +51,7 @@ public sealed class OutboxLeaseFinalizeCoyoteTests
         buggyEngine.TestReport.NumOfFoundBugs.Should().BeGreaterThan(0);
 
         OutboxLeaseFinalizeCoyoteBugGate.InjectDoubleFinalizeBug = false;
-        Configuration fixedConfig = Configuration.Create()
+        CoyoteConfiguration fixedConfig = CoyoteConfiguration.Create()
             .WithTestingIterations(10)
             .WithMaxSchedulingSteps(15, 150);
 

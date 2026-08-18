@@ -1,5 +1,6 @@
+using System.Threading.Tasks;
+
 using Microsoft.Coyote.Actors;
-using Microsoft.Coyote.Tasks;
 
 namespace ArchLucid.Host.Core.Tests.Coordination;
 
@@ -10,7 +11,7 @@ internal static class OutboxLeaseFinalizeCoyoteScenario
 
     public static async Task RunAsync(IActorRuntime runtime)
     {
-        TaskCompletionSource<bool> completed = TaskCompletionSource.Create<bool>();
+        TaskCompletionSource<bool> completed = new(TaskCreationOptions.RunContinuationsAsynchronously);
         OutboxLeaseFinalizeCoyoteInitEvent initEvent = new()
         {
             InjectDoubleFinalizeBug = OutboxLeaseFinalizeCoyoteBugGate.InjectDoubleFinalizeBug,
@@ -21,7 +22,7 @@ internal static class OutboxLeaseFinalizeCoyoteScenario
         ActorId controllerId = runtime.CreateActor(typeof(OutboxLeaseFinalizeCoyoteControllerActor), initEvent);
 
         for (int workerIndex = 0; workerIndex < WorkerCount; workerIndex++)
-            runtime.CreateActor(typeof(OutboxLeaseFinalizeCoyoteWorkerActor), controllerId);
+            runtime.CreateActor(typeof(OutboxLeaseFinalizeCoyoteWorkerActor), new OutboxLeaseFinalizeCoyoteWorkerInitEvent(controllerId));
 
         await completed.Task;
     }
