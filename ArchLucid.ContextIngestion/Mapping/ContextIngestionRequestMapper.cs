@@ -1,5 +1,8 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Requests;
+
+using System.Text.Json;
 
 namespace ArchLucid.ContextIngestion.Mapping;
 
@@ -30,6 +33,10 @@ public static class ContextIngestionRequestMapper
             SecurityBaselineHints = request.SecurityBaselineHints.ToList(),
             RequiredCapabilities = request.RequiredCapabilities.ToList(),
             Constraints = request.Constraints.ToList(),
+            Assumptions = request.Assumptions.ToList(),
+            ActorsJson = SerializeActors(request.DraftActors),
+            QualityAttribute = request.QualityAttributeSnapshot,
+            FailureModeNote = request.FailureModeNoteSnapshot,
             InfrastructureDeclarations = request.InfrastructureDeclarations
                 .Select(x => new InfrastructureDeclarationReference
                 {
@@ -37,5 +44,13 @@ public static class ContextIngestionRequestMapper
                 })
                 .ToList()
         };
+    }
+
+    private static string? SerializeActors(IReadOnlyList<ActorDescriptor> actors)
+    {
+        if (actors is not { Count: > 0 })
+            return null;
+
+        return JsonSerializer.Serialize(actors);
     }
 }

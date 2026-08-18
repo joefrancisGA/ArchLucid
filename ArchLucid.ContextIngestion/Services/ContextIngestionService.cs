@@ -1,6 +1,7 @@
 using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Persistence.Context;
 
 namespace ArchLucid.ContextIngestion.Services;
@@ -69,6 +70,23 @@ public class ContextIngestionService(
             snapshot.SourceHashes[ContextScopeMetadataKeys.Constraints] =
                 string.Join('|', request.Constraints.Where(static c => !string.IsNullOrWhiteSpace(c)));
         }
+
+        List<string> confirmedAssumptions = request.Assumptions
+            .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
+            .Select(static a => a.Trim())
+            .ToList();
+
+        if (confirmedAssumptions.Count > 0)
+            snapshot.SourceHashes[ContextScopeMetadataKeys.Assumptions] = string.Join('|', confirmedAssumptions);
+
+        if (!string.IsNullOrWhiteSpace(request.ActorsJson))
+            snapshot.SourceHashes[ContextScopeMetadataKeys.Actors] = request.ActorsJson;
+
+        if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(request.QualityAttribute))
+            snapshot.SourceHashes[ContextScopeMetadataKeys.QualityAttribute] = request.QualityAttribute!.Trim();
+
+        if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(request.FailureModeNote))
+            snapshot.SourceHashes[ContextScopeMetadataKeys.FailureModeNote] = request.FailureModeNote!.Trim();
 
         if (previous is null)
             return;

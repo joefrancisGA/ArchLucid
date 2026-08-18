@@ -80,6 +80,30 @@ public sealed class ArchitectureRequest
         set;
     } = [];
 
+    /// <summary>Structured actors from draft intake projected for graph materialization (TB-2344).</summary>
+    [JsonPropertyName("draftActors")]
+    public List<ActorDescriptor> DraftActors
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Confirmed structured-brief quality attribute snapshot (TB-2345).</summary>
+    [JsonPropertyName("qualityAttributeSnapshot")]
+    public string? QualityAttributeSnapshot
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Confirmed structured-brief failure-mode note snapshot (TB-2345).</summary>
+    [JsonPropertyName("failureModeNoteSnapshot")]
+    public string? FailureModeNoteSnapshot
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     Version string of an existing manifest that agents should use as a baseline when
     ///     proposing incremental changes. <see langword="null" /> for greenfield runs.

@@ -74,4 +74,29 @@ public class ContextIngestionRequest
         get;
         set;
     } = [];
+
+    public List<string> Assumptions
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>JSON array of <see cref="Architecture.ActorDescriptor" /> for graph actor materialization.</summary>
+    public string? ActorsJson
+    {
+        get;
+        set;
+    }
+
+    public string? QualityAttribute
+    {
+        get;
+        set;
+    }
+
+    public string? FailureModeNote
+    {
+        get;
+        set;
+    }
 }
