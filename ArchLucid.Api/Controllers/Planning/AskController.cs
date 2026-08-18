@@ -157,6 +157,7 @@ public sealed class AskController(
 
         bool hasBase = request.BaseRunId.HasValue;
         bool hasTarget = request.TargetRunId.HasValue;
+
         if (hasBase != hasTarget)
             return this.BadRequestProblem(
                 "Provide both baseRunId and targetRunId for comparison, or omit both.",
