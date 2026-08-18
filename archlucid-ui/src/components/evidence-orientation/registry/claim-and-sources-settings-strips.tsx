@@ -2,6 +2,7 @@
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import {
   BASELINE_SETTINGS_FOLLOW_UPS_TITLE,
   BASELINE_SETTINGS_SOURCES,
