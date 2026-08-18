@@ -229,6 +229,23 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().Contain("Beta");
     }
 
+    [SkippableFact]
+    public void GenerateMermaid_WithSemanticOverlay_ContainsRequirementAndDecisionNodes()
+    {
+        GoldenManifest manifest = CreateMinimalManifest();
+        manifest.Governance.PolicyConstraints.Add("Encrypt data at rest");
+        manifest.Governance.RequiredControls.Add("MFA for admins");
+        manifest.Metadata.DecisionTraceIds.Add("decision-trace-1");
+
+        string mermaid = _sut.GenerateMermaid(
+            manifest,
+            new ManifestDiagramOptions { IncludeSemanticOverlay = true });
+
+        mermaid.Should().Contain("semantic_overlay");
+        mermaid.Should().Contain("Requirement:");
+        mermaid.Should().Contain("Decision:");
+    }
+
     private static GoldenManifest CreateMinimalManifest()
     {
         return new GoldenManifest { RunId = Guid.NewGuid().ToString("N"), SystemName = "Test" };
