@@ -12,5 +12,17 @@ export const SESSION_EXPIRED_PAGE_METADATA_DESCRIPTION =
 /** TB-1314: Suspense fallback copy while search params hydrate. */
 export const SESSION_EXPIRED_LOADING_DETAIL = "Preparing session recovery…";
 
+export const SESSION_EXPIRED_PAGE_TITLE = "Session expired" as const;
+
+export const SESSION_EXPIRED_PRIMARY_CONTENT_ID = "session-expired-primary-content" as const;
+
+export const SESSION_EXPIRED_SKIP_LINK_LABEL = "Skip to session recovery content" as const;
+
+export const SESSION_EXPIRED_BREADCRUMB_HUB_LABEL = "Welcome" as const;
+
+export const SESSION_EXPIRED_BREADCRUMB_HUB_PATH = "/welcome" as const;
+
+export const SESSION_EXPIRED_BREADCRUMB_TOPIC_TITLE = SESSION_EXPIRED_PAGE_TITLE;
+
 /** Framed for idle-timeout recovery when OIDC cannot start — not "Access request" (TB-1316). */
 export const SESSION_EXPIRED_SIGN_IN_ERROR_TITLE = "Sign-in could not start";
