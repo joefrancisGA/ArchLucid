@@ -131,9 +131,10 @@ describe("OperatorHomePageView", () => {
     expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
   });
 
-  it("orders buyer-polished home as hero, workspace activity, then explore sample without advanced guidance", () => {
+  it("orders buyer-polished home as orientation, hero, workspace activity, then explore sample without advanced guidance", () => {
     render(<OperatorHomePageView model={mockHomeModel(true)} />);
 
+    expect(screen.getByTestId("operator-home-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-hero-section")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-runs-dashboard")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-explore-sample")).toBeInTheDocument();
@@ -141,10 +142,12 @@ describe("OperatorHomePageView", () => {
     expect(screen.queryByTestId("home-block-workspace-status")).toBeNull();
     expect(screen.queryByTestId("home-block-example-request")).toBeNull();
 
+    const orientationTop = screen.getByTestId("operator-home-orientation-top");
     const heroSection = screen.getByTestId("operator-home-hero-section");
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
     const exploreSample = screen.getByTestId("home-block-explore-sample");
 
+    expect(orientationTop.compareDocumentPosition(heroSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(heroSection.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(runsDashboard.compareDocumentPosition(exploreSample) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
