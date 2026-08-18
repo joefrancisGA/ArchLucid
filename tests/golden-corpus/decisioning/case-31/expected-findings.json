@@ -18,13 +18,15 @@
     ]
   },
   {
-    "findingId": "5483bd3e-82c1-fbac-3665-dddab961e6ae",
+    "findingId": "de26596c-e48a-2605-c347-168220371ea2",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
-    "relatedNodeIds": [],
+    "relatedNodeIds": [
+      "ledger-archive"
+    ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [
       "security-coverage-protection"

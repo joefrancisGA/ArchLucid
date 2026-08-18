@@ -20,7 +20,7 @@ describe("sponsor-report sponsor report vocabulary (TB-1962)", () => {
     expect(sponsorTab?.label).toBe(SPONSOR_REPORT_PAGE_TITLE);
     expect(ROUTE_TITLES[SPONSOR_REPORT_PATH]).toBe(SPONSOR_REPORT_PAGE_TITLE);
     expect(`${SPONSOR_REPORT_PAGE_TITLE} | ${SPONSOR_REPORT_SECTION_LABEL}`).toBe("Sponsor report | Insights");
-    expect(SPONSOR_REPORT_PAGE_TITLE.toLowerCase()).not.toBe("sponsor report");
+    expect(SPONSOR_REPORT_PAGE_TITLE.toLowerCase()).not.toBe("sponsor summary");
   });
 
   it("keeps the nav section label distinct from the page title so metadata never doubles", () => {

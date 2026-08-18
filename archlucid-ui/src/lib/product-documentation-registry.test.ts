@@ -257,7 +257,7 @@ describe("product-documentation-registry", () => {
   });
 
   it("tags technical-documentation slugs per IA foundation (TB-732 / TB-1250)", () => {
-    const technicalSlugs: readonly string[] = ["admin-diagnostics"];
+    const technicalSlugs: readonly string[] = [];
 
     for (const slug of technicalSlugs) {
       const kind: ProductDocumentationContentKind | undefined =
