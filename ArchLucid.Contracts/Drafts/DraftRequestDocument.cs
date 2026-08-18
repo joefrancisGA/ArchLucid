@@ -122,4 +122,12 @@ public sealed class DraftRequestDocument
         get;
         set;
     } = new();
+
+    /// <summary>Prior committed run id for semantic inheritance on second reviews (TB-2350).</summary>
+    [JsonPropertyName("priorRunId")]
+    public string? PriorRunId
+    {
+        get;
+        set;
+    }
 }

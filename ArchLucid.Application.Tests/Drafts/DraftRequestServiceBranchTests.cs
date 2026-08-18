@@ -70,6 +70,7 @@ public sealed class DraftRequestServiceBranchTests
             _runCreateOrchestrator.Object,
             _contentSafety.Object,
             verdictBuilder,
+            Mock.Of<IPriorPackageSemanticMergeService>(),
             new FixedDraftIntakeBranchOptionsMonitor(new DraftIntakeBranchOptions { MaxBranchesPerParentDraft = 3 }));
     }
 
