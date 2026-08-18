@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthDomainsPageClient } from "./AuthDomainsPageClient";
 import {
@@ -17,8 +17,10 @@ import {
   AUTH_DOMAINS_SET_ENFORCEMENT_CONFIRM_TITLE,
   AUTH_DOMAINS_SET_ENFORCEMENT_DOWNGRADE_CONFIRM_TITLE,
 } from "@/lib/auth-domains-confirm-copy";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   AUTH_DOMAINS_ADD_DOMAIN_READINESS,
+  AUTH_DOMAINS_ADMIN_AUTHORITY_BLOCKED_LABEL,
   AUTH_DOMAINS_ADMIN_AUTHORITY_READY_LABEL,
   AUTH_DOMAINS_AUTHENTICATION_HELP_CTA,
   AUTH_DOMAINS_EMPTY_TITLE,
@@ -48,6 +50,22 @@ vi.mock("@/lib/admin-auth-domains-api", () => ({
   addTenantAuthDomainRecoveryAdmin: vi.fn(),
   removeTenantAuthDomainRecoveryAdmin: vi.fn(),
 }));
+
+// Hoisted so individual tests can lower the caller rank without re-mocking the provider module.
+const authorityState = { callerAuthorityRank: AUTHORITY_RANK.AdminAuthority };
+
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/components/operator/OperatorNavAuthorityProvider")>();
+
+  return {
+    ...actual,
+    useOperatorNavAuthority: () => ({
+      ...actual.useOperatorNavAuthority(),
+      callerAuthorityRank: authorityState.callerAuthorityRank,
+    }),
+  };
+});
 
 vi.mock("@/lib/operator/operator-scope-storage", () => ({
   readOperatorScopeFromStorage: () => ({
@@ -93,6 +111,10 @@ const readyReadiness = {
 };
 
 describe("AuthDomainsPageClient", () => {
+  beforeEach(() => {
+    authorityState.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
     vi.restoreAllMocks();
@@ -131,7 +153,7 @@ describe("AuthDomainsPageClient", () => {
       "href",
       inAppHelpHref("authentication-sign-in"),
     );
-    expect(screen.queryByTestId("auth-domains-settings-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("auth-domains-settings-claim-discipline")).toBeInTheDocument();
 
     for (const source of AUTH_DOMAINS_SETTINGS_SOURCES) {
       expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
@@ -362,6 +384,54 @@ describe("AuthDomainsPageClient", () => {
     expect(screen.getByTestId("operator-error-recovery-what-failed")).toBeInTheDocument();
     expect(screen.getByTestId("operator-error-recovery-intact")).toBeInTheDocument();
     expect(screen.getByTestId("operator-error-recovery-next-step")).toBeInTheDocument();
+  });
+
+  it("disables mutating controls and names the missing authority below admin rank", async () => {
+    authorityState.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
+    vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
+    vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
+
+    render(<AuthDomainsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("auth-domains-admin-authority-tag")).toHaveTextContent(
+      AUTH_DOMAINS_ADMIN_AUTHORITY_BLOCKED_LABEL,
+    );
+    expect(screen.getByTestId("auth-domains-admin-authority-disabled-hint")).toHaveTextContent(
+      AUTH_DOMAINS_ADMIN_AUTHORITY_READY_LABEL,
+    );
+
+    fireEvent.click(screen.getByTestId("auth-domain-row-example.com"));
+
+    expect(screen.getByTestId("auth-domains-start-verification")).toBeDisabled();
+    expect(screen.getByTestId("auth-domains-preview-routing")).toBeDisabled();
+    expect(screen.getByTestId("auth-domains-enforcement-required")).toBeDisabled();
+    expect(screen.getByTestId("auth-domains-enable-enforcement")).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("auth-domains-enforcement-required"));
+
+    expect(setTenantAuthDomainEnforcement).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("auth-domains-inline-error")).not.toBeInTheDocument();
+  });
+
+  it("keeps mutating controls available at admin rank", async () => {
+    vi.mocked(fetchTenantAuthDomains).mockResolvedValue([sampleDomain]);
+    vi.mocked(fetchTenantAuthDomainEnforcementReadiness).mockResolvedValue(readyReadiness);
+
+    render(<AuthDomainsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-domain-row-example.com")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-domain-row-example.com"));
+
+    expect(screen.queryByTestId("auth-domains-admin-authority-disabled-hint")).not.toBeInTheDocument();
+    expect(screen.getByTestId("auth-domains-start-verification")).not.toBeDisabled();
+    expect(screen.getByTestId("auth-domains-enforcement-required")).not.toBeDisabled();
   });
 
   it("disables add domain while propose is in flight", async () => {

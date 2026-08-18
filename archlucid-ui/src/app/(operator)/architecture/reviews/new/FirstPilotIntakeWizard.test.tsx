@@ -91,6 +91,7 @@ function prepareQuickStartEvidenceReady(): void {
   fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
   satisfyAllQuickStartL0MustQuestions();
   confirmScopeUnderstanding();
+  fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
 }
 
 describe("FirstPilotIntakeWizard", () => {

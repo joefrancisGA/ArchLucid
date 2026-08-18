@@ -190,7 +190,7 @@ describe("RunsListClient inspector", () => {
     );
 
     expect(screen.getByRole("heading", { name: /finalized architecture reviews/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^finalized packages$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /show:\s*finalized packages/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Search reviews by title or description/i)).toBeInTheDocument();
   });
 
@@ -230,7 +230,7 @@ describe("RunsListClient inspector", () => {
     expect(screen.getByTestId(`runs-row-${inFlight.runId}`)).toBeInTheDocument();
     expect(screen.getByTestId(`runs-row-${committed.runId}`)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /^finalized packages$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /show:\s*finalized packages/i }));
 
     expect(screen.queryByTestId(`runs-row-${inFlight.runId}`)).toBeNull();
     expect(screen.getByTestId(`runs-row-${committed.runId}`)).toBeInTheDocument();

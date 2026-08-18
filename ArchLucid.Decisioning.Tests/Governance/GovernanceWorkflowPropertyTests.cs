@@ -94,9 +94,20 @@ public sealed class GovernanceWorkflowPropertyTests
                     It.IsAny<string?>(),
                     It.IsAny<string?>(),
                     It.IsAny<DateTime>(),
-                    It.IsAny<CancellationToken>()))
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<IDbConnection?>(),
+                    It.IsAny<IDbTransaction?>()))
             .Callback(
-                (string _, string newStatus, string _, string? _, string? _, DateTime _, CancellationToken _) =>
+                (
+                    string _,
+                    string newStatus,
+                    string _,
+                    string? _,
+                    string? _,
+                    DateTime _,
+                    CancellationToken _,
+                    IDbConnection? _,
+                    IDbTransaction? _) =>
                     transitionedTo = newStatus)
             .ReturnsAsync(true);
 
@@ -130,9 +141,20 @@ public sealed class GovernanceWorkflowPropertyTests
                     It.IsAny<string?>(),
                     It.IsAny<string?>(),
                     It.IsAny<DateTime>(),
-                    It.IsAny<CancellationToken>()))
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<IDbConnection?>(),
+                    It.IsAny<IDbTransaction?>()))
             .Callback(
-                (string _, string newStatus, string _, string? _, string? _, DateTime _, CancellationToken _) =>
+                (
+                    string _,
+                    string newStatus,
+                    string _,
+                    string? _,
+                    string? _,
+                    DateTime _,
+                    CancellationToken _,
+                    IDbConnection? _,
+                    IDbTransaction? _) =>
                     transitionedTo = newStatus)
             .ReturnsAsync(true);
 
