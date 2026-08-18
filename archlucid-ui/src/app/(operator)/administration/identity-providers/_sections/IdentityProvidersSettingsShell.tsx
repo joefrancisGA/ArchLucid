@@ -23,6 +23,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { IdentityProvidersSettingsPageHeader } from "./IdentityProvidersSettingsPageHeader";
 const NAV_ITEMS: ReadonlyArray<{ readonly id: IdentityProvidersNavId; readonly label: string; readonly href: string }> = [
   { id: "overview", label: IDENTITY_PROVIDERS_NAV_OVERVIEW, href: "/administration/identity-providers" },
@@ -89,6 +90,9 @@ export type IdentityProvidersSettingsShellProps = {
   readonly lastRefreshedAt: Date | null;
   readonly diagnosticsDataUnavailable?: boolean;
   readonly showAdminFallbackNotice?: boolean;
+  readonly headerBreadcrumb?: React.ReactNode;
+  readonly primaryContentId?: string;
+  readonly skipLinkLabel?: string;
   readonly onRefresh: () => void;
   readonly children: React.ReactNode;
 };
@@ -107,76 +111,91 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="identity-providers-settings-shell">
-      <IdentityProvidersSettingsPageHeader
-        pageTitle={resolvedTitle}
-        subtitle={headerSubtitle}
-        statusLabel={
-          props.statusBadgeReady === false
-            || props.diagnosticsDataUnavailable === true
-            || props.overview?.headerStatusAvailable === false
-            ? undefined
-            : resolveHeaderStatusLabel(activeNavId, props.overview)
+      {props.skipLinkLabel !== undefined && props.primaryContentId !== undefined ? (
+        <a href={`#${props.primaryContentId}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {props.skipLinkLabel}
+        </a>
+      ) : null}
+
+      <div
+        id={props.primaryContentId}
+        data-testid={
+          props.primaryContentId !== undefined ? "identity-providers-settings-primary-content" : undefined
         }
-        refreshing={props.refreshing}
-        lastRefreshedAt={props.lastRefreshedAt}
-        diagnosticsDataUnavailable={props.diagnosticsDataUnavailable}
-        onRefresh={props.onRefresh}
-      />
+        className={props.primaryContentId !== undefined ? cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack) : OPERATOR_LAYOUT.sectionStack}
+      >
+        <IdentityProvidersSettingsPageHeader
+          pageTitle={resolvedTitle}
+          subtitle={headerSubtitle}
+          breadcrumb={props.headerBreadcrumb}
+          statusLabel={
+            props.statusBadgeReady === false
+              || props.diagnosticsDataUnavailable === true
+              || props.overview?.headerStatusAvailable === false
+              ? undefined
+              : resolveHeaderStatusLabel(activeNavId, props.overview)
+          }
+          refreshing={props.refreshing}
+          lastRefreshedAt={props.lastRefreshedAt}
+          diagnosticsDataUnavailable={props.diagnosticsDataUnavailable}
+          onRefresh={props.onRefresh}
+        />
 
-      {isOverviewPage ? (
-        <div className="space-y-2">
-          {!buyerPolishedShell ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {IDENTITY_PROVIDERS_PAGE_INTRO}
+        {isOverviewPage ? (
+          <div className="space-y-2">
+            {!buyerPolishedShell ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                {IDENTITY_PROVIDERS_PAGE_INTRO}
+              </p>
+            ) : null}
+            <p
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="identity-providers-safety-notice"
+            >
+              {IDENTITY_PROVIDERS_SAFETY_NOTICE}
             </p>
-          ) : null}
+          </div>
+        ) : null}
+
+        {props.showAdminFallbackNotice === true ? (
           <p
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="identity-providers-safety-notice"
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="identity-providers-admin-fallback-notice"
           >
-            {IDENTITY_PROVIDERS_SAFETY_NOTICE}
+            {IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE}
           </p>
-        </div>
-      ) : null}
+        ) : null}
 
-      {props.showAdminFallbackNotice === true ? (
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="identity-providers-admin-fallback-notice"
-        >
-          {IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE}
-        </p>
-      ) : null}
+        <nav aria-label="Identity provider sections" data-testid="identity-providers-settings-nav">
+          <ul className="flex flex-wrap gap-2">
+            {NAV_ITEMS.map((item) => {
+              const active = item.id === activeNavId;
 
-      <nav aria-label="Identity provider sections" data-testid="identity-providers-settings-nav">
-        <ul className="flex flex-wrap gap-2">
-          {NAV_ITEMS.map((item) => {
-            const active = item.id === activeNavId;
+              return (
+                <li key={item.id}>
+                  <Link
+                    href={item.href}
+                    prefetch={false}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "inline-flex min-h-[30px] items-center rounded-full border px-3 py-1 transition-colors",
+                      OPERATOR_TYPOGRAPHY.badge,
+                      active
+                        ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
+                        : cn("border-neutral-300 text-al-text-primary hover:border-neutral-400 dark:border-neutral-700", OPERATOR_LINK.nav),
+                    )}
+                    data-testid={`identity-providers-nav-${item.id}`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
 
-            return (
-              <li key={item.id}>
-                <Link
-                  href={item.href}
-                  prefetch={false}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "inline-flex min-h-[30px] items-center rounded-full border px-3 py-1 transition-colors",
-                    OPERATOR_TYPOGRAPHY.badge,
-                    active
-                      ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
-                      : cn("border-neutral-300 text-al-text-primary hover:border-neutral-400 dark:border-neutral-700", OPERATOR_LINK.nav),
-                  )}
-                  data-testid={`identity-providers-nav-${item.id}`}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-
-      {props.children}
+        {props.children}
+      </div>
     </OperatorPageContainer>
   );
 }

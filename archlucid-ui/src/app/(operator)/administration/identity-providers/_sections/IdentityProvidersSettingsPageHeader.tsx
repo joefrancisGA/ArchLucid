@@ -15,6 +15,7 @@ import {
 } from "@/components/usability/PageContextualHelpButton";
 import { resolveAuthDomainsCurrentWorkspaceLabel } from "@/lib/auth-domains-page-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { identityProviderCustomerStatusPresentation } from "@/lib/identity-provider-probe-status-presentation";
 import {
   IDENTITY_PROVIDERS_ACTION_REFRESHING,
@@ -34,6 +35,7 @@ import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-stor
 export type IdentityProvidersSettingsPageHeaderProps = {
   readonly pageTitle?: string;
   readonly subtitle: string;
+  readonly breadcrumb?: React.ReactNode;
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
   readonly diagnosticsDataUnavailable?: boolean;
@@ -47,6 +49,9 @@ export function IdentityProvidersSettingsPageHeader(
 ): React.JSX.Element {
   const pathname = usePathname();
   const pageTitle = props.pageTitle ?? IDENTITY_PROVIDERS_PAGE_TITLE;
+  const onOverviewPage = pageTitle === IDENTITY_PROVIDERS_PAGE_TITLE;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const showContextualHelp = !(buyerPolishedShell && !onOverviewPage);
   const onDiagnosticsPage = pathname.startsWith(IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF);
   const onOidcPage = pathname.startsWith("/administration/identity-providers/oidc");
   const onSamlPage = pathname.startsWith("/administration/identity-providers/saml");
@@ -78,6 +83,7 @@ export function IdentityProvidersSettingsPageHeader(
       title={pageTitle}
       titleTestId="identity-providers-page-title"
       subtitle={props.subtitle}
+      breadcrumb={props.breadcrumb}
       statusBadge={
         statusPresentation !== null ? (
           <StatusTag
@@ -89,7 +95,9 @@ export function IdentityProvidersSettingsPageHeader(
       }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="identity-providers-header-actions">
-          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+          {showContextualHelp ? (
+            <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+          ) : null}
           <RefreshButton
             busy={props.refreshing}
             data-testid="identity-providers-refresh-button"

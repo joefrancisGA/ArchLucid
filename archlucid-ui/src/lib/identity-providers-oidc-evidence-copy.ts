@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF } from "@/lib/identity-providers-settings-copy";
 
 export const IDENTITY_PROVIDERS_OIDC_CANONICAL_PATH =
   "/administration/identity-providers/oidc" as const;
@@ -19,3 +20,14 @@ export const IDENTITY_PROVIDERS_OIDC_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Identity diagnostics", href: "/administration/identity-providers/diagnostics" },
   { label: "Assurance status", href: "/assurance-status" },
 ] as const;
+
+const IDENTITY_PROVIDERS_OIDC_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([
+  IDENTITY_PROVIDERS_DIAGNOSTICS_LINK_HREF,
+  "/administration/identity/sso-wizard",
+]);
+
+/** Orientation-strip Sources — excludes on-page diagnostics and SSO wizard CTAs. */
+export const IDENTITY_PROVIDERS_OIDC_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =
+  IDENTITY_PROVIDERS_OIDC_SOURCES.filter(
+    (source) => !IDENTITY_PROVIDERS_OIDC_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+  );
