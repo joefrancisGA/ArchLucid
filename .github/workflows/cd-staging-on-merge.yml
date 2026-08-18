@@ -49,13 +49,13 @@ jobs:
     env:
       TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           # Full history so schema gate can resolve LKG BUILD_ID vs failed BUILD_ID.
           fetch-depth: 0
 
-      - uses: azure/login@v2
+      - uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -386,7 +386,7 @@ jobs:
 
       - name: Upload last-known-good artifact
         if: steps.lineage_gate.outputs.deploy_ran == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.capture_lkg.outputs.artifact_name }}
           path: artifacts/cd-last-known-good-*.json
@@ -502,7 +502,7 @@ jobs:
           echo "verify_result=success" >> "$GITHUB_OUTPUT"
           echo "All deployed revisions verified — images match expected digest from this build."
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           cache: true
@@ -588,7 +588,7 @@ jobs:
 
       - name: Upload product-path smoke summary
         if: always() && steps.smoke_product.outcome != 'skipped'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cd-product-smoke-staging-${{ github.run_id }}
           path: |
@@ -622,7 +622,7 @@ jobs:
 
       - name: Upload deployment evidence (Markdown)
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: deployment-evidence-staging-${{ github.run_id }}
           path: artifacts/deployment-evidence-staging-${{ github.run_id }}.md
@@ -756,7 +756,7 @@ jobs:
 
       - name: Upload rollback report
         if: always() && steps.lineage_gate.outputs.deploy_ran == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cd-rollback-staging-${{ github.run_id }}
           path: artifacts/cd-rollback/
@@ -796,7 +796,7 @@ jobs:
 
       - name: Upload deployment lineage artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: deployment-lineage-staging-${{ github.run_id }}
           path: artifacts/deployment-lineage-staging-${{ github.run_id }}.*

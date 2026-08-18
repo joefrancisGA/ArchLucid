@@ -60,10 +60,10 @@ jobs:
           fi
           echo "skipped=false" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: steps.gate.outputs.skipped != 'true'
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         if: steps.gate.outputs.skipped != 'true'
         with:
           python-version: "3.12"
@@ -74,7 +74,7 @@ jobs:
 
       - name: Azure login (Cost Management / management plane)
         if: steps.gate.outputs.skipped != 'true' && inputs.skip_budget_probe != true
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -93,7 +93,7 @@ jobs:
         run: |
           echo "Budget probe exit ${{ steps.budget.outputs.exit_code }} — real-mode staging smoke skipped (workflow stays green)."
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v6
         if: steps.gate.outputs.skipped != 'true' && (inputs.skip_budget_probe == true || steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1')
         with:
           global-json-file: global.json

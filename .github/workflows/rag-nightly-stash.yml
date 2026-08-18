@@ -32,7 +32,7 @@ jobs:
     environment: dev
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Skip when RAG_STASH_NIGHTLY is not enabled
         if: vars.RAG_STASH_NIGHTLY != 'true'
@@ -40,7 +40,7 @@ jobs:
 
       - name: Azure login (OIDC)
         if: vars.RAG_STASH_NIGHTLY == 'true'
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}

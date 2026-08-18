@@ -16,7 +16,7 @@ jobs:
     if: github.event.repository.fork == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: TB-683 eligibility
         id: eligibility
@@ -34,7 +34,7 @@ jobs:
         run: |
           echo "Nightly real-mode eval skipped — set repository variable ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true to enable."
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         if: steps.eligibility.outputs.enabled == 'true'
         with:
           python-version: "3.12"
@@ -110,7 +110,7 @@ jobs:
         run: |
           echo "::warning::Golden cohort budget kill-switch tripped; TB-683 nightly eval skipped for this run."
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: steps.eligibility.outputs.enabled == 'true' && always()
         with:
           name: real-mode-eval-nightly-${{ github.run_id }}
