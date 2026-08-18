@@ -40,4 +40,46 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuardTests
 
         otherTenant.Should().BeFalse();
     }
+
+    [Fact]
+    public async Task TryClaimAsync_only_first_concurrent_caller_wins()
+    {
+        using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+        MemoryCacheItsmInboundWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        const int parallelClaims = 16;
+        using Barrier startBarrier = new(parallelClaims);
+        Task<bool>[] tasks = new Task<bool>[parallelClaims];
+
+        for (int index = 0; index < parallelClaims; index++)
+        {
+            tasks[index] = Task.Run(async () =>
+            {
+                startBarrier.SignalAndWait();
+
+                return await sut.TryClaimAsync(TenantA, "Jira", "delivery-concurrent", CancellationToken.None);
+            });
+        }
+
+        bool[] results = await Task.WhenAll(tasks);
+
+        results.Count(claimed => claimed).Should().Be(1);
+        results.Count(claimed => !claimed).Should().Be(parallelClaims - 1);
+    }
+
+    [Fact]
+    public async Task ReleaseAsync_after_TryClaimAsync_allows_a_new_claim()
+    {
+        using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+        MemoryCacheItsmInboundWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        bool first = await sut.TryClaimAsync(TenantA, "Jira", "delivery-retry", CancellationToken.None);
+        bool blocked = await sut.TryClaimAsync(TenantA, "Jira", "delivery-retry", CancellationToken.None);
+        await sut.ReleaseAsync(TenantA, "Jira", "delivery-retry", CancellationToken.None);
+        bool afterRelease = await sut.TryClaimAsync(TenantA, "Jira", "delivery-retry", CancellationToken.None);
+
+        first.Should().BeTrue();
+        blocked.Should().BeFalse();
+        afterRelease.Should().BeTrue();
+    }
 }

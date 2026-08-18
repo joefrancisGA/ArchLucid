@@ -31,7 +31,7 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuard(IMemoryCache memory
     }
 
     /// <inheritdoc />
-    public Task RememberAsync(
+    public Task<bool> TryClaimAsync(
         Guid tenantId,
         string providerName,
         string eventId,
@@ -42,24 +42,54 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuard(IMemoryCache memory
         ArgumentException.ThrowIfNullOrWhiteSpace(providerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(eventId);
 
-        MemoryCacheEntryOptions entryOptions = new()
-        {
-            AbsoluteExpiration = _clock.GetUtcNow().Add(Retention),
-            Size = 1,
-        };
+        bool claimed = false;
 
-        // GetOrCreate avoids a check-then-set race under concurrent duplicate deliveries.
         _ = _memoryCache.GetOrCreate(
             BuildCacheKey(tenantId, providerName, eventId),
             entry =>
             {
-                entry.AbsoluteExpiration = entryOptions.AbsoluteExpiration;
-                entry.Size = entryOptions.Size;
+                claimed = true;
+                ConfigureEntry(entry);
 
                 return true;
             });
 
+        return Task.FromResult(claimed);
+    }
+
+    /// <inheritdoc />
+    public Task RememberAsync(
+        Guid tenantId,
+        string providerName,
+        string eventId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = TryClaimAsync(tenantId, providerName, eventId, cancellationToken);
+
         return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task ReleaseAsync(
+        Guid tenantId,
+        string providerName,
+        string eventId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = cancellationToken;
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(providerName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventId);
+
+        _memoryCache.Remove(BuildCacheKey(tenantId, providerName, eventId));
+
+        return Task.CompletedTask;
+    }
+
+    private void ConfigureEntry(ICacheEntry entry)
+    {
+        entry.AbsoluteExpiration = _clock.GetUtcNow().Add(Retention);
+        entry.Size = 1;
     }
 
     internal static string BuildCacheKey(Guid tenantId, string providerName, string eventId) =>
