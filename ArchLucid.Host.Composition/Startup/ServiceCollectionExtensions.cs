@@ -132,6 +132,8 @@ public static partial class ServiceCollectionExtensions
         RegisterRetrieval(services, configuration);
         RegisterGovernance(services, configuration);
         services.AddArchitectureIntelligence();
+        services.Configure<ArchitectureIntelligencePipelineOptions>(
+            configuration.GetSection(ArchitectureIntelligencePipelineOptions.SectionPath));
         services.Configure<AuthorityPipelineWorkProcessorOptions>(
             configuration.GetSection(AuthorityPipelineWorkProcessorOptions.SectionName));
         services.Configure<RetrievalIndexingOutboxProcessorOptions>(

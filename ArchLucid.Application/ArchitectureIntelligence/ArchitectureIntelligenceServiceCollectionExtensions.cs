@@ -81,5 +81,6 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IArtifactRoundTripService, ArtifactRoundTripService>();
         services.AddScoped<IClosedLoopArchitectureReasoningOrchestrator, ClosedLoopArchitectureReasoningOrchestrator>();
         services.AddScoped<IGoldenArchitectureTestRunner, GoldenArchitectureTestRunner>();
+        services.AddScoped<IAuthorityClosedLoopStrengtheningPass, AuthorityClosedLoopStrengtheningPass>();
     }
 }

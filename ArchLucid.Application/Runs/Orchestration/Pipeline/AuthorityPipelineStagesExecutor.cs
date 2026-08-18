@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
@@ -51,6 +52,7 @@ public sealed class AuthorityPipelineStagesExecutor(
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     IFindingsSnapshotEvaluationConfidenceEnricher findingsSnapshotEvaluationConfidenceEnricher,
     IRunStageOutcomesRepository runStageOutcomesRepository,
+    IAuthorityClosedLoopStrengtheningPass closedLoopStrengtheningPass,
     ILogger<AuthorityPipelineStagesExecutor> logger) : IAuthorityPipelineStagesExecutor
 {
     private readonly AuthorityPipelineStageContextHydrator _stageContextHydrator =
@@ -125,6 +127,9 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
         runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
+
+    private readonly IAuthorityClosedLoopStrengtheningPass _closedLoopStrengtheningPass =
+        closedLoopStrengtheningPass ?? throw new ArgumentNullException(nameof(closedLoopStrengtheningPass));
 
     private static readonly string[] PipelineStageSequence = AuthorityPipelineStageNames.Sequence;
 
@@ -299,6 +304,13 @@ public sealed class AuthorityPipelineStagesExecutor(
 
             ctx.Manifest = manifest;
             ctx.Trace = trace;
+
+            await _closedLoopStrengtheningPass.TryStrengthenManifestAsync(
+                scope,
+                run,
+                ctx.Request,
+                manifest,
+                token);
 
             if (trace is not RuleAuditTraceDto)
                 throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
