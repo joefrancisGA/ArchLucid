@@ -882,10 +882,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-17
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-18
 - **last-bug:** 2026-08-17
 - **related-pd-tb:** none
 - **code-changed-since:** 15
@@ -894,7 +894,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] Page shows recommendations for a package outside the current workspace ΓÇö fixed: clear `runState` when inbound `runId` changes
 - [x] Stale query data from the previous tenant remains after scope switch ΓÇö fixed: reset intake + reasoning on operator scope key change
-- [ ] Error state is omitted so a failed load looks like an empty architecture
+- [x] Error state is omitted so a failed load looks like an empty architecture — (valid-no-repro): `ArchitectureIntelligenceProductContextLoadFailure` renders on HTTP failure; covered by `shows intake load failure with retry when deep-linked product context fails` in `ArchitectureIntelligencePageClient.buyer-polished.test.tsx`
+- [ ] (candidate) Deep-linked run with empty `sourceTexts` and no `from` param shows "Scoped to run" without empty-intake notice — locus: `use-architecture-intelligence-page.ts` `inboundContextLine` default branch when `productContextStatus === "empty"`
 
 ---
 
