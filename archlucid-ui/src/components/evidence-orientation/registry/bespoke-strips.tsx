@@ -18,6 +18,9 @@ import { cn } from "@/lib/utils";
 import { EVIDENCE_CLAIM_STYLE, EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE,
+  CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING,
+  CONNECT_GCP_SECURELY_CLAIM_HEADING_ID,
+  CONNECT_GCP_SECURELY_FOLLOW_UPS_TITLE,
   CONNECT_GCP_SECURELY_SOURCES,
   CONNECT_GCP_SECURELY_SOURCES_INTRO,
 } from "@/lib/connect-gcp-securely-help-evidence-copy";
@@ -97,8 +100,6 @@ export function CaiqSigResponseHelpEvidenceOrientationStrip(): React.JSX.Element
   );
 }
 
-export const CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING = "Connector setup orientation";
-
 export function ConnectGcpSecurelyHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationStripShell testId="connect-gcp-securely-help-orientation">
@@ -107,16 +108,15 @@ export function ConnectGcpSecurelyHelpEvidenceOrientationStrip(): React.JSX.Elem
         body={CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE}
         style={EVIDENCE_CLAIM_STYLE.operatorInfo}
         heading={{
-          id: "connect-gcp-securely-help-claim-discipline-heading",
+          id: CONNECT_GCP_SECURELY_CLAIM_HEADING_ID,
           text: CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING,
-          visuallyHidden: true,
         }}
       />
 
       <EvidenceOrientationSourcesSection
         testId="connect-gcp-securely-help-sources"
         headingId="connect-gcp-securely-help-sources-heading"
-        title={HELP_DILIGENCE_ARTIFACT_INDEX_TITLE}
+        title={CONNECT_GCP_SECURELY_FOLLOW_UPS_TITLE}
         intro={CONNECT_GCP_SECURELY_SOURCES_INTRO}
         links={CONNECT_GCP_SECURELY_SOURCES}
       />

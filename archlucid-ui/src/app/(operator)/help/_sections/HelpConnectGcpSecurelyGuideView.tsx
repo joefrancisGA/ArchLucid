@@ -3,17 +3,16 @@ import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 
 import { GcpWifStarterPanel } from "@/app/(operator)/integrations/cloud-connections/_sections/GcpWifStarterPanel";
+import { HelpConnectGcpSecurelyHeaderActions } from "@/app/(operator)/help/_sections/HelpConnectGcpSecurelyHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ConnectGcpSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectGcpSecurelyHelpEvidenceOrientationStrip";
-import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
+import { HelpConnectGcpSecurelyBreadcrumb } from "@/components/help/HelpConnectGcpSecurelyBreadcrumb";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
-import { CLOUD_CONNECTIONS_HELP_PAGE_TITLE, CLOUD_CONNECTIONS_HELP_PATH } from "@/lib/cloud-connections-help-guide-content";
+import { Button } from "@/components/ui/button";
 import {
   CONNECT_GCP_SECURELY_BACK_TO_CONNECTIONS,
   CONNECT_GCP_SECURELY_CONFIGURE_ACTION,
@@ -43,6 +42,10 @@ import {
   CONNECT_GCP_SECURELY_VERIFICATION_HEADING,
   CONNECT_GCP_SECURELY_WIF_IDENTITY_INTRO,
 } from "@/lib/connect-gcp-securely-help-content";
+import {
+  CONNECT_GCP_SECURELY_HELP_PRIMARY_CONTENT_ID,
+  CONNECT_GCP_SECURELY_HELP_SKIP_LINK_LABEL,
+} from "@/lib/connect-gcp-securely-help-page-copy";
 import {
   GCP_CLOUD_CONNECTION_API_PREREQUISITES,
   GCP_CLOUD_CONNECTION_PERMISSION_ROWS,
@@ -156,6 +159,13 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[68rem]")}
       data-testid="help-connect-gcp-securely-guide"
     >
+      <a
+        href={`#${CONNECT_GCP_SECURELY_HELP_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {CONNECT_GCP_SECURELY_HELP_SKIP_LINK_LABEL}
+      </a>
+
       <HelpTopicHashScroll />
 
       <OperatorPageHeader
@@ -164,6 +174,7 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
         subtitle={entry.summary}
         headingLevel="h1"
         navHref="/help/cloud-connections/gcp"
+        breadcrumb={<HelpConnectGcpSecurelyBreadcrumb topicTitle={entry.title} />}
         metadata={
           <div className="space-y-2">
             <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -178,16 +189,15 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
             <HelpTopicRegistryProvenanceLine entry={entry} />
           </div>
         }
-        actions={
-          <div className="flex flex-wrap items-center gap-2" data-testid="help-connect-gcp-securely-header-actions">
-            <PageContextualHelpButton />
-            <Button asChild size="sm" variant="primary" data-testid="connect-gcp-configure-action">
-              <Link href={CONNECT_GCP_SECURELY_CONFIGURE_HREF}>{CONNECT_GCP_SECURELY_CONFIGURE_ACTION}</Link>
-            </Button>
-            <HelpTopicPrintButton entry={entry} />
-          </div>
-        }
+        actions={<HelpConnectGcpSecurelyHeaderActions entry={entry} />}
       />
+
+      <div
+        id={CONNECT_GCP_SECURELY_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+        data-testid="help-connect-gcp-securely-primary-content"
+      >
+      <ConnectGcpSecurelyHelpEvidenceOrientationStrip />
 
       <div className="space-y-3">
         <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{CONNECT_GCP_SECURELY_PAGE_LEAD}</p>
@@ -201,8 +211,6 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
           {CONNECT_GCP_SECURELY_SCHEDULED_COLLECTION_NOTE}
         </p>
       </div>
-
-      <ConnectGcpSecurelyHelpEvidenceOrientationStrip />
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className="min-w-0 space-y-8" data-testid="help-connect-gcp-securely-primary">
@@ -384,6 +392,7 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
           </div>
         </div>
         <HelpTopicTableOfContents headings={CONNECT_GCP_SECURELY_TOC_HEADINGS} enableScrollSpy />
+      </div>
       </div>
     </article>
   );
