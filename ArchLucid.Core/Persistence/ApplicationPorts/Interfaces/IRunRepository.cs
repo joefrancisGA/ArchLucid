@@ -172,6 +172,15 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Returns <see langword="true" /> when <paramref name="scope" /> has at least one run row (any status) for
+    ///     <paramref name="architectureRequestId" />.
+    /// </summary>
+    Task<bool> ExistsRunForArchitectureRequestInScopeAsync(
+        ScopeContext scope,
+        string architectureRequestId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Hard-deletes up to <paramref name="batchSize" /> authority runs that are not committed (see
     ///     <see cref="ArchLucid.Contracts.Common.ArchitectureRunStatus.Committed" />) and whose <c>CreatedUtc</c> is strictly
     ///     before <paramref name="createdBeforeUtc" />, using <c>dbo.Archival_PurgeStaleUncommittedRunsBatch</c>.

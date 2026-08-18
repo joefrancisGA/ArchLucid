@@ -35,7 +35,8 @@ public sealed partial class RunsController
         if (string.IsNullOrWhiteSpace(requestId))
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
-        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+        ArchitectureRequest? request =
+            await LoadScopedArchitectureRequestAsync(requestId, requestRepository, cancellationToken);
 
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -59,7 +60,8 @@ public sealed partial class RunsController
         if (string.IsNullOrWhiteSpace(requestId))
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
-        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+        ArchitectureRequest? request =
+            await LoadScopedArchitectureRequestAsync(requestId, requestRepository, cancellationToken);
 
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -86,7 +88,8 @@ public sealed partial class RunsController
         if (string.IsNullOrWhiteSpace(requestId))
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
-        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+        ArchitectureRequest? request =
+            await LoadScopedArchitectureRequestAsync(requestId, requestRepository, cancellationToken);
 
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -115,7 +118,8 @@ public sealed partial class RunsController
         if (string.IsNullOrWhiteSpace(requestId))
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
-        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+        ArchitectureRequest? request =
+            await LoadScopedArchitectureRequestAsync(requestId, requestRepository, cancellationToken);
 
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -148,7 +152,8 @@ public sealed partial class RunsController
         if (string.IsNullOrWhiteSpace(requestId))
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
-        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+        ArchitectureRequest? request =
+            await LoadScopedArchitectureRequestAsync(requestId, requestRepository, cancellationToken);
 
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -163,6 +168,28 @@ public sealed partial class RunsController
             cancellationToken);
 
         return Ok();
+    }
+
+    /// <summary>
+    ///     Loads an architecture request only when the caller's scope has at least one run linked to it.
+    ///     Returns <see langword="null" /> when the row is missing or out of scope (same 404 surface).
+    /// </summary>
+    private async Task<ArchitectureRequest?> LoadScopedArchitectureRequestAsync(
+        string requestId,
+        IArchitectureRequestRepository requestRepository,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+
+        if (request is null)
+            return null;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        if (!await _runRepository.ExistsRunForArchitectureRequestInScopeAsync(scope, requestId, cancellationToken))
+            return null;
+
+        return request;
     }
 
     /// <summary>

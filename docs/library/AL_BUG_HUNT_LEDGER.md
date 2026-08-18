@@ -1602,17 +1602,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-17
-- **last-bug:** 2026-08-17 — ComparisonsController IDOR: comparison/export history loaded by id without run scope
+- **last-hunt:** 2026-08-18
+- **last-bug:** 2026-08-18 — RunsController architecture request endpoints loaded by id without run scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] Admin mutating endpoint lacks tenant binding on route parameters
+- [x] Admin mutating endpoint lacks tenant binding on route parameters — (proven): `RunsController` request archive/delete/restore/clone used global `GetByIdAsync`; fixed via `LoadScopedArchitectureRequestAsync` + `ExistsRunForArchitectureRequestInScopeAsync`
 - [x] Authority read returns artifacts for a run in another workspace — fixed ComparisonsController scoped load (2026-08-17)
 - [ ] Controller accepts a scope header that overrides the authenticated tenant
 

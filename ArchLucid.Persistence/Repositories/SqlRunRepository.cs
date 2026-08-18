@@ -486,6 +486,29 @@ public sealed class SqlRunRepository(
     }
 
     /// <inheritdoc />
+    public async Task<bool> ExistsRunForArchitectureRequestInScopeAsync(
+        ScopeContext scope,
+        string architectureRequestId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (string.IsNullOrWhiteSpace(architectureRequestId))
+            throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        int exists = await connection.QuerySingleAsync<int>(
+            new CommandDefinition(
+                RunRepositorySql.ExistsRunForArchitectureRequestInScope,
+                RunListQueryParameters.ForArchitectureRequestScopeExists(scope, architectureRequestId),
+                cancellationToken: ct)).ConfigureAwait(false);
+
+        return exists == 1;
+    }
+
+    /// <inheritdoc />
     public async Task<RunStaleUncommittedPurgeBatchResult> HardDeleteStaleUncommittedRunsBatchAsync(
         DateTimeOffset createdBeforeUtc,
         int batchSize,
