@@ -35,7 +35,7 @@ vi.mock("@/lib/api", () => ({
 
 import { DigestsHubClient } from "@/components/digests/DigestsHubClient";
 import { fetchWeeklyDigestHealth, getExecDigestPreferences, listArchitectureDigests } from "@/lib/api";
-import { DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER } from "@/lib/digests-browse-copy";
+import { DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER, DIGESTS_PAGE_SUBTITLE_BUYER } from "@/lib/digests-browse-copy";
 
 describe("DigestsHubClient buyer-polished shell", () => {
   beforeEach(() => {
@@ -87,5 +87,25 @@ describe("DigestsHubClient buyer-polished shell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("digests-header-actions")).toBeInTheDocument();
     });
+  });
+
+  it("renders schedule-tab buyer chrome with breadcrumb, orientation, and hidden vocabulary rail", async () => {
+    searchParams = new URLSearchParams("tab=schedule");
+
+    render(<DigestsHubClient />);
+
+    expect(await screen.findByText(DIGESTS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.getByTestId("digests-hub-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-schedule-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-schedule-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-last-updated")).not.toBeInTheDocument();
+
+    const orderedLandmarks = ["digests-schedule-orientation-top", "exec-digest-schedule-content"]
+      .map((testId) => document.querySelector(`[data-testid="${testId}"]`))
+      .filter((node): node is HTMLElement => node !== null)
+      .map((node) => node.getAttribute("data-testid"));
+
+    expect(orderedLandmarks).toEqual(["digests-schedule-orientation-top", "exec-digest-schedule-content"]);
   });
 });

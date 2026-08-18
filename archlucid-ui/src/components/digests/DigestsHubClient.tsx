@@ -49,8 +49,15 @@ import { DigestsTeamsSlackVocabularyRail } from "@/components/DigestsTeamsSlackV
 import { DigestsBrowseContent } from "./DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "./DigestSubscriptionsContent";
 import { ExecDigestScheduleContent } from "./ExecDigestScheduleContent";
+import { DigestsHubBreadcrumb } from "./DigestsHubBreadcrumb";
 import { DigestsPageHeader } from "./DigestsPageHeader";
+import { DigestsScheduleBuyerChrome } from "./DigestsScheduleBuyerChrome";
 import { WeeklyDigestHealthBanner } from "./WeeklyDigestHealthBanner";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  DIGESTS_HUB_PRIMARY_CONTENT_ID,
+  DIGESTS_HUB_SKIP_LINK_LABEL,
+} from "@/lib/digests-browse-copy";
 
 const TAB_PARAM = "tab";
 
@@ -212,14 +219,27 @@ export function DigestsHubClient(): ReactElement {
 
   return (
     <div className="px-0" data-testid="digests-hub">
-      <DigestsPageHeader
-        subtitle={pageSubtitle}
-        refreshing={refreshing}
-        lastUpdatedUtc={lastUpdatedUtc}
-        onRefresh={onRefresh}
-        lastUpdatedPrefix={browseSetupGuidesChecklist ? DIGESTS_HEALTH_CHECK_PREFIX : undefined}
-        actions={browseHeaderActions}
-      />
+      <a
+        href={`#${DIGESTS_HUB_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {DIGESTS_HUB_SKIP_LINK_LABEL}
+      </a>
+
+      <div
+        id={DIGESTS_HUB_PRIMARY_CONTENT_ID}
+        data-testid="digests-hub-primary-content"
+        className={cn("scroll-mt-24")}
+      >
+        <DigestsPageHeader
+          subtitle={pageSubtitle}
+          refreshing={refreshing}
+          lastUpdatedUtc={lastUpdatedUtc}
+          onRefresh={onRefresh}
+          lastUpdatedPrefix={browseSetupGuidesChecklist ? DIGESTS_HEALTH_CHECK_PREFIX : undefined}
+          actions={browseHeaderActions}
+          breadcrumb={buyerPolishedShell ? <DigestsHubBreadcrumb activeTab={activeTab} /> : undefined}
+        />
 
       {/* Tabs sit immediately under the header so hub navigation precedes orientation chrome. */}
       <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-4">
@@ -247,7 +267,7 @@ export function DigestsHubClient(): ReactElement {
         </TabsList>
 
         {activeTab === "schedule" ? (
-          <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
+          buyerPolishedShell ? null : <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
         ) : activeTab === "subscriptions" ? (
           <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="subscriptions" />
         ) : (
@@ -299,6 +319,7 @@ export function DigestsHubClient(): ReactElement {
           <DigestSubscriptionsContent healthSnap={healthSnap} refreshToken={healthRefreshToken} />
         </TabsContent>
         <TabsContent value="schedule" className="mt-4">
+          {buyerPolishedShell ? <DigestsScheduleBuyerChrome /> : null}
           <ExecDigestScheduleContent
             refreshToken={scheduleRefreshToken}
             healthSnap={healthSnap}
@@ -307,6 +328,7 @@ export function DigestsHubClient(): ReactElement {
           />
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

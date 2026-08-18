@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import {
   DIGESTS_SCHEDULE_GENERATE_TEST_LABEL,
@@ -67,6 +68,7 @@ const SELECT_CLASS = cn(
 
 /** Schedule tab: sponsor digest delivery settings (direct recipients + weekly cadence). */
 export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps = {}): ReactElement {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const {
     healthSnap,
     onRefresh,
@@ -124,9 +126,11 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
         <p className={cn("m-0 mt-2 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {EXEC_DIGEST_PRODUCT_INTRO}
         </p>
-        <p className={cn("m-0 mt-1 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {DIGESTS_SCHEDULE_TAB_RESPONSIBILITY}
-        </p>
+        {buyerPolishedShell ? null : (
+          <p className={cn("m-0 mt-1 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {DIGESTS_SCHEDULE_TAB_RESPONSIBILITY}
+          </p>
+        )}
       </div>
 
       {sampleModeBlocked ? (

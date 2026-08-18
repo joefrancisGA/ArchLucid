@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import {
@@ -23,6 +24,7 @@ export type DigestsPageHeaderProps = {
   readonly actions?: ReactNode;
   /** Defaults to {@link DIGESTS_LAST_UPDATED_PREFIX}; use health-check label during setup. */
   readonly lastUpdatedPrefix?: string;
+  readonly breadcrumb?: ReactNode;
 };
 
 /**
@@ -57,6 +59,7 @@ function formatDigestsLastUpdated(lastUpdatedUtc: string | null): string {
 
 /** Shared `/digests` hero — title, lead, contextual help, refresh, and last-updated metadata. */
 export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showRefresh = props.showRefresh !== false;
   const lastUpdatedLabel = formatDigestsLastUpdated(props.lastUpdatedUtc);
   const lastUpdatedPrefix = props.lastUpdatedPrefix ?? DIGESTS_LAST_UPDATED_PREFIX;
@@ -67,6 +70,7 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
       title={DIGESTS_PAGE_TITLE}
       titleTestId="digests-page-title"
       subtitle={props.subtitle}
+      breadcrumb={props.breadcrumb}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="digests-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
@@ -81,12 +85,14 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
         </div>
       }
       metadata={
-        <span
-          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="digests-last-updated"
-        >
-          {lastUpdatedPrefix}: {props.refreshing ? "Refreshing…" : lastUpdatedLabel}
-        </span>
+        buyerPolishedShell ? null : (
+          <span
+            className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="digests-last-updated"
+          >
+            {lastUpdatedPrefix}: {props.refreshing ? "Refreshing…" : lastUpdatedLabel}
+          </span>
+        )
       }
     />
   );

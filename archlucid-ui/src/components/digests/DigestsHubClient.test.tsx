@@ -222,6 +222,7 @@ describe("DigestsHubClient", () => {
     expect(screen.queryByTestId("digests-preview-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-send-test-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("weekly-digest-health-banner")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-hub-breadcrumb")).toBeNull();
     expect(screen.queryByTestId("digests-schedule-orientation")).toBeNull(); // TB-2092
     expect(screen.queryByTestId("digests-orientation")).not.toBeInTheDocument();
     expect(await screen.findByTestId("exec-digest-schedule-content")).toBeInTheDocument();

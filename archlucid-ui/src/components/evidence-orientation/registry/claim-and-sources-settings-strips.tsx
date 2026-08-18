@@ -61,6 +61,11 @@ import {
   EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO,
 } from "@/lib/extract-upload-settings-evidence-copy";
 import {
+  DIGESTS_SCHEDULE_FOLLOW_UPS_TITLE,
+  DIGESTS_SCHEDULE_SOURCES,
+  DIGESTS_SCHEDULE_SOURCES_INTRO,
+} from "@/lib/digests-schedule-evidence-copy";
+import {
   OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE,
   OPERATOR_BILLING_SETTINGS_SOURCES,
   OPERATOR_BILLING_SETTINGS_SOURCES_INTRO,
@@ -128,6 +133,23 @@ export function ExtractUploadSettingsEvidenceOrientationStrip(
       slug="extract-upload-settings"
       sourcesTitle={EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO}
+      sources={sources}
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+    />
+  );
+}
+
+export function DigestsScheduleEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? DIGESTS_SCHEDULE_SOURCES;
+
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="digests-schedule"
+      sourcesTitle={DIGESTS_SCHEDULE_FOLLOW_UPS_TITLE}
+      sourcesIntro={DIGESTS_SCHEDULE_SOURCES_INTRO}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
