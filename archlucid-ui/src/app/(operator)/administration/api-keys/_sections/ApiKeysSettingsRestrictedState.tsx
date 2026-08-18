@@ -12,7 +12,17 @@ import {
   API_KEYS_FORBIDDEN_EMPTY_COMPACT,
   API_KEYS_SURFACE_DISABLED_EMPTY_COMPACT,
 } from "@/lib/enterprise-compact-empty-state-presets";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { cn } from "@/lib/utils";
+
+import { ApiKeysSettingsBreadcrumb } from "./ApiKeysSettingsBreadcrumb";
+import { ApiKeysSettingsBuyerChrome } from "./ApiKeysSettingsBuyerChrome";
+import {
+  API_KEYS_SETTINGS_PRIMARY_CONTENT_ID,
+  API_KEYS_SETTINGS_SKIP_LINK_LABEL,
+} from "./api-keys-settings-page-copy";
 
 export type ApiKeysSettingsRestrictedStateProps = {
   readonly reason: "forbidden" | "surface_disabled";
@@ -35,22 +45,40 @@ function resolveRestrictedEmptyCompact(reason: ApiKeysSettingsRestrictedStatePro
 }
 
 export function ApiKeysSettingsRestrictedState(props: ApiKeysSettingsRestrictedStateProps): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const emptyCompact = resolveRestrictedEmptyCompact(props.reason);
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="api-keys-settings-restricted">
-      <OperatorPageHeader
-        title={resolveRestrictedTitle(props.reason)}
-        headingLevel="h1"
-        titleTestId="api-keys-settings-restricted-title"
-        actions={<PageContextualHelpButton />}
-      />
-      <EnterpriseCompactEmptyState
-        title={emptyCompact.title}
-        description={emptyCompact.description}
-        actions={emptyCompact.actions}
-        testId={emptyCompact.testId}
-      />
+      <a
+        href={`#${API_KEYS_SETTINGS_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {API_KEYS_SETTINGS_SKIP_LINK_LABEL}
+      </a>
+
+      <div
+        id={API_KEYS_SETTINGS_PRIMARY_CONTENT_ID}
+        data-testid="api-keys-settings-primary-content"
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <OperatorPageHeader
+          title={resolveRestrictedTitle(props.reason)}
+          headingLevel="h1"
+          titleTestId="api-keys-settings-restricted-title"
+          breadcrumb={buyerPolishedShell ? <ApiKeysSettingsBreadcrumb /> : undefined}
+          actions={<PageContextualHelpButton />}
+        />
+
+        <ApiKeysSettingsBuyerChrome />
+
+        <EnterpriseCompactEmptyState
+          title={emptyCompact.title}
+          description={emptyCompact.description}
+          actions={emptyCompact.actions}
+          testId={emptyCompact.testId}
+        />
+      </div>
     </OperatorPageContainer>
   );
 }

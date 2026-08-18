@@ -321,7 +321,9 @@ export function TenantSettingsEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function ApiKeysSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function ApiKeysSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="api-keys-settings"
@@ -329,6 +331,7 @@ export function ApiKeysSettingsEvidenceOrientationStrip(): React.JSX.Element {
       sourcesIntro={API_KEYS_SETTINGS_SOURCES_INTRO}
       sources={API_KEYS_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
     />
   );
 }

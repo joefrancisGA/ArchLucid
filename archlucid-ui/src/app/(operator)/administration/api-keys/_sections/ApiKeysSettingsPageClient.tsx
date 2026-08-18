@@ -50,6 +50,16 @@ import {
 } from "@/components/usability/PageContextualHelpButton";
 import { ApiKeysSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+
+import { ApiKeysSettingsBreadcrumb } from "./ApiKeysSettingsBreadcrumb";
+import { ApiKeysSettingsBuyerChrome } from "./ApiKeysSettingsBuyerChrome";
+import {
+  API_KEYS_SETTINGS_PRIMARY_CONTENT_ID,
+  API_KEYS_SETTINGS_SKIP_LINK_LABEL,
+  apiKeysSettingsPageSubtitle,
+} from "./api-keys-settings-page-copy";
 
 import { ApiKeyActionConfirmDialog } from "./ApiKeyActionConfirmDialog";
 import { ApiKeyCredentialTable, type ApiKeyCredentialRowModel } from "./ApiKeyCredentialTable";
@@ -137,6 +147,7 @@ function resolveSuccessBanner(
 }
 
 export function ApiKeysSettingsPageClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showTechnicalDetails = isArchLucidInternalOperatorShellEnv();
   const [state, setState] = useState<LoadState>({ status: "idle" });
   const [rotateReveal, setRotateReveal] = useState<AdminApiKeyRotateResponse | null>(null);
@@ -258,24 +269,48 @@ export function ApiKeysSettingsPageClient() {
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="api-keys-settings-page">
-      <OperatorPageHeader
-        navHref={SETTINGS_ROOT_PATH}
-        title={API_KEYS_PAGE_TITLE}
-        headingLevel="h1"
-        subtitle={
-          <>
-            <p className="m-0">{API_KEYS_PAGE_SUBTITLE}</p>
-            <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{API_KEYS_ENTERPRISE_ONLY_NOTICE}</p>
-          </>
-        }
-        subtitleClassName="max-w-prose"
-        actions={<PageContextualHelpButton />}
+      <a
+        href={`#${API_KEYS_SETTINGS_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
-        <ApiKeysUsersVocabularyRail currentSurfaceId="api-keys" />
-        <WebhooksApiKeysVocabularyRail currentSurfaceId="api-keys" />
-        <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="api-keys" />
-      </OperatorPageHeader>
-      <ApiKeysSettingsEvidenceOrientationStrip />
+        {API_KEYS_SETTINGS_SKIP_LINK_LABEL}
+      </a>
+
+      <div
+        id={API_KEYS_SETTINGS_PRIMARY_CONTENT_ID}
+        data-testid="api-keys-settings-primary-content"
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <OperatorPageHeader
+          navHref={SETTINGS_ROOT_PATH}
+          title={API_KEYS_PAGE_TITLE}
+          headingLevel="h1"
+          breadcrumb={buyerPolishedShell ? <ApiKeysSettingsBreadcrumb /> : undefined}
+          subtitle={
+            buyerPolishedShell ? (
+              apiKeysSettingsPageSubtitle(buyerPolishedShell, API_KEYS_PAGE_SUBTITLE)
+            ) : (
+              <>
+                <p className="m-0">{API_KEYS_PAGE_SUBTITLE}</p>
+                <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{API_KEYS_ENTERPRISE_ONLY_NOTICE}</p>
+              </>
+            )
+          }
+          subtitleClassName="max-w-prose"
+          actions={<PageContextualHelpButton />}
+        >
+          {buyerPolishedShell ? null : (
+            <>
+              <ApiKeysUsersVocabularyRail currentSurfaceId="api-keys" />
+              <WebhooksApiKeysVocabularyRail currentSurfaceId="api-keys" />
+              <DeveloperApiContractsApiKeysVocabularyRail currentSurfaceId="api-keys" />
+            </>
+          )}
+        </OperatorPageHeader>
+
+        <ApiKeysSettingsBuyerChrome />
+
+        {!buyerPolishedShell ? <ApiKeysSettingsEvidenceOrientationStrip /> : null}
 {state.status === "loading" ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading API key status…</p>
       ) : null}
@@ -380,6 +415,7 @@ export function ApiKeysSettingsPageClient() {
           void executeRotate("Admin", false);
         }}
       />
+      </div>
     </OperatorPageContainer>
   );
 }
