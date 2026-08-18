@@ -4655,6 +4655,12 @@
             },
             "type": "array"
           },
+          "draftActors": {
+            "items": {
+              "$ref": "#/components/schemas/ActorDescriptor"
+            },
+            "type": "array"
+          },
           "effectiveModelAliasId": {
             "type": [
               "null",
@@ -4663,6 +4669,12 @@
           },
           "environment": {
             "type": "string"
+          },
+          "failureModeNoteSnapshot": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "infrastructureDeclarations": {
             "items": {
@@ -4721,6 +4733,12 @@
             "type": "array"
           },
           "priorManifestVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "qualityAttributeSnapshot": {
             "type": [
               "null",
               "string"
