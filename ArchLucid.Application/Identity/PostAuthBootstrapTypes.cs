@@ -224,7 +224,7 @@ public sealed class PostAuthCreateWorkspaceResult
     {
         get;
         init;
-    } = "/onboarding?source=bootstrap";
+    } = PostAuthOperatorRoutes.BootstrapCompletePath;
 }
 
 public sealed class PostAuthSelectWorkspaceRequest
@@ -312,5 +312,5 @@ public sealed class PostAuthBootstrapSessionResult
     {
         get;
         init;
-    } = "/onboarding?source=bootstrap";
+    } = PostAuthOperatorRoutes.BootstrapCompletePath;
 }

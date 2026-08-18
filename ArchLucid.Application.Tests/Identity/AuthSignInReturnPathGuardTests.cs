@@ -11,7 +11,7 @@ public sealed class AuthSignInReturnPathGuardTests
     [Theory]
     [InlineData("/reviews/1")]
     [InlineData("/")]
-    [InlineData("/onboarding?source=bootstrap")]
+    [InlineData("/architecture/first-review-guide?source=bootstrap")]
     public void TryNormalize_accepts_safe_relative_paths(string path)
     {
         AuthSignInReturnPathGuard.TryNormalize(path).Should().Be(path);

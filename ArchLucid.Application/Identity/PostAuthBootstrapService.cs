@@ -544,7 +544,7 @@ public sealed class PostAuthBootstrapService(
             WorkspaceId = invitation.WorkspaceId,
             ProjectId = projectId,
             Role = invitation.AppRole,
-            RedirectPath = IsResumePath(safeReturnPath) ? safeReturnPath! : "/onboarding?source=invitation"
+            RedirectPath = IsResumePath(safeReturnPath) ? safeReturnPath! : PostAuthOperatorRoutes.InvitationAcceptedPath
         };
     }
 
@@ -750,15 +750,8 @@ public sealed class PostAuthBootstrapService(
             request.IndustryVerticalOther?.Trim());
     }
 
-    private static string BuildOnboardingPath(string? industryVertical)
-    {
-        if (string.IsNullOrWhiteSpace(industryVertical))
-        {
-            return "/onboarding?source=bootstrap";
-        }
-
-        return $"/onboarding?source=bootstrap&industry={Uri.EscapeDataString(industryVertical.Trim())}";
-    }
+    private static string BuildOnboardingPath(string? industryVertical) =>
+        PostAuthOperatorRoutes.BuildBootstrapCompletePath(industryVertical);
 
     private static bool IsResumePath(string? safeReturnPath) =>
         !string.IsNullOrWhiteSpace(safeReturnPath) && safeReturnPath != "/";

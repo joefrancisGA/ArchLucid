@@ -27,4 +27,16 @@ describe("legacy-review-route-segment (TB-2234)", () => {
     expect(listRedirect?.destination).toBe(`${CANONICAL_REVIEW_DETAIL_PATH_PREFIX}/:reviewId`);
     expect(LEGACY_RUN_DETAIL_PATH_PREFIX).toBe("/runs");
   });
+
+  it("ships permanent redirects from legacy /reviews bookmarks", () => {
+    const sources = BOOKMARK_PERMANENT_REDIRECTS.map((rule) => rule.source);
+
+    expect(sources).toContain("/reviews");
+    expect(sources).toContain("/reviews/new");
+    expect(sources).toContain("/reviews/:path*");
+
+    const newReviewRedirect = BOOKMARK_PERMANENT_REDIRECTS.find((rule) => rule.source === "/reviews/new");
+
+    expect(newReviewRedirect?.destination).toBe("/architecture/reviews/new");
+  });
 });
