@@ -98,6 +98,13 @@ public sealed class AgentEvidencePackage
         set;
     } = [];
 
+    /// <summary>Deterministic structural grounding drops from post-processors (TB-2349).</summary>
+    public List<string> StructuralGroundingDropLog
+    {
+        get;
+        set;
+    } = [];
+
     /// <summary>UTC timestamp when this package was built.</summary>
     public DateTime CreatedUtc
     {

@@ -1,6 +1,8 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -147,4 +149,84 @@ public static class AgentProposalStructuralPostProcessor
 
         return deduped;
     }
+
+    /// <summary>
+    ///     Drops proposal nodes that contradict confirmed structured-brief constraints (TB-2349).
+    /// </summary>
+    public static void ApplyBriefGrounding(
+        ArchitectureRequest request,
+        IReadOnlyList<AgentResult> results,
+        IList<string> dropLog)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(results);
+        ArgumentNullException.ThrowIfNull(dropLog);
+
+        List<string> confirmedConstraints = request.Constraints
+            .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
+            .Select(static c => c.Trim())
+            .ToList();
+
+        if (confirmedConstraints.Count == 0)
+            return;
+
+        foreach (AgentResult result in results)
+        {
+            if (result.ProposedChanges is null)
+                continue;
+
+            AgentTopologyProposal proposal = result.ProposedChanges;
+            List<ManifestService> retainedServices = [];
+
+            foreach (ManifestService service in proposal.AddedServices ?? [])
+            {
+                if (ContradictsConfirmedConstraints(service.ServiceName, confirmedConstraints))
+                {
+                    dropLog.Add(
+                        $"Dropped service '{service.ServiceName}' for agent {result.AgentType}: contradicts confirmed constraint.");
+
+                    continue;
+                }
+
+                retainedServices.Add(service);
+            }
+
+            proposal.AddedServices = retainedServices;
+        }
+    }
+
+    private static bool ContradictsConfirmedConstraints(string serviceName, IReadOnlyList<string> confirmedConstraints)
+    {
+        if (string.IsNullOrWhiteSpace(serviceName))
+            return false;
+
+        string normalizedService = serviceName.Trim();
+
+        foreach (string constraint in confirmedConstraints)
+        {
+            if (ConstraintRequiresHttps(constraint)
+                && normalizedService.Contains("http", StringComparison.OrdinalIgnoreCase)
+                && !normalizedService.Contains("https", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (ConstraintRequiresPrivateNetworking(constraint)
+                && normalizedService.Contains("public", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool ConstraintRequiresHttps(string constraint) =>
+        constraint.Contains("https", StringComparison.OrdinalIgnoreCase)
+        || constraint.Contains("tls", StringComparison.OrdinalIgnoreCase);
+
+    private static bool ConstraintRequiresPrivateNetworking(string constraint) =>
+        constraint.Contains("private", StringComparison.OrdinalIgnoreCase)
+        || constraint.Contains("vnet", StringComparison.OrdinalIgnoreCase)
+        || constraint.Contains("private endpoint", StringComparison.OrdinalIgnoreCase);
 }

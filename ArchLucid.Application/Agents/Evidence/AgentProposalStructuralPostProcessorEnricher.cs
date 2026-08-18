@@ -22,6 +22,11 @@ public sealed class AgentProposalStructuralPostProcessorEnricher : IAgentResultP
         ArgumentNullException.ThrowIfNull(results);
 
         AgentProposalStructuralPostProcessor.ApplyToResults(results);
+        List<string> groundingDropLog = [];
+        AgentProposalStructuralPostProcessor.ApplyBriefGrounding(request, results, groundingDropLog);
+
+        if (groundingDropLog.Count > 0)
+            evidence.StructuralGroundingDropLog = groundingDropLog;
 
         return Task.CompletedTask;
     }
