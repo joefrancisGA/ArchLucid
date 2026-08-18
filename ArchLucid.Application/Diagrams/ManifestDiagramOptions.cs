@@ -43,4 +43,18 @@ public sealed class ManifestDiagramOptions
         get;
         set;
     } = ManifestDiagramConstants.GroupByNone;
+
+    /// <summary>When <c>true</c>, emit actor/trust/requirement/decision overlay nodes (TB-2351).</summary>
+    public bool IncludeSemanticOverlay
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Maximum semantic overlay nodes before truncation (default 12).</summary>
+    public int SemanticOverlayMaxNodes
+    {
+        get;
+        set;
+    } = 12;
 }
