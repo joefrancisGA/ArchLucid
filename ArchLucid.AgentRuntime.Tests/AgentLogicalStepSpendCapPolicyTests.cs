@@ -21,7 +21,8 @@ public sealed class AgentLogicalStepSpendCapPolicyTests
 
         int resolved = AgentLogicalStepSpendCapOptions.ResolveMaxBilledAttempts(cap, schema, resilience);
 
-        resolved.Should().Be(6);
+        // TB-043: R + (A - 1) => (1 + 2) + (3 - 1) = 5
+        resolved.Should().Be(5);
     }
 
     [Fact]
