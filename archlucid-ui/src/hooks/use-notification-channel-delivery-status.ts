@@ -36,6 +36,8 @@ function isAuthorizationFailure(error: unknown): boolean {
 export function useNotificationChannelDeliveryStatus(): {
   readonly statusByChannelId: NotificationChannelDeliveryStatusMap;
   readonly loading: boolean;
+  readonly loadFailed: boolean;
+  readonly refresh: () => void;
 } {
   const scope = useOperatorScopeQueryKey();
   const digestQuery = useDigestSubscriptionsQuery();
@@ -115,9 +117,21 @@ export function useNotificationChannelDeliveryStatus(): {
   const statusByChannelId = resolveNotificationChannelDeliveryStatus(input);
   const loading =
     digestQuery.isLoading || alertsSnapshotQuery.isLoading || teamsQuery.isLoading;
+  const loadFailed =
+    (digestQuery.isError && !isAuthorizationFailure(digestQuery.error))
+    || (alertsSnapshotQuery.isError && !isAuthorizationFailure(alertsSnapshotQuery.error))
+    || (teamsQuery.isError && !isAuthorizationFailure(teamsQuery.error));
+
+  const refresh = (): void => {
+    void digestQuery.refetch();
+    void alertsSnapshotQuery.refetch();
+    void teamsQuery.refetch();
+  };
 
   return {
     statusByChannelId,
     loading,
+    loadFailed,
+    refresh,
   };
 }

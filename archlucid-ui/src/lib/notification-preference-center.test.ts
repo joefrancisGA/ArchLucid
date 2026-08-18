@@ -4,12 +4,15 @@ import { DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
 import { ALERT_ROUTING_TAB_PATH } from "@/lib/alert-routing-evidence-copy";
 import { INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import {
+  BUYER_NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE,
   NOTIFICATION_PREFERENCE_CHANNELS,
   NOTIFICATION_PREFERENCE_CENTER_ORIENTATION_LINE,
+  NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE,
   NOTIFICATION_PREFERENCE_CENTER_PATH,
   NOTIFICATION_PREFERENCE_CENTER_RELATIONS_DISCLOSURE_SUMMARY,
   NOTIFICATION_PREFERENCE_STATUS_HINT_KEYS,
   NOTIFICATION_PREFERENCE_STATUS_HINTS,
+  notificationPreferenceCenterPageSubtitle,
   pathMatchesNotificationPreferenceCenter,
   resolveNotificationChannelDeliveryStatus,
   statusHintForNotificationChannel,
@@ -42,6 +45,14 @@ describe("notification-preference-center (TB-2203)", () => {
     expect(pathMatchesNotificationPreferenceCenter("/administration/notifications")).toBe(true);
     expect(pathMatchesNotificationPreferenceCenter("/administration/notifications/")).toBe(true);
     expect(pathMatchesNotificationPreferenceCenter("/account/preferences")).toBe(false);
+  });
+
+  it("uses shorter buyer notifications subtitle", () => {
+    expect(notificationPreferenceCenterPageSubtitle(true)).toBe(BUYER_NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE);
+    expect(notificationPreferenceCenterPageSubtitle(false)).toBe(NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE);
+    expect(BUYER_NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE.length).toBeLessThan(
+      NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE.length,
+    );
   });
 
   it("lists digests, alerts inbox/rules, Teams, and Slack with honest configure CTAs", () => {

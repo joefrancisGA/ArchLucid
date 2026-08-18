@@ -5,9 +5,20 @@ vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("@/hooks/use-notification-channel-delivery-status", () => ({
   useNotificationChannelDeliveryStatus: () => ({
     loading: false,
+    loadFailed: false,
+    refresh: vi.fn(),
     statusByChannelId: {
       digests: {
         kind: "ready",
@@ -66,7 +77,7 @@ describe("NotificationPreferenceCenterPage (TB-2203)", () => {
     expect(screen.getByTestId("notification-preference-center-page-title")).toHaveTextContent(
       NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE,
     );
-    expect(screen.getByTestId("notification-preference-center-orientation")).toHaveTextContent(
+    expect(screen.getByTestId("notification-preference-center-orientation-line")).toHaveTextContent(
       NOTIFICATION_PREFERENCE_CENTER_ORIENTATION_LINE,
     );
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
