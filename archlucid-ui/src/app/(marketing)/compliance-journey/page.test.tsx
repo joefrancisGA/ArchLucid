@@ -5,6 +5,7 @@ import ComplianceJourneyPage from "@/app/(marketing)/compliance-journey/page";
 import {
   COMPLIANCE_JOURNEY_HERO_ORIENTATION,
   COMPLIANCE_JOURNEY_LAST_REVIEWED_LABEL,
+  COMPLIANCE_JOURNEY_SKIP_LINK_LABEL,
   COMPLIANCE_JOURNEY_STAGES,
   COMPLIANCE_JOURNEY_VERIFY_CONFIRMATION,
 } from "@/lib/compliance-journey-page-copy";
@@ -16,10 +17,13 @@ describe("ComplianceJourneyPage (TB-1483, TB-1485, TB-1487)", () => {
 
     expect(screen.getByTestId("compliance-journey-page")).toBeInTheDocument();
     expect(screen.getByTestId("compliance-journey-body")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Skip to compliance journey content/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: COMPLIANCE_JOURNEY_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
       "#compliance-journey-primary-content",
     );
+    expect(screen.getByTestId("compliance-journey-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("compliance-journey-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("compliance-journey-primary-content")).toBeInTheDocument();
     expect(screen.getByTestId("compliance-journey-hero-meta")).toHaveTextContent(COMPLIANCE_JOURNEY_LAST_REVIEWED_LABEL);
     expect(screen.getByText(COMPLIANCE_JOURNEY_HERO_ORIENTATION)).toBeInTheDocument();
     expect(screen.getByTestId("compliance-journey-scope-disclosure")).toBeInTheDocument();
