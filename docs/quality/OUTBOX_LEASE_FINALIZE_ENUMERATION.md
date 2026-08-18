@@ -38,3 +38,5 @@ Handwritten C# state model substitute for TLA+ on the SQL outbox + finalize CAS 
 4. **Persist-before-LLM** — `finalize` without persisted outputs stays `Partial` / rejected.
 
 Implementation: `ArchLucid.Host.Core.Tests/Coordination/OutboxLeaseFinalizeModel.cs` and `OutboxLeaseFinalizeEnumerationTests.cs`.
+
+Coyote DST (Prompt 15): `OutboxLeaseFinalizeCoyoteTests.cs` explores actor message schedules with bounded `MaxFairSchedulingSteps` and replayable traces.
