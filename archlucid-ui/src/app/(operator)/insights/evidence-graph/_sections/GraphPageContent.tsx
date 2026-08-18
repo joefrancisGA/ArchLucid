@@ -11,8 +11,6 @@ import { RunProvenanceEvidenceGraphVocabularyRail } from "@/components/runs/RunP
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { EvidenceGraphFirstOpenCoach } from "@/components/EvidenceGraphFirstOpenCoach";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -27,6 +25,10 @@ import {
   EVIDENCE_GRAPH_PAGE_SUBTITLE,
   EVIDENCE_GRAPH_PAGE_TITLE,
 } from "@/lib/evidence-graph-page";
+import {
+  EVIDENCE_GRAPH_PRIMARY_CONTENT_ID,
+  EVIDENCE_GRAPH_SKIP_LINK_LABEL,
+} from "@/lib/evidence-graph-page-copy";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
@@ -59,6 +61,8 @@ import { GraphArchitectureNoteBanner } from "@/app/(operator)/insights/evidence-
 import { GraphEvidenceTrailGuidanceDisclosure } from "@/app/(operator)/insights/evidence-graph/_sections/GraphEvidenceTrailGuidanceDisclosure";
 import { GraphFetchStatusAlerts } from "@/app/(operator)/insights/evidence-graph/_sections/GraphFetchStatusAlerts";
 import { GraphIdlePlaceholder } from "@/app/(operator)/insights/evidence-graph/_sections/GraphIdlePlaceholder";
+import { GraphPageBuyerChrome } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageBuyerChrome";
+import { GraphPageHeader } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageHeader";
 import {
   applyProvenanceDemoPresentationIfEligible,
   buildGraphSavedViewPayload,
@@ -74,6 +78,7 @@ import { GraphPageControls } from "@/app/(operator)/insights/evidence-graph/_sec
 import { EvidenceTrailTracePanel } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailTracePanel";
 import { OperatorSavedViewsBar } from "@/components/operator/OperatorSavedViewsBar";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { GraphSavedViewFilters } from "@/lib/operator/operator-saved-view-types";
 
@@ -708,17 +713,28 @@ export function GraphPageContent() {
       {buyerPolishedShell ? null : (
         <CtoDemoBuyerValueStrip stepIndex={2} />
       )}
-      <OperatorPageHeader
-        title={pageTitle}
-        subtitle={pageSubtitle}
-        navHref="/insights/evidence-graph"
-        actions={<PageContextualHelpButton />}
-      />
-      <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
-      <AuditEvidenceTrailVocabularyRail currentSurfaceId="evidence-graph" />
-      <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
-      <PackageEvidenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
-      <EvidenceGraphFirstOpenCoach />
+      <a
+        href={`#${EVIDENCE_GRAPH_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {EVIDENCE_GRAPH_SKIP_LINK_LABEL}
+      </a>
+      <GraphPageHeader title={pageTitle} subtitle={pageSubtitle} />
+      <div
+        id={EVIDENCE_GRAPH_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+        data-testid="evidence-graph-primary-content"
+      >
+      <GraphPageBuyerChrome />
+      {!buyerPolishedShell ? (
+        <>
+          <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
+          <AuditEvidenceTrailVocabularyRail currentSurfaceId="evidence-graph" />
+          <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
+          <PackageEvidenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
+          <EvidenceGraphFirstOpenCoach />
+        </>
+      ) : null}
       <GraphEvidenceTrailGuidanceDisclosure className={buyerPolishedShell ? "hidden" : undefined} />
       {buyerGraphBody}
       {!buyerPolishedShell && showOperatorControls && effectiveGraph === null ? (
@@ -790,6 +806,7 @@ export function GraphPageContent() {
           />
         </>
       ) : null}
+      </div>
     </OperatorPageContainer>
   );
 }
