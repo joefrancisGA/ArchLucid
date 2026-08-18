@@ -6,6 +6,7 @@ import {
   PageContextualHelpButton,
   PAGE_HELP_SHORT_TRIGGER_TEXT,
 } from "@/components/usability/PageContextualHelpButton";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -14,10 +15,12 @@ import {
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
   EXTRACT_UPLOAD_SETTINGS_NAV_HREF,
-  EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE,
   EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
+  extractUploadSettingsPageSubtitle,
 } from "@/lib/extract-upload-settings-page-copy";
 import { cn } from "@/lib/utils";
+
+import { ExtractUploadSettingsBreadcrumb } from "./ExtractUploadSettingsBreadcrumb";
 
 export type ExtractUploadSettingsPageHeaderProps = {
   readonly baselineLoading: boolean;
@@ -47,6 +50,7 @@ function inventoryStatusPresentation(
 export function ExtractUploadSettingsPageHeader(
   props: ExtractUploadSettingsPageHeaderProps,
 ): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasBaselineArtifacts);
 
   return (
@@ -55,7 +59,8 @@ export function ExtractUploadSettingsPageHeader(
       titleTestId="extract-upload-page-title"
       navHref={EXTRACT_UPLOAD_SETTINGS_NAV_HREF}
       headingLevel="h1"
-      subtitle={EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE}
+      breadcrumb={buyerPolishedShell ? <ExtractUploadSettingsBreadcrumb /> : undefined}
+      subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell)}
       statusBadge={
         inventoryStatus !== null ? (
           <StatusTag
@@ -69,14 +74,14 @@ export function ExtractUploadSettingsPageHeader(
         <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
       }
       metadata={
-        props.extractorScriptVersion !== null ? (
+        buyerPolishedShell || props.extractorScriptVersion === null ? null : (
           <span
             className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="extract-upload-header-extractor-version"
           >
             {EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX}: v{props.extractorScriptVersion}
           </span>
-        ) : null
+        )
       }
     />
   );

@@ -2,6 +2,7 @@
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import {
   BASELINE_SETTINGS_FOLLOW_UPS_TITLE,
   BASELINE_SETTINGS_SOURCES,
@@ -117,14 +118,19 @@ export function BaselineSettingsEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function ExtractUploadSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function ExtractUploadSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? EXTRACT_UPLOAD_SETTINGS_SOURCES;
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="extract-upload-settings"
       sourcesTitle={EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO}
-      sources={EXTRACT_UPLOAD_SETTINGS_SOURCES}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
     />
   );
 }
