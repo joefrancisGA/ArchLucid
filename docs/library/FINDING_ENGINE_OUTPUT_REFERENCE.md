@@ -8,15 +8,15 @@
 
 **Formal spec:** [`../architecture/architecture_handbook/75-architecture-and-review-engines.md`](../architecture/architecture_handbook/75-architecture-and-review-engines.md) §3.3.
 
-**Source of truth for plugin skip ids:** `ArchLucid.Decisioning.Plugins.FindingEnginePluginDiscovery.BuiltInEngineTypeIds`. Plugins must use **distinct** `EngineType` values or they are skipped at discovery time.
+**Source of truth for plugin skip ids:** `ArchLucid.Decisioning.Plugins.BuiltInFindingEngineTypeCatalog.EngineTypeIds`, exposed as `FindingEnginePluginDiscovery.BuiltInEngineTypeIds`. Plugins must use **distinct** `EngineType` values or they are skipped at discovery time.
 
-**Source of truth for what actually runs:** DI registration in `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.Decisioning.cs`. The skip set is a **proper subset** of registered engines — several Application and Cost engines are registered but not listed in `BuiltInEngineTypeIds` (handbook chapter 75 boundary B8; prompt EK-02). Do not treat the skip set as the full catalog.
+**Source of truth for what actually runs:** DI registration in `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.Decisioning.cs`. The skip set **equals** the registered `EngineType` set (graph-pure `IFindingEngine` plus effectful `IEffectfulFindingEngine`) — handbook chapter 75 §3.3.2; prompt EK-02.
 
-All engines below implement **`IFindingEngine`** unless noted.
+Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Application inventory/cost engines implement **`IEffectfulFindingEngine`** (may query extractors, SQL, or options).
 
 ---
 
-## Decisioning (graph-pure, typical)
+## Decisioning (graph-pure)
 
 | Engine id | Implementation | Category | What it analyzes |
 |-----------|----------------|----------|------------------|
@@ -37,12 +37,17 @@ All engines below implement **`IFindingEngine`** unless noted.
 | `policy-applicability` | `PolicyApplicabilityFindingEngine` | Policy | Which policies apply to the snapshot. |
 | `policy-coverage` | `PolicyCoverageFindingEngine` | Policy | Policy rule coverage results. |
 | `compliance` | `ComplianceFindingEngine` | Compliance | Rule-pack violations → `ComplianceFinding` payloads. |
+
+## Cost (graph-pure)
+
+| Engine id | Implementation | Category | What it analyzes |
+|-----------|----------------|----------|------------------|
 | `cost-constraint` | `CostConstraintFindingEngine` | Cost | `CostConstraint` graph nodes → cost/architecture findings. |
 | `cost-breach` | `CostBreachFindingEngine` | Cost | Constraint breaches. |
 
-## Application (effectful — close over extractors / options)
+## Application (effectful — `IEffectfulFindingEngine`)
 
-These still implement `IFindingEngine.AnalyzeAsync(GraphSnapshot, …)` but read additional repositories. The interface does not declare those effects (chapter 75, boundary B13; prompt EK-05).
+These close over extractors, freshness options, or SQL. They do **not** implement `IFindingEngine` (chapter 75, boundary B13; prompt EK-05).
 
 | Engine id | Implementation | What it analyzes |
 |-----------|----------------|------------------|
@@ -56,8 +61,10 @@ These still implement `IFindingEngine.AnalyzeAsync(GraphSnapshot, …)` but read
 | `aws-inventory-security-baseline` | `AwsInventorySecurityBaselineFindingEngine` | AWS inventory vs security baseline. |
 | `gcp-inventory-security-baseline` | `GcpInventorySecurityBaselineFindingEngine` | GCP inventory vs security baseline. |
 | `advisor-cost-recommendation` | `AdvisorCostRecommendationFindingEngine` | Cloud advisor cost recommendations. |
+| `aws-cost-recommendation` | `AwsCostRecommendationFindingEngine` | AWS cost recommendations from scoped inventory. |
+| `gcp-cost-recommendation` | `GcpCostRecommendationFindingEngine` | GCP cost recommendations from scoped inventory. |
 
-`TechnologyConsistencyFindingEngine` implements **`ITechnologyConsistencyFindingEngine`**, not `IFindingEngine`. It is not in the findings fold.
+`TechnologyConsistencyFindingEngine` implements **`ITechnologyConsistencyFindingEngine`**, not `IFindingEngine` or `IEffectfulFindingEngine`. It is not in the findings fold.
 
 ---
 
@@ -70,7 +77,9 @@ Emit **`Finding`** records (`ArchLucid.Contracts/Findings/Finding.cs`) with:
 - **Structured payload** — engine-specific DTOs under **`ArchLucid.Decisioning.Findings.Payloads`**.
 - **Severity**, optional **`PolicyRuleId`**, envelope fields (confidence, mute, treatment, model alias, …).
 
-**Orchestrator merge:** parallel invoke; total failure → `AggregateException`; partial failure → snapshot + `FindingEngineFailure` rows; dedup key is `FindingType|Title` (first wins), **not** `FindingId` and **not** ADR 0063 `{policyRuleId:fingerprint}` (prompt EK-04).
+**Orchestrator merge:** parallel invoke of `IFindingEngine` and `IEffectfulFindingEngine`; results are sorted by `EngineType` (ordinal) before join; total failure → `AggregateException`; partial failure → snapshot + `FindingEngineFailure` rows.
+
+**Join key (ADR 0063, `FindingSnapshotMergeKey`):** SHA-256 hex (lower) of `NormalizeToken(category)|NormalizeToken(title)` (`Finding.Title` plays the role of `ArchitectureFinding.Message`). When `PolicyRuleId` is present: `{trimmedPolicyRuleId}:{fingerprint}`; otherwise the fuzzy `category|title` token key. Payload-equal partitions (FindingType, Title, Severity, Rationale, Category — ordinal) keep the lowest `EngineType`. Payload-unequal partitions keep that primary **and** append a `FindingEngineFailure` listing EngineType ids and FindingIds — they are not silently dropped.
 
 **UI / exports:** Findings roll into review surfaces, manifest snapshots, and **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** Pilot vs Operate narratives — the manifest remains the buyer-facing aggregate artifact.
 
@@ -78,7 +87,7 @@ Emit **`Finding`** records (`ArchLucid.Contracts/Findings/Finding.cs`) with:
 
 ## Plugins
 
-External **`IFindingEngine`** implementations can be dropped into **`ArchLucid:FindingEngines:PluginDirectory`**. Assemblies named **`ArchLucid.*`** are ignored in the plugin scan. Parameterless public constructor required.
+External **`IFindingEngine`** implementations can be dropped into **`ArchLucid:FindingEngines:PluginDirectory`**. Assemblies named **`ArchLucid.*`** are ignored in the plugin scan. Parameterless public constructor required. Plugins remain graph-pure; they do not implement `IEffectfulFindingEngine`.
 
 ---
 

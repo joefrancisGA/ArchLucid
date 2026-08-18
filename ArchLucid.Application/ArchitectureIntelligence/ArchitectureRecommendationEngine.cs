@@ -27,6 +27,8 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
 
     private static bool IsActionableFinding(SpecialistReviewFinding finding)
     {
+        ArgumentNullException.ThrowIfNull(finding);
+
         return finding.Conclusion is ReviewConclusion.Fail or ReviewConclusion.Indeterminate;
     }
 
@@ -34,27 +36,31 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
         SpecialistReviewFinding finding,
         IReadOnlyList<string> declaredPriorities)
     {
+        ArgumentNullException.ThrowIfNull(finding);
+        ArgumentNullException.ThrowIfNull(declaredPriorities);
+
         EffortEstimate effort = ArchitectureRecommendationEffortEstimate.Build(finding);
         RiskReductionEstimate riskReduction = ArchitectureRecommendationEffortEstimate.BuildRiskReduction(finding);
 
         IReadOnlyList<RecommendationAlternative> alternativeOptions =
             ArchitectureRecommendationAlternatives.Build(finding);
+        string proposedChange = ArchitectureRecommendationProposedChange.Build(finding);
 
         return new ArchitectureRecommendation
         {
-            RecommendationId = Guid.NewGuid().ToString("N"),
+            RecommendationId = ArchitectureRecommendationStableId.FromFinding(finding, proposedChange),
             Problem = finding.Title,
             Evidence = finding.Rationale,
             AffectedRequirementOrQualityAttribute = finding.Dimension.ToString(),
             ConsequenceOfInaction = ArchitectureRecommendationProposedChange.BuildConsequence(finding),
-            ProposedChange = ArchitectureRecommendationProposedChange.Build(finding),
+            ProposedChange = proposedChange,
             Alternatives = alternativeOptions.Select(option => option.Path).ToList(),
             AlternativeOptions = alternativeOptions.ToList(),
             Effort = effort,
             RiskReduction = riskReduction,
             ValidationMethod = ArchitectureRecommendationProposedChange.BuildValidationMethod(finding),
             Confidence = finding.Confidence,
-            RequiresHumanApproval = finding.Severity.Equals("Critical", StringComparison.OrdinalIgnoreCase),
+            RequiresHumanApproval = string.Equals(finding.Severity, "Critical", StringComparison.OrdinalIgnoreCase),
             Provenance = new ClaimProvenance
             {
                 Origin = ClaimOrigin.SystemProposed,

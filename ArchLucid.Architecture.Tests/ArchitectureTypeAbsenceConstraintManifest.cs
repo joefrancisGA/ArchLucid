@@ -40,6 +40,12 @@ internal static class ArchitectureTypeAbsenceConstraintManifest
                 ],
                 ArchitectureTypeVisibilityScope.All,
                 "authority orchestration lives in ArchLucid.Application.Runs.Orchestration; Persistence hosts SQL/work adapters only."),
+
+            ["Contracts must not contain IReviewEngine"] = new(
+                "ArchLucid.Contracts",
+                ["IReviewEngine"],
+                ArchitectureTypeVisibilityScope.Exported,
+                "IReviewEngine was removed (EK-01); use IAgentExecutor. Review evaluation kernel is AuthorityPipelineStagesExecutor."),
         };
 
         return rules;

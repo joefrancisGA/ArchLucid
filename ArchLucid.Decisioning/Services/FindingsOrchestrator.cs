@@ -16,7 +16,8 @@ public partial class FindingsOrchestrator(
     ILogger<FindingsOrchestrator> logger,
     IOptions<HumanReviewFindingOptions> humanReviewOptions,
     IInsightDensityGate insightDensityGate,
-    TimeProvider? timeProvider = null)
+    TimeProvider? timeProvider = null,
+    IEnumerable<IEffectfulFindingEngine>? effectfulEngines = null)
     : IFindingsOrchestrator
 {
     private readonly IOptions<HumanReviewFindingOptions> _humanReviewOptions =
@@ -44,7 +45,8 @@ public partial class FindingsOrchestrator(
             SilentLogger.Instance,
             Options.Create(new HumanReviewFindingOptions()),
             DeterministicInsightDensityGate.CreateDefault(),
-            TimeProvider.System)
+            TimeProvider.System,
+            effectfulEngines: null)
     {
     }
 
@@ -61,7 +63,7 @@ public partial class FindingsOrchestrator(
         IEnumerable<IFindingEngine> engines,
         IFindingPayloadValidator validator)
         : this(engines, validator, SilentLogger.Instance, Options.Create(new HumanReviewFindingOptions()),
-            DeterministicInsightDensityGate.CreateDefault(), TimeProvider.System)
+            DeterministicInsightDensityGate.CreateDefault(), TimeProvider.System, effectfulEngines: null)
     {
     }
 
@@ -72,22 +74,26 @@ public partial class FindingsOrchestrator(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
+        ArgumentNullException.ThrowIfNull(engines);
 
         List<Finding> allFindings = [];
         List<FindingEngineFailure> engineFailures = [];
         List<Exception> engineExceptions = [];
         int successfulEngineInvocations = 0;
 
-        List<IFindingEngine> engineList = [.. engines];
-        Task<EngineInvocationOutcome>[] invocationTasks = engineList
-            .Select(engine => InvokeEngineAsync(engine, graphSnapshot, ct))
+        IReadOnlyList<EngineAdapter> adapters = EngineAdapter.FromEngines(engines, effectfulEngines);
+        Task<EngineInvocationOutcome>[] invocationTasks = adapters
+            .Select(adapter => InvokeEngineAsync(adapter, graphSnapshot, ct))
             .ToArray();
 
         EngineInvocationOutcome[] outcomes = await AwaitEngineInvocationsAsync(invocationTasks);
+        EngineInvocationOutcome[] orderedOutcomes = outcomes
+            .OrderBy(static outcome => outcome.Engine.EngineType, StringComparer.Ordinal)
+            .ToArray();
 
-        foreach (EngineInvocationOutcome outcome in outcomes)
+        foreach (EngineInvocationOutcome outcome in orderedOutcomes)
         {
-            IFindingEngine engine = outcome.Engine;
+            EngineAdapter engine = outcome.Engine;
 
             if (outcome.Exception is not null)
             {
@@ -143,10 +149,15 @@ public partial class FindingsOrchestrator(
         if (successfulEngineInvocations == 0 && engineExceptions.Count > 0)
             throw new AggregateException("All finding engines failed for this snapshot.", engineExceptions);
 
-        List<Finding> dedupedFindings = allFindings
-            .GroupBy(x => $"{x.FindingType}|{x.Title}", StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
-            .ToList();
+        FindingSnapshotMergeResult mergeResult = FindingSnapshotConfluentMerger.Merge(allFindings, _clock);
+
+        foreach (FindingEngineFailure conflict in mergeResult.Conflicts)
+        {
+            engineFailures.Add(conflict);
+            ArchLucidInstrumentation.RecordFindingEngineFailure(conflict.EngineType, conflict.Category);
+        }
+
+        List<Finding> dedupedFindings = [.. mergeResult.Findings];
 
         FindingsSnapshot snapshot = new()
         {
@@ -208,7 +219,7 @@ public partial class FindingsOrchestrator(
     }
 
     private async Task<EngineInvocationOutcome> InvokeEngineAsync(
-        IFindingEngine engine,
+        EngineAdapter engine,
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
@@ -235,7 +246,7 @@ public partial class FindingsOrchestrator(
     }
 
     private sealed record EngineInvocationOutcome(
-        IFindingEngine Engine,
+        EngineAdapter Engine,
         IReadOnlyList<Finding>? Findings,
         Exception? Exception,
         long DurationMs);
@@ -243,7 +254,7 @@ public partial class FindingsOrchestrator(
     private bool TryAcceptValidatedFinding(
         IFindingPayloadValidator validator,
         Finding finding,
-        IFindingEngine engine,
+        EngineAdapter engine,
         List<FindingEngineFailure> engineFailures,
         out string? rejectionReason)
     {
@@ -346,4 +357,3 @@ public partial class FindingsOrchestrator(
         }
     }
 }
-

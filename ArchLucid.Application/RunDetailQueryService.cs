@@ -11,6 +11,8 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -48,6 +50,8 @@ public sealed class RunDetailQueryService(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     ILlmCostEstimator llmCostEstimator,
     IFindingTrustLabelMapper findingTrustLabelMapper,
+    IRunStageOutcomesRepository runStageOutcomesRepository,
+    IRunStateTransitionService runStateTransitionService,
     ILogger<RunDetailQueryService> logger) : IRunDetailQueryService
 {
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
@@ -74,6 +78,12 @@ public sealed class RunDetailQueryService(
 
     private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader =
         unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
+
+    private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
+        runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
+
+    private readonly IRunStateTransitionService _runStateTransitionService =
+        runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
 
     /// <inheritdoc/>
     public Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default) =>
@@ -127,7 +137,17 @@ public sealed class RunDetailQueryService(
             ? authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken)
             : Task.FromResult<DecisionTraceDto?>(null);
 
-        await Task.WhenAll(tasksTask, resultsTask, manifestTask, costSlicesTask, muteFlagsTask, authorityTraceTask)
+        Task<IReadOnlyList<StageTimelineSummary>> stageOutcomesTask =
+            _runStageOutcomesRepository.ListByRunIdAsync(runGuid, cancellationToken);
+
+        await Task.WhenAll(
+                tasksTask,
+                resultsTask,
+                manifestTask,
+                costSlicesTask,
+                muteFlagsTask,
+                authorityTraceTask,
+                stageOutcomesTask)
             .ConfigureAwait(false);
 
         IReadOnlyList<AgentTask> tasks = await tasksTask.ConfigureAwait(false);
@@ -160,6 +180,7 @@ public sealed class RunDetailQueryService(
                 decisionTraces = [authorityTrace];
         }
 
+        IReadOnlyList<StageTimelineSummary> stageOutcomes = await stageOutcomesTask.ConfigureAwait(false);
         IReadOnlyList<AgentExecutionTraceLlmCostSlice> costSlices = await costSlicesTask.ConfigureAwait(false);
         ArchLucid.Contracts.Runs.RunAgentLlmCostEstimateDto? costEstimate = null;
 
@@ -188,7 +209,15 @@ public sealed class RunDetailQueryService(
             Manifest = manifest,
             DecisionTraces = decisionTraces,
             AgentExecutionLlmCostEstimate = costEstimate,
-            HasBrokenManifestReference = !string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && manifest is null
+            HasBrokenManifestReference = !string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && manifest is null,
+            AuthorityPipelineComplete = RunKernelCompleteness.IsAuthorityPipelineComplete(
+                run.GoldenManifestId,
+                manifest,
+                stageOutcomes),
+            AgentTaskLoopComplete = RunKernelCompleteness.IsAgentTaskLoopComplete(
+                _runStateTransitionService,
+                run.Status,
+                results)
         };
     }
 

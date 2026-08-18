@@ -15,6 +15,7 @@ public sealed class ArchitectureRunExecuteOrchestratorTestFactoryTests
         tail.TopologyProposalSeeder.Should().NotBeNull();
         tail.DemoExpensiveActionGate.Should().NotBeNull();
         tail.RunScopedLlmBudgetReservationService.Should().NotBeNull();
+        tail.RunStageOutcomesRepository.Should().NotBeNull();
         tail.Logger.Should().NotBeNull();
     }
 }

@@ -2,7 +2,7 @@
 
 **Status:** Normative for platform documentation. Grounded in shipped types as of 2026-08-17.  
 **Does not authorize:** new APIs, schema, or product copy.  
-**Companion ADRs:** 0030 (authority unification), 0037 (catalog isolation), 0039/0045 (seal immutability), 0042 (canonical write surface), 0063 (cross-review finding identity), 0065 (model catalog), 0067 (co-equal entry points).
+**Companion ADRs:** 0030 (authority unification), 0037 (catalog isolation), 0039/0045 (seal immutability), 0042 (canonical write surface), 0063 (cross-review finding identity), 0065 (model catalog), 0067 (co-equal entry points), 0068 (Option K — two kernels).
 
 This chapter is the specification of the two product kernels the handbook previously described only by pipeline stage names. It is written as a typed system: objects, morphisms, state machines, algebraic properties, and boundary conditions. Where the code does not satisfy a property, that is stated as a **counterexample**, not as a wish.
 
@@ -16,14 +16,14 @@ Four distinct constructions are called “engine” in this repository. They are
 |----------------------|-------------|-------------------|---------|
 | Product **Create architecture** | Intake + draft + optional LLM synthesis | Intent / evidence → mutable architecture representation | **Architecture synthesis kernel** \(\mathcal{A}\) |
 | Product **Review** | Authority pipeline + finding engines + decisioning + seal | Evidence → findings + golden manifest | **Review evaluation kernel** \(\mathcal{R}\) |
-| `IReviewEngine` | Empty alias of `IAgentExecutor` | `(runId, request, evidence, tasks)` → `AgentResult[]` | **No.** Agent-task batch executor. |
+| `IReviewEngine` (removed EK-01) | Former empty alias of `IAgentExecutor` | — | **No.** Deleted; use `IAgentExecutor`. Review evaluation kernel is `AuthorityPipelineStagesExecutor`. |
 | `IFindingEngine` | Graph analyzer plugin | `GraphSnapshot` → `Finding[]` | Stage of \(\mathcal{R}\), not \(\mathcal{R}\) itself |
 | `IDecisionEngine` | Authority decisioning | `(run, context, graph, findings)` → `(ManifestDocument, DecisionTrace)` | Stage of \(\mathcal{R}\) |
 | `IDecisionEngineV2` | Agent-result merger | `(request, tasks, results, evaluations)` → `DecisionNode[]` | Stage of the **agent-task loop**, not \(\mathcal{R}\) |
 | `IArchitectureRecommendationEngine` | Deterministic recommender | `(knowledge model, specialist findings, priorities)` → recommendations | Side path of \(\mathcal{A}\), not a generation LLM |
 | LLM / model **catalog engine** (ADR 0065) | Completion provider row | Prompt → tokens | Advisory content only; forbidden to alter authority |
 
-**Convention used below.** “Architecture engine” means \(\mathcal{A}\). “Review engine” means \(\mathcal{R}\). The C# identifier `IReviewEngine` is treated as a **misnomer** and is never used as a synonym for \(\mathcal{R}\).
+**Convention used below.** “Architecture engine” means \(\mathcal{A}\). “Review engine” means \(\mathcal{R}\), implemented by `AuthorityPipelineStagesExecutor`. The C# identifier `IReviewEngine` was an empty `IAgentExecutor` alias; it was **removed** (EK-01) and is never a synonym for \(\mathcal{R}\).
 
 ---
 
@@ -230,6 +230,8 @@ A **second** decisioning morphism exists for the agent-task loop:
 
 `IDecisionEngineV2.ResolveAsync`. Domain is agent results, not \((\Gamma, F)\). These maps are **not** interchangeable and **do not commute** with \(\Phi\).
 
+**EK-08 unused appendix.** Authority `IDecisionEngine.DecideAsync` is the only producer of `ManifestDocument` + `DecisionTrace`. `IDecisionEngineV2.ResolveAsync` may run as a pre-step that materializes `DecisionNode[]` which `DecideAsync` may consume when present; it must not write golden manifests itself. Today `DecisionEngineV2NodeMaterializer` still runs **after** authority commit to populate `GET /v1/architecture/review/{runId}/decisions`. Those nodes are an **unused appendix**: they are not inputs to `DecideAsync` and do not produce \(M\). Materializing them after commit logs a documented unused-appendix warning so the drop is not silent. Canonical `ManifestHash` projection is unchanged.
+
 ### 3.5 Seal, hash, commit
 
 Let \(h\) be SHA-256 over the canonical projection defined by `ManifestHashService` (schema `HasherSchemaVersion = "v1"`). The projection includes structural sections and effective governance at commit. It **excludes** `CreatedUtc` and, by ADR 0065 D5′, **engine identity**.
@@ -311,15 +313,18 @@ A_{\mathsf{req}} = \{\mathsf{Topology}, \mathsf{Cost}, \mathsf{Compliance}, \mat
 \mathsf{commit}: \{ R \mid \mathsf{status}(R)=\mathsf{ReadyForCommit} \land \mathsf{ready}(A_{\mathsf{req}}) \} \rightharpoonup R_{\mathsf{Committed}}
 \]
 
-**Mismatch.** \(\mathcal{R}\) does not use this four-agent gate as its definition of completeness; it uses stage outcomes and a findings snapshot. The **same enum** \(S\) is overloaded onto both kernels. Authority-complete runs must not be driven with `execute`/`result` (chapter 4). That rule is an operational exclusion, not a type distinction: nothing in the type system prevents calling `IArchitectureRunExecuteOrchestrator` on an authority-finalized run except runtime checks.
+**Mismatch.** \(\mathcal{R}\) does not use this four-agent gate as its definition of completeness; it uses stage outcomes and a golden manifest pointer. The **same enum** \(S\) is overloaded onto both kernels.
 
-### 5.2 `IReviewEngine`
+Computed DTO flags on run detail (`ArchitectureRunDetail` / `RunDetailsResponse`, EK-07) make the predicates explicit without changing `ArchitectureRunStatus` numeric values:
 
-```csharp
-public interface IReviewEngine : IAgentExecutor;
-```
+- **Agent-task complete** (`AgentTaskLoopComplete`): status `ReadyForCommit` **and** `HasCommitReadyAgentResults({Topology,Cost,Compliance,Critic})`.
+- **Authority-complete** (`AuthorityPipelineComplete`): every `AuthorityPipelineStageNames.Sequence` stage (`context_ingestion`, `graph`, `findings`, `decisioning`, `artifacts`) succeeded in `RunStageOutcomes` **and** a golden manifest pointer is present (`GoldenManifestId` or loaded `Manifest` not null — same GET `/v1/architecture/review/{runId}` rules).
 
-This is a **documentation alias**. `DeterministicReviewEngine` is a test/simulator adapter. It is not \(\mathcal{R}\). Treating it as the review kernel is a category error that has already appeared in planning docs.
+`execute` / `result` refuse when `AuthorityPipelineComplete` is true (Conflict), not only origin or manifest heuristics. See [`AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md`](../../library/AUTHORITY_VS_AGENTTASK_LOOP_CANONICAL_PATH_CONTRACT.md) (TB-1007).
+
+### 5.2 `IReviewEngine` (removed)
+
+The empty alias `IReviewEngine : IAgentExecutor` was **removed** (EK-01). `DeterministicReviewEngine` implements `IAgentExecutor` only. It is a test/simulator adapter, not \(\mathcal{R}\). The review evaluation kernel is `AuthorityPipelineStagesExecutor`. Treating the agent-task executor as the review kernel is a category error that has already appeared in planning docs; the type-absence architecture test forbids reintroducing `IReviewEngine` under `ArchLucid.Contracts`.
 
 ---
 
@@ -437,8 +442,8 @@ End-to-end replay compares sealed images. ADR 0065 requires engine-identity diff
 | B7 | Finding equality used by \(\mu\) = ADR 0063 identity | **Not satisfied** (three equalities) |
 | B8 | Plugin ids cannot collide with any registered engine | **Not satisfied** (skip set ⊂ \(\mathbb{E}\)) |
 | B9 | \(h(M)\) binds producer (LLM engine) | **Not satisfied by design** (D5′) |
-| B10 | \(\mathcal{A}_{\mathsf{recommend}}\) is a function | **Not satisfied** (`Guid.NewGuid`) |
-| B11 | `IReviewEngine` denotes \(\mathcal{R}\) | **Not satisfied** (alias of executor) |
+| B10 | \(\mathcal{A}_{\mathsf{recommend}}\) is a function | **Satisfied** (`ArchitectureRecommendationStableId`; SHA-256 of finding id, title, proposed change, dimension) |
+| B11 | `IReviewEngine` denotes \(\mathcal{R}\) | **Vacated** (alias **removed** EK-01; \(\mathcal{R}\) is `AuthorityPipelineStagesExecutor`) |
 | B12 | Single decision morphism | **Not satisfied** (\(\Delta\) and \(\Delta_2\)) |
 | B13 | `IFindingEngine` sees policy packs | **Not satisfied** (graph-only domain) |
 | B14 | Co-equal UI entry | **Satisfied** by ADR 0067; older handbook/operator docs still funnel |
@@ -474,7 +479,7 @@ These are gaps in the **specification of the shipped system**, not a backlog sho
 | DI registration | `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.Decisioning.cs` |
 | Authority \(\Delta\) | `ArchLucid.Core/Persistence/Ports/IDecisionEngine.cs` |
 | Agent \(\Delta_2\) | `ArchLucid.Decisioning/Merge/IDecisionEngineV2.cs` |
-| Executor alias | `ArchLucid.Contracts/Abstractions/Agents/IReviewEngine.cs` |
+| Executor (alias removed) | `IAgentExecutor`; `IReviewEngine` deleted (EK-01) |
 | Simulator | `ArchLucid.AgentSimulator/Services/DeterministicReviewEngine.cs` |
 | Recommendations | `ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs` |
 | Hash | `ArchLucid.Decisioning/Services/ManifestHashService.cs` |
@@ -489,9 +494,9 @@ This section is the review of the **system as specified above**, not of this cha
 
 ### 14.1 Flaws (structural, not cosmetic)
 
-**F1. Four “engines,” one word.** The type system does not distinguish \(\mathcal{A}\), \(\mathcal{R}\), `IReviewEngine`, `IFindingEngine`, and catalog rows. Humans already mis-plan against `IReviewEngine` (it is an executor). This is a specification bug with implementation consequences.
+**F1. Four “engines,” one word.** The type system does not distinguish \(\mathcal{A}\), \(\mathcal{R}\), `IFindingEngine`, and catalog rows. The `IReviewEngine` alias was **removed** (EK-01) so it can no longer be mistaken for \(\mathcal{R}\); the remaining collision is the English word “engine.” \(\mathcal{R}\) is `AuthorityPipelineStagesExecutor`.
 
-**F2. Generation is a review loop in costume.** \(\mathcal{A}_{\mathsf{generate}}\) is the four-agent coordinator with `PackageOrigin=Created`. Co-equal *jobs* were declared (ADR 0067) without co-equal *kernels*. The cheaper interpretation — one pipeline, two labels — is what the code implements. The handbook must not pretend otherwise.
+**F2. Generation is a review loop in costume.** \(\mathcal{A}_{\mathsf{generate}}\) is the four-agent coordinator with `PackageOrigin=Created`. Co-equal *jobs* were declared (ADR 0067) without co-equal *kernels*. ADR 0068 records **Option K** (two kernels; EK-10 unblocked). Until EK-10 ships, the cheaper interpretation — one pipeline, two labels — is still what the code implements.
 
 **F3. Overloaded status machine.** `ArchitectureRunStatus` is a labelled transition system for agent tasks. Authority stages have a parallel timeline (`RunStageOutcomes`). Completeness is therefore a pair of predicates on one object. That is how mixed-path incidents happen.
 
@@ -507,28 +512,30 @@ See §12. The missing pieces that actually hurt operators:
 
 - no first-class Architecture identity (so “review this architecture again” is a heuristic);
 - no proof that enabled packs were evaluated (except commit-time effective-governance blob);
-- recommendation ids are random, so \(\mathcal{A}_{\mathsf{recommend}}\) cannot be golden-tested as a function;
+- recommendation ids are a function of finding identity, proposed change, and dimension (`ArchitectureRecommendationStableId`); golden-cohort tests can treat `RecommendationId` as stable;
 - plugin deny-list lag;
 - specialist findings vs authority findings remain two theories of the same English word “finding.”
 
 ### 14.3 Boundary conditions not satisfied
 
-B7, B8, B10, B11, B12, B13, B15, B16 in §11. The important operational ones: **plugin collision**, **status/type confusion**, **hash not binding producer** (intentional, but then provenance UI must carry the load), **draft/run noun collision** for buyers.
+B7, B8, B12, B13, B15, B16 in §11 (B10 and B11 are remediated: stable recommendation ids; `IReviewEngine` removed). The important operational ones: **plugin collision**, **status/type confusion**, **hash not binding producer** (intentional, but then provenance UI must carry the load), **draft/run noun collision** for buyers.
 
 ### 14.4 Ways to make it simpler (ordered by leverage)
 
-1. **Delete the `IReviewEngine` alias.** Use `IAgentExecutor` only. One word reclaimed.
-2. **Name the kernels in code:** `IReviewEvaluationKernel` = authority `Seq`; `IArchitectureSynthesisKernel` = draft + generate. Stop registering generation as “review execute.”
+1. **Delete the `IReviewEngine` alias.** **Done** (EK-01). Use `IAgentExecutor` only. Review evaluation kernel is `AuthorityPipelineStagesExecutor`.
+2. **Name the kernels in code:** `IReviewEvaluationKernel` = authority `Seq` (`AuthorityPipelineStagesExecutor`); `IArchitectureSynthesisKernel` = draft + generate. Stop registering generation as “review execute.” **ADR 0068 chose Option K** (two kernels); this item is EK-10, unblocked.
 3. **Split the status LTS** or stop writing authority runs into agent-task statuses. Two small machines beat one overloaded enum.
 4. **Retire the agent-task finish path** for product surfaces (already the ADR 0030 intent). Keep simulator execute as a test double of *synthesis*, not of \(\mathcal{R}\).
 5. **Make \(\mu\) a lattice join keyed by ADR 0063 fingerprints**, with explicit conflict records instead of `First()`. Deterministic even under parallelism.
 6. **Generate `BuiltInEngineTypeIds` from DI registration** so the plugin skip set cannot lag \(\mathbb{E}\).
 7. **Widen `IFindingEngine` or split it:** graph-pure engines vs effectful inventory engines. Do not keep a dishonest arity.
 8. **One decision morphism** whose domain is \((\Gamma, F)\) plus an optional agent-result appendix. Kill \(\Delta_2\) as a peer.
-9. **`RecommendationId = H(findingId, proposedChange)`** so \(\mathcal{A}_{\mathsf{recommend}}\) becomes a function.
+9. **`RecommendationId = H(findingId, proposedChange)`** so \(\mathcal{A}_{\mathsf{recommend}}\) becomes a function. **Done** (EK-03) via `ArchitectureRecommendationStableId`.
 10. **One customer noun for `Run`.** Origin is a field, not a second object. Keep “draft” for `DraftRequests` only.
 
-Items 1, 6, and 9 are local and do not change the product. Items 2–5, 7–8, 10 are the actual simplification of the architecture. They trade the current “everything is a Run with optional stages” convenience for two kernels that match ADR 0067.
+**ADR 0068 (2026-08-17) chose Option K — two kernels.** Architecture synthesis must not be `IAgentExecutor` execute. Introduce `IArchitectureSynthesisKernel` (draft + generate) whose generate path does not require Topology/Cost/Compliance/Critic `AgentResult` as the definition of an architecture. Review remains `AuthorityPipelineStagesExecutor`. ADR 0068 amends implementation standing only; it does not rewrite ADR 0067. Unequal artifacts remain: a draft is not a sealed record. EK-10 ships `IArchitectureSynthesisKernel` / `ArchitectureSynthesisKernel`. Option L (one pipeline, two labels) was rejected.
+
+Items 1, 6, and 9 are local and do not change the product (item 1 shipped with EK-01; item 9 with EK-03; item 6 remains EK-02). Items 2–5, 7–8, 10 are the actual simplification of the architecture. They trade the current “everything is a Run with optional stages” convenience for two kernels that match ADR 0067 and ADR 0068.
 
 ### 14.5 What not to complicate
 

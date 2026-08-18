@@ -245,4 +245,70 @@ public sealed class EndToEndReplayComparisonServiceTests
         report.InterpretationNotes.Should().Contain(note =>
             note.Contains("Catalog model alias differs", StringComparison.OrdinalIgnoreCase));
     }
+
+    [SkippableFact]
+    public async Task BuildAsync_WhenEnginesDiffer_AndManifestsMatch_EngineChangeIsLeadingInterpretationNote()
+    {
+        ArchitectureRunDetail left = new()
+        {
+            Run = Run("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "v1"),
+            Results = [],
+            Manifest = Manifest("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "v1"),
+        };
+        ArchitectureRunDetail right = new()
+        {
+            Run = Run("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "v1"),
+            Results = [],
+            Manifest = Manifest("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "v1"),
+        };
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync(left.Run.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(left);
+        _runDetailQueryService.Setup(s => s.GetRunDetailForRollupAsync(right.Run.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(right);
+        _exportRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<RunExportRecord>());
+        _manifestDiff.Setup(m => m.Compare(left.Manifest, right.Manifest)).Returns(new ManifestDiffResult());
+
+        Guid leftGuid = Guid.ParseExact(left.Run.RunId, "N");
+        Guid rightGuid = Guid.ParseExact(right.Run.RunId, "N");
+
+        _runRepository
+            .Setup(repository => repository.GetByIdAsync(It.IsAny<ScopeContext>(), leftGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunRecord
+                {
+                    RunId = leftGuid,
+                    EngineProvenanceJson = ReviewRunEngineProvenanceJson.Serialize(
+                        new ReviewRunEngineProvenance
+                        {
+                            ModelAliasId = "economy-general",
+                            TaskEvaluationSnapshotsAtSelection =
+                            [
+                                new ReviewRunEngineTaskEvaluationSnapshot
+                                {
+                                    TaskType = "Topology",
+                                    EvaluationState = "NotEvaluated",
+                                }
+                            ]
+                        })
+                });
+        _runRepository
+            .Setup(repository => repository.GetByIdAsync(It.IsAny<ScopeContext>(), rightGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunRecord
+                {
+                    RunId = rightGuid,
+                    EngineProvenanceJson = ReviewRunEngineProvenanceJson.Serialize(
+                        new ReviewRunEngineProvenance { ModelAliasId = "premium-assurance" })
+                });
+
+        EndToEndReplayComparisonReport report = await _sut.BuildAsync(left.Run.RunId, right.Run.RunId);
+
+        report.RunDiff.ModelAliasIdsDiffer.Should().BeTrue();
+        report.InterpretationNotes.Should().NotBeEmpty();
+        report.InterpretationNotes[0].Should().Contain("Catalog model alias differs");
+        report.InterpretationNotes[0].Should().Contain("NotEvaluated");
+        report.InterpretationNotes[0].Should().NotContain("directional only");
+    }
 }

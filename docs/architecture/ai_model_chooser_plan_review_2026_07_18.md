@@ -60,7 +60,7 @@ Repository survey (2026-07-18) against the plan's sixteen work units:
 
 ### Naming trap
 
-The plan proposes `IReviewEngine` as the boundary. `ArchLucid.Contracts\Abstractions\Agents\IReviewEngine.cs` **already exists** and is the deterministic simulator review engine (`DeterministicReviewEngine` in `ArchLucid.AgentSimulator`) — not an LLM gateway. The real seam is `IAgentCompletionClient` / `ILlmProvider`. Do not introduce a colliding name.
+The plan proposed `IReviewEngine` as the boundary. That alias was **removed** (EK-01). `DeterministicReviewEngine` in `ArchLucid.AgentSimulator` implements `IAgentExecutor` only — it is a test/simulator double, not an LLM gateway and not the review evaluation kernel (`AuthorityPipelineStagesExecutor`). The real seam is `IAgentCompletionClient` / `ILlmProvider`. Do not reintroduce `IReviewEngine`.
 
 ## 5. Governance conflicts the plan ignores
 

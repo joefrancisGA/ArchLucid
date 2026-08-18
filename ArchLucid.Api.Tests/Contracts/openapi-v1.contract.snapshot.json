@@ -24962,6 +24962,12 @@
               }
             ]
           },
+          "agentTaskLoopComplete": {
+            "type": "boolean"
+          },
+          "authorityPipelineComplete": {
+            "type": "boolean"
+          },
           "decisionTraces": {
             "type": "array"
           },

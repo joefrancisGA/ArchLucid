@@ -36,8 +36,8 @@ Dual coordinator **storage** and dual orchestrators were retired (ADR 0030 / **T
 
 | Verb | When valid |
 |------|------------|
-| `execute` | AgentTask-driven agents (simulator/real), trial/QuickStart, selective re-execute (**TB-938**) when task state permits |
-| `result` | External / agent result push while run is in `TasksGenerated` / `WaitingForResults` / `PartiallyCompleted` / `FailedPartial` (generated, waiting, or partial-recovery states per `RunStateTransitionService.ValidateResultSubmissionAllowed`) |
+| `execute` | AgentTask-driven agents (simulator/real), trial/QuickStart, selective re-execute (**TB-938**) when task state permits. **Refused (HTTP 409 / `ConflictException`)** when `AuthorityPipelineComplete` is true (EK-07) — all `AuthorityPipelineStageNames` stages succeeded and a golden manifest pointer is present. Do not use origin/manifest heuristics alone. |
+| `result` | External / agent result push while run is in `TasksGenerated` / `WaitingForResults` / `PartiallyCompleted` / `FailedPartial` (generated, waiting, or partial-recovery states per `RunStateTransitionService.ValidateResultSubmissionAllowed`). **Also refused** when `AuthorityPipelineComplete` is true (EK-07). |
 | `commit` | Completing a task-owned run — still via `AuthorityDrivenArchitectureRunCommitOrchestrator` (not a second commit store) |
 
 “Legacy coordinator” is a **vocabulary warning**, not evidence that dual golden-manifest storage is still live.

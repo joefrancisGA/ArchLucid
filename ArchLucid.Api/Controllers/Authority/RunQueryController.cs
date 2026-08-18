@@ -128,6 +128,9 @@ public sealed class RunQueryController(
             detail.Manifest,
             detail.DecisionTraces);
 
+        response.AuthorityPipelineComplete = detail.AuthorityPipelineComplete;
+        response.AgentTaskLoopComplete = detail.AgentTaskLoopComplete;
+
         response.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             detail.Run,
             configuration["AgentExecution:Mode"]);

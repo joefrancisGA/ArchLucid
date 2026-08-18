@@ -57,4 +57,16 @@ public sealed class RunDetailsResponseDto
         get;
         set;
     }
+
+    public bool AuthorityPipelineComplete
+    {
+        get;
+        set;
+    }
+
+    public bool AgentTaskLoopComplete
+    {
+        get;
+        set;
+    }
 }

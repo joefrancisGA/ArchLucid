@@ -1,11 +1,14 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -88,6 +91,8 @@ public sealed class RunDetailQueryServiceApplicationTests
             executionTraceRepo.Object,
             llmCostEstimator.Object,
             new FindingTrustLabelMapper(),
+            Mock.Of<IRunStageOutcomesRepository>(),
+            new RunStateTransitionService(),
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
@@ -174,6 +179,8 @@ public sealed class RunDetailQueryServiceApplicationTests
             executionTraceRepo.Object,
             llmCostEstimator.Object,
             new FindingTrustLabelMapper(),
+            Mock.Of<IRunStageOutcomesRepository>(),
+            new RunStateTransitionService(),
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
@@ -181,5 +188,93 @@ public sealed class RunDetailQueryServiceApplicationTests
         detail.Should().NotBeNull();
         detail.HasBrokenManifestReference.Should().BeFalse();
         detail.DecisionTraces.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task GetRunDetailAsync_agent_task_ready_without_authority_stages_sets_only_AgentTaskLoopComplete()
+    {
+        ScopeContext scope = NewScope();
+        Guid runGuid = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        string runN = runGuid.ToString("N");
+
+        Mock<IRunRepository> runRepo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        Mock<IAgentTaskRepository> taskRepo = new();
+        Mock<IAgentResultRepository> resultRepo = new();
+        Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
+        Mock<IDecisionTraceRepository> authorityTraceRepo = new();
+        Mock<IFindingRecordMuteRepository> muteRepo = new();
+        Mock<IAgentExecutionTraceRepository> executionTraceRepo = new();
+        Mock<ILlmCostEstimator> llmCostEstimator = new();
+        Mock<IRunStageOutcomesRepository> stagesRepo = new();
+
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        executionTraceRepo
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTraceLlmCostSlice>());
+        stagesRepo
+            .Setup(r => r.ListByRunIdAsync(runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        RunRecord record = new()
+        {
+            RunId = runGuid,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "p",
+            ArchitectureRequestId = "req-agent-task",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        List<AgentResult> results =
+        [
+            CommitReady(runN, AgentType.Topology),
+            CommitReady(runN, AgentType.Cost),
+            CommitReady(runN, AgentType.Compliance),
+            CommitReady(runN, AgentType.Critic)
+        ];
+
+        runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);
+        taskRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runN, It.IsAny<CancellationToken>())).ReturnsAsync(results);
+        unifiedReader
+            .Setup(r => r.ReadByRunIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GoldenManifest?)null);
+
+        RunDetailQueryService sut = new(
+            runRepo.Object,
+            scopeProvider.Object,
+            taskRepo.Object,
+            resultRepo.Object,
+            unifiedReader.Object,
+            authorityTraceRepo.Object,
+            muteRepo.Object,
+            executionTraceRepo.Object,
+            llmCostEstimator.Object,
+            new FindingTrustLabelMapper(),
+            stagesRepo.Object,
+            new RunStateTransitionService(),
+            new Mock<ILogger<RunDetailQueryService>>().Object);
+
+        ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
+
+        detail.Should().NotBeNull();
+        detail.AgentTaskLoopComplete.Should().BeTrue();
+        detail.AuthorityPipelineComplete.Should().BeFalse();
+    }
+
+    private static AgentResult CommitReady(string runId, AgentType agentType)
+    {
+        return new AgentResult
+        {
+            ResultId = Guid.NewGuid().ToString("N"),
+            RunId = runId,
+            TaskId = Guid.NewGuid().ToString("N"),
+            AgentType = agentType,
+            Claims = ["ok"],
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
     }
 }

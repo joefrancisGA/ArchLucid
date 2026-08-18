@@ -126,14 +126,7 @@ public sealed class AuthorityPipelineStagesExecutor(
     private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
         runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
 
-    private static readonly string[] PipelineStageSequence =
-    [
-        "context_ingestion",
-        "graph",
-        "findings",
-        "decisioning",
-        "artifacts"
-    ];
+    private static readonly string[] PipelineStageSequence = AuthorityPipelineStageNames.Sequence;
 
     /// <inheritdoc />
     public async Task ExecuteAfterRunPersistedAsync(AuthorityPipelineContext ctx, CancellationToken ct)

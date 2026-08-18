@@ -63,6 +63,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0064](0064-buyer-vocabulary-api-and-schema-alignment.md) | Buyer-vocabulary API + spine SQL rename on **v1** (no v2) — review/finalize/signed-review-record (**Status: Accepted** 2026-08-05) |
 | [0065](0065-curated-multi-engine-model-catalog.md) | Multi-engine model catalog — informed user choice with evaluation evidence **attached not gating**, fail-closed capability ladder + data boundary, two-tier selection authority; **supersedes ADR 0060 D1** (**Status: Accepted** 2026-08-07; TB-2103–TB-2110) |
 | [0067](0067-create-architecture-and-review-co-equal-entry-points.md) | **Create architecture** and **Review** as co-equal entry points — no ordinal/funnel framing on the pair, symmetric CTA-inventory guard coverage; parity of entry points **not** of artifacts (**Status: Accepted** 2026-08-12) |
+| [0068](0068-architecture-synthesis-and-review-evaluation-kernels.md) | Architecture synthesis and review evaluation are **two kernels** (Option K) — synthesis is not `IAgentExecutor` execute; review remains `AuthorityPipelineStagesExecutor`; amends ADR 0067 implementation standing only (**Status: Accepted** 2026-08-17) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

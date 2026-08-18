@@ -403,6 +403,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
+        services.AddScoped<IArchitectureSynthesisKernel, ArchitectureSynthesisKernel>();
         services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();
         services.AddHttpClient(GitTerraformContentFetcher.HttpClientName)
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);

@@ -20,7 +20,7 @@
 | **ArchLucid.KnowledgeGraph** | Graph snapshots from context |
 | **ArchLucid.ArtifactSynthesis** | Artifact generators and packaging |
 | **ArchLucid.Retrieval** | Embedding / indexing / Ask RAG path |
-| **ArchLucid.AgentSimulator** | Deterministic `IAgentExecutor` / `IReviewEngine` double — not the review evaluation kernel |
+| **ArchLucid.AgentSimulator** | Deterministic `IAgentExecutor` double (`DeterministicReviewEngine`) — **not** the review evaluation kernel. The `IReviewEngine` alias was removed (EK-01); review evaluation is `AuthorityPipelineStagesExecutor`. |
 | **ArchLucid.Host.Composition** | DI graphs shared by Api and Worker |
 
 Deep dive: `docs/library/ARCHITECTURE_CONTAINERS.md`, `docs/library/ARCHITECTURE_COMPONENTS.md`.

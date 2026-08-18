@@ -316,8 +316,8 @@ public sealed class FindingsOrchestratorTests
             Category = "Security",
             EngineType = "e1",
             Title = "Same",
-            Rationale = "r2",
-            Severity = FindingSeverity.Info
+            Rationale = "r1",
+            Severity = FindingSeverity.Warning
         };
 
         Mock<IFindingEngine> e1 = CreateEngine("e1", "Security", [a, b]);
@@ -334,6 +334,7 @@ public sealed class FindingsOrchestratorTests
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
         snapshot.Findings.Should().ContainSingle(f => f.Title == "Same");
+        snapshot.EngineFailures.Should().BeEmpty();
     }
 
     [Fact]
@@ -505,6 +506,119 @@ public sealed class FindingsOrchestratorTests
         maxInFlight.Should().BeGreaterThanOrEqualTo(2);
     }
 
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_payload_conflict_is_confluent()
+    {
+        FindingsSnapshot first = await RunPayloadConflictAsync();
+        FindingsSnapshot second = await RunPayloadConflictAsync();
+
+        Finding surviving = first.Findings.Should().ContainSingle().Subject;
+        surviving.FindingId.Should().Be("finding-alpha");
+        surviving.FindingId.Should().Be(second.Findings.Single().FindingId);
+
+        FindingEngineFailure firstConflict = first.EngineFailures.Should().ContainSingle().Subject;
+        FindingEngineFailure secondConflict = second.EngineFailures.Should().ContainSingle().Subject;
+        firstConflict.EngineType.Should().Be(FindingSnapshotConfluentMerger.ConflictEngineType);
+        firstConflict.ErrorMessage.Should().Contain("alpha");
+        firstConflict.ErrorMessage.Should().Contain("zulu");
+        firstConflict.ErrorMessage.Should().Contain("finding-alpha");
+        firstConflict.ErrorMessage.Should().Contain("finding-zulu");
+        secondConflict.ErrorMessage.Should().Be(firstConflict.ErrorMessage);
+        secondConflict.EngineType.Should().Be(firstConflict.EngineType);
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_disjoint_merge_keys_union()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding left = CreateFinding("finding-left", "zulu", "Left");
+        Finding right = CreateFinding("finding-right", "alpha", "Right");
+
+        Mock<IFindingEngine> laterOrdinal = CreateEngine("zulu", "Security", [left]);
+        Mock<IFindingEngine> earlierOrdinal = CreateEngine("alpha", "Security", [right]);
+        FindingsOrchestrator sut = CreateSut([laterOrdinal.Object, earlierOrdinal.Object]);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            graph,
+            CancellationToken.None);
+
+        snapshot.Findings.Select(static f => f.FindingId).Should().BeEquivalentTo(["finding-left", "finding-right"]);
+        snapshot.EngineFailures.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_effectful_only_engines_still_return_snapshot()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding finding = CreateFinding("effectful-1", "effectful", "From effectful");
+        Mock<IEffectfulFindingEngine> effectful = CreateEffectfulEngine("effectful", "Security", [finding]);
+        FindingsOrchestrator sut = CreateSut([], [effectful.Object]);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            graph,
+            CancellationToken.None);
+
+        snapshot.Findings.Should().ContainSingle(f => f.FindingId == "effectful-1");
+        snapshot.EngineFailures.Should().BeEmpty();
+    }
+
+    private static async Task<FindingsSnapshot> RunPayloadConflictAsync()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding fromZulu = CreateFinding("finding-zulu", "zulu", "Same", FindingSeverity.Warning, "rationale-zulu");
+        Finding fromAlpha = CreateFinding("finding-alpha", "alpha", "Same", FindingSeverity.Info, "rationale-alpha");
+
+        Mock<IFindingEngine> zulu = CreateEngine("zulu", "Security", [fromZulu]);
+        Mock<IFindingEngine> alpha = CreateEngine("alpha", "Security", [fromAlpha]);
+        FindingsOrchestrator sut = CreateSut([zulu.Object, alpha.Object]);
+
+        return await sut.GenerateFindingsSnapshotAsync(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            graph,
+            CancellationToken.None);
+    }
+
+    private static Finding CreateFinding(
+        string findingId,
+        string engineType,
+        string title,
+        FindingSeverity severity = FindingSeverity.Info,
+        string rationale = "r")
+    {
+        return new Finding
+        {
+            FindingId = findingId,
+            FindingType = "T",
+            Category = "Security",
+            EngineType = engineType,
+            Title = title,
+            Rationale = rationale,
+            Severity = severity,
+        };
+    }
+
+    private static FindingsOrchestrator CreateSut(
+        IEnumerable<IFindingEngine> engines,
+        IEnumerable<IEffectfulFindingEngine>? effectfulEngines = null)
+    {
+        Mock<IFindingPayloadValidator> validator = new();
+        validator.Setup(v => v.Validate(It.IsAny<Finding>()));
+
+        return new FindingsOrchestrator(
+            engines,
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate,
+            TimeProvider.System,
+            effectfulEngines);
+    }
+
     private sealed class FakeTimeProviderForOrchestrator(DateTimeOffset utcNow) : TimeProvider
     {
         public override DateTimeOffset GetUtcNow()
@@ -516,6 +630,19 @@ public sealed class FindingsOrchestratorTests
     private static Mock<IFindingEngine> CreateEngine(string engineType, string category, IReadOnlyList<Finding> findings)
     {
         Mock<IFindingEngine> mock = new(MockBehavior.Strict);
+        mock.Setup(x => x.EngineType).Returns(engineType);
+        mock.Setup(x => x.Category).Returns(category);
+        mock.Setup(x => x.AnalyzeAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(findings);
+        return mock;
+    }
+
+    private static Mock<IEffectfulFindingEngine> CreateEffectfulEngine(
+        string engineType,
+        string category,
+        IReadOnlyList<Finding> findings)
+    {
+        Mock<IEffectfulFindingEngine> mock = new(MockBehavior.Strict);
         mock.Setup(x => x.EngineType).Returns(engineType);
         mock.Setup(x => x.Category).Returns(category);
         mock.Setup(x => x.AnalyzeAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()))

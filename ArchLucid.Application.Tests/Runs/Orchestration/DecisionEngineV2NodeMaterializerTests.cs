@@ -3,6 +3,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Decisioning.Merge;
@@ -11,6 +12,8 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Logging;
 
 using Moq;
 
@@ -102,6 +105,8 @@ public sealed class DecisionEngineV2NodeMaterializerTests
             .Setup(r => r.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        Mock<ILogger<DecisionEngineV2NodeMaterializer>> logger = new();
+
         DecisionEngineV2NodeMaterializer sut = CreateSut(
             scopeProvider.Object,
             runs.Object,
@@ -111,7 +116,8 @@ public sealed class DecisionEngineV2NodeMaterializerTests
             results.Object,
             evaluations.Object,
             engineV2.Object,
-            decisionNodes.Object);
+            decisionNodes.Object,
+            logger.Object);
 
         await sut.MaterializeIfMissingAsync(runId, CancellationToken.None);
 
@@ -120,6 +126,24 @@ public sealed class DecisionEngineV2NodeMaterializerTests
                 It.Is<IReadOnlyList<DecisionNodeRecord>>(records => records.Count == 1 && records[0].Topic == "TopologyAcceptance"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+
+        logger.Verify(
+            l => l.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) =>
+                    state.ToString()!.Contains(DecisionEngineV2NodeMaterializer.UnusedAppendixWarning, StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public void UnusedAppendixWarning_documents_that_post_commit_nodes_are_not_DecideAsync_inputs()
+    {
+        DecisionEngineV2NodeMaterializer.UnusedAppendixWarning.Should().Contain("unused appendix");
+        DecisionEngineV2NodeMaterializer.UnusedAppendixWarning.Should().Contain("DecideAsync");
+        DecisionEngineV2NodeMaterializer.UnusedAppendixWarning.Should().Contain("ManifestDocument");
     }
 
     private static DecisionEngineV2NodeMaterializer CreateSut(
@@ -131,7 +155,8 @@ public sealed class DecisionEngineV2NodeMaterializerTests
         IAgentResultRepository? agentResultRepository = null,
         IAgentEvaluationService? agentEvaluationService = null,
         IDecisionEngineV2? decisionEngineV2 = null,
-        IDecisionNodeRepository? decisionNodes = null)
+        IDecisionNodeRepository? decisionNodes = null,
+        ILogger<DecisionEngineV2NodeMaterializer>? logger = null)
     {
         return new DecisionEngineV2NodeMaterializer(
             scopeProvider ?? Mock.Of<IScopeContextProvider>(),
@@ -142,6 +167,7 @@ public sealed class DecisionEngineV2NodeMaterializerTests
             agentResultRepository ?? Mock.Of<IAgentResultRepository>(),
             agentEvaluationService ?? Mock.Of<IAgentEvaluationService>(),
             decisionEngineV2 ?? Mock.Of<IDecisionEngineV2>(),
-            decisionNodes ?? Mock.Of<IDecisionNodeRepository>());
+            decisionNodes ?? Mock.Of<IDecisionNodeRepository>(),
+            logger ?? Mock.Of<ILogger<DecisionEngineV2NodeMaterializer>>());
     }
 }

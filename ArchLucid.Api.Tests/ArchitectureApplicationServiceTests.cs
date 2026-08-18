@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs;
@@ -386,6 +387,27 @@ public sealed class ArchitectureApplicationServiceTests
 
         sutResult.Success.Should().BeFalse();
         sutResult.Error.Should().Contain("not found");
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task SubmitAgentResultAsync_WhenAuthorityPipelineComplete_ReturnsConflict()
+    {
+        ArchitectureRun run = ValidRun();
+        run.Status = ArchitectureRunStatus.TasksGenerated;
+        AgentResult result = ValidResult();
+        ArchitectureRunDetail detail = DetailFor(run, [ValidTask()], []);
+        detail.AuthorityPipelineComplete = true;
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
+
+        sutResult.Success.Should().BeFalse();
+        sutResult.FailureKind.Should().Be(ApplicationServiceFailureKind.Conflict);
+        sutResult.Error.Should().Contain("authority-pipeline complete");
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }

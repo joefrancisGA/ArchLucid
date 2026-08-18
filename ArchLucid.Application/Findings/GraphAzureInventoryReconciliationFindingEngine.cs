@@ -20,7 +20,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
     IScopeContextProvider scopeContextProvider,
     IAzureExtractorPackageRepository packageRepository,
     TimeProvider clock,
-    IOptions<RoiCostEvidenceFreshnessOptions> freshnessOptions) : IFindingEngine
+    IOptions<RoiCostEvidenceFreshnessOptions> freshnessOptions) : IEffectfulFindingEngine
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));

@@ -17,9 +17,9 @@ When the directory is missing or empty, discovery is a no-op.
 
 ## Contract
 
-- Implement **`ArchLucid.Decisioning.Interfaces.IFindingEngine`**.
+- Implement **`ArchLucid.Decisioning.Interfaces.IFindingEngine`** (graph-pure). Plugins must not query I/O beyond `GraphSnapshot` (constructor-injected graph analyzers that only read the snapshot are allowed). Effectful inventory engines use **`IEffectfulFindingEngine`** in product code and are **not** the plugin contract.
 - Expose a **parameterless public constructor** (plugins are instantiated once during discovery for metadata checks).
-- Return a unique **`EngineType`** string that does **not** collide with built-in ids (see **`FindingEnginePluginDiscovery.BuiltInEngineTypeIds`**).
+- Return a unique **`EngineType`** string that does **not** collide with built-in ids (see **`BuiltInFindingEngineTypeCatalog.EngineTypeIds`** / **`FindingEnginePluginDiscovery.BuiltInEngineTypeIds`**).
 - Place the compiled assembly in the plugin directory as a **`.dll`** that does **not** start with `ArchLucid.` (those files are skipped to avoid loading product assemblies twice).
 
 Discovery and registration are implemented in **`ArchLucid.Decisioning.Plugins.FindingEnginePluginDiscovery`** and **`RegisterPluginFindingEngines`** in **`ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.Decisioning.cs`**.

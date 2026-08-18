@@ -11,26 +11,11 @@ namespace ArchLucid.Decisioning.Plugins;
 /// </summary>
 public static class FindingEnginePluginDiscovery
 {
-    /// <summary>Built-in engine <see cref="IFindingEngine.EngineType" /> values — plugins with the same id are skipped.</summary>
-    public static HashSet<string> BuiltInEngineTypeIds
-    {
-        get;
-    } =
-    [
-        "requirement",
-        "topology-coverage",
-        "topology-structure",
-        "topology-cross-run-diff",
-        "topology-anti-pattern",
-        "security-baseline",
-        "security-coverage",
-        "policy-applicability",
-        "policy-coverage",
-        "requirement-coverage",
-        "requirement-cross-run-diff",
-        "compliance",
-        "cost-constraint"
-    ];
+    /// <summary>
+    ///     Built-in engine <c>EngineType</c> values (graph-pure and effectful) — plugins with the same id are skipped.
+    ///     Delegates to <see cref="BuiltInFindingEngineTypeCatalog.EngineTypeIds"/>.
+    /// </summary>
+    public static IReadOnlySet<string> BuiltInEngineTypeIds => BuiltInFindingEngineTypeCatalog.EngineTypeIds;
 
     /// <summary>
     ///     Returns concrete <see cref="IFindingEngine" /> types that can be registered as scoped services.

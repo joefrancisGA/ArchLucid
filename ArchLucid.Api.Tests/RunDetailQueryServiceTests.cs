@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
@@ -8,6 +9,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -78,6 +80,8 @@ public sealed class RunDetailQueryServiceTests
             executionTraceRepo.Object,
             new Mock<ILlmCostEstimator>().Object,
             new FindingTrustLabelMapper(),
+            Mock.Of<IRunStageOutcomesRepository>(),
+            new RunStateTransitionService(),
             new Mock<ILogger<RunDetailQueryService>>().Object);
     }
 
