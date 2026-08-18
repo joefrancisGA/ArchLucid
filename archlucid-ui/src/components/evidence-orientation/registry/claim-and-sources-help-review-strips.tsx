@@ -49,6 +49,15 @@ import {
   PATH_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO,
   PATH_CHOOSER_HELP_SOURCES,
 } from "@/lib/path-chooser-help-evidence-copy";
+import {
+  DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE_HEADING,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_HEADING_ID,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_FOLLOW_UPS_TITLE,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_ORIENTATION_SOURCES,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_HEADING_ID,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO,
+} from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID } from "@/lib/architecture-drafts-help-guide-content";
 import {
   EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE,
@@ -440,6 +449,25 @@ export function SponsorDashboardHelpEvidenceOrientationStrip(
       sourcesIntro={SPONSOR_DASHBOARD_HELP_SOURCES_INTRO}
       sources={SPONSOR_DASHBOARD_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function DataHandlingTenantIsolationHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-data-handling"
+      claim={DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE}
+      claimHeading={DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_HEADING_ID}
+      sourcesTitle={DATA_HANDLING_TENANT_ISOLATION_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO}
+      sources={DATA_HANDLING_TENANT_ISOLATION_HELP_ORIENTATION_SOURCES}
+      sourcesHeadingId={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_HEADING_ID}
+      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );

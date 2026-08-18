@@ -1,10 +1,28 @@
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
+export const DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_TOPIC_TITLE = "Data handling";
+
+export const DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_EYEBROW = "Help topic" as const;
+
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE = "Data handling and tenant isolation";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE =
   "How review evidence flows, what stays in your tenant, and how logical isolation is enforced — with sponsor-safe diligence cites.";
+
+export const DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE_BUYER =
+  "Review evidence flow, tenant isolation layers, and sponsor-safe diligence cites for procurement questions." as const;
+
+export const DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_CONTENT_ID =
+  "help-data-handling-tenant-isolation-primary-content" as const;
+
+export const DATA_HANDLING_TENANT_ISOLATION_HELP_SKIP_LINK_LABEL = "Skip to data handling guide" as const;
+
+export function dataHandlingTenantIsolationHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE_BUYER
+    : DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE;
+}
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_LEAD =
   "This guide covers data flow for architecture reviews, three-layer tenant isolation, and what ArchLucid does not claim for standard SaaS.";
@@ -70,6 +88,17 @@ export type DataHandlingTenantIsolationHelpCrossCheckLink = {
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS: readonly DataHandlingTenantIsolationHelpCrossCheckLink[] =
   [{ label: "Related topics", href: `#${DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED_TOPICS_HEADING_ID}` }] as const;
+
+export const DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS_BUYER: readonly DataHandlingTenantIsolationHelpCrossCheckLink[] =
+  [{ label: "Related diligence artifacts", href: "#related-diligence-artifacts" }] as const;
+
+export function dataHandlingTenantIsolationHelpOverviewCrossCheckLinks(
+  buyerPolishedShell: boolean,
+): readonly DataHandlingTenantIsolationHelpCrossCheckLink[] {
+  return buyerPolishedShell
+    ? DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS_BUYER
+    : DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS;
+}
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL = "Help Center";
 
