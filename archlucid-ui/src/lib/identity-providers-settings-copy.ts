@@ -126,6 +126,15 @@ export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO =
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE =
   "Review identity source, claim mapping, and workspace role assignment before enabling SSO for all users.";
 
+export const BUYER_IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE =
+  "Review identity source and group-to-role mapping before enabling SSO for all users." as const;
+
+export function identityProvidersRoleMappingPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? BUYER_IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE
+    : IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE;
+}
+
 export const IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER =
   "Map identity provider groups to ArchLucid workspace roles.";
 

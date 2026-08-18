@@ -34,6 +34,7 @@ import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-stor
 export type IdentityProvidersSettingsPageHeaderProps = {
   readonly pageTitle?: string;
   readonly subtitle: string;
+  readonly breadcrumb?: React.ReactNode;
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
   readonly diagnosticsDataUnavailable?: boolean;
@@ -78,6 +79,7 @@ export function IdentityProvidersSettingsPageHeader(
       title={pageTitle}
       titleTestId="identity-providers-page-title"
       subtitle={props.subtitle}
+      breadcrumb={props.breadcrumb}
       statusBadge={
         statusPresentation !== null ? (
           <StatusTag

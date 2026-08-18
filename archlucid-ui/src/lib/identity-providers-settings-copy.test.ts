@@ -12,6 +12,8 @@ import {
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE,
+  BUYER_IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE,
+  identityProvidersRoleMappingPageSubtitle,
   IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_HELPER,
   IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL,
   IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
@@ -61,6 +63,14 @@ describe("identity-providers-settings-copy", () => {
     expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE.toLowerCase()).not.toBe("role mapping");
     expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO.toLowerCase()).toContain("review");
     expect(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO.toLowerCase()).not.toContain("map identity provider");
+  });
+
+  it("uses shorter buyer role mapping subtitle", () => {
+    expect(identityProvidersRoleMappingPageSubtitle(true)).toBe(BUYER_IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE);
+    expect(identityProvidersRoleMappingPageSubtitle(false)).toBe(IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE);
+    expect(BUYER_IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE.length).toBeLessThan(
+      IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_SUBTITLE.length,
+    );
   });
 
   it("uses a distinct role mapping shell subtitle instead of configure workspace intro (TB-1917)", () => {

@@ -23,6 +23,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { IdentityProvidersSettingsPageHeader } from "./IdentityProvidersSettingsPageHeader";
 const NAV_ITEMS: ReadonlyArray<{ readonly id: IdentityProvidersNavId; readonly label: string; readonly href: string }> = [
   { id: "overview", label: IDENTITY_PROVIDERS_NAV_OVERVIEW, href: "/administration/identity-providers" },
@@ -89,6 +90,9 @@ export type IdentityProvidersSettingsShellProps = {
   readonly lastRefreshedAt: Date | null;
   readonly diagnosticsDataUnavailable?: boolean;
   readonly showAdminFallbackNotice?: boolean;
+  readonly headerBreadcrumb?: React.ReactNode;
+  readonly primaryContentId?: string;
+  readonly skipLinkLabel?: string;
   readonly onRefresh: () => void;
   readonly children: React.ReactNode;
 };
@@ -107,9 +111,23 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="identity-providers-settings-shell">
-      <IdentityProvidersSettingsPageHeader
-        pageTitle={resolvedTitle}
-        subtitle={headerSubtitle}
+      {props.skipLinkLabel !== undefined && props.primaryContentId !== undefined ? (
+        <a href={`#${props.primaryContentId}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {props.skipLinkLabel}
+        </a>
+      ) : null}
+
+      <div
+        id={props.primaryContentId}
+        data-testid={
+          props.primaryContentId !== undefined ? "identity-providers-settings-primary-content" : undefined
+        }
+        className={props.primaryContentId !== undefined ? cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack) : OPERATOR_LAYOUT.sectionStack}
+      >
+        <IdentityProvidersSettingsPageHeader
+          pageTitle={resolvedTitle}
+          subtitle={headerSubtitle}
+          breadcrumb={props.headerBreadcrumb}
         statusLabel={
           props.statusBadgeReady === false
             || props.diagnosticsDataUnavailable === true
@@ -177,6 +195,7 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
       </nav>
 
       {props.children}
+      </div>
     </OperatorPageContainer>
   );
 }
