@@ -591,6 +591,7 @@ public static class TopologyProposalRelationshipEndpointIndex
         string normalized = sourceId.Trim();
 
         return normalized.Contains("mssql", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("sql_managed_instance", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("storage_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cosmosdb", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("postgresql", StringComparison.OrdinalIgnoreCase)
