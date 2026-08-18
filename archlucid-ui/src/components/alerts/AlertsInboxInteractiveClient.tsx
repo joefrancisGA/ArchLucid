@@ -24,10 +24,17 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
         canMutateAlertInbox={controller.canMutateAlertInbox}
         buyerPolishedShell={controller.buyerPolishedShell}
         failure={controller.failure}
+        onRetry={() => {
+          void controller.load();
+        }}
       />
 
-      <AlertRulesAlertsInboxVocabularyRail currentSurfaceId="alerts-inbox" />
-      <AlertsFindingsVocabularyRail currentSurfaceId="alerts-inbox" />
+      {!controller.buyerPolishedShell ? (
+        <>
+          <AlertRulesAlertsInboxVocabularyRail currentSurfaceId="alerts-inbox" />
+          <AlertsFindingsVocabularyRail currentSurfaceId="alerts-inbox" />
+        </>
+      ) : null}
 
       <AlertsInboxSummaryRow
         summary={controller.summaryCounts}

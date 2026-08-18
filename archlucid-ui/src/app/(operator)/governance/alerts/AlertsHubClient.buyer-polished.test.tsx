@@ -42,19 +42,65 @@ vi.mock("@/lib/use-nav-surface", () => ({
   }),
 }));
 
-vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-}));
+vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
+
+  return {
+    ...actual,
+    PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  };
+});
 
 vi.mock("@/components/alerts/AlertsInboxContent", () => ({
   AlertsInboxContent: () => <div data-testid="stub-inbox" />,
 }));
 
 import { BUYER_ALERTS_PAGE_SUBTITLE } from "@/lib/alerts-page-copy";
+import {
+  ALERTS_INBOX_CLAIM_HEADING,
+  ALERTS_INBOX_FOLLOW_UPS_TITLE,
+} from "@/lib/alerts-inbox-evidence-copy";
+import {
+  ALERTS_INBOX_PRIMARY_CONTENT_ID,
+  ALERTS_INBOX_SKIP_LINK_LABEL,
+} from "@/lib/alerts-inbox-page-copy";
 import { AlertsHubChrome } from "./AlertsHubChrome";
 import { AlertsHubClient } from "./AlertsHubClient";
 
 describe("AlertsHubClient buyer-polished chrome", () => {
+  it("renders skip link, breadcrumb, and orientation above the inbox body", () => {
+    render(<AlertsHubClient />);
+
+    expect(screen.getByRole("link", { name: ALERTS_INBOX_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${ALERTS_INBOX_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("alerts-hub-breadcrumb")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: ALERTS_INBOX_CLAIM_HEADING }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: ALERTS_INBOX_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+
+    const orientation = screen.getByTestId("alerts-inbox-orientation-top");
+    const inbox = screen.getByTestId("stub-inbox");
+    const primary = screen.getByTestId("alerts-inbox-primary-content");
+
+    expect(primary).toContainElement(inbox);
+
+    const pageRoot = screen.getByTestId("alerts-page-title").closest(".px-0");
+    expect(pageRoot).not.toBeNull();
+
+    const orderedTestIds = Array.from(pageRoot!.querySelectorAll("[data-testid]")).map((element) =>
+      element.getAttribute("data-testid"),
+    );
+    const orientationIndex = orderedTestIds.indexOf("alerts-inbox-orientation-top");
+    const primaryIndex = orderedTestIds.indexOf("alerts-inbox-primary-content");
+
+    expect(orientationIndex).toBeGreaterThan(-1);
+    expect(primaryIndex).toBeGreaterThan(orientationIndex);
+    expect(orientation.compareDocumentPosition(primary) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("keeps the buyer subtitle, help control, and header configure link by default", () => {
     render(<AlertsHubClient />);
 

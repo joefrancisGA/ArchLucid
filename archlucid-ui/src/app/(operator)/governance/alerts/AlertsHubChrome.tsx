@@ -16,15 +16,22 @@ import {
   alertsPageSubtitle,
   ALERTS_CONFIGURE_RULES_LINK_LABEL,
 } from "@/lib/alerts-page-copy";
+import {
+  ALERTS_INBOX_PRIMARY_CONTENT_ID,
+  ALERTS_INBOX_SKIP_LINK_LABEL,
+} from "@/lib/alerts-inbox-page-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   OPERATOR_LINK,
-  OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { governanceAlertRulesTabHref, GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+
+import { AlertsHubBreadcrumb } from "./AlertsHubBreadcrumb";
+import { AlertsHubBuyerChrome } from "./AlertsHubBuyerChrome";
 
 type AlertsHubChromeProps = {
   readonly children: React.ReactNode;
@@ -50,6 +57,15 @@ function AlertsHubChromeInner({
   return (
     <div className="px-0">
       {buyerPolishedShell ? (
+        <a
+          href={`#${ALERTS_INBOX_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ALERTS_INBOX_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      {buyerPolishedShell ? (
         <LayerHeader pageKey="alerts" density="compact" />
       ) : null}
 
@@ -58,6 +74,7 @@ function AlertsHubChromeInner({
         title={OPERATOR_NAV_LINK_LABELS.alerts}
         subtitle={alertsPageSubtitle(buyerPolishedShell)}
         titleTestId="alerts-page-title"
+        breadcrumb={buyerPolishedShell ? <AlertsHubBreadcrumb /> : undefined}
         actions={
           <div className="flex flex-wrap items-center gap-2" data-testid="alerts-hub-header-actions">
             <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
@@ -77,7 +94,15 @@ function AlertsHubChromeInner({
           <AlertsGovernanceContextPanelDeferred canMutateAlertInbox={canMutateAlertInbox} />
         ) : null}
       </OperatorPageHeader>
-      <div className="min-w-0" data-testid="alert-hub-panel" aria-label="Alert inbox">
+
+      {buyerPolishedShell ? <AlertsHubBuyerChrome /> : null}
+
+      <div
+        id={buyerPolishedShell ? ALERTS_INBOX_PRIMARY_CONTENT_ID : undefined}
+        className={cn("min-w-0", buyerPolishedShell ? "scroll-mt-24" : undefined)}
+        data-testid={buyerPolishedShell ? "alerts-inbox-primary-content" : "alert-hub-panel"}
+        aria-label="Alert inbox"
+      >
         {children}
       </div>
     </div>
