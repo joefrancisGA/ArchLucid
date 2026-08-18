@@ -1,6 +1,6 @@
 using ArchLucid.Api.Controllers.Integrations;
 using ArchLucid.Api.Models;
-using ArchLucid.Api.Services;
+using ArchLucid.Application.Integrations;
 using ArchLucid.Core.Audit;
 
 using FluentAssertions;

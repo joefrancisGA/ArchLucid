@@ -1,7 +1,9 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.AiProviders;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Billing;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Integrations;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.AzureBoards;
 using ArchLucid.Application.Integrations.AzureBoards.Outbound;
@@ -211,6 +213,14 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ITenantItsmOutboundSettingsService, TenantItsmOutboundSettingsService>();
         services.AddScoped<ITenantAzureOpenAiConnectionService, TenantAzureOpenAiConnectionService>();
         services.AddScoped<ITenantAzureOpenAiConnectionProbeService, TenantAzureOpenAiConnectionProbeService>();
+        services
+            .AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(30);
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
+        services.AddScoped<ITeamsIncomingWebhookConnectionProbeService, TeamsIncomingWebhookConnectionProbeService>();
+        services.AddScoped<IMarketplaceWebhookConnectivityService, MarketplaceWebhookConnectivityService>();
         services.AddScoped<IItsmTenantConnectorCredentialResolver, ItsmTenantConnectorCredentialResolver>();
         services.AddSingleton<IItsmInboundWebhookReplayGuard, MemoryCacheItsmInboundWebhookReplayGuard>();
         services.AddSingleton<ItsmConnectorOAuthAccessTokenCache>();

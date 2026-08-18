@@ -3,8 +3,8 @@ using System.Text.Json;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Billing;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Api.Services;
-using ArchLucid.Api.Services.Billing;
+using ArchLucid.Application.Billing;
+using ArchLucid.Application.Integrations;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Billing;
@@ -29,7 +29,7 @@ public sealed class BillingCheckoutController(
     IBillingLedger billingLedger,
     IScopeContextProvider scopeProvider,
     IAuditService auditService,
-    MarketplaceWebhookConnectivityService marketplaceWebhookConnectivityService) : ControllerBase
+    IMarketplaceWebhookConnectivityService marketplaceWebhookConnectivityService) : ControllerBase
 {
     private readonly IAuditService
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -43,7 +43,7 @@ public sealed class BillingCheckoutController(
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
-    private readonly MarketplaceWebhookConnectivityService _marketplaceWebhookConnectivityService =
+    private readonly IMarketplaceWebhookConnectivityService _marketplaceWebhookConnectivityService =
         marketplaceWebhookConnectivityService ?? throw new ArgumentNullException(nameof(marketplaceWebhookConnectivityService));
 
     // idempotency-posture: operator-documented-safe-retry

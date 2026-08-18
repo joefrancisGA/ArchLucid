@@ -46,7 +46,7 @@ public sealed class OutboundWebhookDryRunExamplesOperationFilter : IOperationFil
             + RequestExample.Trim()
             + "\n```\n\n### Synthetic CloudEvents envelope (POST body to subscriber)\n\n```json\n"
             + CloudEventShape.Trim()
-            + "\n```\n\nSee `ArchLucid.Api.Services.OutboundWebhookDryRunService.BuildSyntheticWebhookBodyUtf8` and `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`. ";
+            + "\n```\n\nSee `ArchLucid.Host.Composition.Services.OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8` and `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`. ";
 
         operation.Description = string.IsNullOrWhiteSpace(operation.Description)
             ? block.Trim()

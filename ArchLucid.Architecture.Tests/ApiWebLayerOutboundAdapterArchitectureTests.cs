@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.RegularExpressions;
 
 using FluentAssertions;
@@ -28,7 +28,6 @@ public sealed class ApiWebLayerOutboundAdapterArchitectureTests
 
         foreach (Type type in EnumerateApiConcreteClasses())
         {
-
             if (!MatchesForbiddenOutboundAdapterTypeName(type.Name))
                 continue;
 
@@ -101,7 +100,6 @@ public sealed class ApiWebLayerOutboundAdapterArchitectureTests
 
         foreach (Type type in apiAssembly.GetTypes())
         {
-
             if (!type.IsClass || type.IsAbstract)
                 continue;
 
@@ -113,7 +111,6 @@ public sealed class ApiWebLayerOutboundAdapterArchitectureTests
     {
         foreach (string suffix in ApiWebLayerOutboundAdapterArchitectureConstants.ForbiddenOutboundAdapterTypeNameSuffixes)
         {
-
             if (typeName.EndsWith(suffix, StringComparison.Ordinal))
                 return true;
         }

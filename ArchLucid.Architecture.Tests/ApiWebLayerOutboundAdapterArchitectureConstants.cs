@@ -2,7 +2,7 @@ namespace ArchLucid.Architecture.Tests;
 
 /// <summary>
 ///     TB-2335: grandfathered outbound probe / HttpClient adapter implementations still hosted in
-///     <c>ArchLucid.Api</c> until follow-on composition-root moves complete.
+///     <c>ArchLucid.Api</c> until <strong>TB-2334</strong> moves IdP diagnostics to Host.Composition.
 /// </summary>
 internal static class ApiWebLayerOutboundAdapterArchitectureConstants
 {
@@ -24,20 +24,16 @@ internal static class ApiWebLayerOutboundAdapterArchitectureConstants
 
     internal static readonly string[] AllowlistedOutboundAdapterImplementationTypeNames =
     [
-        "IdentityProviderDiscoveryService",
-        "MarketplaceWebhookConnectivityService",
-        "OidcWellKnownDiagnosticsService",
-        "OutboundWebhookDryRunService",
-        "SamlOperationalDiagnosticsService",
-        "TeamsIncomingWebhookConnectionProbeService",
         "WebhookSubscriptionTestService",
+        "OidcWellKnownDiagnosticsService",
+        "SamlOperationalDiagnosticsService",
+        "IdentityProviderDiscoveryService",
     ];
 
     internal static readonly string[] AllowlistedApiWebLayerAddHttpClientImplementationTypeNames =
     [
-        "IdentityProviderDiscoveryService",
         "OidcWellKnownDiagnosticsService",
-        "OutboundWebhookDryRunService",
         "SamlOperationalDiagnosticsService",
+        "IdentityProviderDiscoveryService",
     ];
 }

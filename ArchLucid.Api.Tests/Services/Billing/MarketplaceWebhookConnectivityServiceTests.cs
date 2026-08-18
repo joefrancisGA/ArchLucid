@@ -1,5 +1,6 @@
-using ArchLucid.Api.Services;
-using ArchLucid.Api.Services.Billing;
+using ArchLucid.Application.Billing;
+using ArchLucid.Application.Integrations;
+using ArchLucid.Host.Composition.Services;
 using ArchLucid.Core.Configuration;
 
 using FluentAssertions;

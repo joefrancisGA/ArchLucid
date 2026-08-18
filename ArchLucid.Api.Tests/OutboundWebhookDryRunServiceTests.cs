@@ -1,7 +1,8 @@
 using System.Text.Json;
 
-using ArchLucid.Api.Services;
+using ArchLucid.Application.Integrations;
 using ArchLucid.Core.Integration;
+using ArchLucid.Host.Composition.Services;
 
 using FluentAssertions;
 

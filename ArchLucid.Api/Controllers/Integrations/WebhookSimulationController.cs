@@ -2,7 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Api.Services;
+using ArchLucid.Application.Integrations;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 

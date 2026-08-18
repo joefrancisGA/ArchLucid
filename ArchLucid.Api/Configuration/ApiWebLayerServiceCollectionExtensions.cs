@@ -5,7 +5,6 @@ using ArchLucid.Host.Core.Health;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.Startup;
 using ArchLucid.Api.Services;
-using ArchLucid.Api.Services.Billing;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Api.Validators;
@@ -107,15 +106,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<RetrievalTools>();
         services.AddScoped<PolicyPackMarkdownExplainService>();
 
-        services.AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
-        {
-            client.Timeout = TimeSpan.FromSeconds(30);
-        })
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
-
         services.AddScoped<IWebhookSubscriptionTestService, WebhookSubscriptionTestService>();
-        services.AddScoped<ITeamsIncomingWebhookConnectionProbeService, TeamsIncomingWebhookConnectionProbeService>();
-        services.AddScoped<MarketplaceWebhookConnectivityService>();
 
         services.AddHealthChecks().AddCheck<AzureServiceBusNamespaceHealthCheck>(
             "azure_service_bus",
