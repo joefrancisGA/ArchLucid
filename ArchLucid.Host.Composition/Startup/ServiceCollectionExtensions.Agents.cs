@@ -107,6 +107,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IFindingPriorityReranker, FindingPriorityReranker>();
         services.Configure<AgentConfidenceCalibrationOptions>(
             configuration.GetSection(AgentConfidenceCalibrationOptions.SectionPath));
+        services.Configure<TopologyProposalConsensusOptions>(
+            configuration.GetSection(TopologyProposalConsensusOptions.SectionPath));
         services.Configure<AgentCuratedEvidenceProposalOptions>(
             configuration.GetSection(AgentCuratedEvidenceProposalOptions.SectionPath));
         services.AddScoped<IAgentConfidenceCalibrator, AgentConfidenceCalibrator>();
@@ -117,6 +119,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<AgentResultRegionMismatchEnricher>();
         services.AddScoped<AgentProposalStructuralPostProcessorEnricher>();
         services.AddScoped<CrossAgentProposalConsistencyEnricher>();
+        services.AddScoped<TopologyProposalDualModelConsensusEnricher>();
         services.AddScoped<AgentArchitectureFindingEmissionEnricher>();
         services.AddScoped<IAgentResultPostExecutionEnricher>(static sp =>
             new CompositeAgentResultPostExecutionEnricher(
@@ -124,6 +127,7 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<AgentResultPostExecutionEnricher>(),
                 sp.GetRequiredService<AgentProposalStructuralPostProcessorEnricher>(),
                 sp.GetRequiredService<CrossAgentProposalConsistencyEnricher>(),
+                sp.GetRequiredService<TopologyProposalDualModelConsensusEnricher>(),
                 sp.GetRequiredService<AgentArchitectureFindingEmissionEnricher>(),
                 sp.GetRequiredService<AgentResultRegionMismatchEnricher>(),
             ]));
@@ -411,6 +415,7 @@ public static partial class ServiceCollectionExtensions
                     sp.GetRequiredService<IdempotentAgentExecutor>(),
                     sp.GetRequiredService<IAgentExecutionTraceRecorder>()));
             services.AddScoped<IAgentExecutor>(static sp => sp.GetRequiredService<SimulatorExecutionTraceRecordingExecutor>());
+            services.AddScoped<ITopologyProposalSecondaryCompletionInvoker, NullTopologyProposalSecondaryCompletionInvoker>();
             RegisterFakeAgentCompletionClient(services);
         }
         else
@@ -422,6 +427,7 @@ public static partial class ServiceCollectionExtensions
                     sp.GetRequiredService<DeterministicAgentSimulator>(),
                     sp.GetRequiredService<IAgentExecutionTraceRecorder>()));
             services.AddScoped<IAgentExecutor, RealAgentExecutor>();
+            services.AddScoped<ITopologyProposalSecondaryCompletionInvoker, TopologyProposalSecondaryCompletionInvoker>();
             services.AddScoped<IAgentHandler, TopologyAgentHandler>();
             services.AddScoped<IAgentHandler, CostAgentHandler>();
             services.AddScoped<IAgentHandler, ComplianceAgentHandler>();

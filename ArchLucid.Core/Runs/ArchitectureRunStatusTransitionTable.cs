@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Identity;
 
 namespace ArchLucid.Core.Runs;
 
@@ -104,6 +105,30 @@ public static class ArchitectureRunStatusTransitionTable
             throw new InvalidOperationException(
                 $"Illegal run status transition: {from} + {lifecycleEvent} → {to}.");
         }
+    }
+
+    public static bool TryIssueReadyForCommitRun(
+        ArchitectureRunStatus fromStatus,
+        RunId runId,
+        out ReadyForCommitRun handle)
+    {
+        if (fromStatus is not ArchitectureRunStatus.ReadyForCommit)
+        {
+            handle = default;
+            return false;
+        }
+
+        ArchitectureRunStatusTransitionResult transition =
+            TryTransition(fromStatus, ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        if (!transition.IsAllowed)
+        {
+            handle = default;
+            return false;
+        }
+
+        handle = new ReadyForCommitRun(runId);
+        return true;
     }
 
     public static bool TryParseStatus(string? legacyRunStatus, out ArchitectureRunStatus status)

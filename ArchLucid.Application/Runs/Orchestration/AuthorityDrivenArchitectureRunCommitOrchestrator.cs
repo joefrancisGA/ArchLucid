@@ -22,6 +22,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -336,6 +337,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             throw;
         }
 
+        RunId typedRunId = new(runGuid);
+
+        if (!ArchitectureRunStatusTransitionTable.TryIssueReadyForCommitRun(run.Status, typedRunId, out ReadyForCommitRun readyForCommitRun))
+            throw new InvalidOperationException(
+                $"Run '{runId}' passed commit gates but could not issue a ReadyForCommitRun finalize handle.");
+
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
         ManifestDocument manifestModel;
@@ -457,7 +464,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     PreloadedFindingsSnapshot = findingsForFinalization,
                     PreloadedScopePolicyPackAssignments = scopePolicyPackAssignments,
                     PreloadedArchitectureRequest = request,
-                    SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts
+                    SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts,
+                    ReadyForCommitHandle = readyForCommitRun
                 }, cancellationToken);
 
             if (finalization.WasIdempotentReturn)

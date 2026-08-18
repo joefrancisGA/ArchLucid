@@ -101,7 +101,7 @@ public sealed class AdversarialGoldenCohortDeterministicTests
         SpecialistReviewFinding finding = new()
         {
             FindingId = "trap-risk-accepted",
-            Dimension = QualityDimension.Compliance,
+            Dimension = QualityDimension.PrivacyCompliance,
             Title = "Risk accepted trap",
             Rationale = "Attempt to accept risk while conclusion still reads Pass.",
             Conclusion = ReviewConclusion.Pass,

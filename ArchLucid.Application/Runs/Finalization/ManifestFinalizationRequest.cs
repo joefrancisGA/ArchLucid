@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Runs;
 using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
 
@@ -103,6 +104,12 @@ public sealed class ManifestFinalizationRequest
     ///     execution (non-deferred create); finalization only transitions the run header to Committed.
     /// </summary>
     public bool SkipPersistingPipelineArtifacts
+    {
+        get;
+        init;
+    }
+
+    public ReadyForCommitRun? ReadyForCommitHandle
     {
         get;
         init;

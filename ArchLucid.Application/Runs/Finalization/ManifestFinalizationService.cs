@@ -124,6 +124,17 @@ public sealed class ManifestFinalizationService(
 
         RunStateTransitionEnforcement.EnsureCommitAllowedLegacy(_runStateTransitionService, request.RunId, locked.LegacyRunStatus);
 
+        if (request.ReadyForCommitHandle is ReadyForCommitRun readyHandle)
+        {
+            readyHandle.ValidateRunId(request.RunId);
+
+            if (!ArchitectureRunStatusTransitionTable.TryParseStatus(locked.LegacyRunStatus, out ArchitectureRunStatus lockedStatus))
+                throw new InvalidOperationException(
+                    $"Run '{request.RunId:D}' has unparsable LegacyRunStatus '{locked.LegacyRunStatus}' during finalize.");
+
+            readyHandle.ValidateLockedRunStatus(lockedStatus);
+        }
+
         if (locked.FindingsSnapshotId is null || locked.FindingsSnapshotId.Value != request.ExpectedFindingsSnapshotId)
             throw new InvalidOperationException("Findings snapshot on the run record does not match the expected findings for finalization.");
         await EnsureFindingsSnapshotFinalizableAsync(request.ExpectedFindingsSnapshotId, request.PreloadedFindingsSnapshot, cancellationToken);
