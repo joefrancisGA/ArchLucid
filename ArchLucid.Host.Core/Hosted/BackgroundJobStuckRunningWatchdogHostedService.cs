@@ -1,4 +1,7 @@
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Hosted;
 
@@ -12,11 +15,10 @@ namespace ArchLucid.Host.Core.Hosted;
 public sealed class BackgroundJobStuckRunningWatchdogHostedService(
     IServiceScopeFactory scopeFactory,
     HostLeaderElectionCoordinator electionCoordinator,
+    IOptions<BackgroundJobsOptions> backgroundJobsOptions,
     ILogger<BackgroundJobStuckRunningWatchdogHostedService> logger) : BackgroundService
 {
     private static readonly TimeSpan PollInterval = TimeSpan.FromMinutes(1);
-
-    private static readonly TimeSpan StaleAfter = TimeSpan.FromMinutes(10);
 
     private readonly HostLeaderElectionCoordinator _electionCoordinator =
         electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
@@ -24,8 +26,24 @@ public sealed class BackgroundJobStuckRunningWatchdogHostedService(
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
+    private readonly BackgroundJobsOptions _backgroundJobsOptions =
+        backgroundJobsOptions?.Value ?? throw new ArgumentNullException(nameof(backgroundJobsOptions));
+
     private readonly ILogger<BackgroundJobStuckRunningWatchdogHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    /// <summary>
+    ///     Reclaim threshold must exceed queue visibility so a healthy worker is not reset while its message is still
+    ///     invisible (default visibility is 15 minutes; the prior fixed 10-minute threshold caused duplicate execution).
+    /// </summary>
+    internal static TimeSpan ResolveStaleRunningThreshold(BackgroundJobsOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        int visibilityMinutes = Math.Clamp(options.ProcessorVisibilityMinutes, 1, 120);
+
+        return TimeSpan.FromMinutes(visibilityMinutes + 1);
+    }
 
     /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -49,13 +67,14 @@ public sealed class BackgroundJobStuckRunningWatchdogHostedService(
                 IBackgroundJobRepository repository =
                     scope.ServiceProvider.GetRequiredService<IBackgroundJobRepository>();
 
-                int affected = await repository.ResetStaleRunningJobsOlderThanAsync(StaleAfter, leaderToken);
+                TimeSpan staleAfter = ResolveStaleRunningThreshold(_backgroundJobsOptions);
+                int affected = await repository.ResetStaleRunningJobsOlderThanAsync(staleAfter, leaderToken);
 
                 if (affected > 0)
 
                     _logger.LogWarning(
                         "Reclaimed background jobs stuck Running > {Minutes} minutes: {Count}.",
-                        StaleAfter.TotalMinutes,
+                        staleAfter.TotalMinutes,
                         affected);
             }
 
