@@ -1,7 +1,6 @@
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
   ARCHITECTURE_DRAFTS_CANONICAL_PATH,
-  ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL,
 } from "@/lib/architecture-drafts-evidence-copy";
 import { ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/architecture-drafts-help-evidence-copy";
 import {
@@ -10,10 +9,29 @@ import {
 } from "@/lib/architecture/architecture-workflow-labels";
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
+export const ARCHITECTURE_DRAFTS_HELP_BREADCRUMB_TOPIC_TITLE = "Architecture drafts";
+
+export const ARCHITECTURE_DRAFTS_HELP_PAGE_EYEBROW = "Help topic" as const;
+
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
 
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE =
   "Browse, resume, and refine saved architecture drafts before filing evidence for a governance review.";
+
+export const ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE_BUYER =
+  "Saved system briefs you can resume and refine before evidence intake for a governance review." as const;
+
+export const ARCHITECTURE_DRAFTS_HELP_PRIMARY_CONTENT_ID = "help-architecture-drafts-primary-content" as const;
+
+export const ARCHITECTURE_DRAFTS_HELP_SKIP_LINK_LABEL = "Skip to architecture drafts guide" as const;
+
+export function architectureDraftsHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE_BUYER
+    : ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE;
+}
+
+export const ARCHITECTURE_DRAFTS_HELP_HOW_TO_SECTION_TITLE = "Step-by-step" as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_OVERVIEW =
   "Architecture drafts are saved system briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for governance analysis.";
@@ -47,8 +65,8 @@ export const ARCHITECTURE_DRAFTS_HELP_FEATURE_ITEMS: readonly ArchitectureDrafts
     detail: "Start a new draft when you need a fresh system brief.",
   },
   {
-    label: "Review intake",
-    detail: "Review intake collects evidence once the brief is ready — use Start a review to begin.",
+    label: "Evidence intake",
+    detail: "When the brief is ready, open the primary action above to collect evidence for governance analysis.",
   },
 ] as const;
 
@@ -66,7 +84,7 @@ export const ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID = "help-architecture-draf
 
 export const ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-architecture-drafts-do", title: "What architecture drafts do" },
-  { level: 2, id: "how-architecture-drafts-work", title: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL },
+  { level: 2, id: "how-architecture-drafts-work", title: ARCHITECTURE_DRAFTS_HELP_HOW_TO_SECTION_TITLE },
   {
     level: 2,
     id: ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID,

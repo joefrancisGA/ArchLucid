@@ -437,7 +437,9 @@ export function SponsorDashboardHelpEvidenceOrientationStrip(
   );
 }
 
-export function ArchitectureDraftsHelpEvidenceOrientationStrip(): React.JSX.Element {
+export function ArchitectureDraftsHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-architecture-drafts"
@@ -449,6 +451,7 @@ export function ArchitectureDraftsHelpEvidenceOrientationStrip(): React.JSX.Elem
       sources={ARCHITECTURE_DRAFTS_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="wrap"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
