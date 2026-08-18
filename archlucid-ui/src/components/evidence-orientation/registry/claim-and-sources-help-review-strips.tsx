@@ -41,6 +41,14 @@ import {
   ARCHITECTURE_DRAFTS_HELP_SOURCES,
   ARCHITECTURE_DRAFTS_HELP_SOURCES_INTRO,
 } from "@/lib/architecture-drafts-help-evidence-copy";
+import {
+  PATH_CHOOSER_HELP_CLAIM_DISCIPLINE,
+  PATH_CHOOSER_HELP_CLAIM_DISCIPLINE_HEADING,
+  PATH_CHOOSER_HELP_CLAIM_HEADING_ID,
+  PATH_CHOOSER_HELP_FOLLOW_UPS_TITLE,
+  PATH_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO,
+  PATH_CHOOSER_HELP_SOURCES,
+} from "@/lib/path-chooser-help-evidence-copy";
 import { ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID } from "@/lib/architecture-drafts-help-guide-content";
 import {
   EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE,
@@ -432,6 +440,25 @@ export function SponsorDashboardHelpEvidenceOrientationStrip(
       sourcesIntro={SPONSOR_DASHBOARD_HELP_SOURCES_INTRO}
       sources={SPONSOR_DASHBOARD_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function PathChooserHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-path-chooser"
+      claim={PATH_CHOOSER_HELP_CLAIM_DISCIPLINE}
+      claimHeading={PATH_CHOOSER_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={PATH_CHOOSER_HELP_CLAIM_HEADING_ID}
+      sourcesTitle={PATH_CHOOSER_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={PATH_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO}
+      sources={PATH_CHOOSER_HELP_SOURCES}
+      sourcesHeadingId="related-next-steps"
+      sourcesLayout="wrap"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );

@@ -19,7 +19,10 @@ import {
   PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS,
   PATH_CHOOSER_HELP_PRIMARY_ACTIONS,
 } from "@/lib/path-chooser-help-guide-content";
-import { PATH_CHOOSER_HELP_RELATED_NEXT_STEPS } from "@/lib/path-chooser-help-evidence-copy";
+import {
+  PATH_CHOOSER_HELP_RELATED_NEXT_STEPS,
+  PATH_CHOOSER_HELP_SOURCES,
+} from "@/lib/path-chooser-help-evidence-copy";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permanent-redirects";
@@ -84,9 +87,17 @@ describe("HelpPathChooserGuideView", () => {
     expect(visible).toContain("choose your next step");
     expect(screen.getByTestId("help-path-chooser-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("help-path-chooser-orientation")).toBeInTheDocument();
     expect(screen.getByTestId("help-path-chooser-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByTestId("help-path-chooser-related-next-steps")).toBeInTheDocument();
-    expect(screen.getByTestId("help-path-chooser-related-next-steps-links")).toBeInTheDocument();
+    expect(screen.getByTestId("help-path-chooser-sources")).toBeInTheDocument();
+
+    const sources = screen.getByTestId("help-path-chooser-sources");
+
+    for (const link of PATH_CHOOSER_HELP_SOURCES) {
+      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+
+    expect(PATH_CHOOSER_HELP_RELATED_NEXT_STEPS.length).toBeGreaterThan(PATH_CHOOSER_HELP_SOURCES.length);
     expect(screen.queryByText(/^Fallback:/i)).toBeNull();
 
     const actionPanel = screen.getByTestId("help-path-chooser-action-panel");
@@ -116,12 +127,6 @@ describe("HelpPathChooserGuideView", () => {
     expect(evaluateBranch?.fallback.href).toBe("/help/first-architecture-review");
     expect(evaluateBranch?.fallback.label).toBe("Your first architecture review");
     expect(screen.queryByRole("link", { name: "Pilot guide" })).toBeNull();
-
-    const relatedNextSteps = screen.getByTestId("help-path-chooser-related-next-steps-links");
-
-    for (const link of PATH_CHOOSER_HELP_RELATED_NEXT_STEPS) {
-      expect(within(relatedNextSteps).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
-    }
 
     expect(screen.getAllByRole("link", { name: /security and trust/i }).length).toBeGreaterThan(0);
   });
