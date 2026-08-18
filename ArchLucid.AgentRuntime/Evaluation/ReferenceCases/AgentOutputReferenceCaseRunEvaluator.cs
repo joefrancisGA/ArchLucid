@@ -18,7 +18,6 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
     IOptionsMonitor<AgentExecutionReferenceEvaluationOptions> options,
     IAgentOutputReferenceCaseCatalog catalog,
     IAgentOutputEvaluator structuralEvaluator,
-    IHeuristicAgentOutputSemanticEvaluator heuristicSemanticEvaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
     IAgentOutputEvaluationResultRepository resultRepository,
     ILogger<AgentOutputReferenceCaseRunEvaluator> logger)
@@ -32,7 +31,9 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
     /// <summary>
     ///     Returns whether any configured reference case passes for <paramref name="trace" /> without persisting rows.
     /// </summary>
-    public bool ComputeAnyPassingReferenceCase(AgentExecutionTrace trace)
+    public async Task<bool> ComputeAnyPassingReferenceCaseAsync(
+        AgentExecutionTrace trace,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(trace);
 
@@ -45,7 +46,33 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
         if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson))
             return false;
 
-        return (from caseDef in catalog.Cases where caseDef.AgentType == trace.AgentType let structural = structuralEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType) where !structural.IsJsonParseFailure let semantic = heuristicSemanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType) where EvaluateCaseRules(caseDef, trace.ParsedResultJson, structural, semantic, out _) select caseDef).Any();
+        foreach (AgentOutputReferenceCaseDefinition caseDef in catalog.Cases)
+        {
+            if (caseDef.AgentType != trace.AgentType)
+                continue;
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            AgentOutputEvaluationScore structural = structuralEvaluator.Evaluate(
+                trace.TraceId,
+                trace.ParsedResultJson,
+                trace.AgentType);
+
+            if (structural.IsJsonParseFailure)
+                continue;
+
+            AgentOutputSemanticScore semantic = await semanticEvaluator.EvaluateAsync(
+                    trace.TraceId,
+                    trace.ParsedResultJson,
+                    trace.AgentType,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            if (EvaluateCaseRules(caseDef, trace.ParsedResultJson, structural, semantic, out _))
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>Evaluates one trace against all cases matching its <see cref="AgentExecutionTrace.AgentType" />.</summary>
