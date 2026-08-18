@@ -36,7 +36,7 @@ describe("HelpStandardsRulesGuideView", () => {
     render(<HelpStandardsRulesGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-standards-rules-guide")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
       "Guide last reviewed 2026-08-13 · Governance policy resolution, enforced rules, and diagnostic export",
     );

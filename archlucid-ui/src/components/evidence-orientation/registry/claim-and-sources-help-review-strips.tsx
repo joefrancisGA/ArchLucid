@@ -2,6 +2,7 @@
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import {
   AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE,
   AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -258,6 +259,7 @@ export function ArchitectureScorecardHelpEvidenceOrientationStrip(): React.JSX.E
 
 export type StandardsRulesHelpEvidenceOrientationStripProps = {
   readonly readingBodyClassName?: string;
+  readonly sources?: readonly EvidenceOrientationLink[];
 };
 
 export function StandardsRulesHelpEvidenceOrientationStrip(
@@ -268,6 +270,7 @@ export function StandardsRulesHelpEvidenceOrientationStrip(
     OPERATOR_TYPOGRAPHY.sectionTitle,
     "m-0 scroll-mt-24",
   );
+  const sources = props.sources ?? STANDARDS_RULES_HELP_SOURCES;
 
   return (
     <EvidenceOrientationClaimAndSourcesStrip
@@ -277,7 +280,7 @@ export function StandardsRulesHelpEvidenceOrientationStrip(
       claimHeadingId={STANDARDS_RULES_HELP_CLAIM_HEADING_ID}
       sourcesTitle={STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={STANDARDS_RULES_HELP_SOURCES_INTRO}
-      sources={STANDARDS_RULES_HELP_SOURCES}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
       headingClassName={sectionHeadingClass}

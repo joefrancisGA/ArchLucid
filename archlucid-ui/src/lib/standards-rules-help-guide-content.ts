@@ -8,12 +8,25 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { STANDARDS_RULES_HELP_TOPIC_LABEL } from "@/lib/standards-rules-page";
 import { STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/standards-rules-help-evidence-copy";
 
+export const STANDARDS_RULES_HELP_PAGE_EYEBROW = "Help topic" as const;
+
 export const STANDARDS_RULES_HELP_BREADCRUMB_TOPIC_TITLE = "Standards & rules";
 
 export const STANDARDS_RULES_HELP_PAGE_TITLE = "Standards & rules";
 
 export const STANDARDS_RULES_HELP_PAGE_SUBTITLE =
   "How to read enforced rules, policy pack sources, and linked evidence on the standards and rules resolution view.";
+
+export const STANDARDS_RULES_HELP_PAGE_SUBTITLE_BUYER =
+  "Enforced rules, policy pack sources, and linked findings on the standards and rules resolution view." as const;
+
+export const STANDARDS_RULES_HELP_PRIMARY_CONTENT_ID = "help-standards-rules-primary-content" as const;
+
+export const STANDARDS_RULES_HELP_SKIP_LINK_LABEL = "Skip to standards and rules guide" as const;
+
+export function standardsRulesHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? STANDARDS_RULES_HELP_PAGE_SUBTITLE_BUYER : STANDARDS_RULES_HELP_PAGE_SUBTITLE;
+}
 
 export const STANDARDS_RULES_HELP_OVERVIEW =
   "This guide explains how to read the Standards & rules resolution view: enforced rule rows, policy pack sources, linked findings, and diagnostic export. Use it before you open the live governance surface or when sponsor questions need citeable resolution context.";
