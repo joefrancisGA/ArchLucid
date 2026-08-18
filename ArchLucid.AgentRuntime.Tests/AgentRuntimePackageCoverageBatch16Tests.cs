@@ -128,7 +128,7 @@ public sealed class AgentRuntimePackageCoverageBatch16Tests
     }
 
     [Fact]
-    public void ComputeAnyPassingReferenceCase_returns_true_for_matching_topology_trace()
+    public async Task ComputeAnyPassingReferenceCase_returns_true_for_matching_topology_trace()
     {
         AgentOutputReferenceCaseRunEvaluator sut = CreateReferenceCaseEvaluator(enabled: true);
         AgentExecutionTrace trace = new()
@@ -139,7 +139,7 @@ public sealed class AgentRuntimePackageCoverageBatch16Tests
             ParsedResultJson = PassingTopologyJson,
         };
 
-        bool passing = sut.ComputeAnyPassingReferenceCase(trace);
+        bool passing = await sut.ComputeAnyPassingReferenceCaseAsync(trace, CancellationToken.None);
 
         passing.Should().BeTrue();
     }
@@ -148,7 +148,7 @@ public sealed class AgentRuntimePackageCoverageBatch16Tests
     [InlineData(false, true, AgentType.Topology, PassingTopologyJson, false)]
     [InlineData(true, false, AgentType.Topology, PassingTopologyJson, false)]
     [InlineData(true, true, AgentType.Critic, PassingTopologyJson, false)]
-    public void ComputeAnyPassingReferenceCase_returns_false_for_guard_and_mismatch_cases(
+    public async Task ComputeAnyPassingReferenceCase_returns_false_for_guard_and_mismatch_cases(
         bool enabled,
         bool parseSucceeded,
         AgentType agentType,
@@ -164,11 +164,11 @@ public sealed class AgentRuntimePackageCoverageBatch16Tests
             ParsedResultJson = parsedJson,
         };
 
-        sut.ComputeAnyPassingReferenceCase(trace).Should().Be(expected);
+        (await sut.ComputeAnyPassingReferenceCaseAsync(trace, CancellationToken.None)).Should().Be(expected);
     }
 
     [Fact]
-    public void ComputeAnyPassingReferenceCase_returns_false_when_required_json_key_missing()
+    public async Task ComputeAnyPassingReferenceCase_returns_false_when_required_json_key_missing()
     {
         AgentOutputReferenceCaseRunEvaluator sut = CreateReferenceCaseEvaluator(
             enabled: true,
@@ -190,7 +190,7 @@ public sealed class AgentRuntimePackageCoverageBatch16Tests
             ParsedResultJson = PassingTopologyJson,
         };
 
-        sut.ComputeAnyPassingReferenceCase(trace).Should().BeFalse();
+        (await sut.ComputeAnyPassingReferenceCaseAsync(trace, CancellationToken.None)).Should().BeFalse();
     }
 
     [Fact]
@@ -386,14 +386,12 @@ public sealed class AgentRuntimePackageCoverageBatch16Tests
         ];
 
         FixedReferenceCaseCatalog catalog = new(caseList);
-        HeuristicAgentOutputSemanticEvaluator heuristicSemantic = new();
-        HeuristicOnlyAgentOutputSemanticEvaluator facade = new(heuristicSemantic);
+        HeuristicOnlyAgentOutputSemanticEvaluator facade = new(new HeuristicAgentOutputSemanticEvaluator());
 
         return new AgentOutputReferenceCaseRunEvaluator(
             options.Object,
             catalog,
             new AgentOutputEvaluator(),
-            heuristicSemantic,
             facade,
             Mock.Of<IAgentOutputEvaluationResultRepository>(),
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
