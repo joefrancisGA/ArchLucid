@@ -11,6 +11,48 @@ namespace ArchLucid.Application.Tests.Drafts;
 public sealed class ArchitectureDraftReviewReadinessValidatorTests
 {
     [Fact]
+    public void EvaluateBlockers_WhenOnlyUnknownSentinelInStructuredBrief_ReturnsBlockers()
+    {
+        DraftRequestDocument document = CreateReadyDocument();
+        document.StructuredBrief.ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
+        document.StructuredBrief.ConfirmedAssumptions = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
+        document.StructuredBrief.QualityAttribute = ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview;
+
+        IReadOnlyList<string> blockers = ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document);
+
+        blockers.Should().Contain("constraint");
+        blockers.Should().Contain("assumption");
+        blockers.Should().Contain("quality attribute with a numeric target");
+    }
+
+    [Fact]
+    public void EvaluateBlockers_WhenMixedSentinelAndRealConstraint_StillRequiresRealAssumption()
+    {
+        DraftRequestDocument document = CreateReadyDocument();
+        document.StructuredBrief.ConfirmedConstraints =
+            [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview, "Private endpoints required"];
+        document.StructuredBrief.ConfirmedAssumptions = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
+
+        IReadOnlyList<string> blockers = ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document);
+
+        blockers.Should().NotContain("constraint");
+        blockers.Should().Contain("assumption");
+    }
+
+    [Fact]
+    public void EnsureReviewReady_ThrowsWhenOnlyUnknownSentinelsPresent()
+    {
+        DraftRequestDocument document = CreateReadyDocument();
+        document.StructuredBrief.ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
+        document.StructuredBrief.ConfirmedAssumptions = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
+
+        Action act = () => ArchitectureDraftReviewReadinessValidator.EnsureReviewReady(document);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*constraint*");
+    }
+
+    [Fact]
     public void EvaluateBlockers_WhenLegacyMinimumOnly_ReturnsStructuredBriefBlockers()
     {
         DraftRequestDocument document = CreateReadyDocument();

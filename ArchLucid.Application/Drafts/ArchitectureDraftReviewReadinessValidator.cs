@@ -69,7 +69,7 @@ public static partial class ArchitectureDraftReviewReadinessValidator
     {
         foreach (string item in items)
         {
-            if (!string.IsNullOrWhiteSpace(item))
+            if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(item))
                 return true;
         }
 
@@ -91,9 +91,9 @@ public static partial class ArchitectureDraftReviewReadinessValidator
 
     private static bool QualityAttributeMeetsMinimum(string? qualityAttribute)
     {
-        if (string.IsNullOrWhiteSpace(qualityAttribute))
+        if (!ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(qualityAttribute))
             return false;
 
-        return NumericTokenPattern().IsMatch(qualityAttribute.Trim());
+        return NumericTokenPattern().IsMatch(qualityAttribute!.Trim());
     }
 }

@@ -79,6 +79,29 @@ public sealed class DraftRequestProjectorTests
     }
 
     [Fact]
+    public void Project_ExcludesUnknownSentinelFromArchitectureRequestLists()
+    {
+        DraftRequestDocument document = CreateDocument();
+        document.WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture;
+        document.StructuredBrief = new ArchitectureDraftStructuredBrief
+        {
+            ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview],
+            ConfirmedAssumptions = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview],
+            ConfirmedRequiredCapabilities = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview],
+            QualityAttribute = ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview,
+            FailureModeNote = ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview,
+            OperationalOwner = ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview,
+        };
+
+        Contracts.Requests.ArchitectureRequest request = _projector.Project(document, Guid.NewGuid());
+
+        request.Constraints.Should().BeEmpty();
+        request.RequiredCapabilities.Should().BeEmpty();
+        request.Assumptions.Should().NotContain(a => a.Contains(ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview, StringComparison.Ordinal));
+        request.InlineRequirements.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Project_CopiesStructuredBriefOntoArchitectureRequest()
     {
         DraftRequestDocument document = CreateDocument();
