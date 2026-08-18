@@ -1,11 +1,11 @@
 # One-shot patch applier for /al-bug itsm-inbound-webhooks tenant-scope IDOR fix.
-Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
-
 param(
     [Parameter(Mandatory = $true)]
     [string] $RepoRoot
 )
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
 
 function Set-FileText([string] $Path, [string] $Content) {
     $dir = Split-Path -Parent $Path
@@ -290,12 +290,16 @@ if ($ledger -match '## Zone: itsm-inbound-webhooks[\s\S]*?\*\*hunts:\*\* 0') {
     $ledger = $ledger -replace '(## Zone: itsm-inbound-webhooks[\s\S]*?)\*\*last-hunt:\*\* never', '$1**last-hunt:** 2026-08-18'
     $ledger = $ledger -replace '(## Zone: itsm-inbound-webhooks[\s\S]*?)\*\*last-bug:\*\* never', '$1**last-bug:** 2026-08-18'
     $ledger = $ledger.Replace(
-        '- [ ] (candidate) Webhook accepted when the shared secret does not match the connector config
+        @'
+- [ ] (candidate) Webhook accepted when the shared secret does not match the connector config
 - [ ] (candidate) Replay guard allows duplicate delivery of the same event id
-- [ ] (candidate) Inbound payload is applied to a tenant inferred from the body instead of the authenticated connector',
-        '- [x] (candidate) Webhook accepted when the shared secret does not match the connector config — invalid: `WebhookSecrets.SecureEquals` rejects before parse
-- [ ] (candidate) Replay guard allows duplicate delivery of the same event id — not reproduced; sequential replay covered; concurrent HasSeen→Remember window remains theoretical
-- [x] (candidate) Inbound payload is applied to a tenant inferred from the body instead of the authenticated connector — fixed: tenant-scoped routes now resolve correlation with `TryGetByExternalKeyForTenantAsync`')
+- [ ] (candidate) Inbound payload is applied to a tenant inferred from the body instead of the authenticated connector
+'@,
+        @'
+- [x] (candidate) Webhook accepted when the shared secret does not match the connector config - invalid: WebhookSecrets.SecureEquals rejects before parse
+- [ ] (candidate) Replay guard allows duplicate delivery of the same event id - not reproduced; sequential replay covered
+- [x] (candidate) Inbound payload is applied to a tenant inferred from the body instead of the authenticated connector - fixed: tenant-scoped routes use TryGetByExternalKeyForTenantAsync
+'@)
     Set-FileText $ledgerPath $ledger
 }
 

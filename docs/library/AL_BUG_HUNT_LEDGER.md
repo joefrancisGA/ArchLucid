@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — curated `/al-bug` hunt zones. Not a buyer or operator document. Agents must not invent extra zones in the same invocation; update this file after each hunt.
+﻿> **Scope:** Contributor-reference â€” curated `/al-bug` hunt zones. Not a buyer or operator document. Agents must not invent extra zones in the same invocation; update this file after each hunt.
 
 # `/al-bug` hunt ledger
 
@@ -8,7 +8,7 @@ Curated zones covering the full product surface (API, persistence, UI, CLI, orch
 
 ## How to use
 
-1. Run `.\scripts\agent\al-bug-pick-zone.ps1 -Preview` (add `-Hint '…'` when the user named an area; add `-Refresh` to recompute git churn).
+1. Run `.\scripts\agent\al-bug-pick-zone.ps1 -Preview` (add `-Hint 'â€¦'` when the user named an area; add `-Refresh` to recompute git churn).
 2. Hunt **only** the returned zone's `paths`. Treat `huntReadyHypotheses` as claims; treat `candidateHypotheses` as search lenses until a seed hunt.
 3. After the hunt, edit this file (the script does **not** write it):
    - **Hit:** increment `hunts` and `bugs-found`; set `consecutive-dry-hunts` to `0`; set `last-hunt` and `last-bug` to today (`YYYY-MM-DD`); tick the hypothesis as `(proven)`.
@@ -31,14 +31,14 @@ New zones start **`unseeded`** with zero hunt-ready rows. Do not template-seed t
 
 Open rows:
 
-- `[ ] (candidate) …` — harm-class or unverified template. Not hunt-ready. No picker tie-break.
-- `[ ] (hunt-ready) …` — locus + input + wrong outcome + mechanism filled from **these** files.
+- `[ ] (candidate) â€¦` â€” harm-class or unverified template. Not hunt-ready. No picker tie-break.
+- `[ ] (hunt-ready) â€¦` â€” locus + input + wrong outcome + mechanism filled from **these** files.
 
-Closed rows (never tick a miss as bare `[x]` — that counts as proven):
+Closed rows (never tick a miss as bare `[x]` â€” that counts as proven):
 
-- `[x] (proven) …` — failing repro (this hunt or earlier).
-- `[x] (invalid) …` — claim does not describe this code (missing path, wrong shape).
-- `[x] (valid-no-repro) …` — claim matches this code; current behavior is correct (cite the test).
+- `[x] (proven) â€¦` â€” failing repro (this hunt or earlier).
+- `[x] (invalid) â€¦` â€” claim does not describe this code (missing path, wrong shape).
+- `[x] (valid-no-repro) â€¦` â€” claim matches this code; current behavior is correct (cite the test).
 
 Untagged `[ ]` on `unseeded` or `hunts: 0` is treated as **candidate**. Untagged `[ ]` after the zone has been hunted is treated as **hunt-ready**. Untagged `[x]` is treated as **proven**.
 
@@ -56,15 +56,15 @@ precision          = proven / (proven + invalid) when that sum >= 2, else omitte
                      (valid-no-repro is not in the denominator)
 
 base_score =
-  6 × speed
-+ 3 × explore
-+ 2 × recent_churn              (min(3, commitCount since last-hunt))
-+ 1 × related_PD_or_TB          (min(2, id count))
-+ 0.25 × min(3, hunt-ready open hypotheses)
-+ 0.5 × precision               (0 when omitted)
-− 2 × consecutive_dry_hunts
+  6 Ã— speed
++ 3 Ã— explore
++ 2 Ã— recent_churn              (min(3, commitCount since last-hunt))
++ 1 Ã— related_PD_or_TB          (min(2, id count))
++ 0.25 Ã— min(3, hunt-ready open hypotheses)
++ 0.5 Ã— precision               (0 when omitted)
+âˆ’ 2 Ã— consecutive_dry_hunts
 
-score = base_score × impact_multiplier   (high ×1.40, medium ×1.00, low ×0.65)
+score = base_score Ã— impact_multiplier   (high Ã—1.40, medium Ã—1.00, low Ã—0.65)
 ```
 
 Hunt-ready count is a small tie-break only. Candidate/template rows must not inflate score or lock the catalog. Precision rewards zones whose hypotheses matched the code; it does not punish valid-no-repro exhaustion.
@@ -73,7 +73,7 @@ Eligibility: `open` and `unseeded` always; `cooling` only when no `open` or `uns
 
 ## Nominate mode
 
-`.\scripts\agent\al-bug-pick-zone.ps1 -Nominate -Preview` returns the same ranked pick with `nominate: true` in JSON — use it to preview which catalog row the picker would surface next when widening coverage.
+`.\scripts\agent\al-bug-pick-zone.ps1 -Nominate -Preview` returns the same ranked pick with `nominate: true` in JSON â€” use it to preview which catalog row the picker would surface next when widening coverage.
 
 ## Exhaustion (all must hold)
 
@@ -100,7 +100,7 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
-High historical yield. **Not exhausted** ΓÇö remaining hypotheses are type-family and post-processor disagreements, not the parameterized alias cases already covered.
+High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are type-family and post-processor disagreements, not the parameterized alias cases already covered.
 
 ### Hypotheses
 
@@ -136,10 +136,10 @@ High historical yield. **Not exhausted** ΓÇö remaining hypotheses are type-fa
 
 ### Hypotheses
 
-- [x] ARM resource id indexed in the endpoint index but not resolved by the edge mapper — retired (invalid on current code): tf.id / tf.resource_id already indexed and resolved; rename via ARM ServiceId already matches
-- [x] Terraform SourceId claimed in merge but missing from alias resolution — fixed: NodeMatchesService/Datastore now compare ServiceId/DatastoreId to Label (tf show JSON address-on-label shape)
+- [x] ARM resource id indexed in the endpoint index but not resolved by the edge mapper â€” retired (invalid on current code): tf.id / tf.resource_id already indexed and resolved; rename via ARM ServiceId already matches
+- [x] Terraform SourceId claimed in merge but missing from alias resolution â€” fixed: NodeMatchesService/Datastore now compare ServiceId/DatastoreId to Label (tf show JSON address-on-label shape)
 - [x] Endpoint keyed by a property bag value that is not a SourceId
-- [ ] (candidate) New Terraform resource type missing from `LooksLikeTerraformDatastoreSourceId` / `LooksLikeTerraformServiceSourceId` drops synthetic endpoint keys on category-mismatched nodes — promote via seed hunt when ARM catalog churns
+- [ ] (candidate) New Terraform resource type missing from `LooksLikeTerraformDatastoreSourceId` / `LooksLikeTerraformServiceSourceId` drops synthetic endpoint keys on category-mismatched nodes â€” promote via seed hunt when ARM catalog churns
 
 ---
 
@@ -163,9 +163,9 @@ High historical yield. **Not exhausted** ΓÇö remaining hypotheses are type-fa
 
 ### Hypotheses
 
-- [x] Tenant-plane SQL still uses the host catalog or a hardcoded tenant id (retired ΓÇö `SqlTenantSettingsRepositoryConnectionFactoryContractTests` + PD-003 fix on master)
+- [x] Tenant-plane SQL still uses the host catalog or a hardcoded tenant id (retired Î“Ã‡Ã¶ `SqlTenantSettingsRepositoryConnectionFactoryContractTests` + PD-003 fix on master)
 - [x] Cache wrapper returns stale miss after upsert when setting-key casing differs (`TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`)
-- [x] DefaultTenant FK insert/update disagrees with the cached read path (retired ΓÇö PD-003 disposition merged on master: `ArchLucidPersistenceStartup` ApiKey DefaultTenant bootstrap + scoped `ISqlConnectionFactory`; repository uses same `tenantId` on read/write/cache keys)
+- [x] DefaultTenant FK insert/update disagrees with the cached read path (retired Î“Ã‡Ã¶ PD-003 disposition merged on master: `ArchLucidPersistenceStartup` ApiKey DefaultTenant bootstrap + scoped `ISqlConnectionFactory`; repository uses same `tenantId` on read/write/cache keys)
 
 ---
 
@@ -215,10 +215,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes ΓÇö fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
-- [x] Missing optional artifact is treated as a hash match ΓÇö retired: not applicable to commit quality-gate paths; superseded-retry trace selection was the real gap
-- [x] Integrity failure is logged but commit still proceeds ΓÇö retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
-- [x] Latest-per-task selector breaks on equal `CreatedUtc` and picks a superseded rejected schema-remediation attempt over a later accepted attempt ΓÇö fixed: tie-break on `AttemptIndex` then `TraceId` in `AgentExecutionTraceLatestPerTaskSelector`
+- [x] Integrity check accepts a payload whose declared artifact hashes do not match committed bytes Î“Ã‡Ã¶ fixed as quality-gate mismatch: `QualityRejected` ignored when `RecordedQualityGateOutcome` was Accepted/Warned
+- [x] Missing optional artifact is treated as a hash match Î“Ã‡Ã¶ retired: not applicable to commit quality-gate paths; superseded-retry trace selection was the real gap
+- [x] Integrity failure is logged but commit still proceeds Î“Ã‡Ã¶ retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
+- [x] Latest-per-task selector breaks on equal `CreatedUtc` and picks a superseded rejected schema-remediation attempt over a later accepted attempt Î“Ã‡Ã¶ fixed: tie-break on `AttemptIndex` then `TraceId` in `AgentExecutionTraceLatestPerTaskSelector`
 
 ---
 
@@ -338,9 +338,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] Retry policy retries a non-transient SQL error (constraint / timeout misclassified) ΓÇö fixed: `SqlTransientDetector` treated outer `TimeoutException` before inner non-transient `SqlException`
-- [x] Commit retry exhausts attempts but still returns success to the caller ΓÇö retired: `IsExhausted` and orchestrator loop throw `ConflictException` on budget/attempt exhaustion; idempotent reconcile success is intentional
-- [x] Transient retry does not include the same isolation / tenant scope on the replay ΓÇö retired: `OrchestratorTransientDbRetry` re-invokes caller lambda; scope is captured by caller closure
+- [x] Retry policy retries a non-transient SQL error (constraint / timeout misclassified) Î“Ã‡Ã¶ fixed: `SqlTransientDetector` treated outer `TimeoutException` before inner non-transient `SqlException`
+- [x] Commit retry exhausts attempts but still returns success to the caller Î“Ã‡Ã¶ retired: `IsExhausted` and orchestrator loop throw `ConflictException` on budget/attempt exhaustion; idempotent reconcile success is intentional
+- [x] Transient retry does not include the same isolation / tenant scope on the replay Î“Ã‡Ã¶ retired: `OrchestratorTransientDbRetry` re-invokes caller lambda; scope is captured by caller closure
 
 ---
 
@@ -362,9 +362,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] A consumed or expired OTP still issues a session ΓÇö retired: `VerifyCodeAsync_rejects_expired_code`, `VerifyCodeAsync_rejects_reused_code`, and `TryCompleteAsync` completion paths reject expired/already-completed challenges
-- [x] Challenge lookup is not tenant-scoped and can verify another tenant's code ΓÇö retired (invalid): OTP challenges are pre-tenant and keyed by normalized email; verification requires challenge id + code hash bound to that row
-- [x] Concurrent verify requests both succeed on the same one-time challenge ΓÇö retired: `EmailOtpChallengeRepositoryConcurrencyTests.TryCompleteAsync_allows_only_one_successful_completion`
+- [x] A consumed or expired OTP still issues a session Î“Ã‡Ã¶ retired: `VerifyCodeAsync_rejects_expired_code`, `VerifyCodeAsync_rejects_reused_code`, and `TryCompleteAsync` completion paths reject expired/already-completed challenges
+- [x] Challenge lookup is not tenant-scoped and can verify another tenant's code Î“Ã‡Ã¶ retired (invalid): OTP challenges are pre-tenant and keyed by normalized email; verification requires challenge id + code hash bound to that row
+- [x] Concurrent verify requests both succeed on the same one-time challenge Î“Ã‡Ã¶ retired: `EmailOtpChallengeRepositoryConcurrencyTests.TryCompleteAsync_allows_only_one_successful_completion`
 
 ---
 
@@ -386,9 +386,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] A protocol-relative or encoded external URL is accepted as an in-app return path — fixed earlier (`/%2f%2fevil.example`); regression in `TryNormalize_rejects_open_redirect_shapes`
-- [x] Backslash or `@` host smuggling bypasses the leading-slash check — retired: existing `TryNormalize_rejects_open_redirect_shapes` cases cover `/\\evil`, `/path@evil`, `/%40` decode
-- [x] Control characters in the return path still survive normalization — fixed: reject control chars after each percent-decode pass (`/%09//evil.example`, `/%00//evil.example`)
+- [x] A protocol-relative or encoded external URL is accepted as an in-app return path â€” fixed earlier (`/%2f%2fevil.example`); regression in `TryNormalize_rejects_open_redirect_shapes`
+- [x] Backslash or `@` host smuggling bypasses the leading-slash check â€” retired: existing `TryNormalize_rejects_open_redirect_shapes` cases cover `/\\evil`, `/path@evil`, `/%40` decode
+- [x] Control characters in the return path still survive normalization â€” fixed: reject control chars after each percent-decode pass (`/%09//evil.example`, `/%00//evil.example`)
 
 ---
 
@@ -412,7 +412,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) Erasure proceeds while a legal hold is still active
 - [ ] (candidate) Quarantine middleware lets mutating requests through after erasure has started
-- [ ] (candidate) Erasure command deletes another tenantΓÇÖs rows when ids collide in cache
+- [ ] (candidate) Erasure command deletes another tenantÎ“Ã‡Ã–s rows when ids collide in cache
 
 ---
 
@@ -484,9 +484,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] Inspect read returns a finding whose tenant does not match the request scope ΓÇö fixed: main inspect + FindingRecords joins in FollowUpBatch require `fr.TenantId`/`WorkspaceId`/`ProjectId` (run-only predicates were insufficient when row tenant diverges)
-- [x] Mapper drops evidence fields so inspect shows success with empty trail ΓÇö retired (invalid): mapper only parses enums; evidence is built in the repository from related nodes
-- [x] Inspect query joins without tenant on the child table and leaks sibling-tenant rows ΓÇö fixed: FollowUpBatch now scopes FindingRelatedNodes / rules / actions / AuditEvents / FindingReviewEvents / RiskExceptions to TenantId+WorkspaceId+ProjectId
+- [x] Inspect read returns a finding whose tenant does not match the request scope Î“Ã‡Ã¶ fixed: main inspect + FindingRecords joins in FollowUpBatch require `fr.TenantId`/`WorkspaceId`/`ProjectId` (run-only predicates were insufficient when row tenant diverges)
+- [x] Mapper drops evidence fields so inspect shows success with empty trail Î“Ã‡Ã¶ retired (invalid): mapper only parses enums; evidence is built in the repository from related nodes
+- [x] Inspect query joins without tenant on the child table and leaks sibling-tenant rows Î“Ã‡Ã¶ fixed: FollowUpBatch now scopes FindingRelatedNodes / rules / actions / AuditEvents / FindingReviewEvents / RiskExceptions to TenantId+WorkspaceId+ProjectId
 
 ---
 
@@ -508,9 +508,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) Debit applies to a different tenantΓÇÖs wallet when the header tenant differs from the route
+- [ ] (candidate) Debit applies to a different tenantÎ“Ã‡Ã–s wallet when the header tenant differs from the route
 - [ ] (candidate) Concurrent debits both succeed past the remaining balance
-- [ ] (candidate) Wallet read returns another tenantΓÇÖs remaining credits
+- [ ] (candidate) Wallet read returns another tenantÎ“Ã‡Ã–s remaining credits
 
 ---
 
@@ -580,9 +580,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] Simulation context loads findings from a tenant other than the caller ΓÇö fixed: reject run detail / findings whose scope or RunId does not match the caller
-- [x] Dry-run simulation persists a real alert delivery ΓÇö retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
-- [ ] Missing workspace still returns 200 with another workspaceΓÇÖs rules
+- [x] Simulation context loads findings from a tenant other than the caller Î“Ã‡Ã¶ fixed: reject run detail / findings whose scope or RunId does not match the caller
+- [x] Dry-run simulation persists a real alert delivery Î“Ã‡Ã¶ retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
+- [ ] Missing workspace still returns 200 with another workspaceÎ“Ã‡Ã–s rules
 
 ---
 
@@ -629,7 +629,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [ ] (candidate) Dry-run posts to the live customer endpoint
-- [ ] (candidate) Dry-run payload includes secrets from another tenantΓÇÖs webhook config
+- [ ] (candidate) Dry-run payload includes secrets from another tenantÎ“Ã‡Ã–s webhook config
 - [ ] (candidate) Controller returns success when the dry-run service throws
 
 ---
@@ -701,7 +701,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [ ] (candidate) Runner reports pass when a cross-tenant probe actually returned 200
-- [ ] (candidate) Probe uses the victim tenantΓÇÖs token instead of the attacker token
+- [ ] (candidate) Probe uses the victim tenantÎ“Ã‡Ã–s token instead of the attacker token
 - [ ] (candidate) Aggregator treats skipped probes as isolation successes
 
 ---
@@ -773,7 +773,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] List renders reviews from a workspace the operator is not scoped to (retired: no workspace field on RunSummary; cross-project rows are intentional hub scope listing)
-- [x] Failed load still shows a previous tenantΓÇÖs cached rows (retired: props-only client; loader clears runs and Sets loadFailure; list not mounted when hubLoadOk is false)
+- [x] Failed load still shows a previous tenantÎ“Ã‡Ã–s cached rows (retired: props-only client; loader clears runs and Sets loadFailure; list not mounted when hubLoadOk is false)
 - [x] Empty state is skipped so a spinner never ends after a 403 (retired: no spinner in RunsListClient; 403 surfaces OperatorApiProblem upstream)
 
 ---
@@ -794,13 +794,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
-2026-08-17 dry hunt: listed hypotheses do not hold on `AuthCallbackAccessPanel`. Denial keeps `AUTH_CALLBACK_ACCESS_HEADING` + `technicalDetail` (success title only after 2xx access-request submit as ΓÇ£Access request sentΓÇ¥). Recovery links are only `/auth/signin` (no operator-shell href). Panel is props-only (no `useSearchParams` / react-query / email-otp session); error strings are fixed copy and do not interpolate emails. Existing `AuthCallbackAccessPanel` + `CallbackClient` tests (6) pass.
+2026-08-17 dry hunt: listed hypotheses do not hold on `AuthCallbackAccessPanel`. Denial keeps `AUTH_CALLBACK_ACCESS_HEADING` + `technicalDetail` (success title only after 2xx access-request submit as Î“Ã‡Â£Access request sentÎ“Ã‡Â¥). Recovery links are only `/auth/signin` (no operator-shell href). Panel is props-only (no `useSearchParams` / react-query / email-otp session); error strings are fixed copy and do not interpolate emails. Existing `AuthCallbackAccessPanel` + `CallbackClient` tests (6) pass.
 
 ### Hypotheses
 
 - [x] Access-denied technical detail is shown as a successful sign-in (retired: denial heading + detail until access-request 2xx; success copy is request-sent, not signed-in)
 - [x] Callback continues into the operator shell when the grant is missing (retired: panel only links to `/auth/signin`; no `window.location` / operator routes)
-- [x] Error copy includes another userΓÇÖs email from a leftover query cache (retired: no query/session read; duplicate/submit errors are fixed strings)
+- [x] Error copy includes another userÎ“Ã‡Ã–s email from a leftover query cache (retired: no query/session read; duplicate/submit errors are fixed strings)
 
 ---
 
@@ -823,7 +823,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] Topic markdown fetch follows an external URL instead of the in-app help route (retired: fetchHelpTopicMarkdown uses `/api/help/{slug}`)
-- [x] Missing topic is rendered as a GitHub blob link (retired: not-found ΓåÆ `/help`; doc-index has no github blob URLs)
+- [x] Missing topic is rendered as a GitHub blob link (retired: not-found Î“Ã¥Ã† `/help`; doc-index has no github blob URLs)
 - [x] Index lists topics the current role is not allowed to open (fixed: generate_doc_index no longer bleeds internal-runbook titles onto public slugs)
 
 ---
@@ -872,7 +872,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] Operator path is treated as marketing on the public host (or the reverse)
 - [ ] Retired bookmark is not redirected and 404s instead of the shim
-- [x] Split-site origin check allows the operator app origin as a public page ΓÇö fixed: `normalizeRequestHost` no longer strips ports; request Host must match `URL.host` from configured origins (localhost:3000 vs :3001)
+- [x] Split-site origin check allows the operator app origin as a public page Î“Ã‡Ã¶ fixed: `normalizeRequestHost` no longer strips ports; request Host must match `URL.host` from configured origins (localhost:3000 vs :3001)
 
 ---
 
@@ -894,10 +894,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [x] Page shows recommendations for a package outside the current workspace ΓÇö fixed: clear `runState` when inbound `runId` changes
-- [x] Stale query data from the previous tenant remains after scope switch ΓÇö fixed: reset intake + reasoning on operator scope key change
-- [x] Error state is omitted so a failed load looks like an empty architecture — (valid-no-repro): `ArchitectureIntelligenceProductContextLoadFailure` renders on HTTP failure; covered by `shows intake load failure with retry when deep-linked product context fails` in `ArchitectureIntelligencePageClient.buyer-polished.test.tsx`
-- [ ] (candidate) Deep-linked run with empty `sourceTexts` and no `from` param shows "Scoped to run" without empty-intake notice — locus: `use-architecture-intelligence-page.ts` `inboundContextLine` default branch when `productContextStatus === "empty"`
+- [x] Page shows recommendations for a package outside the current workspace Î“Ã‡Ã¶ fixed: clear `runState` when inbound `runId` changes
+- [x] Stale query data from the previous tenant remains after scope switch Î“Ã‡Ã¶ fixed: reset intake + reasoning on operator scope key change
+- [x] Error state is omitted so a failed load looks like an empty architecture â€” (valid-no-repro): `ArchitectureIntelligenceProductContextLoadFailure` renders on HTTP failure; covered by `shows intake load failure with retry when deep-linked product context fails` in `ArchitectureIntelligencePageClient.buyer-polished.test.tsx`
+- [ ] (candidate) Deep-linked run with empty `sourceTexts` and no `from` param shows "Scoped to run" without empty-intake notice â€” locus: `use-architecture-intelligence-page.ts` `inboundContextLine` default branch when `productContextStatus === "empty"`
 
 ---
 
@@ -921,7 +921,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) PATCH/DELETE affects a user in another tenant when externalId collides
 - [ ] (candidate) Filter query returns users outside the provisioning tenant
-- [ ] (candidate) Create succeeds without mapping the user into the callerΓÇÖs tenant
+- [ ] (candidate) Create succeeds without mapping the user into the callerÎ“Ã‡Ã–s tenant
 
 ---
 
@@ -945,7 +945,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) Activation writes IdP settings onto a tenant the admin does not own
 - [ ] (candidate) Disable still leaves the previous client secret usable
-- [ ] (candidate) Config GET returns another tenantΓÇÖs client id
+- [ ] (candidate) Config GET returns another tenantÎ“Ã‡Ã–s client id
 
 ---
 
@@ -968,7 +968,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [ ] (candidate) Worker host starts without a tenant-scope constraint on background jobs
-- [ ] (candidate) Composition registers a singleton that caches the first requestΓÇÖs tenant
+- [ ] (candidate) Composition registers a singleton that caches the first requestÎ“Ã‡Ã–s tenant
 - [ ] (candidate) Startup succeeds when a required hosted service failed to resolve
 ---
 
@@ -1015,7 +1015,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [ ] (candidate) Revoked API key still authenticates until process restart
-- [ ] (candidate) Admin can read or rotate another tenantâ€™s API key settings
+- [ ] (candidate) Admin can read or rotate another tenantÃ¢â‚¬â„¢s API key settings
 - [ ] (candidate) Missing or malformed key header is treated as an authenticated principal
 
 ---
@@ -1080,15 +1080,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-17
-- **last-bug:** 2026-08-17 — export record lookup by id bypassed run scope
+- **last-bug:** 2026-08-17 â€” export record lookup by id bypassed run scope
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [x] Export includes runs or findings from a workspace outside the caller scope — fixed: `ExportsController` binds export records to scoped `GetRunDetailAsync` before read/compare/replay
-- [x] Blob destination URL policy allows an internal/metadata endpoint (SSRF) — retired: decimal/link-local literals rejected; Azure blob host + DNS resolve guard
-- [x] Export succeeds when the run is still in progress and returns partial or stale bytes — retired: export paths require committed manifest via scoped run detail loaders
+- [x] Export includes runs or findings from a workspace outside the caller scope â€” fixed: `ExportsController` binds export records to scoped `GetRunDetailAsync` before read/compare/replay
+- [x] Blob destination URL policy allows an internal/metadata endpoint (SSRF) â€” retired: decimal/link-local literals rejected; Azure blob host + DNS resolve guard
+- [x] Export succeeds when the run is still in progress and returns partial or stale bytes â€” retired: export paths require committed manifest via scoped run detail loaders
 
 ---
 
@@ -1104,39 +1104,39 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-17
-- **last-bug:** 2026-08-17 — watchdog reclaimed Running jobs before queue visibility expired (10m vs 15m default)
+- **last-bug:** 2026-08-17 â€” watchdog reclaimed Running jobs before queue visibility expired (10m vs 15m default)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
 - [ ] Job dequeue runs work without re-binding tenant scope from the job payload
-- [x] Leader-elected hosted service runs the same outbox drain on every replica — retired: intentional when `HostLeaderElection:Enabled` is false; default is enabled
-- [x] Stuck-running watchdog marks a healthy job failed and it is retried into duplicate side effects — fixed stale threshold to exceed processor visibility (2026-08-17)
+- [x] Leader-elected hosted service runs the same outbox drain on every replica â€” retired: intentional when `HostLeaderElection:Enabled` is false; default is enabled
+- [x] Stuck-running watchdog marks a healthy job failed and it is retried into duplicate side effects â€” fixed stale threshold to exceed processor visibility (2026-08-17)
 
 ---
 
 ## Zone: itsm-inbound-webhooks
 
 - **id:** itsm-inbound-webhooks
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-18
+- **last-bug:** 2026-08-18
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Webhook accepted when the shared secret does not match the connector config
-- [ ] (candidate) Replay guard allows duplicate delivery of the same event id
-- [ ] (candidate) Inbound payload is applied to a tenant inferred from the body instead of the authenticated connector
+- [x] (candidate) Webhook accepted when the shared secret does not match the connector config - invalid: WebhookSecrets.SecureEquals rejects before parse
+- [ ] (candidate) Replay guard allows duplicate delivery of the same event id - not reproduced; sequential replay covered
+- [x] (candidate) Inbound payload is applied to a tenant inferred from the body instead of the authenticated connector - fixed: tenant-scoped routes use TryGetByExternalKeyForTenantAsync
 
 ---
 
@@ -1303,7 +1303,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [ ] (candidate) Evaluation runner scores a failed trace as passed
-- [ ] (candidate) Runner uses a golden fixture from a different tenantâ€™s catalog
+- [ ] (candidate) Runner uses a golden fixture from a different tenantÃ¢â‚¬â„¢s catalog
 - [ ] (candidate) Batch evaluation swallows per-item failures and reports aggregate success
 
 ---
@@ -1374,7 +1374,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) Index query returns chunks from another tenantâ€™s corpus
+- [ ] (candidate) Index query returns chunks from another tenantÃ¢â‚¬â„¢s corpus
 - [ ] (candidate) Pricing estimate uses the wrong model tariff for the tenant plan
 - [ ] (candidate) Reindex job deletes vectors for the wrong workspace
 
@@ -1495,7 +1495,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [ ] (candidate) Graph merge links a node to provenance from another tenant
-- [ ] (candidate) Lineage query traverses into a sibling tenantâ€™s artifact store
+- [ ] (candidate) Lineage query traverses into a sibling tenantÃ¢â‚¬â„¢s artifact store
 - [ ] (candidate) Provenance record is written without workspace scope
 
 ---
@@ -1519,7 +1519,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [ ] (candidate) Dispatcher sends to recipients outside the tenant membership list
-- [ ] (candidate) Template render includes another userâ€™s email in the body
+- [ ] (candidate) Template render includes another userÃ¢â‚¬â„¢s email in the body
 - [ ] (candidate) Send failure is treated as success and suppresses retry
 
 ---
@@ -1590,7 +1590,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) Extractor pulls resources using credentials from another tenantâ€™s connector
+- [ ] (candidate) Extractor pulls resources using credentials from another tenantÃ¢â‚¬â„¢s connector
 - [ ] (candidate) ARM/resource id mapping drops subscription scope and mis-attributes resources
 - [ ] (candidate) Extractor treats a parse warning as success with an empty inventory
 
@@ -1608,14 +1608,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-18
-- **last-bug:** 2026-08-18 — AdminController archive-by-ids archived runs globally without tenant scope
+- **last-bug:** 2026-08-18 â€” AdminController archive-by-ids archived runs globally without tenant scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
-- [x] Admin mutating endpoint lacks tenant binding on route parameters — (proven): `RunsController` request endpoints (2026-08-18); `AdminController.ArchiveRunsByIds` called global `ArchiveRunsByIdsAsync` without `GetByIdAsync(scope, …)` filter (2026-08-18)
-- [x] Authority read returns artifacts for a run in another workspace — fixed ComparisonsController scoped load (2026-08-17)
+- [x] Admin mutating endpoint lacks tenant binding on route parameters â€” (proven): `RunsController` request endpoints (2026-08-18); `AdminController.ArchiveRunsByIds` called global `ArchiveRunsByIdsAsync` without `GetByIdAsync(scope, â€¦)` filter (2026-08-18)
+- [x] Authority read returns artifacts for a run in another workspace â€” fixed ComparisonsController scoped load (2026-08-17)
 - [ ] Controller accepts a scope header that overrides the authenticated tenant
 
 ---
@@ -1832,4 +1832,4 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) Operator API helper omits workspace scope on mutating requests
 - [ ] (candidate) Cached operator context survives a tenant switch without invalidation
-- [ ] (candidate) Error mapper surfaces another tenant’s problem detail in the toast
+- [ ] (candidate) Error mapper surfaces another tenantâ€™s problem detail in the toast

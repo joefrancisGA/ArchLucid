@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace ArchLucid.Persistence.Integrations;
 
@@ -25,6 +25,28 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
             return Task.FromResult<ItsmFindingCorrelationRecord?>(null);
 
         return Task.FromResult<ItsmFindingCorrelationRecord?>(matches[0]);
+    }
+
+    /// <inheritdoc />
+    public Task<ItsmFindingCorrelationRecord?> TryGetByExternalKeyForTenantAsync(
+        Guid tenantId,
+        string provider,
+        string externalKey,
+        CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(provider))
+            throw new ArgumentException("provider is required.", nameof(provider));
+
+        if (string.IsNullOrWhiteSpace(externalKey))
+            throw new ArgumentException("externalKey is required.", nameof(externalKey));
+
+        ItsmFindingCorrelationRecord? match = MatchByProviderAndExternalKey(provider, externalKey)
+            .SingleOrDefault(r => r.TenantId == tenantId);
+
+        return Task.FromResult(match);
     }
 
     /// <inheritdoc />

@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Governance.FindingDisposition;
@@ -150,8 +150,8 @@ public sealed class ItsmInboundWebhookSyncServiceTests
 
     /// <summary>
     ///     V1 default inbound mapping: Jira workflow status names map into
-    ///     <see cref="FindingHumanReviewStatus" /> (open/active → Pending; terminal → Approved), per
-    ///     <c>ItsmInboundWebhookSyncService</c> defaults — aligned with product “open / in progress / resolved” semantics.
+    ///     <see cref="FindingHumanReviewStatus" /> (open/active â†’ Pending; terminal â†’ Approved), per
+    ///     <c>ItsmInboundWebhookSyncService</c> defaults â€” aligned with product â€œopen / in progress / resolvedâ€ semantics.
     /// </summary>
     [Theory]
     [InlineData("To Do", nameof(FindingHumanReviewStatus.Pending))]
@@ -215,7 +215,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
 
     /// <summary>
     ///     V1 default inbound mapping: ServiceNow incident states map into
-    ///     <see cref="FindingHumanReviewStatus" /> (New / In Progress → Pending; Resolved / Closed → Approved), including
+    ///     <see cref="FindingHumanReviewStatus" /> (New / In Progress â†’ Pending; Resolved / Closed â†’ Approved), including
     ///     numeric choice lists.
     /// </summary>
     [Theory]
@@ -738,6 +738,49 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         payload.RootElement.GetProperty("dispositionSkipReason").GetString().Should().Be("disposition_unmapped");
         dispositionService.Verify(
             s => s.ListHistoryAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Jira_tenant_scoped_webhook_does_not_mutate_correlation_owned_by_another_tenant()
+    {
+        Guid tenantB = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KEY-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord
+                {
+                    TenantId = tenantB,
+                    WorkspaceId = WorkspaceA,
+                    ProjectId = ProjectA,
+                    FindingId = "f-other-tenant"
+                });
+        correlations
+            .Setup(c => c.TryGetByExternalKeyForTenantAsync(TenantA, "Jira", "KEY-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ItsmFindingCorrelationRecord?)null);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
+
+        using JsonDocument doc = JsonDocument.Parse(
+            """{"issue":{"key":"KEY-1","fields":{"status":{"name":"Done"}}}}""");
+        ItsmInboundWebhookProcessResult r =
+            await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None, authenticatedTenantId: TenantA);
+
+        r.Accepted.Should().BeTrue();
+        r.DurableAuditEvent.Should().BeNull();
+        correlations.Verify(
+            c => c.TryGetByExternalKeyForTenantAsync(TenantA, "Jira", "KEY-1", It.IsAny<CancellationToken>()),
+            Times.Once);
+        correlations.Verify(
+            c => c.TryGetByExternalKeyAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

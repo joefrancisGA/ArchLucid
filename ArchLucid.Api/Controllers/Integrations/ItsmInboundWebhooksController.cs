@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
@@ -122,7 +122,7 @@ public sealed class ItsmInboundWebhooksController(
         using JsonDocument doc = JsonDocument.Parse(rawBody);
 
         ItsmInboundWebhookProcessResult r =
-            await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId()).ConfigureAwait(false);
+            await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId(), tenantId).ConfigureAwait(false);
 
         if (r.DurableAuditEvent is not null)
             await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
@@ -171,7 +171,7 @@ public sealed class ItsmInboundWebhooksController(
         using JsonDocument doc = JsonDocument.Parse(rawBody);
 
         ItsmInboundWebhookProcessResult r =
-            await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId()).ConfigureAwait(false);
+            await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId(), tenantId).ConfigureAwait(false);
 
         if (r.DurableAuditEvent is not null)
             await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);

@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -64,7 +64,8 @@ public sealed class ItsmInboundWebhookSyncService(
         JsonElement root,
         CancellationToken ct,
         int? inboundPayloadUtf8ByteCount = null,
-        string? deliveryId = null)
+        string? deliveryId = null,
+        Guid? authenticatedTenantId = null)
     {
         if (inboundPayloadUtf8ByteCount is { } overLimit and > MaxInboundWebhookPayloadUtf8Bytes)
             return new ItsmInboundWebhookProcessResult(false, CreatePayloadTooLargeAudit(true, overLimit));
@@ -103,7 +104,7 @@ public sealed class ItsmInboundWebhookSyncService(
         if (!mapped)
         {
             _logger.LogWarningWithTwoSanitizedUserStrings(
-                "ITSM Jira webhook: status {StatusName} for issue {IssueKey} is not mapped to a HumanReviewStatus — ignoring state change.",
+                "ITSM Jira webhook: status {StatusName} for issue {IssueKey} is not mapped to a HumanReviewStatus â€” ignoring state change.",
                 statusName,
                 issueKey);
 
@@ -128,7 +129,7 @@ public sealed class ItsmInboundWebhookSyncService(
             return new ItsmInboundWebhookProcessResult(false, null);
 
         ItsmFindingCorrelationRecord? row =
-            await _correlations.TryGetByExternalKeyAsync("Jira", issueKey, ct).ConfigureAwait(false);
+            await TryResolveCorrelationAsync("Jira", issueKey, authenticatedTenantId, ct).ConfigureAwait(false);
 
         if (row is null)
         {
@@ -236,7 +237,8 @@ public sealed class ItsmInboundWebhookSyncService(
         JsonElement root,
         CancellationToken ct,
         int? inboundPayloadUtf8ByteCount = null,
-        string? deliveryId = null)
+        string? deliveryId = null,
+        Guid? authenticatedTenantId = null)
     {
         if (inboundPayloadUtf8ByteCount is { } overLimit and > MaxInboundWebhookPayloadUtf8Bytes)
             return new ItsmInboundWebhookProcessResult(false, CreatePayloadTooLargeAudit(false, overLimit));
@@ -271,7 +273,7 @@ public sealed class ItsmInboundWebhookSyncService(
         if (!mapped)
         {
             _logger.LogWarningWithTwoSanitizedUserStrings(
-                "ITSM ServiceNow webhook: state {State} for incident {ExternalKey} is not mapped to a HumanReviewStatus — ignoring state change.",
+                "ITSM ServiceNow webhook: state {State} for incident {ExternalKey} is not mapped to a HumanReviewStatus â€” ignoring state change.",
                 stateNormalized,
                 externalKey);
 
@@ -296,7 +298,7 @@ public sealed class ItsmInboundWebhookSyncService(
             return new ItsmInboundWebhookProcessResult(false, null);
 
         ItsmFindingCorrelationRecord? row =
-            await _correlations.TryGetByExternalKeyAsync("ServiceNow", externalKey, ct).ConfigureAwait(false);
+            await TryResolveCorrelationAsync("ServiceNow", externalKey, authenticatedTenantId, ct).ConfigureAwait(false);
 
         if (row is null)
         {
@@ -494,6 +496,22 @@ public sealed class ItsmInboundWebhookSyncService(
         };
     }
 
+    private async Task<ItsmFindingCorrelationRecord?> TryResolveCorrelationAsync(
+        string provider,
+        string externalKey,
+        Guid? authenticatedTenantId,
+        CancellationToken ct)
+    {
+        if (authenticatedTenantId is { } tenantId && tenantId != Guid.Empty)
+        {
+            return await _correlations
+                .TryGetByExternalKeyForTenantAsync(tenantId, provider, externalKey, ct)
+                .ConfigureAwait(false);
+        }
+
+        return await _correlations.TryGetByExternalKeyAsync(provider, externalKey, ct).ConfigureAwait(false);
+    }
+
     private static bool ValidateCorrelationFindingId(
         ItsmFindingCorrelationRecord row,
         string rejectedEventType,
@@ -642,7 +660,7 @@ public sealed class ItsmInboundWebhookSyncService(
         return status.TryGetProperty("name", out JsonElement name) ? name.GetString() : null;
     }
 
-    /// <summary>Reads ServiceNow <c>sys_id</c> (or camelCase <c>sysId</c>) — inbound correlation matches outbound registration by sys_id.</summary>
+    /// <summary>Reads ServiceNow <c>sys_id</c> (or camelCase <c>sysId</c>) â€” inbound correlation matches outbound registration by sys_id.</summary>
     private static bool TryReadServiceNowKeys(JsonElement root, out string? externalKey, out string? state)
     {
         externalKey = null;

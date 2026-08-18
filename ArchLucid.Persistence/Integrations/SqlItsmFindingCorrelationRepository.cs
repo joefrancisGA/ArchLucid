@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Connections;
 
@@ -33,6 +33,16 @@ public sealed class SqlItsmFindingCorrelationRepository(
         CancellationToken ct) =>
         _sqlOperations.ExecuteAsync(
             cancellationToken => TryGetByExternalKeyCoreAsync(provider, externalKey, cancellationToken),
+            ct);
+
+    /// <inheritdoc />
+    public Task<ItsmFindingCorrelationRecord?> TryGetByExternalKeyForTenantAsync(
+        Guid tenantId,
+        string provider,
+        string externalKey,
+        CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => TryGetByExternalKeyForTenantCoreAsync(tenantId, provider, externalKey, cancellationToken),
             ct);
 
     /// <inheritdoc />
@@ -203,6 +213,42 @@ public sealed class SqlItsmFindingCorrelationRepository(
             return null;
 
         return matches[0];
+    }
+
+    private async Task<ItsmFindingCorrelationRecord?> TryGetByExternalKeyForTenantCoreAsync(
+        Guid tenantId,
+        string provider,
+        string externalKey,
+        CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(provider))
+            throw new ArgumentException("provider is required.", nameof(provider));
+
+        if (string.IsNullOrWhiteSpace(externalKey))
+            throw new ArgumentException("externalKey is required.", nameof(externalKey));
+
+        const string sql = $"""
+                           SELECT {CorrelationSelectColumns}
+                           FROM dbo.ItsmFindingCorrelations
+                           WHERE TenantId = @TenantId AND Provider = @Provider AND ExternalKey = @ExternalKey;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        CommandDefinition cmd = new(
+            sql,
+            new
+            {
+                TenantId = tenantId,
+                Provider = provider.Trim(),
+                ExternalKey = externalKey.Trim()
+            },
+            cancellationToken: ct);
+
+        return await connection.QuerySingleOrDefaultAsync<ItsmFindingCorrelationRecord>(cmd);
     }
 
     private async Task RegisterCoreAsync(
