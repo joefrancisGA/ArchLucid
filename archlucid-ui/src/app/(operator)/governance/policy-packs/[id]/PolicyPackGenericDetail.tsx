@@ -13,7 +13,6 @@ import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
-  OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import {
@@ -24,6 +23,8 @@ import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy/policy-pack
 import { resolveResponsibleAiPolicyRuleRows } from "@/lib/policy/responsible-ai-policy-pack-rules";
 import type { PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
+import { GovernancePolicyPackBreadcrumb } from "@/components/governance/GovernancePolicyPackBreadcrumb";
+import { PolicyPackDetailBuyerChrome } from "./PolicyPackDetailBuyerChrome";
 import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
 import {
   RESPONSIBLE_AI_ACTION_GOVERNANCE,
@@ -98,9 +99,9 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
         subtitle={description}
         titleTestId="policy-pack-detail-title"
         breadcrumb={
-          <p className={cn("m-0 text-[var(--al-accent-link)]", OPERATOR_NAV_GROUP_LABEL)}>
-            {resolvePolicyPackDetailBreadcrumbLabel(policyPackId, packRecord)}
-          </p>
+          <GovernancePolicyPackBreadcrumb
+            packLabel={resolvePolicyPackDetailBreadcrumbLabel(policyPackId, packRecord)}
+          />
         }
         statusBadge={resolveEnablementStatusTag(isEnabled, isGloballyActive)}
         actions={
@@ -109,6 +110,8 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
           </Button>
         }
       />
+
+      <PolicyPackDetailBuyerChrome />
 
       <Card>
         <CardContent className={cn("space-y-2 pt-6 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

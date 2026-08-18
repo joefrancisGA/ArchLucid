@@ -53,6 +53,7 @@ import {
 } from "@/lib/responsible-ai-policy-pack-detail-content";
 
 import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
+import { PolicyPackDetailBuyerChrome } from "./PolicyPackDetailBuyerChrome";
 
 type ResponsibleAiPolicyPackDetailProps = {
   readonly policyPackId: string;
@@ -239,6 +240,8 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
         }
         actions={headerActions}
       />
+
+      <PolicyPackDetailBuyerChrome />
 
       <Card data-testid="policy-pack-summary-card">
         <CardHeader>
