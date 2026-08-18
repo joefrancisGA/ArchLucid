@@ -1,14 +1,13 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import { InvitationAcceptLoadingView } from "@/app/(operator)/auth/invite/InvitationAcceptLoadingView";
 import { InvitationAuthSecondaryExitActions } from "@/app/(operator)/auth/invite/InvitationAuthSecondaryExitActions";
 import { InvitationInvalidRecoveryActions } from "@/app/(operator)/auth/invite/InvitationInvalidRecoveryActions";
+import { InvitationAcceptBuyerChrome } from "@/app/(operator)/auth/invite/InvitationAcceptBuyerChrome";
 import { InvitationValidPanel } from "@/app/(operator)/auth/invite/InvitationValidPanel";
-import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
-import { ColdInviteUsersInviteVocabularyRail } from "@/components/ColdInviteUsersInviteVocabularyRail";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   AUTH_INVITE_PAGE_LEAD,
@@ -25,6 +24,10 @@ import {
   type InvitationValidationResponse,
 } from "@/lib/auth/invitation-validation-api";
 import { cn } from "@/lib/utils";
+
+function invitationChrome(content: ReactNode): React.JSX.Element {
+  return <InvitationAcceptBuyerChrome>{content}</InvitationAcceptBuyerChrome>;
+}
 
 export function InvitationAcceptPageClient() {
   const searchParams = useSearchParams();
@@ -77,19 +80,13 @@ export function InvitationAcceptPageClient() {
   const signInHref = `/auth/signin?invitationToken=${encodeURIComponent(token)}`;
 
   if (loading) {
-    return (
-      <AuthFlowShell showEvaluationSignupLink={false}>
-        <InvitationAcceptLoadingView />
-      </AuthFlowShell>
-    );
+    return invitationChrome(<InvitationAcceptLoadingView />);
   }
 
-  return (
-    <AuthFlowShell showEvaluationSignupLink={false}>
+  return invitationChrome(
       <div className="max-w-[560px]" data-testid="invitation-accept-page">
         <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_INVITE_PAGE_TITLE}</h1>
         <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{AUTH_INVITE_PAGE_LEAD}</p>
-        <ColdInviteUsersInviteVocabularyRail currentSurfaceId="cold-invite" />
 
         {recoveryContext ? (
           <>
@@ -119,7 +116,6 @@ export function InvitationAcceptPageClient() {
         {validation?.status === "Valid" ? (
           <InvitationValidPanel validation={validation} signInHref={signInHref} />
         ) : null}
-      </div>
-    </AuthFlowShell>
+      </div>,
   );
 }
