@@ -80,18 +80,35 @@ public sealed class PilotRunDeltaComputer(
         DateTime? committedUtc = ResolveManifestCommittedUtc(run, detail.Manifest);
         TimeSpan? wall = committedUtc is { } c ? c - run.CreatedUtc : null;
         IReadOnlyList<KeyValuePair<string, int>> findings = AggregateFindingsBySeverity(detail);
+        FindingsSnapshot? persistedFindingsSnapshot = null;
 
         if (SumFindingCounts(findings) == 0 && run.FindingsSnapshotId is { } findingsSnapshotId && findingsSnapshotId != Guid.Empty)
         {
-            IReadOnlyList<KeyValuePair<string, int>> snapshotFindings =
-                await TryAggregateFindingsFromSnapshotAsync(scope, findingsSnapshotId, cancellationToken);
+            persistedFindingsSnapshot =
+                await TryLoadFindingsSnapshotAsync(scope, findingsSnapshotId, cancellationToken);
 
-            if (snapshotFindings.Count > 0)
-                findings = snapshotFindings;
+            if (persistedFindingsSnapshot?.Findings is { Count: > 0 } snapshotFindings)
+                findings = AggregateFindingsBySeverity(snapshotFindings);
         }
 
-        GovernedFindingCoverageMetric governedCoverage = AggregateGovernedFindingCoverage(detail);
-        ArchitectureFinding? topFinding = SelectTopSeverityFinding(detail);
+        GovernedFindingCoverageMetric governedCoverage = persistedFindingsSnapshot?.Findings is { Count: > 0 } coverageFindings
+            ? AggregateGovernedFindingCoverage(coverageFindings)
+            : AggregateGovernedFindingCoverage(detail);
+
+        ArchitectureFinding? topAgentFinding = SelectTopSeverityFinding(detail);
+        string? topFindingId = topAgentFinding?.FindingId;
+        string? topFindingSeverity = topAgentFinding?.Severity.ToString();
+
+        if (topFindingId is null && persistedFindingsSnapshot?.Findings is { Count: > 0 } topCandidates)
+        {
+            Finding? snapshotTopFinding = SelectTopSeveritySnapshotFinding(topCandidates);
+
+            if (snapshotTopFinding is not null)
+            {
+                topFindingId = snapshotTopFinding.FindingId;
+                topFindingSeverity = snapshotTopFinding.Severity.ToString();
+            }
+        }
         AgentOutputQualityGateOptions gateOpts = _gateOptionsResolver.Resolve(cancellationToken);
         bool needsFullTraces = gateOpts is { Enabled: true, Mode: AgentOutputQualityGateMode.PilotStrict };
         (IReadOnlyList<AgentExecutionTrace> traces, int llmCallCount, bool tracesResolved) =
@@ -114,9 +131,9 @@ public sealed class PilotRunDeltaComputer(
         }
 
         Task<(int auditCount, bool auditTruncated)> auditTask = TryCountAuditRowsAsync(runId, cancellationToken);
-        Task<FindingEvidenceChainResponse?> chainTask = topFinding is null
+        Task<FindingEvidenceChainResponse?> chainTask = topFindingId is null
             ? Task.FromResult<FindingEvidenceChainResponse?>(null)
-            : TryBuildEvidenceChainAsync(runId, topFinding.FindingId, cancellationToken);
+            : TryBuildEvidenceChainAsync(runId, topFindingId, cancellationToken);
         Task<(int? artifactCount, bool artifactResolved)> artifactsTask =
             TryCountArtifactsAsync(run.GoldenManifestId, cancellationToken);
         Task<decimal?> savingsTask = TryResolveEstimatedUsdSavingsAsync(run.FindingsSnapshotId, cancellationToken);
@@ -141,8 +158,8 @@ public sealed class PilotRunDeltaComputer(
             LlmCallCountResolved = tracesResolved,
             AgentOutputPilotStrictSignalsResolved = tracesResolved,
             AgentOutputPilotStrictViolatesSponsorEvidence = pilotStrictFails,
-            TopFindingId = topFinding?.FindingId,
-            TopFindingSeverity = topFinding?.Severity.ToString(),
+            TopFindingId = topFindingId,
+            TopFindingSeverity = topFindingSeverity,
             TopFindingEvidenceChain = chain,
             IsDemoTenant = isDemo,
             EstimatedUsdSavings = estimatedUsdSavings,
@@ -235,7 +252,17 @@ public sealed class PilotRunDeltaComputer(
             .OrderByDescending(static p => p.Value).ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
-    private async Task<IReadOnlyList<KeyValuePair<string, int>>> TryAggregateFindingsFromSnapshotAsync(
+    private static IReadOnlyList<KeyValuePair<string, int>> AggregateFindingsBySeverity(IReadOnlyList<Finding> findings)
+    {
+        return findings
+            .GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase)
+            .Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
+            .OrderByDescending(static p => p.Value)
+            .ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private async Task<FindingsSnapshot?> TryLoadFindingsSnapshotAsync(
         ScopeContext scope,
         Guid findingsSnapshotId,
         CancellationToken cancellationToken)
@@ -246,14 +273,9 @@ public sealed class PilotRunDeltaComputer(
                 await _findingsSnapshotRepository.GetCoverageProjectionByIdAsync(scope, findingsSnapshotId, cancellationToken);
 
             if (snapshot?.Findings is null || snapshot.Findings.Count == 0)
-                return [];
+                return null;
 
-            return snapshot.Findings
-                .GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase)
-                .Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
-                .OrderByDescending(static p => p.Value)
-                .ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            return snapshot;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -261,7 +283,7 @@ public sealed class PilotRunDeltaComputer(
                 "Pilot delta: findings snapshot {FindingsSnapshotId} unavailable; reporting zero findings from agent results.",
                 findingsSnapshotId);
 
-            return [];
+            return null;
         }
     }
 
@@ -298,6 +320,21 @@ public sealed class PilotRunDeltaComputer(
     ///     Advisory-only findings (<see cref="FindingEnforcementTier.Advisory" />) are counted separately
     ///     so consumers can distinguish governance-blocking coverage from optional guidance.
     /// </summary>
+    internal static GovernedFindingCoverageMetric AggregateGovernedFindingCoverage(IReadOnlyList<Finding> findings)
+    {
+        List<Finding> active = findings.Where(static f => !f.IsMuted).ToList();
+
+        if (active.Count == 0)
+            return GovernedFindingCoverageMetric.NotAvailable();
+
+        int governed = active.Count(static f => f.EnforcementTier == FindingEnforcementTier.PolicyViolation);
+        int advisory = active.Count(static f => f.EnforcementTier == FindingEnforcementTier.Advisory);
+        int withPolicyRule = active.Count(static f => !string.IsNullOrWhiteSpace(f.PolicyRuleId));
+        int withEvidenceRefs = active.Count(HasPersistedEvidencePointer);
+
+        return GovernedFindingCoverageMetric.Compute(active.Count, governed, advisory, withPolicyRule, withEvidenceRefs);
+    }
+
     internal static GovernedFindingCoverageMetric AggregateGovernedFindingCoverage(ArchitectureRunDetail detail)
     {
         IReadOnlyList<ArchitectureFinding> allFindings = detail.Results
@@ -315,6 +352,20 @@ public sealed class PilotRunDeltaComputer(
         int withEvidenceRefs = allFindings.Count(static f => f.EvidenceRefs.Count > 0);
 
         return GovernedFindingCoverageMetric.Compute(total, governed, advisory, withPolicyRule, withEvidenceRefs);
+    }
+
+    private static bool HasPersistedEvidencePointer(Finding finding)
+    {
+        return finding.RelatedNodeIds.Count > 0
+            || !string.IsNullOrWhiteSpace(finding.AgentExecutionTraceId);
+    }
+
+    private static Finding? SelectTopSeveritySnapshotFinding(IReadOnlyList<Finding> findings)
+    {
+        return findings
+            .Where(static f => !f.IsMuted)
+            .OrderByDescending(static f => (int)f.Severity)
+            .FirstOrDefault();
     }
 
     /// <summary>Picks the single highest-severity finding; ties broken by first-seen order to keep output deterministic.</summary>

@@ -1263,23 +1263,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: application-pilots
 
 - **id:** application-pilots
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-18
+- **last-bug:** 2026-08-18
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
 - [ ] (candidate) Proof pack includes findings from a workspace outside the pilot scope
-- [ ] (candidate) PDF builder silently drops a section when source data is missing
+- [x] (candidate) PDF builder silently drops a section when source data is missing — **partial 2026-08-18:** snapshot fallback populated severity counts but left governed-coverage and top-finding unset (buyer proof / first-value surfaces)
 - [ ] (candidate) Pack builder uses cached tenant data after a scope switch
 
 ---
