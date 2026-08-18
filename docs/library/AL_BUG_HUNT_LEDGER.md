@@ -126,19 +126,20 @@ High historical yield. **Not exhausted** ΓÇö remaining hypotheses are type-fa
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-17
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-18
 - **last-bug:** 2026-08-17
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [x] ARM resource id indexed in the endpoint index but not resolved by the edge mapper ΓÇö retired (invalid on current code): tf.id / tf.resource_id already indexed and resolved; rename via ARM ServiceId already matches
-- [x] Terraform SourceId claimed in merge but missing from alias resolution ΓÇö fixed: NodeMatchesService/Datastore now compare ServiceId/DatastoreId to Label (tf show JSON address-on-label shape)
+- [x] ARM resource id indexed in the endpoint index but not resolved by the edge mapper — retired (invalid on current code): tf.id / tf.resource_id already indexed and resolved; rename via ARM ServiceId already matches
+- [x] Terraform SourceId claimed in merge but missing from alias resolution — fixed: NodeMatchesService/Datastore now compare ServiceId/DatastoreId to Label (tf show JSON address-on-label shape)
 - [x] Endpoint keyed by a property bag value that is not a SourceId
+- [ ] (candidate) New Terraform resource type missing from `LooksLikeTerraformDatastoreSourceId` / `LooksLikeTerraformServiceSourceId` drops synthetic endpoint keys on category-mismatched nodes — promote via seed hunt when ARM catalog churns
 
 ---
 
