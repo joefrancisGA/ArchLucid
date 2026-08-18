@@ -115,11 +115,14 @@ $bOpen
         $result = Invoke-Picker -LedgerPath $ledger
 
         $result.zoneId | Should Be 'zone-b'
-        $result.score | Should Be 6.25
+        $result.score | Should Be 6
         $result.meanHuntsPerBug | Should Be 2
         $result.exploreBonus | Should Be 1
         $result.exhaustedAll | Should Be $false
+        $result.seedHunt | Should Be $true
         @($result.openHypotheses).Count | Should Be 1
+        @($result.candidateHypotheses).Count | Should Be 1
+        @($result.huntReadyHypotheses).Count | Should Be 0
     }
 
     It 'pins the hinted zone even when another zone scores higher' {
@@ -341,9 +344,9 @@ $bOpen
         [string]$ledger = New-LedgerFixture -Content $content
         $result = Invoke-Picker -LedgerPath $ledger
 
-        # Untried 6.25 + related 2 = 8.25 vs sibling untried 6.25
+        # Untried 6.00 + related 2 = 8.00 vs sibling untried 6.00 (candidates do not add hyp bonus)
         $result.zoneId | Should Be 'zone-pd'
-        $result.score | Should Be 8.25
+        $result.score | Should Be 8
     }
 
     It 'prefers faster hunts-per-bug once both zones have been sampled' {
@@ -401,7 +404,7 @@ $bOpen
         $result = Invoke-Picker -LedgerPath $ledger
 
         $result.zoneId | Should Be 'zone-b'
-        $result.score | Should Be 6.25
+        $result.score | Should Be 6
     }
 
     It 'exploits a fast sampled zone after the untried sibling has a dry hunt' {
@@ -411,5 +414,212 @@ $bOpen
 
         $result.zoneId | Should Be 'zone-a'
         $result.meanHuntsPerBug | Should Be 1.5
+    }
+
+    It 'does not let extra candidate rows raise an untried zone score' {
+        $one = Get-TwoZoneLedger -ZoneBOpenCount 1
+        $three = Get-TwoZoneLedger -ZoneBOpenCount 3
+        [string]$ledgerOne = New-LedgerFixture -Content $one
+        $resultOne = Invoke-Picker -LedgerPath $ledgerOne
+        [string]$ledgerThree = New-LedgerFixture -Content $three
+        $resultThree = Invoke-Picker -LedgerPath $ledgerThree
+
+        $resultOne.zoneId | Should Be 'zone-b'
+        $resultThree.zoneId | Should Be 'zone-b'
+        $resultOne.score | Should Be $resultThree.score
+        $resultOne.score | Should Be 6
+        @($resultThree.candidateHypotheses).Count | Should Be 2
+    }
+
+    It 'counts only hunt-ready rows in the hypothesis tie-break' {
+        $content = @"
+# fixture
+
+## Zone: zone-candidates
+
+- **id:** zone-candidates
+- **status:** open
+- **aliases:** many templates
+- **paths:** ArchLucid.Application/Templates.cs
+- **test-filter:** FullyQualifiedName~TemplateTests
+- **hunts:** 4
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **last-bug:** 2026-08-01
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (candidate) Template one
+- [ ] (candidate) Template two
+- [ ] (candidate) Template three
+
+## Zone: zone-ready
+
+- **id:** zone-ready
+- **status:** open
+- **aliases:** named branch
+- **paths:** ArchLucid.Application/Ready.cs
+- **test-filter:** FullyQualifiedName~ReadyTests
+- **hunts:** 4
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **last-bug:** 2026-08-01
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (hunt-ready) SelectById omits TenantId for the same Guid
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger
+
+        $result.zoneId | Should Be 'zone-ready'
+        @($result.huntReadyHypotheses).Count | Should Be 1
+        $result.seedHunt | Should Be $false
+    }
+
+    It 'prefers higher hypothesis precision when speed is equal' {
+        $content = @"
+# fixture
+
+## Zone: zone-low-precision
+
+- **id:** zone-low-precision
+- **aliases:** noisy templates
+- **paths:** ArchLucid.Application/Noisy.cs
+- **test-filter:** FullyQualifiedName~NoisyTests
+- **hunts:** 6
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **last-bug:** 2026-08-01
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Remaining noisy hypothesis
+- [x] (proven) Real bug one
+- [x] (invalid) Path does not exist
+- [x] (invalid) Retired: not applicable
+- [x] (valid-no-repro) Listed hypotheses do not hold
+
+## Zone: zone-high-precision
+
+- **id:** zone-high-precision
+- **aliases:** accurate claims
+- **paths:** ArchLucid.Application/Accurate.cs
+- **test-filter:** FullyQualifiedName~AccurateTests
+- **hunts:** 6
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **last-bug:** 2026-08-01
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Remaining accurate hypothesis
+- [x] (proven) Real bug one
+- [x] (proven) Real bug two
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger
+
+        $result.zoneId | Should Be 'zone-high-precision'
+        $result.hypothesisPrecision | Should Be 1
+        $result.provenCount | Should Be 2
+        $result.invalidCount | Should Be 0
+    }
+
+    It 'treats unseeded like open for eligibility and cooling wait' {
+        $content = @"
+# fixture
+
+## Zone: zone-cool
+
+- **id:** zone-cool
+- **status:** cooling
+- **aliases:** cooling zone
+- **paths:** ArchLucid.Application/Cool.cs
+- **test-filter:** FullyQualifiedName~CoolTests
+- **hunts:** 10
+- **bugs-found:** 10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **last-bug:** 2026-08-01
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Cooling hypothesis one
+
+## Zone: zone-seed
+
+- **id:** zone-seed
+- **status:** unseeded
+- **aliases:** never read
+- **paths:** ArchLucid.Application/Seed.cs
+- **test-filter:** FullyQualifiedName~SeedTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (candidate) Cross-tenant leak
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger
+
+        $result.zoneId | Should Be 'zone-seed'
+        $result.status | Should Be 'unseeded'
+        $result.seedHunt | Should Be $true
+        @($result.candidateHypotheses).Count | Should Be 1
+    }
+
+    It 'does not count valid-no-repro toward precision' {
+        $content = @"
+# fixture
+
+## Zone: zone-exhausted-correct
+
+- **id:** zone-exhausted-correct
+- **status:** open
+- **aliases:** already correct
+- **paths:** ArchLucid.Application/Correct.cs
+- **test-filter:** FullyQualifiedName~CorrectTests
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-16
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [x] (valid-no-repro) Primary submit stays enabled — listed hypotheses do not hold
+- [x] (valid-no-repro) Toast-only errors — do not hold on current form
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger
+
+        $result.zoneId | Should Be 'zone-exhausted-correct'
+        $result.hypothesisPrecision | Should Be $null
+        $result.validNoReproCount | Should Be 2
+        $result.invalidCount | Should Be 0
+        $result.provenCount | Should Be 0
     }
 }

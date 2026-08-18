@@ -1,19 +1,48 @@
-﻿> **Scope:** Contributor-reference — curated `/al-bug` hunt zones. Not a buyer or operator document. Agents must not invent extra zones in the same invocation; update this file after each hunt.
+> **Scope:** Contributor-reference — curated `/al-bug` hunt zones. Not a buyer or operator document. Agents must not invent extra zones in the same invocation; update this file after each hunt.
 
 # `/al-bug` hunt ledger
 
 Curated zones covering the full product surface (API, persistence, UI, CLI, orchestration, billing, governance, auth, exports, background jobs, analyzers, pipeline engines, core libraries). The picker is `scripts/agent/al-bug-pick-zone.ps1` (explore/exploit + **impact** weight, not LLM ranking). Do **not** invent extra zones mid-hunt. Use `.\scripts\agent\al-bug-pick-zone.ps1 -Nominate` to find gaps.
 
-**Updated:** 2026-08-17 (full-catalog coarse zones + impact-weighted picker).
+**Updated:** 2026-08-17 (hypothesis quality bar: unseeded / candidate / hunt-ready / proven / invalid / valid-no-repro).
 
 ## How to use
 
 1. Run `.\scripts\agent\al-bug-pick-zone.ps1 -Preview` (add `-Hint '…'` when the user named an area; add `-Refresh` to recompute git churn).
-2. Hunt **only** the returned zone's `paths` / open hypotheses.
+2. Hunt **only** the returned zone's `paths`. Treat `huntReadyHypotheses` as claims; treat `candidateHypotheses` as search lenses until a seed hunt.
 3. After the hunt, edit this file (the script does **not** write it):
-   - **Hit:** increment `hunts` and `bugs-found`; set `consecutive-dry-hunts` to `0`; set `last-hunt` and `last-bug` to today (`YYYY-MM-DD`); tick the proven hypothesis.
-   - **Dry:** increment `hunts` and `consecutive-dry-hunts`; set `last-hunt` to today; tick attempted hypotheses (or retire invalid ones). Do not invent another bug in the same files.
+   - **Hit:** increment `hunts` and `bugs-found`; set `consecutive-dry-hunts` to `0`; set `last-hunt` and `last-bug` to today (`YYYY-MM-DD`); tick the hypothesis as `(proven)`.
+   - **Dry:** increment `hunts` and `consecutive-dry-hunts`; set `last-hunt` to today; tick attempted hunt-ready rows as `(valid-no-repro)` or `(invalid)`. Do not invent another bug in the same files.
+   - **Seed-only:** increment `hunts`; set `last-hunt`; set `status` to `open`; do **not** increment `consecutive-dry-hunts`. Promote or retire candidates. Do not refill with three harm-class templates.
    - **Reopened:** when JSON `reopened` is `true`, set `status` back to `open`.
+
+### Zone status
+
+| Status | Meaning |
+| --- | --- |
+| `unseeded` | Never read for hypotheses. Listed `[ ]` rows are **candidates**. First hunt is a seed hunt. |
+| `open` | Seeded or previously hunted. Eligible for normal hunts. |
+| `cooling` | Yield dropped; picker waits while any `open` or `unseeded` zone remains. |
+| `exhausted` | All three exhaustion conditions hold. Reopens only on git churn. |
+
+New zones start **`unseeded`** with zero hunt-ready rows. Do not template-seed three cross-tenant / stale-cache / fail-open one-liners.
+
+### Hypothesis tags
+
+Open rows:
+
+- `[ ] (candidate) …` — harm-class or unverified template. Not hunt-ready. No picker tie-break.
+- `[ ] (hunt-ready) …` — locus + input + wrong outcome + mechanism filled from **these** files.
+
+Closed rows (never tick a miss as bare `[x]` — that counts as proven):
+
+- `[x] (proven) …` — failing repro (this hunt or earlier).
+- `[x] (invalid) …` — claim does not describe this code (missing path, wrong shape).
+- `[x] (valid-no-repro) …` — claim matches this code; current behavior is correct (cite the test).
+
+Untagged `[ ]` on `unseeded` or `hunts: 0` is treated as **candidate**. Untagged `[ ]` after the zone has been hunted is treated as **hunt-ready**. Untagged `[x]` is treated as **proven**.
+
+A hunt-ready row must name a locus, a concrete input, an observable wrong outcome, and a mechanism. Harm-class-only rows stay `(candidate)` until the files show the prerequisite (join, cache, fail-open catch). After a miss, replacement rows must cite a **different mechanism**.
 
 ## Scoring (picker)
 
@@ -23,21 +52,24 @@ Time unit is **hunts**, not wall-clock minutes. Exploit zones with a short mean 
 mean_hunts_per_bug = hunts / bugs when bugs > 0, else hunts + 2 (prior)
 speed              = 1 / mean_hunts_per_bug
 explore            = 1 / sqrt(hunts + 1)
+precision          = proven / (proven + invalid) when that sum >= 2, else omitted
+                     (valid-no-repro is not in the denominator)
 
 base_score =
   6 × speed
 + 3 × explore
 + 2 × recent_churn              (min(3, commitCount since last-hunt))
 + 1 × related_PD_or_TB          (min(2, id count))
-+ 0.25 × min(3, open hypotheses)
++ 0.25 × min(3, hunt-ready open hypotheses)
++ 0.5 × precision               (0 when omitted)
 − 2 × consecutive_dry_hunts
 
 score = base_score × impact_multiplier   (high ×1.40, medium ×1.00, low ×0.65)
 ```
 
-Open-hypothesis count is a small tie-break only. A zone with many unchecked rows must not permanently block the rest of the catalog.
+Hunt-ready count is a small tie-break only. Candidate/template rows must not inflate score or lock the catalog. Precision rewards zones whose hypotheses matched the code; it does not punish valid-no-repro exhaustion.
 
-Eligibility: `open` always; `cooling` only when no `open` zone remains; `exhausted` only when git shows commits on `paths` since `last-hunt`.
+Eligibility: `open` and `unseeded` always; `cooling` only when no `open` or `unseeded` zone remains; `exhausted` only when git shows commits on `paths` since `last-hunt`.
 
 ## Nominate mode
 
@@ -45,7 +77,7 @@ Eligibility: `open` always; `cooling` only when no `open` zone remains; `exhaust
 
 ## Exhaustion (all must hold)
 
-1. Every listed hypothesis has a passing regression test, or was retired as invalid.
+1. Every listed hypothesis has a passing regression test, or was retired as `(invalid)` or `(valid-no-repro)`.
 2. **3 consecutive dry hunts**.
 3. **No production-path commits** in that zone since `last-hunt`.
 
@@ -191,7 +223,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: content-safety-admission
 
 - **id:** content-safety-admission
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** content safety; admission gate; prompt injection
 - **paths:** ArchLucid.Application/Runs/Orchestration/CompositeRequestContentSafetyPrecheck.cs; ArchLucid.Application/Runs/Orchestration/LlmSemanticAdmissionGate.cs; ArchLucid.Application/Runs/Orchestration/DefaultRequestContentSafetyPrecheck.cs
@@ -206,9 +238,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Composite short-circuits to allow when one inner precheck throws
-- [ ] Semantic admission gate skips deterministic precheck failures
-- [ ] Default precheck allows an executable injection pattern covered by AgentRuntime regression tests
+- [ ] (candidate) Composite short-circuits to allow when one inner precheck throws
+- [ ] (candidate) Semantic admission gate skips deterministic precheck failures
+- [ ] (candidate) Default precheck allows an executable injection pattern covered by AgentRuntime regression tests
 
 ---
 
@@ -241,7 +273,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: authority-pipeline-payload
 
 - **id:** authority-pipeline-payload
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
@@ -256,16 +288,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] JSON round-trip drops a required work field and the processor still dequeues
-- [ ] Unknown payload version is treated as the current contract
-- [ ] Tenant id in the payload is not the tenant used for SQL
+- [ ] (candidate) JSON round-trip drops a required work field and the processor still dequeues
+- [ ] (candidate) Unknown payload version is treated as the current contract
+- [ ] (candidate) Tenant id in the payload is not the tenant used for SQL
 
 ---
 
 ## Zone: technology-ledger-merge
 
 - **id:** technology-ledger-merge
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
@@ -280,9 +312,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Ledger merge keeps an agent-proposed technology that the inventory already replaced
-- [ ] Duplicate technology names from two agents both survive merge
-- [ ] Merge policy ignores a seeded ledger row when the proposal uses a different casing
+- [ ] (candidate) Ledger merge keeps an agent-proposed technology that the inventory already replaced
+- [ ] (candidate) Duplicate technology names from two agents both survive merge
+- [ ] (candidate) Merge policy ignores a seeded ledger row when the proposal uses a different casing
 
 ---
 
@@ -361,7 +393,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: tenant-erasure
 
 - **id:** tenant-erasure
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
@@ -376,16 +408,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Erasure proceeds while a legal hold is still active
-- [ ] Quarantine middleware lets mutating requests through after erasure has started
-- [ ] Erasure command deletes another tenantΓÇÖs rows when ids collide in cache
+- [ ] (candidate) Erasure proceeds while a legal hold is still active
+- [ ] (candidate) Quarantine middleware lets mutating requests through after erasure has started
+- [ ] (candidate) Erasure command deletes another tenantΓÇÖs rows when ids collide in cache
 
 ---
 
 ## Zone: tenant-scoped-analyzer
 
 - **id:** tenant-scoped-analyzer
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
@@ -400,9 +432,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Analyzer misses a Dapper QueryAsync on a tenant table with no scope binding
-- [ ] Interpolated SQL is treated as scoped when the tenant predicate is only in a comment
-- [ ] Empty exemption justification does not fire the diagnostic
+- [ ] (candidate) Analyzer misses a Dapper QueryAsync on a tenant table with no scope binding
+- [ ] (candidate) Interpolated SQL is treated as scoped when the tenant predicate is only in a comment
+- [ ] (candidate) Empty exemption justification does not fire the diagnostic
 
 ---
 
@@ -459,7 +491,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: llm-wallet
 
 - **id:** llm-wallet
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
@@ -474,16 +506,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Debit applies to a different tenantΓÇÖs wallet when the header tenant differs from the route
-- [ ] Concurrent debits both succeed past the remaining balance
-- [ ] Wallet read returns another tenantΓÇÖs remaining credits
+- [ ] (candidate) Debit applies to a different tenantΓÇÖs wallet when the header tenant differs from the route
+- [ ] (candidate) Concurrent debits both succeed past the remaining balance
+- [ ] (candidate) Wallet read returns another tenantΓÇÖs remaining credits
 
 ---
 
 ## Zone: finding-disposition
 
 - **id:** finding-disposition
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
@@ -498,16 +530,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Disposition writes succeed for a finding that belongs to another tenant
-- [ ] Validation accepts a closed finding as still actionable
-- [ ] Required rationale is skipped when the disposition kind is reject
+- [ ] (candidate) Disposition writes succeed for a finding that belongs to another tenant
+- [ ] (candidate) Validation accepts a closed finding as still actionable
+- [ ] (candidate) Required rationale is skipped when the disposition kind is reject
 
 ---
 
 ## Zone: review-recurrence
 
 - **id:** review-recurrence
-- **status:** open
+- **status:** unseeded
 - **impact:** low
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
@@ -522,9 +554,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Next-run lands in the past so the scheduler fires immediately in a loop
-- [ ] Disabled recurrence still computes a next run
-- [ ] Time-zone conversion shifts the cadence by a day around DST
+- [ ] (candidate) Next-run lands in the past so the scheduler fires immediately in a loop
+- [ ] (candidate) Disabled recurrence still computes a next run
+- [ ] (candidate) Time-zone conversion shifts the cadence by a day around DST
 
 ---
 
@@ -555,7 +587,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: weekly-digest-email
 
 - **id:** weekly-digest-email
-- **status:** open
+- **status:** unseeded
 - **impact:** low
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
@@ -570,16 +602,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Digest email includes findings from a tenant the recipient cannot access
-- [ ] Dispatcher treats a send failure as success and skips retry
-- [ ] Unsubscribed address still receives the weekly summary
+- [ ] (candidate) Digest email includes findings from a tenant the recipient cannot access
+- [ ] (candidate) Dispatcher treats a send failure as success and skips retry
+- [ ] (candidate) Unsubscribed address still receives the weekly summary
 
 ---
 
 ## Zone: outbound-webhook-dry-run
 
 - **id:** outbound-webhook-dry-run
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Services/OutboundWebhookDryRunService.cs; ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs
@@ -594,9 +626,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Dry-run posts to the live customer endpoint
-- [ ] Dry-run payload includes secrets from another tenantΓÇÖs webhook config
-- [ ] Controller returns success when the dry-run service throws
+- [ ] (candidate) Dry-run posts to the live customer endpoint
+- [ ] (candidate) Dry-run payload includes secrets from another tenantΓÇÖs webhook config
+- [ ] (candidate) Controller returns success when the dry-run service throws
 
 ---
 
@@ -651,7 +683,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: cli-tenant-isolation
 
 - **id:** cli-tenant-isolation
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
@@ -666,16 +698,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Runner reports pass when a cross-tenant probe actually returned 200
-- [ ] Probe uses the victim tenantΓÇÖs token instead of the attacker token
-- [ ] Aggregator treats skipped probes as isolation successes
+- [ ] (candidate) Runner reports pass when a cross-tenant probe actually returned 200
+- [ ] (candidate) Probe uses the victim tenantΓÇÖs token instead of the attacker token
+- [ ] (candidate) Aggregator treats skipped probes as isolation successes
 
 ---
 
 ## Zone: cli-draft-new
 
 - **id:** cli-draft-new
-- **status:** open
+- **status:** unseeded
 - **impact:** low
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
@@ -690,16 +722,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Draft is created under a tenant other than the signed-in CLI tenant
-- [ ] Command reports success when the API returned 4xx
-- [ ] Existing draft id is overwritten without confirmation
+- [ ] (candidate) Draft is created under a tenant other than the signed-in CLI tenant
+- [ ] (candidate) Command reports success when the API returned 4xx
+- [ ] (candidate) Existing draft id is overwritten without confirmation
 
 ---
 
 ## Zone: cli-terraform-evidence
 
 - **id:** cli-terraform-evidence
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
@@ -714,9 +746,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] ARM resource id is stored in the wrong Terraform attribute (name vs id)
-- [ ] Module-wrapped resource is skipped so evidence omits a live ARM id
-- [ ] Parser treats a comment containing `resource_id` as a real binding
+- [ ] (candidate) ARM resource id is stored in the wrong Terraform attribute (name vs id)
+- [ ] (candidate) Module-wrapped resource is skipped so evidence omits a live ARM id
+- [ ] (candidate) Parser treats a comment containing `resource_id` as a real binding
 
 ---
 
@@ -869,7 +901,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: scim-users
 
 - **id:** scim-users
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
@@ -884,16 +916,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] PATCH/DELETE affects a user in another tenant when externalId collides
-- [ ] Filter query returns users outside the provisioning tenant
-- [ ] Create succeeds without mapping the user into the callerΓÇÖs tenant
+- [ ] (candidate) PATCH/DELETE affects a user in another tenant when externalId collides
+- [ ] (candidate) Filter query returns users outside the provisioning tenant
+- [ ] (candidate) Create succeeds without mapping the user into the callerΓÇÖs tenant
 
 ---
 
 ## Zone: identity-provider-config
 
 - **id:** identity-provider-config
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
@@ -908,16 +940,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Activation writes IdP settings onto a tenant the admin does not own
-- [ ] Disable still leaves the previous client secret usable
-- [ ] Config GET returns another tenantΓÇÖs client id
+- [ ] (candidate) Activation writes IdP settings onto a tenant the admin does not own
+- [ ] (candidate) Disable still leaves the previous client secret usable
+- [ ] (candidate) Config GET returns another tenantΓÇÖs client id
 
 ---
 
 ## Zone: worker-host
 
 - **id:** worker-host
-- **status:** open
+- **status:** unseeded
 - **impact:** low
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
@@ -932,15 +964,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Worker host starts without a tenant-scope constraint on background jobs
-- [ ] Composition registers a singleton that caches the first requestΓÇÖs tenant
-- [ ] Startup succeeds when a required hosted service failed to resolve
+- [ ] (candidate) Worker host starts without a tenant-scope constraint on background jobs
+- [ ] (candidate) Composition registers a singleton that caches the first requestΓÇÖs tenant
+- [ ] (candidate) Startup succeeds when a required hosted service failed to resolve
 ---
 
 ## Zone: billing-webhooks
 
 - **id:** billing-webhooks
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
@@ -955,16 +987,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Replay guard accepts the same Stripe event id twice under concurrent delivery
-- [ ] Marketplace webhook credits a tenant that does not match the subscription payload
-- [ ] Invalid signature still returns 2xx so the provider stops retrying
+- [ ] (candidate) Replay guard accepts the same Stripe event id twice under concurrent delivery
+- [ ] (candidate) Marketplace webhook credits a tenant that does not match the subscription payload
+- [ ] (candidate) Invalid signature still returns 2xx so the provider stops retrying
 
 ---
 
 ## Zone: api-key-auth
 
 - **id:** api-key-auth
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
@@ -979,16 +1011,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Revoked API key still authenticates until process restart
-- [ ] Admin can read or rotate another tenantâ€™s API key settings
-- [ ] Missing or malformed key header is treated as an authenticated principal
+- [ ] (candidate) Revoked API key still authenticates until process restart
+- [ ] (candidate) Admin can read or rotate another tenantâ€™s API key settings
+- [ ] (candidate) Missing or malformed key header is treated as an authenticated principal
 
 ---
 
 ## Zone: scope-binding-middleware
 
 - **id:** scope-binding-middleware
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
@@ -1003,16 +1035,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Route filter binds scope from the body while the URL names a different tenant
-- [ ] Middleware lets a mutating request through when scope resolution fails open
-- [ ] Workspace id from the route is not propagated to the scope context provider
+- [ ] (candidate) Route filter binds scope from the body while the URL names a different tenant
+- [ ] (candidate) Middleware lets a mutating request through when scope resolution fails open
+- [ ] (candidate) Workspace id from the route is not propagated to the scope context provider
 
 ---
 
 ## Zone: saml-jwt-bearer
 
 - **id:** saml-jwt-bearer
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
@@ -1027,9 +1059,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] SAML metadata parser accepts an entity id that does not match the configured IdP
-- [ ] Trial JWT is accepted after the trial window has expired
-- [ ] SCIM bearer token for tenant A authorizes provisioning writes for tenant B
+- [ ] (candidate) SAML metadata parser accepts an entity id that does not match the configured IdP
+- [ ] (candidate) Trial JWT is accepted after the trial window has expired
+- [ ] (candidate) SCIM bearer token for tenant A authorizes provisioning writes for tenant B
 
 ---
 
@@ -1084,7 +1116,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: itsm-inbound-webhooks
 
 - **id:** itsm-inbound-webhooks
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
@@ -1099,16 +1131,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Webhook accepted when the shared secret does not match the connector config
-- [ ] Replay guard allows duplicate delivery of the same event id
-- [ ] Inbound payload is applied to a tenant inferred from the body instead of the authenticated connector
+- [ ] (candidate) Webhook accepted when the shared secret does not match the connector config
+- [ ] (candidate) Replay guard allows duplicate delivery of the same event id
+- [ ] (candidate) Inbound payload is applied to a tenant inferred from the body instead of the authenticated connector
 
 ---
 
 ## Zone: ui-auth-proxy
 
 - **id:** ui-auth-proxy
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
@@ -1123,16 +1155,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Proxy forwards operator cookies or auth headers to a marketing-only upstream path
-- [ ] Return-destination helper accepts an external URL that bypasses host-gate
-- [ ] Anonymous marketing proxy path can reach a mutating operator API route
+- [ ] (candidate) Proxy forwards operator cookies or auth headers to a marketing-only upstream path
+- [ ] (candidate) Return-destination helper accepts an external URL that bypasses host-gate
+- [ ] (candidate) Anonymous marketing proxy path can reach a mutating operator API route
 
 ---
 
 ## Zone: security-analyzers
 
 - **id:** security-analyzers
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
@@ -1147,16 +1179,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Mutating controller without `[Authorize]` does not fire `RequireAuthorizationAnalyzer`
-- [ ] Cross-tenant repository call with only workspace id in scope passes `TenantIdentityBoundaryAnalyzer`
-- [ ] Controller action mutates state without audit attribute and analyzer stays silent
+- [ ] (candidate) Mutating controller without `[Authorize]` does not fire `RequireAuthorizationAnalyzer`
+- [ ] (candidate) Cross-tenant repository call with only workspace id in scope passes `TenantIdentityBoundaryAnalyzer`
+- [ ] (candidate) Controller action mutates state without audit attribute and analyzer stays silent
 
 ---
 
 ## Zone: agent-runtime-safety
 
 - **id:** agent-runtime-safety
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
@@ -1171,16 +1203,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Content safety guard maps a blocked category to allow on SDK failure
-- [ ] Untrusted evidence delimiter is stripped so injection payload reaches the model prompt
-- [ ] Sanitizer runs after the prompt is assembled instead of before
+- [ ] (candidate) Content safety guard maps a blocked category to allow on SDK failure
+- [ ] (candidate) Untrusted evidence delimiter is stripped so injection payload reaches the model prompt
+- [ ] (candidate) Sanitizer runs after the prompt is assembled instead of before
 
 ---
 
 ## Zone: application-analysis
 
 - **id:** application-analysis
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
@@ -1195,16 +1227,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Analysis compares runs from different tenants when scope keys collide
-- [ ] Quality delta treats a failed run as higher quality than a succeeded run
-- [ ] Compare summary omits a blocking finding that exists in the source run
+- [ ] (candidate) Analysis compares runs from different tenants when scope keys collide
+- [ ] (candidate) Quality delta treats a failed run as higher quality than a succeeded run
+- [ ] (candidate) Compare summary omits a blocking finding that exists in the source run
 
 ---
 
 ## Zone: application-billing-logic
 
 - **id:** application-billing-logic
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
@@ -1219,16 +1251,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Marketplace mutation handler applies a subscription change to the wrong tenant
-- [ ] Checkout session is created without binding the caller tenant id
-- [ ] Idempotent replay of a billing event double-applies seat or credit changes
+- [ ] (candidate) Marketplace mutation handler applies a subscription change to the wrong tenant
+- [ ] (candidate) Checkout session is created without binding the caller tenant id
+- [ ] (candidate) Idempotent replay of a billing event double-applies seat or credit changes
 
 ---
 
 ## Zone: application-pilots
 
 - **id:** application-pilots
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
@@ -1243,16 +1275,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Proof pack includes findings from a workspace outside the pilot scope
-- [ ] PDF builder silently drops a section when source data is missing
-- [ ] Pack builder uses cached tenant data after a scope switch
+- [ ] (candidate) Proof pack includes findings from a workspace outside the pilot scope
+- [ ] (candidate) PDF builder silently drops a section when source data is missing
+- [ ] (candidate) Pack builder uses cached tenant data after a scope switch
 
 ---
 
 ## Zone: agent-runtime-evaluation
 
 - **id:** agent-runtime-evaluation
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
@@ -1267,16 +1299,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Evaluation runner scores a failed trace as passed
-- [ ] Runner uses a golden fixture from a different tenantâ€™s catalog
-- [ ] Batch evaluation swallows per-item failures and reports aggregate success
+- [ ] (candidate) Evaluation runner scores a failed trace as passed
+- [ ] (candidate) Runner uses a golden fixture from a different tenantâ€™s catalog
+- [ ] (candidate) Batch evaluation swallows per-item failures and reports aggregate success
 
 ---
 
 ## Zone: decisioning
 
 - **id:** decisioning
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
@@ -1291,16 +1323,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Merge keeps conflicting findings from two agents without deduplication
-- [ ] Advisory alert fires for a finding outside the run scope
-- [ ] Compliance gate passes when required evidence nodes are absent
+- [ ] (candidate) Merge keeps conflicting findings from two agents without deduplication
+- [ ] (candidate) Advisory alert fires for a finding outside the run scope
+- [ ] (candidate) Compliance gate passes when required evidence nodes are absent
 
 ---
 
 ## Zone: persistence-identity
 
 - **id:** persistence-identity
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
@@ -1315,16 +1347,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Identity lookup by email returns a user from another tenant
-- [ ] Link/unlink writes succeed without scoping to the caller tenant
-- [ ] Cached identity read returns stale data after a tenant-scoped upsert
+- [ ] (candidate) Identity lookup by email returns a user from another tenant
+- [ ] (candidate) Link/unlink writes succeed without scoping to the caller tenant
+- [ ] (candidate) Cached identity read returns stale data after a tenant-scoped upsert
 
 ---
 
 ## Zone: retrieval
 
 - **id:** retrieval
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
@@ -1339,16 +1371,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Index query returns chunks from another tenantâ€™s corpus
-- [ ] Pricing estimate uses the wrong model tariff for the tenant plan
-- [ ] Reindex job deletes vectors for the wrong workspace
+- [ ] (candidate) Index query returns chunks from another tenantâ€™s corpus
+- [ ] (candidate) Pricing estimate uses the wrong model tariff for the tenant plan
+- [ ] (candidate) Reindex job deletes vectors for the wrong workspace
 
 ---
 
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
@@ -1363,16 +1395,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Authority host check accepts a look-alike domain as the configured issuer
-- [ ] OIDC redirect builds a return URL that leaves the operator origin
-- [ ] Silent renew uses a stale authority after tenant IdP switch
+- [ ] (candidate) Authority host check accepts a look-alike domain as the configured issuer
+- [ ] (candidate) OIDC redirect builds a return URL that leaves the operator origin
+- [ ] (candidate) Silent renew uses a stale authority after tenant IdP switch
 
 ---
 
 ## Zone: archlucid-core
 
 - **id:** archlucid-core
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
@@ -1387,16 +1419,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] URL allow-list policy accepts a credential-bearing redirect target
-- [ ] Tenant scope model treats empty workspace as a wildcard
-- [ ] Configuration default enables a production-unsafe integration flag
+- [ ] (candidate) URL allow-list policy accepts a credential-bearing redirect target
+- [ ] (candidate) Tenant scope model treats empty workspace as a wildcard
+- [ ] (candidate) Configuration default enables a production-unsafe integration flag
 
 ---
 
 ## Zone: archlucid-contracts
 
 - **id:** archlucid-contracts
-- **status:** open
+- **status:** unseeded
 - **impact:** low
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
@@ -1411,16 +1443,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] JSON round-trip drops a required field on a versioned request DTO
-- [ ] Enum serialization accepts an out-of-range value as the default variant
-- [ ] Contract change breaks backward compatibility without a version bump signal
+- [ ] (candidate) JSON round-trip drops a required field on a versioned request DTO
+- [ ] (candidate) Enum serialization accepts an out-of-range value as the default variant
+- [ ] (candidate) Contract change breaks backward compatibility without a version bump signal
 
 ---
 
 ## Zone: context-ingestion
 
 - **id:** context-ingestion
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
@@ -1435,16 +1467,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Canonicalization drops tenant id from ingested connector payload
-- [ ] Stage pipeline continues after a failed validation with partial graph
-- [ ] Duplicate external keys from two tenants collapse into one node
+- [ ] (candidate) Canonicalization drops tenant id from ingested connector payload
+- [ ] (candidate) Stage pipeline continues after a failed validation with partial graph
+- [ ] (candidate) Duplicate external keys from two tenants collapse into one node
 
 ---
 
 ## Zone: knowledge-graph-provenance
 
 - **id:** knowledge-graph-provenance
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
@@ -1459,16 +1491,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Graph merge links a node to provenance from another tenant
-- [ ] Lineage query traverses into a sibling tenantâ€™s artifact store
-- [ ] Provenance record is written without workspace scope
+- [ ] (candidate) Graph merge links a node to provenance from another tenant
+- [ ] (candidate) Lineage query traverses into a sibling tenantâ€™s artifact store
+- [ ] (candidate) Provenance record is written without workspace scope
 
 ---
 
 ## Zone: notifications-pipeline
 
 - **id:** notifications-pipeline
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/
@@ -1483,16 +1515,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Dispatcher sends to recipients outside the tenant membership list
-- [ ] Template render includes another userâ€™s email in the body
-- [ ] Send failure is treated as success and suppresses retry
+- [ ] (candidate) Dispatcher sends to recipients outside the tenant membership list
+- [ ] (candidate) Template render includes another userâ€™s email in the body
+- [ ] (candidate) Send failure is treated as success and suppresses retry
 
 ---
 
 ## Zone: artifact-synthesis
 
 - **id:** artifact-synthesis
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
@@ -1507,16 +1539,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Generated document embeds unsanitized user HTML/script
-- [ ] Packager includes artifacts from a run outside the requested scope
-- [ ] Validation passes when required manifest hash is missing
+- [ ] (candidate) Generated document embeds unsanitized user HTML/script
+- [ ] (candidate) Packager includes artifacts from a run outside the requested scope
+- [ ] (candidate) Validation passes when required manifest hash is missing
 
 ---
 
 ## Zone: host-composition
 
 - **id:** host-composition
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
@@ -1531,16 +1563,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Singleton service caches the first request tenant for the process lifetime
-- [ ] Optional security service is not registered in production configuration
-- [ ] Composition registers two implementations for the same tenant-scoped interface
+- [ ] (candidate) Singleton service caches the first request tenant for the process lifetime
+- [ ] (candidate) Optional security service is not registered in production configuration
+- [ ] (candidate) Composition registers two implementations for the same tenant-scoped interface
 
 ---
 
 ## Zone: cloud-extractors
 
 - **id:** cloud-extractors
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
@@ -1555,9 +1587,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Extractor pulls resources using credentials from another tenantâ€™s connector
-- [ ] ARM/resource id mapping drops subscription scope and mis-attributes resources
-- [ ] Extractor treats a parse warning as success with an empty inventory
+- [ ] (candidate) Extractor pulls resources using credentials from another tenantâ€™s connector
+- [ ] (candidate) ARM/resource id mapping drops subscription scope and mis-attributes resources
+- [ ] (candidate) Extractor treats a parse warning as success with an empty inventory
 
 ---
 
@@ -1588,7 +1620,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: api-governance-tenancy-controllers
 
 - **id:** api-governance-tenancy-controllers
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
@@ -1603,16 +1635,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Governance write succeeds for a policy pack owned by another tenant
-- [ ] Tenancy suspend endpoint affects a tenant id from the body not the principal
-- [ ] List endpoint omits tenant predicate when workspace filter is empty
+- [ ] (candidate) Governance write succeeds for a policy pack owned by another tenant
+- [ ] (candidate) Tenancy suspend endpoint affects a tenant id from the body not the principal
+- [ ] (candidate) List endpoint omits tenant predicate when workspace filter is empty
 
 ---
 
 ## Zone: application-agents
 
 - **id:** application-agents
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
@@ -1627,16 +1659,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Agent invocation uses a default tenant when scope is missing
-- [ ] Handler result is cached across tenants with the same run id
-- [ ] Agent registry resolves a handler without checking feature flags per tenant
+- [ ] (candidate) Agent invocation uses a default tenant when scope is missing
+- [ ] (candidate) Handler result is cached across tenants with the same run id
+- [ ] (candidate) Agent registry resolves a handler without checking feature flags per tenant
 
 ---
 
 ## Zone: application-governance-policy
 
 - **id:** application-governance-policy
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
@@ -1651,16 +1683,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Policy pack diff includes rules from a seeded pack in another tenant
-- [ ] Coverage calculator counts a waived finding as still open
-- [ ] Default policy pack activation skips required approval metadata
+- [ ] (candidate) Policy pack diff includes rules from a seeded pack in another tenant
+- [ ] (candidate) Coverage calculator counts a waived finding as still open
+- [ ] (candidate) Default policy pack activation skips required approval metadata
 
 ---
 
 ## Zone: application-tenancy-lifecycle
 
 - **id:** application-tenancy-lifecycle
-- **status:** open
+- **status:** unseeded
 - **impact:** high
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
@@ -1675,16 +1707,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Suspend leaves mutating API paths active for the tenant
-- [ ] Migration copies rows without rewriting tenant id on child tables
-- [ ] Trial bootstrap creates resources under a host catalog tenant id
+- [ ] (candidate) Suspend leaves mutating API paths active for the tenant
+- [ ] (candidate) Migration copies rows without rewriting tenant id on child tables
+- [ ] (candidate) Trial bootstrap creates resources under a host catalog tenant id
 
 ---
 
 ## Zone: host-core-coordination
 
 - **id:** host-core-coordination
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
@@ -1699,16 +1731,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Outbox processor pushes export blobs to a destination for the wrong tenant
-- [ ] Backfill job replays events without idempotency keys
-- [ ] Coordination lease is not released and blocks all replicas
+- [ ] (candidate) Outbox processor pushes export blobs to a destination for the wrong tenant
+- [ ] (candidate) Backfill job replays events without idempotency keys
+- [ ] (candidate) Coordination lease is not released and blocks all replicas
 
 ---
 
 ## Zone: ui-operator-routes
 
 - **id:** ui-operator-routes
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
@@ -1723,16 +1755,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Page fetches data without forwarding the active workspace scope
-- [ ] Stale react-query cache shows the previous tenant after scope switch
-- [ ] Error boundary hides a 403 and renders an empty success state
+- [ ] (candidate) Page fetches data without forwarding the active workspace scope
+- [ ] (candidate) Stale react-query cache shows the previous tenant after scope switch
+- [ ] (candidate) Error boundary hides a 403 and renders an empty success state
 
 ---
 
 ## Zone: ui-marketing-surfaces
 
 - **id:** ui-marketing-surfaces
-- **status:** open
+- **status:** unseeded
 - **impact:** low
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
@@ -1747,16 +1779,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Marketing form submits PII to the wrong API environment
-- [ ] Pricing page shows an internal-only plan tier to anonymous visitors
-- [ ] Trust center link resolves to a non-public document slug
+- [ ] (candidate) Marketing form submits PII to the wrong API environment
+- [ ] (candidate) Pricing page shows an internal-only plan tier to anonymous visitors
+- [ ] (candidate) Trust center link resolves to a non-public document slug
 
 ---
 
 ## Zone: capabilities-cost-mcp
 
 - **id:** capabilities-cost-mcp
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
@@ -1771,16 +1803,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Cost estimate uses list price when tenant has a negotiated discount
-- [ ] MCP tool invocation lacks tenant scope binding
-- [ ] Cost module returns zero for an unknown SKU instead of failing closed
+- [ ] (candidate) Cost estimate uses list price when tenant has a negotiated discount
+- [ ] (candidate) MCP tool invocation lacks tenant scope binding
+- [ ] (candidate) Cost module returns zero for an unknown SKU instead of failing closed
 
 ---
 
 ## Zone: ui-operator-lib
 
 - **id:** ui-operator-lib
-- **status:** open
+- **status:** unseeded
 - **impact:** medium
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
@@ -1795,6 +1827,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] Operator API helper omits workspace scope on mutating requests
-- [ ] Cached operator context survives a tenant switch without invalidation
-- [ ] Error mapper surfaces another tenant’s problem detail in the toast
+- [ ] (candidate) Operator API helper omits workspace scope on mutating requests
+- [ ] (candidate) Cached operator context survives a tenant switch without invalidation
+- [ ] (candidate) Error mapper surfaces another tenant’s problem detail in the toast

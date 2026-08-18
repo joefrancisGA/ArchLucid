@@ -32,11 +32,17 @@ Default push target: **`master`**.
 2. **Fix** — minimal diff + permanent regression test
 3. **Ship** — `.\scripts\agent\al-bug-push-master.ps1` when main tree is dirty; else direct commit. Always update `docs/library/AL_BUG_HUNT_LEDGER.md`.
 
-`--status` prints the picker preview and stops. A dry hunt (listed hypotheses tested, no failing repro) updates the ledger and stops — do not invent another zone.
+`--status` prints the picker preview and stops. A dry hunt (hunt-ready hypotheses tested, no failing repro) updates the ledger and stops — do not invent another zone. A **seed hunt** (`seedHunt: true`) reads the zone files, promotes or retires candidates, and may prove one hunt-ready row in the same run.
 
 ## Hunt the picked zone only
 
-Do **not** LLM-rank zones or default to topology-first. The picker scores `docs/library/AL_BUG_HUNT_LEDGER.md` with explore/exploit (shorter mean hunts-per-bug once sampled; exploration bonus for untried zones). Use the JSON `paths`, `openHypotheses`, and `testFilter`.
+Do **not** LLM-rank zones or default to topology-first. The picker scores `docs/library/AL_BUG_HUNT_LEDGER.md` with explore/exploit (shorter mean hunts-per-bug once sampled; exploration bonus for untried zones). **Candidate** rows do not add score; **hunt-ready** count is a small tie-break; **precision** (`proven / (proven + invalid)`) is a small bonus after two classified attempts.
+
+Use the JSON `paths`, `openHypotheses`, `huntReadyHypotheses`, `candidateHypotheses`, `seedHunt`, and `testFilter`.
+
+**Hunt-ready bar:** locus + input + wrong outcome + mechanism in *these* files. Harm-class one-liners (“cross-tenant leak”, “stale cache”) stay `(candidate)` until the files show the prerequisite. Cheap-disproof a row (locus exists, not already tested, prerequisite present) before writing a repro.
+
+Ledger tags: `(candidate)`, `(hunt-ready)`, `(proven)`, `(invalid)`, `(valid-no-repro)`. Bare `[x]` counts as proven — do not tick misses that way.
 
 Topology orchestration remains a **high-yield zone** (`topology-proposal-merge`) after it has been sampled, not a global default. Hunt the rest of the catalog when those zones are still untried. Typical defect shapes there:
 

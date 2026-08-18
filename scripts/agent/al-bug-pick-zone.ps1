@@ -6,6 +6,8 @@
 .DESCRIPTION
   Reads docs/library/AL_BUG_HUNT_LEDGER.md. Scoring is deterministic explore/exploit
   (not LLM ranking): prefer shorter mean hunts-per-bug, sample untried zones.
+  Hunt-ready hypotheses are a small tie-break; candidate templates do not score.
+  Precision (proven / (proven + invalid)) is a small bonus after two attempts.
   This script does not write the ledger — the agent updates it after the hunt.
 
 .PARAMETER LedgerPath
@@ -245,6 +247,80 @@ function Get-GitChurnCount {
     return @($hashes).Count
 }
 
+function Get-OpenHypothesisKind {
+    param(
+        [string] $Text,
+        [string] $ZoneStatus,
+        [int] $Hunts
+    )
+
+    $trimmed = $Text.Trim()
+
+    if ($trimmed -match '^\(candidate\)\s*') {
+        return 'candidate'
+    }
+
+    if ($trimmed -match '^\(hunt-ready\)\s*') {
+        return 'hunt-ready'
+    }
+
+    # Untagged rows on an untried or unseeded zone are templates until a seed
+    # hunt reads the files and promotes them. Do not treat them as hunt-ready.
+    if ($ZoneStatus -eq 'unseeded' -or $Hunts -eq 0) {
+        return 'candidate'
+    }
+
+    return 'hunt-ready'
+}
+
+function Get-ClosedHypothesisKind {
+    param([string] $Text)
+
+    $trimmed = $Text.Trim()
+
+    # valid-no-repro: the claim matches this code, but current behavior is correct.
+    if ($trimmed -match '\(valid-no-repro\)' -or $trimmed -match '(?i)do not hold') {
+        return 'valid-no-repro'
+    }
+
+    if ($trimmed -match '\(invalid\)' -or
+        $trimmed -match '(?i)retired\s*\(\s*invalid' -or
+        $trimmed -match '(?i)retired:\s*invalid' -or
+        $trimmed -match '(?i)retired:\s*not applicable') {
+        return 'invalid'
+    }
+
+    # Proven: explicit tag, or a "fixed:" / "fixed as" disposition.
+    # Do not match ordinary English ("errors are fixed strings").
+    if ($trimmed -match '\(proven\)' -or
+        $trimmed -match '(?i)\bfixed\s+as\b' -or
+        $trimmed -match '(?i)\bfixed:') {
+        return 'proven'
+    }
+
+    if ($trimmed -match '(?i)\bretired\b') {
+        return 'invalid'
+    }
+
+    # Ticked with no disposition = hunt protocol "tick the proven hypothesis".
+    return 'proven'
+}
+
+function Get-HypothesisPrecision {
+    param(
+        [int] $ProvenCount,
+        [int] $InvalidCount
+    )
+
+    $attempted = $ProvenCount + $InvalidCount
+
+    if ($attempted -lt 2) {
+        return $null
+    }
+
+    return [Math]::Round(([double]$ProvenCount / [double]$attempted), 2)
+}
+
 function Read-AlBugHuntLedger {
     param([string] $Path)
 
@@ -288,6 +364,41 @@ function Read-AlBugHuntLedger {
             }
         }
 
+        $status = 'open'
+
+        if ($fields.ContainsKey('status') -and -not [string]::IsNullOrWhiteSpace($fields['status'])) {
+            $status = $fields['status'].Trim().ToLowerInvariant()
+        }
+
+        $hunts = ConvertTo-IntSafe $(if ($fields.ContainsKey('hunts')) { $fields['hunts'] } else { '0' })
+        $huntReadyHypotheses = New-Object System.Collections.ArrayList
+        $candidateHypotheses = New-Object System.Collections.ArrayList
+        $provenCount = 0
+        $invalidCount = 0
+        $validNoReproCount = 0
+
+        foreach ($openText in $openHypotheses) {
+            $kind = Get-OpenHypothesisKind -Text $openText -ZoneStatus $status -Hunts $hunts
+
+            if ($kind -eq 'candidate') {
+                [void]$candidateHypotheses.Add($openText)
+            }
+            else {
+                [void]$huntReadyHypotheses.Add($openText)
+            }
+        }
+
+        foreach ($closedText in $closedHypotheses) {
+            $closedKind = Get-ClosedHypothesisKind -Text $closedText
+
+            switch ($closedKind) {
+                'proven' { $provenCount++ }
+                'invalid' { $invalidCount++ }
+                'valid-no-repro' { $validNoReproCount++ }
+                default { }
+            }
+        }
+
         $paths = @()
 
         if ($fields.ContainsKey('paths') -and -not [string]::IsNullOrWhiteSpace($fields['paths'])) {
@@ -308,34 +419,36 @@ function Read-AlBugHuntLedger {
             )
         }
 
-        $status = 'open'
-
-        if ($fields.ContainsKey('status') -and -not [string]::IsNullOrWhiteSpace($fields['status'])) {
-            $status = $fields['status'].Trim().ToLowerInvariant()
-        }
+        $precision = Get-HypothesisPrecision -ProvenCount $provenCount -InvalidCount $invalidCount
 
         $zone = [pscustomobject]@{
-            FileIndex           = $fileIndex
-            Id                  = $fields['id']
-            Status              = $status
-            Aliases             = $aliases
-            Paths               = $paths
-            TestFilter          = $(if ($fields.ContainsKey('test-filter')) { $fields['test-filter'] } else { '' })
-            Hunts               = ConvertTo-IntSafe $(if ($fields.ContainsKey('hunts')) { $fields['hunts'] } else { '0' })
-            BugsFound           = ConvertTo-IntSafe $(if ($fields.ContainsKey('bugs-found')) { $fields['bugs-found'] } else { '0' })
-            ConsecutiveDryHunts = ConvertTo-IntSafe $(if ($fields.ContainsKey('consecutive-dry-hunts')) { $fields['consecutive-dry-hunts'] } else { '0' })
-            LastHunt            = $(if ($fields.ContainsKey('last-hunt')) { $fields['last-hunt'] } else { 'never' })
-            LastBug             = $(if ($fields.ContainsKey('last-bug')) { $fields['last-bug'] } else { 'never' })
-            RelatedPdTb         = $(if ($fields.ContainsKey('related-pd-tb')) { $fields['related-pd-tb'] } else { '' })
-            LedgerChurn         = ConvertTo-ChurnCount $(if ($fields.ContainsKey('code-changed-since')) { $fields['code-changed-since'] } else { '' })
-            OpenHypotheses      = ConvertTo-ObjectArray -Value $openHypotheses
-            ClosedHypotheses    = ConvertTo-ObjectArray -Value $closedHypotheses
-            CommitCount         = 0
-            Score               = 0.0
-            MeanHuntsPerBug     = 0.0
-            ExploreBonus        = 0.0
-            Why                 = @()
-            Reopened            = $false
+            FileIndex              = $fileIndex
+            Id                     = $fields['id']
+            Status                 = $status
+            Aliases                = $aliases
+            Paths                  = $paths
+            TestFilter             = $(if ($fields.ContainsKey('test-filter')) { $fields['test-filter'] } else { '' })
+            Hunts                  = $hunts
+            BugsFound              = ConvertTo-IntSafe $(if ($fields.ContainsKey('bugs-found')) { $fields['bugs-found'] } else { '0' })
+            ConsecutiveDryHunts    = ConvertTo-IntSafe $(if ($fields.ContainsKey('consecutive-dry-hunts')) { $fields['consecutive-dry-hunts'] } else { '0' })
+            LastHunt               = $(if ($fields.ContainsKey('last-hunt')) { $fields['last-hunt'] } else { 'never' })
+            LastBug                = $(if ($fields.ContainsKey('last-bug')) { $fields['last-bug'] } else { 'never' })
+            RelatedPdTb            = $(if ($fields.ContainsKey('related-pd-tb')) { $fields['related-pd-tb'] } else { '' })
+            LedgerChurn            = ConvertTo-ChurnCount $(if ($fields.ContainsKey('code-changed-since')) { $fields['code-changed-since'] } else { '' })
+            OpenHypotheses         = ConvertTo-ObjectArray -Value $openHypotheses
+            ClosedHypotheses       = ConvertTo-ObjectArray -Value $closedHypotheses
+            HuntReadyHypotheses    = ConvertTo-ObjectArray -Value $huntReadyHypotheses
+            CandidateHypotheses    = ConvertTo-ObjectArray -Value $candidateHypotheses
+            ProvenCount            = $provenCount
+            InvalidCount           = $invalidCount
+            ValidNoReproCount      = $validNoReproCount
+            HypothesisPrecision    = $precision
+            CommitCount            = 0
+            Score                  = 0.0
+            MeanHuntsPerBug        = 0.0
+            ExploreBonus           = 0.0
+            Why                    = @()
+            Reopened               = $false
         }
 
         [void]$zones.Add($zone)
@@ -399,14 +512,25 @@ function Get-ZoneScoreBreakdown {
     $explore = Get-ExploreBonus -Hunts $Zone.Hunts
     $churn = [Math]::Min(3, [Math]::Max(0, [int]$Zone.CommitCount))
     $openCount = @($Zone.OpenHypotheses).Count
+    $huntReadyCount = @($Zone.HuntReadyHypotheses).Count
+    $candidateCount = @($Zone.CandidateHypotheses).Count
     $relatedCount = [Math]::Min(2, (Get-RelatedIdCount $Zone.RelatedPdTb))
     $dry = [Math]::Max(0, [int]$Zone.ConsecutiveDryHunts)
-    # Open-hypothesis count is a small tie-break only — it must not lock the catalog.
-    $hyp = [Math]::Min(3, $openCount) * 0.25
-    $score = (6.0 * $speed) + (3.0 * $explore) + (2.0 * $churn) + (1.0 * $relatedCount) + $hyp - (2.0 * $dry)
+    # Hunt-ready count is a small tie-break only. Candidate/template rows do not score.
+    $hyp = [Math]::Min(3, $huntReadyCount) * 0.25
+    $precisionBonus = 0.0
+
+    if ($null -ne $Zone.HypothesisPrecision) {
+        $precisionBonus = 0.5 * [double]$Zone.HypothesisPrecision
+    }
+
+    $score = (6.0 * $speed) + (3.0 * $explore) + (2.0 * $churn) + (1.0 * $relatedCount) + $hyp + $precisionBonus - (2.0 * $dry)
     $why = New-Object System.Collections.ArrayList
 
-    if ($Zone.Hunts -le 0) {
+    if ($Zone.Status -eq 'unseeded' -or ($Zone.Hunts -le 0 -and $huntReadyCount -eq 0 -and $candidateCount -gt 0)) {
+        [void]$why.Add('seed hunt (candidates until files are read)')
+    }
+    elseif ($Zone.Hunts -le 0) {
         [void]$why.Add('untried catalog sample')
     }
     else {
@@ -416,8 +540,20 @@ function Get-ZoneScoreBreakdown {
     [void]$why.Add(('speed {0:N2}' -f $speed))
     [void]$why.Add(('explore bonus {0:N2}' -f $explore))
 
-    if ($openCount -gt 0) {
+    if ($huntReadyCount -gt 0) {
+        [void]$why.Add("$huntReadyCount hunt-ready hypotheses")
+    }
+
+    if ($candidateCount -gt 0) {
+        [void]$why.Add("$candidateCount candidate hypotheses")
+    }
+
+    if ($openCount -gt 0 -and $huntReadyCount -eq 0 -and $candidateCount -eq 0) {
         [void]$why.Add("$openCount open hypotheses")
+    }
+
+    if ($null -ne $Zone.HypothesisPrecision) {
+        [void]$why.Add(('precision {0:N2}' -f $Zone.HypothesisPrecision))
     }
 
     if ($Zone.CommitCount -gt 0) {
@@ -475,7 +611,7 @@ function Set-ZoneComputedFields {
 function Get-EligibleZones {
     param($Zones)
 
-    $hasOpen = @($Zones | Where-Object { $_.Status -eq 'open' }).Count -gt 0
+    $hasOpen = @($Zones | Where-Object { $_.Status -eq 'open' -or $_.Status -eq 'unseeded' }).Count -gt 0
     $eligible = New-Object System.Collections.ArrayList
 
     foreach ($zone in $Zones) {
@@ -483,8 +619,11 @@ function Get-EligibleZones {
             'open' {
                 [void]$eligible.Add($zone)
             }
+            'unseeded' {
+                [void]$eligible.Add($zone)
+            }
             'cooling' {
-                # Cooling waits while any open zone still has work.
+                # Cooling waits while any open or unseeded zone still has work.
                 if (-not $hasOpen) {
                     [void]$eligible.Add($zone)
                 }
@@ -500,6 +639,27 @@ function Get-EligibleZones {
     return ConvertTo-ObjectArray -Value $eligible
 }
 
+function Test-ZoneNeedsSeedHunt {
+    param($Zone)
+
+    if ($null -eq $Zone) {
+        return $false
+    }
+
+    $huntReadyCount = @($Zone.HuntReadyHypotheses).Count
+    $candidateCount = @($Zone.CandidateHypotheses).Count
+
+    if ($Zone.Status -eq 'unseeded') {
+        return $true
+    }
+
+    if ($Zone.Hunts -eq 0 -and $huntReadyCount -eq 0 -and $candidateCount -gt 0) {
+        return $true
+    }
+
+    return $false
+}
+
 function ConvertTo-PickResult {
     param(
         $Zone,
@@ -511,26 +671,33 @@ function ConvertTo-PickResult {
 
     if ($null -eq $Zone) {
         return [pscustomobject]@{
-            zoneId              = $null
-            status              = $null
-            score               = 0.0
-            why                 = @('no eligible hunt zone')
-            openHypotheses      = @()
-            paths               = @()
-            testFilter          = ''
-            hunts               = 0
-            bugsFound           = 0
-            meanHuntsPerBug     = 0.0
-            exploreBonus        = 0.0
-            consecutiveDryHunts = 0
-            lastHunt            = 'never'
-            exhausted           = $true
-            reopened            = $false
-            exhaustedAll        = $true
-            eligibleCount       = 0
-            hintOverride        = $false
-            codeChangedSince    = 0
-            refreshRequested    = $RefreshRequested
+            zoneId                 = $null
+            status                 = $null
+            score                  = 0.0
+            why                    = @('no eligible hunt zone')
+            openHypotheses         = @()
+            huntReadyHypotheses    = @()
+            candidateHypotheses    = @()
+            seedHunt               = $false
+            hypothesisPrecision    = $null
+            provenCount            = 0
+            invalidCount           = 0
+            validNoReproCount      = 0
+            paths                  = @()
+            testFilter             = ''
+            hunts                  = 0
+            bugsFound              = 0
+            meanHuntsPerBug        = 0.0
+            exploreBonus           = 0.0
+            consecutiveDryHunts    = 0
+            lastHunt               = 'never'
+            exhausted              = $true
+            reopened               = $false
+            exhaustedAll           = $true
+            eligibleCount          = 0
+            hintOverride           = $false
+            codeChangedSince       = 0
+            refreshRequested       = $RefreshRequested
         }
     }
 
@@ -541,26 +708,33 @@ function ConvertTo-PickResult {
     }
 
     return [pscustomobject]@{
-        zoneId              = $Zone.Id
-        status              = $Zone.Status
-        score               = $Zone.Score
-        why                 = $why
-        openHypotheses      = ConvertTo-ObjectArray -Value $Zone.OpenHypotheses
-        paths               = ConvertTo-ObjectArray -Value $Zone.Paths
-        testFilter          = $Zone.TestFilter
-        hunts               = $Zone.Hunts
-        bugsFound           = $Zone.BugsFound
-        meanHuntsPerBug     = $Zone.MeanHuntsPerBug
-        exploreBonus        = $Zone.ExploreBonus
-        consecutiveDryHunts = $Zone.ConsecutiveDryHunts
-        lastHunt            = $Zone.LastHunt
-        exhausted           = ($Zone.Status -eq 'exhausted' -and -not $Zone.Reopened)
-        reopened            = [bool]$Zone.Reopened
-        exhaustedAll        = $ExhaustedAll
-        eligibleCount       = $EligibleCount
-        hintOverride        = $HintOverride
-        codeChangedSince    = $Zone.CommitCount
-        refreshRequested    = $RefreshRequested
+        zoneId                 = $Zone.Id
+        status                 = $Zone.Status
+        score                  = $Zone.Score
+        why                    = $why
+        openHypotheses         = ConvertTo-ObjectArray -Value $Zone.OpenHypotheses
+        huntReadyHypotheses    = ConvertTo-ObjectArray -Value $Zone.HuntReadyHypotheses
+        candidateHypotheses    = ConvertTo-ObjectArray -Value $Zone.CandidateHypotheses
+        seedHunt               = [bool](Test-ZoneNeedsSeedHunt -Zone $Zone)
+        hypothesisPrecision    = $Zone.HypothesisPrecision
+        provenCount            = [int]$Zone.ProvenCount
+        invalidCount           = [int]$Zone.InvalidCount
+        validNoReproCount      = [int]$Zone.ValidNoReproCount
+        paths                  = ConvertTo-ObjectArray -Value $Zone.Paths
+        testFilter             = $Zone.TestFilter
+        hunts                  = $Zone.Hunts
+        bugsFound              = $Zone.BugsFound
+        meanHuntsPerBug        = $Zone.MeanHuntsPerBug
+        exploreBonus           = $Zone.ExploreBonus
+        consecutiveDryHunts    = $Zone.ConsecutiveDryHunts
+        lastHunt               = $Zone.LastHunt
+        exhausted              = ($Zone.Status -eq 'exhausted' -and -not $Zone.Reopened)
+        reopened               = [bool]$Zone.Reopened
+        exhaustedAll           = $ExhaustedAll
+        eligibleCount          = $EligibleCount
+        hintOverride           = $HintOverride
+        codeChangedSince       = $Zone.CommitCount
+        refreshRequested       = $RefreshRequested
     }
 }
 
@@ -589,11 +763,14 @@ function Write-ZonePreview {
     Write-Host ('| --- | --- |')
     Write-Host ("| Zone | `{0}` |" -f $Result.zoneId)
     Write-Host ("| Status | {0} |" -f $Result.status)
+    Write-Host ("| Seed hunt | {0} |" -f $Result.seedHunt)
     Write-Host ("| Score | {0} |" -f $Result.score)
     Write-Host ("| Mean hunts/bug | {0} |" -f $Result.meanHuntsPerBug)
     Write-Host ("| Explore bonus | {0} |" -f $Result.exploreBonus)
     Write-Host ("| Why | {0} |" -f ($Result.why -join '; '))
-    Write-Host ("| Hypotheses left | {0} |" -f @($Result.openHypotheses).Count)
+    Write-Host ("| Hunt-ready | {0} |" -f @($Result.huntReadyHypotheses).Count)
+    Write-Host ("| Candidates | {0} |" -f @($Result.candidateHypotheses).Count)
+    Write-Host ("| Precision | {0} |" -f $(if ($null -eq $Result.hypothesisPrecision) { 'n/a' } else { $Result.hypothesisPrecision }))
     Write-Host ("| Test filter | `{0}` |" -f $Result.testFilter)
     Write-Host ("| Reopened | {0} |" -f $Result.reopened)
     Write-Host ''
