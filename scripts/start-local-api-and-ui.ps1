@@ -1,6 +1,11 @@
 # Starts ArchLucid.Api locally, waits until healthy, starts archlucid-ui (npm run dev),
 # verifies browser -> Next.js -> /api/proxy -> API, then opens the default browser.
 #
+# The API window shuts down leftover MSBuild/Roslyn servers, compiles with -tl:off -m:1
+# (avoids silent MSB4166 dumps from the SDK terminal logger + parallel nodes), then
+# `dotnet run --no-build --launch-profile http`. Pass -RunAnalyzers / -UseTerminalLogger
+# / -SkipExplicitBuild to opt out of those defaults.
+#
 # Port reference:
 #   Native dev (default): API 5128, UI 3000 — archlucid-ui/.env.local ARCHLUCID_API_BASE_URL=http://localhost:5128
 #   Docker demo stack:    API 5000, UI 3000 — use docker-compose.demo.yml / demo-start-local.ps1
@@ -13,20 +18,33 @@
 #   .\scripts\start-local-api-and-ui.ps1
 #   .\scripts\start-local-api-and-ui.ps1 -SkipPreflight -NoBrowser
 #   .\scripts\start-local-api-and-ui.ps1 -ApiPort 5128 -UiPort 3000
+#   .\scripts\start-local-api-and-ui.ps1 -LaunchProfile http -MsBuildMaxCpuCount 1
+#   .\scripts\start-local-api-and-ui.ps1 -RunAnalyzers -UseTerminalLogger
+#   .\scripts\start-local-api-and-ui.ps1 -SkipExplicitBuild -SkipBuildServerShutdown
 
 [CmdletBinding()]
 param(
     [string] $OpenPath = "/",
     [int] $ApiPort = 5128,
     [int] $UiPort = 3000,
-    [int] $ApiReadyTimeoutSec = 720,
+    [int] $ApiReadyTimeoutSec = 900,
     [int] $UiReadyTimeoutSec = 360,
     [switch] $SkipPreflight,
     [switch] $EnsureSql,
-    [switch] $NoBrowser
+    [switch] $NoBrowser,
+    [ValidateNotNullOrEmpty()]
+    [string] $LaunchProfile = "http",
+    [ValidateRange(1, 64)]
+    [int] $MsBuildMaxCpuCount = 1,
+    [switch] $UseTerminalLogger,
+    [switch] $RunAnalyzers,
+    [switch] $SkipBuildServerShutdown,
+    [switch] $SkipExplicitBuild
 )
 
 $ErrorActionPreference = "Stop"
+
+. (Join-Path $PSScriptRoot "start-local-api-and-ui.helpers.ps1")
 
 $script:SkipApiSpawn = $false
 $script:SkipUiSpawn = $false
@@ -213,8 +231,15 @@ $uiRootUrl = "http://127.0.0.1:$UiPort/"
 $proxyLiveUrl = "http://127.0.0.1:$UiPort/api/proxy/health/live"
 
 if (-not $script:SkipApiSpawn) {
-    Write-Host "Starting API in a new window (dotnet run)..." -ForegroundColor Cyan
-    $apiCmd = "Set-Location -LiteralPath '$RepoRoot'; dotnet run --project .\ArchLucid.Api\ArchLucid.Api.csproj"
+    Write-Host "Starting API in a new window (build then dotnet run --no-build)..." -ForegroundColor Cyan
+    $apiCmd = Get-LocalApiWindowCommand `
+        -RepoRoot $RepoRoot `
+        -LaunchProfile $LaunchProfile `
+        -MsBuildMaxCpuCount $MsBuildMaxCpuCount `
+        -UseTerminalLogger $UseTerminalLogger.IsPresent `
+        -RunAnalyzers $RunAnalyzers.IsPresent `
+        -SkipBuildServerShutdown $SkipBuildServerShutdown.IsPresent `
+        -SkipExplicitBuild $SkipExplicitBuild.IsPresent
     Start-Process -FilePath "powershell.exe" -ArgumentList @("-NoExit", "-Command", $apiCmd) | Out-Null
 }
 

@@ -15,6 +15,9 @@ public sealed class OutboxLeaseFinalizeModel
 
     public int FinalizeCount { get; private set; }
 
+    /// <summary>Coyote DST (Prompt 15): when true, simulates a double-finalize defect for systematic exploration.</summary>
+    public bool CoyoteInjectDoubleFinalizeBug { get; set; }
+
     public DateTime? LastHeartbeatUtc { get; private set; }
 
     public OutboxLeaseTransitionResult TryApply(OutboxLeaseLifecycleEvent lifecycleEvent, DateTime utcNow)
@@ -56,7 +59,15 @@ public sealed class OutboxLeaseFinalizeModel
 
             case OutboxLeaseLifecycleEvent.Finalize:
                 if (PackageState is PackageSealState.Sealed)
+                {
+                    if (CoyoteInjectDoubleFinalizeBug)
+                    {
+                        FinalizeCount++;
+                        return Allow();
+                    }
+
                     return Deny("Never double-finalize.");
+                }
 
                 if (!PersistBeforeLlm)
                     return Deny("Finalize rejected without persist-before-LLM.");

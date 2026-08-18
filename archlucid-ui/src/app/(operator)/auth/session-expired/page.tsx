@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
+import { SessionExpiredBuyerChrome } from "@/app/(operator)/auth/session-expired/SessionExpiredBuyerChrome";
 import { SessionExpiredClient } from "@/app/(operator)/auth/session-expired/SessionExpiredClient";
 import { SessionExpiredLoadingView } from "@/app/(operator)/auth/session-expired/SessionExpiredLoadingView";
 import {
@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 
 function SessionExpiredLoading(): React.JSX.Element {
   return (
-    <AuthFlowShell showEvaluationSignupLink={false}>
+    <SessionExpiredBuyerChrome>
       <SessionExpiredLoadingView />
-    </AuthFlowShell>
+    </SessionExpiredBuyerChrome>
   );
 }
 
