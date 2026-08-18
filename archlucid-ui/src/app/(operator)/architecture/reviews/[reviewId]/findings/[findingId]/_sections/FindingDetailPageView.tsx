@@ -26,7 +26,6 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   findingDetailLeadSentence,
-  findingDetailPageEyebrow,
   findingInspectNarrativeFields,
   findingInspectPrimaryLabels,
   findingWhyThisMattersText,
@@ -59,6 +58,13 @@ import { FindingInspectWhyMattersSection } from "../FindingInspectWhyMattersSect
 import { FindingDetailDecisionSummary } from "./FindingDetailDecisionSummary";
 import { FindingDetailOperationalActions } from "./FindingDetailOperationalActions";
 import { FindingDetailWayfinding } from "./FindingDetailWayfinding";
+import { FindingDetailBreadcrumb } from "./FindingDetailBreadcrumb";
+import { FindingDetailBuyerChrome } from "./FindingDetailBuyerChrome";
+import {
+  FINDING_DETAIL_PRIMARY_CONTENT_ID,
+  FINDING_DETAIL_SKIP_LINK_LABEL,
+  findingDetailPageSubtitle,
+} from "./finding-detail-page-copy";
 import {
   deriveFindingDecisionSummary,
   fallbackSeverity,
@@ -166,9 +172,21 @@ export function FindingDetailPageView(props: Props) {
           residualRisk: null as string | null,
         };
   const showBuyerPolishedBody = buyerPolishedShell && inspectFailure === null;
+  const buyerHeroSubtitle =
+    inspectPayload !== null
+      ? findingDetailLeadSentence(inspectPayload)
+      : findingDetailLeadFallback(decodedFindingId);
 
   return (
     <div className="w-full max-w-[1440px] space-y-4 p-4">
+      {showBuyerPolishedBody ? (
+        <a
+          href={`#${FINDING_DETAIL_PRIMARY_CONTENT_ID}`}
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:shadow focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-600 dark:focus:bg-neutral-900"
+        >
+          {FINDING_DETAIL_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
       <FindingDetailWayfinding
         reviewPackageHref={reviewPackageHref}
         reviewFindingsHref={reviewFindingsHref}
@@ -180,7 +198,7 @@ export function FindingDetailPageView(props: Props) {
         priorRunId={crossReviewPriorRunId}
         laterRunId={crossReviewLaterRunId}
       />
-      {inspectPayload !== null ? (
+      {inspectPayload !== null && !buyerPolishedShell ? (
         <div className="space-y-2" data-testid="finding-detail-derivation-causal">
           <FindingDerivationLine
             derivation={buildFindingDerivationSentence({
@@ -196,7 +214,11 @@ export function FindingDetailPageView(props: Props) {
         </div>
       ) : null}
 {showBuyerPolishedBody ? (
-        <div className="space-y-4">
+        <div
+          id={FINDING_DETAIL_PRIMARY_CONTENT_ID}
+          data-testid="finding-detail-primary-content"
+          className="space-y-4"
+        >
           <section className={cn("overflow-hidden rounded-lg border p-5", DESIGN_TOKENS.surface.card)}>
             <div className="max-w-3xl space-y-3">
               <OperatorPageHeader
@@ -204,15 +226,12 @@ export function FindingDetailPageView(props: Props) {
                 title={pageTitle}
                 headingLevel="h1"
                 breadcrumb={
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
-                    {findingDetailPageEyebrow(inspectPayload, decodedFindingId)}
-                  </p>
+                  <FindingDetailBreadcrumb
+                    reviewFindingsHref={reviewFindingsHref}
+                    findingTitle={pageTitle}
+                  />
                 }
-                subtitle={
-                  inspectPayload !== null
-                    ? findingDetailLeadSentence(inspectPayload)
-                    : findingDetailLeadFallback(decodedFindingId)
-                }
+                subtitle={findingDetailPageSubtitle(buyerPolishedShell, buyerHeroSubtitle)}
                 subtitleClassName="max-w-2xl leading-relaxed"
               >
                 {severityRationale.length > 0 ? (
@@ -228,6 +247,7 @@ export function FindingDetailPageView(props: Props) {
                   />
                 ) : null}
               </OperatorPageHeader>
+              <FindingDetailBuyerChrome runId={runId} findingId={decodedFindingId} />
             </div>
 
             {findingIsPhi ? (

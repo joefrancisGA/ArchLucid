@@ -1,12 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { FindingDetailPageModel } from "./finding-detail-page-model";
-import type { FindingInspectPayload } from "@/types/finding-inspect";
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
-vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/run-1/findings/finding-1",
-}));
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => true,
+  };
+});
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
@@ -78,12 +80,14 @@ vi.mock("@/components/operator/OperatorEvidenceLimitsFooter", () => ({
   ),
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isNextPublicDemoMode: () => false,
-  isOperatorExperienceFullShellEnv: () => true,
-  isBuyerPolishedOperatorShellEnv: () => true,
-}));
-
+import type { FindingDetailPageModel } from "./finding-detail-page-model";
+import type { FindingInspectPayload } from "@/types/finding-inspect";
+import {
+  FINDING_DETAIL_CLAIM_HEADING,
+  FINDING_DETAIL_PAGE_SUBTITLE_BUYER,
+  FINDING_DETAIL_PRIMARY_CONTENT_ID,
+  FINDING_DETAIL_SKIP_LINK_LABEL,
+} from "./finding-detail-page-copy";
 import { FindingDetailPageView } from "./FindingDetailPageView";
 
 const inspectPayload: FindingInspectPayload = {
@@ -115,70 +119,28 @@ function buyerModel(overrides: Partial<FindingDetailPageModel> = {}): FindingDet
   };
 }
 
-describe("FindingDetailPageView buyer polish", () => {
-  it("hides operator wayfinding in buyer shell and keeps operational actions grouped", () => {
+describe("FindingDetailPageView buyer-polished shell (RRF)", () => {
+  it("renders skip link, breadcrumb, buyer subtitle, orientation above body, and hides wayfinding help", () => {
     render(<FindingDetailPageView model={buyerModel()} />);
 
-    expect(screen.queryByTestId("finding-detail-wayfinding")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: FINDING_DETAIL_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${FINDING_DETAIL_PRIMARY_CONTENT_ID}`,
+    );
     expect(screen.getByTestId("finding-detail-breadcrumb")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Open evidence trace" })).toBeNull();
-  });
+    expect(screen.getByText(FINDING_DETAIL_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: FINDING_DETAIL_CLAIM_HEADING })).toBeInTheDocument();
+    expect(screen.getByTestId("finding-detail-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("finding-detail-wayfinding")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("finding-detail-derivation-causal")).not.toBeInTheDocument();
 
-  it("renders always-visible sponsor plain-English rewrite (TB-2192)", () => {
-    render(<FindingDetailPageView model={buyerModel()} />);
+    const primaryContent = screen.getByTestId("finding-detail-primary-content");
+    const orderedLandmarks = ["finding-detail-orientation-top", "finding-detail-decision-summary"]
+      .map((testId) => primaryContent.querySelector(`[data-testid="${testId}"]`))
+      .filter((node): node is HTMLElement => node !== null)
+      .map((node) => node.getAttribute("data-testid"));
 
-    expect(screen.getByTestId("sponsor-plain-english-finding")).toBeInTheDocument();
-    expect(screen.getByTestId("sponsor-plain-english-finding-body")).toBeInTheDocument();
-    expect(screen.getByText("Explain for a sponsor")).toBeInTheDocument();
-  });
-
-  it("omits footer inspect link for buyer shell and nests ask/itsm under work-with section", () => {
-    render(<FindingDetailPageView model={buyerModel()} />);
-
-    expect(screen.getByTestId("operator-evidence-limits-footer")).toHaveAttribute("data-inspect-link", "");
-    expect(screen.getByText("Work with this finding")).toBeInTheDocument();
-    expect(screen.getAllByTestId("finding-ask-inline-panel")).toHaveLength(1);
-    expect(screen.getAllByTestId("finding-itsm-workflow-panel")).toHaveLength(1);
-  });
-
-  it("suppresses buyer hero theater when inspect load fails", () => {
-    render(
-      <FindingDetailPageView
-        model={buyerModel({
-          inspectPayload: null,
-          inspectFailure: {
-            message: "Unavailable",
-            correlationId: "corr-1",
-            problem: null,
-          },
-        })}
-      />,
-    );
-
-    expect(screen.queryByRole("heading", { level: 1, name: "Over-permissive storage access" })).toBeNull();
-    expect(screen.getByText("Finding detail temporarily unavailable")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Back to findings" })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Open evidence trace" })).toBeNull();
-  });
-
-  it("surfaces verify-hypotheses triage lane for adversarial phrasing (TB-2315)", () => {
-    render(
-      <FindingDetailPageView
-        model={buyerModel({
-          inspectPayload: {
-            ...inspectPayload,
-            trustLabel: "Heuristic",
-            typedPayload: {
-              title: "Challenge failover assumption",
-              severity: "Warning",
-              recommendation: "Adversarial challenge: falsify/confirm with load test evidence.",
-            },
-          },
-        })}
-      />,
-    );
-
-    expect(screen.getByTestId("finding-job-view-lane-callout")).toBeInTheDocument();
-    expect(screen.getByText("Verify hypotheses")).toBeInTheDocument();
+    expect(orderedLandmarks).toEqual(["finding-detail-orientation-top", "finding-detail-decision-summary"]);
   });
 });

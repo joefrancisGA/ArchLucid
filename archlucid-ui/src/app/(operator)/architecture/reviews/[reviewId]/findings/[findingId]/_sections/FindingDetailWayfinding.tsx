@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -11,7 +12,11 @@ export type FindingDetailWayfindingProps = {
 };
 
 /** Hierarchy back links + contextual help for finding detail (TB-2090: not a breadcrumb trail). */
-export function FindingDetailWayfinding(props: FindingDetailWayfindingProps): React.JSX.Element {
+export function FindingDetailWayfinding(props: FindingDetailWayfindingProps): React.JSX.Element | null {
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return null;
+  }
+
   return (
     <div
       className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
