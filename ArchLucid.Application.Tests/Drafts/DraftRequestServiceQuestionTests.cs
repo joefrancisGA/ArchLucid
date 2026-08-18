@@ -66,6 +66,7 @@ public sealed class DraftRequestServiceQuestionTests
             _runCreateOrchestrator.Object,
             _contentSafety.Object,
             verdictBuilder,
+            Mock.Of<IPriorPackageSemanticMergeService>(),
             new FixedDraftIntakeBranchOptionsMonitor(new DraftIntakeBranchOptions()));
     }
 
