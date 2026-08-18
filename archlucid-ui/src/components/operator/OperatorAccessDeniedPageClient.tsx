@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { AccessDeniedBreadcrumb } from "@/components/operator/AccessDeniedBreadcrumb";
+import { AccessDeniedClaimOrientationStrip } from "@/components/operator/AccessDeniedClaimOrientationStrip";
 import { OperatorJwtBearerRoleMappingCallout } from "@/components/operator/OperatorJwtBearerRoleMappingCallout";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { Button } from "@/components/ui/button";
@@ -19,7 +21,12 @@ import {
   resolveAccessDeniedSupplementMessage,
   resolveAdministratorContactHref,
 } from "@/lib/access-denied-context";
+import {
+  ACCESS_DENIED_PRIMARY_CONTENT_ID,
+  ACCESS_DENIED_SKIP_LINK_LABEL,
+} from "@/lib/access-denied-page-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { clearOidcSession, isLikelySignedIn, readSignedInDisplayName, signOutAndRedirectHome } from "@/lib/oidc/session";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
@@ -57,27 +64,43 @@ export function OperatorAccessDeniedPageClient() {
   };
 
   return (
-    <Card
-      className="w-full max-w-[560px] border-neutral-200/80 bg-white/95 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/95"
-      data-testid="operator-access-denied-page"
-    >
-      <CardContent className={cn(OPERATOR_CARD_BODY, "text-center sm:text-left")}>
-        <h1
-          className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
-          data-testid="operator-access-denied-heading"
-        >
-          {ACCESS_DENIED_HEADING}
-        </h1>
+    <>
+      <a href={`#${ACCESS_DENIED_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
+        {ACCESS_DENIED_SKIP_LINK_LABEL}
+      </a>
+      <Card
+        className="w-full max-w-[560px] border-neutral-200/80 bg-white/95 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/95"
+        data-testid="operator-access-denied-page"
+      >
+        <CardContent className={cn(OPERATOR_CARD_BODY, "text-center sm:text-left")}>
+          <div
+            id={ACCESS_DENIED_PRIMARY_CONTENT_ID}
+            data-testid="access-denied-primary-content"
+            className="scroll-mt-24"
+          >
+            <div className="mb-3 text-left">
+              <AccessDeniedBreadcrumb />
+            </div>
+            <h1
+              className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
+              data-testid="operator-access-denied-heading"
+            >
+              {ACCESS_DENIED_HEADING}
+            </h1>
 
-        <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{ACCESS_DENIED_BODY}</p>
+            <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{ACCESS_DENIED_BODY}</p>
 
-        {supplementMessage !== null ? (
-          <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="operator-access-denied-supplement">
-            {ACCESS_DENIED_SUPPLEMENT_COPY[supplementMessage]}
-          </p>
-        ) : null}
+            {supplementMessage !== null ? (
+              <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="operator-access-denied-supplement">
+                {ACCESS_DENIED_SUPPLEMENT_COPY[supplementMessage]}
+              </p>
+            ) : null}
 
-        <div className={cn("mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center", OPERATOR_LAYOUT.controlClusterGap)}>
+            <div className="mt-6 text-left" data-testid="access-denied-orientation-top">
+              <AccessDeniedClaimOrientationStrip />
+            </div>
+
+            <div className={cn("mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center", OPERATOR_LAYOUT.controlClusterGap)}>
           <Button
             type="button"
             variant="primary"
@@ -152,8 +175,10 @@ export function OperatorAccessDeniedPageClient() {
           correlationId={correlationId}
           errorCode="access-denied"
         />
+          </div>
       </CardContent>
     </Card>
+    </>
   );
 }
 
