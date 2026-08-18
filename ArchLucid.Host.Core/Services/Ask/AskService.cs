@@ -748,6 +748,7 @@ public sealed class AskService(
             return messages;
 
         ConversationMessage last = messages[^1];
+
         if (last.Role == ConversationMessageRole.User &&
             string.Equals(last.Content.Trim(), question, StringComparison.Ordinal))
             return messages.Take(messages.Count - 1).ToList();
@@ -806,12 +807,15 @@ public sealed class AskService(
         if (string.IsNullOrWhiteSpace(raw))
             return raw;
         string s = raw.Trim();
+
         if (!s.StartsWith("```", StringComparison.Ordinal))
             return s;
         int firstNl = s.IndexOf('\n');
+
         if (firstNl > 0)
             s = s[(firstNl + 1)..].Trim();
         int end = s.LastIndexOf("```", StringComparison.Ordinal);
+
         if (end > 0)
             s = s[..end].Trim();
         return s;
