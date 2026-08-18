@@ -9,6 +9,10 @@ vi.mock("@/lib/internal-operator-env", () => ({
   isArchLucidInternalOperatorShellEnv: () => false,
 }));
 
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: () => false,
+}));
+
 vi.mock("@/lib/operator/operator-scope-storage", () => ({
   readOperatorScopeFromStorage: () => ({
     workspaceLabel: "Claims Intake Demo",

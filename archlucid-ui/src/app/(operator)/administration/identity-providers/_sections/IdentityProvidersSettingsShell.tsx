@@ -121,6 +121,7 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
         id={props.primaryContentId}
         data-testid={
           props.primaryContentId !== undefined ? "identity-providers-settings-primary-content" : undefined
+<<<<<<< HEAD
         }
         className={props.primaryContentId !== undefined ? cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack) : OPERATOR_LAYOUT.sectionStack}
       >
@@ -134,43 +135,82 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
             || props.overview?.headerStatusAvailable === false
             ? undefined
             : resolveHeaderStatusLabel(activeNavId, props.overview)
+=======
+>>>>>>> 51e9177527 (AOI buyer polish: breadcrumb, orientation chrome, and deduped Sources.)
         }
-        refreshing={props.refreshing}
-        lastRefreshedAt={props.lastRefreshedAt}
-        diagnosticsDataUnavailable={props.diagnosticsDataUnavailable}
-        onRefresh={props.onRefresh}
-      />
+        className={props.primaryContentId !== undefined ? cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack) : OPERATOR_LAYOUT.sectionStack}
+      >
+        <IdentityProvidersSettingsPageHeader
+          pageTitle={resolvedTitle}
+          subtitle={headerSubtitle}
+          breadcrumb={props.headerBreadcrumb}
+          statusLabel={
+            props.statusBadgeReady === false
+              || props.diagnosticsDataUnavailable === true
+              || props.overview?.headerStatusAvailable === false
+              ? undefined
+              : resolveHeaderStatusLabel(activeNavId, props.overview)
+          }
+          refreshing={props.refreshing}
+          lastRefreshedAt={props.lastRefreshedAt}
+          diagnosticsDataUnavailable={props.diagnosticsDataUnavailable}
+          onRefresh={props.onRefresh}
+        />
 
-      {isOverviewPage ? (
-        <div className="space-y-2">
-          {!buyerPolishedShell ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {IDENTITY_PROVIDERS_PAGE_INTRO}
+        {isOverviewPage ? (
+          <div className="space-y-2">
+            {!buyerPolishedShell ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                {IDENTITY_PROVIDERS_PAGE_INTRO}
+              </p>
+            ) : null}
+            <p
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="identity-providers-safety-notice"
+            >
+              {IDENTITY_PROVIDERS_SAFETY_NOTICE}
             </p>
-          ) : null}
+          </div>
+        ) : null}
+
+        {props.showAdminFallbackNotice === true ? (
           <p
-            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="identity-providers-safety-notice"
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="identity-providers-admin-fallback-notice"
           >
-            {IDENTITY_PROVIDERS_SAFETY_NOTICE}
+            {IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE}
           </p>
-        </div>
-      ) : null}
+        ) : null}
 
-      {props.showAdminFallbackNotice === true ? (
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="identity-providers-admin-fallback-notice"
-        >
-          {IDENTITY_PROVIDERS_ADMIN_FALLBACK_NOTICE}
-        </p>
-      ) : null}
+        <nav aria-label="Identity provider sections" data-testid="identity-providers-settings-nav">
+          <ul className="flex flex-wrap gap-2">
+            {NAV_ITEMS.map((item) => {
+              const active = item.id === activeNavId;
 
-      <nav aria-label="Identity provider sections" data-testid="identity-providers-settings-nav">
-        <ul className="flex flex-wrap gap-2">
-          {NAV_ITEMS.map((item) => {
-            const active = item.id === activeNavId;
+              return (
+                <li key={item.id}>
+                  <Link
+                    href={item.href}
+                    prefetch={false}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "inline-flex min-h-[30px] items-center rounded-full border px-3 py-1 transition-colors",
+                      OPERATOR_TYPOGRAPHY.badge,
+                      active
+                        ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
+                        : cn("border-neutral-300 text-al-text-primary hover:border-neutral-400 dark:border-neutral-700", OPERATOR_LINK.nav),
+                    )}
+                    data-testid={`identity-providers-nav-${item.id}`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
 
+<<<<<<< HEAD
             return (
               <li key={item.id}>
                 <Link
@@ -195,6 +235,9 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
       </nav>
 
       {props.children}
+=======
+        {props.children}
+>>>>>>> 51e9177527 (AOI buyer polish: breadcrumb, orientation chrome, and deduped Sources.)
       </div>
     </OperatorPageContainer>
   );

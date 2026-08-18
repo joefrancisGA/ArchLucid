@@ -115,6 +115,16 @@ export const IDENTITY_PROVIDERS_OIDC_PAGE_INTRO =
   "Review OpenID Connect authority, audience, discovery status, and role claim mapping.";
 export const IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE =
   "Review OpenID Connect authority, audience, discovery status, and role claim mapping before enabling SSO for all users.";
+
+export const BUYER_IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE =
+  "Review OIDC authority, audience, discovery health, and role-claim mapping before enabling SSO for all users." as const;
+
+export function identityProvidersOidcPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? BUYER_IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE
+    : IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE;
+}
+
 export const IDENTITY_PROVIDERS_OIDC_LOADING = "Loading OIDC/JWT status…";
 export const IDENTITY_PROVIDERS_OIDC_EMPTY =
   "OIDC/JWT discovery has not been run yet for this workspace.";

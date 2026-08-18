@@ -277,13 +277,18 @@ export function IdentityProvidersSettingsEvidenceOrientationStrip(): React.JSX.E
   );
 }
 
-export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
+  props: { readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? IDENTITY_PROVIDERS_OIDC_SOURCES;
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-oidc-settings"
+      sourcesTestId="identity-providers-oidc-settings-sources"
       sourcesTitle={IDENTITY_PROVIDERS_OIDC_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_OIDC_SOURCES_INTRO}
-      sources={IDENTITY_PROVIDERS_OIDC_SOURCES}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
     />
   );
