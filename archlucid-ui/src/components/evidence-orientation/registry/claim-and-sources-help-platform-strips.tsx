@@ -274,7 +274,9 @@ export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Element {
+export function RecurrenceSchedulesHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-recurrence-schedules"
@@ -285,6 +287,8 @@ export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Ele
       sourcesIntro={RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO}
       sources={RECURRENCE_SCHEDULES_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }

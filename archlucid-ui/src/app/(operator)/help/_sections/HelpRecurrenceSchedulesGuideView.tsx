@@ -4,11 +4,13 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
 import { RecurrenceScheduleExamplesSection } from "@/components/governance/RecurrenceScheduleExamplesSection";
 import { RecurrenceSchedulesHelpEvidenceOrientationStrip } from "@/components/help/RecurrenceSchedulesHelpEvidenceOrientationStrip";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
@@ -28,10 +30,14 @@ import {
   RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS,
   RECURRENCE_SCHEDULES_HELP_HOW_IT_WORKS_STEPS,
   RECURRENCE_SCHEDULES_HELP_OVERVIEW,
-  RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE,
+  RECURRENCE_SCHEDULES_HELP_PAGE_EYEBROW,
   RECURRENCE_SCHEDULES_HELP_PAGE_TITLE,
   RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION,
+  RECURRENCE_SCHEDULES_HELP_PRIMARY_CONTENT_ID,
+  RECURRENCE_SCHEDULES_HELP_SCHEDULE_KIND_BODY,
   RECURRENCE_SCHEDULES_HELP_SCHEDULE_KIND_SECTION_TITLE,
+  RECURRENCE_SCHEDULES_HELP_SKIP_LINK_LABEL,
+  recurrenceSchedulesHelpPageSubtitle,
 } from "@/lib/recurrence-schedules-help-guide-content";
 import {
   RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH,
@@ -155,6 +161,7 @@ export function HelpRecurrenceSchedulesGuideView(
   props: HelpRecurrenceSchedulesGuideViewProps,
 ): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const contentGridClass = resolveHelpPageContentGridClass(RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS.length);
 
   return (
@@ -162,15 +169,24 @@ export function HelpRecurrenceSchedulesGuideView(
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
       data-testid="help-recurrence-schedules-guide"
     >
+      <a
+        href={`#${RECURRENCE_SCHEDULES_HELP_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {RECURRENCE_SCHEDULES_HELP_SKIP_LINK_LABEL}
+      </a>
+
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
+        eyebrow={buyerPolishedShell ? undefined : RECURRENCE_SCHEDULES_HELP_PAGE_EYEBROW}
         title={RECURRENCE_SCHEDULES_HELP_PAGE_TITLE}
         titleTestId="help-recurrence-schedules-page-title"
-        subtitle={RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE}
+        subtitle={recurrenceSchedulesHelpPageSubtitle(buyerPolishedShell)}
         navHref={RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        breadcrumb={<HelpTopicBreadcrumb topicTitle={RECURRENCE_SCHEDULES_HELP_BREADCRUMB_TOPIC_TITLE} />}
+        metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={
           <div className="flex flex-col items-start gap-2" data-testid="help-recurrence-schedules-header-actions">
             <div className="flex flex-wrap items-center gap-2">
@@ -196,7 +212,16 @@ export function HelpRecurrenceSchedulesGuideView(
       />
 
       <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+        <div
+          id={RECURRENCE_SCHEDULES_HELP_PRIMARY_CONTENT_ID}
+          className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
+        >
+          {buyerPolishedShell ? (
+            <div data-testid="help-recurrence-schedules-orientation-top">
+              <RecurrenceSchedulesHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            </div>
+          ) : null}
+
           <p
             className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}
             data-testid="help-recurrence-schedules-overview"
@@ -223,7 +248,13 @@ export function HelpRecurrenceSchedulesGuideView(
             <HelpSectionHeading id="two-different-kinds-of-schedule">
               {RECURRENCE_SCHEDULES_HELP_SCHEDULE_KIND_SECTION_TITLE}
             </HelpSectionHeading>
-            <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" variant="compact" />
+            {buyerPolishedShell ? (
+              <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)} data-testid="help-recurrence-schedules-schedule-kind-body">
+                {RECURRENCE_SCHEDULES_HELP_SCHEDULE_KIND_BODY}
+              </p>
+            ) : (
+              <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" variant="compact" />
+            )}
           </section>
 
           <section
@@ -236,7 +267,11 @@ export function HelpRecurrenceSchedulesGuideView(
             <RecurrenceSchedulesHelpHealthConstraintsBlock />
           </section>
 
-          <RecurrenceSchedulesHelpEvidenceOrientationStrip />
+          {!buyerPolishedShell ? (
+            <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+              <RecurrenceSchedulesHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            </div>
+          ) : null}
         </div>
 
         <HelpTopicTableOfContents headings={RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS} enableScrollSpy />
