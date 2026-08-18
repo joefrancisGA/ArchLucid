@@ -1,5 +1,5 @@
 /*
-  306 — Repair typed ContractManifestVersion on the sealed review record (golden manifest) table.
+  316 — Repair typed ContractManifestVersion on the sealed review record (golden manifest) table.
 
   Why this migration exists:
     Migration 295 renamed the spine tables (dbo.GoldenManifests -> dbo.SignedReviewRecords) and left

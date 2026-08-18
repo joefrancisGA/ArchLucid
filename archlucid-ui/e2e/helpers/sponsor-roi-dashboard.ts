@@ -16,6 +16,7 @@ import {
   getSponsorRoiExportMockJson,
   getSponsorRoiHistoryMockJson,
   getSponsorRoiSummaryMockJson,
+  getSponsorDashboardBundleMockJson,
   getGovernanceDecisionsNeededSummaryMockJson,
 
 } from "../fixtures/sponsor-roi-dashboard-mock";
@@ -196,11 +197,22 @@ export async function waitForSponsorRoiDashboardHydrated(page: Page): Promise<vo
 /** Pin deterministic ROI proxy payloads so cold CI agents do not depend on loopback mock timing. */
 export async function registerSponsorRoiDashboardDeterministicProxyRoutes(page: Page): Promise<void> {
   const summaryBody = JSON.stringify(getSponsorRoiSummaryMockJson());
+  const bundleBody = JSON.stringify(getSponsorDashboardBundleMockJson());
   const exportBody = JSON.stringify(getSponsorRoiExportMockJson());
   const historyBody = JSON.stringify(getSponsorRoiHistoryMockJson());
   const decisionsBody = JSON.stringify(getGovernanceDecisionsNeededSummaryMockJson());
 
   // One handler avoids Playwright route.continue() races where export never fulfills and the pie card hangs loading.
+  await page.route("**/api/proxy/v1/roi/sponsor-dashboard-bundle**", async (route) => {
+    if (route.request().method() !== "GET") {
+      await route.continue();
+
+      return;
+    }
+
+    await route.fulfill({ status: 200, contentType: "application/json", body: bundleBody });
+  });
+
   await page.route("**/api/proxy/v1/roi/sponsor-report**", async (route) => {
     if (route.request().method() !== "GET") {
       await route.continue();

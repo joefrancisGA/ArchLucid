@@ -151,6 +151,29 @@ export function getSponsorRoiExportMockJson(): unknown {
   };
 }
 
+/** GET /v1/roi/sponsor-dashboard-bundle */
+export function getSponsorDashboardBundleMockJson(): unknown {
+  return {
+    sponsorReport: getSponsorRoiSummaryMockJson(),
+    complianceDriftTrend: [
+      {
+        bucketUtc: "2026-04-10T00:00:00.000Z",
+        changeCount: 2,
+        changesByType: { Created: 2 },
+        openFindingsCount: 4,
+        resolvedFindingsCount: 1,
+      },
+      {
+        bucketUtc: "2026-04-11T00:00:00.000Z",
+        changeCount: 0,
+        changesByType: {},
+        openFindingsCount: 2,
+        resolvedFindingsCount: 3,
+      },
+    ],
+  };
+}
+
 /** GET /v1/roi/sponsor-report/history */
 export function getSponsorRoiHistoryMockJson(): unknown {
   return {

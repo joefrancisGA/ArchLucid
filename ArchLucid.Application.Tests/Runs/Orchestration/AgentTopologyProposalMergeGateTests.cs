@@ -2,6 +2,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Persistence.Serialization;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -1004,6 +1005,65 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_after_json_round_trip_when_property_key_is_pascal_resourceId()
+    {
+        // In-memory bags use OrdinalIgnoreCase; JSON deserialize used a case-sensitive dictionary, so PascalCase
+        // ResourceId survived write but was invisible to TryReadTopologyResourceId("resourceId") after restore.
+        const string armId =
+            "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Microsoft.Web/sites/app1";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["ResourceId"] = armId
+                }),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(armId)));
+
+        AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]).Should().ContainSingle();
+
+        byte[] utf8 = GraphJsonSerialization.SerializeSnapshotToUtf8Bytes(graph);
+        GraphSnapshot restored = GraphJsonSerialization.DeserializeSnapshot(utf8)!;
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(restored, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_arm_relationship_when_ordinal_properties_use_pascal_resourceId()
+    {
+        // SQL relational reload builds Ordinal bags and keeps the persisted PropertyKey casing (often ResourceId).
+        // TryReadTopologyResourceId used exact TryGetValue("resourceId"), so ARM-keyed relationships were dropped.
+        const string armId =
+            "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Microsoft.Web/sites/app1";
+
+        GraphSnapshot graph = Graph(
+            ComputeNode(
+                sourceId: null,
+                sourceType: null,
+                properties: new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["ResourceId"] = armId
+                }),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(armId)));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_graph_resource_id_has_surrounding_whitespace()
     {
         const string rawArmId =
@@ -1064,6 +1124,22 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(nodeId: "ds-1", label: "sql", sourceId: "azurerm_mssql_server.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sql")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_sql_managed_instance_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "mi-1", label: "sqlmi", sourceId: "azurerm_sql_managed_instance.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sqlmi")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
@@ -1516,6 +1592,23 @@ public sealed class AgentTopologyProposalMergeGateTests
     {
         GraphSnapshot graph = Graph(
             DataNode(nodeId: "fd-1", label: "edge", sourceId: "azurerm_cdn_frontdoor_profile.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edge")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_cdn_profile_node_has_data_category_but_synthetic_service_id_used()
+    {
+        // Classic CDN profile (not Front Door) is still a service endpoint; miscategorized Data nodes must accept svc-.
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "cdn-1", label: "edge", sourceId: "azurerm_cdn_profile.main"),
             DataNode());
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edge")));
@@ -2597,5 +2690,81 @@ public sealed class AgentTopologyProposalMergeGateTests
 
         filtered.Should().ContainSingle();
         filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_sql_server_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "sql-1", label: "legacy-sql", sourceId: "azurerm_sql_server.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-legacy-sql")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsAgentProposedOnly_RejectsUninventoriedCostProposalLabels()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(nodeId: "svc-api", sourceId: "ProposedChanges", sourceType: nameof(AgentType.Topology)));
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphHasOnlyNonTopologyNodes_RejectsUninventoriedCostProposalLabels()
+    {
+        GraphSnapshot graph = Graph(
+            new GraphNode { NodeId = "req-1", NodeType = GraphNodeTypes.Requirement, Label = "api" });
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "invented-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        filtered.Should().BeEmpty();
     }
 }

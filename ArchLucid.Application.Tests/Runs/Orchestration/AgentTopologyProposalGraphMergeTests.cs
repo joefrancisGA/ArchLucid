@@ -13,8 +13,11 @@ using static ArchLucid.Application.Tests.Runs.Orchestration.AgentTopologyProposa
 using static ArchLucid.Application.Tests.Runs.Orchestration.AgentTopologyProposalTestResult;
 
 namespace ArchLucid.Application.Tests.Runs.Orchestration;
+/// <summary>
+///     Named connector-family merge examples live here; algebraic invariants use
+///     <see cref="AgentTopologyProposalGraphMergePropertyTests" /> and the Prompt 6 reference oracle.
+/// </summary>
 [Trait("Category", "Unit")]
-
 public sealed class AgentTopologyProposalGraphMergeTests
 {
     [SkippableFact]
@@ -1615,6 +1618,62 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_topology_node_when_cost_rename_alias_precedes_topology_in_result_order()
+    {
+        GraphSnapshot graph = new GraphSnapshot { Nodes = [], Edges = [] };
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.Functions,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology, cost]);
+
+        AgentResult[] results = [cost, topology];
+
+        AgentTopologyProposalGraphMerge.WouldChangeGraphForCommit(graph, results).Should().BeTrue();
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, results);
+
+        merged.Nodes.Should().ContainSingle(n => n.NodeId == "svc-1" && n.Label == "api");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_adds_edges_when_compliance_rename_overlay_service_id_has_surrounding_whitespace()
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());
@@ -1651,6 +1710,76 @@ public sealed class AgentTopologyProposalGraphMergeTests
         CrossAgentProposalConsistencyGate.ApplyToResults([compliance]);
 
         GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [compliance]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void CrossAgent_then_merge_keeps_edge_when_follow_up_rename_ServiceId_has_surrounding_whitespace()
+    {
+        // TryClaim trims ServiceId, but IsRenameAliasService compared raw ids — so CrossAgent dropped the padded
+        // rename overlay and merge then lost relationships keyed by the new label.
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            }
+        };
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = "  svc-api  ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology, cost]);
+
+        cost.ProposedChanges!.AddedServices.Should().ContainSingle(s => s.ServiceName == "renamed-api");
+        cost.ProposedChanges.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == "renamed-api" && r.TargetId == "sql");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology, cost]);
 
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-1" &&
@@ -1733,6 +1862,60 @@ public sealed class AgentTopologyProposalGraphMergeTests
         };
 
         CrossAgentProposalConsistencyGate.ApplyToResults([compliance]);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [compliance]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "blob-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_compliance_service_rename_uses_storage_synthetic_datastore_id()
+    {
+        // Merge gate indexes ds-{label} for storage nodes type-agnostically. Agents sometimes put that key on
+        // AddedServices.ServiceId instead of AddedDatastores — gate keeps the rename, but NodeMatchesService
+        // only accepted svc-{label}, so aliases were skipped and the edge dropped.
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            Node("blob-1", "artifacts", category: GraphTopologyCategories.Storage, sourceId: "azurerm_storage_account.main", sourceType: "Terraform"));
+
+        AgentResult compliance = new()
+        {
+            ResultId = "compliance-1",
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-artifacts",
+                        ServiceId = "ds-artifacts",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "renamed-artifacts",
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            }
+        };
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedServices.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == "api" && r.TargetId == "renamed-artifacts");
 
         GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [compliance]);
 
@@ -1953,6 +2136,291 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_rename_overlay_uses_terraform_source_id_and_graph_source_id_has_whitespace()
+    {
+        // Indexing/merge-gate trim SourceId, but NodeMatchesService compared raw node.SourceId to the trimmed
+        // manifest ServiceId — so rename overlays failed while direct Terraform relationship keys still worked.
+        const string rawTerraformSourceId = ComputeSourceId;
+        const string paddedTerraformSourceId = $"  {rawTerraformSourceId}  ";
+
+        GraphSnapshot graph = Graph(ComputeNode(sourceId: paddedTerraformSourceId), DataNode());
+
+        AgentResult topology = TopologyResult(
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = rawTerraformSourceId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            },
+            resultId: "topology-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == "renamed-api" && r.TargetId == DataLabel);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_adds_edges_when_rename_overlay_service_id_is_terraform_address_on_label()
+    {
+        // tf show JSON puts the Terraform address on Label and the declaration id on SourceId. The merge gate
+        // indexes Label, so ServiceId = address is known — but NodeMatchesService never compared ServiceId to Label.
+        const string terraformAddress = "azurerm_linux_web_app.app";
+        const string declarationId = "decl-tf-show-json-1";
+        const string armId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-tf";
+
+        GraphSnapshot graph = Graph(
+            Node(
+                "obj-app",
+                terraformAddress,
+                GraphTopologyCategories.Compute,
+                TerraformSourceType,
+                declarationId,
+                new Dictionary<string, string> { ["tf.id"] = armId }),
+            DataNode());
+
+        AgentResult topology = TopologyResult(
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "renamed-api",
+                        ServiceId = terraformAddress,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "renamed-api",
+                        TargetId = DataLabel,
+                        RelationshipType = RelationshipType.ReadsFrom
+                    }
+                ]
+            },
+            resultId: "topology-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == "renamed-api" && r.TargetId == DataLabel);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "obj-app" &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_service_name_is_terraform_source_id_and_relationship_uses_synthetic()
+    {
+        // Agents sometimes copy the inventoried Terraform address into ServiceName. The merge gate then
+        // treats svc-{address} as a known endpoint, but graph merge only aliases svc-{label} unless the
+        // proposed name is recognized as the same node.
+        const string syntheticFromTerraformSourceId = $"svc-{ComputeSourceId}";
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult topology = TopologyResult(
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = ComputeSourceId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    Relationship(sourceId: syntheticFromTerraformSourceId, targetId: DataLabel)
+                ]
+            },
+            resultId: "topology-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == syntheticFromTerraformSourceId && r.TargetId == DataLabel);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_datastore_name_is_terraform_source_id_and_relationship_uses_synthetic()
+    {
+        const string syntheticFromTerraformSourceId = $"ds-{DataSourceId}";
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult topology = TopologyResult(
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = DataSourceId,
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ],
+                AddedRelationships =
+                [
+                    Relationship(sourceId: ComputeLabel, targetId: syntheticFromTerraformSourceId)
+                ]
+            },
+            resultId: "topology-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == ComputeLabel && r.TargetId == syntheticFromTerraformSourceId);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_service_name_is_synthetic_label_and_relationship_uses_service_id()
+    {
+        // Agents often emit ServiceName as svc-{label}. The merge gate treats that synthetic as inventoried,
+        // but overlay matching only treats ServiceId (not ServiceName) as svc-{label}. The extra ServiceId
+        // alias is then never attached, and graph merge drops the edge the gate kept.
+        const string syntheticFromLabel = $"svc-{ComputeLabel}";
+        const string proposedServiceId = "cost-alias-api";
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = ResultFor(
+            AgentType.Cost,
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceId = proposedServiceId,
+                        ServiceName = syntheticFromLabel,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ],
+                AddedRelationships =
+                [
+                    Relationship(sourceId: proposedServiceId, targetId: DataLabel)
+                ]
+            },
+            resultId: "cost-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == proposedServiceId && r.TargetId == DataLabel);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_datastore_name_is_synthetic_label_and_relationship_uses_datastore_id()
+    {
+        const string syntheticFromLabel = $"ds-{DataLabel}";
+        const string proposedDatastoreId = "cost-alias-sql";
+
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+
+        AgentResult cost = ResultFor(
+            AgentType.Cost,
+            new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreId = proposedDatastoreId,
+                        DatastoreName = syntheticFromLabel,
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer
+                    }
+                ],
+                AddedRelationships =
+                [
+                    Relationship(sourceId: ComputeLabel, targetId: proposedDatastoreId)
+                ]
+            },
+            resultId: "cost-1");
+
+        IReadOnlyList<AgentResult> kept = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [cost]);
+
+        kept.Should().ContainSingle();
+        kept[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(r =>
+            r.SourceId == ComputeLabel && r.TargetId == proposedDatastoreId);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [cost]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == ComputeNodeId &&
+            e.ToNodeId == DataNodeId &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_datastore_node_has_missing_category_but_synthetic_datastore_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -1982,6 +2450,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-1" &&
             e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_sql_managed_instance_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "mi-1", label: "sqlmi", sourceId: "azurerm_sql_managed_instance.main"));
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-sqlmi")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "mi-1");
     }
 
     [Fact]
@@ -2395,6 +2879,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
 
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "fd-1" &&
+            e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_cdn_profile_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "cdn-1", label: "edge", sourceId: "azurerm_cdn_profile.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-edge")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "cdn-1" &&
             e.ToNodeId == "ds-1");
     }
 
@@ -3468,5 +3968,23 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-1" &&
             e.ToNodeId == "sm-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_sql_server_node_has_compute_category_but_synthetic_datastore_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            ComputeNode(),
+            ComputeNode(nodeId: "sql-1", label: "legacy-sql", sourceId: "azurerm_sql_server.main"));
+
+        AgentResult topology = TopologyResult(
+            RelationshipProposal(Relationship(targetId: "ds-legacy-sql")),
+            resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "sql-1");
     }
 }
