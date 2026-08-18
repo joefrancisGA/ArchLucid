@@ -1602,17 +1602,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-18
-- **last-bug:** 2026-08-18 — RunsController architecture request endpoints loaded by id without run scope
+- **last-bug:** 2026-08-18 — AdminController archive-by-ids archived runs globally without tenant scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
-- [x] Admin mutating endpoint lacks tenant binding on route parameters — (proven): `RunsController` request archive/delete/restore/clone used global `GetByIdAsync`; fixed via `LoadScopedArchitectureRequestAsync` + `ExistsRunForArchitectureRequestInScopeAsync`
+- [x] Admin mutating endpoint lacks tenant binding on route parameters — (proven): `RunsController` request endpoints (2026-08-18); `AdminController.ArchiveRunsByIds` called global `ArchiveRunsByIdsAsync` without `GetByIdAsync(scope, …)` filter (2026-08-18)
 - [x] Authority read returns artifacts for a run in another workspace — fixed ComparisonsController scoped load (2026-08-17)
 - [ ] Controller accepts a scope header that overrides the authenticated tenant
 

@@ -17,6 +17,7 @@ using ArchLucid.Persistence.Models;
 
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 using Microsoft.Extensions.Options;
 
 using MissingArchitectureRequestAutoRemediationOptions =
@@ -30,6 +31,7 @@ public sealed class AdminDiagnosticsService(
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IHostLeaderLeaseRepository hostLeaderLeases,
     IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
     IDbConnectionFactory connectionFactory,
     IOptions<ArchLucidOptions> archLucidOptions,
     IOptions<IntegrationEventsOptions> integrationEventsOptions,
@@ -71,6 +73,9 @@ public sealed class AdminDiagnosticsService(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc />
     public async Task<AdminOutboxSnapshot> GetOutboxSnapshotAsync(CancellationToken cancellationToken = default)
@@ -865,7 +870,45 @@ public sealed class AdminDiagnosticsService(
         IReadOnlyList<Guid> runIds,
         CancellationToken cancellationToken = default)
     {
-        RunArchiveByIdsResult result = await _runRepository.ArchiveRunsByIdsAsync(runIds, cancellationToken);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        List<Guid> scopedRunIds = [];
+        List<RunArchiveByIdFailure> outOfScopeFailures = [];
+
+        foreach (Guid runId in runIds.Distinct())
+        {
+            RunRecord? run = await _runRepository
+                .GetByIdAsync(scope, runId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (run is null)
+            {
+                outOfScopeFailures.Add(new RunArchiveByIdFailure(runId, "Run not found."));
+                continue;
+            }
+
+            scopedRunIds.Add(runId);
+        }
+
+        if (scopedRunIds.Count == 0)
+        {
+            return new RunArchiveByIdsResult { Failed = outOfScopeFailures };
+        }
+
+        RunArchiveByIdsResult result = await _runRepository
+            .ArchiveRunsByIdsAsync(scopedRunIds, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (outOfScopeFailures.Count > 0)
+        {
+            List<RunArchiveByIdFailure> mergedFailures = [..result.Failed, ..outOfScopeFailures];
+            result = new RunArchiveByIdsResult
+            {
+                SucceededRunIds = result.SucceededRunIds,
+                ArchivedRuns = result.ArchivedRuns,
+                Failed = mergedFailures,
+                ChildCascade = result.ChildCascade
+            };
+        }
 
         if (result.SucceededRunIds.Count > 0)
 

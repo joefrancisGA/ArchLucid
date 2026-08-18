@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Admin;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -430,6 +431,78 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
     }
 
     [Fact]
+    public async Task ArchiveRunsByIdsAsync_does_not_archive_runs_outside_current_scope()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            scopeProvider.Object,
+            out _,
+            out _,
+            out _,
+            out Mock<IRunRepository> runs);
+
+        Guid inScopeRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid outOfScopeRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        RunRecord inScopeRun = new() { RunId = inScopeRunId, TenantId = scope.TenantId };
+
+        runs
+            .Setup(r => r.GetByIdAsync(scope, inScopeRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(inScopeRun);
+        runs
+            .Setup(r => r.GetByIdAsync(scope, outOfScopeRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        runs
+            .Setup(r => r.ArchiveRunsByIdsAsync(
+                It.Is<IReadOnlyList<Guid>>(ids => ids.SequenceEqual(new[] { inScopeRunId })),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunArchiveByIdsResult
+            {
+                SucceededRunIds = [inScopeRunId],
+                ArchivedRuns =
+                [
+                    new ArchivedRunScopeRow
+                    {
+                        RunId = inScopeRunId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId
+                    }
+                ]
+            });
+
+        RunArchiveByIdsResult result =
+            await sut.ArchiveRunsByIdsAsync([inScopeRunId, outOfScopeRunId], CancellationToken.None);
+
+        Assert.Single(result.SucceededRunIds);
+        Assert.Equal(inScopeRunId, result.SucceededRunIds[0]);
+        Assert.Contains(result.Failed, failure => failure.RunId == outOfScopeRunId);
+        runs.Verify(
+            r => r.ArchiveRunsByIdsAsync(
+                It.Is<IReadOnlyList<Guid>>(ids => ids.SequenceEqual(new[] { inScopeRunId })),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ArchiveRunsByIdsAsync_when_none_succeed_skips_audit()
     {
         Mock<IAuditService> audit = new();
@@ -447,6 +520,11 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             out Mock<IRunRepository> runs);
 
         Guid requestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        ScopeContext scope = DefaultScope();
+
+        runs
+            .Setup(r => r.GetByIdAsync(scope, requestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
 
         RunArchiveByIdsResult byIds = new()
         {
@@ -490,6 +568,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
         Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        ScopeContext scope = DefaultScope();
 
         RunArchiveByIdsResult byIds = new()
         {
@@ -507,6 +586,10 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             Failed = [],
             ChildCascade = new RunArchiveChildCascadeCounts()
         };
+
+        _ = runs
+            .Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId, TenantId = tenantId });
 
         _ = runs
             .Setup(r => r.ArchiveRunsByIdsAsync(
@@ -593,6 +676,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         List<Guid> succeededRunIds = Enumerable.Range(0, 65)
             .Select(static i => Guid.Parse($"20000000-0000-4000-8000-{i:x012}"))
             .ToList();
+        ScopeContext scope = DefaultScope();
 
         RunArchiveByIdsResult byIds = new()
         {
@@ -608,6 +692,13 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             Failed = [],
             ChildCascade = new RunArchiveChildCascadeCounts()
         };
+
+        foreach (Guid runId in succeededRunIds)
+        {
+            _ = runs
+                .Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new RunRecord { RunId = runId, TenantId = scope.TenantId });
+        }
 
         _ = runs
             .Setup(r => r.ArchiveRunsByIdsAsync(succeededRunIds, It.IsAny<CancellationToken>()))
@@ -906,6 +997,31 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             archLucidOptions,
             audit,
             actor,
+            DefaultScopeProvider().Object,
+            CacheTelemetryProvider(),
+            out outboxSnapshot,
+            out integration,
+            out hostLeases,
+            out runRepository);
+    }
+
+    private static AdminDiagnosticsService CreateDiagnosticsService(
+        Mock<IDbConnectionFactory> connectionFactory,
+        IOptions<ArchLucidOptions> archLucidOptions,
+        Mock<IAuditService> audit,
+        Mock<IActorContext> actor,
+        IScopeContextProvider scopeContextProvider,
+        out Mock<IAdminOutboxSnapshotReader> outboxSnapshot,
+        out Mock<IIntegrationEventOutboxRepository> integration,
+        out Mock<IHostLeaderLeaseRepository> hostLeases,
+        out Mock<IRunRepository> runRepository)
+    {
+        return CreateDiagnosticsService(
+            connectionFactory,
+            archLucidOptions,
+            audit,
+            actor,
+            scopeContextProvider,
             CacheTelemetryProvider(),
             out outboxSnapshot,
             out integration,
@@ -924,6 +1040,31 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         out Mock<IHostLeaderLeaseRepository> hostLeases,
         out Mock<IRunRepository> runRepository)
     {
+        return CreateDiagnosticsService(
+            connectionFactory,
+            archLucidOptions,
+            audit,
+            actor,
+            DefaultScopeProvider().Object,
+            cacheTelemetrySnapshotProvider,
+            out outboxSnapshot,
+            out integration,
+            out hostLeases,
+            out runRepository);
+    }
+
+    private static AdminDiagnosticsService CreateDiagnosticsService(
+        Mock<IDbConnectionFactory> connectionFactory,
+        IOptions<ArchLucidOptions> archLucidOptions,
+        Mock<IAuditService> audit,
+        Mock<IActorContext> actor,
+        IScopeContextProvider scopeContextProvider,
+        ICacheTelemetrySnapshotProvider cacheTelemetrySnapshotProvider,
+        out Mock<IAdminOutboxSnapshotReader> outboxSnapshot,
+        out Mock<IIntegrationEventOutboxRepository> integration,
+        out Mock<IHostLeaderLeaseRepository> hostLeases,
+        out Mock<IRunRepository> runRepository)
+    {
         outboxSnapshot = new Mock<IAdminOutboxSnapshotReader>();
         integration = new Mock<IIntegrationEventOutboxRepository>();
         hostLeases = new Mock<IHostLeaderLeaseRepository>();
@@ -934,6 +1075,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             integration.Object,
             hostLeases.Object,
             runRepository.Object,
+            scopeContextProvider,
             connectionFactory.Object,
             archLucidOptions,
             Options.Create(new IntegrationEventsOptions()),
@@ -941,6 +1083,22 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             actor.Object,
             audit.Object,
             MissingArchitectureRequestOptionsMonitor());
+    }
+
+    private static ScopeContext DefaultScope() =>
+        new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+        };
+
+    private static Mock<IScopeContextProvider> DefaultScopeProvider()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(DefaultScope());
+
+        return scopeProvider;
     }
 
     private static IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions>
