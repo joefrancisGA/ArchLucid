@@ -1124,8 +1124,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-18
 - **last-bug:** 2026-08-18
@@ -1135,7 +1135,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (candidate) Webhook accepted when the shared secret does not match the connector config - invalid: WebhookSecrets.SecureEquals rejects before parse
-- [x] (candidate) Replay guard allows duplicate delivery of the same event id - fixed: TryClaimAsync atomically claims delivery id before mutation; ReleaseAsync on handler failure
+- [ ] (candidate) Replay guard allows duplicate delivery of the same event id - not reproduced; sequential replay covered
 - [x] (candidate) Inbound payload is applied to a tenant inferred from the body instead of the authenticated connector - fixed: tenant-scoped routes use TryGetByExternalKeyForTenantAsync
 
 ---
@@ -1158,9 +1158,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) Proxy forwards operator cookies or auth headers to a marketing-only upstream path
-- [ ] (candidate) Return-destination helper accepts an external URL that bypasses host-gate
-- [ ] (candidate) Anonymous marketing proxy path can reach a mutating operator API route
+- [x] (candidate) Proxy forwards operator cookies or auth headers to a marketing-only upstream path - invalid: server bearer stripped on allowlisted marketing paths; cookies are not copied upstream
+- [x] (candidate) Return-destination helper accepts an external URL that bypasses host-gate - invalid: `isSafeReturnPath` rejects external URLs; host-gate runs on next navigation
+- [x] (candidate) Anonymous marketing proxy path can reach a mutating operator API route - fixed: reject `..`/`.` proxy segments before upstream fetch
 
 ---
 

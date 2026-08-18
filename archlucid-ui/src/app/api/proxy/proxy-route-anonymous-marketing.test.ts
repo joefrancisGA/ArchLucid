@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GET, POST } from "./[...path]/route";
+import { GET, PATCH, POST } from "./[...path]/route";
 import { resetProxyRateLimitStateForTests } from "@/lib/proxy-rate-limit";
 
 describe("proxy route anonymous marketing paths", () => {
@@ -64,5 +64,25 @@ describe("proxy route anonymous marketing paths", () => {
     const init = fetchMock.mock.calls[0]![1] as RequestInit;
     const headers = init.headers as Headers;
     expect(headers.get("authorization")).toBeNull();
+  });
+
+  it("rejects PATCH that traverses from marketing quick-scan to operator draft", async () => {
+    const req = new NextRequest(
+      "http://localhost/api/proxy/v1/marketing/quick-scan/status/../../../architecture/draft/draft-1",
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json", "content-length": "2" },
+        body: "{}",
+      },
+    );
+
+    const res = await PATCH(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "quick-scan", "status", "..", "..", "..", "architecture", "draft", "draft-1"],
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
