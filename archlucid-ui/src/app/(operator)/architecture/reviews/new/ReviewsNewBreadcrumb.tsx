@@ -3,6 +3,7 @@ import type { ReviewsNewPathMode } from "@/lib/reviews-new-path-copy";
 
 import {
   REVIEWS_NEW_BREADCRUMB_DETAILED_TOPIC_TITLE,
+  REVIEWS_NEW_BREADCRUMB_GUIDED_INTAKE_TOPIC_TITLE,
   REVIEWS_NEW_BREADCRUMB_REVIEWS_LABEL,
   REVIEWS_NEW_BREADCRUMB_REVIEWS_PATH,
   REVIEWS_NEW_BREADCRUMB_TOPIC_TITLE,
@@ -11,6 +12,16 @@ import {
 type ReviewsNewBreadcrumbProps = {
   readonly activePath: ReviewsNewPathMode | null;
 };
+
+function reviewsNewPathTabBreadcrumbItems(
+  topicTitle: string,
+): ReadonlyArray<{ readonly label: string; readonly href?: string }> {
+  return [
+    { label: REVIEWS_NEW_BREADCRUMB_REVIEWS_LABEL, href: REVIEWS_NEW_BREADCRUMB_REVIEWS_PATH },
+    { label: REVIEWS_NEW_BREADCRUMB_TOPIC_TITLE, href: "/architecture/reviews/new" },
+    { label: topicTitle },
+  ];
+}
 
 /** Architecture trail for start-review intake (RNX / REN / REQ / ENE). */
 export function ReviewsNewBreadcrumb(props: ReviewsNewBreadcrumbProps): React.JSX.Element {
@@ -23,11 +34,16 @@ export function ReviewsNewBreadcrumb(props: ReviewsNewBreadcrumbProps): React.JS
     return (
       <OperatorPageBreadcrumb
         data-testid="reviews-new-breadcrumb"
-        items={[
-          ...items.slice(0, -1),
-          { label: REVIEWS_NEW_BREADCRUMB_TOPIC_TITLE, href: "/architecture/reviews/new" },
-          { label: REVIEWS_NEW_BREADCRUMB_DETAILED_TOPIC_TITLE },
-        ]}
+        items={reviewsNewPathTabBreadcrumbItems(REVIEWS_NEW_BREADCRUMB_DETAILED_TOPIC_TITLE)}
+      />
+    );
+  }
+
+  if (props.activePath === "guided-intake") {
+    return (
+      <OperatorPageBreadcrumb
+        data-testid="reviews-new-breadcrumb"
+        items={reviewsNewPathTabBreadcrumbItems(REVIEWS_NEW_BREADCRUMB_GUIDED_INTAKE_TOPIC_TITLE)}
       />
     );
   }

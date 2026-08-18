@@ -27,6 +27,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { ReviewsNewPageChrome } from "./ReviewsNewPageChrome";
 import {
   BUYER_REVIEWS_NEW_DETAILED_PAGE_SUBTITLE,
+  BUYER_REVIEWS_NEW_GUIDED_INTAKE_PAGE_SUBTITLE,
   reviewsNewPageSubtitle,
 } from "@/lib/reviews-new-page-copy";
 import {
@@ -70,6 +71,37 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
       .map((node) => node.getAttribute("data-testid"));
 
     expect(orderedLandmarks).toEqual(["reviews-new-orientation-top", "reviews-new-path-switcher"]);
+  });
+});
+
+describe("ReviewsNewPageChrome buyer-polished shell (ENE)", () => {
+  it("renders skip link, breadcrumb, orientation strip, and guided-intake buyer subtitle", () => {
+    searchParamsGet.mockImplementation((key: string) => (key === "path" ? "guided-intake" : null));
+
+    render(
+      <ReviewsNewPageShell>
+        <div data-testid="reviews-new-path-switcher" />
+      </ReviewsNewPageShell>,
+    );
+
+    expect(screen.getByRole("link", { name: REVIEWS_NEW_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${REVIEWS_NEW_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("reviews-new-primary-content")).toHaveAttribute(
+      "id",
+      REVIEWS_NEW_PRIMARY_CONTENT_ID,
+    );
+    expect(screen.getByTestId("reviews-new-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByText("Guided questions")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-settings-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-page-subtitle")).toHaveTextContent(
+      BUYER_REVIEWS_NEW_GUIDED_INTAKE_PAGE_SUBTITLE,
+    );
+    expect(screen.queryByTestId("reviews-new-optional-cloud-hint")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(reviewsNewPageSubtitle(true, "guided-intake")).toBe(BUYER_REVIEWS_NEW_GUIDED_INTAKE_PAGE_SUBTITLE);
   });
 });
 
