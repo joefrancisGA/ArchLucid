@@ -1594,6 +1594,12 @@
             },
             "type": "array"
           },
+          "structuralGroundingDropLog": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "systemName": {
             "type": "string"
           }
@@ -8716,6 +8722,12 @@
           "freeTextIntent": {
             "type": "string"
           },
+          "priorRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "workflowIntent": {
             "type": [
               "null",
@@ -10580,6 +10592,12 @@
           },
           "parentDraftId": {
             "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "priorRunId": {
             "type": [
               "null",
               "string"
