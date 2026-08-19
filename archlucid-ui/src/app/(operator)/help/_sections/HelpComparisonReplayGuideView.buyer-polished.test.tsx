@@ -65,6 +65,10 @@ describe("HelpComparisonReplayGuideView buyer-polished shell", () => {
     expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
     expect(screen.queryByTestId("help-topic-print-button")).toBeNull();
     expect(screen.getByTestId("help-comparison-replay-compare-action")).toBeInTheDocument();
+    expect(screen.getByTestId("help-comparison-replay-compare-action")).toHaveAttribute(
+      "href",
+      COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.href,
+    );
 
     const primaryContent = screen.getByTestId("help-comparison-replay-primary-content");
     const body = screen.getByTestId("help-comparison-replay-primary");
@@ -72,10 +76,5 @@ describe("HelpComparisonReplayGuideView buyer-polished shell", () => {
 
     expect(primaryContent).toContainElement(orientation);
     expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    expect(screen.getByTestId("help-comparison-replay-compare-action")).toHaveAttribute(
-      "href",
-      COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.href,
-    );
   });
 });
