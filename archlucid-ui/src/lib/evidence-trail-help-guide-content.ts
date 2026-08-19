@@ -26,7 +26,7 @@ export const EVIDENCE_TRAIL_HELP_HERO_OVERVIEW =
 export const EVIDENCE_TRAIL_HELP_ACTION_PANEL_TITLE = "Open the Evidence graph";
 
 export const EVIDENCE_TRAIL_HELP_SAMPLE_HONESTY =
-  "The sample graph uses the illustrative Claims Intake review — Showing Claims Intake sample (not your workspace). It is not a review from your tenant.";
+  "The sample graph uses the illustrative Claims Intake review so you can explore layout and lineage before loading a finalized review from your workspace.";
 
 export const EVIDENCE_TRAIL_HELP_PRIMARY_ACTIONS = {
   openGraph: EVIDENCE_TRAIL_HELP_PRIMARY_ACTION,

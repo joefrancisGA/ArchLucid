@@ -5,7 +5,7 @@ import { GraphReviewPickerStatus } from "@/app/(operator)/insights/evidence-grap
 import { BUYER_EVIDENCE_GRAPH_PICKER_SAMPLE_REVIEW } from "@/lib/buyer/buyer-polish-copy";
 
 describe("GraphReviewPickerStatus (TB-1363)", () => {
-  it("labels sample-review picker state as Claims Intake sample, not workspace", () => {
+  it("labels sample-review picker state as Claims Intake sample", () => {
     render(<GraphReviewPickerStatus state="sample-review" />);
 
     const status = screen.getByTestId("graph-review-picker-status");
@@ -13,6 +13,5 @@ describe("GraphReviewPickerStatus (TB-1363)", () => {
     expect(status).toHaveAttribute("data-picker-state", "sample-review");
     expect(status).toHaveTextContent(BUYER_EVIDENCE_GRAPH_PICKER_SAMPLE_REVIEW);
     expect(status).toHaveTextContent("Claims Intake");
-    expect(status).toHaveTextContent("not your workspace");
   });
 });

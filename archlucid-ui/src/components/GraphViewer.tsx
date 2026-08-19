@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { Fragment, useDeferredValue, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -28,7 +28,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
+import {
+  BUYER_EVIDENCE_GRAPH_TECHNICAL_APPENDIX_HELPER,
+  BUYER_TECHNICAL_APPENDIX_LABEL,
+  BUYER_VIEW_SIGNED_RECORD_CTA,
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { fetchProvenanceNodeExplanationViaProxy } from "@/lib/fetch-provenance-node-explanation";
 import {
@@ -42,6 +46,7 @@ import {
   graphBuyerTrailMetadataLines,
   graphBuyerTrailPanelTitle,
   graphBuyerTrailRecordTypeLine,
+  visibleBuyerTrailTechnicalAppendixLines,
 } from "@/lib/graph-buyer-node-detail";
 import {
   filterGraphViewModelToNodeIds,
@@ -630,8 +635,11 @@ export function GraphViewer({
                     const recordType = graphBuyerTrailRecordTypeLine(selectedNode);
 
                     return recordType.secondary !== null ? (
-                      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                        {recordType.secondary}
+                      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                        <span className="font-semibold text-neutral-800 dark:text-neutral-200">
+                          {recordType.secondary.label}:
+                        </span>{" "}
+                        <span className="text-neutral-600 dark:text-neutral-400">{recordType.secondary.value}</span>
                       </p>
                     ) : null;
                   })()}
@@ -743,6 +751,7 @@ export function GraphViewer({
               ) : selectedNode.metadata && Object.keys(selectedNode.metadata).length > 0 ? (
                 (() => {
                   const { summaryLines, technicalLines } = graphBuyerTrailMetadataLines(selectedNode.metadata);
+                  const appendixLines = visibleBuyerTrailTechnicalAppendixLines(technicalLines);
 
                   return (
                     <>
@@ -751,30 +760,37 @@ export function GraphViewer({
                           <p className={cn("m-0 font-semibold text-teal-700 dark:text-teal-400", OPERATOR_NAV_GROUP_LABEL)}>
                             At a glance
                           </p>
-                          <dl className="m-0 mt-2 grid gap-y-1.5">
-                            {summaryLines.map((row) => (
-                              <div key={`${row.label}-${row.value}`} className="flex gap-x-2">
-                                <dt className={cn("shrink-0 font-semibold text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                                  {row.label}
-                                </dt>
-                                <dd className={cn("m-0 min-w-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+                          <dl
+                            className={cn(
+                              "m-0 mt-2 grid grid-cols-[minmax(7.5rem,auto)_1fr] items-start gap-x-3 gap-y-2",
+                              OPERATOR_TYPOGRAPHY.helper,
+                            )}
+                            data-testid="graph-at-a-glance-summary"
+                          >
+                            {summaryLines.map((row, index) => (
+                              <Fragment key={`${row.label}-${index}`}>
+                                <dt className="font-semibold text-neutral-600 dark:text-neutral-400">{row.label}</dt>
+                                <dd className="m-0 min-w-0 leading-snug text-neutral-800 dark:text-neutral-200">
                                   {row.value}
                                 </dd>
-                              </div>
+                              </Fragment>
                             ))}
                           </dl>
                         </div>
                       ) : null}
-                      {technicalLines.length > 0 ? (
+                      {appendixLines.length > 0 ? (
                         <details className="mt-2 rounded-md border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/50">
                           <summary className={cn(
                             "cursor-pointer select-none px-3 py-2 font-semibold text-neutral-800 dark:text-neutral-200",
                             OPERATOR_DISCLOSURE_TRIGGER_CLASS,
                           )}>
-                            Technical appendix
+                            {BUYER_TECHNICAL_APPENDIX_LABEL}
                           </summary>
-                          <ul className={cn("m-0 list-none space-y-1 px-3 pb-3 pt-0", OPERATOR_TYPOGRAPHY.helper)}>
-                            {technicalLines.map((row) => (
+                          <p className={cn("m-0 px-3 pt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                            {BUYER_EVIDENCE_GRAPH_TECHNICAL_APPENDIX_HELPER}
+                          </p>
+                          <ul className={cn("m-0 list-none space-y-1 px-3 pb-3 pt-2", OPERATOR_TYPOGRAPHY.helper)}>
+                            {appendixLines.map((row) => (
                               <li key={`${row.label}-${row.value}`}>
                                 <span className="font-medium text-neutral-700 dark:text-neutral-300">{row.label}:</span>{" "}
                                 <span className="break-all text-neutral-600 dark:text-neutral-400">{row.value}</span>
