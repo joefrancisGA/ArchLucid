@@ -1459,24 +1459,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: context-ingestion
 
 - **id:** context-ingestion
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-19
+- **last-bug:** 2026-08-19
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Canonicalization drops tenant id from ingested connector payload
-- [ ] (candidate) Stage pipeline continues after a failed validation with partial graph
-- [ ] (candidate) Duplicate external keys from two tenants collapse into one node
+- [x] (invalid) Canonicalization drops tenant id from ingested connector payload — no tenant id in canonical objects; isolation is repository scope
+- [x] (invalid) Stage pipeline continues after a failed validation with partial graph — parsers skip bad declarations by design with warnings, not a validation gate
+- [x] (invalid) Duplicate external keys from two tenants collapse into one node — ingestion is per-project snapshot, not multi-tenant batch dedup
+- [x] (proven) `InfrastructureDeclarationConnector.DeltaAsync` keys resources by `SourceId` (declaration id) so multiple resources in one declaration collapse in `SetDiffConnectorDeltaComputer` — fixed with composite `SourceId|ObjectType|Name` key
 
 ---
 
