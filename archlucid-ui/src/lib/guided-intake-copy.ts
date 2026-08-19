@@ -1,4 +1,6 @@
 /** Guided intake step 0 — buyer-facing placeholders and helper copy. */
+
+import { ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
 export const GUIDED_INTAKE_STEP0_PROGRESS_LABEL = "Describe the system";
 
 export const GUIDED_INTAKE_STEP0_CARD_TITLE = "Describe the architecture intent";
@@ -99,6 +101,49 @@ export const GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_BUTTON = "Suggest from archit
 
 export const GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_DISABLED_HINT =
   "Enter an architecture overview to generate suggestions.";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY =
+  "No new suggestions were returned. Add constraints and assumptions manually, or refine the architecture overview and try again.";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT =
+  'This draft is locked while a linked review is open. Choose "Edit draft anyway" above to suggest structured brief items.';
+
+export function guidedIntakeStructuredBriefSuggestSuccess(addedCount: number): string {
+  const label = addedCount === 1 ? "suggestion" : "suggestions";
+
+  return `Added ${addedCount} ${label} below — confirm each one before review uses them.`;
+}
+
+export function guidedIntakeStructuredBriefSuggestDisabledHint(trimmedOverviewLength: number): string {
+  if (trimmedOverviewLength === 0) {
+    return "Enter an architecture overview before suggesting structured brief items.";
+  }
+
+  return `Architecture overview needs at least ${ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS} characters before suggestions can run.`;
+}
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL = "Quality attributes";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER =
+  "e.g. p95 latency 200ms";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_HINT =
+  "Add one measurable target at a time. At least one entry must include a number. Examples include recovery time, latency, throughput, availability, or cost — not limited to those categories.";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL = "Failure mode / continuity";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT =
+  "What breaks first and how operators recover.";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_PLACEHOLDER =
+  "e.g. API outage; failover to secondary region";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL = "Operational owner";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT =
+  "Team or role accountable for runbooks and on-call.";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER = "e.g. Platform SRE";
 
 export const GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING = "Suggested people and systems";
 

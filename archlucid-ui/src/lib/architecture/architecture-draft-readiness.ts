@@ -75,11 +75,11 @@ export function validateArchitectureReviewReadiness(
   }
 
   if (!listHasConfirmedEntry(fields.structuredBrief.confirmedConstraints)) {
-    blockers.push("constraint");
+    blockers.push("constraints");
   }
 
   if (!listHasConfirmedEntry(fields.structuredBrief.confirmedAssumptions)) {
-    blockers.push("assumption");
+    blockers.push("assumptions");
   }
 
   if (!hasConfirmedActor(actors)) {
@@ -87,7 +87,7 @@ export function validateArchitectureReviewReadiness(
   }
 
   if (!qualityAttributeMeetsMinimum(fields.structuredBrief.qualityAttribute)) {
-    blockers.push("quality attribute with a numeric target");
+    blockers.push("quality attributes with at least one numeric target");
   }
 
   return {

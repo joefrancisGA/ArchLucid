@@ -593,10 +593,55 @@ export async function expandReviewDetailOutcomeCards(page: Page): Promise<void> 
   await expect(details).toHaveAttribute("open");
 }
 
+/** TB-2179 job-view lanes hide rows that are not in the active lane — try lanes with a positive count. */
+async function revealFindingWorkspaceCardInJobViewLanes(scope: Locator, card: Locator): Promise<void> {
+  if (await card.isVisible().catch(() => false)) {
+    return;
+  }
+
+  const toggleBar = scope.getByTestId("finding-job-view-toggle-bar");
+
+  if (!(await toggleBar.isVisible().catch(() => false))) {
+    return;
+  }
+
+  const jobViewOptions = [
+    "needs-my-decision",
+    "ready-for-sponsor-packet",
+    "needs-governance",
+    "coverage-gaps",
+    "answer-these-questions",
+    "verify-hypotheses",
+    "resolve-contradictions",
+    "deferred",
+  ] as const;
+
+  for (const option of jobViewOptions) {
+    const toggle = scope.getByTestId(`finding-job-view-${option}`);
+
+    if (!(await toggle.isVisible().catch(() => false))) {
+      continue;
+    }
+
+    const label = (await toggle.textContent()) ?? "";
+
+    if (!/\(\s*[1-9]\d*\s*\)/.test(label)) {
+      continue;
+    }
+
+    await toggle.click();
+
+    if (await card.isVisible().catch(() => false)) {
+      return;
+    }
+  }
+}
+
 /** Findings tab workspace cards fold row actions by default — expand before chip/link assertions. */
 export async function expandFindingWorkspaceCard(scope: Locator, findingId: string): Promise<Locator> {
   const card = scope.getByTestId(`finding-workspace-card-${findingId}`);
 
+  await revealFindingWorkspaceCardInJobViewLanes(scope, card);
   await expect(card).toBeVisible({ timeout: 60_000 });
 
   // Primary cards nest supporting-detail + integrations disclosures; secondary cards wrap the row in details.

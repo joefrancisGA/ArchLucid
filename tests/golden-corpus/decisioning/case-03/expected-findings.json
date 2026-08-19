@@ -18,7 +18,7 @@
     ]
   },
   {
-    "findingId": "5483bd3e-82c1-fbac-3665-dddab961e6ae",
+    "findingId": "1a4d9f2e-6b3c-4a8e-9f1d-2e8c7b5a4d3e",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",

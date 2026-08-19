@@ -1,4 +1,5 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { resolveSampleScenarioByRunId } from "@/lib/samples/registry";
 import {
   getShowcaseStaticDemoPayload,
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
@@ -12,6 +13,7 @@ import type { RunComparison, RunSummary } from "@/types/authority";
 
 import {
   isDemoRunIdEligibleForStaticFallback,
+  isShowcaseSpineStaticPayloadActiveForRun,
   isStaticDemoPayloadFallbackActiveForRun,
   isStaticDemoPayloadFallbackEnabled,
 } from "./eligibility";

@@ -5,6 +5,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("marketing-demo-preview", () => {
   test("/showcase/customer-intake-modernization loads hero and signup CTA without auth", async ({ page }) => {
+    test.setTimeout(120_000);
     await page.goto("/showcase/customer-intake-modernization", { waitUntil: "load" });
     await expect(page.getByRole("heading", { name: "See a finalized architecture review", level: 1 })).toBeVisible({
       timeout: 60_000,

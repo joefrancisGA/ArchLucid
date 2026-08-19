@@ -410,8 +410,8 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.getByTestId("architecture-draft-handoff-banner")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("architecture-draft-workspace-status-tag")).toHaveTextContent("Ready for review");
-    expect(screen.queryByText(/^Status: Draft$/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-workspace-status-tag")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Show details" })).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-continue-review")).toHaveAttribute("href", "/architecture/reviews/run-001");
     expect(screen.getByTestId("architecture-draft-acknowledge-edit")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-start-review")).not.toBeInTheDocument();

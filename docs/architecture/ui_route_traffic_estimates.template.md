@@ -56,7 +56,11 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 
 **OVERALL WEIGHT SCORE:** 3.65%
 
+<<<<<<< HEAD
+**OVERALL EVIDENCE SCORE:** 1.58%
+=======
 **OVERALL EVIDENCE SCORE:** 1.59%
+>>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 
 ## Master table (UX score 0 first; then Deficit desc; ties A→Z by path)
 
@@ -65,6 +69,10 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AS | `/assurance-status` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | DIS | `/digest/sponsor` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | DIU | `/digest/sponsor/run/[runId]` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+<<<<<<< HEAD
+| EX | `/example-roi-bulletin` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+=======
+>>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 | RE | `/architecture/reviews` | 12% | 0,2 | 24 | 1176 | Core review | No | Architecture reviews hub (Core review) - RunsPageView with ReviewsHubHeaderActions PageContextualHelpButton (topic map review-packages; Category-1 registry), summary/inventory/drafts. Sibling RRE = review detail; RNX = start review; RRF = finding detail. Not a signed-record Sources trail by itself. Score 72/100 (2026-08-08) - core inventory launcher at ARE/GFN Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail. |
 | RRE | `/architecture/reviews/[reviewId]` | 10.04% | 0,2 | 20.08 | 983.92 | Core review | No | Review workspace detail (Core review) - RunDetailPageView with PageContextualHelpButton (topic map review-packages; Category-1 registry), decision snapshot, findings/tabs. Absorbs former SRN hit share from retired legacy /snapshot/[reviewId] bookmark (hard-retired; use /architecture/reviews/{runId}?readOnly=1 leave-behind). Sibling RE = reviews list; RRF = finding detail; ERU = evidence-trace. Not a full sealed-record diligence Sources trail alone. Score 72/100 (2026-08-08) - core package workspace at ARE/GFN Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail. |
 | RRF | `/architecture/reviews/[reviewId]/findings/[findingId]` | 9% | 0,2 | 18 | 882 | Core review | No | Finding detail (Core review) - FindingDetailPageView with PageContextualHelpButton (topic map findings; Category-1 path matcher), wayfinding, policy citation hero, operational actions, Evidence trace CTA. Sibling ERU = evidence-trace. Not a full sealed-record diligence Sources trail alone. Score 72/100 (2026-08-08) - core finding disposition at ARE/GFN Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail. |

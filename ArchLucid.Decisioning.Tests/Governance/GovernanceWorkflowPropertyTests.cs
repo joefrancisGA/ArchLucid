@@ -94,9 +94,20 @@ public sealed class GovernanceWorkflowPropertyTests
                     It.IsAny<string?>(),
                     It.IsAny<string?>(),
                     It.IsAny<DateTime>(),
-                    It.IsAny<CancellationToken>()))
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<IDbConnection?>(),
+                    It.IsAny<IDbTransaction?>()))
             .Callback(
-                (string _, string newStatus, string _, string? _, string? _, DateTime _, CancellationToken _) =>
+                (
+                    string _,
+                    string newStatus,
+                    string _,
+                    string? _,
+                    string? _,
+                    DateTime _,
+                    CancellationToken _,
+                    IDbConnection? _,
+                    IDbTransaction? _) =>
                     transitionedTo = newStatus)
             .ReturnsAsync(true);
 
@@ -130,9 +141,20 @@ public sealed class GovernanceWorkflowPropertyTests
                     It.IsAny<string?>(),
                     It.IsAny<string?>(),
                     It.IsAny<DateTime>(),
-                    It.IsAny<CancellationToken>()))
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<IDbConnection?>(),
+                    It.IsAny<IDbTransaction?>()))
             .Callback(
-                (string _, string newStatus, string _, string? _, string? _, DateTime _, CancellationToken _) =>
+                (
+                    string _,
+                    string newStatus,
+                    string _,
+                    string? _,
+                    string? _,
+                    DateTime _,
+                    CancellationToken _,
+                    IDbConnection? _,
+                    IDbTransaction? _) =>
                     transitionedTo = newStatus)
             .ReturnsAsync(true);
 
@@ -198,48 +220,47 @@ public sealed class GovernanceWorkflowPropertyTests
     }
 
 #pragma warning restore xUnit1031
-}
 
-/// <summary>Wrapped governance approval status for FsCheck (avoids clashing with other string arbitraries).</summary>
-public readonly record struct GovernanceStatusSample(string Status);
+    /// <summary>Wrapped governance approval status for FsCheck (avoids clashing with other string arbitraries).</summary>
+    public readonly record struct GovernanceStatusSample(string Status);
 
-/// <summary>Only <see cref="GovernanceApprovalStatus.Draft"/> or <see cref="GovernanceApprovalStatus.Submitted"/>.</summary>
-public readonly record struct DraftOrSubmittedSample(string Status);
+    /// <summary>Only <see cref="GovernanceApprovalStatus.Draft"/> or <see cref="GovernanceApprovalStatus.Submitted"/>.</summary>
+    public readonly record struct DraftOrSubmittedSample(string Status);
 
-/// <summary>Count of pre-existing active activations (0–5).</summary>
-public readonly record struct ActiveActivationCount(int Value);
+    /// <summary>Count of pre-existing active activations (0–5).</summary>
+    public readonly record struct ActiveActivationCount(int Value);
 
-/// <summary>FsCheck registration for <see cref="GovernanceWorkflowPropertyTests"/>.</summary>
-public static class GovernanceWorkflowArbitraries
-{
-    public static Arbitrary<GovernanceStatusSample> GovernanceStatuses()
+    /// <summary>FsCheck registration for <see cref="GovernanceWorkflowPropertyTests"/>.</summary>
+    public static class GovernanceWorkflowArbitraries
     {
-        Gen<string> gen = Gen.Elements(
-            GovernanceApprovalStatus.Draft,
-            GovernanceApprovalStatus.Submitted,
-            GovernanceApprovalStatus.Approved,
-            GovernanceApprovalStatus.Rejected,
-            GovernanceApprovalStatus.Promoted,
-            GovernanceApprovalStatus.Activated);
+        public static Arbitrary<GovernanceStatusSample> GovernanceStatuses()
+        {
+            Gen<string> gen = Gen.Elements(
+                GovernanceApprovalStatus.Draft,
+                GovernanceApprovalStatus.Submitted,
+                GovernanceApprovalStatus.Approved,
+                GovernanceApprovalStatus.Rejected,
+                GovernanceApprovalStatus.Promoted,
+                GovernanceApprovalStatus.Activated);
 
-        return gen.Select(s => new GovernanceStatusSample(s)).ToArbitrary();
+            return gen.Select(s => new GovernanceStatusSample(s)).ToArbitrary();
+        }
+
+        public static Arbitrary<DraftOrSubmittedSample> DraftOrSubmittedStatuses()
+        {
+            return Gen.Elements(GovernanceApprovalStatus.Draft, GovernanceApprovalStatus.Submitted)
+                .Select(s => new DraftOrSubmittedSample(s))
+                .ToArbitrary();
+        }
+
+        public static Arbitrary<ActiveActivationCount> ActiveActivationCounts()
+        {
+            return Gen.Choose(0, 5).Select(v => new ActiveActivationCount(v)).ToArbitrary();
+        }
     }
 
-    public static Arbitrary<DraftOrSubmittedSample> DraftOrSubmittedStatuses()
+    private static class GovernanceWorkflowTestFactory
     {
-        return Gen.Elements(GovernanceApprovalStatus.Draft, GovernanceApprovalStatus.Submitted)
-            .Select(s => new DraftOrSubmittedSample(s))
-            .ToArbitrary();
-    }
-
-    public static Arbitrary<ActiveActivationCount> ActiveActivationCounts()
-    {
-        return Gen.Choose(0, 5).Select(v => new ActiveActivationCount(v)).ToArbitrary();
-    }
-}
-
-internal static class GovernanceWorkflowTestFactory
-{
     internal static GovernanceWorkflowService CreateForApprove(string status)
     {
         Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
@@ -436,5 +457,6 @@ internal static class GovernanceWorkflowTestFactory
         mock.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = false });
 
         return mock;
+    }
     }
 }

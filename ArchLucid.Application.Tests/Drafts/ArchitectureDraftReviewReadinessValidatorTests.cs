@@ -20,9 +20,9 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
 
         IReadOnlyList<string> blockers = ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document);
 
-        blockers.Should().Contain("constraint");
-        blockers.Should().Contain("assumption");
-        blockers.Should().Contain("quality attribute with a numeric target");
+        blockers.Should().Contain("constraints");
+        blockers.Should().Contain("assumptions");
+        blockers.Should().Contain("quality attributes with at least one numeric target");
     }
 
     [Fact]
@@ -35,8 +35,8 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
 
         IReadOnlyList<string> blockers = ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document);
 
-        blockers.Should().NotContain("constraint");
-        blockers.Should().Contain("assumption");
+        blockers.Should().NotContain("constraints");
+        blockers.Should().Contain("assumptions");
     }
 
     [Fact]
@@ -60,9 +60,9 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
 
         IReadOnlyList<string> blockers = ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document);
 
-        blockers.Should().Contain("constraint");
-        blockers.Should().Contain("assumption");
-        blockers.Should().Contain("quality attribute with a numeric target");
+        blockers.Should().Contain("constraints");
+        blockers.Should().Contain("assumptions");
+        blockers.Should().Contain("quality attributes with at least one numeric target");
     }
 
     [Fact]

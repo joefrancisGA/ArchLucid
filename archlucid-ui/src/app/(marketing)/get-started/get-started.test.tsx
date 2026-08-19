@@ -4,6 +4,8 @@ import { join, resolve } from "node:path";
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
+import { GET_STARTED_SKIP_LINK_LABEL } from "@/lib/get-started-page-copy";
+
 import { GetStartedPageClient } from "./GetStartedPageClient";
 import {
   GET_STARTED_LAST_REVIEWED_LABEL,
@@ -40,8 +42,12 @@ describe("GetStartedPageClient", () => {
     expect(heroHeading.className).toContain("lg:text-5xl");
     expect(screen.getByTestId("get-started-hero")).toBeInTheDocument();
     expect(screen.getByTestId("see-it-deliverable-preview")).toBeInTheDocument();
+<<<<<<< HEAD
+    expect(screen.getByRole("link", { name: GET_STARTED_SKIP_LINK_LABEL })).toHaveAttribute(
+=======
     expect(screen.queryByTestId("get-started-hero-meta")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Skip to get started content/i })).toHaveAttribute(
+>>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
       "href",
       "#get-started-primary-content",
     );

@@ -31,6 +31,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 import { buyerTrailEdgeDisplayPhrase } from "@/lib/graph-mapper";
 import {
   PROVENANCE_CLAIM_DISCIPLINE,
@@ -162,12 +163,14 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
               </p>
             </details>
             <RunTraceViewerLink traceId={provenanceTraceId} />
-            <p
-              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="provenance-claim-discipline"
-            >
-              {PROVENANCE_CLAIM_DISCIPLINE}
-            </p>
+            {shouldOmitClaimDisciplineBand("provenance") ? null : (
+              <p
+                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="provenance-claim-discipline"
+              >
+                {PROVENANCE_CLAIM_DISCIPLINE}
+              </p>
+            )}
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               <Link className={OPERATOR_LINK.nav} href={evidenceGraphHref}>
                 Open Evidence graph

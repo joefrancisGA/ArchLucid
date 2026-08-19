@@ -9,6 +9,7 @@ import {
   getSponsorRoiHistoryMockJson,
   getSponsorRoiSummaryMockJson,
   getGovernanceDecisionsNeededSummaryMockJson,
+  getSponsorDashboardBundleMockJson,
   getTenantPilotValueReportMockJson,
 } from "./fixtures/sponsor-roi-dashboard-mock";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
@@ -100,6 +101,10 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
       hasMore: false,
       requestedTake,
     };
+  }
+
+  if (pathname === "/v1/roi/sponsor-dashboard-bundle") {
+    return getSponsorDashboardBundleMockJson();
   }
 
   if (pathname === "/v1/roi/sponsor-report") {

@@ -26,7 +26,16 @@ const defaultEffectiveContent = {
 };
 
 export function listMockPacks(): MockPolicyPack[] {
-  return [];
+  return [
+    {
+      policyPackId: "e2e-policy-pack-001",
+      name: "E2E Policy Pack",
+      packType: "Custom",
+      status: "Active",
+      currentVersion: "1.0.0",
+      description: "Fixture pack for mock E2E policy pack detail shell.",
+    },
+  ];
 }
 
 /** Matches `PolicyPackVersion` fields the policy-packs UI reads (ids, labels, compare dropdowns). */

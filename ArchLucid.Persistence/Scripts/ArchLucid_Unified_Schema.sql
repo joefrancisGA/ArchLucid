@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 308_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 317_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -213,9 +213,6 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ProvenanceCorrelationId') IS NULL
         ALTER TABLE dbo.AgentExecutionTraces ADD ProvenanceCorrelationId NVARCHAR(260) NULL;
-
-    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ProviderConnectionId') IS NULL
-        ALTER TABLE dbo.AgentExecutionTraces ADD ProviderConnectionId NVARCHAR(64) NULL;
 END
 
 GO
@@ -4989,36 +4986,6 @@ END;
 
 GO
 
-/* 313: Per-tenant Azure OpenAI BYO connection references (see Migrations/313_TenantAzureOpenAiConnections.sql). */
-IF OBJECT_ID(N'dbo.TenantAzureOpenAiConnections', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.TenantAzureOpenAiConnections
-    (
-        TenantId                   UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT PK_TenantAzureOpenAiConnections2 PRIMARY KEY,
-        Endpoint                   NVARCHAR(500)    NOT NULL,
-        AuthMode                   NVARCHAR(32)     NOT NULL
-            CONSTRAINT DF_TenantAzureOpenAiConnections_AuthMode2 DEFAULT (N'ApiKey'),
-        ApiKeyKeyVaultSecretName   NVARCHAR(500)    NOT NULL,
-        DeploymentsJson            NVARCHAR(MAX)    NOT NULL,
-        IsEnabled                  BIT              NOT NULL
-            CONSTRAINT DF_TenantAzureOpenAiConnections_IsEnabled2 DEFAULT (1),
-        Label                      NVARCHAR(200)    NULL,
-        LastProbeSucceeded         BIT              NULL,
-        LastProbeMessage           NVARCHAR(1000)   NULL,
-        LastProbeUtc               DATETIME2(7)     NULL,
-        UpdatedUtc                 DATETIME2(7)     NOT NULL
-            CONSTRAINT DF_TenantAzureOpenAiConnections_UpdatedUtc2 DEFAULT SYSUTCDATETIME(),
-        CONSTRAINT CK_TenantAzureOpenAiConnections_AuthMode2
-            CHECK (AuthMode IN (N'ApiKey')),
-        CONSTRAINT CK_TenantAzureOpenAiConnections_ApiKeyNoUrl2
-            CHECK (ApiKeyKeyVaultSecretName NOT LIKE N'%://%'),
-        CONSTRAINT FK_TenantAzureOpenAiConnections_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
-    );
-END;
-
-GO
-
 /* 268: OAuth auth-mode columns on per-tenant ITSM connector rows (see Migrations/268_TenantItsmConnectorConnections_OAuthAuthMode.sql; greenfield parity SQL_SCRIPTS.md §5). */
 IF COL_LENGTH(N'dbo.TenantItsmConnectorConnections', N'AuthMode') IS NULL
 BEGIN
@@ -6378,26 +6345,6 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_PolicyPackCatalogEntry_IsPromoted_DisplayName
         ON dbo.PolicyPackCatalogEntry (IsPromoted, DisplayName)
         WHERE IsPromoted = 1;
-END;
-
-GO
-
-/* 309: Platform bundled policy pack global activation registry (see Migrations/309_PlatformBundledPolicyPackRegistry.sql). */
-IF OBJECT_ID(N'dbo.PlatformBundledPolicyPackRegistry', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.PlatformBundledPolicyPackRegistry
-    (
-        BundleContentFile NVARCHAR(260) NOT NULL
-            CONSTRAINT PK_PlatformBundledPolicyPackRegistry PRIMARY KEY,
-        DisplayName       NVARCHAR(256) NOT NULL,
-        IsGloballyActive  BIT NOT NULL
-            CONSTRAINT DF_PlatformBundledPolicyPackRegistry_IsGloballyActive DEFAULT (1),
-        UpdatedUtc        DATETIME2(7) NOT NULL
-            CONSTRAINT DF_PlatformBundledPolicyPackRegistry_UpdatedUtc DEFAULT SYSUTCDATETIME()
-    );
-
-    CREATE UNIQUE NONCLUSTERED INDEX UX_PlatformBundledPolicyPackRegistry_DisplayName
-        ON dbo.PlatformBundledPolicyPackRegistry (DisplayName);
 END;
 
 GO
@@ -8372,4 +8319,95 @@ BEGIN
     CREATE UNIQUE INDEX UX_TenantCatalogMigrations_Tenant_Active
         ON dbo.TenantCatalogMigrations (TenantId)
         WHERE CompletedUtc IS NULL;
+END;
+
+GO
+
+/* 310: Platform agent model catalog (TB-2103) + per-task evaluation evidence (TB-2105). */
+IF OBJECT_ID(N'dbo.AgentModelCatalogEntry', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AgentModelCatalogEntry
+    (
+        AliasId                  NVARCHAR(128) NOT NULL
+            CONSTRAINT PK_AgentModelCatalogEntry PRIMARY KEY,
+        ProviderConnectionKind   NVARCHAR(128) NOT NULL,
+        DeploymentName           NVARCHAR(260) NULL,
+        TierBinding              NVARCHAR(32) NULL,
+        CapabilityTagsJson       NVARCHAR(MAX) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_CapabilityTagsJson DEFAULT (N'[]'),
+        ApprovedTaskTypesJson    NVARCHAR(MAX) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_ApprovedTaskTypesJson DEFAULT (N'[]'),
+        StructuredOutputLevel    NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_StructuredOutputLevel DEFAULT (N'StrictJsonSchema'),
+        DataBoundary             NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_DataBoundary DEFAULT (N'AzureBoundary'),
+        ExternalSubprocessorDisclosureComplete BIT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_ExternalSubprocessorDisclosureComplete DEFAULT (0),
+        LifecycleStatus          NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_LifecycleStatus DEFAULT (N'Available'),
+        StructuredOutputProbeUtc DATETIME2(7) NULL,
+        TokenizerProfile           NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerProfile DEFAULT (N'CharHeuristic'),
+        CharsPerToken              INT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_CharsPerToken DEFAULT (4),
+        TokenizerErrorMarginPercent DECIMAL(5, 2) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerErrorMarginPercent DEFAULT (25.00),
+        InputUsdPerMillionTokens   DECIMAL(18, 6) NULL,
+        OutputUsdPerMillionTokens  DECIMAL(18, 6) NULL,
+        ReasoningUsdPerMillionTokens DECIMAL(18, 6) NULL,
+        CreatedUtc               DATETIME2(7) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        UpdatedUtc               DATETIME2(7) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_UpdatedUtc DEFAULT SYSUTCDATETIME()
+    );
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.AgentModelCatalogEvaluation', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AgentModelCatalogEvaluation
+    (
+        AgentModelCatalogEvaluationId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_AgentModelCatalogEvaluation PRIMARY KEY,
+        AliasId                     NVARCHAR(128) NOT NULL,
+        TaskType                    NVARCHAR(128) NOT NULL,
+        EvaluationState             NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEvaluation_EvaluationState DEFAULT (N'NotEvaluated'),
+        EvidenceJson                NVARCHAR(MAX) NULL,
+        EvaluatedUtc                DATETIME2(7) NULL,
+        CONSTRAINT FK_AgentModelCatalogEvaluation_Entry
+            FOREIGN KEY (AliasId) REFERENCES dbo.AgentModelCatalogEntry (AliasId),
+        CONSTRAINT UQ_AgentModelCatalogEvaluation_AliasTask UNIQUE (AliasId, TaskType)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AgentModelCatalogEvaluation_AliasId
+        ON dbo.AgentModelCatalogEvaluation (AliasId);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.AgentModelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentModelCatalogEntry', N'ExternalSubprocessorDisclosureComplete') IS NULL
+BEGIN
+    ALTER TABLE dbo.AgentModelCatalogEntry
+        ADD ExternalSubprocessorDisclosureComplete BIT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_ExternalSubprocessorDisclosureComplete DEFAULT (0);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.AgentModelCatalogEntry', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentModelCatalogEntry', N'TokenizerProfile') IS NULL
+BEGIN
+    ALTER TABLE dbo.AgentModelCatalogEntry
+        ADD TokenizerProfile NVARCHAR(32) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerProfile DEFAULT (N'CharHeuristic'),
+            CharsPerToken INT NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_CharsPerToken DEFAULT (4),
+            TokenizerErrorMarginPercent DECIMAL(5, 2) NOT NULL
+            CONSTRAINT DF_AgentModelCatalogEntry_TokenizerErrorMarginPercent DEFAULT (25.00),
+            InputUsdPerMillionTokens DECIMAL(18, 6) NULL,
+            OutputUsdPerMillionTokens DECIMAL(18, 6) NULL,
+            ReasoningUsdPerMillionTokens DECIMAL(18, 6) NULL;
 END;

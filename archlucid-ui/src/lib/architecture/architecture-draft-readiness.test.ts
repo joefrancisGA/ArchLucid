@@ -86,9 +86,9 @@ describe("architecture-draft-readiness", () => {
     const result = validateArchitectureReviewReadiness(withUnknownsOnly, [assertedActor]);
 
     expect(result.isValid).toBe(false);
-    expect(result.blockers).toContain("constraint");
-    expect(result.blockers).toContain("assumption");
-    expect(result.blockers).toContain("quality attribute with a numeric target");
+    expect(result.blockers).toContain("constraints");
+    expect(result.blockers).toContain("assumptions");
+    expect(result.blockers).toContain("quality attributes with at least one numeric target");
   });
 
   it("allows mixed sentinel and real constraint while still requiring real assumption (TB-2343)", () => {
@@ -107,8 +107,8 @@ describe("architecture-draft-readiness", () => {
     const result = validateArchitectureReviewReadiness(mixed, [assertedActor]);
 
     expect(result.isValid).toBe(false);
-    expect(result.blockers).not.toContain("constraint");
-    expect(result.blockers).toContain("assumption");
+    expect(result.blockers).not.toContain("constraints");
+    expect(result.blockers).toContain("assumptions");
   });
 
   it("blocks review start when only legacy name/overview/outcome minimums are met (TB-2282)", () => {
@@ -122,9 +122,9 @@ describe("architecture-draft-readiness", () => {
     const result = validateArchitectureReviewReadiness(legacyMinimumOnly, [assertedActor]);
 
     expect(result.isValid).toBe(false);
-    expect(result.blockers).toContain("constraint");
-    expect(result.blockers).toContain("assumption");
-    expect(result.blockers).toContain("quality attribute with a numeric target");
+    expect(result.blockers).toContain("constraints");
+    expect(result.blockers).toContain("assumptions");
+    expect(result.blockers).toContain("quality attributes with at least one numeric target");
   });
 
   it("gates deferred server create until at least one valid field has content", () => {

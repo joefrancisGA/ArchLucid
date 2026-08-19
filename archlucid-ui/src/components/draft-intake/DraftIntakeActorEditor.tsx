@@ -8,7 +8,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { Button } from "@/components/ui/button";
@@ -122,6 +122,16 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
       buildSuggestedActorsFromIntent(props.intentText),
     );
   }, [props.actorSet.actors, props.intentText, suggestionPanelOpen]);
+
+  useEffect(() => {
+    if (!suggestionPanelOpen) {
+      return;
+    }
+
+    document
+      .querySelector("[data-testid='draft-intake-actor-suggestions-panel']")
+      ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [suggestionPanelOpen]);
 
   function addActor(): void {
     props.onChange({

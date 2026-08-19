@@ -42,11 +42,25 @@ describe("EvidenceOrientationClaimAndSourcesStrip", () => {
       />,
     );
 
-    expect(screen.getByTestId("help-digests-claim-discipline")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-digests-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Where to go next" })).toHaveAttribute(
       "id",
       "where-to-go-next",
     );
+  });
+
+  it("omits claim discipline for policy-listed operational slugs", () => {
+    render(
+      <EvidenceOrientationClaimAndSourcesStrip
+        slug="help-preferences"
+        claim="Preferences orientation."
+        sourcesIntro="Follow-ups."
+        sources={[{ label: "Getting started", href: "/help/getting-started" }]}
+      />,
+    );
+
+    expect(screen.queryByTestId("help-preferences-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-preferences-sources")).toBeInTheDocument();
   });
 
   it("applies the operator strip preset rather than the leaf-primitive defaults", () => {

@@ -9,7 +9,7 @@ export const FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE =
   "This First review guide is onboarding checklist orientation - completing steps here does not by itself produce a sealed-review diligence Sources package. Start a review and Evidence intake when you are ready to file evidence.";
 
 export const FIRST_REVIEW_GUIDE_SOURCES_INTRO =
-  "Use these follow-ups when the checklist leads to create-bootstrap, review intake, or first-architecture-review help.";
+  "Use these when you are ready to create a draft, start review intake, or need first-architecture-review help.";
 
 /** Compact evaluation scope + duration expectation on `/architecture/first-review-guide` (ARF P0-6). */
 export const FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER =

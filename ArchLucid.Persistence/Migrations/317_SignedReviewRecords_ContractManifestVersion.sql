@@ -1,4 +1,4 @@
-/* 307 — ContractManifestVersion on physical SignedReviewRecords (ADR 0064).
+/* 317 — ContractManifestVersion on physical SignedReviewRecords (ADR 0064).
 
    Migration 302 gated on OBJECT_ID(N'dbo.GoldenManifests', N'U'), which is false after
    295 renamed the table and left GoldenManifests as a synonym. DbUp journaled 302 as a

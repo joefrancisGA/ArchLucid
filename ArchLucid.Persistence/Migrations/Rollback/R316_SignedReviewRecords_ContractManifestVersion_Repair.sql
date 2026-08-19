@@ -1,5 +1,5 @@
 /*
-  R306: Rollback 306_SignedReviewRecords_ContractManifestVersion_Repair.sql —
+  R316: Rollback 316_SignedReviewRecords_ContractManifestVersion_Repair.sql —
   drop the typed ContractManifestVersion index + column from the physical sealed review record table.
 
   Resolves the physical table (post-295 dbo.SignedReviewRecords, pre-295 dbo.GoldenManifests) rather than

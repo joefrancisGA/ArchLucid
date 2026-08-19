@@ -60,6 +60,7 @@ export function AzurePermissionsHelpEvidenceOrientationStrip(): React.JSX.Elemen
   return (
     <EvidenceOrientationClaimCallout
       testId="azure-permissions-help-claim-discipline"
+      stripSlug="azure-permissions-help"
       body={AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE}
     />
   );
@@ -105,6 +106,7 @@ export function ConnectGcpSecurelyHelpEvidenceOrientationStrip(): React.JSX.Elem
     <EvidenceOrientationStripShell testId="connect-gcp-securely-help-orientation">
       <EvidenceOrientationClaimCallout
         testId="connect-gcp-securely-help-claim-discipline"
+        stripSlug="connect-gcp-securely-help"
         body={CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE}
         style={EVIDENCE_CLAIM_STYLE.operatorInfo}
         heading={{
@@ -128,6 +130,7 @@ export function EvidenceTrailHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimCallout
       testId="evidence-trail-help-claim-discipline"
+      stripSlug="evidence-trail-help"
       body={EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE}
     />
   );
@@ -154,6 +157,7 @@ export function GlossaryHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimCallout
       testId="glossary-help-claim-discipline"
+      stripSlug="glossary-help"
       body={
         <>
           {GLOSSARY_HELP_CLAIM_DISCIPLINE_LEAD} Open{" "}
@@ -176,6 +180,7 @@ export function PilotGuideHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimCallout
       testId="pilot-guide-help-claim-discipline"
+      stripSlug="pilot-guide-help"
       body={PILOT_GUIDE_HELP_CLAIM_DISCIPLINE}
     />
   );
@@ -219,6 +224,7 @@ export function ProcurementHelpEvidenceOrientationStrip(): React.JSX.Element {
 
       <EvidenceOrientationClaimCallout
         testId="procurement-help-claim-discipline"
+        stripSlug="procurement-help"
         body={PROCUREMENT_HELP_CLAIM_DISCIPLINE}
       />
 
@@ -233,6 +239,7 @@ export function ScopeHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimCallout
       testId="scope-help-claim-discipline"
+      stripSlug="scope-help"
       body={SCOPE_HELP_CLAIM_DISCIPLINE}
     />
   );
@@ -260,6 +267,7 @@ export function UsersAndRolesHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationStripShell testId="users-and-roles-help-orientation">
       <EvidenceOrientationClaimCallout
         testId="users-and-roles-help-claim-discipline"
+        stripSlug="users-and-roles-help"
         body={USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE}
       />
 

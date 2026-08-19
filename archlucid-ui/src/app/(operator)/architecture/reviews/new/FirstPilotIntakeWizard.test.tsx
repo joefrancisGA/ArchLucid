@@ -91,6 +91,7 @@ function prepareQuickStartEvidenceReady(): void {
   fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
   satisfyAllQuickStartL0MustQuestions();
   confirmScopeUnderstanding();
+  fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
 }
 
 describe("FirstPilotIntakeWizard", () => {
@@ -281,6 +282,7 @@ describe("FirstPilotIntakeWizard", () => {
     expect(createRun).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByTestId("first-pilot-limited-evidence-ack-checkbox"));
+    fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
     expect(screen.queryByTestId("first-pilot-readiness")).toBeNull();
   });
 
@@ -312,6 +314,7 @@ describe("FirstPilotIntakeWizard", () => {
     });
     satisfyAllQuickStartL0MustQuestions();
     confirmScopeUnderstanding();
+    fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
 
     const startButton = screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA });
     expect(startButton).not.toBeDisabled();
@@ -384,6 +387,7 @@ describe("FirstPilotIntakeWizard", () => {
     fireEvent.click(screen.getByTestId("pilot-mode-policy-pack-toggle-all"));
     satisfyAllQuickStartL0MustQuestions();
     confirmScopeUnderstanding();
+    fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {

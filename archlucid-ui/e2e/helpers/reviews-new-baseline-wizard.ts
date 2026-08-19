@@ -37,7 +37,7 @@ export async function expectBaselineWizardSystemNamePrefilled(page: Page, expect
   const systemName = page.getByRole("textbox", { name: "System name" });
 
   if (!(await systemName.isVisible().catch(() => false))) {
-    const backButton = page.getByRole("button", { name: /Back/i });
+    const backButton = page.getByTestId("simplified-pilot-footer").getByRole("button", { name: /^Back$/i });
     await expect(backButton).toBeVisible({ timeout: 15_000 });
     await backButton.click();
   }

@@ -45,11 +45,26 @@ export function listHasConfirmedEntry(items: readonly string[]): boolean {
 }
 
 export function qualityAttributeMeetsMinimum(value: string): boolean {
-  if (!isConfirmedBriefEntry(value)) {
+  const entries = parseQualityAttributeEntries(value);
+
+  if (entries.length === 0) {
     return false;
   }
 
-  return /\d/.test(value.trim());
+  return entries.some((entry) => isConfirmedBriefEntry(entry) && /\d/.test(entry));
+}
+
+/** Splits a stored quality-attribute string into chip entries (semicolon-delimited). */
+export function parseQualityAttributeEntries(value: string): string[] {
+  return value
+    .split(";")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+}
+
+/** Joins quality-attribute chips back into the persisted brief string. */
+export function joinQualityAttributeEntries(entries: readonly string[]): string {
+  return entries.join("; ");
 }
 
 export function hasConfirmedActor(actors: readonly ActorDescriptor[]): boolean {
@@ -78,6 +93,83 @@ export function mergeUniqueStrings(existing: readonly string[], incoming: readon
   }
 
   return merged;
+}
+
+export type IncomingStructuredBriefSuggestions = {
+  readonly suggestedConstraints: readonly string[];
+  readonly suggestedAssumptions: readonly string[];
+  readonly suggestedCapabilities: readonly string[];
+};
+
+export type ApplyIncomingStructuredBriefSuggestionsResult = {
+  readonly brief: ArchitectureDraftStructuredBriefState;
+  readonly addedSuggestionCount: number;
+};
+
+function mergeSuggestedBriefList(
+  confirmed: readonly string[],
+  suggested: readonly string[],
+  incoming: readonly string[],
+): { readonly mergedSuggested: string[]; readonly addedCount: number } {
+  const seen = new Set(
+    [...confirmed, ...suggested]
+      .map((value) => value.trim().toLowerCase())
+      .filter((value) => value.length > 0),
+  );
+  const mergedSuggested = [...suggested];
+  let addedCount = 0;
+
+  for (const value of incoming) {
+    const trimmed = value.trim();
+
+    if (trimmed.length === 0) {
+      continue;
+    }
+
+    const key = trimmed.toLowerCase();
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    mergedSuggested.push(trimmed);
+    addedCount += 1;
+  }
+
+  return { mergedSuggested, addedCount };
+}
+
+/** Merges draft-intake suggestions into unconfirmed suggested lists (skips confirmed duplicates). */
+export function applyIncomingStructuredBriefSuggestions(
+  current: ArchitectureDraftStructuredBriefState,
+  incoming: IncomingStructuredBriefSuggestions,
+): ApplyIncomingStructuredBriefSuggestionsResult {
+  const constraints = mergeSuggestedBriefList(
+    current.confirmedConstraints,
+    current.suggestedConstraints,
+    incoming.suggestedConstraints,
+  );
+  const assumptions = mergeSuggestedBriefList(
+    current.confirmedAssumptions,
+    current.suggestedAssumptions,
+    incoming.suggestedAssumptions,
+  );
+  const capabilities = mergeSuggestedBriefList(
+    current.confirmedRequiredCapabilities,
+    current.suggestedRequiredCapabilities,
+    incoming.suggestedCapabilities,
+  );
+
+  return {
+    brief: {
+      ...current,
+      suggestedConstraints: constraints.mergedSuggested,
+      suggestedAssumptions: assumptions.mergedSuggested,
+      suggestedRequiredCapabilities: capabilities.mergedSuggested,
+    },
+    addedSuggestionCount: constraints.addedCount + assumptions.addedCount + capabilities.addedCount,
+  };
 }
 
 export function structuredBriefFromDocument(

@@ -2,6 +2,7 @@ import {
   EvidenceOrientationSourcesAndClaimStrip,
   type EvidenceOrientationStripPart,
 } from "@/components/evidence-orientation/EvidenceOrientationSourcesAndClaimStrip";
+import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import {
   ARCHITECTURE_CREATED_CLARIFICATIONS_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES,
@@ -192,15 +193,30 @@ export function DigestSponsorEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
+<<<<<<< HEAD
+export function GetStartedEvidenceOrientationStrip(
+  props: {
+    readonly placement?: "top" | "footer";
+    readonly sources?: readonly EvidenceOrientationLink[];
+  } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? GET_STARTED_SOURCES;
+  const margin =
+    props.placement === "top"
+      ? "mb-8"
+      : "mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800";
+
+=======
 export function GetStartedEvidenceOrientationStrip(): React.JSX.Element {
+>>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="get-started"
       part="sources"
-      margin="mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800"
+      margin={margin}
       align="text-left"
       sourcesIntro={GET_STARTED_SOURCES_INTRO}
-      sources={GET_STARTED_SOURCES}
+      sources={sources}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
       claimHeading=""
       claim=""

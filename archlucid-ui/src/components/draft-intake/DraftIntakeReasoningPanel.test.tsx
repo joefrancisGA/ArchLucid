@@ -50,4 +50,11 @@ describe("DraftIntakeReasoningPanel", () => {
     expect(screen.getByText("Intake assistant notes")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-reason-follow-up-toggle")).toBeInTheDocument();
   });
+
+  it("shows the empty-state copy once in embedded mode", () => {
+    render(<DraftIntakeReasoningPanel draftId="draft-1" embedded />);
+
+    expect(screen.getAllByText(/no suggestions right now/i)).toHaveLength(1);
+    expect(screen.queryByTestId("draft-intake-reasoning-summary")).not.toBeInTheDocument();
+  });
 });

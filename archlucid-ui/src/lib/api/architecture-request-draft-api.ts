@@ -1,5 +1,8 @@
 import { apiPostJson } from "./http";
 
+/** Matches API minimum for POST /v1/architecture/request/draft. */
+export const ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS = 20;
+
 /** Body for POST /v1/architecture/request/draft. */
 export type DraftArchitectureRequestInput = {
   freeTextDescription: string;

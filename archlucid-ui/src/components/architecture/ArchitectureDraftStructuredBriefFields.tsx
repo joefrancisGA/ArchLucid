@@ -1,22 +1,42 @@
 "use client";
 
+import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
+import { IntakeTextField } from "@/components/intake/IntakeTextField";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { draftArchitectureRequest } from "@/lib/api/architecture-request-draft-api";
+import { draftArchitectureRequest, ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
   ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
+  applyIncomingStructuredBriefSuggestions,
+  joinQualityAttributeEntries,
   mergeUniqueStrings,
+  parseQualityAttributeEntries,
+  qualityAttributeMeetsMinimum,
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_PLACEHOLDER,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_HINT,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT,
+  guidedIntakeStructuredBriefSuggestDisabledHint,
+  guidedIntakeStructuredBriefSuggestSuccess,
+} from "@/lib/guided-intake-copy";
 import { cn } from "@/lib/utils";
 
 type ListFieldKey =
@@ -29,12 +49,50 @@ type SuggestedFieldKey =
   | "suggestedAssumptions"
   | "suggestedRequiredCapabilities";
 
+function addConfirmedListItem(
+  onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>,
+  confirmedKey: ListFieldKey,
+  suggestedKey: SuggestedFieldKey,
+  value: string,
+): void {
+  onStructuredBriefChange((current) => ({
+    ...current,
+    [confirmedKey]: mergeUniqueStrings(current[confirmedKey], [value]),
+    [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
+  }));
+}
+
+function removeConfirmedListItem(
+  onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>,
+  confirmedKey: ListFieldKey,
+  index: number,
+): void {
+  onStructuredBriefChange((current) => ({
+    ...current,
+    [confirmedKey]: current[confirmedKey].filter((_, itemIndex) => itemIndex !== index),
+  }));
+}
+
+function confirmSuggestedListItem(
+  onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>,
+  confirmedKey: ListFieldKey,
+  suggestedKey: SuggestedFieldKey,
+  value: string,
+): void {
+  onStructuredBriefChange((current) => ({
+    ...current,
+    [confirmedKey]: mergeUniqueStrings(current[confirmedKey], [value]),
+    [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
+  }));
+}
+
 type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
   readonly freeTextIntent: string;
   readonly disabled?: boolean;
+  readonly blocksLlmExecution?: boolean;
   readonly markReviewReadinessInvalid?: boolean;
-  readonly onStructuredBriefChange: (brief: ArchitectureDraftStructuredBriefState) => void;
+  readonly onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>;
 };
 
 function ConfirmableChipList(props: {
@@ -45,6 +103,10 @@ function ConfirmableChipList(props: {
   readonly suggestedItems: readonly string[];
   readonly invalid: boolean;
   readonly disabled: boolean;
+  readonly required?: boolean;
+  readonly allowMarkUnknown?: boolean;
+  readonly inputPlaceholder?: string;
+  readonly emptyMessage?: string;
   readonly onAdd: (value: string) => void;
   readonly onRemove: (index: number) => void;
   readonly onConfirmSuggested: (value: string) => void;
@@ -62,15 +124,18 @@ function ConfirmableChipList(props: {
     setDraft("");
   };
 
+  const isRequired = props.required !== false;
+  const allowMarkUnknown = props.allowMarkUnknown !== false;
+  const inputPlaceholder = props.inputPlaceholder ?? "Type and Add";
+  const emptyMessage = props.emptyMessage ?? "No confirmed items yet.";
+
   return (
     <div className="space-y-2" data-testid={props.inputId}>
-      <Label htmlFor={`${props.inputId}-input`} className="font-semibold text-neutral-900 dark:text-neutral-100">
-        {props.label}
-        <span className={cn("font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {" "}
-          (required)
-        </span>
-      </Label>
+      <IntakeFieldLabel
+        htmlFor={`${props.inputId}-input`}
+        label={props.label}
+        required={isRequired}
+      />
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>{props.hint}</p>
       <div className="flex flex-wrap gap-2">
         <Input
@@ -87,23 +152,31 @@ function ConfirmableChipList(props: {
           }}
           disabled={props.disabled}
           className="max-w-md min-w-[12rem] flex-1"
-          placeholder="Type and Add"
+          placeholder={inputPlaceholder}
           aria-invalid={props.invalid}
         />
-        <Button type="button" variant="secondary" size="sm" disabled={props.disabled} onClick={addDraft}>
-          Add
-        </Button>
         <Button
           type="button"
-          variant="outline"
-          size="sm"
+          variant="secondary"
           disabled={props.disabled}
-          onClick={() => {
-            props.onAdd(ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL);
-          }}
+          data-testid={`${props.inputId}-add`}
+          onClick={addDraft}
         >
-          Mark unknown
+          Add
         </Button>
+        {allowMarkUnknown ? (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={props.disabled}
+            data-testid={`${props.inputId}-mark-unknown`}
+            onClick={() => {
+              props.onAdd(ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL);
+            }}
+          >
+            Mark unknown
+          </Button>
+        ) : null}
       </div>
       {props.suggestedItems.length > 0 ? (
         <div className="space-y-1">
@@ -165,7 +238,7 @@ function ConfirmableChipList(props: {
           ))}
         </ul>
       ) : (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-500")}>No confirmed items yet.</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-500")}>{emptyMessage}</p>
       )}
     </div>
   );
@@ -176,6 +249,8 @@ export function ArchitectureDraftStructuredBriefFields(
   props: ArchitectureDraftStructuredBriefFieldsProps,
 ): React.JSX.Element {
   const [suggestBusy, setSuggestBusy] = useState(false);
+  const [suggestEmpty, setSuggestEmpty] = useState(false);
+  const [suggestAddedCount, setSuggestAddedCount] = useState<number | null>(null);
   const [suggestError, setSuggestError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -183,19 +258,15 @@ export function ArchitectureDraftStructuredBriefFields(
   } | null>(null);
   const markInvalid = props.markReviewReadinessInvalid === true;
   const brief = props.structuredBrief;
+  const overviewTrimmedLength = props.freeTextIntent.trim().length;
+  const canSuggestFromOverview =
+    overviewTrimmedLength >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
+    && props.disabled !== true
+    && props.blocksLlmExecution !== true
+    && !suggestBusy;
 
   const updateBrief = (partial: Partial<ArchitectureDraftStructuredBriefState>) => {
-    props.onStructuredBriefChange({ ...brief, ...partial });
-  };
-
-  const updateList = (key: ListFieldKey, items: string[]) => {
-    updateBrief({ [key]: items });
-  };
-
-  const removeFromSuggested = (key: SuggestedFieldKey, value: string) => {
-    updateBrief({
-      [key]: brief[key].filter((item) => item !== value),
-    });
+    props.onStructuredBriefChange((current) => ({ ...current, ...partial }));
   };
 
   const confirmSuggested = (
@@ -203,33 +274,48 @@ export function ArchitectureDraftStructuredBriefFields(
     suggestedKey: SuggestedFieldKey,
     value: string,
   ) => {
-    updateBrief({
-      [confirmedKey]: mergeUniqueStrings(brief[confirmedKey], [value]),
-      [suggestedKey]: brief[suggestedKey].filter((item) => item !== value),
-    });
+    confirmSuggestedListItem(props.onStructuredBriefChange, confirmedKey, suggestedKey, value);
   };
 
   async function onSuggestFromOverview(): Promise<void> {
     const freeTextDescription = props.freeTextIntent.trim();
 
-    if (freeTextDescription.length < 20 || suggestBusy) {
+    if (
+      freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
+      || suggestBusy
+      || props.disabled === true
+      || props.blocksLlmExecution === true
+    ) {
       return;
     }
 
     setSuggestBusy(true);
     setSuggestError(null);
+    setSuggestEmpty(false);
+    setSuggestAddedCount(null);
 
     try {
       const response = await draftArchitectureRequest({ freeTextDescription });
+      const incoming = {
+        suggestedConstraints: response.suggestedConstraints ?? [],
+        suggestedAssumptions: response.suggestedAssumptions ?? [],
+        suggestedCapabilities: response.suggestedCapabilities ?? [],
+      };
 
-      updateBrief({
-        suggestedConstraints: mergeUniqueStrings(brief.suggestedConstraints, response.suggestedConstraints ?? []),
-        suggestedAssumptions: mergeUniqueStrings(brief.suggestedAssumptions, response.suggestedAssumptions ?? []),
-        suggestedRequiredCapabilities: mergeUniqueStrings(
-          brief.suggestedRequiredCapabilities,
-          response.suggestedCapabilities ?? [],
-        ),
-      });
+      props.onStructuredBriefChange((current) => applyIncomingStructuredBriefSuggestions(current, incoming).brief);
+
+      const applied = applyIncomingStructuredBriefSuggestions(brief, incoming);
+      setSuggestEmpty(applied.addedSuggestionCount === 0);
+      setSuggestAddedCount(applied.addedSuggestionCount > 0 ? applied.addedSuggestionCount : null);
+
+      if (applied.addedSuggestionCount > 0) {
+        window.requestAnimationFrame(() => {
+          document.getElementById("architecture-draft-constraints")?.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+          });
+        });
+      }
     } catch (error: unknown) {
       if (isApiRequestError(error)) {
         setSuggestError({
@@ -249,7 +335,7 @@ export function ArchitectureDraftStructuredBriefFields(
     }
   }
 
-  const qualityInvalid = markInvalid && !/\d/.test(brief.qualityAttribute.trim());
+  const qualityInvalid = markInvalid && !qualityAttributeMeetsMinimum(brief.qualityAttribute);
 
   return (
     <div className="space-y-6" data-testid="architecture-draft-structured-brief-fields">
@@ -265,7 +351,7 @@ export function ArchitectureDraftStructuredBriefFields(
             type="button"
             variant="secondary"
             size="sm"
-            disabled={props.disabled === true || suggestBusy || props.freeTextIntent.trim().length < 20}
+            disabled={!canSuggestFromOverview}
             onClick={() => {
               void onSuggestFromOverview();
             }}
@@ -277,6 +363,55 @@ export function ArchitectureDraftStructuredBriefFields(
             Suggestions stay unconfirmed until you add or confirm them.
           </p>
         </div>
+        {!canSuggestFromOverview && props.blocksLlmExecution === true ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+            role="status"
+            data-testid="architecture-draft-suggest-structured-brief-budget-blocked"
+          >
+            Monthly AI budget is exhausted — suggestions are paused until the budget resets or your admin raises the limit.
+          </p>
+        ) : null}
+        {!canSuggestFromOverview
+        && props.blocksLlmExecution !== true
+        && overviewTrimmedLength < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-500")}
+            role="status"
+            data-testid="architecture-draft-suggest-structured-brief-disabled-hint"
+          >
+            {guidedIntakeStructuredBriefSuggestDisabledHint(overviewTrimmedLength)}
+          </p>
+        ) : null}
+        {!canSuggestFromOverview && props.disabled === true && props.blocksLlmExecution !== true
+        && overviewTrimmedLength >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
+        && !suggestBusy ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+            role="status"
+            data-testid="architecture-draft-suggest-structured-brief-editor-locked-hint"
+          >
+            {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT}
+          </p>
+        ) : null}
+        {suggestAddedCount !== null && suggestAddedCount > 0 ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-emerald-800 dark:text-emerald-200")}
+            role="status"
+            data-testid="architecture-draft-suggest-structured-brief-success"
+          >
+            {guidedIntakeStructuredBriefSuggestSuccess(suggestAddedCount)}
+          </p>
+        ) : null}
+        {suggestEmpty ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+            role="status"
+            data-testid="architecture-draft-suggest-structured-brief-empty"
+          >
+            {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY}
+          </p>
+        ) : null}
         {suggestError !== null ? (
           <OperatorApiProblem
             problem={suggestError.problem}
@@ -295,14 +430,15 @@ export function ArchitectureDraftStructuredBriefFields(
         invalid={markInvalid && brief.confirmedConstraints.every((item) => item.trim().length === 0)}
         disabled={props.disabled === true}
         onAdd={(value) => {
-          updateList("confirmedConstraints", mergeUniqueStrings(brief.confirmedConstraints, [value]));
-          removeFromSuggested("suggestedConstraints", value);
+          addConfirmedListItem(
+            props.onStructuredBriefChange,
+            "confirmedConstraints",
+            "suggestedConstraints",
+            value,
+          );
         }}
         onRemove={(index) => {
-          updateList(
-            "confirmedConstraints",
-            brief.confirmedConstraints.filter((_, itemIndex) => itemIndex !== index),
-          );
+          removeConfirmedListItem(props.onStructuredBriefChange, "confirmedConstraints", index);
         }}
         onConfirmSuggested={(value) => {
           confirmSuggested("confirmedConstraints", "suggestedConstraints", value);
@@ -318,14 +454,15 @@ export function ArchitectureDraftStructuredBriefFields(
         invalid={markInvalid && brief.confirmedAssumptions.every((item) => item.trim().length === 0)}
         disabled={props.disabled === true}
         onAdd={(value) => {
-          updateList("confirmedAssumptions", mergeUniqueStrings(brief.confirmedAssumptions, [value]));
-          removeFromSuggested("suggestedAssumptions", value);
+          addConfirmedListItem(
+            props.onStructuredBriefChange,
+            "confirmedAssumptions",
+            "suggestedAssumptions",
+            value,
+          );
         }}
         onRemove={(index) => {
-          updateList(
-            "confirmedAssumptions",
-            brief.confirmedAssumptions.filter((_, itemIndex) => itemIndex !== index),
-          );
+          removeConfirmedListItem(props.onStructuredBriefChange, "confirmedAssumptions", index);
         }}
         onConfirmSuggested={(value) => {
           confirmSuggested("confirmedAssumptions", "suggestedAssumptions", value);
@@ -334,91 +471,88 @@ export function ArchitectureDraftStructuredBriefFields(
 
       <ConfirmableChipList
         label="Required capabilities"
-        hint="Optional — platform traits the design must support."
+        hint="Platform traits the design must support — for example HTTPS ingress, managed database, or observability."
         inputId="architecture-draft-capabilities"
         items={brief.confirmedRequiredCapabilities}
         suggestedItems={brief.suggestedRequiredCapabilities}
         invalid={false}
+        required={false}
         disabled={props.disabled === true}
         onAdd={(value) => {
-          updateList("confirmedRequiredCapabilities", mergeUniqueStrings(brief.confirmedRequiredCapabilities, [value]));
-          removeFromSuggested("suggestedRequiredCapabilities", value);
+          addConfirmedListItem(
+            props.onStructuredBriefChange,
+            "confirmedRequiredCapabilities",
+            "suggestedRequiredCapabilities",
+            value,
+          );
         }}
         onRemove={(index) => {
-          updateList(
-            "confirmedRequiredCapabilities",
-            brief.confirmedRequiredCapabilities.filter((_, itemIndex) => itemIndex !== index),
-          );
+          removeConfirmedListItem(props.onStructuredBriefChange, "confirmedRequiredCapabilities", index);
         }}
         onConfirmSuggested={(value) => {
           confirmSuggested("confirmedRequiredCapabilities", "suggestedRequiredCapabilities", value);
         }}
       />
 
-      <div className="space-y-2">
-        <Label htmlFor="architecture-draft-quality-attribute" className="font-semibold text-neutral-900 dark:text-neutral-100">
-          Quality attribute
-          <span className={cn("font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {" "}
-            (required)
-          </span>
-        </Label>
-        <Input
-          id="architecture-draft-quality-attribute"
-          value={brief.qualityAttribute}
-          onChange={(event) => {
-            updateBrief({ qualityAttribute: event.target.value });
-          }}
-          disabled={props.disabled === true}
-          placeholder="e.g. RTO 4h, RPO 15m, p95 latency 200ms, 5k req/s"
-          data-testid="architecture-draft-quality-attribute"
-          aria-invalid={qualityInvalid}
-        />
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-          Include at least one number — RTO/RPO, latency, volume, or cost ceiling.
-        </p>
-      </div>
+      <ConfirmableChipList
+        label={GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL}
+        hint={GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_HINT}
+        inputId="architecture-draft-quality-attributes"
+        inputPlaceholder={GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER}
+        items={parseQualityAttributeEntries(brief.qualityAttribute)}
+        suggestedItems={[]}
+        invalid={qualityInvalid}
+        allowMarkUnknown={false}
+        emptyMessage="No quality attributes yet."
+        disabled={props.disabled === true}
+        onAdd={(value) => {
+          props.onStructuredBriefChange((current) => ({
+            ...current,
+            qualityAttribute: joinQualityAttributeEntries(
+              mergeUniqueStrings(parseQualityAttributeEntries(current.qualityAttribute), [value]),
+            ),
+          }));
+        }}
+        onRemove={(index) => {
+          props.onStructuredBriefChange((current) => ({
+            ...current,
+            qualityAttribute: joinQualityAttributeEntries(
+              parseQualityAttributeEntries(current.qualityAttribute).filter(
+                (_, itemIndex) => itemIndex !== index,
+              ),
+            ),
+          }));
+        }}
+        onConfirmSuggested={() => undefined}
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="architecture-draft-failure-mode" className="font-semibold text-neutral-900 dark:text-neutral-100">
-          Failure mode / continuity
-          <span className={cn("font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {" "}
-            (optional)
-          </span>
-        </Label>
-        <Textarea
-          id="architecture-draft-failure-mode"
-          rows={2}
-          value={brief.failureModeNote}
-          onChange={(event) => {
-            updateBrief({ failureModeNote: event.target.value });
-          }}
-          disabled={props.disabled === true}
-          placeholder="What breaks first and how operators recover."
-          data-testid="architecture-draft-failure-mode"
-        />
-      </div>
+      <IntakeTextField
+        id="architecture-draft-failure-mode"
+        label={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL}
+        hint={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT}
+        required={false}
+        value={brief.failureModeNote}
+        placeholder={GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_PLACEHOLDER}
+        disabled={props.disabled === true}
+        testId="architecture-draft-failure-mode"
+        onChange={(value) => {
+          updateBrief({ failureModeNote: value });
+        }}
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="architecture-draft-operational-owner" className="font-semibold text-neutral-900 dark:text-neutral-100">
-          Operational owner
-          <span className={cn("font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {" "}
-            (optional)
-          </span>
-        </Label>
-        <Input
-          id="architecture-draft-operational-owner"
-          value={brief.operationalOwner}
-          onChange={(event) => {
-            updateBrief({ operationalOwner: event.target.value });
-          }}
-          disabled={props.disabled === true}
-          placeholder="Team or role accountable for runbooks and on-call."
-          data-testid="architecture-draft-operational-owner"
-        />
-      </div>
+      <IntakeTextField
+        id="architecture-draft-operational-owner"
+        label={GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL}
+        hint={GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT}
+        required={false}
+        value={brief.operationalOwner}
+        placeholder={GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER}
+        disabled={props.disabled === true}
+        testId="architecture-draft-operational-owner"
+        onChange={(value) => {
+          updateBrief({ operationalOwner: value });
+        }}
+      />
     </div>
   );
 }

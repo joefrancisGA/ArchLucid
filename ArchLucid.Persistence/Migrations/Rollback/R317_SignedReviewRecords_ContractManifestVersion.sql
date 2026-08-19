@@ -1,5 +1,5 @@
 /*
-  R307: Rollback 307_SignedReviewRecords_ContractManifestVersion.sql —
+  R317: Rollback 317_SignedReviewRecords_ContractManifestVersion.sql —
   drop typed ContractManifestVersion index + column from SignedReviewRecords
   (and GoldenManifests when still a base table).
 */

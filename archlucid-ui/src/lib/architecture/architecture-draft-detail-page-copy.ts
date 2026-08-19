@@ -11,6 +11,4 @@ export function architectureDraftDetailPageSubtitle(buyerPolishedShell: boolean)
 
 export const ARCHITECTURE_DRAFT_DETAIL_LOAD_RETRY_LABEL = "Retry loading draft";
 
-export const ARCHITECTURE_DRAFT_DETAIL_ARCHITECTURE_ID_LABEL = "Draft id";
-
 export const ARCHITECTURE_DRAFT_DETAIL_BREADCRUMB_FALLBACK_LABEL = "Architecture draft";
