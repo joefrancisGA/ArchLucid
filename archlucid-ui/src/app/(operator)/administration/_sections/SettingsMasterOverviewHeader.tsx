@@ -9,9 +9,12 @@ import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
 
+import { settingsMasterPageDescription } from "./settings-master-page-copy";
+
 type SettingsMasterOverviewHeaderProps = {
   readonly scope: OperatorScopeRecord | null;
   readonly environmentLabel: string;
+  readonly buyerPolishedShell?: boolean;
 };
 
 function formatScopeSummary(scope: OperatorScopeRecord | null): string {
@@ -27,12 +30,14 @@ function formatScopeSummary(scope: OperatorScopeRecord | null): string {
 
 /** Master settings overview with scope and environment context. */
 export function SettingsMasterOverviewHeader(props: SettingsMasterOverviewHeaderProps) {
+  const buyerPolishedShell = props.buyerPolishedShell === true;
+
   return (
     <PageHeading
       navHref={SETTINGS_ROOT_PATH}
       title={OPERATOR_NAV_LINK_LABELS.settings}
-      description="Manage workspace, governance, integration, security, billing, and support configuration."
-      actions={<PageContextualHelpButton />}
+      description={settingsMasterPageDescription(buyerPolishedShell)}
+      actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
       data-testid="settings-master-overview-header"
     >
       <dl className={cn("m-0 flex flex-wrap gap-3", OPERATOR_TYPOGRAPHY.helper)}>
