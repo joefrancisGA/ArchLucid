@@ -145,7 +145,7 @@ describe("HelpTopicComparisonReplay (CO)", () => {
       expect(within(sources).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
     }
 
-    expect(screen.getByRole("link", { name: COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.label })).toHaveAttribute(
+    expect(screen.getByTestId("help-comparison-replay-compare-action")).toHaveAttribute(
       "href",
       "/insights/compare-two-reviews",
     );
@@ -226,7 +226,7 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     expect(screen.getByTestId("comparison-replay-validate-unavailable")).toHaveTextContent(
       "Check whether stored review output for a finalized package still validates.",
     );
-    expect(screen.getByRole("link", { name: COMPARISON_REPLAY_HELP_PRIMARY_ACTIONS.compareTwoReviews.label })).toHaveAttribute(
+    expect(screen.getByTestId("help-comparison-replay-compare-action")).toHaveAttribute(
       "href",
       "/insights/compare-two-reviews",
     );
