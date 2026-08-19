@@ -29,7 +29,7 @@ export function RunDetailBuyerPilotConversionSection(props: RunDetailBuyerPilotC
 
     void (async () => {
       try {
-        const status = await fetchLlmMonthlyDollarBudgetStatusCached({ force: true });
+        const status = await fetchLlmMonthlyDollarBudgetStatusCached();
 
         if (!canceled) {
           setBudgetStatus(status);

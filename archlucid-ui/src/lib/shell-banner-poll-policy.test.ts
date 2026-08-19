@@ -4,6 +4,7 @@ import {
   resolveShellBannerPollIntervalMs,
   shouldPollCatalogMigrationBanner,
   shouldPollLlmBudgetApproachingBanner,
+  shouldPollLlmMonthlyBudgetStatus,
   shouldPollTrialAiBudgetBanner,
 } from "@/lib/shell-banner-poll-policy";
 
@@ -60,5 +61,21 @@ describe("shell banner poll policy (TB-2029)", () => {
     expect(shouldPollCatalogMigrationBanner({ inMigration: true })).toBe(true);
     expect(shouldPollCatalogMigrationBanner({ inMigration: false })).toBe(false);
     expect(shouldPollCatalogMigrationBanner(undefined)).toBe(false);
+  });
+
+  it("combines shell LLM budget poll signals for the single poll owner", () => {
+    expect(
+      shouldPollLlmMonthlyBudgetStatus({
+        monthlyBudgetMonitoringActive: true,
+        workspaceKind: "Trial",
+        customerAiProviderConfigured: false,
+      } as never),
+    ).toBe(true);
+
+    expect(
+      shouldPollLlmMonthlyBudgetStatus({
+        monthlyBudgetMonitoringActive: false,
+      } as never),
+    ).toBe(false);
   });
 });

@@ -50,6 +50,17 @@ export function shouldPollCatalogMigrationBanner(
 ): boolean {
   return status?.inMigration === true;
 }
+
+/** Single shell poll owner — true when any budget banner or buyer band hint needs refresh. */
+export function shouldPollLlmMonthlyBudgetStatus(
+  status: LlmMonthlyDollarBudgetStatus | undefined,
+): boolean {
+  return (
+    shouldPollLlmBudgetApproachingBanner(status) ||
+    shouldPollTrialAiBudgetBanner(status) ||
+    shouldPollBuyerLlmUsageBandHint(status)
+  );
+}
 export function resolveShellBannerPollIntervalMs(args: {
   readonly enabled: boolean;
   readonly documentHidden: boolean;
