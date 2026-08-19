@@ -61,6 +61,8 @@ export type ReviewDetailWorkspaceProps = {
   readonly tabActivityAt?: ReviewDetailTabActivityAt;
   readonly tabCounts?: ReviewDetailTabCounts;
   readonly panels: ReviewDetailWorkspacePanels;
+  /** TB-2385: shown above non-activity tab panels while pipeline work remains. */
+  readonly inPipelineBanner?: ReactNode | null;
   /** When omitted, all tabs stay primary (legacy / tests). */
   readonly tabLifecycle?: ResolveReviewDetailVisibleTabsInput;
 };
@@ -81,6 +83,23 @@ function tabCountBadge(count: number | null | undefined, tabId: ReviewDetailTabI
   }
 
   return null;
+}
+
+function panelWithInPipelineBanner(
+  tabId: ReviewDetailTabId,
+  panel: ReactNode,
+  inPipelineBanner: ReactNode | null | undefined,
+): ReactNode {
+  if (inPipelineBanner === null || inPipelineBanner === undefined || tabId === "activity") {
+    return panel;
+  }
+
+  return (
+    <div className="space-y-4">
+      {inPipelineBanner}
+      {panel}
+    </div>
+  );
 }
 
 /** Tabbed review workspace with URL-backed `reviewTab` selection. */
@@ -192,6 +211,7 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
   }, []);
 
   const counts = props.tabCounts ?? {};
+  const inPipelineBanner = props.inPipelineBanner ?? null;
 
   return (
     <ReviewDetailWorkspaceTabContext.Provider value={{ navigateTab }}>
@@ -316,14 +336,14 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
             className="min-w-0 overflow-visible"
             data-testid="review-detail-workspace-panel-overview"
           >
-            {props.panels.overview}
+            {panelWithInPipelineBanner("overview", props.panels.overview, inPipelineBanner)}
           </TabsContent>
           <TabsContent
             value="findings"
             className="min-w-0 overflow-visible"
             data-testid="review-detail-workspace-panel-findings"
           >
-            {props.panels.findings}
+            {panelWithInPipelineBanner("findings", props.panels.findings, inPipelineBanner)}
           </TabsContent>
           <TabsContent
             value="evidence"
@@ -335,7 +355,7 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
               currentSurfaceId="package-evidence"
               hrefKind="reviewTab"
             />
-            {props.panels.evidence}
+            {panelWithInPipelineBanner("evidence", props.panels.evidence, inPipelineBanner)}
           </TabsContent>
           <TabsContent
             value="policies"
@@ -347,28 +367,32 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
               currentSurfaceId="package-governance"
               hrefKind="reviewTab"
             />
-            {props.panels.policies}
+            {panelWithInPipelineBanner("policies", props.panels.policies, inPipelineBanner)}
           </TabsContent>
           <TabsContent
             value="decisions-remediation"
             className="min-w-0 overflow-visible"
             data-testid="review-detail-workspace-panel-decisions-remediation"
           >
-            {props.panels.decisionsRemediation}
+            {panelWithInPipelineBanner(
+              "decisions-remediation",
+              props.panels.decisionsRemediation,
+              inPipelineBanner,
+            )}
           </TabsContent>
           <TabsContent
             value="review-package"
             className="min-w-0 overflow-visible"
             data-testid="review-detail-workspace-panel-review-package"
           >
-            {props.panels.reviewPackage}
+            {panelWithInPipelineBanner("review-package", props.panels.reviewPackage, inPipelineBanner)}
           </TabsContent>
           <TabsContent
             value="architecture"
             className="min-w-0 overflow-visible"
             data-testid="review-detail-workspace-panel-architecture"
           >
-            {props.panels.architecture}
+            {panelWithInPipelineBanner("architecture", props.panels.architecture, inPipelineBanner)}
           </TabsContent>
           <TabsContent
             value="activity"
