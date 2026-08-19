@@ -1484,24 +1484,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: knowledge-graph-provenance
 
 - **id:** knowledge-graph-provenance
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-19
+- **last-bug:** 2026-08-19
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Graph merge links a node to provenance from another tenant
-- [ ] (candidate) Lineage query traverses into a sibling tenantÃ¢â‚¬â„¢s artifact store
-- [ ] (candidate) Provenance record is written without workspace scope
+- [x] (invalid) Graph merge links a node to provenance from another tenant — `DefaultGraphBuilder` / `ProvenanceBuilder` build from a single scoped snapshot; tenant isolation is repository/query scope, not a merge defect in these files
+- [x] (invalid) Lineage query traverses into a sibling tenant's artifact store — `ArchLucid.Provenance` query/build paths do not open cross-tenant artifact stores; persistence uses `ScopeContext` on snapshot reads/writes
+- [x] (invalid) Provenance record is written without workspace scope — `SqlProvenanceSnapshotRepository` and `ProvenanceGraphAccessService` persist/query with `TenantId` + `WorkspaceId` + `ProjectId`
+- [x] (proven) Topology projected-spend enrichment overwrites parsed constraint spend when property keys use non-canonical casing — **hit 2026-08-19:** `CostConstraintProjectedSpendEnricher.HasProjectedSpend` used case-sensitive `ContainsKey` while deserialized `GraphNode.Properties` can use PascalCase keys
 
 ---
 
