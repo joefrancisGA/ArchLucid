@@ -22,6 +22,9 @@ public static class OutboundHttpsUrlDnsResolutionGuard
         if (!string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
             return "URL must use the https scheme.";
 
+        if (EmbeddedCredentialUrlGuard.HasEmbeddedCredentials(uri))
+            return "URL must not include embedded credentials.";
+
         string host = uri.IdnHost;
 
         if (PrivateNetworkAddressGuard.IsForbiddenHostLiteral(host))

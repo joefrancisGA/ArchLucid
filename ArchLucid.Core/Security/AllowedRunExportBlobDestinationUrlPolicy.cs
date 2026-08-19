@@ -17,6 +17,9 @@ public static class AllowedRunExportBlobDestinationUrlPolicy
         if (!string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
             return "DestinationSasUrl must use the https scheme.";
 
+        if (EmbeddedCredentialUrlGuard.HasEmbeddedCredentials(uri))
+            return "DestinationSasUrl must not include embedded credentials.";
+
         if (PrivateNetworkAddressGuard.IsForbiddenHostLiteral(uri.IdnHost))
             return "DestinationSasUrl must not target loopback, link-local, or private network addresses.";
 
