@@ -2,6 +2,7 @@
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EVIDENCE_CLAIM_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import {
   AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE,
@@ -216,6 +217,7 @@ export function ComparisonReplayHelpEvidenceOrientationStrip(): React.JSX.Elemen
       claim={COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE}
       claimHeading={COMPARISON_REPLAY_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorInfo}
       sourcesTitle={COMPARISON_REPLAY_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={COMPARISON_REPLAY_HELP_SOURCES_INTRO}
       sources={COMPARISON_REPLAY_HELP_SOURCES}
