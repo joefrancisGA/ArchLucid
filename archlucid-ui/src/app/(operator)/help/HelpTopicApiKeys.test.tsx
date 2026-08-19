@@ -7,10 +7,10 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpApiKeysGuideView } from "@/app/(operator)/help/_sections/HelpApiKeysGuideView";
 import {
-  expectClaimDisciplineBand,
   expectClaimDisciplineBandContent,
   expectClaimDisciplineHeading,
 } from "@/lib/claim-discipline-test-helpers";
+import { expectsVisibleClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 import {
   API_KEYS_HELP_ACTION_PANEL_INTRO,
   API_KEYS_HELP_ACTION_PANEL_TITLE,
@@ -143,7 +143,13 @@ describe("HelpApiKeysGuideView", () => {
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_ACTION_PANEL_TITLE })).not.toHaveLength(0);
     expect(screen.getAllByRole("link", { name: "What API keys are for" })).not.toHaveLength(0);
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_INSTEAD_SECTION_TITLE })).not.toHaveLength(0);
-    expect(screen.getAllByRole("link", { name: API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING })).not.toHaveLength(0);
+
+    if (expectsVisibleClaimDisciplineBand("help-api-keys")) {
+      expect(screen.getAllByRole("link", { name: API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING })).not.toHaveLength(0);
+    } else {
+      expect(screen.queryAllByRole("link", { name: API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveLength(0);
+    }
+
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_FOLLOW_UPS_TITLE })).not.toHaveLength(0);
     expect(screen.getByTestId("help-api-keys-page-title").closest("[data-nav-href]")).toHaveAttribute(
       "data-nav-href",
