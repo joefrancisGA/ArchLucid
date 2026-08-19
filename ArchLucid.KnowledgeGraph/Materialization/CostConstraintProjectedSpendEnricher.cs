@@ -65,16 +65,22 @@ public static class CostConstraintProjectedSpendEnricher
 
     private static bool HasProjectedSpend(GraphNode node)
     {
-        if (node.Properties.ContainsKey("projectedMonthlySpendUsd"))
+        // Graph nodes deserialized from JSON may use PascalCase property keys on a case-sensitive dictionary.
+        if (HasPropertyKey(node, "projectedMonthlySpendUsd"))
             return true;
 
-        if (node.Properties.ContainsKey("projectedImpactUsdUpperBound"))
+        if (HasPropertyKey(node, "projectedImpactUsdUpperBound"))
             return true;
 
-        if (node.Properties.ContainsKey("projectedImpactUsdLowerBound"))
+        if (HasPropertyKey(node, "projectedImpactUsdLowerBound"))
             return true;
 
         return false;
+    }
+
+    private static bool HasPropertyKey(GraphNode node, string key)
+    {
+        return node.Properties.Keys.Any(propertyKey => string.Equals(propertyKey, key, StringComparison.OrdinalIgnoreCase));
     }
 }
 
