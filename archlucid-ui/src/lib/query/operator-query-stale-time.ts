@@ -10,6 +10,9 @@ export const OPERATOR_SHELL_TRIAL_STABLE_STALE_MS = 10 * 60_000;
 /** LLM budget when monitoring is off or posture is stable. */
 export const OPERATOR_SHELL_LLM_BUDGET_STABLE_STALE_MS = 5 * 60_000;
 
+/** Active LLM budget monitoring — longer than the 60s poll so observers share one fetch. */
+export const OPERATOR_SHELL_LLM_BUDGET_ACTIVE_STALE_MS = 90_000;
+
 /** Keep inactive shell queries in memory for five minutes before garbage collection. */
 export const OPERATOR_QUERY_GC_MS = 5 * 60_000;
 
@@ -48,6 +51,6 @@ export function resolveTenantTrialStatusStaleTime(status: TrialStatusLike | null
 
 export function resolveLlmMonthlyBudgetStatusStaleTime(status: LlmBudgetLike | undefined): number {
   return status?.monthlyBudgetMonitoringActive === true
-    ? OPERATOR_QUERY_STALE_MS
+    ? OPERATOR_SHELL_LLM_BUDGET_ACTIVE_STALE_MS
     : OPERATOR_SHELL_LLM_BUDGET_STABLE_STALE_MS;
 }

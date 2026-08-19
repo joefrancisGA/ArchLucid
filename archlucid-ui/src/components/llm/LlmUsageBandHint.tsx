@@ -5,7 +5,6 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/desi
 import Link from "next/link";
 
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
-import { useDocumentHidden } from "@/lib/document-visibility";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   formatBuyerLlmUsageApproachingCopy,
@@ -14,14 +13,12 @@ import {
   shouldShowBuyerLlmUsageBandHint,
 } from "@/lib/llm-monthly-budget-status";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
-import { shouldPollBuyerLlmUsageBandHint } from "@/lib/shell-banner-poll-policy";
 
 /**
  * Buyer-polished shell hint for UTC-month AI analysis budget headroom. Shows approximate percent remaining
  * (not dollar amounts) when utilization crosses the warn threshold; shows a persistent exhausted banner at hard cap.
  */
 export function LlmUsageBandHint() {
-  const documentHidden = useDocumentHidden();
   const queryEnabled =
     !isOperatorExperienceFullShellEnv() &&
     !isNextPublicDemoMode() &&
@@ -29,8 +26,6 @@ export function LlmUsageBandHint() {
 
   const { data: status } = useLlmMonthlyBudgetStatusQuery({
     enabled: queryEnabled,
-    documentHidden,
-    shouldPoll: shouldPollBuyerLlmUsageBandHint,
   });
 
   if (

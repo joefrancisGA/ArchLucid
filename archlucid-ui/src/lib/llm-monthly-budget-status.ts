@@ -1,7 +1,7 @@
 import { apiGet } from "@/lib/api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
-import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
+import { resolveLlmMonthlyBudgetStatusStaleTime } from "@/lib/query/operator-query-stale-time";
 
 export const LLM_MONTHLY_DOLLAR_BUDGET_STATUS_PATH = "/v1/admin/llm-monthly-dollar-budget-status";
 
@@ -41,11 +41,15 @@ export async function fetchLlmMonthlyDollarBudgetStatusCached(
     await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.llmMonthlyBudgetStatus });
   }
 
+  const cached = queryClient.getQueryData<LlmMonthlyDollarBudgetStatus>(
+    operatorQueryKeys.llmMonthlyBudgetStatus,
+  );
+
   return queryClient.fetchQuery({
     queryKey: operatorQueryKeys.llmMonthlyBudgetStatus,
     queryFn: ({ signal }) =>
       fetchLlmMonthlyDollarBudgetStatus({ signal: options?.signal ?? signal }),
-    staleTime: OPERATOR_QUERY_STALE_MS,
+    staleTime: resolveLlmMonthlyBudgetStatusStaleTime(cached),
   });
 }
 

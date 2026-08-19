@@ -8,14 +8,18 @@ import {
 } from "@/lib/llm-monthly-budget-status";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { resolveLlmMonthlyBudgetStatusStaleTime } from "@/lib/query/operator-query-stale-time";
-import { resolveShellBannerPollIntervalMs } from "@/lib/shell-banner-poll-policy";
+import {
+  resolveShellBannerPollIntervalMs,
+  shouldPollLlmMonthlyBudgetStatus,
+} from "@/lib/shell-banner-poll-policy";
 
 type UseLlmMonthlyBudgetStatusQueryOptions = {
   readonly enabled?: boolean;
   readonly documentHidden?: boolean;
-  readonly shouldPoll?: (status: LlmMonthlyDollarBudgetStatus | undefined) => boolean;
+  /** When true, this observer owns the shared shell poll interval (mount once in the gate). */
+  readonly pollOwner?: boolean;
   readonly intervalMs?: number;
-  /** Legacy one-shot interval; prefer `shouldPoll` + `documentHidden`. */
+  /** Explicit interval override; `false` disables polling. */
   readonly refetchIntervalMs?: number | false;
 };
 
@@ -33,10 +37,14 @@ export function useLlmMonthlyBudgetStatusQuery(options?: UseLlmMonthlyBudgetStat
         return options.refetchIntervalMs;
       }
 
+      if (options?.pollOwner !== true) {
+        return false;
+      }
+
       return resolveShellBannerPollIntervalMs({
         enabled: options?.enabled ?? true,
         documentHidden: options?.documentHidden ?? false,
-        shouldPoll: options?.shouldPoll?.(query.state.data) ?? false,
+        shouldPoll: shouldPollLlmMonthlyBudgetStatus(query.state.data),
         intervalMs: options?.intervalMs,
       });
     },

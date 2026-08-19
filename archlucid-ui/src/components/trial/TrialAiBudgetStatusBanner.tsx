@@ -5,12 +5,8 @@ import Link from "next/link";
 
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
-import { useDocumentHidden } from "@/lib/document-visibility";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { formatTrialAiBudgetRemainingCopy } from "@/lib/llm-monthly-budget-status";
-import {
-  shouldPollTrialAiBudgetBanner,
-} from "@/lib/shell-banner-poll-policy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 
@@ -20,7 +16,6 @@ export function PublicDemoAiUsageBanner() {
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const { data: status } = useLlmMonthlyBudgetStatusQuery({
     enabled: concernFetchEnabled && !demoMode && isOperatorExperienceFullShellEnv(),
-    refetchIntervalMs: false,
   });
   const isPublicDemo = demoMode || status?.workspaceKind === "PublicDemo";
 
@@ -46,13 +41,10 @@ export function PublicDemoAiUsageBanner() {
 
 /** Trial workspace AI budget remaining and exhaustion messaging. */
 export function TrialAiBudgetStatusBanner() {
-  const documentHidden = useDocumentHidden();
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const queryEnabled = concernFetchEnabled && isOperatorExperienceFullShellEnv() && !isNextPublicDemoMode();
   const { data: status } = useLlmMonthlyBudgetStatusQuery({
     enabled: queryEnabled,
-    documentHidden,
-    shouldPoll: shouldPollTrialAiBudgetBanner,
   });
 
   if (!status?.monthlyBudgetMonitoringActive || status.workspaceKind !== "Trial") {

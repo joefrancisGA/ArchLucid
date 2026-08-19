@@ -3,6 +3,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
 
+import { LlmMonthlyBudgetStatusPollOwner } from "@/components/shell/LlmMonthlyBudgetStatusPollOwner";
+
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { useOperatorShellStatusQueriesEnabled } from "@/hooks/use-operator-shell-status-queries-enabled";
 import {
@@ -80,6 +82,7 @@ export function OperatorShellStatusQueryGate(props: OperatorShellStatusQueryGate
 
   return (
     <OperatorShellStatusQueryGateContext.Provider value={value}>
+      <LlmMonthlyBudgetStatusPollOwner />
       {props.children}
     </OperatorShellStatusQueryGateContext.Provider>
   );

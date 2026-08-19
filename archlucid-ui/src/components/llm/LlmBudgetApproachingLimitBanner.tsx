@@ -7,16 +7,12 @@ import { useMemo, useState } from "react";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
-import { useDocumentHidden } from "@/lib/document-visibility";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   llmBudgetUtilizationPercent,
   resolveLlmBudgetUtilizationTone,
 } from "@/lib/llm-monthly-budget-status";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
-import {
-  shouldPollLlmBudgetApproachingBanner,
-} from "@/lib/shell-banner-poll-policy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 
@@ -26,7 +22,6 @@ import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
  */
 export function LlmBudgetApproachingLimitBanner() {
   const [dismissed, setDismissed] = useState(false);
-  const documentHidden = useDocumentHidden();
   const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const queryEnabled =
     concernFetchEnabled &&
@@ -37,8 +32,6 @@ export function LlmBudgetApproachingLimitBanner() {
 
   const { data: status } = useLlmMonthlyBudgetStatusQuery({
     enabled: queryEnabled,
-    documentHidden,
-    shouldPoll: shouldPollLlmBudgetApproachingBanner,
   });
 
   const visible = useMemo(() => {

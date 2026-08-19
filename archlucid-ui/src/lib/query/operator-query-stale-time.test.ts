@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  OPERATOR_QUERY_STALE_MS,
+  OPERATOR_SHELL_LLM_BUDGET_ACTIVE_STALE_MS,
   OPERATOR_SHELL_LLM_BUDGET_STABLE_STALE_MS,
   OPERATOR_SHELL_MIGRATION_IDLE_STALE_MS,
   OPERATOR_SHELL_TRIAL_STABLE_STALE_MS,
+  OPERATOR_QUERY_STALE_MS,
   resolveLlmMonthlyBudgetStatusStaleTime,
   resolveTenantCatalogMigrationStaleTime,
   resolveTenantTrialStatusStaleTime,
@@ -30,7 +31,7 @@ describe("operator shell query stale-time helpers", () => {
       OPERATOR_SHELL_LLM_BUDGET_STABLE_STALE_MS,
     );
     expect(resolveLlmMonthlyBudgetStatusStaleTime({ monthlyBudgetMonitoringActive: true })).toBe(
-      OPERATOR_QUERY_STALE_MS,
+      OPERATOR_SHELL_LLM_BUDGET_ACTIVE_STALE_MS,
     );
   });
 });
