@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { BaselineSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -48,6 +49,11 @@ import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { showError, showSuccess } from "@/lib/toast";
+import {
+  firstWhyDisabledCtaReason,
+  whyDisabledBusy,
+  whyDisabledIncompleteInput,
+} from "@/lib/why-disabled-cta";
 
 function parseNumberOrNull(raw: string): number | null {
   const t = raw.trim();
@@ -367,6 +373,13 @@ export function BaselineSettingsClient() {
   const hasValidationErrors =
     reviewValidation.error !== null || prepValidation.error !== null || peopleValidation.error !== null;
   const saveBlocked = saving || hasValidationErrors || noteWouldBeDroppedOnSave;
+  const saveDisabledReason = firstWhyDisabledCtaReason([
+    saving ? whyDisabledBusy("Save") : null,
+    prepValidation.error !== null ? whyDisabledIncompleteInput(prepValidation.error) : null,
+    peopleValidation.error !== null ? whyDisabledIncompleteInput(peopleValidation.error) : null,
+    reviewValidation.error !== null ? whyDisabledIncompleteInput(reviewValidation.error) : null,
+    noteWouldBeDroppedOnSave ? whyDisabledIncompleteInput(BASELINE_REVIEW_NOTE_SAVE_READINESS) : null,
+  ]);
   const hasSavedBaseline = loadedSnapshot !== null && hasSavedWorkspaceBaseline(loadedSnapshot);
 
   return (
@@ -635,13 +648,19 @@ export function BaselineSettingsClient() {
                 disabled={saveBlocked}
                 variant="primary"
                 data-testid="baseline-save"
+                aria-describedby={saveBlocked ? "baseline-save-disabled-hint" : undefined}
               >
                 {saving ? "Saving…" : "Save"}
               </Button>
+              <WhyDisabledCtaHint
+                id="baseline-save-disabled-hint"
+                reason={saveBlocked ? saveDisabledReason : null}
+                testId="baseline-save-disabled-hint"
+              />
               <Button type="button" variant="outline" disabled={saving} onClick={onResetToLoaded}>
                 Reset changes
               </Button>
-              {noteWouldBeDroppedOnSave ? (
+              {noteWouldBeDroppedOnSave && saveDisabledReason === null ? (
                 <p
                   className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}
                   role="alert"
