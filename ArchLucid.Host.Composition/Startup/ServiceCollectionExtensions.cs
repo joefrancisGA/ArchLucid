@@ -213,6 +213,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ITenantItsmOutboundSettingsService, TenantItsmOutboundSettingsService>();
         services.AddScoped<ITenantAzureOpenAiConnectionService, TenantAzureOpenAiConnectionService>();
         services.AddScoped<ITenantAzureOpenAiConnectionProbeService, TenantAzureOpenAiConnectionProbeService>();
+<<<<<<< HEAD
         services
             .AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
             {
@@ -221,6 +222,8 @@ public static partial class ServiceCollectionExtensions
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<ITeamsIncomingWebhookConnectionProbeService, TeamsIncomingWebhookConnectionProbeService>();
         services.AddScoped<IMarketplaceWebhookConnectivityService, MarketplaceWebhookConnectivityService>();
+=======
+>>>>>>> origin/master
         services.AddScoped<IItsmTenantConnectorCredentialResolver, ItsmTenantConnectorCredentialResolver>();
         services.AddSingleton<IItsmInboundWebhookReplayGuard, MemoryCacheItsmInboundWebhookReplayGuard>();
         services.AddSingleton<ItsmConnectorOAuthAccessTokenCache>();

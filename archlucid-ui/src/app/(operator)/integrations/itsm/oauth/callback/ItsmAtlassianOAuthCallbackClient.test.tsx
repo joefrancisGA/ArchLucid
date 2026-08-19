@@ -30,6 +30,15 @@ const completeItsmAtlassianOAuthConsent = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
 let searchParams = new URLSearchParams("code=oauth-code&state=oauth-state");
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: vi.fn(() => false),
+  };
+});
+
 vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParams,
 }));
@@ -42,9 +51,14 @@ vi.mock("@/lib/operator/operator-scope-storage", () => ({
   readOperatorScopeFromStorage: () => readOperatorScopeFromStorage(),
 }));
 
-vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-}));
+vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
+
+  return {
+    ...actual,
+    PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  };
+});
 
 describe("ItsmAtlassianOAuthCallbackLoadingView", () => {
   it("shows in-card loading status tag and skeleton placeholders", () => {

@@ -8,10 +8,10 @@ type CloudConnectionPermissionRequirementStatusCellProps = {
 
 function mapAwsPermissionRequirementToTagKind(
   requirement: AwsPermissionRequirementLabel,
-): "success" | "neutral" | "needs-attention" {
+): "ready" | "neutral" | "needs-attention" {
   switch (requirement) {
     case "required":
-      return "success";
+      return "ready";
     case "optional":
       return "neutral";
     case "conditional":
