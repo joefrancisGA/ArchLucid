@@ -13,8 +13,8 @@ export type GraphSampleModeBannerProps = {
   readonly className?: string;
   readonly showUseMyReviewAction?: boolean;
   /**
-   * Once the graph canvas is visible, collapse the long sample explanation into a one-line status.
-   * Full body remains available via a disclosure for operators who want context.
+   * Once the graph canvas is visible, collapse to a one-line sample label.
+   * Full body remains on the non-compact banner for first-load contexts.
    */
   readonly compact?: boolean;
 };
@@ -26,7 +26,7 @@ export function GraphSampleModeBanner(props: GraphSampleModeBannerProps) {
   return (
     <div
       className={cn(
-        "rounded-md border px-3 py-2",
+        "mb-4 rounded-md border px-3 py-2",
         OPERATOR_CALLOUT_WARN_CLASS,
         props.className,
       )}
@@ -39,26 +39,11 @@ export function GraphSampleModeBanner(props: GraphSampleModeBannerProps) {
           <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE}
           </p>
-          <div className="flex flex-wrap items-center gap-2">
-            {props.showUseMyReviewAction ? (
-              <Button type="button" variant="outline" size="sm" asChild>
-                <Link href="/insights/evidence-graph">{BUYER_EVIDENCE_GRAPH_USE_MY_REVIEW_CTA}</Link>
-              </Button>
-            ) : null}
-            <details className="min-w-0">
-              <summary
-                className={cn(
-                  "cursor-pointer list-none text-al-link underline-offset-2 hover:underline [&::-webkit-details-marker]:hidden",
-                  OPERATOR_TYPOGRAPHY.helper,
-                )}
-              >
-                Why am I seeing this?
-              </summary>
-              <p className={cn("m-0 mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
-                {BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_BODY}
-              </p>
-            </details>
-          </div>
+          {props.showUseMyReviewAction ? (
+            <Button type="button" variant="outline" size="sm" asChild>
+              <Link href="/insights/evidence-graph">{BUYER_EVIDENCE_GRAPH_USE_MY_REVIEW_CTA}</Link>
+            </Button>
+          ) : null}
         </div>
       ) : (
         <>

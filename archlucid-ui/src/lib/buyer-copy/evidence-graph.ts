@@ -27,7 +27,7 @@ export const BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE_LEAD =
 export const BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER = "Reviews unavailable";
 
 export const BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_HINT =
-  "Reviews could not be loaded right now. Start a new review or explore the illustrative Claims Intake sample graph (not your tenant data).";
+  "Reviews could not be loaded right now. Start a new review or explore the Claims Intake sample graph.";
 
 export const BUYER_EVIDENCE_TRAIL_LOAD_BUTTON = "Load evidence graph";
 
@@ -38,12 +38,12 @@ export const BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE = "Open review";
 export const BUYER_EVIDENCE_TRAIL_EMPTY_TITLE = "No review selected";
 
 export const BUYER_EVIDENCE_TRAIL_EMPTY_BODY =
-  "Choose a finalized review from your workspace, or explore the illustrative Claims Intake sample graph (not your tenant data).";
+  "Choose a finalized review from your workspace, or explore the Claims Intake sample graph.";
 
 export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE = "No completed reviews yet";
 
 export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_BODY =
-  "Start a new review, or explore the illustrative Claims Intake sample graph (not your tenant data) to see how findings link to evidence, decisions, and audit records.";
+  "Start a new review, or explore the Claims Intake sample graph to see how findings link to evidence, decisions, and audit records.";
 
 export const BUYER_EVIDENCE_TRAIL_ERROR_HEADING = "Workspace data unavailable";
 
@@ -51,7 +51,7 @@ export const BUYER_EVIDENCE_TRAIL_ERROR_BODY =
   "ArchLucid could not load review data for this workspace.";
 
 export const BUYER_EVIDENCE_TRAIL_ERROR_TRY_NEXT =
-  "Try again, open troubleshooting, or explore the illustrative Claims Intake sample graph (not your tenant data) while you set up your first review.";
+  "Try again, open troubleshooting, or explore the Claims Intake sample graph while you set up your first review.";
 
 export const BUYER_EVIDENCE_TRAIL_VIEW_TRACE = "Trace table";
 
@@ -63,10 +63,10 @@ export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_DECISION = "Decision traceability";
 
 export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_ARCHITECTURE = "Architecture context";
 
-export const BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE = "Claims Intake sample (not your workspace)";
+export const BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE = "Claims Intake sample";
 
 export const BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_BODY =
-  "This is the illustrative Healthcare Claims Intake demo package — not a review from your tenant. Use it to see how findings link to evidence, decisions, and audit records, then load one of your finalized reviews.";
+  "Illustrative Healthcare Claims Intake demo package. Explore how findings link to evidence, decisions, and audit records, then load one of your finalized reviews.";
 
 /** Short link label for CTAs that open the showcase evidence graph (TB-1363). */
 export const BUYER_EVIDENCE_GRAPH_SAMPLE_LINK_LABEL = "Claims Intake sample graph";
@@ -83,19 +83,19 @@ export const BUYER_EVIDENCE_GRAPH_PICKER_NO_PACKAGES =
 export const BUYER_EVIDENCE_GRAPH_PICKER_NO_SELECTION = "Select a review to load its evidence graph.";
 
 export const BUYER_EVIDENCE_GRAPH_PICKER_SAMPLE_REVIEW =
-  "Showing Claims Intake sample (not your workspace)";
+  "Claims Intake sample";
 
 export const BUYER_EVIDENCE_GRAPH_PICKER_REAL_REVIEW = "Selected review";
 
 export const BUYER_EVIDENCE_GRAPH_SYNTHETIC_SAMPLE_HINT = "Sample review";
 
 export const BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT =
-  "Reviews could not be loaded. Showing the Claims Intake sample (not your workspace).";
+  "Reviews could not be loaded. Showing the Claims Intake sample.";
 
 export const BUYER_EVIDENCE_GRAPH_EMPTY_LIST_PLACEHOLDER = "No completed reviews yet";
 
 export const BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT =
-  "No completed reviews yet. Start a new review or open the Claims Intake sample graph (not your tenant data).";
+  "No completed reviews yet. Start a new review or open the Claims Intake sample graph.";
 
 export const BUYER_EVIDENCE_GRAPH_FIT_GRAPH_CTA = "Fit";
 
@@ -110,6 +110,10 @@ export const BUYER_EVIDENCE_GRAPH_SHOW_SELECTED_PATH_CTA = "Focus selection";
 export const BUYER_EVIDENCE_GRAPH_SHOW_ALL_NODES_CTA = "Show all";
 
 export const BUYER_EVIDENCE_GRAPH_SELECTED_NODE_PANEL_LABEL = "Selected graph node";
+
+/** Shown inside the graph node technical appendix when extra metadata fields exist. */
+export const BUYER_EVIDENCE_GRAPH_TECHNICAL_APPENDIX_HELPER =
+  "Supplementary graph metadata fields not summarized in At a glance.";
 
 export const BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA = "Open finding detail";
 
@@ -145,7 +149,7 @@ export const OPERATOR_GRAPH_LOAD_ERROR_TRY_NEXT =
 export const OPERATOR_GRAPH_IDLE_TITLE = "No completed reviews yet";
 
 export const OPERATOR_GRAPH_IDLE_BODY =
-  "Create a review or open the Claims Intake sample graph (not your tenant workspace) to explore how evidence connects to findings and decisions.";
+  "Create a review or open the Claims Intake sample graph to explore how evidence connects to findings and decisions.";
 
 export const OPERATOR_GRAPH_WHAT_YOU_WILL_SEE =
   "The graph connects review inputs, evidence, policy references, findings, decisions, and sealed review records.";

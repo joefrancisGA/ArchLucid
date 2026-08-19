@@ -29,11 +29,11 @@ import {
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
-/** TB-1363 — sample graph path must disclose Claims Intake demo, not tenant workspace. */
+/** TB-1363 — sample graph path must identify the Claims Intake demo. */
 const EVIDENCE_TRAIL_SAMPLE_HONESTY_MARKERS = [
   "Claims Intake",
-  "not your workspace",
-  "not a review from your tenant",
+  "illustrative",
+  "sample graph",
 ] as const;
 
 const EVIDENCE_TRAIL_GRAPH_MODES = [

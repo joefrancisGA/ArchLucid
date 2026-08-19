@@ -13,9 +13,9 @@ const SRC = join(process.cwd(), "src");
 const SECTIONS = join(SRC, "app/(operator)/insights/evidence-graph/_sections");
 
 describe("TB-2100 Evidence graph single sample notice", () => {
-  it("keeps the not-your-workspace claim on the sample banner title", () => {
-    expect(BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE.toLowerCase()).toContain("not your workspace");
+  it("keeps the Claims Intake sample label on the sample banner title", () => {
     expect(BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE).toMatch(/Claims Intake/i);
+    expect(BUYER_EVIDENCE_GRAPH_SAMPLE_BANNER_TITLE.toLowerCase()).toContain("sample");
   });
 
   it("suppresses picker sample status while the sample banner is the in-page notice", () => {

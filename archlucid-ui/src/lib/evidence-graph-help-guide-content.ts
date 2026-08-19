@@ -20,7 +20,7 @@ export const EVIDENCE_GRAPH_HELP_START_HERE_CARD_TITLE = "Start here";
 
 /** Sample graph honesty — Azure reference qualifier aligned with contextual-help empty guidance. */
 export const EVIDENCE_GRAPH_HELP_SAMPLE_GRAPH_NOTE =
-  "Graphs appear after you finalize a review, or open the sample evidence graph (Azure reference) to explore the layout — not your tenant data.";
+  "Graphs appear after you finalize a review, or open the sample evidence graph (Azure reference) to explore the layout.";
 
 export const EVIDENCE_GRAPH_HELP_PRIMARY_ACTION = {
   label: "Open evidence graph",

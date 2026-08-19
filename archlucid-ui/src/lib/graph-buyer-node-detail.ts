@@ -89,7 +89,7 @@ export function graphBuyerTrailPanelTitle(node: GraphNodeVm): string {
 /** Buyer trail panel: human record type line (Finding vs risk finding vs other node types). */
 export function graphBuyerTrailRecordTypeLine(node: GraphNodeVm): {
   readonly primary: string;
-  readonly secondary: string | null;
+  readonly secondary: BuyerTrailMetadataLine | null;
 } {
   if (isBuyerTrailPhiHeroNode(node)) {
     const scenario = getActiveSampleScenario();
@@ -97,13 +97,13 @@ export function graphBuyerTrailRecordTypeLine(node: GraphNodeVm): {
     if (scenario.slug === "customer-intake") {
       return {
         primary: "Finding: Sensitive data minimization",
-        secondary: "Risk area: Privacy and data handling",
+        secondary: { label: "Risk area", value: "Privacy and data handling" },
       };
     }
 
     return {
       primary: "Finding: PHI minimization",
-      secondary: "Risk area: PHI handling",
+      secondary: { label: "Risk area", value: "PHI handling" },
     };
   }
 
@@ -268,4 +268,28 @@ export function graphBuyerTrailMetadataLines(
   }
 
   return { summaryLines, technicalLines };
+}
+
+function isInternalGraphReferenceTechnicalLine(line: BuyerTrailMetadataLine): boolean {
+  const label = line.label.trim();
+
+  if (label === "Reference ID") {
+    return true;
+  }
+
+  if (label.startsWith("Raw reference (")) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Buyer-trail panel: only surface the technical appendix when it adds fields beyond internal graph linkage ids.
+ * A lone Reference ID or raw slug duplicates what At a glance already synthesizes for showcase findings.
+ */
+export function visibleBuyerTrailTechnicalAppendixLines(
+  technicalLines: readonly BuyerTrailMetadataLine[],
+): BuyerTrailMetadataLine[] {
+  return technicalLines.filter((line) => !isInternalGraphReferenceTechnicalLine(line));
 }
