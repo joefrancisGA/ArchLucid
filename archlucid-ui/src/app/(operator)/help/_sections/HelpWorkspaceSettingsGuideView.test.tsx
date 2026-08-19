@@ -15,6 +15,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { HelpWorkspaceSettingsGuideView } from "@/app/(operator)/help/_sections/HelpWorkspaceSettingsGuideView";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
 import {
   WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION,
   WORKSPACE_SETTINGS_HELP_ADMIN_PRECONDITION_ID,
@@ -86,14 +91,28 @@ describe("HelpWorkspaceSettingsGuideView", () => {
     for (const phrase of WORKSPACE_SETTINGS_HELP_NEGATION_DRIFT_MARKERS.overviewMustNotContain) {
       expect(screen.getByTestId("help-workspace-settings-overview").textContent).not.toContain(phrase);
     }
-    for (const phrase of WORKSPACE_SETTINGS_HELP_NEGATION_DRIFT_MARKERS.claimMustContain) {
-      expect(screen.getByTestId("help-workspace-settings-claim-discipline").textContent).toContain(phrase);
+
+    if (WORKSPACE_SETTINGS_HELP_NEGATION_DRIFT_MARKERS.claimMustContain.length > 0) {
+      for (const phrase of WORKSPACE_SETTINGS_HELP_NEGATION_DRIFT_MARKERS.claimMustContain) {
+        expectClaimDisciplineBandContent(
+          screen,
+          "help-workspace-settings",
+          "help-workspace-settings-claim-discipline",
+          phrase,
+        );
+      }
     }
-    expect(screen.getByTestId("help-workspace-settings-claim-discipline").textContent).toContain(
+
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-workspace-settings",
+      "help-workspace-settings-claim-discipline",
       WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByRole("heading", { name: WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expectClaimDisciplineHeading(
+      screen,
+      "help-workspace-settings",
+      WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING,
       WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID,
     );
     expect(screen.getByRole("link", { name: WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
@@ -126,7 +145,13 @@ describe("HelpWorkspaceSettingsGuideView", () => {
     expect(screen.queryByRole("link", { name: "Workspace settings" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
 
-    for (const heading of WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS) {
+    const guideHeadings = resolveGuideHeadingsForStrip(
+      "help-workspace-settings",
+      WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS,
+      WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID,
+    );
+
+    for (const heading of guideHeadings) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
   });

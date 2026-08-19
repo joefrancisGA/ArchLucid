@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ProvenancePageWorkspace } from "@/components/provenance/ProvenancePageWorkspace";
+import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 
 vi.mock("next/navigation", () => ({
@@ -83,7 +84,7 @@ describe("ProvenancePageWorkspace", () => {
 
     expect(screen.getByTestId("provenance-wayfinding")).toBeInTheDocument();
     expect(screen.queryByTestId("provenance-sources")).toBeNull(); // TB-2092
-    expectClaimDisciplineBand(screen, "provenance-claim-discipline".slice(0, -"-claim-discipline".length), "provenance-claim-discipline");
+    expectClaimDisciplineBand(screen, "provenance", "provenance-claim-discipline");
     expect(screen.getByRole("heading", { name: "Review provenance" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Provenance graph" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open Evidence graph" })).toHaveAttribute(

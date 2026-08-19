@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthDomainsPageClient } from "./AuthDomainsPageClient";
+import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
 import {
   enableTenantAuthDomainEnforcement,
   fetchTenantAuthDomainEnforcementReadiness,
@@ -153,7 +154,7 @@ describe("AuthDomainsPageClient", () => {
       "href",
       inAppHelpHref("authentication-sign-in"),
     );
-    expectClaimDisciplineBand(screen, "auth-domains-settings-claim-discipline".slice(0, -"-claim-discipline".length), "auth-domains-settings-claim-discipline");
+    expectClaimDisciplineBand(screen, "auth-domains-settings", "auth-domains-settings-claim-discipline");
 
     for (const source of AUTH_DOMAINS_SETTINGS_SOURCES) {
       expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);

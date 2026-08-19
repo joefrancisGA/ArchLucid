@@ -156,7 +156,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
     {
         foreach (SecurityDelta delta in comparison.SecurityChanges)
 
-            if (!string.Equals(delta.BaseStatus, delta.TargetStatus, StringComparison.OrdinalIgnoreCase))
+            if (SecurityDeltaRegressionClassifier.IsRegression(delta))
 
                 signals.Add(new ImprovementSignal
                 {

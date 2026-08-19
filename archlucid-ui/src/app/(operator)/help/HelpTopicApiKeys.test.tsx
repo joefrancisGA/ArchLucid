@@ -7,6 +7,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpApiKeysGuideView } from "@/app/(operator)/help/_sections/HelpApiKeysGuideView";
 import {
+  expectClaimDisciplineBand,
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   API_KEYS_HELP_ACTION_PANEL_INTRO,
   API_KEYS_HELP_ACTION_PANEL_TITLE,
   API_KEYS_HELP_CLAIM_HEADING_ID,
@@ -95,14 +100,23 @@ describe("HelpApiKeysGuideView", () => {
     expect(screen.getByTestId("help-api-keys-how-stepper")).toBeInTheDocument();
     expect(screen.queryByTestId("help-api-keys-step-follow-ups")).toBeNull();
 
-    expect(screen.getByRole("heading", { name: API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expectClaimDisciplineHeading(
+      screen,
+      "help-api-keys",
+      API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING,
       API_KEYS_HELP_CLAIM_HEADING_ID,
     );
-    if (!shouldOmitClaimDisciplineBand("help-api-keys")) { expect(screen.getByTestId("help-api-keys-claim-discipline")).toHaveTextContent(API_KEYS_HELP_CLAIM_DISCIPLINE);
-    expect(screen.getByTestId("help-api-keys-claim-discipline").textContent?.toLowerCase()).not.toContain(
-      "not available",
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-api-keys",
+      "help-api-keys-claim-discipline",
+      API_KEYS_HELP_CLAIM_DISCIPLINE,
     );
+    const claimDiscipline = screen.queryByTestId("help-api-keys-claim-discipline");
+
+    if (claimDiscipline !== null) {
+      expect(claimDiscipline.textContent?.toLowerCase()).not.toContain("not available");
+    }
     expect(screen.getByRole("heading", { name: API_KEYS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const followUps = screen.getByTestId("help-api-keys-sources");

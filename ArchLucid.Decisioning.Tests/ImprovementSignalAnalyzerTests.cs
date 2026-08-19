@@ -180,6 +180,54 @@ public sealed class ImprovementSignalAnalyzerTests
     }
 
     [Fact]
+    public void Analyze_SecurityImprovement_ProducesNoSecurityRegressionSignal()
+    {
+        ComparisonResult comparison = new();
+        comparison.SecurityChanges.Add(new SecurityDelta
+        {
+            ControlName = "Encryption-at-rest",
+            BaseStatus = "NonCompliant",
+            TargetStatus = "Compliant"
+        });
+
+        IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(EmptyManifest(), EmptySnapshot(), comparison);
+
+        signals.Should().NotContain(s => s.SignalType == ImprovementSignalTypes.SecurityRegression);
+    }
+
+    [Fact]
+    public void Analyze_NewSecurityControlOnTarget_ProducesNoSecurityRegressionSignal()
+    {
+        ComparisonResult comparison = new();
+        comparison.SecurityChanges.Add(new SecurityDelta
+        {
+            ControlName = "MFA",
+            BaseStatus = null,
+            TargetStatus = "Compliant"
+        });
+
+        IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(EmptyManifest(), EmptySnapshot(), comparison);
+
+        signals.Should().NotContain(s => s.SignalType == ImprovementSignalTypes.SecurityRegression);
+    }
+
+    [Fact]
+    public void Analyze_RemovedSecurityControl_ProducesSecurityRegressionSignal()
+    {
+        ComparisonResult comparison = new();
+        comparison.SecurityChanges.Add(new SecurityDelta
+        {
+            ControlName = "MFA",
+            BaseStatus = "Compliant",
+            TargetStatus = null
+        });
+
+        IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(EmptyManifest(), EmptySnapshot(), comparison);
+
+        signals.Should().ContainSingle(s => s.SignalType == ImprovementSignalTypes.SecurityRegression);
+    }
+
+    [Fact]
     public void Analyze_CostIncrease_ProducesCostIncreaseSignal()
     {
         ComparisonResult comparison = new();

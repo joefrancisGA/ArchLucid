@@ -17,7 +17,7 @@ import {
   ALERTS_HELP_PAGE_TITLE,
   ALERTS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/alerts-help-guide-content";
-import { ALERTS_HELP_CLAIM_DISCIPLINE } from "@/lib/alerts-help-evidence-copy";
+import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_DEVELOPER_COPY = [
@@ -61,9 +61,7 @@ describe("HelpAlertsGuideView", () => {
 
     const contentColumn = screen.getByTestId("help-alerts-guide").querySelector(".min-w-0.space-y-8");
     expect(contentColumn).not.toBeNull();
-    expect(within(contentColumn as HTMLElement).getByTestId("help-alerts-claim-discipline")).toHaveTextContent(
-      ALERTS_HELP_CLAIM_DISCIPLINE,
-    );
+    expectClaimDisciplineBand(within(contentColumn as HTMLElement), "help-alerts", "help-alerts-claim-discipline");
     expect(within(contentColumn as HTMLElement).getByTestId("help-alerts-sources")).toBeInTheDocument();
     expect(screen.getByTestId("help-alerts-orientation")).toBeInTheDocument();
   });

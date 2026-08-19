@@ -7,6 +7,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 import { HelpDigestsGuideView } from "@/app/(operator)/help/_sections/HelpDigestsGuideView";
 import {
+  expectClaimDisciplineBand,
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
+import {
   DIGESTS_HELP_CLAIM_DISCIPLINE,
   DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING,
   DIGESTS_HELP_FOLLOW_UPS_TITLE,
@@ -26,6 +31,8 @@ import {
 } from "@/lib/digests-help-guide-content";
 import { DIGESTS_BROWSE_TAB_PATH, DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/digests-route-paths";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpDigestsGuideView", () => {
@@ -52,13 +59,11 @@ describe("HelpDigestsGuideView", () => {
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
 
     const overview = screen.getByTestId("help-digests-overview");
-    const claimDiscipline = screen.getByTestId("help-digests-claim-discipline");
     const followUpsHeading = screen.getByRole("heading", { name: DIGESTS_HELP_FOLLOW_UPS_TITLE });
 
     expect(overview).toHaveTextContent(DIGESTS_HELP_OVERVIEW);
-    expect(overview.compareDocumentPosition(claimDiscipline) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(overview.compareDocumentPosition(followUpsHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(claimDiscipline.className).not.toMatch(/amber/);
+    expectClaimDisciplineBand(screen, "help-digests", "help-digests-claim-discipline");
   });
 
   it("shows digest content types, sample panel, and subscription constraints", () => {
@@ -101,9 +106,16 @@ describe("HelpDigestsGuideView", () => {
 
     render(<HelpDigestsGuideView entry={entry} />);
 
-    if (!shouldOmitClaimDisciplineBand("help-digests")) { expect(screen.getByTestId("help-digests-claim-discipline")).toHaveTextContent(DIGESTS_HELP_CLAIM_DISCIPLINE);
-    expect(screen.getByRole("heading", { name: DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-digests",
+      "help-digests-claim-discipline",
+      DIGESTS_HELP_CLAIM_DISCIPLINE,
+    );
+    expectClaimDisciplineHeading(
+      screen,
+      "help-digests",
+      DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING,
       DIGESTS_HELP_CLAIM_HEADING_ID,
     );
     expect(screen.getByRole("heading", { name: DIGESTS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
@@ -112,7 +124,8 @@ describe("HelpDigestsGuideView", () => {
 
     const followUps = screen.getByTestId("help-digests-sources");
     for (const source of DIGESTS_HELP_SOURCES) {
-      expect(within(followUps).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(followUps).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
   });
 
@@ -148,7 +161,11 @@ describe("HelpDigestsGuideView", () => {
     expect(screen.getByTestId("help-digests-destination-cards")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
 
-    for (const heading of DIGESTS_HELP_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-digests",
+      DIGESTS_HELP_GUIDE_HEADINGS,
+      DIGESTS_HELP_CLAIM_HEADING_ID,
+    )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
   });

@@ -69,6 +69,7 @@ describe("HelpContactSupportGuideView", () => {
     expect(screen.getByTestId("contact-support-help-support-expectations")).toHaveTextContent(
       TROUBLESHOOTING_SUPPORT_EXPECTATIONS,
     );
+    expect(screen.getByTestId("contact-support-help-orientation")).toBeInTheDocument();
     expect(screen.getByTestId("contact-support-help-orientation-stack")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: REPORT_PROBLEM_ACTION_LABEL })).toBeInTheDocument();
     expect(screen.getByTestId("support-bundle-download-button")).toBeInTheDocument();
@@ -98,7 +99,14 @@ describe("HelpContactSupportGuideView", () => {
     expect(templatedEmail.getAttribute("href")).toContain("subject=");
     expect(templatedEmail.getAttribute("href")).toContain("body=");
 
-    expect(screen.getByText(/Last reviewed 2026-08-13/)).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-13");
+
+    const primaryContent = screen.getByTestId("help-contact-support-primary-content");
+    const body = screen.getByTestId("help-contact-support-primary");
+    const orientation = screen.getByTestId("contact-support-help-orientation");
+
+    expect(primaryContent).toContainElement(orientation);
+    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("shows execute requirement when caller rank is below Execute", () => {

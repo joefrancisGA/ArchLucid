@@ -1,18 +1,14 @@
 import Link from "next/link";
 
+import { HelpContactSupportHeaderActions } from "@/app/(operator)/help/_sections/HelpContactSupportHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ContactSupportHelpEmailSection } from "@/components/help/ContactSupportHelpEmailSection";
+import { ContactSupportHelpEvidenceOrientationStrip } from "@/components/help/ContactSupportHelpEvidenceOrientationStrip";
 import { ContactSupportHelpOrientationStack } from "@/components/help/ContactSupportHelpOrientationStack";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import {
-  OPERATOR_LAYOUT,
-  OPERATOR_LINK,
-  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
-  OPERATOR_TYPOGRAPHY,
-} from "@/lib/design-tokens";
 import {
   CONTACT_SUPPORT_HELP_BREADCRUMB_TOPIC_TITLE,
   CONTACT_SUPPORT_HELP_GUIDE_HEADINGS,
@@ -26,6 +22,18 @@ import {
   CONTACT_SUPPORT_HELP_SUBTITLE,
   CONTACT_SUPPORT_HELP_ACTIONS_SECTION_TITLE,
 } from "@/lib/contact-support-help-guide-content";
+import { CONTACT_SUPPORT_HELP_CLAIM_HEADING_ID } from "@/lib/contact-support-help-evidence-copy";
+import {
+  CONTACT_SUPPORT_HELP_PRIMARY_CONTENT_ID,
+  CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL,
+} from "@/lib/contact-support-help-page-copy";
+import {
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { appendHelpClaimDisciplineTocHeadings } from "@/lib/help/help-markdown-headings";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
@@ -48,7 +56,11 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Operator contact support orientation for `/help/contact-support`. */
 export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(CONTACT_SUPPORT_HELP_GUIDE_HEADINGS.length);
+  const headings = appendHelpClaimDisciplineTocHeadings(
+    CONTACT_SUPPORT_HELP_GUIDE_HEADINGS,
+    CONTACT_SUPPORT_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(headings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -56,6 +68,13 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
       data-testid="help-contact-support-guide"
     >
+      <a
+        href={`#${CONTACT_SUPPORT_HELP_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {CONTACT_SUPPORT_HELP_SKIP_LINK_LABEL}
+      </a>
+
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
@@ -64,86 +83,95 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
         subtitle={CONTACT_SUPPORT_HELP_SUBTITLE}
         navHref={CONTACT_SUPPORT_HELP_PATH}
         headingLevel="h1"
+        breadcrumb={<HelpTopicBreadcrumb topicTitle={CONTACT_SUPPORT_HELP_BREADCRUMB_TOPIC_TITLE} />}
         metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
-        actions={<PageContextualHelpButton />}
+        actions={<HelpContactSupportHeaderActions entry={entry} />}
       />
 
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          <p className={readingBodyClass} data-testid="help-contact-support-overview">
-            {CONTACT_SUPPORT_HELP_OVERVIEW}
-          </p>
+      <div
+        id={CONTACT_SUPPORT_HELP_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+        data-testid="help-contact-support-primary-content"
+      >
+        <ContactSupportHelpEvidenceOrientationStrip />
 
-          <section
-            aria-labelledby="contact-support-actions"
-            className="space-y-3"
-            data-testid="help-contact-support-actions-section"
-          >
-            <HelpSectionHeading id="contact-support-actions">
-              {CONTACT_SUPPORT_HELP_ACTIONS_SECTION_TITLE}
-            </HelpSectionHeading>
-            <ContactSupportHelpOrientationStack />
-          </section>
+        <p className={readingBodyClass} data-testid="help-contact-support-overview">
+          {CONTACT_SUPPORT_HELP_OVERVIEW}
+        </p>
 
-          <section
-            aria-labelledby="choose-the-right-path"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-            data-testid="help-contact-support-path-table-section"
-          >
-            <HelpSectionHeading id="choose-the-right-path">
-              {CONTACT_SUPPORT_HELP_PATH_TABLE_HEADING}
-            </HelpSectionHeading>
-            <div className="overflow-x-auto">
-              <table className={HELP_PAGE_LAYOUT.table} data-testid="help-contact-support-path-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Situation</th>
-                    <th scope="col">What to do</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {CONTACT_SUPPORT_HELP_PATH_ROWS.map((row) => (
-                    <tr key={row.situation}>
-                      <td className="align-top text-al-text-primary">{row.situation}</td>
-                      <td className="align-top">
-                        {row.actionHref.startsWith("mailto:") ? (
-                          <a className={OPERATOR_LINK.inline} href={row.actionHref}>
-                            {row.actionLabel}
-                          </a>
-                        ) : (
-                          <Link className={OPERATOR_LINK.inline} href={row.actionHref}>
-                            {row.actionLabel}
-                          </Link>
-                        )}
-                      </td>
+        <section
+          aria-labelledby="contact-support-actions"
+          className="space-y-3"
+          data-testid="help-contact-support-actions-section"
+        >
+          <HelpSectionHeading id="contact-support-actions">
+            {CONTACT_SUPPORT_HELP_ACTIONS_SECTION_TITLE}
+          </HelpSectionHeading>
+          <ContactSupportHelpOrientationStack />
+        </section>
+
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")} data-testid="help-contact-support-primary">
+            <section
+              aria-labelledby="choose-the-right-path"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              data-testid="help-contact-support-path-table-section"
+            >
+              <HelpSectionHeading id="choose-the-right-path">
+                {CONTACT_SUPPORT_HELP_PATH_TABLE_HEADING}
+              </HelpSectionHeading>
+              <div className="overflow-x-auto">
+                <table className={HELP_PAGE_LAYOUT.table} data-testid="help-contact-support-path-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Situation</th>
+                      <th scope="col">What to do</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                  </thead>
+                  <tbody>
+                    {CONTACT_SUPPORT_HELP_PATH_ROWS.map((row) => (
+                      <tr key={row.situation}>
+                        <td className="align-top text-al-text-primary">{row.situation}</td>
+                        <td className="align-top">
+                          {row.actionHref.startsWith("mailto:") ? (
+                            <a className={OPERATOR_LINK.inline} href={row.actionHref}>
+                              {row.actionLabel}
+                            </a>
+                          ) : (
+                            <Link className={OPERATOR_LINK.inline} href={row.actionHref}>
+                              {row.actionLabel}
+                            </Link>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
 
-          <ContactSupportHelpEmailSection />
+            <ContactSupportHelpEmailSection />
 
-          <section
-            aria-labelledby="related-topics"
-            className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
-            data-testid="help-contact-support-related-section"
-          >
-            <HelpSectionHeading id="related-topics">{CONTACT_SUPPORT_HELP_RELATED_HEADING}</HelpSectionHeading>
-            <ul className={cn("m-0 list-disc space-y-1 pl-5", HELP_PAGE_LAYOUT.readingBody)}>
-              {CONTACT_SUPPORT_HELP_RELATED.map((link) => (
-                <li key={link.href}>
-                  <Link className={OPERATOR_LINK.inline} href={link.href}>
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
+            <section
+              aria-labelledby="related-topics"
+              className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              data-testid="help-contact-support-related-section"
+            >
+              <HelpSectionHeading id="related-topics">{CONTACT_SUPPORT_HELP_RELATED_HEADING}</HelpSectionHeading>
+              <ul className={cn("m-0 list-disc space-y-1 pl-5", HELP_PAGE_LAYOUT.readingBody)}>
+                {CONTACT_SUPPORT_HELP_RELATED.map((link) => (
+                  <li key={link.href}>
+                    <Link className={OPERATOR_LINK.inline} href={link.href}>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+
+          <HelpTopicTableOfContents headings={headings} />
         </div>
-
-        <HelpTopicTableOfContents headings={CONTACT_SUPPORT_HELP_GUIDE_HEADINGS} />
       </div>
     </article>
   );

@@ -28,6 +28,14 @@ import {
   BILLING_AND_PLANS_HELP_SOURCES_INTRO,
 } from "@/lib/billing-and-plans-help-evidence-copy";
 import {
+  CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE,
+  CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE_HEADING,
+  CONTACT_SUPPORT_HELP_CLAIM_HEADING_ID,
+  CONTACT_SUPPORT_HELP_FOLLOW_UPS_TITLE,
+  CONTACT_SUPPORT_HELP_SOURCES,
+  CONTACT_SUPPORT_HELP_SOURCES_INTRO,
+} from "@/lib/contact-support-help-evidence-copy";
+import {
   CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE,
   CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING,
   CONNECT_AWS_SECURELY_CLAIM_HEADING_ID,
@@ -482,6 +490,22 @@ export function PilotFeedbackHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={PILOT_FEEDBACK_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={PILOT_FEEDBACK_HELP_SOURCES_INTRO}
       sources={PILOT_FEEDBACK_HELP_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function ContactSupportHelpEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="contact-support-help"
+      claim={CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE}
+      claimHeading={CONTACT_SUPPORT_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={CONTACT_SUPPORT_HELP_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorInfo}
+      sourcesTitle={CONTACT_SUPPORT_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={CONTACT_SUPPORT_HELP_SOURCES_INTRO}
+      sources={CONTACT_SUPPORT_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
     />
   );

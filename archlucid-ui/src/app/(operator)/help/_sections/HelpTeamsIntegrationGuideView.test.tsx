@@ -22,6 +22,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 
 import { HelpTeamsIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpTeamsIntegrationGuideView";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
 
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
@@ -107,24 +112,18 @@ describe("HelpTeamsIntegrationGuideView", () => {
 
     expect(screen.getByTestId("help-teams-integration-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
 
-    expect(screen.getByTestId("help-teams-integration-claim-discipline").textContent?.toLowerCase()).not.toContain(
-
-      "sources package",
-
-    );
-
-    expect(screen.getByTestId("help-teams-integration-claim-discipline").textContent).toContain(
-
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-teams-integration",
+      "help-teams-integration-claim-discipline",
       TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE.slice(0, 40),
-
     );
 
-    expect(screen.getByRole("heading", { name: TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-
-      "id",
-
+    expectClaimDisciplineHeading(
+      screen,
+      "help-teams-integration",
+      TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING,
       TEAMS_INTEGRATION_HELP_CLAIM_HEADING_ID,
-
     );
 
     expect(screen.getByRole("link", { name: TEAMS_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
@@ -203,7 +202,11 @@ describe("HelpTeamsIntegrationGuideView", () => {
 
 
 
-    for (const heading of TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS) {
+    for (const heading of resolveGuideHeadingsForStrip(
+      "help-teams-integration",
+      TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS,
+      TEAMS_INTEGRATION_HELP_CLAIM_HEADING_ID,
+    )) {
 
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
 
