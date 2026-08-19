@@ -41,7 +41,7 @@ export const ReviewsHubPackageIncludesDeferred: ComponentType = dynamic(
   () => import("./ReviewsHubPackageIncludes").then((module) => module.ReviewsHubPackageIncludes),
   {
     ssr: false,
-    loading: () => reviewsHubDeferredLoading("Loading package includes"),
+    loading: () => reviewsHubDeferredLoading("Loading what each review contains"),
   },
 );
 

@@ -41,7 +41,9 @@ export type UnfinishedWorkRailInputs = {
   readonly maxItems?: number;
 };
 
-export const UNFINISHED_WORK_RAIL_TITLE = "Continue where you left off";
+import { OPERATOR_ATTENTION_KIND_LABELS } from "@/lib/operator/operator-attention-taxonomy";
+
+export const UNFINISHED_WORK_RAIL_TITLE = OPERATOR_ATTENTION_KIND_LABELS["unfinished-work"];
 
 export const UNFINISHED_WORK_RAIL_STATUS_LABELS: Record<UnfinishedWorkRailItemKind, string> = {
   "architecture-draft": "Draft",

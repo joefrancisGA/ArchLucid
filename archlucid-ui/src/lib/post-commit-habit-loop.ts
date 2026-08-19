@@ -3,7 +3,6 @@ import {
   SPONSOR_BRIEFING_EXPORT_LABEL_LOWER,
 } from "@/lib/usability/canonical-product-terms";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
-import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 export type PostCommitHabitActionKind = "primary" | "optional";
@@ -45,7 +44,6 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
   const sponsorHref = `#sponsor-deliverables`;
   const trustEvidenceHref = `#trust-evidence`;
   const governanceHref = `/governance/approval-queue?runId=${encodeURIComponent(runId)}`;
-  const quoteToProofHref = resolveInAppDocHref("docs/go-to-market/QUOTE_TO_PROOF_PACKET.md");
 
   let primary: PostCommitHabitAction;
 
@@ -91,7 +89,7 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
       kind: "optional",
       label: "Compare with prior review",
       href: comparePageHrefAdaptive(runId),
-      description: "Contrast this committed package with an earlier review.",
+      description: "Contrast this finalized review with an earlier one.",
     });
   }
 
@@ -101,15 +99,7 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
       kind: "optional",
       label: "Schedule recurring review",
       href: "#recurrence-schedule-post-commit-card",
-      description: "Set a weekly cadence so the next review clones this package automatically.",
-    });
-
-    optional.push({
-      id: "recurrence-schedules",
-      kind: "optional",
-      label: "Manage recurrence schedules",
-      href: "/governance/recurrence-schedules",
-      description: "View, enable, or disable automated follow-up reviews for this tenant.",
+      description: "Set a cadence so the next review clones this package automatically.",
     });
 
     optional.push({
@@ -122,43 +112,11 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
   }
 
   optional.push({
-    id: "governance-dry-run",
-    kind: "optional",
-    label: "Run governance dry-run",
-    href: "/governance/policy-packs",
-    description: "Optional pre-commit policy pack check when governance is in pilot scope.",
-  });
-
-  optional.push({
-    id: "quote-to-proof",
-    kind: "optional",
-    label: "Collect quote-to-proof packet",
-    href: quoteToProofHref,
-    description: "Run collect-first-pilot-proof.ps1 and attach go-no-go artifacts for sales handoff.",
-  });
-
-  optional.push({
     id: "value-delta",
     kind: "optional",
     label: "Review value delta on scorecard",
     href: "/insights/architecture-scorecard",
-    description: "Compare cumulative tenant metrics and ROI baselines after this commit.",
-  });
-
-  optional.push({
-    id: "governance-decision",
-    kind: "optional",
-    label: "Next governance decision",
-    href: governanceHref,
-    description: "Record or review the governance approval tied to this review when policy packs apply.",
-  });
-
-  optional.push({
-    id: "open-findings",
-    kind: "optional",
-    label: "Review open findings",
-    href: trustEvidenceHref,
-    description: "Prioritize remediation before the next governance or sponsor cycle.",
+    description: "Compare cumulative tenant metrics and ROI baselines after finalize.",
   });
 
   optional.push({
@@ -166,7 +124,7 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
     kind: "optional",
     label: "Start another review",
     href: "/architecture/reviews/new",
-    description: "Run a second architecture review when the team is ready for compare and value delta.",
+    description: "Run a follow-up architecture review when the team is ready to compare outcomes.",
   });
 
   return { primary, optional };

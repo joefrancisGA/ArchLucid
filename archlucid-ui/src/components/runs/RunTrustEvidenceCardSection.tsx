@@ -449,7 +449,7 @@ export function RunTrustEvidenceCardSection(props: {
             ) : null}
             <div className="mt-3">
               <div className={cn("font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-                {buyerPolishedShell ? "Operator diagnostics API routes" : "Evidence routes (operator diagnostics)"}
+                {buyerPolishedShell ? "Trust diagnostics routes" : "Evidence routes (trust diagnostics)"}
               </div>
               <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}>
                 {card.links.map((link) => (

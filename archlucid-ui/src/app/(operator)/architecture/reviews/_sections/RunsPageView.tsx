@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 
+import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/operator/OperatorShellMessage";
@@ -82,6 +83,7 @@ export function RunsPageView(props: Props) {
         }
         actions={<ReviewsHubHeaderActions />}
       />
+      <ArchitectureObjectMapStrip focus="review" />
       {hubLoadOk ? (
         <>
           <ReviewsHubSummaryRow summary={workspaceSummary} />

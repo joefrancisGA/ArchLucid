@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GovernanceSealedRecordsListBreadcrumb } from "@/components/governance/GovernanceSealedRecordsListBreadcrumb";
+import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -239,6 +240,7 @@ export default function SignedRecordsListClient() {
         breadcrumb={<GovernanceSealedRecordsListBreadcrumb />}
         actions={headerActions}
       />
+      <ArchitectureObjectMapStrip focus="sealed" />
 
       {usedStaticFallback && isOperatorExperienceFullShellEnv() ? (
         <div className="mb-4 max-w-5xl">
