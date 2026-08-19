@@ -33,7 +33,6 @@ import GetStartedPage from "@/app/(marketing)/get-started/page";
 import PricingPage from "@/app/(marketing)/pricing/page";
 import SeeItPage from "@/app/(marketing)/see-it/page";
 import ComplianceJourneyPage from "@/app/(marketing)/compliance-journey/page";
-import ExampleRoiBulletinPage from "@/app/(marketing)/example-roi-bulletin/page";
 import PrivacyPage from "@/app/(marketing)/privacy/page";
 
 expect.extend(toHaveNoViolations);
@@ -91,16 +90,6 @@ describe("marketing pages — axe (Vitest)", () => {
     "ComplianceJourneyPage has no serious axe violations",
     async () => {
       const { container } = render(<ComplianceJourneyPage />);
-
-      expect(await axe(container)).toHaveNoViolations();
-    },
-    20_000,
-  );
-
-  it(
-    "ExampleRoiBulletinPage has no serious axe violations",
-    async () => {
-      const { container } = render(<ExampleRoiBulletinPage />);
 
       expect(await axe(container)).toHaveNoViolations();
     },

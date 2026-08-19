@@ -8,6 +8,15 @@ const reloadDraft = vi.fn();
 const acknowledgeArchitectureDraftHandoff = vi.fn();
 const isArchitectureDraftHandoffAcknowledged = vi.fn();
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("@/lib/api/draft-intake-api", async () => {
   const actual = await vi.importActual<typeof import("@/lib/api/draft-intake-api")>("@/lib/api/draft-intake-api");
 
@@ -401,8 +410,8 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.getByTestId("architecture-draft-handoff-banner")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("architecture-draft-workspace-status-tag")).toHaveTextContent("Ready for review");
-    expect(screen.queryByText(/^Status: Draft$/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-workspace-status-tag")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Show details" })).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-continue-review")).toHaveAttribute("href", "/architecture/reviews/run-001");
     expect(screen.getByTestId("architecture-draft-acknowledge-edit")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-start-review")).not.toBeInTheDocument();

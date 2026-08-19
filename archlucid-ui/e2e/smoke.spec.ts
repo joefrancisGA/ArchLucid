@@ -108,6 +108,15 @@ test.describe("operator shell smoke — core proof path", () => {
     await page.goto("/help");
     await expect(page.getByRole("heading", { name: /^Help$/i, level: 1 })).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/why-archlucid");
+    await expect(page.getByTestId("why-archlucid-page-breadcrumb")).toBeVisible();
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/architecture/reviews");
+    await page.getByTestId("operator-shell-help-trigger").click();
+    await expect(page.getByTestId("contextual-help-drawer-breadcrumb")).toBeVisible();
+    await expect(page.getByTestId("help-search-panel")).toBeVisible();
   });
 });
 
@@ -145,6 +154,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
         name: /^(Search this review's evidence|Search review evidence)$/i,
       }),
     ).toBeVisible();
+    await expect(page.getByTestId("search-review-evidence-breadcrumb")).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/governance/policy-packs");
@@ -158,6 +168,31 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await page.goto("/governance/standards-and-rules");
     await expect(page.getByRole("heading", { level: 2, name: /^Standards & rules$/i })).toBeVisible();
     await expect(page.getByTestId("governance-standards-rules-breadcrumb")).toBeVisible();
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/insights/impact-preview");
+    await expect(page.getByRole("heading", { level: 2, name: /^Impact preview$/i })).toBeVisible();
+    await expect(page.getByTestId("impact-preview-breadcrumb")).toBeVisible();
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/insights/improvement-planning");
+    await expect(page.getByRole("heading", { level: 2, name: /^Improvement planning$/i })).toBeVisible();
+    await expect(page.getByTestId("improvement-planning-breadcrumb")).toBeVisible();
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/insights/improvement-planning/plans/customer-intake-modernization-plan");
+    await expect(page.getByRole("heading", { level: 2, name: /^Improvement plan$/i })).toBeVisible();
+    await expect(page.getByTestId("improvement-planning-plan-detail-breadcrumb")).toBeVisible();
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/insights/patterns");
+    await expect(page.getByRole("heading", { level: 2, name: /^Pattern library$/i })).toBeVisible();
+    await expect(page.getByTestId("pattern-library-breadcrumb")).toBeVisible();
+    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
+
+    await page.goto("/insights/patterns/private-endpoints-paas");
+    await expect(page.getByTestId("pattern-library-detail-breadcrumb")).toBeVisible();
+    await expect(page.getByTestId("pattern-library-detail-title")).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
   });
 });

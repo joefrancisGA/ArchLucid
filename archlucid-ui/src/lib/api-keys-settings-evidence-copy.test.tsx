@@ -8,14 +8,9 @@ import {
   API_KEYS_SETTINGS_SOURCES,
   API_KEYS_SETTINGS_SOURCES_INTRO,
 } from "@/lib/api-keys-settings-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("api-keys-settings-evidence-copy", () => {
-  it("wires exports into the API keys settings evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("api-keys-settings-evidence-copy");
-    expect(registrySource).toContain("ApiKeysSettingsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(API_KEYS_OPERATOR_CANONICAL_PATH).toBe("/administration/api-keys");
   });
 

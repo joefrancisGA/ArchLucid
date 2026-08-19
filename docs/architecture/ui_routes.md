@@ -150,7 +150,6 @@ Columns:
 | `/accessibility` | WCAG 2.1 AA self-attestation, tooling, reporting | Open directly |
 | `/compliance-journey` | Honest security/compliance journey | Open directly |
 | `/demo/preview` | Live finalized-manifest preview from demo seed | Open directly; optional API |
-| `/example-roi-bulletin` | Synthetic aggregate ROI bulletin example | Open directly |
 | `/faq` | Product FAQ | Open directly |
 | `/get-started` | First-30-minutes guided path | Open directly |
 | `/live-demo` | Read-only sample bundle walkthrough | Open directly |

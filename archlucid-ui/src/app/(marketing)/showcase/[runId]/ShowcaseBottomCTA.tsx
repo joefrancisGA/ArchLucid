@@ -47,15 +47,6 @@ export function ShowcaseBottomCTA({ scenario, renderMode }: ShowcaseBottomCTAPro
         >
           Start guided evaluation
         </ShowcaseFunnelTelemetryAnchor>
-        <ShowcaseFunnelTelemetryAnchor
-          href="/auth/signin"
-          className={secondaryClass}
-          scenario={scenario}
-          renderMode={renderMode}
-          funnelAction="signup_cta"
-        >
-          Sign in to workspace
-        </ShowcaseFunnelTelemetryAnchor>
       </div>
     </section>
   );

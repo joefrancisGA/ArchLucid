@@ -6,7 +6,8 @@ import Link from "next/link";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   executiveWorkspaceHealthPageLead,
-  executiveWorkspaceHealthPageTitle,
+  SPONSOR_WORKSPACE_HEALTH_HEADING_ID,
+  SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE,
   SPONSOR_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL,
 } from "@/lib/sponsor-workspace-health-page-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -15,7 +16,11 @@ export type SponsorWorkspaceHealthPageHeroProps = {
   readonly buyerPolishedShell: boolean;
 };
 
-/** Page hero for Sponsor Workspace Health — title, lead, contextual help, and workflow handoff. */
+/**
+ * Section header for workspace health — title, lead, contextual help, and workflow handoff.
+ * This renders inside the sponsor dashboard, which already owns the page `h1`, so the heading is an
+ * `h2` carrying the id the enclosing section's `aria-labelledby` points at.
+ */
 export function SponsorWorkspaceHealthPageHero({
   buyerPolishedShell,
 }: SponsorWorkspaceHealthPageHeroProps): React.JSX.Element {
@@ -26,9 +31,12 @@ export function SponsorWorkspaceHealthPageHero({
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
-          <h1 className={cn("m-0 tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
-            {executiveWorkspaceHealthPageTitle(buyerPolishedShell)}
-          </h1>
+          <h2
+            id={SPONSOR_WORKSPACE_HEALTH_HEADING_ID}
+            className={cn("m-0 tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            {SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE}
+          </h2>
           <p className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             {executiveWorkspaceHealthPageLead(buyerPolishedShell)}
           </p>

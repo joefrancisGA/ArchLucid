@@ -29,12 +29,18 @@ describe("QuickScanClient", () => {
 
     render(<QuickScanClient />);
 
-    expect(screen.getByRole("heading", { name: /^Quick scan$/i, level: 1 })).toBeInTheDocument();
+    const heroHeading = screen.getByRole("heading", { name: /^Quick scan$/i, level: 1 });
+
+    expect(heroHeading).toBeInTheDocument();
+    expect(heroHeading.className).toContain("lg:text-5xl");
+    expect(screen.getByTestId("quick-scan-hero")).toBeInTheDocument();
+    expect(screen.getByTestId("see-it-deliverable-preview")).toBeInTheDocument();
+    expect(screen.queryByTestId("quick-scan-hero-meta")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Skip to quick scan content/i })).toHaveAttribute(
       "href",
       `#${QUICK_SCAN_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("quick-scan-hero-meta")).toHaveTextContent(QUICK_SCAN_LAST_REVIEWED_LABEL);
+    expect(screen.getByTestId("quick-scan-page-meta")).toHaveTextContent(QUICK_SCAN_LAST_REVIEWED_LABEL);
     expect(screen.getByTestId("quick-scan-scope-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("trust-center-revision-history")).toBeInTheDocument();
     expect(document.getElementById("quick-scan-system-name-error")).toBeNull();

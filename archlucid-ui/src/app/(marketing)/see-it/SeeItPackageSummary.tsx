@@ -76,14 +76,14 @@ export function SeeItPackageSummary(props: SeeItPackageSummaryProps): React.JSX.
 
         <div className="rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-4 dark:border-neutral-800 dark:bg-neutral-950/50 sm:col-span-2 lg:col-span-1">
           <dt className={cn("font-medium text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
-            Package readiness
+            Package readiness (sample)
           </dt>
           <dd className="mt-2 m-0 space-y-1">
             <p className={cn("m-0 font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
-              Evidence complete
+              Sample shows evidence complete
             </p>
             <p className={cn("m-0 font-semibold text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>
-              Audit trail ready
+              Sample shows audit trail ready
             </p>
           </dd>
         </div>

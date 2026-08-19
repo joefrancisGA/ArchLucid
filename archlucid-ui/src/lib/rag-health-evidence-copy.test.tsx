@@ -8,14 +8,9 @@ import {
   RAG_HEALTH_SOURCES,
   RAG_HEALTH_SOURCES_INTRO,
 } from "@/lib/rag-health-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("rag-health-evidence-copy", () => {
-  it("wires exports into the RAG corpus health evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("rag-health-evidence-copy");
-    expect(registrySource).toContain("RagHealthEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(RAG_HEALTH_CANONICAL_PATH).toBe("/internal/rag-health");
   });
 

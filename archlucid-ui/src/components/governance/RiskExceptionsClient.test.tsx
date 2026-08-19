@@ -6,6 +6,7 @@ import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workf
 import RiskExceptionsClient from "@/components/governance/RiskExceptionsClient";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import { BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION } from "@/lib/buyer/buyer-polish-copy";
+import { RISK_EXCEPTIONS_PAGE_SUBTITLE_BUYER } from "@/app/(operator)/governance/exceptions/risk-exceptions-page-copy";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 
 vi.mock("@/hooks/use-operate-capability", () => ({
@@ -118,17 +119,19 @@ describe("RiskExceptionsClient", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("renders governance approval banner instead of layer guidance in buyer shell", async () => {
+  it("renders buyer chrome instead of layer guidance in buyer shell", async () => {
     demoUiEnvMock.buyerPolishedShell = true;
     vi.mocked(governanceApi.listRiskExceptions).mockResolvedValue([]);
 
     render(<RiskExceptionsClient />);
 
-    expect(await screen.findByTestId("governance-approval-status-banner")).toBeInTheDocument();
+    expect(await screen.findByTestId("risk-exceptions-empty-state")).toBeInTheDocument();
+    expect(screen.getByTestId("risk-exceptions-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByText(RISK_EXCEPTIONS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(
       screen.queryByText("Track active waivers, expirations, owners, and linked governance decisions."),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View governance decisions" })).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.queryByTestId("risk-exceptions-findings-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION })).toHaveAttribute(
       "href",
       "/architecture/reviews/new",

@@ -235,7 +235,7 @@ public sealed class PersistenceNoOpStubCoverageTestsBatch4
     }
 
     [Fact]
-    public async Task NullExecutiveSummaryRecipientLookup_returns_empty_mailboxes()
+    public async Task NullSponsorReportRecipientLookup_returns_empty_mailboxes()
     {
         NullSponsorReportRecipientLookup sut = new();
 

@@ -198,6 +198,29 @@ public sealed class AlertMetricSnapshotBuilderTests
     }
 
     [Fact]
+    public void Build_RejectedSecurity_IgnoresRecordsFromOtherRun()
+    {
+        Guid currentRunId = Guid.NewGuid();
+        AlertEvaluationContext ctx = EmptyContext();
+        ctx.RunId = currentRunId;
+        ctx.RecommendationRecords =
+        [
+            new RecommendationRecord
+            {
+                RunId = Guid.NewGuid(),
+                Status = RecommendationStatus.Rejected,
+                Category = AlertCategories.Security,
+                Title = "outside run",
+                RecommendationId = Guid.NewGuid()
+            }
+        ];
+
+        AlertMetricSnapshot snap = _sut.Build(ctx);
+
+        snap.RejectedSecurityRecommendationCount.Should().Be(0);
+    }
+
+    [Fact]
     public void Build_RejectedSecurity_Counted()
     {
         AlertEvaluationContext ctx = EmptyContext();

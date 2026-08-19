@@ -300,7 +300,19 @@
     "url": "/help"
   },
   {
-    "title": "AI usage and cost",
+    "title": "Your first architecture review",
+    "summary": "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
+    "category": "Go-to-Market",
+    "url": "/help/first-architecture-review"
+  },
+  {
+    "title": "AI and model governance",
+    "summary": "Workspace execution profiles, governed model aliases, and profile mappings used on reviews.",
+    "category": "Operations",
+    "url": "/help/model-governance"
+  },
+  {
+    "title": "AI usage",
     "summary": "Estimated AI spend, budget signals, and workflow cost filters for the workspace.",
     "category": "Operations",
     "url": "/help/ai-usage"
@@ -312,16 +324,52 @@
     "url": "/help/api-keys"
   },
   {
+    "title": "Advisory scans",
+    "summary": "Generate prioritized follow-up recommendations from finalized reviews.",
+    "category": "Operations",
+    "url": "/help/advisory-scans"
+  },
+  {
+    "title": "Alerts",
+    "summary": "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.",
+    "category": "Operations",
+    "url": "/help/alerts"
+  },
+  {
     "title": "Architecture digests",
-    "summary": "Schedule summaries of review activity, governance signals, findings, and advisory scans for operators.",
+    "summary": "Schedule summaries of review activity, governance signals, findings, and advisory scans for architects.",
     "category": "Operations",
     "url": "/help/digests"
+  },
+  {
+    "title": "Architecture drafts",
+    "summary": "Browse, resume, and refine saved architecture drafts before filing evidence for review.",
+    "category": "Operations",
+    "url": "/help/architecture-drafts"
+  },
+  {
+    "title": "Architecture intelligence",
+    "summary": "Closed-loop architecture reasoning, golden harness runs, and publish-to-findings orientation.",
+    "category": "Operations",
+    "url": "/help/architecture-intelligence"
+  },
+  {
+    "title": "Architecture packages",
+    "summary": "Find architecture packages in Reviews, inspect findings and evidence, and export sponsor-ready artifacts.",
+    "category": "Operations",
+    "url": "/help/review-packages"
   },
   {
     "title": "Architecture scorecard",
     "summary": "Workspace throughput tiles and directional review-time savings for pilot discussions.",
     "category": "Operations",
     "url": "/help/architecture-scorecard"
+  },
+  {
+    "title": "Ask memory from finalized reviews",
+    "summary": "How finalized architecture reviews become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy reviews.",
+    "category": "Operations",
+    "url": "/help/prior-manifest-retrieval"
   },
   {
     "title": "Azure Boards integration",
@@ -346,12 +394,6 @@
     "summary": "How ArchLucid billing works \u2014 manage subscriptions, payment methods, seats, and usage from Billing and plans.",
     "category": "Operations",
     "url": "/help/billing-and-plans"
-  },
-  {
-    "title": "CLI usage",
-    "summary": "Non-interactive `archlucid` commands for proof packets, config lint, and support bundles.",
-    "category": "Operations",
-    "url": "/help/first-architecture-review"
   },
   {
     "title": "Cloud connections",
@@ -402,10 +444,10 @@
     "url": "/help"
   },
   {
-    "title": "Engineering troubleshooting runbook",
-    "summary": "Admin-only specialty guide for CLI, environment, and log triage. Operators should use Troubleshooting; customers never deep-link here.",
+    "title": "Decision register",
+    "summary": "Browse architecture decisions locked with sealed review records.",
     "category": "Operations",
-    "url": "/help/admin-diagnostics"
+    "url": "/help/decision-register"
   },
   {
     "title": "Evidence graph",
@@ -414,10 +456,16 @@
     "url": "/help/evidence-trail"
   },
   {
+    "title": "Evidence graph",
+    "summary": "How evidence connects to findings, decisions, approvals, and audit records for a finalized review.",
+    "category": "Operations",
+    "url": "/help/evidence-graph"
+  },
+  {
     "title": "Findings",
     "summary": "Understand architecture risks, inspect supporting evidence, and decide how each finding should be addressed.",
     "category": "Operations",
-    "url": "/help/review-packages"
+    "url": "/help/findings"
   },
   {
     "title": "Getting started",
@@ -438,10 +486,34 @@
     "url": "/help/governance-approval"
   },
   {
+    "title": "Hosted SaaS enterprise onboarding checklist",
+    "summary": "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
+    "category": "Operations",
+    "url": "/help/enterprise-onboarding"
+  },
+  {
+    "title": "Impact preview",
+    "summary": "Simulate before-and-after effects of proposed changes against a finalized baseline.",
+    "category": "Operations",
+    "url": "/help/impact-preview"
+  },
+  {
+    "title": "Improvement planning",
+    "summary": "Convert review feedback into themes and prioritized improvement plans.",
+    "category": "Operations",
+    "url": "/help/improvement-planning"
+  },
+  {
     "title": "Integration readiness",
     "summary": "Understand ready, recommended, and optional notification, ticketing, publishing, and delivery integrations for your workspace.",
     "category": "Operations",
-    "url": "/help/enterprise-onboarding"
+    "url": "/help/integration-readiness"
+  },
+  {
+    "title": "Jira integration",
+    "summary": "Outbound Jira work-item routing, connection health, and workspace mapping settings.",
+    "category": "Operations",
+    "url": "/help/jira-integration"
   },
   {
     "title": "Manual QA checklist",
@@ -457,7 +529,7 @@
   },
   {
     "title": "Notifications",
-    "summary": "Channel launcher for digests, alerts, alert rules, Teams, and Slack delivery status.",
+    "summary": "Channel launcher for digests, alerts, alert rules, Teams, and Slack \u2014 routes to where each destination configures.",
     "category": "Operations",
     "url": "/help/notifications"
   },
@@ -474,6 +546,12 @@
     "url": "/help"
   },
   {
+    "title": "Platform health",
+    "summary": "System health, workspace readiness, assistant diagnostics, and observability signals for platform health.",
+    "category": "Operations",
+    "url": "/help/admin-diagnostics"
+  },
+  {
     "title": "Policy packs",
     "summary": "See which pack and rules apply to reviews, and how ArchLucid resolves conflicts when packs disagree.",
     "category": "Operations",
@@ -484,12 +562,6 @@
     "summary": "Personal appearance settings saved to your signed-in account.",
     "category": "Operations",
     "url": "/help/preferences"
-  },
-  {
-    "title": "Prior manifest retrieval",
-    "summary": "How finalized architecture reviews become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy reviews.",
-    "category": "Operations",
-    "url": "/help/prior-manifest-retrieval"
   },
   {
     "title": "Product packaging",
@@ -528,6 +600,18 @@
     "url": "/help/report-a-problem"
   },
   {
+    "title": "Search review evidence",
+    "summary": "How to search findings, decisions, and signed review evidence across the workspace index.",
+    "category": "Operations",
+    "url": "/help/search-review-evidence"
+  },
+  {
+    "title": "ServiceNow integration",
+    "summary": "Outbound ServiceNow incident routing, CMDB behavior, and connection health.",
+    "category": "Operations",
+    "url": "/help/servicenow-integration"
+  },
+  {
     "title": "Slack notifications",
     "summary": "Configure Slack incoming webhook destinations for governance alert delivery.",
     "category": "Operations",
@@ -537,7 +621,13 @@
     "title": "Specialty review templates",
     "summary": "Start with focused guidance for a specific architecture, governance, or industry scenario.",
     "category": "Operations",
-    "url": "/help/accelerator-chooser"
+    "url": "/help/specialty-walkthroughs"
+  },
+  {
+    "title": "Sponsor dashboard",
+    "summary": "Portfolio ROI trends, workspace-health KPI tiles, and sponsor exports for the selected scope.",
+    "category": "Operations",
+    "url": "/help/sponsor-dashboard"
   },
   {
     "title": "Standards & rules",
@@ -550,6 +640,12 @@
     "summary": "Use this guide when you need accepted evidence formats, upload validation, and the right starting path on New architecture review.",
     "category": "Operations",
     "url": "/help/evidence-intake"
+  },
+  {
+    "title": "Starter proof packs",
+    "summary": "Map buyer jobs to existing accelerator packs after your first finalized architecture review \u2014 inputs, outputs, and when not to use each pack.",
+    "category": "Operations",
+    "url": "/help/accelerator-chooser"
   },
   {
     "title": "System health",
@@ -568,12 +664,6 @@
     "summary": "Find common issues, try the first fix, and collect support details when needed.",
     "category": "Operations",
     "url": "/help/troubleshooting"
-  },
-  {
-    "title": "Alerts",
-    "summary": "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.",
-    "category": "Operations",
-    "url": "/help/alerts"
   },
   {
     "title": "Users and roles",

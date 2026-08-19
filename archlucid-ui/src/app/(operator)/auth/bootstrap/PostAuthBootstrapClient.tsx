@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
+import { PostAuthBootstrapBuyerChrome } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapBuyerChrome";
 import { CreateWorkspaceForm } from "@/app/(operator)/auth/bootstrap/CreateWorkspaceForm";
 import { PostAuthBootstrapExitActions } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapExitActions";
 import { PostAuthBootstrapLoadingView } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapLoadingView";
@@ -167,9 +167,7 @@ export function PostAuthBootstrapClient() {
   };
 
   const bootstrapChrome = (content: ReactNode) => (
-    <AuthFlowShell showEvaluationSignupLink={false}>
-      {content}
-    </AuthFlowShell>
+    <PostAuthBootstrapBuyerChrome>{content}</PostAuthBootstrapBuyerChrome>
   );
 
   if (loading) {

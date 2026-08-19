@@ -15,8 +15,16 @@ export const WELCOME_PAGE_METADATA_TITLE = "ArchLucid · Defensible architecture
 export const WELCOME_PRIMARY_CONVERSION_PATH = "self-demo" as const;
 
 /** TB-1294: one supporting sentence above the fold — detail lives in problem/solution. */
-export const WELCOME_HERO_PITCH =
+export const WELCOME_HERO_PITCH_OPERATOR =
   "Turn scattered architecture evidence into a prioritized, evidence-linked review your ARB can defend — exportable proof in days, not weeks.";
+
+export const WELCOME_HERO_PITCH_BUYER =
+  "Turn scattered architecture evidence into a governed review your ARB can defend — explore sample proof first.";
+
+/** Marketing welcome hero pitch — shorter buyer-oriented line above the fold. */
+export const WELCOME_HERO_PITCH = WELCOME_HERO_PITCH_BUYER;
+
+export const WELCOME_PRIMARY_CONTENT_ID = "welcome-primary-content" as const;
 
 /**
  * Differentiators answering "why this and not a chat assistant".

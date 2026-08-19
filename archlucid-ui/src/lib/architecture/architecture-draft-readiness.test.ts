@@ -70,6 +70,47 @@ describe("architecture-draft-readiness", () => {
     expect(validateArchitectureReviewReadiness(namedReadyExceptName, [assertedActor]).blockers).toEqual(["system name"]);
   });
 
+  it("blocks review start when only unknown sentinel placeholders are present (TB-2343)", () => {
+    const withUnknownsOnly = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: {
+        ...emptyArchitectureDraftStructuredBrief(),
+        confirmedConstraints: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
+        confirmedAssumptions: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
+        qualityAttribute: ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
+      },
+    };
+
+    const result = validateArchitectureReviewReadiness(withUnknownsOnly, [assertedActor]);
+
+    expect(result.isValid).toBe(false);
+    expect(result.blockers).toContain("constraint");
+    expect(result.blockers).toContain("assumption");
+    expect(result.blockers).toContain("quality attribute with a numeric target");
+  });
+
+  it("allows mixed sentinel and real constraint while still requiring real assumption (TB-2343)", () => {
+    const mixed = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: {
+        ...emptyArchitectureDraftStructuredBrief(),
+        confirmedConstraints: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL, "Private endpoints required"],
+        confirmedAssumptions: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
+        qualityAttribute: "p95 latency 200ms",
+      },
+    };
+
+    const result = validateArchitectureReviewReadiness(mixed, [assertedActor]);
+
+    expect(result.isValid).toBe(false);
+    expect(result.blockers).not.toContain("constraint");
+    expect(result.blockers).toContain("assumption");
+  });
+
   it("blocks review start when only legacy name/overview/outcome minimums are met (TB-2282)", () => {
     const legacyMinimumOnly = {
       freeTextIntent: readyOverview,
@@ -84,22 +125,6 @@ describe("architecture-draft-readiness", () => {
     expect(result.blockers).toContain("constraint");
     expect(result.blockers).toContain("assumption");
     expect(result.blockers).toContain("quality attribute with a numeric target");
-  });
-
-  it("allows explicit unknown entries to satisfy constraint and assumption gates", () => {
-    const withUnknowns = {
-      freeTextIntent: readyOverview,
-      businessOutcome: "Reduce cycle time for governed architecture reviews.",
-      systemName: "Claims intake",
-      structuredBrief: {
-        ...emptyArchitectureDraftStructuredBrief(),
-        confirmedConstraints: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
-        confirmedAssumptions: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
-        qualityAttribute: "p95 latency 200ms",
-      },
-    };
-
-    expect(validateArchitectureReviewReadiness(withUnknowns, [assertedActor]).isValid).toBe(true);
   });
 
   it("gates deferred server create until at least one valid field has content", () => {

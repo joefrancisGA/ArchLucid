@@ -17,6 +17,7 @@ export const ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE =
 export const ARCHITECTURES_DRAFT_SOURCES_INTRO =
   "Use these follow-ups when a draft needs the architectures list, create-bootstrap, review intake, or first-run orientation.";
 
+export const ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE = "Where to go next";
 
 /** Operator Sources - no self-href to the open draft id. */
 export const ARCHITECTURES_DRAFT_SOURCES: readonly EvidenceSourceLink[] = [

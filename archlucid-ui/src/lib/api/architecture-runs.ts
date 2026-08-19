@@ -210,10 +210,14 @@ export async function pinArchitectureRun(
 /** Finalizes agent results into a sealed review record (POST /v1/architecture/review/{runId}/finalize). */
 export async function commitArchitectureRun(
   runId: string,
-  options?: { readonly notifySponsor?: boolean },
+  options?: {
+    readonly notifySponsor?: boolean;
+    readonly acknowledgedAssumptionIds?: readonly string[];
+  },
 ): Promise<unknown> {
   return apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/finalize`, {
     notifySponsor: options?.notifySponsor === true,
+    acknowledgedAssumptionIds: options?.acknowledgedAssumptionIds ?? undefined,
   });
 }
 
@@ -563,6 +567,7 @@ type EndToEndReplayComparisonWireResponse = {
     readonly findingCorrelation?: unknown;
     readonly findingLifecycle?: unknown;
     readonly findingLifecycleRecords?: unknown;
+    readonly compareQualityDelta?: unknown;
   } | null;
 };
 

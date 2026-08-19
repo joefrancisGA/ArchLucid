@@ -59,6 +59,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P2** | [AZURE_MARKETPLACE_SAAS_OFFER.md](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#marketplace-ga-rollback-changeplan--changequantity) | Roll Marketplace `ChangePlan` / `ChangeQuantity` to `AcknowledgedNoOp` (`Billing:AzureMarketplace:GaEnabled=false`). |
 | **P2** | [LLM_PROMPT_REDACTION.md](./LLM_PROMPT_REDACTION.md) | **`LlmPromptRedaction`** toggles, metrics (`archlucid_llm_prompt_redactions_total`), and forensics alignment with **`AgentExecutionTraceRecorder`**. |
 | **P3** | [GEO_FAILOVER_DRILL.md](./GEO_FAILOVER_DRILL.md) | **Scheduled drill:** measure RTO/RPO, record T0–T3, smoke after cutover. |
+| **P3** | [TERRAFORM_COMPOSITION_STATE_MV.md](./TERRAFORM_COMPOSITION_STATE_MV.md) | Optional post-V1 `state mv` if leaf backends are later merged; V1 ships 3-wave orchestration without moving state. |
 | **P3** | [LOAD_TEST_RATE_LIMITS.md](./LOAD_TEST_RATE_LIMITS.md) | Load testing against rate-limited endpoints. |
 | **P3** | [REDIS_HEALTH.md](./REDIS_HEALTH.md) | Redis used for dev compose / cache patterns; connectivity and health checks. |
 | **P3** | [LOGIC_APPS_STANDARD.md](./LOGIC_APPS_STANDARD.md) | Optional Logic App (Standard) hosts for Service Bus integration workflows (ADR 0019). |

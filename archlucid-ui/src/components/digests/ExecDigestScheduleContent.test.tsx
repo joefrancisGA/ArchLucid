@@ -333,6 +333,16 @@ describe("ExecDigestScheduleContent", () => {
     );
   });
 
+  it("hides schedule tab responsibility copy in buyer-polished shell", async () => {
+    demoEnvMock.buyerPolished = true;
+    demoEnvMock.fullShell = true;
+
+    render(<ExecDigestScheduleContent />);
+
+    expect(await screen.findByTestId("exec-digest-schedule-heading")).toBeInTheDocument();
+    expect(screen.queryByText(/Architecture digests generated from advisory scans/i)).not.toBeInTheDocument();
+  });
+
   it("blocks save, enable, and test email actions in sample mode", async () => {
     demoEnvMock.buyerPolished = true;
     demoEnvMock.fullShell = false;

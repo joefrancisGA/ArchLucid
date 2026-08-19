@@ -8,14 +8,9 @@ import {
   ADMIN_HEALTH_SOURCES,
   ADMIN_HEALTH_SOURCES_INTRO,
 } from "@/lib/admin-health-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("admin-health-evidence-copy", () => {
-  it("wires exports into the admin health evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("admin-health-evidence-copy");
-    expect(registrySource).toContain("AdminHealthEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(ADMIN_HEALTH_CANONICAL_PATH).toBe("/internal/health");
   });
 

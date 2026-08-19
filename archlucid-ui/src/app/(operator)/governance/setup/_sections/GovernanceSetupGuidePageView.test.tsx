@@ -79,7 +79,7 @@ describe("GovernanceSetupGuidePageView", () => {
       "href",
       "/governance/policy-packs",
     );
-    expect(screen.getByRole("link", { name: "Open workspace overview" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open workspace health" })).toHaveAttribute(
       "href",
       GOVERNANCE_WORKSPACE_HEALTH_HREF,
     );

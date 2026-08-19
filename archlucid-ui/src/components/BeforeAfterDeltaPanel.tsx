@@ -2,16 +2,15 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import { BeforeAfterDeltaInlinePanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaInlinePanel";
 import { BeforeAfterDeltaSidebarPanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaSidebarPanel";
 import { BeforeAfterDeltaTopPanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaTopPanel";
 import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
+import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import type { TenantTrialStatusClientPayload } from "@/lib/tenant-trial-status-client";
 
 /**
  * Render variant for the BeforeAfterDeltaPanel:
@@ -101,101 +100,78 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
   const { data: trialPayload, isFetched: trialFetched } = useTenantTrialStatusQuery({
     enabled: concernFetchEnabled,
   });
-  const [state, setState] = useState<{ status: "loading" | "ready" | "error" | "skipped"; data: PanelData | null }>({
-    status: "loading",
-    data: null,
-  });
 
-  useEffect(() => {
+  const effectiveRunId = useMemo((): string | null => {
     if (!trialFetched) {
-      return;
+      return null;
     }
 
-    let canceled = false;
+    return (runId ?? trialPayload?.trialWelcomeRunId) || null;
+  }, [runId, trialFetched, trialPayload?.trialWelcomeRunId]);
 
-    async function load(trial: TenantTrialStatusClientPayload | null): Promise<void> {
-      try {
-        const baselineHours =
-          typeof trial?.baselineReviewCycleHours === "number" && Number.isFinite(trial.baselineReviewCycleHours)
-            ? trial.baselineReviewCycleHours
-            : null;
-        const baselineSource = typeof trial?.baselineReviewCycleSource === "string" ? trial.baselineReviewCycleSource : null;
-        const baselineCapturedUtc =
-          typeof trial?.baselineReviewCycleCapturedUtc === "string" ? trial.baselineReviewCycleCapturedUtc : null;
+  const { data: deltas, isPending: deltasPending } = usePilotRunDeltasQuery(effectiveRunId ?? "", {
+    enabled: effectiveRunId !== null && effectiveRunId.trim().length > 0,
+  });
 
-        const effectiveRunId = (runId ?? trial?.trialWelcomeRunId) || null;
+  const data = useMemo((): PanelData | null => {
+    if (!trialFetched) {
+      return null;
+    }
 
-        if (effectiveRunId === null) {
-          if (!canceled) {
-            setState({
-              status: "ready",
-              data: {
-                baselineHours,
-                baselineSource,
-                baselineCapturedUtc,
-                measuredHours: null,
-                estimatedUsdSavings: null,
-                effectiveRunId: null,
-                measuredAvailable: false,
-              },
-            });
-          }
+    const baselineHours =
+      typeof trialPayload?.baselineReviewCycleHours === "number" && Number.isFinite(trialPayload.baselineReviewCycleHours)
+        ? trialPayload.baselineReviewCycleHours
+        : null;
+    const baselineSource =
+      typeof trialPayload?.baselineReviewCycleSource === "string" ? trialPayload.baselineReviewCycleSource : null;
+    const baselineCapturedUtc =
+      typeof trialPayload?.baselineReviewCycleCapturedUtc === "string"
+        ? trialPayload.baselineReviewCycleCapturedUtc
+        : null;
 
-          return;
-        }
+    if (effectiveRunId === null) {
+      return {
+        baselineHours,
+        baselineSource,
+        baselineCapturedUtc,
+        measuredHours: null,
+        estimatedUsdSavings: null,
+        effectiveRunId: null,
+        measuredAvailable: false,
+      };
+    }
 
-        const deltasRes = await fetch(
-          `/api/proxy/v1/pilots/runs/${encodeURIComponent(effectiveRunId)}/pilot-run-deltas`,
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
+    if (deltasPending) {
+      return null;
+    }
 
-        let measuredHours: number | null = null;
-        let measuredAvailable = false;
-        let estimatedUsdSavings: number | null = null;
+    let measuredHours: number | null = null;
+    let measuredAvailable = false;
+    let estimatedUsdSavings: number | null = null;
 
-        if (deltasRes.ok) {
-          const deltas = (await deltasRes.json()) as PilotRunDeltasPayload;
-          const seconds = deltas.timeToCommittedManifestTotalSeconds;
+    if (deltas !== undefined) {
+      const seconds = (deltas as PilotRunDeltasPayload).timeToCommittedManifestTotalSeconds;
 
-          if (typeof seconds === "number" && Number.isFinite(seconds) && seconds > 0) {
-            measuredHours = seconds / SECONDS_PER_HOUR;
-            measuredAvailable = true;
-          }
+      if (typeof seconds === "number" && Number.isFinite(seconds) && seconds > 0) {
+        measuredHours = seconds / SECONDS_PER_HOUR;
+        measuredAvailable = true;
+      }
 
-          if (typeof deltas.estimatedUsdSavings === "number" && Number.isFinite(deltas.estimatedUsdSavings)) {
-            estimatedUsdSavings = deltas.estimatedUsdSavings;
-          }
-        }
-
-        if (canceled) return;
-
-        setState({
-          status: "ready",
-          data: {
-            baselineHours,
-            baselineSource,
-            baselineCapturedUtc,
-            measuredHours,
-            estimatedUsdSavings,
-            effectiveRunId,
-            measuredAvailable,
-          },
-        });
-      } catch {
-        if (!canceled) setState({ status: "error", data: null });
+      if (typeof deltas.estimatedUsdSavings === "number" && Number.isFinite(deltas.estimatedUsdSavings)) {
+        estimatedUsdSavings = deltas.estimatedUsdSavings;
       }
     }
 
-    void load(trialPayload ?? null);
-
-    return () => {
-      canceled = true;
+    return {
+      baselineHours,
+      baselineSource,
+      baselineCapturedUtc,
+      measuredHours,
+      estimatedUsdSavings,
+      effectiveRunId,
+      measuredAvailable,
     };
-  }, [runId, trialFetched, trialPayload]);
-
-  if (state.status === "loading" || state.status === "skipped" || state.status === "error") return null;
-
-  const data = state.data;
+  }, [trialFetched, trialPayload, effectiveRunId, deltas, deltasPending]);
 
   if (data === null) return null;
 

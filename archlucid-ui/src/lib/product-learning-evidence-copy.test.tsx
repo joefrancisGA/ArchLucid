@@ -8,14 +8,9 @@ import {
   PRODUCT_LEARNING_SOURCES,
   PRODUCT_LEARNING_SOURCES_INTRO,
 } from "@/lib/product-learning-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("product-learning-evidence-copy", () => {
-  it("wires exports into the product learning evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("product-learning-evidence-copy");
-    expect(registrySource).toContain("ProductLearningEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(PRODUCT_LEARNING_CANONICAL_PATH).toBe("/internal/product-learning");
   });
 

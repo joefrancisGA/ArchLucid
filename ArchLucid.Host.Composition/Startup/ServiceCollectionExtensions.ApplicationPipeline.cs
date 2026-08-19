@@ -210,6 +210,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<ITechnologyConsistencyFindingEngine, TechnologyConsistencyFindingEngine>();
         services.AddScoped<ICommittedEffectiveGovernanceSnapshotCapturer, CommittedEffectiveGovernanceSnapshotCapturer>();
+        services.AddScoped<ICommittedReviewStandardsSnapshotCapturer, CommittedReviewStandardsSnapshotCapturer>();
         services.AddScoped<IManifestFinalizationService, ManifestFinalizationService>();
         services.AddSingleton<DefaultRequestContentSafetyPrecheck>();
         services.AddSingleton<LlmSemanticAdmissionGate>();
@@ -226,6 +227,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDraftAdmissionGate, DraftAdmissionGate>();
         services.AddScoped<IQuestionSelectionEngine, QuestionSelectionEngine>();
         services.AddScoped<IDraftRequestProjector, DraftRequestProjector>();
+        services.AddScoped<IPriorPackageSemanticMergeService, PriorPackageSemanticMergeService>();
         services.AddScoped<IDraftRequestService, DraftRequestService>();
         services.AddScoped<IDecisionReceiptService, DecisionReceiptService>();
         services.AddScoped<IDraftIntakeReaperService, DraftIntakeReaperService>();
@@ -251,6 +253,9 @@ public static partial class ServiceCollectionExtensions
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector
         // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is the single commit implementation.
         services.AddScoped<PostCommitProjectionEnqueuer>();
+        services.Configure<GraphMergeRuntimeInvariantOptions>(
+            configuration.GetSection(GraphMergeRuntimeInvariantOptions.SectionName));
+        services.AddScoped<IGraphMergeRuntimeInvariantReporter, GraphMergeRuntimeInvariantReporter>();
         services.AddScoped<IDecisionEngineV2NodeMaterializer, DecisionEngineV2NodeMaterializer>();
         services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
         services.AddScoped<ICommitPipelineManifestReuseService, CommitPipelineManifestReuseService>();
@@ -399,6 +404,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
+        services.AddScoped<IArchitectureSynthesisKernel, ArchitectureSynthesisKernel>();
         services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();
         services.AddHttpClient(GitTerraformContentFetcher.HttpClientName)
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);

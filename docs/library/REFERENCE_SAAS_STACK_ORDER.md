@@ -7,7 +7,7 @@
 
 **Objective:** Give platform engineers a **default apply order** for ArchLucid Terraform roots under `infra/`, aligned with private networking and least-privilege identity.
 
-**Last reviewed:** 2026-04-21
+**Last reviewed:** 2026-08-16
 
 **Note:** Greenfield IaC uses **`archlucid`** resource labels and example names. Run `rg "archiforge" infra --glob "*.tf"` before merging Terraform changes (expect zero matches). First deploy: [FIRST_AZURE_DEPLOYMENT.md](FIRST_AZURE_DEPLOYMENT.md).
 
@@ -17,23 +17,37 @@
 
 ---
 
-## Default path: `infra/terraform-pilot` (canonical profile)
+## Hosted path: three operator waves (`-MultiRoot`)
 
-Use **[`infra/terraform-pilot/`](../../infra/terraform-pilot/README.md)** as the **single default Terraform entry** in this repository:
+**Canonical Azure apply** for hosted SaaS is **[`infra/apply-saas.ps1`](../../infra/apply-saas.ps1) `-MultiRoot`**. Landing-zone scripts (`scripts/provision-landing-zone.ps1` / `.sh`) wrap that entry and always pass `-MultiRoot`.
 
-- **Opinionated FinOps knobs** (`pilot_monthly_budget_usd`, `app_insights_sampling_percent`, …) live in that root’s variables.
-- **`nested_infrastructure_roots`** (Terraform **output**) lists the **same nested order** as the advanced table below — use `terraform output` from `terraform-pilot` when you need machine-readable sequencing without reading docs.
-- This root **does not create Azure resources**; it collapses operational guidance into one `terraform plan`/`apply` for profile validation and outputs.
+1. **Validate** metadata composition roots (`infra/terraform-foundation`, `infra/terraform-platform`, `infra/terraform-app`). These declare wave membership only (`azure_apply = false`). They do **not** create Azure resources and must **not** be Azure-applied.
+2. **Azure-apply leaf roots** in three waves (each leaf keeps its own backend and resource addresses):
+   - **Foundation:** `terraform-private`, `terraform-keyvault`
+   - **Platform:** `terraform-sql-failover`, `terraform-storage`, `terraform-redis`, `terraform-cosmos`, `terraform-servicebus`, `terraform-logicapps`, `terraform-openai`, `terraform-acr`
+   - **App:** `terraform-entra`, `terraform-container-apps`, `terraform-edge`, `infra/terraform` (Consumption APIM), `terraform-monitoring`
 
-**Script default:** [`infra/apply-saas.ps1`(../../infra/apply-saas.ps1) runs **only** `terraform-pilot` unless you pass **`-MultiRoot`** (opt-in multi-root path).
+Search and Content Safety stay in `terraform-container-apps`. Nested `module` wrapping of leaves is **out of scope** (would change addresses and collide with per-leaf `backend` blocks). Optional `terraform state mv` into merged backends is **post-V1** — see [`docs/runbooks/TERRAFORM_COMPOSITION_STATE_MV.md`](../runbooks/TERRAFORM_COMPOSITION_STATE_MV.md) and [`V1_DEFERRED.md`](V1_DEFERRED.md) §3.
+
+**Script default without `-MultiRoot`:** [`infra/apply-saas.ps1`](../../infra/apply-saas.ps1) still runs **only** `infra/terraform-pilot` (profile validation). Pass **`-LegacyLeafRoots`** only when you also need `infra/terraform-orchestrator`.
 
 **Canonical production profile (multi-tenant SaaS):** [AZURE_PRODUCTION_PROFILE.md](AZURE_PRODUCTION_PROFILE.md)
 
 ---
 
+## Default path: `infra/terraform-pilot` (canonical profile)
+
+Use **[`infra/terraform-pilot/`](../../infra/terraform-pilot/README.md)** as the **single default Terraform entry** for FinOps / sampling profile validation:
+
+- **Opinionated FinOps knobs** (`pilot_monthly_budget_usd`, `app_insights_sampling_percent`, ...) live in that root's variables.
+- **`nested_infrastructure_roots`** (Terraform **output**) lists the **same leaf order** as the advanced table below — use `terraform output` from `terraform-pilot` when you need machine-readable sequencing without reading docs.
+- **`composition_roots`** lists the three metadata waves (`root_path`). This root **does not create Azure resources**.
+
+---
+
 ## Advanced (opt-in): multi-root separate state
 
-Apply each directory below **in order** with **its own backend key** when you need **separate state files** per stack (blast-radius isolation, team ownership). This is the **legacy** operator workflow — still fully supported.
+Apply each directory below **in order** with **its own backend key** when you need **separate state files** per stack (blast-radius isolation, team ownership). Hosted `-MultiRoot` uses orders **1-15**; order **16** is **legacy-only** (`-LegacyLeafRoots`).
 
 | Order | Root | Purpose |
 |------:|------|---------|
@@ -42,18 +56,19 @@ Apply each directory below **in order** with **its own backend key** when you ne
 | 3 | `infra/terraform-sql-failover` | Azure SQL + optional **failover group** / consumption budget. |
 | 4 | `infra/terraform-storage` | Blob/queue accounts for artifacts and jobs. |
 | 5 | `infra/terraform-redis` | Optional **Azure Cache for Redis** for `HotPathCache` (TB-094); wire `hot_path_cache_redis_connection_string` into container-apps. |
-| 5b | `infra/terraform-cosmos` | Optional **Cosmos DB** polyglot path (TB-095); dormant unless feature flags enabled. |
-| 6 | `infra/terraform-servicebus` | Optional durable messaging for integration consumers; optional **Logic App–scoped** topic subscriptions (governance, trial email, ChatOps, prod promotion, **Marketplace fulfillment** via `enable_logic_app_marketplace_fulfillment_subscription`) for filtered triggers. |
-| 7 | `infra/terraform-logicapps` | Optional **Logic App (Standard)** hosts (ADR 0019): **edge**, optional dedicated sites for **governance**, **Marketplace fulfillment**, **trial lifecycle email**, **incident ChatOps**, **promotion customer notify**; apply after messaging + private DNS exist. |
-| 7 | `infra/terraform-openai` | Optional **budget** hooks for Azure OpenAI (resource creation may be out-of-band). |
-| 8 | `infra/terraform-entra` | App registrations / consent text for API + UI. |
-| 9 | `infra/terraform-container-apps` | **API + Worker + UI** workloads, managed identity wiring. |
-| 10 | `infra/terraform-edge` | Front Door / WAF / routing to Container Apps. |
-| 11 | `infra/terraform` | Optional **Consumption APIM** in front of public HTTPS backend — not a substitute for Premium VNet-injected APIM in all topologies. |
-| 12 | `infra/terraform-monitoring` | Log Analytics, Grafana/Prometheus, alert rules, dashboards. |
-| 13 | `infra/terraform-orchestrator` | Optional orchestration / automation root (if used in your fork). |
+| 6 | `infra/terraform-cosmos` | Optional **Cosmos DB** polyglot path (TB-095); dormant unless feature flags enabled. |
+| 7 | `infra/terraform-servicebus` | Optional durable messaging for integration consumers; optional **Logic App-scoped** topic subscriptions (governance, trial email, ChatOps, prod promotion, **Marketplace fulfillment** via `enable_logic_app_marketplace_fulfillment_subscription`) for filtered triggers. |
+| 8 | `infra/terraform-logicapps` | Optional **Logic App (Standard)** hosts (ADR 0019): **edge**, optional dedicated sites for **governance**, **Marketplace fulfillment**, **trial lifecycle email**, **incident ChatOps**, **promotion customer notify**; apply after messaging + private DNS exist. |
+| 9 | `infra/terraform-openai` | Optional **budget** hooks for Azure OpenAI (resource creation may be out-of-band). |
+| 10 | `infra/terraform-acr` | Optional **Azure Container Registry** (TB-097); apply **before** Entra / Container Apps so image pull identities can reference it. |
+| 11 | `infra/terraform-entra` | App registrations / consent text for API + UI. |
+| 12 | `infra/terraform-container-apps` | **API + Worker + UI** workloads, managed identity wiring. |
+| 13 | `infra/terraform-edge` | Front Door / WAF / routing to Container Apps. |
+| 14 | `infra/terraform` | Optional **Consumption APIM** in front of public HTTPS backend — not a substitute for Premium VNet-injected APIM in all topologies. |
+| 15 | `infra/terraform-monitoring` | Log Analytics, Grafana/Prometheus, alert rules, dashboards. |
+| 16 | `infra/terraform-orchestrator` | Optional orchestration / automation root (legacy-only; omitted from hosted `-MultiRoot`). |
 
-CI validates **`terraform validate`** + **Trivy config** across these roots (see `.github/workflows/ci.yml`) **and** `infra/terraform-pilot`.
+CI validates **`terraform validate`** + **Trivy config** across these roots (see `.github/workflows/ci.yml`) **and** `infra/terraform-pilot` plus the three composition roots.
 
 ### TB-656 — User-assigned Key Vault workload identities (no second pass)
 
@@ -81,7 +96,7 @@ See [`CONFIGURATION_KEY_VAULT.md`](CONFIGURATION_KEY_VAULT.md) and [`TERRAFORM_C
 
 | Artifact | Purpose |
 |----------|---------|
-| [`ArchLucid.Api/appsettings.SaaS.json`(../../ArchLucid.Api/appsettings.SaaS.json) | Optional settings file chained from `Program.cs` after base `appsettings*.json` — **no secrets** in repo; API keys remain **off** until you wire keys + flip `Authentication:ApiKey:Enabled`. |
+| [`ArchLucid.Api/appsettings.SaaS.json`](../../ArchLucid.Api/appsettings.SaaS.json) | Optional settings file chained from `Program.cs` after base `appsettings*.json` — **no secrets** in repo; API keys remain **off** until you wire keys + flip `Authentication:ApiKey:Enabled`. |
 
 ---
 
@@ -89,8 +104,8 @@ See [`CONFIGURATION_KEY_VAULT.md`](CONFIGURATION_KEY_VAULT.md) and [`TERRAFORM_C
 
 | Variable | Used by | Purpose |
 |----------|---------|---------|
-| **`ARCHLUCID_STAGING_BASE_URL`** | [`.github/workflows/hosted-saas-probe.yml`(../../.github/workflows/hosted-saas-probe.yml) | Public HTTPS origin for scheduled `curl` checks against `/health/live` and `/health/ready` (example: `https://staging.archlucid.net`). When unset, the workflow **skips** probes so forks do not fail. |
-| **`ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED`** | [`.github/workflows/golden-cohort-nightly.yml`(../../.github/workflows/golden-cohort-nightly.yml) | When `true`, runs simulator drift after the JSON contract job. |
+| **`ARCHLUCID_STAGING_BASE_URL`** | [`.github/workflows/hosted-saas-probe.yml`](../../.github/workflows/hosted-saas-probe.yml) | Public HTTPS origin for scheduled `curl` checks against `/health/live` and `/health/ready` (example: `https://staging.archlucid.net`). When unset, the workflow **skips** probes so forks do not fail. |
+| **`ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED`** | [`.github/workflows/golden-cohort-nightly.yml`](../../.github/workflows/golden-cohort-nightly.yml) | When `true`, runs simulator drift after the JSON contract job. |
 | **`ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** | `golden-cohort-nightly.yml` | When `true`, runs the Azure Cost Management budget probe + optional real-LLM gate tests (requires secrets + owner budget approval). |
 
 ---

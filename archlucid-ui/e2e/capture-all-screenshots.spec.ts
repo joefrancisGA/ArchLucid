@@ -37,7 +37,7 @@ function slugForHref(href: string): string {
   return (noLead.length > 0 ? noLead : "index").replace(/[/?&=]+/g, "-").replace(/-+/g, "-");
 }
 
-/** One href per `page.tsx` (63 routes); run/manifest/compare paths use {@link SCREENSHOT_*} for human-readable URLs. Legacy `/getting-started` redirects to `/onboarding`. */
+/** One href per `page.tsx` (62 routes); run/manifest/compare paths use {@link SCREENSHOT_*} for human-readable URLs. Legacy `/getting-started` redirects to `/onboarding`. */
 const HREFS: string[] = [
   "/",
   "/accessibility",
@@ -57,7 +57,6 @@ const HREFS: string[] = [
   "/architecture/digests?tab=subscriptions",
   "/architecture/digests",
   "/insights/impact-preview",
-  "/example-roi-bulletin",
   "/architecture/first-review-guide",
   "/governance/approval-queue",
   "/architecture/sponsor-dashboard#workspace-health",

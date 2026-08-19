@@ -8,6 +8,7 @@ using ArchLucid.Application.DataConsistency;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Coordination.Retrieval;
@@ -959,11 +960,20 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
 
         actor.Setup(ctx => ctx.GetActor()).Returns("sql-path-test");
 
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+        });
+
         return new AdminDiagnosticsService(
             outboxSnapshot.Object,
             integration.Object,
             hostLeases.Object,
             runRepository.Object,
+            scopeProvider.Object,
             connectionFactory,
             Options.Create(options),
             Options.Create(new IntegrationEventsOptions()),

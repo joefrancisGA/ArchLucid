@@ -11,6 +11,14 @@ public sealed class ArchitectureDraftStructuredBrief
     /// <summary>Explicit unknown sentinel — silence is not treated as “none.”</summary>
     public const string UnknownConfirmBeforeReview = "Unknown — confirm before review";
 
+    /// <summary>TB-2343: unknown placeholders are not confirmed facts for readiness or graph projection.</summary>
+    public static bool IsUnknownConfirmSentinel(string? value) =>
+        string.Equals(value?.Trim(), UnknownConfirmBeforeReview, StringComparison.Ordinal);
+
+    /// <summary>TB-2343: non-empty brief list entries that are not the unknown sentinel.</summary>
+    public static bool IsConfirmedBriefEntry(string? value) =>
+        !string.IsNullOrWhiteSpace(value) && !IsUnknownConfirmSentinel(value);
+
     [JsonPropertyName("confirmedConstraints")]
     public List<string> ConfirmedConstraints
     {

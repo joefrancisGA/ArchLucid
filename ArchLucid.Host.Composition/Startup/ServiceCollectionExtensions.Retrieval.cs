@@ -27,6 +27,7 @@ using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Abstractions.Agents;
+using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
@@ -72,6 +73,7 @@ using ArchLucid.Retrieval.PolicyPacks;
 using ArchLucid.Retrieval.Reranking;
 using ArchLucid.Retrieval.Summarization;
 using ArchLucid.Retrieval.Pricing;
+using ArchLucid.Retrieval.ProductLearning;
 using ArchLucid.Retrieval.Queries;
 using ArchLucid.Retrieval.FineTuning;
 using ArchLucid.Retrieval.FineTuning.Consent;
@@ -106,12 +108,16 @@ public static partial class ServiceCollectionExtensions
         services.Configure<FineTuningOptions>(configuration.GetSection(FineTuningOptions.SectionPath));
         services.Configure<ManifestChunkSummarizationOptions>(
             configuration.GetSection(ManifestChunkSummarizationOptions.SectionPath));
+        services.Configure<RetrievalChunkingOptions>(configuration.GetSection(RetrievalChunkingOptions.SectionPath));
+        services.Configure<ProductLearningPlanningRetrievalOptions>(
+            configuration.GetSection(ProductLearningPlanningRetrievalOptions.SectionPath));
 
         services.AddSingleton<PassThroughRetrievalReranker>();
         services.AddSingleton<LexicalOverlapRetrievalReranker>();
         services.AddSingleton<IRetrievalReranker, AzureAiSearchSemanticRetrievalReranker>();
 
         services.AddSingleton<SimpleTextChunker>();
+        services.AddSingleton<StructureAwareTextChunker>();
         services.AddSingleton<ITextChunker>(static sp => sp.GetRequiredService<SimpleTextChunker>());
         services.AddSingleton<PolicyPackChunker>();
         services.AddSingleton<PriorManifestChunker>();
@@ -125,11 +131,13 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IManifestChunkSummarizer, ManifestChunkSummarizer>();
         services.AddScoped<IAgenticRetrievalCompletionClient, AgenticRetrievalCompletionClient>();
         services.AddScoped<IAgenticRetrievalQueryExpander, AgenticRetrievalQueryExpander>();
+        services.AddScoped<IterativeRetrievalLoop>();
         services.AddScoped<IGraphRagNeighborExpander, GraphRagNeighborExpander>();
         services.AddSingleton<IGraphCommunityDetector, LouvainGraphCommunityDetector>();
         services.AddScoped<IGraphCommunitySummaryCompletionClient, GraphCommunitySummaryCompletionClient>();
         services.AddScoped<IGraphCommunitySummarizationService, GraphCommunitySummarizationService>();
         services.AddScoped<IRetrievalQueryService, RetrievalQueryService>();
+        services.AddScoped<IProductLearningPlanningRetrievalContributor, ProductLearningPlanningRetrievalContributor>();
         services.AddScoped<IRetrievalRunCompletionIndexer, RetrievalRunCompletionIndexer>();
 
         RegisterFineTuning(services, configuration);

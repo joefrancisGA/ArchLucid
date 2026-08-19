@@ -105,6 +105,34 @@ export function RunDetailManifestSummarySection(
                 </dd>
               </>
             ) : null}
+            {manifestSummary.reviewStandardsAtCommit !== undefined &&
+            manifestSummary.reviewStandardsAtCommit !== null ? (
+              <>
+                <dt className={definitionLabelClass}>Review standards at commit</dt>
+                <dd
+                  className={cn("m-0 space-y-1", definitionValueClass)}
+                  data-testid="run-detail-review-standards-at-commit"
+                >
+                  <p className="m-0">
+                    Cloud target: {manifestSummary.reviewStandardsAtCommit.cloudProvider ?? "None"}
+                    {manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled
+                      ? " · Focused review scope"
+                      : null}
+                  </p>
+                  {(manifestSummary.reviewStandardsAtCommit.policyReferences?.length ?? 0) > 0 ? (
+                    <p className="m-0">
+                      Policy references: {(manifestSummary.reviewStandardsAtCommit.policyReferences ?? []).join(", ")}
+                    </p>
+                  ) : null}
+                  {(manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions?.length ?? 0) > 0 ? (
+                    <p className="m-0">
+                      Reviewed dimensions:{" "}
+                      {(manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions ?? []).join(", ")}
+                    </p>
+                  ) : null}
+                </dd>
+              </>
+            ) : null}
             <dt className={definitionLabelClass}>
               {buyerPolishedShell ? BUYER_RUN_DETAIL_MANIFEST_DECISIONS_LABEL : "Decisions"}
             </dt>

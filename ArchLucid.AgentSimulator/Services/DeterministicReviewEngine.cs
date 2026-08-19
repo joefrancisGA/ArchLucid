@@ -5,10 +5,11 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.AgentSimulator.Services;
 
 /// <summary>
-///     Deterministic <see cref="IReviewEngine" /> for tests and simulator mode — stable structured output without live
-///     model calls.
+///     Deterministic <see cref="IAgentExecutor" /> for tests and simulator mode — stable structured output without live
+///     model calls. This class is not the review evaluation kernel; that kernel is
+///     <c>AuthorityPipelineStagesExecutor</c>.
 /// </summary>
-public sealed class DeterministicReviewEngine : IReviewEngine
+public sealed class DeterministicReviewEngine : IAgentExecutor
 {
     private readonly DeterministicAgentSimulator _inner;
 

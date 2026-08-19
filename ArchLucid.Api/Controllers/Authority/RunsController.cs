@@ -7,10 +7,14 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
@@ -72,6 +76,7 @@ public sealed partial class RunsController(
     IRunRepository runRepository,
     IAuthorityQueryService authorityQuery,
     IFindingFeedbackRepository findingFeedbackRepository,
+    IArchitectureSynthesisKernel architectureSynthesisKernel,
     ILogger<RunsController> logger)
     : ControllerBase
 {
@@ -125,6 +130,33 @@ public sealed partial class RunsController(
 
         try
         {
+            if (string.Equals(
+                    request.WorkflowIntent,
+                    ArchitectureWorkflowIntent.CreateArchitecture,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                ArchitectureSynthesisGenerateResult generated =
+                    await architectureSynthesisKernel.GenerateAsync(request, idempotency, cancellationToken);
+
+                ArchitectureRun createdRun = new()
+                {
+                    RunId = generated.RunId,
+                    RequestId = request.RequestId,
+                    Status = ArchitectureRunStatus.Created
+                };
+
+                CreateArchitectureRunResponse generatedResponse =
+                    RunResponseMapper.ToCreateRunResponse(createdRun, new EvidenceBundle(), []);
+
+                LogRunCreated(generated.RunId, request.RequestId, user, correlationId);
+
+                return CreatedAtAction(
+                    nameof(RunQueryController.GetRun),
+                    "RunQuery",
+                    new { runId = generated.RunId },
+                    generatedResponse);
+            }
+
             CreateRunResult result =
                 await architectureRunCreateOrchestrator.CreateRunAsync(request, idempotency, cancellationToken);
 

@@ -1,4 +1,6 @@
+using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Retrieval.ProductLearning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
@@ -64,7 +66,51 @@ public sealed class ProductLearningPlanningDerivationServiceTests
         second.SignalLinksInserted.Should().Be(0);
     }
 
-    private static ProductLearningPlanningDerivationService CreateService(InMemoryProductLearningPilotSignalRepository pilot)
+    [Fact]
+    public async Task MaterializeFromRankedOpportunitiesAsync_surfaces_retrieval_citations_from_contributor()
+    {
+        InMemoryProductLearningPilotSignalRepository pilot = new();
+
+        DateTime utc = new DateTime(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        await pilot.InsertAsync(
+            Signal(ProductLearningDispositionValues.Rejected, "bad-pattern", "run-1", utc),
+            CancellationToken.None);
+
+        await pilot.InsertAsync(
+            Signal(ProductLearningDispositionValues.NeedsFollowUp, "bad-pattern", "run-2", utc.AddMinutes(1)),
+            CancellationToken.None);
+
+        Guid retrievalSignalId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        RecordingPlanningRetrievalContributor retrieval = new(
+        [
+            new PlanningRetrievalCitation
+            {
+                SignalId = retrievalSignalId,
+                ThemeKey = "pattern:bad-pattern",
+                Snippet = "Prior pilot signal",
+            },
+        ]);
+
+        ProductLearningPlanningDerivationService svc = CreateService(pilot, retrieval);
+
+        ProductLearningPlanningMaterializeResult result =
+            await svc.MaterializeFromRankedOpportunitiesAsync(
+                Scope(),
+                TriageOptions(),
+                "actor-dev",
+                5,
+                CancellationToken.None);
+
+        result.RetrievalCitations.Should().ContainSingle();
+        result.RetrievalCitations[0].SignalId.Should().Be(retrievalSignalId);
+        retrieval.IndexCalls.Should().BeGreaterThan(0);
+    }
+
+    private static ProductLearningPlanningDerivationService CreateService(
+        InMemoryProductLearningPilotSignalRepository pilot,
+        IProductLearningPlanningRetrievalContributor? retrievalContributor = null)
     {
         ProductLearningFeedbackAggregationService aggregation = new(pilot);
 
@@ -77,8 +123,34 @@ public sealed class ProductLearningPlanningDerivationServiceTests
             aggregation,
             opportunityService,
             pilot,
+            planning,
+            retrievalContributor ?? new NullProductLearningPlanningRetrievalContributor());
+    }
 
-            planning);
+    private sealed class RecordingPlanningRetrievalContributor(
+        IReadOnlyList<PlanningRetrievalCitation> citations) : IProductLearningPlanningRetrievalContributor
+    {
+        public int IndexCalls
+        {
+            get;
+            private set;
+        }
+
+        public Task IndexPilotSignalsAsync(
+            ProductLearningScope scope,
+            IReadOnlyList<ProductLearningPilotSignalRecord> signals,
+            CancellationToken cancellationToken)
+        {
+            IndexCalls++;
+
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyList<PlanningRetrievalCitation>> RetrievePriorsForOpportunityAsync(
+            ProductLearningScope scope,
+            ImprovementOpportunity opportunity,
+            CancellationToken cancellationToken) =>
+            Task.FromResult(citations);
     }
 
 

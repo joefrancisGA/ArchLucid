@@ -494,6 +494,27 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     }
 
     /// <inheritdoc />
+    public Task<bool> ExistsRunForArchitectureRequestInScopeAsync(
+        ScopeContext scope,
+        string architectureRequestId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+
+        if (string.IsNullOrWhiteSpace(architectureRequestId))
+            throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
+
+        string key = architectureRequestId.Trim();
+
+        bool exists = _store.Values.Any(r =>
+            MatchesScope(r, scope) &&
+            string.Equals(r.ArchitectureRequestId, key, StringComparison.OrdinalIgnoreCase));
+
+        return Task.FromResult(exists);
+    }
+
+    /// <inheritdoc />
     public Task<RunStaleUncommittedPurgeBatchResult> HardDeleteStaleUncommittedRunsBatchAsync(
         DateTimeOffset createdBeforeUtc,
         int batchSize,

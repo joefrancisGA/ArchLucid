@@ -365,6 +365,7 @@ public sealed class RunDetailPageBundleController(
             TopDecisionSynopses = summary.TopDecisionSynopses,
             FeasibilityVerdict = summary.FeasibilityVerdict,
             EffectiveGovernanceAtCommit = summary.EffectiveGovernanceAtCommit,
+            ReviewStandardsAtCommit = summary.ReviewStandardsAtCommit,
         };
     }
 }

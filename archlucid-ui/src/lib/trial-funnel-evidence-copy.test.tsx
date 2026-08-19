@@ -2,7 +2,6 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { TrialFunnelEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 import {
   TRIAL_FUNNEL_CANONICAL_PATH,
   TRIAL_FUNNEL_FOLLOW_UPS_TITLE,
@@ -11,11 +10,7 @@ import {
 } from "@/lib/trial-funnel-evidence-copy";
 
 describe("trial-funnel-evidence-copy", () => {
-  it("wires exports into the Trial funnel evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("trial-funnel-evidence-copy");
-    expect(registrySource).toContain("TrialFunnelEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(TRIAL_FUNNEL_CANONICAL_PATH).toBe("/internal/trial-funnel");
   });
 

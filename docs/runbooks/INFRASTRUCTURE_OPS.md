@@ -37,7 +37,7 @@ Give operators a single place to orient on **multiple Terraform roots**, what ea
 - **Interfaces:** Terraform variables and outputs per root; no runtime code here.
 - **Services:** Azure resources declared per module.
 - **Data models:** N/A (IaC only).
-- **Orchestration:** CI job `terraform-validate-public-stacks` (main / edge / entra) plus `terraform-validate-private` for the private stack; local `terraform plan` before apply.
+- **Orchestration:** Hosted path is `infra/apply-saas.ps1 -MultiRoot` (landing-zone scripts wrap it). CI job `terraform-validate-public-stacks` includes composition roots plus leaf stacks; `terraform-validate-private` covers the private stack. Local `terraform plan` before apply.
 
 ## Operational flow
 

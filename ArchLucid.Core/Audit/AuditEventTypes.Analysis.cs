@@ -3,6 +3,9 @@ namespace ArchLucid.Core.Audit;
 // Quick scan, Architecture Intelligence, recommendations, product learning, advisory scans, and digests.
 public static partial class AuditEventTypes
 {
+    /// <summary>Post-merge graph invariant checker detected dangling edges or topology endpoint collisions.</summary>
+    public const string GraphMergeInvariantViolation = "GraphMerge.InvariantViolation";
+
     /// <summary>Closed-loop Architecture Intelligence reasoning run completed (additive lane).</summary>
     public const string ArchitectureIntelligenceRunCompleted = "ArchitectureIntelligence.RunCompleted";
 
@@ -50,4 +53,7 @@ public static partial class AuditEventTypes
     public const string DigestSubscriptionToggled = "DigestSubscriptionToggled";
     public const string DigestDeliverySucceeded = "DigestDeliverySucceeded";
     public const string DigestDeliveryFailed = "DigestDeliveryFailed";
+
+    /// <summary>Cross-tenant pattern library listed via <c>GET /v1/analytics/patterns</c> (TB-880).</summary>
+    public const string PatternInsightsListed = "PatternInsightsListed";
 }

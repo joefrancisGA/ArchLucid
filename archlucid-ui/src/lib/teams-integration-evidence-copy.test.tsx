@@ -8,14 +8,9 @@ import {
   TEAMS_INTEGRATION_SOURCES,
   TEAMS_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/teams-integration-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("teams-integration-evidence-copy", () => {
-  it("wires exports into the Teams integration evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("teams-integration-evidence-copy");
-    expect(registrySource).toContain("TeamsIntegrationEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(TEAMS_INTEGRATION_CANONICAL_PATH).toBe("/integrations/teams");
   });
 

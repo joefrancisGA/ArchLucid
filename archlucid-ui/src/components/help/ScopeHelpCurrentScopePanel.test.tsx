@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const DEV_TENANT = "11111111-1111-1111-1111-111111111111";
@@ -32,6 +32,7 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
 });
 
 import { ScopeHelpCurrentScopePanel } from "@/components/help/ScopeHelpCurrentScopePanel";
+import { renderWithOperatorQuery, useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
@@ -42,6 +43,8 @@ import {
 } from "@/lib/scope-switcher-display";
 
 describe("ScopeHelpCurrentScopePanel", () => {
+  useOperatorQueryTestLifecycle();
+
   beforeEach(() => {
     vi.stubGlobal(
       "fetch",
@@ -55,7 +58,7 @@ describe("ScopeHelpCurrentScopePanel", () => {
   });
 
   it("shows sample scope labels and switching state for the dev default scope", async () => {
-    render(<ScopeHelpCurrentScopePanel />);
+    renderWithOperatorQuery(<ScopeHelpCurrentScopePanel />);
 
     expect(isEffectiveDevDefaultScope(DEV_WORKSPACE, DEV_PROJECT)).toBe(true);
 

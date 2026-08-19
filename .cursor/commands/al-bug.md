@@ -10,11 +10,12 @@ Distinct from **`/al-defect`** (production defect intake + `PD-###` log) and **`
 
 **Default git target:** **`master`** (user may override by naming another branch in the same message).
 
-One invocation runs three phases **without stopping for approval between them**:
+One invocation runs these phases **without stopping for approval between them** (except `--status`, which stops after the preview):
 
 | Phase | Goal |
 |-------|------|
-| **1 — Find** | Identify a genuine defect; prove with a failing test |
+| **0 — Target** | Score the hunt ledger; hunt **only** the picked zone |
+| **1 — Find** | Prove a genuine defect in that zone with a failing test |
 | **2 — Fix** | Minimal correct fix + permanent regression test |
 | **3 — Ship** | Commit scoped paths and push to target branch |
 
@@ -29,11 +30,15 @@ One invocation runs three phases **without stopping for approval between them**:
 /al-bug master "<optional hunt hint>"
 /al-bug --find-only
 /al-bug master --find-only
+/al-bug --status
+/al-bug --refresh
 ```
 
 - **`master`** (optional) — explicit branch target; default is **`master`** when omitted (satisfies `.cursor/rules/Git-Commit-Requires-Branch.mdc`).
-- **`"<optional hunt hint>"`** — subsystem, file, symptom, or area to prioritize (e.g. `topology merge gate`, `ARM resource ids`).
+- **`"<optional hunt hint>"`** — pin a ledger zone by id or alias (e.g. `topology merge gate`, `ARM resource ids`).
 - **`--find-only`** — stop after Phase 1 with the bug report and failing repro; no fix, commit, or push.
+- **`--status`** — run the picker preview and **stop** (no hunt, no ledger write).
+- **`--refresh`** — pass `-Refresh` so git churn since `last-hunt` is recomputed into picker JSON; use those counts when updating the ledger.
 
 Examples:
 
@@ -42,6 +47,8 @@ Examples:
 /al-bug master
 /al-bug "topology proposal graph merge"
 /al-bug master --find-only
+/al-bug --status
+/al-bug --refresh
 ```
 
 ---
@@ -59,27 +66,100 @@ Examples:
 
 ---
 
+## Phase 0 — Target the next zone (required first)
+
+**Before** hunting, editing production code, or claiming a bug, score the ledger and **display the picker preview in chat**.
+
+```powershell
+.\scripts\agent\al-bug-pick-zone.ps1 -Preview
+```
+
+Add `-Hint '<user hint>'` when the message named an area. Add `-Refresh` when the user passed `--refresh`.
+
+The picker is **deterministic** (`docs/library/AL_BUG_HUNT_LEDGER.md` + `scripts/agent/al-bug-pick-zone.ps1`). Do **not** LLM-rank zones or fall back to a static “always topology first” walk.
+
+Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hunts-per-bug once data exists; sample untried zones so the catalog can learn. **Hunt-ready** hypothesis count is a small tie-break only — **candidate** (template) rows must not lock the picker. Hypothesis **precision** (`proven / (proven + invalid)`) is a small bonus once at least two classified attempts exist. `valid-no-repro` is healthy exhaustion and does **not** lower precision.
+
+Rules:
+
+- Hunt **only** the returned `zoneId` (`paths` + hypotheses). Do not invent another zone in the same invocation.
+- If JSON `seedHunt` is `true` or `status` is `unseeded`, this run is a **seed hunt** (Phase 1.1a) before any repro.
+- If JSON `exhaustedAll` is `true`, **stop** — report that every zone is exhausted without git churn. Do not invent a new zone.
+- If `--status`, print the preview and **stop** (do not hunt; do not write the ledger).
+- The script does **not** write the ledger. After the hunt, you edit `AL_BUG_HUNT_LEDGER.md`.
+
+### Exhaustion (leave the zone when all hold)
+
+1. Every listed hypothesis has a passing regression test, or was retired as `(invalid)` or `(valid-no-repro)`.
+2. **3 consecutive dry hunts**.
+3. **No production-path commits** in that zone since `last-hunt`.
+
+Set `status` to `cooling` when yield has dropped but exhaustion is not complete. Set `exhausted` only when all three hold. When picker JSON `reopened` is `true`, set `status` back to `open`. New zones start as **`unseeded`** (zero hunt-ready rows) until a seed hunt reads the files.
+
+### Dry hunt
+
+If every **hunt-ready** hypothesis was tested and **none** produced a failing repro: increment `hunts` and `consecutive-dry-hunts`, set `last-hunt` to today, tick attempted rows with **`(valid-no-repro)`** or **`(invalid)`** (see Phase 1.1c), **stop**. Do not invent another bug in the same files or jump to another zone.
+
+A **seed-only** pass (files read, candidates promoted or retired, no failing repro) increments `hunts`, sets `last-hunt`, sets `status` to `open`, and does **not** increment `consecutive-dry-hunts`.
+
+---
+
 ## Phase 1 — Find a real defect
 
-### 1.1 Pick a hunt zone
+### 1.1 Hunt the picked zone only
 
-Walk this order until you find a **confirmed** bug (or exhaust the list):
+Work the picker’s hypotheses against `paths`. Use `testFilter` for scoped tests. A user hint pins a zone; it does not authorize hunting other zones in the same run.
 
-1. **User hint** — if provided in the message, start there.
-2. **Topology proposal orchestration** (high yield) — under `ArchLucid.Application/Runs/Orchestration/`:
-   - `AgentTopologyProposalMergeGate`
-   - `AgentTopologyProposalGraphMerge`
-   - `TopologyProposalRelationshipEdgeMapper`
-   - `TopologyProposalRelationshipEndpointIndex`
-   - `AgentProposalStructuralPostProcessor`
-   - `CrossAgentProposalConsistencyGate`
-   - Tests: `ArchLucid.Application.Tests/Runs/Orchestration/*`
-3. **Recent `master` commits** touching those paths — look for asymmetry between merge gate, graph merge, and edge mapper.
-4. **Gap patterns** (common in this subsystem):
-   - Merge gate keeps a relationship but graph merge drops the edge
-   - Endpoint keyed by synthetic id (`svc-` / `ds-`), Terraform `SourceId`, ARM property, or renamed label not resolved
-   - Inventoried vs agent-proposed node handling inconsistent
-   - Category mismatch (`storage` vs `data`) for synthetic datastore keys
+**Hunt `huntReadyHypotheses` as claims. Treat `candidateHypotheses` as search lenses only** until a seed hunt promotes them.
+
+### 1.1a Seed hunt (when `seedHunt` is true)
+
+Do **not** spend a full repro loop on template candidates. Read the zone `paths` and existing tests first, then:
+
+1. **Promote** a candidate to `(hunt-ready)` only when it meets the quality bar (1.1b).
+2. **Retire** a candidate as `(invalid)` when the locus or prerequisite does not exist in these files.
+3. You **may** prove one newly hunt-ready row in the **same** invocation.
+4. If nothing is hunt-ready after the read, stop as **seed-only** (not a dry hunt). Do not invent a fourth generic template.
+
+Do not add new zones. Do not refill a zone with three untagged harm-class rows.
+
+### 1.1b Hunt-ready quality bar
+
+A row stays **open** as hunt-ready only when all four are filled from the zone files (not from a bug-class template):
+
+| Field | Required |
+| --- | --- |
+| **Locus** | File + method, SQL fragment, or branch |
+| **Input** | Concrete value that takes that branch |
+| **Wrong outcome** | Observable failure (wrong row, 200, empty success) |
+| **Why this code** | Mechanism — omitted predicate, disagreeing module, untested type family |
+
+Ban as hunt-ready (keep as `(candidate)` or retire as `(invalid)`) any row that only restates a harm class: “cross-tenant leak”, “stale cache after scope switch”, “returns 200 on failure”. Those are lenses. Apply them only after the files show the prerequisite (a join, a cache, a catch that returns success).
+
+Prefer mechanisms that have paid off in this catalog: dual-path disagreement (gate vs merge, parent SQL vs child join, watchdog vs visibility), alias/identity mismatch, parameterized-test holes, recent churn with no new test.
+
+### 1.1c Cheap disproof (before a repro)
+
+For each hunt-ready row, spend about a minute on:
+
+1. **Locus exists?** Grep the method, SQL fragment, hook, or cache key. Missing → `(invalid)`.
+2. **Already tested?** An existing test name already states the claim → `(valid-no-repro)` and cite the test.
+3. **Prerequisite present?** No `useQuery` / session / child join → `(invalid)` for cache/join claims.
+4. **Churn?** If the claim is the already-fixed TB/PD and `codeChangedSince` is 0, expect `(valid-no-repro)`.
+
+Only **plausible-untested** hunt-ready rows consume a failing-repro attempt.
+
+Ledger tags for closed rows:
+
+- `(proven)` — failing repro, then fix (or already shipped in this hunt).
+- `(invalid)` — claim does not describe this code (path missing, wrong shape).
+- `(valid-no-repro)` — claim matches this code; current behavior is correct.
+
+Do **not** tick a miss as bare `[x]`. Bare `[x]` is treated as proven.
+
+### 1.1d Inverse hypothesis
+
+If the listed claim is false, spend a few minutes on the dual before declaring dry: the **opposite** wrong outcome on the **same locus** (for example “commit proceeds after integrity failure” vs “rejected traces blocked commit after retry”). Promote that dual to `(hunt-ready)` only if it meets 1.1b.
 
 ### 1.2 Prove it
 
@@ -94,7 +174,7 @@ dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj `
 
 Filter syntax: use `|` between patterns, not regex groups.
 
-4. If you cannot make a test fail, **do not claim a bug** — pick another hypothesis.
+4. If you cannot make a test fail, **do not claim a bug** — try the next **hunt-ready** hypothesis in this zone. If none remain, treat the run as a **dry hunt** (Phase 0) and stop.
 
 ### 1.3 Phase 1 output (always)
 
@@ -176,15 +256,25 @@ git log origin/master -1 --oneline
 
 ## Phase 4 — Report back (always)
 
+After a hit, dry hunt, or seed-only pass, **edit** `docs/library/AL_BUG_HUNT_LEDGER.md` for the picked zone (`hunts`, `bugs-found`, `last-hunt`, `consecutive-dry-hunts`, hypothesis tags, `status`). Include that file in the same ship when the hunt produced a product fix; for a dry or seed-only hunt, ship the ledger update only.
+
+Replacement hypotheses after a miss must cite a **different mechanism**, not the same template with new nouns. Do not template-seed an `unseeded` zone with three harm-class rows.
+
 ```markdown
 ## /al-bug result
 
 | Field | Value |
 | --- | --- |
 | Branch | `master` (or override) |
-| Bug | <one-line title> |
-| Root cause | <short mechanism> |
-| Fix | <what changed> |
+| Zone | `<zoneId>` |
+| Dry or hit | dry / hit / seed-only |
+| Seed hunt | true / false |
+| Hunt-ready left | N |
+| Candidates left | N |
+| Zone status | unseeded / open / cooling / exhausted |
+| Bug | <one-line title, or n/a if dry/seed-only> |
+| Root cause | <short mechanism, or n/a if dry> |
+| Fix | <what changed, or ledger-only if dry> |
 | Tests | <test names> — N passed |
 | Commit | `<sha>` on `origin/master` |
 | Left unstaged | <paths or none> |
@@ -196,6 +286,8 @@ git log origin/master -1 --oneline
 
 - `.cursor/commands/al-bug.md` — this workflow
 - `.cursor/skills/al-bug/SKILL.md` — skill pointer + hunt heuristics
+- `docs/library/AL_BUG_HUNT_LEDGER.md` — zone yield, hypotheses, exhaustion
+- `scripts/agent/al-bug-pick-zone.ps1` — deterministic next-zone picker
 - `scripts/agent/al-bug-push-master.ps1` — worktree commit/push helper
 
 ## Related commands

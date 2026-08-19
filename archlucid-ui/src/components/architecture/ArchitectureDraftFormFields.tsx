@@ -1,5 +1,7 @@
 "use client";
 
+import type { Dispatch, SetStateAction } from "react";
+
 import { cn } from "@/lib/utils";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
@@ -29,9 +31,10 @@ type ArchitectureDraftFormFieldsProps = {
   readonly fields: ArchitectureDraftFieldState;
   readonly actorSet: ActorSet;
   readonly disabled?: boolean;
+  readonly blocksLlmExecution?: boolean;
   /** When true, mark required fields that fail review-start minimums (TB-2006). */
   readonly markReviewReadinessInvalid?: boolean;
-  readonly onFieldsChange: (fields: ArchitectureDraftFieldState) => void;
+  readonly onFieldsChange: Dispatch<SetStateAction<ArchitectureDraftFieldState>>;
   readonly onActorSetChange: (actorSet: ActorSet) => void;
 };
 
@@ -72,7 +75,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           id="architecture-draft-system-name"
           value={props.fields.systemName}
           onChange={(event) => {
-            props.onFieldsChange({ ...props.fields, systemName: event.target.value });
+            props.onFieldsChange((fields) => ({ ...fields, systemName: event.target.value }));
           }}
           disabled={props.disabled === true}
           placeholder={GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER}
@@ -92,7 +95,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           id="architecture-draft-intent"
           value={props.fields.freeTextIntent}
           onChange={(event) => {
-            props.onFieldsChange({ ...props.fields, freeTextIntent: event.target.value });
+            props.onFieldsChange((fields) => ({ ...fields, freeTextIntent: event.target.value }));
           }}
           rows={4}
           disabled={props.disabled === true}
@@ -122,7 +125,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           id="architecture-draft-outcome"
           value={props.fields.businessOutcome}
           onChange={(event) => {
-            props.onFieldsChange({ ...props.fields, businessOutcome: event.target.value });
+            props.onFieldsChange((fields) => ({ ...fields, businessOutcome: event.target.value }));
           }}
           rows={2}
           disabled={props.disabled === true}
@@ -152,9 +155,14 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         structuredBrief={props.fields.structuredBrief}
         freeTextIntent={props.fields.freeTextIntent}
         disabled={props.disabled === true}
+        blocksLlmExecution={props.blocksLlmExecution === true}
         markReviewReadinessInvalid={markInvalid}
-        onStructuredBriefChange={(structuredBrief) => {
-          props.onFieldsChange({ ...props.fields, structuredBrief });
+        onStructuredBriefChange={(updater) => {
+          props.onFieldsChange((fields) => ({
+            ...fields,
+            structuredBrief:
+              typeof updater === "function" ? updater(fields.structuredBrief) : updater,
+          }));
         }}
       />
     </div>

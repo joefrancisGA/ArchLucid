@@ -1,5 +1,6 @@
 "use client";
 
+import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { draftArchitectureRequest } from "@/lib/api/architecture-request-draft-api";
+import { draftArchitectureRequest, ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
@@ -17,6 +18,10 @@ import {
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY,
+  guidedIntakeStructuredBriefSuggestDisabledHint,
+} from "@/lib/guided-intake-copy";
 import { cn } from "@/lib/utils";
 
 type ListFieldKey =
@@ -33,8 +38,9 @@ type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
   readonly freeTextIntent: string;
   readonly disabled?: boolean;
+  readonly blocksLlmExecution?: boolean;
   readonly markReviewReadinessInvalid?: boolean;
-  readonly onStructuredBriefChange: (brief: ArchitectureDraftStructuredBriefState) => void;
+  readonly onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>;
 };
 
 function ConfirmableChipList(props: {
@@ -176,6 +182,7 @@ export function ArchitectureDraftStructuredBriefFields(
   props: ArchitectureDraftStructuredBriefFieldsProps,
 ): React.JSX.Element {
   const [suggestBusy, setSuggestBusy] = useState(false);
+  const [suggestEmpty, setSuggestEmpty] = useState(false);
   const [suggestError, setSuggestError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -183,9 +190,15 @@ export function ArchitectureDraftStructuredBriefFields(
   } | null>(null);
   const markInvalid = props.markReviewReadinessInvalid === true;
   const brief = props.structuredBrief;
+  const overviewTrimmedLength = props.freeTextIntent.trim().length;
+  const canSuggestFromOverview =
+    overviewTrimmedLength >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
+    && props.disabled !== true
+    && props.blocksLlmExecution !== true
+    && !suggestBusy;
 
   const updateBrief = (partial: Partial<ArchitectureDraftStructuredBriefState>) => {
-    props.onStructuredBriefChange({ ...brief, ...partial });
+    props.onStructuredBriefChange((current) => ({ ...current, ...partial }));
   };
 
   const updateList = (key: ListFieldKey, items: string[]) => {
@@ -212,24 +225,48 @@ export function ArchitectureDraftStructuredBriefFields(
   async function onSuggestFromOverview(): Promise<void> {
     const freeTextDescription = props.freeTextIntent.trim();
 
-    if (freeTextDescription.length < 20 || suggestBusy) {
+    if (
+      freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
+      || suggestBusy
+      || props.disabled === true
+      || props.blocksLlmExecution === true
+    ) {
       return;
     }
 
     setSuggestBusy(true);
     setSuggestError(null);
+    setSuggestEmpty(false);
 
     try {
       const response = await draftArchitectureRequest({ freeTextDescription });
+      const incomingConstraints = response.suggestedConstraints ?? [];
+      const incomingAssumptions = response.suggestedAssumptions ?? [];
+      const incomingCapabilities = response.suggestedCapabilities ?? [];
+      let addedSuggestionCount = 0;
 
-      updateBrief({
-        suggestedConstraints: mergeUniqueStrings(brief.suggestedConstraints, response.suggestedConstraints ?? []),
-        suggestedAssumptions: mergeUniqueStrings(brief.suggestedAssumptions, response.suggestedAssumptions ?? []),
-        suggestedRequiredCapabilities: mergeUniqueStrings(
-          brief.suggestedRequiredCapabilities,
-          response.suggestedCapabilities ?? [],
-        ),
+      props.onStructuredBriefChange((current) => {
+        const nextSuggestedConstraints = mergeUniqueStrings(current.suggestedConstraints, incomingConstraints);
+        const nextSuggestedAssumptions = mergeUniqueStrings(current.suggestedAssumptions, incomingAssumptions);
+        const nextSuggestedCapabilities = mergeUniqueStrings(
+          current.suggestedRequiredCapabilities,
+          incomingCapabilities,
+        );
+
+        addedSuggestionCount =
+          nextSuggestedConstraints.length
+          - current.suggestedConstraints.length
+          + (nextSuggestedAssumptions.length - current.suggestedAssumptions.length)
+          + (nextSuggestedCapabilities.length - current.suggestedRequiredCapabilities.length);
+
+        return {
+          ...current,
+          suggestedConstraints: nextSuggestedConstraints,
+          suggestedAssumptions: nextSuggestedAssumptions,
+          suggestedRequiredCapabilities: nextSuggestedCapabilities,
+        };
       });
+      setSuggestEmpty(addedSuggestionCount === 0);
     } catch (error: unknown) {
       if (isApiRequestError(error)) {
         setSuggestError({
@@ -265,7 +302,7 @@ export function ArchitectureDraftStructuredBriefFields(
             type="button"
             variant="secondary"
             size="sm"
-            disabled={props.disabled === true || suggestBusy || props.freeTextIntent.trim().length < 20}
+            disabled={!canSuggestFromOverview}
             onClick={() => {
               void onSuggestFromOverview();
             }}
@@ -277,6 +314,35 @@ export function ArchitectureDraftStructuredBriefFields(
             Suggestions stay unconfirmed until you add or confirm them.
           </p>
         </div>
+        {!canSuggestFromOverview && props.blocksLlmExecution === true ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+            role="status"
+            data-testid="architecture-draft-suggest-structured-brief-budget-blocked"
+          >
+            Monthly AI budget is exhausted — suggestions are paused until the budget resets or your admin raises the limit.
+          </p>
+        ) : null}
+        {!canSuggestFromOverview
+        && props.blocksLlmExecution !== true
+        && overviewTrimmedLength < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-500")}
+            role="status"
+            data-testid="architecture-draft-suggest-structured-brief-disabled-hint"
+          >
+            {guidedIntakeStructuredBriefSuggestDisabledHint(overviewTrimmedLength)}
+          </p>
+        ) : null}
+        {suggestEmpty ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+            role="status"
+            data-testid="architecture-draft-suggest-structured-brief-empty"
+          >
+            {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY}
+          </p>
+        ) : null}
         {suggestError !== null ? (
           <OperatorApiProblem
             problem={suggestError.problem}

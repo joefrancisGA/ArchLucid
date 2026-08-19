@@ -4,7 +4,7 @@ import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SIGNUP_ASSURANCE_FACTS,
   SIGNUP_ASSURANCE_HEADING,
-  SIGNUP_INVITE_ONLY_OUTCOMES,
+  SIGNUP_DEMO_PATH_NOTE,
   SIGNUP_PROCESS_HEADING,
   SIGNUP_PROCESS_STEPS,
 } from "@/lib/signup-invite-only-copy";
@@ -20,7 +20,7 @@ export function SignupEvaluationAsideRail(): React.JSX.Element {
       <section aria-labelledby="signup-process-heading">
         <h2
           id="signup-process-heading"
-          className={cn("m-0 text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}
+          className={cn("m-0 text-al-text-primary", MARKETING_TYPOGRAPHY.sectionTitle)}
         >
           {SIGNUP_PROCESS_HEADING}
         </h2>
@@ -40,29 +40,20 @@ export function SignupEvaluationAsideRail(): React.JSX.Element {
             </li>
           ))}
         </ol>
-        <ul className={cn("m-0 mt-3 list-none space-y-2 p-0", MARKETING_TYPOGRAPHY.body)}>
-          {SIGNUP_INVITE_ONLY_OUTCOMES.map((outcome) => (
-            <li key={outcome.label}>
-              <span className="font-medium text-al-text-primary">{outcome.label}. </span>
-              <span className="text-al-text-secondary">{outcome.detail}</span>
-            </li>
-          ))}
-          <li>
-            <span className="font-medium text-al-text-primary">Inspect first. </span>
-            <span className="text-al-text-secondary">
-              <Link href="/see-it" className={MARKETING_SURFACES.inlineLink}>
-                See a sample review
-              </Link>{" "}
-              — no account required.
-            </span>
-          </li>
-        </ul>
+        <p className={cn("m-0 mt-4 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>{SIGNUP_DEMO_PATH_NOTE}</p>
+        <p className={cn("m-0 mt-3 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
+          <span className="font-medium text-al-text-primary">Inspect first. </span>
+          <Link href="/see-it" className={MARKETING_SURFACES.inlineLink}>
+            See a sample review
+          </Link>{" "}
+          — no account required.
+        </p>
       </section>
 
       <section aria-labelledby="signup-assurance-heading">
         <h2
           id="signup-assurance-heading"
-          className={cn("m-0 text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}
+          className={cn("m-0 text-al-text-primary", MARKETING_TYPOGRAPHY.sectionTitle)}
         >
           {SIGNUP_ASSURANCE_HEADING}
         </h2>

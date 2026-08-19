@@ -32,3 +32,15 @@ export const STANDARDS_RULES_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Assurance status", href: "/assurance-status" },
 ] as const;
+
+const STANDARDS_RULES_HELP_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+]);
+
+/** Orientation-strip Sources — excludes header CTA and definition-tile destinations already above the fold. */
+export const STANDARDS_RULES_HELP_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =
+  STANDARDS_RULES_HELP_SOURCES.filter(
+    (source) => !STANDARDS_RULES_HELP_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+  );

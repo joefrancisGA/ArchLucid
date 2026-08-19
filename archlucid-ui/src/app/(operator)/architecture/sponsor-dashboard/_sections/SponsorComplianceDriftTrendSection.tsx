@@ -12,6 +12,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 /** Live compliance drift panel for the sponsor report dashboard (`/dashboard`). */
@@ -68,7 +69,7 @@ export function SponsorComplianceDriftTrendSection({
         ) : null}
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           <Link href={GOVERNANCE_WORKSPACE_HEALTH_HREF} className={OPERATOR_LINK.inline}>
-            Open sponsor workspace health
+            {`Open ${TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK.label.toLowerCase()}`}
           </Link>
         </p>
       </CardContent>

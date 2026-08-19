@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -76,6 +78,57 @@ public sealed class AgenticRetrievalCompletionClient(
             return hyde;
 
         return AgenticRetrievalHeuristics.GenerateHydeDocument(queryText);
+    }
+
+    /// <inheritdoc />
+    public async Task<RetrievalCritiqueVerdict> CritiqueRetrievalAsync(
+        string queryText,
+        IReadOnlyList<RetrievalHit> hits,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(queryText);
+
+        string? critiqueJson = await TryCompleteWithExpansionBudgetAsync(
+            (completionClient, ct) => completionClient.CompleteJsonAsync(
+                "Critique whether retrieved chunks answer the query. "
+                + "Return JSON: {\"isSufficient\":boolean,\"refinedQueryText\":string|null}. "
+                + "Set refinedQueryText only when more retrieval is needed.",
+                $"Query: {queryText.Trim()}\nHit count: {hits.Count}",
+                maxTokens: 120,
+                temperature: 0.1f,
+                ct),
+            "retrieval critique",
+            cancellationToken).ConfigureAwait(false);
+
+        if (!string.IsNullOrWhiteSpace(critiqueJson))
+        {
+            try
+            {
+                using JsonDocument document = JsonDocument.Parse(critiqueJson);
+
+                JsonElement root = document.RootElement;
+
+                bool isSufficient = root.TryGetProperty("isSufficient", out JsonElement sufficientElement)
+                    && sufficientElement.ValueKind == JsonValueKind.True;
+
+                string? refined = root.TryGetProperty("refinedQueryText", out JsonElement refinedElement)
+                    && refinedElement.ValueKind == JsonValueKind.String
+                    ? refinedElement.GetString()
+                    : null;
+
+                return new RetrievalCritiqueVerdict
+                {
+                    IsSufficient = isSufficient,
+                    RefinedQueryText = refined,
+                };
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(ex, "Retrieval critique JSON parse failed; falling back to heuristics.");
+            }
+        }
+
+        return AgenticRetrievalHeuristics.CritiqueRetrieval(queryText, hits);
     }
 
     private async Task<string?> TryCompleteWithExpansionBudgetAsync(

@@ -90,7 +90,7 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
                                         cancellationToken).ConfigureAwait(false);
 
                 bool referenceMatched = trace is not null &&
-                                        _referenceCaseRunEvaluator.ComputeAnyPassingReferenceCase(trace);
+                                        await _referenceCaseRunEvaluator.ComputeAnyPassingReferenceCaseAsync(trace, cancellationToken).ConfigureAwait(false);
 
                 TraceCompletenessScore completeness = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(finding);
 

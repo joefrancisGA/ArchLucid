@@ -48,10 +48,23 @@ import {
   MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO,
 } from "@/lib/model-governance-settings-evidence-copy";
 import {
+  NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_DISCIPLINE,
+  NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_DISCIPLINE_HEADING,
+  NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_HEADING_ID,
+  NOTIFICATION_PREFERENCE_CENTER_SETTINGS_FOLLOW_UPS_TITLE,
+  NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES,
+  NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES_INTRO,
+} from "@/lib/notification-preference-center-evidence-copy";
+import {
   EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE,
   EXTRACT_UPLOAD_SETTINGS_SOURCES,
   EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO,
 } from "@/lib/extract-upload-settings-evidence-copy";
+import {
+  DIGESTS_SCHEDULE_FOLLOW_UPS_TITLE,
+  DIGESTS_SCHEDULE_SOURCES,
+  DIGESTS_SCHEDULE_SOURCES_INTRO,
+} from "@/lib/digests-schedule-evidence-copy";
 import {
   OPERATOR_BILLING_SETTINGS_FOLLOW_UPS_TITLE,
   OPERATOR_BILLING_SETTINGS_SOURCES,
@@ -110,14 +123,36 @@ export function BaselineSettingsEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function ExtractUploadSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function ExtractUploadSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? EXTRACT_UPLOAD_SETTINGS_SOURCES;
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="extract-upload-settings"
       sourcesTitle={EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO}
-      sources={EXTRACT_UPLOAD_SETTINGS_SOURCES}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+    />
+  );
+}
+
+export function DigestsScheduleEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? DIGESTS_SCHEDULE_SOURCES;
+
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="digests-schedule"
+      sourcesTitle={DIGESTS_SCHEDULE_FOLLOW_UPS_TITLE}
+      sourcesIntro={DIGESTS_SCHEDULE_SOURCES_INTRO}
+      sources={sources}
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
     />
   );
 }
@@ -144,6 +179,21 @@ export function PreferencesSettingsEvidenceOrientationStrip(): React.JSX.Element
       sourcesTitle={PREFERENCES_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={PREFERENCES_SETTINGS_SOURCES_INTRO}
       sources={PREFERENCES_SETTINGS_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function NotificationPreferenceCenterEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="notification-preference-center"
+      claim={NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_DISCIPLINE}
+      claimHeading={NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_HEADING_ID}
+      sourcesTitle={NOTIFICATION_PREFERENCE_CENTER_SETTINGS_FOLLOW_UPS_TITLE}
+      sourcesIntro={NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES_INTRO}
+      sources={NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
     />
   );
@@ -304,7 +354,9 @@ export function TenantSettingsEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function ApiKeysSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function ApiKeysSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="api-keys-settings"
@@ -312,6 +364,7 @@ export function ApiKeysSettingsEvidenceOrientationStrip(): React.JSX.Element {
       sourcesIntro={API_KEYS_SETTINGS_SOURCES_INTRO}
       sources={API_KEYS_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
     />
   );
 }

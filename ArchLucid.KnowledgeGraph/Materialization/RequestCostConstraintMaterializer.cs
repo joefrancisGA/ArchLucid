@@ -30,6 +30,7 @@ public static partial class RequestCostConstraintMaterializer
 
             index++;
             decimal? maxMonthlyCost = TryParseMonthlyBudgetUsd(rawConstraint);
+            decimal? projectedMonthlySpend = TryParseProjectedMonthlySpendUsd(rawConstraint);
             string budgetName = BuildBudgetName(rawConstraint, maxMonthlyCost);
 
             Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
@@ -41,6 +42,8 @@ public static partial class RequestCostConstraintMaterializer
 
             if (maxMonthlyCost.HasValue)
                 properties["maxMonthlyCost"] = maxMonthlyCost.Value.ToString(CultureInfo.InvariantCulture);
+
+            ApplyProjectedSpendProperties(properties, projectedMonthlySpend);
 
             nodes.Add(new GraphNode
             {
@@ -81,6 +84,58 @@ public static partial class RequestCostConstraintMaterializer
         if (!match.Success)
             return null;
 
+        string numericPart = match.Groups["amount"].Value.Replace(",", string.Empty, StringComparison.Ordinal);
+
+        if (!decimal.TryParse(numericPart, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal amount))
+            return null;
+
+        if (match.Groups["suffix"].Success
+            && match.Groups["suffix"].Value.Equals("k", StringComparison.OrdinalIgnoreCase))
+        {
+            amount *= 1000m;
+        }
+
+        return amount;
+    }
+
+    internal static decimal? TryParseProjectedMonthlySpendUsd(string constraintText)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(constraintText);
+
+        int projectedIndex = constraintText.IndexOf("projected", StringComparison.OrdinalIgnoreCase);
+
+        if (projectedIndex < 0)
+            projectedIndex = constraintText.IndexOf("expected spend", StringComparison.OrdinalIgnoreCase);
+
+        if (projectedIndex < 0)
+            return null;
+
+        string tail = constraintText[projectedIndex..];
+        Match match = BudgetAmountRegex().Match(tail);
+
+        if (!match.Success)
+            return null;
+
+        return TryParseBudgetAmount(match);
+    }
+
+    private static void ApplyProjectedSpendProperties(Dictionary<string, string> properties, decimal? projectedMonthlySpend)
+    {
+        if (projectedMonthlySpend is not decimal projected)
+            return;
+
+        string projectedText = projected.ToString(CultureInfo.InvariantCulture);
+        decimal lowerBound = Math.Round(projected * 0.9m, 2, MidpointRounding.AwayFromZero);
+        decimal upperBound = Math.Round(projected * 1.1m, 2, MidpointRounding.AwayFromZero);
+
+        properties["projectedMonthlySpendUsd"] = projectedText;
+        properties["projectedImpactUsdLowerBound"] = lowerBound.ToString(CultureInfo.InvariantCulture);
+        properties["projectedImpactUsdUpperBound"] = upperBound.ToString(CultureInfo.InvariantCulture);
+        properties["confidenceReasoning"] = "Projected monthly spend parsed from request constraint text.";
+    }
+
+    private static decimal? TryParseBudgetAmount(Match match)
+    {
         string numericPart = match.Groups["amount"].Value.Replace(",", string.Empty, StringComparison.Ordinal);
 
         if (!decimal.TryParse(numericPart, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal amount))

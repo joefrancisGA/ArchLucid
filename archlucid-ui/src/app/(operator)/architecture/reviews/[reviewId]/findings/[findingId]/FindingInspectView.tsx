@@ -29,6 +29,7 @@ import {
   GOVERNANCE_ACTION_REGION_LEAD,
   GOVERNANCE_ACTION_REGION_TITLE,
 } from "@/lib/findings/finding-governance-action-copy";
+import { findingRecommendedActionParagraph } from "./_sections/finding-detail-route-display";
 import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -41,7 +42,9 @@ import { buildSeverityConstraintNoteForInspectPayload } from "@/lib/review-quali
 import { classifyInspectPayloadJobView } from "@/lib/findings/finding-inspect-job-view";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-import { findingRecommendedActionParagraph } from "./_sections/finding-detail-route-display";
+import { FindingEvidenceTraceBuyerChrome } from "./FindingEvidenceTraceBuyerChrome";
+import { FindingEvidenceTraceBreadcrumb } from "./FindingEvidenceTraceBreadcrumb";
+import { evidenceTracePageSubtitle } from "./evidence-trace-page-copy";
 
 import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeverityConstraintNote";
 import { FindingJobViewLaneCallout } from "@/components/findings/FindingJobViewLaneCallout";
@@ -89,7 +92,7 @@ export function FindingInspectView({
             navHref={GOVERNANCE_FINDINGS_PATH}
             title="Evidence trace"
             headingLevel="h1"
-            actions={<PageContextualHelpButton />}
+            actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
           />
           <FindingOptionalArtifactUnavailable
             heading="Evidence trace temporarily unavailable"
@@ -198,18 +201,29 @@ export function FindingInspectView({
             title={inspectHeroTitle}
             headingLevel="h1"
             breadcrumb={
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {findingInspectPageEyebrow(payload)}
-              </p>
+              buyerPolishedShell ? (
+                <FindingEvidenceTraceBreadcrumb
+                  findingDetailHref={findingDetailHref}
+                  findingLabel={findingTitle}
+                />
+              ) : (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {findingInspectPageEyebrow(payload)}
+                </p>
+              )
             }
             subtitle={
-              <>
-                <p className="m-0">{EVIDENCE_TRACE_PAGE_SUBTITLE}</p>
-                <p className="m-0 mt-2">{findingDetailLeadSentence(payload)}</p>
-              </>
+              buyerPolishedShell ? (
+                <p className="m-0">{evidenceTracePageSubtitle(buyerPolishedShell)}</p>
+              ) : (
+                <>
+                  <p className="m-0">{EVIDENCE_TRACE_PAGE_SUBTITLE}</p>
+                  <p className="m-0 mt-2">{findingDetailLeadSentence(payload)}</p>
+                </>
+              )
             }
             subtitleClassName="max-w-3xl leading-relaxed"
-            actions={<PageContextualHelpButton />}
+            actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
           >
             {!buyerPolishedShell ? (
               <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -227,6 +241,7 @@ export function FindingInspectView({
               </Link>
             </p>
           </OperatorPageHeader>
+          <FindingEvidenceTraceBuyerChrome runId={runId} findingId={decodedFindingId} />
         </div>
 {policyCitationModel.pack !== null || policyCitationModel.policy !== null ? (
           <FindingPolicyCitationHero model={policyCitationModel} traceExcerpt={policyTraceExcerpt} />

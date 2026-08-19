@@ -1,12 +1,20 @@
-/** Page copy for `/governance/dashboard` (Sponsor Workspace Health / workspace overview). */
+/** Copy for the workspace-health KPI section on the sponsor dashboard (`#workspace-health`). */
 
 import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { APPROVAL_GATE_LABEL } from "@/lib/usability/canonical-product-terms";
+import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 
-export const SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE_BUYER = "Workspace overview";
+/**
+ * One user-visible name for this destination in every shell. Nav rows and cross-links already say
+ * "Workspace health", so the section heading must match — otherwise the same KPI tiles read as three
+ * separate surfaces (previously "Sponsor Workspace Health", "Workspace overview", and
+ * "Workspace health (sponsor view)").
+ */
+export const SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE = TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK.label;
 
-export const SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE_OPERATOR = "Sponsor Workspace Health";
+/** Heading id that the sponsor-dashboard section's `aria-labelledby` points at. */
+export const SPONSOR_WORKSPACE_HEALTH_HEADING_ID = "sponsor-workspace-health-heading";
 
 export const SPONSOR_WORKSPACE_HEALTH_PAGE_LEAD_BUYER =
   "Governance posture at a glance for your current workspace scope — counts and trends only.";
@@ -74,10 +82,9 @@ const SPONSOR_WORKSPACE_HEALTH_KPI_TITLES: Record<
   },
 };
 
-export function executiveWorkspaceHealthPageTitle(buyerPolishedShell: boolean): string {
-  return buyerPolishedShell
-    ? SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE_BUYER
-    : SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE_OPERATOR;
+/** Title is shell-independent; the parameter stays for call-site symmetry with the lead and KPI titles. */
+export function executiveWorkspaceHealthPageTitle(_buyerPolishedShell: boolean): string {
+  return SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE;
 }
 
 export function executiveWorkspaceHealthPageLead(buyerPolishedShell: boolean): string {

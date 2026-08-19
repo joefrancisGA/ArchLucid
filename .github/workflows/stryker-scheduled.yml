@@ -41,6 +41,8 @@ jobs:
             config: stryker-config.application-governance.json
           - label: ApplicationCommitCriticalPaths
             config: stryker-config.application-commit-critical-paths.json
+          - label: ApplicationGraphMergeProperties
+            config: stryker-config.application-graph-merge-properties.json
     steps:
       - uses: actions/checkout@v5
 

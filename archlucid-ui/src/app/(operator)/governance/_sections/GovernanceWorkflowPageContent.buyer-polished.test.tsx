@@ -206,7 +206,7 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
     expect(screen.queryByTestId("layer-context-strip")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Workspace overview" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Workspace health" })).toHaveAttribute(
       "href",
       GOVERNANCE_WORKSPACE_HEALTH_HREF,
     );

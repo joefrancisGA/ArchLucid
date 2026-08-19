@@ -54,27 +54,47 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
     {
         HashSet<string> includedIds = affectedElementIds.ToHashSet(StringComparer.Ordinal);
 
-        // One-hop expansion so related decisions/risks in the subgraph are included.
-        foreach (ArchitectureModelElement element in model.Elements)
+        bool relatedExpansionAddedElements;
+
+        do
         {
-            if (!includedIds.Contains(element.ElementId))
+            relatedExpansionAddedElements = false;
+
+            foreach (ArchitectureModelElement element in model.Elements)
             {
-                continue;
+                if (!includedIds.Contains(element.ElementId))
+                {
+                    continue;
+                }
+
+                foreach (string relatedId in element.RelatedElementIds)
+                {
+                    if (includedIds.Add(relatedId))
+                    {
+                        relatedExpansionAddedElements = true;
+                    }
+                }
             }
 
-            foreach (string relatedId in element.RelatedElementIds)
+            foreach (ArchitectureModelElement element in model.Elements)
             {
-                includedIds.Add(relatedId);
-            }
-        }
+                if (includedIds.Contains(element.ElementId))
+                {
+                    continue;
+                }
 
-        foreach (ArchitectureModelElement element in model.Elements)
-        {
-            if (element.RelatedElementIds.Any(relatedId => includedIds.Contains(relatedId)))
-            {
-                includedIds.Add(element.ElementId);
+                if (!element.RelatedElementIds.Any(relatedId => includedIds.Contains(relatedId)))
+                {
+                    continue;
+                }
+
+                if (includedIds.Add(element.ElementId))
+                {
+                    relatedExpansionAddedElements = true;
+                }
             }
         }
+        while (relatedExpansionAddedElements);
 
         return new ArchitectureKnowledgeModel
         {

@@ -8,6 +8,15 @@ vi.mock("@/lib/api", () => ({
   getRunExplanationSummary: vi.fn(),
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => false,
+  };
+});
+
 vi.mock("@/components/operator/OperatorApiProblem", () => ({
   OperatorApiProblem: ({ fallbackMessage }: { fallbackMessage: string }) => (
     <div data-testid="api-problem-mock">{fallbackMessage}</div>

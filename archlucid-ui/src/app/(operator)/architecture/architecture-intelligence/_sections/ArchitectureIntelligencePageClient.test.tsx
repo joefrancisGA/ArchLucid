@@ -1,9 +1,76 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureIntelligencePageClient } from "./ArchitectureIntelligencePageClient";
 
 const searchParamsGet = vi.fn<(key: string) => string | null>(() => null);
+
+function stubProductContextFetch(runId: string, content: string): void {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+      const url = String(input);
+      const method = init?.method ?? "GET";
+
+      if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+        return {
+          ok: true,
+          json: async () => ({
+            runId,
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content,
+              },
+            ],
+          }),
+          text: async () => "",
+        };
+      }
+
+      if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+        return {
+          ok: true,
+          json: async () => ({
+            runId,
+            model: { elements: [] },
+            specialistReviews: [
+              {
+                findings: [
+                  {
+                    findingId: "finding-from-previous-run",
+                    title: "Stale finding from previous review",
+                    severity: "High",
+                    conclusion: "Should not survive inbound run switch",
+                  },
+                ],
+              },
+            ],
+            recommendations: [],
+            mustNotFailViolations: [],
+          }),
+          text: async () => "",
+        };
+      }
+
+      return {
+        ok: true,
+        json: async () => ({}),
+        text: async () => "",
+      };
+    }),
+  );
+}
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
 
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   useLlmMonthlyBudgetExecutionGate: () => ({
@@ -65,7 +132,7 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-priorities")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run architecture reasoning" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run golden test" })).toBeInTheDocument();
-    expect(document.getElementById("baseline-evaluation")).toBeInTheDocument();
+    expect(document.getElementById("architecture-intelligence-actions")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Load golden fixture" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Publish to findings/advisory" })).toBeInTheDocument();
     expect(screen.getByTestId("architecture-intelligence-publish-toggle")).toBeInTheDocument();
@@ -132,6 +199,132 @@ describe("ArchitectureIntelligencePageClient", () => {
       "Loaded product intake from review",
     );
     expect(screen.getByTestId("architecture-intelligence-analyze-review-button")).toBeInTheDocument();
+  });
+
+  it("clears reasoning results when inbound runId switches to another review", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    stubProductContextFetch(currentRunId, "Architecture for review A.");
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-reasoning-results")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Stale finding from previous review")).toBeInTheDocument();
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    stubProductContextFetch(currentRunId, "Architecture for review B.");
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
+    expect(screen.queryByText("Stale finding from previous review")).not.toBeInTheDocument();
+  });
+
+  it("clears reasoning results when operator scope switches workspaces", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    searchParamsGet.mockImplementation(() => null);
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return {
+            ok: true,
+            json: async () => ({
+              runId: "freeform-run",
+              model: { elements: [] },
+              specialistReviews: [
+                {
+                  findings: [
+                    {
+                      findingId: "finding-scope-a",
+                      title: "Finding from workspace A",
+                      severity: "Medium",
+                      conclusion: "Must clear on scope switch",
+                    },
+                  ],
+                },
+              ],
+              recommendations: [],
+              mustNotFailViolations: [],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Freeform architecture for workspace A." },
+    });
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Finding from workspace A")).toBeInTheDocument();
+    });
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("");
+    expect(screen.queryByText("Finding from workspace A")).not.toBeInTheDocument();
   });
 });
 

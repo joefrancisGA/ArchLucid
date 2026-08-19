@@ -18,6 +18,9 @@ import { cn } from "@/lib/utils";
 import { EVIDENCE_CLAIM_STYLE, EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE,
+  CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING,
+  CONNECT_GCP_SECURELY_CLAIM_HEADING_ID,
+  CONNECT_GCP_SECURELY_FOLLOW_UPS_TITLE,
   CONNECT_GCP_SECURELY_SOURCES,
   CONNECT_GCP_SECURELY_SOURCES_INTRO,
 } from "@/lib/connect-gcp-securely-help-evidence-copy";
@@ -57,6 +60,7 @@ export function AzurePermissionsHelpEvidenceOrientationStrip(): React.JSX.Elemen
   return (
     <EvidenceOrientationClaimCallout
       testId="azure-permissions-help-claim-discipline"
+      stripSlug="azure-permissions-help"
       body={AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE}
     />
   );
@@ -97,26 +101,24 @@ export function CaiqSigResponseHelpEvidenceOrientationStrip(): React.JSX.Element
   );
 }
 
-export const CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING = "Connector setup orientation";
-
 export function ConnectGcpSecurelyHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationStripShell testId="connect-gcp-securely-help-orientation">
       <EvidenceOrientationClaimCallout
         testId="connect-gcp-securely-help-claim-discipline"
+        stripSlug="connect-gcp-securely-help"
         body={CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE}
         style={EVIDENCE_CLAIM_STYLE.operatorInfo}
         heading={{
-          id: "connect-gcp-securely-help-claim-discipline-heading",
+          id: CONNECT_GCP_SECURELY_CLAIM_HEADING_ID,
           text: CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING,
-          visuallyHidden: true,
         }}
       />
 
       <EvidenceOrientationSourcesSection
         testId="connect-gcp-securely-help-sources"
         headingId="connect-gcp-securely-help-sources-heading"
-        title={HELP_DILIGENCE_ARTIFACT_INDEX_TITLE}
+        title={CONNECT_GCP_SECURELY_FOLLOW_UPS_TITLE}
         intro={CONNECT_GCP_SECURELY_SOURCES_INTRO}
         links={CONNECT_GCP_SECURELY_SOURCES}
       />
@@ -128,6 +130,7 @@ export function EvidenceTrailHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimCallout
       testId="evidence-trail-help-claim-discipline"
+      stripSlug="evidence-trail-help"
       body={EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE}
     />
   );
@@ -154,6 +157,7 @@ export function GlossaryHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimCallout
       testId="glossary-help-claim-discipline"
+      stripSlug="glossary-help"
       body={
         <>
           {GLOSSARY_HELP_CLAIM_DISCIPLINE_LEAD} Open{" "}
@@ -176,6 +180,7 @@ export function PilotGuideHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimCallout
       testId="pilot-guide-help-claim-discipline"
+      stripSlug="pilot-guide-help"
       body={PILOT_GUIDE_HELP_CLAIM_DISCIPLINE}
     />
   );
@@ -193,9 +198,13 @@ export function PilotGuideHelpEvidenceOrientationStrip(): React.JSX.Element {
  * Uses the shell for page rhythm (`mt-10`) rather than the shared sources-and-claim strip, whose
  * claim props are required.
  */
-export function PricingEvidenceOrientationStrip(): React.JSX.Element {
+export function PricingEvidenceOrientationStrip(props: {
+  readonly placement?: "top" | "footer";
+}): React.JSX.Element {
+  const margin = props.placement === "top" ? "mb-8" : "mt-10";
+
   return (
-    <EvidenceOrientationStripShell testId="pricing-orientation" margin="mt-10">
+    <EvidenceOrientationStripShell testId="pricing-orientation" margin={margin}>
       <EvidenceOrientationSourcesSection
         testId="pricing-sources"
         headingId="pricing-sources-heading"
@@ -215,6 +224,7 @@ export function ProcurementHelpEvidenceOrientationStrip(): React.JSX.Element {
 
       <EvidenceOrientationClaimCallout
         testId="procurement-help-claim-discipline"
+        stripSlug="procurement-help"
         body={PROCUREMENT_HELP_CLAIM_DISCIPLINE}
       />
 
@@ -229,6 +239,7 @@ export function ScopeHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimCallout
       testId="scope-help-claim-discipline"
+      stripSlug="scope-help"
       body={SCOPE_HELP_CLAIM_DISCIPLINE}
     />
   );
@@ -256,6 +267,7 @@ export function UsersAndRolesHelpEvidenceOrientationStrip(): React.JSX.Element {
     <EvidenceOrientationStripShell testId="users-and-roles-help-orientation">
       <EvidenceOrientationClaimCallout
         testId="users-and-roles-help-claim-discipline"
+        stripSlug="users-and-roles-help"
         body={USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE}
       />
 

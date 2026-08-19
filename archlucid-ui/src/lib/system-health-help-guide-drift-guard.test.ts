@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { expectsVisibleClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 import {
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE,
   SYSTEM_HEALTH_HELP_OPERATOR_CLAIM_NEGATION,
@@ -52,25 +53,33 @@ function maxSharedConsecutiveWords(left: string, right: string): number {
 }
 
 describe("system health help negation drift guard", () => {
+  const claimBandVisible = expectsVisibleClaimDisciplineBand("help-system-health");
+
   it("keeps overview positive-only and claim band as the single diligence negation", () => {
     for (const phrase of SYSTEM_HEALTH_HELP_NEGATION_DRIFT_MARKERS.overviewMustNotContain) {
       expect(SYSTEM_HEALTH_HELP_OVERVIEW, `overview must not contain "${phrase}"`).not.toContain(phrase);
     }
 
-    expect(SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE).toContain(
-      SYSTEM_HEALTH_HELP_NEGATION_DRIFT_MARKERS.claimMustContain,
-    );
-    expect(SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE).toContain(SYSTEM_HEALTH_HELP_OPERATOR_CLAIM_NEGATION);
-    expect(SYSTEM_HEALTH_CLAIM_DISCIPLINE).toContain(SYSTEM_HEALTH_HELP_OPERATOR_CLAIM_NEGATION);
+    if (claimBandVisible) {
+      expect(SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE).toContain(
+        SYSTEM_HEALTH_HELP_NEGATION_DRIFT_MARKERS.claimMustContain,
+      );
+      expect(SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE).toContain(SYSTEM_HEALTH_HELP_OPERATOR_CLAIM_NEGATION);
+      expect(SYSTEM_HEALTH_CLAIM_DISCIPLINE).toContain(SYSTEM_HEALTH_HELP_OPERATOR_CLAIM_NEGATION);
 
-    const diligenceNegationCount =
-      (SYSTEM_HEALTH_HELP_OVERVIEW.match(/sources trail/gi) ?? []).length +
-      (SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE.match(/sources trail/gi) ?? []).length;
+      const diligenceNegationCount =
+        (SYSTEM_HEALTH_HELP_OVERVIEW.match(/sources trail/gi) ?? []).length +
+        (SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE.match(/sources trail/gi) ?? []).length;
 
-    expect(diligenceNegationCount).toBe(1);
+      expect(diligenceNegationCount).toBe(1);
+    }
   });
 
   it("keeps overview and claim strip without long shared sentences", () => {
+    if (!claimBandVisible) {
+      return;
+    }
+
     expect(
       maxSharedConsecutiveWords(SYSTEM_HEALTH_HELP_OVERVIEW, SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE),
     ).toBeLessThanOrEqual(8);

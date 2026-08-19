@@ -33,7 +33,7 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
     render(<HelpRecurrenceSchedulesGuideView entry={entry} />);
 
     expect(screen.getByTestId("help-recurrence-schedules-guide")).toBeInTheDocument();
-    expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("help-recurrence-schedules-page-title")).toHaveTextContent("Recurrence schedules");
     expect(RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE).not.toBe(RECURRENCE_SCHEDULES_PAGE_SUBTITLE);
     expect(screen.getByTestId("help-recurrence-schedules-finalized-review-precondition-tag")).toHaveTextContent(

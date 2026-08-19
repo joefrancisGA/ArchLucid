@@ -7,6 +7,21 @@ export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & Upload" as const;
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE =
   "Run the read-only Azure extractor locally, validate the ZIP, then upload it for architecture reviews." as const;
 
+export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER =
+  "Collect a read-only Azure inventory ZIP locally, validate it, and upload it to start architecture reviews." as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID = "extract-upload-settings-primary-content" as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL = "Skip to extract and upload workspace" as const;
+
+export const EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_TOPIC_TITLE = EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE;
+
+export function extractUploadSettingsPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER
+    : EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE;
+}
+
 export const EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL = "Administration" as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_BREADCRUMB_ADMINISTRATION_HREF = SETTINGS_ROOT_PATH;

@@ -18,3 +18,13 @@ export const EXTRACT_UPLOAD_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Cloud connections", href: "/integrations/cloud-connections" },
   { label: "Connect Azure help", href: inAppHelpHref("cloud-connections-azure") },
 ] as const;
+
+const EXTRACT_UPLOAD_SETTINGS_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([
+  "/architecture/reviews",
+]);
+
+/** Orientation-strip Sources — excludes the Step 2 Go to Reviews CTA destination. */
+export const EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =
+  EXTRACT_UPLOAD_SETTINGS_SOURCES.filter(
+    (source) => !EXTRACT_UPLOAD_SETTINGS_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+  );

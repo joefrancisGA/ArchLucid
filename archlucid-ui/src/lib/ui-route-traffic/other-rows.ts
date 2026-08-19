@@ -7,6 +7,12 @@ import {
   DEMO_EXPLAIN_TRAFFIC_SECTION,
 } from "@/lib/ui-route-traffic-demo-explain";
 import type { UiRouteTrafficRow } from "@/lib/ui-route-traffic/types";
+import {
+  WHY_ARCHLUCID_TRAFFIC_NOTE,
+  WHY_ARCHLUCID_TRAFFIC_PATH,
+  WHY_ARCHLUCID_TRAFFIC_ROW_ID,
+  WHY_ARCHLUCID_TRAFFIC_SECTION,
+} from "@/lib/ui-route-traffic-why-archlucid";
 
 /** Traffic workbook rows for low-volume workbook sections. */
 export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
@@ -143,10 +149,10 @@ export const OTHER_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
   },
   /** Traffic workbook row ID for operator Why ArchLucid proof page. Owner backlog shorthand: WH. */
   {
-    rowId: "WH",
-    path: "/why-archlucid",
-    section: "Learning",
-    note: "Pilot proof telemetry (Learning) - WhyArchLucidPage with OperatorPageHeader/PageHeading, OperatorPageBreadcrumb, PageContextualHelpButton (topic map how-it-works), internal pilot badge, seeded demo telemetry + sponsor pack sections. Sibling WHY = marketing /why. Buyer-polished shell redirects to showcase executive. Demo/proof orientation ΓÇö not a signed-record Sources trail.",
-    noteMustContain: ["WhyArchLucidPage", "OperatorPageHeader", "marketing /why"],
+    rowId: WHY_ARCHLUCID_TRAFFIC_ROW_ID,
+    path: WHY_ARCHLUCID_TRAFFIC_PATH,
+    section: WHY_ARCHLUCID_TRAFFIC_SECTION,
+    note: WHY_ARCHLUCID_TRAFFIC_NOTE,
+    noteMustContain: ["breadcrumb", "claim orientation", "/al-ui-rate-lowest WH"],
   },
 ];

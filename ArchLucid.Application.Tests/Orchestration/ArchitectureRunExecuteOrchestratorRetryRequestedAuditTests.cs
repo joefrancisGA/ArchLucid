@@ -14,6 +14,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
@@ -144,6 +145,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             new OperationCancellationRegistry(),
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
+            Mock.Of<IRunStageOutcomesRepository>(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);
@@ -266,6 +268,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             new OperationCancellationRegistry(),
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
+            Mock.Of<IRunStageOutcomesRepository>(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);

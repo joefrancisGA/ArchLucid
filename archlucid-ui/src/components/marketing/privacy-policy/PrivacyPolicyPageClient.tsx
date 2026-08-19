@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { PrivacyEvidenceOrientationStrip } from "@/components/marketing/PrivacyEvidenceOrientationStrip";
 import { PrivacyPolicyAtGlanceSummary } from "@/components/marketing/privacy-policy/PrivacyPolicyAtGlanceSummary";
+import { PrivacyPolicyBreadcrumb } from "@/components/marketing/privacy-policy/PrivacyPolicyBreadcrumb";
 import { PrivacyPolicyRelatedDocuments } from "@/components/marketing/privacy-policy/PrivacyPolicyRelatedDocuments";
 import { PrivacyPolicyRevisionHistory } from "@/components/marketing/privacy-policy/PrivacyPolicyRevisionHistory";
 import { PrivacyPolicyTableOfContents } from "@/components/marketing/privacy-policy/PrivacyPolicyTableOfContents";
@@ -13,6 +14,7 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import type { PrivacyPolicyMetadata, PrivacyPolicyRelatedDocument } from "@/lib/privacy-policy-content";
 import { PRIVACY_POLICY_REVISION_HISTORY } from "@/lib/privacy-policy-content";
 import { PRIVACY_POLICY_LAYOUT } from "@/lib/privacy-policy-layout";
+import { PRIVACY_POLICY_PAGE_LEDE_BUYER, PRIVACY_POLICY_PAGE_TITLE } from "@/lib/privacy-policy-page-copy";
 
 const PRIVACY_FOCUSED_READING_BODY_CLASS = "privacy-focused-reading";
 const PRIVACY_CONTENT_ID = "privacy-policy-content";
@@ -120,11 +122,11 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
       <div className={PRIVACY_POLICY_LAYOUT.grid}>
         <article id={PRIVACY_CONTENT_ID} className={PRIVACY_POLICY_LAYOUT.article} tabIndex={-1}>
           <header className={PRIVACY_POLICY_LAYOUT.header}>
-            <h1 className={PRIVACY_POLICY_LAYOUT.title}>Privacy Policy</h1>
-            <p className={PRIVACY_POLICY_LAYOUT.lede}>
-              How ArchLucid collects, uses, shares, retains, and protects personal information for website visitors
-              and product users.
-            </p>
+            <div className={PRIVACY_POLICY_LAYOUT.breadcrumb}>
+              <PrivacyPolicyBreadcrumb />
+            </div>
+            <h1 className={PRIVACY_POLICY_LAYOUT.title}>{PRIVACY_POLICY_PAGE_TITLE}</h1>
+            <p className={PRIVACY_POLICY_LAYOUT.lede}>{PRIVACY_POLICY_PAGE_LEDE_BUYER}</p>
             <div className={PRIVACY_POLICY_LAYOUT.metaRow}>
               {effectiveLabel !== null ? (
                 <span className={PRIVACY_POLICY_LAYOUT.effectiveDate}>{effectiveLabel}</span>
@@ -185,6 +187,10 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
             </div>
           </header>
 
+          <div data-testid="privacy-policy-orientation-top">
+            <PrivacyEvidenceOrientationStrip />
+          </div>
+
           <PrivacyPolicyAtGlanceSummary />
           <PrivacyPolicyRevisionHistory entries={PRIVACY_POLICY_REVISION_HISTORY} />
 
@@ -212,8 +218,6 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
           )}
 
           <PrivacyPolicyRelatedDocuments documents={props.relatedDocuments} />
-
-          <PrivacyEvidenceOrientationStrip />
         </article>
 
         <div className="hidden xl:block">

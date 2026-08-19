@@ -729,4 +729,116 @@ public sealed class PilotRunDeltaComputerTests
         deltas.FindingsBySeverity.Sum(static p => p.Value).Should().Be(1);
         deltas.TimeToCommittedManifest.Should().Be(completed - created);
     }
+
+    [SkippableFact]
+    public async Task ComputeAsync_WhenAgentResultsHaveNoFindings_UsesSnapshotForGovernedCoverageAndTopFinding()
+    {
+        Guid runGuid = Guid.Parse("dddddddd-1111-2222-3333-444444444444");
+        Guid findingsSnapshotId = Guid.Parse("eeeeeeee-1111-2222-3333-444444444444");
+        DateTime created = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime completed = created.AddMinutes(24);
+
+        ArchitectureRun run = new()
+        {
+            RunId = runGuid.ToString("N"),
+            RequestId = "req-snapshot-coverage",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = created,
+            CompletedUtc = completed,
+            CurrentManifestVersion = "v1",
+            FindingsSnapshotId = findingsSnapshotId,
+        };
+
+        GoldenManifest manifest = new()
+        {
+            RunId = run.RunId,
+            SystemName = "ArchLucid",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = created },
+            Governance = new ManifestGovernance(),
+        };
+
+        ArchitectureRunDetail detail = new()
+        {
+            Run = run,
+            Manifest = manifest,
+            Results =
+            [
+                new AgentResult
+                {
+                    TaskId = "t-empty",
+                    RunId = run.RunId,
+                    AgentType = AgentType.Topology,
+                    Findings = [],
+                },
+            ],
+            DecisionTraces = [],
+        };
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        snapshots.Setup(s => s.GetCoverageProjectionByIdAsync(scope, findingsSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsSnapshotId,
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-governed",
+                        Severity = FindingSeverity.Critical,
+                        EngineType = "topology",
+                        Category = "security",
+                        PolicyRuleId = "security.tls",
+                        EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                        AgentExecutionTraceId = "trace-1",
+                    },
+                    new Finding
+                    {
+                        FindingId = "f-advisory",
+                        Severity = FindingSeverity.Warning,
+                        EngineType = "cost",
+                        Category = "cost",
+                        EnforcementTier = FindingEnforcementTier.Advisory,
+                    },
+                ],
+            });
+
+        Mock<IFindingEvidenceChainService> evidence = new();
+        evidence.Setup(e => e.BuildAsync(run.RunId, "f-governed", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingEvidenceChainResponse
+            {
+                RunId = run.RunId,
+                FindingId = "f-governed",
+                ManifestVersion = "v1",
+            });
+
+        PilotRunDeltaComputer sut = CreatePilotDeltaComputer(
+            evidence.Object,
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAuditRepository>(),
+            LooseArtifacts().Object,
+            scopeProvider.Object,
+            savingsResolver: null,
+            findingsSnapshotRepository: snapshots.Object);
+
+        PilotRunDeltas deltas = await sut.ComputeAsync(detail);
+
+        deltas.GovernedFindingCoverage.IsAvailable.Should().BeTrue();
+        deltas.GovernedFindingCoverage.TotalDecisionGradeCount.Should().Be(2);
+        deltas.GovernedFindingCoverage.GovernedCount.Should().Be(1);
+        deltas.GovernedFindingCoverage.AdvisoryCount.Should().Be(1);
+        deltas.GovernedFindingCoverage.WithPolicyRuleCount.Should().Be(1);
+        deltas.GovernedFindingCoverage.WithEvidenceRefsCount.Should().Be(1);
+        deltas.TopFindingId.Should().Be("f-governed");
+        deltas.TopFindingSeverity.Should().Be("Critical");
+        deltas.TopFindingEvidenceChain.Should().NotBeNull();
+    }
 }

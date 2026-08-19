@@ -13,6 +13,7 @@ using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
+using ArchLucid.Contracts.Analytics;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Authority;
@@ -409,6 +410,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
         services.AddScoped<IProductLearningDashboardService, ProductLearningDashboardService>();
         services.AddScoped<IProductLearningPlanningDerivationService, ProductLearningPlanningDerivationService>();
+        services.AddScoped<IPatternInsightAggregateRepository, DapperPatternInsightAggregateRepository>();
         services.AddScoped<IEvolutionCandidateChangeSetRepository, DapperEvolutionCandidateChangeSetRepository>();
         services.AddScoped<IEvolutionSimulationRunRepository, DapperEvolutionSimulationRunRepository>();
         services.AddScoped<IAuthorityPipelineWorkRepository, DapperAuthorityPipelineWorkRepository>();

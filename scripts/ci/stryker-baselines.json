@@ -7,5 +7,6 @@
   "Api": { "mutationScore": 55.0 },
   "DecisioningMerge": { "mutationScore": 30.6 },
   "ApplicationGovernance": { "mutationScore": 55.0 },
-  "ApplicationCommitCriticalPaths": { "mutationScore": 22.5 }
+  "ApplicationCommitCriticalPaths": { "mutationScore": 22.5 },
+  "ApplicationGraphMergeProperties": { "mutationScore": 15.0 }
 }

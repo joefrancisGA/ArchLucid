@@ -94,16 +94,17 @@ jobs:
             --trend-json "${{ steps.eval.outputs.trend_dir }}/trend.json" \
             --enabled "${ENABLED}"
 
-      - name: Consecutive-night regression warn
+      - name: Golden cohort canary drift alert (TB-2231)
         if: steps.eligibility.outputs.enabled == 'true'
         run: |
           set -euo pipefail
           PREV="${RUNNER_TEMP}/real-mode-eval-previous/trend.json"
           CURR="${{ steps.eval.outputs.trend_dir }}/trend.json"
           if [ -f "${PREV}" ]; then
-            python3 scripts/ci/assert_real_mode_eval_consecutive_regression.py \
+            python3 scripts/ci/assert_golden_cohort_canary_drift_alert.py \
               --current "${CURR}" \
-              --previous "${PREV}"
+              --previous "${PREV}" \
+              --history-root "$(dirname "$(dirname "${CURR}")")"
           else
             echo "No previous trend artifact in cache (first night or cold cache)."
           fi

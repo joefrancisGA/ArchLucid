@@ -8,11 +8,16 @@ import { WelcomeMarketingProblemSolutionSection } from "@/components/marketing/W
 import { WelcomeMarketingUseCasesSection } from "@/components/marketing/WelcomeMarketingUseCasesSection";
 import { WelcomeMarketingWorkflowSection } from "@/components/marketing/WelcomeMarketingWorkflowSection";
 import { MarketingTierPricingSectionDeferred } from "@/components/marketing/welcome-marketing-deferred-chunks";
-import { WELCOME_SEE_IT_CTA_LABEL, WELCOME_PROOF_LADDER_PRIMARY_HREF } from "@/components/marketing/welcome-marketing-copy";
+import {
+  WELCOME_PRIMARY_CONTENT_ID,
+  WELCOME_SEE_IT_CTA_LABEL,
+  WELCOME_PROOF_LADDER_PRIMARY_HREF,
+} from "@/components/marketing/welcome-marketing-copy";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer/buyer-polish-copy";
 import { MARKETING_LAYOUT, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PricingDoc } from "@/lib/pricing-types";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { cn } from "@/lib/utils";
 
 type WelcomePillar = {
@@ -73,8 +78,16 @@ export function WelcomeMarketingPage(props: {
 
   return (
     <>
+      <a href={`#${WELCOME_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
+        Skip to welcome content
+      </a>
       <WelcomeMarketingHeroSection />
       <MarketingPageShell>
+        <div id={WELCOME_PRIMARY_CONTENT_ID} className="scroll-mt-24 space-y-16">
+          <div data-testid="welcome-orientation-top">
+            <WelcomeEvidenceOrientationStrip />
+          </div>
+
         <WelcomeMarketingProblemSolutionSection />
 
         <WelcomeMarketingWorkflowSection />
@@ -123,8 +136,7 @@ export function WelcomeMarketingPage(props: {
             initialPricing={initialPricing}
           />
         </section>
-
-        <WelcomeEvidenceOrientationStrip />
+        </div>
       </MarketingPageShell>
     </>
   );

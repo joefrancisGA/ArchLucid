@@ -4,8 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { ArchitectureDraftDetailBreadcrumb } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBreadcrumb";
+import { ArchitectureDraftDetailBuyerChrome } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBuyerChrome";
 import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
 import { ArchitectureDraftAiRefinePanel } from "@/components/architecture/ArchitectureDraftAiRefinePanel";
+import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
@@ -23,7 +26,6 @@ import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStart
 import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Card, CardContent } from "@/components/ui/card";
-import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
@@ -41,12 +43,7 @@ import {
   isArchitectureDraftHandoffAcknowledged,
   trackArchitectureDraftPostSpawnEdit,
 } from "@/lib/architecture/architecture-draft-handoff-gate";
-import {
-  ARCHITECTURE_DRAFT_STATUS_LABELS,
-  architectureDraftCustomerStatusTagKind,
-  architectureDraftDisplayName,
-  resolveArchitectureDraftCustomerStatus,
-} from "@/lib/architecture/architecture-draft-status";
+import { architectureDraftDisplayName } from "@/lib/architecture/architecture-draft-status";
 import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
@@ -57,6 +54,8 @@ import {
   type ArchitectureDraftFieldState,
 } from "@/lib/architecture/architecture-draft-readiness";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
+import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
+import { architecturesNewWorkspaceLead } from "@/lib/architectures-new-page-copy";
 import {
   ARCHITECTURES_LIST_PATH,
   architectureDraftPath,
@@ -64,6 +63,7 @@ import {
   reviewDetailPath,
   startReviewFromArchitectureHref,
 } from "@/lib/architecture/architecture-routes";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import {
@@ -75,8 +75,6 @@ import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-work
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
-  ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
-  ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showSuccess } from "@/lib/toast";
@@ -91,6 +89,8 @@ type ArchitectureDraftWorkspaceProps = {
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
   const router = useRouter();
   const isNewDraft = isArchitectureNewDraftSegment(props.architectureId);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const isDetailDraft = !isNewDraft;
   const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const [loading, setLoading] = useState(!isNewDraft);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -184,9 +184,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const workspaceHeading = isNewDraft ? ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE : displayName;
   const WorkspaceHeadingTag = isNewDraft ? "h2" : "h1";
 
-  const workspaceLead = hasLocalDraftsOnCreatePath
-    ? ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD
-    : ARCHITECTURE_DRAFT_WORKSPACE_LEAD;
+  const workspaceLead = isNewDraft
+    ? architecturesNewWorkspaceLead(buyerPolishedShell, hasLocalDraftsOnCreatePath)
+    : architectureDraftDetailPageSubtitle(buyerPolishedShell);
 
   const reviewReadiness = useMemo(
     () => validateArchitectureReviewReadiness(fields, actorSet.actors),
@@ -207,15 +207,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       })),
     }),
     [actorSet.actors, fields.businessOutcome, fields.freeTextIntent, fields.systemName],
-  );
-
-  const customerStatus = useMemo(
-    () =>
-      resolveArchitectureDraftCustomerStatus({
-        linkedReviewId,
-        reviewReadinessValid: reviewReadiness.isValid,
-      }),
-    [linkedReviewId, reviewReadiness.isValid],
   );
 
   useEffect(() => {
@@ -437,6 +428,17 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }
 
   if (loadError !== null) {
+    if (isDetailDraft && buyerPolishedShell) {
+      return (
+        <ArchitectureDraftDetailLoadFailure
+          message={loadError}
+          onRetry={() => {
+            void loadDraft();
+          }}
+        />
+      );
+    }
+
     return (
       <div className="space-y-3" data-testid="architecture-draft-workspace-error">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert">
@@ -453,6 +455,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     <div className="space-y-4" data-testid="architecture-draft-workspace">
       {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
 
+      {isDetailDraft && buyerPolishedShell ? (
+        <ArchitectureDraftDetailBreadcrumb draftLabel={workspaceHeading} />
+      ) : null}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
           <WorkspaceHeadingTag
@@ -466,21 +472,14 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           <p className={cn("m-0", OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
             {workspaceLead}
           </p>
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusTag
-              kind={architectureDraftCustomerStatusTagKind(customerStatus)}
-              label={ARCHITECTURE_DRAFT_STATUS_LABELS[customerStatus]}
-              data-testid="architecture-draft-workspace-status-tag"
-            />
-            {linkedReviewId !== null ? (
-              <Link
-                href={reviewDetailPath(linkedReviewId)}
-                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
-              >
-                Open linked review
-              </Link>
-            ) : null}
-          </div>
+          {linkedReviewId !== null ? (
+            <Link
+              href={reviewDetailPath(linkedReviewId)}
+              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+            >
+              Open linked review
+            </Link>
+          ) : null}
         </div>
         <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
           {isNewDraft ? null : <PageContextualHelpButton />}
@@ -493,6 +492,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         </div>
       </div>
 
+      {isDetailDraft && buyerPolishedShell ? <ArchitectureDraftDetailBuyerChrome /> : null}
+
       {linkedReviewId !== null ? (
         <ArchitectureDraftHandoffBanner
           linkedReviewId={linkedReviewId}
@@ -502,7 +503,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         />
       ) : null}
 
-      <ArchitectureDraftGuidanceDisclosure />
+      {buyerPolishedShell ? null : <ArchitectureDraftGuidanceDisclosure />}
 
       {conflictMessage !== null ? (
         <div className="space-y-2" data-testid="architecture-draft-conflict">
@@ -536,6 +537,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             fields={fields}
             actorSet={actorSet}
             disabled={handoffEditorLocked || exitPending}
+            blocksLlmExecution={blocksLlmExecution}
             markReviewReadinessInvalid={linkedReviewId === null && !reviewReadiness.isValid}
             onFieldsChange={setFields}
             onActorSetChange={setActorSet}

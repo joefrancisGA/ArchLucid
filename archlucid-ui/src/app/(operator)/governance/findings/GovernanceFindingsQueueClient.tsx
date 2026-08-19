@@ -15,6 +15,8 @@ import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPag
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
 import { GovernanceFindingsAssignedToMeBreadcrumb } from "@/components/governance/findings/GovernanceFindingsAssignedToMeBreadcrumb";
+import { GovernanceFindingsBuyerChrome } from "@/components/governance/findings/GovernanceFindingsBuyerChrome";
+import { GovernanceFindingsQueueBreadcrumb } from "@/components/governance/findings/GovernanceFindingsQueueBreadcrumb";
 import { GovernanceFindingsRelatedQueuesDisclosure } from "@/components/governance/findings/GovernanceFindingsRelatedQueuesDisclosure";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
@@ -49,6 +51,11 @@ import {
   BUYER_RISK_REGISTER_EMPTY_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID,
+  GOVERNANCE_FINDINGS_SKIP_LINK_LABEL,
+} from "@/lib/governance-findings-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { hasGovernanceApprovalProvenance } from "@/lib/governance/governance-approval-provenance";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -243,7 +250,14 @@ export default function GovernanceFindingsQueueClient({
 
     return filterGovernanceRowsForJobView(facetFilteredRows, effectiveJobView);
   }, [scopedRows, registerFilter, effectiveJobView, nlFacets]);
-  const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(rows), [rows]);
+  /**
+   * Scoped rows, not all rows: when `?runId=` is set, each header metric is labelled "in this review"
+   * by {@link governanceRegisterMetricPresentation} and its drill-in href carries the same `runId`, so a
+   * tenant-wide count here would read as a review count and disagree with the list below it.
+   * Facet filters (register filter, job view, natural-language) are deliberately excluded — the header
+   * describes the review, and the filter chips describe the narrowed list.
+   */
+  const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(scopedRows), [scopedRows]);
   const findingIds = useMemo(
     () => displayedRows.filter((row) => row.recordKind === "finding").map((row) => row.findingId),
     [displayedRows],
@@ -363,6 +377,15 @@ export default function GovernanceFindingsQueueClient({
 
   return (
     <div className="w-full max-w-[1440px]">
+      {!isAssignedToMe ? (
+        <a
+          href={`#${GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_FINDINGS_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
       {showGovernanceApprovalBanner ? (
         <GovernanceApprovalStatusBanner
           className="mb-4"
@@ -370,7 +393,7 @@ export default function GovernanceFindingsQueueClient({
           onAssignedToMeFindingsPage={isAssignedToMe}
           provenance={governanceApprovalProvenance}
         />
-      ) : !isAssignedToMe ? (
+      ) : !isAssignedToMe && !buyerPolishedShell ? (
         <LayerHeader pageKey="governance-findings" density="compact" />
       ) : null}
 
@@ -379,7 +402,13 @@ export default function GovernanceFindingsQueueClient({
         title={pageTitle}
         subtitle={pageSubtitle}
         titleTestId="architecture-risk-register-page-title"
-        breadcrumb={isAssignedToMe ? <GovernanceFindingsAssignedToMeBreadcrumb /> : undefined}
+        breadcrumb={
+          isAssignedToMe ? (
+            <GovernanceFindingsAssignedToMeBreadcrumb />
+          ) : buyerPolishedShell ? (
+            <GovernanceFindingsQueueBreadcrumb />
+          ) : undefined
+        }
         statusBadge={assignedToMeStatusBadge}
         metadata={
           isAssignedToMe ? (
@@ -391,7 +420,7 @@ export default function GovernanceFindingsQueueClient({
                 testId="architecture-risk-register-summary-open"
                 presentation={governanceRegisterMetricPresentation({
                   count: registerSummary.openRisks,
-                  noun: registerSummary.openRisks === 1 ? "open risk" : "open risks",
+                  noun: registerSummary.openRisks === 1 ? "open finding" : "open findings",
                   filter: "open",
                   runId: scopedRunId,
                 })}
@@ -434,7 +463,8 @@ export default function GovernanceFindingsQueueClient({
       {!isAssignedToMe ? (
         <GovernanceJobRouterStrip currentJobId={currentJobId} layout="default" />
       ) : null}
-      {!isAssignedToMe ? (
+      {!isAssignedToMe && buyerPolishedShell ? <GovernanceFindingsBuyerChrome /> : null}
+      {!isAssignedToMe && !buyerPolishedShell ? (
         <>
           <AlertsFindingsVocabularyRail currentSurfaceId="findings-queue" />
           <DecisionRegisterFindingsVocabularyRail currentSurfaceId="findings-queue" />
@@ -443,7 +473,11 @@ export default function GovernanceFindingsQueueClient({
           <PageCapabilityBoundaryStrip surfaceId="governanceFindings" />
         </>
       ) : null}
-      <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)} data-testid="governance-findings-queue-body">
+      <div
+        id={!isAssignedToMe ? GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID : undefined}
+        className={cn("mt-4 scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+        data-testid="governance-findings-queue-body"
+      >
         {secondaryViewPresentation !== null ? (
           <CanonicalObjectSecondaryViewStrip
             presentation={secondaryViewPresentation}
@@ -457,7 +491,7 @@ export default function GovernanceFindingsQueueClient({
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="governance-findings-run-scope-banner"
           >
-            {isAssignedToMe ? "Showing findings for review " : "Showing risks for review "}
+            {"Showing findings for review "}
             <span className="font-mono text-al-text-primary">{scopedRunId}</span>
             {" · "}
             <Link className={OPERATOR_LINK.inline} href={navHref}>

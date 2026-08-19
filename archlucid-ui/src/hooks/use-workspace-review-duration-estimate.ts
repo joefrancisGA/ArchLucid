@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
-import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+import { usePilotRecentDeltasQuery } from "@/hooks/use-pilot-recent-deltas-query";
 import {
   deriveWorkspaceReviewDurationEstimate,
   type WorkspaceReviewDurationEstimate,
 } from "@/lib/workspace-review-duration-estimate";
-import { fetchPilotRecentDeltasCached } from "@/lib/pilot-recent-deltas-client";
 
 const RECENT_REVIEW_DURATION_SAMPLE_COUNT = 12;
 
@@ -18,49 +17,26 @@ export type UseWorkspaceReviewDurationEstimateResult = {
 
 /**
  * Tenant-scoped p50/p90 review duration band from recent finalized reviews (TB-2149).
+ *
+ * Reads through the shared recent-deltas query, so surfaces that show the band together issue one
+ * request and refresh together when the cache is invalidated.
  */
 export function useWorkspaceReviewDurationEstimate(
   enabled: boolean,
 ): UseWorkspaceReviewDurationEstimateResult {
-  const scope = useOperatorScopeQueryKey();
-  const [estimate, setEstimate] = useState<WorkspaceReviewDurationEstimate | null>(null);
-  const [loading, setLoading] = useState(enabled);
+  const { data, isPending, isError } = usePilotRecentDeltasQuery(
+    RECENT_REVIEW_DURATION_SAMPLE_COUNT,
+    { enabled },
+  );
 
-  useEffect(() => {
-    if (!enabled) {
-      setLoading(false);
-      return;
+  const estimate = useMemo<WorkspaceReviewDurationEstimate | null>(() => {
+    if (isError) {
+      return null;
     }
 
-    let cancelled = false;
+    return deriveWorkspaceReviewDurationEstimate(data);
+  }, [data, isError]);
 
-    async function loadEstimate(): Promise<void> {
-      setLoading(true);
-
-      try {
-        const payload = await fetchPilotRecentDeltasCached(RECENT_REVIEW_DURATION_SAMPLE_COUNT, { scope });
-        const next = deriveWorkspaceReviewDurationEstimate(payload);
-
-        if (!cancelled) {
-          setEstimate(next);
-        }
-      } catch {
-        if (!cancelled) {
-          setEstimate(null);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void loadEstimate();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [enabled, scope]);
-
-  return { estimate, loading };
+  // A disabled query stays pending forever, so gate on `enabled` to keep reporting idle as loaded.
+  return { estimate, loading: enabled && isPending };
 }

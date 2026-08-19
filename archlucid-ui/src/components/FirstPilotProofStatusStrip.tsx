@@ -3,9 +3,9 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
+import { useFirstPilotProofStatusSnapshotQuery } from "@/hooks/use-first-pilot-proof-status-snapshot-query";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import {
   firstPilotProofNotRunCopy,
@@ -29,46 +29,9 @@ function loadedSummaryLine(snapshot: FirstPilotProofStatusSnapshot): string {
 
 /** Home strip: last local collect-first-pilot-proof verdict (static snapshot from CI/proof). */
 export function FirstPilotProofStatusStrip() {
-  const [snapshot, setSnapshot] = useState<FirstPilotProofStatusSnapshot | null>(null);
-  const [loadFailed, setLoadFailed] = useState(false);
+  const { data: snapshot } = useFirstPilotProofStatusSnapshotQuery();
 
-  useEffect(() => {
-    let canceled = false;
-
-    async function load(): Promise<void> {
-      try {
-        const response = await fetch("/first-pilot-proof-status-snapshot.json", { cache: "no-store" });
-
-        if (!response.ok) {
-          if (!canceled) {
-            setLoadFailed(true);
-          }
-
-          return;
-        }
-
-        const json = (await response.json()) as FirstPilotProofStatusSnapshot;
-
-        if (!canceled) {
-          setSnapshot(json);
-          setLoadFailed(false);
-        }
-      }
-      catch {
-        if (!canceled) {
-          setLoadFailed(true);
-        }
-      }
-    }
-
-    void load();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
-
-  if (loadFailed || snapshot === null) {
+  if (snapshot === null || snapshot === undefined) {
     return (
       <div
         className={cn("rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 p-3 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}

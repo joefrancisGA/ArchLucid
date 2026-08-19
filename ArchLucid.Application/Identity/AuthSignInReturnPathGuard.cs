@@ -12,15 +12,21 @@ public static class AuthSignInReturnPathGuard
 
         string candidate = returnPath.Trim();
 
-        // Reject control-character smuggling used to bypass naive startsWith("/") checks.
-        foreach (char ch in candidate)
+        if (ContainsControlCharacter(candidate))
         {
-            if (char.IsControl(ch))
-            {
-                return null;
-            }
+            return null;
         }
 
+        string? normalized = TryNormalizeRelativePath(candidate);
+
+        if (normalized is null)
+            return null;
+
+        return TryNormalizeAfterPercentDecoding(candidate, normalized);
+    }
+
+    private static string? TryNormalizeRelativePath(string candidate)
+    {
         if (!candidate.StartsWith("/", StringComparison.Ordinal)
             || candidate.StartsWith("//", StringComparison.Ordinal)
             || candidate.StartsWith("/\\", StringComparison.Ordinal)
@@ -32,5 +38,53 @@ public static class AuthSignInReturnPathGuard
         }
 
         return candidate;
+    }
+
+    private static string? TryNormalizeAfterPercentDecoding(string candidate, string normalized)
+    {
+        string working = candidate;
+
+        for (int decodePass = 0; decodePass < 3 && working.Contains('%', StringComparison.Ordinal); decodePass++)
+        {
+            string decoded;
+
+            try
+            {
+                decoded = Uri.UnescapeDataString(working);
+            }
+            catch (UriFormatException)
+            {
+                return null;
+            }
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+                break;
+
+            if (ContainsControlCharacter(decoded))
+                return null;
+
+            string? decodedNormalized = TryNormalizeRelativePath(decoded);
+
+            if (decodedNormalized is null)
+                return null;
+
+            working = decoded;
+            normalized = decodedNormalized;
+        }
+
+        return normalized;
+    }
+
+    private static bool ContainsControlCharacter(string candidate)
+    {
+        foreach (char ch in candidate)
+        {
+            if (char.IsControl(ch))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

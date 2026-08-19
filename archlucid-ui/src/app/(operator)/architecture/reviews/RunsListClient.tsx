@@ -3,8 +3,6 @@
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { InspectorPanel } from "@/components/InspectorPanel";
 import { RunsListBuyerFeaturedCard } from "@/components/runs/RunsListBuyerFeaturedCard";
@@ -14,7 +12,6 @@ import { RunsRowBaselineMenu } from "@/components/runs/RunsRowBaselineMenu";
 import { RunTableRowErrorBoundary } from "@/components/runs/RunTableRowErrorBoundary";
 import { RunStatusBadge } from "@/components/runs/RunStatusBadge";
 import { ArchitecturePackageOriginBadge } from "@/components/operator-home/runs-dashboard-helpers";
-import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
 import {
   EnterpriseTable,
@@ -26,19 +23,13 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { Label } from "@/components/ui/label";
-import { useFocusTrap } from "@/hooks/useFocusTrap";
-import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 import { RunsListCompareSelectionBar } from "@/components/usability/RunsListCompareSelectionBar";
-import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/runs/run-work-queue-groups";
+import { workQueueSectionHeading } from "@/lib/runs/run-work-queue-groups";
 import { formatRelativeTime } from "@/lib/relative-time";
-import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv, isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator/operator-project-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
-import {
-  canonicalizeDemoRunId,
-  dedupeRunSummariesByRunId,
-  normalizeRunSummaryForDemoPicker,
-} from "@/lib/demo-run-canonical";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { getBuyerSafeReviewsTableLink, getBuyerSafeReviewsTableLinkForRun, getBuyerSafeSignedManifestTableLink } from "@/lib/buyer/buyer-safe-review-navigation";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import { BUYER_PIPELINE_IN_PROGRESS_LABEL } from "@/lib/buyer/buyer-polish-copy";
@@ -47,22 +38,12 @@ import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
-import { runsListPageFilterStatusLine } from "@/lib/runs-list-filter-status-line";
 import type { RunSummary } from "@/types/authority";
 
-export type RunsListClientProps = {
-  runs: RunSummary[];
-  projectId: string;
-  page: number;
-  pageSize: number;
-  totalCount: number;
-  /** From keyset `GET .../runs`; required on Next for page 2+ when the API uses cursor paging. */
-  nextCursor?: string | null;
-};
+import type { BuyerPackageScopeFilter, RunsListClientProps, SortOrder } from "./runs-list-types";
+import { useRunsList } from "./use-runs-list";
 
-type SortOrder = "createdDesc" | "createdAsc";
-
-type BuyerPackageScopeFilter = "all" | "finalized" | "in_flight";
+export type { RunsListClientProps } from "./runs-list-types";
 
 function BuyerPackageScopeFilterChips(props: {
   readonly scope: BuyerPackageScopeFilter;
@@ -93,10 +74,6 @@ function BuyerPackageScopeFilterChips(props: {
       ))}
     </div>
   );
-}
-
-function totalPages(totalCount: number, pageSize: number): number {
-  return Math.max(1, Math.ceil(totalCount / pageSize));
 }
 
 function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
@@ -273,154 +250,40 @@ function displayRelativeCreated(run: RunSummary): string {
  * Client-side filter and sort for the current server page of runs; pagination remains server URLs.
  * Large viewports show an inline inspector; smaller viewports use a slide-over sheet.
  */
-export function RunsListClient({
-  runs,
-  projectId,
-  page,
-  pageSize,
-  totalCount,
-  nextCursor = null,
-}: RunsListClientProps) {
-  const searchParams = useSearchParams();
-  const listContextFilter = searchParams.get("filter");
-  const safeRuns = useMemo(() => {
-    const filtered = runs.filter((run) => {
-      if (typeof run.runId !== "string" || run.runId.trim().length === 0) {
-        return false;
-      }
-      if (typeof run.createdUtc !== "string" || run.createdUtc.trim().length === 0) {
-        return false;
-      }
-
-      return true;
-    });
-
-    return dedupeRunSummariesByRunId(filtered.map(normalizeRunSummaryForDemoPicker));
-  }, [runs]);
-
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
-  const buyerPipelineLabels = isBuyerVocabularyPassActive();
-  const buyerCollapseFilters = buyerPolished && totalCount <= 1;
-
-  const [filterText, setFilterText] = useState("");
-  const [buyerPackageScope, setBuyerPackageScope] = useState<BuyerPackageScopeFilter>("all");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
-  const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
-  const [compareSelection, setCompareSelection] = useState<string[]>([]);
-  const [paginationAnnouncement, setPaginationAnnouncement] = useState("");
-  const mobileInspectorShellRef = useRef<HTMLDivElement>(null);
-  const viewportNarrow = useViewportNarrow();
-  const mobileInspectorTrapActive = viewportNarrow && selectedRun !== null;
-
-  useFocusTrap(mobileInspectorShellRef, mobileInspectorTrapActive);
-
-  useEffect(() => {
-    if (safeRuns.length === 0) {
-      setSelectedRun(null);
-
-      return;
-    }
-
-    setSelectedRun((current) => {
-      if (current !== null && safeRuns.some((r) => r.runId === current.runId)) {
-        return current;
-      }
-
-      // Keep drawer closed on initial load; only auto-close if the selected run was removed.
-      return null;
-    });
-  }, [safeRuns]);
-
-  const closeInspector = useCallback(() => {
-    setSelectedRun(null);
-  }, []);
-
-  useEffect(() => {
-    if (selectedRun === null) {
-      return;
-    }
-
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        closeInspector();
-      }
-    }
-
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [selectedRun, closeInspector]);
-
-  const filteredSorted = useMemo(() => {
-    const query = filterText.trim().toLowerCase();
-    let list = safeRuns;
-
-    if (query.length > 0) {
-      list = list.filter((run) => {
-        const idMatch = run.runId.toLowerCase().includes(query);
-        const desc = (run.description ?? "").toLowerCase();
-
-        return idMatch || desc.includes(query);
-      });
-    }
-
-    if (buyerPolished) {
-      if (buyerPackageScope === "finalized") {
-        list = list.filter((run) => run.hasGoldenManifest === true);
-      }
-
-      if (buyerPackageScope === "in_flight") {
-        list = list.filter((run) => run.hasGoldenManifest !== true);
-      }
-    }
-
-    return [...list].sort((left, right) => {
-      const leftIsShowcase = canonicalizeDemoRunId(left.runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
-      const rightIsShowcase = canonicalizeDemoRunId(right.runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
-
-      if (leftIsShowcase) return -1;
-
-      if (rightIsShowcase) return 1;
-
-      const leftTime = new Date(left.createdUtc).getTime();
-      const rightTime = new Date(right.createdUtc).getTime();
-
-      return sortOrder === "createdDesc" ? rightTime - leftTime : leftTime - rightTime;
-    });
-  }, [safeRuns, filterText, sortOrder, buyerPolished, buyerPackageScope]);
-
-  const workQueueSections = useMemo(
-    () => partitionRunsIntoWorkQueueSections(filteredSorted),
-    [filteredSorted],
-  );
-
-  const pages = totalPages(totalCount, pageSize);
-  useEffect(() => {
-    const totalLabel = `${totalCount} review${totalCount === 1 ? "" : "s"} total`;
-
-    setPaginationAnnouncement(`Page ${page} of ${pages}. ${totalLabel}.`);
-  }, [page, pages, totalCount]);
-
-  const baseQuery = `projectId=${encodeURIComponent(projectId)}&pageSize=${pageSize}`;
-  const previousHref = `/architecture/reviews?${baseQuery}&page=1`;
-  const nextHref =
-    nextCursor !== null && nextCursor !== undefined && nextCursor.length > 0
-      ? `/architecture/reviews?${baseQuery}&page=${page + 1}&cursor=${encodeURIComponent(nextCursor)}`
-      : `/architecture/reviews?${baseQuery}&page=${page + 1}`;
-
-  const onRowActivate = useCallback((run: RunSummary, e: React.MouseEvent<HTMLTableRowElement>) => {
-    if ((e.target as HTMLElement).closest("a")) {
-      return;
-    }
-
-    if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
-      return;
-    }
-
-    setSelectedRun(run);
-  }, []);
+export function RunsListClient(props: RunsListClientProps) {
+  const {
+    projectId,
+    page,
+    totalCount,
+    listContextFilter,
+    buyerPolished,
+    buyerPipelineLabels,
+    buyerCollapseFilters,
+    filterText,
+    setFilterText,
+    buyerPackageScope,
+    setBuyerPackageScope,
+    sortOrder,
+    setSortOrder,
+    selectedRun,
+    setSelectedRun,
+    compareSelection,
+    paginationAnnouncement,
+    mobileInspectorShellRef,
+    viewportNarrow,
+    closeInspector,
+    filteredSorted,
+    workQueueSections,
+    pages,
+    previousHref,
+    nextHref,
+    onRowActivate,
+    showBuyerPackageCards,
+    showCompareSelection,
+    toggleCompareSelection,
+    clearCompareSelection,
+    filterStatusLine,
+  } = useRunsList(props);
 
   const inspectorBody =
     selectedRun === null ? (
@@ -432,40 +295,6 @@ export function RunsListClient({
     ) : (
       <RunInspectorPreview run={selectedRun} />
     );
-
-  const listNarrowingActive =
-    filterText.trim().length > 0 || (buyerPolished === true && buyerPackageScope !== "all");
-  const showBuyerPackageCards =
-    buyerPolished === true &&
-    pages === 1 &&
-    filteredSorted.length > 0 &&
-    !listNarrowingActive;
-
-  const showCompareSelection = safeRuns.length >= 2 && !showBuyerPackageCards;
-
-  const toggleCompareSelection = useCallback((runId: string) => {
-    setCompareSelection((current) => {
-      if (current.includes(runId)) {
-        return current.filter((id) => id !== runId);
-      }
-
-      if (current.length >= 2) {
-        return [current[1]!, runId];
-      }
-
-      return [...current, runId];
-    });
-  }, []);
-
-  const clearCompareSelection = useCallback(() => {
-    setCompareSelection([]);
-  }, []);
-
-  const filterStatusLine = runsListPageFilterStatusLine(
-    filteredSorted.length,
-    safeRuns.length,
-    listNarrowingActive
-  );
 
   const runsSortControl = (
     <div className="flex flex-col gap-1">

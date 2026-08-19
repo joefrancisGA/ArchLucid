@@ -33,7 +33,7 @@ This is not a green-field decision — evaluate against the current state, not a
 - **Analytics is already split**: Microsoft Clarity (consent-gated) on marketing only; Azure Application Insights on the architect workspace only.
 - **Help/docs is already static, in-app**, sourced from repo markdown (`(operator)/help`), not a CMS.
 - **Domain is `archlucid.net`, not `.com`.** `archlucid.com` appears only in legacy/archive docs and is explicitly flagged in [`PRODUCTION_DEPLOYMENT.md`](../runbooks/PRODUCTION_DEPLOYMENT.md) (staging pre-deploy domain alignment) as something that should not appear in active source. `app.archlucid.net` appears only in test fixtures. `docs.archlucid.net` / `trust.archlucid.net` do not exist anywhere in the active repo.
-- **Terraform simplification is already an open, tracked concern**: `docs/library/TECH_BACKLOG.md` **TB-655** (P2, XL) — consolidate 15+ Terraform roots. Adding a new deployment topology now (new resource type, new DNS, new pipeline) works against that already-identified simplification effort.
+- **Terraform simplification is already tracked**: `docs/library/TECH_BACKLOG.md` **TB-655** (**Done** 2026-08-16) ships three metadata composition roots plus `apply-saas.ps1` 3-wave orchestration; leaf backends stay separate. Adding a new deployment topology still needs to land in the matching wave, not a parallel orchestrator.
 
 ---
 
@@ -113,5 +113,5 @@ These values are provisioned in `infra/terraform-monitoring` (Azure Monitor metr
 ## Cross-references
 
 - Current routing/hosting decision (unchanged by this assessment): [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md)
-- Terraform simplification already tracked: **TB-655** in [`TECH_BACKLOG.md`](TECH_BACKLOG.md)
+- Terraform simplification: **TB-655** (**Done** 2026-08-16) in [`TECH_BACKLOG.md`](TECH_BACKLOG.md)
 - Backlog for this strategy: [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-729 – TB-731**

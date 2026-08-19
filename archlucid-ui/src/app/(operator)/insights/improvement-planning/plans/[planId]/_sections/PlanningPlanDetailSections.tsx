@@ -2,7 +2,11 @@
 
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 
+import { StatusTag } from "@/components/StatusTag";
+import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveEnterpriseStatusKind } from "@/lib/enterprise-status-kind-resolver";
+import { PLANNING_PLAN_DETAIL_THEME_ID_LABEL } from "@/lib/planning-plan-detail-evidence-copy";
 
 import { cn } from "@/lib/utils";
 
@@ -17,6 +21,8 @@ type PlanningPlanDetailSectionsProps = {
 const detailGridClass = cn("mb-2 grid grid-cols-[160px_1fr] items-baseline gap-x-4 gap-y-2", OPERATOR_TYPOGRAPHY.body);
 
 export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsProps) {
+
+  const statusKind = resolveEnterpriseStatusKind(plan.status, "general");
 
   return (
 
@@ -58,7 +64,7 @@ export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsP
 
             <span className="text-al-text-secondary">Status</span>
 
-            <span>{plan.status}</span>
+            <StatusTag kind={statusKind} label={plan.status} data-testid="planning-plan-detail-status" />
 
           </div>
 
@@ -72,9 +78,9 @@ export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsP
 
           <div className={detailGridClass}>
 
-            <span className="text-al-text-secondary">Theme id</span>
+            <span className="text-al-text-secondary">{PLANNING_PLAN_DETAIL_THEME_ID_LABEL}</span>
 
-            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>{plan.themeId}</span>
+            <TechnicalIdDisclosure label={PLANNING_PLAN_DETAIL_THEME_ID_LABEL} value={plan.themeId} />
 
           </div>
 
@@ -181,4 +187,3 @@ export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsP
   );
 
 }
-

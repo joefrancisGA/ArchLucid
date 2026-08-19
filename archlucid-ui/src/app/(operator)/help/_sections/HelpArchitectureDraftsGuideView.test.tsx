@@ -13,6 +13,7 @@ import {
 import {
   ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID,
   ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS,
+  ARCHITECTURE_DRAFTS_HELP_HOW_TO_SECTION_TITLE,
 } from "@/lib/architecture-drafts-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -34,6 +35,8 @@ describe("HelpArchitectureDraftsGuideView", () => {
       "id",
       ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID,
     );
+
+    expect(screen.getByRole("heading", { level: 2, name: ARCHITECTURE_DRAFTS_HELP_HOW_TO_SECTION_TITLE })).toBeInTheDocument();
 
     for (const heading of ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();

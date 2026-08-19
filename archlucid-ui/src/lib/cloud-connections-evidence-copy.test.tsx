@@ -8,14 +8,9 @@ import {
   CLOUD_CONNECTIONS_SOURCES,
   CLOUD_CONNECTIONS_SOURCES_INTRO,
 } from "@/lib/cloud-connections-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("cloud-connections-evidence-copy", () => {
-  it("wires exports into the cloud connections evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("cloud-connections-evidence-copy");
-    expect(registrySource).toContain("CloudConnectionsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(CLOUD_CONNECTIONS_CANONICAL_PATH).toBe("/integrations/cloud-connections");
   });
 

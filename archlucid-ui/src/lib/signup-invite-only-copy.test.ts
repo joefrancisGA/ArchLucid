@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   SIGNUP_INVITE_ONLY_OUTCOMES,
   SIGNUP_INVITE_ONLY_PANEL_LEAD,
+  SIGNUP_INVITE_ONLY_RESPONSE_TIME,
   SIGNUP_INVITE_ONLY_SUBMIT_LABEL,
   SIGNUP_PAGE_INVITE_ONLY_LEAD,
 } from "@/lib/signup-invite-only-copy";
@@ -21,7 +22,7 @@ describe("signup-invite-only-copy", () => {
   });
 
   it("states a concrete follow-up window and submit-not-gate CTA", () => {
-    expect(SIGNUP_INVITE_ONLY_PANEL_LEAD).toMatch(/two business days/i);
+    expect(SIGNUP_INVITE_ONLY_RESPONSE_TIME).toMatch(/two business days/i);
     expect(SIGNUP_INVITE_ONLY_SUBMIT_LABEL).toMatch(/Send evaluation request/i);
     expect(SIGNUP_INVITE_ONLY_SUBMIT_LABEL.toLowerCase()).not.toBe("request access");
   });

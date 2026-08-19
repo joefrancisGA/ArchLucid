@@ -133,4 +133,25 @@ describe("decideHostGateRedirect", () => {
       location: `https://app.archlucid.net${RETIRED_LOGIN_BOOKMARK_PATH}?returnUrl=%2Farchitecture%2Freviews`,
     });
   });
+
+  it("matches split hosts that differ only by port (local dual-origin)", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "http://localhost:3000";
+    process.env.ARCHLUCID_APP_SITE_URL = "http://localhost:3001";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "localhost:3000",
+        pathname: "/architecture/reviews",
+        search: "",
+      }),
+    ).toEqual({ kind: "redirect", location: "http://localhost:3001/architecture/reviews" });
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "localhost:3001",
+        pathname: "/welcome",
+        search: "",
+      }),
+    ).toEqual({ kind: "redirect", location: "http://localhost:3000/welcome" });
+  });
 });

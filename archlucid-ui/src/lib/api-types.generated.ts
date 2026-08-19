@@ -102451,7 +102451,7 @@ export interface components {
             suggestedRequiredCapabilities?: string[];
         };
         /** @enum {string} */
-        ArchitectureElementKind: "BusinessObjective" | "Stakeholder" | "FunctionalRequirement" | "QualityAttribute" | "Constraint" | "Assumption" | "Decision" | "Alternative" | "Component" | "Interface" | "DataFlow" | "TrustBoundary" | "DeploymentTopology" | "FailureMode" | "RecoveryObjective" | "CapacityExpectation" | "CostDriver" | "OperationalOwnership" | "ComplianceObligation" | "Evidence" | "Risk" | "Recommendation" | "UnresolvedQuestion" | "TradeOff";
+        ArchitectureElementKind: "BusinessObjective" | "Stakeholder" | "FunctionalRequirement" | "QualityAttribute" | "Constraint" | "Assumption" | "Decision" | "Alternative" | "Component" | "Interface" | "DataFlow" | "TrustBoundary" | "DeploymentTopology" | "FailureMode" | "RecoveryObjective" | "CapacityExpectation" | "CostDriver" | "OperationalOwnership" | "ComplianceObligation" | "Evidence" | "Risk" | "Recommendation" | "UnresolvedQuestion" | "TradeOff" | "Contradiction";
         ArchitectureFinding: {
             category?: string;
             classification?: null | components["schemas"]["FindingClassification"];
@@ -102603,6 +102603,7 @@ export interface components {
         };
         ArchitectureRecommendation: {
             affectedRequirementOrQualityAttribute?: string;
+            alternativeOptions?: components["schemas"]["RecommendationAlternative"][];
             alternatives?: string[];
             /** Format: double */
             confidence?: number | string;
@@ -103305,6 +103306,7 @@ export interface components {
         /** @enum {string} */
         CloudProvider: "None" | "Azure" | "Aws" | "Gcp";
         CommitRunRequest: {
+            acknowledgedAssumptionIds?: null | string[];
             bypassJustification?: null | string;
             notifySponsor?: boolean;
         };
@@ -103347,6 +103349,14 @@ export interface components {
             policyPackId?: string;
             policyPackVersion?: string;
             scopeLevel?: string;
+        };
+        CommittedReviewStandardsSnapshotDescriptor: {
+            cloudProvider?: string;
+            focusedPilotModeEnabled?: boolean;
+            /** Format: date-time */
+            generatedUtc?: string;
+            policyReferences?: string[];
+            reviewedQualityDimensions?: string[];
         };
         ComparisonExplanationResult: {
             highLevelSummary?: string;
@@ -104425,8 +104435,27 @@ export interface components {
             fileName?: string;
             format?: string;
         };
+        CompareQualityDeltaCounts: {
+            /** Format: int32 */
+            evidenceBackedDecisionsAfter?: number;
+            /** Format: int32 */
+            evidenceBackedDecisionsBefore?: number;
+            /** Format: int32 */
+            highSeverityAfter?: number;
+            /** Format: int32 */
+            highSeverityBefore?: number;
+            /** Format: int32 */
+            uncoveredMandatoryAfter?: number;
+            /** Format: int32 */
+            uncoveredMandatoryBefore?: number;
+            /** Format: int32 */
+            unsupportedAssumptionsAfter?: number;
+            /** Format: int32 */
+            unsupportedAssumptionsBefore?: number;
+        };
         EndToEndReplayComparisonReport: {
             agentResultDiff?: null | components["schemas"]["AgentResultDiffResult"];
+            compareQualityDelta?: null | components["schemas"]["CompareQualityDeltaCounts"];
             exportDiffs?: components["schemas"]["ExportRecordDiffResult"][];
             findingCorrelation?: null | components["schemas"]["ComparisonFindingCorrelationMetadata"];
             findingLifecycle?: null | components["schemas"]["CrossReviewFindingLifecycleSummary"];
@@ -106229,6 +106258,7 @@ export interface components {
             projectId?: string;
             provenance?: components["schemas"]["ManifestProvenance"];
             requirements?: components["schemas"]["RequirementsCoverageSection"];
+            reviewStandardsAtCommit?: null | components["schemas"]["CommittedReviewStandardsSnapshotDescriptor"];
             ruleSetHash?: string;
             ruleSetId?: string;
             ruleSetVersion?: string;
@@ -106316,6 +106346,7 @@ export interface components {
             /** Format: uuid */
             manifestId: string;
             operatorSummary?: string;
+            reviewStandardsAtCommit?: null | components["schemas"]["CommittedReviewStandardsSnapshotDescriptor"];
             ruleSetId: string;
             ruleSetVersion: string;
             /** Format: uuid */
@@ -106934,6 +106965,12 @@ export interface components {
             signalId?: string;
             subject?: string;
         };
+        PlanningRetrievalCitation: {
+            /** Format: uuid */
+            signalId?: string;
+            snippet?: null | string;
+            themeKey?: null | string;
+        };
         PlatformAuthRecoveryGrantRequestBody: {
             /** Format: int32 */
             durationHours?: number;
@@ -107460,6 +107497,7 @@ export interface components {
             skippedExistingThemeKeys?: number;
             /** Format: int32 */
             themesInserted?: number;
+            retrievalCitations?: unknown[];
         };
         ProductLearningSignalRequest: {
             architectureRunId?: null | string;
@@ -107698,6 +107736,10 @@ export interface components {
             action?: string;
             comment?: null | string;
             rationale?: null | string;
+        };
+        RecommendationAlternative: {
+            path?: string;
+            validationCriteria?: string;
         };
         RecommendationConfidence: number;
         RecommendationLearningOperationalStatusResponse: {
@@ -107969,6 +108011,7 @@ export interface components {
             evidenceRequestText?: null | string;
             findingId: string;
             rationale?: null | string;
+            tradeOffAcknowledgment?: null | string;
             /** Format: date-time */
             revisitDueUtc?: null | string;
             /** Format: uuid */

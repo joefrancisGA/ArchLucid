@@ -16,6 +16,19 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_PAGE_EYEBROW = "Help topic" as const;
 export const SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE =
   "How to discover findings, decisions, and sealed review records across finalized packages in this workspace.";
 
+export const SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE_BUYER =
+  "Find findings and sealed review records across finalized packages in this workspace." as const;
+
+export const SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_CONTENT_ID = "help-search-review-evidence-primary-content" as const;
+
+export const SEARCH_REVIEW_EVIDENCE_HELP_SKIP_LINK_LABEL = "Skip to search review evidence guide" as const;
+
+export function searchReviewEvidenceHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE_BUYER
+    : SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE;
+}
+
 export const SEARCH_REVIEW_EVIDENCE_HELP_OVERVIEW =
   "Enter a phrase to scan finalized review evidence in this workspace. Each hit opens the cited finding, decision, or sealed review record so you can follow the evidence trail before briefing sponsors.";
 

@@ -1,0 +1,5 @@
+{
+  "trap": "hub-spoke-mislabel",
+  "description": "Mesh-style edges on a hub-spoke inventory — structure analyzer should still see endpoints.",
+  "expectMergeInvariantClean": true
+}

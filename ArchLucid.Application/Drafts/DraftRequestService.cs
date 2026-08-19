@@ -26,6 +26,7 @@ public sealed class DraftRequestService(
     IArchitectureRunCreateOrchestrator runCreateOrchestrator,
     IRequestContentSafetyPrecheck contentSafetyPrecheck,
     FeasibilityVerdictBuilder feasibilityVerdictBuilder,
+    IPriorPackageSemanticMergeService priorPackageSemanticMergeService,
     IOptionsMonitor<DraftIntakeBranchOptions> branchOptionsMonitor) : IDraftRequestService
 {
     private readonly IDraftAdmissionGate _admissionGate =
@@ -52,6 +53,10 @@ public sealed class DraftRequestService(
     private readonly FeasibilityVerdictBuilder _feasibilityVerdictBuilder =
         feasibilityVerdictBuilder ?? throw new ArgumentNullException(nameof(feasibilityVerdictBuilder));
 
+    private readonly IPriorPackageSemanticMergeService _priorPackageSemanticMergeService =
+        priorPackageSemanticMergeService
+        ?? throw new ArgumentNullException(nameof(priorPackageSemanticMergeService));
+
     private readonly IOptionsMonitor<DraftIntakeBranchOptions> _branchOptionsMonitor =
         branchOptionsMonitor ?? throw new ArgumentNullException(nameof(branchOptionsMonitor));
 
@@ -77,7 +82,17 @@ public sealed class DraftRequestService(
             FreeTextIntent = intent,
             FocusedPilotModeEnabled = true,
             WorkflowIntent = NormalizeWorkflowIntent(request.WorkflowIntent),
+            PriorRunId = string.IsNullOrWhiteSpace(request.PriorRunId) ? null : request.PriorRunId.Trim(),
         };
+
+        if (!string.IsNullOrWhiteSpace(document.PriorRunId))
+        {
+            await _priorPackageSemanticMergeService.MergePriorPackageSemanticsAsync(
+                scope,
+                document,
+                document.PriorRunId,
+                cancellationToken);
+        }
 
         return await _draftRepository.CreateAsync(
             scope.TenantId,

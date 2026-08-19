@@ -16,6 +16,7 @@ import {
   IMPROVEMENT_PLANNING_PAGE_SUBTITLE_BUYER,
   IMPROVEMENT_PLANNING_SCOPE_DETAILS_TRIGGER,
 } from "@/lib/planning-page-copy";
+import { PLANNING_CLAIM_DISCIPLINE_HEADING } from "@/lib/planning-evidence-copy";
 
 vi.mock("@/components/planning/PlanningExportReadinessNote", () => ({
   PlanningExportReadinessNote: () => null,
@@ -54,6 +55,12 @@ describe("PlanningPageView buyer-polished shell", () => {
   it("uses buyer subtitle and collapses duplicate intro copy", () => {
     render(<PlanningPageView model={buildModel()} />);
 
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("improvement-planning-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("improvement-planning-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByText(PLANNING_CLAIM_DISCIPLINE_HEADING)).toBeInTheDocument();
+    expect(screen.queryByTestId("planning-reviews-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("planning-plan-detail-hub-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByText(IMPROVEMENT_PLANNING_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(/Planning insights are generated from captured review feedback/i)).not.toBeInTheDocument();
     expect(screen.queryByText(IMPROVEMENT_PLANNING_SCOPE_DETAILS_TRIGGER)).toBeNull(); // TB-2093

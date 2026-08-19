@@ -41,5 +41,9 @@ public sealed class RetrievalGroundingTraceRecord
 
     public double? GraphRagExpansionLatencyMs { get; set; }
 
+    public int? IterativeRetrievalRounds { get; set; }
+
+    public string? IterativeCritiqueDecisionsJson { get; set; }
+
     public DateTime CreatedUtc { get; set; }
 }

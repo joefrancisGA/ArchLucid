@@ -7,9 +7,9 @@ import {
   MARKETING_FAQ_DILIGENCE_INTRO,
 } from "@/lib/marketing/marketing-faq-page-copy";
 import {
-  PROCUREMENT_HELP_DILIGENCE_PRIMARY_CTAS,
-  PROCUREMENT_HELP_DILIGENCE_SECONDARY_CTAS,
-} from "@/lib/procurement-help-evidence-copy";
+  MARKETING_FAQ_DILIGENCE_SECONDARY_CTAS,
+} from "@/lib/marketing/marketing-faq-page-copy";
+import { PROCUREMENT_HELP_DILIGENCE_PRIMARY_CTAS } from "@/lib/procurement-help-evidence-copy";
 import { cn } from "@/lib/utils";
 
 /** Buyer diligence next steps for `/faq` when security questions surface. */
@@ -40,7 +40,7 @@ export function MarketingFaqDiligenceCtaSection(): React.JSX.Element {
       <div className={cn("mt-4 border-t border-neutral-200 pt-4 dark:border-neutral-800", MARKETING_TYPOGRAPHY.body)}>
         <p className={cn("m-0 font-medium text-al-text-primary", MARKETING_TYPOGRAPHY.cardTitle)}>Need a full procurement pack?</p>
         <ul className={cn("m-0 mt-2 list-none space-y-2 p-0", MARKETING_TYPOGRAPHY.meta)}>
-          {PROCUREMENT_HELP_DILIGENCE_SECONDARY_CTAS.map((cta) => (
+          {MARKETING_FAQ_DILIGENCE_SECONDARY_CTAS.map((cta) => (
             <li key={cta.href}>
               <Link className={MARKETING_SURFACES.inlineLink} href={cta.href} data-testid={cta.testId}>
                 {cta.label}

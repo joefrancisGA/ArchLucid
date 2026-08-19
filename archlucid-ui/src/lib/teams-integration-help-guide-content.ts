@@ -17,6 +17,19 @@ export const TEAMS_INTEGRATION_HELP_PAGE_TITLE = TEAMS_INTEGRATION_PAGE_TITLE;
 export const TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE =
   "How to configure Teams incoming webhooks, secret references, notification triggers, and test delivery before saving a connection.";
 
+export const TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER =
+  "Configure Teams webhooks, secrets, notification triggers, and test delivery in this workspace." as const;
+
+export const TEAMS_INTEGRATION_HELP_PRIMARY_CONTENT_ID = "help-teams-integration-primary-content" as const;
+
+export const TEAMS_INTEGRATION_HELP_SKIP_LINK_LABEL = "Skip to Teams integration guide" as const;
+
+export function teamsIntegrationHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER
+    : TEAMS_INTEGRATION_HELP_PAGE_SUBTITLE;
+}
+
 export const TEAMS_INTEGRATION_HELP_OVERVIEW = TEAMS_INTEGRATION_HELP_SUMMARY;
 
 export const TEAMS_INTEGRATION_HELP_START_HERE_CARD_TITLE = "Start here";

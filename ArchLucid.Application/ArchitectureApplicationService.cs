@@ -103,6 +103,16 @@ public sealed class ArchitectureApplicationService(
         ArchitectureRun run = detail.Run;
         List<AgentTask> tasks = detail.Tasks;
         List<AgentResult> existingResults = detail.Results;
+
+        if (detail.AuthorityPipelineComplete)
+        {
+            return new SubmitResultResult(
+                false,
+                null,
+                $"Run '{runId}' is authority-pipeline complete and does not accept agent results.",
+                ApplicationServiceFailureKind.Conflict);
+        }
+
         RunStateTransitionCheck submissionCheck = _runStateTransitionService.ValidateResultSubmissionAllowed(run.Status);
 
         if (!submissionCheck.IsAllowed)

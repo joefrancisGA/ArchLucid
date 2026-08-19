@@ -6,33 +6,33 @@ import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrai
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
-import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { RunIdPicker } from "@/components/runs/RunIdPicker";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 import type { SearchPageViewModel } from "./search-page-view-model";
 import {
   SEARCH_EXAMPLE_QUERIES_LINE,
-  SEARCH_PAGE_SUBTITLE,
+  SEARCH_LOAD_RETRY_LABEL,
   SEARCH_PAGE_TITLE,
   SEARCH_QUERY_FIELD_LABEL,
   SEARCH_QUERY_PLACEHOLDER,
   SEARCH_REVIEW_FILTER_LABEL,
   SEARCH_REVIEW_FILTER_PLACEHOLDER,
+  searchReviewEvidencePageSubtitle,
 } from "./search-page-copy";
 import { SearchRetrievalHitCard } from "./SearchRetrievalHitCard";
+import { SearchReviewEvidenceBuyerChrome } from "./SearchReviewEvidenceBuyerChrome";
 import { SearchReviewEvidenceCiteStrip } from "./SearchReviewEvidenceCiteStrip";
+import { SearchReviewEvidenceLoadFailurePanel } from "./SearchReviewEvidenceLoadFailurePanel";
+import { SearchReviewEvidencePageHeader } from "./SearchReviewEvidencePageHeader";
 
 type SearchPageViewProps = {
   model: SearchPageViewModel;
@@ -68,20 +68,21 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 
   const pageTitle = searchPageTitle(runId);
   const scopedRunId = runId.trim();
+  const pageSubtitle = searchReviewEvidencePageSubtitle(buyerShell === true);
+  const showVocabularyRails = buyerShell !== true;
 
   if (isDemo) {
     return (
-      <div className="max-w-4xl">
-        <OperatorPageHeader
-          title={pageTitle}
-          helpKey="semantic-search"
-          subtitle={SEARCH_PAGE_SUBTITLE}
-          navHref={SEARCH_REVIEW_EVIDENCE_PATH}
-          actions={<PageContextualHelpButton />}
-        />
-        <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
-        <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
-        <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="search-evidence" />
+      <div className={cn("max-w-4xl", OPERATOR_LAYOUT.majorSectionGap)} data-testid="search-review-evidence-page">
+        <SearchReviewEvidencePageHeader title={pageTitle} subtitle={pageSubtitle} />
+        <SearchReviewEvidenceBuyerChrome />
+        {showVocabularyRails ? (
+          <>
+            <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
+            <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
+            <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="search-evidence" />
+          </>
+        ) : null}
         <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
         <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
@@ -93,21 +94,23 @@ export function SearchPageView({ model }: SearchPageViewProps) {
   }
 
   return (
-    <div className="max-w-4xl">
-      <OperatorPageHeader
-        title={pageTitle}
-        helpKey="semantic-search"
-        subtitle={SEARCH_PAGE_SUBTITLE}
-        navHref={SEARCH_REVIEW_EVIDENCE_PATH}
-        actions={<PageContextualHelpButton />}
-      />
-      <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
-      <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
-      <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="search-evidence" />
+    <div className={cn("max-w-4xl", OPERATOR_LAYOUT.majorSectionGap)} data-testid="search-review-evidence-page">
+      <SearchReviewEvidencePageHeader title={pageTitle} subtitle={pageSubtitle} />
+
+      <SearchReviewEvidenceBuyerChrome />
+
+      {showVocabularyRails ? (
+        <>
+          <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
+          <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
+          <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="search-evidence" />
+        </>
+      ) : null}
+
       <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
       {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
 
-      <Card className="mb-6 max-w-xl border-neutral-200 dark:border-neutral-700">
+      <Card className="max-w-xl border-neutral-200 dark:border-neutral-700" data-testid="search-review-evidence-form">
         <CardContent className="grid gap-4 p-4">
           <div className="space-y-2">
             <Label htmlFor="semantic-search-query">{SEARCH_QUERY_FIELD_LABEL}</Label>
@@ -161,6 +164,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             type="button"
             variant="primary"
             className="w-fit"
+            data-testid="search-review-evidence-submit"
             onClick={() => void onSearch()}
             disabled={loading || !query.trim()}
           >
@@ -172,13 +176,16 @@ export function SearchPageView({ model }: SearchPageViewProps) {
       </Card>
 
       {failure !== null ? (
-        <div role="alert">
-          <OperatorApiProblem
-            problem={failure.problem}
-            fallbackMessage={failure.message}
-            correlationId={failure.correlationId}
-          />
-        </div>
+        <SearchReviewEvidenceLoadFailurePanel
+          failure={failure}
+          retryLabel={SEARCH_LOAD_RETRY_LABEL}
+          testId="search-review-evidence-load-failure"
+          retryTestId="search-review-evidence-load-retry"
+          retryDisabled={loading || !query.trim()}
+          onRetry={() => {
+            void onSearch();
+          }}
+        />
       ) : null}
 
       {hasSearched && failure === null && results.length === 0 ? (
@@ -188,7 +195,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         />
       ) : null}
 
-      <div className="grid gap-3">
+      <div className="grid gap-3" data-testid="search-review-evidence-results">
         {results.map((hit) => (
           <SearchRetrievalHitCard
             key={hit.chunkId}

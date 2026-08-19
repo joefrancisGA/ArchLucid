@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Retrieval.Chunking;
@@ -15,6 +16,7 @@ namespace ArchLucid.Retrieval.Indexing;
 /// </summary>
 public sealed class RetrievalIndexingService(
     SimpleTextChunker defaultChunker,
+    StructureAwareTextChunker structureAwareChunker,
     PolicyPackChunker policyPackChunker,
     PriorManifestChunker priorManifestChunker,
     IEmbeddingService embeddingService,
@@ -22,16 +24,23 @@ public sealed class RetrievalIndexingService(
     IVectorIndex vectorIndex,
     IRetrievalDocumentIndexCatalog indexCatalog,
     IOptionsMonitor<RetrievalEmbeddingCapOptions> capOptions,
+    IOptionsMonitor<RetrievalChunkingOptions> chunkingOptions,
     IScopeContextProvider scopeContextProvider) : IRetrievalIndexingService
 {
     private readonly SimpleTextChunker _defaultChunker =
         defaultChunker ?? throw new ArgumentNullException(nameof(defaultChunker));
+
+    private readonly StructureAwareTextChunker _structureAwareChunker =
+        structureAwareChunker ?? throw new ArgumentNullException(nameof(structureAwareChunker));
 
     private readonly PolicyPackChunker _policyPackChunker =
         policyPackChunker ?? throw new ArgumentNullException(nameof(policyPackChunker));
 
     private readonly PriorManifestChunker _priorManifestChunker =
         priorManifestChunker ?? throw new ArgumentNullException(nameof(priorManifestChunker));
+
+    private readonly IOptionsMonitor<RetrievalChunkingOptions> _chunkingOptions =
+        chunkingOptions ?? throw new ArgumentNullException(nameof(chunkingOptions));
 
     private readonly IEmbeddingModelIdentity _embeddingModelIdentity =
         embeddingModelIdentity ?? throw new ArgumentNullException(nameof(embeddingModelIdentity));
@@ -66,7 +75,8 @@ public sealed class RetrievalIndexingService(
         {
             ct.ThrowIfCancellationRequested();
 
-            string fingerprint = ChunkingStrategyFingerprint.Compute(doc.CorpusKind);
+            RetrievalChunkingStrategy chunkingStrategy = _chunkingOptions.CurrentValue.Strategy;
+            string fingerprint = ChunkingStrategyFingerprint.Compute(doc.CorpusKind, chunkingStrategy);
 
             if (ShouldSkipUnchangedDocument(doc, fingerprint))
             {
@@ -86,7 +96,7 @@ public sealed class RetrievalIndexingService(
                 ArchLucidInstrumentation.RecordRetrievalIndexChunkingFingerprintInvalidated();
             }
 
-            IReadOnlyList<string> split = SelectChunker(doc.CorpusKind).Chunk(doc.Content);
+            IReadOnlyList<string> split = SelectChunker(doc.CorpusKind, chunkingStrategy).Chunk(doc.Content);
 
             if (split.Count == 0)
                 continue;
@@ -178,11 +188,12 @@ public sealed class RetrievalIndexingService(
                && string.Equals(prior.ChunkingFingerprint, fingerprint, StringComparison.OrdinalIgnoreCase);
     }
 
-    private ITextChunker SelectChunker(CorpusKind corpusKind) =>
+    private ITextChunker SelectChunker(CorpusKind corpusKind, RetrievalChunkingStrategy chunkingStrategy) =>
         corpusKind switch
         {
             CorpusKind.PolicyPack => _policyPackChunker,
             CorpusKind.PriorManifest => _priorManifestChunker,
+            _ when chunkingStrategy == RetrievalChunkingStrategy.Semantic => _structureAwareChunker,
             _ => _defaultChunker,
         };
 }

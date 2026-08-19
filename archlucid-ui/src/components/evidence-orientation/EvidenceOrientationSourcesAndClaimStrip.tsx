@@ -7,6 +7,7 @@ import {
   type EvidenceOrientationClaimStyle,
   type EvidenceOrientationSourcesStyle,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
+import { resolveClaimDisciplineForStrip } from "@/lib/claim-discipline-policy";
 import { EVALUATION_SOURCES_TITLE } from "@/lib/evaluation-sources-title";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 
@@ -66,6 +67,7 @@ export function EvidenceOrientationSourcesAndClaimStrip({
   sourcesStyle = EVIDENCE_SOURCES_STYLE.evaluationMuted,
 }: EvidenceOrientationSourcesAndClaimStripProps): React.JSX.Element {
   const stripTestId: string = part === "both" ? `${slug}-orientation` : `${slug}-orientation-${part}`;
+  const resolvedClaim: string | undefined = resolveClaimDisciplineForStrip(slug, claim);
 
   return (
     <EvidenceOrientationStripShell testId={stripTestId} margin={margin} align={align}>
@@ -80,10 +82,11 @@ export function EvidenceOrientationSourcesAndClaimStrip({
         />
       )}
 
-      {part === "sources" ? null : (
+      {part === "sources" || resolvedClaim === undefined ? null : (
         <EvidenceOrientationClaimCallout
           testId={`${slug}-claim-discipline`}
-          body={claim}
+          stripSlug={slug}
+          body={resolvedClaim}
           heading={{ text: claimHeading }}
           style={claimStyle}
           element={claimElement}

@@ -32,6 +32,13 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             Constraints = CopyTrimmedList(structuredBrief.ConfirmedConstraints),
             RequiredCapabilities = CopyTrimmedList(structuredBrief.ConfirmedRequiredCapabilities),
             Assumptions = MergeAssumptions(assumptions, structuredBrief.ConfirmedAssumptions),
+            DraftActors = [.. document.ActorSet.Actors],
+            QualityAttributeSnapshot = ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(structuredBrief.QualityAttribute)
+                ? structuredBrief.QualityAttribute!.Trim()
+                : null,
+            FailureModeNoteSnapshot = ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(structuredBrief.FailureModeNote)
+                ? structuredBrief.FailureModeNote!.Trim()
+                : null,
             RequestSource = "draft-intake",
             InlineRequirements = BuildInlineRequirements(document, structuredBrief),
             IntakeTransparencyTrail = CloneTransparencyTrail(document.TransparencyTrail),
@@ -95,14 +102,14 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
         if (!string.IsNullOrWhiteSpace(document.BusinessOutcome))
             requirements.Add(document.BusinessOutcome.Trim());
 
-        if (!string.IsNullOrWhiteSpace(structuredBrief.QualityAttribute))
-            requirements.Add($"Quality attribute: {structuredBrief.QualityAttribute.Trim()}");
+        if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(structuredBrief.QualityAttribute))
+            requirements.Add($"Quality attribute: {structuredBrief.QualityAttribute!.Trim()}");
 
-        if (!string.IsNullOrWhiteSpace(structuredBrief.FailureModeNote))
-            requirements.Add($"Failure mode / continuity: {structuredBrief.FailureModeNote.Trim()}");
+        if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(structuredBrief.FailureModeNote))
+            requirements.Add($"Failure mode / continuity: {structuredBrief.FailureModeNote!.Trim()}");
 
-        if (!string.IsNullOrWhiteSpace(structuredBrief.OperationalOwner))
-            requirements.Add($"Operational owner: {structuredBrief.OperationalOwner.Trim()}");
+        if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(structuredBrief.OperationalOwner))
+            requirements.Add($"Operational owner: {structuredBrief.OperationalOwner!.Trim()}");
 
         return requirements;
     }
@@ -113,12 +120,10 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
 
         foreach (string item in items)
         {
-            string trimmed = item.Trim();
-
-            if (trimmed.Length == 0)
+            if (!ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(item))
                 continue;
 
-            copied.Add(trimmed);
+            copied.Add(item.Trim());
         }
 
         return copied;
@@ -130,12 +135,10 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
 
         foreach (string assumption in confirmedAssumptions)
         {
-            string trimmed = assumption.Trim();
-
-            if (trimmed.Length == 0)
+            if (!ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(assumption))
                 continue;
 
-            merged.Add(trimmed);
+            merged.Add(assumption.Trim());
         }
 
         return merged;

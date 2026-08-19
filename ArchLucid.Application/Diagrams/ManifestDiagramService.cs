@@ -64,6 +64,10 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
         if (services.Count > 0 || datastores.Count > 0)
             sb.AppendLine();
+
+        if (options.IncludeSemanticOverlay)
+            AppendSemanticOverlay(sb, manifest, options, usedNodeIds);
+
         foreach (ManifestRelationship relationship in manifestRelationships)
         {
             string source = ResolveExistingNodeId(relationship.SourceId, manifest, nodeIds) ?? SanitizeId(relationship.SourceId);
@@ -179,6 +183,51 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             "none" => ManifestDiagramConstants.RelationshipLabelsNone,
             _ => ManifestDiagramConstants.RelationshipLabelsType
         };
+    }
+
+    private static void AppendSemanticOverlay(
+        StringBuilder sb,
+        GoldenManifest manifest,
+        ManifestDiagramOptions options,
+        HashSet<string> usedNodeIds)
+    {
+        List<string> semanticLabels = [];
+
+        foreach (string requirement in manifest.Governance.PolicyConstraints)
+        {
+            if (!string.IsNullOrWhiteSpace(requirement))
+                semanticLabels.Add($"Requirement: {requirement.Trim()}");
+        }
+
+        foreach (string control in manifest.Governance.RequiredControls)
+        {
+            if (!string.IsNullOrWhiteSpace(control))
+                semanticLabels.Add($"Control: {control.Trim()}");
+        }
+
+        foreach (string decisionTraceId in manifest.Metadata.DecisionTraceIds)
+        {
+            if (!string.IsNullOrWhiteSpace(decisionTraceId))
+                semanticLabels.Add($"Decision: {decisionTraceId.Trim()}");
+        }
+
+        int maxNodes = Math.Max(0, options.SemanticOverlayMaxNodes);
+        int emitted = 0;
+
+        sb.AppendLine("    subgraph semantic_overlay[\"Semantic overlay\"]");
+
+        foreach (string label in semanticLabels)
+        {
+            if (emitted >= maxNodes)
+                break;
+
+            emitted++;
+            string nodeId = EnsureUnique(SanitizeId($"sem_{emitted}"), usedNodeIds);
+            sb.AppendLine($"        {nodeId}[[\"{EscapeLabel(label)}\"]]");
+        }
+
+        sb.AppendLine("    end");
+        sb.AppendLine();
     }
 
     private static string NormalizeGroupBy(string? value)

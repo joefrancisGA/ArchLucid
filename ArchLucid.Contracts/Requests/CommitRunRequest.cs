@@ -22,4 +22,14 @@ public sealed class CommitRunRequest
         get;
         init;
     }
+
+    /// <summary>
+    ///     Stable assumption ids the operator acknowledged before finalize (TB-2345 item 49); required server-side when
+    ///     existential assumptions remain open.
+    /// </summary>
+    public IReadOnlyList<string>? AcknowledgedAssumptionIds
+    {
+        get;
+        init;
+    }
 }

@@ -201,6 +201,41 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        (await repo.TryGetAsync(tenantId, "Feature.X", CancellationToken.None)).Should().BeNull();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "on", CancellationToken.None);
+
+        (await repo.TryGetAsync(tenantId, "Feature.X", CancellationToken.None)).Should().Be("on");
+    }
+
+    [Fact]
+    public async Task TenantSettings_TryGetAsync_returns_null_after_delete()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "on", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("on");
+
+        await repo.DeleteAsync(tenantId, "feature.x", CancellationToken.None);
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
     public async Task HotPathCacheEviction_RemoveTenantAsync_removes_key()
     {
         Mock<IHotPathReadCache> cache = new();

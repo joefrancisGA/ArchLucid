@@ -8,3 +8,13 @@ export const AUTH_INVITE_PAGE_LEAD =
   "Sign in to accept your invitation. We never grant access until you authenticate and confirm.";
 
 export const AUTH_INVITE_LOADING_DETAIL = "Validating your invitation…";
+
+export const AUTH_INVITE_PRIMARY_CONTENT_ID = "auth-invite-primary-content" as const;
+
+export const AUTH_INVITE_SKIP_LINK_LABEL = "Skip to invitation accept content" as const;
+
+export const AUTH_INVITE_BREADCRUMB_HUB_LABEL = "Welcome" as const;
+
+export const AUTH_INVITE_BREADCRUMB_HUB_PATH = "/welcome" as const;
+
+export const AUTH_INVITE_BREADCRUMB_TOPIC_TITLE = AUTH_INVITE_PAGE_TITLE;

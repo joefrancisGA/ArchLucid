@@ -6,6 +6,19 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const GETTING_STARTED_HELP_SUBTITLE =
   "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.";
 
+export const GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR = GETTING_STARTED_HELP_SUBTITLE;
+
+export const GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER =
+  "See how evidence becomes findings, decisions, and governance outputs before your first review.";
+
+export const GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE = "Getting started" as const;
+
+export function gettingStartedHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER
+    : GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR;
+}
+
 export const GETTING_STARTED_HELP_AUDIENCE_LINE =
   "For architects, pilot teams, and sponsors who want to understand the review flow before starting.";
 

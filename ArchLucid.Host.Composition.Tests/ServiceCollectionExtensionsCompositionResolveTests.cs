@@ -4,6 +4,7 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Configuration;
@@ -63,6 +64,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
 
         scope.ServiceProvider.GetRequiredService<IFindingIacStubGenerator>().Should().NotBeNull();
         scope.ServiceProvider.GetRequiredService<IArchitectureRequestDraftService>().Should().NotBeNull();
+        scope.ServiceProvider.GetRequiredService<IArchitectureSynthesisKernel>().Should().NotBeNull();
         scope.ServiceProvider.GetRequiredService<IPreCommitGovernanceBlockExplainer>().Should().NotBeNull();
     }
 

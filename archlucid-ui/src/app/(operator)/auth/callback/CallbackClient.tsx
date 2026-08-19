@@ -1,9 +1,10 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { AuthCallbackAccessPanel } from "@/app/(operator)/auth/callback/AuthCallbackAccessPanel";
+import { AuthCallbackBuyerChrome } from "@/app/(operator)/auth/callback/AuthCallbackBuyerChrome";
 import { AuthCallbackLoadingView } from "@/app/(operator)/auth/callback/AuthCallbackLoadingView";
 
 import {
@@ -16,7 +17,6 @@ import {
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
 import { decodeJwtPayload, readNonceFromPayload } from "@/lib/oidc/jwt-payload";
-import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import { AUTH_CALLBACK_LOADING_DETAIL } from "@/lib/auth/auth-callback-page-copy";
 import {
   BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE,
@@ -32,6 +32,10 @@ import { clearLastRegistrationPayload } from "@/lib/registration-session";
 
 /** Matches `SignInClient` — token exchange can be slow on cold IdP or corporate proxies. */
 const TOKEN_EXCHANGE_SLOW_HINT_MS = 8000;
+
+function authCallbackChrome(content: ReactNode): React.JSX.Element {
+  return <AuthCallbackBuyerChrome>{content}</AuthCallbackBuyerChrome>;
+}
 
 /**
  * OAuth2 authorization-code callback: exchanges ?code= for tokens (PKCE, public client).
@@ -194,16 +198,10 @@ export function CallbackClient() {
   }, [code, oauthError, oauthErrorDescription, state]);
 
   if (failed) {
-    return (
-      <AuthFlowShell>
-        <AuthCallbackAccessPanel technicalDetail={toBuyerSafeAuthFailureMessage(message)} />
-      </AuthFlowShell>
+    return authCallbackChrome(
+      <AuthCallbackAccessPanel technicalDetail={toBuyerSafeAuthFailureMessage(message)} />,
     );
   }
 
-  return (
-    <AuthFlowShell>
-      <AuthCallbackLoadingView message={message} showSlowHint={showSlowHint} />
-    </AuthFlowShell>
-  );
+  return authCallbackChrome(<AuthCallbackLoadingView message={message} showSlowHint={showSlowHint} />);
 }

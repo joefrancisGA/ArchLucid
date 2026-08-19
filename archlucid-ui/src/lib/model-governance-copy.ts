@@ -59,6 +59,13 @@ export const MODEL_GOVERNANCE_CONNECTION_TRUST_CENTER_LABEL = "Security & Trust"
 
 export const MODEL_GOVERNANCE_MUTATION_RETRY_LABEL = "Try again";
 
+export const MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_TITLE_COPY = "Reset allowed engines to catalog default?";
+
+export const MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_DESCRIPTION_COPY =
+  "This deletes the workspace override for engine selection. Every future architecture review falls back to the catalog default set, and the engines you curated here are not restored automatically.";
+
+export const MODEL_GOVERNANCE_ALLOWED_SET_RESET_CONFIRM_LABEL_COPY = "Reset to catalog default";
+
 export function modelGovernanceProfileSuccessMessage(profileLabel: string): string {
   return `Workspace execution profile updated to ${profileLabel}.`;
 }

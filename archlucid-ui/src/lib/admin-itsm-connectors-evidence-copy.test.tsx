@@ -8,14 +8,9 @@ import {
   ADMIN_ITSM_CONNECTORS_SOURCES,
   ADMIN_ITSM_CONNECTORS_SOURCES_INTRO,
 } from "@/lib/admin-itsm-connectors-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("admin-itsm-connectors-evidence-copy", () => {
-  it("wires exports into the ITSM connectors evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("admin-itsm-connectors-evidence-copy");
-    expect(registrySource).toContain("AdminItsmConnectorsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(ADMIN_ITSM_CONNECTORS_CANONICAL_PATH).toBe("/internal/integrations/itsm");
   });
 

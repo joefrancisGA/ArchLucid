@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -16,6 +16,7 @@ import {
   IMPROVEMENT_PLANNING_CAPTURE_FEEDBACK_CTA,
   IMPROVEMENT_PLANNING_EMPTY_TITLE,
   IMPROVEMENT_PLANNING_EXPORT_SECTION_TITLE,
+  IMPROVEMENT_PLANNING_LOAD_RETRY_LABEL,
   IMPROVEMENT_PLANNING_PAGE_TITLE,
   IMPROVEMENT_PLANNING_REFRESH_LABEL,
   IMPROVEMENT_PLANNING_THEMES_EMPTY_MESSAGE,
@@ -147,5 +148,30 @@ describe("PlanningPageView", () => {
     expect(screen.getByTestId("planning-priority-explain")).toHaveTextContent(IMPROVEMENT_PLANNING_PRIORITY_EXPLAIN);
     expect(screen.getByTestId("planning-export-section")).toBeInTheDocument();
     expect(screen.queryByText(IMPROVEMENT_PLANNING_EMPTY_TITLE)).not.toBeInTheDocument();
+  });
+
+  it("offers retry when planning insights fail to load", () => {
+    const load = vi.fn(async () => undefined);
+
+    render(
+      <PlanningPageView
+        model={buildModel({
+          failure: {
+            message: "Could not load planning insights.",
+            problem: null,
+            correlationId: null,
+            httpStatus: 503,
+            retryAfterSeconds: null,
+          },
+          load,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("planning-load-failure")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("planning-load-retry"));
+
+    expect(load).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: IMPROVEMENT_PLANNING_LOAD_RETRY_LABEL })).toBeInTheDocument();
   });
 });

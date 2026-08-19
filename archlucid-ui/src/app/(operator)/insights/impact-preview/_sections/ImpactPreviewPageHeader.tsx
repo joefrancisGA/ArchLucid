@@ -1,5 +1,6 @@
 "use client";
 
+import { ImpactPreviewBreadcrumb } from "@/components/insights/ImpactPreviewBreadcrumb";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
@@ -39,6 +40,7 @@ export function ImpactPreviewPageHeader(props: ImpactPreviewPageHeaderProps): Re
       navHref={IMPACT_PREVIEW_PATH}
       title={IMPACT_PREVIEW_PAGE_TITLE}
       titleTestId="impact-preview-page-title"
+      breadcrumb={<ImpactPreviewBreadcrumb />}
       subtitle={props.subtitle}
       statusBadge={props.statusKind != null ? <StatusTag kind={props.statusKind} /> : null}
       actions={

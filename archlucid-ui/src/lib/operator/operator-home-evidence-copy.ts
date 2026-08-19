@@ -10,6 +10,7 @@ export const OPERATOR_HOME_CLAIM_DISCIPLINE =
 export const OPERATOR_HOME_SOURCES_INTRO =
   "Use these follow-ups when Overview next-actions need architecture reviews, findings triage, sponsor ROI, or first-run guidance.";
 
+export const OPERATOR_HOME_FOLLOW_UPS_TITLE = "Where to go next";
 
 /** Operator Sources — no self-href to Overview `/`. */
 export const OPERATOR_HOME_SOURCES: readonly EvidenceSourceLink[] = [
@@ -19,3 +20,14 @@ export const OPERATOR_HOME_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "First architecture review help", href: inAppHelpHref("first-architecture-review") },
 ] as const;
+
+const OPERATOR_HOME_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([
+  "/architecture/reviews",
+  "/architecture/reviews/new",
+  inAppHelpHref("first-architecture-review"),
+]);
+
+/** Orientation-strip Sources — excludes on-page review CTAs and contextual-help topic. */
+export const OPERATOR_HOME_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = OPERATOR_HOME_SOURCES.filter(
+  (source) => !OPERATOR_HOME_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+);

@@ -97,6 +97,12 @@ import {
   TENANT_HEALTH_SOURCES,
   TENANT_HEALTH_SOURCES_INTRO,
 } from "@/lib/tenant-health-evidence-copy";
+import {
+  OPERATOR_HOME_FOLLOW_UPS_TITLE,
+  OPERATOR_HOME_SOURCES,
+  OPERATOR_HOME_SOURCES_INTRO,
+} from "@/lib/operator/operator-home-evidence-copy";
+import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 
 export function ConnectionStatusEvidenceOrientationStrip(): React.JSX.Element {
   return (
@@ -321,6 +327,23 @@ export function TenantHealthEvidenceOrientationStrip(): React.JSX.Element {
       sourcesTitle={TENANT_HEALTH_FOLLOW_UPS_TITLE}
       sourcesIntro={TENANT_HEALTH_SOURCES_INTRO}
       sources={TENANT_HEALTH_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function OperatorHomeEvidenceOrientationStrip(
+  props: { readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? OPERATOR_HOME_SOURCES;
+
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="operator-home"
+      sourcesTestId="operator-home-settings-sources"
+      sourcesTitle={OPERATOR_HOME_FOLLOW_UPS_TITLE}
+      sourcesIntro={OPERATOR_HOME_SOURCES_INTRO}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
     />
   );

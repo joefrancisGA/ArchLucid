@@ -5,7 +5,10 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
+  IMPACT_PREVIEW_BASELINE_REVIEW_ID_LABEL,
   IMPACT_PREVIEW_EVIDENCE_BASIS_TITLE,
   IMPACT_PREVIEW_EVIDENCE_LINKED_FINDINGS,
   IMPACT_PREVIEW_EVIDENCE_POLICY_RULES,
@@ -21,6 +24,12 @@ export type ImpactPreviewEvidenceBasisSectionProps = {
 };
 
 export function ImpactPreviewEvidenceBasisSection(props: ImpactPreviewEvidenceBasisSectionProps): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const baselineHref =
+    props.baselineRunId !== null
+      ? `/architecture/reviews/${encodeURIComponent(props.baselineRunId)}`
+      : null;
+
   return (
     <Card data-testid="impact-preview-evidence-basis-section">
       <CardHeader className="pb-2">
@@ -31,10 +40,22 @@ export function ImpactPreviewEvidenceBasisSection(props: ImpactPreviewEvidenceBa
           <div>
             <dt className="text-al-text-secondary">{IMPACT_PREVIEW_EVIDENCE_REVIEW_BASELINE}</dt>
             <dd className="m-0 mt-1">
-              {props.baselineRunId !== null ? (
-                <Link href={`/architecture/reviews/${encodeURIComponent(props.baselineRunId)}`} className={OPERATOR_LINK.inline}>
-                  {props.baselineRunId}
-                </Link>
+              {baselineHref !== null ? (
+                buyerPolishedShell ? (
+                  <span className="inline-flex flex-wrap items-center gap-2">
+                    <Link href={baselineHref} className={OPERATOR_LINK.inline}>
+                      Open baseline review
+                    </Link>
+                    <TechnicalIdDisclosure
+                      label={IMPACT_PREVIEW_BASELINE_REVIEW_ID_LABEL}
+                      value={props.baselineRunId}
+                    />
+                  </span>
+                ) : (
+                  <Link href={baselineHref} className={OPERATOR_LINK.inline}>
+                    {props.baselineRunId}
+                  </Link>
+                )
               ) : (
                 "—"
               )}

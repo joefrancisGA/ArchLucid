@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "description": "TB-595 offline ablation overlay for faithfulness-golden. Maps existing case hit sourceIds to RAG-V2 features (graphRag, hyde, queryRewrite). Baseline vector-search hits have no entry and are always retained.",
+  "description": "TB-595 offline ablation overlay for faithfulness-golden. Maps existing case hit sourceIds to RAG-V2 features (graphRag, hyde, queryRewrite, iterativeRetry). Baseline vector-search hits have no entry and are always retained.",
   "configSection": "Retrieval:Advanced",
   "hitFeatures": {
     "faithfulness-policy-cited": {
@@ -59,6 +59,9 @@
     },
     "healthcare-claims-policy-review-citation-required": {
       "claims-denial-audit-trail": ["graphRag"]
+    },
+    "ask-iterative-retry-recall-boost": {
+      "rule-mi-02": ["iterativeRetry"]
     }
   }
 }

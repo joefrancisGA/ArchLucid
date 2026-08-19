@@ -29,6 +29,7 @@ describe("ImpactPreviewPageHeader", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Impact preview" })).toBeInTheDocument();
     expect(screen.getByText(impactPreviewPageSubtitle(false))).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("impact-preview-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-last-refreshed")).toHaveTextContent(/Last refreshed:/i);

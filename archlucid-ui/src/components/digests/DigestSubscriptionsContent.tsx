@@ -3,10 +3,16 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactElement } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
+import {
+  DIGEST_SUBSCRIPTION_ATTEMPTS_TAKE,
+  useDigestSubscriptionDeliveryAttemptsQueries,
+} from "@/hooks/use-digest-subscription-delivery-attempts-query";
 import { useDigestSubscriptionsQuery } from "@/hooks/use-digest-subscriptions-query";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -16,11 +22,8 @@ import { DigestSubscriptionsReadinessPanel } from "@/components/digests/DigestSu
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import {
-  createDigestSubscription,
-  listSubscriptionDeliveryAttempts,
-  toggleDigestSubscription,
-} from "@/lib/api";
+import { createDigestSubscription, listSubscriptionDeliveryAttempts, toggleDigestSubscription } from "@/lib/api";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { DIGESTS_BROWSE_RECIPIENTS_HELPER } from "@/lib/digests-browse-copy";
 import {
   DIGEST_SUBSCRIPTION_PAUSE_DIALOG_DESCRIPTION,
@@ -32,7 +35,7 @@ import {
   DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_HELP_HREF,
   DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_NOTE,
 } from "@/lib/digest-subscriptions-workflow";
-import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
+import type { DigestSubscription } from "@/types/digest-subscriptions";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 const EMPTY_SUBSCRIPTIONS: DigestSubscription[] = [];
@@ -48,9 +51,12 @@ export type DigestSubscriptionsContentProps = {
 export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProps): ReactElement {
   const canMutateSubscriptions: boolean = useOperateCapability();
   const refreshToken = props.refreshToken ?? 0;
+  const queryClient = useQueryClient();
+  const scope = useOperatorScopeQueryKey();
   const subscriptionsQuery = useDigestSubscriptionsQuery();
   const items = subscriptionsQuery.data ?? EMPTY_SUBSCRIPTIONS;
-  const [attemptsBySub, setAttemptsBySub] = useState<Record<string, DigestDeliveryAttempt[]>>({});
+  const subscriptionIds = useMemo(() => items.map((item) => item.subscriptionId), [items]);
+  const { attemptsBySub } = useDigestSubscriptionDeliveryAttemptsQueries(subscriptionIds, refreshToken);
   const [historyOpenFor, setHistoryOpenFor] = useState<string | null>(null);
   const [mutating, setMutating] = useState<boolean>(false);
   const [creating, setCreating] = useState<boolean>(false);
@@ -78,47 +84,6 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
 
     void subscriptionsQuery.refetch();
   }, [refreshToken, subscriptionsQuery.refetch]);
-
-  useEffect(() => {
-    if (items.length === 0) {
-      setAttemptsBySub({});
-
-      return;
-    }
-
-    let canceled = false;
-
-    void (async () => {
-      const attemptEntries = await Promise.all(
-        items.map(async (item) => {
-          try {
-            const rows: DigestDeliveryAttempt[] = await listSubscriptionDeliveryAttempts(
-              item.subscriptionId,
-              30,
-            );
-            return [item.subscriptionId, rows] as const;
-          } catch {
-            return [item.subscriptionId, [] as DigestDeliveryAttempt[]] as const;
-          }
-        }),
-      );
-      const nextAttempts: Record<string, DigestDeliveryAttempt[]> = {};
-
-      if (canceled) {
-        return;
-      }
-
-      for (const [subscriptionId, rows] of attemptEntries) {
-        nextAttempts[subscriptionId] = rows;
-      }
-
-      setAttemptsBySub(nextAttempts);
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [items, refreshToken]);
 
   useEffect(() => {
     return () => {
@@ -223,8 +188,14 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
     setMutationFailure(null);
 
     try {
-      const rows: DigestDeliveryAttempt[] = await listSubscriptionDeliveryAttempts(subscriptionId, 30);
-      setAttemptsBySub((previous) => ({ ...previous, [subscriptionId]: rows }));
+      await queryClient.fetchQuery({
+        queryKey: operatorQueryKeys.digestSubscriptionDeliveryAttempts(
+          scope,
+          subscriptionId,
+          refreshToken,
+        ),
+        queryFn: () => listSubscriptionDeliveryAttempts(subscriptionId, DIGEST_SUBSCRIPTION_ATTEMPTS_TAKE),
+      });
       setHistoryOpenFor((current) => (current === subscriptionId ? null : subscriptionId));
     } catch (error) {
       setMutationFailure(toApiLoadFailure(error));

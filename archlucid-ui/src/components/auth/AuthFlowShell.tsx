@@ -33,21 +33,15 @@ export function AuthFlowShell({
   afterPanel = null,
 }: AuthFlowShellProps) {
   return (
-    <div
-      className="min-h-[100dvh] bg-al-surface-base text-al-text-primary"
-      data-testid="auth-flow-shell"
-    >
-      <div className="mx-auto flex min-h-[100dvh] w-full max-w-[480px] flex-col justify-center px-4 py-8 sm:px-6 sm:py-10">
-        <header className="flex flex-col gap-2">
+    <div className="w-full text-al-text-primary" data-testid="auth-flow-shell">
+      <div className="mx-auto flex w-full max-w-[520px] flex-col px-4 sm:px-6">
+        <header>
           <ArchLucidWordmarkLink
             href={publicSiteHref("/welcome")}
             aria-label="ArchLucid — welcome"
             variant="marketing"
             className="self-start"
           />
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Architecture review workspace
-          </p>
         </header>
 
         {hasReturnDestination ? (
@@ -60,7 +54,10 @@ export function AuthFlowShell({
         ) : null}
 
         <div
-          className={cn(DESIGN_TOKENS.surface.card, hasReturnDestination ? "mt-4 p-5 sm:p-6" : "mt-6 p-5 sm:p-6")}
+          className={cn(
+            DESIGN_TOKENS.surface.card,
+            hasReturnDestination ? "mt-4 p-6 sm:p-7" : "mt-6 p-6 sm:p-7",
+          )}
           data-testid="auth-flow-panel"
         >
           {children}
@@ -68,7 +65,7 @@ export function AuthFlowShell({
 
         {afterPanel}
 
-        <footer className="mt-4 space-y-2">
+        <footer className="mt-6 space-y-2 border-t border-neutral-200 pt-5 dark:border-neutral-800">
           <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             ArchLucid does not use a product password. Sign in with a work or school account or a
             one-time email code.

@@ -4,9 +4,9 @@
 
 # Terraform cross-root dependency safety
 
-**Objective:** Reduce blast-radius surprises when thirteen Terraform state roots exchange resource IDs via operator-supplied variables (no cross-root `terraform_remote_state`). This complements [REFERENCE_SAAS_STACK_ORDER.md](REFERENCE_SAAS_STACK_ORDER.md) and CI guard `scripts/ci/assert_terraform_root_ordering_sync.py`.
+**Objective:** Reduce blast-radius surprises when Terraform leaf roots (16 in the full sequence; 15 on hosted `-MultiRoot`) exchange resource IDs via operator-supplied variables (no cross-root `terraform_remote_state`). This complements [REFERENCE_SAAS_STACK_ORDER.md](REFERENCE_SAAS_STACK_ORDER.md) and CI guard `scripts/ci/assert_terraform_root_ordering_sync.py`.
 
-**Related:** [`infra/terraform-pilot/`](../../infra/terraform-pilot/README.md) (machine-readable `nested_infrastructure_roots` + `consumes_from`), [`infra/apply-saas.ps1`](../../infra/apply-saas.ps1) (multi-root plan/apply order), [`scripts/provision-landing-zone.ps1`](../../scripts/provision-landing-zone.ps1) (validate-only sweep; may omit optional roots).
+**Related:** [`infra/terraform-pilot/`](../../infra/terraform-pilot/README.md) (machine-readable `nested_infrastructure_roots` + `composition_roots`), [`infra/apply-saas.ps1`](../../infra/apply-saas.ps1) (canonical 3-wave plan/apply), [`scripts/provision-landing-zone.ps1`](../../scripts/provision-landing-zone.ps1) (thin wrapper; always `-MultiRoot`).
 
 ---
 
@@ -32,29 +32,33 @@
 
 ## 2. Canonical multi-root apply order (and why it exists)
 
-**Authoritative sequence** (same order in `infra/terraform-pilot` `nested_infrastructure_roots` and `infra/apply-saas.ps1 -MultiRoot`):
+**Authoritative sequence** is `$multiRootSequence` in `infra/apply-saas.ps1` (same leaf order in `infra/terraform-pilot` `nested_infrastructure_roots`). Hosted **`-MultiRoot`** Azure-applies waves **1-15** (omits orchestrator). **`-LegacyLeafRoots`** includes order **16**.
 
-1. **private** - VNet, private DNS, private endpoints (data-plane foundation when enabled).
-2. **keyvault** - Secrets vault before apps that reference it.
-3. **sql_failover** - Failover group / SQL tuning (IDs often fed into private stack or app config).
+1. **private** - VNet, private DNS, private endpoints (foundation wave).
+2. **keyvault** - Secrets vault before apps that reference it (foundation wave).
+3. **sql_failover** - Failover group / SQL tuning (platform wave).
 4. **storage** - Artifact blob + job queue accounts.
-5. **servicebus** - Optional messaging.
-6. **logicapps** - Optional Standard Logic Apps (after messaging + DNS exist).
-7. **openai** - Optional budgets / hooks.
-8. **entra** - App registrations consumed by API/UI identity.
-9. **container_apps** - API, worker, UI (+ managed identities, storage RBAC).
-10. **edge** - Front Door / WAF to Container App origins.
-11. **`infra/terraform`** - Optional Consumption APIM.
-12. **monitoring** - Log Analytics / dashboards keyed off workload IDs.
-13. **orchestrator** - Minimal root (CI/bootstrap only unless extended).
+5. **redis** - Optional Azure Cache for Redis (`HotPathCache`).
+6. **cosmos** - Optional Cosmos DB polyglot path.
+7. **servicebus** - Optional messaging.
+8. **logicapps** - Optional Standard Logic Apps (after messaging + DNS exist).
+9. **openai** - Optional budgets / hooks.
+10. **acr** - Optional Azure Container Registry (**before** Entra / Container Apps).
+11. **entra** - App registrations consumed by API/UI identity (app wave).
+12. **container_apps** - API, worker, UI (+ managed identities, storage RBAC).
+13. **edge** - Front Door / WAF to Container App origins.
+14. **`infra/terraform`** - Optional Consumption APIM.
+15. **monitoring** - Log Analytics / dashboards keyed off workload IDs.
+16. **orchestrator** - Legacy-only (`-LegacyLeafRoots`); omitted from hosted `-MultiRoot`.
 
 **Rationale:**
 
-- Identity and networking land **before** workloads that consume subnet IDs and Entra IDs.
-- **Storage** sits early so artifact URIs exist before Container Apps reads them (per variable hand-offs below).
+- Networking and Key Vault land **before** platform data planes and workloads.
+- **ACR before Entra / Container Apps** so image-pull identities can reference the registry.
+- **Redis / Cosmos** sit with other platform data stores, after storage and before messaging.
 - **Edge/APIM last among app-facing stacks** so origin hostnames and health probes resolve to live revisions.
 
-**Note:** [`scripts/provision-landing-zone.ps1`](../../scripts/provision-landing-zone.ps1) validates roots in a **different** sequence (starts with storage) and currently **omits** `infra/terraform-logicapps` CI runs omit that root intentionally for faster validate loops; stderr warns when the provision set differs from pilot. Operators running full stacks should rely on **`apply-saas.ps1 -MultiRoot`** or the pilot order.
+**Note:** [`scripts/provision-landing-zone.ps1`](../../scripts/provision-landing-zone.ps1) is a **thin wrapper** around **`apply-saas.ps1 -MultiRoot`**. It does **not** keep a competing leaf list. Validate composition roots first (`azure_apply = false`), then Azure-apply leaves. Nested `module` wrapping of leaves is out of scope.
 
 ---
 

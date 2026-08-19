@@ -6,6 +6,7 @@ import {
   getShowcaseManifestHref,
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
@@ -45,14 +46,16 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
     searchValue: "evidence trail graph traceability",
   },
   {
-    label: "Governance approval",
+    // Same page the sidebar and route title call "Approval queue" — retired wording stays searchable below.
+    label: OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
     href: `/governance/approval-queue?runId=${showcaseRunEnc}`,
     searchValue: "governance approval workflow sign-off",
   },
   {
-    label: "Review records and dispositions",
+    // Same page the sidebar and route title call "Findings" — retired wording stays searchable below.
+    label: OPERATOR_NAV_LINK_LABELS.findings,
     href: "/governance/findings",
-    searchValue: "findings risks dispositions governance queue",
+    searchValue: "findings risks dispositions review records governance queue",
   },
   {
     label: BUYER_COMPARE_OPEN_FULL_LINK_LABEL,
@@ -65,7 +68,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
     searchValue: "audit trail compliance chronology events",
   },
   {
-    label: "Ask review questions",
+    label: OPERATOR_NAV_LINK_LABELS.askReview,
     href: `/insights/ask-review-questions?runId=${showcaseRunEnc}`,
     searchValue: "ask question evidence qna",
   },

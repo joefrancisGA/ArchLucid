@@ -87,13 +87,13 @@ describe("ArchitectureDraftListClient", () => {
     expect(updated.textContent ?? "").toMatch(/Updated .+ · /);
   });
 
-  it("shows a loading state before registry hydrate (TB-1450)", () => {
+  it("shows a loading skeleton before registry hydrate (TB-1450)", () => {
     useArchitectureDraftRegistryHydrated.mockReturnValue(false);
     useArchitectureDraftRegistryEntries.mockReturnValue([]);
 
     render(<ArchitectureDraftListClient />);
 
-    expect(screen.getByTestId("architecture-draft-list-loading")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-list-skeleton")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-list-empty")).not.toBeInTheDocument();
   });
 

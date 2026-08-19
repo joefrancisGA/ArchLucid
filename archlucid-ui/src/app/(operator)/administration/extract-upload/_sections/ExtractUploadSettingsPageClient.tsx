@@ -52,7 +52,14 @@ import {
   EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
 } from "@/lib/extract-upload-settings-page-copy";
 import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
+import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
 import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID,
+  EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
+} from "@/lib/extract-upload-settings-page-copy";
 
 const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
@@ -69,6 +76,7 @@ type WorkspaceBaselineArtifactsPayload = {
  * Guided Extract & Upload settings page — PowerShell script, validate hint, and server ZIP upload.
  */
 export function ExtractUploadSettingsPageClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [busy, setBusy] = useState(false);
   const [selectedFileLabel, setSelectedFileLabel] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<{
@@ -272,15 +280,31 @@ export function ExtractUploadSettingsPageClient() {
       className={cn(OPERATOR_PAGE_CONTAINER.base, OPERATOR_PAGE_CONTAINER.variant.workflow, OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="extract-upload-settings-page"
     >
-      <ExtractUploadSettingsPageHeader
-        baselineLoading={baselineLoading}
-        hasBaselineArtifacts={hasBaselineArtifacts}
-        extractorScriptVersion={extractorScriptVersion}
-      />
+      <a
+        href={`#${EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL}
+      </a>
 
-      <ExtractUploadSettingsEvidenceOrientationStrip />
+      <div
+        id={EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID}
+        data-testid="extract-upload-settings-primary-content"
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.majorSectionGap)}
+      >
+        <ExtractUploadSettingsPageHeader
+          baselineLoading={baselineLoading}
+          hasBaselineArtifacts={hasBaselineArtifacts}
+          extractorScriptVersion={extractorScriptVersion}
+        />
 
-      <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="extract-upload" />
+        <ExtractUploadSettingsBuyerChrome />
+
+        {!buyerPolishedShell ? <ExtractUploadSettingsEvidenceOrientationStrip /> : null}
+
+        {buyerPolishedShell ? null : (
+          <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="extract-upload" />
+        )}
 
       {extractorUpdateBanner ? (
         <div
@@ -452,6 +476,7 @@ export function ExtractUploadSettingsPageClient() {
             </Link>
           </p>
         </aside>
+      </div>
       </div>
     </div>
   );

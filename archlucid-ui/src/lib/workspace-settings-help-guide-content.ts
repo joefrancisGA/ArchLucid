@@ -14,6 +14,19 @@ export const WORKSPACE_SETTINGS_HELP_PAGE_TITLE = "Workspace settings orientatio
 export const WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE =
   "How tenant-wide defaults, quality gates, and cost settings fit workspace administration and downstream reviews.";
 
+export const WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE_BUYER =
+  "Tenant defaults, quality gates, and cost settings for workspace administration in this workspace." as const;
+
+export const WORKSPACE_SETTINGS_HELP_PRIMARY_CONTENT_ID = "help-workspace-settings-primary-content" as const;
+
+export const WORKSPACE_SETTINGS_HELP_SKIP_LINK_LABEL = "Skip to workspace settings guide" as const;
+
+export function workspaceSettingsHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE_BUYER
+    : WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE;
+}
+
 export const WORKSPACE_SETTINGS_HELP_OVERVIEW =
   "Workspace settings is the Admin surface for tenant-wide defaults. It configures quality gates and cost settings that downstream reviews inherit.";
 

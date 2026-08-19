@@ -91,6 +91,20 @@ public sealed class ManifestHashService : IManifestHashService
                         })
                         .ToArray(),
                     manifest.EffectiveGovernanceAtCommit.HasEffectivePolicy
+                },
+            ReviewStandardsAtCommit = manifest.ReviewStandardsAtCommit is null
+                ? null
+                : new
+                {
+                    manifest.ReviewStandardsAtCommit.GeneratedUtc,
+                    PolicyReferences = manifest.ReviewStandardsAtCommit.PolicyReferences
+                        .OrderBy(reference => reference, StringComparer.Ordinal)
+                        .ToArray(),
+                    manifest.ReviewStandardsAtCommit.FocusedPilotModeEnabled,
+                    manifest.ReviewStandardsAtCommit.CloudProvider,
+                    ReviewedQualityDimensions = manifest.ReviewStandardsAtCommit.ReviewedQualityDimensions
+                        .OrderBy(dimension => dimension, StringComparer.Ordinal)
+                        .ToArray()
                 }
         });
 

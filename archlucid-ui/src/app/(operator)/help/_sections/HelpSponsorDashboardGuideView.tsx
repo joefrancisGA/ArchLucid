@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -8,6 +10,7 @@ import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHe
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LAYOUT,
@@ -21,10 +24,12 @@ import {
   SPONSOR_DASHBOARD_HELP_GUIDE_HEADINGS,
   SPONSOR_DASHBOARD_HELP_HOW_TO_READ_STEPS,
   SPONSOR_DASHBOARD_HELP_OVERVIEW,
-  SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE,
   SPONSOR_DASHBOARD_HELP_PAGE_TITLE,
   SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION,
+  SPONSOR_DASHBOARD_HELP_PRIMARY_CONTENT_ID,
   SPONSOR_DASHBOARD_HELP_SCOPE_PRECONDITION,
+  SPONSOR_DASHBOARD_HELP_SKIP_LINK_LABEL,
+  sponsorDashboardHelpPageSubtitle,
 } from "@/lib/sponsor-dashboard-help-guide-content";
 import { SPONSOR_DASHBOARD_HELP_CANONICAL_PATH } from "@/lib/sponsor-dashboard-help-evidence-copy";
 import { SPONSOR_DASHBOARD_HELP_TOPIC_LABEL } from "@/lib/architecture/architecture-sponsor-dashboard-evidence-copy";
@@ -50,6 +55,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Operator sponsor dashboard orientation for `/help/sponsor-dashboard`. */
 export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const contentGridClass = resolveHelpPageContentGridClass(SPONSOR_DASHBOARD_HELP_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
@@ -58,16 +64,23 @@ export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideVi
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
       data-testid="help-sponsor-dashboard-guide"
     >
+      <a
+        href={`#${SPONSOR_DASHBOARD_HELP_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {SPONSOR_DASHBOARD_HELP_SKIP_LINK_LABEL}
+      </a>
+
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
         title={SPONSOR_DASHBOARD_HELP_PAGE_TITLE}
         titleTestId="help-sponsor-dashboard-page-title"
-        subtitle={SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE}
+        subtitle={sponsorDashboardHelpPageSubtitle(buyerPolishedShell)}
         navHref={SPONSOR_DASHBOARD_HELP_CANONICAL_PATH}
         headingLevel="h1"
         breadcrumb={<HelpTopicBreadcrumb topicTitle={SPONSOR_DASHBOARD_HELP_BREADCRUMB_TOPIC_TITLE} />}
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={
           <div className="flex flex-col items-start gap-2" data-testid="help-sponsor-dashboard-header-actions">
             <Button asChild size="sm" variant="primary">
@@ -86,7 +99,16 @@ export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideVi
       />
 
       <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+        <div
+          id={SPONSOR_DASHBOARD_HELP_PRIMARY_CONTENT_ID}
+          className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
+        >
+          {buyerPolishedShell ? (
+            <div data-testid="help-sponsor-dashboard-orientation-top">
+              <SponsorDashboardHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            </div>
+          ) : null}
+
           <p className={readingBodyClass} data-testid="help-sponsor-dashboard-overview">
             {SPONSOR_DASHBOARD_HELP_OVERVIEW}
           </p>
@@ -144,7 +166,9 @@ export function HelpSponsorDashboardGuideView(props: HelpSponsorDashboardGuideVi
             </ol>
           </section>
 
-          <SponsorDashboardHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          {!buyerPolishedShell ? (
+            <SponsorDashboardHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          ) : null}
         </div>
 
         <HelpTopicTableOfContents headings={SPONSOR_DASHBOARD_HELP_GUIDE_HEADINGS} />

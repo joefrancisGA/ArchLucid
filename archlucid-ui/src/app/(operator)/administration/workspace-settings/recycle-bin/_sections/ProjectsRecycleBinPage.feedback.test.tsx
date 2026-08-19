@@ -30,6 +30,9 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
 
 import { ProjectsRecycleBinPage } from "@/app/(operator)/administration/workspace-settings/recycle-bin/_sections/ProjectsRecycleBinPage";
 
+const HTML_STACK_BODY =
+  "<html>at Foo.cs:12\n--- INNER ---\nNullReferenceException: boom</html>";
+
 const recycleBinPayload = {
   retentionDays: 30,
   workspaces: [
@@ -100,4 +103,72 @@ describe("ProjectsRecycleBinPage feedback (TB-1182)", () => {
     expect(feedback).toHaveTextContent(/already uses this name/i);
     expect(feedback).not.toHaveTextContent(PROJECTS_RECYCLE_BIN_RESTORE_SUCCESS_STATUS_LABEL);
   });
+
+  it("does not surface HTML or stack traces when the recycle bin list returns 500", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response(HTML_STACK_BODY, { status: 500, statusText: "Internal Server Error" })),
+    );
+
+    render(<ProjectsRecycleBinPage />);
+
+    const alert = await screen.findByTestId("projects-recycle-bin-error");
+
+    expect(alert).toHaveTextContent(/Request failed \(500/i);
+    expect(alert).not.toHaveTextContent("NullReferenceException");
+    expect(alert).not.toHaveTextContent("<html>");
+  });
+
+  it("shows sanitized ProblemDetails detail when the recycle bin list returns application/problem+json", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ title: "Service Unavailable", detail: "The recycle bin is temporarily unavailable." }), {
+          status: 503,
+          headers: { "content-type": "application/problem+json" },
+        }),
+      ),
+    );
+
+    render(<ProjectsRecycleBinPage />);
+
+    const alert = await screen.findByTestId("projects-recycle-bin-error");
+
+    expect(alert).toHaveTextContent("The recycle bin is temporarily unavailable.");
+  });
+
+  it("does not surface HTML or stack traces when restore returns 500", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+
+      if (url.includes("recycle-bin") && (init?.method ?? "GET") === "GET") {
+        return new Response(JSON.stringify(recycleBinPayload), { status: 200 });
+      }
+
+      if (url.includes("/restore") && init?.method === "POST") {
+        return new Response(HTML_STACK_BODY, { status: 500, statusText: "Internal Server Error" });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ProjectsRecycleBinPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("projects-recycle-bin-row-proj-1")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Restore project Contoso Core" }));
+    fireEvent.click(screen.getByRole("button", { name: PROJECTS_RECYCLE_BIN_RESTORE_CONFIRM_ACTION_LABEL }));
+
+    const feedback = await screen.findByTestId("projects-recycle-bin-restore-message");
+
+    expect(feedback).toHaveAttribute("data-feedback-kind", "error");
+    expect(feedback).toHaveTextContent(/Request failed \(500/i);
+    expect(feedback).not.toHaveTextContent("NullReferenceException");
+    expect(feedback).not.toHaveTextContent("<html>");
+  });
 });
+

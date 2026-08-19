@@ -1,7 +1,8 @@
-"""RAG-V2 retrieval ablation profiles (TB-595).
+"""RAG-V2 retrieval ablation profiles (TB-595, TB-878).
 
 Mirrors ``Retrieval:Advanced`` feature flags from ``AdvancedRetrievalOptions``:
-``EnableGraphRag``, ``EnableHyde``, ``EnableQueryRewrite``.
+``EnableGraphRag``, ``EnableHyde``, ``EnableQueryRewrite``,
+``EnableIterativeRetrieveCritiqueRetry``.
 
 Offline golden-cohort ablation simulates each flag-off pass by filtering
 retrieval hits attributed to disabled features (see ``ablation-attribution.v1.json``
@@ -17,8 +18,14 @@ from typing import Mapping
 FEATURE_GRAPH_RAG = "graphRag"
 FEATURE_HYDE = "hyde"
 FEATURE_QUERY_REWRITE = "queryRewrite"
+FEATURE_ITERATIVE_RETRY = "iterativeRetry"
 
-ALL_FEATURES: tuple[str, ...] = (FEATURE_GRAPH_RAG, FEATURE_HYDE, FEATURE_QUERY_REWRITE)
+ALL_FEATURES: tuple[str, ...] = (
+    FEATURE_GRAPH_RAG,
+    FEATURE_HYDE,
+    FEATURE_QUERY_REWRITE,
+    FEATURE_ITERATIVE_RETRY,
+)
 
 
 @dataclass(frozen=True)
@@ -30,6 +37,7 @@ class RetrievalAblationProfile:
     enable_graph_rag: bool
     enable_hyde: bool
     enable_query_rewrite: bool
+    enable_iterative_retrieve_critique_retry: bool = True
 
     def disabled_features(self) -> frozenset[str]:
         disabled: list[str] = []
@@ -43,6 +51,9 @@ class RetrievalAblationProfile:
         if not self.enable_query_rewrite:
             disabled.append(FEATURE_QUERY_REWRITE)
 
+        if not self.enable_iterative_retrieve_critique_retry:
+            disabled.append(FEATURE_ITERATIVE_RETRY)
+
         return frozenset(disabled)
 
 
@@ -53,6 +64,7 @@ ABLATION_PROFILES: tuple[RetrievalAblationProfile, ...] = (
         enable_graph_rag=True,
         enable_hyde=True,
         enable_query_rewrite=True,
+        enable_iterative_retrieve_critique_retry=True,
     ),
     RetrievalAblationProfile(
         key="graph-rag-off",
@@ -76,11 +88,20 @@ ABLATION_PROFILES: tuple[RetrievalAblationProfile, ...] = (
         enable_query_rewrite=False,
     ),
     RetrievalAblationProfile(
+        key="iterative-retry-off",
+        label="EnableIterativeRetrieveCritiqueRetry=false",
+        enable_graph_rag=True,
+        enable_hyde=True,
+        enable_query_rewrite=True,
+        enable_iterative_retrieve_critique_retry=False,
+    ),
+    RetrievalAblationProfile(
         key="all-advanced-off",
         label="All advanced off",
         enable_graph_rag=False,
         enable_hyde=False,
         enable_query_rewrite=False,
+        enable_iterative_retrieve_critique_retry=False,
     ),
 )
 

@@ -1,6 +1,7 @@
 import { ALERTS_CONFIGURE_RULES_LINK_LABEL } from "@/lib/alerts-page-copy";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF, GOVERNANCE_POLICY_PACKS_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 
 import type {
   GovernanceSetupFoundationIndicator,
@@ -53,7 +54,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
     description: "Confirm that sponsors can see posture, risk, drift, approvals, and value signals.",
     outcome: "Sponsors can brief from workspace health without assembling slides.",
     tracked: false,
-    primaryActionLabel: "Open workspace overview",
+    primaryActionLabel: `Open ${TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK.label.toLowerCase()}`,
     primaryActionHref: GOVERNANCE_WORKSPACE_HEALTH_HREF,
   },
 ] as const;

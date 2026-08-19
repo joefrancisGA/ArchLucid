@@ -8,9 +8,11 @@ import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   MARKETING_FAQ_MOST_ASKED_HEADING,
   MARKETING_FAQ_MOST_ASKED_INTRO,
+  MARKETING_FAQ_PRIMARY_CONTENT_ID,
   MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL,
   MARKETING_FAQ_VIEW_PRICING_LABEL,
 } from "@/lib/marketing/marketing-faq-page-copy";
+import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import {
   MARKETING_FAQ_ITEMS,
   marketingFaqItemsByCategory,
@@ -73,11 +75,20 @@ export function MarketingFaqPageClient(): React.JSX.Element {
   }, [grouped]);
 
   return (
-    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_12.5rem] lg:items-start">
-      <div className="min-w-0">
-        <MarketingFaqPageHero />
+    <>
+      <a href={`#${MARKETING_FAQ_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
+        Skip to FAQ content
+      </a>
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_12.5rem] lg:items-start">
+        <div className="min-w-0">
+          <MarketingFaqPageHero />
 
-        <section
+          <div id={MARKETING_FAQ_PRIMARY_CONTENT_ID} className="scroll-mt-24">
+            <div data-testid="faq-orientation-top">
+              <FaqEvidenceOrientationStrip />
+            </div>
+
+            <section
           aria-labelledby="marketing-faq-most-asked-heading"
           className="mt-8 scroll-mt-24"
           data-testid="marketing-faq-most-asked"
@@ -122,11 +133,10 @@ export function MarketingFaqPageClient(): React.JSX.Element {
               </div>
             </section>
           ))}
-        </div>
+          </div>
+          </div>
 
-        <FaqEvidenceOrientationStrip />
-
-        <footer className="mt-10 space-y-4 border-t border-neutral-200 pt-8 dark:border-neutral-800">
+          <footer className="mt-10 space-y-4 border-t border-neutral-200 pt-8 dark:border-neutral-800">
           <MarketingFaqCtaRow testId="marketing-faq-cta-bottom" />
           <div className={cn("flex flex-wrap gap-x-4 gap-y-2", MARKETING_TYPOGRAPHY.body)}>
             <Link className={MARKETING_SURFACES.inlineLink} href="/pricing">
@@ -136,10 +146,11 @@ export function MarketingFaqPageClient(): React.JSX.Element {
               {MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL}
             </Link>
           </div>
-        </footer>
-      </div>
+          </footer>
+        </div>
 
-      <MarketingFaqPageToc categories={visibleCategories} />
-    </div>
+        <MarketingFaqPageToc categories={visibleCategories} />
+      </div>
+    </>
   );
 }

@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Models;
 using ArchLucid.Application;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Architecture;
@@ -128,6 +129,41 @@ public sealed class RunQueryControllerTests
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task GetRun_maps_kernel_completeness_flags_onto_RunDetailsResponse()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = RunId, RequestId = "REQ-EK07" },
+            AgentTaskLoopComplete = true,
+            AuthorityPipelineComplete = false
+        };
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailForOperatorEnrichAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), RowVersion = [2] });
+
+        Mock<IAgentExecutionTraceRepository> traces = CreateAgentExecutionTraceRepositoryMock();
+
+        RunQueryController controller = CreateController(
+            runDetailQueryService: runDetail.Object,
+            agentExecutionTraceRepository: traces.Object,
+            authorityRunRepository: runs.Object);
+
+        IActionResult action = await controller.GetRun(RunId, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        RunDetailsResponse payload = ok.Value.Should().BeOfType<RunDetailsResponse>().Subject;
+        payload.AgentTaskLoopComplete.Should().BeTrue();
+        payload.AuthorityPipelineComplete.Should().BeFalse();
     }
 
     [Fact]

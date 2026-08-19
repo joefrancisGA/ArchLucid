@@ -144,8 +144,9 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
     expect(within(rolesTable).getAllByText(formatGcpPermissionRequirementLabel("required"))).toHaveLength(2);
     expect(within(rolesTable).getAllByText("No")).toHaveLength(2);
 
-    expect(screen.getByTestId("connect-gcp-securely-prerequisites")).toBeInTheDocument();
-    expect(within(screen.getByTestId("connect-gcp-securely-prerequisites")).getByText(/cloudasset\.googleapis\.com/i)).toBeInTheDocument();
+    const prerequisites = screen.getByTestId("connect-gcp-securely-prerequisites");
+    expect(prerequisites).toBeInTheDocument();
+    expect(prerequisites.textContent?.toLowerCase()).toContain("cloudasset.googleapis.com");
 
     expect(screen.getByTestId("connect-gcp-securely-forbidden-roles-callout")).toBeInTheDocument();
     expect(screen.getByText(CONNECT_GCP_SECURELY_FORBIDDEN_ROLES_BODY)).toBeInTheDocument();

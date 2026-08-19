@@ -7,6 +7,8 @@ export const PATTERN_LIBRARY_HELP_TOPIC_LABEL = "How the pattern library works";
 export const PATTERN_LIBRARY_CLAIM_DISCIPLINE =
   "Pattern library cards are anonymized, thresholded aggregates (or labeled sample catalog data) — not a sealed-review diligence Sources package and not tenant-identifying usage. Open Reviews or a pattern detail before briefing sponsors.";
 
+export const PATTERN_LIBRARY_CLAIM_HEADING = "Anonymized catalog only" as const;
+
 export const PATTERN_LIBRARY_SOURCES_INTRO =
   "Browse patterns below, then open Reviews, Evidence trail, or Getting started when you need orientation before treating catalog signals as authoritative.";
 

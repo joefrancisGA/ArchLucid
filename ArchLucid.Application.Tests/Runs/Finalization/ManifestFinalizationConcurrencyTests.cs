@@ -192,6 +192,7 @@ public sealed class ManifestFinalizationConcurrencyTests
             Mock.Of<IManifestFinalizationSqlRepository>(),
             new RunStateTransitionService(),
             Mock.Of<ICommittedEffectiveGovernanceSnapshotCapturer>(),
+            Mock.Of<ICommittedReviewStandardsSnapshotCapturer>(),
             NullLogger<ManifestFinalizationService>.Instance);
     }
 

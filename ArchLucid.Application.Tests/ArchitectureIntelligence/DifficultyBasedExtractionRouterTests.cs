@@ -36,4 +36,66 @@ public sealed class DifficultyBasedExtractionRouterTests
             element.Name.Contains("Current vs target state", StringComparison.OrdinalIgnoreCase)
             && element.LifecycleScope == ArchitectureLifecycleScope.Transition);
     }
+
+    [Fact]
+    public void Extract_does_not_treat_tabular_contradiction_as_directly_established()
+    {
+        // Pipe tables look "structured" but contradiction markers require AmbiguousExtraction provenance.
+        string source =
+            """
+            | Topic | Detail |
+            | Risk | The diagram contradicts the prose about replication |
+            Component: Orders API
+            """;
+
+        _router.Classify(source).Should().Be(ExtractionDifficulty.AmbiguousExtraction);
+
+        IReadOnlyList<ArchitectureModelElement> elements =
+            _router.Extract(source, "art-contradiction-table");
+
+        ArchitectureModelElement contradiction = elements
+            .Should()
+            .ContainSingle(element => element.Kind == ArchitectureElementKind.Contradiction)
+            .Subject;
+
+        contradiction.Provenance.SupportStatus.Should().Be(SupportStatus.IndirectlySupported);
+        contradiction.ExtractionConfidence.Should().BeApproximately(0.55, 0.001);
+        contradiction.Provenance.Confidence.Should().BeApproximately(0.55, 0.001);
+    }
+
+    [Fact]
+    public void Extract_emits_diagram_vs_prose_contradiction()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The diagram contradicts the prose about database replication.",
+            "src-contradiction-diagram");
+
+        elements.Should().Contain(element =>
+            element.Kind == ArchitectureElementKind.Contradiction
+            && element.Name == "Diagram vs prose contradiction");
+    }
+
+    [Fact]
+    public void Extract_emits_policy_vs_component_contradiction()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "The policy contradicts the component inventory.",
+            "src-contradiction-policy");
+
+        elements.Should().Contain(element =>
+            element.Kind == ArchitectureElementKind.Contradiction
+            && element.Name == "Policy vs component contradiction");
+    }
+
+    [Fact]
+    public void Extract_emits_generic_contradiction()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "These two artifacts contradict each other.",
+            "src-contradiction-generic");
+
+        elements.Should().Contain(element =>
+            element.Kind == ArchitectureElementKind.Contradiction
+            && element.Name == "Contradiction");
+    }
 }

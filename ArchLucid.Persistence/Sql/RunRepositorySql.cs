@@ -221,6 +221,20 @@ internal static class RunRepositorySql
                                                                       OR LegacyRunStatus NOT IN (@CommittedStatus, @FailedStatus, @QualityRejectedStatus));
                                                                 """;
 
+    public const string ExistsRunForArchitectureRequestInScope = """
+                                                                 SELECT CASE
+                                                                     WHEN EXISTS (
+                                                                         SELECT 1
+                                                                         FROM dbo.Runs
+                                                                         WHERE TenantId = @TenantId
+                                                                           AND WorkspaceId = @WorkspaceId
+                                                                           AND ScopeProjectId = @ScopeProjectId
+                                                                           AND ArchitectureRequestId = @ArchitectureRequestId
+                                                                     ) THEN 1
+                                                                     ELSE 0
+                                                                 END;
+                                                                 """;
+
     public const string SelectAnchorGuardByScopedId = $"""
                                                        SELECT
                                                            {RunDetailReadSql.SelectAnchorGuardColumns}

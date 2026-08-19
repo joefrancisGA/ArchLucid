@@ -9,7 +9,8 @@ public sealed class ProductLearningPlanningDerivationService(
     IProductLearningFeedbackAggregationService aggregationService,
     IProductLearningImprovementOpportunityService opportunityService,
     IProductLearningPilotSignalRepository signalRepository,
-    IProductLearningPlanningRepository planningRepository)
+    IProductLearningPlanningRepository planningRepository,
+    IProductLearningPlanningRetrievalContributor retrievalContributor)
     : IProductLearningPlanningDerivationService
 {
     private const int MaxTakeThemeKeysPrefetch = ProductLearningPlanningRepositoryValidation.MaxTake;
@@ -18,9 +19,14 @@ public sealed class ProductLearningPlanningDerivationService(
 
     private const int MaxSignalLinksPerPlan = 200;
 
+    private const int MaxRetrievalCitationsInResponse = 40;
+
     private const int ThemeKeyMaxChars = ProductLearningPlanningRepositoryValidation.MaxThemeKeyLength;
 
     private const string DerivationRuleVersion = "59R-v1";
+
+    private readonly IProductLearningPlanningRetrievalContributor _retrievalContributor =
+        retrievalContributor ?? throw new ArgumentNullException(nameof(retrievalContributor));
 
     /// <inheritdoc />
     public async Task<ProductLearningPlanningMaterializeResult> MaterializeFromRankedOpportunitiesAsync(
@@ -61,6 +67,10 @@ public sealed class ProductLearningPlanningDerivationService(
                 r.RecordedUtc >= options.SinceUtc.Value)
             .ToList();
 
+        await _retrievalContributor
+            .IndexPilotSignalsAsync(scope, scopedSignals, cancellationToken)
+            .ConfigureAwait(false);
+
         int themesInserted = 0;
 
         int plansInserted = 0;
@@ -70,6 +80,8 @@ public sealed class ProductLearningPlanningDerivationService(
         int signalLinksInserted = 0;
 
         List<PlanningMaterializeCitation> citations = [];
+
+        List<PlanningRetrievalCitation> retrievalCitations = [];
 
         foreach (ImprovementOpportunity opportunity in opportunities)
         {
@@ -135,6 +147,19 @@ public sealed class ProductLearningPlanningDerivationService(
                     citations.Add(citation);
             }
 
+            IReadOnlyList<PlanningRetrievalCitation> priors = await _retrievalContributor
+                .RetrievePriorsForOpportunityAsync(scope, opportunity, cancellationToken)
+                .ConfigureAwait(false);
+
+            foreach (PlanningRetrievalCitation prior in priors)
+            {
+                if (retrievalCitations.Count >= MaxRetrievalCitationsInResponse)
+                    break;
+
+                if (retrievalCitations.All(c => c.SignalId != prior.SignalId))
+                    retrievalCitations.Add(prior);
+            }
+
             themesInserted++;
 
             plansInserted++;
@@ -152,7 +177,9 @@ public sealed class ProductLearningPlanningDerivationService(
 
             SignalLinksInserted = signalLinksInserted,
 
-            Citations = citations
+            Citations = citations,
+
+            RetrievalCitations = retrievalCitations,
         };
     }
 

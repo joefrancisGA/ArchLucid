@@ -100,7 +100,6 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState(0);
 
   const handlePlanLoadStateChange = useCallback((state: BillingPlanDataLoadState) => {
     if (state.status === "pending") {
@@ -131,10 +130,11 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
     setRefreshError(null);
 
     try {
-      await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.tenantTrialStatus });
-      await queryClient.refetchQueries({ queryKey: operatorQueryKeys.tenantTrialStatus });
-      // Card re-fetches usage via refreshToken and reports freshness through onLoadStateChange.
-      setRefreshToken((previous) => previous + 1);
+      // The card reads both probes from these keys and reports freshness through onLoadStateChange.
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: operatorQueryKeys.tenantTrialStatus }),
+        queryClient.refetchQueries({ queryKey: operatorQueryKeys.tenantUsageStatus }),
+      ]);
     } catch {
       setRefreshError(BILLING_HELP_REFRESH_ERROR_MESSAGE);
       showError("Billing", BILLING_HELP_REFRESH_ERROR_MESSAGE);
@@ -160,10 +160,7 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
         }}
       />
       <div className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <HelpBillingCurrentPlanCard
-          refreshToken={refreshToken}
-          onLoadStateChange={handlePlanLoadStateChange}
-        />
+        <HelpBillingCurrentPlanCard onLoadStateChange={handlePlanLoadStateChange} />
       </div>
 
       <div className={contentGridClass}>

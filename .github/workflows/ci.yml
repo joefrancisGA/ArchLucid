@@ -1939,6 +1939,9 @@ jobs:
       - name: Agent structural eval pairs (simulator↔real per agent family, TB-2225)
         run: python3 scripts/ci/assert_agent_structural_eval_pairs.py
 
+      - name: Multi-agent failure-mode chaos suite inventory (TB-945)
+        run: python3 scripts/ci/assert_multi_agent_failure_chaos_suite.py
+
       - name: Setup .NET (technology consistency golden corpus)
         uses: actions/setup-dotnet@v5.2.0
         with:
@@ -2106,6 +2109,10 @@ jobs:
       - name: Get-ArchLucidGcpPackage.Tests.ps1
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/Get-ArchLucidGcpPackage.Tests.ps1'
+
+      - name: start-local-api-and-ui.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/start-local-api-and-ui.Tests.ps1'
 
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"

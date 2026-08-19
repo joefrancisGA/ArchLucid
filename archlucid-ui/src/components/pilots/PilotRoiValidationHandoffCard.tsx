@@ -9,6 +9,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import {
@@ -24,7 +25,6 @@ import {
   resolvePilotRoiValidationVerdict,
   type PilotRoiValidationVerdict,
 } from "@/lib/pilot-roi-validation-handoff";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 export type PilotRoiValidationHandoffCardProps = {
   readonly runId: string;
@@ -171,50 +171,12 @@ export type PilotRoiValidationHandoffClientProps = {
   readonly className?: string;
 };
 
-type LoadState =
-  | { readonly status: "loading" }
-  | { readonly status: "error" }
-  | { readonly status: "ok"; readonly payload: PilotRunDeltasProofSummaryJson | null };
-
-/** Fetches pilot-run-deltas once and renders {@link PilotRoiValidationHandoffCard}. */
+/** Reads pilot-run-deltas and renders {@link PilotRoiValidationHandoffCard}. */
 export function PilotRoiValidationHandoffClient(props: PilotRoiValidationHandoffClientProps) {
   const { runId, curatedSampleRun = false, className } = props;
-  const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
+  const { data: payload, isPending, isError } = usePilotRunDeltasQuery(runId);
 
-  useEffect(() => {
-    let canceled = false;
-
-    async function load(): Promise<void> {
-      setLoadState({ status: "loading" });
-
-      const headers = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
-      const url = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/pilot-run-deltas`;
-
-      try {
-        const response = await fetch(url, headers);
-
-        if (!response.ok) {
-          if (!canceled) setLoadState({ status: "error" });
-
-          return;
-        }
-
-        const payload = (await response.json()) as PilotRunDeltasProofSummaryJson;
-
-        if (!canceled) setLoadState({ status: "ok", payload });
-      } catch {
-        if (!canceled) setLoadState({ status: "error" });
-      }
-    }
-
-    void load();
-
-    return () => {
-      canceled = true;
-    };
-  }, [runId]);
-
-  if (loadState.status === "loading") {
+  if (isPending) {
     return (
       <div
         className={cn("rounded-md border border-neutral-200 p-4 text-neutral-600 dark:border-neutral-700 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body, className)}
@@ -227,7 +189,7 @@ export function PilotRoiValidationHandoffClient(props: PilotRoiValidationHandoff
     );
   }
 
-  if (loadState.status === "error") {
+  if (isError) {
     return (
       <div className={className} data-testid="pilot-roi-validation-handoff-error">
         <OperatorApiProblem
@@ -241,7 +203,7 @@ export function PilotRoiValidationHandoffClient(props: PilotRoiValidationHandoff
   return (
     <PilotRoiValidationHandoffCard
       runId={runId}
-      payload={loadState.payload}
+      payload={payload ?? null}
       curatedSampleRun={curatedSampleRun}
       className={className}
     />

@@ -5,6 +5,7 @@ import {
   EVIDENCE_ORIENTATION_HEADING_CLASS,
   type EvidenceOrientationClaimStyle,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
+import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,11 @@ export type EvidenceOrientationCalloutHeading = {
 
 export type EvidenceOrientationClaimCalloutProps = {
   readonly testId: string;
+  /**
+   * When set, {@link shouldOmitClaimDisciplineBand} suppresses the entire callout for low-risk
+   * surfaces (settings, auth handoffs, connector setup) without removing per-surface copy modules.
+   */
+  readonly stripSlug?: string;
   /** Claim-discipline copy. Accepts nodes so a surface can inline follow-up links in the sentence. */
   readonly body: ReactNode;
   readonly style?: EvidenceOrientationClaimStyle;
@@ -41,6 +47,7 @@ export type EvidenceOrientationClaimCalloutProps = {
 /** Claim-discipline band shared by help, marketing, and architecture evidence orientation strips. */
 export function EvidenceOrientationClaimCallout({
   testId,
+  stripSlug,
   body,
   style = EVIDENCE_CLAIM_STYLE.operatorWarn,
   element = "aside",
@@ -48,7 +55,11 @@ export function EvidenceOrientationClaimCallout({
   bodyClassName,
   headingClassName,
   children,
-}: EvidenceOrientationClaimCalloutProps): React.JSX.Element {
+}: EvidenceOrientationClaimCalloutProps): React.JSX.Element | null {
+  if (stripSlug !== undefined && shouldOmitClaimDisciplineBand(stripSlug)) {
+    return null;
+  }
+
   const CalloutElement = element;
   const hasVisibleHeading: boolean = heading !== undefined && heading.visuallyHidden !== true;
 

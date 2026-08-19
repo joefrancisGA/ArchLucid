@@ -35,7 +35,6 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
     {
         List<ChangeImpactItem> impactedItems = [];
         HashSet<string> visitedElementIds = new(StringComparer.Ordinal);
-        HashSet<string> directlyImpactedElementIds = new(StringComparer.Ordinal);
 
         if (diffEntries is not null)
         {
@@ -50,7 +49,6 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                 });
 
                 visitedElementIds.Add(entry.ElementId);
-                directlyImpactedElementIds.Add(entry.ElementId);
             }
         }
 
@@ -66,8 +64,6 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                 continue;
             }
 
-            directlyImpactedElementIds.Add(element.ElementId);
-
             impactedItems.Add(new ChangeImpactItem
             {
                 ElementId = element.ElementId,
@@ -77,37 +73,73 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
             });
         }
 
-        foreach (ArchitectureModelElement element in model.Elements)
-        {
-            if (!directlyImpactedElementIds.Contains(element.ElementId))
-            {
-                continue;
-            }
+        bool relatedExpansionAddedElements;
 
-            foreach (string relatedElementId in element.RelatedElementIds)
+        do
+        {
+            relatedExpansionAddedElements = false;
+
+            foreach (ArchitectureModelElement element in model.Elements)
             {
-                if (!visitedElementIds.Add(relatedElementId))
+                if (!visitedElementIds.Contains(element.ElementId))
                 {
                     continue;
                 }
 
-                ArchitectureModelElement? relatedElement = model.Elements
-                    .FirstOrDefault(candidate => candidate.ElementId == relatedElementId);
+                foreach (string relatedElementId in element.RelatedElementIds)
+                {
+                    if (!visitedElementIds.Add(relatedElementId))
+                    {
+                        continue;
+                    }
 
-                if (relatedElement is null)
+                    ArchitectureModelElement? relatedElement = model.Elements
+                        .FirstOrDefault(candidate => candidate.ElementId == relatedElementId);
+
+                    if (relatedElement is null)
+                    {
+                        continue;
+                    }
+
+                    impactedItems.Add(new ChangeImpactItem
+                    {
+                        ElementId = relatedElement.ElementId,
+                        ImpactKind = relatedElement.Kind.ToString(),
+                        Description = $"Related element {relatedElement.Name} may be indirectly impacted.",
+                        Category = ChangeImpactCategoryMapper.FromElementKind(relatedElement.Kind),
+                    });
+                    relatedExpansionAddedElements = true;
+                }
+            }
+
+            foreach (ArchitectureModelElement element in model.Elements)
+            {
+                if (visitedElementIds.Contains(element.ElementId))
+                {
+                    continue;
+                }
+
+                if (!element.RelatedElementIds.Any(relatedElementId => visitedElementIds.Contains(relatedElementId)))
+                {
+                    continue;
+                }
+
+                if (!visitedElementIds.Add(element.ElementId))
                 {
                     continue;
                 }
 
                 impactedItems.Add(new ChangeImpactItem
                 {
-                    ElementId = relatedElement.ElementId,
-                    ImpactKind = relatedElement.Kind.ToString(),
-                    Description = $"Related element {relatedElement.Name} may be indirectly impacted.",
-                    Category = ChangeImpactCategoryMapper.FromElementKind(relatedElement.Kind),
+                    ElementId = element.ElementId,
+                    ImpactKind = element.Kind.ToString(),
+                    Description = $"Related element {element.Name} may be indirectly impacted.",
+                    Category = ChangeImpactCategoryMapper.FromElementKind(element.Kind),
                 });
+                relatedExpansionAddedElements = true;
             }
         }
+        while (relatedExpansionAddedElements);
 
         bool requiresFullReReview = RequiresFullReReview(model, recommendation, diffEntries);
 

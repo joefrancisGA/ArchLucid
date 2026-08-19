@@ -2,6 +2,7 @@
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import {
   AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE,
   AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -41,6 +42,23 @@ import {
   ARCHITECTURE_DRAFTS_HELP_SOURCES,
   ARCHITECTURE_DRAFTS_HELP_SOURCES_INTRO,
 } from "@/lib/architecture-drafts-help-evidence-copy";
+import {
+  PATH_CHOOSER_HELP_CLAIM_DISCIPLINE,
+  PATH_CHOOSER_HELP_CLAIM_DISCIPLINE_HEADING,
+  PATH_CHOOSER_HELP_CLAIM_HEADING_ID,
+  PATH_CHOOSER_HELP_FOLLOW_UPS_TITLE,
+  PATH_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO,
+  PATH_CHOOSER_HELP_SOURCES,
+} from "@/lib/path-chooser-help-evidence-copy";
+import {
+  DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE_HEADING,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_HEADING_ID,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_FOLLOW_UPS_TITLE,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_ORIENTATION_SOURCES,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_HEADING_ID,
+  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO,
+} from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { ARCHITECTURE_DRAFTS_HELP_CLAIM_HEADING_ID } from "@/lib/architecture-drafts-help-guide-content";
 import {
   EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE,
@@ -115,6 +133,11 @@ import {
   ADVISORY_SCANS_HELP_SOURCES,
   ADVISORY_SCANS_HELP_SOURCES_INTRO,
 } from "@/lib/advisory-scans-help-evidence-copy";
+import {
+  REVIEWS_NEW_FOLLOW_UPS_TITLE,
+  REVIEWS_NEW_ORIENTATION_SOURCES,
+  REVIEWS_NEW_SOURCES_INTRO,
+} from "@/lib/reviews-new-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
@@ -241,6 +264,7 @@ export function ArchitectureScorecardHelpEvidenceOrientationStrip(): React.JSX.E
 
 export type StandardsRulesHelpEvidenceOrientationStripProps = {
   readonly readingBodyClassName?: string;
+  readonly sources?: readonly EvidenceOrientationLink[];
 };
 
 export function StandardsRulesHelpEvidenceOrientationStrip(
@@ -251,6 +275,7 @@ export function StandardsRulesHelpEvidenceOrientationStrip(
     OPERATOR_TYPOGRAPHY.sectionTitle,
     "m-0 scroll-mt-24",
   );
+  const sources = props.sources ?? STANDARDS_RULES_HELP_SOURCES;
 
   return (
     <EvidenceOrientationClaimAndSourcesStrip
@@ -260,7 +285,7 @@ export function StandardsRulesHelpEvidenceOrientationStrip(
       claimHeadingId={STANDARDS_RULES_HELP_CLAIM_HEADING_ID}
       sourcesTitle={STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={STANDARDS_RULES_HELP_SOURCES_INTRO}
-      sources={STANDARDS_RULES_HELP_SOURCES}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
       headingClassName={sectionHeadingClass}
@@ -437,7 +462,47 @@ export function SponsorDashboardHelpEvidenceOrientationStrip(
   );
 }
 
-export function ArchitectureDraftsHelpEvidenceOrientationStrip(): React.JSX.Element {
+export function DataHandlingTenantIsolationHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-data-handling"
+      claim={DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE}
+      claimHeading={DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_HEADING_ID}
+      sourcesTitle={DATA_HANDLING_TENANT_ISOLATION_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO}
+      sources={DATA_HANDLING_TENANT_ISOLATION_HELP_ORIENTATION_SOURCES}
+      sourcesHeadingId={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_HEADING_ID}
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function PathChooserHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-path-chooser"
+      claim={PATH_CHOOSER_HELP_CLAIM_DISCIPLINE}
+      claimHeading={PATH_CHOOSER_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={PATH_CHOOSER_HELP_CLAIM_HEADING_ID}
+      sourcesTitle={PATH_CHOOSER_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={PATH_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO}
+      sources={PATH_CHOOSER_HELP_SOURCES}
+      sourcesHeadingId="related-next-steps"
+      sourcesLayout="wrap"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function ArchitectureDraftsHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-architecture-drafts"
@@ -449,6 +514,7 @@ export function ArchitectureDraftsHelpEvidenceOrientationStrip(): React.JSX.Elem
       sources={ARCHITECTURE_DRAFTS_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
       sourcesLayout="wrap"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
@@ -531,6 +597,23 @@ export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       headingClassName={sectionHeadingClass}
+    />
+  );
+}
+
+export function ReviewsNewEvidenceOrientationStrip(
+  props: { readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? REVIEWS_NEW_ORIENTATION_SOURCES;
+
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="reviews-new"
+      sourcesTestId="reviews-new-settings-sources"
+      sourcesTitle={REVIEWS_NEW_FOLLOW_UPS_TITLE}
+      sourcesIntro={REVIEWS_NEW_SOURCES_INTRO}
+      sources={sources}
+      sourcesHeadingId="where-to-go-next"
     />
   );
 }

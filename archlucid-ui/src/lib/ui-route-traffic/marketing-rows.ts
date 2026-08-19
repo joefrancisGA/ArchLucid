@@ -32,14 +32,6 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     noteMustContain: ["CompareForm", "Score 68", "cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
   },
-  /** Traffic workbook row ID for example-roi-bulletin marketing page. Owner backlog shorthand: EXA. */
-  {
-    rowId: "EXA",
-    path: "/example-roi-bulletin",
-    section: "Marketing",
-    note: "Example ROI bulletin (Marketing) - ExampleRoiBulletinMarketingPage with ExampleRoiBulletinEvidenceOrientationStrip (evaluation Sources + claim-discipline: synthetic sample only). Admin-only preview gate + checked-in sample Markdown; robots noindex. Not an operator PageContextualHelp surface. Sibling SPE = sponsor-report#pilot-roi-measurement. marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
-    noteMustContain: ["ExampleRoiBulletinEvidenceOrientationStrip", "cannot improve further toward 80"],
-  },
   /** Traffic workbook row ID for Product FAQ marketing page. Owner backlog shorthand: FXX. */
   {
     rowId: "FXX",
@@ -111,15 +103,15 @@ export const MARKETING_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "SEE",
     path: "/see-it",
     section: "Marketing",
-    note: "See it (Marketing) - SeeItMarketingPage with SeeItHeroSection (first-viewport H1 + lead + single primary CTA + deliverable preview rail — TB-1281), SeeItEvidenceOrientationStrip below sample body (evaluation Sources + claim-discipline: fabricated sample proof only), secondary row PDF only (no duplicate preview CTA). Not an operator PageContextualHelp surface. Sibling SRH = /showcase/[reviewId]. Score 68/100 (2026-08-11) after TB-1281–TB-1282 hero budget — marketing/learning ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.; 2026-08-11 al-ui-rate: First viewport stacked proof strip + duplicate preview CTAs + manifest jargon; shipped TB-1281–TB-1282 (batch 21–24); open: TB-1280",
-    noteMustContain: ["SeeItHeroSection", "TB-1281", "cannot improve further toward 80"],
+    note: "See it (Marketing) - SeeItMarketingPage with skip link, hero last-reviewed meta, SeeItHeroSection (H1 + lead + primary showcase CTA + get-started ladder + visual-only deliverable preview rail), demoted What this page is not disclosure, revision history, softened sample summary labels, and Sources-only SeeItEvidenceOrientationStrip footer (amber claim callout removed). Secondary row PDF only (no duplicate preview CTA). Not an operator PageContextualHelp surface. Sibling SRH = /showcase/[reviewId]. Score 58/100 Evidence (marketing sample ceiling); UX 82/100 (2026-08-15) after layout pass. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    noteMustContain: ["SeeItHeroSection", "Sources", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Signup. Owner backlog shorthand: SIG. */
   {
     rowId: "SIG",
     path: "/signup",
     section: "Marketing",
-    note: "Signup (Marketing) - SignupForm (TB-2010 disable-until-ready) or SignupAccessRequestForm (fields visible; zod email gate; explained disabled primary; data-use + Privacy line), SignupEvaluationAsideRail (what-happens-next steps, tenant/sign-in/no-payment posture, sample review), SignupEvidenceOrientationStrip (quiet Scope claim + Security & Trust; no Related strip; no FAQ/Trust/Sign-in body dupes; wordmark text-sm vs nav text-xs). Not an operator PageContextualHelp surface. Score 58/100 (2026-08-08) - marketing evaluation-access ceiling below operator Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Signup (Marketing) - invite-only SignupAccessRequestForm (visible fields, work-email gate, neutral disabled primary, data-use + privacy line, secondary See a sample review CTA) or SignupForm when self-service enabled; SignupEvaluationAsideRail (what-happens-next + evaluation posture + demo-path note); split SignupEvidenceOrientationStrip (claim above SeeItDeliverablePreview sample tag, sources footer without Related heading); SeeItDeliverablePreview Sample data label. Not an operator PageContextualHelp surface. Score 70/100 Evidence (marketing evaluation-access ceiling); UX 88/100 (2026-08-15) after al-ui-rate SIG pass (16/16). Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["SignupEvidenceOrientationStrip", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for Showcase run. Owner backlog shorthand: SRH. */

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { RoiSummaryBreadcrumb } from "@/components/insights/RoiSummaryBreadcrumb";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import {
   SPONSOR_REPORT_PATH,
@@ -11,6 +12,7 @@ import {
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
 } from "@/lib/sponsor-report-navigation";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
 import { BaselineRoiVocabularyRail } from "@/components/BaselineRoiVocabularyRail";
@@ -40,7 +42,13 @@ import {
   roiSummaryZeroStateBody,
   roiSummaryZeroStateHeadline,
 } from "@/lib/roi-summary-sponsor-presentation";
+import {
+  ROI_SUMMARY_PAGE_TITLE,
+  ROI_SUMMARY_PRIMARY_CONTENT_ID,
+  ROI_SUMMARY_SKIP_LINK_LABEL,
+} from "@/lib/roi-summary-page-copy";
 
+import { RoiSummaryBuyerChrome } from "./RoiSummaryBuyerChrome";
 import { RoiSummaryHeroStrip } from "./RoiSummaryHeroStrip";
 import { RoiSummaryLoadedHourlyCostField } from "./RoiSummaryLoadedHourlyCostField";
 import type { RoiSummaryPageViewModel } from "./roi-summary-page-view-model";
@@ -111,37 +119,62 @@ export function RoiSummaryPageView(props: Props) {
     <OperatorPageContainer variant="dashboard" className="space-y-4">
       {layerHeader}
       <ValueReportOutcomesNav />
-      <RoiSponsorExportVocabularyRail currentSurfaceId="roi-summary" />
-      <ScorecardRoiVocabularyRail currentSurfaceId="roi-summary" />
-      <BaselineRoiVocabularyRail currentSurfaceId="roi-summary" />
+      {buyerPolishedShell ? null : (
+        <>
+          <RoiSponsorExportVocabularyRail currentSurfaceId="roi-summary" />
+          <ScorecardRoiVocabularyRail currentSurfaceId="roi-summary" />
+          <BaselineRoiVocabularyRail currentSurfaceId="roi-summary" />
+        </>
+      )}
+      <a
+        href={`#${ROI_SUMMARY_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {ROI_SUMMARY_SKIP_LINK_LABEL}
+      </a>
       <DocumentLayout>
-        <OperatorPageHeader
-          navHref={SPONSOR_REPORT_ROI_SUMMARY_PATH}
-          title="ROI summary"
-          headingLevel="h1"
-          subtitle={buyerPolishedShell ? ROI_SUMMARY_PAGE_SUBTITLE : null}
-          actions={
-            <div className="flex flex-wrap items-center gap-2">
-              <PageContextualHelpButton />
-              <nav
-                aria-label="Related value reports"
-                className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              >
-                <Link href={SPONSOR_REPORT_PATH} className={OPERATOR_LINK.inline}>
-                  {SPONSOR_REPORT_PAGE_TITLE}
-                </Link>
-                <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
-                  Baseline settings
-                </Link>
-                <Link href={GOVERNANCE_WORKSPACE_HEALTH_HREF} className={OPERATOR_LINK.inline}>
-                  Workspace health
-                </Link>
-              </nav>
-            </div>
-          }
-        />
+        <div
+          id={ROI_SUMMARY_PRIMARY_CONTENT_ID}
+          data-testid="roi-summary-primary-content"
+          className="scroll-mt-24 space-y-4"
+        >
+          <OperatorPageHeader
+            navHref={SPONSOR_REPORT_ROI_SUMMARY_PATH}
+            title={ROI_SUMMARY_PAGE_TITLE}
+            headingLevel="h1"
+            breadcrumb={buyerPolishedShell ? <RoiSummaryBreadcrumb /> : undefined}
+            subtitle={buyerPolishedShell ? ROI_SUMMARY_PAGE_SUBTITLE : null}
+            actions={
+              buyerPolishedShell ? (
+                <PageContextualHelpButton />
+              ) : (
+                <div className="flex flex-wrap items-center gap-2">
+                  <PageContextualHelpButton />
+                  <nav
+                    aria-label="Related value reports"
+                    className={cn(
+                      "flex flex-wrap items-center gap-x-3 gap-y-1 text-al-text-secondary",
+                      OPERATOR_TYPOGRAPHY.helper,
+                    )}
+                  >
+                    <Link href={SPONSOR_REPORT_PATH} className={OPERATOR_LINK.inline}>
+                      {SPONSOR_REPORT_PAGE_TITLE}
+                    </Link>
+                    <Link href="/administration/baseline" className={OPERATOR_LINK.inline}>
+                      Baseline settings
+                    </Link>
+                    <Link href={GOVERNANCE_WORKSPACE_HEALTH_HREF} className={OPERATOR_LINK.inline}>
+                      Workspace health
+                    </Link>
+                  </nav>
+                </div>
+              )
+            }
+          />
 
-        <RoiSummaryHeroStrip
+          <RoiSummaryBuyerChrome />
+
+          <RoiSummaryHeroStrip
           period={heroPeriod}
           hourlyUsd={hourly.hourlyUsd}
           windowLabel={rollingWindowLabel}
@@ -257,6 +290,7 @@ export function RoiSummaryPageView(props: Props) {
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
           {roiSummaryDirectionalDisclaimer()}
         </p>
+        </div>
       </DocumentLayout>
     </OperatorPageContainer>
   );

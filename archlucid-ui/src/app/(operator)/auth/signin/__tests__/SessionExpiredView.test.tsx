@@ -50,22 +50,23 @@ describe("SessionExpiredView — copy per reason", () => {
     expect(screen.getByTestId("session-expired-heading")).toHaveTextContent("Your session expired");
   });
 
-  it("mentions returning to the last page only when a return destination is known", () => {
+  it("promises resume only when a return destination is known", () => {
     render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} hasReturnDestination />);
 
-    expect(screen.getByText(/return you to the last page you visited/i)).toBeInTheDocument();
+    expect(screen.getByText(/sign in to continue where you left off/i)).toBeInTheDocument();
   });
 
-  it("does not mention a last page when no return destination is known", () => {
+  it("does not promise resume when no return destination is known", () => {
     render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} hasReturnDestination={false} />);
 
-    expect(screen.queryByText(/last page you visited/i)).toBeNull();
+    expect(screen.queryByText(/where you left off/i)).toBeNull();
+    expect(screen.getByText(/sign in again to continue/i)).toBeInTheDocument();
   });
 
-  it("mentions returning to the last page when unauthorized with a return destination", () => {
+  it("promises resume when unauthorized with a return destination", () => {
     render(<SessionExpiredView reason="unauthorized" onSignIn={vi.fn()} hasReturnDestination />);
 
-    expect(screen.getByText(/return you to the last page you visited/i)).toBeInTheDocument();
+    expect(screen.getByText(/sign in to continue where you left off/i)).toBeInTheDocument();
   });
 
   it("exposes session recovery title as the page heading", () => {

@@ -2,6 +2,10 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ACCESS_DENIED_CANONICAL_PATH = "/403" as const;
 
+export const ACCESS_DENIED_CLAIM_DISCIPLINE_HEADING = "What access denied is not";
+
+export const ACCESS_DENIED_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const ACCESS_DENIED_CLAIM_DISCIPLINE =
   "Access denied explains that your signed-in account lacks a recognized ArchLucid app role for this tenant — it is an authorization gate, not a sealed-review diligence Sources package. After an administrator grants a role, open Assurance status or a finalized review when you need workspace evidence.";
 

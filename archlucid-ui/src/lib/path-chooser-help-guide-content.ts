@@ -2,10 +2,25 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-co
 import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
+export const PATH_CHOOSER_HELP_BREADCRUMB_TOPIC_TITLE = "Choose your next step";
+
+export const PATH_CHOOSER_HELP_PAGE_EYEBROW = "Help topic" as const;
+
 export const PATH_CHOOSER_HELP_PAGE_TITLE = "Choose your next step";
 
 export const PATH_CHOOSER_HELP_PAGE_SUBTITLE =
   "Map your current goal — evaluate, pilot, procurement, sponsor output, or engineering support — to one primary next action.";
+
+export const PATH_CHOOSER_HELP_PAGE_SUBTITLE_BUYER =
+  "Match your evaluation goal to one primary product or help surface before sponsor or procurement handoff." as const;
+
+export const PATH_CHOOSER_HELP_PRIMARY_CONTENT_ID = "help-path-chooser-primary-content" as const;
+
+export const PATH_CHOOSER_HELP_SKIP_LINK_LABEL = "Skip to path chooser guide" as const;
+
+export function pathChooserHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? PATH_CHOOSER_HELP_PAGE_SUBTITLE_BUYER : PATH_CHOOSER_HELP_PAGE_SUBTITLE;
+}
 
 export const PATH_CHOOSER_HELP_OVERVIEW =
   "Pick the branch that matches your goal, open the primary product or help surface, and use Trust Center or Assurance status before treating orientation copy as diligence evidence.";

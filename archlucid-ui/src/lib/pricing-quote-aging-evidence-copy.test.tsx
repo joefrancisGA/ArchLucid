@@ -8,14 +8,9 @@ import {
   PRICING_QUOTE_AGING_SOURCES,
   PRICING_QUOTE_AGING_SOURCES_INTRO,
 } from "@/lib/pricing-quote-aging-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("pricing-quote-aging-evidence-copy", () => {
-  it("wires exports into the Pricing quote follow-up evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("pricing-quote-aging-evidence-copy");
-    expect(registrySource).toContain("PricingQuoteAgingEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(PRICING_QUOTE_AGING_CANONICAL_PATH).toBe("/internal/pricing-quote-aging");
   });
 

@@ -2,6 +2,7 @@
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import {
   ALERTS_HELP_CLAIM_DISCIPLINE,
   ALERTS_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -274,7 +275,9 @@ export function DigestsHelpEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Element {
+export function RecurrenceSchedulesHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-recurrence-schedules"
@@ -285,6 +288,8 @@ export function RecurrenceSchedulesHelpEvidenceOrientationStrip(): React.JSX.Ele
       sourcesIntro={RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO}
       sources={RECURRENCE_SCHEDULES_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      sourcesLayout="stacked"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
@@ -510,7 +515,16 @@ export function SecurityTrustHelpEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-export function SubprocessorsHelpEvidenceOrientationStrip(): React.JSX.Element {
+export type SubprocessorsHelpEvidenceOrientationStripProps = {
+  readonly readingBodyClassName?: string;
+  readonly sources?: readonly EvidenceOrientationLink[];
+};
+
+export function SubprocessorsHelpEvidenceOrientationStrip(
+  props: SubprocessorsHelpEvidenceOrientationStripProps = {},
+): React.JSX.Element {
+  const sources = props.sources ?? SUBPROCESSORS_HELP_SOURCES;
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="subprocessors-help"
@@ -519,8 +533,9 @@ export function SubprocessorsHelpEvidenceOrientationStrip(): React.JSX.Element {
       claimHeadingId={SUBPROCESSORS_HELP_CLAIM_HEADING_ID}
       sourcesTitle={SUBPROCESSORS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SUBPROCESSORS_HELP_SOURCES_INTRO}
-      sources={SUBPROCESSORS_HELP_SOURCES}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
     />
   );
 }

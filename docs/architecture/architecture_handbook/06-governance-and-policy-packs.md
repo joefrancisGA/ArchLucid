@@ -1,6 +1,6 @@
 # 6. Governance and policy packs
 
-Policy packs are the adaptive brain of governance: rules, alerts, and advisory defaults ship as JSON/YAML and merge hierarchically at tenant, workspace, or project scope. The evaluation engine in `ArchLucid.Decisioning` stays decoupled from framework-specific knowledge.
+Policy packs are the adaptive brain of governance: rules, alerts, and advisory defaults ship as JSON/YAML and merge hierarchically at tenant, workspace, or project scope. They are **data** for the review evaluation kernel (chapter 75), not a third kernel. Focused pilot mode may narrow first-run evaluation to Security + Cost pack *names* without deleting the seeded catalog.
 
 ## Diagram
 

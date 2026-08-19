@@ -47,4 +47,22 @@ public sealed class OrchestratorTransientDbRetryTests
         await act.Should().ThrowAsync<SqlException>();
         attempts.Should().Be(1);
     }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_fk_violation_wrapped_in_timeout_exception()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new TimeoutException("command timed out", fkViolation);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<TimeoutException>();
+        attempts.Should().Be(1);
+    }
 }

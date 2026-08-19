@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
 using ArchLucid.Application;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Planning;
@@ -112,12 +113,75 @@ public sealed class RunsControllerTests
             .Setup(r => r.GetByIdAsync("REQ-100", It.IsAny<CancellationToken>()))
             .ReturnsAsync(request);
 
-        RunsController controller = CreateController();
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.ExistsRunForArchitectureRequestInScopeAsync(
+                Scope,
+                "REQ-100",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        RunsController controller = CreateController(runRepository: runs.Object);
 
         IActionResult action = await controller.GetRequest("REQ-100", requests.Object, CancellationToken.None);
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().BeSameAs(request);
+    }
+
+    [Fact]
+    public async Task GetRequest_returns_not_found_when_request_exists_but_no_run_in_scope()
+    {
+        ArchitectureRequest request = new() { RequestId = "REQ-100", SystemName = "Core" };
+
+        Mock<IArchitectureRequestRepository> requests = new();
+        requests
+            .Setup(r => r.GetByIdAsync("REQ-100", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(request);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.ExistsRunForArchitectureRequestInScopeAsync(
+                Scope,
+                "REQ-100",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        RunsController controller = CreateController(runRepository: runs.Object);
+
+        IActionResult action = await controller.GetRequest("REQ-100", requests.Object, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ArchiveRequest_returns_not_found_when_request_exists_but_no_run_in_scope()
+    {
+        ArchitectureRequest request = new() { RequestId = "REQ-100", SystemName = "Core" };
+
+        Mock<IArchitectureRequestRepository> requests = new();
+        requests
+            .Setup(r => r.GetByIdAsync("REQ-100", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(request);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.ExistsRunForArchitectureRequestInScopeAsync(
+                Scope,
+                "REQ-100",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        RunsController controller = CreateController(runRepository: runs.Object);
+
+        IActionResult action = await controller.ArchiveRequest("REQ-100", requests.Object, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        requests.Verify(
+            r => r.ArchiveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -171,9 +235,52 @@ public sealed class RunsControllerTests
         ok.Value.Should().NotBeNull();
     }
 
+    [Fact]
+    public async Task CreateRun_create_architecture_calls_synthesis_kernel_without_review_create()
+    {
+        Mock<IArchitectureSynthesisKernel> kernel = new();
+        kernel
+            .Setup(k => k.GenerateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureSynthesisGenerateResult
+            {
+                RunId = Guid.NewGuid().ToString("N"),
+                PackageOrigin = ArchitecturePackageOrigin.Created
+            });
+
+        Mock<IArchitectureRunCreateOrchestrator> create = new();
+        RunsController controller = CreateController(createOrchestrator: create.Object, synthesisKernel: kernel.Object);
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-create-arch",
+            Description = new string('x', 20),
+            SystemName = "CreatedArch",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture
+        };
+
+        IActionResult action = await controller.CreateRun(request, CancellationToken.None);
+
+        CreatedAtActionResult created = action.Should().BeOfType<CreatedAtActionResult>().Subject;
+        created.StatusCode.Should().Be(StatusCodes.Status201Created);
+        kernel.Verify(
+            k => k.GenerateAsync(
+                It.Is<ArchitectureRequest>(r => r.RequestId == "req-create-arch"),
+                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        create.Verify(
+            c => c.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static RunsController CreateController(
         IArchitectureApplicationService? architectureApplicationService = null,
-        IArchitectureRequestDraftService? draftService = null)
+        IArchitectureRequestDraftService? draftService = null,
+        IArchitectureRunCreateOrchestrator? createOrchestrator = null,
+        IArchitectureSynthesisKernel? synthesisKernel = null,
+        IRunRepository? runRepository = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -187,7 +294,7 @@ public sealed class RunsControllerTests
             .ReturnsAsync(new ValidationResult());
 
         return new RunsController(
-            Mock.Of<IArchitectureRunCreateOrchestrator>(),
+            createOrchestrator ?? Mock.Of<IArchitectureRunCreateOrchestrator>(),
             Mock.Of<IArchitectureRunBatchCreateOrchestrator>(),
             Mock.Of<IArchitectureRunExecuteOrchestrator>(),
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
@@ -202,9 +309,10 @@ public sealed class RunsControllerTests
             Mock.Of<IAuditService>(),
             Mock.Of<ICommitSponsorEmailNotifier>(),
             Mock.Of<ICommitRunIdempotencyCoordinator>(),
-            Mock.Of<IRunRepository>(),
+            runRepository ?? Mock.Of<IRunRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IFindingFeedbackRepository>(),
+            synthesisKernel ?? Mock.Of<IArchitectureSynthesisKernel>(),
             NullLogger<RunsController>.Instance)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ADVISORY_SCANS_HELP_TOPIC_LABEL } from "@/lib/advisory-scans-help-evidence-copy";
-import { ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } from "@/lib/architecture-drafts-evidence-copy";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
 import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help-evidence-copy";
 import { IMPACT_PREVIEW_HELP_TOPIC_LABEL } from "@/lib/impact-preview-help-evidence-copy";
@@ -56,7 +56,7 @@ describe("TB-2050 secondary-hub Learn more remap", () => {
     expect(PAGE_HELP_FIRST_RUN_GENERIC_LEARN_MORE_ALLOWLIST_PREFIXES).toContain("/why-archlucid");
     expect(pageHelpTopicForPathname("/architectures")).toEqual({
       slug: "architecture-drafts",
-      label: ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL,
+      label: ARCHITECTURE_DRAFTS_LIST_LABEL,
     });
     expect(pageHelpTopicForPathname("/why-archlucid")).toEqual({
       slug: "getting-started",

@@ -5,6 +5,7 @@ import { SignupEvaluationAsideRail } from "@/components/marketing/SignupEvaluati
 import {
   SIGNUP_ASSURANCE_FACTS,
   SIGNUP_ASSURANCE_HEADING,
+  SIGNUP_DEMO_PATH_NOTE,
   SIGNUP_PROCESS_HEADING,
   SIGNUP_PROCESS_STEPS,
 } from "@/lib/signup-invite-only-copy";
@@ -20,6 +21,8 @@ describe("SignupEvaluationAsideRail", () => {
       expect(screen.getByText(`${step.title}.`)).toBeInTheDocument();
       expect(screen.getByText(step.detail)).toBeInTheDocument();
     });
+
+    expect(screen.getByText(SIGNUP_DEMO_PATH_NOTE)).toBeInTheDocument();
 
     SIGNUP_ASSURANCE_FACTS.forEach((fact) => {
       expect(screen.getByText(`${fact.label}.`)).toBeInTheDocument();

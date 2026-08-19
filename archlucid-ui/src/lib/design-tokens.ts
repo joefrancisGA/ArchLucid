@@ -335,7 +335,7 @@ export const OPERATOR_TYPOGRAPHY = {
 /** Inverse tooltip surface — paired with `--al-tooltip-*` in `globals.css`; do not reuse page caption tokens inside tooltips. */
 export const TOOLTIP_SURFACE = {
   content:
-    "border border-[var(--al-tooltip-border)] bg-[var(--al-tooltip-bg)] text-[var(--al-tooltip-fg)] shadow-md",
+    "border border-[var(--al-tooltip-border)] bg-[var(--al-tooltip-bg)] text-[var(--al-tooltip-fg)] shadow-[var(--al-tooltip-shadow)]",
 } as const;
 
 export const TOOLTIP_TYPOGRAPHY = {
@@ -451,6 +451,9 @@ export const MARKETING_TYPOGRAPHY = {
   eyebrow: `${OPERATOR_TYPOGRAPHY.helper} font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200`,
   formLabel: `${OPERATOR_TYPE_SCALE.body} font-medium text-al-text-primary`,
 } as const;
+
+/** Narrow marketing capture column (~28–30rem) for evaluation signup and similar forms. */
+export const MARKETING_FORM_COLUMN_CLASS = "w-full max-w-[30rem]" as const;
 
 /** Motion-safe marketing entrance — pair with globals `.marketing-reveal-in`. */
 export const MARKETING_MOTION = {

@@ -1,6 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => true,
+  };
+});
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
@@ -11,6 +20,8 @@ import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import {
   BUYER_POLICY_PACKS_PAGE_SUBTITLE,
 } from "@/lib/policy/policy-packs-page";
+import { POLICY_PACKS_HUB_CLAIM_DISCIPLINE } from "@/lib/policy/policy-packs-hub-evidence-copy";
+import { POLICY_PACKS_CLAIM_HEADING } from "./policy-packs-page-copy";
 import type { EffectivePolicyPackSet, PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
 const selectedPack: PolicyPack = {
@@ -125,6 +136,10 @@ function buildModel(overrides: Partial<PolicyPacksPageViewModel> = {}): PolicyPa
     authoringToolsOpen: false,
     setAuthoringToolsOpen: vi.fn(),
     onCreateFromGenerator: vi.fn(async () => undefined),
+    workspaceSelectionItems: [],
+    workspaceSelectionLoading: false,
+    togglingAssignmentId: null,
+    onToggleWorkspaceSelection: vi.fn(async () => undefined),
     ...overrides,
   };
 }
@@ -152,9 +167,16 @@ describe("PolicyPacksPageView buyer-polished shell", () => {
     expect(screen.getByTestId("policy-pack-basis-status-banner")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Policy packs", level: 2 })).toBeInTheDocument();
     expect(screen.getByText(BUYER_POLICY_PACKS_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("policy-packs-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByText(POLICY_PACKS_CLAIM_HEADING)).toBeInTheDocument();
+    expect(screen.getByText(POLICY_PACKS_HUB_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-refresh-button")).toBeInTheDocument();
     expect(screen.queryByTestId("policy-packs-scope-details")).toBeNull(); // TB-2093
+    expect(screen.queryByTestId("policy-packs-standards-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("pattern-library-policy-packs-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("policy-pack-detail-hub-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("governance-setup-config-hubs-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-active-pack-summary")).toBeInTheDocument();
     expect(screen.getByTestId("policy-packs-enforced-rules-table")).toBeInTheDocument();
     expect(screen.getByText("PHI minimization on intake APIs")).toBeInTheDocument();

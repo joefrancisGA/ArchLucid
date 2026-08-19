@@ -32,7 +32,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/",
           label: OPERATOR_NAV_LINK_LABELS.home,
-          // "Workspace overview" is the buyer title of `/governance/dashboard` — keep this tooltip distinct.
+          // `/governance/dashboard` is "Workspace health" — keep this tooltip distinct from it.
           title: "Workspace home",
           icon: Home,
           tier: "essential",

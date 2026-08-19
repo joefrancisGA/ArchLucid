@@ -64,7 +64,8 @@ public sealed class ItsmInboundWebhookSyncService(
         JsonElement root,
         CancellationToken ct,
         int? inboundPayloadUtf8ByteCount = null,
-        string? deliveryId = null)
+        string? deliveryId = null,
+        Guid? authenticatedTenantId = null)
     {
         if (inboundPayloadUtf8ByteCount is { } overLimit and > MaxInboundWebhookPayloadUtf8Bytes)
             return new ItsmInboundWebhookProcessResult(false, CreatePayloadTooLargeAudit(true, overLimit));
@@ -103,7 +104,7 @@ public sealed class ItsmInboundWebhookSyncService(
         if (!mapped)
         {
             _logger.LogWarningWithTwoSanitizedUserStrings(
-                "ITSM Jira webhook: status {StatusName} for issue {IssueKey} is not mapped to a HumanReviewStatus — ignoring state change.",
+                "ITSM Jira webhook: status {StatusName} for issue {IssueKey} is not mapped to a HumanReviewStatus â€” ignoring state change.",
                 statusName,
                 issueKey);
 
@@ -128,7 +129,7 @@ public sealed class ItsmInboundWebhookSyncService(
             return new ItsmInboundWebhookProcessResult(false, null);
 
         ItsmFindingCorrelationRecord? row =
-            await _correlations.TryGetByExternalKeyAsync("Jira", issueKey, ct).ConfigureAwait(false);
+            await TryResolveCorrelationAsync("Jira", issueKey, authenticatedTenantId, ct).ConfigureAwait(false);
 
         if (row is null)
         {
@@ -166,7 +167,7 @@ public sealed class ItsmInboundWebhookSyncService(
 
         string replayEventId = ItsmInboundWebhookReplayEventId.Resolve(deliveryId, "Jira", issueKey, statusName);
 
-        if (await _replayGuard.HasSeenAsync(row.TenantId, "Jira", replayEventId, ct).ConfigureAwait(false))
+        if (!await _replayGuard.TryClaimAsync(row.TenantId, "Jira", replayEventId, ct).ConfigureAwait(false))
         {
             return new ItsmInboundWebhookProcessResult(
                 true,
@@ -184,59 +185,67 @@ public sealed class ItsmInboundWebhookSyncService(
                 ReplayIgnored: true);
         }
 
-        int updated = await _correlations
-            .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
-            .ConfigureAwait(false);
-
-        if (updated == 0)
-
-            _logger.LogWarning(
-                "ITSM Jira webhook: correlation exists but no FindingRecords updated for tenant {TenantId} finding {FindingId}.",
-                row.TenantId,
-                LogSanitizer.Sanitize(row.FindingId)); // codeql[cs/log-forging]: FindingId persisted NVARCHAR operational id; TenantId is Guid.
-
-        FindingDisposition? mappedDisposition =
-            ItsmInboundExternalStatusMapper.TryMapJiraStatusToDisposition(statusName, options);
-
-        ItsmInboundDispositionSyncResult dispositionResult =
-            await _dispositionSync
-                .TryRecordFromWebhookAsync(row, mappedDisposition, statusName, "jira-webhook", ct)
+        try
+        {
+            int updated = await _correlations
+                .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
                 .ConfigureAwait(false);
 
-        await _replayGuard.RememberAsync(row.TenantId, "Jira", replayEventId, ct).ConfigureAwait(false);
+            if (updated == 0)
 
-        AuditEvent auditEvent = new()
+                _logger.LogWarning(
+                    "ITSM Jira webhook: correlation exists but no FindingRecords updated for tenant {TenantId} finding {FindingId}.",
+                    row.TenantId,
+                    LogSanitizer.Sanitize(row.FindingId)); // codeql[cs/log-forging]: FindingId persisted NVARCHAR operational id; TenantId is Guid.
+
+            FindingDisposition? mappedDisposition =
+                ItsmInboundExternalStatusMapper.TryMapJiraStatusToDisposition(statusName, options);
+
+            ItsmInboundDispositionSyncResult dispositionResult =
+                await _dispositionSync
+                    .TryRecordFromWebhookAsync(row, mappedDisposition, statusName, "jira-webhook", ct)
+                    .ConfigureAwait(false);
+
+            AuditEvent auditEvent = new()
+            {
+                EventType = AuditEventTypes.IntegrationJiraIssueStatusSynced,
+                ExplicitActor = true,
+                ActorUserId = "jira-webhook",
+                ActorUserName = "jira-webhook",
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ProjectId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        issueKey,
+                        statusName,
+                        replayEventId,
+                        humanReviewStatus = humanReview,
+                        rowsUpdated = updated,
+                        dispositionSynced = dispositionResult.WasRecorded,
+                        disposition = dispositionResult.Disposition?.ToString(),
+                        dispositionEventId = dispositionResult.DispositionEventId,
+                        dispositionSkipReason = dispositionResult.SkipReason,
+                    })
+            };
+
+            return new ItsmInboundWebhookProcessResult(true, auditEvent);
+        }
+        catch
         {
-            EventType = AuditEventTypes.IntegrationJiraIssueStatusSynced,
-            ExplicitActor = true,
-            ActorUserId = "jira-webhook",
-            ActorUserName = "jira-webhook",
-            TenantId = row.TenantId,
-            WorkspaceId = row.WorkspaceId,
-            ProjectId = row.ProjectId,
-            DataJson = JsonSerializer.Serialize(
-                new
-                {
-                    issueKey,
-                    statusName,
-                    replayEventId,
-                    humanReviewStatus = humanReview,
-                    rowsUpdated = updated,
-                    dispositionSynced = dispositionResult.WasRecorded,
-                    disposition = dispositionResult.Disposition?.ToString(),
-                    dispositionEventId = dispositionResult.DispositionEventId,
-                    dispositionSkipReason = dispositionResult.SkipReason,
-                })
-        };
+            await _replayGuard.ReleaseAsync(row.TenantId, "Jira", replayEventId, ct).ConfigureAwait(false);
 
-        return new ItsmInboundWebhookProcessResult(true, auditEvent);
+            throw;
+        }
     }
 
     public async Task<ItsmInboundWebhookProcessResult> TryProcessServiceNowIncidentUpdateAsync(
         JsonElement root,
         CancellationToken ct,
         int? inboundPayloadUtf8ByteCount = null,
-        string? deliveryId = null)
+        string? deliveryId = null,
+        Guid? authenticatedTenantId = null)
     {
         if (inboundPayloadUtf8ByteCount is { } overLimit and > MaxInboundWebhookPayloadUtf8Bytes)
             return new ItsmInboundWebhookProcessResult(false, CreatePayloadTooLargeAudit(false, overLimit));
@@ -271,7 +280,7 @@ public sealed class ItsmInboundWebhookSyncService(
         if (!mapped)
         {
             _logger.LogWarningWithTwoSanitizedUserStrings(
-                "ITSM ServiceNow webhook: state {State} for incident {ExternalKey} is not mapped to a HumanReviewStatus — ignoring state change.",
+                "ITSM ServiceNow webhook: state {State} for incident {ExternalKey} is not mapped to a HumanReviewStatus â€” ignoring state change.",
                 stateNormalized,
                 externalKey);
 
@@ -296,7 +305,7 @@ public sealed class ItsmInboundWebhookSyncService(
             return new ItsmInboundWebhookProcessResult(false, null);
 
         ItsmFindingCorrelationRecord? row =
-            await _correlations.TryGetByExternalKeyAsync("ServiceNow", externalKey, ct).ConfigureAwait(false);
+            await TryResolveCorrelationAsync("ServiceNow", externalKey, authenticatedTenantId, ct).ConfigureAwait(false);
 
         if (row is null)
         {
@@ -334,7 +343,7 @@ public sealed class ItsmInboundWebhookSyncService(
 
         string replayEventId = ItsmInboundWebhookReplayEventId.Resolve(deliveryId, "ServiceNow", externalKey, stateNormalized);
 
-        if (await _replayGuard.HasSeenAsync(row.TenantId, "ServiceNow", replayEventId, ct).ConfigureAwait(false))
+        if (!await _replayGuard.TryClaimAsync(row.TenantId, "ServiceNow", replayEventId, ct).ConfigureAwait(false))
         {
             return new ItsmInboundWebhookProcessResult(
                 true,
@@ -352,52 +361,59 @@ public sealed class ItsmInboundWebhookSyncService(
                 ReplayIgnored: true);
         }
 
-        int updated = await _correlations
-            .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
-            .ConfigureAwait(false);
-
-        if (updated == 0)
-
-            _logger.LogWarning(
-                "ITSM ServiceNow webhook: correlation exists but no FindingRecords updated for tenant {TenantId} finding {FindingId}.",
-                row.TenantId,
-                LogSanitizer.Sanitize(row.FindingId)); // codeql[cs/log-forging]: FindingId persisted NVARCHAR operational id; TenantId is Guid.
-
-        FindingDisposition? mappedDisposition =
-            ItsmInboundExternalStatusMapper.TryMapServiceNowStateToDisposition(stateNormalized, options);
-
-        ItsmInboundDispositionSyncResult dispositionResult =
-            await _dispositionSync
-                .TryRecordFromWebhookAsync(row, mappedDisposition, stateNormalized, "servicenow-webhook", ct)
+        try
+        {
+            int updated = await _correlations
+                .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
                 .ConfigureAwait(false);
 
-        await _replayGuard.RememberAsync(row.TenantId, "ServiceNow", replayEventId, ct).ConfigureAwait(false);
+            if (updated == 0)
 
-        AuditEvent auditEvent = new()
+                _logger.LogWarning(
+                    "ITSM ServiceNow webhook: correlation exists but no FindingRecords updated for tenant {TenantId} finding {FindingId}.",
+                    row.TenantId,
+                    LogSanitizer.Sanitize(row.FindingId)); // codeql[cs/log-forging]: FindingId persisted NVARCHAR operational id; TenantId is Guid.
+
+            FindingDisposition? mappedDisposition =
+                ItsmInboundExternalStatusMapper.TryMapServiceNowStateToDisposition(stateNormalized, options);
+
+            ItsmInboundDispositionSyncResult dispositionResult =
+                await _dispositionSync
+                    .TryRecordFromWebhookAsync(row, mappedDisposition, stateNormalized, "servicenow-webhook", ct)
+                    .ConfigureAwait(false);
+
+            AuditEvent auditEvent = new()
+            {
+                EventType = AuditEventTypes.IntegrationServiceNowIncidentStatusSynced,
+                ExplicitActor = true,
+                ActorUserId = "servicenow-webhook",
+                ActorUserName = "servicenow-webhook",
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ProjectId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        externalKey,
+                        state = stateNormalized,
+                        replayEventId,
+                        humanReviewStatus = humanReview,
+                        rowsUpdated = updated,
+                        dispositionSynced = dispositionResult.WasRecorded,
+                        disposition = dispositionResult.Disposition?.ToString(),
+                        dispositionEventId = dispositionResult.DispositionEventId,
+                        dispositionSkipReason = dispositionResult.SkipReason,
+                    })
+            };
+
+            return new ItsmInboundWebhookProcessResult(true, auditEvent);
+        }
+        catch
         {
-            EventType = AuditEventTypes.IntegrationServiceNowIncidentStatusSynced,
-            ExplicitActor = true,
-            ActorUserId = "servicenow-webhook",
-            ActorUserName = "servicenow-webhook",
-            TenantId = row.TenantId,
-            WorkspaceId = row.WorkspaceId,
-            ProjectId = row.ProjectId,
-            DataJson = JsonSerializer.Serialize(
-                new
-                {
-                    externalKey,
-                    state = stateNormalized,
-                    replayEventId,
-                    humanReviewStatus = humanReview,
-                    rowsUpdated = updated,
-                    dispositionSynced = dispositionResult.WasRecorded,
-                    disposition = dispositionResult.Disposition?.ToString(),
-                    dispositionEventId = dispositionResult.DispositionEventId,
-                    dispositionSkipReason = dispositionResult.SkipReason,
-                })
-        };
+            await _replayGuard.ReleaseAsync(row.TenantId, "ServiceNow", replayEventId, ct).ConfigureAwait(false);
 
-        return new ItsmInboundWebhookProcessResult(true, auditEvent);
+            throw;
+        }
     }
 
     /// <summary>Factory used by <c>ItsmInboundWebhooksController</c> when the raw body exceeds <see cref="MaxInboundWebhookPayloadUtf8Bytes" />.</summary>
@@ -492,6 +508,22 @@ public sealed class ItsmInboundWebhookSyncService(
             ProjectId = projectId,
             DataJson = JsonSerializer.Serialize(new { reasonCode, detail })
         };
+    }
+
+    private async Task<ItsmFindingCorrelationRecord?> TryResolveCorrelationAsync(
+        string provider,
+        string externalKey,
+        Guid? authenticatedTenantId,
+        CancellationToken ct)
+    {
+        if (authenticatedTenantId is { } tenantId && tenantId != Guid.Empty)
+        {
+            return await _correlations
+                .TryGetByExternalKeyForTenantAsync(tenantId, provider, externalKey, ct)
+                .ConfigureAwait(false);
+        }
+
+        return await _correlations.TryGetByExternalKeyAsync(provider, externalKey, ct).ConfigureAwait(false);
     }
 
     private static bool ValidateCorrelationFindingId(
@@ -642,7 +674,7 @@ public sealed class ItsmInboundWebhookSyncService(
         return status.TryGetProperty("name", out JsonElement name) ? name.GetString() : null;
     }
 
-    /// <summary>Reads ServiceNow <c>sys_id</c> (or camelCase <c>sysId</c>) — inbound correlation matches outbound registration by sys_id.</summary>
+    /// <summary>Reads ServiceNow <c>sys_id</c> (or camelCase <c>sysId</c>) â€” inbound correlation matches outbound registration by sys_id.</summary>
     private static bool TryReadServiceNowKeys(JsonElement root, out string? externalKey, out string? state)
     {
         externalKey = null;

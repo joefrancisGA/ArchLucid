@@ -19,6 +19,21 @@ export const BOOKMARK_PERMANENT_REDIRECTS: Redirect[] = [
     permanent: true,
   },
   {
+    source: "/reviews",
+    destination: "/architecture/reviews",
+    permanent: true,
+  },
+  {
+    source: "/reviews/new",
+    destination: "/architecture/reviews/new",
+    permanent: true,
+  },
+  {
+    source: "/reviews/:path*",
+    destination: "/architecture/reviews/:path*",
+    permanent: true,
+  },
+  {
     source: "/signed-records",
     destination: "/governance/sealed-records",
     permanent: true,

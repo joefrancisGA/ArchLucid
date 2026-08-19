@@ -72,4 +72,29 @@ public sealed class ArchitectureRunDetail
         get;
         set;
     }
+
+    /// <summary>
+    ///     Authority pipeline complete: every authority stage in
+    ///     <c>context_ingestion</c>, <c>graph</c>, <c>findings</c>, <c>decisioning</c>, <c>artifacts</c>
+    ///     succeeded in <c>RunStageOutcomes</c>, and a golden manifest pointer is present
+    ///     (<c>GoldenManifestId</c> or <see cref="Manifest" /> not null — the same GET
+    ///     <c>/v1/architecture/review/{runId}</c> rules). Independent of
+    ///     <see cref="AgentTaskLoopComplete" />.
+    /// </summary>
+    public bool AuthorityPipelineComplete
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Agent-task loop complete: run status is <c>ReadyForCommit</c> and
+    ///     <c>HasCommitReadyAgentResults</c> is true for Topology, Cost, Compliance, and Critic.
+    ///     Independent of <see cref="AuthorityPipelineComplete" />.
+    /// </summary>
+    public bool AgentTaskLoopComplete
+    {
+        get;
+        set;
+    }
 }

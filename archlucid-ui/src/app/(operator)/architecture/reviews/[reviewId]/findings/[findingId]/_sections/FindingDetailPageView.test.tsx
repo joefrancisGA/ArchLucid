@@ -116,17 +116,11 @@ function buyerModel(overrides: Partial<FindingDetailPageModel> = {}): FindingDet
 }
 
 describe("FindingDetailPageView buyer polish", () => {
-  it("renders back-link wayfinding with contextual help and no top-row evidence trace link", () => {
+  it("hides operator wayfinding in buyer shell and keeps operational actions grouped", () => {
     render(<FindingDetailPageView model={buyerModel()} />);
 
-    expect(screen.getByTestId("finding-detail-wayfinding")).toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).toBeNull();
-    expect(screen.getByTestId("finding-detail-back-to-review")).toHaveAttribute("href", "/architecture/reviews/run-1");
-    expect(screen.getByTestId("finding-detail-back-to-findings")).toHaveAttribute(
-      "href",
-      "/architecture/reviews/run-1?reviewTab=findings",
-    );
+    expect(screen.queryByTestId("finding-detail-wayfinding")).not.toBeInTheDocument();
+    expect(screen.getByTestId("finding-detail-breadcrumb")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open evidence trace" })).toBeNull();
   });
 

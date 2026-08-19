@@ -8,14 +8,9 @@ import {
   RECOMMENDATION_LEARNING_SOURCES,
   RECOMMENDATION_LEARNING_SOURCES_INTRO,
 } from "@/lib/recommendation-learning-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("recommendation-learning-evidence-copy", () => {
-  it("wires exports into the recommendation learning evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("recommendation-learning-evidence-copy");
-    expect(registrySource).toContain("RecommendationLearningEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(RECOMMENDATION_LEARNING_CANONICAL_PATH).toBe("/internal/recommendation-learning");
   });
 

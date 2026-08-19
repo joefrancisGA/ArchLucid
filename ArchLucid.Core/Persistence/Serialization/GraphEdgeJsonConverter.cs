@@ -63,9 +63,17 @@ public sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
             return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 #pragma warning restore IDE0028 // Simplify collection initialization
 
+        // STJ Dictionary deserialize is case-sensitive; edge property lookups must stay ignore-case after restore.
+        Dictionary<string, string>? deserialized =
+            JsonSerializer.Deserialize<Dictionary<string, string>>(propsEl.GetRawText(), options);
+
+        if (deserialized is null)
 #pragma warning disable IDE0028 // Simplify collection initialization
-        return JsonSerializer.Deserialize<Dictionary<string, string>>(propsEl.GetRawText(), options)
-               ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+#pragma warning restore IDE0028 // Simplify collection initialization
+
+#pragma warning disable IDE0028 // Simplify collection initialization
+        return new Dictionary<string, string>(deserialized, StringComparer.OrdinalIgnoreCase);
 #pragma warning restore IDE0028 // Simplify collection initialization
     }
 

@@ -7,10 +7,12 @@ import {
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorHomeBuyerChrome } from "@/components/operator-home/OperatorHomeBuyerChrome";
 import {
   OPERATOR_HOME_PRIMARY_SECTION_HEADING,
   OPERATOR_LAYOUT,
 } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
 import { OperatorHomeRefreshProvider } from "@/lib/operator/operator-home-refresh-context";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
@@ -23,6 +25,10 @@ import {
   PilotCommandCenterCardDeferred,
 } from "./operator-home-page-view-deferred-chunks";
 import { OperatorHomePageHeader } from "./OperatorHomePageHeader";
+import {
+  OPERATOR_HOME_PRIMARY_CONTENT_ID,
+  OPERATOR_HOME_SKIP_LINK_LABEL,
+} from "./operator-home-page-surface-copy";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 import {
   operatorHomePageSubtitle,
@@ -135,10 +141,28 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
     <OperatorHomeGateDeferred>
       <OperatorHomeRefreshProvider>
         <OperatorHomeDeferredOnboarding />
+        {buyerPolishedShell ? (
+          <a
+            href={`#${OPERATOR_HOME_PRIMARY_CONTENT_ID}`}
+            className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+          >
+            {OPERATOR_HOME_SKIP_LINK_LABEL}
+          </a>
+        ) : null}
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
           <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} />
-          {/* The continue rail renders inside each body so it reads the same live reviews snapshot. */}
-          {buyerPolishedShell ? <BuyerPolishedHomePageBody model={model} /> : <OperatorHomePageBody model={model} />}
+          {buyerPolishedShell ? (
+            <div
+              id={OPERATOR_HOME_PRIMARY_CONTENT_ID}
+              className="scroll-mt-24 space-y-4"
+              data-testid="operator-home-primary-content"
+            >
+              <OperatorHomeBuyerChrome />
+              <BuyerPolishedHomePageBody model={model} />
+            </div>
+          ) : (
+            <OperatorHomePageBody model={model} />
+          )}
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>
     </OperatorHomeGateDeferred>

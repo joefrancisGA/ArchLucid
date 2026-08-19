@@ -14,6 +14,21 @@ export type FirstPilotProofStatusSnapshot = {
   }[];
 };
 
+/** Loads the static CI-generated first-pilot proof status snapshot from the app public folder. */
+export async function fetchFirstPilotProofStatusSnapshot(): Promise<FirstPilotProofStatusSnapshot | null> {
+  try {
+    const response = await fetch("/first-pilot-proof-status-snapshot.json", { cache: "no-store" });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as FirstPilotProofStatusSnapshot;
+  } catch {
+    return null;
+  }
+}
+
 export function proofStatusDispositionClass(disposition: FirstPilotProofStatusDisposition): string {
   switch (disposition) {
     case "PASS":

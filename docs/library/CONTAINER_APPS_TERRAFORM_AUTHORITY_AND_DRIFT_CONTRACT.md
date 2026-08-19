@@ -28,7 +28,7 @@
 | **Revision mode / traffic weights** | TF + canary CD (**TB-755**) | Partial — extend LiveAzure compare for TF-owned attrs | Portal edits possible without doc |
 | **Scale min/max + HTTP/KEDA rules** | TF vars (temp **G-OPS-01** overrides documented) | Static preflight + stack doctor (**TB-658**) | RC `min_replicas` toggles are ops-owned |
 | **Key Vault secret values** | Key Vault (not TF state) | KV RBAC + rotation runbooks | TF may declare secret **references**, not values |
-| **Multi-root apply order** | **TB-655** stack answers | Stack doctor | Consolidation deferred |
+| **Multi-root apply order** | **TB-655** 3-wave orchestration (`apply-saas.ps1 -MultiRoot`) | Stack doctor + ordering CI | Leaf state unmerged (optional `state mv` post-V1) |
 
 ---
 
@@ -71,7 +71,7 @@
 ## Explicit non-claims
 
 - Does not wire paid Azure `terraform plan` on every PR (named follow-on).
-- Does not consolidate Terraform roots (**TB-655**).
+- Does not merge leaf Terraform state (Done **TB-655** ships 3-wave orchestration without nested-module wrap).
 - Does not change scale-rule mix (**TB-915**).
 - Honesty CI shipped: **TB-1318**.
 

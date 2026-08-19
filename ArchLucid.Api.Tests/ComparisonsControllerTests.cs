@@ -193,6 +193,61 @@ public sealed class ComparisonsControllerTests
     }
 
     [Fact]
+    public async Task GetExportRecordComparisonHistory_returns_not_found_when_export_run_is_out_of_scope()
+    {
+        Mock<IRunExportRecordRepository> exports = new();
+        exports
+            .Setup(r => r.GetByIdAsync(ExportId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportRecord { ExportRecordId = ExportId, RunId = RunId });
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
+
+        ComparisonsController controller = CreateController(
+            runDetailQueryService: runDetail.Object,
+            runExportRecordRepository: exports.Object);
+
+        IActionResult action =
+            await controller.GetExportRecordComparisonHistory(ExportId, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetComparisonRecord_returns_not_found_when_linked_run_is_out_of_scope()
+    {
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = ComparisonId,
+            ComparisonType = "end-to-end-replay",
+            LeftRunId = RunId
+        };
+
+        Mock<IComparisonRecordRepository> comparisons = new();
+        comparisons
+            .Setup(r => r.GetByIdAsync(ComparisonId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
+
+        ComparisonsController controller = CreateController(
+            runDetailQueryService: runDetail.Object,
+            comparisonRecordRepository: comparisons.Object);
+
+        IActionResult action =
+            await controller.GetComparisonRecord(ComparisonId, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
     public async Task GetComparisonRecord_returns_not_found_when_record_missing()
     {
         ComparisonsController controller = CreateController();
@@ -211,6 +266,7 @@ public sealed class ComparisonsControllerTests
         {
             ComparisonRecordId = ComparisonId,
             ComparisonType = "end-to-end-replay",
+            LeftRunId = RunId,
             SummaryMarkdown = "## stored"
         };
 
@@ -219,7 +275,14 @@ public sealed class ComparisonsControllerTests
             .Setup(r => r.GetByIdAsync(ComparisonId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(record);
 
-        ComparisonsController controller = CreateController(comparisonRecordRepository: comparisons.Object);
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail());
+
+        ComparisonsController controller = CreateController(
+            runDetailQueryService: runDetail.Object,
+            comparisonRecordRepository: comparisons.Object);
 
         IActionResult action = await controller.GetComparisonSummary(ComparisonId, CancellationToken.None);
 

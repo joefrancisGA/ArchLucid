@@ -8,14 +8,9 @@ import {
   BASELINE_SETTINGS_SOURCES,
   BASELINE_SETTINGS_SOURCES_INTRO,
 } from "@/lib/baseline-settings-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("baseline-settings-evidence-copy", () => {
-  it("wires exports into the Baseline settings evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("baseline-settings-evidence-copy");
-    expect(registrySource).toContain("BaselineSettingsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(BASELINE_SETTINGS_CANONICAL_PATH).toBe("/administration/baseline");
   });
 

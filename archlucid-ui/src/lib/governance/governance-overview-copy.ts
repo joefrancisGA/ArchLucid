@@ -1,4 +1,7 @@
 /** Canonical copy for the `/governance/approval-queue` overview landing page. */
+
+import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
+
 export const GOVERNANCE_OVERVIEW_PAGE_TITLE = "Approval queue";
 
 export const GOVERNANCE_OVERVIEW_PAGE_LEAD =
@@ -7,7 +10,9 @@ export const GOVERNANCE_OVERVIEW_PAGE_LEAD =
 export const BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD =
   "Pending approvals, recent decisions, and review-scoped workflow for your workspace.";
 
-export const GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL = "Workspace overview";
+/** Cross-link to `/governance/dashboard`; the label must match that destination's own heading. */
+export const GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL =
+  TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK.label;
 
 export function governanceOverviewPageLead(buyerPolishedShell: boolean): string {
   return buyerPolishedShell ? BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD : GOVERNANCE_OVERVIEW_PAGE_LEAD;

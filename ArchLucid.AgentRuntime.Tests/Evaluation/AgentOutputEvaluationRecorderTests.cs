@@ -43,15 +43,11 @@ public sealed class AgentOutputEvaluationRecorderTests
 
         Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> refOpts = new();
         refOpts.Setup(o => o.CurrentValue).Returns(new AgentExecutionReferenceEvaluationOptions { Enabled = false });
-
-        HeuristicAgentOutputSemanticEvaluator heuristicSemantic = new();
-        HeuristicOnlyAgentOutputSemanticEvaluator semanticFacade = new(heuristicSemantic);
-
+        HeuristicOnlyAgentOutputSemanticEvaluator semanticFacade = new(new HeuristicAgentOutputSemanticEvaluator());
         AgentOutputReferenceCaseRunEvaluator referenceEvaluator = new(
             refOpts.Object,
             new EmptyReferenceCatalog(),
             new AgentOutputEvaluator(),
-            heuristicSemantic,
             semanticFacade,
             new NoOpAgentOutputEvaluationResultRepository(),
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
@@ -198,7 +194,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             NullLogger<AgentOutputEvaluationRecorder>.Instance,
             enforcingOpts);
 
-        // Empty claims + empty findings → structural and semantic scores both below the reject floor.
+        // Empty claims + empty findings â†’ structural and semantic scores both below the reject floor.
         // Citations present so WarnOnly mode surfaces score rejection instead of citation downgrade.
         const string hollowJson =
             """

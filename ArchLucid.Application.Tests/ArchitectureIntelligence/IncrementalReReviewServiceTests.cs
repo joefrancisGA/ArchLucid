@@ -86,4 +86,160 @@ public sealed class IncrementalReReviewServiceTests
 
         result.GlobalInvariantResults.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ReReview_scoped_model_includes_reverse_related_chain_regardless_of_element_order()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-chain",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "upstream-consumer",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Upstream consumer",
+                    RelatedElementIds = ["middle-link"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "middle-link",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Middle link",
+                    RelatedElementIds = ["affected-target"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "affected-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Affected target",
+                },
+            ],
+        };
+
+        CapturingSpecialistReviewService capturingSpecialist = new();
+        ReReviewScope scope = new()
+        {
+            AffectedElementIds = ["affected-target"],
+            FullReReview = false,
+            IncludeGlobalInvariantChecks = false,
+        };
+
+        _service.ReReview(model, scope, capturingSpecialist);
+
+        capturingSpecialist.CapturedModel.Should().NotBeNull();
+        capturingSpecialist.CapturedModel!.Elements.Select(element => element.ElementId)
+            .Should()
+            .BeEquivalentTo(["affected-target", "middle-link", "upstream-consumer"]);
+    }
+
+    [Fact]
+    public void ReReview_scoped_model_includes_forward_related_chain_regardless_of_element_order()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-forward-chain",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "downstream-consumer",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Downstream consumer",
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "middle-link",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Middle link",
+                    RelatedElementIds = ["downstream-consumer"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "affected-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Affected target",
+                    RelatedElementIds = ["middle-link"],
+                },
+            ],
+        };
+
+        CapturingSpecialistReviewService capturingSpecialist = new();
+        ReReviewScope scope = new()
+        {
+            AffectedElementIds = ["affected-target"],
+            FullReReview = false,
+            IncludeGlobalInvariantChecks = false,
+        };
+
+        _service.ReReview(model, scope, capturingSpecialist);
+
+        capturingSpecialist.CapturedModel.Should().NotBeNull();
+        capturingSpecialist.CapturedModel!.Elements.Select(element => element.ElementId)
+            .Should()
+            .BeEquivalentTo(["affected-target", "middle-link", "downstream-consumer"]);
+    }
+
+    [Fact]
+    public void ReReview_scoped_model_includes_forward_related_elements_discovered_via_reverse_related_hubs()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-mixed-chain",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "checkout-cache",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout cache",
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "worker",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout worker",
+                    RelatedElementIds = ["affected-target", "checkout-cache"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "affected-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout API",
+                },
+            ],
+        };
+
+        CapturingSpecialistReviewService capturingSpecialist = new();
+        ReReviewScope scope = new()
+        {
+            AffectedElementIds = ["affected-target"],
+            FullReReview = false,
+            IncludeGlobalInvariantChecks = false,
+        };
+
+        _service.ReReview(model, scope, capturingSpecialist);
+
+        capturingSpecialist.CapturedModel.Should().NotBeNull();
+        capturingSpecialist.CapturedModel!.Elements.Select(element => element.ElementId)
+            .Should()
+            .BeEquivalentTo(["affected-target", "worker", "checkout-cache"]);
+    }
+
+    private sealed class CapturingSpecialistReviewService : ISpecialistReviewService
+    {
+        public ArchitectureKnowledgeModel? CapturedModel { get; private set; }
+
+        public SpecialistReviewResult Review(
+            ArchitectureKnowledgeModel model,
+            IReadOnlyList<QualityDimension>? dimensions = null)
+        {
+            CapturedModel = model;
+            return new SpecialistReviewResult();
+        }
+    }
 }

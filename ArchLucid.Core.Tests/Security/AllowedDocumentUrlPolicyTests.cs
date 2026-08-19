@@ -21,6 +21,17 @@ public sealed class AllowedDocumentUrlPolicyTests
     }
 
     [Theory]
+    [InlineData("https://user:pass@example.com/doc", "embedded credentials")]
+    [InlineData("https://token@example.com/doc", "embedded credentials")]
+    public void TryGetRejectionReason_WhenUrlEmbedsCredentials_Rejects(string rawUrl, string expectedPhrase)
+    {
+        string? reason = AllowedDocumentUrlPolicy.TryGetRejectionReason(rawUrl);
+
+        reason.Should().NotBeNull();
+        reason.Should().Contain(expectedPhrase);
+    }
+
+    [Theory]
     [InlineData("not-a-url", "absolute HTTPS URL")]
     [InlineData("http://example.com/doc", "https scheme")]
     [InlineData("https://localhost/doc", "loopback")]

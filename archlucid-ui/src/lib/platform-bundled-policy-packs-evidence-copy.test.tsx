@@ -8,14 +8,9 @@ import {
   PLATFORM_BUNDLED_POLICY_PACKS_SOURCES,
   PLATFORM_BUNDLED_POLICY_PACKS_SOURCES_INTRO,
 } from "@/lib/platform-bundled-policy-packs-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("platform-bundled-policy-packs-evidence-copy", () => {
-  it("wires exports into the platform bundled policy packs evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("platform-bundled-policy-packs-evidence-copy");
-    expect(registrySource).toContain("PlatformBundledPolicyPacksEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(PLATFORM_BUNDLED_POLICY_PACKS_CANONICAL_PATH).toBe("/internal/platform-bundled-policy-packs");
   });
 

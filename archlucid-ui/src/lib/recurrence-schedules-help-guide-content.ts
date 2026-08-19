@@ -17,12 +17,27 @@ import {
   DIGEST_RECURRENCE_SCHEDULE_WHY_TWO,
 } from "@/lib/vocabulary/digest-recurrence-schedule-vocabulary";
 
+export const RECURRENCE_SCHEDULES_HELP_PAGE_EYEBROW = "Help topic" as const;
+
 export const RECURRENCE_SCHEDULES_HELP_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.recurrenceSchedules;
 
 export const RECURRENCE_SCHEDULES_HELP_BREADCRUMB_TOPIC_TITLE = "Recurrence schedules";
 
 export const RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE =
   "Orient on automated follow-up review cadences — schedule kinds, health signals, and where to manage schedules.";
+
+export const RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE_BUYER =
+  "Automated follow-up review cadences, schedule health signals, and where to manage schedules in this workspace." as const;
+
+export const RECURRENCE_SCHEDULES_HELP_PRIMARY_CONTENT_ID = "help-recurrence-schedules-primary-content" as const;
+
+export const RECURRENCE_SCHEDULES_HELP_SKIP_LINK_LABEL = "Skip to recurrence schedules guide" as const;
+
+export function recurrenceSchedulesHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE_BUYER
+    : RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE;
+}
 
 export const RECURRENCE_SCHEDULES_HELP_OVERVIEW =
   "Recurrence schedules automate follow-up architecture reviews on a repeating cadence. When a schedule fires, ArchLucid clones the anchored review so your team can re-assess accepted risks, policy exceptions, and control obligations before they lapse.";

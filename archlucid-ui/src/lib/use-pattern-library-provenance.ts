@@ -21,13 +21,14 @@ export type PatternLibraryProvenanceState = {
   readonly useSampleCatalog: boolean;
   readonly eligiblePatternKeys: readonly string[];
   readonly isPending: boolean;
+  readonly isFetching: boolean;
   readonly isError: boolean;
   readonly error: Error | null;
 };
 
 /** Shared hub + detail provenance resolution (TB-1811). */
 export function usePatternLibraryProvenance(): PatternLibraryProvenanceState {
-  const { data: insightCards, isPending, isError, error } = useQuery({
+  const { data: insightCards, isPending, isFetching, isError, error } = useQuery({
     queryKey: operatorQueryKeys.patternLibraryInsightCards,
     queryFn: fetchPatternLibraryInsightCards,
   });
@@ -50,6 +51,7 @@ export function usePatternLibraryProvenance(): PatternLibraryProvenanceState {
     useSampleCatalog,
     eligiblePatternKeys,
     isPending,
+    isFetching,
     isError,
     error: error instanceof Error ? error : null,
   };

@@ -77,6 +77,10 @@ public static partial class ServiceCollectionExtensions
                 "run_golden_manifest_consistency",
                 failureStatus: HealthStatus.Degraded,
                 tags: [ReadinessTags.Ready])
+            .AddCheck<GraphMergeInvariantProbeHealthCheck>(
+                GraphMergeInvariantProbeHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready])
             .AddCheck<OrchestratorHealthCheck>(
                 OrchestratorHealthCheck.RegistrationName,
                 failureStatus: HealthStatus.Degraded,

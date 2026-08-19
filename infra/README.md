@@ -4,12 +4,15 @@ ArchLucid splits Azure infrastructure into **optional Terraform roots** so local
 
 **First-time path:** **`docs/onboarding/day-one-sre.md`** (Terraform + Azure) and **`docs/START_HERE.md`** hub.
 
-**First Azure subscription (greenfield):** **`docs/FIRST_AZURE_DEPLOYMENT.md`** — backend config, apply order, smoke checks.
+**First Azure subscription (greenfield):** **`docs/library/FIRST_AZURE_DEPLOYMENT.md`** — backend config, apply order, smoke checks.
 
-**Ordered validate / apply (no merged state):** **`scripts/provision-landing-zone.ps1`** / **`scripts/provision-landing-zone.sh`** and **`docs/LANDING_ZONE_PROVISIONING.md`**. Example tfvars sketches: **`infra/environments/`**.
+**Ordered validate / apply (no merged state):** **`infra/apply-saas.ps1 -MultiRoot`** is the canonical orchestrator. **`scripts/provision-landing-zone.ps1`** / **`.sh`** wrap it. See **`docs/library/LANDING_ZONE_PROVISIONING.md`**. Example tfvars sketches: **`infra/environments/`**.
 
 | Root | Purpose | Default |
 |------|---------|---------|
+| [`terraform-foundation/`](terraform-foundation/) | **Metadata wave 1** (`azure_apply = false`): private + Key Vault. Validate only. | Always safe to `init -backend=false` |
+| [`terraform-platform/`](terraform-platform/) | **Metadata wave 2** (`azure_apply = false`): SQL failover through ACR. Validate only. | Always safe to `init -backend=false` |
+| [`terraform-app/`](terraform-app/) | **Metadata wave 3** (`azure_apply = false`): Entra through monitoring. Validate only. | Always safe to `init -backend=false` |
 | [`terraform/`](terraform/) | Core Azure resources (optional **API Management Consumption**, managed identity, outputs for API URL). | Feature flags **`false`** |
 | [`terraform-edge/`](terraform-edge/) | **Azure Front Door Standard + WAF** in front of APIM or the API hostname. | **`enable_front_door_waf = false`** |
 | [`terraform-private/`](terraform-private/) | VNet, private DNS, **private endpoints** for **SQL** and **Blob**. | **`enable_private_data_plane = false`** |
@@ -22,9 +25,11 @@ ArchLucid splits Azure infrastructure into **optional Terraform roots** so local
 
 ## Suggested order
 
+Hosted Azure apply is **`infra/apply-saas.ps1 -MultiRoot`** (foundation → platform → app). Landing-zone scripts wrap that entry. Canonical leaf sequence: **`docs/library/REFERENCE_SAAS_STACK_ORDER.md`**.
+
 1. If using **Container Apps** with large-payload offload, apply **`terraform-storage/`** first (or have a storage account + containers), then **`terraform-container-apps/`** (it requires **`artifact_blob_service_uri`** / **`artifact_storage_account_id`** when **`enable_container_apps = true`**). Otherwise deploy compute and data (your landing zone, **`terraform-container-apps/`**, or App Service — your choice).
 2. Optionally apply **`terraform-private/`** before cutting over connection strings and disabling public SQL/storage access. If you use a **failover group listener**, optionally apply **`terraform-sql-failover/`** when servers and geo databases exist, then point **`ConnectionStrings:ArchLucid`** at **`read_write_listener_fqdn`** (see **`docs/runbooks/DATABASE_FAILOVER.md`**).
 3. Optionally apply **`terraform-entra/`**, then configure the API with **`ArchLucidAuth:Mode = JwtBearer`** (see **`ArchLucid.Api/appsettings.Entra.sample.json`**).
 4. Optionally apply **`terraform-edge/`** and route customer traffic to the Front Door hostname.
 
-Customer-facing narrative: **`docs/CUSTOMER_TRUST_AND_ACCESS.md`**.
+Customer-facing narrative: **`docs/library/CUSTOMER_TRUST_AND_ACCESS.md`**.

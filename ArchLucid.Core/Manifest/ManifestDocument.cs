@@ -197,4 +197,13 @@ public class ManifestDocument
         get;
         set;
     }
+
+    /// <summary>
+    ///     Review standards sealed at commit (policy refs, focused scope, cloud target, reviewed dimensions).
+    /// </summary>
+    public CommittedReviewStandardsSnapshotDescriptor? ReviewStandardsAtCommit
+    {
+        get;
+        set;
+    }
 }

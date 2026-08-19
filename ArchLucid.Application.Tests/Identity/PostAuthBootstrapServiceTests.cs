@@ -231,6 +231,40 @@ public sealed class PostAuthBootstrapServiceTests
     }
 
     [Fact]
+    public async Task AcceptInvitationAsync_without_resume_path_redirects_to_first_review_guide()
+    {
+        (PostAuthBootstrapService sut, Guid userId, _, InMemoryUserInvitationRepository invitations) = CreateSut();
+        const string token = "invite-default-redirect";
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+
+        UserInvitationRecord row = await invitations.InsertAsync(
+            tenantId,
+            workspaceId,
+            "invited@example.com",
+            ArchLucidRoles.Reader,
+            "admin@test",
+            null,
+            EmailOtpInvitationTokenHasher.Hash(token),
+            DateTimeOffset.UtcNow.AddDays(7),
+            CancellationToken.None);
+
+        PostAuthBootstrapSessionResult? accepted = await sut.AcceptInvitationAsync(
+            userId,
+            "invited@example.com",
+            new PostAuthAcceptInvitationRequest
+            {
+                InvitationId = row.Id,
+                InvitationToken = token
+            },
+            "/",
+            CancellationToken.None);
+
+        Assert.NotNull(accepted);
+        Assert.Equal(PostAuthOperatorRoutes.InvitationAcceptedPath, accepted.RedirectPath);
+    }
+
+    [Fact]
     public async Task AcceptInvitationAsync_is_idempotent_when_user_already_member()
     {
         (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, InMemoryUserInvitationRepository invitations) = CreateSut();

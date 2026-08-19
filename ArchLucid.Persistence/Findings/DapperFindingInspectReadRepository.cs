@@ -7,6 +7,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -41,88 +42,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         string sql = includeTypedPayload
-            ? """
-              SELECT TOP 1
-                  fr.FindingId,
-                  fr.Severity,
-                  fr.PayloadJson,
-                  fr.Title,
-                  fr.Rationale,
-                  fr.ModelDeploymentName,
-                  JSON_VALUE(aet.TraceJson, '$.modelAlias') AS ModelAlias,
-                  fr.PromptTemplateVersion,
-                  fr.ConfidenceScore,
-                  fr.EvaluationConfidenceScore,
-                  fr.EvaluationConfidenceLevel,
-                  fr.HumanReviewStatus,
-                  fr.IsMuted,
-                  fr.MuteReason,
-                  fr.AssignedToUserId,
-                  fr.RemediationDueUtc,
-                  fr.ReasoningTrace,
-                  fr.ReasoningTraceDigestSha256,
-                  r.RunId,
-                  r.CurrentManifestVersion,
-                  r.GoldenManifestId,
-                  r.StructuralExecutionMode,
-                  r.RealModeFellBackToSimulator,
-                  dt.AppliedRuleIdsJson
-              FROM dbo.FindingRecords fr
-              INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-              INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-              LEFT JOIN dbo.AgentExecutionTraces aet ON aet.TraceId = fr.AgentExecutionTraceId
-              LEFT JOIN dbo.DecisioningTraces dt
-                  ON dt.DecisionTraceId = r.DecisionTraceId
-                 AND dt.TenantId = r.TenantId
-                 AND dt.WorkspaceId = r.WorkspaceId
-                 AND dt.ProjectId = r.ScopeProjectId
-              WHERE fr.FindingId = @FindingId
-                AND r.TenantId = @TenantId
-                AND r.WorkspaceId = @WorkspaceId
-                AND r.ScopeProjectId = @ScopeProjectId
-                AND (r.ArchivedUtc IS NULL);
-              """
-            : """
-              SELECT TOP 1
-                  fr.FindingId,
-                  fr.Severity,
-                  CAST(NULL AS nvarchar(max)) AS PayloadJson,
-                  fr.Title,
-                  fr.Rationale,
-                  fr.ModelDeploymentName,
-                  JSON_VALUE(aet.TraceJson, '$.modelAlias') AS ModelAlias,
-                  fr.PromptTemplateVersion,
-                  fr.ConfidenceScore,
-                  fr.EvaluationConfidenceScore,
-                  fr.EvaluationConfidenceLevel,
-                  fr.HumanReviewStatus,
-                  fr.IsMuted,
-                  fr.MuteReason,
-                  fr.AssignedToUserId,
-                  fr.RemediationDueUtc,
-                  fr.ReasoningTrace,
-                  fr.ReasoningTraceDigestSha256,
-                  r.RunId,
-                  r.CurrentManifestVersion,
-                  r.GoldenManifestId,
-                  r.StructuralExecutionMode,
-                  r.RealModeFellBackToSimulator,
-                  dt.AppliedRuleIdsJson
-              FROM dbo.FindingRecords fr
-              INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-              INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-              LEFT JOIN dbo.AgentExecutionTraces aet ON aet.TraceId = fr.AgentExecutionTraceId
-              LEFT JOIN dbo.DecisioningTraces dt
-                  ON dt.DecisionTraceId = r.DecisionTraceId
-                 AND dt.TenantId = r.TenantId
-                 AND dt.WorkspaceId = r.WorkspaceId
-                 AND dt.ProjectId = r.ScopeProjectId
-              WHERE fr.FindingId = @FindingId
-                AND r.TenantId = @TenantId
-                AND r.WorkspaceId = @WorkspaceId
-                AND r.ScopeProjectId = @ScopeProjectId
-                AND (r.ArchivedUtc IS NULL);
-              """;
+            ? FindingInspectReadSql.MainInspectWithTypedPayload
+            : FindingInspectReadSql.MainInspectWithoutTypedPayload;
 
         MainRow? row = await connection.QuerySingleOrDefaultAsync<MainRow>(
             new CommandDefinition(
@@ -144,64 +65,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             ActiveStatus = "Active",
         };
 
-        const string followUpBatchSql = """
-                                        SELECT frn.NodeId
-                                        FROM dbo.FindingRelatedNodes frn
-                                        INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = frn.FindingRecordId
-                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-                                        WHERE fr.FindingId = @FindingId
-                                          AND r.TenantId = @TenantId
-                                          AND r.WorkspaceId = @WorkspaceId
-                                          AND r.ScopeProjectId = @ScopeProjectId
-                                        ORDER BY frn.SortOrder;
-
-                                        SELECT TOP 1 tra.RuleText
-                                        FROM dbo.FindingTraceRulesApplied tra
-                                        INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = tra.FindingRecordId
-                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-                                        WHERE fr.FindingId = @FindingId
-                                          AND r.TenantId = @TenantId
-                                          AND r.WorkspaceId = @WorkspaceId
-                                          AND r.ScopeProjectId = @ScopeProjectId
-                                        ORDER BY tra.SortOrder;
-
-                                        SELECT fra.ActionText
-                                        FROM dbo.FindingRecommendedActions fra
-                                        INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = fra.FindingRecordId
-                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                                        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
-                                        WHERE fr.FindingId = @FindingId
-                                          AND r.TenantId = @TenantId
-                                          AND r.WorkspaceId = @WorkspaceId
-                                          AND r.ScopeProjectId = @ScopeProjectId
-                                        ORDER BY fra.SortOrder;
-
-                                        SELECT TOP 1 ae.EventId
-                                        FROM dbo.AuditEvents ae
-                                        WHERE ae.RunId = @RunId
-                                          AND ae.TenantId = @TenantId
-                                          AND ae.EventType = @EventType
-                                        ORDER BY ae.OccurredUtc DESC, ae.EventId DESC;
-
-                                        SELECT TOP 1 Disposition, OccurredAtUtc
-                                        FROM dbo.FindingReviewEvents
-                                        WHERE TenantId = @TenantId
-                                          AND FindingId = @FindingId
-                                          AND Disposition IS NOT NULL
-                                        ORDER BY OccurredAtUtc DESC;
-
-                                        SELECT COUNT_BIG(1)
-                                        FROM dbo.RiskExceptions
-                                        WHERE TenantId = @TenantId
-                                          AND FindingId = @FindingId
-                                          AND Status = @ActiveStatus
-                                          AND ExpiresAtUtc > SYSUTCDATETIME();
-                                        """;
-
         await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
-            new CommandDefinition(followUpBatchSql, queryParams, cancellationToken: ct));
+            new CommandDefinition(FindingInspectReadSql.FollowUpBatch, queryParams, cancellationToken: ct));
 
         List<string> relatedNodes = (await multi.ReadAsync<string>()).ToList();
         string? firstRuleText = await multi.ReadSingleOrDefaultAsync<string>();

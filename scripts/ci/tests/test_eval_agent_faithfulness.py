@@ -149,13 +149,14 @@ class EvalAgentFaithfulnessTests(unittest.TestCase):
             self.assertIn("EnableGraphRag=false", report_text)
             self.assertIn("EnableHyde=false", report_text)
             self.assertIn("EnableQueryRewrite=false", report_text)
+            self.assertIn("EnableIterativeRetrieveCritiqueRetry=false", report_text)
             self.assertIn("All advanced off", report_text)
 
             ablation_payload = json.loads((tmp / "faithfulness-ablation-summary.json").read_text(encoding="utf-8"))
             self.assertEqual(ablation_payload.get("program"), "faithfulness-retrieval-ablation-tb595")
             delta_rows = ablation_payload.get("deltaVsAllOn")
             self.assertIsInstance(delta_rows, list)
-            self.assertGreaterEqual(len(delta_rows), 5)
+            self.assertGreaterEqual(len(delta_rows), 6)
             first_row = delta_rows[0]
             self.assertIn("profileKey", first_row)
             self.assertIn("positiveDeltaVsAllOn", first_row)
@@ -181,6 +182,59 @@ class EvalAgentFaithfulnessTests(unittest.TestCase):
         )
 
         self.assertEqual([hit["sourceId"] for hit in filtered], ["rule-kv-01"])
+
+    def test_filter_hits_for_profile_drops_iterative_retry_attribution(self) -> None:
+        profile = next(item for item in PROFILES_MODULE.ABLATION_PROFILES if item.key == "iterative-retry-off")
+        hits = [
+            {"sourceId": "rule-kv-01", "title": "Key Vault"},
+            {"sourceId": "rule-mi-02", "title": "Managed Identity"},
+        ]
+        attribution = {
+            "ask-iterative-retry-recall-boost": {
+                "rule-mi-02": ["iterativeRetry"],
+            },
+        }
+
+        filtered = PROFILES_MODULE.filter_hits_for_profile(
+            hits,
+            case_id="ask-iterative-retry-recall-boost",
+            profile=profile,
+            attribution=attribution,
+        )
+
+        self.assertEqual([hit["sourceId"] for hit in filtered], ["rule-kv-01"])
+
+    def test_iterative_retry_off_reduces_retrieved_hit_count_on_golden_fixture(self) -> None:
+        cases_path = Path(__file__).resolve().parents[3] / "tests" / "eval-datasets" / "faithfulness-golden" / "cases.json"
+        attribution_path = (
+            Path(__file__).resolve().parents[3]
+            / "tests"
+            / "eval-datasets"
+            / "faithfulness-golden"
+            / "ablation-attribution.v1.json"
+        )
+        cases_payload = json.loads(cases_path.read_text(encoding="utf-8"))
+        case = next(item for item in cases_payload["cases"] if item["id"] == "ask-iterative-retry-recall-boost")
+        attribution = PROFILES_MODULE.load_hit_feature_attribution(json.loads(attribution_path.read_text(encoding="utf-8")))
+        all_on = next(item for item in PROFILES_MODULE.ABLATION_PROFILES if item.key == "all-on")
+        iterative_off = next(item for item in PROFILES_MODULE.ABLATION_PROFILES if item.key == "iterative-retry-off")
+
+        all_on_hits = PROFILES_MODULE.filter_hits_for_profile(
+            case["retrievalHits"],
+            case_id=case["id"],
+            profile=all_on,
+            attribution=attribution,
+        )
+        iterative_off_hits = PROFILES_MODULE.filter_hits_for_profile(
+            case["retrievalHits"],
+            case_id=case["id"],
+            profile=iterative_off,
+            attribution=attribution,
+        )
+
+        self.assertEqual(len(all_on_hits), 2)
+        self.assertEqual(len(iterative_off_hits), 1)
+        self.assertEqual([hit["sourceId"] for hit in iterative_off_hits], ["rule-kv-01"])
 
 
 if __name__ == "__main__":

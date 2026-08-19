@@ -45,3 +45,7 @@ export const PROJECTS_RECYCLE_BIN_RESTORE_CONFLICT_STATUS_LABEL = "Action needed
 export const PROJECTS_RECYCLE_BIN_RESTORE_ERROR_STATUS_LABEL = "Restore failed";
 
 export const PROJECTS_RECYCLE_BIN_LOAD_ERROR_STATUS_LABEL = "Load failed";
+
+/** Shown when the recycle-bin list request fails without a usable ProblemDetails body, or the fetch rejects. */
+export const PROJECTS_RECYCLE_BIN_LOAD_UNEXPECTED_ERROR =
+  "Could not load the recycle bin. Refresh the page or try again later.";

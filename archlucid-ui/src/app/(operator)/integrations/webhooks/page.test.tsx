@@ -49,7 +49,14 @@ vi.mock("@/lib/api", () => ({
 
 import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-nav-group-builder";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
-import { WEBHOOKS_BANNED_UI_PATTERNS, WEBHOOKS_EMPTY_TITLE, WEBHOOKS_PAGE_TITLE } from "@/lib/webhooks-page-copy";
+import {
+  WEBHOOKS_BANNED_UI_PATTERNS,
+  WEBHOOKS_EMPTY_TITLE,
+  WEBHOOKS_ENABLE_CONFIRM_LABEL,
+  WEBHOOKS_ENABLE_CONFIRM_TITLE,
+  WEBHOOKS_PAGE_TITLE,
+  webhooksEnableConfirmDescription,
+} from "@/lib/webhooks-page-copy";
 import { WEBHOOKS_INTEGRATION_SOURCES } from "@/lib/webhooks-integration-evidence-copy";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
@@ -617,6 +624,41 @@ describe("WebhooksIntegrationPage", () => {
     });
   });
 
+  it("requires confirmation before enabling a disabled webhook subscription", async () => {
+    const subscriptionId = "sub-enable-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+    expect(
+      screen.getByText(webhooksEnableConfirmDescription("PagerDuty alerts")),
+    ).toBeInTheDocument();
+    expect(apiMocks.toggle).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL }));
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);
+    });
+  });
+
   it("does not render mid-page About webhooks panel (TB-2093)", async () => {
     render(<WebhooksIntegrationPage />);
 
@@ -647,5 +689,39 @@ describe("WebhooksIntegrationPage", () => {
     expect(disclosure).toHaveTextContent(/Test events .* are signed with the signing secret you enter here/i);
     expect(disclosure).toHaveTextContent(/Live alert deliveries are signed with the platform shared secret/i);
     expect(disclosure.textContent ?? "").not.toMatch(/keyed with your subscription signing secret/i);
+  });
+
+  it("clears the signing secret when operator scope switches workspaces", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    render(<WebhooksIntegrationPage />);
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalled());
+
+    const secret = `${"z".repeat(16)}-from-workspace-a`;
+    fireEvent.change(screen.getByLabelText(/^Signing secret$/i), { target: { value: secret } });
+    fireEvent.click(screen.getByRole("button", { name: /Show signing secret/i }));
+    expect((screen.getByLabelText(/^Signing secret$/i) as HTMLInputElement).value).toBe(secret);
+
+    apiMocks.list.mockClear();
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect((screen.getByLabelText(/^Signing secret$/i) as HTMLInputElement).value).toBe("");
+    });
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalled());
   });
 });

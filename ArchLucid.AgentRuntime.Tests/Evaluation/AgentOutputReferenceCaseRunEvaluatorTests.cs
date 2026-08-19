@@ -1,4 +1,6 @@
 using ArchLucid.AgentRuntime.Evaluation;
+
+using FluentAssertions;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -38,15 +40,11 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
         results
             .Setup(r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultRecord>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-
-        HeuristicAgentOutputSemanticEvaluator heuristicSemantic = new();
-        HeuristicOnlyAgentOutputSemanticEvaluator facade = new(heuristicSemantic);
-
+        HeuristicOnlyAgentOutputSemanticEvaluator facade = new(new HeuristicAgentOutputSemanticEvaluator());
         AgentOutputReferenceCaseRunEvaluator sut = new(
             options.Object,
             catalog,
             new AgentOutputEvaluator(),
-            heuristicSemantic,
             facade,
             results.Object,
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
@@ -84,15 +82,11 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
         FixedCatalog catalog =
             new([new AgentOutputReferenceCaseDefinition { CaseId = "x", AgentType = AgentType.Topology }]);
         Mock<IAgentOutputEvaluationResultRepository> results = new();
-
-        HeuristicAgentOutputSemanticEvaluator heuristicSemantic = new();
-        HeuristicOnlyAgentOutputSemanticEvaluator facade = new(heuristicSemantic);
-
+        HeuristicOnlyAgentOutputSemanticEvaluator facade = new(new HeuristicAgentOutputSemanticEvaluator());
         AgentOutputReferenceCaseRunEvaluator sut = new(
             options.Object,
             catalog,
             new AgentOutputEvaluator(),
-            heuristicSemantic,
             facade,
             results.Object,
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
@@ -110,6 +104,63 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
         results.Verify(
             r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultRecord>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task ComputeAnyPassingReferenceCase_returns_false_when_composite_semantic_below_minimum()
+    {
+        Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(
+            new AgentExecutionReferenceEvaluationOptions { Enabled = true });
+
+        const string parsedJson = """
+                                  {"resultId":"r1","taskId":"t1","runId":"run-1","agentType":"Topology","claims":[],"evidenceRefs":[],"confidence":0.5,"findings":[]}
+                                  """;
+
+        IReadOnlyList<AgentOutputReferenceCaseDefinition> cases =
+        [
+            new()
+            {
+                CaseId = "high-semantic-bar",
+                AgentType = AgentType.Topology,
+                MinimumSemanticScore = 0.9,
+            },
+        ];
+
+        Mock<IAgentOutputSemanticEvaluator> semantic = new();
+        semantic
+            .Setup(s => s.EvaluateAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<AgentType>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AgentOutputSemanticScore
+            {
+                TraceId = "tr1",
+                AgentType = AgentType.Topology,
+                OverallSemanticScore = 0.2,
+                HeuristicOverallScore = 0.95,
+            });
+
+        AgentOutputReferenceCaseRunEvaluator sut = new(
+            options.Object,
+            new FixedCatalog(cases),
+            new AgentOutputEvaluator(),
+            semantic.Object,
+            Mock.Of<IAgentOutputEvaluationResultRepository>(),
+            NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "tr1",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = parsedJson,
+        };
+
+        bool passing = await sut.ComputeAnyPassingReferenceCaseAsync(trace, CancellationToken.None);
+
+        passing.Should().BeFalse();
     }
 
     private sealed class FixedCatalog(IReadOnlyList<AgentOutputReferenceCaseDefinition> cases)

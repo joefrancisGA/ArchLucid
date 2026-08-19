@@ -2,27 +2,30 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ArchitectureDraftsHelpEvidenceOrientationStrip } from "@/components/help/ArchitectureDraftsHelpEvidenceOrientationStrip";
+import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
-import { ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL } from "@/lib/architecture-drafts-evidence-copy";
 import {
-  ARCHITECTURE_DRAFTS_HELP_CREATE_HREF,
+  ARCHITECTURE_DRAFTS_HELP_BREADCRUMB_TOPIC_TITLE,
   ARCHITECTURE_DRAFTS_HELP_FEATURE_ITEMS,
-  ARCHITECTURE_DRAFTS_HELP_FIRST_REVIEW_HREF,
   ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS,
   ARCHITECTURE_DRAFTS_HELP_HOW_TO_READ_STEPS,
+  ARCHITECTURE_DRAFTS_HELP_HOW_TO_SECTION_TITLE,
   ARCHITECTURE_DRAFTS_HELP_OVERVIEW,
-  ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE,
+  ARCHITECTURE_DRAFTS_HELP_PAGE_EYEBROW,
   ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE,
   ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION,
+  ARCHITECTURE_DRAFTS_HELP_PRIMARY_CONTENT_ID,
   ARCHITECTURE_DRAFTS_HELP_SECONDARY_ACTION,
+  ARCHITECTURE_DRAFTS_HELP_SKIP_LINK_LABEL,
+  architectureDraftsHelpPageSubtitle,
 } from "@/lib/architecture-drafts-help-guide-content";
 import { ARCHITECTURE_DRAFTS_HELP_CANONICAL_PATH } from "@/lib/architecture-drafts-help-evidence-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -48,6 +51,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Operator architecture drafts orientation for `/help/architecture-drafts`. */
 export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const contentGridClass = resolveHelpPageContentGridClass(ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
@@ -56,19 +60,37 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
       data-testid="help-architecture-drafts-guide"
     >
+      <a
+        href={`#${ARCHITECTURE_DRAFTS_HELP_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {ARCHITECTURE_DRAFTS_HELP_SKIP_LINK_LABEL}
+      </a>
+
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
+        eyebrow={buyerPolishedShell ? undefined : ARCHITECTURE_DRAFTS_HELP_PAGE_EYEBROW}
         title={ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE}
         titleTestId="help-architecture-drafts-page-title"
-        subtitle={ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE}
+        subtitle={architectureDraftsHelpPageSubtitle(buyerPolishedShell)}
         navHref={ARCHITECTURE_DRAFTS_HELP_CANONICAL_PATH}
         headingLevel="h1"
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        breadcrumb={<HelpTopicBreadcrumb topicTitle={ARCHITECTURE_DRAFTS_HELP_BREADCRUMB_TOPIC_TITLE} />}
+        metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
       />
 
       <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+        <div
+          id={ARCHITECTURE_DRAFTS_HELP_PRIMARY_CONTENT_ID}
+          className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
+        >
+          {buyerPolishedShell ? (
+            <div data-testid="help-architecture-drafts-orientation-top">
+              <ArchitectureDraftsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            </div>
+          ) : null}
+
           <p className={readingBodyClass} data-testid="help-architecture-drafts-overview">
             {ARCHITECTURE_DRAFTS_HELP_OVERVIEW}
           </p>
@@ -111,7 +133,9 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
             aria-labelledby="how-architecture-drafts-work"
             className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
           >
-            <HelpSectionHeading id="how-architecture-drafts-work">{ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL}</HelpSectionHeading>
+            <HelpSectionHeading id="how-architecture-drafts-work">
+              {ARCHITECTURE_DRAFTS_HELP_HOW_TO_SECTION_TITLE}
+            </HelpSectionHeading>
             <ol
               className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-architecture-drafts-how-stepper"
@@ -120,19 +144,13 @@ export function HelpArchitectureDraftsGuideView(props: HelpArchitectureDraftsGui
                 <li key={step}>{step}</li>
               ))}
             </ol>
-            <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>
-              <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_DRAFTS_HELP_FIRST_REVIEW_HREF}>
-                Read your first architecture review help
-              </Link>
-            </p>
-            <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>
-              <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_DRAFTS_HELP_CREATE_HREF}>
-                Create architecture
-              </Link>
-            </p>
           </section>
 
-          <ArchitectureDraftsHelpEvidenceOrientationStrip />
+          {!buyerPolishedShell ? (
+            <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+              <ArchitectureDraftsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            </div>
+          ) : null}
         </div>
 
         <HelpTopicTableOfContents headings={ARCHITECTURE_DRAFTS_HELP_GUIDE_HEADINGS} />

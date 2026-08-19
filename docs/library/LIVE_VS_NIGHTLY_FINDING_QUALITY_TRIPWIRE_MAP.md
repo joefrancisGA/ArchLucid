@@ -73,7 +73,7 @@ There is **no** first-class job: “every N hours, execute fixed canary architec
 
 | ID | Role |
 |----|------|
-| Done **TB-683** | Nightly fixture scoring + consecutive-night warn |
+| Done **TB-683** | Nightly fixture scoring + **TB-2231** consecutive-drift alert (fail-loud) |
 | Done **TB-004** / `OBSERVABILITY.md` | Agent-output Prometheus rules |
 | Done **TB-021** / Phase B faithfulness | Per-trace live floors |
 | **TB-1228** / **M-209** | Scoring lane positioning |
@@ -97,7 +97,7 @@ There is **no** first-class job: “every N hours, execute fixed canary architec
 |---------|--------------|
 | Nightly real-mode fixture scoring | `.github/workflows/real-mode-eval-nightly.yml` |
 | Corpus eval CLI | `scripts/ci/eval_agent_corpus.py` |
-| Consecutive-night regression warn | `scripts/ci/assert_real_mode_eval_consecutive_regression.py` |
+| Consecutive-night regression warn / **TB-2231 drift alert** | `scripts/ci/assert_real_mode_eval_regression_trend.py` / `scripts/ci/assert_golden_cohort_canary_drift_alert.py` |
 | Per-execute quality gate | `ArchLucid.AgentRuntime/Evaluation/` (QualityGate pipeline) |
 | Phase B faithfulness enforcement | `ArchLucid.Api/appsettings.Production.json` (`EnforcePhaseB`) |
 | Agent-output Prometheus rules | `infra/terraform-monitoring/prometheus_agent_output_rules.tf` |

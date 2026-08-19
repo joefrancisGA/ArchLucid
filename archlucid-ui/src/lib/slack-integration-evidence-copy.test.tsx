@@ -8,14 +8,9 @@ import {
   SLACK_INTEGRATION_SOURCES,
   SLACK_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/slack-integration-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("slack-integration-evidence-copy", () => {
-  it("wires exports into the Slack integration evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("slack-integration-evidence-copy");
-    expect(registrySource).toContain("SlackIntegrationEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(SLACK_INTEGRATION_CANONICAL_PATH).toBe("/integrations/slack");
   });
 

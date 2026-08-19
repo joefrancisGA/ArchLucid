@@ -33,6 +33,7 @@ public static class RetrievalGroundingTraceBuilder
 
         GraphRagHitCounts graphRagCounts = GraphRagRetrievalTelemetry.CountFromHits(safeHits);
         double? graphRagExpansionLatencyMs = GraphRagExpansionLatencyAmbient.TakeMilliseconds();
+        IterativeRetrievalTraceState? iterativeTrace = IterativeRetrievalAmbient.Take();
         bool graphRagObserved =
             graphRagExpansionLatencyMs.HasValue
             || graphRagCounts.NeighborsAdded > 0
@@ -60,6 +61,8 @@ public static class RetrievalGroundingTraceBuilder
             GraphRagNeighborsAdded = graphRagObserved ? graphRagCounts.NeighborsAdded : null,
             GraphRagSeedHits = graphRagObserved ? graphRagCounts.SeedHits : null,
             GraphRagExpansionLatencyMs = graphRagExpansionLatencyMs,
+            IterativeRetrievalRounds = iterativeTrace?.IterativeRetrievalRounds,
+            IterativeCritiqueDecisionsJson = iterativeTrace?.IterativeCritiqueDecisionsJson,
         };
     }
 

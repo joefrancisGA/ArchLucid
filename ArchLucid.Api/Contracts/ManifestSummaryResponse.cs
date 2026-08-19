@@ -124,4 +124,11 @@ public class ManifestSummaryResponse
         get;
         set;
     }
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.ReviewStandardsAtCommit" />
+    public CommittedReviewStandardsSnapshotDescriptor? ReviewStandardsAtCommit
+    {
+        get;
+        set;
+    }
 }

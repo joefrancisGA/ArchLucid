@@ -16,4 +16,13 @@ public sealed class HeuristicAgenticRetrievalCompletionClient : IAgenticRetrieva
     {
         return Task.FromResult(AgenticRetrievalHeuristics.GenerateHydeDocument(queryText));
     }
+
+    /// <inheritdoc />
+    public Task<RetrievalCritiqueVerdict> CritiqueRetrievalAsync(
+        string queryText,
+        IReadOnlyList<RetrievalHit> hits,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(AgenticRetrievalHeuristics.CritiqueRetrieval(queryText, hits));
+    }
 }

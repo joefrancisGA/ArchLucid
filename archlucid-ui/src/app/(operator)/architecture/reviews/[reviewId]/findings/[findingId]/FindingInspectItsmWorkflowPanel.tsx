@@ -8,6 +8,7 @@ import { ItsmOutboundQuickActions } from "@/components/itsm/ItsmOutboundQuickAct
 import { ItsmOutboundTriadClarityStrip } from "@/components/itsm/ItsmOutboundTriadClarityStrip";
 import { ITSM_TICKET_LINKAGE_CREATE_INTRO, ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED } from "@/lib/vocabulary/finding-correlation-vocabulary";
 import { FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION } from "@/lib/findings/finding-human-review-display";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -22,14 +23,19 @@ export function FindingInspectItsmWorkflowPanel({
   humanReviewStatusLabel = null,
 }: FindingInspectItsmWorkflowPanelProps) {
   const nativeCreateEnabled = useItsmNativeCreateEnabled();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   if (!nativeCreateEnabled && !humanReviewStatusLabel) {
     return (
       <div className="space-y-3">
-        <ItsmConnectorsFindingTicketVocabularyRail currentSurfaceId="finding-ticket-linkage" />
+        {buyerPolishedShell ? null : (
+          <ItsmConnectorsFindingTicketVocabularyRail currentSurfaceId="finding-ticket-linkage" />
+        )}
         <ItsmOutboundTriadClarityStrip />
         <ItsmOutboundQuickActions findingId={findingId} />
-        <FindingCorrelationVocabularyDisambiguation testId="finding-inspect-correlation-vocabulary" />
+        {buyerPolishedShell ? null : (
+          <FindingCorrelationVocabularyDisambiguation testId="finding-inspect-correlation-vocabulary" />
+        )}
       </div>
     );
   }
@@ -42,7 +48,9 @@ export function FindingInspectItsmWorkflowPanel({
         </CardTitle>
       </CardHeader>
       <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
-        <ItsmConnectorsFindingTicketVocabularyRail currentSurfaceId="finding-ticket-linkage" />
+        {buyerPolishedShell ? null : (
+          <ItsmConnectorsFindingTicketVocabularyRail currentSurfaceId="finding-ticket-linkage" />
+        )}
         <ItsmOutboundTriadClarityStrip />
         {humanReviewStatusLabel ? (
           <div className={cn("space-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -64,7 +72,9 @@ export function FindingInspectItsmWorkflowPanel({
           </p>
         )}
         <ItsmOutboundQuickActions findingId={findingId} />
-        <FindingCorrelationVocabularyDisambiguation testId="finding-inspect-correlation-vocabulary" />
+        {buyerPolishedShell ? null : (
+          <FindingCorrelationVocabularyDisambiguation testId="finding-inspect-correlation-vocabulary" />
+        )}
       </CardContent>
     </Card>
   );

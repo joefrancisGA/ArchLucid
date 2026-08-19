@@ -1,0 +1,105 @@
+using ArchLucid.Application.Planning;
+using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
+
+namespace ArchLucid.Application.Architecture;
+
+/// <summary>
+///     Option K synthesis kernel: draft delegates to <see cref="IArchitectureRequestDraftService" />;
+///     generate persists a Created-origin run header without starting the authority pipeline or
+///     the four-agent review execute loop.
+/// </summary>
+public sealed class ArchitectureSynthesisKernel(
+    IArchitectureRequestDraftService architectureRequestDraftService,
+    IArchitectureRequestRepository requestRepository,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
+    IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
+    TimeProvider timeProvider) : IArchitectureSynthesisKernel
+{
+    private readonly IArchitectureRequestDraftService _architectureRequestDraftService =
+        architectureRequestDraftService ?? throw new ArgumentNullException(nameof(architectureRequestDraftService));
+
+    private readonly IArchitectureRequestRepository _requestRepository =
+        requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
+        requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
+
+    private readonly TimeProvider _timeProvider =
+        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
+    /// <inheritdoc />
+    public Task<DraftArchitectureRequestResponse> DraftAsync(
+        DraftArchitectureRequestInput input,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+
+        return _architectureRequestDraftService.DraftAsync(input, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<ArchitectureSynthesisGenerateResult> GenerateAsync(
+        ArchitectureRequest request,
+        CreateRunIdempotencyState? idempotency,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        _ = idempotency;
+
+        RequestContentSafetyResult safety =
+            await _requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
+
+        if (!safety.IsAllowed)
+            throw new RequestContentSafetyRejectedException(safety.Reasons);
+
+        ArchitectureRequest? existing =
+            await _requestRepository.GetByIdAsync(request.RequestId, cancellationToken);
+
+        if (existing is null)
+            await _requestRepository.CreateAsync(request, cancellationToken);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid runGuid = Guid.NewGuid();
+        DateTime createdUtc = _timeProvider.GetUtcNow().UtcDateTime;
+        string projectSlug = string.IsNullOrWhiteSpace(request.SystemName)
+            ? request.RequestId
+            : request.SystemName;
+
+        RunRecord header = new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            RunId = runGuid,
+            ProjectId = projectSlug,
+            Description = request.Description,
+            CreatedUtc = createdUtc,
+            ArchitectureRequestId = request.RequestId,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            StructuralExecutionMode = StructuralExecutionMode.Simulator,
+            PackageOrigin = ArchitecturePackageOrigin.Created
+        };
+
+        await _runRepository.SaveAsync(header, cancellationToken);
+
+        return new ArchitectureSynthesisGenerateResult
+        {
+            RunId = runGuid.ToString("N"),
+            PackageOrigin = ArchitecturePackageOrigin.Created
+        };
+    }
+}

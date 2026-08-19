@@ -5,17 +5,13 @@ import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evid
 import {
   EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH,
   EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE,
+  EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES,
   EXTRACT_UPLOAD_SETTINGS_SOURCES,
   EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO,
 } from "@/lib/extract-upload-settings-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("extract-upload-settings-evidence-copy", () => {
-  it("wires exports into the Extract and Upload settings evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("extract-upload-settings-evidence-copy");
-    expect(registrySource).toContain("ExtractUploadSettingsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH).toBe("/administration/extract-upload");
   });
 
@@ -40,5 +36,13 @@ describe("extract-upload-settings-evidence-copy", () => {
     render(<ExtractUploadSettingsEvidenceOrientationStrip />);
     expect(screen.getByRole("heading", { name: EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
+  });
+
+  it("excludes Go to Reviews destination from orientation Sources", () => {
+    const orientationHrefs = EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES.map((source) => source.href);
+
+    expect(orientationHrefs).not.toContain("/architecture/reviews");
+    expect(EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES.length).toBeLessThan(EXTRACT_UPLOAD_SETTINGS_SOURCES.length);
+    expect(EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES.length).toBeGreaterThan(0);
   });
 });

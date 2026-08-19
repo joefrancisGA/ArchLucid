@@ -16,6 +16,7 @@ export const PRIVACY_POLICY_LAYOUT = {
   article:
     "min-w-0 flex-1 text-neutral-800 dark:text-neutral-200 print:max-w-none print:text-black",
   header: "border-b border-neutral-200 pb-8 dark:border-neutral-800 print:border-neutral-300",
+  breadcrumb: "mb-3",
   title: cn(MARKETING_TYPOGRAPHY.pageTitle, "text-balance text-neutral-900 dark:text-neutral-50"),
   lede: cn("mt-3 max-w-3xl text-balance text-al-text-secondary", MARKETING_TYPOGRAPHY.body),
   metaRow: cn("mt-4 flex flex-wrap items-center gap-x-4 gap-y-1", MARKETING_TYPOGRAPHY.meta),

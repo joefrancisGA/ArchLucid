@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { WHY_ARCHLUCID_PAGE_LOAD_RETRY_LABEL } from "@/lib/why-archlucid-page-copy";
 
@@ -20,7 +21,7 @@ import {
   type SectionError,
   type WhyArchLucidPageState,
 } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
-import { WhyArchLucidClaimOrientationStrip } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidClaimOrientationStrip";
+import { WhyArchLucidBuyerChrome } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidBuyerChrome";
 import { WhyArchLucidFirstValueReportSection } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidFirstValueReportSection";
 import { WhyArchLucidPageFooter } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageFooter";
 import { WhyArchLucidPageHeader } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidPageHeader";
@@ -137,6 +138,7 @@ export function WhyArchLucidPage() {
   // Chrome follows the payload universe (Contoso-labeled-live Option B). Unknown fails closed after load (TB-1306).
   const failClosed = !state.loading && payloadUniverse === "unknown";
   const pageLoadFailed = !state.loading && state.snapshot === null && state.snapshotError !== null;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
     <div
@@ -144,11 +146,15 @@ export function WhyArchLucidPage() {
       data-testid="why-archlucid-page"
       aria-busy={state.loading}
     >
-      <WhyArchLucidPageHeader universe={payloadUniverse} failClosed={failClosed} />
+      <WhyArchLucidPageHeader
+        universe={payloadUniverse}
+        failClosed={failClosed}
+        buyerPolishedShell={buyerPolishedShell}
+      />
 
       {state.loading ? <WhyArchLucidPageSkeleton /> : null}
 
-      {!state.loading ? <WhyArchLucidClaimOrientationStrip /> : null}
+      {!state.loading ? <WhyArchLucidBuyerChrome /> : null}
 
       {!state.loading && pageLoadFailed && state.snapshotError !== null ? (
         <WhyArchLucidPageLoadFailure

@@ -2,9 +2,11 @@
 
 # Canonical review pipeline (operator view)
 
-**Objective:** Give operators and sponsors a single mental model for how work flows from request to committed manifest and artifacts, without implementation seam vocabulary.
+**Objective:** Give operators and sponsors a single mental model for how **a review** flows from request to committed manifest and artifacts, without implementation seam vocabulary.
 
-**Assumptions:** You use the architect workspace or public APIs with a normal tenant scope. Storage is SQL-backed with row-level security.
+This document is the **review job only**. Creating an architecture is a peer job (ADR 0067), not “step 0” of this pipeline. Kernel specification: [`../architecture/architecture_handbook/75-architecture-and-review-engines.md`](../architecture/architecture_handbook/75-architecture-and-review-engines.md).
+
+**Assumptions:** You use the architect workspace or public APIs with a normal tenant scope. Authoritative storage is SQL Server with **database-per-tenant catalogs** (ADR 0037); workspace/project are organizational coordinates inside a catalog, not paying-client RLS.
 
 **Constraints:** Detailed contributor maps and ADR receipts live under `docs/architecture/adrs/` and `docs/archive/dual-pipeline-navigator-superseded.md` for engineering-only deep dives.
 

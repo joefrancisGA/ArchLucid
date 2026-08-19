@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Persistence.Caching;
 
@@ -185,9 +186,9 @@ public static class HotPathCacheKeys
     /// <summary>Tenant settings key/value by tenant + setting key.</summary>
     public static string TenantSetting(Guid tenantId, string settingKey)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(settingKey);
+        string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
 
-        return $"{Prefix}tset:{tenantId:N}:{settingKey.Trim()}";
+        return $"{Prefix}tset:{tenantId:N}:{normalizedKey}";
     }
 
     /// <summary>Policy pack version row (includes ContentJson) by pack + version label.</summary>

@@ -9,9 +9,16 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <inheritdoc cref="IDecisionEngineV2NodeMaterializer" />
+/// <remarks>
+///     EK-08 unused appendix: these nodes are persisted after authority commit for
+///     <c>GET /v1/architecture/review/{runId}/decisions</c>. They are not inputs to
+///     <c>IDecisionEngine.DecideAsync</c> and do not produce <c>ManifestDocument</c>.
+/// </remarks>
 public sealed class DecisionEngineV2NodeMaterializer(
     IScopeContextProvider scopeContextProvider,
     IRunRepository runRepository,
@@ -21,8 +28,16 @@ public sealed class DecisionEngineV2NodeMaterializer(
     IAgentResultRepository agentResultRepository,
     IAgentEvaluationService agentEvaluationService,
     IDecisionEngineV2 decisionEngineV2,
-    IDecisionNodeRepository decisionNodeRepository) : IDecisionEngineV2NodeMaterializer
+    IDecisionNodeRepository decisionNodeRepository,
+    ILogger<DecisionEngineV2NodeMaterializer> logger) : IDecisionEngineV2NodeMaterializer
 {
+    /// <summary>
+    ///     Logged when V2 nodes are materialized after commit without having been fed into
+    ///     authority <c>DecideAsync</c>.
+    /// </summary>
+    public const string UnusedAppendixWarning =
+        "IDecisionEngineV2 nodes materialized after authority commit are an unused appendix; they were not inputs to IDecisionEngine.DecideAsync and do not produce ManifestDocument.";
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
@@ -49,6 +64,9 @@ public sealed class DecisionEngineV2NodeMaterializer(
 
     private readonly IDecisionNodeRepository _decisionNodeRepository =
         decisionNodeRepository ?? throw new ArgumentNullException(nameof(decisionNodeRepository));
+
+    private readonly ILogger<DecisionEngineV2NodeMaterializer> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
     public async Task MaterializeIfMissingAsync(string runId, CancellationToken cancellationToken)
@@ -97,6 +115,12 @@ public sealed class DecisionEngineV2NodeMaterializer(
 
         if (decisionNodes.Count == 0)
             return;
+
+        _logger.LogWarning(
+            "{UnusedAppendixWarning} RunId={RunId} NodeCount={NodeCount}",
+            UnusedAppendixWarning,
+            runId,
+            decisionNodes.Count);
 
         await _decisionNodeRepository.CreateManyAsync(
             DecisionRecordMapper.ToRecords(decisionNodes),

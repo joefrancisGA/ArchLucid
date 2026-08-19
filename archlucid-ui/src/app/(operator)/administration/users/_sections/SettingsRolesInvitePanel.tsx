@@ -21,6 +21,7 @@ import {
   type AdminUserInvitationRow,
 } from "@/lib/admin-user-invitations";
 import { roleDisplayLabel } from "@/lib/role-display-labels";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -43,6 +44,7 @@ type Props = {
 export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props) {
   const [form, setForm] = useState<InviteFormState>(EMPTY_FORM);
   const [sending, setSending] = useState(false);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -89,7 +91,9 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props)
       className="max-w-xl space-y-4"
       onSubmit={(event) => void handleSubmit(event)}
     >
-      <ColdInviteUsersInviteVocabularyRail currentSurfaceId="users-invite" />
+      {buyerPolishedShell ? null : (
+        <ColdInviteUsersInviteVocabularyRail currentSurfaceId="users-invite" />
+      )}
       <div className="space-y-1">
         <Label htmlFor="invite-email">Email address</Label>
         <Input

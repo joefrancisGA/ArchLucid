@@ -446,7 +446,8 @@ public sealed class AuthorityQueryController(
                 $"{result.DecisionCount} decisions, {result.WarningCount} warnings, {result.UnresolvedIssueCount} unresolved issues, status {result.Status}",
             TopDecisionSynopses = result.TopDecisionSynopses,
             FeasibilityVerdict = result.FeasibilityVerdict,
-            EffectiveGovernanceAtCommit = result.EffectiveGovernanceAtCommit
+            EffectiveGovernanceAtCommit = result.EffectiveGovernanceAtCommit,
+            ReviewStandardsAtCommit = result.ReviewStandardsAtCommit
         });
     }
 

@@ -121,6 +121,15 @@ export const NOTIFICATIONS_HELP_TOPIC_LABEL = "How notifications work";
 export const NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE =
   "See which channels can ping you, then configure each one on its own page.";
 
+export const BUYER_NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE =
+  "See which channels can notify you, then configure each on its own page." as const;
+
+export function notificationPreferenceCenterPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? BUYER_NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE
+    : NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE;
+}
+
 /** One-line orientation between subtitle and the channel grid. */
 export const NOTIFICATION_PREFERENCE_CENTER_ORIENTATION_LINE =
   "Each channel saves its own settings — status below reflects what ArchLucid can report from those destinations.";

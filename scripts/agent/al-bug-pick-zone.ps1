@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿#Requires -Version 5.1
+=======
+#Requires -Version 5.1
+>>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 <#
 .SYNOPSIS
   Scores curated /al-bug hunt zones and prints the next zone as JSON.
@@ -8,7 +12,11 @@
   (not LLM ranking): prefer shorter mean hunts-per-bug, sample untried zones.
   Hunt-ready hypotheses are a small tie-break; candidate templates do not score.
   Precision (proven / (proven + invalid)) is a small bonus after two attempts.
+<<<<<<< HEAD
   This script does not write the ledger ΓÇö the agent updates it after the hunt.
+=======
+  This script does not write the ledger — the agent updates it after the hunt.
+>>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 
 .PARAMETER LedgerPath
   Ledger markdown path. Default: docs/library/AL_BUG_HUNT_LEDGER.md under the repo root.

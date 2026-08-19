@@ -15,8 +15,10 @@ public sealed class InMemoryTenantSettingsRepository : ITenantSettingsRepository
 
         cancellationToken.ThrowIfCancellationRequested();
 
+        string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
+
         return Task.FromResult(
-            _values.GetValueOrDefault((tenantId, settingKey.Trim())));
+            _values.GetValueOrDefault((tenantId, normalizedKey)));
     }
 
     public Task UpsertAsync(Guid tenantId, string settingKey, string settingValue, CancellationToken cancellationToken)
@@ -29,7 +31,9 @@ public sealed class InMemoryTenantSettingsRepository : ITenantSettingsRepository
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        _values[(tenantId, settingKey.Trim())] = settingValue.Trim();
+        string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
+
+        _values[(tenantId, normalizedKey)] = settingValue.Trim();
 
         return Task.CompletedTask;
     }
@@ -43,7 +47,9 @@ public sealed class InMemoryTenantSettingsRepository : ITenantSettingsRepository
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        _values.TryRemove((tenantId, settingKey.Trim()), out _);
+        string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
+
+        _values.TryRemove((tenantId, normalizedKey), out _);
 
         return Task.CompletedTask;
     }

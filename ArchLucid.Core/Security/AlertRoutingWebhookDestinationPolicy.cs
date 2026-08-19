@@ -15,6 +15,9 @@ public static class AlertRoutingWebhookDestinationPolicy
         if (!string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
             return "Webhook URL must use the https scheme.";
 
+        if (EmbeddedCredentialUrlGuard.HasEmbeddedCredentials(uri))
+            return "Webhook URL must not include embedded credentials.";
+
         return PrivateNetworkAddressGuard.IsForbiddenHostLiteral(uri.IdnHost)
             ? "Webhook URL must not target loopback, link-local, or private network addresses."
             : null;

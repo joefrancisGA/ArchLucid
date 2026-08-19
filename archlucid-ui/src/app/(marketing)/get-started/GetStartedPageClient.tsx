@@ -80,9 +80,12 @@ export function GetStartedPageClient(): ReactElement {
         aria-labelledby="get-started-hero-heading"
       >
         <div>
+<<<<<<< HEAD
           <div className="mb-3">
             <GetStartedBreadcrumb />
           </div>
+=======
+>>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
           <h1 id="get-started-hero-heading" className={MARKETING_TYPOGRAPHY.heroTitle}>
             {GET_STARTED_PAGE_TITLE}
           </h1>
@@ -95,6 +98,7 @@ export function GetStartedPageClient(): ReactElement {
           >
             {GET_STARTED_OUTCOME_STATEMENT}
           </p>
+<<<<<<< HEAD
           <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="get-started-hero-meta">
             <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
               Last reviewed{" "}
@@ -104,6 +108,8 @@ export function GetStartedPageClient(): ReactElement {
               Orientation pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
             </span>
           </div>
+=======
+>>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
           <p className={cn("mt-4", MARKETING_TYPOGRAPHY.meta)}>
             <Link className={MARKETING_SURFACES.inlineLink} href={GET_STARTED_HELP_GETTING_STARTED_HREF}>
               Learn more in Getting started help
@@ -113,8 +119,11 @@ export function GetStartedPageClient(): ReactElement {
 
         <SeeItDeliverablePreview />
       </section>
+<<<<<<< HEAD
 
       <GetStartedBuyerChrome />
+=======
+>>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 
       <GetStartedScopeDisclosure />
 
@@ -358,6 +367,16 @@ export function GetStartedPageClient(): ReactElement {
             </Link>
           </p>
         </section>
+
+        <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="get-started-page-meta">
+          <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
+            Last reviewed{" "}
+            <time dateTime={GET_STARTED_LAST_REVIEWED_LABEL}>{GET_STARTED_LAST_REVIEWED_LABEL}</time>
+          </span>
+          <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
+            Orientation pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
+          </span>
+        </div>
 
         <TrustCenterRevisionHistory entries={GET_STARTED_REVISION_HISTORY} />
       </div>

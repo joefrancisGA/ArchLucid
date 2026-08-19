@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { StatusTag } from "@/components/StatusTag";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+import { useTenantWorkspacesListQuery } from "@/hooks/use-tenant-workspaces-list-query";
 import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
-import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -13,7 +13,6 @@ import {
   defaultLabelsForScopeIds,
   readOperatorScopeFromStorage,
 } from "@/lib/operator/operator-scope-storage";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   SCOPE_HELP_CURRENT_SCOPE_PANEL_TITLE,
   SCOPE_HELP_CURRENT_SCOPE_SWITCHING_AVAILABLE,
@@ -25,93 +24,10 @@ import {
   isScopeSwitchingAvailable,
   type ScopeSwitcherWorkspaceOption,
 } from "@/lib/scope-switcher-display";
+import { mapTenantWorkspaceToScopeSwitcherOption } from "@/lib/scope-switcher-workspace-from-tenant";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { BUYER_WORKSPACE_DISPLAY_NAME } from "@/lib/buyer/buyer-polish-copy";
 import { cn } from "@/lib/utils";
-
-const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;
-
-type WorkspacesListPayload = {
-  workspaces?: ReadonlyArray<{
-    workspaceId?: string;
-    id?: string;
-    name?: string;
-    displayName?: string;
-    projects?: ReadonlyArray<{
-      projectId?: string;
-      id?: string;
-      name?: string;
-      displayName?: string;
-    }>;
-  }>;
-};
-
-function parseWorkspacesList(json: unknown): ScopeSwitcherWorkspaceOption[] {
-  if (json === null || typeof json !== "object") {
-    return [];
-  }
-
-  const root = json as WorkspacesListPayload;
-  const raw = root.workspaces;
-
-  if (!Array.isArray(raw)) {
-    return [];
-  }
-
-  const out: ScopeSwitcherWorkspaceOption[] = [];
-
-  for (const workspace of raw) {
-    if (workspace === null || typeof workspace !== "object") {
-      continue;
-    }
-
-    const workspaceId =
-      (workspace as { workspaceId?: string; id?: string }).workspaceId ??
-      (workspace as { id?: string }).id;
-
-    if (typeof workspaceId !== "string" || workspaceId.trim().length === 0) {
-      continue;
-    }
-
-    const workspaceName =
-      typeof workspace.displayName === "string" && workspace.displayName.trim().length > 0
-        ? workspace.displayName.trim()
-        : typeof workspace.name === "string" && workspace.name.trim().length > 0
-          ? workspace.name.trim()
-          : "Workspace";
-    const projects: ScopeSwitcherWorkspaceOption["projects"][number][] = [];
-    const projectRows = workspace.projects;
-
-    if (Array.isArray(projectRows)) {
-      for (const project of projectRows) {
-        if (project === null || typeof project !== "object") {
-          continue;
-        }
-
-        const projectId =
-          (project as { projectId?: string; id?: string }).projectId ??
-          (project as { id?: string }).id;
-
-        if (typeof projectId !== "string" || projectId.trim().length === 0) {
-          continue;
-        }
-
-        const projectName =
-          typeof project.displayName === "string" && project.displayName.trim().length > 0
-            ? project.displayName.trim()
-            : typeof project.name === "string" && project.name.trim().length > 0
-              ? project.name.trim()
-              : "Project";
-
-        projects.push({ projectId: projectId.trim(), name: projectName });
-      }
-    }
-
-    out.push({ workspaceId: workspaceId.trim(), name: workspaceName, projects });
-  }
-
-  return out;
-}
 
 function demoClaimsIntakeWorkspaceOption(): ScopeSwitcherWorkspaceOption {
   return {
@@ -125,7 +41,6 @@ function demoClaimsIntakeWorkspaceOption(): ScopeSwitcherWorkspaceOption {
 export function ScopeHelpCurrentScopePanel(): React.JSX.Element {
   const scope = useOperatorScopeQueryKey();
   const [scopeTick, setScopeTick] = useState(0);
-  const [workspaces, setWorkspaces] = useState<ScopeSwitcherWorkspaceOption[] | null>(null);
 
   const refreshScopeTick = useCallback(() => {
     setScopeTick((value) => value + 1);
@@ -171,6 +86,27 @@ export function ScopeHelpCurrentScopePanel(): React.JSX.Element {
   }, [scopeTick]);
 
   const isSampleWorkspaceSession = isEffectiveDevDefaultScope(workspaceId, projectId);
+  const workspacesQuery = useTenantWorkspacesListQuery({ enabled: !isSampleWorkspaceSession });
+  const workspaces = useMemo((): ScopeSwitcherWorkspaceOption[] | null => {
+    if (isSampleWorkspaceSession) {
+      return [demoClaimsIntakeWorkspaceOption()];
+    }
+
+    if (workspacesQuery.isPending) {
+      return null;
+    }
+
+    if (workspacesQuery.isError || workspacesQuery.data === undefined) {
+      return [];
+    }
+
+    return workspacesQuery.data.workspaces.map(mapTenantWorkspaceToScopeSwitcherOption);
+  }, [
+    isSampleWorkspaceSession,
+    workspacesQuery.data,
+    workspacesQuery.isError,
+    workspacesQuery.isPending,
+  ]);
   const switcherLabel = formatScopeSwitcherTriggerLabel({
     workspaceLabel,
     projectLabel,
@@ -178,51 +114,6 @@ export function ScopeHelpCurrentScopePanel(): React.JSX.Element {
     includeProject: !isSampleWorkspaceSession,
   });
   const switchingAvailable = isScopeSwitchingAvailable(workspaces);
-
-  useEffect(() => {
-    let canceled = false;
-
-    async function loadWorkspaces(): Promise<void> {
-      if (isEffectiveDevDefaultScope(workspaceId, projectId)) {
-        if (!canceled) {
-          setWorkspaces([demoClaimsIntakeWorkspaceOption()]);
-        }
-
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          WORKSPACES_PATH,
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (!response.ok) {
-          if (!canceled) {
-            setWorkspaces([]);
-          }
-
-          return;
-        }
-
-        const json: unknown = await response.json();
-
-        if (!canceled) {
-          setWorkspaces(parseWorkspacesList(json));
-        }
-      } catch {
-        if (!canceled) {
-          setWorkspaces([]);
-        }
-      }
-    }
-
-    void loadWorkspaces();
-
-    return () => {
-      canceled = true;
-    };
-  }, [workspaceId, projectId]);
 
   return (
     <section

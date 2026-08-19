@@ -1,6 +1,7 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 
 export const ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE =
   "Savings figures are directional for pilot value discussions — not financial reporting, not a sealed review record, and not an evidence trail.";
@@ -19,7 +20,7 @@ export const ARCHITECTURE_SCORECARD_SOURCES: readonly ArchitectureScorecardSourc
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Architecture scorecard help", href: inAppHelpHref("architecture-scorecard") },
   { label: "Workspace baseline settings", href: "/administration/baseline" },
-  { label: "Workspace overview", href: GOVERNANCE_WORKSPACE_HEALTH_HREF },
+  { label: TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK.label, href: GOVERNANCE_WORKSPACE_HEALTH_HREF },
 ] as const;
 
 export const ARCHITECTURE_SCORECARD_CANONICAL_PATH = ARCHITECTURE_SCORECARD_PATH;

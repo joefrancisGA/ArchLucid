@@ -6,6 +6,7 @@ import {
   type EvidenceOrientationClaimStyle,
   type EvidenceOrientationSourcesStyle,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
+import { resolveClaimDisciplineForStrip } from "@/lib/claim-discipline-policy";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import type { EvidenceOrientationSourcesLayout } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
@@ -75,12 +76,15 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   distinguishFollowUpDestinations = slug.startsWith("help-"),
   promotedSourceHref,
 }: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element {
+  const resolvedClaim: string | undefined = resolveClaimDisciplineForStrip(slug, claim);
+
   return (
     <EvidenceOrientationStripShell testId={stripTestId ?? `${slug}-orientation`}>
-      {claim === undefined ? null : (
+      {resolvedClaim === undefined ? null : (
         <EvidenceOrientationClaimCallout
           testId={claimTestId ?? `${slug}-claim-discipline`}
-          body={claim}
+          stripSlug={slug}
+          body={resolvedClaim}
           style={claimStyle}
           element={claimElement}
           bodyClassName={readingBodyClassName}

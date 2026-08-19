@@ -5,6 +5,12 @@ export const CONNECT_GCP_SECURELY_CANONICAL_PATH = "/help/cloud-connections/gcp"
 
 export const CONNECT_GCP_SECURELY_HELP_TOPIC_LABEL = "How GCP cloud connection works" as const;
 
+export const CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
+export const CONNECT_GCP_SECURELY_CLAIM_HEADING_ID = "connect-gcp-securely-help-claim-discipline-heading" as const;
+
+export const CONNECT_GCP_SECURELY_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE =
   "This guide explains how to attach GCP with Workload Identity Federation and Cloud Asset Viewer scope — it is connector setup orientation, not a sealed-review diligence Sources package. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
 

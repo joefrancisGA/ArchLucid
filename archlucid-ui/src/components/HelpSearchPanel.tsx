@@ -7,8 +7,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { HelpArticleLoadFailurePanel } from "@/components/help/HelpArticleLoadFailurePanel";
+import { HelpArticleSkeleton } from "@/components/help/HelpArticleSkeleton";
+import { HelpDrawerBuyerChrome } from "@/components/help/HelpDrawerBuyerChrome";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { focusHelpDrawerRow } from "@/components/help/help-drawer-list-keyboard";
+import { HelpSearchPanelHeader } from "@/components/help/HelpSearchPanelHeader";
 import { useHelpPageSituation } from "@/components/help/help-page-situation-store";
 import {
   HELP_DRAWER_CHEVRON_CLASS,
@@ -19,12 +23,7 @@ import { HelpDrawerDoThisNowRow } from "@/components/help/HelpDrawerDoThisNowRow
 import { HelpDrawerTopicRow } from "@/components/help/HelpDrawerTopicRow";
 import { OperatorShellSupportQuickLinks } from "@/components/help/OperatorShellSupportQuickLinks";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import type { HelpTabId } from "@/components/HelpPanel";
@@ -33,6 +32,7 @@ import { UsabilityFeedbackWidget } from "@/components/usability/UsabilityFeedbac
 import type { HelpArticleResponse } from "@/app/api/help/[slug]/route";
 import {
   filterHelpSearchPanelTopics,
+  HELP_ARTICLE_LOAD_RETRY_LABEL,
   HELP_SEARCH_PANEL_EMPTY_HINT,
   HELP_SEARCH_PANEL_EMPTY_TITLE,
   HELP_SEARCH_PANEL_KEYBOARD_HINT,
@@ -420,6 +420,11 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   }
 
   const loadingSlug = article.status === "loading" ? article.slug : article.status === "error" ? article.slug : null;
+  const browseSubtitle = isSearching
+    ? HELP_SEARCH_PANEL_SEARCHING_SUBTITLE
+    : helpOnHelp
+      ? HELP_ON_HELP_SUBTITLE
+      : HELP_SEARCH_PANEL_SUBTITLE;
 
   return (
     <>
@@ -472,23 +477,18 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
-                {article.status === "loading" && (
-                  <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
-                )}
-                {article.status === "error" && (
-                  <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                    Could not load this topic.{" "}
-                    {loadingSlug !== null ? (
-                      <Link
-                        href={inAppHelpHref(loadingSlug)}
-                        className="font-medium underline-offset-2 hover:underline"
-                        onClick={() => onOpenChange(false)}
-                      >
-                        Open full page
-                      </Link>
-                    ) : null}
-                  </p>
-                )}
+                {article.status === "loading" ? <HelpArticleSkeleton /> : null}
+                {article.status === "error" && loadingSlug !== null ? (
+                  <HelpArticleLoadFailurePanel
+                    slug={loadingSlug}
+                    retryLabel={HELP_ARTICLE_LOAD_RETRY_LABEL}
+                    testId="help-article-load-failure"
+                    retryTestId="help-article-load-retry"
+                    onRetry={() => {
+                      void loadArticle(loadingSlug);
+                    }}
+                  />
+                ) : null}
                 {article.status === "loaded" && (
                   <article>
                     <h2
@@ -519,16 +519,13 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
             </>
           ) : (
             <>
-              <DialogHeader className="shrink-0 space-y-1 border-b border-neutral-200 px-5 pb-3 pt-5 text-left dark:border-neutral-800">
-                <DialogTitle className="text-left text-lg text-neutral-900 dark:text-neutral-100">Help</DialogTitle>
-                <DialogDescription className={cn("text-left", OPERATOR_TYPOGRAPHY.body)}>
-                  {isSearching
-                    ? HELP_SEARCH_PANEL_SEARCHING_SUBTITLE
-                    : helpOnHelp
-                      ? HELP_ON_HELP_SUBTITLE
-                      : HELP_SEARCH_PANEL_SUBTITLE}
-                </DialogDescription>
-              </DialogHeader>
+              <HelpSearchPanelHeader subtitle={browseSubtitle} />
+
+              {!isViewingArticle ? (
+                <div className="shrink-0 border-b border-neutral-200 px-5 pb-3 dark:border-neutral-800">
+                  <HelpDrawerBuyerChrome />
+                </div>
+              ) : null}
 
               <div className="shrink-0 border-b border-neutral-200 px-5 py-3 dark:border-neutral-800">
                 <label htmlFor="help-doc-search-input" className="sr-only">

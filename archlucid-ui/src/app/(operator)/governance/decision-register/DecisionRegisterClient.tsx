@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DecisionRegisterTimeline } from "@/components/DecisionRegisterTimeline";
@@ -20,7 +19,12 @@ import {
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
 import { BUYER_GOVERNANCE_DECISION_REGISTER_TITLE } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
+import { DecisionRegisterBreadcrumb } from "./_sections/DecisionRegisterBreadcrumb";
+import { DecisionRegisterBuyerChrome } from "./_sections/DecisionRegisterBuyerChrome";
+import { DecisionRegisterLoadFailure } from "./_sections/DecisionRegisterLoadFailure";
+import { DecisionRegisterLoadingSkeleton } from "./_sections/DecisionRegisterLoadingSkeleton";
 
 import { DecisionRegisterDecisionCard } from "./DecisionRegisterDecisionCard";
 import { DecisionRegisterViewEmptyShell } from "./DecisionRegisterViewEmptyShell";
@@ -35,7 +39,7 @@ import {
   DECISION_REGISTER_EMPTY_TITLE,
   DECISION_REGISTER_FILTER_NO_MATCH_BODY,
   DECISION_REGISTER_FILTER_NO_MATCH_TITLE,
-  DECISION_REGISTER_PAGE_SUBTITLE,
+  decisionRegisterPageSubtitle,
   DECISION_REGISTER_VIEW_CARDS_PANEL_LABEL,
   DECISION_REGISTER_VIEW_TIMELINE_PANEL_LABEL,
 } from "./decision-register-copy";
@@ -49,6 +53,7 @@ import { deriveDecisionRegisterSummary } from "./decision-register-summary";
 const defaultDateRange = resolveDecisionRegisterDateRange(DEFAULT_DECISION_REGISTER_DATE_PRESET);
 
 export default function DecisionRegisterClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [workspaceDecisions, setWorkspaceDecisions] = useState<ArchitectureDecisionRegisterEntry[]>([]);
   const [filteredDecisions, setFilteredDecisions] = useState<ArchitectureDecisionRegisterEntry[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -62,6 +67,12 @@ export default function DecisionRegisterClient() {
   const [maxConfidence, setMaxConfidence] = useState("");
   const [confidenceBasis, setConfidenceBasis] = useState("");
   const [viewMode, setViewMode] = useState<DecisionRegisterViewMode>("cards");
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const retryLoad = useCallback(() => {
+    setLoadError(null);
+    setReloadToken((value) => value + 1);
+  }, []);
 
   const filters = useMemo((): ArchitectureDecisionRegisterFilters => {
     const parsed: ArchitectureDecisionRegisterFilters = {};
@@ -145,7 +156,7 @@ export default function DecisionRegisterClient() {
     return () => {
       canceled = true;
     };
-  }, []);
+  }, [reloadToken]);
 
   useEffect(() => {
     let canceled = false;
@@ -175,14 +186,15 @@ export default function DecisionRegisterClient() {
     return () => {
       canceled = true;
     };
-  }, [filters]);
+  }, [filters, reloadToken]);
 
   return (
     <div className="space-y-4 p-4" data-testid="decision-register-page">
       <OperatorPageHeader
         navHref={GOVERNANCE_DECISION_REGISTER_PATH}
         title={BUYER_GOVERNANCE_DECISION_REGISTER_TITLE}
-        subtitle={DECISION_REGISTER_PAGE_SUBTITLE}
+        subtitle={decisionRegisterPageSubtitle(buyerPolishedShell)}
+        breadcrumb={<DecisionRegisterBreadcrumb />}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <PageContextualHelpButton />
@@ -190,9 +202,12 @@ export default function DecisionRegisterClient() {
           </div>
         }
       />
+      <DecisionRegisterBuyerChrome />
       <GovernanceJobRouterStrip currentJobId="record-decisions" />
-      <DecisionRegisterFindingsVocabularyRail currentSurfaceId="decision-register" />
-{!loadError ? <DecisionRegisterSummaryRow summary={summary} /> : null}
+      {buyerPolishedShell ? null : (
+        <DecisionRegisterFindingsVocabularyRail currentSurfaceId="decision-register" />
+      )}
+      {!loadError ? <DecisionRegisterSummaryRow summary={summary} /> : null}
 
       <DecisionRegisterFiltersPanel
         category={category}
@@ -219,9 +234,13 @@ export default function DecisionRegisterClient() {
         onClearFilters={resetFilters}
       />
 
-      {loading ? <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading decision register…</p> : null}
+      {loading ? <DecisionRegisterLoadingSkeleton /> : null}
 
-      {loadError ? (
+      {loadError && buyerPolishedShell ? (
+        <DecisionRegisterLoadFailure message={loadError} onRetry={retryLoad} />
+      ) : null}
+
+      {loadError && !buyerPolishedShell ? (
         <EnterpriseCompactEmptyState
           testId="decision-register-load-error"
           title="Decision register unavailable"
@@ -233,7 +252,7 @@ export default function DecisionRegisterClient() {
       {!loading && !loadError && !hasWorkspaceDecisions ? (
         <DecisionRegisterViewEmptyShell viewMode={viewMode}>
           <div className="space-y-3">
-            <DecisionRegisterEmptyTeaching />
+            {buyerPolishedShell ? null : <DecisionRegisterEmptyTeaching />}
             <EnterpriseCompactEmptyState
               testId="decision-register-empty-state"
               title={DECISION_REGISTER_EMPTY_TITLE}

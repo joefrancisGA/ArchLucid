@@ -1594,6 +1594,12 @@
             },
             "type": "array"
           },
+          "structuralGroundingDropLog": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "systemName": {
             "type": "string"
           }
@@ -3995,7 +4001,8 @@
           "Risk",
           "Recommendation",
           "UnresolvedQuestion",
-          "TradeOff"
+          "TradeOff",
+          "Contradiction"
         ],
         "type": "string"
       },
@@ -4561,6 +4568,12 @@
           "affectedRequirementOrQualityAttribute": {
             "type": "string"
           },
+          "alternativeOptions": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationAlternative"
+            },
+            "type": "array"
+          },
           "alternatives": {
             "items": {
               "type": "string"
@@ -4648,6 +4661,12 @@
             },
             "type": "array"
           },
+          "draftActors": {
+            "items": {
+              "$ref": "#/components/schemas/ActorDescriptor"
+            },
+            "type": "array"
+          },
           "effectiveModelAliasId": {
             "type": [
               "null",
@@ -4656,6 +4675,12 @@
           },
           "environment": {
             "type": "string"
+          },
+          "failureModeNoteSnapshot": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "infrastructureDeclarations": {
             "items": {
@@ -4714,6 +4739,12 @@
             "type": "array"
           },
           "priorManifestVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "qualityAttributeSnapshot": {
             "type": [
               "null",
               "string"
@@ -5130,6 +5161,12 @@
                 "$ref": "#/components/schemas/RunAgentLlmCostEstimateDto"
               }
             ]
+          },
+          "agentTaskLoopComplete": {
+            "type": "boolean"
+          },
+          "authorityPipelineComplete": {
+            "type": "boolean"
           },
           "decisionTraces": {
             "type": "array"
@@ -7135,6 +7172,15 @@
       },
       "CommitRunRequest": {
         "properties": {
+          "acknowledgedAssumptionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
           "bypassJustification": {
             "type": [
               "null",
@@ -7279,6 +7325,70 @@
           },
           "scopeLevel": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CommittedReviewStandardsSnapshotDescriptor": {
+        "properties": {
+          "cloudProvider": {
+            "type": "string"
+          },
+          "focusedPilotModeEnabled": {
+            "type": "boolean"
+          },
+          "generatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "policyReferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "reviewedQualityDimensions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "CompareQualityDeltaCounts": {
+        "properties": {
+          "evidenceBackedDecisionsAfter": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "evidenceBackedDecisionsBefore": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "highSeverityAfter": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "highSeverityBefore": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "uncoveredMandatoryAfter": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "uncoveredMandatoryBefore": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unsupportedAssumptionsAfter": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unsupportedAssumptionsBefore": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -8611,6 +8721,12 @@
         "properties": {
           "freeTextIntent": {
             "type": "string"
+          },
+          "priorRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "workflowIntent": {
             "type": [
@@ -10481,6 +10597,12 @@
               "string"
             ]
           },
+          "priorRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "questionAnswers": {
             "additionalProperties": {
               "type": "string"
@@ -10913,6 +11035,16 @@
               },
               {
                 "$ref": "#/components/schemas/AgentResultDiffResult"
+              }
+            ]
+          },
+          "compareQualityDelta": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CompareQualityDeltaCounts"
               }
             ]
           },
@@ -17124,6 +17256,16 @@
           "requirements": {
             "$ref": "#/components/schemas/RequirementsCoverageSection"
           },
+          "reviewStandardsAtCommit": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CommittedReviewStandardsSnapshotDescriptor"
+              }
+            ]
+          },
           "ruleSetHash": {
             "type": "string"
           },
@@ -17431,6 +17573,16 @@
           },
           "operatorSummary": {
             "type": "string"
+          },
+          "reviewStandardsAtCommit": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CommittedReviewStandardsSnapshotDescriptor"
+              }
+            ]
           },
           "ruleSetId": {
             "type": "string"
@@ -19548,6 +19700,27 @@
         },
         "type": "object"
       },
+      "PlanningRetrievalCitation": {
+        "properties": {
+          "signalId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "snippet": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "themeKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "PlatformAuthRecoveryGrantRequestBody": {
         "properties": {
           "durationHours": {
@@ -21186,6 +21359,12 @@
             "format": "int32",
             "type": "integer"
           },
+          "retrievalCitations": {
+            "items": {
+              "$ref": "#/components/schemas/PlanningRetrievalCitation"
+            },
+            "type": "array"
+          },
           "signalLinksInserted": {
             "format": "int32",
             "type": "integer"
@@ -22001,6 +22180,17 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "RecommendationAlternative": {
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "validationCriteria": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -22837,6 +23027,12 @@
           },
           "runId": {
             "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tradeOffAcknowledgment": {
             "type": [
               "null",
               "string"
@@ -24807,6 +25003,12 @@
                 "$ref": "#/components/schemas/RunAgentLlmCostEstimateResponse"
               }
             ]
+          },
+          "agentTaskLoopComplete": {
+            "type": "boolean"
+          },
+          "authorityPipelineComplete": {
+            "type": "boolean"
           },
           "decisionTraces": {
             "type": "array"

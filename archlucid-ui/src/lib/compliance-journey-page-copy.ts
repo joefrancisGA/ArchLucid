@@ -1,5 +1,15 @@
 export const COMPLIANCE_JOURNEY_PAGE_TITLE = "Compliance journey" as const;
 
+export const COMPLIANCE_JOURNEY_PRIMARY_CONTENT_ID = "compliance-journey-primary-content" as const;
+
+export const COMPLIANCE_JOURNEY_SKIP_LINK_LABEL = "Skip to compliance journey content" as const;
+
+export const COMPLIANCE_JOURNEY_BREADCRUMB_HUB_LABEL = "Welcome" as const;
+
+export const COMPLIANCE_JOURNEY_BREADCRUMB_HUB_PATH = "/welcome" as const;
+
+export const COMPLIANCE_JOURNEY_BREADCRUMB_TOPIC_TITLE = COMPLIANCE_JOURNEY_PAGE_TITLE;
+
 export const COMPLIANCE_JOURNEY_PAGE_LEAD =
   "ArchLucid is not SOC 2 attested today. We publish self-assessment material, questionnaires, and engineering controls so buyers can diligence the product without mistaking roadmap for certification.";
 

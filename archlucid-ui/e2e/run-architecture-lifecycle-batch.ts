@@ -84,6 +84,10 @@ function truncateError(message: string, maxLength = 240): string {
   return `${message.slice(0, maxLength)}...`;
 }
 
+function escapeMarkdownTableCell(value: string): string {
+  return value.replace(/[\r\n|]/g, (character) => (character === "|" ? "\\|" : " "));
+}
+
 function resolveReportDirectory(): string {
   const configured = process.env.ARCHITECTURE_LIFECYCLE_BATCH_REPORT_DIR?.trim();
 

@@ -1,48 +1,33 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
 
-import { SponsorArtifactEvidenceBadge } from "@/components/SponsorArtifactEvidenceBadge";
 import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
+import { SponsorArtifactEvidenceBadge } from "@/components/SponsorArtifactEvidenceBadge";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
-  downloadFirstValueReportPdf,
-  markSponsorPackSent,
   getArchitecturePackageDocxUrl,
   getBundleDownloadUrl,
   getRunExportDownloadUrl,
   getRunPackageExportUrl,
 } from "@/lib/api";
-import type { ApiProblemDetails } from "@/lib/api-problem";
-import { isApiRequestError } from "@/lib/api-request-error";
-import { AUTH_MODE } from "@/lib/auth-config";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
-import { isJwtAuthMode } from "@/lib/oidc/config";
-import { isLikelySignedIn } from "@/lib/oidc/session";
 import {
-  describeSponsorProofReadiness,
-  formatStructuralExecutionModeLabel,
-  isAgentOutputPilotStrictSponsorSafe,
-  isExternalSponsorPdfBlockedForExecutionMode,
-  isProjectedDollarClaimsSponsorSafe,
-  isProjectedUsdSponsorBadgeVisible,
-  type PilotRunDeltasProofSummaryJson,
-} from "@/lib/pilot-proof-readiness";
-import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
-import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
+  OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_CALLOUT_WARN_CLASS,
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
-import { fetchTenantTrialStatusCached } from "@/lib/tenant-trial-status-client";
+import { isProjectedUsdSponsorBadgeVisible } from "@/lib/pilot-proof-readiness";
+import { cn } from "@/lib/utils";
+import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
+
+import { useEmailRunToSponsorBanner } from "./use-email-run-to-sponsor-banner";
 
 export type EmailRunToSponsorBannerProps = {
   runId: string;
@@ -58,29 +43,6 @@ export type EmailRunToSponsorBannerProps = {
   curatedSampleRun?: boolean;
 };
 
-type TenantBaselineRoiGatePayload = {
-  baselineReviewCycleHours?: unknown;
-  manualPrepHoursPerReview?: unknown;
-};
-
-type ProofGateState =
-  | { status: "skipped" }
-  | { status: "loading" }
-  | { status: "error" }
-  | { status: "ok"; payload: PilotRunDeltasProofSummaryJson };
-
-function computeUtcDayN(firstCommitIso: string, nowMs: number): number | null {
-  const commitMs = new Date(firstCommitIso).getTime();
-
-  if (Number.isNaN(commitMs)) {
-    return null;
-  }
-
-  const msPerDay = 24 * 60 * 60 * 1000;
-
-  return Math.max(0, Math.floor((nowMs - commitMs) / msPerDay));
-}
-
 /**
  * Post-commit pilot ROI hub: primary PDF download (canonical sponsor projection), optional architecture review
  * report DOCX via {@link getRunPackageExportUrl}, plus links to Markdown, architecture package DOCX, ZIP
@@ -94,221 +56,33 @@ export function EmailRunToSponsorBanner({
   sponsorDocxAvailable = false,
   curatedSampleRun = false,
 }: EmailRunToSponsorBannerProps) {
-  const [busy, setBusy] = useState(false);
-  const [markSentBusy, setMarkSentBusy] = useState(false);
-  const [sentToSponsorUtc, setSentToSponsorUtc] = useState<string | null>(null);
-  const [markSentError, setMarkSentError] = useState<string | null>(null);
-  const [error, setError] = useState<{
-    message: string;
-    problem: ApiProblemDetails | null;
-    correlationId: string | null;
-  } | null>(null);
-  const [badgeDayN, setBadgeDayN] = useState<number | null>(null);
-  const [timeToFirstCommitHours, setTimeToFirstCommitHours] = useState<number | null>(null);
-  const [estimatedUsdSavings, setEstimatedUsdSavings] = useState<number | null>(null);
-  const [proofGate, setProofGate] = useState<ProofGateState>({ status: "loading" });
-  const [roiBaselineGate, setRoiBaselineGate] = useState<boolean | null>(null);
-  const telemetrySentRef = useRef(false);
-  const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
-
-  const markdownHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`;
-  const SponsorReviewPacketHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-review-packet`;
-  const sponsorProofPackHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-proof-pack.zip`;
-  const executiveBriefHref = resolveInAppDocHref("docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md");
-  const pilotRoiModelHref = resolveInAppDocHref("docs/library/PILOT_ROI_MODEL.md");
-
-  useEffect(() => {
-    let canceled = false;
-
-    async function loadSidecars(): Promise<void> {
-      if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
-        if (!canceled) {
-          setProofGate({ status: "skipped" });
-          setRoiBaselineGate(null);
-        }
-
-        return;
-      }
-
-      if (!canceled) setProofGate({ status: "loading" });
-
-      const headers = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
-      const deltasUrl = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/pilot-run-deltas`;
-
-      try {
-        const [trialPayload, deltasRes, baselineRes] = await Promise.all([
-          fetchTenantTrialStatusCached(),
-          fetch(deltasUrl, headers),
-          fetch("/api/proxy/v1/tenant/baseline", headers),
-        ]);
-
-        if (canceled) return;
-
-        if (baselineRes.ok) {
-          try {
-            const baselinePayload = (await baselineRes.json()) as TenantBaselineRoiGatePayload;
-
-            if (!canceled) {
-              setRoiBaselineGate(
-                isPilotRoiBaselineComplete({
-                  baselineReviewCycleHours: baselinePayload.baselineReviewCycleHours,
-                  manualPrepHoursPerReview: baselinePayload.manualPrepHoursPerReview,
-                }),
-              );
-            }
-          } catch {
-            if (!canceled) setRoiBaselineGate(null);
-          }
-        } else if (!canceled) {
-          setRoiBaselineGate(null);
-        }
-
-        if (trialPayload !== null) {
-          try {
-            const iso = trialPayload.firstCommitUtc;
-
-            if (typeof trialPayload.timeToFirstCommittedManifestTotalSeconds === "number" &&
-                Number.isFinite(trialPayload.timeToFirstCommittedManifestTotalSeconds) &&
-                trialPayload.timeToFirstCommittedManifestTotalSeconds > 0) {
-              setTimeToFirstCommitHours(trialPayload.timeToFirstCommittedManifestTotalSeconds / 3600);
-            } else {
-              setTimeToFirstCommitHours(null);
-            }
-
-            if (typeof iso !== "string" || iso.length === 0) {
-              setBadgeDayN(null);
-            } else {
-              const n = computeUtcDayN(iso, Date.now());
-
-              if (n === null) {
-                setBadgeDayN(null);
-              } else {
-                if (!telemetrySentRef.current) {
-                  telemetrySentRef.current = true;
-                  recordSponsorBannerFirstCommitBadge(n);
-                }
-
-                setBadgeDayN(n);
-              }
-            }
-          } catch {
-            /* badge optional */
-          }
-        }
-
-        if (deltasRes.ok) {
-          try {
-            const deltasJson = (await deltasRes.json()) as PilotRunDeltasProofSummaryJson;
-
-            if (
-              isProjectedUsdSponsorBadgeVisible(deltasJson)
-              && typeof deltasJson.estimatedUsdSavings === "number"
-              && Number.isFinite(deltasJson.estimatedUsdSavings)
-            ) {
-              setEstimatedUsdSavings(deltasJson.estimatedUsdSavings);
-            } else {
-              setEstimatedUsdSavings(null);
-            }
-
-            if (!canceled) setProofGate({ status: "ok", payload: deltasJson });
-          } catch {
-            if (!canceled) setProofGate({ status: "error" });
-          }
-        } else if (!canceled) {
-          setProofGate({ status: "error" });
-        }
-      } catch {
-        if (!canceled) {
-          setProofGate({ status: "error" });
-          setRoiBaselineGate(null);
-        }
-      }
-    }
-
-    void loadSidecars();
-
-    return () => {
-      canceled = true;
-    };
-  }, [runId]);
-
-  useEffect(() => {
-    if (proofGate.status !== "loading") {
-      setReadinessLoadingPhase("quick");
-
-      return;
-    }
-
-    setReadinessLoadingPhase("quick");
-    const timer = window.setTimeout(() => {
-      setReadinessLoadingPhase("slow");
-    }, 6000);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [proofGate.status]);
-
-  async function onMarkSentToSponsor(): Promise<void> {
-    setMarkSentBusy(true);
-    setMarkSentError(null);
-
-    try {
-      await markSponsorPackSent(runId, { deliveryMethod: "email" });
-      setSentToSponsorUtc(new Date().toISOString());
-    }
-    catch (e: unknown) {
-      setMarkSentError(e instanceof Error ? e.message : "Could not record sponsor delivery.");
-    }
-    finally {
-      setMarkSentBusy(false);
-    }
-  }
-
-  async function onDownloadPdf(): Promise<void> {
-    setBusy(true);
-    setError(null);
-
-    try {
-      await downloadFirstValueReportPdf(runId);
-    } catch (e: unknown) {
-      if (isApiRequestError(e)) {
-        setError({
-          message: e.message,
-          problem: e.problem,
-          correlationId: e.correlationId,
-        });
-      } else {
-        setError({
-          message: e instanceof Error ? e.message : "Could not generate sponsor PDF.",
-          problem: null,
-          correlationId: null,
-        });
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  const readinessCopy = proofGate.status === "ok" ? describeSponsorProofReadiness(proofGate.payload) : null;
-
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const blockSponsorPdfForRoi = roiBaselineGate === false && !curatedSampleRun;
-  const blockSponsorPdfForProjectedDollar =
-    proofGate.status === "ok" && !isProjectedDollarClaimsSponsorSafe(proofGate.payload) && !curatedSampleRun;
-  const blockSponsorPdfForAiGate =
-    proofGate.status === "ok" && !isAgentOutputPilotStrictSponsorSafe(proofGate.payload) && !curatedSampleRun;
-  const blockSponsorPdfForExecutionMode =
-    proofGate.status === "ok"
-    && isExternalSponsorPdfBlockedForExecutionMode(proofGate.payload)
-    && !curatedSampleRun;
-  const blockSponsorPdf =
-    blockSponsorPdfForRoi
-    || blockSponsorPdfForProjectedDollar
-    || blockSponsorPdfForAiGate
-    || blockSponsorPdfForExecutionMode;
-  const executionModeLabel =
-    proofGate.status === "ok" ? formatStructuralExecutionModeLabel(proofGate.payload) : null;
+  const {
+    busy,
+    markSentBusy,
+    sentToSponsorUtc,
+    markSentError,
+    error,
+    badgeDayN,
+    timeToFirstCommitHours,
+    proofGate,
+    estimatedUsdSavings,
+    markdownHref,
+    SponsorReviewPacketHref,
+    sponsorProofPackHref,
+    executiveBriefHref,
+    pilotRoiModelHref,
+    readinessLoadingPhase,
+    onMarkSentToSponsor,
+    onDownloadPdf,
+    readinessCopy,
+    buyerPolishedShell,
+    blockSponsorPdfForRoi,
+    blockSponsorPdfForProjectedDollar,
+    blockSponsorPdfForAiGate,
+    blockSponsorPdfForExecutionMode,
+    blockSponsorPdf,
+    executionModeLabel,
+  } = useEmailRunToSponsorBanner({ runId, manifestId, sponsorDocxAvailable, curatedSampleRun });
 
   return (
     <aside

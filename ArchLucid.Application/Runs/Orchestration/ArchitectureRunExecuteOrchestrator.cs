@@ -26,6 +26,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -68,6 +69,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     IOperationCancellationRegistry operationCancellationRegistry,
     OperationRunCancellationMarker runCancellationMarker,
     IRunExecuteOwnershipLeaseService runExecuteOwnershipLeaseService,
+    IRunStageOutcomesRepository runStageOutcomesRepository,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -143,6 +145,9 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     private readonly IRunExecuteOwnershipLeaseService _runExecuteOwnershipLeaseService =
         runExecuteOwnershipLeaseService ?? throw new ArgumentNullException(nameof(runExecuteOwnershipLeaseService));
 
+    private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
+        runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
+
     /// <inheritdoc/>
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -205,6 +210,8 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
 
         if (run is null)
             throw new RunNotFoundException(runId);
+
+        await ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
 
         if (run.Status is ArchitectureRunStatus.Committed)
         {
@@ -310,6 +317,8 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
         if (run is null)
             throw new RunNotFoundException(runId);
 
+        await ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
+
         await TryLogFailedRunRetryRequestedAsync(run, runId, actor, cancellationToken);
 
         ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
@@ -331,5 +340,29 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
         return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
+    }
+
+    /// <summary>
+    ///     TB-1007 / EK-07: refuse execute when the authority pipeline is complete, not only
+    ///     origin or golden-manifest heuristics.
+    /// </summary>
+    private async Task ThrowIfAuthorityPipelineCompleteAsync(
+        ArchitectureRun run,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
+
+        IReadOnlyList<StageTimelineSummary> stages =
+            await _runStageOutcomesRepository.ListByRunIdAsync(runGuid, cancellationToken);
+
+        if (!RunKernelCompleteness.IsAuthorityPipelineComplete(run.GoldenManifestId, manifest: null, stages))
+            return;
+
+        throw new ConflictException(
+            $"Run '{runId}' is authority-pipeline complete and cannot be executed via the agent-task loop.");
     }
 }

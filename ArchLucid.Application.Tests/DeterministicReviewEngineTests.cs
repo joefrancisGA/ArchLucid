@@ -46,11 +46,10 @@ public sealed class DeterministicReviewEngineTests
     }
 
     [Fact]
-    public void DeterministicReviewEngine_implements_review_engine_boundary()
+    public void DeterministicReviewEngine_implements_agent_executor_boundary()
     {
         DeterministicReviewEngine engine = new();
 
-        engine.Should().BeAssignableTo<IReviewEngine>();
         engine.Should().BeAssignableTo<IAgentExecutor>();
     }
 }

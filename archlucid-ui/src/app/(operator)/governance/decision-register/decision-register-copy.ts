@@ -3,6 +3,19 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-co
 export const DECISION_REGISTER_PAGE_SUBTITLE =
   "Browse architecture decisions locked with each sealed review record — category, supporting findings, confidence, and lineage.";
 
+export const DECISION_REGISTER_CLAIM_HEADING = "Register browse only";
+
+export const DECISION_REGISTER_PAGE_SUBTITLE_BUYER =
+  "Browse architecture decisions locked with sealed review records in this workspace — open a row when you need findings or lineage follow-up.";
+
+export function decisionRegisterPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? DECISION_REGISTER_PAGE_SUBTITLE_BUYER : DECISION_REGISTER_PAGE_SUBTITLE;
+}
+
+export const DECISION_REGISTER_LOADING_STATUS = "Loading decision register…";
+
+export const DECISION_REGISTER_LOAD_RETRY_LABEL = "Retry loading register";
+
 export const DECISION_REGISTER_SUMMARY_SIGNED_LABEL = "Architecture decisions";
 
 export const DECISION_REGISTER_SUMMARY_RECENT_LABEL = "Recent decisions";

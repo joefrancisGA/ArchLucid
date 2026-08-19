@@ -53,7 +53,8 @@ internal static class AuthorityRunMapper
             Status = manifest.Metadata.Status,
             TopDecisionSynopses = ManifestDecisionSynopsisFormatter.FormatTopSynopses(manifest.Decisions),
             FeasibilityVerdict = manifest.FeasibilityVerdict,
-            EffectiveGovernanceAtCommit = manifest.EffectiveGovernanceAtCommit
+            EffectiveGovernanceAtCommit = manifest.EffectiveGovernanceAtCommit,
+            ReviewStandardsAtCommit = manifest.ReviewStandardsAtCommit
         };
     }
 }

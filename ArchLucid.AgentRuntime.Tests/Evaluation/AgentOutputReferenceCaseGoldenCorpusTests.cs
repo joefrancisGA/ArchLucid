@@ -19,7 +19,7 @@ using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
-/// <summary>Golden corpus under tests/golden-corpus — CI validates deserialization + evaluator wiring.</summary>
+/// <summary>Golden corpus under tests/golden-corpus â€” CI validates deserialization + evaluator wiring.</summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class AgentOutputReferenceCaseGoldenCorpusTests
@@ -104,15 +104,11 @@ public sealed class AgentOutputReferenceCaseGoldenCorpusTests
         results
             .Setup(r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultRecord>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-
-        HeuristicAgentOutputSemanticEvaluator heuristicSemantic = new();
-        HeuristicOnlyAgentOutputSemanticEvaluator semanticFacade = new(heuristicSemantic);
-
+        HeuristicOnlyAgentOutputSemanticEvaluator semanticFacade = new(new HeuristicAgentOutputSemanticEvaluator());
         AgentOutputReferenceCaseRunEvaluator sut = new(
             evaluatorOpts.Object,
             catalog,
             new AgentOutputEvaluator(),
-            heuristicSemantic,
             semanticFacade,
             results.Object,
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);

@@ -24,6 +24,7 @@ export type PolicyPacksPageHeaderProps = {
   readonly refreshing: boolean;
   readonly lastRefreshedAt: Date | null;
   readonly onRefresh: () => void;
+  readonly breadcrumb?: React.ReactNode;
 };
 
 /** Shared `/governance/policy-packs` hero — title, lead, contextual help, refresh, and resolution shortcut. */
@@ -42,6 +43,7 @@ export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.
       title={POLICY_PACKS_PAGE_TITLE}
       titleTestId="policy-packs-page-title"
       subtitle={props.subtitle}
+      breadcrumb={props.breadcrumb}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="policy-packs-header-actions">
           <PageContextualHelpButton />

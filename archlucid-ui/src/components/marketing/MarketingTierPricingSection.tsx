@@ -2,11 +2,14 @@
 import { cn } from "@/lib/utils";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { QueryClientProvider } from "@tanstack/react-query";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
+import { useMarketingPublicPricingQuery } from "@/hooks/use-marketing-public-pricing-query";
+import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { MarketingPricingEarlyAdopterBanner } from "@/components/marketing/MarketingPricingEarlyAdopterBanner";
 import { MarketingPricingFitMatrix } from "@/components/marketing/MarketingPricingFitMatrix";
 import { MarketingPricingUniversalIncludesStrip } from "@/components/marketing/MarketingPricingUniversalIncludesStrip";
@@ -59,12 +62,23 @@ export type MarketingTierPricingSectionProps = {
 
 /** Renders tier cards from server-supplied pricing, falling back to a client `/pricing.json` fetch. */
 export function MarketingTierPricingSection(props: MarketingTierPricingSectionProps): React.JSX.Element {
+  const [queryClient] = useState(() => getOperatorQueryClient());
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MarketingTierPricingSectionInner {...props} />
+    </QueryClientProvider>
+  );
+}
+
+function MarketingTierPricingSectionInner(props: MarketingTierPricingSectionProps): React.JSX.Element {
   const quoteSectionDomId = props.quoteSectionDomId ?? "pricing-quote-request";
   const initialPricing = props.initialPricing ?? null;
-  const [pricing, setPricing] = useState<PricingDoc | null>(initialPricing);
-  const [pricingError, setPricingError] = useState(false);
-  const [pricingLoading, setPricingLoading] = useState(initialPricing === null);
-  const [quotePanelPresent, setQuotePanelPresent] = useState(false);
+  const shouldFetch = initialPricing === null;
+  const pricingQuery = useMarketingPublicPricingQuery({ enabled: shouldFetch });
+  const pricing = initialPricing ?? pricingQuery.data ?? null;
+  const pricingError = shouldFetch && pricingQuery.isError;
+  const pricingLoading = shouldFetch && pricingQuery.isPending;
   const selfServeCheckoutEnabled = isPublicStripeTeamCheckoutEnabled();
 
   const focusQuotePanel = useCallback(() => {
@@ -82,48 +96,6 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
     panel.focus({ preventScroll: true });
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [quoteSectionDomId]);
-
-  useEffect(() => {
-    if (typeof document === "undefined") {
-      return;
-    }
-
-    setQuotePanelPresent(document.getElementById(quoteSectionDomId) !== null);
-  }, [quoteSectionDomId]);
-
-  useEffect(() => {
-    if (initialPricing !== null) {
-      return;
-    }
-
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const res = await fetch("/pricing.json", { cache: "no-store" });
-
-        if (!res.ok) {
-          throw new Error(String(res.status));
-        }
-
-        const json = (await res.json()) as PricingDoc;
-
-        if (!canceled) {
-          setPricing(json);
-          setPricingLoading(false);
-        }
-      } catch {
-        if (!canceled) {
-          setPricingError(true);
-          setPricingLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [initialPricing]);
 
   return (
     <section
@@ -274,7 +246,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                           variant={primaryCtaVariant}
                           size="default"
                           className="w-full"
-                          aria-controls={quotePanelPresent ? quoteSectionDomId : undefined}
+                          aria-controls={quoteSectionDomId}
                           onClick={() => focusQuotePanel()}
                         >
                           {cta.primaryLabel}
@@ -287,7 +259,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                           variant={primaryCtaVariant}
                           size="default"
                           className="w-full"
-                          aria-controls={quotePanelPresent ? quoteSectionDomId : undefined}
+                          aria-controls={quoteSectionDomId}
                           onClick={() => focusQuotePanel()}
                         >
                           {cta.primaryLabel}

@@ -5,6 +5,7 @@ using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -33,6 +34,7 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             new OperationCancellationRegistry(),
             new OperationRunCancellationMarker(runs),
             new DisabledRunExecuteOwnershipLeaseService(),
+            Mock.Of<IRunStageOutcomesRepository>(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

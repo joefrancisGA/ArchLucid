@@ -79,6 +79,13 @@ public sealed class EndToEndReplayComparisonReport
         set;
     }
 
+    /// <summary>Auditable coverage and quality delta counts (assessment item 52 / TB-2317).</summary>
+    public CompareQualityDeltaCounts? CompareQualityDelta
+    {
+        get;
+        set;
+    }
+
     /// <summary>Per-finding lifecycle position across the two reviews (TB-2194). Empty when neither run had findings.</summary>
     public List<CrossReviewFindingLifecycleRecord> FindingLifecycleRecords
     {

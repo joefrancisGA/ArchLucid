@@ -6,7 +6,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { SignupAccessRequestPanel } from "@/components/marketing/SignupAccessRequestPanel";
-import { SIGNUP_INVITE_ONLY_PANEL_HEADING, SIGNUP_INVITE_ONLY_SUBMIT_LABEL } from "@/lib/signup-invite-only-copy";
+import {
+  SIGNUP_INVITE_ONLY_PANEL_HEADING,
+  SIGNUP_INVITE_ONLY_SECONDARY_CTA_LABEL,
+  SIGNUP_INVITE_ONLY_SUBMIT_LABEL,
+} from "@/lib/signup-invite-only-copy";
 
 describe("SignupAccessRequestPanel", () => {
   it("shows work-email fields immediately with no Request access gate", () => {
@@ -18,7 +22,7 @@ describe("SignupAccessRequestPanel", () => {
     expect(screen.getByLabelText(/Work email/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: SIGNUP_INVITE_ONLY_SUBMIT_LABEL })).toBeDisabled();
     expect(screen.queryByRole("button", { name: /^Request access$/i })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /See a sample review/i })).toHaveAttribute("href", "/see-it");
+    expect(screen.getByRole("link", { name: SIGNUP_INVITE_ONLY_SECONDARY_CTA_LABEL })).toHaveAttribute("href", "/see-it");
 
     const panelText = screen.getByTestId("signup-access-request-panel").textContent ?? "";
 

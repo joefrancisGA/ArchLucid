@@ -80,7 +80,7 @@ export function GlossaryTerm({ termId, children, pulseOnFirstSession = true }: G
         {learnMoreOpen ? (
           <p
             className={cn(
-              "mb-0 mt-2 border-t border-[var(--al-tooltip-border)] pt-2 leading-snug",
+              "mb-0 mt-2 border-t border-[var(--al-tooltip-divider)] pt-2 leading-snug",
               TOOLTIP_TYPOGRAPHY.body,
             )}
           >

@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
+import { GovernanceSealedRecordDetailBreadcrumb } from "@/components/governance/GovernanceSealedRecordDetailBreadcrumb";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
@@ -50,9 +51,15 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  SEALED_RECORD_DETAIL_PRIMARY_CONTENT_ID,
+  SEALED_RECORD_DETAIL_SKIP_LINK_LABEL,
+} from "@/lib/sealed-record-detail-page-copy";
 import { MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
-
+import { ManifestDetailBuyerChrome } from "./ManifestDetailBuyerChrome";
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
+
 type ManifestDetailPageViewProps = {
   readonly model: ManifestDetailPageSuccessModel;
 };
@@ -213,7 +220,21 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
   return (
     <div className={cn("w-full max-w-[1200px] px-1 py-2 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
-      <CtoDemoBuyerValueStrip stepIndex={1} />
+      {buyerPolishedLayout ? (
+        <a
+          href={`#${SEALED_RECORD_DETAIL_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {SEALED_RECORD_DETAIL_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <div
+        id={buyerPolishedLayout ? SEALED_RECORD_DETAIL_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedLayout ? "scroll-mt-24" : undefined, OPERATOR_LAYOUT.sectionStack)}
+        data-testid="sealed-record-detail-primary-content"
+      >
+      {!buyerPolishedLayout ? <CtoDemoBuyerValueStrip stepIndex={1} /> : null}
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link
           className={OPERATOR_LINK.nav}
@@ -251,6 +272,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
               : "Finalized architecture review"
         }
         headingLevel="h1"
+        breadcrumb={buyerPolishedLayout ? <GovernanceSealedRecordDetailBreadcrumb /> : undefined}
         subtitle={
           buyerPolishedLayout ? (
             <>
@@ -283,6 +305,8 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           ) : undefined
         }
       />
+
+      <ManifestDetailBuyerChrome />
 
       {showcaseBuyerManifestHeadline === true ? (
         <section
@@ -477,6 +501,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         execution={model.manifestFooterExecution}
         showArchitectureReviewSummaryLink
       />
+      </div>
     </div>
   );
 }

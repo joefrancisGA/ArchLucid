@@ -14,4 +14,12 @@ public static class ContextScopeMetadataKeys
     public const string PriorTopologyCategories = "archlucid:priorTopologyCategories";
 
     public const string PriorRequirementNames = "archlucid:priorRequirementNames";
+
+    public const string Assumptions = "archlucid:assumptions";
+
+    public const string Actors = "archlucid:actors";
+
+    public const string QualityAttribute = "archlucid:qualityAttribute";
+
+    public const string FailureModeNote = "archlucid:failureModeNote";
 }

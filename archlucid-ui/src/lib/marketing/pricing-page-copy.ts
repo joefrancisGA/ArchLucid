@@ -2,6 +2,16 @@ import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer/buyer-polish-cop
 
 export const PRICING_PAGE_TITLE = "Pricing" as const;
 
+export const PRICING_PRIMARY_CONTENT_ID = "pricing-primary-content" as const;
+
+export const PRICING_SKIP_LINK_LABEL = "Skip to pricing content" as const;
+
+export const PRICING_BREADCRUMB_HUB_LABEL = "Welcome" as const;
+
+export const PRICING_BREADCRUMB_HUB_PATH = "/welcome" as const;
+
+export const PRICING_BREADCRUMB_TOPIC_TITLE = PRICING_PAGE_TITLE;
+
 export const PRICING_PAGE_INTRO = BUYER_MARKETING_PRICING_PAGE_INTRO;
 
 export const PRICING_PAGE_FAQ_LINK_LABEL = "Product FAQ" as const;

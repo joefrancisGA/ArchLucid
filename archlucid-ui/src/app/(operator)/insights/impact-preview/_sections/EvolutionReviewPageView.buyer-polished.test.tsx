@@ -38,6 +38,7 @@ import {
   IMPACT_PREVIEW_SCOPE_DETAILS_TRIGGER,
   IMPACT_PREVIEW_TRUST_NOTICE,
 } from "@/lib/impact-preview-page-copy";
+import { IMPACT_PREVIEW_CLAIM_DISCIPLINE_HEADING } from "@/lib/impact-preview-evidence-copy";
 import { DEFAULT_IMPACT_PREVIEW_COMPARISON_SCOPE } from "@/lib/impact-preview-page-types";
 
 function buildModel(overrides: Partial<EvolutionReviewPageViewModel> = {}): EvolutionReviewPageViewModel {
@@ -59,6 +60,7 @@ function buildModel(overrides: Partial<EvolutionReviewPageViewModel> = {}): Evol
     detailFailure: null,
     simulateFailure: null,
     loadList: vi.fn(),
+    loadDetail: vi.fn(),
     onSimulate: vi.fn(),
     planSnapshot: null,
     lastRefreshedAt: null,
@@ -93,6 +95,10 @@ describe("EvolutionReviewPageView buyer-polished shell", () => {
     expect(screen.queryByText(IMPACT_PREVIEW_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-refresh-button")).toBeInTheDocument();
+    expect(screen.getByTestId("impact-preview-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("impact-preview-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByText(IMPACT_PREVIEW_CLAIM_DISCIPLINE_HEADING)).toBeInTheDocument();
+    expect(screen.queryByTestId("impact-preview-compare-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByTestId("impact-preview-last-refreshed")).toHaveTextContent(/Last refreshed:/i);
     expect(screen.queryByText(IMPACT_PREVIEW_SCOPE_DETAILS_TRIGGER)).toBeNull();
     expect(screen.queryByText(IMPACT_PREVIEW_TRUST_NOTICE)).not.toBeInTheDocument();

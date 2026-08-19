@@ -83,8 +83,7 @@ public sealed class ComparisonsController(
         [FromRoute] string exportRecordId,
         CancellationToken cancellationToken)
     {
-        RunExportRecord? export = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
-        if (export is null)
+        if (await LoadScopedExportRecordAsync(exportRecordId, cancellationToken) is null)
             return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.",
                 ProblemTypes.ResourceNotFound);
 
@@ -101,7 +100,7 @@ public sealed class ComparisonsController(
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        ComparisonRecord? record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        ComparisonRecord? record = await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken);
         if (record is null)
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
                 ProblemTypes.ResourceNotFound);
@@ -121,6 +120,11 @@ public sealed class ComparisonsController(
         [FromQuery] bool persistReplay = false,
         CancellationToken cancellationToken = default)
     {
+        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
+            return this.NotFoundProblem(
+                $"Comparison record '{comparisonRecordId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+
         try
         {
             ComparisonReplayCostEstimate? estimate = await comparisonReplayCostEstimator.TryEstimateAsync(
@@ -150,7 +154,7 @@ public sealed class ComparisonsController(
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        ComparisonRecord? record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        ComparisonRecord? record = await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken);
         if (record is null)
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
                 ProblemTypes.ResourceNotFound);
@@ -279,6 +283,10 @@ public sealed class ComparisonsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+
         bool updated = await comparisonRecordRepository.UpdateLabelAndTagsAsync(
             comparisonRecordId,
             request.Label,
@@ -288,7 +296,7 @@ public sealed class ComparisonsController(
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
                 ProblemTypes.ResourceNotFound);
 
-        ComparisonRecord? record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        ComparisonRecord? record = await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken);
 
         return record is null
             ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found after update.",
@@ -322,6 +330,10 @@ public sealed class ComparisonsController(
                 string.Join(" ", replayBodyValidation.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
 
+        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+
         ReplayComparisonResult result = await comparisonReplayApiService.ReplayAsync(
             ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint(comparisonRecordId, request, format),
             false,
@@ -347,6 +359,10 @@ public sealed class ComparisonsController(
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
+        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+
         DriftAnalysisResult drift =
             await comparisonReplayApiService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
         return Ok(MapDriftAnalysis(drift));
@@ -362,6 +378,10 @@ public sealed class ComparisonsController(
         [FromQuery] string format = "markdown",
         CancellationToken cancellationToken = default)
     {
+        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+
         DriftAnalysisResult drift =
             await comparisonReplayApiService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
         string normalizedFormat = format.Trim().ToLowerInvariant();
@@ -417,6 +437,10 @@ public sealed class ComparisonsController(
             return this.BadRequestProblem(
                 string.Join(" ", metadataReplayValidation.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
+
+        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, cancellationToken) is null)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         ReplayComparisonResult result = await comparisonReplayApiService.ReplayAsync(
             ReplayComparisonRequestMapper.ToApplication(comparisonRecordId, request),
@@ -484,6 +508,18 @@ public sealed class ComparisonsController(
 
             try
             {
+                if (await LoadScopedComparisonRecordAsync(id, cancellationToken) is null)
+                {
+                    failed.Add(new BatchReplayManifestFailureEntry
+                    {
+                        ComparisonRecordId = id,
+                        Reason = $"Comparison record '{id}' was not found.",
+                        ExceptionType = nameof(InvalidOperationException)
+                    });
+
+                    continue;
+                }
+
                 ReplayComparisonResult result = await comparisonReplayApiService.ReplayAsync(
                     ReplayComparisonRequestMapper.ToApplicationForBatchEntry(
                         id,
@@ -561,6 +597,65 @@ public sealed class ComparisonsController(
 
         byte[] zipBytes = ms.ToArray();
         return File(zipBytes, "application/zip", "comparison_replays.zip");
+    }
+
+    private async Task<RunExportRecord?> LoadScopedExportRecordAsync(
+        string exportRecordId,
+        CancellationToken cancellationToken)
+    {
+        RunExportRecord? export = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+        if (export is null)
+            return null;
+
+        if (await runDetailQueryService.GetRunDetailAsync(export.RunId, cancellationToken) is null)
+            return null;
+
+        return export;
+    }
+
+    private async Task<ComparisonRecord?> LoadScopedComparisonRecordAsync(
+        string comparisonRecordId,
+        CancellationToken cancellationToken)
+    {
+        ComparisonRecord? record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        if (record is null)
+            return null;
+
+        if (!await IsComparisonRecordInScopeAsync(record, cancellationToken))
+            return null;
+
+        return record;
+    }
+
+    private async Task<bool> IsComparisonRecordInScopeAsync(
+        ComparisonRecord record,
+        CancellationToken cancellationToken)
+    {
+        if (!string.IsNullOrWhiteSpace(record.LeftRunId)
+            && await runDetailQueryService.GetRunDetailAsync(record.LeftRunId, cancellationToken) is not null)
+        {
+            return true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(record.RightRunId)
+            && await runDetailQueryService.GetRunDetailAsync(record.RightRunId, cancellationToken) is not null)
+        {
+            return true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(record.LeftExportRecordId)
+            && await LoadScopedExportRecordAsync(record.LeftExportRecordId, cancellationToken) is not null)
+        {
+            return true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(record.RightExportRecordId)
+            && await LoadScopedExportRecordAsync(record.RightExportRecordId, cancellationToken) is not null)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static DriftAnalysisResponse MapDriftAnalysis(DriftAnalysisResult drift)

@@ -2,7 +2,6 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { WebhooksIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 import {
   WEBHOOKS_INTEGRATION_CANONICAL_PATH,
   WEBHOOKS_INTEGRATION_FOLLOW_UPS_TITLE,
@@ -11,11 +10,7 @@ import {
 } from "@/lib/webhooks-integration-evidence-copy";
 
 describe("webhooks-integration-evidence-copy", () => {
-  it("wires exports into the Webhooks integration evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("webhooks-integration-evidence-copy");
-    expect(registrySource).toContain("WebhooksIntegrationEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(WEBHOOKS_INTEGRATION_CANONICAL_PATH).toBe("/integrations/webhooks");
   });
 

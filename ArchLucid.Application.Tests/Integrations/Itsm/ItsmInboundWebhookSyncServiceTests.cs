@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Governance.FindingDisposition;
@@ -12,6 +12,7 @@ using ArchLucid.Persistence.Integrations;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -150,8 +151,8 @@ public sealed class ItsmInboundWebhookSyncServiceTests
 
     /// <summary>
     ///     V1 default inbound mapping: Jira workflow status names map into
-    ///     <see cref="FindingHumanReviewStatus" /> (open/active → Pending; terminal → Approved), per
-    ///     <c>ItsmInboundWebhookSyncService</c> defaults — aligned with product “open / in progress / resolved” semantics.
+    ///     <see cref="FindingHumanReviewStatus" /> (open/active â†’ Pending; terminal â†’ Approved), per
+    ///     <c>ItsmInboundWebhookSyncService</c> defaults â€” aligned with product â€œopen / in progress / resolvedâ€ semantics.
     /// </summary>
     [Theory]
     [InlineData("To Do", nameof(FindingHumanReviewStatus.Pending))]
@@ -215,7 +216,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
 
     /// <summary>
     ///     V1 default inbound mapping: ServiceNow incident states map into
-    ///     <see cref="FindingHumanReviewStatus" /> (New / In Progress → Pending; Resolved / Closed → Approved), including
+    ///     <see cref="FindingHumanReviewStatus" /> (New / In Progress â†’ Pending; Resolved / Closed â†’ Approved), including
     ///     numeric choice lists.
     /// </summary>
     [Theory]
@@ -360,7 +361,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             new(dispositionService.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
         Mock<IItsmInboundWebhookReplayGuard> replayGuard = new();
         replayGuard
-            .Setup(g => g.HasSeenAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(g => g.TryClaimAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         ItsmInboundWebhookSyncService sut =
             new(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, logger.Object);
@@ -408,7 +409,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             new(dispositionService.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
         Mock<IItsmInboundWebhookReplayGuard> replayGuard = new();
         replayGuard
-            .Setup(g => g.HasSeenAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(g => g.TryClaimAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         ItsmInboundWebhookSyncService sut =
             new(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, logger.Object);
@@ -742,6 +743,49 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task Jira_tenant_scoped_webhook_does_not_mutate_correlation_owned_by_another_tenant()
+    {
+        Guid tenantB = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KEY-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord
+                {
+                    TenantId = tenantB,
+                    WorkspaceId = WorkspaceA,
+                    ProjectId = ProjectA,
+                    FindingId = "f-other-tenant"
+                });
+        correlations
+            .Setup(c => c.TryGetByExternalKeyForTenantAsync(TenantA, "Jira", "KEY-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ItsmFindingCorrelationRecord?)null);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
+
+        using JsonDocument doc = JsonDocument.Parse(
+            """{"issue":{"key":"KEY-1","fields":{"status":{"name":"Done"}}}}""");
+        ItsmInboundWebhookProcessResult r =
+            await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None, authenticatedTenantId: TenantA);
+
+        r.Accepted.Should().BeTrue();
+        r.DurableAuditEvent.Should().BeNull();
+        correlations.Verify(
+            c => c.TryGetByExternalKeyForTenantAsync(TenantA, "Jira", "KEY-1", It.IsAny<CancellationToken>()),
+            Times.Once);
+        correlations.Verify(
+            c => c.TryGetByExternalKeyAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Jira_replay_of_same_delivery_id_is_accepted_without_second_mutation()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
@@ -768,12 +812,9 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             .ReturnsAsync(1);
         Mock<IItsmInboundWebhookReplayGuard> replayGuard = new();
         replayGuard
-            .SetupSequence(g => g.HasSeenAsync(TenantA, "Jira", "deliv-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false)
-            .ReturnsAsync(true);
-        replayGuard
-            .Setup(g => g.RememberAsync(TenantA, "Jira", "deliv-1", It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .SetupSequence(g => g.TryClaimAsync(TenantA, "Jira", "deliv-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
         ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions(), replayGuard: replayGuard);
 
         const string json =
@@ -803,6 +844,73 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task Jira_concurrent_same_delivery_id_only_mutates_once()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KEY-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord
+                {
+                    TenantId = TenantA,
+                    WorkspaceId = WorkspaceA,
+                    ProjectId = ProjectA,
+                    FindingId = "f1"
+                });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        int updateInvocations = 0;
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f1",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1)
+            .Callback(() => Interlocked.Increment(ref updateInvocations));
+
+        using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+        MemoryCacheItsmInboundWebhookReplayGuard replayGuard = new(cache, TimeProvider.System);
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
+        ItsmInboundWebhookSyncService sut = new(
+            correlations.Object,
+            monitor.Object,
+            new ItsmInboundDispositionSync(new Mock<IFindingDispositionService>().Object, NullLogger<ItsmInboundDispositionSync>.Instance),
+            replayGuard,
+            NullLogger<ItsmInboundWebhookSyncService>.Instance);
+
+        const string json =
+            """
+            {"issue":{"key":"KEY-1","fields":{"status":{"name":"Done"}}}}
+            """;
+        using JsonDocument doc = JsonDocument.Parse(json);
+
+        const int parallelDeliveries = 12;
+        using Barrier startBarrier = new(parallelDeliveries);
+        Task<ItsmInboundWebhookProcessResult>[] tasks = new Task<ItsmInboundWebhookProcessResult>[parallelDeliveries];
+
+        for (int index = 0; index < parallelDeliveries; index++)
+        {
+            tasks[index] = Task.Run(async () =>
+            {
+                startBarrier.SignalAndWait();
+
+                return await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None, deliveryId: "deliv-concurrent");
+            });
+        }
+
+        ItsmInboundWebhookProcessResult[] results = await Task.WhenAll(tasks);
+
+        updateInvocations.Should().Be(1);
+        results.Count(r => r.ReplayIgnored).Should().Be(parallelDeliveries - 1);
+        results.Count(r => r.Accepted && !r.ReplayIgnored).Should().Be(1);
+    }
+
     private static ItsmInboundWebhookSyncService CreateSutWithInboundOptions(
         Mock<IItsmFindingCorrelationRepository> correlations,
         IntegrationsItsmInboundOptions inboundOptions,
@@ -827,11 +935,8 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         if (replayGuard is null)
         {
             replay
-                .Setup(g => g.HasSeenAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
-            replay
-                .Setup(g => g.RememberAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+                .Setup(g => g.TryClaimAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
         }
 
         return new ItsmInboundWebhookSyncService(

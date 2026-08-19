@@ -2,6 +2,10 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { MARKETING_FAQ_ITEMS, MARKETING_FAQ_MOST_ASKED_ITEM_IDS } from "@/lib/marketing-faq";
+import {
+  MARKETING_FAQ_PAGE_INTRO,
+  MARKETING_FAQ_PRIMARY_CONTENT_ID,
+} from "@/lib/marketing/marketing-faq-page-copy";
 
 import { MarketingFaqPageClient } from "./MarketingFaqPageClient";
 
@@ -9,9 +13,14 @@ describe("MarketingFaqPageClient", () => {
   it("renders buyer intro, category index, hero links, most asked, and diligence CTAs", () => {
     render(<MarketingFaqPageClient />);
 
+    expect(screen.getByRole("link", { name: "Skip to FAQ content" })).toHaveAttribute(
+      "href",
+      `#${MARKETING_FAQ_PRIMARY_CONTENT_ID}`,
+    );
     expect(screen.getByTestId("marketing-faq-page-hero")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Product FAQ" })).toBeInTheDocument();
-    expect(screen.getByText("Answers for architects and sponsors evaluating ArchLucid.")).toBeInTheDocument();
+    expect(screen.getByText(MARKETING_FAQ_PAGE_INTRO)).toBeInTheDocument();
+    expect(screen.getByTestId("faq-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("marketing-faq-toc")).toBeInTheDocument();
     expect(screen.getByTestId("marketing-faq-cta-top")).toBeInTheDocument();
     expect(screen.getByTestId("marketing-faq-hero-links")).toBeInTheDocument();
@@ -22,6 +31,15 @@ describe("MarketingFaqPageClient", () => {
     expect(screen.getByTestId("marketing-faq-most-asked")).toBeInTheDocument();
     expect(screen.getByTestId("marketing-faq-diligence-ctas")).toBeInTheDocument();
     expect(screen.getByTestId("faq-orientation")).toBeInTheDocument();
+  });
+
+  it("places evaluation orientation above Most asked", () => {
+    render(<MarketingFaqPageClient />);
+
+    const orientationTop = screen.getByTestId("faq-orientation-top");
+    const mostAsked = screen.getByTestId("marketing-faq-most-asked");
+
+    expect(orientationTop.compareDocumentPosition(mostAsked) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("browses by category without an in-page search box", () => {

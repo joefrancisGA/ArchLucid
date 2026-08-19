@@ -12,6 +12,16 @@ public static class GraphNodeTypes
     public const string Requirement = "Requirement";
 
     public const string CostConstraint = "CostConstraint";
+
+    public const string Actor = "Actor";
+
+    public const string TrustBoundary = "TrustBoundary";
+
+    public const string Assumption = "Assumption";
+
+    public const string QualityAttribute = "QualityAttribute";
+
+    public const string FailureMode = "FailureMode";
 }
 
 /// <summary>

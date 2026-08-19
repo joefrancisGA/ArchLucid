@@ -29,11 +29,26 @@ export function emptyArchitectureDraftStructuredBrief(): ArchitectureDraftStruct
   };
 }
 
+/** TB-2343: unknown placeholders are not confirmed facts for readiness or projection. */
+export function isUnknownConfirmSentinel(value: string): boolean {
+  return value.trim() === ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL;
+}
+
+export function isConfirmedBriefEntry(value: string): boolean {
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 && !isUnknownConfirmSentinel(trimmed);
+}
+
 export function listHasConfirmedEntry(items: readonly string[]): boolean {
-  return items.some((item) => item.trim().length > 0);
+  return items.some((item) => isConfirmedBriefEntry(item));
 }
 
 export function qualityAttributeMeetsMinimum(value: string): boolean {
+  if (!isConfirmedBriefEntry(value)) {
+    return false;
+  }
+
   return /\d/.test(value.trim());
 }
 

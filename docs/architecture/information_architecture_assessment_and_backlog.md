@@ -134,7 +134,6 @@ Notation — **Nav:** P = primary sidebar (when gates pass), S = secondary/in-pa
 | `/digests` (`?tab=browse\|subscriptions\|schedule`) | Digests hub | D (consolidated omission; palette lists it) | Align palette/nav visibility (IA-011) |
 | `/digest-subscriptions` | Legacy redirect | R | Retain redirect; remove page files (IA-014) |
 | `/settings/exec-digest` | Retired pre-release path | — | Removed (no redirect); use Digests → Schedule (`/digests?tab=schedule`) |
-| `/example-roi-bulletin` | Synthetic ROI bulletin sample | D (marketing) | Hide from private beta operator space — Requires product decision |
 
 ### 4.5 Integrations (persona: admin, operator)
 
@@ -624,6 +623,6 @@ All seven decisions were put to the owner one at a time on 2026-07-14 and resolv
 | Merge / convert to tab | `/value-report/pilot`, `/value-report/roi` (deferred, P2) |
 | Convert from tab to route | none |
 | Redirect | keep all 40+ existing rules |
-| Hide from private beta | `/patterns` nav item, `/demo/explain`, `/example-roi-bulletin` (decision) |
+| Hide from private beta | `/patterns` nav item, `/demo/explain` |
 | Remove (page files) | `/integrations/itsm` (**removed**), `/sponsor/dashboard`, `/admin/ai-usage-cost` (retired redirect-only), `/operate/architecture-graph`, `/why-archlucid` (fold into `/why`) |
-| Requires product decision | `/example-roi-bulletin` beta visibility; `/governance/first-30-days` placement (IA-022, P3). D1–D7 were resolved by the owner on 2026-07-14 (§14) |
+| Requires product decision | `/governance/first-30-days` placement (IA-022, P3). D1–D7 were resolved by the owner on 2026-07-14 (§14) |

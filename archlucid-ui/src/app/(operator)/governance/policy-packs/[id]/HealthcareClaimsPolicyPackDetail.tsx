@@ -21,6 +21,8 @@ import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/defi
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
+import { PolicyPackDetailBuyerChrome } from "./PolicyPackDetailBuyerChrome";
+
 type HealthcareClaimsPolicyPackDetailProps = {
   readonly policyPackId: string;
 };
@@ -61,6 +63,8 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
           <CopyIdButton value={policyPackId} aria-label="Copy policy pack ID" />
         </div>
       </OperatorPageHeader>
+
+      <PolicyPackDetailBuyerChrome />
 
       <Card>
         <CardHeader>

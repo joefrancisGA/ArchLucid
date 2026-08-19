@@ -37,6 +37,7 @@ public sealed class ManifestFinalizationService(
     IManifestFinalizationSqlRepository manifestFinalizationSqlRepository,
     IRunStateTransitionService runStateTransitionService,
     ICommittedEffectiveGovernanceSnapshotCapturer committedEffectiveGovernanceSnapshotCapturer,
+    ICommittedReviewStandardsSnapshotCapturer committedReviewStandardsSnapshotCapturer,
     ILogger<ManifestFinalizationService> logger) : IManifestFinalizationService
 {
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -68,6 +69,9 @@ public sealed class ManifestFinalizationService(
 
     private readonly ICommittedEffectiveGovernanceSnapshotCapturer _committedEffectiveGovernanceSnapshotCapturer =
         committedEffectiveGovernanceSnapshotCapturer ?? throw new ArgumentNullException(nameof(committedEffectiveGovernanceSnapshotCapturer));
+
+    private readonly ICommittedReviewStandardsSnapshotCapturer _committedReviewStandardsSnapshotCapturer =
+        committedReviewStandardsSnapshotCapturer ?? throw new ArgumentNullException(nameof(committedReviewStandardsSnapshotCapturer));
 
     private readonly ILogger<ManifestFinalizationService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -119,6 +123,17 @@ public sealed class ManifestFinalizationService(
         }
 
         RunStateTransitionEnforcement.EnsureCommitAllowedLegacy(_runStateTransitionService, request.RunId, locked.LegacyRunStatus);
+
+        if (request.ReadyForCommitHandle is ReadyForCommitRun readyHandle)
+        {
+            readyHandle.ValidateRunId(request.RunId);
+
+            if (!ArchitectureRunStatusTransitionTable.TryParseStatus(locked.LegacyRunStatus, out ArchitectureRunStatus lockedStatus))
+                throw new InvalidOperationException(
+                    $"Run '{request.RunId:D}' has unparsable LegacyRunStatus '{locked.LegacyRunStatus}' during finalize.");
+
+            readyHandle.ValidateLockedRunStatus(lockedStatus);
+        }
 
         if (locked.FindingsSnapshotId is null || locked.FindingsSnapshotId.Value != request.ExpectedFindingsSnapshotId)
             throw new InvalidOperationException("Findings snapshot on the run record does not match the expected findings for finalization.");
@@ -230,6 +245,14 @@ public sealed class ManifestFinalizationService(
         }
 
         RunStateTransitionEnforcement.EnsureCommitAllowedLegacy(_runStateTransitionService, request.RunId, header.LegacyRunStatus);
+
+        if (!ArchitectureRunStatusTransitionTable.TryParseStatus(header.LegacyRunStatus, out ArchitectureRunStatus currentStatus))
+            throw new InvalidOperationException($"Run '{request.RunId:D}' has an unrecognized LegacyRunStatus '{header.LegacyRunStatus}'.");
+
+        ArchitectureRunStatusTransitionTable.AssertLegal(
+            currentStatus,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized,
+            ArchitectureRunStatus.Committed);
 
         if (header.FindingsSnapshotId is null || header.FindingsSnapshotId.Value != request.ExpectedFindingsSnapshotId)
             throw new InvalidOperationException("Findings snapshot on the run record does not match the expected findings for finalization.");
@@ -365,6 +388,14 @@ public sealed class ManifestFinalizationService(
             request.ManifestModel,
             BuildGovernanceSnapshotCaptureOptions(request),
             cancellationToken);
+
+        if (request.PreloadedArchitectureRequest is not null && request.PreloadedFindingsSnapshot is not null)
+        {
+            _committedReviewStandardsSnapshotCapturer.ApplyToManifest(
+                request.ManifestModel,
+                request.PreloadedArchitectureRequest,
+                request.PreloadedFindingsSnapshot);
+        }
 
         if (connection is not null)
         {

@@ -12,4 +12,4 @@
 
 Owner-approval gate, minimum-N privacy guard, allowed statistics, draft skeleton, CHANGELOG sign-off audit format, and automation commands live only in the ROI model. This file keeps the historical path stable for CLI comments (`RoiBulletinMarkdownFormatter`), CI (`check_synthetic_roi_bulletin_sample.py`), and docs callers.
 
-**Synthetic shape sample (not sign-off):** [`SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md`](SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md) · `/example-roi-bulletin`.
+**Synthetic shape sample (not sign-off):** [`SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md`](SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md).

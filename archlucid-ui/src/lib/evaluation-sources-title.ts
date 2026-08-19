@@ -42,7 +42,6 @@ const BESPOKE_STRIP_REGISTRY_MODULE = "components/evidence-orientation/registry/
 export const EVALUATION_SOURCES_TITLE_SURFACES: readonly EvaluationSourcesSurface[] = [
   { slug: "accessibility", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "compliance-journey", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
-  { slug: "example-roi-bulletin", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "faq", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "get-started", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "pricing", kind: "marketing", module: BESPOKE_STRIP_REGISTRY_MODULE },
@@ -51,6 +50,7 @@ export const EVALUATION_SOURCES_TITLE_SURFACES: readonly EvaluationSourcesSurfac
   { slug: "assurance-status", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "see-it", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "showcase", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
+  { slug: "signup", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "signup-verify", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "trust-center", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },
   { slug: "welcome", kind: "marketing", module: SOURCES_AND_CLAIM_STRIP_REGISTRY_MODULE },

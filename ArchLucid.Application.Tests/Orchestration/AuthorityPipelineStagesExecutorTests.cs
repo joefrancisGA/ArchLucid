@@ -855,6 +855,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             apPipeline.Object,
             snapshotConfidence.Object,
             stageOutcomes.Object,
+            Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IAuthorityClosedLoopStrengtheningPass>(),
             NullLogger<AuthorityPipelineStagesExecutor>.Instance), decision, audit);
     }
 

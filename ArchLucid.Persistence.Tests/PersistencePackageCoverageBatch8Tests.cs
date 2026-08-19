@@ -36,7 +36,7 @@ public sealed class PersistencePackageCoverageBatch8Tests
     }
 
     [Fact]
-    public async Task NullExecutiveSummaryRecipientLookup_returns_empty_recipients()
+    public async Task NullSponsorReportRecipientLookup_returns_empty_recipients()
     {
         NullSponsorReportRecipientLookup lookup = new();
         Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

@@ -8,8 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EvidenceProposalsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { INTERNAL_EVIDENCE_PROPOSALS_PATH } from "@/lib/internal-ops-route-paths";
+import { readApiFailureMessage } from "@/lib/api-error";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  EVIDENCE_PROPOSALS_LOAD_UNEXPECTED_ERROR,
+  EVIDENCE_PROPOSALS_PROMOTE_UNEXPECTED_ERROR,
+} from "@/lib/evidence-proposals-page-copy";
+import { INTERNAL_EVIDENCE_PROPOSALS_PATH } from "@/lib/internal-ops-route-paths";
 
 type EvidenceProposalRow = {
   resultId: string;
@@ -34,15 +39,15 @@ export function AdminEvidenceProposalsPageClient() {
       const response = await fetch("/api/proxy/v1/admin/evidence/proposals");
 
       if (!response.ok) {
-        const text = await response.text().catch(() => "");
+        setError(await readApiFailureMessage(response));
 
-        throw new Error(`Failed to load proposals (HTTP ${response.status}). ${text.slice(0, 200)}`);
+        return;
       }
 
       const data = (await response.json()) as EvidenceProposalRow[];
       setRows(data);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause));
+    } catch {
+      setError(EVIDENCE_PROPOSALS_LOAD_UNEXPECTED_ERROR);
     } finally {
       setLoading(false);
     }
@@ -62,14 +67,14 @@ export function AdminEvidenceProposalsPageClient() {
       });
 
       if (!response.ok) {
-        const text = await response.text().catch(() => "");
+        setError(await readApiFailureMessage(response));
 
-        throw new Error(`Promote failed (HTTP ${response.status}). ${text.slice(0, 200)}`);
+        return;
       }
 
       await load();
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause));
+    } catch {
+      setError(EVIDENCE_PROPOSALS_PROMOTE_UNEXPECTED_ERROR);
     } finally {
       setPromotingId(null);
     }
@@ -85,9 +90,10 @@ export function AdminEvidenceProposalsPageClient() {
         actions={<PageContextualHelpButton />}
       />
       <EvidenceProposalsEvidenceOrientationStrip />
-{error !== null ? (
+      {error !== null ? (
         <p
           role="alert"
+          data-testid="admin-evidence-proposals-error"
           className={cn(
             "rounded-md border border-rose-600/40 bg-al-surface-raised p-2 text-al-text-primary dark:border-rose-800/50",
             OPERATOR_TYPOGRAPHY.body,
@@ -99,7 +105,7 @@ export function AdminEvidenceProposalsPageClient() {
 
       {loading ? <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading proposals…</p> : null}
 
-      {!loading && rows.length === 0 ? (
+      {!loading && rows.length === 0 && error === null ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No pending evidence proposals.</p>
       ) : null}
 

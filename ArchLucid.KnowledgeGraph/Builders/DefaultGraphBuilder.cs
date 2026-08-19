@@ -13,7 +13,7 @@ public class DefaultGraphBuilder(
     IGraphEdgeInferer edgeInferer)
     : IGraphBuilder
 {
-    public Task<GraphBuildResult> BuildAsync(
+    public async Task<GraphBuildResult> BuildAsync(
         ContextSnapshot contextSnapshot,
         CancellationToken ct)
     {
@@ -25,6 +25,10 @@ public class DefaultGraphBuilder(
         nodes.Add(CreateContextNode(contextSnapshot));
 
         bool hasCanonicalCostConstraints = false;
+        bool hasCanonicalActors = false;
+        bool hasCanonicalAssumptions = false;
+        bool hasCanonicalQualityAttributes = false;
+        bool hasCanonicalFailureModes = false;
 
         foreach (CanonicalObject item in canonicalObjects)
         {
@@ -32,6 +36,18 @@ public class DefaultGraphBuilder(
 
             if (string.Equals(item.ObjectType, GraphNodeTypes.CostConstraint, StringComparison.OrdinalIgnoreCase))
                 hasCanonicalCostConstraints = true;
+
+            if (string.Equals(item.ObjectType, GraphNodeTypes.Actor, StringComparison.OrdinalIgnoreCase))
+                hasCanonicalActors = true;
+
+            if (string.Equals(item.ObjectType, GraphNodeTypes.Assumption, StringComparison.OrdinalIgnoreCase))
+                hasCanonicalAssumptions = true;
+
+            if (string.Equals(item.ObjectType, GraphNodeTypes.QualityAttribute, StringComparison.OrdinalIgnoreCase))
+                hasCanonicalQualityAttributes = true;
+
+            if (string.Equals(item.ObjectType, GraphNodeTypes.FailureMode, StringComparison.OrdinalIgnoreCase))
+                hasCanonicalFailureModes = true;
 
             if (item.Properties.TryGetValue("associatedFindings", out string? associatedFindings) &&
                 associatedFindings.Contains("WAF", StringComparison.OrdinalIgnoreCase))
@@ -56,6 +72,48 @@ public class DefaultGraphBuilder(
                     contextSnapshot.SnapshotId));
         }
 
+        if (!hasCanonicalActors
+            && contextSnapshot.SourceHashes.TryGetValue(ContextScopeMetadataKeys.Actors, out string? actorsJson))
+        {
+            nodes.AddRange(
+                RequestActorMaterializer.MaterializeFromActorsJson(
+                    actorsJson,
+                    contextSnapshot.SnapshotId));
+        }
+
+        if (!hasCanonicalAssumptions
+            && contextSnapshot.SourceHashes.TryGetValue(ContextScopeMetadataKeys.Assumptions, out string? assumptions))
+        {
+            nodes.AddRange(
+                RequestAssumptionMaterializer.MaterializeFromAssumptionsMetadata(
+                    assumptions,
+                    contextSnapshot.SnapshotId));
+        }
+
+        if (!hasCanonicalQualityAttributes
+            && contextSnapshot.SourceHashes.TryGetValue(
+                ContextScopeMetadataKeys.QualityAttribute,
+                out string? qualityAttribute))
+        {
+            nodes.AddRange(
+                RequestQualityAttributeMaterializer.MaterializeFromQualityAttribute(
+                    qualityAttribute,
+                    contextSnapshot.SnapshotId));
+        }
+
+        if (!hasCanonicalFailureModes
+            && contextSnapshot.SourceHashes.TryGetValue(
+                ContextScopeMetadataKeys.FailureModeNote,
+                out string? failureModeNote))
+        {
+            nodes.AddRange(
+                RequestFailureModeMaterializer.MaterializeFromFailureModeNote(
+                    failureModeNote,
+                    contextSnapshot.SnapshotId));
+        }
+
+        await CostConstraintProjectedSpendEnricher.EnrichFromTopologyAsync(nodes, ct).ConfigureAwait(false);
+
         IReadOnlyList<GraphEdge> inferredEdges = edgeInferer.InferEdges(contextSnapshot, nodes);
 
         GraphBuildResult result = new()
@@ -64,7 +122,7 @@ public class DefaultGraphBuilder(
             Edges = inferredEdges.Count == 0 ? [] : [.. inferredEdges]
         };
 
-        return Task.FromResult(result);
+        return result;
     }
 
     private static GraphNode CreateContextNode(ContextSnapshot contextSnapshot)
@@ -121,6 +179,30 @@ public class DefaultGraphBuilder(
             && !string.IsNullOrWhiteSpace(priorRequirements))
         {
             properties[ContextGraphPropertyKeys.PriorRequirementNames] = priorRequirements;
+        }
+
+        if (sourceHashes.TryGetValue(ContextScopeMetadataKeys.Assumptions, out string? assumptions)
+            && !string.IsNullOrWhiteSpace(assumptions))
+        {
+            properties[ContextGraphPropertyKeys.Assumptions] = assumptions;
+        }
+
+        if (sourceHashes.TryGetValue(ContextScopeMetadataKeys.Actors, out string? actors)
+            && !string.IsNullOrWhiteSpace(actors))
+        {
+            properties[ContextGraphPropertyKeys.Actors] = actors;
+        }
+
+        if (sourceHashes.TryGetValue(ContextScopeMetadataKeys.QualityAttribute, out string? qualityAttribute)
+            && !string.IsNullOrWhiteSpace(qualityAttribute))
+        {
+            properties[ContextGraphPropertyKeys.QualityAttribute] = qualityAttribute;
+        }
+
+        if (sourceHashes.TryGetValue(ContextScopeMetadataKeys.FailureModeNote, out string? failureModeNote)
+            && !string.IsNullOrWhiteSpace(failureModeNote))
+        {
+            properties[ContextGraphPropertyKeys.FailureModeNote] = failureModeNote;
         }
     }
 }

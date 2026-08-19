@@ -9,9 +9,10 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export { DIGESTS_SCHEDULE_CANONICAL_PATH };
 
+export const DIGESTS_SCHEDULE_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const DIGESTS_SCHEDULE_SOURCES_INTRO =
   "Use these follow-ups when cadence is set but delivery destinations, browse history, or advisory scans still need attention.";
-
 
 /** Operator Sources — no self-href to the schedule tab. */
 export const DIGESTS_SCHEDULE_SOURCES: readonly EvidenceSourceLink[] = [
@@ -21,3 +22,14 @@ export const DIGESTS_SCHEDULE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Architecture digests help", href: inAppHelpHref("digests") },
 ] as const;
+
+const DIGESTS_SCHEDULE_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([
+  DIGESTS_SUBSCRIPTIONS_TAB_PATH,
+  ADVISORY_SCANS_SCHEDULES_HREF,
+]);
+
+/** Orientation-strip Sources — excludes in-form and on-page schedule CTAs. */
+export const DIGESTS_SCHEDULE_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =
+  DIGESTS_SCHEDULE_SOURCES.filter(
+    (source) => !DIGESTS_SCHEDULE_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+  );

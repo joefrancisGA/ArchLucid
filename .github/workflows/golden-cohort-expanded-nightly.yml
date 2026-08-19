@@ -94,7 +94,7 @@ jobs:
             --enforce-real-quality-gate \
             --enforce-llm-faithfulness \
             --baseline
-          python3 scripts/ci/assert_real_mode_eval_regression_trend.py \
+          python3 scripts/ci/assert_golden_cohort_canary_drift_alert.py \
             --current "${JSON}" \
             --history-root "${GITHUB_WORKSPACE}/artifacts/real-mode-eval-nightly"
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "${REP}" >> "${GITHUB_STEP_SUMMARY}"; fi

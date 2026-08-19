@@ -35,4 +35,11 @@ public sealed class ProductLearningPlanningMaterializeResult
         get;
         init;
     } = [];
+
+    /// <summary>Semantic retrieval priors from indexed pilot-feedback corpus (TB-879).</summary>
+    public IReadOnlyList<PlanningRetrievalCitation> RetrievalCitations
+    {
+        get;
+        init;
+    } = [];
 }

@@ -1,6 +1,7 @@
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Runs;
@@ -33,6 +34,7 @@ public sealed class EndToEndReplayComparisonService(
     IExportRecordDiffService exportRecordDiffService,
     ICrossReviewFindingCorrelationService crossReviewFindingCorrelationService,
     ICrossReviewFindingLifecycleService crossReviewFindingLifecycleService,
+    IArchitectureIntelligencePersistence architectureIntelligencePersistence,
     IScopeContextProvider scopeContextProvider) : IEndToEndReplayComparisonService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -56,6 +58,9 @@ public sealed class EndToEndReplayComparisonService(
 
     private readonly ICrossReviewFindingLifecycleService _crossReviewFindingLifecycleService =
         crossReviewFindingLifecycleService ?? throw new ArgumentNullException(nameof(crossReviewFindingLifecycleService));
+
+    private readonly IArchitectureIntelligencePersistence _architectureIntelligencePersistence =
+        architectureIntelligencePersistence ?? throw new ArgumentNullException(nameof(architectureIntelligencePersistence));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -114,7 +119,7 @@ public sealed class EndToEndReplayComparisonService(
                 report.Warnings.Add($"Export type '{exportType}' exists on the left run but not the right.");
         }
 
-        AddInterpretationNotes(report);
+        AddInterpretationNotes(report, leftEngineProvenance, rightEngineProvenance);
         List<ArchitectureFinding> leftFindings = CollectFindings(leftDetail);
         List<ArchitectureFinding> rightFindings = CollectFindings(rightDetail);
         CrossReviewFindingCorrelationResult correlation = _crossReviewFindingCorrelationService.Correlate(
@@ -122,8 +127,46 @@ public sealed class EndToEndReplayComparisonService(
             rightFindings);
         report.FindingCorrelation = ComparisonFindingCorrelationMetadataBuilder.Build(correlation);
         await AddFindingLifecycleAsync(report, leftRun, leftFindings, rightFindings, leftResults, rightResults, correlation, cancellationToken);
+        await AddCompareQualityDeltaAsync(
+            report,
+            leftRunId,
+            rightRunId,
+            leftFindings,
+            rightFindings,
+            cancellationToken);
 
         return report;
+    }
+
+    private async Task AddCompareQualityDeltaAsync(
+        EndToEndReplayComparisonReport report,
+        string leftRunId,
+        string rightRunId,
+        IReadOnlyList<ArchitectureFinding> leftFindings,
+        IReadOnlyList<ArchitectureFinding> rightFindings,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string tenantId = scope.TenantId.ToString();
+        ArchitectureKnowledgeModel? leftModel =
+            await _architectureIntelligencePersistence.GetModelByRunIdAsync(tenantId, leftRunId, cancellationToken);
+        ArchitectureKnowledgeModel? rightModel =
+            await _architectureIntelligencePersistence.GetModelByRunIdAsync(tenantId, rightRunId, cancellationToken);
+
+        CompareQualityDeltaCounts? delta = CompareQualityDeltaCalculator.Build(
+            leftModel,
+            leftFindings,
+            rightModel,
+            rightFindings);
+
+        if (delta is null)
+        {
+            report.Warnings.Add(
+                "Compare quality delta omitted because one or both architecture knowledge models were unavailable.");
+            return;
+        }
+
+        report.CompareQualityDelta = delta;
     }
 
     /// <summary>
@@ -201,8 +244,23 @@ public sealed class EndToEndReplayComparisonService(
         return result;
     }
 
-    private static void AddInterpretationNotes(EndToEndReplayComparisonReport report)
+    private static void AddInterpretationNotes(
+        EndToEndReplayComparisonReport report,
+        ReviewRunEngineProvenance? leftEngineProvenance,
+        ReviewRunEngineProvenance? rightEngineProvenance)
     {
+        ArgumentNullException.ThrowIfNull(report);
+
+        string? engineNote = BuildLeadingEngineInterpretationNote(
+            report,
+            leftEngineProvenance,
+            rightEngineProvenance);
+
+        if (engineNote is not null)
+        {
+            report.InterpretationNotes.Add(engineNote);
+        }
+
         if (report.RunDiff.ExecutionModesDiffer)
         {
             report.InterpretationNotes.Add(
@@ -212,12 +270,6 @@ public sealed class EndToEndReplayComparisonService(
         {
             report.InterpretationNotes.Add(
                 "Both reviews used the same non-real structural execution mode — treat finding and cost deltas as directional only and confirm per-finding trust labels on inspect and export paths.");
-        }
-
-        if (report.RunDiff.ModelAliasIdsDiffer)
-        {
-            report.InterpretationNotes.Add(
-                "Catalog model alias differs between the two reviews — attribute finding and narrative drift to engine selection before inferring architecture or policy changes.");
         }
 
         if (report.AgentResultDiff is not null && report.ManifestDiff is not null)
@@ -245,6 +297,51 @@ public sealed class EndToEndReplayComparisonService(
         if (report.ExportDiffs.Any(d => d.ChangedTopLevelFields.Count > 0 || d.RequestDiff.ChangedFlags.Count > 0 || d.RequestDiff.ChangedValues.Count > 0))
             report.InterpretationNotes.Add(
                 "Export configuration differences were detected, so document outputs may differ even when architecture state is similar.");
+    }
+
+    private static string? BuildLeadingEngineInterpretationNote(
+        EndToEndReplayComparisonReport report,
+        ReviewRunEngineProvenance? leftEngineProvenance,
+        ReviewRunEngineProvenance? rightEngineProvenance)
+    {
+        ArgumentNullException.ThrowIfNull(report);
+
+        bool modelAliasIdsDiffer = report.RunDiff.ModelAliasIdsDiffer;
+        bool notEvaluated = HasNotEvaluatedSnapshot(leftEngineProvenance)
+            || HasNotEvaluatedSnapshot(rightEngineProvenance);
+
+        if (!modelAliasIdsDiffer && !notEvaluated)
+        {
+            return null;
+        }
+
+        List<string> parts = [];
+
+        if (modelAliasIdsDiffer)
+        {
+            parts.Add(
+                "Catalog model alias differs between the two reviews — attribute finding and narrative drift to engine selection before inferring architecture or policy changes.");
+        }
+
+        if (notEvaluated)
+        {
+            parts.Add(
+                "At least one review recorded a task evaluation state of NotEvaluated at selection — hash equality does not imply the catalog engine was evaluated.");
+        }
+
+        return string.Join(' ', parts);
+    }
+
+    private static bool HasNotEvaluatedSnapshot(ReviewRunEngineProvenance? provenance)
+    {
+        if (provenance?.TaskEvaluationSnapshotsAtSelection is null)
+        {
+            return false;
+        }
+
+        return provenance.TaskEvaluationSnapshotsAtSelection.Any(snapshot =>
+            snapshot is not null
+            && string.Equals(snapshot.EvaluationState, "NotEvaluated", StringComparison.OrdinalIgnoreCase));
     }
 
     private async Task<ReviewRunEngineProvenance?> TryLoadEngineProvenanceAsync(

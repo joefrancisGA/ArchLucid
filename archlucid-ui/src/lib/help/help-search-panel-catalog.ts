@@ -5,9 +5,15 @@ import { helpPageSituationTopicIds, type HelpPageSituation } from "@/lib/help/he
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS } from "@/lib/review-terminology-surfaces";
 
+export const HELP_SEARCH_PANEL_TITLE = "Help" as const;
+
 /** Says what the drawer gets you; the search placeholder already describes the input. */
 export const HELP_SEARCH_PANEL_SUBTITLE =
   "Find the next step for what you are working on." as const;
+
+export const HELP_ARTICLE_LOAD_RETRY_LABEL = "Try again" as const;
+
+export const HELP_ARTICLE_LOADING_STATUS = "Loading topic…" as const;
 
 export const HELP_SEARCH_PANEL_SEARCHING_SUBTITLE = "Showing matching guides and topics." as const;
 

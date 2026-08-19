@@ -5,6 +5,15 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/administration/identity-providers/role-mapping",
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
 
@@ -169,7 +178,8 @@ describe("IdentityProvidersRoleMappingPageView", () => {
       />,
     );
 
-    expect(screen.getByTestId("identity-providers-role-mapping-loading")).toHaveTextContent(
+    expect(screen.getByTestId("identity-providers-role-mapping-loading-skeleton")).toHaveAttribute(
+      "aria-label",
       IDENTITY_PROVIDERS_ROLE_MAPPING_LOADING,
     );
     expect(screen.queryByTestId("identity-providers-role-mapping-primary-cta")).not.toBeInTheDocument();

@@ -4,6 +4,38 @@ export const PATTERN_LIBRARY_PAGE_TITLE = "Pattern library";
 export const PATTERN_LIBRARY_PAGE_SUBTITLE =
   "Explore anonymized architecture patterns, adoption signals, domains, platforms, risks, and governance outcomes.";
 
+export const PATTERN_LIBRARY_PAGE_SUBTITLE_BUYER =
+  "Anonymized architecture patterns with adoption, risk, and governance signals.";
+
+export function patternLibraryPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? PATTERN_LIBRARY_PAGE_SUBTITLE_BUYER : PATTERN_LIBRARY_PAGE_SUBTITLE;
+}
+
+export const PATTERN_LIBRARY_LOADING_STATUS = "Loading pattern library…";
+
+export const PATTERN_LIBRARY_DETAIL_PAGE_TITLE = "Pattern detail";
+
+export const PATTERN_LIBRARY_DETAIL_LOADING_STATUS = "Loading pattern detail…";
+
+export function patternLibraryDetailSubtitle(
+  recordDescription: string,
+  buyerPolishedShell: boolean,
+): string {
+  if (buyerPolishedShell) {
+    return "Anonymized pattern guidance for reviews and governance comparisons.";
+  }
+
+  return recordDescription;
+}
+
+export const PATTERN_LIBRARY_LOAD_RETRY_LABEL = "Try again";
+
+export const PATTERN_LIBRARY_REFRESH_LABEL = "Refresh";
+
+export const PATTERN_LIBRARY_REFRESHING_LABEL = "Refreshing…";
+
+export const PATTERN_LIBRARY_LAST_UPDATED_PREFIX = "Last updated";
+
 export const PATTERN_LIBRARY_PRIVACY_NOTE =
   "Pattern statistics are anonymized and thresholded. Tenant-identifying data is never shown.";
 

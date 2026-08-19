@@ -1,13 +1,12 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-
-import { PLANNING_PATH } from "@/lib/planning-route";
+import { ImprovementPlanningBreadcrumb } from "@/components/insights/ImprovementPlanningBreadcrumb";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { PLANNING_PATH } from "@/lib/planning-route";
+import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import {
   IMPROVEMENT_PLANNING_LAST_UPDATED_PREFIX,
   IMPROVEMENT_PLANNING_PAGE_TITLE,
@@ -22,10 +21,14 @@ export type PlanningPageHeaderProps = {
   readonly onRefresh: () => void;
 };
 
-/** Shared `/planning` hero — title, lead, contextual help, and refresh in the first viewport. */
+/** Shared `/insights/improvement-planning` hero — title, lead, contextual help, refresh, and freshness metadata. */
 export function PlanningPageHeader(props: PlanningPageHeaderProps): React.JSX.Element {
-  const lastUpdatedLabel =
-    props.generatedUtc === null ? "—" : formatIsoUtcForDisplay(props.generatedUtc);
+  const lastRefreshedAt = props.generatedUtc !== null ? new Date(props.generatedUtc) : null;
+  const freshnessLabel = operatorFreshnessMetadataWithClockLabel({
+    prefix: IMPROVEMENT_PLANNING_LAST_UPDATED_PREFIX,
+    lastRefreshedAt: props.refreshing ? null : lastRefreshedAt,
+    refreshingLabel: props.refreshing ? IMPROVEMENT_PLANNING_REFRESHING_LABEL : null,
+  });
 
   return (
     <OperatorPageHeader
@@ -33,6 +36,7 @@ export function PlanningPageHeader(props: PlanningPageHeaderProps): React.JSX.El
       title={IMPROVEMENT_PLANNING_PAGE_TITLE}
       titleTestId="planning-page-title"
       subtitle={props.subtitle}
+      breadcrumb={<ImprovementPlanningBreadcrumb />}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="planning-header-actions">
           <PageContextualHelpButton />
@@ -45,13 +49,9 @@ export function PlanningPageHeader(props: PlanningPageHeaderProps): React.JSX.El
         </div>
       }
       metadata={
-        <span
-          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="planning-last-updated"
-        >
-          {IMPROVEMENT_PLANNING_LAST_UPDATED_PREFIX}{" "}
-          {props.refreshing ? IMPROVEMENT_PLANNING_REFRESHING_LABEL : lastUpdatedLabel}
-        </span>
+        <OperatorPageFreshnessMetadata testId="planning-last-updated" lastRefreshedAt={lastRefreshedAt}>
+          {freshnessLabel}
+        </OperatorPageFreshnessMetadata>
       }
     />
   );

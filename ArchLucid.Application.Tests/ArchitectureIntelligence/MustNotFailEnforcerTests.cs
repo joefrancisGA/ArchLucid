@@ -101,5 +101,50 @@ public sealed class MustNotFailEnforcerTests
 
         violations.Should().NotContain(violation => violation.Class == MustNotFailClass.InventedRegulation);
     }
+
+    [Fact]
+    public void Evaluate_blocks_unlabeled_cloud_specific_recommendation()
+    {
+        ArchitectureRecommendation recommendation = CreateCloudRecommendation();
+
+        IReadOnlyList<MustNotFailViolation> violations = _enforcer.Evaluate([], [recommendation]);
+
+        violations.Should().Contain(violation =>
+            violation.Class == MustNotFailClass.UnlabeledCloudSpecificRecommendation && violation.Blocked);
+    }
+
+    [Fact]
+    public void Evaluate_allows_cloud_recommendation_when_alternative_path_labels_assumption()
+    {
+        ArchitectureRecommendation recommendation = CreateCloudRecommendation();
+        recommendation.AlternativeOptions =
+        [
+            new RecommendationAlternative
+            {
+                Path = "Keep Azure as an assumption until multi-cloud is required",
+                ValidationCriteria = "The Azure assumption is recorded in the architecture package.",
+            },
+        ];
+
+        IReadOnlyList<MustNotFailViolation> violations = _enforcer.Evaluate([], [recommendation]);
+
+        violations.Should().NotContain(violation =>
+            violation.Class == MustNotFailClass.UnlabeledCloudSpecificRecommendation);
+    }
+
+    private static ArchitectureRecommendation CreateCloudRecommendation()
+    {
+        return new ArchitectureRecommendation
+        {
+            RecommendationId = "rec-cloud",
+            Problem = "Hosting location",
+            Evidence = "The package names Azure as the target platform.",
+            AffectedRequirementOrQualityAttribute = "Reliability",
+            ConsequenceOfInaction = "Cloud lock-in remains unlabeled.",
+            ProposedChange = "Deploy the workload on Azure App Service.",
+            ValidationMethod = "Review the deployment topology.",
+            Provenance = new ClaimProvenance(),
+        };
+    }
 }
 

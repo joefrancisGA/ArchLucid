@@ -82,6 +82,15 @@ export const WEBHOOKS_SAVING_LABEL = "Saving subscription…";
 
 export const WEBHOOKS_SAVE_SUCCESS = "Subscription saved.";
 
+export const WEBHOOKS_ENABLE_CONFIRM_TITLE = "Start sending events to this endpoint?";
+
+export const WEBHOOKS_ENABLE_CONFIRM_LABEL = "Enable delivery";
+
+/** Enabling resumes outbound delivery to a third-party endpoint, so it needs the same confirm step as disabling. */
+export function webhooksEnableConfirmDescription(subscriptionName: string): string {
+  return `ArchLucid will begin posting matching alert events to the destination configured for ${subscriptionName}. Confirm the endpoint owner expects this traffic before enabling.`;
+}
+
 export const WEBHOOKS_TEST_LABEL = "Send test event";
 
 export const WEBHOOKS_TESTING_LABEL = "Sending test event…";

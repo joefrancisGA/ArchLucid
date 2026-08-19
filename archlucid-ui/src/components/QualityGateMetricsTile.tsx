@@ -1,14 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useOperatorAiQualitySnapshotQuery } from "@/hooks/use-operator-ai-quality-snapshot-query";
 import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   dispositionLabel,
-  type OperatorAiQualitySnapshot,
   type OperatorAiQualitySnapshotDisposition,
 } from "@/lib/operator/operator-ai-quality-snapshot";
 
@@ -42,35 +41,7 @@ export type QualityGateMetricsTileProps = {
 };
 
 export function QualityGateMetricsTile({ surface = "operator" }: QualityGateMetricsTileProps): React.JSX.Element {
-  const [snapshot, setSnapshot] = useState<OperatorAiQualitySnapshot | null>(null);
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const response = await fetch("/operator-ai-quality-snapshot.json", { cache: "no-store" });
-
-        if (!response.ok) {
-          return;
-        }
-
-        const json = (await response.json()) as OperatorAiQualitySnapshot;
-
-        if (!canceled) {
-          setSnapshot(json);
-        }
-      }
-      catch {
-        /* optional snapshot */
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
-
+  const { data: snapshot } = useOperatorAiQualitySnapshotQuery();
   const recall = snapshot?.retrievalIr.meanRecallAt5 ?? null;
   const mrr = snapshot?.retrievalIr.meanMrr ?? null;
   const executiveSurface = surface === "sponsor";
@@ -82,7 +53,7 @@ export function QualityGateMetricsTile({ surface = "operator" }: QualityGateMetr
           <h2 className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>
             {executiveSurface ? "Evidence retrieval quality" : "AI quality metrics"}
           </h2>
-          {snapshot !== null ? (
+          {snapshot !== null && snapshot !== undefined ? (
             <StatusTag kind={dispositionStatusKind(snapshot.disposition)} label={dispositionLabel(snapshot.disposition)} />
           ) : null}
         </div>

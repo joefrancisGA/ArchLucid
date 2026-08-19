@@ -161,6 +161,7 @@ export function TeamsIntegrationHelpEvidenceOrientationStrip(
     <EvidenceOrientationStripShell testId="help-teams-integration-orientation">
       <EvidenceOrientationClaimCallout
         testId="help-teams-integration-claim-discipline"
+        stripSlug="help-teams-integration"
         body={TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE}
         style={EVIDENCE_CLAIM_STYLE.operatorNeutral}
         element="div"

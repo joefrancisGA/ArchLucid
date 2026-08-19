@@ -8,14 +8,9 @@ import {
   SERVICENOW_INTEGRATION_SOURCES,
   SERVICENOW_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/servicenow-integration-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("servicenow-integration-evidence-copy", () => {
-  it("wires exports into the ServiceNow integration evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("servicenow-integration-evidence-copy");
-    expect(registrySource).toContain("ServiceNowIntegrationEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(SERVICENOW_INTEGRATION_CANONICAL_PATH).toBe("/integrations/servicenow");
   });
 

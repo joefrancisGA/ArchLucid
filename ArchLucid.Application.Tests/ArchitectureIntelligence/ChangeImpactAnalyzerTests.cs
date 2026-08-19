@@ -140,4 +140,151 @@ public sealed class ChangeImpactAnalyzerTests
             item.ElementId == "storage-linked"
             && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void Analyze_includes_multi_hop_related_elements_from_directly_impacted_sources()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-related-chain",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "downstream-consumer",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Downstream consumer",
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "middle-link",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Middle link",
+                    RelatedElementIds = ["downstream-consumer"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "comp-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout API",
+                    RelatedElementIds = ["middle-link"],
+                },
+            ],
+        };
+
+        ArchitectureRecommendation recommendation = new()
+        {
+            RecommendationId = "rec-related-chain",
+            Problem = "Checkout latency",
+            Evidence = "Trace data.",
+            AffectedRequirementOrQualityAttribute = "Performance",
+            ConsequenceOfInaction = "Latency remains.",
+            ProposedChange = "Optimize Checkout API caching.",
+            ValidationMethod = "Load test.",
+        };
+
+        ChangeImpactResult impact = _analyzer.Analyze(model, recommendation);
+
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "comp-target");
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "middle-link");
+        impact.ImpactedItems.Should().Contain(item =>
+            item.ElementId == "downstream-consumer"
+            && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Analyze_includes_reverse_related_elements_pointing_at_directly_impacted_targets()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-related-reverse",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "upstream-gateway",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Edge gateway",
+                    RelatedElementIds = ["comp-target"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "comp-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout API",
+                },
+            ],
+        };
+
+        ArchitectureRecommendation recommendation = new()
+        {
+            RecommendationId = "rec-related-reverse",
+            Problem = "Checkout latency",
+            Evidence = "Trace data.",
+            AffectedRequirementOrQualityAttribute = "Performance",
+            ConsequenceOfInaction = "Latency remains.",
+            ProposedChange = "Optimize Checkout API caching.",
+            ValidationMethod = "Load test.",
+        };
+
+        ChangeImpactResult impact = _analyzer.Analyze(model, recommendation);
+
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "comp-target");
+        impact.ImpactedItems.Should().Contain(item =>
+            item.ElementId == "upstream-gateway"
+            && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Analyze_includes_forward_related_elements_discovered_via_reverse_related_hubs()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-related-mixed",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "checkout-cache",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout cache",
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "worker",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout worker",
+                    RelatedElementIds = ["comp-target", "checkout-cache"],
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "comp-target",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Checkout API",
+                },
+            ],
+        };
+
+        ArchitectureRecommendation recommendation = new()
+        {
+            RecommendationId = "rec-related-mixed",
+            Problem = "Checkout latency",
+            Evidence = "Trace data.",
+            AffectedRequirementOrQualityAttribute = "Performance",
+            ConsequenceOfInaction = "Latency remains.",
+            ProposedChange = "Optimize Checkout API caching.",
+            ValidationMethod = "Load test.",
+        };
+
+        ChangeImpactResult impact = _analyzer.Analyze(model, recommendation);
+
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "comp-target");
+        impact.ImpactedItems.Should().Contain(item => item.ElementId == "worker");
+        impact.ImpactedItems.Should().Contain(item =>
+            item.ElementId == "checkout-cache"
+            && item.Description.Contains("indirectly impacted", StringComparison.Ordinal));
+    }
 }

@@ -235,13 +235,26 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
 
     private static bool ContainsAssumptionNote(ArchitectureRecommendation recommendation)
     {
-        if (recommendation.Provenance.Notes is not null
-            && recommendation.Provenance.Notes.Contains("assumption", StringComparison.OrdinalIgnoreCase))
+        if (ContainsAssumptionToken(recommendation.Provenance.Notes))
         {
             return true;
         }
 
-        return recommendation.Alternatives.Any(
-            alternative => alternative.Contains("assumption", StringComparison.OrdinalIgnoreCase));
+        if (recommendation.AlternativeOptions is not null
+            && recommendation.AlternativeOptions.Any(option =>
+                ContainsAssumptionToken(option.Path)
+                || ContainsAssumptionToken(option.ValidationCriteria)))
+        {
+            return true;
+        }
+
+        return recommendation.Alternatives is not null
+            && recommendation.Alternatives.Any(ContainsAssumptionToken);
+    }
+
+    private static bool ContainsAssumptionToken(string? text)
+    {
+        return text is not null
+            && text.Contains("assumption", StringComparison.OrdinalIgnoreCase);
     }
 }

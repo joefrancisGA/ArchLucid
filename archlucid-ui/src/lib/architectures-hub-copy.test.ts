@@ -7,7 +7,9 @@ import {
   ARCHITECTURES_HUB_EMPTY_FILTER_TITLE,
   ARCHITECTURES_HUB_EMPTY_TITLE,
   ARCHITECTURES_HUB_PAGE_SUBTITLE,
+  ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER,
   ARCHITECTURES_HUB_PAGE_TITLE,
+  architecturesHubPageSubtitle,
 } from "@/lib/architectures-hub-copy";
 
 describe("architectures-hub-copy", () => {
@@ -26,5 +28,11 @@ describe("architectures-hub-copy", () => {
     expect(ARCHITECTURES_HUB_EMPTY_FILTER_TITLE).toBeTruthy();
     expect(ARCHITECTURES_HUB_EMPTY_FILTER_BODY).toBeTruthy();
     expect(ARCHITECTURES_HUB_EMPTY_TITLE.toLowerCase()).toContain("draft");
+  });
+
+  it("uses a shorter buyer subtitle", () => {
+    expect(architecturesHubPageSubtitle(true)).toBe(ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER);
+    expect(architecturesHubPageSubtitle(false)).toBe(ARCHITECTURES_HUB_PAGE_SUBTITLE);
+    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER.length).toBeLessThan(ARCHITECTURES_HUB_PAGE_SUBTITLE.length);
   });
 });

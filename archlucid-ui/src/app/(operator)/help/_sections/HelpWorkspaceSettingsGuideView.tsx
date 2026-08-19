@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -8,6 +10,7 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
   OPERATOR_CARD,
@@ -27,14 +30,16 @@ import {
   WORKSPACE_SETTINGS_HELP_HOW_TO_READ_STEPS,
   WORKSPACE_SETTINGS_HELP_OVERVIEW,
   WORKSPACE_SETTINGS_HELP_PAGE_EYEBROW,
-  WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE,
   WORKSPACE_SETTINGS_HELP_PAGE_TITLE,
   WORKSPACE_SETTINGS_HELP_PRIMARY_ACTION,
+  WORKSPACE_SETTINGS_HELP_PRIMARY_CONTENT_ID,
+  WORKSPACE_SETTINGS_HELP_SKIP_LINK_LABEL,
   WORKSPACE_SETTINGS_HELP_START_HERE_CARD_TITLE,
   WORKSPACE_SETTINGS_HELP_TILE_ITEMS,
   WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE,
   WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE_SECTION_ID,
   WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE_TITLE,
+  workspaceSettingsHelpPageSubtitle,
 } from "@/lib/workspace-settings-help-guide-content";
 import { WORKSPACE_SETTINGS_HELP_CANONICAL_PATH } from "@/lib/workspace-settings-help-evidence-copy";
 import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
@@ -60,6 +65,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Operator workspace settings orientation for `/help/workspace-settings`. */
 export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const contentGridClass = resolveHelpPageContentGridClass(WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
@@ -68,21 +74,37 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
       className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
       data-testid="help-workspace-settings-guide"
     >
+      <a
+        href={`#${WORKSPACE_SETTINGS_HELP_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {WORKSPACE_SETTINGS_HELP_SKIP_LINK_LABEL}
+      </a>
+
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader
-        eyebrow={WORKSPACE_SETTINGS_HELP_PAGE_EYEBROW}
+        eyebrow={buyerPolishedShell ? undefined : WORKSPACE_SETTINGS_HELP_PAGE_EYEBROW}
         title={WORKSPACE_SETTINGS_HELP_PAGE_TITLE}
         titleTestId="help-workspace-settings-page-title"
-        subtitle={WORKSPACE_SETTINGS_HELP_PAGE_SUBTITLE}
+        subtitle={workspaceSettingsHelpPageSubtitle(buyerPolishedShell)}
         navHref={WORKSPACE_SETTINGS_HELP_CANONICAL_PATH}
         headingLevel="h1"
         breadcrumb={<HelpTopicBreadcrumb topicTitle={WORKSPACE_SETTINGS_HELP_BREADCRUMB_TOPIC_TITLE} />}
-        metadata={<HelpTopicRegistryProvenanceLine entry={entry} />}
+        metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
       />
 
       <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+        <div
+          id={WORKSPACE_SETTINGS_HELP_PRIMARY_CONTENT_ID}
+          className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
+        >
+          {buyerPolishedShell ? (
+            <div data-testid="help-workspace-settings-orientation-top">
+              <WorkspaceSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            </div>
+          ) : null}
+
           <p className={readingBodyClass} data-testid="help-workspace-settings-overview">
             {WORKSPACE_SETTINGS_HELP_OVERVIEW}
           </p>
@@ -198,9 +220,11 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
             </p>
           </section>
 
-          <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-            <WorkspaceSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
-          </div>
+          {!buyerPolishedShell ? (
+            <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+              <WorkspaceSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            </div>
+          ) : null}
         </div>
 
         <HelpTopicTableOfContents headings={WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS} />

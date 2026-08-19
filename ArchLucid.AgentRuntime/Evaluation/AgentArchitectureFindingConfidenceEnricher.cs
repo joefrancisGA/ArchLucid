@@ -99,7 +99,7 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
                                         cancellationToken).ConfigureAwait(false);
 
                 bool referenceMatched = traceForAgent is not null &&
-                                        _referenceCaseRunEvaluator.ComputeAnyPassingReferenceCase(traceForAgent);
+                                        await _referenceCaseRunEvaluator.ComputeAnyPassingReferenceCaseAsync(traceForAgent, cancellationToken).ConfigureAwait(false);
 
                 bool touched = false;
 

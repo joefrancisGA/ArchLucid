@@ -2,50 +2,17 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
-import { useEffect, useState } from "react";
-
-type PilotOutcomeSummary = {
-  tenantId: string;
-  periodStart: string;
-  periodEnd: string;
-  runsInPeriod: number;
-  runsWithCommittedManifest: number;
-};
+import { usePilotOutcomeSummaryQuery } from "@/hooks/use-pilot-outcome-summary-query";
 
 /** Trailing 30-day pilot rollup for operator home (all tiers; empty state when no runs). */
 export function PilotOutcomeCard() {
-  const [summary, setSummary] = useState<PilotOutcomeSummary | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const res = await fetch("/api/proxy/v1/pilots/outcome-summary", {
-          headers: { Accept: "application/json" },
-        });
-
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-
-        const json = (await res.json()) as PilotOutcomeSummary;
-
-        if (!canceled) {
-          setSummary(json);
-        }
-      } catch (e: unknown) {
-        if (!canceled) {
-          setError(e instanceof Error ? e.message : "Failed to load pilot outcome summary.");
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+  const summaryQuery = usePilotOutcomeSummaryQuery();
+  const error = summaryQuery.isError
+    ? summaryQuery.error instanceof Error
+      ? summaryQuery.error.message
+      : "Failed to load pilot outcome summary."
+    : null;
+  const summary = summaryQuery.data ?? null;
 
   if (error) {
     return (
@@ -64,7 +31,7 @@ export function PilotOutcomeCard() {
     );
   }
 
-  if (summary === null) {
+  if (summaryQuery.isPending || summary === null) {
     return (
       <section
         aria-labelledby="pilot-outcome-heading"

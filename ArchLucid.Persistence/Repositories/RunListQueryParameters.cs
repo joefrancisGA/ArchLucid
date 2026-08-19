@@ -169,6 +169,19 @@ internal static class RunListQueryParameters
         };
     }
 
+    public static object ForArchitectureRequestScopeExists(ScopeContext scope, string architectureRequestId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ArchitectureRequestId = architectureRequestId.Trim(),
+        };
+    }
+
     /// <summary>Page size plus the probe row used to answer "is there more?".</summary>
     public static int Fetch(int take) => RunPagination.ClampTake(take) + 1;
 

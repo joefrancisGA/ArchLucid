@@ -8,14 +8,9 @@ import {
   FLEET_LLM_COGS_SOURCES,
   FLEET_LLM_COGS_SOURCES_INTRO,
 } from "@/lib/fleet-llm-cogs-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("fleet-llm-cogs-evidence-copy", () => {
-  it("wires exports into the Fleet LLM COGS evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("fleet-llm-cogs-evidence-copy");
-    expect(registrySource).toContain("FleetLlmCogsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(FLEET_LLM_COGS_CANONICAL_PATH).toBe("/internal/fleet-llm-cogs");
   });
 

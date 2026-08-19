@@ -9,6 +9,8 @@ export const EVIDENCE_GRAPH_HELP_TOPIC_LABEL = "How the evidence graph works";
 
 export const EVIDENCE_GRAPH_CLAIM_DISCIPLINE_HEADING = "What the evidence graph is not";
 
+export const EVIDENCE_GRAPH_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const EVIDENCE_GRAPH_CLAIM_DISCIPLINE =
   "The evidence graph visualizes how evidence connects to findings, decisions, approvals, and audit records for a finalized review — it is not a sealed-review diligence Sources package.";
 

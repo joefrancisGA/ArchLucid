@@ -9,8 +9,8 @@ import {
   WHY_ARCHLUCID_INTERNAL_PILOT_BADGE_LABEL,
   WHY_ARCHLUCID_MARKETING_WHY_HREF,
   WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL,
-  WHY_ARCHLUCID_PAGE_ORIENTATION,
   WHY_ARCHLUCID_PAGE_TITLE,
+  whyArchLucidPageOrientation,
 } from "@/lib/why-archlucid-page-copy";
 import { cn } from "@/lib/utils";
 import {
@@ -23,12 +23,14 @@ import { WhyArchLucidBreadcrumb } from "@/app/(operator)/why-archlucid/_sections
 export type WhyArchLucidPageHeaderProps = {
   readonly universe: WhyArchLucidDemoUniverse;
   readonly failClosed: boolean;
+  readonly buyerPolishedShell: boolean;
 };
 
 export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps): React.JSX.Element {
-  const { universe, failClosed } = props;
+  const { universe, failClosed, buyerPolishedShell } = props;
   const bannerTitle = whyArchLucidUniverseBannerTitle(universe);
   const lead = whyArchLucidUniverseWalkthroughLead(universe);
+  const orientation = whyArchLucidPageOrientation(buyerPolishedShell);
 
   return (
     <OperatorPageHeader
@@ -39,14 +41,19 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps): Reac
       breadcrumb={<WhyArchLucidBreadcrumb />}
       subtitle={
         <>
-          <span data-testid="why-archlucid-page-orientation">{WHY_ARCHLUCID_PAGE_ORIENTATION}</span>{" "}
-          <span data-testid="why-archlucid-marketing-disambiguation">
-            For competitive narrative, see{" "}
-            <Link className={OPERATOR_LINK.nav} href={WHY_ARCHLUCID_MARKETING_WHY_HREF}>
-              {WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL}
-            </Link>
-            .
-          </span>
+          <span data-testid="why-archlucid-page-orientation">{orientation}</span>
+          {buyerPolishedShell ? null : (
+            <>
+              {" "}
+              <span data-testid="why-archlucid-marketing-disambiguation">
+                For competitive narrative, see{" "}
+                <Link className={OPERATOR_LINK.nav} href={WHY_ARCHLUCID_MARKETING_WHY_HREF}>
+                  {WHY_ARCHLUCID_MARKETING_WHY_LINK_LABEL}
+                </Link>
+                .
+              </span>
+            </>
+          )}
         </>
       }
       statusBadge={

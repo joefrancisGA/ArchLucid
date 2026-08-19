@@ -26,6 +26,7 @@ export type EvolutionReviewPageViewModel = {
   readonly detailFailure: ApiLoadFailureState | null;
   readonly simulateFailure: ApiLoadFailureState | null;
   readonly loadList: () => Promise<void>;
+  readonly loadDetail: () => Promise<void>;
   readonly onSimulate: () => Promise<void>;
   readonly planSnapshot: EvolutionPlanSnapshot | null;
   readonly lastRefreshedAt: Date | null;

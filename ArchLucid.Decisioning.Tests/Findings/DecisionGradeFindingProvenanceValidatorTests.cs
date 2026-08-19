@@ -363,4 +363,60 @@ public sealed class DecisionGradeFindingProvenanceValidatorTests
 
         DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
     }
+
+    [Fact]
+    public void GetViolations_allows_aws_cost_recommendation_with_rules_and_payload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "aws-cost-1",
+                    FindingType = "AwsCostRecommendation",
+                    EngineType = "aws-cost-recommendation",
+                    Category = "CostOptimization",
+                    Payload = new AdvisorCostRecommendationFindingPayload
+                    {
+                        RecommendationId = "aws-rec-1",
+                        Title = "Idle EBS volume",
+                        Category = "Cost",
+                        EntryIndex = 0,
+                    },
+                    Trace = new ExplainabilityTrace { RulesApplied = ["extractor-aws-cost-json"] },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetViolations_allows_gcp_cost_recommendation_with_rules_and_payload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "gcp-cost-1",
+                    FindingType = "GcpCostRecommendation",
+                    EngineType = "gcp-cost-recommendation",
+                    Category = "CostOptimization",
+                    Payload = new AdvisorCostRecommendationFindingPayload
+                    {
+                        RecommendationId = "gcp-rec-1",
+                        Title = "CHANGE_MACHINE_TYPE",
+                        Category = "Cost",
+                        EntryIndex = 0,
+                    },
+                    Trace = new ExplainabilityTrace { RulesApplied = ["extractor-gcp-cost-json"] },
+                },
+            ],
+        };
+
+        DecisionGradeFindingProvenanceValidator.GetViolations(snapshot).Should().BeEmpty();
+    }
 }

@@ -22,6 +22,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -77,6 +78,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IOptions<RerankFindingsOptions> rerankFindingsOptions,
     IOptions<ExplainGovernanceBlocksOptions> explainGovernanceBlocksOptions,
     IAzureDevOpsCommitStatusPublisher azureDevOpsCommitStatusPublisher,
+    IGraphMergeRuntimeInvariantReporter graphMergeRuntimeInvariantReporter,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     /// <summary>
@@ -137,6 +139,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
+    private readonly IGraphMergeRuntimeInvariantReporter _graphMergeRuntimeInvariantReporter =
+        graphMergeRuntimeInvariantReporter ?? throw new ArgumentNullException(nameof(graphMergeRuntimeInvariantReporter));
 
     private readonly ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -332,6 +337,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             throw;
         }
 
+        RunId typedRunId = new(runGuid);
+
+        if (!ArchitectureRunStatusTransitionTable.TryIssueReadyForCommitRun(run.Status, typedRunId, out ReadyForCommitRun readyForCommitRun))
+            throw new InvalidOperationException(
+                $"Run '{runId}' passed commit gates but could not issue a ReadyForCommitRun finalize handle.");
+
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
         ManifestDocument manifestModel;
@@ -368,6 +379,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
             agentResultsForTelemetry = await agentResultsTask;
             GraphSnapshot graphForDecision = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResultsForTelemetry);
+            await _graphMergeRuntimeInvariantReporter.ReportAfterMergeAsync(scope, graphForDecision, cancellationToken);
             FindingsSnapshot? findings = await findingsTask;
             scopePolicyPackAssignments = await scopeAssignmentsTask;
             findingsForFinalization = findings;
@@ -406,7 +418,13 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             if (traceabilityGaps.Count > 0)
                 throw new InvalidOperationException("Committed manifest traceability (authority) invariant failed: " + string.Join("; ", traceabilityGaps));
 
-            await _commitOutputIntegrityService.EnsurePassOrThrowAsync(run, runId, findings, cancellationToken);
+            await _commitOutputIntegrityService.EnsurePassOrThrowAsync(
+                run,
+                runId,
+                findings,
+                request,
+                commitOptions?.AcknowledgedAssumptionIds,
+                cancellationToken);
 
             string contractWireJson = JsonSerializer.Serialize(contract, ContractJson.Default);
             await EvaluatePreCommitGovernanceGateOrThrowAsync(
@@ -445,7 +463,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     Trace = trace,
                     PreloadedFindingsSnapshot = findingsForFinalization,
                     PreloadedScopePolicyPackAssignments = scopePolicyPackAssignments,
-                    SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts
+                    PreloadedArchitectureRequest = request,
+                    SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts,
+                    ReadyForCommitHandle = readyForCommitRun
                 }, cancellationToken);
 
             if (finalization.WasIdempotentReturn)

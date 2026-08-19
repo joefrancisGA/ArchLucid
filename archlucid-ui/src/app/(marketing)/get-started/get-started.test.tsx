@@ -42,11 +42,16 @@ describe("GetStartedPageClient", () => {
     expect(heroHeading.className).toContain("lg:text-5xl");
     expect(screen.getByTestId("get-started-hero")).toBeInTheDocument();
     expect(screen.getByTestId("see-it-deliverable-preview")).toBeInTheDocument();
+<<<<<<< HEAD
     expect(screen.getByRole("link", { name: GET_STARTED_SKIP_LINK_LABEL })).toHaveAttribute(
+=======
+    expect(screen.queryByTestId("get-started-hero-meta")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Skip to get started content/i })).toHaveAttribute(
+>>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
       "href",
       "#get-started-primary-content",
     );
-    expect(screen.getByTestId("get-started-hero-meta")).toHaveTextContent(GET_STARTED_LAST_REVIEWED_LABEL);
+    expect(screen.getByTestId("get-started-page-meta")).toHaveTextContent(GET_STARTED_LAST_REVIEWED_LABEL);
     expect(screen.getByTestId("get-started-scope-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("trust-center-revision-history")).toBeInTheDocument();
     expect(screen.getByTestId("get-started-primary-trial-cta")).toBeInTheDocument();

@@ -6,16 +6,19 @@ import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
-import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  IMPACT_PREVIEW_DETAIL_LOAD_RETRY_LABEL,
+  IMPACT_PREVIEW_LIST_LOAD_RETRY_LABEL,
   IMPACT_PREVIEW_ORIENTATION,
   IMPACT_PREVIEW_PAGE_TITLE,
   IMPACT_PREVIEW_PLANNING_HREF,
+  IMPACT_PREVIEW_SIMULATE_RETRY_LABEL,
   impactPreviewPageSubtitle,
 } from "@/lib/impact-preview-page-copy";
 import { setImpactPreviewShellPageState } from "@/lib/impact-preview-route-shell-state";
@@ -24,14 +27,18 @@ import { resolveImpactPreviewPageState } from "@/lib/resolve-impact-preview-page
 import { resolveImpactPreviewRecommendation } from "@/lib/resolve-impact-preview-recommendation";
 import { resolveImpactPreviewSummaryMetrics } from "@/lib/resolve-impact-preview-summary-metrics";
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
+import { ImpactPreviewBuyerChrome } from "./ImpactPreviewBuyerChrome";
 import { ImpactPreviewEmptyState } from "./ImpactPreviewEmptyState";
 import { ImpactPreviewEvidenceBasisSection } from "./ImpactPreviewEvidenceBasisSection";
 import { ImpactPreviewHowItWorksSection } from "./ImpactPreviewHowItWorksSection";
+import { ImpactPreviewLoadFailurePanel } from "./ImpactPreviewLoadFailurePanel";
 import { ImpactPreviewOutputPreviewPanel } from "./ImpactPreviewOutputPreviewPanel";
 import { ImpactPreviewPageHeader } from "./ImpactPreviewPageHeader";
 import { ImpactPreviewRecommendationSection } from "./ImpactPreviewRecommendationSection";
 import { ImpactPreviewResultActions } from "./ImpactPreviewResultActions";
+import { ImpactPreviewResultsSkeleton } from "./ImpactPreviewResultsSkeleton";
 import { ImpactPreviewSetupCard } from "./ImpactPreviewSetupCard";
+import { ImpactPreviewSetupSkeleton } from "./ImpactPreviewSetupSkeleton";
 import { ImpactPreviewSimulationResultsSection } from "./ImpactPreviewSimulationResultsSection";
 import { ImpactPreviewSummaryRow } from "./ImpactPreviewSummaryRow";
 import { useImpactPreviewBaselineAvailability } from "./use-impact-preview-baseline-availability";
@@ -110,6 +117,11 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
   const hasSimulationResults = selectedRun !== null;
   const summaryMetrics = resolveImpactPreviewSummaryMetrics(selectedRun, m.planSnapshot);
   const recommendation = resolveImpactPreviewRecommendation(selectedRun?.evaluationScore);
+  const showSetupSkeleton = pageReady && m.listLoading && m.candidates.length > 0;
+  const showResultsSkeleton =
+    pageReady &&
+    m.detailLoading &&
+    (hasSimulationResults || (m.detail?.simulationRuns.length ?? 0) > 0);
 
   return (
     <div className="max-w-5xl space-y-5" data-testid="impact-preview-page">
@@ -123,9 +135,11 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
         }}
       />
 
+      <ImpactPreviewBuyerChrome />
+
       {pageReady ? (
         <>
-          <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" />
+          {!buyerPolishedShell ? <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" /> : null}
           <PageCapabilityBoundaryStrip surfaceId="impactPreview" />
 
           <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -143,64 +157,79 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
       ) : null}
 
       {m.listFailure !== null ? (
-        <div role="alert">
-          <OperatorApiProblem
-            problem={m.listFailure.problem}
-            fallbackMessage={m.listFailure.message}
-            correlationId={m.listFailure.correlationId}
-          />
-        </div>
+        <ImpactPreviewLoadFailurePanel
+          failure={m.listFailure}
+          retryLabel={IMPACT_PREVIEW_LIST_LOAD_RETRY_LABEL}
+          testId="impact-preview-list-load-failure"
+          retryTestId="impact-preview-list-load-retry"
+          retryDisabled={m.listLoading}
+          onRetry={() => {
+            void m.loadList();
+          }}
+        />
       ) : null}
 
       {m.simulateFailure !== null ? (
-        <div role="alert">
-          <OperatorApiProblem
-            problem={m.simulateFailure.problem}
-            fallbackMessage={m.simulateFailure.message}
-            correlationId={m.simulateFailure.correlationId}
-          />
-        </div>
+        <ImpactPreviewLoadFailurePanel
+          failure={m.simulateFailure}
+          retryLabel={IMPACT_PREVIEW_SIMULATE_RETRY_LABEL}
+          testId="impact-preview-simulate-failure"
+          retryTestId="impact-preview-simulate-retry"
+          retryDisabled={m.simulateBusy}
+          onRetry={() => {
+            void m.onSimulate();
+          }}
+        />
       ) : null}
 
       <ImpactPreviewEmptyState pageState={pageState} planningReachable={planningReachable} />
 
       {shouldShowBlockedOutputPreview(pageState) ? <ImpactPreviewOutputPreviewPanel /> : null}
 
-      {!pageReady ? <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" /> : null}
+      {!pageReady && !buyerPolishedShell ? (
+        <ImpactPreviewCompareVocabularyRail currentSurfaceId="impact-preview" />
+      ) : null}
 
       {pageReady ? (
         <>
-          <ImpactPreviewSetupCard
-            candidates={m.candidates}
-            selectedCandidateId={m.selectedId}
-            onSelectCandidate={(candidateId) => {
-              m.setSelectedId(candidateId);
-            }}
-            baselineOptions={m.baselineOptions}
-            selectedBaselineId={m.selectedBaselineId}
-            onSelectBaseline={(baselineId) => {
-              m.setSelectedBaselineId(baselineId);
-            }}
-            comparisonScope={m.comparisonScope}
-            onToggleScope={m.toggleComparisonScope}
-            canSimulate={canSimulate}
-            simulateBusy={m.simulateBusy}
-            listLoading={m.listLoading}
-            onSimulate={() => {
-              void m.onSimulate();
-            }}
-          />
+          {showSetupSkeleton ? (
+            <ImpactPreviewSetupSkeleton />
+          ) : (
+            <ImpactPreviewSetupCard
+              candidates={m.candidates}
+              selectedCandidateId={m.selectedId}
+              onSelectCandidate={(candidateId) => {
+                m.setSelectedId(candidateId);
+              }}
+              baselineOptions={m.baselineOptions}
+              selectedBaselineId={m.selectedBaselineId}
+              onSelectBaseline={(baselineId) => {
+                m.setSelectedBaselineId(baselineId);
+              }}
+              comparisonScope={m.comparisonScope}
+              onToggleScope={m.toggleComparisonScope}
+              canSimulate={canSimulate}
+              simulateBusy={m.simulateBusy}
+              listLoading={m.listLoading}
+              onSimulate={() => {
+                void m.onSimulate();
+              }}
+            />
+          )}
 
           {!hasSimulationResults ? <ImpactPreviewOutputPreviewPanel /> : null}
 
           {m.detailFailure !== null ? (
-            <div role="alert">
-              <OperatorApiProblem
-                problem={m.detailFailure.problem}
-                fallbackMessage={m.detailFailure.message}
-                correlationId={m.detailFailure.correlationId}
-              />
-            </div>
+            <ImpactPreviewLoadFailurePanel
+              failure={m.detailFailure}
+              retryLabel={IMPACT_PREVIEW_DETAIL_LOAD_RETRY_LABEL}
+              testId="impact-preview-detail-load-failure"
+              retryTestId="impact-preview-detail-load-retry"
+              retryDisabled={m.detailLoading}
+              onRetry={() => {
+                void m.loadDetail();
+              }}
+            />
           ) : null}
 
           {m.detail !== null && m.detailLoading && m.detail.simulationRuns.length === 0 ? (
@@ -209,7 +238,9 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
             </OperatorLoadingNotice>
           ) : null}
 
-          {hasSimulationResults ? (
+          {showResultsSkeleton ? <ImpactPreviewResultsSkeleton /> : null}
+
+          {hasSimulationResults && !showResultsSkeleton ? (
             <>
               <ImpactPreviewSummaryRow metrics={summaryMetrics} />
               <ImpactPreviewSimulationResultsSection
@@ -229,6 +260,12 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
                 policyRulesLabel="Open governance workflow"
               />
               {m.selectedId !== null ? <ImpactPreviewResultActions selectedCandidateId={m.selectedId} /> : null}
+              {m.selectedBaselineId !== null ? (
+                <OperatorEvidenceLimitsFooter
+                  runId={m.selectedBaselineId}
+                  showArchitectureReviewSummaryLink={false}
+                />
+              ) : null}
             </>
           ) : null}
         </>

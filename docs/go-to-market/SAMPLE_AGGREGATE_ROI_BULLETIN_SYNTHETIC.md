@@ -14,15 +14,15 @@
 
 | Metric | Hours | Note |
 |--------|------:|------|
-| Mean | 22.4 | synthetic example — never published as a real bulletin |
-| p50 | 20 | synthetic example — never published as a real bulletin |
-| p90 | 46 | synthetic example — never published as a real bulletin |
+| Mean | 22.4 | illustrative sample |
+| p50 | 20 | illustrative sample |
+| p90 | 46 | illustrative sample |
 
 ## Interpretation guardrails
 
 - These figures are **illustrative** so buyers can see table shape before **N ≥ 5** paying tenants with captured baselines exist.
 - They are **not** ArchLucid runtime measurements and **not** SQL-sourced aggregates.
-- Per-run sponsor deltas (findings histogram, audit counts, LLM calls) come from the same demo-seed story as `PilotRunDeltaComputer` in first-value reports; this bulletin slice only models **aggregate baseline hours** shape.
+- Per-run sponsor deltas (findings histogram, audit counts, LLM calls) appear in first-value sponsor reports; this bulletin slice models **aggregate baseline hours** only.
 
 ## Related
 

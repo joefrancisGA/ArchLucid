@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { readApiFailureMessage } from "@/lib/api-error";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
@@ -34,6 +35,7 @@ import {
   PROJECTS_RECYCLE_BIN_AUDIT_TRAIL_ATTRIBUTION_NOTE,
   PROJECTS_RECYCLE_BIN_DELETED_BY_NOT_RECORDED,
   PROJECTS_RECYCLE_BIN_LOAD_ERROR_STATUS_LABEL,
+  PROJECTS_RECYCLE_BIN_LOAD_UNEXPECTED_ERROR,
   PROJECTS_RECYCLE_BIN_RESTORE_CONFLICT_STATUS_LABEL,
   PROJECTS_RECYCLE_BIN_RESTORE_ERROR_STATUS_LABEL,
   PROJECTS_RECYCLE_BIN_RESTORE_SUCCESS_STATUS_LABEL,
@@ -205,7 +207,7 @@ export function ProjectsRecycleBinPage() {
 
       if (!res.ok) {
         setRows([]);
-        setError(`Could not load recycle bin (${res.status}).`);
+        setError(await readApiFailureMessage(res));
 
         return;
       }
@@ -214,9 +216,9 @@ export function ProjectsRecycleBinPage() {
       const parsed = coerceRecycleBinPayload(json);
       setRetentionDays(parsed.retentionDays);
       setRows(parsed.workspaces);
-    } catch (e) {
+    } catch {
       setRows([]);
-      setError(e instanceof Error ? e.message : "Recycle bin load failed.");
+      setError(PROJECTS_RECYCLE_BIN_LOAD_UNEXPECTED_ERROR);
     } finally {
       setLoading(false);
     }
@@ -272,7 +274,7 @@ export function ProjectsRecycleBinPage() {
         return;
       }
 
-      setRestoreFeedback({ kind: "error", message: `Restore failed (${res.status}).` });
+      setRestoreFeedback({ kind: "error", message: await readApiFailureMessage(res) });
       setPendingRestore(null);
     } finally {
       setRestoreBusyRow(null);

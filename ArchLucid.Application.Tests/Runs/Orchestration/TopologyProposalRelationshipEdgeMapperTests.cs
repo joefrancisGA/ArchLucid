@@ -132,6 +132,94 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_resolves_endpoints_keyed_by_terraform_tf_id_property()
+    {
+        const string appResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-tf";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "obj-app",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "azurerm_linux_web_app.app",
+                SourceId = "decl-tf-show-json-1",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { ["tf.id"] = appResourceId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = appResourceId,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "obj-app" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void MapRelationships_resolves_endpoints_keyed_by_terraform_tf_resource_id_property()
+    {
+        const string appResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-tf-resource";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "obj-app",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "azurerm_linux_web_app.app",
+                SourceId = "decl-tf-show-json-1",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new Dictionary<string, string> { ["tf.resource_id"] = appResourceId }
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = appResourceId,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "obj-app" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_endpoints_keyed_by_synthetic_service_node_id()
     {
         List<GraphNode> nodes =

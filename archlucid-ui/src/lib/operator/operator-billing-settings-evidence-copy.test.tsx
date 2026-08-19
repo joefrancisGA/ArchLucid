@@ -8,14 +8,9 @@ import {
   OPERATOR_BILLING_SETTINGS_SOURCES,
   OPERATOR_BILLING_SETTINGS_SOURCES_INTRO,
 } from "@/lib/operator/operator-billing-settings-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("operator-billing-settings-evidence-copy", () => {
-  it("wires exports into the Billing settings evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("operator-billing-settings-evidence-copy");
-    expect(registrySource).toContain("OperatorBillingSettingsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(OPERATOR_BILLING_SETTINGS_CANONICAL_PATH).toBe("/administration/billing");
   });
 

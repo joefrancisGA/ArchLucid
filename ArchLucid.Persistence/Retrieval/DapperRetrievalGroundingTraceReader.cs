@@ -47,6 +47,8 @@ public sealed class DapperRetrievalGroundingTraceReader(ISqlConnectionFactory co
                                GraphRagNeighborsAdded,
                                GraphRagSeedHits,
                                GraphRagExpansionLatencyMs,
+                               IterativeRetrievalRounds,
+                               IterativeCritiqueDecisionsJson,
                                CreatedUtc
                            FROM dbo.RetrievalGroundingTrace
                            WHERE TenantId = @TenantId
@@ -111,6 +113,8 @@ public sealed class DapperRetrievalGroundingTraceReader(ISqlConnectionFactory co
             GraphRagNeighborsAdded = row.GraphRagNeighborsAdded,
             GraphRagSeedHits = row.GraphRagSeedHits,
             GraphRagExpansionLatencyMs = row.GraphRagExpansionLatencyMs,
+            IterativeRetrievalRounds = row.IterativeRetrievalRounds,
+            IterativeCritiqueDecisionsJson = row.IterativeCritiqueDecisionsJson,
             CreatedUtc = row.CreatedUtc,
         };
     }
@@ -154,6 +158,10 @@ public sealed class DapperRetrievalGroundingTraceReader(ISqlConnectionFactory co
         public int? GraphRagSeedHits { get; set; }
 
         public double? GraphRagExpansionLatencyMs { get; set; }
+
+        public int? IterativeRetrievalRounds { get; set; }
+
+        public string? IterativeCritiqueDecisionsJson { get; set; }
 
         public DateTime CreatedUtc { get; set; }
     }

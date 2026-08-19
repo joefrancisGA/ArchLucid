@@ -3,6 +3,7 @@ using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
@@ -16,4 +17,5 @@ public sealed record ArchitectureRunExecuteOrchestratorTailDependencies(
     IOperationCancellationRegistry OperationCancellationRegistry,
     OperationRunCancellationMarker RunCancellationMarker,
     IRunExecuteOwnershipLeaseService RunExecuteOwnershipLeaseService,
+    IRunStageOutcomesRepository RunStageOutcomesRepository,
     ILogger<ArchitectureRunExecuteOrchestrator> Logger);

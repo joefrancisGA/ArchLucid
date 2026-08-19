@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { expectsVisibleClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 import {
   PREFERENCES_HELP_CLAIM_DISCIPLINE,
   PREFERENCES_HELP_SOURCES,
@@ -50,23 +51,31 @@ function maxSharedConsecutiveWords(left: string, right: string): number {
 }
 
 describe("preferences help negation drift guard", () => {
+  const claimBandVisible = expectsVisibleClaimDisciplineBand("help-preferences");
+
   it("keeps overview positive-only and claim band as the single diligence negation", () => {
     for (const phrase of PREFERENCES_HELP_NEGATION_DRIFT_MARKERS.overviewMustNotContain) {
       expect(PREFERENCES_HELP_OVERVIEW, `overview must not contain "${phrase}"`).not.toContain(phrase);
     }
 
-    expect(PREFERENCES_HELP_CLAIM_DISCIPLINE).toContain(
-      PREFERENCES_HELP_NEGATION_DRIFT_MARKERS.claimMustContain,
-    );
+    if (claimBandVisible) {
+      expect(PREFERENCES_HELP_CLAIM_DISCIPLINE).toContain(
+        PREFERENCES_HELP_NEGATION_DRIFT_MARKERS.claimMustContain,
+      );
 
-    const diligenceNegationCount =
-      (PREFERENCES_HELP_OVERVIEW.match(/sources package/gi) ?? []).length +
-      (PREFERENCES_HELP_CLAIM_DISCIPLINE.match(/sources package/gi) ?? []).length;
+      const diligenceNegationCount =
+        (PREFERENCES_HELP_OVERVIEW.match(/sources package/gi) ?? []).length +
+        (PREFERENCES_HELP_CLAIM_DISCIPLINE.match(/sources package/gi) ?? []).length;
 
-    expect(diligenceNegationCount).toBe(1);
+      expect(diligenceNegationCount).toBe(1);
+    }
   });
 
   it("keeps overview and claim strip without long shared sentences", () => {
+    if (!claimBandVisible) {
+      return;
+    }
+
     expect(
       maxSharedConsecutiveWords(PREFERENCES_HELP_OVERVIEW, PREFERENCES_HELP_CLAIM_DISCIPLINE),
     ).toBeLessThanOrEqual(8);

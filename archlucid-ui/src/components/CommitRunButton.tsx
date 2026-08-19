@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { commitArchitectureRun, getRunSummary } from "@/lib/api";
+import { readAcknowledgedAssumptionIds } from "@/lib/review-quality/review-assumption-ack-store";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
@@ -75,7 +76,10 @@ export function CommitRunButton({
     recordFirstFinalizationAttemptedOnce();
 
     try {
-      await commitArchitectureRun(runId, { notifySponsor });
+      await commitArchitectureRun(runId, {
+        notifySponsor,
+        acknowledgedAssumptionIds: [...readAcknowledgedAssumptionIds(runId)],
+      });
       recordFirstTenantFunnelEvent("first_run_committed");
       setDialogOpen(false);
       

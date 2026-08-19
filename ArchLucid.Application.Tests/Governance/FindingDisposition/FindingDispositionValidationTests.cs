@@ -39,4 +39,31 @@ public sealed class FindingDispositionValidationTests
 
         act.Should().Throw<ArgumentException>().WithMessage("*Evidence*");
     }
+
+    [Fact]
+    public void Validate_accepted_requires_minimum_rationale_and_trade_off()
+    {
+        RecordFindingDispositionRequest shortRationale = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Accepted,
+            Rationale = "too short",
+            TradeOffAcknowledgment = "accepting latency trade-off for lower cost",
+        };
+
+        Action shortAct = () => FindingDispositionValidation.Validate(shortRationale);
+
+        shortAct.Should().Throw<ArgumentException>().WithMessage("*10 characters*");
+
+        RecordFindingDispositionRequest missingTradeOff = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Accepted,
+            Rationale = "We accept residual risk because rollback is documented.",
+        };
+
+        Action tradeOffAct = () => FindingDispositionValidation.Validate(missingTradeOff);
+
+        tradeOffAct.Should().Throw<ArgumentException>().WithMessage("*Trade-off*");
+    }
 }

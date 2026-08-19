@@ -5,6 +5,15 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("@/app/(operator)/help/_sections/HelpSponsorDashboardWorkspaceReadinessStrip", () => ({
   HelpSponsorDashboardWorkspaceReadinessStrip: () => (
     <div data-testid="help-sponsor-dashboard-workspace-readiness">

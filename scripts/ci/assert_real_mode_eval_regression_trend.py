@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Warn when nightly real-mode eval shows two consecutive regression nights (TB-683)."""
+"""Warn or fail when nightly real-mode eval shows consecutive regression nights (TB-683 / TB-2231)."""
 
 from __future__ import annotations
 
@@ -9,7 +9,6 @@ import re
 import sys
 from pathlib import Path
 from typing import Any, Mapping
-
 
 _DATE_DIR = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
@@ -92,21 +91,9 @@ def _find_prior_trend(previous_path: Path, history_root: Path) -> Path | None:
     return history_root / prior_date / "trend.json"
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="TB-683 consecutive-night regression trend warnings.")
-    parser.add_argument("--current", type=Path, required=True, help="Tonight's trend.json path.")
-    parser.add_argument(
-        "--history-root",
-        type=Path,
-        default=Path("artifacts/real-mode-eval-nightly"),
-        help="Root containing YYYY-MM-DD/trend.json history.",
-    )
-    args = parser.parse_args()
-
-    current_path = args.current.resolve()
-    history_root = args.history_root.resolve()
+def collect_drift_alerts(current_path: Path, history_root: Path) -> list[str]:
     current = _load_json(current_path)
-    warnings: list[str] = []
+    alerts: list[str] = []
 
     if _floor_breached(current):
         previous_path = _find_previous_trend(current_path, history_root)
@@ -115,7 +102,7 @@ def main() -> int:
             previous = _load_json(previous_path)
 
             if _floor_breached(previous):
-                warnings.append(
+                alerts.append(
                     "Two consecutive nightly real-mode eval runs breached enforced floors "
                     f"({previous_path.parent.name} and {current_path.parent.name})."
                 )
@@ -137,15 +124,49 @@ def main() -> int:
                 and previous_mean < prior_mean
                 and current_mean < previous_mean
             ):
-                warnings.append(
+                alerts.append(
                     "Mean evaluated real-mode aggregate score regressed for two consecutive nights "
-                    f"({prior_path.parent.name} {prior_mean:.4f} → "
-                    f"{previous_path.parent.name} {previous_mean:.4f} → "
+                    f"({prior_path.parent.name} {prior_mean:.4f} -> "
+                    f"{previous_path.parent.name} {previous_mean:.4f} -> "
                     f"{current_path.parent.name} {current_mean:.4f})."
                 )
 
-    for warning in warnings:
-        print(f"::warning::{warning}", file=sys.stderr)
+    return alerts
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="TB-683 consecutive-night regression trend warnings; TB-2231 --enforce drift alert.",
+    )
+    parser.add_argument("--current", type=Path, required=True, help="Tonight's trend.json path.")
+    parser.add_argument(
+        "--history-root",
+        type=Path,
+        default=Path("artifacts/real-mode-eval-nightly"),
+        help="Root containing YYYY-MM-DD/trend.json history.",
+    )
+    parser.add_argument(
+        "--enforce",
+        action="store_true",
+        help="Exit non-zero when consecutive drift is detected (TB-2231 canary alert).",
+    )
+    args = parser.parse_args()
+
+    current_path = args.current.resolve()
+    history_root = args.history_root.resolve()
+
+    if not current_path.is_file():
+        print(f"::error::Missing current trend artifact: {current_path}", file=sys.stderr)
+        return 1
+
+    alerts = collect_drift_alerts(current_path, history_root)
+    annotation = "::error::" if args.enforce else "::warning::"
+
+    for alert in alerts:
+        print(f"{annotation}{alert}", file=sys.stderr)
+
+    if args.enforce and alerts:
+        return 1
 
     return 0
 

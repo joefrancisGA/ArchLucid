@@ -195,8 +195,11 @@ test.describe("live-api-private-beta-access", () => {
       invite.invitationToken,
     );
 
+    expect(inviteeSession.redirectPath).toBe("/architecture/first-review-guide?source=invitation");
+
     await primeJwtBrowserSession(page, inviteeSession.accessToken);
-    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
 
     const me = await fetchAuthMeViaProxy(page, inviteeSession.accessToken);
     const scope = resolveScopeFromAuthMe(me, expectedScope);

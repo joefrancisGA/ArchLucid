@@ -19,6 +19,9 @@ public static class AllowedDocumentUrlPolicy
         if (!string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
             return "SourceDocumentUrl must use the https scheme.";
 
+        if (EmbeddedCredentialUrlGuard.HasEmbeddedCredentials(uri))
+            return "SourceDocumentUrl must not include embedded credentials.";
+
         return PrivateNetworkAddressGuard.IsForbiddenHostLiteral(uri.IdnHost)
             ? "SourceDocumentUrl must not target loopback, link-local, or private network addresses."
             : null;

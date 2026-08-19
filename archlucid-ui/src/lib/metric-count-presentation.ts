@@ -144,26 +144,6 @@ export function workspaceOpenFindingsPresentation(count: number): MetricCountPre
   };
 }
 
-export function governanceOpenRisksPresentation(
-  count: number,
-  runId?: string | null,
-): MetricCountPresentation {
-  const scopedRunId = runId?.trim() ?? "";
-
-  return {
-    count,
-    noun: count === 1 ? "open risk" : "open risks",
-    dimensions:
-      scopedRunId.length > 0
-        ? [{ kind: "this-review" }, { kind: "governance-filter", filter: "open" }]
-        : [{ kind: "workspace" }, { kind: "governance-filter", filter: "open" }],
-    href: buildGovernanceFindingsQueueHref({
-      runId: scopedRunId.length > 0 ? scopedRunId : null,
-      filter: "open",
-    }),
-  };
-}
-
 export function governanceRegisterMetricPresentation(input: {
   readonly count: number;
   readonly noun: string;

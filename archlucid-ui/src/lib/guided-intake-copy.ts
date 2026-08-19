@@ -1,4 +1,6 @@
 /** Guided intake step 0 — buyer-facing placeholders and helper copy. */
+
+import { ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
 export const GUIDED_INTAKE_STEP0_PROGRESS_LABEL = "Describe the system";
 
 export const GUIDED_INTAKE_STEP0_CARD_TITLE = "Describe the architecture intent";
@@ -100,6 +102,17 @@ export const GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_BUTTON = "Suggest from archit
 export const GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_DISABLED_HINT =
   "Enter an architecture overview to generate suggestions.";
 
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY =
+  "No new suggestions were returned. Add constraints and assumptions manually, or refine the architecture overview and try again.";
+
+export function guidedIntakeStructuredBriefSuggestDisabledHint(trimmedOverviewLength: number): string {
+  if (trimmedOverviewLength === 0) {
+    return "Enter an architecture overview before suggesting structured brief items.";
+  }
+
+  return `Architecture overview needs at least ${20} characters before suggestions can run.`;
+}
+
 export const GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING = "Suggested people and systems";
 
 export const GUIDED_INTAKE_ADD_SELECTED_ACTORS_BUTTON = "Add selected";
@@ -160,6 +173,4 @@ export function buildGuidedIntakeCreationAdvanceBlockerMessage(blockers: readonl
   if (blockers.length === 1) {
     return `Complete ${blockers[0]} to continue.`;
   }
-
-  return `Complete ${blockers.slice(0, -1).join(", ")} and ${blockers[blockers.length - 1]} to continue.`;
-}
+

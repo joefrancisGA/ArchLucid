@@ -125,6 +125,9 @@ public sealed class DemoViewerController(
             detail.Manifest,
             detail.DecisionTraces);
 
+        response.AuthorityPipelineComplete = detail.AuthorityPipelineComplete;
+        response.AgentTaskLoopComplete = detail.AgentTaskLoopComplete;
+
         response.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             detail.Run,
             _configuration["AgentExecution:Mode"]);

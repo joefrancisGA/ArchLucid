@@ -31,6 +31,18 @@ export const SUBPROCESSORS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Procurement", href: inAppHelpHref("procurement") },
 ] as const;
 
+const SUBPROCESSORS_HELP_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([
+  SUBPROCESSORS_HELP_PRIMARY_ACTIONS.openTrustCenter.href,
+  SUBPROCESSORS_HELP_PRIMARY_ACTIONS.openDpaTemplate.href,
+  SUBPROCESSORS_HELP_PRIMARY_ACTIONS.openSecurityTrust.href,
+]);
+
+/** Orientation-strip Sources — excludes Continue diligence action-panel destinations. */
+export const SUBPROCESSORS_HELP_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =
+  SUBPROCESSORS_HELP_SOURCES.filter(
+    (source) => !SUBPROCESSORS_HELP_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+  );
+
 export const SUBPROCESSORS_HELP_REGISTER_STATUS_LABEL = "Current register" as const;
 
 export function formatSubprocessorsHelpReviewedCopy(lastReviewed: string): string {

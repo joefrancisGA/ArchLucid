@@ -10,6 +10,21 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public static class GraphAzureInventoryReconciliationAnalyzer
 {
+    /// <summary>
+    ///     Topology property-bag keys that may hold the node's own Azure ARM resource id.
+    ///     Terraform show JSON stores <c>values.id</c> as <c>tf.id</c> (and sometimes <c>tf.resource_id</c>),
+    ///     not as <c>resourceId</c>.
+    /// </summary>
+    private static readonly string[] TopologyArmResourceIdPropertyKeys =
+    [
+        "resourceId",
+        "azureResourceId",
+        "armResourceId",
+        "id",
+        "tf.id",
+        "tf.resource_id"
+    ];
+
     public static InventoryReconciliationResult Analyze(string? resourcesJson, GraphSnapshot graphSnapshot)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
@@ -60,16 +75,44 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
     internal static string? TryReadTopologyResourceId(GraphNode node)
     {
-        foreach (string key in new[] { "resourceId", "azureResourceId", "armResourceId", "id" })
+        ArgumentNullException.ThrowIfNull(node);
+
+        if (node.Properties is not null)
         {
-            if (node.Properties.TryGetValue(key, out string? value) && LooksLikeArmResourceId(value))
-                return value.Trim();
+            foreach (string key in TopologyArmResourceIdPropertyKeys)
+            {
+                // SQL Ordinal bags keep persisted PropertyKey casing (ResourceId vs resourceId).
+                if (TryGetPropertyIgnoreCase(node.Properties, key, out string? value)
+                    && LooksLikeArmResourceId(value))
+                    return value!.Trim();
+            }
         }
 
         if (LooksLikeArmResourceId(node.SourceId))
             return node.SourceId!.Trim();
 
         return null;
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        IReadOnlyDictionary<string, string> properties,
+        string key,
+        out string? value)
+    {
+        if (properties.TryGetValue(key, out value))
+            return true;
+
+        foreach (KeyValuePair<string, string> pair in properties)
+        {
+            if (!string.Equals(pair.Key, key, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = pair.Value;
+            return true;
+        }
+
+        value = null;
+        return false;
     }
 
     private static HashSet<string> CollectInventoryResourceIds(string resourcesJson)

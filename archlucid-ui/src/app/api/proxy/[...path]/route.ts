@@ -9,6 +9,7 @@ import {
 import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
 import { readServerSideApiKey } from "@/lib/legacy-arch-env";
 import { isAnonymousMarketingProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
+import { buildProxyUpstreamPath } from "@/lib/proxy-upstream-path";
 import { declaredPostBodyExceedsLimit, readRequestBodyBytesWithLimit } from "@/lib/proxy-body-read";
 import {
   isProxyLargeUploadRequest,
@@ -263,7 +264,23 @@ async function forward(
   pathSegments: string[],
   method: ForwardMethod,
 ): Promise<NextResponse> {
-  const path = pathSegments.length > 0 ? pathSegments.join("/") : "";
+  const builtPath = buildProxyUpstreamPath(pathSegments);
+
+  if (!builtPath.ok) {
+    const correlationId = generateCorrelationId();
+    return respondWithProxyProblem(
+      400,
+      {
+        type: "about:blank",
+        title: "Invalid proxy path",
+        status: 400,
+        detail: "Proxy path segments must not contain traversal or empty components.",
+      },
+      correlationId,
+    );
+  }
+
+  const path = builtPath.path;
   const upstreamHeaders = buildUpstreamHeaders(request, path);
   const correlationId =
     upstreamHeaders.get(CORRELATION_ID_HEADER)?.trim() ?? generateCorrelationId();

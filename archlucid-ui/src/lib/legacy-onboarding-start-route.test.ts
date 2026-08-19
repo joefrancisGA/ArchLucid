@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -27,15 +27,15 @@ function collectRouteModuleSources(rootDir: string): string[] {
 
   const sources: string[] = [];
 
-  for (const entry of readdirSync(rootDir)) {
-    const entryPath = join(rootDir, entry);
+  for (const entry of readdirSync(rootDir, { withFileTypes: true })) {
+    const entryPath = join(rootDir, entry.name);
 
-    if (statSync(entryPath).isDirectory()) {
+    if (entry.isDirectory()) {
       sources.push(...collectRouteModuleSources(entryPath));
       continue;
     }
 
-    if (/\.(tsx|ts|jsx|js)$/.test(entry)) {
+    if (entry.isFile() && /\.(tsx|ts|jsx|js)$/.test(entry.name)) {
       sources.push(readFileSync(entryPath, "utf8"));
     }
   }

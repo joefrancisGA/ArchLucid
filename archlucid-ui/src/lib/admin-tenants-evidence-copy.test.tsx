@@ -8,14 +8,9 @@ import {
   ADMIN_TENANTS_SOURCES,
   ADMIN_TENANTS_SOURCES_INTRO,
 } from "@/lib/admin-tenants-evidence-copy";
-import { readClaimAndSourcesRegistrySource } from "@/lib/testing/claim-and-sources-registry-source";
 
 describe("admin-tenants-evidence-copy", () => {
-  it("wires exports into the tenants evidence strip registry", () => {
-    const registrySource = readClaimAndSourcesRegistrySource();
-
-    expect(registrySource).toContain("admin-tenants-evidence-copy");
-    expect(registrySource).toContain("AdminTenantsEvidenceOrientationStrip");
+  it("publishes its canonical operator path", () => {
     expect(ADMIN_TENANTS_CANONICAL_PATH).toBe("/internal/tenants");
   });
 

@@ -70,6 +70,19 @@ export const IMPROVEMENT_PLANNING_REFRESHING_LABEL = "Refreshing…" as const;
 
 export const IMPROVEMENT_PLANNING_LAST_UPDATED_PREFIX = "Last updated" as const;
 
+export const IMPROVEMENT_PLANNING_LOADING_STATUS = "Loading improvement planning…";
+
+export const IMPROVEMENT_PLANNING_LOAD_RETRY_LABEL = "Try again";
+
+export const IMPROVEMENT_PLANNING_THEME_FILTER_NO_MATCH_TITLE = "No plans match this theme";
+
+export const IMPROVEMENT_PLANNING_THEME_FILTER_NO_MATCH_BODY =
+  "Try another theme or show all plans to browse the full prioritized list.";
+
+export const IMPROVEMENT_PLANNING_SHOW_ALL_PLANS = "Show all plans" as const;
+
+export const IMPROVEMENT_PLANNING_THEME_ID_LABEL = "Theme id" as const;
+
 export const IMPROVEMENT_PLANNING_FAILURE_TRY_NEXT =
   "Confirm planning is enabled for this workspace, then refresh. Capture review feedback first if this workspace is new." as const;
 

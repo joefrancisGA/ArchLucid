@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.KnowledgeGraph.Inference;

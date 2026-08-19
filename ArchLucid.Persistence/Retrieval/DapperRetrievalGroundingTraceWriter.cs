@@ -38,6 +38,7 @@ public sealed class DapperRetrievalGroundingTraceWriter(ISqlConnectionFactory co
                                RetrievedChunkIdsJson, TokensIn, TokensOut, CitationCoverage,
                                QueryText, TopK, CorpusKind, ScoresJson, DocumentIdsJson, AgentExecutionTraceId,
                                GraphRagNeighborsAdded, GraphRagSeedHits, GraphRagExpansionLatencyMs,
+                               IterativeRetrievalRounds, IterativeCritiqueDecisionsJson,
                                CreatedUtc
                            )
                            VALUES
@@ -46,6 +47,7 @@ public sealed class DapperRetrievalGroundingTraceWriter(ISqlConnectionFactory co
                                @RetrievedChunkIdsJson, @TokensIn, @TokensOut, @CitationCoverage,
                                @QueryText, @TopK, @CorpusKind, @ScoresJson, @DocumentIdsJson, @AgentExecutionTraceId,
                                @GraphRagNeighborsAdded, @GraphRagSeedHits, @GraphRagExpansionLatencyMs,
+                               @IterativeRetrievalRounds, @IterativeCritiqueDecisionsJson,
                                @CreatedUtc
                            );
                            """;
@@ -75,6 +77,8 @@ public sealed class DapperRetrievalGroundingTraceWriter(ISqlConnectionFactory co
                     insert.GraphRagNeighborsAdded,
                     insert.GraphRagSeedHits,
                     insert.GraphRagExpansionLatencyMs,
+                    insert.IterativeRetrievalRounds,
+                    insert.IterativeCritiqueDecisionsJson,
                     insert.CreatedUtc,
                 },
                 cancellationToken: cancellationToken));

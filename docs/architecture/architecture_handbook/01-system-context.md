@@ -1,6 +1,13 @@
 # 1. System context
 
-ArchLucid turns architecture requests and evidence into versioned packages (golden manifests), decision traces, governance evidence, and exportable artifacts.
+ArchLucid turns architecture intent and evidence into **two co-equal jobs** (ADR 0067), not one funnel:
+
+| Job | Kernel | Durable output |
+|-----|--------|----------------|
+| **Create architecture** | Synthesis — drafts and optional generation | Mutable draft; a run with origin `Created` is not a sealed record |
+| **Review** | Evaluation — authority pipeline | Findings, decision trace, golden manifest, exports |
+
+Both jobs may persist through `dbo.Runs` after spawn. That shared table is a persistence spine, not proof that the jobs are sequential lifecycle steps. Formal maps: chapter 75. Standalone Word pack: `docs/architecture/ARCHITECTURE_AND_REVIEW_ENGINES.docx`.
 
 ## Actors
 
@@ -23,4 +30,4 @@ ArchLucid turns architecture requests and evidence into versioned packages (gold
 - UI proxies to `ArchLucid.Api` with scope and correlation headers.
 - API authenticates via Entra ID / JWT or API keys (environment-dependent).
 - Authoritative persistence is SQL Server (database-per-tenant catalogs).
-- Azure OpenAI, Service Bus, and Blob are optional for live models, integration fan-out, and large artifacts.
+- Completions use the model catalog (ADR 0065); embeddings remain Azure OpenAI. Service Bus and Blob are optional for integration fan-out and large artifacts.

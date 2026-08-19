@@ -13,9 +13,11 @@ export const operatorQueryKeys = {
   operatorStickinessSnapshot: ["operator", "tenant", "stickiness-snapshot"] as const,
   adminConfigLintSummary: ["operator", "admin", "config-lint-summary"] as const,
   adminIdentityProvidersPageBundle: ["operator", "admin", "identity-providers-page-bundle"] as const,
+  adminPrerequisitesCloudSummary: ["operator", "admin", "prerequisites-cloud-summary"] as const,
   adminOutboxDiagnostics: ["operator", "admin", "outbox-diagnostics"] as const,
   pilotScorecard: ["operator", "pilots", "scorecard"] as const,
   operatorAiQualitySnapshot: ["operator", "assistant", "ai-quality-snapshot"] as const,
+  firstPilotProofStatusSnapshot: ["operator", "first-pilot", "proof-status-snapshot"] as const,
   operatorTaskSuccessRates: ["operator", "diagnostics", "task-success-rates"] as const,
   healthReadySummary: ["operator", "health", "ready-summary"] as const,
   devTestingQuickJumpSnapshot: (runIdsKey: string) =>
@@ -68,12 +70,26 @@ export const operatorQueryKeys = {
   corePilotTeamChecklist: ["operator", "tenant", "core-pilot-team-checklist"] as const,
   pilotRecentDeltas: (scope: OperatorScopeQueryKey, count: number) =>
     ["operator", "pilots", "recent-deltas", scope, { count }] as const,
+  pilotRunDeltas: (scope: OperatorScopeQueryKey, runId: string) =>
+    ["operator", "pilots", "run-deltas", scope, runId] as const,
   runsByProjectPaged: (params: RunsByProjectPagedParams) => ["operator", "runs", "paged", params] as const,
   askProjectRuns: (projectId: string) => ["operator", "ask", "project-runs", projectId] as const,
   architectureDigestsBrowse: (scope: OperatorScopeQueryKey, take: number) =>
     ["operator", "digests", "architecture-list", scope, { take }] as const,
   digestSubscriptions: (scope: OperatorScopeQueryKey) =>
     ["operator", "digests", "subscriptions", scope] as const,
+  digestSubscriptionDeliveryAttempts: (
+    scope: OperatorScopeQueryKey,
+    subscriptionId: string,
+    refreshToken: number,
+  ) =>
+    ["operator", "digests", "subscription-attempts", scope, subscriptionId, refreshToken] as const,
+  helpTopicMarkdown: (slug: string) => ["operator", "help", "topic-markdown", slug] as const,
+  helpDocsIndex: ["operator", "help", "docs-index"] as const,
+  marketingPublicPricing: ["marketing", "pricing-json"] as const,
+  pilotOutcomeSummary: ["operator", "pilots", "outcome-summary"] as const,
+  recurrenceSchedulePreview: (cron: string) =>
+    ["operator", "governance", "recurrence-preview", cron] as const,
   advisoryRecommendations: (scope: OperatorScopeQueryKey, runId: string) =>
     ["operator", "advisory", "recommendations", scope, runId] as const,
   conversationThreads: (take: number) => ["operator", "conversations", "threads", { take }] as const,
