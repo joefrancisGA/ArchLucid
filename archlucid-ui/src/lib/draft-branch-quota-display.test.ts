@@ -16,5 +16,7 @@ describe("formatDraftBranchQuotaSummary", () => {
     expect(summary).toContain("1/3");
     expect(summary).toContain("2 remaining");
     expect(summary).toContain("$1.00");
+    expect(summary).toContain("estimated from AI budget");
+    expect(summary).not.toContain("GPU");
   });
 });
