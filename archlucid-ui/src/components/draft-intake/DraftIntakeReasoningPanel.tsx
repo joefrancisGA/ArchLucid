@@ -33,9 +33,9 @@ export type DraftIntakeReasoningPanelProps = {
   readonly embedded?: boolean;
 };
 
-function summarizeLatestTurn(turns: DraftIntakeReasonTurn[]): string {
+function summarizeLatestTurn(turns: DraftIntakeReasonTurn[], includeEmptySummary: boolean): string | null {
   if (turns.length === 0) {
-    return NO_SUGGESTIONS_COPY;
+    return includeEmptySummary ? NO_SUGGESTIONS_COPY : null;
   }
 
   const latest = turns[turns.length - 1];
@@ -63,7 +63,12 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
   } | null>(null);
 
   const panelDisabled = props.disabled === true || busy;
-  const summaryStatus = useMemo(() => summarizeLatestTurn(turns), [turns]);
+  const showEmptyInSummary = props.embedded !== true && !panelOpen;
+  const showEmptyInBody = turns.length === 0 && (props.embedded === true || panelOpen);
+  const summaryStatus = useMemo(
+    () => summarizeLatestTurn(turns, showEmptyInSummary),
+    [turns, showEmptyInSummary],
+  );
 
   async function submitMessage(): Promise<void> {
     const trimmed = message.trim();
@@ -120,9 +125,9 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
             </li>
           ))}
         </ol>
-      ) : (
+      ) : showEmptyInBody ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{NO_SUGGESTIONS_COPY}</p>
-      )}
+      ) : null}
 
       <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
         <summary
@@ -178,12 +183,14 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
       <div className="draft-intake-reasoning-embedded space-y-3" data-testid="draft-intake-reasoning-panel">
         <div>
           <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{ASSISTANT_NOTES_TITLE}</p>
-          <p
-            className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="draft-intake-reasoning-summary"
-          >
-            {summaryStatus}
-          </p>
+          {summaryStatus !== null ? (
+            <p
+              className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="draft-intake-reasoning-summary"
+            >
+              {summaryStatus}
+            </p>
+          ) : null}
         </div>
         {panelContent}
       </div>
@@ -202,12 +209,14 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
       <summary className="cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
         <div className="flex flex-col gap-0.5">
           <span className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{ASSISTANT_NOTES_TITLE}</span>
-          <span
-            className={cn("font-normal text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="draft-intake-reasoning-summary"
-          >
-            {summaryStatus}
-          </span>
+          {summaryStatus !== null ? (
+            <span
+              className={cn("font-normal text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="draft-intake-reasoning-summary"
+            >
+              {summaryStatus}
+            </span>
+          ) : null}
         </div>
       </summary>
 

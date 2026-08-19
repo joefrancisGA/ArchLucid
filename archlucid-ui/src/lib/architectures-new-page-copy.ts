@@ -5,7 +5,7 @@ import {
   ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
 } from "@/lib/create-vs-review-intake-copy";
 
-export const ARCHITECTURES_NEW_CLAIM_HEADING = "Create-bootstrap only";
+export const ARCHITECTURES_NEW_CLAIM_HEADING = "Drafting workspace only";
 
 export const ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER =
   "Start a new architecture draft on this device. Nothing is shared across browsers until you save and file evidence for a review.";

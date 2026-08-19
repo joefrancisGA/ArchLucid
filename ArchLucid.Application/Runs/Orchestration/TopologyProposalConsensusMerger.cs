@@ -1,8 +1,4 @@
 using ArchLucid.Contracts.Agents;
-<<<<<<< HEAD
-using ArchLucid.Contracts.Common;
-=======
->>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Runs.Orchestration;
@@ -62,7 +58,6 @@ public static class TopologyProposalConsensusMerger
             secondaryKeys.Add(ServiceKey(service));
 
         List<ManifestService> intersection = [];
-<<<<<<< HEAD
         HashSet<string> seenIntersectionKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ManifestService service in primary)
@@ -73,13 +68,6 @@ public static class TopologyProposalConsensusMerger
                 continue;
 
             intersection.Add(service);
-=======
-
-        foreach (ManifestService service in primary)
-        {
-            if (secondaryKeys.Contains(ServiceKey(service)))
-                intersection.Add(service);
->>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
         }
 
         return intersection;
@@ -95,7 +83,6 @@ public static class TopologyProposalConsensusMerger
             secondaryKeys.Add(DatastoreKey(datastore));
 
         List<ManifestDatastore> intersection = [];
-<<<<<<< HEAD
         HashSet<string> seenIntersectionKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ManifestDatastore datastore in primary)
@@ -106,13 +93,6 @@ public static class TopologyProposalConsensusMerger
                 continue;
 
             intersection.Add(datastore);
-=======
-
-        foreach (ManifestDatastore datastore in primary)
-        {
-            if (secondaryKeys.Contains(DatastoreKey(datastore)))
-                intersection.Add(datastore);
->>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
         }
 
         return intersection;
@@ -153,7 +133,6 @@ public static class TopologyProposalConsensusMerger
     }
 
     private static string ServiceKey(ManifestService service) =>
-<<<<<<< HEAD
         $"{ResolveServiceIdentity(service)}|{service.ServiceType}|{service.RuntimePlatform}";
 
     private static string DatastoreKey(ManifestDatastore datastore) =>
@@ -174,12 +153,6 @@ public static class TopologyProposalConsensusMerger
 
         return string.IsNullOrWhiteSpace(datastore.DatastoreName) ? string.Empty : datastore.DatastoreName.Trim();
     }
-=======
-        $"{service.ServiceName}|{service.ServiceType}|{service.RuntimePlatform}";
-
-    private static string DatastoreKey(ManifestDatastore datastore) =>
-        $"{datastore.DatastoreName}|{datastore.DatastoreType}";
->>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 
     private static string RelationshipKey(ManifestRelationship relationship) =>
         $"{relationship.SourceId}|{relationship.TargetId}|{relationship.RelationshipType}";

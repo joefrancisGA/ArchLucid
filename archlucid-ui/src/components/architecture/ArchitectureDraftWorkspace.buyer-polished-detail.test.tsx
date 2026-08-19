@@ -87,7 +87,10 @@ import {
   ARCHITECTURE_DRAFT_DETAIL_CLAIM_HEADING,
   ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
-import { ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE } from "@/lib/architectures-draft-evidence-copy";
+import {
+  ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE,
+  ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE,
+} from "@/lib/architectures-draft-evidence-copy";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 
 const loadedDraft = {
@@ -135,6 +138,8 @@ describe("ArchitectureDraftWorkspace buyer-polished detail shell", () => {
     expect(screen.getByText(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.getByText(ARCHITECTURE_DRAFT_DETAIL_CLAIM_HEADING)).toBeInTheDocument();
     expect(screen.getByText(ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Diligence artifact index" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();
   });
 });

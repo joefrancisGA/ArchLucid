@@ -33,16 +33,16 @@ public static partial class ArchitectureDraftReviewReadinessValidator
             blockers.Add("business outcome");
 
         if (!ListHasConfirmedEntry(document.StructuredBrief.ConfirmedConstraints))
-            blockers.Add("constraint");
+            blockers.Add("constraints");
 
         if (!ListHasConfirmedEntry(document.StructuredBrief.ConfirmedAssumptions))
-            blockers.Add("assumption");
+            blockers.Add("assumptions");
 
         if (!HasConfirmedActor(document.ActorSet))
             blockers.Add("confirmed actor");
 
         if (!QualityAttributeMeetsMinimum(document.StructuredBrief.QualityAttribute))
-            blockers.Add("quality attribute with a numeric target");
+            blockers.Add("quality attributes with at least one numeric target");
 
         return blockers;
     }

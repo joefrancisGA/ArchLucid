@@ -61,7 +61,7 @@ import {
   SocraticIntakeWizardAdvancedRail,
 } from "./SocraticIntakeWizardDeferredPanels";
 import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
-import { IntakeFieldLabel } from "./IntakeFieldLabel";
+import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { INTAKE_STEPS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
 import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 

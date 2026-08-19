@@ -22,7 +22,7 @@ describe("architectures-new-page-copy", () => {
     expect(architecturesNewWorkspaceLead(false, false)).toBe(ARCHITECTURE_DRAFT_WORKSPACE_LEAD);
   });
 
-  it("keeps claim heading bootstrap-first", () => {
-    expect(ARCHITECTURES_NEW_CLAIM_HEADING.toLowerCase()).toContain("bootstrap");
+  it("keeps claim heading drafting-first", () => {
+    expect(ARCHITECTURES_NEW_CLAIM_HEADING.toLowerCase()).toContain("draft");
   });
 });

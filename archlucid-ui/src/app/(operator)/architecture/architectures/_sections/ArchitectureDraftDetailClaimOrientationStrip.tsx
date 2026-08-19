@@ -15,6 +15,7 @@ export function ArchitectureDraftDetailClaimOrientationStrip(): React.JSX.Elemen
       claim={ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE}
       claimHeading={ARCHITECTURE_DRAFT_DETAIL_CLAIM_HEADING}
       sourcesIntro={ARCHITECTURES_DRAFT_SOURCES_INTRO}
+      sourcesTitle={ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE}
       sources={ARCHITECTURES_DRAFT_SOURCES}
     />
   );

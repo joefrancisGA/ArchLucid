@@ -1,10 +1,8 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import {
-  ARCHITECTURE_DRAFTS_LIST_LABEL,
   CREATE_ARCHITECTURE_LABEL,
 } from "@/lib/architecture/architecture-workflow-labels";
 import {
-  ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
   REVIEWS_NEW_PATH,
   parseArchitectureDraftIdFromPath,
@@ -15,13 +13,12 @@ export const ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE =
   "Editing a saved architecture draft does not start a review - this page is drafting-first workspace, not a sealed-review diligence Sources package. Open Start a review when the brief is ready for evidence intake.";
 
 export const ARCHITECTURES_DRAFT_SOURCES_INTRO =
-  "Use these follow-ups when a draft needs the architectures list, create-bootstrap, review intake, or first-run orientation.";
+  "Use these when the brief is ready for review intake, you want to start another draft, or you need first-run orientation.";
 
 export const ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE = "Where to go next";
 
-/** Operator Sources - no self-href to the open draft id. */
+/** Operator Sources — no self-href to the open draft or draft inventory (breadcrumb covers the list). */
 export const ARCHITECTURES_DRAFT_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: ARCHITECTURES_LIST_PATH },
   { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
   { label: "Start a review", href: REVIEWS_NEW_PATH },
   { label: "Your first architecture review", href: inAppHelpHref("first-architecture-review") },

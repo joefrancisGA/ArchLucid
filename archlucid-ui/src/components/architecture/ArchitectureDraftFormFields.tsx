@@ -5,8 +5,8 @@ import type { Dispatch, SetStateAction } from "react";
 import { cn } from "@/lib/utils";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
+import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import { ArchitectureDraftStructuredBriefFields } from "@/components/architecture/ArchitectureDraftStructuredBriefFields";
@@ -37,21 +37,6 @@ type ArchitectureDraftFormFieldsProps = {
   readonly onFieldsChange: Dispatch<SetStateAction<ArchitectureDraftFieldState>>;
   readonly onActorSetChange: (actorSet: ActorSet) => void;
 };
-
-function IntakeFieldLabel(props: {
-  readonly htmlFor: string;
-  readonly label: string;
-  readonly required: boolean;
-}): React.JSX.Element {
-  return (
-    <Label htmlFor={props.htmlFor} className="font-semibold text-neutral-900 dark:text-neutral-100">
-      {props.label}
-      <span className={cn("font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        {props.required ? " (required)" : " (optional)"}
-      </span>
-    </Label>
-  );
-}
 
 /** Fixed starting architecture questions for draft editing. */
 export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsProps): React.JSX.Element {
