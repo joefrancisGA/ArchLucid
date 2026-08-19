@@ -132,8 +132,7 @@ describe("HelpTopicComparisonReplay (CO)", () => {
 
     render(<HelpComparisonReplayGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
-    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-09");
 
     expect(screen.getByTestId("comparison-replay-help-orientation")).toBeInTheDocument();
     expect(screen.getByTestId("comparison-replay-help-claim-discipline")).toHaveTextContent(
@@ -171,6 +170,13 @@ describe("HelpTopicComparisonReplay (CO)", () => {
     expect(screen.getByTestId("help-comparison-replay-decision-diagram-summary")).toHaveTextContent(
       COMPARISON_REPLAY_HELP_DIAGRAM_TEXT_ALTERNATIVE,
     );
+
+    const primaryContent = screen.getByTestId("help-comparison-replay-primary-content");
+    const body = screen.getByTestId("help-comparison-replay-primary");
+    const orientation = screen.getByTestId("comparison-replay-help-orientation");
+
+    expect(primaryContent).toContainElement(orientation);
+    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const mermaid = screen.getByTestId("help-comparison-replay-decision-diagram-mermaid");
     expect(mermaid).toHaveAttribute("aria-label", COMPARISON_REPLAY_HELP_DIAGRAM_ACCESSIBLE_NAME);
