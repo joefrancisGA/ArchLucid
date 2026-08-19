@@ -5,7 +5,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const EVIDENCE_GRAPH_CANONICAL_PATH = EVIDENCE_GRAPH_PATH;
 
-export const EVIDENCE_GRAPH_HELP_TOPIC_LABEL = "How the evidence graph works";
+export const EVIDENCE_GRAPH_HELP_TOPIC_LABEL = "Evidence graph";
 
 export const EVIDENCE_GRAPH_CLAIM_DISCIPLINE_HEADING = "What the evidence graph is not";
 

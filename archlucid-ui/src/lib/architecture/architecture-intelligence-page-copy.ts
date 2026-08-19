@@ -8,7 +8,7 @@ export const ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE =
   "Run closed-loop architecture reasoning or the golden regression harness against a free-form description.";
 
 export const ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER =
-  "Run closed-loop architecture reasoning and publish gated findings into your review package.";
+  "Run closed-loop architecture reasoning and publish gated findings into your architecture package.";
 
 export function architectureIntelligencePageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell

@@ -106,6 +106,12 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<RetrievalTools>();
         services.AddScoped<PolicyPackMarkdownExplainService>();
 
+        services
+            .AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(30);
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
         services.AddScoped<IWebhookSubscriptionTestService, WebhookSubscriptionTestService>();
 
         services.AddHealthChecks().AddCheck<AzureServiceBusNamespaceHealthCheck>(
