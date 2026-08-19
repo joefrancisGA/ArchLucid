@@ -157,8 +157,14 @@ internal static class GraphTopologyInfrastructureCostNodes
     {
         foreach (string key in keys)
         {
-            if (topologyNode.Properties.TryGetValue(key, out string? value) && !string.IsNullOrWhiteSpace(value))
-                return value.Trim();
+            foreach (KeyValuePair<string, string> entry in topologyNode.Properties)
+            {
+                if (string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase)
+                    && !string.IsNullOrWhiteSpace(entry.Value))
+                {
+                    return entry.Value.Trim();
+                }
+            }
         }
 
         return null;
