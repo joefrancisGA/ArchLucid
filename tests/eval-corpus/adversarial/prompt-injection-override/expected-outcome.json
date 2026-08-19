@@ -1,4 +1,0 @@
-{
-  "blockedAt": "precheck",
-  "expectedFailureReasonCode": "PromptInjectionDetected"
-}

@@ -1,7 +1,0 @@
-flowchart TB
-  Soft["TrySoftDeleteAsync IsDeleted"] --> Ret["ArchitectureProjectRetentionPurgeOptions"]
-  Ret --> HS["ArchitectureProjectRetentionPurgeHostedService"]
-  HS --> Work["ArchitectureProjectRetentionPurgeBackgroundWork"]
-  Work --> Sql["SqlArchitectureProjectRetentionPurgeService"]
-  Work --> NoOp["NoOpArchitectureProjectRetentionPurgeService"]
-  Sql --> Audit["ArchitectureProjectHardPurgedRetention"]

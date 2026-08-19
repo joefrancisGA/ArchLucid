@@ -1,9 +1,0 @@
-flowchart TB
-  Tenant["Tenant"] --> WS["dbo.TenantWorkspaces"]
-  WS --> Proj["dbo.Projects"]
-  Scope["ScopeContext"] --> Tenant
-  Scope --> WS
-  Scope --> Proj
-  Proj --> Soft["TrySoftDeleteAsync IsDeleted"]
-  Soft --> Audit["ArchitectureProjectSoftDeleted"]
-  Soft --> Recycle["recycle restore IsDeleted 0"]

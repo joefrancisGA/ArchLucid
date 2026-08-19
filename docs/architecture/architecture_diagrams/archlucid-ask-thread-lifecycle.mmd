@@ -1,9 +1,0 @@
-flowchart LR
-  USER["Authenticated Ask"] --> THR["Thread id + message"]
-  THR --> SCOPE["Tenant scope filter"]
-  SCOPE --> RET["Retrieve chunks topK"]
-  RET --> BRK{"Circuit breaker"}
-  BRK -->|open| ERR["problem+json"]
-  BRK -->|closed| LLM["Completion"]
-  LLM --> CIT["Citations + answer"]
-  CIT --> AUD["Audit retrieved doc ids"]

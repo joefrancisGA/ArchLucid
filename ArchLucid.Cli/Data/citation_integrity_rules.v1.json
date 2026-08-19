@@ -1,8 +1,0 @@
-{
-  "schemaVersion": 1,
-  "keyClaimClasses": ["Cost", "Compliance", "Critic"],
-  "minimumFindingSeverity": "Warning",
-  "policyClaimKeywords": ["policy", "compliance", "regulation", "control", "adr", "evidence", "citation", "roi", "savings", "usd"],
-  "failThresholdDefault": 1,
-  "defaultSampleSize": 5
-}

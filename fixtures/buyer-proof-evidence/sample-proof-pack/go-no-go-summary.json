@@ -1,8 +1,0 @@
-{
-  "runId": "aaaaaaaa-1111-1111-1111-111111111111",
-  "roiBasisStatus": "buyer-provided",
-  "roiSponsorSafe": true,
-  "sponsorPacketDisposition": "SEND",
-  "verdict": "PASS",
-  "procurementDisposition": "PASS"
-}

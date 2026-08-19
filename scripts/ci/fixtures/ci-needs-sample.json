@@ -1,5 +1,0 @@
-{
-  "ui-e2e-live": { "result": "failure" },
-  "dotnet-full-regression-slow-api": { "result": "success" },
-  "openapi-contract-snapshot": { "result": "success" }
-}

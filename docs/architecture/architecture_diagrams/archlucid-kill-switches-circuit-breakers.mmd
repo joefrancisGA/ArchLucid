@@ -1,9 +1,0 @@
-flowchart TB
-  Gate["CircuitBreakerGate"] --> Keys["OpenAiCircuitBreakerKeys"]
-  Keys --> Comp["Completion"]
-  Keys --> Emb["Embedding"]
-  Keys --> Fall["CompletionFallback"]
-  Keys --> CS["ContentSafetyAzure"]
-  Mkt["Billing AzureMarketplace GaEnabled"] --> NoOp["AcknowledgedNoOp vs mutate"]
-  Cohort["golden-cohort budget.config"] --> Kill["killSwitchThresholdPercent"]
-  UI["readArchLucidFeatureFlags"] --> Nav["showSystemAdministrationNav"]

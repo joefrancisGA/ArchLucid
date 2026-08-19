@@ -58,11 +58,16 @@ public static class TopologyProposalConsensusMerger
             secondaryKeys.Add(ServiceKey(service));
 
         List<ManifestService> intersection = [];
+        HashSet<string> seenIntersectionKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ManifestService service in primary)
         {
-            if (secondaryKeys.Contains(ServiceKey(service)))
-                intersection.Add(service);
+            string key = ServiceKey(service);
+
+            if (!secondaryKeys.Contains(key) || !seenIntersectionKeys.Add(key))
+                continue;
+
+            intersection.Add(service);
         }
 
         return intersection;
@@ -78,11 +83,16 @@ public static class TopologyProposalConsensusMerger
             secondaryKeys.Add(DatastoreKey(datastore));
 
         List<ManifestDatastore> intersection = [];
+        HashSet<string> seenIntersectionKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ManifestDatastore datastore in primary)
         {
-            if (secondaryKeys.Contains(DatastoreKey(datastore)))
-                intersection.Add(datastore);
+            string key = DatastoreKey(datastore);
+
+            if (!secondaryKeys.Contains(key) || !seenIntersectionKeys.Add(key))
+                continue;
+
+            intersection.Add(datastore);
         }
 
         return intersection;
@@ -123,10 +133,26 @@ public static class TopologyProposalConsensusMerger
     }
 
     private static string ServiceKey(ManifestService service) =>
-        $"{service.ServiceName}|{service.ServiceType}|{service.RuntimePlatform}";
+        $"{ResolveServiceIdentity(service)}|{service.ServiceType}|{service.RuntimePlatform}";
 
     private static string DatastoreKey(ManifestDatastore datastore) =>
-        $"{datastore.DatastoreName}|{datastore.DatastoreType}";
+        $"{ResolveDatastoreIdentity(datastore)}|{datastore.DatastoreType}";
+
+    private static string ResolveServiceIdentity(ManifestService service)
+    {
+        if (!string.IsNullOrWhiteSpace(service.ServiceId))
+            return service.ServiceId.Trim();
+
+        return string.IsNullOrWhiteSpace(service.ServiceName) ? string.Empty : service.ServiceName.Trim();
+    }
+
+    private static string ResolveDatastoreIdentity(ManifestDatastore datastore)
+    {
+        if (!string.IsNullOrWhiteSpace(datastore.DatastoreId))
+            return datastore.DatastoreId.Trim();
+
+        return string.IsNullOrWhiteSpace(datastore.DatastoreName) ? string.Empty : datastore.DatastoreName.Trim();
+    }
 
     private static string RelationshipKey(ManifestRelationship relationship) =>
         $"{relationship.SourceId}|{relationship.TargetId}|{relationship.RelationshipType}";

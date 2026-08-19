@@ -1,6 +1,0 @@
-{
-  "mode": "WarnOnly",
-  "findingTitles": ["LockedChosenOverriddenByAssumed"],
-  "minimumCount": 1,
-  "maximumCount": 1
-}

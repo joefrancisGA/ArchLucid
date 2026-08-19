@@ -1,7 +1,0 @@
-flowchart LR
-  Cohort["tests/golden-cohort/cohort.json"] --> Doc["GoldenCohortDocument"]
-  Doc --> Contract["GoldenCohortContractTests"]
-  Doc --> Nightly["golden-cohort-nightly.yml"]
-  Eval["tests/eval-corpus"] --> Nightly
-  Nightly --> Gate["GoldenCohortFineTuningPromotionGate"]
-  Lock["ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED"] --> Cohort

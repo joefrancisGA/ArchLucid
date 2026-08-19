@@ -1,2 +1,0 @@
--- Reference-only migration: master consolidated DDL script was renamed ArchiForge.sql → ArchLucid.sql (Phase 7 rename).
--- No schema changes. DbUp records this script in the journal for continuity.

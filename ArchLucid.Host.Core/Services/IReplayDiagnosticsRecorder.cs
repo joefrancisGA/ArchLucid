@@ -1,8 +1,0 @@
-namespace ArchLucid.Host.Core.Services;
-
-public interface IReplayDiagnosticsRecorder
-{
-    void Record(ReplayDiagnosticsEntry entry);
-
-    IReadOnlyList<ReplayDiagnosticsEntry> GetRecent(int maxCount = 100);
-}

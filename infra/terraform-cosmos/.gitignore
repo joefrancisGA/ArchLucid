@@ -1,8 +1,0 @@
-﻿.terraform/
-*.tfstate
-*.tfstate.*
-*.tfvars
-!terraform.tfvars.example
-!staging.tfvars.example
-!production.tfvars.example
-.terraform.lock.hcl

@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RunSettings>
-  <!-- No DataCollectionRunSettings: used by Api.Tests integration shards where Coverlet finalization is unstable under chunked SQL load. -->
-</RunSettings>

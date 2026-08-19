@@ -1,9 +1,0 @@
-Sponsor summary
-System overview (architecture snapshot)
-Evidence reviewed
-Architecture decisions
-Key risks
-Policy findings
-AI-assisted analysis
-Traceability appendix
-Recommended next actions

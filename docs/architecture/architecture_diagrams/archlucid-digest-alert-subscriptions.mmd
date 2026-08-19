@@ -1,9 +1,0 @@
-flowchart LR
-  SCH["Digest / advisory schedule"] --> SCAN["Advisory scan job"]
-  SCAN --> DIG["Architecture digest payload"]
-  DIG --> PREF["Tenant channel preferences"]
-  PREF --> MAIL["Email"]
-  PREF --> TEAMS["Teams / ChatOps"]
-  PREF --> WH["Outbound webhook"]
-  DIG --> OUT[("IntegrationEventOutbox")]
-  OUT --> BUS["Service Bus / Logic Apps optional"]

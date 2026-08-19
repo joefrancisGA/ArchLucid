@@ -1,5 +1,0 @@
-flowchart LR
-  RUN["Committed review<br/>runId"] --> BUILD["Build export<br/>Markdown / DOCX / PDF"]
-  BUILD --> REC["Persist RunExportRecord<br/>metadata + artifact"]
-  REC --> REPLAY["Replay by exportRecordId<br/>re-export without re-analysis"]
-  REPLAY --> OUT["Download file<br/>or metadata-only"]
