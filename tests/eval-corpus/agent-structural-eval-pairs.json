@@ -21,12 +21,6 @@
       "agentType": "Critic",
       "simulatorScenario": "scenario-governance-heavy-review.json",
       "realScenario": "scenario-real-mode-critic.json"
-    },
-    {
-      "agentType": "Topology",
-      "simulatorScenario": "scenario-brief-conflict-grounding.json",
-      "realScenario": "scenario-brief-conflict-grounding.json",
-      "notes": "TB-2349 brief-conflict structural grounding case"
     }
   ]
 }

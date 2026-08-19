@@ -546,6 +546,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `GovernanceApprovalApproved` | `GovernanceApprovalApproved` | `GovernanceWorkflowService` |
 | `PilotScorecardBaselinesUpdated` | `PilotScorecardBaselinesUpdated` | `PilotInProductScorecardService` (`PUT /v1/pilots/scorecard/baselines`) |
 | `PilotCloseoutRecorded` | `PilotCloseoutRecorded` | `PilotsController` (`POST /v1/pilots/closeout`) |
+| `PatternInsightsListed` | `PatternInsightsListed` | `PatternInsightsController` (`GET /v1/analytics/patterns`) |
 | `SponsorProofPackGenerated` | `SponsorProofPackGenerated` | `PilotsController` (`GET /v1/pilots/runs/{runId}/sponsor-proof-pack.zip`) |
 | `SponsorEvidencePackSent` | `SponsorEvidencePackSent` | `PilotsController` (`POST /v1/pilots/runs/{runId}/sponsor-pack-sent`) |
 | `SponsorPreliminaryArchitectureShared` | `SponsorPreliminaryArchitectureShared` | `PilotsController` (`POST /v1/pilots/runs/{runId}/sponsor-preliminary-share`) |
@@ -612,6 +613,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ModelCatalogEvaluationRecorded` | `ModelCatalog.EvaluationRecorded` | `AgentModelCatalogEvaluationRecorder` (`POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/{taskType}/record`, `POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/import-faithfulness-harness`) |
 | `AgentOutputLlmFaithfulnessWarned` | `AgentOutput.LlmFaithfulnessWarned` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness warn floor) |
 | `AgentOutputLlmFaithfulnessRejected` | `AgentOutput.LlmFaithfulnessRejected` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness reject floor) |
+| `Agent.TopologyProposalConsensusEvaluated` | `Agent.TopologyProposalConsensusEvaluated` | `TopologyProposalDualModelConsensusEnricher` (dual-model topology consensus enrichment) |
 | `AdminApiKeyRotationMaterialIssued` | `Admin.ApiKeyRotationMaterialIssued` | `AdminApiKeySettingsController` (`POST …/admin/settings/api-keys/rotate`) |
 | `AdminDeploymentStatusViewed` | `Admin.DeploymentStatusViewed` | `AdminDeploymentStatusController` (`GET /v1/admin/deployment-status`) |
 | `AdminUserInvitationAccepted` | `Admin.UserInvitationAccepted` | `PostAuthBootstrapService`, `EmailOtpAuthService`, `PostAuthBootstrapController` |
@@ -671,6 +673,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TrialLocalIdentityLinkedToEntra` | `TrialLocalIdentityLinkedToEntra` | `TenantTrialController` (`POST …/tenant/link-entra`; when local link succeeds) |
 | `ComparisonRecordOrphansRemediated` | `ComparisonRecordOrphansRemediated` | `AdminDiagnosticsService` (orphan comparison-record remediation execute) |
 | `GoldenManifestOrphansRemediated` | `GoldenManifestOrphansRemediated` | `AdminDiagnosticsService` (orphan golden-manifest remediation execute) |
+| `GraphMergeInvariantViolation` | `GraphMerge.InvariantViolation` | `GraphMergeRuntimeInvariantReporter` (post-merge graph invariant violations; non-blocking) |
 | `FindingsSnapshotOrphansRemediated` | `FindingsSnapshotOrphansRemediated` | `AdminDiagnosticsService` (orphan findings-snapshot remediation execute) |
 | `AgentResultSchemaViolation` | `AgentResultSchemaViolation` | `AgentResultSchemaViolationAudit` (topology / compliance / critic handlers on `AgentResultSchemaViolationException`) |
 | `AgentTraceBlobPersistenceFailed` | `AgentTraceBlobPersistenceFailed` | `AgentExecutionTraceRecorder` |
