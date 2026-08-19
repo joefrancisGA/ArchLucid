@@ -58,4 +58,30 @@ public sealed class UniversalIntakeAnswerProjectorTests
 
         request.CloudProvider.Should().Be(CloudProvider.None);
     }
+
+    [Fact]
+    public void ApplyToRequest_skips_unknown_sentinel_for_cost_constraint_projection()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = new string('a', ArchitectureRequestFieldLimits.MinDescriptionLength),
+            SystemName = "Retail API",
+            Environment = "staging",
+            IntakeTransparencyTrail = new TransparencyTrail
+            {
+                Skipped =
+                [
+                    new SkippedQuestionTrailEntry
+                    {
+                        QuestionKey = "l0.pillar.cost",
+                        Tier = ElicitationQuestionTier.Must,
+                    },
+                ],
+            },
+        };
+
+        UniversalIntakeAnswerProjector.ApplyToRequest(request);
+
+        request.Constraints.Should().BeEmpty();
+    }
 }

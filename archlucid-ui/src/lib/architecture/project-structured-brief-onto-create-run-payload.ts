@@ -1,7 +1,10 @@
 import type { CreateArchitectureRunRequestPayload } from "@/lib/api/architecture-runs";
 
 import type { ArchitectureDraftStructuredBriefState } from "./architecture-draft-structured-brief";
-import { mergeUniqueStrings } from "./architecture-draft-structured-brief";
+import {
+  isConfirmedBriefEntry,
+  mergeUniqueStrings,
+} from "./architecture-draft-structured-brief";
 
 function appendUnique(target: string[], line: string): void {
   const trimmed = line.trim();
@@ -28,29 +31,35 @@ export function projectStructuredBriefOntoCreateRunPayload(
   const requiredCapabilities = [...basePayload.requiredCapabilities];
 
   for (const constraint of structuredBrief.confirmedConstraints) {
-    appendUnique(constraints, constraint);
+
+    if (isConfirmedBriefEntry(constraint))
+      appendUnique(constraints, constraint);
   }
 
   for (const assumption of structuredBrief.confirmedAssumptions) {
-    appendUnique(assumptions, assumption);
+
+    if (isConfirmedBriefEntry(assumption))
+      appendUnique(assumptions, assumption);
   }
 
   for (const capability of structuredBrief.confirmedRequiredCapabilities) {
-    appendUnique(requiredCapabilities, capability);
+
+    if (isConfirmedBriefEntry(capability))
+      appendUnique(requiredCapabilities, capability);
   }
 
-  if (structuredBrief.qualityAttribute.trim().length > 0) {
+  if (isConfirmedBriefEntry(structuredBrief.qualityAttribute)) {
     appendUnique(inlineRequirements, `Quality attribute: ${structuredBrief.qualityAttribute.trim()}`);
   }
 
-  if (structuredBrief.failureModeNote.trim().length > 0) {
+  if (isConfirmedBriefEntry(structuredBrief.failureModeNote)) {
     appendUnique(
       inlineRequirements,
       `Failure mode / continuity: ${structuredBrief.failureModeNote.trim()}`,
     );
   }
 
-  if (structuredBrief.operationalOwner.trim().length > 0) {
+  if (isConfirmedBriefEntry(structuredBrief.operationalOwner)) {
     appendUnique(inlineRequirements, `Operational owner: ${structuredBrief.operationalOwner.trim()}`);
   }
 

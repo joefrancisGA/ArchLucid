@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { CreateArchitectureRunRequestPayload } from "@/lib/api/architecture-runs";
 
 import { emptyArchitectureDraftStructuredBrief } from "./architecture-draft-structured-brief";
+import { ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL } from "./architecture-draft-structured-brief";
 import { projectStructuredBriefOntoCreateRunPayload } from "./project-structured-brief-onto-create-run-payload";
 
 function basePayload(): CreateArchitectureRunRequestPayload {
@@ -40,5 +41,23 @@ describe("projectStructuredBriefOntoCreateRunPayload", () => {
       "Failure mode / continuity: Queue backlog must not block intake",
       "Operational owner: Platform SRE",
     ]);
+  });
+
+  it("excludes unknown sentinel placeholders from projected payload (TB-2343)", () => {
+    const brief = emptyArchitectureDraftStructuredBrief();
+    const projected = projectStructuredBriefOntoCreateRunPayload(basePayload(), {
+      ...brief,
+      confirmedConstraints: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
+      confirmedAssumptions: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
+      confirmedRequiredCapabilities: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
+      qualityAttribute: ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
+      failureModeNote: ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
+      operationalOwner: ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
+    });
+
+    expect(projected.constraints).toEqual(["Existing constraint"]);
+    expect(projected.assumptions).toEqual([]);
+    expect(projected.requiredCapabilities).toEqual([]);
+    expect(projected.inlineRequirements).toEqual([]);
   });
 });

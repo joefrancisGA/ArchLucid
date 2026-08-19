@@ -52,10 +52,10 @@ public static class UniversalIntakeAnswerProjector
 
             string? effectiveAnswer = ResolveEffectiveAnswer(request.IntakeQuestionAnswers, trail, questionKey);
 
-            if (string.IsNullOrWhiteSpace(effectiveAnswer))
+            if (!ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(effectiveAnswer))
                 continue;
 
-            string line = BuildLabeledLine(questionKey, effectiveAnswer);
+            string line = BuildLabeledLine(questionKey, effectiveAnswer!);
 
             if (ConstraintLabels.ContainsKey(questionKey))
             {

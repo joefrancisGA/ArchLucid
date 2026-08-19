@@ -12,16 +12,16 @@
 
 | ID | Title | Quality | Pri | Window | Size |
 | --- | --- | --- | --- | --- | --- |
-| TB-2343 | Unknown sentinel must not unlock review or become Requirement nodes | Trustworthiness | P2 | V1 | S |
-| TB-2344 | Actor / trust-boundary axes into deterministic security engines | AI/Agent readiness | P2 | V1 | M |
-| TB-2345 | Quality attributes and failure modes as typed nodes; RTO/RPO in availability theme | AI/Agent readiness | P2 | V1 | M |
-| TB-2346 | Required capabilities gated and scored as topology coverage | AI/Agent readiness | P2 | V1 | M |
-| TB-2347 | Confirmed assumptions materialize onto the context graph | Traceability | P2 | V1 | M |
-| TB-2348 | Write projected-spend onto cost-constraint nodes so `CostBreachFindingEngine` can fire | Cost-effectiveness | P2 | V1 | M |
-| TB-2349 | Agent structural post-processor grounds proposals to the structured brief | AI/Agent readiness | P2 | V1 | M |
-| TB-2350 | Prior-package evidence keeps decisions, requirements, assumptions, actors | Trustworthiness | P2 | V1 | M |
-| TB-2351 | Manifest Mermaid includes actors, trust, requirements, decisions | Explainability | P3 | V1.1 | L |
-| TB-2352 | Closed-loop architecture intelligence strengthens the default committed package | AI/Agent readiness | P3 | V1.1 | L |
+| ~~TB-2343~~ | ~~Unknown sentinel must not unlock review or become Requirement nodes~~ **Done** 2026-08-18 | Trustworthiness | P2 | V1 | S |
+| ~~TB-2344~~ | ~~Actor / trust-boundary axes into deterministic security engines~~ **Done** 2026-08-18 | AI/Agent readiness | P2 | V1 | M |
+| ~~TB-2345~~ | ~~Quality attributes and failure modes as typed nodes; RTO/RPO in availability theme~~ **Done** 2026-08-18 | AI/Agent readiness | P2 | V1 | M |
+| ~~TB-2346~~ | ~~Required capabilities gated and scored as topology coverage~~ **Done** 2026-08-18 | AI/Agent readiness | P2 | V1 | M |
+| ~~TB-2347~~ | ~~Confirmed assumptions materialize onto the context graph~~ **Done** 2026-08-18 | Traceability | P2 | V1 | M |
+| ~~TB-2348~~ | ~~Write projected-spend onto cost-constraint nodes so `CostBreachFindingEngine` can fire~~ **Done** 2026-08-18 | Cost-effectiveness | P2 | V1 | M |
+| ~~TB-2349~~ | ~~Agent structural post-processor grounds proposals to the structured brief~~ **Done** 2026-08-18 | AI/Agent readiness | P2 | V1 | M |
+| ~~TB-2350~~ | ~~Prior-package evidence keeps decisions, requirements, assumptions, actors~~ **Done** 2026-08-18 | Trustworthiness | P2 | V1 | M |
+| ~~TB-2351~~ | ~~Manifest Mermaid includes actors, trust, requirements, decisions~~ **Done** 2026-08-18 | Explainability | P3 | V1.1 | L |
+| ~~TB-2352~~ | ~~Closed-loop architecture intelligence strengthens the default committed package~~ **Done** 2026-08-18 | AI/Agent readiness | P3 | V1.1 | L |
 
 ---
 
